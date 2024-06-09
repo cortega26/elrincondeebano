@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Ensure the path is correct
-const productsFile = path.resolve(__dirname, '../../_products/products.json');
+const productsFile = path.resolve(__dirname, '../../products/products.json');
 console.log('Products file path:', productsFile);
 
 exports.handler = async function(event, context) {
