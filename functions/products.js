@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const productsFile = path.join(__dirname, '../_products/products.json');
+const productsFile = path.join(__dirname, '../public/_products/products.json');
 console.log('Products file path:', productsFile);
 
 exports.handler = async function(event, context) {
