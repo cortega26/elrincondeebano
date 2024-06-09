@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const productsFile = path.resolve('../public/_products/products.json');
+const productsFile = path.join(__dirname, '../public/_products/products.json');
 
 exports.handler = async function(event, context) {
     try {
@@ -14,6 +14,7 @@ exports.handler = async function(event, context) {
             },
         };
     } catch (error) {
+        console.error('Error loading products:', error);
         return {
             statusCode: 500,
             body: JSON.stringify({ error: 'Failed to load products' }),
