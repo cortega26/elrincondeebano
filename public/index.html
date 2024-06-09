@@ -56,6 +56,10 @@
                 console.log('Fetching products from URL:', url);
                 const response = await fetch(url);
                 console.log('Response status:', response.status);
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.details || 'Failed to fetch products');
+                }
                 const products = await response.json();
                 console.log('Fetched products:', products);
                 return products;
@@ -100,30 +104,34 @@
             }
 
             async function initialize() {
-                let products = await fetchProducts();
+                try {
+                    let products = await fetchProducts();
 
-                // Initial render
-                renderProducts(products);
-
-                // Handle sorting
-                $('#sort-options').on('change', function() {
-                    const criterion = $(this).val();
-                    const sortedProducts = sortProducts(products, criterion);
-                    renderProducts(sortedProducts);
-                });
-
-                // Handle filtering
-                $('#filter-keyword').on('input', function() {
-                    const keyword = $(this).val();
-                    const filteredProducts = filterProducts(products, keyword);
-                    const sortedFilteredProducts = sortProducts(filteredProducts, $('#sort-options').val());
-                    renderProducts(sortedFilteredProducts);
-                });
-
-                // Handle in-stock checkbox
-                $('#show-in-stock').on('change', function() {
+                    // Initial render
                     renderProducts(products);
-                });
+
+                    // Handle sorting
+                    $('#sort-options').on('change', function() {
+                        const criterion = $(this).val();
+                        const sortedProducts = sortProducts(products, criterion);
+                        renderProducts(sortedProducts);
+                    });
+
+                    // Handle filtering
+                    $('#filter-keyword').on('input', function() {
+                        const keyword = $(this).val();
+                        const filteredProducts = filterProducts(products, keyword);
+                        const sortedFilteredProducts = sortProducts(filteredProducts, $('#sort-options').val());
+                        renderProducts(sortedFilteredProducts);
+                    });
+
+                    // Handle in-stock checkbox
+                    $('#show-in-stock').on('change', function() {
+                        renderProducts(products);
+                    });
+                } catch (error) {
+                    console.error('Error initializing products:', error);
+                }
             }
 
             initialize();
