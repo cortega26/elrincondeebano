@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hash Password</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
+</head>
+<body>
+    <input type="password" id="password" placeholder="Enter new password">
+    <button onclick="hashPassword()">Hash Password</button>
+    <p id="hashed-password"></p>
+
+    <script>
+        function hashPassword() {
+            var password = document.getElementById("password").value;
+            var hashedPassword = CryptoJS.MD5(password).toString();
+            document.getElementById("hashed-password").textContent = hashedPassword;
+        }
+    </script>
+</body>
+</html>
