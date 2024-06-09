@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const productsFile = path.resolve('./public/_products/products.json');
+const productsFile = path.resolve('../public/_products/products.json');
 
 exports.handler = async function(event, context) {
     try {
