@@ -52,7 +52,7 @@
             $("#footer-container").load("footer.html");
 
             async function fetchProducts() {
-                const response = await fetch('/public/_products'); // Adjust path if needed
+                const response = await fetch('/_products'); // Adjust path if needed
                 const products = await response.json();
                 return products;
             }
