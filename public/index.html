@@ -52,8 +52,12 @@
             $("#footer-container").load("footer.html");
 
             async function fetchProducts() {
-                const response = await fetch('/functions'); // Adjust path if needed
+                const url = '/.netlify/functions/products';
+                console.log('Fetching products from URL:', url);
+                const response = await fetch(url);
+                console.log('Response status:', response.status);
                 const products = await response.json();
+                console.log('Fetched products:', products);
                 return products;
             }
 
