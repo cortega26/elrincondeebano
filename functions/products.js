@@ -1,7 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const productsFile = path.join(__dirname, '../public/_products/products.json');
+// Adjust path to ensure it correctly points to the _products directory at the root level
+const productsFile = path.resolve(__dirname, '../../_products/products.json');
 console.log('Products file path:', productsFile);
 
 exports.handler = async function(event, context) {
