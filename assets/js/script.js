@@ -11,7 +11,7 @@ $(function() {
             const productCard = `
                 <div class="producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4 ${!product.stock ? 'agotado' : ''}">
                     <div class="card">
-                        <img src="${product.image}" alt="${product.name}" class="card-img-top">
+                        <img src="/Tienda-Ebano/${product.image}" alt="${product.name}" class="card-img-top">
                         <div class="card-body">
                             <h3 class="card-title">${product.name}</h3>
                             <p class="card-text">${product.description}</p>
