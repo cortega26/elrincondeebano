@@ -8,7 +8,7 @@ from typing import List, Optional
 IMAGE_BASE_DIR = "assets/images/uploads/"
 
 class Product:
-    def __init__(self, name: str, description: str, price: float, stock: bool, category: str, image_path: str = ""):
+    def __init__(self, name: str, description: str, price: int, stock: bool, category: str, image_path: str = ""):
         self.name = name
         self.description = description
         self.price = price
@@ -294,7 +294,7 @@ class ProductManagerGUI:
         name = window.name_entry.get().strip()
         description = window.description_entry.get().strip()
         try:
-            price = float(window.price_entry.get().strip())
+            price = int(window.price_entry.get().strip())
         except ValueError:
             raise ValueError("Precio debe ser un número.")
 
@@ -315,7 +315,9 @@ class ProductManagerGUI:
 
     def get_relative_image_path(self, file_path: str) -> str:
         # Convert absolute path to relative path based on IMAGE_BASE_DIR
-        return os.path.relpath(file_path, start=IMAGE_BASE_DIR)
+        if os.path.isabs(file_path):
+            return os.path.relpath(file_path, start=IMAGE_BASE_DIR).replace(os.path.sep, '/')
+        return file_path.replace(os.path.sep, '/')
 
     def set_status(self, message: str):
         self.status_var.set(message)
