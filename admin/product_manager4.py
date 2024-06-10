@@ -1,18 +1,16 @@
 import json
 import tkinter as tk
 import os
-from tkinter import ttk, messagebox, simpledialog, filedialog
+from tkinter import ttk, messagebox, simpledialog
 from typing import List, Optional
-from PIL import Image, ImageTk
 
 class Product:
-    def __init__(self, name: str, description: str, price: int, stock: bool, category: str, image_path: str = ""):
+    def __init__(self, name: str, description: str, price: int, stock: bool, category: str):
         self.name = name
         self.description = description
         self.price = price
         self.stock = stock
         self.category = category
-        self.image_path = image_path
 
 class ProductRepository:
     def __init__(self, file_path: str):
@@ -79,7 +77,7 @@ class ProductManagerGUI:
         self.save_button.pack(side=tk.RIGHT)
 
     def create_treeview(self) -> ttk.Treeview:
-        tree = ttk.Treeview(self.master, columns=("name", "description", "price", "stock", "category", "image_path"))
+        tree = ttk.Treeview(self.master, columns=("name", "description", "price", "stock", "category"))
         tree.heading("#0", text="ID")
         tree.column("#0", width=50, stretch=tk.NO)
         tree.heading("name", text="Nombre")
@@ -87,7 +85,6 @@ class ProductManagerGUI:
         tree.heading("price", text="Precio")
         tree.heading("stock", text="Stock")
         tree.heading("category", text="Categoría")
-        tree.heading("image_path", text="Imagen")
         return tree
 
     def load_products(self):
@@ -100,7 +97,7 @@ class ProductManagerGUI:
     def populate_tree(self):
         self.tree.delete(*self.tree.get_children())
         for index, product in enumerate(self.products, start=1):
-            self.tree.insert("", "end", text=str(index), values=(product.name, product.description, product.price, product.stock, product.category, product.image_path))
+            self.tree.insert("", "end", text=str(index), values=(product.name, product.description, product.price, product.stock, product.category))
 
     def save_products(self):
         self.show_spinner()
@@ -170,7 +167,7 @@ class ProductManagerGUI:
         filtered_products = [p for p in self.products if query in p.name.lower() or query in p.description.lower()]
         self.tree.delete(*self.tree.get_children())
         for index, product in enumerate(filtered_products, start=1):
-            self.tree.insert("", "end", text=str(index), values=(product.name, product.description, product.price, product.stock, product.category, product.image_path))
+            self.tree.insert("", "end", text=str(index), values=(product.name, product.description, product.price, product.stock, product.category))
         self.set_status(f"Se encontraron {len(filtered_products)} productos que coinciden con '{query}'.")
 
     def sort_products(self):
@@ -186,7 +183,7 @@ class ProductManagerGUI:
     def create_product_window(self, title: str, product: Optional[Product] = None) -> tk.Toplevel:
         window = tk.Toplevel(self.master)
         window.title(title)
-        window.geometry("400x400")
+        window.geometry("400x350")
 
         tk.Label(window, text="Nombre:").grid(row=0, column=0, sticky=tk.W, padx=10, pady=5)
         name_entry = tk.Entry(window, width=40)
@@ -210,25 +207,12 @@ class ProductManagerGUI:
         category_dropdown = ttk.Combobox(window, textvariable=category_var, values=self.get_categories(), width=37)
         category_dropdown.grid(row=4, column=1, padx=10, pady=5)
 
-        tk.Label(window, text="Imagen:").grid(row=5, column=0, sticky=tk.W, padx=10, pady=5)
-        image_path_entry = tk.Entry(window, width=40)
-        image_path_entry.grid(row=5, column=1, padx=10, pady=5)
-
-        def browse_image():
-            file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg")])
-            if file_path:
-                image_path_entry.delete(0, tk.END)
-                image_path_entry.insert(tk.END, file_path)
-
-        tk.Button(window, text="Explorar", command=browse_image).grid(row=5, column=2, padx=5, pady=5)
-
         if product:
             name_entry.insert(tk.END, product.name)
             description_entry.insert(tk.END, product.description)
             price_entry.insert(tk.END, str(product.price))
             stock_var.set(product.stock)
             category_var.set(product.category)
-            image_path_entry.insert(tk.END, product.image_path)
 
         window.name_entry = name_entry
         window.description_entry = description_entry
@@ -236,13 +220,12 @@ class ProductManagerGUI:
         window.stock_var = stock_var
         window.category_var = category_var
         window.category_dropdown = category_dropdown
-        window.image_path_entry = image_path_entry
 
         return window
 
     def create_window_buttons(self, window: tk.Toplevel, command):
         button_frame = tk.Frame(window)
-        button_frame.grid(row=6, column=0, columnspan=3, pady=10)
+        button_frame.grid(row=5, column=0, columnspan=2, pady=10)
 
         tk.Button(button_frame, text="Guardar", command=command).pack(side=tk.LEFT, padx=5)
         tk.Button(button_frame, text="Cancelar", command=window.destroy).pack(side=tk.LEFT, padx=5)
@@ -257,12 +240,11 @@ class ProductManagerGUI:
 
         stock = window.stock_var.get()
         category = window.category_var.get().strip()
-        image_path = window.image_path_entry.get().strip()
 
-        if not name or not description or not category or not image_path:
+        if not name or not description or not category:
             raise ValueError("Todos los campos deben ser llenados.")
 
-        return Product(name, description, price, stock, category, image_path)
+        return Product(name, description, price, stock, category)
 
     def set_status(self, message: str):
         self.status_var.set(message)
