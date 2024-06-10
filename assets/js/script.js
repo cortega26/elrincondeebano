@@ -2,7 +2,7 @@ $(function() {
     $("#navbar-container").load("navbar.html");
     $("#footer-container").load("footer.html");
 
-    $.getJSON("/../../_products/product_data.json", function(products) {
+    $.getJSON("/../_products/product_data.json", function(products) {
         const currentCategory = $('main').data('category');
         const filteredProducts = currentCategory ? products.filter(product => product.category === currentCategory) : products;
         const productContainer = $('#product-container');
