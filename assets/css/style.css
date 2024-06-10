@@ -36,18 +36,3 @@
     color: #333;
 }
 
-.producto.agotado img {
-    filter: grayscale(100%);
-}
-
-.producto.agotado::before {
-    content: "AGOTADO";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(255, 0, 0, 0.7);
-    color: #fff;
-    padding: 5px 10px;
-    font-weight: bold;
-}
