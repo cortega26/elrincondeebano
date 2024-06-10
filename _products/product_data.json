@@ -6,5 +6,13 @@
     "stock": true,
     "category": "Cervezas",
     "image_path": "assets/images/Austral Calafate Ale.jpg"
+  },
+  {
+    "name": "Queso Gauda",
+    "description": "La Vaquila laminado 400g",
+    "price": 3900,
+    "stock": false,
+    "category": "Refrigerados",
+    "image_path": "assets/images/Queso Gauda La Vaquita 400g.png"
   }
 ]
