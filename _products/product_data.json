@@ -2,25 +2,33 @@
   {
     "name": "Queso Gauda",
     "description": "La Vaquita laminado 400g",
-    "price": 3900.0,
+    "price": 3900,
     "stock": true,
     "category": "Abarrotes",
-    "image_path": "C:/Users/corte/OneDrive/Im\u00e1genes/Ventas \u00c9bano WhatsApp/Queso Gauda La Vaquita 400g.png"
+    "image_path": "../../../../Im\u00e1genes/Ventas \u00c9bano WhatsApp/Queso Gauda La Vaquita 400g.png"
   },
   {
     "name": "Mario Bros",
     "description": "Llavero PVC alta calidad",
-    "price": 4000.0,
+    "price": 4000,
     "stock": true,
     "category": "Regalos",
-    "image_path": "..\\..\\..\\..\\..\\..\\..\\Im\u00e1genes\\Ventas \u00c9bano WhatsApp\\Llaveros\\Mario.png"
+    "image_path": "../../../../../../../Im\u00e1genes/Ventas \u00c9bano WhatsApp/Llaveros/Mario.png"
   },
   {
     "name": "Austral Calafate",
     "description": "botella 330cc",
     "price": 6500,
-    "stock": false,
+    "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/uploads/Boti/Austral Calafate Ale.jpg"
+    "image_path": "Boti/Austral Calafate Ale.jpg"
+  },
+  {
+    "name": "Luigi",
+    "description": "Llavero PVC",
+    "price": 4000,
+    "stock": true,
+    "category": "Regalos",
+    "image_path": "../../../../Im\u00e1genes/Ventas \u00c9bano WhatsApp/Llaveros/Luigi.png"
   }
 ]
