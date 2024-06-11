@@ -54,5 +54,13 @@
     "stock": true,
     "category": "Despensa",
     "image_path": "assets/images/Crema de leche Surlat 200mL.png"
+  },
+  {
+    "name": "Aceite de Oliva Extra Virgen Nutricampo",
+    "description": "Envase de 1L",
+    "price": 8900,
+    "stock": true,
+    "category": "Despensa",
+    "image_path": "assets/images/Aceite de Oliva Nutricampo 1L.png"
   }
 ]
