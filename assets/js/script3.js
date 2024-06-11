@@ -25,7 +25,6 @@ $(function() {
                             <h3 class="card-title">${product.name}</h3>
                             <p class="card-text">${product.description}</p>
                             <span class="precio">$${formattedPrice}</span>
-                            <span class="stock">${product.stock ? 'En stock' : 'Agotado'}</span>
                         </div>
                     </div>
                 </div>
