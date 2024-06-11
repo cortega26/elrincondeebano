@@ -15,7 +15,7 @@ $(function() {
                         <div class="card-body">
                             <h3 class="card-title">${product.name}</h3>
                             <p class="card-text">${product.description}</p>
-                            <span class="precio">${product.price}</span>
+                            <span class="precio">$${product.price}</span>
                         </div>
                     </div>
                 </div>
