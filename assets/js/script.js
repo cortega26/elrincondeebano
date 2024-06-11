@@ -8,6 +8,7 @@ $(function() {
         const productContainer = $('#product-container');
 
         filteredProducts.forEach(product => {
+            const formattedPrice = product.price.toLocaleString('es-CL');
             const productCard = `
                 <div class="producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4 ${!product.stock ? 'agotado' : ''}">
                     <div class="card">
@@ -15,7 +16,7 @@ $(function() {
                         <div class="card-body">
                             <h3 class="card-title">${product.name}</h3>
                             <p class="card-text">${product.description}</p>
-                            <span class="precio">$${product.price}</span>
+                            <span class="precio">$${formattedPrice}</span>
                         </div>
                     </div>
                 </div>
