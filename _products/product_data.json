@@ -8,11 +8,51 @@
     "image_path": "assets/images/Austral Calafate Ale.jpg"
   },
   {
-    "name": "Queso Gauda",
-    "description": "La Vaquila laminado 400g",
+    "name": "Queso Gauda La Vaquita",
+    "description": "Laminado 400g",
     "price": 3900,
-    "stock": false,
+    "stock": true,
     "category": "Despensa",
     "image_path": "assets/images/Queso Gauda La Vaquita 400g.png"
+  },
+  {
+    "name": "Harina PAN",
+    "description": "Empaque de 1Kg",
+    "price": 2200,
+    "stock": true,
+    "category": "Despensa",
+    "image_path": "assets/images/Harina-de-Maiz-blanca-PAN-1-kg.png"
+  },
+  {
+    "name": "Harina La Nieve",
+    "description": "Empaque de 1Kg",
+    "price": 1800,
+    "stock": true,
+    "category": "Despensa",
+    "image_path": "assets/images/Harina de Ma\u00edz Nieve.png"
+  },
+  {
+    "name": "Caf\u00e9 El Pe\u00f1\u00f3n Gourmet",
+    "description": "Empaque de 500g",
+    "price": 6900,
+    "stock": true,
+    "category": "Despensa",
+    "image_path": "assets/images/Cafe-El-Pe\u00f1on-Gourmet-500g.png"
+  },
+  {
+    "name": "Nescaf\u00e9 Fina Selecci\u00f3n",
+    "description": "Caf\u00e9 instant\u00e1neo 200g",
+    "price": 8900,
+    "stock": true,
+    "category": "Despensa",
+    "image_path": "assets/images/Cafe-Nescafe-Fina-Seleccion-200-g.png"
+  },
+  {
+    "name": "Crema de Leche Surlat",
+    "description": "Empaque de 200mL",
+    "price": 1200,
+    "stock": true,
+    "category": "Despensa",
+    "image_path": "assets/images/Crema de leche Surlat 200mL.png"
   }
 ]
