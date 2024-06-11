@@ -1,11 +1,11 @@
 [
   {
-    "name": "Austral Calafate",
+    "name": "Cerveza Austral Calafate",
     "description": "4 x botella 330cc",
     "price": 6500,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Austral Calafate Ale.jpg"
+    "image_path": "assets/images/Austral Calafate Ale botella botella 330cc.png"
   },
   {
     "name": "Queso Gauda La Vaquita",
