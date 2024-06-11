@@ -25,7 +25,6 @@ $(function() {
                             <h3 class="card-title">${product.name}</h3>
                             <p class="card-text">${product.description}</p>
                             <span class="precio">$${formattedPrice}</span>
-                            <span class="stock">${product.stock ? 'En stock' : 'Agotado'}</span>
                         </div>
                     </div>
                 </div>
@@ -34,13 +33,19 @@ $(function() {
         });
     }
 
-    function sortProducts(products, criterion) {
-        return products.sort((a, b) => {
-            if (criterion === 'name-asc') return a.name.localeCompare(b.name);
-            if (criterion === 'name-desc') return b.name.localeCompare(a.name);
-            if (criterion === 'price-asc') return a.price - b.price;
-            if (criterion === 'price-desc') return b.price - a.price;
-        });
+    function sortProducts(products, criterion, originalProducts) {
+        if (criterion === 'original') {
+            // If the criterion is 'original', return the original order of products
+            return originalProducts.slice();
+        } else {
+            // Otherwise, sort the products based on the selected criterion
+            return products.sort((a, b) => {
+                if (criterion === 'name-asc') return a.name.localeCompare(b.name);
+                if (criterion === 'name-desc') return b.name.localeCompare(a.name);
+                if (criterion === 'price-asc') return a.price - b.price;
+                if (criterion === 'price-desc') return b.price - a.price;
+            });
+        }
     }
 
     function filterProducts(products, keyword) {
@@ -50,6 +55,7 @@ $(function() {
     async function initialize() {
         try {
             let products = await fetchProducts();
+            const originalProducts = [...products]; // Store the original order of products
             const currentCategory = $('main').data('category');
             products = currentCategory ? products.filter(product => product.category === currentCategory) : products;
 
@@ -59,7 +65,7 @@ $(function() {
             // Handle sorting
             $('#sort-options').on('change', function() {
                 const criterion = $(this).val();
-                const sortedProducts = sortProducts(products, criterion);
+                const sortedProducts = sortProducts(products, criterion, originalProducts);
                 renderProducts(sortedProducts);
             });
 
@@ -67,7 +73,7 @@ $(function() {
             $('#filter-keyword').on('input', function() {
                 const keyword = $(this).val();
                 const filteredProducts = filterProducts(products, keyword);
-                const sortedFilteredProducts = sortProducts(filteredProducts, $('#sort-options').val());
+                const sortedFilteredProducts = sortProducts(filteredProducts, $('#sort-options').val(), originalProducts);
                 renderProducts(sortedFilteredProducts);
             });
 
