@@ -25,6 +25,7 @@ $(function() {
                             <h3 class="card-title">${product.name}</h3>
                             <p class="card-text">${product.description}</p>
                             <span class="precio">$${formattedPrice}</span>
+                            <span class="stock">${product.stock ? 'En stock' : 'Agotado'}</span>
                         </div>
                     </div>
                 </div>
@@ -55,9 +56,9 @@ $(function() {
     async function initialize() {
         try {
             let products = await fetchProducts();
-            const originalProducts = [...products]; // Store the original order of products
             const currentCategory = $('main').data('category');
             products = currentCategory ? products.filter(product => product.category === currentCategory) : products;
+            const originalProducts = [...products]; // Store the original order of products after category filtering
 
             // Initial render
             renderProducts(products);
