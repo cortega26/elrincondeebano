@@ -33,7 +33,7 @@
   },
   {
     "name": "Cerveza Coors",
-    "description": "6 x lata 355cc",
+    "description": "6 x lata 350cc",
     "price": 5900,
     "stock": true,
     "category": "Cervezas",
@@ -70,6 +70,22 @@
     "stock": true,
     "category": "Cervezas",
     "image_path": "assets/images/Royal Guard lata 350cc.png"
+  },
+  {
+    "name": "Cerveza Stella Artois",
+    "description": "6 x lata 354cc",
+    "price": 4500,
+    "stock": true,
+    "category": "Cervezas",
+    "image_path": "assets/images/Stella Artois lata 350cc.png"
+  },
+  {
+    "name": "Cerveza Stones Lemon",
+    "description": "6 x lata 350cc",
+    "price": 5200,
+    "stock": true,
+    "category": "Cervezas",
+    "image_path": "assets/images/Stones Lim\u00f3n lata 350cc.jpeg"
   },
   {
     "name": "Crema de Leche Surlat",
@@ -120,19 +136,27 @@
     "image_path": "assets/images/Queso Gauda La Vaquita 400g.png"
   },
   {
-    "name": "Cerveza Stella Artois",
-    "description": "6 x lata 354cc",
-    "price": 4500,
+    "name": "Queso Gauda Prados del Sur",
+    "description": "Empaqute de 400g",
+    "price": 3800,
     "stock": true,
-    "category": "Cervezas",
-    "image_path": "assets/images/Stella Artois lata 350cc.png"
+    "category": "L\u00e1cteos",
+    "image_path": "assets/images/Queso Gouda Prados del Sur 400g.png"
   },
   {
-    "name": "Cerveza Stones Lemon",
-    "description": "6 x lata 350cc",
-    "price": 5200,
+    "name": "Queso Reggianitto Colun 1/4Kg",
+    "description": "Parmesano (a granel, en trozo)",
+    "price": 4000,
     "stock": true,
-    "category": "Cervezas",
-    "image_path": "assets/images/Stones Lim\u00f3n lata 350cc.jpeg"
+    "category": "L\u00e1cteos",
+    "image_path": "assets/images/Queso Colun Reggianito.png"
+  },
+  {
+    "name": "Queso Llanero Gu\u00e1rico 1/4Kg",
+    "description": "A granel, por trozo",
+    "price": 2400,
+    "stock": true,
+    "category": "L\u00e1cteos",
+    "image_path": "assets/images/Queso-Llanero2.png"
   }
 ]
