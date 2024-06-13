@@ -19,10 +19,11 @@ $(function() {
             const formattedPrice = product.price.toLocaleString('es-CL');
             const discountedPrice = product.price - product.discount;
             const formattedDiscountedPrice = discountedPrice.toLocaleString('es-CL');
+            const formattedDiscount = product.discount.toLocaleString('es-CL');
             const discountHTML = product.discount ? `
                 <div class="precio-container">
                     <span class="precio-descuento">$${formattedDiscountedPrice}</span>
-                    <span class="ahorra">Ahorra $${product.discount}</span>
+                    <span class="ahorra">Ahorra $${formattedDiscount}</span>
                 </div>
                 <span class="precio-original">Regular: $${formattedPrice}</span>
             ` : `<span class="precio">$${formattedPrice}</span>`;
