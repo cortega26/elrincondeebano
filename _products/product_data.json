@@ -14,6 +14,7 @@
     "price": 6900,
     "stock": true,
     "category": "Despensa",
+    "discount": 0,
     "image_path": "assets/images/Cafe-El-Pe\u00f1on-Gourmet-500g.png"
   },
   {
@@ -22,6 +23,7 @@
     "price": 6500,
     "stock": true,
     "category": "Cervezas",
+    "discount": 0,
     "image_path": "assets/images/Austral Calafate Ale botella botella 330cc.png"
   },
   {
