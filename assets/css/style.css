@@ -79,6 +79,6 @@
 .producto .precio-original {
     font-size: 12px;
     color: #999;
-    text-align: left;
     text-decoration: line-through;
+    text-align: left;
 }
