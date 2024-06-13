@@ -19,12 +19,13 @@ $(function() {
             const formattedPrice = product.price.toLocaleString('es-CL');
             const discountedPrice = product.price - product.discount;
             const formattedDiscountedPrice = discountedPrice.toLocaleString('es-CL');
+            const formattedDiscount = product.discount.toLocaleString('es-CL');
             const discountHTML = product.discount ? `
                 <div class="precio-container">
                     <span class="precio-descuento">$${formattedDiscountedPrice}</span>
-                    <span class="ahorra">Ahorra $${product.discount}</span>
+                    <span class="ahorra">Ahorra $${formattedDiscount}</span>
                 </div>
-                <span class="precio-original">$${formattedPrice}</span>
+                <div class="precio-regular">Regular: $${formattedPrice}</div>
             ` : `<span class="precio">$${formattedPrice}</span>`;
             const productHTML = `
                 <div class="producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4 ${!product.stock ? 'agotado' : ''}">
