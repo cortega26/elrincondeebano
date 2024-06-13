@@ -11,21 +11,12 @@ $(function() {
     function renderProducts(products) {
         const productContainer = $('#product-container');
         productContainer.empty();
-    
+
         const showInStock = $('#show-in-stock').prop('checked');
         const filteredProducts = showInStock ? products.filter(product => product.stock) : products;
-    
+
         filteredProducts.forEach(product => {
             const formattedPrice = product.price.toLocaleString('es-CL');
-            const discountedPrice = product.price - product.discount;
-            const formattedDiscountedPrice = discountedPrice.toLocaleString('es-CL');
-            const discountHTML = product.discount ? `
-                <div class="precio-container">
-                    <span class="precio-descuento">$${formattedDiscountedPrice}</span>
-                    <span class="ahorra">Ahorra $${product.discount}</span>
-                </div>
-                <span class="precio-original">$${formattedPrice}</span>
-            ` : `<span class="precio">$${formattedPrice}</span>`;
             const productHTML = `
                 <div class="producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4 ${!product.stock ? 'agotado' : ''}">
                     <div class="card">
@@ -33,7 +24,7 @@ $(function() {
                         <div class="card-body">
                             <h3 class="card-title">${product.name}</h3>
                             <p class="card-text">${product.description}</p>
-                            ${discountHTML}
+                            <span class="precio">$${formattedPrice}</span>
                         </div>
                     </div>
                 </div>

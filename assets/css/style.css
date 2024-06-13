@@ -51,3 +51,33 @@
     padding: 5px 10px;
     font-weight: bold;
 }
+
+
+
+.producto .precio-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.producto .precio-descuento {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.producto .ahorra {
+    font-size: 12px;
+    color: #0066cc;
+    background-color: #e6f2ff;
+    padding: 3px 6px;
+    border-radius: 4px;
+    margin-left: 10px;
+}
+
+.producto .precio-original {
+    font-size: 12px;
+    color: #999;
+    text-decoration: line-through;
+}
