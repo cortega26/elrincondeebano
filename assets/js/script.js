@@ -25,7 +25,7 @@ $(function() {
                     <span class="precio-descuento">$${formattedDiscountedPrice}</span>
                     <span class="ahorra">Ahorra $${formattedDiscount}</span>
                 </div>
-                <span class="precio-original">Regular: $${formattedPrice}</span>
+                <span class="precio-original" text-align="left">Regular: $${formattedPrice}</span>
             ` : `<span class="precio">$${formattedPrice}</span>`;
             const productHTML = `
                 <div class="producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4 ${!product.stock ? 'agotado' : ''}">
