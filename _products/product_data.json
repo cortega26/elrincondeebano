@@ -5,6 +5,7 @@
     "price": 8900,
     "stock": true,
     "category": "Despensa",
+    "discount": 1000,
     "image_path": "assets/images/Aceite de Oliva Nutricampo 1L.png"
   },
   {
@@ -124,7 +125,7 @@
     "description": "Presentaci\u00f3n de 190g",
     "price": 1700,
     "stock": true,
-    "category": "L\u00e1cteos",
+    "category": "Lacteos",
     "image_path": "assets/images/Queso Crema Rafulco 190g.jpg"
   },
   {
