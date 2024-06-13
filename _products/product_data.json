@@ -33,19 +33,19 @@
   },
   {
     "name": "Cerveza Coors",
-    "description": "6 x lata 350cc",
-    "price": 5900,
-    "stock": true,
-    "category": "Cervezas",
-    "image_path": "assets/images/Coors lata 350cc.jpg"
-  },
-  {
-    "name": "Cerveza Coors",
     "description": "6 x botella 355cc",
     "price": 6200,
     "stock": true,
     "category": "Cervezas",
     "image_path": "assets/images/Coors botella 355cc.png"
+  },
+  {
+    "name": "Cerveza Coors",
+    "description": "6 x lata 350cc",
+    "price": 5900,
+    "stock": true,
+    "category": "Cervezas",
+    "image_path": "assets/images/Coors lata 350cc.jpg"
   },
   {
     "name": "Cerveza Cristal",
@@ -92,7 +92,7 @@
     "description": "Empaque de 200mL",
     "price": 1200,
     "stock": true,
-    "category": "L\u00e1cteos",
+    "category": "Lacteos",
     "image_path": "assets/images/Crema de leche Surlat 200mL.png"
   },
   {
@@ -132,7 +132,7 @@
     "description": "Laminado 400g",
     "price": 3900,
     "stock": true,
-    "category": "L\u00e1cteos",
+    "category": "Lacteos",
     "image_path": "assets/images/Queso Gauda La Vaquita 400g.png"
   },
   {
@@ -140,23 +140,23 @@
     "description": "Empaque de 400g",
     "price": 3800,
     "stock": true,
-    "category": "L\u00e1cteos",
+    "category": "Lacteos",
     "image_path": "assets/images/Queso Gouda Prados del Sur 400g.png"
-  },
-  {
-    "name": "Queso Reggianitto Colun 1/4Kg",
-    "description": "Parmesano (a granel, en trozo)",
-    "price": 4000,
-    "stock": true,
-    "category": "L\u00e1cteos",
-    "image_path": "assets/images/Queso Colun Reggianito.png"
   },
   {
     "name": "Queso Llanero Gu\u00e1rico 1/4Kg",
     "description": "A granel, por trozo",
     "price": 2400,
     "stock": true,
-    "category": "L\u00e1cteos",
+    "category": "Lacteos",
     "image_path": "assets/images/Queso-Llanero2.png"
+  },
+  {
+    "name": "Queso Reggianitto Colun 1/4Kg",
+    "description": "Parmesano (a granel, en trozo)",
+    "price": 4000,
+    "stock": true,
+    "category": "Lacteos",
+    "image_path": "assets/images/Queso Colun Reggianito.png"
   }
 ]
