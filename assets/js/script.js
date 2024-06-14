@@ -11,6 +11,7 @@ $(function() {
     function renderProducts(products) {
         const productContainer = $('#product-container');
         productContainer.empty();
+        console.log('Rendering products:', products); // Log products to be rendered
     
         const showInStock = $('#show-in-stock').prop('checked');
         const filteredProducts = showInStock ? products.filter(product => product.stock) : products;
