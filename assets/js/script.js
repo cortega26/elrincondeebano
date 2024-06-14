@@ -86,9 +86,8 @@ $(function() {
             // Handle filtering
             $('#filter-keyword').on('input', function() {
                 const keyword = $(this).val();
-                // console.log(`Filtering products with keyword: ${keyword}`);
                 const filteredProducts = filterProducts(products, keyword);
-                const sortedFilteredProducts = sortProducts(filteredProducts, $('#sort-options').val(), originalProducts);
+                const sortedFilteredProducts = sortProducts(filteredProducts, $('#sort-options').val());
                 renderProducts(sortedFilteredProducts);
             });
             
