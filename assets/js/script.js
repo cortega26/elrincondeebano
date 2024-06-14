@@ -12,6 +12,7 @@ $(function() {
         const productContainer = $('#product-container');
         productContainer.empty();
     
+        const showInStock = $('#show-in-stock').prop('checked');
         const filteredProducts = showInStock ? products.filter(product => product.stock) : products;
     
         filteredProducts.forEach(product => {
@@ -86,6 +87,10 @@ $(function() {
                 renderProducts(sortedFilteredProducts);
             });
 
+            // Handle in-stock checkbox
+            $('#show-in-stock').on('change', function() {
+                renderProducts(products);
+            });
         } catch (error) {
             console.error('Error initializing products:', error);
         }
