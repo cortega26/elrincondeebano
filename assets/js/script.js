@@ -12,7 +12,6 @@ $(function() {
         const productContainer = $('#product-container');
         productContainer.empty();
     
-        const showInStock = $('#show-in-stock').prop('checked');
         const filteredProducts = showInStock ? products.filter(product => product.stock) : products;
     
         filteredProducts.forEach(product => {
@@ -59,8 +58,11 @@ $(function() {
     }
 
     function filterProducts(products, keyword) {
-        return products.filter(product => product.name.toLowerCase().includes(keyword.toLowerCase()));
+        const filtered = products.filter(product => product.name.toLowerCase().includes(keyword.toLowerCase()));
+        console.log(`Filtered products: ${JSON.stringify(filtered)}`);
+        return filtered;
     }
+    
 
     async function initialize() {
         try {
@@ -82,15 +84,13 @@ $(function() {
             // Handle filtering
             $('#filter-keyword').on('input', function() {
                 const keyword = $(this).val();
+                console.log(`Filtering products with keyword: ${keyword}`);
                 const filteredProducts = filterProducts(products, keyword);
                 const sortedFilteredProducts = sortProducts(filteredProducts, $('#sort-options').val(), originalProducts);
                 renderProducts(sortedFilteredProducts);
             });
+            
 
-            // Handle in-stock checkbox
-            $('#show-in-stock').on('change', function() {
-                renderProducts(products);
-            });
         } catch (error) {
             console.error('Error initializing products:', error);
         }
