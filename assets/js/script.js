@@ -79,7 +79,7 @@ $(function() {
             // Handle sorting
             $('#sort-options').on('change', function() {
                 const criterion = $(this).val();
-                const sortedProducts = sortProducts(products, criterion, originalProducts);
+                const sortedProducts = sortProducts(products, criterion);
                 renderProducts(sortedProducts);
             });
 
