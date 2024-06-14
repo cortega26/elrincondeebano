@@ -81,3 +81,7 @@
     color: #999;
     text-align: left;
 }
+
+.tachado {
+    text-decoration: line-through;
+}
