@@ -79,7 +79,7 @@ $(function() {
             // Handle sorting
             $('#sort-options').on('change', function() {
                 const criterion = $(this).val();
-                const sortedProducts = sortProducts(products, criterion);
+                const sortedProducts = sortProducts(products, criterion, originalProducts);
                 renderProducts(sortedProducts);
             });
 
@@ -87,8 +87,8 @@ $(function() {
             $('#filter-keyword').on('input', function() {
                 const keyword = $(this).val();
                 const filteredProducts = filterProducts(products, keyword);
-                const sortedFilteredProducts = sortProducts(filteredProducts, $('#sort-options').val());
-                renderProducts(sortedFilteredProducts);
+                // const sortedFilteredProducts = sortProducts(filteredProducts, $('#sort-options').val(), originalProducts);
+                renderProducts(filteredProducts);
             });
             
 
