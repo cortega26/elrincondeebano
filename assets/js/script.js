@@ -13,7 +13,7 @@ $(function() {
         productContainer.empty();
         console.log('Rendering products:', products); // Log products to be rendered
     
-        const showInStock = $('#show-in-stock').prop('checked');
+        const showInStock = True // $('#show-in-stock').prop('checked');
         const filteredProducts = showInStock ? products.filter(product => product.stock) : products;
     
         filteredProducts.forEach(product => {
@@ -86,7 +86,7 @@ $(function() {
             // Handle filtering
             $('#filter-keyword').on('input', function() {
                 const keyword = $(this).val();
-                console.log(`Filtering products with keyword: ${keyword}`);
+                // console.log(`Filtering products with keyword: ${keyword}`);
                 const filteredProducts = filterProducts(products, keyword);
                 const sortedFilteredProducts = sortProducts(filteredProducts, $('#sort-options').val(), originalProducts);
                 renderProducts(sortedFilteredProducts);
