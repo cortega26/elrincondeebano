@@ -198,12 +198,21 @@
     "image_path": "assets/images/Chuleta Ahumada sin hueso.png"
   },
   {
-    "name": "Jam\u00f3n Acaramelado de Pierna PF",
+    "name": "Jam\u00f3n de Pierna Acaramelado PF",
     "description": "Presentaci\u00f3n de 200g",
     "price": 2400,
     "discount": 0,
     "stock": true,
     "category": "Carnesyembutidos",
     "image_path": "assets/images/Jam\u00f3n PF acaramelado 200g.png"
+  },
+  {
+    "name": "Salame La Preferida",
+    "description": "Presentaci\u00f3n de 500g",
+    "price": 7500,
+    "discount": 600,
+    "stock": true,
+    "category": "Carnesyembutidos",
+    "image_path": "assets/images/Salame La Preferida 500g.png"
   }
 ]
