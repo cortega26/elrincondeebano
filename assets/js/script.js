@@ -13,7 +13,7 @@ $(function() {
         productContainer.empty();
         console.log('Rendering products:', products); // Log products to be rendered
     
-        const showInStock = true // $('#show-in-stock').prop('checked');
+        const showInStock = $('#show-in-stock').prop('checked');
         const filteredProducts = showInStock ? products.filter(product => product.stock) : products;
     
         filteredProducts.forEach(product => {
