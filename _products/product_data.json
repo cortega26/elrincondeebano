@@ -180,15 +180,6 @@
     "image_path": "assets/images/Queso Colun Reggianito.png"
   },
   {
-    "name": "Salame La Preferida",
-    "description": "Presentaci\u00f3n de 500g",
-    "price": 7500,
-    "discount": 600,
-    "stock": true,
-    "category": "Carnesyembutidos",
-    "image_path": "assets/images/Salame La Preferida 500g.png"
-  },
-  {
     "name": "Pepperoni La Preferida",
     "description": "Presentaci\u00f3n de 500g",
     "price": 7500,
