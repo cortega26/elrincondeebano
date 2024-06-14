@@ -3,180 +3,180 @@
     "name": "Aceite de Oliva Extra Virgen Nutricampo",
     "description": "Botella de 1L",
     "price": 8900,
+    "discount": 1000,
     "stock": true,
     "category": "Despensa",
-    "discount": 1000,
     "image_path": "assets/images/Aceite de Oliva Nutricampo 1L.png"
   },
   {
     "name": "Caf\u00e9 El Pe\u00f1\u00f3n Gourmet",
     "description": "Empaque de 500g",
     "price": 6900,
+    "discount": 0,
     "stock": true,
     "category": "Despensa",
-    "discount": 0,
     "image_path": "assets/images/Cafe-El-Pe\u00f1on-Gourmet-500g.png"
   },
   {
     "name": "Cerveza Austral Calafate",
     "description": "4 x botella 330cc",
     "price": 6500,
+    "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "discount": 0,
     "image_path": "assets/images/Austral Calafate Ale botella botella 330cc.png"
   },
   {
     "name": "Cerveza Becker",
     "description": "6 x lata 354cc",
     "price": 3400,
+    "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "discount": 0,
     "image_path": "assets/images/Becker lata 350cc.png"
   },
   {
     "name": "Cerveza Coors",
     "description": "6 x botella 355cc",
-    "price": 6200,
+    "price": 5900,
+    "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "discount": 0,
     "image_path": "assets/images/Coors botella 355cc.png"
   },
   {
     "name": "Cerveza Coors",
     "description": "6 x lata 350cc",
-    "price": 5900,
+    "price": 8900,
+    "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "discount": 0,
     "image_path": "assets/images/Coors lata 350cc.jpg"
   },
   {
     "name": "Cerveza Cristal",
     "description": "6 x lata de 350cc",
     "price": 3600,
+    "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "discount": 0,
     "image_path": "assets/images/Cristal lata b350cc.jpeg"
   },
   {
     "name": "Cerveza Heineken",
     "description": "6 x lata 350cc",
     "price": 4900,
+    "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "discount": 0,
     "image_path": "assets/images/Heineken lata 350cc.jpeg"
   },
   {
     "name": "Cerveza Royal Guard",
     "description": "6 x lata 350cc",
     "price": 4400,
+    "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "discount": 0,
     "image_path": "assets/images/Royal Guard lata 350cc.png"
   },
   {
     "name": "Cerveza Stella Artois",
     "description": "6 x lata 354cc",
     "price": 4500,
+    "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "discount": 0,
     "image_path": "assets/images/Stella Artois lata 350cc.png"
   },
   {
     "name": "Cerveza Stones Lemon",
     "description": "6 x lata 350cc",
     "price": 5200,
+    "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "discount": 0,
     "image_path": "assets/images/Stones Lim\u00f3n lata 350cc.jpeg"
   },
   {
     "name": "Crema de Leche Surlat",
     "description": "Empaque de 200mL",
     "price": 1200,
+    "discount": 0,
     "stock": true,
     "category": "Lacteos",
-    "discount": 0,
     "image_path": "assets/images/Crema de leche Surlat 200mL.png"
   },
   {
     "name": "Harina La Nieve",
     "description": "Empaque de 1Kg",
     "price": 1800,
+    "discount": 0,
     "stock": true,
     "category": "Despensa",
-    "discount": 0,
     "image_path": "assets/images/Harina de Ma\u00edz Nieve.png"
   },
   {
     "name": "Harina PAN",
     "description": "Empaque de 1Kg",
     "price": 2200,
+    "discount": 0,
     "stock": true,
     "category": "Despensa",
-    "discount": 0,
     "image_path": "assets/images/Harina-de-Maiz-blanca-PAN-1-kg.png"
   },
   {
     "name": "Nescaf\u00e9 Fina Selecci\u00f3n",
     "description": "Frasco de 200g",
     "price": 7900,
+    "discount": 0,
     "stock": true,
     "category": "Despensa",
-    "discount": 0,
     "image_path": "assets/images/Cafe-Nescafe-Fina-Seleccion-200-g.png"
   },
   {
     "name": "Queso Crema Rafulco",
     "description": "Presentaci\u00f3n de 190g",
     "price": 1700,
+    "discount": 0,
     "stock": true,
     "category": "Lacteos",
-    "discount": 0,
     "image_path": "assets/images/Queso Crema Rafulco 190g.jpg"
   },
   {
     "name": "Queso Gauda La Vaquita",
     "description": "Laminado 400g",
     "price": 3900,
+    "discount": 0,
     "stock": true,
     "category": "Lacteos",
-    "discount": 0,
     "image_path": "assets/images/Queso Gauda La Vaquita 400g.png"
   },
   {
     "name": "Queso Gauda Prados del Sur",
     "description": "Empaque de 400g",
-    "price": 3800,
+    "price": 3900,
+    "discount": 0,
     "stock": true,
     "category": "Lacteos",
-    "discount": 0,
     "image_path": "assets/images/Queso Gouda Prados del Sur 400g.png"
   },
   {
     "name": "Queso Llanero Gu\u00e1rico 1/4Kg",
     "description": "A granel, por trozo",
     "price": 2400,
+    "discount": 0,
     "stock": true,
     "category": "Lacteos",
-    "discount": 0,
     "image_path": "assets/images/Queso-Llanero2.png"
   },
   {
-    "name": "Queso Reggianitto Colun 1/4Kg",
+    "name": "Queso Reggianito Colun 1/4Kg",
     "description": "Parmesano (a granel, en trozo)",
     "price": 4000,
+    "discount": 0,
     "stock": true,
     "category": "Lacteos",
-    "discount": 0,
     "image_path": "assets/images/Queso Colun Reggianito.png"
   }
 ]
