@@ -2,7 +2,7 @@
   {
     "name": "Aceite de Oliva Extra Virgen Nutricampo",
     "description": "Botella de 1L",
-    "price": 8900,
+    "price": 9900,
     "discount": 1000,
     "stock": true,
     "category": "Despensa",
@@ -178,5 +178,14 @@
     "stock": true,
     "category": "Lacteos",
     "image_path": "assets/images/Queso Colun Reggianito.png"
+  },
+  {
+    "name": "Salam\u00e9 La Preferida",
+    "description": "Presentaci\u00f3n de 500g",
+    "price": 7500,
+    "discount": 600,
+    "stock": true,
+    "category": "Carnesyembutidos",
+    "image_path": "assets/images/Salame La Preferida 500g.png"
   }
 ]
