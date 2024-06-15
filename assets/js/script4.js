@@ -11,7 +11,7 @@ $(function() {
     function renderProducts(products) {
         const productContainer = $('#product-container');
         productContainer.empty();
-        console.log('Rendering products:', products);
+        console.log('Rendering products:', products); // Log products to be rendered
     
         const showInStock = $('#show-in-stock').prop('checked');
         const filteredProducts = showInStock ? products.filter(product => product.stock) : products;
@@ -44,20 +44,25 @@ $(function() {
         });
     }
 
-    function sortProducts(products, criterion) {
-        return products.sort((a, b) => {
-            if (criterion === 'name-asc') return a.name.localeCompare(b.name);
-            if (criterion === 'name-desc') return b.name.localeCompare(a.name);
-            if (criterion === 'price-asc') return a.price - b.price;
-            if (criterion === 'price-desc') return b.price - a.price;
-            return 0;
-        });
+    function sortProducts(products, criterion, originalProducts) {
+        if (criterion === 'original') {
+            // If the criterion is 'original', return the original order of products
+            return originalProducts.slice();
+        } else {
+            // Otherwise, sort the products based on the selected criterion
+            return products.sort((a, b) => {
+                if (criterion === 'name-asc') return a.name.localeCompare(b.name);
+                if (criterion === 'name-desc') return b.name.localeCompare(a.name);
+                if (criterion === 'price-asc') return a.price - b.price;
+                if (criterion === 'price-desc') return b.price - a.price;
+            });
+        }
     }
 
     function filterProducts(products, keyword) {
         const filtered = products.filter(product => product.name.toLowerCase().includes(keyword.toLowerCase()));
         console.log(`Filtered products: ${JSON.stringify(filtered)}`);
-        return sortProducts(filtered, $('#sort-options').val());
+        return filtered;
     }
     
 
@@ -66,6 +71,7 @@ $(function() {
             let products = await fetchProducts();
             const currentCategory = $('main').data('category');
             products = currentCategory ? products.filter(product => product.category === currentCategory) : products;
+            const originalProducts = [...products]; // Store the original order of products after category filtering
 
             // Initial render
             renderProducts(products);
@@ -73,7 +79,7 @@ $(function() {
             // Handle sorting
             $('#sort-options').on('change', function() {
                 const criterion = $(this).val();
-                const sortedProducts = sortProducts(products, criterion);
+                const sortedProducts = sortProducts(products, criterion, originalProducts);
                 renderProducts(sortedProducts);
             });
 
@@ -81,7 +87,8 @@ $(function() {
             $('#filter-keyword').on('input', function() {
                 const keyword = $(this).val();
                 const filteredProducts = filterProducts(products, keyword);
-                renderProducts(filteredProducts);
+                const sortedFilteredProducts = sortProducts(filteredProducts, $('#sort-options').val(), originalProducts);
+                renderProducts(sortedFilteredProducts);
             });
             
 
