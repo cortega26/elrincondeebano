@@ -69,3 +69,4 @@ Pipfile.lock
 *.temp
 *.old
 *.orig
+output.txt
