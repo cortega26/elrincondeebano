@@ -53,6 +53,7 @@
 }
 
 .collapse.navbar-collapse.justify-content-end {
+    margin-left: 20px;
     margin-right: 100px;
 }
 
