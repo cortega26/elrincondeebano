@@ -214,5 +214,59 @@
     "stock": true,
     "category": "Carnesyembutidos",
     "image_path": "assets/images/Salame La Preferida 500g.png"
+  },
+  {
+    "name": "Coca-Cola 2L",
+    "description": "Envase retornable",
+    "price": 2500,
+    "discount": 0,
+    "stock": true,
+    "category": "Bebidas",
+    "image_path": "assets/images/Coca-Cola-2L.png"
+  },
+  {
+    "name": "Coca-Cola Zero 2L",
+    "description": "Envase retornable",
+    "price": 2500,
+    "discount": 0,
+    "stock": true,
+    "category": "Bebidas",
+    "image_path": "assets/images/Coca-Cola-2L sin azucar.png"
+  },
+  {
+    "name": "Sprite 2L",
+    "description": "Envase retornable",
+    "price": 2500,
+    "discount": 0,
+    "stock": true,
+    "category": "Bebidas",
+    "image_path": "assets/images/Sprite 2L.png"
+  },
+  {
+    "name": "Sprite Zero 2L",
+    "description": "Envase retornable",
+    "price": 2500,
+    "discount": 0,
+    "stock": true,
+    "category": "Bebidas",
+    "image_path": "assets/images/Sprite 2L zero.png"
+  },
+  {
+    "name": "Fanta 2L",
+    "description": "Envase retornable",
+    "price": 2500,
+    "discount": 0,
+    "stock": true,
+    "category": "Bebidas",
+    "image_path": "assets/images/Fanta 2L.png"
+  },
+  {
+    "name": "Fanta Zero 2L",
+    "description": "Envase retornable",
+    "price": 2500,
+    "discount": 0,
+    "stock": true,
+    "category": "Bebidas",
+    "image_path": "assets/images/Fanta 2L zero.png"
   }
 ]
