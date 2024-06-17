@@ -54,10 +54,10 @@ $(function() {
         });
     }
 
-    function filterProducts(products, keyword, sortCriterion) {
+    function filterProducts(products, keyword) {
         const filtered = products.filter(product => product.name.toLowerCase().includes(keyword.toLowerCase()));
         console.log(`Filtered products: ${JSON.stringify(filtered)}`);
-        return sortProducts(filtered, sortCriterion);
+        return sortProducts(filtered, $('#sort-options').val());
     }
 
     async function initialize() {
@@ -69,20 +69,23 @@ $(function() {
             // Initial render
             renderProducts(products);
 
-            // Handle sorting and filtering concurrently
-            $('#sort-options, #filter-keyword').on('change input', function() {
-                const criterion = $('#sort-options').val();
-                const keyword = $('#filter-keyword').val();
-                const filteredAndSortedProducts = filterProducts(products, keyword, criterion);
-                renderProducts(filteredAndSortedProducts);
+            // Handle sorting
+            $('#sort-options').on('change', function() {
+                const criterion = $(this).val();
+                const sortedProducts = sortProducts(products, criterion);
+                renderProducts(sortedProducts);
+            });
+
+            // Handle filtering
+            $('#filter-keyword').on('input', function() {
+                const keyword = $(this).val();
+                const filteredProducts = filterProducts(products, keyword);
+                renderProducts(filteredProducts);
             });
 
             // Handle in-stock checkbox
             $('#show-in-stock').on('change', function() {
-                const criterion = $('#sort-options').val();
-                const keyword = $('#filter-keyword').val();
-                const filteredAndSortedProducts = filterProducts(products, keyword, criterion);
-                renderProducts(filteredAndSortedProducts);
+                renderProducts(products);
             });
         } catch (error) {
             console.error('Error initializing products:', error);
