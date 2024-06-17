@@ -59,7 +59,6 @@ $(function() {
         console.log(`Filtered products: ${JSON.stringify(filtered)}`);
         return sortProducts(filtered, $('#sort-options').val());
     }
-    
 
     async function initialize() {
         try {
@@ -83,7 +82,6 @@ $(function() {
                 const filteredProducts = filterProducts(products, keyword);
                 renderProducts(filteredProducts);
             });
-            
 
             // Handle in-stock checkbox
             $('#show-in-stock').on('change', function() {
