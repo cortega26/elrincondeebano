@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{name}} - Tienda Ebano</title>
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+    <div id="navbar-container"></div>
+
+    <main>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <img src="{{image_path}}" alt="{{name}}" class="img-fluid">
+                </div>
+                <div class="col-md-6">
+                    <h1>{{name}}</h1>
+                    <p>{{description}}</p>
+                    {{#if discount}}
+                    <div class="precio-container">
+                        <span class="precio-descuento">${{discounted_price}}</span>
+                        <span class="ahorra">Ahorra ${{discount}}</span>
+                    </div>
+                    <span class="precio-original" text-align="left">Regular: $<span class="tachado">{{price}}</span></span>
+                    {{else}}
+                    <span class="precio">${{price}}</span>
+                    {{/if}}
+                    <button class="btn btn-primary">Agregar al carrito</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script src="/assets/js/jquery.min.js"></script>
+    <script src="/assets/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/script.js"></script>
+</body>
+</html>

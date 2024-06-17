@@ -57,10 +57,9 @@
     margin-right: 100px;
 }
 
-
 .producto .precio-container {
     display: flex;
-    align-items: left;
+    align-items: center;
     margin-bottom: 5px;
 }
 
