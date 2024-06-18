@@ -18,7 +18,7 @@
     "image_path": "assets/images/Cafe-El-Pe\u00f1on-Gourmet-500g.png"
   },
   {
-    "name": "Cerveza Austral Calafate",
+    "name": "Austral Calafate Ale",
     "description": "4 x botella 330cc",
     "price": 6500,
     "discount": 0,
@@ -27,16 +27,16 @@
     "image_path": "assets/images/Austral Calafate Ale botella botella 330cc.png"
   },
   {
-    "name": "Cerveza Becker",
+    "name": "Becker",
     "description": "6 x lata 354cc",
-    "price": 3400,
+    "price": 3500,
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
     "image_path": "assets/images/Becker lata 350cc.png"
   },
   {
-    "name": "Cerveza Coors",
+    "name": "Coors",
     "description": "6 x botella 355cc",
     "price": 5900,
     "discount": 0,
@@ -45,7 +45,7 @@
     "image_path": "assets/images/Coors botella 355cc.png"
   },
   {
-    "name": "Cerveza Coors",
+    "name": "Coors",
     "description": "6 x lata 350cc",
     "price": 8900,
     "discount": 0,
@@ -54,16 +54,16 @@
     "image_path": "assets/images/Coors lata 350cc.jpg"
   },
   {
-    "name": "Cerveza Cristal",
+    "name": "Cristal",
     "description": "6 x lata de 350cc",
-    "price": 3600,
+    "price": 3800,
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
     "image_path": "assets/images/Cristal lata b350cc.jpeg"
   },
   {
-    "name": "Cerveza Heineken",
+    "name": "Heineken",
     "description": "6 x lata 350cc",
     "price": 4900,
     "discount": 0,
@@ -72,7 +72,7 @@
     "image_path": "assets/images/Heineken lata 350cc.jpeg"
   },
   {
-    "name": "Cerveza Royal Guard",
+    "name": "Royal Guard",
     "description": "6 x lata 350cc",
     "price": 4400,
     "discount": 0,
@@ -81,7 +81,7 @@
     "image_path": "assets/images/Royal Guard lata 350cc.png"
   },
   {
-    "name": "Cerveza Stella Artois",
+    "name": "Stella Artois",
     "description": "6 x lata 354cc",
     "price": 4500,
     "discount": 0,
@@ -90,7 +90,7 @@
     "image_path": "assets/images/Stella Artois lata 350cc.png"
   },
   {
-    "name": "Cerveza Stones Lemon",
+    "name": "Stones Lemon",
     "description": "6 x lata 350cc",
     "price": 5200,
     "discount": 0,
@@ -270,7 +270,7 @@
     "image_path": "assets/images/Fanta 2L zero.png"
   },
   {
-    "name": "Vino Diablo Deep Carmenere \u2022 Concha y Toro",
+    "name": "Diablo Deep Carmenere \u2022 Concha y Toro",
     "description": "Botella de 750mL \u2022 13,5\u00b0 G.L.",
     "price": 8900,
     "discount": 1000,
