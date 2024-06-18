@@ -89,10 +89,3 @@
     text-decoration: line-through;
 }
 
-footer {
-    background-color: #343a40; /* bg-dark */
-    color: #ffffff; /* text-light */
-    text-align: center;
-    padding: 1rem 0; /* py-3 */
-    margin-top: auto; /* This ensures the footer is pushed to the bottom */
-}
