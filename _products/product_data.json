@@ -340,5 +340,14 @@
     "stock": true,
     "category": "Vinos",
     "image_path": "assets/images/Casillero del Diablo Cabernet Sauvignon Reserva Privada 750mL.png"
+  },
+  {
+    "name": "Kunstmann Torobayo",
+    "description": "lata de 470cc",
+    "price": 1900,
+    "discount": 400,
+    "stock": true,
+    "category": "Cervezas",
+    "image_path": "assets/images/Kunstmann Torobayo lata 470cc.png"
   }
 ]
