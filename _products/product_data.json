@@ -47,7 +47,7 @@
   {
     "name": "Coors lata 350cc",
     "description": "Cerveza Lagger x 6 unidades",
-    "price": 8900,
+    "price": 5900,
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
@@ -343,7 +343,7 @@
   },
   {
     "name": "Kunstmann lata 470cc",
-    "description": "Cerveza Torobayo",
+    "description": "Cerveza Torobayo Pale Ale",
     "price": 1900,
     "discount": 400,
     "stock": true,
