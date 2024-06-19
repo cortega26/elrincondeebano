@@ -331,5 +331,14 @@
     "stock": true,
     "category": "Vinos",
     "image_path": "assets/images/Casillero del Diablo Carmenere Reserva Privada 750mL.png"
+  },
+  {
+    "name": "Casillero del Diablo \u2022 Cabetnet Sauvignon Reserva Privada \u2022 Concha y Toro",
+    "description": "Botella 750mL \u2022 13,5\u00b0 G.L.",
+    "price": 11500,
+    "discount": 1500,
+    "stock": true,
+    "category": "Vinos",
+    "image_path": "assets/images/Casillero del Diablo Cabernet Sauvignon Reserva Privada 750mL.png"
   }
 ]
