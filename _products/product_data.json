@@ -349,5 +349,14 @@
     "stock": true,
     "category": "Cervezas",
     "image_path": "assets/images/Kunstmann Torobayo lata 470cc.png"
+  },
+  {
+    "name": "Detergente L\u00edquido OMO Pro",
+    "description": "Envase de 5L",
+    "price": 15000,
+    "discount": 1100,
+    "stock": true,
+    "category": "Limpiezayaseo",
+    "image_path": "assets/images/Omo Pro 5L.webp"
   }
 ]
