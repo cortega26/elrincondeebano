@@ -6,7 +6,7 @@
     "discount": 1000,
     "stock": true,
     "category": "Despensa",
-    "image_path": "assets/images/Aceite de Oliva Nutricampo 1L.png"
+    "image_path": "assets/images/Aceite de Oliva Nutricampo 1L.webp"
   },
   {
     "name": "Caf\u00e9 El Pe\u00f1\u00f3n Gourmet",
@@ -15,7 +15,7 @@
     "discount": 0,
     "stock": true,
     "category": "Despensa",
-    "image_path": "assets/images/Cafe-El-Pe\u00f1on-Gourmet-500g.png"
+    "image_path": "assets/images/Cafe-El-Pe\u00f1on-Gourmet-500g.webp"
   },
   {
     "name": "Austral botella 330cc",
@@ -24,7 +24,7 @@
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Austral Calafate Ale botella botella 330cc.png"
+    "image_path": "assets/images/Austral Calafate Ale botella botella 330cc.webp"
   },
   {
     "name": "Becker lata 354cc",
@@ -33,7 +33,7 @@
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Becker lata 350cc.png"
+    "image_path": "assets/images/Becker lata 350cc.webp"
   },
   {
     "name": "Coors botella 355cc",
@@ -42,7 +42,7 @@
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Coors botella 355cc.png"
+    "image_path": "assets/images/Coors botella 355cc.webp"
   },
   {
     "name": "Coors lata 350cc",
@@ -51,16 +51,16 @@
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Coors lata 350cc.jpg"
+    "image_path": "assets/images/Coors lata 350cc.webp"
   },
   {
     "name": "Cristal lata 350cc",
     "description": "Cerveza Lagger x 6 unidades",
-    "price": 3800,
+    "price": 4000,
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Cristal lata b350cc.jpeg"
+    "image_path": "assets/images/Cristal lata b350cc.webp"
   },
   {
     "name": "Heineken lata 350cc",
@@ -69,7 +69,7 @@
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Heineken lata 350cc.jpeg"
+    "image_path": "assets/images/Heineken lata 350cc.webp"
   },
   {
     "name": "Royal Guard lata 350cc",
@@ -78,7 +78,7 @@
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Royal Guard lata 350cc.png"
+    "image_path": "assets/images/Royal Guard lata 350cc.webp"
   },
   {
     "name": "Stella Artois lata 354cc",
@@ -87,7 +87,7 @@
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Stella Artois lata 350cc.png"
+    "image_path": "assets/images/Stella Artois lata 350cc.webp"
   },
   {
     "name": "Stones Lemon lata 350cc",
@@ -96,7 +96,7 @@
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Stones Lim\u00f3n lata 350cc.jpeg"
+    "image_path": "assets/images/Stones Lim\u00f3n lata 350cc.webp"
   },
   {
     "name": "Crema de Leche Surlat",
@@ -105,7 +105,7 @@
     "discount": 0,
     "stock": true,
     "category": "Lacteos",
-    "image_path": "assets/images/Crema de leche Surlat 200mL.png"
+    "image_path": "assets/images/Crema de leche Surlat 200mL.webp"
   },
   {
     "name": "Harina La Nieve",
@@ -114,7 +114,7 @@
     "discount": 0,
     "stock": true,
     "category": "Despensa",
-    "image_path": "assets/images/Harina de Ma\u00edz Nieve.png"
+    "image_path": "assets/images/Harina de Ma\u00edz Nieve.webp"
   },
   {
     "name": "Harina PAN",
@@ -123,7 +123,7 @@
     "discount": 0,
     "stock": true,
     "category": "Despensa",
-    "image_path": "assets/images/Harina-de-Maiz-blanca-PAN-1-kg.png"
+    "image_path": "assets/images/Harina-de-Maiz-blanca-PAN-1-kg.webp"
   },
   {
     "name": "Nescaf\u00e9 Fina Selecci\u00f3n",
@@ -132,7 +132,7 @@
     "discount": 0,
     "stock": true,
     "category": "Despensa",
-    "image_path": "assets/images/Cafe-Nescafe-Fina-Seleccion-200-g.png"
+    "image_path": "assets/images/Cafe-Nescafe-Fina-Seleccion-200-g.webp"
   },
   {
     "name": "Queso Crema Rafulco",
@@ -141,7 +141,7 @@
     "discount": 0,
     "stock": true,
     "category": "Lacteos",
-    "image_path": "assets/images/Queso Crema Rafulco 190g.jpg"
+    "image_path": "assets/images/Queso Crema Rafulco 190g.webp"
   },
   {
     "name": "Queso Gauda La Vaquita",
@@ -150,7 +150,7 @@
     "discount": 0,
     "stock": true,
     "category": "Lacteos",
-    "image_path": "assets/images/Queso Gauda La Vaquita 400g.png"
+    "image_path": "assets/images/Queso Gauda La Vaquita 400g.webp"
   },
   {
     "name": "Queso Gauda Prados del Sur",
@@ -159,7 +159,7 @@
     "discount": 0,
     "stock": true,
     "category": "Lacteos",
-    "image_path": "assets/images/Queso Gouda Prados del Sur 400g.png"
+    "image_path": "assets/images/Queso Gouda Prados del Sur 400g.webp"
   },
   {
     "name": "Queso Llanero Gu\u00e1rico 1/4Kg",
@@ -168,7 +168,7 @@
     "discount": 0,
     "stock": true,
     "category": "Lacteos",
-    "image_path": "assets/images/Queso-Llanero2.png"
+    "image_path": "assets/images/Queso-Llanero2.webp"
   },
   {
     "name": "Queso Reggianito Colun 1/4Kg",
@@ -177,7 +177,7 @@
     "discount": 0,
     "stock": true,
     "category": "Lacteos",
-    "image_path": "assets/images/Queso Colun Reggianito.png"
+    "image_path": "assets/images/Queso Colun Reggianito.webp"
   },
   {
     "name": "Pepperoni La Preferida",
@@ -186,7 +186,7 @@
     "discount": 600,
     "stock": true,
     "category": "Carnesyembutidos",
-    "image_path": "assets/images/Pepperoni La Preferida 500g.png"
+    "image_path": "assets/images/Pepperoni La Preferida 500g.webp"
   },
   {
     "name": "Chuleta Ahumada sin hueso Idaca (Kg)",
@@ -195,7 +195,7 @@
     "discount": 1000,
     "stock": true,
     "category": "Carnesyembutidos",
-    "image_path": "assets/images/Chuleta Ahumada sin hueso.png"
+    "image_path": "assets/images/Chuleta Ahumada sin hueso.webp"
   },
   {
     "name": "Jam\u00f3n de Pierna Acaramelado PF",
@@ -204,7 +204,7 @@
     "discount": 0,
     "stock": true,
     "category": "Carnesyembutidos",
-    "image_path": "assets/images/Jam\u00f3n PF acaramelado 200g.png"
+    "image_path": "assets/images/Jam\u00f3n PF acaramelado 200g.webp"
   },
   {
     "name": "Salame La Preferida",
@@ -213,7 +213,7 @@
     "discount": 600,
     "stock": true,
     "category": "Carnesyembutidos",
-    "image_path": "assets/images/Salame La Preferida 500g.png"
+    "image_path": "assets/images/Salame La Preferida 500g.webp"
   },
   {
     "name": "Coca-Cola 2L",
@@ -222,7 +222,7 @@
     "discount": 0,
     "stock": true,
     "category": "Bebidas",
-    "image_path": "assets/images/Coca-Cola-2L.png"
+    "image_path": "assets/images/Coca-Cola-2L.webp"
   },
   {
     "name": "Coca-Cola Zero 2L",
@@ -231,7 +231,7 @@
     "discount": 0,
     "stock": true,
     "category": "Bebidas",
-    "image_path": "assets/images/Coca-Cola-2L sin azucar.png"
+    "image_path": "assets/images/Coca-Cola-2L sin azucar.webp"
   },
   {
     "name": "Sprite 2L",
@@ -240,7 +240,7 @@
     "discount": 0,
     "stock": true,
     "category": "Bebidas",
-    "image_path": "assets/images/Sprite 2L.png"
+    "image_path": "assets/images/Sprite 2L.webp"
   },
   {
     "name": "Sprite Zero 2L",
@@ -249,7 +249,7 @@
     "discount": 0,
     "stock": true,
     "category": "Bebidas",
-    "image_path": "assets/images/Sprite 2L zero.png"
+    "image_path": "assets/images/Sprite 2L zero.webp"
   },
   {
     "name": "Fanta 2L",
@@ -258,7 +258,7 @@
     "discount": 0,
     "stock": true,
     "category": "Bebidas",
-    "image_path": "assets/images/Fanta 2L.png"
+    "image_path": "assets/images/Fanta 2L.webp"
   },
   {
     "name": "Fanta Zero 2L",
@@ -267,7 +267,7 @@
     "discount": 0,
     "stock": true,
     "category": "Bebidas",
-    "image_path": "assets/images/Fanta 2L zero.png"
+    "image_path": "assets/images/Fanta 2L zero.webp"
   },
   {
     "name": "Diablo Deep Carmenere \u2022 Concha y Toro",
@@ -276,7 +276,7 @@
     "discount": 1000,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Vino Diablo Deep Carmenere.png"
+    "image_path": "assets/images/Vino Diablo Deep Carmenere.webp"
   },
   {
     "name": "Cabernet Sauvignon \u2022 Misiones de Rengo",
@@ -285,7 +285,7 @@
     "discount": 0,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Vino Cabernet Sauvignon Misiones de Rengo 750 cc.png"
+    "image_path": "assets/images/Vino Cabernet Sauvignon Misiones de Rengo 750 cc.webp"
   },
   {
     "name": "Gran 120 Cabernet Sauvignon \u2022 Santa Rita",
@@ -294,7 +294,7 @@
     "discount": 500,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Gran 120 Cabernet Sauvignon 700mL.png"
+    "image_path": "assets/images/Gran 120 Cabernet Sauvignon 700mL.webp"
   },
   {
     "name": "Merlot \u2022 Gato",
@@ -303,7 +303,7 @@
     "discount": 0,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Gato Merlot 700mL.png"
+    "image_path": "assets/images/Gato Merlot 700mL.webp"
   },
   {
     "name": "Cabernet Sauvignon \u2022 Gato",
@@ -312,7 +312,7 @@
     "discount": 0,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Gato Cabernet Sauvignon 700mL.png"
+    "image_path": "assets/images/Gato Cabernet Sauvignon 700mL.webp"
   },
   {
     "name": "Casillero del Diablo \u2022 Devil's Collection \u2022 Concha y Toro",
@@ -321,7 +321,7 @@
     "discount": 1100,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Casillero del Diablo Devil's Collection 750mL.png"
+    "image_path": "assets/images/Casillero del Diablo Devil's Collection 750mL.webp"
   },
   {
     "name": "Casillero del Diablo \u2022 Carmenere Reserva Privada \u2022 Concha y Toro",
@@ -330,7 +330,7 @@
     "discount": 1500,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Casillero del Diablo Carmenere Reserva Privada 750mL.png"
+    "image_path": "assets/images/Casillero del Diablo Carmenere Reserva Privada 750mL.webp"
   },
   {
     "name": "Casillero del Diablo \u2022 Cabernet Sauvignon Reserva Privada \u2022 Concha y Toro",
@@ -339,7 +339,7 @@
     "discount": 1500,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Casillero del Diablo Cabernet Sauvignon Reserva Privada 750mL.png"
+    "image_path": "assets/images/Casillero del Diablo Cabernet Sauvignon Reserva Privada 750mL.webp"
   },
   {
     "name": "Kunstmann lata 470cc",
@@ -348,7 +348,7 @@
     "discount": 400,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Kunstmann Torobayo lata 470cc.png"
+    "image_path": "assets/images/Kunstmann Torobayo lata 470cc.webp"
   },
   {
     "name": "Detergente L\u00edquido OMO Pro",
@@ -358,5 +358,14 @@
     "stock": true,
     "category": "Limpiezayaseo",
     "image_path": "assets/images/Omo Pro 5L.webp"
+  },
+  {
+    "name": "Budweiser lata 354cc",
+    "description": "Cerveza Lagger x 6 unidades",
+    "price": 4400,
+    "discount": 0,
+    "stock": true,
+    "category": "Cervezas",
+    "image_path": "assets/images/budweiser lata 350cc.webp"
   }
 ]
