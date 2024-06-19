@@ -18,8 +18,8 @@
     "image_path": "assets/images/Cafe-El-Pe\u00f1on-Gourmet-500g.png"
   },
   {
-    "name": "Austral Calafate Ale",
-    "description": "4 x botella 330cc",
+    "name": "Austral botella 330cc",
+    "description": "Cerveza Calafate Ale x 4 unidades",
     "price": 6500,
     "discount": 0,
     "stock": true,
@@ -27,8 +27,8 @@
     "image_path": "assets/images/Austral Calafate Ale botella botella 330cc.png"
   },
   {
-    "name": "Becker",
-    "description": "6 x lata 354cc",
+    "name": "Becker lata 354cc",
+    "description": "Cerveza Lagger x 6 unidades",
     "price": 3500,
     "discount": 0,
     "stock": true,
@@ -36,17 +36,17 @@
     "image_path": "assets/images/Becker lata 350cc.png"
   },
   {
-    "name": "Coors",
-    "description": "6 x botella 355cc",
-    "price": 5900,
+    "name": "Coors botella 355cc",
+    "description": "Cerveza Lagger x 6 unidades",
+    "price": 6200,
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
     "image_path": "assets/images/Coors botella 355cc.png"
   },
   {
-    "name": "Coors",
-    "description": "6 x lata 350cc",
+    "name": "Coors lata 350cc",
+    "description": "Cerveza Lagger x 6 unidades",
     "price": 8900,
     "discount": 0,
     "stock": true,
@@ -54,8 +54,8 @@
     "image_path": "assets/images/Coors lata 350cc.jpg"
   },
   {
-    "name": "Cristal",
-    "description": "6 x lata de 350cc",
+    "name": "Cristal lata 350cc",
+    "description": "Cerveza Lagger x 6 unidades",
     "price": 3800,
     "discount": 0,
     "stock": true,
@@ -63,8 +63,8 @@
     "image_path": "assets/images/Cristal lata b350cc.jpeg"
   },
   {
-    "name": "Heineken",
-    "description": "6 x lata 350cc",
+    "name": "Heineken lata 350cc",
+    "description": "Cerveza Lagger x 6 unidades",
     "price": 4900,
     "discount": 0,
     "stock": true,
@@ -72,8 +72,8 @@
     "image_path": "assets/images/Heineken lata 350cc.jpeg"
   },
   {
-    "name": "Royal Guard",
-    "description": "6 x lata 350cc",
+    "name": "Royal Guard lata 350cc",
+    "description": "Cerveza Lagger x 6 unidades",
     "price": 4400,
     "discount": 0,
     "stock": true,
@@ -81,8 +81,8 @@
     "image_path": "assets/images/Royal Guard lata 350cc.png"
   },
   {
-    "name": "Stella Artois",
-    "description": "6 x lata 354cc",
+    "name": "Stella Artois lata 354cc",
+    "description": "Cerveza Lagger x 6 unidades",
     "price": 4500,
     "discount": 0,
     "stock": true,
@@ -90,8 +90,8 @@
     "image_path": "assets/images/Stella Artois lata 350cc.png"
   },
   {
-    "name": "Stones Lemon",
-    "description": "6 x lata 350cc",
+    "name": "Stones Lemon lata 350cc",
+    "description": "Cerveza Lagger Saborizada x 6 unidades",
     "price": 5200,
     "discount": 0,
     "stock": true,
@@ -342,8 +342,8 @@
     "image_path": "assets/images/Casillero del Diablo Cabernet Sauvignon Reserva Privada 750mL.png"
   },
   {
-    "name": "Kunstmann Torobayo",
-    "description": "lata de 470cc",
+    "name": "Kunstmann lata 470cc",
+    "description": "Cerveza Torobayo",
     "price": 1900,
     "discount": 400,
     "stock": true,
