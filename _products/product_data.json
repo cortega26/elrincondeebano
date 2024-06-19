@@ -367,5 +367,23 @@
     "stock": true,
     "category": "Cervezas",
     "image_path": "assets/images/budweiser lata 350cc.webp"
+  },
+  {
+    "name": "Pa\u00f1os Wypall X50 34 x 28,8cm",
+    "description": "50 pa\u00f1os predoblados",
+    "price": 3900,
+    "discount": 400,
+    "stock": true,
+    "category": "Limpiezayaseo",
+    "image_path": "assets/images/Wypall-X50.webp"
+  },
+  {
+    "name": "Pa\u00f1os Wypall X75 42,3 x 27,6cm",
+    "description": "rollo de 60 pa\u00f1os",
+    "price": 8500,
+    "discount": 0,
+    "stock": true,
+    "category": "Limpiezayaseo",
+    "image_path": "assets/images/Wypall-X75.webp"
   }
 ]
