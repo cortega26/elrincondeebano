@@ -59,8 +59,11 @@ h2 {
     font-weight: bold;
 }
 
+.navbar-brand {
+    margin-left: 26px;
+}
+
 .collapse.navbar-collapse.justify-content-end {
-    margin-left: 20px;
     margin-right: 100px;
 }
 
