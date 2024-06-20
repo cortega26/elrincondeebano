@@ -61,6 +61,8 @@ h2 {
 
 .navbar-brand {
     margin-left: 26px;
+    margin-top: 0px;
+    margin-bottom: 0px;
 }
 
 .collapse.navbar-collapse.justify-content-end {
