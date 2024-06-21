@@ -439,5 +439,14 @@
     "stock": true,
     "category": "Vinos",
     "image_path": "assets/images/Secret Reserve Carmenere Santa Rita.webp"
+  },
+  {
+    "name": "Ros\u00e9 \u2022 Misiones de Rengo",
+    "description": "Botella de 750mL \u2022 13,5\u00b0 G.L.",
+    "price": 5000,
+    "discount": 0,
+    "stock": true,
+    "category": "Vinos",
+    "image_path": "assets/images/Ros\u00e9 Misiones de Rengo.webp"
   }
 ]
