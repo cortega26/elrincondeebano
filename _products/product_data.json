@@ -412,5 +412,14 @@
     "stock": true,
     "category": "Piscos",
     "image_path": "assets/images/Pisco Alto del Carmen Envejecido 40\u00b0.webp"
+  },
+  {
+    "name": "Especial 35\u00b0 \u2022 Artesanos del Cochiguaz",
+    "description": "Botella de 750mL",
+    "price": 5500,
+    "discount": 0,
+    "stock": true,
+    "category": "Piscos",
+    "image_path": "assets/images/Pisco Artesanos del Cochiguaz.webp"
   }
 ]
