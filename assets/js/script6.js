@@ -1,27 +1,11 @@
 $(function() {
-    $("#navbar-container").load("navbar.html", function(response, status, xhr) {
-        if (status == "error") {
-            console.error("Error loading navbar:", xhr.status, xhr.statusText);
-        }
-    });
-    $("#footer-container").load("footer.html", function(response, status, xhr) {
-        if (status == "error") {
-            console.error("Error loading footer:", xhr.status, xhr.statusText);
-        }
-    });
+    $("#navbar-container").load("navbar.html");
+    $("#footer-container").load("footer.html");
 
     async function fetchProducts() {
-        try {
-            const response = await fetch('/Tienda-Ebano/_products/product_data.json');
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            const products = await response.json();
-            return products;
-        } catch (error) {
-            console.error('Error fetching products:', error);
-            return [];
-        }
+        const response = await fetch('/Tienda-Ebano/_products/product_data.json');
+        const products = await response.json();
+        return products;
     }
 
     function renderProducts(products) {
@@ -64,8 +48,8 @@ $(function() {
         return products.sort((a, b) => {
             if (criterion === 'name-asc') return a.name.localeCompare(b.name);
             if (criterion === 'name-desc') return b.name.localeCompare(a.name);
-            if (criterion === 'price-asc') return (a.price - a.discount) - (b.price - b.discount);
-            if (criterion === 'price-desc') return (b.price - b.discount) - (a.price - a.discount);
+            if (criterion === 'price-asc') return (a.price - b.price) - (a.discount - b.discount);
+            if (criterion === 'price-desc') return (b.price - a.price) - (b.discount - a.discount);
             return 0;
         });
     }
