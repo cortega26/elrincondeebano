@@ -109,9 +109,9 @@
   /* Pricing */
   .precio-container {
     display: flex;
-    align-items: baseline;
+    align-items: normal;
     flex-wrap: wrap;
-    margin-top: auto;
+    margin-top: auto 0 auto 0;
   }
   
   .precio-descuento {
