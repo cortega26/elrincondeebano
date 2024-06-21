@@ -430,5 +430,14 @@
     "stock": true,
     "category": "Vinos",
     "image_path": "assets/images/Castillo de Molina Carmenere Gran Reserva 2019 San Pedro.webp"
+  },
+  {
+    "name": "Secret Reserve \u2022 Carmere \u2022 Santa Rita",
+    "description": "Botella de 750mL \u2022 13,5\u00b0 G.L.",
+    "price": 6000,
+    "discount": 0,
+    "stock": true,
+    "category": "Vinos",
+    "image_path": "assets/images/Secret Reserve Carmenere Santa Rita.webp"
   }
 ]
