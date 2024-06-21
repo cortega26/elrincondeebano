@@ -49,7 +49,7 @@ $(function() {
             if (criterion === 'name-asc') return a.name.localeCompare(b.name);
             if (criterion === 'name-desc') return b.name.localeCompare(a.name);
             if (criterion === 'price-asc') return (a.price - b.price) - (a.discount - b.discount);
-            if (criterion === 'price-desc') return b.price - a.price;
+            if (criterion === 'price-desc') return (b.price - a.price) - (b.discount - a.discount);
             return 0;
         });
     }
