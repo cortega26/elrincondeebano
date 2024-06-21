@@ -115,7 +115,6 @@
   }
   
   .precio-descuento {
-    margin-top: 0.25rem; /* Añadido */
     font-size: 1.25rem;
     font-weight: bold;
     color: var(--primary-color);
@@ -133,7 +132,7 @@
   
   .precio-original {
     width: 100%;
-    font-size: 1rem;
+    font-size: 0.8rem;
     color: var(--secondary-color);
     margin-top: 0.25rem;
   }
