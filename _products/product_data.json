@@ -421,5 +421,14 @@
     "stock": true,
     "category": "Piscos",
     "image_path": "assets/images/Pisco Artesanos del Cochiguaz.webp"
+  },
+  {
+    "name": "Castillo de Molina \u2022 Carmenere Gran Reserva 2019 \u2022 San Pedro",
+    "description": "Botella de 750mL \u2022 14,5\u00b0 G.L.",
+    "price": 11000,
+    "discount": 0,
+    "stock": true,
+    "category": "Vinos",
+    "image_path": "assets/images/Castillo de Molina Carmenere Gran Reserva 2019 San Pedro.webp"
   }
 ]
