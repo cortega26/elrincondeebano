@@ -352,7 +352,7 @@
   },
   {
     "name": "Detergente L\u00edquido OMO Pro",
-    "description": "Envase de 5L",
+    "description": "Presentaci\u00f3n de 5L",
     "price": 15000,
     "discount": 1100,
     "stock": true,
@@ -370,7 +370,7 @@
   },
   {
     "name": "Pa\u00f1os Wypall X50",
-    "description": "34 x 28,8cm \u2022 50 pa\u00f1os",
+    "description": "34cm x 28,8cm \u2022 50 pa\u00f1os",
     "price": 3900,
     "discount": 400,
     "stock": true,
@@ -379,11 +379,38 @@
   },
   {
     "name": "Pa\u00f1os Wypall X75",
-    "description": "42,3 x 27,6cm \u2022 60 pa\u00f1os",
+    "description": "42,3cm x 27,6cm \u2022 60 pa\u00f1os",
     "price": 8500,
     "discount": 0,
     "stock": true,
     "category": "Limpiezayaseo",
     "image_path": "assets/images/Wypall-X75.webp"
+  },
+  {
+    "name": "Especial 35\u00b0 \u2022 Alto del Carmen",
+    "description": "Botella de 750mL",
+    "price": 8900,
+    "discount": 1900,
+    "stock": true,
+    "category": "Piscos",
+    "image_path": "assets/images/Pisco Alto del Carmen 750mL.webp"
+  },
+  {
+    "name": "Reservado 40\u00b0 \u2022 Alto del Carmen",
+    "description": "Botella de 750mL",
+    "price": 9900,
+    "discount": 0,
+    "stock": true,
+    "category": "Piscos",
+    "image_path": "assets/images/Pisco Alto del Carmen Reservado 750mL.webp"
+  },
+  {
+    "name": "Envejecido Barricas de Selecci\u00f3n 40\u00b0 \u2022 Alto del Carmen",
+    "description": "Botella de 750mL",
+    "price": 9900,
+    "discount": 0,
+    "stock": true,
+    "category": "Piscos",
+    "image_path": "assets/images/Pisco Alto del Carmen Envejecido 40\u00b0.webp"
   }
 ]
