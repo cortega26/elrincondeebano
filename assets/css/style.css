@@ -115,6 +115,7 @@
   }
   
   .precio-descuento {
+    margin-top: 0.25rem; /* Añadido */
     font-size: 1.25rem;
     font-weight: bold;
     color: var(--primary-color);
@@ -125,7 +126,7 @@
     font-weight: bold;
     color: #fff;
     background-color: var(--accent-color);
-    padding: 0.25rem 0.5rem;
+    padding: 0.2rem 0.4rem;
     border-radius: var(--border-radius);
     margin-left: 0.5rem;
   }
