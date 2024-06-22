@@ -126,7 +126,7 @@
     border-radius: 0.4rem;
     margin-left: 0.5rem;
     margin-top: 0.15rem;
-    margin-bottom: 0.05rem;
+    margin-bottom: 0.15rem;
     position: relative; /* Added for pseudo-element positioning */
   }
   
