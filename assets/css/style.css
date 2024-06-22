@@ -113,6 +113,7 @@
     flex-wrap: wrap;
     padding: 2px 2px 2px 2px;
     margin-top: auto 0 auto 0;
+    vertical-align: middle;
   }
   
   .precio-descuento {
@@ -129,7 +130,6 @@
     padding: 0.2rem 0.4rem;
     border-radius: var(--border-radius);
     margin-left: 0.5rem;
-    vertical-align: middle;
   }
   
   .precio-original {
