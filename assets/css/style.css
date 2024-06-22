@@ -126,26 +126,8 @@
     border-radius: 0.4rem;
     margin-left: 0.5rem;
     margin-top: 0.15rem;
-    position: relative; /* Added for pseudo-element positioning */
+    /* position: relative; Added for pseudo-element positioning */
   }
-  
-.ahorra::before, .ahorra::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 2px; /* Adjust this value to control the amount of white space */
-    background-color: #fff;
-}
-
-.ahorra::before {
-    top: 0;
-}
-
-.ahorra::after {
-    bottom: 0;
-}
-
 
   .precio-original {
     width: 100%;
