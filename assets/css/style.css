@@ -125,8 +125,8 @@
     padding: 0.2rem 0.4rem; /* 0.4rem; */
     border-radius: 0.45rem;
     margin-left: 0.5rem;
-    margin-top: 0.15rem;
-    margin-bottom: 0.15rem;
+    margin-top: 0.1rem;
+    margin-bottom: 0.2rem;
     position: relative; /* Added for pseudo-element positioning */
   }
   
