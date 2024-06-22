@@ -11,7 +11,7 @@ $(function() {
             container.load(filename, (response, status, xhr) => {
                 if (status === "error") {
                     console.error(`Error cargando ${filename}:`, xhr.status, xhr.statusText);
-                    reject(new Error(`Falló el cargar ${filename}`));
+                    reject(new Error(`Falló al cargar ${filename}`));
                 } else {
                     resolve();
                 }
@@ -26,7 +26,7 @@ $(function() {
                 loadComponent(footerContainer, "footer.html")
             ]);
         } catch (error) {
-            console.error('Error loadin components:', error);
+            console.error('Error cargando componentes:', error);
         }
     }
 
@@ -34,11 +34,11 @@ $(function() {
         try {
             const response = await fetch('/Tienda-Ebano/_products/product_data.json');
             if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+                throw new Error(`Error HTTP. Status: ${response.status}`);
             }
             return await response.json();
         } catch (error) {
-            console.error('Error fetching products:', error);
+            console.error('Error buscando productos:', error);
             return [];
         }
     }
