@@ -123,9 +123,9 @@
     color: #fff;
     background-color: var(--accent-color);
     padding: 0.2rem 0.4rem; /* 0.4rem; */
-    border-radius: 0.35rem;
+    border-radius: 0.4rem;
     margin-left: 0.5rem;
-    margin-top: 0.2rem;
+    margin-top: 0.15rem;
     position: relative; /* Added for pseudo-element positioning */
   }
   
