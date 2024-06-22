@@ -24,37 +24,21 @@
   }
   
   .navbar {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
+    padding: 0.5rem 1rem;
   }
   
   .navbar-brand {
     display: flex;
     align-items: center;
-    flex-grow: 1;
-    max-width: calc(100% - 50px); /* Adjust based on your hamburger menu width */
   }
   
   .navbar-brand img {
-    max-height: 30px;
-    width: auto;
-    /* margin-right: 0.5rem; */
-  }
-
-  .brand-name {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    margin-right: 0.5rem;
   }
   
   .navbar-brand span {
     font-family: 'Playfair Display', serif;
     font-size: 1.5rem;
-  }
-
-  .navbar-toggler {
-    padding: 0.25rem 0.5rem;
-    font-size: 1rem;
   }
   
   .dropdown-menu {
@@ -197,16 +181,6 @@
   footer {
     margin-top: 2rem;
   }
-
-  @media (max-width: 575.98px) {
-    .navbar-brand {
-      font-size: 1rem; /* Adjust as needed */
-    }
-
-    .brand-name {
-        max-width: 150px; /* Adjust based on your needs */
-      }
-    }
   
   @media (min-width: 768px) {
     #sort-options,
