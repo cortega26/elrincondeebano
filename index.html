@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="El Rincón de Ébano - Tienda en línea con delivery a su puerta">
     <title>El Rincón de Ébano</title>
     <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -10,34 +11,36 @@
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-    <header id="navbar-container"></header>
-    <main data-category="">
+    <header id="navbar-container" role="banner"></header>
+    <main data-category="" role="main">
         <div class="container my-4">
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <select id="sort-options" class="form-control">
-                        <option value="" selected disabled>Ordenar por...</option>
-                        <option value="name-asc">Nombre (A-Z)</option>
-                        <option value="name-desc">Nombre (Z-A)</option>
-                        <option value="price-asc">Precio (menor a mayor)</option>
-                        <option value="price-desc">Precio (mayor a menor)</option>
-                    </select>
+            <section aria-label="Opciones de filtrado y ordenación">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="sort-options" class="sr-only">Ordenar productos</label>
+                        <select id="sort-options" class="form-control" aria-label="Ordenar productos">
+                            <option value="" selected disabled>Ordenar por...</option>
+                            <option value="name-asc">Nombre (A-Z)</option>
+                            <option value="name-desc">Nombre (Z-A)</option>
+                            <option value="price-asc">Precio (menor a mayor)</option>
+                            <option value="price-desc">Precio (mayor a menor)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="filter-keyword" class="sr-only">Filtrar productos</label>
+                        <input type="text" id="filter-keyword" class="form-control" placeholder="Filtrar por nombre" aria-label="Filtrar productos por nombre">
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <input type="text" id="filter-keyword" class="form-control" placeholder="Filtrar por nombre">
+            </section>
+            <section aria-labelledby="main-heading">
+                <h1 id="main-heading">Delivery a su puerta, al instante</h1>
+                <div class="row" id="product-container" aria-live="polite">
+                    <!-- Productos se cargarán aquí -->
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-12">
-                    <h2>Delivery a su puerta, al instante</h2>
-                </div>
-            </div>
-            <div class="row" id="product-container">
-                <!-- Productos se cargarán aquí -->
-            </div>
+            </section>
         </div>
     </main>
-    <footer id="footer-container"></footer>
+    <footer id="footer-container" role="contentinfo"></footer>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
