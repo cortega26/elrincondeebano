@@ -126,7 +126,7 @@
     font-weight: bold;
     color: #fff;
     background-color: var(--accent-color);
-    padding: 0.3rem 0.3rem 0.3rem 0.3rem;
+    padding: 0.4rem 0.3rem 0.4rem 0.3rem;
     border-radius: var(--border-radius);
     margin-left: 0.5rem;
   }
