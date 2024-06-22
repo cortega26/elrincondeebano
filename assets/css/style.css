@@ -111,7 +111,6 @@
     display: flex;
     align-items: normal;
     flex-wrap: wrap;
-    padding: 2px 2px 2px 2px;
     margin-top: auto 0 auto 0;
     vertical-align: middle;
   }
@@ -127,7 +126,7 @@
     font-weight: bold;
     color: #fff;
     background-color: var(--accent-color);
-    padding: 0.2rem 0.4rem;
+    padding: 0.1rem 0.2rem;
     border-radius: var(--border-radius);
     margin-left: 0.5rem;
   }
