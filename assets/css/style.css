@@ -1,13 +1,13 @@
 :root {
-    --primary-color: #343a40;
-    --secondary-color: #6c757d;
-    --accent-color: #0066cc;
-    --text-color: #333;
-    --background-color: #fff;
-    --border-radius: 0.25rem;
-    --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    --transition: all 0.3s ease;
-  }
+  --primary-color: #343a40;
+  --secondary-color: #6c757d;
+  --accent-color: #0066cc;
+  --text-color: #333;
+  --background-color: #fff;
+  --border-radius: 0.25rem;
+  --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
   
   body {
     font-family: Arial, sans-serif;
@@ -126,8 +126,27 @@
     border-radius: 0.4rem;
     margin-left: 0.5rem;
     margin-top: 0.15rem;
-    /* position: relative; Added for pseudo-element positioning */
+    margin-bottom: 0.05rem;
+    position: relative; /* Added for pseudo-element positioning */
   }
+  
+.ahorra::before, .ahorra::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px; /* Adjust this value to control the amount of white space */
+    background-color: #fff;
+}
+
+.ahorra::before {
+    top: 0;
+}
+
+.ahorra::after {
+    bottom: 0;
+}
+
 
   .precio-original {
     width: 100%;
