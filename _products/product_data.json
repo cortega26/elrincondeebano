@@ -273,7 +273,7 @@
     "name": "Diablo Deep Carmenere \u2022 Concha y Toro",
     "description": "Botella de 750mL \u2022 13,5\u00b0 G.L.",
     "price": 8900,
-    "discount": 1000,
+    "discount": 0,
     "stock": true,
     "category": "Vinos",
     "image_path": "assets/images/Vino Diablo Deep Carmenere.webp"
