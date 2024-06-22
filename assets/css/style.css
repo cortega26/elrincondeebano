@@ -128,7 +128,7 @@
     position: relative; /* Added for pseudo-element positioning */
   }
   
-  .ahorra::before,
+.ahorra::before,
 .ahorra::after {
   content: '';
   position: absolute;
