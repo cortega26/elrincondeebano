@@ -114,8 +114,18 @@ $(function() {
     function sortProducts(products, criterion) {
         try {
             console.log('Sorting products. Criterion:', criterion);
+            if (!criterion) {
+                console.log('No sorting criterion provided. Using default (name-asc).');
+                criterion = 'name-asc';
+            }
             return products.sort((a, b) => {
-                const getComparableValue = (product) => criterion.startsWith('price') ? (product.price - product.discount) : product.name;
+                const getComparableValue = (product) => {
+                    if (criterion.startsWith('price')) {
+                        return product.price - (product.discount || 0);
+                    } else {
+                        return product.name.toLowerCase();
+                    }
+                };
                 const valueA = getComparableValue(a);
                 const valueB = getComparableValue(b);
                 
@@ -127,7 +137,7 @@ $(function() {
             });
         } catch (error) {
             console.error('Error sorting products:', error);
-            throw error;
+            return products; // Return unsorted products if sorting fails
         }
     }
 
@@ -149,7 +159,7 @@ $(function() {
             function updateProductDisplay() {
                 try {
                     console.log('Updating product display...');
-                    const criterion = sortOptions.val();
+                    const criterion = sortOptions.val() || 'name-asc'; // Default to 'name-asc' if no option is selected
                     const keyword = filterKeyword.val();
                     console.log('Update parameters - Criterion:', criterion, 'Keyword:', keyword);
                     const filteredAndSortedProducts = filterProducts(products, keyword, criterion);
