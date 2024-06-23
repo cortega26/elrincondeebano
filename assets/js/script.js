@@ -28,7 +28,7 @@ $(function() {
             console.log('Components loaded successfully');
         } catch (error) {
             console.error('Error cargando componentes:', error);
-            throw error; // Re-throw to be caught in initialize
+            throw error;
         }
     }
 
@@ -51,13 +51,15 @@ $(function() {
 
     function renderProducts(products) {
         try {
+            console.log('Rendering products. Number of products:', products.length);
             productContainer.empty();
-            console.log('Rendering products:', products);
         
             const showInStockOnly = showInStock.prop('checked');
             const filteredProducts = showInStockOnly ? products.filter(product => product.stock) : products;
+            console.log('Filtered products (in stock only):', filteredProducts.length);
         
             const productHTML = filteredProducts.map(product => {
+                console.log('Processing product:', product.name);
                 const { name, description, image_path, price, discount, stock } = product;
                 const formattedPrice = price.toLocaleString('es-CL');
                 const discountedPrice = price - discount;
@@ -101,7 +103,7 @@ $(function() {
                 product.name.toLowerCase().includes(keyword.toLowerCase()) ||
                 product.description.toLowerCase().includes(keyword.toLowerCase())
             );
-            console.log('Filtered products:', filtered);
+            console.log('Filtered products:', filtered.length);
             return sortProducts(filtered, sortCriterion);
         } catch (error) {
             console.error('Error filtering products:', error);
@@ -111,6 +113,7 @@ $(function() {
 
     function sortProducts(products, criterion) {
         try {
+            console.log('Sorting products. Criterion:', criterion);
             return products.sort((a, b) => {
                 const getComparableValue = (product) => criterion.startsWith('price') ? (product.price - product.discount) : product.name;
                 const valueA = getComparableValue(a);
@@ -133,23 +136,26 @@ $(function() {
             console.log('Initializing...');
             await loadComponents();
             let products = await fetchProducts();
-            console.log('Products fetched:', products);
+            console.log('Products fetched:', products.length);
 
             const currentCategory = $('main').data('category');
             console.log('Current category:', currentCategory);
 
             if (currentCategory) {
                 products = products.filter(product => product.category === currentCategory);
-                console.log('Filtered products for category:', products);
+                console.log('Filtered products for category:', products.length);
             }
 
             function updateProductDisplay() {
                 try {
+                    console.log('Updating product display...');
                     const criterion = sortOptions.val();
                     const keyword = filterKeyword.val();
-                    console.log('Updating product display. Criterion:', criterion, 'Keyword:', keyword);
+                    console.log('Update parameters - Criterion:', criterion, 'Keyword:', keyword);
                     const filteredAndSortedProducts = filterProducts(products, keyword, criterion);
+                    console.log('Filtered and sorted products:', filteredAndSortedProducts.length);
                     renderProducts(filteredAndSortedProducts);
+                    console.log('Product display updated successfully');
                 } catch (error) {
                     console.error('Error in updateProductDisplay:', error);
                     productContainer.html('<p>Error updating product display. Please try again later.</p>');
@@ -159,6 +165,8 @@ $(function() {
             sortOptions.on('change', updateProductDisplay);
             filterKeyword.on('input', updateProductDisplay);
             showInStock.on('change', updateProductDisplay);
+
+            console.log('Event listeners attached');
 
             // Initial render
             updateProductDisplay();
