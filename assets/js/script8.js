@@ -42,8 +42,7 @@ $(function() {
             }
             const products = await response.json();
             console.log('Products fetched successfully:', products);
-            // Add an index to each product to preserve original order
-            return products.map((product, index) => ({ ...product, originalIndex: index }));
+            return products;
         } catch (error) {
             console.error('Error fetching productos:', error);
             throw error;
@@ -115,9 +114,9 @@ $(function() {
     function sortProducts(products, criterion) {
         try {
             console.log('Sorting products. Criterion:', criterion);
-            if (!criterion || criterion === 'original') {
-                console.log('Using original order.');
-                return products.sort((a, b) => a.originalIndex - b.originalIndex);
+            if (!criterion) {
+                console.log('No sorting criterion provided. Using default (name-asc).');
+                criterion = 'name-asc';
             }
             return products.sort((a, b) => {
                 const getComparableValue = (product) => {
@@ -160,7 +159,7 @@ $(function() {
             function updateProductDisplay() {
                 try {
                     console.log('Updating product display...');
-                    const criterion = sortOptions.val() || 'original'; // Default to 'original' if no option is selected
+                    const criterion = sortOptions.val() || 'name-asc'; // Default to 'name-asc' if no option is selected
                     const keyword = filterKeyword.val();
                     console.log('Update parameters - Criterion:', criterion, 'Keyword:', keyword);
                     const filteredAndSortedProducts = filterProducts(products, keyword, criterion);
