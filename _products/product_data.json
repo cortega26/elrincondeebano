@@ -529,5 +529,23 @@
     "stock": true,
     "category": "Vinos",
     "image_path": "assets/images/Merlot Casillero del Diablo Concha y Toro botella 750mL.webp"
+  },
+  {
+    "name": "Cabernet Sauvignon Gran Reserva Black \u2022 Misiones de Rengo",
+    "description": "Vino tinto \u2022 Botella de 750mL \u2022 14\u00b0 G.L.",
+    "price": 12000,
+    "discount": 0,
+    "stock": true,
+    "category": "Vinos",
+    "image_path": "assets/images/Cabernet Sauvignon Gran Reserva Misiones de Rengo botella 750mL.webp"
+  },
+  {
+    "name": "Carmenere Gran Reserva Black \u2022 Misiones de Rengo",
+    "description": "Vino tinto \u2022 Botella de 750mL \u2022 14\u00b0 G.L.",
+    "price": 12000,
+    "discount": 0,
+    "stock": true,
+    "category": "Vinos",
+    "image_path": "assets/images/Carmenere Gran Reserva Misiones de Rengo botella 750mL.webp"
   }
 ]
