@@ -261,8 +261,8 @@
     "image_path": "assets/images/Fanta 2L zero.webp"
   },
   {
-    "name": "Diablo Deep Carmenere \u2022 Concha y Toro",
-    "description": "Botella de 750mL \u2022 13,5\u00b0 G.L.",
+    "name": "Carmenere \u2022 Diablo, Concha y Toro",
+    "description": "Vino tinto \u2022 Botella de 750mL \u2022 13,5\u00b0 G.L.",
     "price": 8900,
     "discount": 0,
     "stock": true,
@@ -271,7 +271,7 @@
   },
   {
     "name": "Cabernet Sauvignon \u2022 Misiones de Rengo",
-    "description": "Botella de 750mL \u2022 13\u00b0 G.L.",
+    "description": "Vino tinto \u2022 Botella de 750mL \u2022 13\u00b0 G.L.",
     "price": 5000,
     "discount": 0,
     "stock": false,
@@ -280,7 +280,7 @@
   },
   {
     "name": "Carmenere \u2022 Misiones de Rengo",
-    "description": "Botella de 750mL \u2022 13\u00b0 G.L.",
+    "description": "Vino tinto \u2022 Botella de 750mL \u2022 13\u00b0 G.L.",
     "price": 5000,
     "discount": 0,
     "stock": false,
@@ -288,8 +288,8 @@
     "image_path": "assets/images/Vino Carmenere Misiones de Rengo 750 cc.webp"
   },
   {
-    "name": "Gran 120 Cabernet Sauvignon \u2022 Santa Rita",
-    "description": "Botella de 700mL \u2022 12\u00b0 G.L.",
+    "name": "Cabernet Sauvignon \u2022 Gran 120, Santa Rita",
+    "description": "Vino tinto \u2022 Botella de 700mL \u2022 12\u00b0 G.L.",
     "price": 5000,
     "discount": 500,
     "stock": true,
@@ -297,8 +297,8 @@
     "image_path": "assets/images/Gran 120 Cabernet Sauvignon 700mL.webp"
   },
   {
-    "name": "Merlot \u2022 Gato \u2022 San Pedro",
-    "description": "Botella de 700mL \u2022 12\u00b0 G.L.",
+    "name": "Merlot \u2022 Gato, San Pedro",
+    "description": "Vino tinto \u2022 Botella de 700mL \u2022 12\u00b0 G.L.",
     "price": 4000,
     "discount": 0,
     "stock": true,
@@ -306,8 +306,8 @@
     "image_path": "assets/images/Gato Merlot 700mL.webp"
   },
   {
-    "name": "Cabernet Sauvignon \u2022 Gato \u2022 San Pedro",
-    "description": "Botella de 700mL \u2022 12\u00b0 G.L.",
+    "name": "Cabernet Sauvignon \u2022 Gato, San Pedro",
+    "description": "Vino tinto \u2022 Botella de 700mL \u2022 12\u00b0 G.L.",
     "price": 4000,
     "discount": 0,
     "stock": true,
@@ -315,8 +315,8 @@
     "image_path": "assets/images/Gato Cabernet Sauvignon 700mL.webp"
   },
   {
-    "name": "Casillero del Diablo \u2022 Devil's Collection \u2022 Concha y Toro",
-    "description": "Botella de 750mL \u2022 13,5\u00b0 G.L.",
+    "name": "Ensamblaje Devil's Collection \u2022 Casillero del Diablo, Concha y Toro",
+    "description": "Vino tinto \u2022 Botella de 750mL \u2022 13,5\u00b0 G.L.",
     "price": 10000,
     "discount": 1100,
     "stock": true,
@@ -324,8 +324,8 @@
     "image_path": "assets/images/Casillero del Diablo Devil's Collection 750mL.webp"
   },
   {
-    "name": "Casillero del Diablo \u2022 Carmenere Reserva Privada \u2022 Concha y Toro",
-    "description": "Botella 750mL \u2022 13,5\u00b0 G.L.",
+    "name": "Carmenere Reserva Privada \u2022 Casillero del Diablo, Concha y Toro",
+    "description": "Vino tinto \u2022 Botella 750mL \u2022 13,5\u00b0 G.L.",
     "price": 11500,
     "discount": 1500,
     "stock": true,
@@ -333,8 +333,8 @@
     "image_path": "assets/images/Casillero del Diablo Carmenere Reserva Privada 750mL.webp"
   },
   {
-    "name": "Casillero del Diablo \u2022 Cabernet Sauvignon Reserva Privada \u2022 Concha y Toro",
-    "description": "Botella 750mL \u2022 13,5\u00b0 G.L.",
+    "name": "Cabernet Sauvignon Reserva Privada \u2022 Casillero del Diablo, Concha y Toro",
+    "description": "Vino tinto \u2022 Botella 750mL \u2022 13,5\u00b0 G.L.",
     "price": 11500,
     "discount": 1500,
     "stock": true,
@@ -424,7 +424,7 @@
   },
   {
     "name": "Castillo de Molina \u2022 Carmenere Gran Reserva 2019 \u2022 San Pedro",
-    "description": "Botella de 750mL \u2022 14,5\u00b0 G.L.",
+    "description": "Vino tinto \u2022 Botella de 750mL \u2022 14,5\u00b0 G.L.",
     "price": 11000,
     "discount": 0,
     "stock": true,
@@ -432,8 +432,8 @@
     "image_path": "assets/images/Castillo de Molina Carmenere Gran Reserva 2019 San Pedro.webp"
   },
   {
-    "name": "Secret Reserve \u2022 Carmere \u2022 Santa Rita",
-    "description": "Botella de 750mL \u2022 13,5\u00b0 G.L.",
+    "name": "Carmere Secret Reserve \u2022 Santa Rita",
+    "description": "Vino tinto \u2022 Botella de 750mL \u2022 13,5\u00b0 G.L.",
     "price": 6000,
     "discount": 0,
     "stock": true,
@@ -442,7 +442,7 @@
   },
   {
     "name": "Ros\u00e9 \u2022 Misiones de Rengo",
-    "description": "Botella de 750mL \u2022 13,5\u00b0 G.L.",
+    "description": "Vino rosado \u2022 Botella de 750mL \u2022 13,5\u00b0 G.L.",
     "price": 5000,
     "discount": 0,
     "stock": true,
@@ -493,5 +493,23 @@
     "stock": true,
     "category": "Cervezas",
     "image_path": "assets/images/Miller lata 350cc.webp"
+  },
+  {
+    "name": "Cabernet Sauvignon Reserva \u2022 Misiones de Rengo",
+    "description": "Vino tinto \u2022 Botella de 750mL \u2022 13,5\u00b0 G.L.",
+    "price": 7000,
+    "discount": 500,
+    "stock": true,
+    "category": "Vinos",
+    "image_path": "assets/images/Misiones de Rengo Cabernet Sauvignon botella 750mL.webp"
+  },
+  {
+    "name": "Carmenere Reserva \u2022 Misiones de Rengo",
+    "description": "Vino tinto \u2022 Botella de 750mL \u2022 13,5\u00b0 G.L.",
+    "price": 7000,
+    "discount": 500,
+    "stock": true,
+    "category": "Vinos",
+    "image_path": "assets/images/Misiones de Rengo Carmenere Reserva botella 750mL.webp"
   }
 ]
