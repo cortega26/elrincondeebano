@@ -170,6 +170,7 @@
   }
   
   .producto.agotado::before {
+    font-size: 1.5rem;
     content: "AGOTADO";
     position: absolute;
     inset: 0;
