@@ -423,10 +423,10 @@
     "image_path": "assets/images/Pisco Artesanos del Cochiguaz.webp"
   },
   {
-    "name": "Castillo de Molina \u2022 Carmenere Gran Reserva 2019 \u2022 San Pedro",
+    "name": "Carmenere Gran Reserva 2019 \u2022 Castillo de Molina, San Pedro",
     "description": "Vino tinto \u2022 Botella de 750mL \u2022 14,5\u00b0 G.L.",
-    "price": 11000,
-    "discount": 0,
+    "price": 12000,
+    "discount": 2100,
     "stock": true,
     "category": "Vinos",
     "image_path": "assets/images/Castillo de Molina Carmenere Gran Reserva 2019 San Pedro.webp"
@@ -511,5 +511,23 @@
     "stock": true,
     "category": "Vinos",
     "image_path": "assets/images/Misiones de Rengo Carmenere Reserva botella 750mL.webp"
+  },
+  {
+    "name": "Cabernet Sauvignon Reserva Especial \u2022 Casillero del Diablo, Concha y Toro",
+    "description": "Vino tinto \u2022 Botella de 750mL \u2022 13,5\u00b0 G.L.",
+    "price": 7500,
+    "discount": 0,
+    "stock": true,
+    "category": "Vinos",
+    "image_path": "assets/images/Cabernet Reserva Especial Casillero del Diablo botella de 750mL.webp"
+  },
+  {
+    "name": "Merlot Reserva Especial \u2022 Casillero del Diablo, Concha y Toro",
+    "description": "Vino tinto \u2022 Botella de 750mL \u2022 13,5\u00b0 G.L.",
+    "price": 7500,
+    "discount": 0,
+    "stock": true,
+    "category": "Vinos",
+    "image_path": "assets/images/Merlot Casillero del Diablo Concha y Toro botella 750mL.webp"
   }
 ]
