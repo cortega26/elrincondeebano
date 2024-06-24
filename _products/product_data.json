@@ -274,7 +274,7 @@
     "description": "Botella de 750mL \u2022 13\u00b0 G.L.",
     "price": 5000,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Vinos",
     "image_path": "assets/images/Vino Cabernet Sauvignon Misiones de Rengo 750 cc.webp"
   },
