@@ -18,15 +18,6 @@
     "image_path": "assets/images/Cafe-El-Pe\u00f1on-Gourmet-500g.webp"
   },
   {
-    "name": "Austral botella 330cc",
-    "description": "Cerveza Calafate Ale x 4 unidades",
-    "price": 6500,
-    "discount": 0,
-    "stock": false,
-    "category": "Cervezas",
-    "image_path": "assets/images/Austral Calafate Ale botella botella 330cc.webp"
-  },
-  {
     "name": "Becker lata 354cc",
     "description": "Cerveza Lagger x 6 unidades",
     "price": 3500,
