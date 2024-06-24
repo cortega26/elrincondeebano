@@ -19,7 +19,7 @@
   },
   {
     "name": "Becker lata 354cc",
-    "description": "Cerveza Lagger x 6 unidades",
+    "description": "Cerveza Lager x 6 unidades",
     "price": 3500,
     "discount": 0,
     "stock": true,
@@ -28,7 +28,7 @@
   },
   {
     "name": "Coors botella 355cc",
-    "description": "Cerveza Lagger x 6 unidades",
+    "description": "Cerveza Lager x 6 unidades",
     "price": 6200,
     "discount": 0,
     "stock": true,
@@ -37,7 +37,7 @@
   },
   {
     "name": "Coors lata 350cc",
-    "description": "Cerveza Lagger x 6 unidades",
+    "description": "Cerveza Lager x 6 unidades",
     "price": 5900,
     "discount": 0,
     "stock": true,
@@ -46,7 +46,7 @@
   },
   {
     "name": "Cristal lata 350cc",
-    "description": "Cerveza Lagger x 6 unidades",
+    "description": "Cerveza Lager x 6 unidades",
     "price": 4000,
     "discount": 0,
     "stock": true,
@@ -55,7 +55,7 @@
   },
   {
     "name": "Heineken lata 350cc",
-    "description": "Cerveza Lagger x 6 unidades",
+    "description": "Cerveza Lager x 6 unidades",
     "price": 4900,
     "discount": 0,
     "stock": true,
@@ -64,7 +64,7 @@
   },
   {
     "name": "Royal Guard lata 350cc",
-    "description": "Cerveza Lagger x 6 unidades",
+    "description": "Cerveza Lager x 6 unidades",
     "price": 4400,
     "discount": 0,
     "stock": true,
@@ -73,7 +73,7 @@
   },
   {
     "name": "Stella Artois lata 354cc",
-    "description": "Cerveza Lagger x 6 unidades",
+    "description": "Cerveza Lager x 6 unidades",
     "price": 4500,
     "discount": 0,
     "stock": true,
@@ -82,7 +82,7 @@
   },
   {
     "name": "Stones Lemon lata 350cc",
-    "description": "Cerveza Lagger Saborizada x 6 unidades",
+    "description": "Cerveza Lager Saborizada x 6 unidades",
     "price": 5200,
     "discount": 0,
     "stock": true,
@@ -352,7 +352,7 @@
   },
   {
     "name": "Budweiser lata 354cc",
-    "description": "Cerveza Lagger x 6 unidades",
+    "description": "Cerveza Lager x 6 unidades",
     "price": 4400,
     "discount": 0,
     "stock": true,
@@ -475,5 +475,14 @@
     "stock": true,
     "category": "Cervezas",
     "image_path": "assets/images/Austral Calafate Ale botella botella 330cc-2.webp"
+  },
+  {
+    "name": "Miller lata 355c",
+    "description": "Cerveza Lager x 6 unidades",
+    "price": 7900,
+    "discount": 0,
+    "stock": true,
+    "category": "Cervezas",
+    "image_path": "assets/images/Miller lata 350cc.webp"
   }
 ]
