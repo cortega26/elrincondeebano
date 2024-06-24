@@ -448,5 +448,23 @@
     "stock": true,
     "category": "Vinos",
     "image_path": "assets/images/Ros\u00e9 Misiones de Rengo.webp"
+  },
+  {
+    "name": "Reservado 40\u00b0 \u2022 Malpaso",
+    "description": "Botella de 750mL \u2022 D.O. Valle del Limari",
+    "price": 10500,
+    "discount": 0,
+    "stock": true,
+    "category": "Piscos",
+    "image_path": "assets/images/Pisco Malpaso Reservado 40\u00b0.webp"
+  },
+  {
+    "name": "A\u00f1ejado en Roble 46\u00b0 \u2022 Mistral",
+    "description": "Botella de 750mL",
+    "price": 11000,
+    "discount": 0,
+    "stock": true,
+    "category": "Piscos",
+    "image_path": "assets/images/Pisco A\u00f1ejado en Roble 46\u00b0 Mistral.webp"
   }
 ]
