@@ -389,11 +389,11 @@
   {
     "name": "Especial 35\u00b0 \u2022 Alto del Carmen",
     "description": "Botella de 750mL",
-    "price": 8900,
-    "discount": 1900,
+    "price": 8000,
+    "discount": 1100,
     "stock": true,
     "category": "Piscos",
-    "image_path": "assets/images/Pisco Alto del Carmen 750mL.webp"
+    "image_path": "assets/images/Pisco Alto del Carmen Especial 35\u00b0 750mL.webp"
   },
   {
     "name": "Reservado 40\u00b0 \u2022 Alto del Carmen",
@@ -466,5 +466,14 @@
     "stock": true,
     "category": "Piscos",
     "image_path": "assets/images/Pisco A\u00f1ejado en Roble 46\u00b0 Mistral.webp"
+  },
+  {
+    "name": "Especial 35\u00b0 \u2022 Alto del Carmen",
+    "description": "Botella de 1L",
+    "price": 10000,
+    "discount": 1100,
+    "stock": true,
+    "category": "Piscos",
+    "image_path": "assets/images/Pisco Alto del Carmen Especial 35\u00b0 1L.webp"
   }
 ]
