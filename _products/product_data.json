@@ -39,7 +39,7 @@
     "name": "Coors lata 350cc",
     "description": "Cerveza Lager x 6 unidades",
     "price": 5900,
-    "discount": 0,
+    "discount": 400,
     "stock": true,
     "category": "Cervezas",
     "image_path": "assets/images/Coors lata 350cc.webp"
@@ -277,6 +277,15 @@
     "stock": false,
     "category": "Vinos",
     "image_path": "assets/images/Vino Cabernet Sauvignon Misiones de Rengo 750 cc.webp"
+  },
+  {
+    "name": "Carmenere \u2022 Misiones de Rengo",
+    "description": "Botella de 750mL \u2022 13\u00b0 G.L.",
+    "price": 5000,
+    "discount": 0,
+    "stock": false,
+    "category": "Vinos",
+    "image_path": "assets/images/Vino Carmenere Misiones de Rengo 750 cc.webp"
   },
   {
     "name": "Gran 120 Cabernet Sauvignon \u2022 Santa Rita",
