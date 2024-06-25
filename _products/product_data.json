@@ -175,7 +175,7 @@
     "description": "Presentaci\u00f3n de 500g",
     "price": 7500,
     "discount": 600,
-    "stock": true,
+    "stock": false,
     "category": "Carnesyembutidos",
     "image_path": "assets/images/Pepperoni La Preferida 500g.webp"
   },
@@ -193,7 +193,7 @@
     "description": "Presentaci\u00f3n de 200g",
     "price": 2400,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Carnesyembutidos",
     "image_path": "assets/images/Jam\u00f3n PF acaramelado 200g.webp"
   },
@@ -574,5 +574,23 @@
     "stock": true,
     "category": "Vinos",
     "image_path": "assets/images/Carmenere Reserva Especial Heroes Santa Rita.webp"
+  },
+  {
+    "name": "Sour Lim\u00f3n 16\u00b0 \u2022 Campanario",
+    "description": "Pisco Sour \u2022 Botella de 1L",
+    "price": 6000,
+    "discount": 0,
+    "stock": true,
+    "category": "Piscos",
+    "image_path": "assets/images/Pisco Sour Lim\u00f3n Campanario 1L.webp"
+  },
+  {
+    "name": "C\u00f3ctel Lim\u00f3n Zero \u2022 Secreto Peruano",
+    "description": "Pisco Sour \u2022 Botella de 700mL",
+    "price": 4500,
+    "discount": 0,
+    "stock": true,
+    "category": "Piscos",
+    "image_path": "assets/images/Pisco Sour Lim\u00f3n Zero Secreto Peruano 700mL.webp"
   }
 ]
