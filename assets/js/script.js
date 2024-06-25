@@ -42,10 +42,9 @@ $(function() {
             }
             const products = await response.json();
             console.log('Products fetched successfully:', products);
-            // Add an index to each product to preserve original order
             return products.map((product, index) => ({ ...product, originalIndex: index }));
         } catch (error) {
-            console.error('Error fetching productos:', error);
+            console.error('Error buscando productos:', error);
             throw error;
         }
     }
@@ -138,7 +137,7 @@ $(function() {
             });
         } catch (error) {
             console.error('Error sorting products:', error);
-            return products; // Return unsorted products if sorting fails
+            return products;
         }
     }
 
@@ -160,7 +159,7 @@ $(function() {
             function updateProductDisplay() {
                 try {
                     console.log('Updating product display...');
-                    const criterion = sortOptions.val() || 'original'; // Default to 'original' if no option is selected
+                    const criterion = sortOptions.val() || 'original';
                     const keyword = filterKeyword.val();
                     console.log('Update parameters - Criterion:', criterion, 'Keyword:', keyword);
                     const filteredAndSortedProducts = filterProducts(products, keyword, criterion);
@@ -179,7 +178,6 @@ $(function() {
 
             console.log('Event listeners attached');
 
-            // Initial render
             updateProductDisplay();
             console.log('Initialization complete');
 
