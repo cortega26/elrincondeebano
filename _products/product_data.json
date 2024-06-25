@@ -119,8 +119,8 @@
   {
     "name": "Nescaf\u00e9 Fina Selecci\u00f3n",
     "description": "Frasco de 200g",
-    "price": 7900,
-    "discount": 0,
+    "price": 8900,
+    "discount": 1000,
     "stock": true,
     "category": "Despensa",
     "image_path": "assets/images/Cafe-Nescafe-Fina-Seleccion-200-g.webp"
