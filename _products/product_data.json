@@ -547,5 +547,32 @@
     "stock": true,
     "category": "Vinos",
     "image_path": "assets/images/Carmenere Gran Reserva Misiones de Rengo botella 750mL.webp"
+  },
+  {
+    "name": "Merlot \u2022 Santa Emiliana, Concha y Toro",
+    "description": "Vino tinto \u2022 Botella de 700mL \u2022 13\u00b0 G.L.",
+    "price": 4200,
+    "discount": 0,
+    "stock": true,
+    "category": "Vinos",
+    "image_path": "assets/images/Vino-Santa-Emiliana-merlot-700-cc.webp"
+  },
+  {
+    "name": "Cabernet Sauvignon Reserva \u2022 Chivilingo, Mousi\u00f1o-Macul",
+    "description": "Vino tinto \u2022 Botella 750mL \u2022 13,5\u00b0 G.L.",
+    "price": 5500,
+    "discount": 0,
+    "stock": true,
+    "category": "Vinos",
+    "image_path": "assets/images/Cabernet Sauvignon Reserva Chivilingo Cousi\u00f1o-Macul botella 750mL.webp"
+  },
+  {
+    "name": "Carmenere Reserva Especial \u2022 H\u00e9roes, Santa Rita",
+    "description": "Vino tinto \u2022 Botella de 750mL \u2022 13\u00b0 G.L.",
+    "price": 6000,
+    "discount": 500,
+    "stock": true,
+    "category": "Vinos",
+    "image_path": "assets/images/Carmenere Reserva Especial Heroes Santa Rita.webp"
   }
 ]
