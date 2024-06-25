@@ -4,6 +4,7 @@ $(function() {
     const productContainer = $('#product-container');
     const sortOptions = $('#sort-options');
     const filterKeyword = $('#filter-keyword');
+    const keyword = filterKeyword.val().trim().replace(/</g, "&lt;").replace(/>/g, "&gt;");
     const showInStock = $('#show-in-stock');
 
     function loadComponent(container, filename) {
@@ -160,7 +161,7 @@ $(function() {
                 try {
                     console.log('Updating product display...');
                     const criterion = sortOptions.val() || 'original';
-                    const keyword = filterKeyword.val();
+                    const keyword = filterKeyword.val().trim().replace(/</g, "&lt;").replace(/>/g, "&gt;");
                     console.log('Update parameters - Criterion:', criterion, 'Keyword:', keyword);
                     const filteredAndSortedProducts = filterProducts(products, keyword, criterion);
                     console.log('Filtered and sorted products:', filteredAndSortedProducts.length);
