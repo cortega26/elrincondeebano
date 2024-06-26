@@ -655,5 +655,68 @@
     "stock": true,
     "category": "Chocolates",
     "image_path": "assets/images/Chocolate amargo Our Finest 90_ cacao.webp"
+  },
+  {
+    "name": "Doritos Queso",
+    "description": "Bolsa de 140g",
+    "price": 1900,
+    "discount": 300,
+    "stock": true,
+    "category": "SnacksSalados",
+    "image_path": "assets/images/Doritos Queso 140gr.webp"
+  },
+  {
+    "name": "Papas Jam\u00f3n Serrano \u2022 Lay's",
+    "description": "Bolsa de 140g",
+    "price": 1900,
+    "discount": 300,
+    "stock": true,
+    "category": "SnacksSalados",
+    "image_path": "assets/images/Lays-Jam\u00f3n-Serrano-140gr.webp"
+  },
+  {
+    "name": "Papas Or\u00e9gano \u2022 Lay's",
+    "description": "Bolsa de 140g",
+    "price": 1900,
+    "discount": 300,
+    "stock": true,
+    "category": "SnacksSalados",
+    "image_path": "assets/images/Lays Or\u00e9gano 140g.webp"
+  },
+  {
+    "name": "Ramitas Sabor Queso \u2022 Evercrisp",
+    "description": "Bolsa de 170g",
+    "price": 1800,
+    "discount": 300,
+    "stock": true,
+    "category": "SnacksSalados",
+    "image_path": "assets/images/Ramitas-Queso-170gr.webp"
+  },
+  {
+    "name": "Papas Onduladas \u2022 Marco Polo",
+    "description": "Bolsa de 200g",
+    "price": 1900,
+    "discount": 300,
+    "stock": true,
+    "category": "SnacksSalados",
+    "image_path": "assets/images/Papas-Marco-Polo-Onduladas-200g.webp"
+  },
+  {
+    "name": "Papas Lisas \u2022 Marco Polo",
+    "description": "Bolsa de 200g",
+    "price": 1900,
+    "discount": 300,
+    "stock": true,
+    "category": "SnacksSalados",
+    "image_path": "assets/images/Papas-Marco-Polo-Caseras-200g.webp"
+  },
+  {
+    "name": "Papas R\u00fasticas, Sal de Mar \u2022 Marco Polo",
+    "description": "Bolsa de 150g",
+    "price": 2000,
+    "discount": 400,
+    "stock": true,
+    "category": "SnacksSalados",
+    "image_path": "assets/images/Papas R\u00fasticas Sal de Mar Marco Polo 150g.webp"
   }
 ]
