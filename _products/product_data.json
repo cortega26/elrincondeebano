@@ -718,5 +718,23 @@
     "stock": true,
     "category": "SnacksSalados",
     "image_path": "assets/images/Papas R\u00fasticas Sal de Mar Marco Polo 150g.webp"
+  },
+  {
+    "name": "Pirul\u00edn grande",
+    "description": "Lata de 300g",
+    "price": 6500,
+    "discount": 0,
+    "stock": true,
+    "category": "SnacksDulces",
+    "image_path": "assets/images/Pirulin 300g.webp"
+  },
+  {
+    "name": "S\u00faper 8 \u2022 Pack 5 un.",
+    "description": "Barras de 29g c/u",
+    "price": 2000,
+    "discount": 200,
+    "stock": true,
+    "category": "SnacksDulces",
+    "image_path": "assets/images/Super 8 pack 5.webp"
   }
 ]
