@@ -174,7 +174,7 @@
     "name": "Chuleta Ahumada sin hueso Idaca (Kg)",
     "description": "Congelada y al vac\u00edo (empaque aprox. 500g)",
     "price": 8900,
-    "discount": 1000,
+    "discount": 500,
     "stock": true,
     "category": "Carnesyembutidos",
     "image_path": "assets/images/Chuleta Ahumada sin hueso.webp"
