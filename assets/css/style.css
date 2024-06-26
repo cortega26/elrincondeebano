@@ -121,6 +121,10 @@
     font-weight: bold;
     color: var(--primary-color);
   }
+
+  .precio {
+    font-weight: bold;
+  }
   
   .ahorra {
     font-size: 0.8rem;
