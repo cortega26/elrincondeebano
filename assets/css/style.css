@@ -1,38 +1,30 @@
 :root {
-    --primary-color: #343a40;
-    --secondary-color: #495057;
-    --accent-color: #0066cc;
-    --text-color: #212529;
-    --background-color: #fff;
-    --border-radius: 0.25rem;
-    --box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    --transition: all 0.2s ease-in-out;
-    --font-family-sans: 'Arial', 'Helvetica Neue', sans-serif;
-    --font-family-serif: 'Georgia', 'Times New Roman', serif;
-  }
+  --primary-color: #343a40;
+  --secondary-color: #6c757d;
+  --accent-color: #0066cc;
+  --text-color: #333;
+  --background-color: #fff;
+  --border-radius: 0.25rem;
+  --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
   
   body {
-    font-family: var(--font-family-sans);
+    font-family: Arial, sans-serif;
     color: var(--text-color);
     background-color: var(--background-color);
     line-height: 1.6;
-    font-size: 1rem;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-family-serif);
-    margin-bottom: 1rem;
   }
   
   h1 {
     text-align: center;
-    font-size: 2.5rem;
-    font-weight: 700;
+    font-size: 2.25rem;
+    margin-bottom: 1.25rem;
+    font-weight: bold;
   }
   
   .navbar {
-    padding: 0.5rem 1rem;
-    background-color: var(--primary-color);
+    padding: 0rem 1rem;
   }
   
   .navbar-brand {
@@ -45,9 +37,8 @@
   }
   
   .navbar-brand span {
-    font-family: var(--font-family-serif);
+    font-family: 'Playfair Display', serif;
     font-size: 1.5rem;
-    color: var(--background-color);
   }
   
   .dropdown-menu {
@@ -59,30 +50,24 @@
     background-color: rgba(0, 0, 0, 0.05);
   }
   
-  .navbar-nav .nav-link {
-    color: var(--background-color);
-    transition: var(--transition);
-  }
-  
-  .navbar-nav .nav-link:hover {
-    color: var(--accent-color);
+  .collapse.navbar-collapse.justify-content-end {
+    margin-right: 6.25rem;
   }
   
   .productos {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin-top: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.25rem;
   }
   
   .producto {
     height: 100%;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: var(--transition);
   }
   
   .producto:hover {
-    transform: translateY(-0.25rem);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   }
   
   .producto .card {
@@ -92,7 +77,6 @@
     background-color: var(--background-color);
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
-    overflow: hidden;
   }
   
   .producto .card-body {
@@ -103,56 +87,92 @@
   }
   
   .producto img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 0.625rem;
   }
   
   .producto .card-title {
-    font-size: 1.25rem;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
+    font-size: 1.125rem;
+    margin-bottom: 0.26rem;
+    height: 2.5em; /* Set a fixed height for two lines */
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
   }
   
   .producto .card-text {
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     color: var(--secondary-color);
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     flex-grow: 1;
+    height: 3.6em; /* Set a fixed height for three lines */
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
   }
   
   .precio-container {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     flex-wrap: wrap;
-    margin-top: auto;
+    margin: 0;
   }
   
   .precio-descuento {
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: 1.25rem;
+    font-weight: bold;
     color: var(--primary-color);
   }
   
   .ahorra {
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-size: 0.8rem;
+    font-weight: bold;
     color: #fff;
     background-color: var(--accent-color);
-    padding: 0.25rem 0.5rem;
-    border-radius: 1rem;
+    padding: 0.2rem 0.4rem; /* 0.4rem; */
+    border-radius: 0.45rem;
     margin-left: 0.5rem;
+    margin-top: 0.1rem;
+    margin-bottom: 0.2rem;
+    position: relative; /* Added for pseudo-element positioning */
   }
   
+.ahorra::before, .ahorra::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px; /* Adjust this value to control the amount of white space */
+    background-color: #fff;
+}
+
+.ahorra::before {
+    top: 0;
+}
+
+.ahorra::after {
+    bottom: 0;
+}
+
+
   .precio-original {
     width: 100%;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     color: var(--secondary-color);
-    margin-top: 0.25rem;
+    margin-top: 0.3rem;
   }
   
   .tachado {
     text-decoration: line-through;
+  }
+  
+  .producto .precio {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--primary-color);
   }
   
   .producto.agotado {
@@ -160,21 +180,21 @@
   }
   
   .producto.agotado::before {
+    font-size: 1.5rem;
     content: "AGOTADO";
     position: absolute;
     inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.7);
     color: #fff;
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-weight: bold;
     z-index: 1;
   }
   
   .producto.agotado img {
-    filter: grayscale(100%) opacity(0.7);
+    filter: grayscale(100%);
   }
   
   .form-control {
@@ -187,21 +207,11 @@
   }
   
   .btn-success {
-    background-color: var(--accent-color);
-    border-color: var(--accent-color);
     transition: var(--transition);
   }
   
-  .btn-success:hover {
-    background-color: darken(var(--accent-color), 10%);
-    border-color: darken(var(--accent-color), 10%);
-  }
-  
   footer {
-    margin-top: 3rem;
-    padding: 2rem 0;
-    background-color: var(--primary-color);
-    color: var(--background-color);
+    margin-top: 2rem;
   }
   
   @media (min-width: 768px) {
@@ -212,24 +222,15 @@
   }
   
   @media (max-width: 767px) {
-    body {
-      font-size: 0.9rem;
-    }
-  
     h1 {
-      font-size: 2rem;
+      font-size: 1.75rem;
     }
   
     .producto .card-title {
-      font-size: 1.1rem;
+      font-size: 1rem;
     }
   
     .precio-descuento {
-      font-size: 1.25rem;
-    }
-  
-    .productos {
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
+      font-size: 1.125rem;
     }
   }
