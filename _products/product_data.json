@@ -144,15 +144,6 @@
     "image_path": "assets/images/Queso Gauda La Vaquita 400g.webp"
   },
   {
-    "name": "Queso Gauda Prados del Sur",
-    "description": "Empaque de 400g",
-    "price": 3900,
-    "discount": 0,
-    "stock": false,
-    "category": "Lacteos",
-    "image_path": "assets/images/Queso Gouda Prados del Sur 400g.webp"
-  },
-  {
     "name": "Queso Llanero Gu\u00e1rico 1/4Kg",
     "description": "A granel, por trozo",
     "price": 2400,
@@ -592,5 +583,23 @@
     "stock": true,
     "category": "Piscos",
     "image_path": "assets/images/Pisco Sour Lim\u00f3n Zero Secreto Peruano 700mL.webp"
+  },
+  {
+    "name": "Juego de Naranja \u2022 Soprole",
+    "description": "Envase de 1L \u2022 Sin az\u00facar a\u00f1adida",
+    "price": 1300,
+    "discount": 0,
+    "stock": true,
+    "category": "Jugos",
+    "image_path": "assets/images/jugo-soprole-1-lt.webp"
+  },
+  {
+    "name": "Juego de Durazno \u2022 Soprole",
+    "description": "Envase de 1L \u2022 Sin az\u00facar a\u00f1adida",
+    "price": 1300,
+    "discount": 0,
+    "stock": true,
+    "category": "Jugos",
+    "image_path": "assets/images/jugo-durazno-Soprole-1L.webp"
   }
 ]
