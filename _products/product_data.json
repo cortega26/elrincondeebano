@@ -112,7 +112,7 @@
     "description": "Empaque de 1Kg",
     "price": 2200,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Despensa",
     "image_path": "assets/images/Harina-de-Maiz-blanca-PAN-1-kg.webp"
   },
