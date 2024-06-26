@@ -601,5 +601,59 @@
     "stock": true,
     "category": "Jugos",
     "image_path": "assets/images/jugo-durazno-Soprole-1L.webp"
+  },
+  {
+    "name": "Chocolate con leche \u2022 Great Value",
+    "description": "Barra de 100g \u2022 31% cacao",
+    "price": 1600,
+    "discount": 0,
+    "stock": true,
+    "category": "Chocolates",
+    "image_path": "assets/images/Chocolate de Leche Great Value 100g.webp"
+  },
+  {
+    "name": "Chocolate con almendras \u2022 Great Value",
+    "description": "Barra de 100g \u2022 34% cacao",
+    "price": 2000,
+    "discount": 0,
+    "stock": true,
+    "category": "Chocolates",
+    "image_path": "assets/images/Chocolate con Almendras Great Value 100g.webp"
+  },
+  {
+    "name": "Chocolate con avellanas \u2022 Great Value",
+    "description": "Barra de 100g \u2022 34% cacao",
+    "price": 2000,
+    "discount": 0,
+    "stock": true,
+    "category": "Chocolates",
+    "image_path": "assets/images/Chocolate con Avellanas Great Value 100g.webp"
+  },
+  {
+    "name": "Chocolate blanco \u2022 Great Value",
+    "description": "Barra de 100g \u2022 31% cacao",
+    "price": 1800,
+    "discount": 0,
+    "stock": true,
+    "category": "Chocolates",
+    "image_path": "assets/images/Chocolate blanco 100g.webp"
+  },
+  {
+    "name": "Chocolate con almendras \u2022 Ambrosoli",
+    "description": "Barra de 100g",
+    "price": 1700,
+    "discount": 0,
+    "stock": true,
+    "category": "Chocolates",
+    "image_path": "assets/images/Chocolate de leche con almendras Ambrosoli 100g.webp"
+  },
+  {
+    "name": "Chocolate amargo \u2022 Our Finest",
+    "description": "Barra de 100g \u2022 90% cacao",
+    "price": 3000,
+    "discount": 0,
+    "stock": true,
+    "category": "Chocolates",
+    "image_path": "assets/images/Chocolate amargo Our Finest 90_ cacao.webp"
   }
 ]
