@@ -139,7 +139,7 @@
     "description": "Laminado 400g",
     "price": 3900,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Lacteos",
     "image_path": "assets/images/Queso Gauda La Vaquita 400g.webp"
   },
@@ -148,7 +148,7 @@
     "description": "Empaque de 400g",
     "price": 3900,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Lacteos",
     "image_path": "assets/images/Queso Gouda Prados del Sur 400g.webp"
   },
@@ -202,7 +202,7 @@
     "description": "Presentaci\u00f3n de 500g",
     "price": 7500,
     "discount": 600,
-    "stock": true,
+    "stock": false,
     "category": "Carnesyembutidos",
     "image_path": "assets/images/Salame La Preferida 500g.webp"
   },
