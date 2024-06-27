@@ -361,7 +361,7 @@
   },
   {
     "name": "Pa\u00f1os Wypall X50",
-    "description": "34cm x 28,8cm \u2022 50 pa\u00f1os",
+    "description": "34cm x 28,8cm \u2022 50 pa\u00f1os reusables",
     "price": 3900,
     "discount": 400,
     "stock": true,
@@ -370,7 +370,7 @@
   },
   {
     "name": "Pa\u00f1os Wypall X75",
-    "description": "42,3cm x 27,6cm \u2022 60 pa\u00f1os",
+    "description": "42,3cm x 27,6cm \u2022 60 pa\u00f1os reusables",
     "price": 8500,
     "discount": 0,
     "stock": true,
@@ -736,5 +736,59 @@
     "stock": true,
     "category": "SnacksDulces",
     "image_path": "assets/images/Super 8 pack 5.webp"
+  },
+  {
+    "name": "Mario Bros",
+    "description": "Llavero PVC alta calidad",
+    "price": 4000,
+    "discount": 0,
+    "stock": true,
+    "category": "Llaveros",
+    "image_path": "assets/images/Mario.webp"
+  },
+  {
+    "name": "Luigi",
+    "description": "Llavero PVC alta calidad",
+    "price": 4000,
+    "discount": 0,
+    "stock": true,
+    "category": "Llaveros",
+    "image_path": "assets/images/Luigi.webp"
+  },
+  {
+    "name": "Yoshi",
+    "description": "Llavero PVC alta calidad",
+    "price": 4000,
+    "discount": 0,
+    "stock": true,
+    "category": "Llaveros",
+    "image_path": "assets/images/Yoshi.webp"
+  },
+  {
+    "name": "Peach",
+    "description": "Llavero PVC alta calidad",
+    "price": 4000,
+    "discount": 0,
+    "stock": true,
+    "category": "Llaveros",
+    "image_path": "assets/images/Peach.webp"
+  },
+  {
+    "name": "Bowser",
+    "description": "Llavero PVC alta calidad",
+    "price": 4000,
+    "discount": 0,
+    "stock": true,
+    "category": "Llaveros",
+    "image_path": "assets/images/Bowser.webp"
+  },
+  {
+    "name": "Donkey Kong",
+    "description": "Llavero PVC alta calidad",
+    "price": 4000,
+    "discount": 0,
+    "stock": true,
+    "category": "Llaveros",
+    "image_path": "assets/images/Donkey Kong.webp"
   }
 ]
