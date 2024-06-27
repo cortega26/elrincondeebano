@@ -1,5 +1,14 @@
 [
   {
+    "name": "Leche Semidescremada Deslactosada Surlat",
+    "description": "Envase UHT de 1L",
+    "price": 1600,
+    "discount": 0,
+    "stock": true,
+    "category": "Lacteos",
+    "image_path": "assets/images/Leche semidescramada deslactosada Surlat 1L.webp"
+  },
+  {
     "name": "Aceite de Oliva Extra Virgen Nutricampo",
     "description": "Botella de 1L",
     "price": 9900,
@@ -808,14 +817,5 @@
     "stock": true,
     "category": "Limpiezayaseo",
     "image_path": "assets/images/Nova Clásica XL 45m.webp"
-  },
-  {
-    "name": "Leche Semidescremada Deslactosada Surlat",
-    "description": "Envase UHT de 1L",
-    "price": 1600,
-    "discount": 0,
-    "stock": true,
-    "category": "Lacteos",
-    "image_path": "assets/images/Leche semidescramada deslactosada Surlat 1L.webp"
   }
 ]
