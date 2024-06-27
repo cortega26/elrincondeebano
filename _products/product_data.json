@@ -9,13 +9,13 @@
     "image_path": "assets/images/Aceite de Oliva Nutricampo 1L.webp"
   },
   {
-    "name": "Caf\u00e9 El Pe\u00f1\u00f3n Gourmet",
+    "name": "Café El Peñón Gourmet",
     "description": "Empaque de 500g",
     "price": 6900,
     "discount": 0,
     "stock": true,
     "category": "Despensa",
-    "image_path": "assets/images/Cafe-El-Pe\u00f1on-Gourmet-500g.webp"
+    "image_path": "assets/images/Cafe-El-Peñon-Gourmet-500g.webp"
   },
   {
     "name": "Becker lata 354cc",
@@ -87,11 +87,11 @@
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Stones Lim\u00f3n lata 350cc.webp"
+    "image_path": "assets/images/Stones Limón lata 350cc.webp"
   },
   {
     "name": "Crema de Leche Surlat",
-    "description": "Presentaci\u00f3n de 200mL",
+    "description": "Presentación de 200mL",
     "price": 1200,
     "discount": 0,
     "stock": true,
@@ -105,7 +105,7 @@
     "discount": 0,
     "stock": true,
     "category": "Despensa",
-    "image_path": "assets/images/Harina de Ma\u00edz Nieve.webp"
+    "image_path": "assets/images/Harina de Maíz Nieve.webp"
   },
   {
     "name": "Harina PAN",
@@ -117,7 +117,7 @@
     "image_path": "assets/images/Harina-de-Maiz-blanca-PAN-1-kg.webp"
   },
   {
-    "name": "Nescaf\u00e9 Fina Selecci\u00f3n",
+    "name": "Nescafé Fina Selección",
     "description": "Frasco de 200g",
     "price": 8900,
     "discount": 1000,
@@ -127,7 +127,7 @@
   },
   {
     "name": "Queso Crema Rafulco",
-    "description": "Presentaci\u00f3n de 190g",
+    "description": "Presentación de 190g",
     "price": 1700,
     "discount": 0,
     "stock": true,
@@ -144,7 +144,7 @@
     "image_path": "assets/images/Queso Gauda La Vaquita 400g.webp"
   },
   {
-    "name": "Queso Llanero Gu\u00e1rico 1/4Kg",
+    "name": "Queso Llanero Guárico 1/4Kg",
     "description": "A granel, por trozo",
     "price": 2400,
     "discount": 0,
@@ -163,7 +163,7 @@
   },
   {
     "name": "Pepperoni La Preferida",
-    "description": "Presentaci\u00f3n de 500g",
+    "description": "Presentación de 500g",
     "price": 7500,
     "discount": 600,
     "stock": false,
@@ -172,7 +172,7 @@
   },
   {
     "name": "Chuleta Ahumada sin hueso Idaca (Kg)",
-    "description": "Congelada y al vac\u00edo (empaque aprox. 500g)",
+    "description": "Congelada y al vacío (empaque aprox. 500g)",
     "price": 8900,
     "discount": 500,
     "stock": true,
@@ -180,17 +180,17 @@
     "image_path": "assets/images/Chuleta Ahumada sin hueso.webp"
   },
   {
-    "name": "Jam\u00f3n de Pierna Acaramelado PF",
-    "description": "Presentaci\u00f3n de 200g",
+    "name": "Jamón de Pierna Acaramelado PF",
+    "description": "Presentación de 200g",
     "price": 2400,
     "discount": 0,
     "stock": false,
     "category": "Carnesyembutidos",
-    "image_path": "assets/images/Jam\u00f3n PF acaramelado 200g.webp"
+    "image_path": "assets/images/Jamón PF acaramelado 200g.webp"
   },
   {
     "name": "Salame La Preferida",
-    "description": "Presentaci\u00f3n de 500g",
+    "description": "Presentación de 500g",
     "price": 7500,
     "discount": 600,
     "stock": false,
@@ -252,8 +252,8 @@
     "image_path": "assets/images/Fanta 2L zero.webp"
   },
   {
-    "name": "Carmenere \u2022 Diablo, Concha y Toro",
-    "description": "Vino tinto \u2022 Botella de 750mL \u2022 13,5\u00b0 G.L.",
+    "name": "Carmenere • Diablo, Concha y Toro",
+    "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
     "price": 8900,
     "discount": 0,
     "stock": true,
@@ -261,8 +261,8 @@
     "image_path": "assets/images/Vino Diablo Deep Carmenere.webp"
   },
   {
-    "name": "Cabernet Sauvignon \u2022 Misiones de Rengo",
-    "description": "Vino tinto \u2022 Botella de 750mL \u2022 13\u00b0 G.L.",
+    "name": "Cabernet Sauvignon • Misiones de Rengo",
+    "description": "Vino tinto • Botella de 750mL • 13° G.L.",
     "price": 5000,
     "discount": 0,
     "stock": false,
@@ -270,8 +270,8 @@
     "image_path": "assets/images/Vino Cabernet Sauvignon Misiones de Rengo 750 cc.webp"
   },
   {
-    "name": "Carmenere \u2022 Misiones de Rengo",
-    "description": "Vino tinto \u2022 Botella de 750mL \u2022 13\u00b0 G.L.",
+    "name": "Carmenere • Misiones de Rengo",
+    "description": "Vino tinto • Botella de 750mL • 13° G.L.",
     "price": 5000,
     "discount": 0,
     "stock": false,
@@ -279,8 +279,8 @@
     "image_path": "assets/images/Vino Carmenere Misiones de Rengo 750 cc.webp"
   },
   {
-    "name": "Cabernet Sauvignon \u2022 Gran 120, Santa Rita",
-    "description": "Vino tinto \u2022 Botella de 700mL \u2022 12\u00b0 G.L.",
+    "name": "Cabernet Sauvignon • Gran 120, Santa Rita",
+    "description": "Vino tinto • Botella de 700mL • 12° G.L.",
     "price": 5000,
     "discount": 500,
     "stock": true,
@@ -288,8 +288,8 @@
     "image_path": "assets/images/Gran 120 Cabernet Sauvignon 700mL.webp"
   },
   {
-    "name": "Merlot \u2022 Gato, San Pedro",
-    "description": "Vino tinto \u2022 Botella de 700mL \u2022 12\u00b0 G.L.",
+    "name": "Merlot • Gato, San Pedro",
+    "description": "Vino tinto • Botella de 700mL • 12° G.L.",
     "price": 4000,
     "discount": 0,
     "stock": true,
@@ -297,8 +297,8 @@
     "image_path": "assets/images/Gato Merlot 700mL.webp"
   },
   {
-    "name": "Cabernet Sauvignon \u2022 Gato, San Pedro",
-    "description": "Vino tinto \u2022 Botella de 700mL \u2022 12\u00b0 G.L.",
+    "name": "Cabernet Sauvignon • Gato, San Pedro",
+    "description": "Vino tinto • Botella de 700mL • 12° G.L.",
     "price": 4000,
     "discount": 0,
     "stock": true,
@@ -306,8 +306,8 @@
     "image_path": "assets/images/Gato Cabernet Sauvignon 700mL.webp"
   },
   {
-    "name": "Ensamblaje Devil's Collection \u2022 Casillero del Diablo, Concha y Toro",
-    "description": "Vino tinto \u2022 Botella de 750mL \u2022 13,5\u00b0 G.L.",
+    "name": "Ensamblaje Devil's Collection • Casillero del Diablo, Concha y Toro",
+    "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
     "price": 10000,
     "discount": 1100,
     "stock": true,
@@ -315,8 +315,8 @@
     "image_path": "assets/images/Casillero del Diablo Devil's Collection 750mL.webp"
   },
   {
-    "name": "Carmenere Reserva Privada \u2022 Casillero del Diablo, Concha y Toro",
-    "description": "Vino tinto \u2022 Botella 750mL \u2022 13,5\u00b0 G.L.",
+    "name": "Carmenere Reserva Privada • Casillero del Diablo, Concha y Toro",
+    "description": "Vino tinto • Botella 750mL • 13,5° G.L.",
     "price": 11500,
     "discount": 1500,
     "stock": true,
@@ -324,8 +324,8 @@
     "image_path": "assets/images/Casillero del Diablo Carmenere Reserva Privada 750mL.webp"
   },
   {
-    "name": "Cabernet Sauvignon Reserva Privada \u2022 Casillero del Diablo, Concha y Toro",
-    "description": "Vino tinto \u2022 Botella 750mL \u2022 13,5\u00b0 G.L.",
+    "name": "Cabernet Sauvignon Reserva Privada • Casillero del Diablo, Concha y Toro",
+    "description": "Vino tinto • Botella 750mL • 13,5° G.L.",
     "price": 11500,
     "discount": 1500,
     "stock": true,
@@ -342,8 +342,8 @@
     "image_path": "assets/images/Kunstmann Torobayo lata 470cc.webp"
   },
   {
-    "name": "Detergente L\u00edquido OMO Pro",
-    "description": "Presentaci\u00f3n de 5L",
+    "name": "Detergente Líquido OMO Pro",
+    "description": "Presentación de 5L",
     "price": 15000,
     "discount": 1100,
     "stock": true,
@@ -360,8 +360,8 @@
     "image_path": "assets/images/budweiser lata 350cc.webp"
   },
   {
-    "name": "Pa\u00f1os Wypall X50",
-    "description": "34cm x 28,8cm \u2022 50 pa\u00f1os reusables",
+    "name": "Paños Wypall X50",
+    "description": "34cm x 28,8cm • 50 paños reusables",
     "price": 3900,
     "discount": 400,
     "stock": true,
@@ -369,8 +369,8 @@
     "image_path": "assets/images/Wypall-X50.webp"
   },
   {
-    "name": "Pa\u00f1os Wypall X75",
-    "description": "42,3cm x 27,6cm \u2022 60 pa\u00f1os reusables",
+    "name": "Paños Wypall X75",
+    "description": "42,3cm x 27,6cm • 60 paños reusables",
     "price": 8500,
     "discount": 0,
     "stock": true,
@@ -378,16 +378,16 @@
     "image_path": "assets/images/Wypall-X75.webp"
   },
   {
-    "name": "Especial 35\u00b0 \u2022 Alto del Carmen",
+    "name": "Especial 35° • Alto del Carmen",
     "description": "Botella de 750mL",
     "price": 8000,
     "discount": 1100,
     "stock": true,
     "category": "Piscos",
-    "image_path": "assets/images/Pisco Alto del Carmen Especial 35\u00b0 750mL.webp"
+    "image_path": "assets/images/Pisco Alto del Carmen Especial 35° 750mL.webp"
   },
   {
-    "name": "Reservado 40\u00b0 \u2022 Alto del Carmen",
+    "name": "Reservado 40° • Alto del Carmen",
     "description": "Botella de 750mL",
     "price": 9900,
     "discount": 0,
@@ -396,16 +396,16 @@
     "image_path": "assets/images/Pisco Alto del Carmen Reservado 750mL.webp"
   },
   {
-    "name": "Envejecido Barricas de Selecci\u00f3n 40\u00b0 \u2022 Alto del Carmen",
+    "name": "Envejecido Barricas de Selección 40° • Alto del Carmen",
     "description": "Botella de 750mL",
     "price": 9900,
     "discount": 0,
     "stock": true,
     "category": "Piscos",
-    "image_path": "assets/images/Pisco Alto del Carmen Envejecido 40\u00b0.webp"
+    "image_path": "assets/images/Pisco Alto del Carmen Envejecido 40°.webp"
   },
   {
-    "name": "Especial 35\u00b0 \u2022 Artesanos del Cochiguaz",
+    "name": "Especial 35° • Artesanos del Cochiguaz",
     "description": "Botella de 750mL",
     "price": 5500,
     "discount": 0,
@@ -414,8 +414,8 @@
     "image_path": "assets/images/Pisco Artesanos del Cochiguaz.webp"
   },
   {
-    "name": "Carmenere Gran Reserva 2019 \u2022 Castillo de Molina, San Pedro",
-    "description": "Vino tinto \u2022 Botella de 750mL \u2022 14,5\u00b0 G.L.",
+    "name": "Carmenere Gran Reserva 2019 • Castillo de Molina, San Pedro",
+    "description": "Vino tinto • Botella de 750mL • 14,5° G.L.",
     "price": 12000,
     "discount": 2100,
     "stock": true,
@@ -423,8 +423,8 @@
     "image_path": "assets/images/Castillo de Molina Carmenere Gran Reserva 2019 San Pedro.webp"
   },
   {
-    "name": "Carmere Secret Reserve \u2022 Santa Rita",
-    "description": "Vino tinto \u2022 Botella de 750mL \u2022 13,5\u00b0 G.L.",
+    "name": "Carmere Secret Reserve • Santa Rita",
+    "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
     "price": 6000,
     "discount": 0,
     "stock": true,
@@ -432,40 +432,40 @@
     "image_path": "assets/images/Secret Reserve Carmenere Santa Rita.webp"
   },
   {
-    "name": "Ros\u00e9 \u2022 Misiones de Rengo",
-    "description": "Vino rosado \u2022 Botella de 750mL \u2022 13,5\u00b0 G.L.",
+    "name": "Rosé • Misiones de Rengo",
+    "description": "Vino rosado • Botella de 750mL • 13,5° G.L.",
     "price": 5000,
     "discount": 0,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Ros\u00e9 Misiones de Rengo.webp"
+    "image_path": "assets/images/Rosé Misiones de Rengo.webp"
   },
   {
-    "name": "Reservado 40\u00b0 \u2022 Malpaso",
-    "description": "Botella de 750mL \u2022 D.O. Valle del Limar\u00ed",
+    "name": "Reservado 40° • Malpaso",
+    "description": "Botella de 750mL • D.O. Valle del Limarí",
     "price": 10500,
     "discount": 0,
     "stock": true,
     "category": "Piscos",
-    "image_path": "assets/images/Pisco Malpaso Reservado 40\u00b0.webp"
+    "image_path": "assets/images/Pisco Malpaso Reservado 40°.webp"
   },
   {
-    "name": "A\u00f1ejado en Roble 46\u00b0 \u2022 Mistral",
+    "name": "Añejado en Roble 46° • Mistral",
     "description": "Botella de 750mL",
     "price": 11000,
     "discount": 0,
     "stock": true,
     "category": "Piscos",
-    "image_path": "assets/images/Pisco A\u00f1ejado en Roble 46\u00b0 Mistral.webp"
+    "image_path": "assets/images/Pisco Añejado en Roble 46° Mistral.webp"
   },
   {
-    "name": "Especial 35\u00b0 \u2022 Alto del Carmen",
+    "name": "Especial 35° • Alto del Carmen",
     "description": "Botella de 1L",
     "price": 10000,
     "discount": 1100,
     "stock": true,
     "category": "Piscos",
-    "image_path": "assets/images/Pisco Alto del Carmen Especial 35\u00b0 1L.webp"
+    "image_path": "assets/images/Pisco Alto del Carmen Especial 35° 1L.webp"
   },
   {
     "name": "Austral botella 330cc",
@@ -486,8 +486,8 @@
     "image_path": "assets/images/Miller lata 350cc.webp"
   },
   {
-    "name": "Cabernet Sauvignon Reserva \u2022 Misiones de Rengo",
-    "description": "Vino tinto \u2022 Botella de 750mL \u2022 13,5\u00b0 G.L.",
+    "name": "Cabernet Sauvignon Reserva • Misiones de Rengo",
+    "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
     "price": 7000,
     "discount": 500,
     "stock": true,
@@ -495,8 +495,8 @@
     "image_path": "assets/images/Misiones de Rengo Cabernet Sauvignon botella 750mL.webp"
   },
   {
-    "name": "Carmenere Reserva \u2022 Misiones de Rengo",
-    "description": "Vino tinto \u2022 Botella de 750mL \u2022 13,5\u00b0 G.L.",
+    "name": "Carmenere Reserva • Misiones de Rengo",
+    "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
     "price": 7000,
     "discount": 500,
     "stock": true,
@@ -504,8 +504,8 @@
     "image_path": "assets/images/Misiones de Rengo Carmenere Reserva botella 750mL.webp"
   },
   {
-    "name": "Cabernet Sauvignon Reserva Especial \u2022 Casillero del Diablo, Concha y Toro",
-    "description": "Vino tinto \u2022 Botella de 750mL \u2022 13,5\u00b0 G.L.",
+    "name": "Cabernet Sauvignon Reserva Especial • Casillero del Diablo, Concha y Toro",
+    "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
     "price": 7500,
     "discount": 0,
     "stock": true,
@@ -513,8 +513,8 @@
     "image_path": "assets/images/Cabernet Reserva Especial Casillero del Diablo botella de 750mL.webp"
   },
   {
-    "name": "Merlot Reserva Especial \u2022 Casillero del Diablo, Concha y Toro",
-    "description": "Vino tinto \u2022 Botella de 750mL \u2022 13,5\u00b0 G.L.",
+    "name": "Merlot Reserva Especial • Casillero del Diablo, Concha y Toro",
+    "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
     "price": 7500,
     "discount": 0,
     "stock": true,
@@ -522,8 +522,8 @@
     "image_path": "assets/images/Merlot Casillero del Diablo Concha y Toro botella 750mL.webp"
   },
   {
-    "name": "Cabernet Sauvignon Gran Reserva Black \u2022 Misiones de Rengo",
-    "description": "Vino tinto \u2022 Botella de 750mL \u2022 14\u00b0 G.L.",
+    "name": "Cabernet Sauvignon Gran Reserva Black • Misiones de Rengo",
+    "description": "Vino tinto • Botella de 750mL • 14° G.L.",
     "price": 12000,
     "discount": 0,
     "stock": true,
@@ -531,8 +531,8 @@
     "image_path": "assets/images/Cabernet Sauvignon Gran Reserva Misiones de Rengo botella 750mL.webp"
   },
   {
-    "name": "Carmenere Gran Reserva Black \u2022 Misiones de Rengo",
-    "description": "Vino tinto \u2022 Botella de 750mL \u2022 14\u00b0 G.L.",
+    "name": "Carmenere Gran Reserva Black • Misiones de Rengo",
+    "description": "Vino tinto • Botella de 750mL • 14° G.L.",
     "price": 12000,
     "discount": 0,
     "stock": true,
@@ -540,8 +540,8 @@
     "image_path": "assets/images/Carmenere Gran Reserva Misiones de Rengo botella 750mL.webp"
   },
   {
-    "name": "Merlot \u2022 Santa Emiliana, Concha y Toro",
-    "description": "Vino tinto \u2022 Botella de 700mL \u2022 13\u00b0 G.L.",
+    "name": "Merlot • Santa Emiliana, Concha y Toro",
+    "description": "Vino tinto • Botella de 700mL • 13° G.L.",
     "price": 4200,
     "discount": 0,
     "stock": true,
@@ -549,17 +549,17 @@
     "image_path": "assets/images/Vino-Santa-Emiliana-merlot-700-cc.webp"
   },
   {
-    "name": "Cabernet Sauvignon Reserva \u2022 Chivilingo, Mousi\u00f1o-Macul",
-    "description": "Vino tinto \u2022 Botella 750mL \u2022 13,5\u00b0 G.L.",
+    "name": "Cabernet Sauvignon Reserva • Chivilingo, Mousiño-Macul",
+    "description": "Vino tinto • Botella 750mL • 13,5° G.L.",
     "price": 5500,
     "discount": 0,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Cabernet Sauvignon Reserva Chivilingo Cousi\u00f1o-Macul botella 750mL.webp"
+    "image_path": "assets/images/Cabernet Sauvignon Reserva Chivilingo Cousiño-Macul botella 750mL.webp"
   },
   {
-    "name": "Carmenere Reserva Especial \u2022 H\u00e9roes, Santa Rita",
-    "description": "Vino tinto \u2022 Botella de 750mL \u2022 13\u00b0 G.L.",
+    "name": "Carmenere Reserva Especial • Héroes, Santa Rita",
+    "description": "Vino tinto • Botella de 750mL • 13° G.L.",
     "price": 6000,
     "discount": 500,
     "stock": true,
@@ -567,26 +567,26 @@
     "image_path": "assets/images/Carmenere Reserva Especial Heroes Santa Rita.webp"
   },
   {
-    "name": "Sour Lim\u00f3n 16\u00b0 \u2022 Campanario",
-    "description": "Pisco Sour \u2022 Botella de 1L",
+    "name": "Sour Limón 16° • Campanario",
+    "description": "Pisco Sour • Botella de 1L",
     "price": 6000,
     "discount": 0,
     "stock": true,
     "category": "Piscos",
-    "image_path": "assets/images/Pisco Sour Lim\u00f3n Campanario 1L.webp"
+    "image_path": "assets/images/Pisco Sour Limón Campanario 1L.webp"
   },
   {
-    "name": "C\u00f3ctel Lim\u00f3n Zero 14\u00b0 \u2022 Secreto Peruano",
-    "description": "Pisco Sour \u2022 Botella de 700mL",
+    "name": "Cóctel Limón Zero 14° • Secreto Peruano",
+    "description": "Pisco Sour • Botella de 700mL",
     "price": 4500,
     "discount": 0,
     "stock": true,
     "category": "Piscos",
-    "image_path": "assets/images/Pisco Sour Lim\u00f3n Zero Secreto Peruano 700mL.webp"
+    "image_path": "assets/images/Pisco Sour Limón Zero Secreto Peruano 700mL.webp"
   },
   {
-    "name": "Juego de Naranja \u2022 Soprole",
-    "description": "Envase de 1L \u2022 Sin az\u00facar a\u00f1adida",
+    "name": "Juego de Naranja • Soprole",
+    "description": "Envase de 1L • Sin azúcar añadida",
     "price": 1300,
     "discount": 0,
     "stock": true,
@@ -594,8 +594,8 @@
     "image_path": "assets/images/jugo-soprole-1-lt.webp"
   },
   {
-    "name": "Juego de Durazno \u2022 Soprole",
-    "description": "Envase de 1L \u2022 Sin az\u00facar a\u00f1adida",
+    "name": "Juego de Durazno • Soprole",
+    "description": "Envase de 1L • Sin azúcar añadida",
     "price": 1300,
     "discount": 0,
     "stock": true,
@@ -603,8 +603,8 @@
     "image_path": "assets/images/jugo-durazno-Soprole-1L.webp"
   },
   {
-    "name": "Chocolate con leche \u2022 Great Value",
-    "description": "Barra de 100g \u2022 30% cacao",
+    "name": "Chocolate con leche • Great Value",
+    "description": "Barra de 100g • 30% cacao",
     "price": 1600,
     "discount": 0,
     "stock": true,
@@ -612,8 +612,8 @@
     "image_path": "assets/images/Chocolate de Leche Great Value 100g.webp"
   },
   {
-    "name": "Chocolate con almendras \u2022 Great Value",
-    "description": "Barra de 100g \u2022 37% cacao",
+    "name": "Chocolate con almendras • Great Value",
+    "description": "Barra de 100g • 37% cacao",
     "price": 2000,
     "discount": 0,
     "stock": true,
@@ -621,8 +621,8 @@
     "image_path": "assets/images/Chocolate con Almendras Great Value 100g.webp"
   },
   {
-    "name": "Chocolate con avellanas \u2022 Great Value",
-    "description": "Barra de 100g \u2022 37% cacao",
+    "name": "Chocolate con avellanas • Great Value",
+    "description": "Barra de 100g • 37% cacao",
     "price": 2000,
     "discount": 0,
     "stock": true,
@@ -630,8 +630,8 @@
     "image_path": "assets/images/Chocolate con Avellanas Great Value 100g.webp"
   },
   {
-    "name": "Chocolate blanco \u2022 Great Value",
-    "description": "Barra de 100g \u2022 31% cacao",
+    "name": "Chocolate blanco • Great Value",
+    "description": "Barra de 100g • 31% cacao",
     "price": 1800,
     "discount": 0,
     "stock": true,
@@ -639,7 +639,7 @@
     "image_path": "assets/images/Chocolate blanco 100g.webp"
   },
   {
-    "name": "Chocolate con almendras \u2022 Ambrosoli",
+    "name": "Chocolate con almendras • Ambrosoli",
     "description": "Barra de 100g",
     "price": 1700,
     "discount": 0,
@@ -648,8 +648,8 @@
     "image_path": "assets/images/Chocolate de leche con almendras Ambrosoli 100g.webp"
   },
   {
-    "name": "Chocolate amargo \u2022 Our Finest",
-    "description": "Barra de 100g \u2022 90% cacao",
+    "name": "Chocolate amargo • Our Finest",
+    "description": "Barra de 100g • 90% cacao",
     "price": 3000,
     "discount": 0,
     "stock": true,
@@ -666,25 +666,25 @@
     "image_path": "assets/images/Doritos Queso 140gr.webp"
   },
   {
-    "name": "Papas Jam\u00f3n Serrano \u2022 Lay's",
+    "name": "Papas Jamón Serrano • Lay's",
     "description": "Bolsa de 140g",
     "price": 1900,
     "discount": 300,
     "stock": true,
     "category": "SnacksSalados",
-    "image_path": "assets/images/Lays-Jam\u00f3n-Serrano-140gr.webp"
+    "image_path": "assets/images/Lays-Jamón-Serrano-140gr.webp"
   },
   {
-    "name": "Papas Or\u00e9gano \u2022 Lay's",
+    "name": "Papas Orégano • Lay's",
     "description": "Bolsa de 140g",
     "price": 1900,
     "discount": 300,
     "stock": true,
     "category": "SnacksSalados",
-    "image_path": "assets/images/Lays Or\u00e9gano 140g.webp"
+    "image_path": "assets/images/Lays Orégano 140g.webp"
   },
   {
-    "name": "Ramitas Sabor Queso \u2022 Evercrisp",
+    "name": "Ramitas Sabor Queso • Evercrisp",
     "description": "Bolsa de 170g",
     "price": 1800,
     "discount": 300,
@@ -693,7 +693,7 @@
     "image_path": "assets/images/Ramitas-Queso-170gr.webp"
   },
   {
-    "name": "Papas Onduladas \u2022 Marco Polo",
+    "name": "Papas Onduladas • Marco Polo",
     "description": "Bolsa de 200g",
     "price": 1900,
     "discount": 300,
@@ -702,7 +702,7 @@
     "image_path": "assets/images/Papas-Marco-Polo-Onduladas-200g.webp"
   },
   {
-    "name": "Papas Lisas \u2022 Marco Polo",
+    "name": "Papas Lisas • Marco Polo",
     "description": "Bolsa de 200g",
     "price": 1900,
     "discount": 300,
@@ -711,16 +711,16 @@
     "image_path": "assets/images/Papas-Marco-Polo-Caseras-200g.webp"
   },
   {
-    "name": "Papas R\u00fasticas, Sal de Mar \u2022 Marco Polo",
+    "name": "Papas Rústicas, Sal de Mar • Marco Polo",
     "description": "Bolsa de 150g",
     "price": 2000,
     "discount": 400,
     "stock": true,
     "category": "SnacksSalados",
-    "image_path": "assets/images/Papas R\u00fasticas Sal de Mar Marco Polo 150g.webp"
+    "image_path": "assets/images/Papas Rústicas Sal de Mar Marco Polo 150g.webp"
   },
   {
-    "name": "Pirul\u00edn grande",
+    "name": "Pirulín grande",
     "description": "Lata de 300g",
     "price": 6500,
     "discount": 0,
@@ -729,7 +729,7 @@
     "image_path": "assets/images/Pirulin 300g.webp"
   },
   {
-    "name": "S\u00faper 8 \u2022 Pack 5 un.",
+    "name": "Súper 8 • Pack 5 un.",
     "description": "Barras de 29g c/u",
     "price": 2000,
     "discount": 200,
@@ -793,11 +793,11 @@
   },
   {
     "name": "Leche Condensada Parmalat",
-    "description": "Envase Tetra Brik\u00ae de 395g",
+    "description": "Envase Tetra Brik® de 395g",
     "price": 1600,
     "discount": 0,
     "stock": true,
     "category": "Despensa",
-    "image_path": "assets/images/Leche Condensada Parmalat 395g.webp"
+    "image_path": "assets/images/Parmalat-Leche-Condensada-395-gr.png"
   }
 ]
