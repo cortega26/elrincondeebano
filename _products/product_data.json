@@ -790,5 +790,14 @@
     "stock": true,
     "category": "Llaveros",
     "image_path": "assets/images/Donkey Kong.webp"
+  },
+  {
+    "name": "Leche Condensada Parmalat",
+    "description": "Envase Tetra Brik\u00ae de 395g",
+    "price": 1600,
+    "discount": 0,
+    "stock": true,
+    "category": "Despensa",
+    "image_path": "assets/images/Leche Condensada Parmalat 395g.webp"
   }
 ]
