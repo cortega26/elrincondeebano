@@ -812,10 +812,19 @@
   {
     "name": "Toalla Papel Nova Clásica XL",
     "description": "Rollo de 45m • 225 hojas 20 x 20 cm",
-    "price": 2500,
+    "price": 2600,
     "discount": 0,
     "stock": true,
     "category": "Limpiezayaseo",
     "image_path": "assets/images/Nova Clásica XL 45m.webp"
+  },
+  {
+    "name": "Toalla Papel Favorita Estilo",
+    "description": "Dos rollos de 26m c/u",
+    "price": 3500,
+    "discount": 0,
+    "stock": true,
+    "category": "Limpiezayaseo",
+    "image_path": "assets/images/Favorita Estilo 2x 52m.webp"
   }
 ]
