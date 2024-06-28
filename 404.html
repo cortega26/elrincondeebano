@@ -14,30 +14,35 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             background-color: #f5f5f5;
         }
         .container {
             display: flex;
             max-width: 800px;
+            width: 95%;
             background-color: white;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         .image-container {
             flex: 1;
             padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         .content {
             flex: 1;
-            padding: 40px;
+            padding: 20px;
             text-align: left;
         }
         img {
             max-width: 100%;
             height: auto;
+            object-fit: contain;
         }
         h1 {
-            font-size: 28px;
+            font-size: 24px;
             margin-top: 0;
         }
         p {
@@ -58,23 +63,21 @@
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
+                width: 90%;
             }
             .image-container, .content {
                 flex: none;
                 width: 100%;
             }
+            h1 {
+                font-size: 22px;
+            }
+            p {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-H0YG3RTJVM"></script>
-<script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-H0YG3RTJVM');
-</script>
 <body>
     <div class="container">
         <div class="image-container">
