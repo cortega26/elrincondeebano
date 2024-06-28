@@ -16,24 +16,29 @@
             align-items: center;
             min-height: 100vh;
             background-color: #f5f5f5;
+            animation: fadeIn 1s ease-in-out;
         }
         .container {
             display: flex;
-            flex-direction: column; /* Cambiado para móviles */
-            max-width: 100%; /* Ajustado para ocupar el ancho completo */
+            flex-direction: column;
+            max-width: 100%;
             width: 95%;
             background-color: white;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            animation: slideUp 1s ease-in-out;
         }
         .image-container {
             padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
+            background-color: #0366d6;
         }
         .content {
             padding: 20px;
-            text-align: center; /* Centrado en móviles */
+            text-align: center;
         }
         img {
             max-width: 100%;
@@ -41,8 +46,9 @@
             object-fit: contain;
         }
         h1 {
-            font-size: 22px; /* Reducido para móviles */
+            font-size: 24px;
             margin-top: 0;
+            color: #0366d6;
         }
         p {
             font-size: 16px;
@@ -52,12 +58,18 @@
             font-style: italic;
             color: #666;
         }
-        a {
-            color: #0366d6;
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #0366d6;
+            border-radius: 5px;
             text-decoration: none;
+            margin-top: 10px;
         }
-        a:hover {
-            text-decoration: underline;
+        .button:hover {
+            background-color: #024ba3;
         }
         @media (min-width: 769px) {
             .container {
@@ -65,8 +77,16 @@
                 width: 90%;
             }
             .content {
-                text-align: left; /* Ajuste para pantallas más grandes */
+                text-align: left;
             }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); }
+            to { transform: translateY(0); }
         }
     </style>
 </head>
@@ -80,7 +100,8 @@
             <p>Es solo un error 404.</p>
             <p>Lo que buscas puede haberse extraviado en la Memoria a Largo Plazo.</p>
             <p class="humor">O quizás decidió tomar unas vacaciones sin avisar. ¡Estos datos son tan impredecibles!</p>
-            <p>Mientras nuestros técnicos neuronales buscan tu página perdida, ¿por qué no <a href="/Tienda-Ebano/">regresas a la página de inicio</a>?</p>
+            <a href="/Tienda-Ebano/" class="button">Regresa a la página de inicio</a>
+            <p>Mientras tanto, puedes explorar nuestras <a href="/productos/">últimas ofertas</a> o leer nuestro <a href="/blog/">blog</a>.</p>
         </div>
     </div>
 </body>
