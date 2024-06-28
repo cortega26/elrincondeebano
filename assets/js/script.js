@@ -26,7 +26,7 @@ $(() => {
         try {
             await Promise.all([
                 loadComponent(navbarContainer, "navbar.html"),
-                loadComponent(buscaryfiltrarContainer, "buscaryfiltrar.html"), //* agregada *//
+                loadComponent(buscaryfiltrarContainer, "buscaryfiltrar.html"), /* agregada */
                 loadComponent(footerContainer, "footer.html")
             ]);
             console.log('Components loaded successfully');
