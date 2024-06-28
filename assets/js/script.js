@@ -2,6 +2,7 @@
 
 $(() => {
     const navbarContainer = $("#navbar-container");
+    const buscaryfiltrarContainer = $("#buscaryfiltrar-container");
     const footerContainer = $("#footer-container");
     const productContainer = $('#product-container');
     const sortOptions = $('#sort-options');
@@ -25,6 +26,7 @@ $(() => {
         try {
             await Promise.all([
                 loadComponent(navbarContainer, "navbar.html"),
+                loadComponent(buscaryfiltrarContainer, "buscaryfiltrar.html"), //* agregada *//
                 loadComponent(footerContainer, "footer.html")
             ]);
             console.log('Components loaded successfully');
