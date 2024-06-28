@@ -1,5 +1,14 @@
 [
   {
+    "name": "Tocino Ahumado La Preferida",
+    "description": "Empaque de 500g",
+    "price": 6900,
+    "discount": 0,
+    "stock": true,
+    "category": "Carnesyembutidos",
+    "image_path": "assets/images/Tocino Ahumado La Preferida 500g.webp"
+  },
+  {
     "name": "Leche Semidescremada Deslactosada Surlat",
     "description": "Envase UHT de 1L",
     "price": 1600,
