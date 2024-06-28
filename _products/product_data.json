@@ -202,7 +202,7 @@
     "description": "Presentación de 200g",
     "price": 2400,
     "discount": 0,
-    "stock": false,
+    "stock": true,
     "category": "Carnesyembutidos",
     "image_path": "assets/images/Jamón PF acaramelado 200g.webp"
   },
