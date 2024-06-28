@@ -1,5 +1,14 @@
 [
   {
+    "name": "UNO",
+    "description": "Juego de Cartas",
+    "price": 4000,
+    "discount": 0,
+    "stock": true,
+    "category": "Juegos",
+    "image_path": "assets/images/UNO.webp"
+  },
+  {
     "name": "Tocino Ahumado La Preferida",
     "description": "Empaque de 500g",
     "price": 6900,
