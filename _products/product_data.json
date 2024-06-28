@@ -580,7 +580,7 @@
     "description": "Vino tinto • Botella 750mL • 13,5° G.L.",
     "price": 5500,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Vinos",
     "image_path": "assets/images/Cabernet Sauvignon Reserva Chivilingo Cousiño-Macul botella 750mL.webp"
   },
