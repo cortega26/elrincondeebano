@@ -231,13 +231,13 @@
     }
   }
 
-  /* Ensure the default Bootstrap dropdown arrow is shown */
+/* Ensure the default Bootstrap dropdown arrow is shown */
 select.form-control {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  background: url('data:image/svg+xml;utf8,<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5H7z"/></svg>') no-repeat right center;
-  padding-right: 30px; /* Add some padding to make room for the arrow */
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background: url('data:image/svg+xml;utf8,<svg fill="currentColor" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5H7z"/></svg>') no-repeat right 0.75rem center !important;
+  padding-right: 2rem !important; /* Increase padding to make room for the arrow */
 }
 
 /* Additional style to enhance the dropdown appearance */
