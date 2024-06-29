@@ -230,3 +230,20 @@
       font-size: 1.125rem;
     }
   }
+
+  /* Ensure the default Bootstrap dropdown arrow is shown */
+select.form-control {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: url('data:image/svg+xml;utf8,<svg fill="none" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5H7z"/></svg>') no-repeat right center;
+  padding-right: 30px; /* Add some padding to make room for the arrow */
+}
+
+/* Additional style to enhance the dropdown appearance */
+select.form-control {
+  background-color: #fff; /* White background for the select */
+  border: 1px solid #ced4da; /* Border color */
+  border-radius: 0.25rem; /* Rounded corners */
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1); /* Slight inner shadow */
+}
