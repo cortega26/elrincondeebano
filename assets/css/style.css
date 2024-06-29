@@ -193,6 +193,9 @@
   /* Form Styles */
   .form-control {
     border-radius: var(--border-radius);
+    background-color: #fff; /* White background for the select */
+    border: 1px solid #ced4da; /* Border color */
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1); /* Slight inner shadow */
   }
   
   #sort-options,
