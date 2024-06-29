@@ -241,7 +241,7 @@ select.form-control {
 }
 
 /* Additional style to enhance the dropdown appearance */
-.container.my-4 {
+.row.mb-3 {
   background-color: #fff; /* White background for the select */
   border: 1px solid #ced4da; /* Border color */
   border-radius: 0.25rem; /* Rounded corners */
