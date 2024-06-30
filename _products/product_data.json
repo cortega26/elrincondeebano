@@ -1,5 +1,14 @@
 [
   {
+    "name": "Corona lata 473cc",
+    "description": "Cerveza Lager x 6 unidades",
+    "price": 6900,
+    "discount": 0,
+    "stock": true,
+    "category": "Cervezas",
+    "image_path": "assets/images/Corona Extra lata 473cc.webp"
+  },
+  {
     "name": "Tocino Ahumado La Preferida",
     "description": "Empaque de 500g",
     "price": 6900,
