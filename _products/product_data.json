@@ -724,7 +724,7 @@
     "description": "Bolsa de 200g",
     "price": 1900,
     "discount": 300,
-    "stock": true,
+    "stock": false,
     "category": "SnacksSalados",
     "image_path": "assets/images/Papas-Marco-Polo-Onduladas-200g.webp"
   },
