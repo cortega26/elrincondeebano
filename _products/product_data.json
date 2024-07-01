@@ -184,7 +184,7 @@
     "description": "Parmesano (a granel, en trozo)",
     "price": 4000,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Lacteos",
     "image_path": "assets/images/Queso Colun Reggianito.webp"
   },
