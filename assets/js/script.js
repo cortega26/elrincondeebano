@@ -24,8 +24,8 @@ $(() => {
     const loadComponents = async () => {
         try {
             await Promise.all([
-                loadComponent(navbarContainer, "navbar.html"),
-                loadComponent(footerContainer, "footer.html")
+                loadComponent(navbarContainer, "html/navbar.html"),
+                loadComponent(footerContainer, "html/footer.html")
             ]);
             console.log('Components loaded successfully');
         } catch (error) {
