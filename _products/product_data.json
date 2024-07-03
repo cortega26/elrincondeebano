@@ -6,7 +6,7 @@
     "discount": 0,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Red Blend Reserva Chivilingo botella 750mL.webp"
+    "image_path": "assets/images/vinos/Red Blend Reserva Chivilingo botella 750mL.webp"
   },
   {
     "name": "Carmenere Reserva • Chivilingo, Mousiño-Macul",
@@ -15,7 +15,7 @@
     "discount": 0,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Carmenere Reserva Chivilingo Cousiño-Macul botella 750mL.webp"
+    "image_path": "assets/images/vinos/Carmenere Reserva Chivilingo Cousiño-Macul botella 750mL.webp"
   },
   {
     "name": "Toalla Papel Nova Clásica",
@@ -24,7 +24,7 @@
     "discount": 0,
     "stock": true,
     "category": "Limpiezayaseo",
-    "image_path": "assets/images/Nova Clásica 2x16m.webp"
+    "image_path": "assets/images/limpieza_y_aseo/Nova Clásica 2x16m.webp"
   },
   {
     "name": "Rosé E • Misiones de Rengo",
