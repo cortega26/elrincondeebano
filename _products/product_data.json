@@ -96,7 +96,7 @@
     "discount": 1000,
     "stock": true,
     "category": "Despensa",
-    "image_path": "assets/images/Aceite de Oliva Nutricampo 1L.webp"
+    "image_path": "assets/images/despensa/Aceite de Oliva Nutricampo 1L.webp"
   },
   {
     "name": "Café El Peñón Gourmet",
@@ -105,7 +105,7 @@
     "discount": 0,
     "stock": true,
     "category": "Despensa",
-    "image_path": "assets/images/Cafe-El-Peñon-Gourmet-500g.webp"
+    "image_path": "assets/images/despensa/Cafe-El-Peñon-Gourmet-500g.webp"
   },
   {
     "name": "Becker lata 354cc",
@@ -195,7 +195,7 @@
     "discount": 0,
     "stock": true,
     "category": "Despensa",
-    "image_path": "assets/images/Harina de Maíz Nieve.webp"
+    "image_path": "assets/images/despensa/Harina de Maíz Nieve.webp"
   },
   {
     "name": "Harina PAN",
@@ -204,7 +204,7 @@
     "discount": 0,
     "stock": true,
     "category": "Despensa",
-    "image_path": "assets/images/Harina-de-Maiz-blanca-PAN-1-kg.webp"
+    "image_path": "assets/images/despensa/Harina-de-Maiz-blanca-PAN-1-kg.webp"
   },
   {
     "name": "Nescafé Fina Selección",
@@ -213,7 +213,7 @@
     "discount": 1000,
     "stock": true,
     "category": "Despensa",
-    "image_path": "assets/images/Cafe-Nescafe-Fina-Seleccion-200-g.webp"
+    "image_path": "assets/images/despensa/Cafe-Nescafe-Fina-Seleccion-200-g.webp"
   },
   {
     "name": "Queso Crema Rafulco",
@@ -870,7 +870,7 @@
     "discount": 0,
     "stock": true,
     "category": "Despensa",
-    "image_path": "assets/images/Parmalat-Leche-Condensada-395-gr.png"
+    "image_path": "assets/images/despensa/Parmalat-Leche-Condensada-395-gr.png"
   },
   {
     "name": "Toalla Papel Nova Clásica XL",
