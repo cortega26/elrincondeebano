@@ -1,12 +1,10 @@
 // age-verification.js
 
-// Función para escapar URLs
 function escapeURL(url) {
     return encodeURI(url);
 }
 
-// Exportamos la función verifyAge para que pueda ser utilizada desde el HTML
-window.verifyAge = function(isAdult) {
+function verifyAge(isAdult) {
     if (isAdult) {
         document.body.classList.add('age-verified');
         localStorage.setItem('ageVerified', 'true');
@@ -16,12 +14,17 @@ window.verifyAge = function(isAdult) {
     }
 }
 
-// Verificar si ya se ha confirmado la edad
 function checkAgeVerification() {
     if (localStorage.getItem('ageVerified') === 'true') {
         document.body.classList.add('age-verified');
+    } else {
+        const overlay = document.getElementById('age-verification-overlay');
+        const yesButton = overlay.querySelector('button:first-of-type');
+        const noButton = overlay.querySelector('button:last-of-type');
+
+        yesButton.addEventListener('click', () => verifyAge(true));
+        noButton.addEventListener('click', () => verifyAge(false));
     }
 }
 
-// Ejecutar la verificación al cargar la página
 document.addEventListener('DOMContentLoaded', checkAgeVerification);
