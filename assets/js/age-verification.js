@@ -1,7 +1,26 @@
 // age-verification.js
 
-function escapeURL(url) {
-    return encodeURI(url);
+const SAFE_DOMAINS = ['cortega26.github.io']; // List of allowed domains
+
+function isSafeURL(url) {
+    try {
+        const parsedURL = new URL(url);
+        return SAFE_DOMAINS.includes(parsedURL.hostname) && 
+               ['https:', 'http:'].includes(parsedURL.protocol);
+    } catch {
+        return false;
+    }
+}
+
+function safeRedirect(url) {
+    if (isSafeURL(url)) {
+        // Use template literals for string interpolation
+        window.location.href = `${encodeURI(url)}`;
+    } else {
+        console.error('Unsafe URL detected');
+        // Redirect to a known safe page
+        window.location.href = 'https://cortega26.github.io/Tienda-Ebano/index.html';
+    }
 }
 
 function verifyAge(isAdult) {
@@ -9,8 +28,7 @@ function verifyAge(isAdult) {
         document.body.classList.add('age-verified');
         localStorage.setItem('ageVerified', 'true');
     } else {
-        const safeURL = escapeURL('https://cortega26.github.io/Tienda-Ebano/index.html');
-        window.location.href = safeURL;
+        safeRedirect('https://cortega26.github.io/Tienda-Ebano/index.html');
     }
 }
 
@@ -19,11 +37,15 @@ function checkAgeVerification() {
         document.body.classList.add('age-verified');
     } else {
         const overlay = document.getElementById('age-verification-overlay');
-        const yesButton = overlay.querySelector('button:first-of-type');
-        const noButton = overlay.querySelector('button:last-of-type');
+        if (overlay) {
+            const yesButton = overlay.querySelector('button:first-of-type');
+            const noButton = overlay.querySelector('button:last-of-type');
 
-        yesButton.addEventListener('click', () => verifyAge(true));
-        noButton.addEventListener('click', () => verifyAge(false));
+            if (yesButton && noButton) {
+                yesButton.addEventListener('click', () => verifyAge(true));
+                noButton.addEventListener('click', () => verifyAge(false));
+            }
+        }
     }
 }
 
