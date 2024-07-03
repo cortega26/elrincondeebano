@@ -15,7 +15,7 @@
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Corona Extra lata 473cc.webp"
+    "image_path": "assets/images/cervezas/Corona Extra lata 473cc.webp"
   },
   {
     "name": "Tocino Ahumado La Preferida",
@@ -60,7 +60,7 @@
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Becker lata 350cc.webp"
+    "image_path": "assets/images/cervezas/Becker lata 350cc.webp"
   },
   {
     "name": "Coors botella 355cc",
@@ -69,7 +69,7 @@
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Coors botella 355cc.webp"
+    "image_path": "assets/images/cervezas/Coors botella 355cc.webp"
   },
   {
     "name": "Coors lata 350cc",
@@ -78,7 +78,7 @@
     "discount": 400,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Coors lata 350cc.webp"
+    "image_path": "assets/images/cervezas/Coors lata 350cc.webp"
   },
   {
     "name": "Cristal lata 350cc",
@@ -87,7 +87,7 @@
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Cristal lata b350cc.webp"
+    "image_path": "assets/images/cervezas/Cristal lata b350cc.webp"
   },
   {
     "name": "Heineken lata 350cc",
@@ -96,7 +96,7 @@
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Heineken lata 350cc.webp"
+    "image_path": "assets/images/cervezas/Heineken lata 350cc.webp"
   },
   {
     "name": "Royal Guard lata 350cc",
@@ -105,7 +105,7 @@
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Royal Guard lata 350cc.webp"
+    "image_path": "assets/images/cervezas/Royal Guard lata 350cc.webp"
   },
   {
     "name": "Stella Artois lata 354cc",
@@ -114,7 +114,7 @@
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Stella Artois lata 350cc.webp"
+    "image_path": "assets/images/cervezas/Stella Artois lata 350cc.webp"
   },
   {
     "name": "Stones Lemon lata 350cc",
@@ -123,7 +123,7 @@
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Stones Limón lata 350cc.webp"
+    "image_path": "assets/images/cervezas/Stones Limón lata 350cc.webp"
   },
   {
     "name": "Crema de Leche Surlat",
@@ -294,7 +294,7 @@
     "discount": 0,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Vino Diablo Deep Carmenere.webp"
+    "image_path": "assets/images/vinos/Vino Diablo Deep Carmenere.webp"
   },
   {
     "name": "Cabernet Sauvignon • Misiones de Rengo",
@@ -303,7 +303,7 @@
     "discount": 0,
     "stock": false,
     "category": "Vinos",
-    "image_path": "assets/images/Vino Cabernet Sauvignon Misiones de Rengo 750 cc.webp"
+    "image_path": "assets/images/vinos/Vino Cabernet Sauvignon Misiones de Rengo 750 cc.webp"
   },
   {
     "name": "Carmenere • Misiones de Rengo",
@@ -312,7 +312,7 @@
     "discount": 0,
     "stock": false,
     "category": "Vinos",
-    "image_path": "assets/images/Vino Carmenere Misiones de Rengo 750 cc.webp"
+    "image_path": "assets/images/vinos/Vino Carmenere Misiones de Rengo 750 cc.webp"
   },
   {
     "name": "Cabernet Sauvignon • Gran 120, Santa Rita",
@@ -321,7 +321,7 @@
     "discount": 500,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Gran 120 Cabernet Sauvignon 700mL.webp"
+    "image_path": "assets/images/vinos/Gran 120 Cabernet Sauvignon 700mL.webp"
   },
   {
     "name": "Merlot • Gato, San Pedro",
@@ -330,7 +330,7 @@
     "discount": 0,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Gato Merlot 700mL.webp"
+    "image_path": "assets/images/vinos/Gato Merlot 700mL.webp"
   },
   {
     "name": "Cabernet Sauvignon • Gato, San Pedro",
@@ -339,7 +339,7 @@
     "discount": 0,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Gato Cabernet Sauvignon 700mL.webp"
+    "image_path": "assets/images/vinos/Gato Cabernet Sauvignon 700mL.webp"
   },
   {
     "name": "Ensamblaje Devil's Collection • Casillero del Diablo, Concha y Toro",
@@ -348,7 +348,7 @@
     "discount": 1100,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Casillero del Diablo Devil's Collection 750mL.webp"
+    "image_path": "assets/images/vinos/Casillero del Diablo Devil's Collection 750mL.webp"
   },
   {
     "name": "Carmenere Reserva Privada • Casillero del Diablo, Concha y Toro",
@@ -357,7 +357,7 @@
     "discount": 1500,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Casillero del Diablo Carmenere Reserva Privada 750mL.webp"
+    "image_path": "assets/images/vinos/Casillero del Diablo Carmenere Reserva Privada 750mL.webp"
   },
   {
     "name": "Cabernet Sauvignon Reserva Privada • Casillero del Diablo, Concha y Toro",
@@ -366,7 +366,7 @@
     "discount": 1500,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Casillero del Diablo Cabernet Sauvignon Reserva Privada 750mL.webp"
+    "image_path": "assets/images/vinos/Casillero del Diablo Cabernet Sauvignon Reserva Privada 750mL.webp"
   },
   {
     "name": "Kunstmann lata 470cc",
@@ -375,7 +375,7 @@
     "discount": 400,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Kunstmann Torobayo lata 470cc.webp"
+    "image_path": "assets/images/cervezas/Kunstmann Torobayo lata 470cc.webp"
   },
   {
     "name": "Detergente Líquido OMO Pro",
@@ -393,7 +393,7 @@
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/budweiser lata 350cc.webp"
+    "image_path": "assets/images/cervezas/budweiser lata 350cc.webp"
   },
   {
     "name": "Paños Wypall X50",
@@ -456,7 +456,7 @@
     "discount": 2100,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Castillo de Molina Carmenere Gran Reserva 2019 San Pedro.webp"
+    "image_path": "assets/images/vinos/Castillo de Molina Carmenere Gran Reserva 2019 San Pedro.webp"
   },
   {
     "name": "Carmere Secret Reserve • Santa Rita",
@@ -465,7 +465,7 @@
     "discount": 0,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Secret Reserve Carmenere Santa Rita.webp"
+    "image_path": "assets/images/vinos/Secret Reserve Carmenere Santa Rita.webp"
   },
   {
     "name": "Rosé • Misiones de Rengo",
@@ -474,7 +474,7 @@
     "discount": 0,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Rosé Misiones de Rengo.webp"
+    "image_path": "assets/images/vinos/Rosé Misiones de Rengo.webp"
   },
   {
     "name": "Reservado 40° • Malpaso",
@@ -510,7 +510,7 @@
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Austral Calafate Ale botella botella 330cc-2.webp"
+    "image_path": "assets/images/cervezas/Austral Calafate Ale botella botella 330cc-2.webp"
   },
   {
     "name": "Miller lata 355c",
@@ -519,7 +519,7 @@
     "discount": 0,
     "stock": true,
     "category": "Cervezas",
-    "image_path": "assets/images/Miller lata 350cc.webp"
+    "image_path": "assets/images/cervezas/Miller lata 350cc.webp"
   },
   {
     "name": "Cabernet Sauvignon Reserva • Misiones de Rengo",
@@ -528,7 +528,7 @@
     "discount": 500,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Misiones de Rengo Cabernet Sauvignon botella 750mL.webp"
+    "image_path": "assets/images/vinos/Misiones de Rengo Cabernet Sauvignon botella 750mL.webp"
   },
   {
     "name": "Carmenere Reserva • Misiones de Rengo",
@@ -537,7 +537,7 @@
     "discount": 500,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Misiones de Rengo Carmenere Reserva botella 750mL.webp"
+    "image_path": "assets/images/vinos/Misiones de Rengo Carmenere Reserva botella 750mL.webp"
   },
   {
     "name": "Cabernet Sauvignon Reserva Especial • Casillero del Diablo, Concha y Toro",
@@ -546,7 +546,7 @@
     "discount": 0,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Cabernet Reserva Especial Casillero del Diablo botella de 750mL.webp"
+    "image_path": "assets/images/vinos/Cabernet Reserva Especial Casillero del Diablo botella de 750mL.webp"
   },
   {
     "name": "Merlot Reserva Especial • Casillero del Diablo, Concha y Toro",
@@ -555,7 +555,7 @@
     "discount": 0,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Merlot Casillero del Diablo Concha y Toro botella 750mL.webp"
+    "image_path": "assets/images/vinos/Merlot Casillero del Diablo Concha y Toro botella 750mL.webp"
   },
   {
     "name": "Cabernet Sauvignon Gran Reserva Black • Misiones de Rengo",
@@ -564,7 +564,7 @@
     "discount": 0,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Cabernet Sauvignon Gran Reserva Misiones de Rengo botella 750mL.webp"
+    "image_path": "assets/images/vinos/Cabernet Sauvignon Gran Reserva Misiones de Rengo botella 750mL.webp"
   },
   {
     "name": "Carmenere Gran Reserva Black • Misiones de Rengo",
@@ -573,7 +573,7 @@
     "discount": 0,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Carmenere Gran Reserva Misiones de Rengo botella 750mL.webp"
+    "image_path": "assets/images/vinos/Carmenere Gran Reserva Misiones de Rengo botella 750mL.webp"
   },
   {
     "name": "Merlot • Santa Emiliana, Concha y Toro",
@@ -582,7 +582,7 @@
     "discount": 0,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Vino-Santa-Emiliana-merlot-700-cc.webp"
+    "image_path": "assets/images/vinos/Vino-Santa-Emiliana-merlot-700-cc.webp"
   },
   {
     "name": "Cabernet Sauvignon Reserva • Chivilingo, Mousiño-Macul",
@@ -591,7 +591,7 @@
     "discount": 0,
     "stock": false,
     "category": "Vinos",
-    "image_path": "assets/images/Cabernet Sauvignon Reserva Chivilingo Cousiño-Macul botella 750mL.webp"
+    "image_path": "assets/images/vinos/Cabernet Sauvignon Reserva Chivilingo Cousiño-Macul botella 750mL.webp"
   },
   {
     "name": "Carmenere Reserva Especial • Héroes, Santa Rita",
@@ -600,7 +600,7 @@
     "discount": 500,
     "stock": true,
     "category": "Vinos",
-    "image_path": "assets/images/Carmenere Reserva Especial Heroes Santa Rita.webp"
+    "image_path": "assets/images/vinos/Carmenere Reserva Especial Heroes Santa Rita.webp"
   },
   {
     "name": "Sour Limón 16° • Campanario",
