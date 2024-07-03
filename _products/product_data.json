@@ -240,7 +240,7 @@
     "discount": 0,
     "stock": true,
     "category": "Bebidas",
-    "image_path": "assets/images/Coca-Cola-2L.webp"
+    "image_path": "assets/images/bebidas/Coca-Cola-2L.webp"
   },
   {
     "name": "Coca-Cola Zero 2L",
@@ -249,7 +249,7 @@
     "discount": 0,
     "stock": true,
     "category": "Bebidas",
-    "image_path": "assets/images/Coca-Cola-2L sin azucar.webp"
+    "image_path": "assets/images/bebidas/Coca-Cola-2L sin azucar.webp"
   },
   {
     "name": "Sprite 2L",
@@ -258,7 +258,7 @@
     "discount": 0,
     "stock": true,
     "category": "Bebidas",
-    "image_path": "assets/images/Sprite 2L.webp"
+    "image_path": "assets/images/bebidas/Sprite 2L.webp"
   },
   {
     "name": "Sprite Zero 2L",
@@ -267,7 +267,7 @@
     "discount": 0,
     "stock": true,
     "category": "Bebidas",
-    "image_path": "assets/images/Sprite 2L zero.webp"
+    "image_path": "assets/images/bebidas/Sprite 2L zero.webp"
   },
   {
     "name": "Fanta 2L",
@@ -276,7 +276,7 @@
     "discount": 0,
     "stock": true,
     "category": "Bebidas",
-    "image_path": "assets/images/Fanta 2L.webp"
+    "image_path": "assets/images/bebidas/Fanta 2L.webp"
   },
   {
     "name": "Fanta Zero 2L",
@@ -285,7 +285,7 @@
     "discount": 0,
     "stock": true,
     "category": "Bebidas",
-    "image_path": "assets/images/Fanta 2L zero.webp"
+    "image_path": "assets/images/bebidas/Fanta 2L zero.webp"
   },
   {
     "name": "Carmenere • Diablo, Concha y Toro",
@@ -420,7 +420,7 @@
     "discount": 1100,
     "stock": true,
     "category": "Piscos",
-    "image_path": "assets/images/Pisco Alto del Carmen Especial 35° 750mL.webp"
+    "image_path": "assets/images/piscos/piscos/Pisco Alto del Carmen Especial 35° 750mL.webp"
   },
   {
     "name": "Reservado 40° • Alto del Carmen",
@@ -429,7 +429,7 @@
     "discount": 1000,
     "stock": true,
     "category": "Piscos",
-    "image_path": "assets/images/Pisco Alto del Carmen Reservado 750mL.webp"
+    "image_path": "assets/images/piscos/Pisco Alto del Carmen Reservado 750mL.webp"
   },
   {
     "name": "Envejecido Barricas de Selección 40° • Alto del Carmen",
@@ -438,7 +438,7 @@
     "discount": 1000,
     "stock": true,
     "category": "Piscos",
-    "image_path": "assets/images/Pisco Alto del Carmen Envejecido 40°.webp"
+    "image_path": "assets/images/piscos/Pisco Alto del Carmen Envejecido 40°.webp"
   },
   {
     "name": "Especial 35° • Artesanos del Cochiguaz",
@@ -447,7 +447,7 @@
     "discount": 0,
     "stock": true,
     "category": "Piscos",
-    "image_path": "assets/images/Pisco Artesanos del Cochiguaz.webp"
+    "image_path": "assets/images/piscos/Pisco Artesanos del Cochiguaz.webp"
   },
   {
     "name": "Carmenere Gran Reserva 2019 • Castillo de Molina, San Pedro",
@@ -483,7 +483,7 @@
     "discount": 0,
     "stock": true,
     "category": "Piscos",
-    "image_path": "assets/images/Pisco Malpaso Reservado 40°.webp"
+    "image_path": "assets/images/piscos/Pisco Malpaso Reservado 40°.webp"
   },
   {
     "name": "Añejado en Roble 46° • Mistral",
@@ -492,7 +492,7 @@
     "discount": 0,
     "stock": true,
     "category": "Piscos",
-    "image_path": "assets/images/Pisco Añejado en Roble 46° Mistral.webp"
+    "image_path": "assets/images/piscos/Pisco Añejado en Roble 46° Mistral.webp"
   },
   {
     "name": "Especial 35° • Alto del Carmen",
@@ -609,7 +609,7 @@
     "discount": 0,
     "stock": true,
     "category": "Piscos",
-    "image_path": "assets/images/Pisco Sour Limón Campanario 1L.webp"
+    "image_path": "assets/images/piscos/Pisco Sour Limón Campanario 1L.webp"
   },
   {
     "name": "Cóctel Limón Zero 14° • Secreto Peruano",
@@ -618,7 +618,7 @@
     "discount": 0,
     "stock": true,
     "category": "Piscos",
-    "image_path": "assets/images/Pisco Sour Limón Zero Secreto Peruano 700mL.webp"
+    "image_path": "assets/images/piscos/Pisco Sour Limón Zero Secreto Peruano 700mL.webp"
   },
   {
     "name": "Juego de Naranja • Soprole",
@@ -645,7 +645,7 @@
     "discount": 0,
     "stock": true,
     "category": "Chocolates",
-    "image_path": "assets/images/Chocolate de Leche Great Value 100g.webp"
+    "image_path": "assets/images/chocolates/Chocolate de Leche Great Value 100g.webp"
   },
   {
     "name": "Chocolate con almendras • Great Value",
@@ -654,7 +654,7 @@
     "discount": 0,
     "stock": true,
     "category": "Chocolates",
-    "image_path": "assets/images/Chocolate con Almendras Great Value 100g.webp"
+    "image_path": "assets/images/chocolates/Chocolate con Almendras Great Value 100g.webp"
   },
   {
     "name": "Chocolate con avellanas • Great Value",
@@ -663,7 +663,7 @@
     "discount": 0,
     "stock": true,
     "category": "Chocolates",
-    "image_path": "assets/images/Chocolate con Avellanas Great Value 100g.webp"
+    "image_path": "assets/images/chocolates/Chocolate con Avellanas Great Value 100g.webp"
   },
   {
     "name": "Chocolate blanco • Great Value",
@@ -672,7 +672,7 @@
     "discount": 0,
     "stock": true,
     "category": "Chocolates",
-    "image_path": "assets/images/Chocolate blanco 100g.webp"
+    "image_path": "assets/images/chocolates/Chocolate blanco 100g.webp"
   },
   {
     "name": "Chocolate con almendras • Ambrosoli",
@@ -681,7 +681,7 @@
     "discount": 0,
     "stock": true,
     "category": "Chocolates",
-    "image_path": "assets/images/Chocolate de leche con almendras Ambrosoli 100g.webp"
+    "image_path": "assets/images/chocolates/Chocolate de leche con almendras Ambrosoli 100g.webp"
   },
   {
     "name": "Chocolate amargo • Our Finest",
@@ -690,7 +690,7 @@
     "discount": 0,
     "stock": true,
     "category": "Chocolates",
-    "image_path": "assets/images/Chocolate amargo Our Finest 90_ cacao.webp"
+    "image_path": "assets/images/chocolates/Chocolate amargo Our Finest 90_ cacao.webp"
   },
   {
     "name": "Doritos Queso",
@@ -780,7 +780,7 @@
     "discount": 0,
     "stock": true,
     "category": "Llaveros",
-    "image_path": "assets/images/Mario.webp"
+    "image_path": "assets/images/llaveros/Mario.webp"
   },
   {
     "name": "Luigi",
@@ -789,7 +789,7 @@
     "discount": 0,
     "stock": true,
     "category": "Llaveros",
-    "image_path": "assets/images/Luigi.webp"
+    "image_path": "assets/images/llaveros/Luigi.webp"
   },
   {
     "name": "Yoshi",
@@ -798,7 +798,7 @@
     "discount": 0,
     "stock": true,
     "category": "Llaveros",
-    "image_path": "assets/images/Yoshi.webp"
+    "image_path": "assets/images/llaveros/Yoshi.webp"
   },
   {
     "name": "Peach",
@@ -807,7 +807,7 @@
     "discount": 0,
     "stock": true,
     "category": "Llaveros",
-    "image_path": "assets/images/Peach.webp"
+    "image_path": "assets/images/llaveros/Peach.webp"
   },
   {
     "name": "Bowser",
@@ -816,7 +816,7 @@
     "discount": 0,
     "stock": true,
     "category": "Llaveros",
-    "image_path": "assets/images/Bowser.webp"
+    "image_path": "assets/images/llaveros/Bowser.webp"
   },
   {
     "name": "Donkey Kong",
@@ -825,7 +825,7 @@
     "discount": 0,
     "stock": true,
     "category": "Llaveros",
-    "image_path": "assets/images/Donkey Kong.webp"
+    "image_path": "assets/images/llaveros/Donkey Kong.webp"
   },
   {
     "name": "Leche Condensada Parmalat",
