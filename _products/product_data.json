@@ -869,8 +869,8 @@
     "price": 1600,
     "discount": 0,
     "stock": true,
-    "category": "Despensa",
-    "image_path": "assets/images/despensa/Parmalat-Leche-Condensada-395-gr.png"
+    "category": "Lacteos",
+    "image_path": "assets/images/lacteos/Parmalat-Leche-Condensada-395-gr.png"
   },
   {
     "name": "Toalla Papel Nova Clásica XL",
