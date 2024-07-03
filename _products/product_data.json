@@ -1,14 +1,5 @@
 [
   {
-    "name": "Especial 35° G • Alto del Carmen",
-    "description": "Botella de 1L",
-    "price": 10000,
-    "discount": 1100,
-    "stock": true,
-    "category": "Piscos",
-    "image_path": "assets/images/Pisco Alto del Carmen Especial 35° 1L.webp"
-  },
-  {
     "name": "Especial 35° M • Alto del Carmen",
     "description": "Botella de 750 de mL",
     "price": 8000,
@@ -16,6 +7,15 @@
     "stock": true,
     "category": "Piscos",
     "image_path": "assets/images/Pisco Alto del Carmen Especial 35° 750mL.webp"
+  },
+  {
+    "name": "Especial 35° G • Alto del Carmen",
+    "description": "Botella de 1L",
+    "price": 10000,
+    "discount": 1100,
+    "stock": true,
+    "category": "Piscos",
+    "image_path": "assets/images/Pisco Alto del Carmen Especial 35° 1L.webp"
   },
   {
     "name": "Ramitas Sal • Evercrisp",
