@@ -8,22 +8,12 @@ $(() => {
     const filterKeyword = $('#filter-keyword');
     const showInStock = $('#show-in-stock');
 
-    // Helper function to sanitize HTML
-    const sanitizeHTML = (unsafe) => {
-        return unsafe
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    };
-
     const loadComponent = (container, filename) => {
         return new Promise((resolve, reject) => {
             container.load(filename, (response, status, xhr) => {
                 if (status === "error") {
-                    console.error(`Error loading ${sanitizeHTML(filename)}:`, xhr.status, xhr.statusText);
-                    reject(new Error(`Failed to load ${sanitizeHTML(filename)}`));
+                    console.error(`Error loading ${filename}:`, xhr.status, xhr.statusText);
+                    reject(new Error(`Failed to load ${filename}`));
                 } else {
                     resolve();
                 }
@@ -46,12 +36,7 @@ $(() => {
 
     const fetchProducts = async () => {
         try {
-            const response = await fetch('/Tienda-Ebano/_products/product_data.json', {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
+            const response = await fetch('/Tienda-Ebano/_products/product_data.json');
             if (!response.ok) {
                 throw new Error(`HTTP error. Status: ${response.status}`);
             }
@@ -63,24 +48,6 @@ $(() => {
         }
     };
 
-    const renderPriceHtml = (price, discount) => {
-        const formattedPrice = price.toLocaleString('es-CL');
-        if (discount) {
-            const discountedPrice = price - discount;
-            const formattedDiscountedPrice = discountedPrice.toLocaleString('es-CL');
-            const formattedDiscount = discount.toLocaleString('es-CL');
-            return `
-                <div class="precio-container">
-                    <span class="precio-descuento">$${formattedDiscountedPrice}</span>
-                    <span class="ahorra">Ahorra $${formattedDiscount}</span>
-                </div>
-                <span class="precio-original">Regular: $<span class="tachado">${formattedPrice}</span></span>
-            `;
-        } else {
-            return `<span class="precio">$${formattedPrice}</span>`;
-        }
-    };
-
     const renderProducts = (products) => {
         productContainer.empty();
         
@@ -89,30 +56,40 @@ $(() => {
         
         const productHTML = filteredProducts.map(product => {
             const { name, description, image_path, price, discount, stock } = product;
+            const formattedPrice = price.toLocaleString('es-CL');
+            const discountedPrice = price - discount;
+            const formattedDiscountedPrice = discountedPrice.toLocaleString('es-CL');
+            const formattedDiscount = discount.toLocaleString('es-CL');
             
-            const safeHtml = `
+            const discountHTML = discount ? `
+                <div class="precio-container">
+                    <span class="precio-descuento">$${formattedDiscountedPrice}</span>
+                    <span class="ahorra">Ahorra $${formattedDiscount}</span>
+                </div>
+                <span class="precio-original">Regular: $<span class="tachado">${formattedPrice}</span></span>
+            ` : `<span class="precio">$${formattedPrice}</span>`;
+            
+            return `
                 <div class="producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4 ${!stock ? 'agotado' : ''}">
                     <div class="card">
-                        <img src="${encodeURI(image_path)}" alt="${sanitizeHTML(name)}" class="card-img-top">
+                        <img src="${image_path}" alt="${name}" class="card-img-top">
                         <div class="card-body">
-                            <h3 class="card-title">${sanitizeHTML(name)}</h3>
-                            <p class="card-text">${sanitizeHTML(description)}</p>
-                            ${renderPriceHtml(price, discount)}
+                            <h3 class="card-title">${name}</h3>
+                            <p class="card-text">${description}</p>
+                            ${discountHTML}
                         </div>
                     </div>
                 </div>
             `;
-            return safeHtml;
         }).join('');
 
-        productContainer.html($.parseHTML(productHTML));
+        productContainer.html(productHTML);
     };
 
     const filterProducts = (products, keyword, sortCriterion) => {
-        const safeKeyword = sanitizeHTML(keyword.toLowerCase());
         const filtered = products.filter(product => 
-            sanitizeHTML(product.name.toLowerCase()).includes(safeKeyword) ||
-            sanitizeHTML(product.description.toLowerCase()).includes(safeKeyword)
+            product.name.toLowerCase().includes(keyword.toLowerCase()) ||
+            product.description.toLowerCase().includes(keyword.toLowerCase())
         );
         return sortProducts(filtered, sortCriterion);
     };
@@ -126,7 +103,7 @@ $(() => {
                 if (criterion.startsWith('price')) {
                     return product.price - (product.discount || 0);
                 } else {
-                    return sanitizeHTML(product.name.toLowerCase());
+                    return product.name.toLowerCase();
                 }
             };
             const valueA = getComparableValue(a);
@@ -145,18 +122,18 @@ $(() => {
 
             const currentCategory = $('main').data('category');
             if (currentCategory) {
-                products = products.filter(product => sanitizeHTML(product.category) === sanitizeHTML(currentCategory));
+                products = products.filter(product => product.category === currentCategory);
             }
 
             const updateProductDisplay = () => {
                 try {
                     const criterion = sortOptions.val() || 'original';
-                    const keyword = sanitizeHTML(filterKeyword.val().trim());
+                    const keyword = filterKeyword.val().trim().replace(/</g, "&lt;").replace(/>/g, "&gt;");
                     const filteredAndSortedProducts = filterProducts(products, keyword, criterion);
                     renderProducts(filteredAndSortedProducts);
                 } catch (error) {
                     console.error('Error updating product display:', error);
-                    productContainer.text('Error updating product display. Please try again later.');
+                    productContainer.html('<p>Error updating product display. Please try again later.</p>');
                 }
             };
 
@@ -167,7 +144,7 @@ $(() => {
             updateProductDisplay();
         } catch (error) {
             console.error('Error initializing products:', error);
-            productContainer.text('Error loading products. Please try again later.');
+            productContainer.html('<p>Error loading products. Please try again later.</p>');
         }
     };
 
