@@ -690,7 +690,7 @@
     "discount": 0,
     "stock": true,
     "category": "Jugos",
-    "image_path": "assets/images/jugo-soprole-1-lt.webp"
+    "image_path": "assets/images/jugos/jugo-soprole-1-lt.webp"
   },
   {
     "name": "Juego de Durazno • Soprole",
@@ -699,7 +699,7 @@
     "discount": 0,
     "stock": true,
     "category": "Jugos",
-    "image_path": "assets/images/jugo-durazno-Soprole-1L.webp"
+    "image_path": "assets/images/jugos/jugo-durazno-Soprole-1L.webp"
   },
   {
     "name": "Chocolate con leche • Great Value",
