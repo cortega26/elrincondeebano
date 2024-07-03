@@ -78,7 +78,7 @@
     "discount": 0,
     "stock": true,
     "category": "Carnesyembutidos",
-    "image_path": "assets/images/Tocino Ahumado La Preferida 500g.webp"
+    "image_path": "assets/images/carnes_y_embutidos/Tocino Ahumado La Preferida 500g.webp"
   },
   {
     "name": "Leche Semidescremada Deslactosada Surlat",
@@ -258,7 +258,7 @@
     "discount": 600,
     "stock": false,
     "category": "Carnesyembutidos",
-    "image_path": "assets/images/Pepperoni La Preferida 500g.webp"
+    "image_path": "assets/images/carnes_y_embutidos/Pepperoni La Preferida 500g.webp"
   },
   {
     "name": "Chuleta Ahumada sin hueso Idaca (Kg)",
@@ -267,7 +267,7 @@
     "discount": 500,
     "stock": true,
     "category": "Carnesyembutidos",
-    "image_path": "assets/images/Chuleta Ahumada sin hueso.webp"
+    "image_path": "assets/images/carnes_y_embutidos/Chuleta Ahumada sin hueso.webp"
   },
   {
     "name": "Jamón de Pierna Acaramelado PF",
@@ -276,7 +276,7 @@
     "discount": 0,
     "stock": true,
     "category": "Carnesyembutidos",
-    "image_path": "assets/images/Jamón PF acaramelado 200g.webp"
+    "image_path": "assets/images/carnes_y_embutidos/Jamón PF acaramelado 200g.webp"
   },
   {
     "name": "Salame La Preferida",
@@ -285,7 +285,7 @@
     "discount": 600,
     "stock": false,
     "category": "Carnesyembutidos",
-    "image_path": "assets/images/Salame La Preferida 500g.webp"
+    "image_path": "assets/images/carnes_y_embutidos/Salame La Preferida 500g.webp"
   },
   {
     "name": "Coca-Cola 2L",
