@@ -8,7 +8,6 @@ $(() => {
     const filterKeyword = $('#filter-keyword');
     const showInStock = $('#show-in-stock');
 
-    // Helper function to sanitize HTML
     const sanitizeHTML = (unsafe) => {
         return unsafe
             .replace(/&/g, "&amp;")
@@ -22,8 +21,8 @@ $(() => {
         return new Promise((resolve, reject) => {
             container.load(filename, (response, status, xhr) => {
                 if (status === "error") {
-                    console.error(`Error loading ${sanitizeHTML(filename)}:`, xhr.status, xhr.statusText);
-                    reject(new Error(`Failed to load ${sanitizeHTML(filename)}`));
+                    console.error('Error loading component:', { filename, status: xhr.status, statusText: xhr.statusText });
+                    reject(new Error('Failed to load component'));
                 } else {
                     resolve();
                 }
@@ -87,25 +86,31 @@ $(() => {
         const showInStockOnly = showInStock.prop('checked');
         const filteredProducts = showInStockOnly ? products.filter(product => product.stock) : products;
         
-        const productHTML = filteredProducts.map(product => {
+        filteredProducts.forEach(product => {
             const { name, description, image_path, price, discount, stock } = product;
             
-            const safeHtml = `
-                <div class="producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4 ${!stock ? 'agotado' : ''}">
-                    <div class="card">
-                        <img src="${encodeURI(image_path)}" alt="${sanitizeHTML(name)}" class="card-img-top">
-                        <div class="card-body">
-                            <h3 class="card-title">${sanitizeHTML(name)}</h3>
-                            <p class="card-text">${sanitizeHTML(description)}</p>
-                            ${renderPriceHtml(price, discount)}
-                        </div>
-                    </div>
-                </div>
-            `;
-            return safeHtml;
-        }).join('');
+            const productElement = $('<div>', {
+                class: `producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4 ${!stock ? 'agotado' : ''}`
+            });
 
-        productContainer.html($.parseHTML(productHTML));
+            const cardElement = $('<div>', { class: 'card' });
+            
+            $('<img>', {
+                src: encodeURI(image_path),
+                alt: sanitizeHTML(name),
+                class: 'card-img-top'
+            }).appendTo(cardElement);
+
+            const cardBody = $('<div>', { class: 'card-body' });
+            $('<h3>', { class: 'card-title', text: sanitizeHTML(name) }).appendTo(cardBody);
+            $('<p>', { class: 'card-text', text: sanitizeHTML(description) }).appendTo(cardBody);
+            
+            cardBody.append(renderPriceHtml(price, discount));
+            cardElement.append(cardBody);
+            productElement.append(cardElement);
+            
+            productContainer.append(productElement);
+        });
     };
 
     const filterProducts = (products, keyword, sortCriterion) => {
