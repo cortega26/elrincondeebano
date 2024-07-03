@@ -42,7 +42,7 @@
     "discount": 1100,
     "stock": true,
     "category": "Piscos",
-    "image_path": "assets/images/Pisco Alto del Carmen Especial 35° 750mL.webp"
+    "image_path": "assets/images/piscos/Pisco Alto del Carmen Especial 35° 750mL.webp"
   },
   {
     "name": "Especial 35° g • Alto del Carmen",
@@ -51,7 +51,7 @@
     "discount": 1100,
     "stock": true,
     "category": "Piscos",
-    "image_path": "assets/images/Pisco Alto del Carmen Especial 35° 1L.webp"
+    "image_path": "assets/images/piscos/Pisco Alto del Carmen Especial 35° 1L.webp"
   },
   {
     "name": "Ramitas Sal • Evercrisp",
