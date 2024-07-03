@@ -60,7 +60,7 @@
     "discount": 300,
     "stock": true,
     "category": "SnacksSalados",
-    "image_path": "assets/images/Ramitas-Sal-170gr.webp"
+    "image_path": "assets/images/snacks_salados/Ramitas-Sal-170gr.webp"
   },
   {
     "name": "Corona lata 473cc",
@@ -87,7 +87,7 @@
     "discount": 0,
     "stock": true,
     "category": "Lacteos",
-    "image_path": "assets/images/Leche semidescramada deslactosada Surlat 1L.webp"
+    "image_path": "assets/images/lacteos/Leche semidescramada deslactosada Surlat 1L.webp"
   },
   {
     "name": "Aceite de Oliva Extra Virgen Nutricampo",
@@ -186,7 +186,7 @@
     "discount": 0,
     "stock": true,
     "category": "Lacteos",
-    "image_path": "assets/images/Crema de leche Surlat 200mL.webp"
+    "image_path": "assets/images/lacteos/Crema de leche Surlat 200mL.webp"
   },
   {
     "name": "Harina La Nieve",
@@ -222,7 +222,7 @@
     "discount": 0,
     "stock": true,
     "category": "Lacteos",
-    "image_path": "assets/images/Queso Crema Rafulco 190g.webp"
+    "image_path": "assets/images/lacteos/Queso Crema Rafulco 190g.webp"
   },
   {
     "name": "Queso Gauda La Vaquita",
@@ -231,7 +231,7 @@
     "discount": 0,
     "stock": true,
     "category": "Lacteos",
-    "image_path": "assets/images/Queso Gauda La Vaquita 400g.webp"
+    "image_path": "assets/images/lacteos/Queso Gauda La Vaquita 400g.webp"
   },
   {
     "name": "Queso Llanero Guárico 1/4Kg",
@@ -240,7 +240,7 @@
     "discount": 0,
     "stock": true,
     "category": "Lacteos",
-    "image_path": "assets/images/Queso-Llanero2.webp"
+    "image_path": "assets/images/lacteos/Queso-Llanero2.webp"
   },
   {
     "name": "Queso Reggianito Colun 1/4Kg",
@@ -249,7 +249,7 @@
     "discount": 0,
     "stock": false,
     "category": "Lacteos",
-    "image_path": "assets/images/Queso Colun Reggianito.webp"
+    "image_path": "assets/images/lacteos/Queso Colun Reggianito.webp"
   },
   {
     "name": "Pepperoni La Preferida",
@@ -735,7 +735,7 @@
     "discount": 300,
     "stock": true,
     "category": "SnacksSalados",
-    "image_path": "assets/images/Doritos Queso 140gr.webp"
+    "image_path": "assets/images/snacks_salados/Doritos Queso 140gr.webp"
   },
   {
     "name": "Papas Jamón Serrano • Lay's",
@@ -744,7 +744,7 @@
     "discount": 300,
     "stock": true,
     "category": "SnacksSalados",
-    "image_path": "assets/images/Lays-Jamón-Serrano-140gr.webp"
+    "image_path": "assets/images/snacks_salados/Lays-Jamón-Serrano-140gr.webp"
   },
   {
     "name": "Papas Orégano • Lay's",
@@ -753,7 +753,7 @@
     "discount": 300,
     "stock": true,
     "category": "SnacksSalados",
-    "image_path": "assets/images/Lays Orégano 140g.webp"
+    "image_path": "assets/images/snacks_salados/Lays Orégano 140g.webp"
   },
   {
     "name": "Ramitas Queso • Evercrisp",
@@ -762,7 +762,7 @@
     "discount": 300,
     "stock": true,
     "category": "SnacksSalados",
-    "image_path": "assets/images/Ramitas-Queso-170gr.webp"
+    "image_path": "assets/images/snacks_salados/Ramitas-Queso-170gr.webp"
   },
   {
     "name": "Papas Onduladas • Marco Polo",
@@ -771,7 +771,7 @@
     "discount": 300,
     "stock": false,
     "category": "SnacksSalados",
-    "image_path": "assets/images/Papas-Marco-Polo-Onduladas-200g.webp"
+    "image_path": "assets/images/snacks_salados/Papas-Marco-Polo-Onduladas-200g.webp"
   },
   {
     "name": "Papas Lisas • Marco Polo",
@@ -780,7 +780,7 @@
     "discount": 300,
     "stock": true,
     "category": "SnacksSalados",
-    "image_path": "assets/images/Papas-Marco-Polo-Caseras-200g.webp"
+    "image_path": "assets/images/snacks_salados/Papas-Marco-Polo-Caseras-200g.webp"
   },
   {
     "name": "Papas Rústicas, Sal de Mar • Marco Polo",
@@ -789,7 +789,7 @@
     "discount": 400,
     "stock": true,
     "category": "SnacksSalados",
-    "image_path": "assets/images/Papas Rústicas Sal de Mar Marco Polo 150g.webp"
+    "image_path": "assets/images/snacks_salados/Papas Rústicas Sal de Mar Marco Polo 150g.webp"
   },
   {
     "name": "Pirulín grande",
@@ -798,7 +798,7 @@
     "discount": 0,
     "stock": true,
     "category": "SnacksDulces",
-    "image_path": "assets/images/Pirulin 300g.webp"
+    "image_path": "assets/images/snacks_dulces/Pirulin 300g.webp"
   },
   {
     "name": "Súper 8 • Pack 5 un.",
@@ -807,7 +807,7 @@
     "discount": 200,
     "stock": true,
     "category": "SnacksDulces",
-    "image_path": "assets/images/Super 8 pack 5.webp"
+    "image_path": "assets/images/snacks_dulces/Super 8 pack 5.webp"
   },
   {
     "name": "Mario Bros",
