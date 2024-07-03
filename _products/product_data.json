@@ -6,7 +6,7 @@
     "discount": 0,
     "stock": true,
     "category": "Espumantes",
-    "image_path": "assets/images/Espumante Misiones de Rengo Rosé.webp"
+    "image_path": "assets/images/espumantes/Espumante Misiones de Rengo Rosé.webp"
   },
   {
     "name": "Demi Sec • Misiones de Rengo",
@@ -15,7 +15,7 @@
     "discount": 0,
     "stock": true,
     "category": "Espumantes",
-    "image_path": "assets/images/Espumante Misiones de Rengo Demi Sec.webp"
+    "image_path": "assets/images/espumantes/Espumante Misiones de Rengo Demi Sec.webp"
   },
   {
     "name": "Brut • Misiones de Rengo",
@@ -24,7 +24,7 @@
     "discount": 0,
     "stock": true,
     "category": "Espumantes",
-    "image_path": "assets/images/Espumante Misiones de Rengo Brut.webp"
+    "image_path": "assets/images/espumantes/Espumante Misiones de Rengo Brut.webp"
   },
   {
     "name": "Sweet Moscato • Undurraga",
@@ -33,7 +33,7 @@
     "discount": 0,
     "stock": true,
     "category": "Espumantes",
-    "image_path": "assets/images/Undurraga Sweet Moscato 750mL.webp"
+    "image_path": "assets/images/espumantes/Undurraga Sweet Moscato 750mL.webp"
   },
   {
     "name": "Especial 35° m • Alto del Carmen",
