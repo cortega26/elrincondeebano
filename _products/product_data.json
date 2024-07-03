@@ -1,5 +1,32 @@
 [
   {
+    "name": "Red Blend Reserva • Chivilingo, Mousiño-Macul",
+    "description": "Vino tinto • Botella 750mL • 13,5° G.L.",
+    "price": 5500,
+    "discount": 0,
+    "stock": true,
+    "category": "Vinos",
+    "image_path": "assets/images/Red Blend Reserva Chivilingo botella 750mL.webp"
+  },
+  {
+    "name": "Carmenere Reserva • Chivilingo, Mousiño-Macul",
+    "description": "Vino tinto • Botella 750mL • 13,5° G.L.",
+    "price": 5500,
+    "discount": 0,
+    "stock": true,
+    "category": "Vinos",
+    "image_path": "assets/images/Carmenere Reserva Chivilingo Cousiño-Macul botella 750mL.webp"
+  },
+  {
+    "name": "Toalla Papel Nova Clásica",
+    "description": "2 Rollos de 16m c/u",
+    "price": 2000,
+    "discount": 0,
+    "stock": true,
+    "category": "Limpiezayaseo",
+    "image_path": "assets/images/Nova Clásica 2x16m.webp"
+  },
+  {
     "name": "Rosé E • Misiones de Rengo",
     "description": "Espumante • Botella de 750mL",
     "price": 7000,
@@ -438,7 +465,7 @@
     "discount": 1100,
     "stock": true,
     "category": "Limpiezayaseo",
-    "image_path": "assets/images/Omo Pro 5L.webp"
+    "image_path": "assets/images/limpieza_y_aseo/Omo Pro 5L.webp"
   },
   {
     "name": "Budweiser lata 354cc",
@@ -456,7 +483,7 @@
     "discount": 400,
     "stock": true,
     "category": "Limpiezayaseo",
-    "image_path": "assets/images/Wypall-X50.png"
+    "image_path": "assets/images/limpieza_y_aseo/Wypall-X50.png"
   },
   {
     "name": "Paños Wypall X75",
@@ -465,7 +492,7 @@
     "discount": 0,
     "stock": true,
     "category": "Limpiezayaseo",
-    "image_path": "assets/images/Wypall-X75.webp"
+    "image_path": "assets/images/limpieza_y_aseo/Wypall-X75.webp"
   },
   {
     "name": "Reservado 40° • Alto del Carmen",
@@ -874,12 +901,12 @@
   },
   {
     "name": "Toalla Papel Nova Clásica XL",
-    "description": "Rollo de 45m • 225 hojas 20 x 20 cm",
+    "description": "Rollo de 45m",
     "price": 2600,
     "discount": 0,
     "stock": true,
     "category": "Limpiezayaseo",
-    "image_path": "assets/images/Nova Clásica XL 45m.webp"
+    "image_path": "assets/images/limpieza_y_aseo/Nova Clásica XL 45m.webp"
   },
   {
     "name": "Toalla Papel Favorita Estilo",
@@ -888,7 +915,7 @@
     "discount": 0,
     "stock": true,
     "category": "Limpiezayaseo",
-    "image_path": "assets/images/Favorita Estilo 2x 52m.webp"
+    "image_path": "assets/images/limpieza_y_aseo/Favorita Estilo 2x 52m.webp"
   },
   {
     "name": "UNO",
@@ -897,6 +924,6 @@
     "discount": 0,
     "stock": true,
     "category": "Juegos",
-    "image_path": "assets/images/UNO.webp"
+    "image_path": "assets/images/juegos/UNO.webp"
   }
 ]
