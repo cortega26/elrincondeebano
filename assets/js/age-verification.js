@@ -1,10 +1,18 @@
 // age-verification.js
-function verifyAge(isAdult) {
+
+// Función para escapar URLs
+function escapeURL(url) {
+    return encodeURI(url);
+}
+
+// Exportamos la función verifyAge para que pueda ser utilizada desde el HTML
+window.verifyAge = function(isAdult) {
     if (isAdult) {
         document.body.classList.add('age-verified');
         localStorage.setItem('ageVerified', 'true');
     } else {
-        window.location.href = 'https://cortega26.github.io/Tienda-Ebano/index.html';
+        const safeURL = escapeURL('https://cortega26.github.io/Tienda-Ebano/index.html');
+        window.location.href = safeURL;
     }
 }
 
