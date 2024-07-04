@@ -164,13 +164,6 @@ $(() => {
         });
     };
 
-    const adjustBodyPadding = () => {
-        const navbar = document.querySelector('.navbar');
-        if (navbar) {
-            document.body.style.paddingTop = navbar.offsetHeight + 'px';
-        }
-    };
-
     const initialize = async () => {
         try {
             await loadComponents();
@@ -198,29 +191,6 @@ $(() => {
             showInStock.on('change', updateProductDisplay);
 
             updateProductDisplay();
-
-            // Add navbar adjustment functionality
-            adjustBodyPadding();
-            window.addEventListener('resize', adjustBodyPadding);
-
-            const navbarToggler = document.querySelector('.navbar-toggler');
-            const navbarCollapse = document.querySelector('.navbar-collapse');
-
-            if (navbarToggler && navbarCollapse) {
-                navbarToggler.addEventListener('click', () => {
-                    navbarCollapse.classList.toggle('show');
-                    setTimeout(adjustBodyPadding, 350); // Adjust after transition
-                });
-
-                // Close menu when clicking outside
-                document.addEventListener('click', (event) => {
-                    const isClickInside = navbarToggler.contains(event.target) || navbarCollapse.contains(event.target);
-                    if (!isClickInside && navbarCollapse.classList.contains('show')) {
-                        navbarCollapse.classList.remove('show');
-                        setTimeout(adjustBodyPadding, 350); // Adjust after transition
-                    }
-                });
-            }
 
         } catch (error) {
             console.error('Error initializing products:', error);
