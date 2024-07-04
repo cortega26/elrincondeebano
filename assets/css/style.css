@@ -215,30 +215,35 @@
     margin-top: 2rem;
   }
   
-  /* Media Queries */
-  @media (min-width: 768px) {
-    #sort-options,
-    #filter-keyword {
-      margin-bottom: 0;
-    }
+ /* Media Queries */
+@media (max-width: 991px) {
+  :root {
+      --navbar-height: 56px; /* Keep it consistent for mobile */
   }
-  
-  @media (max-width: 767px) {
-    :root {
-      --navbar-height: 70px; /* Adjust this value for mobile view */
+
+  body {
+      padding-top: var(--navbar-height);
   }
-    h1 {
+
+  .navbar-collapse {
+      max-height: calc(100vh - var(--navbar-height));
+      overflow-y: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  h1 {
       font-size: 1.75rem;
-    }
-  
-    .producto .card-title {
-      font-size: 1rem;
-    }
-  
-    .precio-descuento {
-      font-size: 1.125rem;
-    }
   }
+
+  .producto .card-title {
+      font-size: 1rem;
+  }
+
+  .precio-descuento {
+      font-size: 1.125rem;
+  }
+}
 
 /* Ensure the default Bootstrap dropdown arrow is shown */
 select.form-control {
