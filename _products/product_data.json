@@ -262,7 +262,7 @@
   },
   {
     "name": "Queso Llanero Guárico 1/4Kg",
-    "description": "A granel, por trozo",
+    "description": "A granel, en trozo",
     "price": 2400,
     "discount": 0,
     "stock": true,
@@ -270,8 +270,8 @@
     "image_path": "assets/images/lacteos/Queso-Llanero2.webp"
   },
   {
-    "name": "Queso Reggianito Colun 1/4Kg",
-    "description": "Parmesano (a granel, en trozo)",
+    "name": "Queso Parmesano La Vaquita 1/4Kg",
+    "description": "A granel, en trozo",
     "price": 4000,
     "discount": 0,
     "stock": true,
