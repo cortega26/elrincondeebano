@@ -164,6 +164,13 @@ $(() => {
         });
     };
 
+    const adjustBodyPadding = () => {
+        const navbar = document.querySelector('.navbar');
+        if (navbar) {
+            document.body.style.paddingTop = navbar.offsetHeight + 'px';
+        }
+    };
+
     const initialize = async () => {
         try {
             await loadComponents();
@@ -191,6 +198,18 @@ $(() => {
             showInStock.on('change', updateProductDisplay);
 
             updateProductDisplay();
+
+            // Add navbar adjustment functionality
+            adjustBodyPadding();
+            window.addEventListener('resize', adjustBodyPadding);
+
+            const navbarToggler = document.querySelector('.navbar-toggler');
+            if (navbarToggler) {
+                navbarToggler.addEventListener('click', () => {
+                    setTimeout(adjustBodyPadding, 10); // Small delay to allow for DOM update
+                });
+            }
+
         } catch (error) {
             console.error('Error initializing products:', error);
             productContainer.text('Error loading products. Please try again later.');
