@@ -7,6 +7,7 @@
     --border-radius: 0.25rem;
     --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     --transition: all 0.3s ease;
+    --navbar-height: 56px;
   }
   
   /* Global Styles */
@@ -15,6 +16,7 @@
     color: var(--text-color);
     background-color: var(--background-color);
     line-height: 1.6;
+    padding-top: var(--navbar-height);
   }
   
   h1 {
@@ -27,6 +29,7 @@
   /* Navbar Styles */
   .navbar {
     padding: 0 1rem;
+    height: var(--navbar-height);
   }
   
   .navbar-brand {
