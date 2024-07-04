@@ -6,7 +6,7 @@ function isSafeURL(url) {
     try {
         const parsedURL = new URL(url);
         return SAFE_DOMAINS.includes(parsedURL.hostname) && 
-          ['https:', 'http:'].includes(parsedURL.protocol);
+            ['https:', 'http:'].includes(parsedURL.protocol);
     } catch {
         return false;
     }
