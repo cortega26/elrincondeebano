@@ -12,14 +12,18 @@ function isSafeURL(url) {
     }
 }
 
+function escapeURL(url) {
+    return encodeURIComponent(url).replace(/[!'()*]/g, c => `%${c.charCodeAt(0).toString(16).toUpperCase()}`);
+}
+
 function safeRedirect(url) {
     if (isSafeURL(url)) {
-        // Use template literals for string interpolation
-        window.location.href = `${encodeURI(url)}`;
+        // Use template literals for string interpolation and escape the URL
+        window.location.href = `${escapeURL(url)}`;
     } else {
         console.error('Unsafe URL detected');
         // Redirect to a known safe page
-        window.location.href = 'https://cortega26.github.io/Tienda-Ebano/index.html';
+        window.location.href = escapeURL('https://cortega26.github.io/Tienda-Ebano/index.html');
     }
 }
 

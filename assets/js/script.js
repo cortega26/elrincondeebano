@@ -17,6 +17,25 @@ $(() => {
             .replace(/'/g, "&#039;");
     };
 
+    const createSafeElement = (tag, attributes = {}, children = []) => {
+        const element = document.createElement(tag);
+        Object.entries(attributes).forEach(([key, value]) => {
+            if (key === 'text') {
+                element.textContent = value;
+            } else {
+                element.setAttribute(key, value);
+            }
+        });
+        children.forEach(child => {
+            if (typeof child === 'string') {
+                element.appendChild(document.createTextNode(child));
+            } else {
+                element.appendChild(child);
+            }
+        });
+        return element;
+    };
+
     const loadComponent = (container, filename) => {
         return new Promise((resolve, reject) => {
             container.load(filename, (response, status, xhr) => {
@@ -68,15 +87,16 @@ $(() => {
             const discountedPrice = price - discount;
             const formattedDiscountedPrice = discountedPrice.toLocaleString('es-CL');
             const formattedDiscount = discount.toLocaleString('es-CL');
-            return `
-                <div class="precio-container">
-                    <span class="precio-descuento">$${formattedDiscountedPrice}</span>
-                    <span class="ahorra">Ahorra $${formattedDiscount}</span>
-                </div>
-                <span class="precio-original">Regular: $<span class="tachado">${formattedPrice}</span></span>
-            `;
+            return createSafeElement('div', { class: 'precio-container' }, [
+                createSafeElement('span', { class: 'precio-descuento' }, [`$${formattedDiscountedPrice}`]),
+                createSafeElement('span', { class: 'ahorra' }, [`Ahorra $${formattedDiscount}`]),
+                createSafeElement('span', { class: 'precio-original' }, [
+                    'Regular: $',
+                    createSafeElement('span', { class: 'tachado' }, [formattedPrice])
+                ])
+            ]);
         } else {
-            return `<span class="precio">$${formattedPrice}</span>`;
+            return createSafeElement('span', { class: 'precio' }, [`$${formattedPrice}`]);
         }
     };
 
@@ -89,25 +109,26 @@ $(() => {
         filteredProducts.forEach(product => {
             const { name, description, image_path, price, discount, stock } = product;
             
-            const productElement = $('<div>', {
+            const productElement = createSafeElement('div', {
                 class: `producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4 ${!stock ? 'agotado' : ''}`
             });
 
-            const cardElement = $('<div>', { class: 'card' });
+            const cardElement = createSafeElement('div', { class: 'card' });
             
-            $('<img>', {
+            const imgElement = createSafeElement('img', {
                 src: encodeURI(image_path),
                 alt: sanitizeHTML(name),
                 class: 'card-img-top'
-            }).appendTo(cardElement);
+            });
+            cardElement.appendChild(imgElement);
 
-            const cardBody = $('<div>', { class: 'card-body' });
-            $('<h3>', { class: 'card-title', text: sanitizeHTML(name) }).appendTo(cardBody);
-            $('<p>', { class: 'card-text', text: sanitizeHTML(description) }).appendTo(cardBody);
+            const cardBody = createSafeElement('div', { class: 'card-body' });
+            cardBody.appendChild(createSafeElement('h3', { class: 'card-title' }, [sanitizeHTML(name)]));
+            cardBody.appendChild(createSafeElement('p', { class: 'card-text' }, [sanitizeHTML(description)]));
             
-            cardBody.append(renderPriceHtml(price, discount));
-            cardElement.append(cardBody);
-            productElement.append(cardElement);
+            cardBody.appendChild(renderPriceHtml(price, discount));
+            cardElement.appendChild(cardBody);
+            productElement.appendChild(cardElement);
             
             productContainer.append(productElement);
         });
