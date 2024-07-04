@@ -204,9 +204,21 @@ $(() => {
             window.addEventListener('resize', adjustBodyPadding);
 
             const navbarToggler = document.querySelector('.navbar-toggler');
-            if (navbarToggler) {
+            const navbarCollapse = document.querySelector('.navbar-collapse');
+
+            if (navbarToggler && navbarCollapse) {
                 navbarToggler.addEventListener('click', () => {
-                    setTimeout(adjustBodyPadding, 10); // Small delay to allow for DOM update
+                    navbarCollapse.classList.toggle('show');
+                    setTimeout(adjustBodyPadding, 350); // Adjust after transition
+                });
+
+                // Close menu when clicking outside
+                document.addEventListener('click', (event) => {
+                    const isClickInside = navbarToggler.contains(event.target) || navbarCollapse.contains(event.target);
+                    if (!isClickInside && navbarCollapse.classList.contains('show')) {
+                        navbarCollapse.classList.remove('show');
+                        setTimeout(adjustBodyPadding, 350); // Adjust after transition
+                    }
                 });
             }
 
