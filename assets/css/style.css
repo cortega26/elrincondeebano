@@ -224,6 +224,9 @@
   }
   
   @media (max-width: 767px) {
+    :root {
+      --navbar-height: 70px; /* Adjust this value for mobile view */
+  }
     h1 {
       font-size: 1.75rem;
     }
