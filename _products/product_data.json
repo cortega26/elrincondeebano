@@ -1,5 +1,23 @@
 [
   {
+    "name": "Coca-Cola 3L (natural)",
+    "description": "Envase retornable",
+    "price": 3500,
+    "discount": 500,
+    "stock": true,
+    "category": "Bebidas",
+    "image_path": "assets/images/bebidas/Coca Cola 3L.webp"
+  },
+  {
+    "name": "Coca-Cola 2,5L",
+    "description": "Envase desechable",
+    "price": 3000,
+    "discount": 0,
+    "stock": true,
+    "category": "Bebidas",
+    "image_path": "assets/images/bebidas/Coca Cola 2,5L.webp"
+  },
+  {
     "name": "Red Blend Reserva • Chivilingo, Mousiño-Macul",
     "description": "Vino tinto • Botella 750mL • 13,5° G.L.",
     "price": 5500,
