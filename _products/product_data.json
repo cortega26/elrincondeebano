@@ -1,5 +1,32 @@
 [
   {
+    "name": "Microsoft Office Professional Plus 2021",
+    "description": "Licencia retail",
+    "price": 19000,
+    "discount": 0,
+    "stock": true,
+    "category": "Software",
+    "image_path": "assets/images/software/Office-pro-2021-plus.webp"
+  },
+  {
+    "name": "Microsoft Office Professional Plus 2019",
+    "description": "Licencia retail",
+    "price": 17000,
+    "discount": 0,
+    "stock": true,
+    "category": "Software",
+    "image_path": "assets/images/software/Office-2019-Professional-Plus.webp"
+  },
+  {
+    "name": "Microsoft Office Professional Plus 2016",
+    "description": "Licencia retail",
+    "price": 15000,
+    "discount": 0,
+    "stock": true,
+    "category": "Software",
+    "image_path": "assets/images/software/Office-professional-plus-2016-international.webp"
+  },
+  {
     "name": "Windows 11 Pro",
     "description": "Licencia retail",
     "price": 29000,
