@@ -64,7 +64,7 @@ $(() => {
 
     const fetchProducts = async () => {
         try {
-            const response = await fetch('/Tienda-Ebano/_products/product_data.json', {
+            const response = await fetch('/elrincondeebano/_products/product_data.json', {
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
