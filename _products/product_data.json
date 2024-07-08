@@ -1,5 +1,14 @@
 [
   {
+    "name": "Easy Clean L",
+    "description": "Arena Sanitaria - Bolsa de 8Kg/10L",
+    "price": 7500,
+    "discount": 0,
+    "stock": true,
+    "category": "Mascotas",
+    "image_path": "assets/images/mascotas/easy-clean-lavanda4474.webp"
+  },
+  {
     "name": "Coca-Cola 3L (natural)",
     "description": "Envase retornable",
     "price": 3500,
