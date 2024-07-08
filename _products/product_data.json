@@ -1,5 +1,14 @@
 [
   {
+    "name": "Windows 10 Pro",
+    "description": "Licencia retail",
+    "price": 25000,
+    "discount": 6000,
+    "stock": true,
+    "category": "Software",
+    "image_path": "assets/images/software/Windows 10 Pro.webp"
+  },
+  {
     "name": "Easy Clean L",
     "description": "Arena Sanitaria - Bolsa de 8Kg/10L",
     "price": 7500,
