@@ -1,5 +1,23 @@
 [
   {
+    "name": "Windows 11 Pro",
+    "description": "Licencia retail",
+    "price": 29000,
+    "discount": 7000,
+    "stock": true,
+    "category": "Software",
+    "image_path": "assets/images/software/Windows 11 Pro.webp"
+  },
+  {
+    "name": "Windows 11 Home",
+    "description": "Licencia retail",
+    "price": 26000,
+    "discount": 6000,
+    "stock": true,
+    "category": "Software",
+    "image_path": "assets/images/software/licencia-digital-windows-11-home.webp"
+  },
+  {
     "name": "Windows 10 Pro",
     "description": "Licencia retail",
     "price": 25000,
