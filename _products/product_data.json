@@ -56,9 +56,9 @@
   {
     "name": "Easy Clean Lavanda L",
     "description": "Arena Sanitaria - Bolsa de 8Kg/10L",
-    "price": 7500,
+    "price": 9000,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Mascotas",
     "image_path": "assets/images/mascotas/easy-clean-lavanda4474.webp"
   },
@@ -76,7 +76,7 @@
     "description": "Envase desechable",
     "price": 3000,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Bebidas",
     "image_path": "assets/images/bebidas/Coca Cola 2,5L.webp"
   },
