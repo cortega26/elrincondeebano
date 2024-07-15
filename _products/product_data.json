@@ -661,7 +661,7 @@
     "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
     "price": 7000,
     "discount": 500,
-    "stock": true,
+    "stock": false,
     "category": "Vinos",
     "image_path": "assets/images/vinos/Misiones de Rengo Cabernet Sauvignon botella 750mL.webp"
   },
