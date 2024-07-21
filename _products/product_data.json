@@ -58,7 +58,7 @@
     "description": "Arena Sanitaria - Bolsa de 8Kg/10L",
     "price": 9000,
     "discount": 0,
-    "stock": false,
+    "stock": true,
     "category": "Mascotas",
     "image_path": "assets/images/mascotas/easy-clean-lavanda4474.webp"
   },
@@ -76,7 +76,7 @@
     "description": "Envase desechable",
     "price": 3000,
     "discount": 0,
-    "stock": false,
+    "stock": true,
     "category": "Bebidas",
     "image_path": "assets/images/bebidas/Coca Cola 2,5L.webp"
   },
@@ -400,7 +400,7 @@
     "description": "Envase retornable",
     "price": 2500,
     "discount": 0,
-    "stock": false,
+    "stock": true,
     "category": "Bebidas",
     "image_path": "assets/images/bebidas/Coca-Cola-2L sin azucar.webp"
   },
@@ -418,7 +418,7 @@
     "description": "Envase retornable",
     "price": 2500,
     "discount": 0,
-    "stock": false,
+    "stock": true,
     "category": "Bebidas",
     "image_path": "assets/images/bebidas/Sprite 2L zero.webp"
   },
