@@ -81,31 +81,37 @@ const initApp = async () => {
             if (!response.ok) {
                 throw new Error(`HTTP error. Status: ${response.status}`);
             }
-            const fetchedProducts = await response.json();
-            return fetchedProducts.map((product, index) => ({ ...product, originalIndex: index }));
+            const products = await response.json();
+            return products.map((product, index) => ({ ...product, originalIndex: index }));
         } catch (error) {
             console.error('Error fetching products:', error);
-            throw error;
+            return []; // Return an empty array if there's an error
         }
     };
 
     // Render price HTML
-    const renderPriceHtml = (price, discount) => {
-        const formattedPrice = price.toLocaleString('es-CL');
+    const renderPriceHtml = (price, discount, currencyCode = 'CLP') => {
+        const formatter = new Intl.NumberFormat('es-CL', {
+            style: 'currency',
+            currency: currencyCode,
+            minimumFractionDigits: 0
+        });
+    
+        const formattedPrice = formatter.format(price);
         if (discount) {
             const discountedPrice = price - discount;
-            const formattedDiscountedPrice = discountedPrice.toLocaleString('es-CL');
-            const formattedDiscount = discount.toLocaleString('es-CL');
+            const formattedDiscountedPrice = formatter.format(discountedPrice);
+            const formattedDiscount = formatter.format(discount);
             return createSafeElement('div', { class: 'precio-container' }, [
-                createSafeElement('span', { class: 'precio-descuento' }, [`$${formattedDiscountedPrice}`]),
-                createSafeElement('span', { class: 'ahorra' }, [`Ahorra $${formattedDiscount}`]),
+                createSafeElement('span', { class: 'precio-descuento' }, [formattedDiscountedPrice]),
+                createSafeElement('span', { class: 'ahorra' }, [`Ahorra ${formattedDiscount}`]),
                 createSafeElement('span', { class: 'precio-original' }, [
-                    'Regular: $',
+                    'Regular: ',
                     createSafeElement('span', { class: 'tachado' }, [formattedPrice])
                 ])
             ]);
         } else {
-            return createSafeElement('span', { class: 'precio' }, [`$${formattedPrice}`]);
+            return createSafeElement('span', { class: 'precio' }, [formattedPrice]);
         }
     };
 
@@ -232,6 +238,7 @@ const initApp = async () => {
         });
     };
 
+
     // Error handling
     const showErrorMessage = (message) => {
         const errorMessage = createSafeElement('div', { class: 'error-message' }, [
@@ -245,10 +252,12 @@ const initApp = async () => {
     // Offline support
     const updateOnlineStatus = () => {
         const offlineIndicator = document.getElementById('offline-indicator');
-        if (navigator.onLine) {
-            offlineIndicator.style.display = 'none';
-        } else {
-            offlineIndicator.style.display = 'block';
+        if (offlineIndicator) {
+            if (navigator.onLine) {
+                offlineIndicator.style.display = 'none';
+            } else {
+                offlineIndicator.style.display = 'block';
+            }
         }
     };
 
@@ -256,6 +265,11 @@ const initApp = async () => {
     try {
         await loadComponents();
         products = await fetchProducts();
+
+        if (products.length === 0) {
+            showErrorMessage('No products available. Please try again later.');
+            return; // Exit early if no products are loaded
+        }
 
         const currentCategory = $('main').data('category');
         if (currentCategory) {
