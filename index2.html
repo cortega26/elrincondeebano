@@ -16,29 +16,24 @@
     <meta property="og:image" content="https://cortega26.github.io/elrincondeebano/assets/images/web/logo.webp">
     <meta property="og:url" content="https://cortega26.github.io/elrincondeebano/index.html">
     <meta property="og:type" content="product">
-    
-    <!-- Preload critical assets -->
-    <link rel="preload" href="assets/images/web/logo.webp" as="image">
-    <link rel="preload" href="assets/js/script.js" as="script">
 </head>
-<body>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H0YG3RTJVM"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-H0YG3RTJVM');
-    </script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-H0YG3RTJVM"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
 
+    gtag('config', 'G-H0YG3RTJVM');
+</script>
+<body>
     <header id="navbar-container" role="banner"></header>
-    
     <main data-category="" role="main">
         <div class="container my-4">
             <section aria-label="Opciones de filtrado y ordenación">
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label for="sort-options" class="visually-hidden">Ordenar productos</label>
+                        <!-- label for="sort-options" class="sr-only">Ordenar productos</label -->
                         <select id="sort-options" class="form-control" aria-label="Ordenar productos">
                             <option value="original" selected>Orden por defecto</option>
                             <option value="name-asc">Nombre (A-Z)</option>
@@ -48,7 +43,7 @@
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label for="filter-keyword" class="visually-hidden">Filtrar productos</label>
+                        <!-- label for="filter-keyword" class="sr-only">Filtrar productos</label -->
                         <input type="text" id="filter-keyword" class="form-control" placeholder="Filtrar por nombre" aria-label="Filtrar productos por nombre">
                     </div>
                 </div>
@@ -61,12 +56,10 @@
             </section>
         </div>
     </main>
-
     <footer id="footer-container" role="contentinfo"></footer>
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="assets/js/script.js" defer></script>
+    <script src="assets/js/script.js"></script>
 </body>
 </html>
