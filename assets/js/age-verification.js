@@ -1,9 +1,10 @@
-// age-verification.js
-
-const SAFE_DOMAINS = ['cortega26.github.io']; // List of allowed domains
+// Constants
+const SAFE_DOMAINS = ['cortega26.github.io'];
 const FALLBACK_URL = 'https://cortega26.github.io/Tienda-Ebano/index.html';
+const AGE_VERIFIED_KEY = 'ageVerified';
 
-function isSafeURL(url) {
+// Helper functions
+const isSafeURL = (url) => {
     try {
         const parsedURL = new URL(url);
         return SAFE_DOMAINS.includes(parsedURL.hostname) && 
@@ -11,28 +12,28 @@ function isSafeURL(url) {
     } catch {
         return false;
     }
-}
+};
 
-function safeRedirect(url) {
+const safeRedirect = (url) => {
     if (isSafeURL(url)) {
         window.location.href = url;
     } else {
         console.error('Unsafe URL detected');
         window.location.href = FALLBACK_URL;
     }
-}
+};
 
-function verifyAge(isAdult) {
+const verifyAge = (isAdult) => {
     if (isAdult) {
         document.body.classList.add('age-verified');
-        localStorage.setItem('ageVerified', 'true');
+        localStorage.setItem(AGE_VERIFIED_KEY, 'true');
     } else {
         safeRedirect(FALLBACK_URL);
     }
-}
+};
 
-function checkAgeVerification() {
-    if (localStorage.getItem('ageVerified') === 'true') {
+const checkAgeVerification = () => {
+    if (localStorage.getItem(AGE_VERIFIED_KEY) === 'true') {
         document.body.classList.add('age-verified');
     } else {
         const overlay = document.getElementById('age-verification-overlay');
@@ -46,6 +47,7 @@ function checkAgeVerification() {
             }
         }
     }
-}
+};
 
+// Run age verification check when the DOM is loaded
 document.addEventListener('DOMContentLoaded', checkAgeVerification);
