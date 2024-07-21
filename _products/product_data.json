@@ -877,7 +877,7 @@
     "description": "Bolsa de 200g",
     "price": 1900,
     "discount": 300,
-    "stock": true,
+    "stock": false,
     "category": "SnacksSalados",
     "image_path": "assets/images/snacks_salados/Papas-Marco-Polo-Caseras-200g.webp"
   },
