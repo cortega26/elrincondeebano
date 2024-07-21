@@ -46,7 +46,7 @@
         <div class="container my-4">
             <section aria-label="Opciones de filtrado y ordenación">
                 <div class="row mb-3">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label for="sort-options" class="visually-hidden">Ordenar productos</label>
                         <select id="sort-options" class="form-control" aria-label="Ordenar productos">
                             <option value="original" selected>Orden por defecto</option>
@@ -56,9 +56,17 @@
                             <option value="price-desc">Precio (mayor a menor)</option>
                         </select>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label for="filter-keyword" class="visually-hidden">Filtrar productos</label>
                         <input type="text" id="filter-keyword" class="form-control" placeholder="Filtrar por nombre" aria-label="Filtrar productos por nombre">
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="show-in-stock">
+                            <label class="form-check-label" for="show-in-stock">
+                                Mostrar solo productos en stock
+                            </label>
+                        </div>
                     </div>
                 </div>
             </section>

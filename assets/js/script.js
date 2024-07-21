@@ -10,8 +10,6 @@ const initApp = async () => {
     const showInStock = $('#show-in-stock');
 
     let products = [];
-    let currentPage = 1;
-    const productsPerPage = 12;
 
     // Utility functions
     const sanitizeHTML = (unsafe) => {
@@ -167,12 +165,13 @@ const initApp = async () => {
         lazyImages.forEach(img => imageObserver.observe(img));
     };
 
-    // Filter and sort products
-    const filterProducts = (products, keyword, sortCriterion) => {
+    // Filter and sort products + show Only In Stock switch
+    const filterProducts = (products, keyword, sortCriterion, showOnlyInStock) => {
         const safeKeyword = sanitizeHTML(keyword.toLowerCase());
         const filtered = products.filter(product => 
-            sanitizeHTML(product.name.toLowerCase()).includes(safeKeyword) ||
-            sanitizeHTML(product.description.toLowerCase()).includes(safeKeyword)
+            (sanitizeHTML(product.name.toLowerCase()).includes(safeKeyword) ||
+            sanitizeHTML(product.description.toLowerCase()).includes(safeKeyword)) &&
+            (!showOnlyInStock || product.stock)
         );
         return sortProducts(filtered, sortCriterion);
     };
@@ -198,46 +197,19 @@ const initApp = async () => {
         });
     };
 
-    // Update product display
+    // Update product display + switch Only In Stock
     const updateProductDisplay = () => {
         try {
             const criterion = sortOptions.val() || 'original';
             const keyword = sanitizeHTML(filterKeyword.val().trim());
-            const filteredAndSortedProducts = filterProducts(products, keyword, criterion);
-            const startIndex = (currentPage - 1) * productsPerPage;
-            const endIndex = startIndex + productsPerPage;
-            const productsToRender = filteredAndSortedProducts.slice(startIndex, endIndex);
-            renderProducts(productsToRender);
-            updatePagination(filteredAndSortedProducts.length);
+            const showOnlyInStock = showInStock.is(':checked');
+            const filteredAndSortedProducts = filterProducts(products, keyword, criterion, showOnlyInStock);
+            renderProducts(filteredAndSortedProducts);
         } catch (error) {
             console.error('Error updating product display:', error);
             showErrorMessage('Error updating product display. Please try again later.');
         }
     };
-
-    // Pagination
-    const updatePagination = (totalProducts) => {
-        const totalPages = Math.ceil(totalProducts / productsPerPage);
-        const paginationElement = createSafeElement('nav', { 'aria-label': 'Product pagination' });
-        const ulElement = createSafeElement('ul', { class: 'pagination justify-content-center' });
-
-        for (let i = 1; i <= totalPages; i++) {
-            const liElement = createSafeElement('li', { class: `page-item${currentPage === i ? ' active' : ''}` });
-            const aElement = createSafeElement('a', { class: 'page-link', href: '#', 'data-page': i }, [i.toString()]);
-            liElement.appendChild(aElement);
-            ulElement.appendChild(liElement);
-        }
-
-        paginationElement.appendChild(ulElement);
-        $('#pagination-container').empty().append(paginationElement);
-
-        $('.page-link').on('click', function(e) {
-            e.preventDefault();
-            currentPage = parseInt($(this).data('page'));
-            updateProductDisplay();
-        });
-    };
-
 
     // Error handling
     const showErrorMessage = (message) => {
