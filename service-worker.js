@@ -35,6 +35,16 @@ self.addEventListener('fetch', (event) => {
                         return response;
                     }
                 );
+            }).catch(() => {
+                // Offline fallback
+                return caches.match(event.request).then((response) => {
+                    if (response) {
+                        return response;
+                    }
+                    if (event.request.headers.get('accept').includes('text/html')) {
+                        return caches.match('/offline.html');
+                    }
+                });
             })
     );
 });
@@ -51,23 +61,5 @@ self.addEventListener('activate', (event) => {
                 })
             );
         })
-    );
-});
-
-// Handle offline fallback
-self.addEventListener('fetch', (event) => {
-    event.respondWith(
-        fetch(event.request)
-            .catch(() => {
-                return caches.match(event.request)
-                    .then((response) => {
-                        if (response) {
-                            return response;
-                        }
-                        if (event.request.headers.get('accept').includes('text/html')) {
-                            return caches.match('/offline.html');
-                        }
-                    });
-            })
     );
 });
