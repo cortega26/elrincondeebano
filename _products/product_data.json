@@ -1,5 +1,14 @@
 [
   {
+    "name": "Mantequilla Kumey 250g",
+    "description": "Artesanal",
+    "price": 2800,
+    "discount": 0,
+    "stock": true,
+    "category": "Lacteos",
+    "image_path": "assets/images/lacteos/Mantequilla Kumey.webp"
+  },
+  {
     "name": "Microsoft Office Professional Plus 2021",
     "description": "Licencia retail",
     "price": 19000,
@@ -335,7 +344,7 @@
   {
     "name": "Queso Gauda La Vaquita",
     "description": "Laminado 400g",
-    "price": 3900,
+    "price": 4200,
     "discount": 0,
     "stock": true,
     "category": "Lacteos",
