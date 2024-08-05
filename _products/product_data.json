@@ -85,7 +85,7 @@
     "description": "Vino tinto • Botella 750mL • 13,5° G.L.",
     "price": 5500,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Vinos",
     "image_path": "assets/images/vinos/Red Blend Reserva Chivilingo botella 750mL.webp"
   },
@@ -876,8 +876,8 @@
     "name": "Papas Lisas • Marco Polo",
     "description": "Bolsa de 200g",
     "price": 1900,
-    "discount": 300,
-    "stock": false,
+    "discount": 0,
+    "stock": true,
     "category": "SnacksSalados",
     "image_path": "assets/images/snacks_salados/Papas-Marco-Polo-Caseras-200g.webp"
   },
