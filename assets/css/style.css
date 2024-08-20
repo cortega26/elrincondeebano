@@ -20,7 +20,7 @@ body {
 
 h1 {
   text-align: center;
-  font-size: 2.25rem;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
   margin-bottom: 1.25rem;
   font-weight: bold;
 }
@@ -41,7 +41,7 @@ h1 {
 
 .navbar-brand span {
   font-family: 'Playfair Display', serif;
-  font-size: 1.5rem;
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
 }
 
 .dropdown-menu {
@@ -51,10 +51,6 @@ h1 {
 
 .dropdown-item:hover {
   background-color: rgba(0, 0, 0, 0.05);
-}
-
-.collapse.navbar-collapse.justify-content-end {
-  margin-right: 6.25rem;
 }
 
 /* Product Grid */
@@ -95,6 +91,7 @@ h1 {
   max-width: 100%;
   height: auto;
   margin-bottom: 0.625rem;
+  object-fit: contain;
 }
 
 .producto .card-title {
@@ -117,15 +114,14 @@ h1 {
   margin: 0;
 }
 
-.precio-descuento {
-  font-size: 1.125rem;
-  font-weight: bold;
-  color: var(--primary-color);
-}
-
+.precio-descuento,
 .precio {
   font-size: 1.125rem;
   font-weight: bold;
+}
+
+.precio-descuento {
+  color: var(--primary-color);
 }
 
 .ahorra {
@@ -136,25 +132,6 @@ h1 {
   padding: 0.2rem 0.4rem;
   border-radius: 0.45rem;
   margin: 0.1rem 0 0.2rem 0.5rem;
-  position: relative;
-}
-
-.ahorra::before,
-.ahorra::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background-color: #fff;
-}
-
-.ahorra::before {
-  top: 0;
-}
-
-.ahorra::after {
-  bottom: 0;
 }
 
 .precio-original {
@@ -213,22 +190,6 @@ footer {
   margin-top: 2rem;
 }
 
-/* Loading Skeleton */
-.loading-skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  animation: loading 1.5s infinite;
-}
-
-@keyframes loading {
-  0% {
-      background-position: 200% 0;
-  }
-  100% {
-      background-position: -200% 0;
-  }
-}
-
 /* Accessibility */
 .visually-hidden {
   position: absolute !important;
@@ -271,45 +232,42 @@ footer {
 @media (min-width: 768px) {
   #sort-options,
   #filter-keyword {
-      margin-bottom: 0;
+    margin-bottom: 0;
   }
 }
 
 @media (max-width: 767px) {
-  h1 {
-      font-size: 1.75rem;
-  }
-
   .producto .card-title {
-      font-size: 1rem;
+    font-size: 1rem;
   }
 
-  .precio-descuento {
-      font-size: 1.125rem;
+  .precio-descuento,
+  .precio {
+    font-size: 1.125rem;
   }
 
-  .btn, .form-control {
-      min-height: 44px;
+  .btn,
+  .form-control {
+    min-height: 44px;
   }
 }
 
 /* Ensure the default Bootstrap dropdown arrow is shown */
 select.form-control {
-  -webkit-appearance: none;
-  -moz-appearance: none;
   appearance: none;
-  background: url('data:image/svg+xml;utf8,<svg fill="currentColor" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5H7z"/></svg>') no-repeat right 0.75rem center;
+  background: url('data:image/svg+xml;utf8,<svg fill="currentColor" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5H7z"/></svg>') no-repeat right 0.75rem center / 24px 24px;
   padding-right: 2rem;
 }
 
 /* Touch-friendly improvements */
 @media (hover: none) {
   .producto:hover {
-      transform: none;
+    transform: none;
   }
 
-  .btn:hover, .form-control:hover {
-      box-shadow: none;
+  .btn:hover,
+  .form-control:hover {
+    box-shadow: none;
   }
 }
 
@@ -328,21 +286,24 @@ select.form-control {
 
 /* Print styles */
 @media print {
-  .navbar, .footer, #sort-options, #filter-keyword {
-      display: none !important;
+  .navbar,
+  .footer,
+  #sort-options,
+  #filter-keyword {
+    display: none !important;
   }
 
   body {
-      font-size: 12pt;
-      line-height: 1.5;
+    font-size: 12pt;
+    line-height: 1.5;
   }
 
   .producto {
-      page-break-inside: avoid;
+    page-break-inside: avoid;
   }
 
   .producto img {
-      max-width: 50%;
-      height: auto;
+    max-width: 50%;
+    height: auto;
   }
 }
