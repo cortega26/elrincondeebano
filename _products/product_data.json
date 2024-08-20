@@ -2,7 +2,7 @@
   {
     "name": "Galletas Niza McKay",
     "description": "Presentación de 150g",
-    "price": 900,
+    "price": 1300,
     "discount": 0,
     "stock": true,
     "category": "SnacksDulces",
@@ -11,7 +11,7 @@
   {
     "name": "Galletas de Limón McKay",
     "description": "Presentación de 120g",
-    "price": 900,
+    "price": 1300,
     "discount": 0,
     "stock": true,
     "category": "SnacksDulces",
@@ -38,7 +38,7 @@
   {
     "name": "Mentos Frutas",
     "description": "Roll 29g",
-    "price": 1300,
+    "price": 900,
     "discount": 0,
     "stock": true,
     "category": "SnacksDulces",
@@ -47,7 +47,7 @@
   {
     "name": "Mentos Menta",
     "description": "Roll 29g",
-    "price": 1300,
+    "price": 900,
     "discount": 0,
     "stock": true,
     "category": "SnacksDulces",
