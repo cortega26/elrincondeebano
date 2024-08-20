@@ -28,7 +28,7 @@ h1 {
 /* Navbar Styles */
 .navbar {
   padding: 0 1rem;
-  margin-right: 3rem;
+  padding-right: 4rem;
 }
 
 .navbar-brand {
