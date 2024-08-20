@@ -2,23 +2,20 @@
 
 // Main function to initialize the application
 const initApp = async () => {
-    const navbarContainer = $("#navbar-container");
-    const footerContainer = $("#footer-container");
-    const productContainer = $('#product-container');
-    const sortOptions = $('#sort-options');
-    const filterKeyword = $('#filter-keyword');
-    const showInStock = $('#show-in-stock');
+    const navbarContainer = document.getElementById('navbar-container');
+    const footerContainer = document.getElementById('footer-container');
+    const productContainer = document.getElementById('product-container');
+    const sortOptions = document.getElementById('sort-options');
+    const filterKeyword = document.getElementById('filter-keyword');
+    const showInStock = document.getElementById('show-in-stock');
 
     let products = [];
 
     // Utility functions
     const sanitizeHTML = (unsafe) => {
-        return unsafe
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+        const element = document.createElement('div');
+        element.textContent = unsafe;
+        return element.innerHTML;
     };
 
     const createSafeElement = (tag, attributes = {}, children = []) => {
@@ -41,17 +38,16 @@ const initApp = async () => {
     };
 
     // Load components (navbar and footer)
-    const loadComponent = (container, filename) => {
-        return new Promise((resolve, reject) => {
-            container.load(filename, (response, status, xhr) => {
-                if (status === "error") {
-                    console.error('Error loading component:', { filename, status: xhr.status, statusText: xhr.statusText });
-                    reject(new Error('Failed to load component'));
-                } else {
-                    resolve();
-                }
-            });
-        });
+    const loadComponent = async (container, filename) => {
+        try {
+            const response = await fetch(filename);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const html = await response.text();
+            container.innerHTML = html;
+        } catch (error) {
+            console.error('Error loading component:', error);
+            throw error;
+        }
     };
 
     const loadComponents = async () => {
@@ -83,7 +79,7 @@ const initApp = async () => {
             return products.map((product, index) => ({ ...product, originalIndex: index }));
         } catch (error) {
             console.error('Error fetching products:', error);
-            return []; // Return an empty array if there's an error
+            throw error;
         }
     };
 
@@ -144,7 +140,8 @@ const initApp = async () => {
             fragment.appendChild(productElement);
         });
 
-        productContainer.empty().append(fragment);
+        productContainer.innerHTML = '';
+        productContainer.appendChild(fragment);
         lazyLoadImages();
     };
 
@@ -165,44 +162,34 @@ const initApp = async () => {
         lazyImages.forEach(img => imageObserver.observe(img));
     };
 
-    // Filter and sort products + show Only In Stock switch
+    // Filter and sort products
     const filterProducts = (products, keyword, sortCriterion, showOnlyInStock) => {
         const safeKeyword = sanitizeHTML(keyword.toLowerCase());
-        const filtered = products.filter(product => 
+        return products.filter(product => 
             (sanitizeHTML(product.name.toLowerCase()).includes(safeKeyword) ||
             sanitizeHTML(product.description.toLowerCase()).includes(safeKeyword)) &&
             (!showOnlyInStock || product.stock)
-        );
-        return sortProducts(filtered, sortCriterion);
+        ).sort((a, b) => sortProducts(a, b, sortCriterion));
     };
 
-    const sortProducts = (products, criterion) => {
+    const sortProducts = (a, b, criterion) => {
         if (!criterion || criterion === 'original') {
-            return products.sort((a, b) => a.originalIndex - b.originalIndex);
+            return a.originalIndex - b.originalIndex;
         }
-        return products.sort((a, b) => {
-            const getComparableValue = (product) => {
-                if (criterion.startsWith('price')) {
-                    return product.price - (product.discount || 0);
-                } else {
-                    return sanitizeHTML(product.name.toLowerCase());
-                }
-            };
-            const valueA = getComparableValue(a);
-            const valueB = getComparableValue(b);
-            
-            return criterion.endsWith('asc') ? 
-                (valueA < valueB ? -1 : valueA > valueB ? 1 : 0) :
-                (valueB < valueA ? -1 : valueB > valueA ? 1 : 0);
-        });
+        const [property, order] = criterion.split('-');
+        const valueA = property === 'price' ? a.price - (a.discount || 0) : a.name.toLowerCase();
+        const valueB = property === 'price' ? b.price - (b.discount || 0) : b.name.toLowerCase();
+        return order === 'asc' ? 
+            (valueA < valueB ? -1 : valueA > valueB ? 1 : 0) :
+            (valueB < valueA ? -1 : valueB > valueA ? 1 : 0);
     };
 
-    // Update product display + switch Only In Stock
+    // Update product display
     const updateProductDisplay = () => {
         try {
-            const criterion = sortOptions.val() || 'original';
-            const keyword = sanitizeHTML(filterKeyword.val().trim());
-            const showOnlyInStock = showInStock.is(':checked');
+            const criterion = sortOptions.value || 'original';
+            const keyword = sanitizeHTML(filterKeyword.value.trim());
+            const showOnlyInStock = showInStock.checked;
             const filteredAndSortedProducts = filterProducts(products, keyword, criterion, showOnlyInStock);
             renderProducts(filteredAndSortedProducts);
         } catch (error) {
@@ -217,7 +204,8 @@ const initApp = async () => {
             createSafeElement('p', {}, [message]),
             createSafeElement('button', { class: 'retry-button' }, ['Try Again'])
         ]);
-        productContainer.empty().append(errorMessage);
+        productContainer.innerHTML = '';
+        productContainer.appendChild(errorMessage);
         errorMessage.querySelector('.retry-button').addEventListener('click', initApp);
     };
 
@@ -225,11 +213,7 @@ const initApp = async () => {
     const updateOnlineStatus = () => {
         const offlineIndicator = document.getElementById('offline-indicator');
         if (offlineIndicator) {
-            if (navigator.onLine) {
-                offlineIndicator.style.display = 'none';
-            } else {
-                offlineIndicator.style.display = 'block';
-            }
+            offlineIndicator.style.display = navigator.onLine ? 'none' : 'block';
         }
     };
 
@@ -240,17 +224,17 @@ const initApp = async () => {
 
         if (products.length === 0) {
             showErrorMessage('No products available. Please try again later.');
-            return; // Exit early if no products are loaded
+            return;
         }
 
-        const currentCategory = $('main').data('category');
+        const currentCategory = document.querySelector('main').dataset.category;
         if (currentCategory) {
             products = products.filter(product => sanitizeHTML(product.category) === sanitizeHTML(currentCategory));
         }
 
-        sortOptions.on('change', updateProductDisplay);
-        filterKeyword.on('input', updateProductDisplay);
-        showInStock.on('change', updateProductDisplay);
+        sortOptions.addEventListener('change', updateProductDisplay);
+        filterKeyword.addEventListener('input', updateProductDisplay);
+        showInStock.addEventListener('change', updateProductDisplay);
 
         // Initial product display
         updateProductDisplay();
@@ -278,4 +262,4 @@ const initApp = async () => {
 };
 
 // Run the application when the DOM is ready
-$(initApp);
+document.addEventListener('DOMContentLoaded', initApp);
