@@ -1,5 +1,59 @@
 [
   {
+    "name": "Galletas Niza McKay",
+    "description": "Presentación de 150g",
+    "price": 900,
+    "discount": 0,
+    "stock": true,
+    "category": "SnacksDulces",
+    "image_path": "assets/images/snacks_dulces/Galletas Niza McKay 150g.webp"
+  },
+  {
+    "name": "Galletas de Limón McKay",
+    "description": "Presentación de 120g",
+    "price": 900,
+    "discount": 0,
+    "stock": true,
+    "category": "SnacksDulces",
+    "image_path": "assets/images/snacks_dulces/Galletas Limón McKay 120g.webp"
+  },
+  {
+    "name": "Galletas de Mantequilla McKay",
+    "description": "Presentación de 140g",
+    "price": 1300,
+    "discount": 0,
+    "stock": true,
+    "category": "SnacksDulces",
+    "image_path": "assets/images/snacks_dulces/Galletas Mantequilla McKay 140g.webp"
+  },
+  {
+    "name": "Queso Parmesano rallado Kraft",
+    "description": "Cilindro de 85g",
+    "price": 1900,
+    "discount": 0,
+    "stock": true,
+    "category": "Lacteos",
+    "image_path": "assets/images/lacteos/Queso parmesano llanero Kraft 85g.webp"
+  },
+  {
+    "name": "Mentos Frutas",
+    "description": "Roll 29g",
+    "price": 900,
+    "discount": 0,
+    "stock": true,
+    "category": "SnacksDulces",
+    "image_path": "assets/images/snacks_dulces/Mentos Frutas 29g.png"
+  },
+  {
+    "name": "Mentos Menta",
+    "description": "Roll 29g",
+    "price": 900,
+    "discount": 0,
+    "stock": true,
+    "category": "SnacksDulces",
+    "image_path": "assets/images/snacks_dulces/Mentos Menta 29g.webp"
+  },
+  {
     "name": "Mantequilla Kumey 250g",
     "description": "Artesanal",
     "price": 2800,
