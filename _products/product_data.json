@@ -65,7 +65,7 @@
   {
     "name": "Easy Clean Lavanda L",
     "description": "Arena Sanitaria - Bolsa de 8Kg/10L",
-    "price": 9000,
+    "price": 9500,
     "discount": 0,
     "stock": true,
     "category": "Mascotas",
@@ -175,7 +175,7 @@
     "description": "Bolsa de 170g",
     "price": 1800,
     "discount": 300,
-    "stock": true,
+    "stock": false,
     "category": "SnacksSalados",
     "image_path": "assets/images/snacks_salados/Ramitas-Sal-170gr.webp"
   },
@@ -193,7 +193,7 @@
     "description": "Empaque de 500g",
     "price": 6900,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Carnesyembutidos",
     "image_path": "assets/images/carnes_y_embutidos/Tocino Ahumado La Preferida 500g.webp"
   },
@@ -202,7 +202,7 @@
     "description": "Envase UHT de 1L",
     "price": 1600,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Lacteos",
     "image_path": "assets/images/lacteos/Leche semidescramada deslactosada Surlat 1L.webp"
   },
@@ -210,7 +210,7 @@
     "name": "Aceite de Oliva Extra Virgen Nutricampo",
     "description": "Botella de 1L",
     "price": 9900,
-    "discount": 1000,
+    "discount": 0,
     "stock": true,
     "category": "Despensa",
     "image_path": "assets/images/despensa/Aceite de Oliva Nutricampo 1L.webp"
@@ -220,7 +220,7 @@
     "description": "Empaque de 500g",
     "price": 6900,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Despensa",
     "image_path": "assets/images/despensa/Cafe-El-Peñon-Gourmet-500g.webp"
   },
@@ -301,16 +301,16 @@
     "description": "Presentación de 200mL",
     "price": 1200,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Lacteos",
     "image_path": "assets/images/lacteos/Crema de leche Surlat 200mL.webp"
   },
   {
     "name": "Harina La Nieve",
     "description": "Empaque de 1Kg",
-    "price": 1800,
+    "price": 1900,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Despensa",
     "image_path": "assets/images/despensa/Harina de Maíz Nieve.webp"
   },
@@ -327,8 +327,8 @@
     "name": "Nescafé Fina Selección",
     "description": "Frasco de 200g",
     "price": 8900,
-    "discount": 1000,
-    "stock": true,
+    "discount": 0,
+    "stock": false,
     "category": "Despensa",
     "image_path": "assets/images/despensa/Cafe-Nescafe-Fina-Seleccion-200-g.webp"
   },
@@ -540,15 +540,6 @@
     "image_path": "assets/images/cervezas/Kunstmann Torobayo lata 470cc.webp"
   },
   {
-    "name": "Detergente Líquido OMO Pro",
-    "description": "Presentación de 5L",
-    "price": 15000,
-    "discount": 1100,
-    "stock": true,
-    "category": "Limpiezayaseo",
-    "image_path": "assets/images/limpieza_y_aseo/Omo Pro 5L.webp"
-  },
-  {
     "name": "Budweiser lata 354cc",
     "description": "Cerveza Lager x 6 unidades",
     "price": 4400,
@@ -747,15 +738,6 @@
     "image_path": "assets/images/vinos/Carmenere Reserva Especial Heroes Santa Rita.webp"
   },
   {
-    "name": "Sour Limón 16° • Campanario",
-    "description": "Pisco Sour • Botella de 1L",
-    "price": 6000,
-    "discount": 0,
-    "stock": true,
-    "category": "Piscos",
-    "image_path": "assets/images/piscos/Pisco Sour Limón Campanario 1L.webp"
-  },
-  {
     "name": "Cóctel Limón Zero 14° • Secreto Peruano",
     "description": "Pisco Sour • Botella de 700mL",
     "price": 4500,
@@ -769,7 +751,7 @@
     "description": "Envase de 1L • Sin azúcar añadida",
     "price": 1300,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Jugos",
     "image_path": "assets/images/jugos/jugo-soprole-1-lt.webp"
   },
@@ -785,9 +767,9 @@
   {
     "name": "Chocolate con leche • Great Value",
     "description": "Barra de 100g • 30% cacao",
-    "price": 1600,
+    "price": 1800,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Chocolates",
     "image_path": "assets/images/chocolates/Chocolate de Leche Great Value 100g.webp"
   },
@@ -796,7 +778,7 @@
     "description": "Barra de 100g • 37% cacao",
     "price": 2000,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Chocolates",
     "image_path": "assets/images/chocolates/Chocolate con Almendras Great Value 100g.webp"
   },
@@ -805,7 +787,7 @@
     "description": "Barra de 100g • 37% cacao",
     "price": 2000,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Chocolates",
     "image_path": "assets/images/chocolates/Chocolate con Avellanas Great Value 100g.webp"
   },
@@ -814,7 +796,7 @@
     "description": "Barra de 100g • 31% cacao",
     "price": 1800,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Chocolates",
     "image_path": "assets/images/chocolates/Chocolate blanco 100g.webp"
   },
@@ -840,7 +822,7 @@
     "name": "Doritos Queso",
     "description": "Bolsa de 140g",
     "price": 1900,
-    "discount": 300,
+    "discount": 0,
     "stock": true,
     "category": "SnacksSalados",
     "image_path": "assets/images/snacks_salados/Doritos Queso 140gr.webp"
@@ -849,7 +831,7 @@
     "name": "Papas Jamón Serrano • Lay's",
     "description": "Bolsa de 140g",
     "price": 1900,
-    "discount": 300,
+    "discount": 0,
     "stock": true,
     "category": "SnacksSalados",
     "image_path": "assets/images/snacks_salados/Lays-Jamón-Serrano-140gr.webp"
@@ -858,7 +840,7 @@
     "name": "Papas Orégano • Lay's",
     "description": "Bolsa de 140g",
     "price": 1900,
-    "discount": 300,
+    "discount": 0,
     "stock": true,
     "category": "SnacksSalados",
     "image_path": "assets/images/snacks_salados/Lays Orégano 140g.webp"
@@ -868,23 +850,23 @@
     "description": "Bolsa de 170g",
     "price": 1800,
     "discount": 300,
-    "stock": true,
+    "stock": false,
     "category": "SnacksSalados",
     "image_path": "assets/images/snacks_salados/Ramitas-Queso-170gr.webp"
   },
   {
     "name": "Papas Onduladas • Marco Polo",
     "description": "Bolsa de 200g",
-    "price": 1900,
-    "discount": 300,
-    "stock": false,
+    "price": 2000,
+    "discount": 0,
+    "stock": true,
     "category": "SnacksSalados",
     "image_path": "assets/images/snacks_salados/Papas-Marco-Polo-Onduladas-200g.webp"
   },
   {
     "name": "Papas Lisas • Marco Polo",
     "description": "Bolsa de 200g",
-    "price": 1900,
+    "price": 2000,
     "discount": 0,
     "stock": true,
     "category": "SnacksSalados",
@@ -893,8 +875,8 @@
   {
     "name": "Papas Rústicas, Sal de Mar • Marco Polo",
     "description": "Bolsa de 150g",
-    "price": 2000,
-    "discount": 400,
+    "price": 1900,
+    "discount": 0,
     "stock": true,
     "category": "SnacksSalados",
     "image_path": "assets/images/snacks_salados/Papas Rústicas Sal de Mar Marco Polo 150g.webp"
