@@ -38,7 +38,7 @@
   {
     "name": "Mentos Frutas",
     "description": "Roll 29g",
-    "price": 900,
+    "price": 1300,
     "discount": 0,
     "stock": true,
     "category": "SnacksDulces",
@@ -47,7 +47,7 @@
   {
     "name": "Mentos Menta",
     "description": "Roll 29g",
-    "price": 900,
+    "price": 1300,
     "discount": 0,
     "stock": true,
     "category": "SnacksDulces",
