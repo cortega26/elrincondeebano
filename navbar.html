@@ -54,10 +54,30 @@
                         <li><a class="dropdown-item" href="software.html">Software</a></li>
                     </ul>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" id="cart-icon">
+                        <i class="bi bi-cart3"></i>
+                        <span class="badge bg-danger" id="cart-count">0</span>
+                    </a>
+                </li>
             </ul>
         </div>
     </div>
 </nav>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="cartOffcanvas" aria-labelledby="cartOffcanvasLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="cartOffcanvasLabel">Carrito de Compras</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div id="cart-items"></div>
+        <div id="cart-total" class="mt-3"></div>
+        <button id="empty-cart" class="btn btn-warning mt-3">Vaciar Carrito</button>
+        <button id="submit-cart" class="btn btn-success mt-3">Finalizar Compra</button>
+        <button id="continue-shopping" class="btn btn-primary mt-3" data-bs-dismiss="offcanvas">Continuar Comprando</button>
+    </div>
+</div>
 
 <style>
     .brand-text {
