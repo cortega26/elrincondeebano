@@ -4,11 +4,17 @@
             <img src="assets/images/web/logo.webp" alt="" width="40" height="40" class="d-inline-block align-top me-2" aria-hidden="true">
             <span class="brand-text">El Rincón de Ébano</span>
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-            <ul class="navbar-nav">
+        <div class="d-flex align-items-center">
+            <a class="nav-link text-light me-2" href="#" id="cart-icon">
+                <i class="bi bi-cart3"></i>
+                <span class="badge bg-danger" id="cart-count">0</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="alimentosDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Alimentos
@@ -54,12 +60,6 @@
                         <li><a class="dropdown-item" href="software.html">Software</a></li>
                     </ul>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" id="cart-icon">
-                        <i class="bi bi-cart3"></i>
-                        <span class="badge bg-danger" id="cart-count">0</span>
-                    </a>
-                </li>
             </ul>
         </div>
     </div>
@@ -88,5 +88,15 @@
         .brand-text {
             font-size: 1.25rem;
         }
+    }
+    #cart-icon {
+        position: relative;
+        display: inline-block;
+    }
+    #cart-count {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        font-size: 0.75rem;
     }
 </style>
