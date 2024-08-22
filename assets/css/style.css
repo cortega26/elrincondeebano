@@ -772,12 +772,12 @@ textarea:focus {
   }
 }
 
-/* Dark mode styles */
+/* Dark mode styles/
 @media (prefers-color-scheme: dark) {
   :root {
-    --text-color: #333;
-    --background-color: #fff
-    --primary-color: #0066cc;
+    --text-color: #f0f0f0;
+    --background-color:  #121212;
+    --primary-color: #bb86fc;
     --secondary-color: #03dac6;
     --accent-color: #cf6679;
   }
@@ -818,6 +818,7 @@ textarea:focus {
     border-color: var(--secondary-color);
   }
 }
+  */
 
 /* Utility classes */
 .text-truncate {
