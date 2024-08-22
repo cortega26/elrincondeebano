@@ -27,23 +27,25 @@ h1 {
 
 /* Navbar Styles */
 .navbar {
-  padding: 0.5rem 1rem;
+  padding: 0.25rem 0.5rem;
 }
 
 .navbar-brand {
   display: flex;
   align-items: center;
+  max-width: calc(100% - 40px);
+  overflow: hidden;
 }
 
 .navbar-brand img {
-  margin-right: 0.5rem;
-  width: 40px;
-  height: 40px;
+  margin-right: 0.25rem;
+  width: 30px;
+  height: 30px;
 }
 
 .navbar-brand span {
   font-family: 'Playfair Display', serif;
-  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-size: clamp(0.9rem, 2.5vw, 1.25rem);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -54,6 +56,7 @@ h1 {
   display: flex;
   align-items: center;
   padding: 0.25rem;
+  margin-right: 0.5rem;
   color: #fff;
 }
 
@@ -61,7 +64,7 @@ h1 {
   position: absolute;
   top: -5px;
   right: -5px;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   padding: 0.15rem 0.3rem;
 }
 
@@ -274,11 +277,11 @@ footer {
 
 @media (max-width: 991.98px) {
   .navbar-brand {
-    max-width: calc(100% - 100px);
+    max-width: calc(100% - 40px);
   }
-
+  
   .brand-text {
-    font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+    font-size: clamp(0.9rem, 2.5vw, 1.25rem);
   }
 }
 
@@ -299,12 +302,8 @@ footer {
 }
 
 @media (max-width: 350px) {
-  .navbar-brand img {
-      width: 30px;
-      height: 30px;
-  }
   .navbar-brand span {
-      font-size: clamp(1rem, 2vw, 1.25rem);
+    display: none;
   }
 }
 
