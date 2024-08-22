@@ -51,6 +51,10 @@ h1 {
   text-overflow: ellipsis;
 }
 
+.nav-link {
+  padding-right: 3rem;
+}
+
 #cart-icon {
   position: relative;
   display: flex;
