@@ -10,6 +10,7 @@ const initApp = async () => {
     const showInStock = document.getElementById('show-in-stock');
 
     let products = [];
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
     // Utility functions
     const sanitizeHTML = (unsafe) => {
@@ -117,7 +118,7 @@ const initApp = async () => {
         const input = createSafeElement('input', {
             type: 'number',
             class: 'quantity-input',
-            value: '1',
+            value: getCartItemQuantity(product.id),
             min: '1',
             max: '50',
             'aria-label': 'Quantity',
@@ -133,6 +134,12 @@ const initApp = async () => {
         quantityControl.appendChild(plusBtn);
 
         return quantityControl;
+    };
+
+    // Get cart item quantity
+    const getCartItemQuantity = (productId) => {
+        const item = cart.find(item => item.id === productId);
+        return item ? item.quantity : 0;
     };
 
     // Render products
@@ -161,22 +168,29 @@ const initApp = async () => {
             
             cardBody.appendChild(renderPriceHtml(price, discount));
 
-            const addToCartBtn = createSafeElement('button', {
-                class: 'btn btn-primary mt-2',
-                'data-id': id,
-                'data-name': name,
-                'data-price': price - (discount || 0)
-            }, ['Agregar al Carrito']);
-            
-            addToCartBtn.addEventListener('click', (e) => {
-                e.target.style.display = 'none';
+            const cartItemQuantity = getCartItemQuantity(id);
+            if (cartItemQuantity > 0) {
                 const quantityControl = renderQuantityControl(product);
-                e.target.parentNode.appendChild(quantityControl);
-                quantityControl.classList.add('fade-in-up');
-                addToCart(product, 1);
-            });
-            
-            cardBody.appendChild(addToCartBtn);
+                cardBody.appendChild(quantityControl);
+            } else {
+                const addToCartBtn = createSafeElement('button', {
+                    class: 'btn btn-primary mt-2',
+                    'data-id': id,
+                    'data-name': name,
+                    'data-price': price - (discount || 0)
+                }, ['Agregar al Carrito']);
+                
+                addToCartBtn.addEventListener('click', (e) => {
+                    e.target.style.display = 'none';
+                    const quantityControl = renderQuantityControl(product);
+                    e.target.parentNode.appendChild(quantityControl);
+                    quantityControl.classList.add('fade-in-up');
+                    addToCart(product, 1);
+                });
+                
+                cardBody.appendChild(addToCartBtn);
+            }
+
             cardElement.appendChild(cardBody);
             productElement.appendChild(cardElement);
             
@@ -261,8 +275,6 @@ const initApp = async () => {
     };
 
     // Shopping Cart Functions
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-
     function updateCartIcon() {
         const cartCount = document.getElementById('cart-count');
         const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
@@ -278,6 +290,7 @@ const initApp = async () => {
         }
         saveCart();
         updateCartIcon();
+        renderCart();
     }
 
     function removeFromCart(productId) {
@@ -285,7 +298,7 @@ const initApp = async () => {
         saveCart();
         updateCartIcon();
         renderCart();
-        updateProductDisplay();
+        updateProductDisplay(); // Re-render products to show "Agregar al Carrito" for removed items
     }
 
     function updateQuantity(product, change) {
