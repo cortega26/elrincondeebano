@@ -109,6 +109,31 @@ const initApp = async () => {
         }
     };
 
+    // Render quantity control
+    const renderQuantityControl = (product) => {
+        const quantityControl = createSafeElement('div', { class: 'quantity-control' });
+        const minusBtn = createSafeElement('button', { class: 'quantity-btn', 'aria-label': 'Decrease quantity' }, ['-']);
+        const plusBtn = createSafeElement('button', { class: 'quantity-btn', 'aria-label': 'Increase quantity' }, ['+']);
+        const input = createSafeElement('input', {
+            type: 'number',
+            class: 'quantity-input',
+            value: '1',
+            min: '1',
+            max: '50',
+            'aria-label': 'Quantity'
+        });
+
+        minusBtn.addEventListener('click', () => updateQuantity(product, -1));
+        plusBtn.addEventListener('click', () => updateQuantity(product, 1));
+        input.addEventListener('change', (e) => setQuantity(product, parseInt(e.target.value)));
+
+        quantityControl.appendChild(minusBtn);
+        quantityControl.appendChild(input);
+        quantityControl.appendChild(plusBtn);
+
+        return quantityControl;
+    };
+
     // Render products
     const renderProducts = (productsToRender) => {
         const fragment = document.createDocumentFragment();
@@ -142,12 +167,12 @@ const initApp = async () => {
                 'data-price': price - (discount || 0)
             }, ['Agregar al Carrito']);
             
-            addToCartBtn.addEventListener('click', () => {
-                addToCart({
-                    id: id,
-                    name: name,
-                    price: price - (discount || 0)
-                }, 1);
+            addToCartBtn.addEventListener('click', (e) => {
+                e.target.style.display = 'none';
+                const quantityControl = renderQuantityControl(product);
+                e.target.parentNode.appendChild(quantityControl);
+                quantityControl.classList.add('fade-in-up');
+                addToCart(product, 1);
             });
             
             cardBody.appendChild(addToCartBtn);
@@ -246,9 +271,9 @@ const initApp = async () => {
     function addToCart(product, quantity) {
         const existingItem = cart.find(item => item.id === product.id);
         if (existingItem) {
-            existingItem.quantity = Math.min(existingItem.quantity + quantity, 99);
+            existingItem.quantity = Math.min(existingItem.quantity + quantity, 50);
         } else {
-            cart.push({ ...product, quantity: Math.min(quantity, 99) });
+            cart.push({ ...product, quantity: Math.min(quantity, 50) });
         }
         saveCart();
         updateCartIcon();
@@ -259,15 +284,49 @@ const initApp = async () => {
         saveCart();
         updateCartIcon();
         renderCart();
+        updateProductDisplay();
     }
 
-    function updateQuantity(productId, newQuantity) {
-        const item = cart.find(item => item.id === productId);
+    function updateQuantity(product, change) {
+        const item = cart.find(item => item.id === product.id);
         if (item) {
-            item.quantity = Math.min(Math.max(newQuantity, 1), 99);
+            item.quantity = Math.min(Math.max(item.quantity + change, 0), 50);
+            if (item.quantity === 0) {
+                removeFromCart(product.id);
+            } else {
+                saveCart();
+                updateCartIcon();
+            }
+        } else {
+            addToCart(product, 1);
+        }
+        const quantityInput = document.querySelector(`[data-id="${product.id}"] .quantity-input`);
+        if (quantityInput) {
+            quantityInput.value = item ? item.quantity : 1;
+            quantityInput.classList.add('quantity-changed');
+            setTimeout(() => quantityInput.classList.remove('quantity-changed'), 300);
+        }
+    }
+
+    function setQuantity(product, newQuantity) {
+        newQuantity = Math.min(Math.max(newQuantity, 0), 50);
+        if (newQuantity === 0) {
+            removeFromCart(product.id);
+        } else {
+            const item = cart.find(item => item.id === product.id);
+            if (item) {
+                item.quantity = newQuantity;
+            } else {
+                addToCart(product, newQuantity);
+            }
             saveCart();
             updateCartIcon();
-            renderCart();
+        }
+        const quantityInput = document.querySelector(`[data-id="${product.id}"] .quantity-input`);
+        if (quantityInput) {
+            quantityInput.value = newQuantity;
+            quantityInput.classList.add('quantity-changed');
+            setTimeout(() => quantityInput.classList.remove('quantity-changed'), 300);
         }
     }
 
@@ -276,6 +335,7 @@ const initApp = async () => {
         saveCart();
         updateCartIcon();
         renderCart();
+        updateProductDisplay();
     }
 
     function saveCart() {
@@ -372,10 +432,10 @@ const initApp = async () => {
             const productId = parseInt(e.target.dataset.id);
             if (e.target.classList.contains('decrease-quantity')) {
                 const item = cart.find(item => item.id === productId);
-                if (item) updateQuantity(productId, item.quantity - 1);
+                if (item) updateQuantity({id: productId}, -1);
             } else if (e.target.classList.contains('increase-quantity')) {
                 const item = cart.find(item => item.id === productId);
-                if (item) updateQuantity(productId, item.quantity + 1);
+                if (item) updateQuantity({id: productId}, 1);
             } else if (e.target.classList.contains('remove-item')) {
                 removeFromCart(productId);
             }
@@ -394,11 +454,11 @@ const initApp = async () => {
             });
         }
 
-        } catch (error) {
+    } catch (error) {
         console.error('Error initializing products:', error);
         showErrorMessage('Error loading products. Please try again later.');
-        }
-        };
+    }
+};
 
 // Run the application when the DOM is ready
 document.addEventListener('DOMContentLoaded', initApp);
