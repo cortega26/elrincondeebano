@@ -120,7 +120,8 @@ const initApp = async () => {
             value: '1',
             min: '1',
             max: '50',
-            'aria-label': 'Quantity'
+            'aria-label': 'Quantity',
+            'data-id': product.id
         });
 
         minusBtn.addEventListener('click', () => updateQuantity(product, -1));
@@ -296,11 +297,12 @@ const initApp = async () => {
             } else {
                 saveCart();
                 updateCartIcon();
+                renderCart();
             }
         } else {
             addToCart(product, 1);
         }
-        const quantityInput = document.querySelector(`[data-id="${product.id}"] .quantity-input`);
+        const quantityInput = document.querySelector(`[data-id="${product.id}"].quantity-input`);
         if (quantityInput) {
             quantityInput.value = item ? item.quantity : 1;
             quantityInput.classList.add('quantity-changed');
@@ -321,8 +323,9 @@ const initApp = async () => {
             }
             saveCart();
             updateCartIcon();
+            renderCart();
         }
-        const quantityInput = document.querySelector(`[data-id="${product.id}"] .quantity-input`);
+        const quantityInput = document.querySelector(`[data-id="${product.id}"].quantity-input`);
         if (quantityInput) {
             quantityInput.value = newQuantity;
             quantityInput.classList.add('quantity-changed');
@@ -356,7 +359,7 @@ const initApp = async () => {
                 <div>${sanitizeHTML(item.name)}</div>
                 <div>
                     <button class="btn btn-sm btn-secondary decrease-quantity" data-id="${item.id}">-</button>
-                    <span class="mx-2">${item.quantity}</span>
+                    <span class="mx-2 item-quantity">${item.quantity}</span>
                     <button class="btn btn-sm btn-secondary increase-quantity" data-id="${item.id}">+</button>
                 </div>
                 <div>Precio: $${item.price.toLocaleString('es-CL')}</div>
@@ -431,11 +434,9 @@ const initApp = async () => {
         document.getElementById('cart-items').addEventListener('click', (e) => {
             const productId = parseInt(e.target.dataset.id);
             if (e.target.classList.contains('decrease-quantity')) {
-                const item = cart.find(item => item.id === productId);
-                if (item) updateQuantity({id: productId}, -1);
+                updateQuantity({id: productId}, -1);
             } else if (e.target.classList.contains('increase-quantity')) {
-                const item = cart.find(item => item.id === productId);
-                if (item) updateQuantity({id: productId}, 1);
+                updateQuantity({id: productId}, 1);
             } else if (e.target.classList.contains('remove-item')) {
                 removeFromCart(productId);
             }
