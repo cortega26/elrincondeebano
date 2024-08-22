@@ -27,7 +27,7 @@ h1 {
 
 /* Navbar Styles */
 .navbar {
-  padding: 0 1rem 0 1rem;
+  padding: 0.5rem 1rem;
 }
 
 .navbar-brand {
@@ -42,6 +42,19 @@ h1 {
 .navbar-brand span {
   font-family: 'Playfair Display', serif;
   font-size: clamp(1.25rem, 3vw, 1.5rem);
+}
+
+#cart-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+#cart-count {
+  position: absolute;
+  top: 0;
+  right: -0.5rem;
+  font-size: 0.75rem;
 }
 
 .dropdown-menu {
@@ -255,6 +268,19 @@ footer {
   #sort-options,
   #filter-keyword {
     margin-bottom: 0;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .navbar-brand {
+    max-width: calc(100% - 100px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .brand-text {
+    font-size: 1.25rem;
   }
 }
 
