@@ -118,7 +118,7 @@ const initApp = async () => {
         const input = createSafeElement('input', {
             type: 'number',
             class: 'quantity-input',
-            value: getCartItemQuantity(product.id),
+            value: Math.max(getCartItemQuantity(product.id), 1),
             min: '1',
             max: '50',
             'aria-label': 'Quantity',
@@ -186,6 +186,12 @@ const initApp = async () => {
                     e.target.parentNode.appendChild(quantityControl);
                     quantityControl.classList.add('fade-in-up');
                     addToCart(product, 1);
+                    
+                    // Ensure the input shows 1 immediately after adding to cart
+                    const quantityInput = quantityControl.querySelector('.quantity-input');
+                    if (quantityInput) {
+                        quantityInput.value = 1;
+                    }
                 });
                 
                 cardBody.appendChild(addToCartBtn);
@@ -291,6 +297,12 @@ const initApp = async () => {
         saveCart();
         updateCartIcon();
         renderCart();
+        
+        // Update the quantity control for this product
+        const quantityInput = document.querySelector(`[data-id="${product.id}"].quantity-input`);
+        if (quantityInput) {
+            quantityInput.value = Math.max(getCartItemQuantity(product.id), 1);
+        }
     }
 
     function removeFromCart(productId) {
