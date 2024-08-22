@@ -45,7 +45,7 @@ h1 {
 
 .navbar-brand span {
   font-family: 'Playfair Display', serif;
-  font-size: clamp(0.9rem, 2.5vw, 1.25rem);
+  font-size: clamp(1.2rem, 3.5vw, 2rem);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
