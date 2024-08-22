@@ -27,34 +27,48 @@ h1 {
 
 /* Navbar Styles */
 .navbar {
-  padding: 0.5rem 1rem;
+  padding: 0.25rem 0.5rem;
 }
 
 .navbar-brand {
   display: flex;
   align-items: center;
+  max-width: calc(100% - 80px);
+  overflow: hidden;
 }
 
 .navbar-brand img {
-  margin-right: 0.5rem;
+  margin-right: 0.25rem;
+  width: 30px;
+  height: 30px;
 }
 
 .navbar-brand span {
   font-family: 'Playfair Display', serif;
-  font-size: clamp(1.25rem, 3vw, 1.5rem);
+  font-size: clamp(0.9rem, 2.5vw, 1.25rem);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #cart-icon {
   position: relative;
   display: flex;
   align-items: center;
+  padding: 0.25rem;
+  margin-right: 0.5rem;
 }
 
 #cart-count {
   position: absolute;
   top: 0;
-  right: -0.5rem;
-  font-size: 0.75rem;
+  right: 0;
+  font-size: 0.65rem;
+  padding: 0.15rem 0.3rem;
+}
+
+.navbar-toggler {
+  padding: 0.25rem 0.4rem;
 }
 
 .dropdown-menu {
@@ -242,17 +256,6 @@ footer {
 }
 
 /* Cart Styles */
-#cart-icon {
-  position: relative;
-}
-
-#cart-count {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  font-size: 0.75rem;
-}
-
 .cart-item {
   border-bottom: 1px solid #dee2e6;
   padding-bottom: 10px;
@@ -273,14 +276,11 @@ footer {
 
 @media (max-width: 991.98px) {
   .navbar-brand {
-    max-width: calc(100% - 100px);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    max-width: calc(100% - 80px);
   }
   
   .brand-text {
-    font-size: 1.25rem;
+    font-size: clamp(0.9rem, 2.5vw, 1.25rem);
   }
 }
 
@@ -297,6 +297,12 @@ footer {
   .btn,
   .form-control {
     min-height: 44px;
+  }
+}
+
+@media (max-width: 350px) {
+  .navbar-brand span {
+    display: none;
   }
 }
 
