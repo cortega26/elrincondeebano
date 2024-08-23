@@ -35,6 +35,7 @@ const isAgeVerified = () => {
 };
 
 const verifyAge = (isAdult) => {
+    console.log('verifyAge called with:', isAdult);
     if (isAdult) {
         setAgeVerified();
         document.body.classList.add('age-verified');
@@ -48,17 +49,28 @@ const verifyAge = (isAdult) => {
 };
 
 const checkAgeVerification = () => {
+    console.log('checkAgeVerification called');
     if (isAgeVerified()) {
+        console.log('Age already verified');
         document.body.classList.add('age-verified');
     } else {
+        console.log('Age not verified, checking for overlay');
         const overlay = document.getElementById('age-verification-overlay');
         if (overlay) {
+            console.log('Overlay found, setting up buttons');
             const buttons = overlay.querySelectorAll('button');
+            console.log('Buttons found:', buttons.length);
             if (buttons.length === 2) {
-                buttons[0].addEventListener('click', () => verifyAge(true));
-                buttons[1].addEventListener('click', () => verifyAge(false));
+                buttons[0].addEventListener('click', () => {
+                    console.log('Yes button clicked');
+                    verifyAge(true);
+                });
+                buttons[1].addEventListener('click', () => {
+                    console.log('No button clicked');
+                    verifyAge(false);
+                });
             } else {
-                console.error('Age verification buttons not found');
+                console.error('Age verification buttons not found or incorrect number');
             }
         } else {
             console.error('Age verification overlay not found');
@@ -67,7 +79,16 @@ const checkAgeVerification = () => {
 };
 
 // Run age verification check when the DOM is loaded
-document.addEventListener('DOMContentLoaded', checkAgeVerification);
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM content loaded, running checkAgeVerification');
+    checkAgeVerification();
+});
+
+// Also run on window load in case DOMContentLoaded was missed
+window.addEventListener('load', () => {
+    console.log('Window loaded, running checkAgeVerification');
+    checkAgeVerification();
+});
 
 // Optionally, you can export functions for testing or external use
 if (typeof module !== 'undefined' && module.exports) {
