@@ -178,7 +178,7 @@ const initApp = async () => {
                     'data-id': id,
                     'data-name': name,
                     'data-price': price - (discount || 0)
-                }, ['Agregar al Carrito']);
+                }, ['Agregar']);
                 
                 addToCartBtn.addEventListener('click', (e) => {
                     e.target.style.display = 'none';
