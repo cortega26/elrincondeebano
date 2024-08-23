@@ -38,6 +38,10 @@ const verifyAge = (isAdult) => {
     if (isAdult) {
         setAgeVerified();
         document.body.classList.add('age-verified');
+        const overlay = document.getElementById('age-verification-overlay');
+        if (overlay) {
+            overlay.style.display = 'none';
+        }
     } else {
         safeRedirect(FALLBACK_URL);
     }
@@ -49,12 +53,10 @@ const checkAgeVerification = () => {
     } else {
         const overlay = document.getElementById('age-verification-overlay');
         if (overlay) {
-            const yesButton = overlay.querySelector('button:first-of-type');
-            const noButton = overlay.querySelector('button:last-of-type');
-
-            if (yesButton && noButton) {
-                yesButton.addEventListener('click', () => verifyAge(true));
-                noButton.addEventListener('click', () => verifyAge(false));
+            const buttons = overlay.querySelectorAll('button');
+            if (buttons.length === 2) {
+                buttons[0].addEventListener('click', () => verifyAge(true));
+                buttons[1].addEventListener('click', () => verifyAge(false));
             } else {
                 console.error('Age verification buttons not found');
             }
