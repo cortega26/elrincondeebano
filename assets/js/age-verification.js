@@ -58,19 +58,20 @@ const checkAgeVerification = () => {
         const overlay = document.getElementById('age-verification-overlay');
         if (overlay) {
             console.log('Overlay found, setting up buttons');
-            const buttons = overlay.querySelectorAll('button');
-            console.log('Buttons found:', buttons.length);
-            if (buttons.length === 2) {
-                buttons[0].addEventListener('click', () => {
+            const yesButton = document.getElementById('age-yes');
+            const noButton = document.getElementById('age-no');
+            
+            if (yesButton && noButton) {
+                yesButton.addEventListener('click', () => {
                     console.log('Yes button clicked');
                     verifyAge(true);
                 });
-                buttons[1].addEventListener('click', () => {
+                noButton.addEventListener('click', () => {
                     console.log('No button clicked');
                     verifyAge(false);
                 });
             } else {
-                console.error('Age verification buttons not found or incorrect number');
+                console.error('Age verification buttons not found');
             }
         } else {
             console.error('Age verification overlay not found');
