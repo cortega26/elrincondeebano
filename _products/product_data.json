@@ -228,7 +228,7 @@
     "name": "Ramitas Sal • Evercrisp",
     "description": "Bolsa de 170g",
     "price": 1800,
-    "discount": 300,
+    "discount": 0,
     "stock": false,
     "category": "SnacksSalados",
     "image_path": "assets/images/snacks_salados/Ramitas-Sal-170gr.webp"
@@ -245,9 +245,9 @@
   {
     "name": "Tocino Ahumado La Preferida",
     "description": "Empaque de 500g",
-    "price": 6900,
+    "price": 7500,
     "discount": 0,
-    "stock": false,
+    "stock": true,
     "category": "Carnesyembutidos",
     "image_path": "assets/images/carnes_y_embutidos/Tocino Ahumado La Preferida 500g.webp"
   },
@@ -256,7 +256,7 @@
     "description": "Envase UHT de 1L",
     "price": 1600,
     "discount": 0,
-    "stock": false,
+    "stock": true,
     "category": "Lacteos",
     "image_path": "assets/images/lacteos/Leche semidescramada deslactosada Surlat 1L.webp"
   },
@@ -380,7 +380,7 @@
   {
     "name": "Nescafé Fina Selección",
     "description": "Frasco de 200g",
-    "price": 8900,
+    "price": 9900,
     "discount": 0,
     "stock": false,
     "category": "Despensa",
@@ -805,7 +805,7 @@
     "description": "Envase de 1L • Sin azúcar añadida",
     "price": 1300,
     "discount": 0,
-    "stock": false,
+    "stock": true,
     "category": "Jugos",
     "image_path": "assets/images/jugos/jugo-soprole-1-lt.webp"
   },
@@ -850,7 +850,7 @@
     "description": "Barra de 100g • 31% cacao",
     "price": 1800,
     "discount": 0,
-    "stock": false,
+    "stock": true,
     "category": "Chocolates",
     "image_path": "assets/images/chocolates/Chocolate blanco 100g.webp"
   },
@@ -903,7 +903,7 @@
     "name": "Ramitas Queso • Evercrisp",
     "description": "Bolsa de 170g",
     "price": 1800,
-    "discount": 300,
+    "discount": 0,
     "stock": false,
     "category": "SnacksSalados",
     "image_path": "assets/images/snacks_salados/Ramitas-Queso-170gr.webp"
