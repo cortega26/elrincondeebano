@@ -904,7 +904,7 @@
     "description": "Bolsa de 140g",
     "price": 1900,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "SnacksSalados",
     "image_path": "assets/images/snacks_salados/Lays Orégano 140g.webp"
   },
