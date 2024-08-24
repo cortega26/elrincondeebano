@@ -868,7 +868,7 @@
     "description": "Barra de 100g",
     "price": 1700,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Chocolates",
     "image_path": "assets/images/chocolates/Chocolate de leche con almendras Ambrosoli 100g.webp"
   },
