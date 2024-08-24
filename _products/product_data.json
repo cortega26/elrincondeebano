@@ -1,5 +1,14 @@
 [
   {
+    "name": "Salsa de tomate Líder",
+    "description": "Botella de 1L",
+    "price": 4500,
+    "discount": 0,
+    "stock": true,
+    "category": "Despensa",
+    "image_path": "assets/images/despensa/Salsa de Tomate Ketchup Lider 1Kg.webp"
+  },
+  {
     "name": "Galletas Niza McKay",
     "description": "Presentación de 150g",
     "price": 1300,
