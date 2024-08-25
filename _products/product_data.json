@@ -362,9 +362,9 @@
   {
     "name": "Crema de Leche Surlat",
     "description": "Presentación de 200mL",
-    "price": 1200,
+    "price": 1500,
     "discount": 0,
-    "stock": false,
+    "stock": true,
     "category": "Lacteos",
     "image_path": "assets/images/lacteos/Crema de leche Surlat 200mL.webp"
   },
