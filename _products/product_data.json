@@ -859,7 +859,7 @@
     "description": "Barra de 100g • 31% cacao",
     "price": 1800,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Chocolates",
     "image_path": "assets/images/chocolates/Chocolate blanco 100g.webp"
   },
