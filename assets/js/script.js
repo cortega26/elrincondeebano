@@ -378,6 +378,7 @@ const initApp = async () => {
         let total = 0;
         
         cart.forEach(item => {
+            const discountedPrice = item.price - (item.discount || 0);
             const itemElement = document.createElement('div');
             itemElement.className = 'cart-item mb-3';
             itemElement.innerHTML = `
@@ -387,13 +388,13 @@ const initApp = async () => {
                     <span class="mx-2 item-quantity">${item.quantity}</span>
                     <button class="btn btn-sm btn-secondary increase-quantity" data-id="${item.id}">+</button>
                 </div>
-                <div>Precio: $${item.price.toLocaleString('es-CL')}</div>
-                <div>Subtotal: $${(item.price * item.quantity).toLocaleString('es-CL')}</div>
+                <div>Precio: $${discountedPrice.toLocaleString('es-CL')}</div>
+                <div>Subtotal: $${(discountedPrice * item.quantity).toLocaleString('es-CL')}</div>
                 <button class="btn btn-sm btn-danger remove-item" data-id="${item.id}">Eliminar</button>
             `;
             cartItems.appendChild(itemElement);
             
-            total += item.price * item.quantity;
+            total += discountedPrice * item.quantity;
         });
         
         cartTotal.textContent = `Total: $${total.toLocaleString('es-CL')}`;
@@ -402,13 +403,14 @@ const initApp = async () => {
     function submitCart() {
         let message = "Mi pedido:\n\n";
         cart.forEach(item => {
+            const discountedPrice = item.price - (item.discount || 0);
             message += `${item.name}\n`;
             message += `Cantidad: ${item.quantity}\n`;
-            message += `Precio unitario: $${item.price.toLocaleString('es-CL')}\n`;
-            message += `Subtotal: $${(item.price * item.quantity).toLocaleString('es-CL')}\n\n`;
+            message += `Precio unitario: $${discountedPrice.toLocaleString('es-CL')}\n`;
+            message += `Subtotal: $${(discountedPrice * item.quantity).toLocaleString('es-CL')}\n\n`;
         });
         
-        const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const total = cart.reduce((sum, item) => sum + (item.price - (item.discount || 0)) * item.quantity, 0);
         message += `Total: $${total.toLocaleString('es-CL')}`;
         
         const encodedMessage = encodeURIComponent(message);
