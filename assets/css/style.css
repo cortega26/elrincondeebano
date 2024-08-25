@@ -51,6 +51,10 @@ h1 {
   text-overflow: ellipsis;
 }
 
+.mt-4 {
+  margin-top: 6px !important;
+}
+
 #otrosDropdown {
   padding-right: 3rem;
 }
