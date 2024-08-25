@@ -68,9 +68,7 @@ const initApp = async () => {
             const response = await fetch(filename);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const html = await response.text();
-            // Use createSafeElement instead of innerHTML
-            const tempDiv = createSafeElement('div', {}, [html]);
-            container.appendChild(tempDiv);
+            container.innerHTML = html;
         } catch (error) {
             console.error('Error loading component:', error);
             throw error;
@@ -375,6 +373,34 @@ const initApp = async () => {
         }
     };
 
+    const setQuantity = (product, newQuantity) => {
+        try {
+            newQuantity = Math.min(Math.max(newQuantity, 0), 50);
+            if (newQuantity === 0) {
+                removeFromCart(product.id);
+            } else {
+                const item = cart.find(item => item.id === product.id);
+                if (item) {
+                    item.quantity = newQuantity;
+                } else {
+                    addToCart(product, newQuantity);
+                }
+                saveCart();
+                updateCartIcon();
+                renderCart();
+            }
+            const quantityInput = document.querySelector(`[data-id="${product.id}"].quantity-input`);
+            if (quantityInput) {
+                quantityInput.value = newQuantity;
+                quantityInput.classList.add('quantity-changed');
+                setTimeout(() => quantityInput.classList.remove('quantity-changed'), 300);
+            }
+        } catch (error) {
+            console.error('Error setting quantity:', error);
+            showErrorMessage('Failed to set quantity. Please try again.');
+        }
+    };
+
     const emptyCart = () => {
         try {
             cart = [];
@@ -406,20 +432,19 @@ const initApp = async () => {
         
         cart.forEach(item => {
             const discountedPrice = item.price - (item.discount || 0);
-            const itemElement = createSafeElement('div', { class: 'cart-item mb-3' });
-            
-            itemElement.appendChild(createSafeElement('div', {}, [sanitizeHTML(item.name)]));
-            
-            const quantityControl = createSafeElement('div', {});
-            quantityControl.appendChild(createSafeElement('button', { class: 'btn btn-sm btn-secondary decrease-quantity', 'data-id': item.id }, ['-']));
-            quantityControl.appendChild(createSafeElement('span', { class: 'mx-2 item-quantity' }, [item.quantity.toString()]));
-            quantityControl.appendChild(createSafeElement('button', { class: 'btn btn-sm btn-secondary increase-quantity', 'data-id': item.id }, ['+']));
-            itemElement.appendChild(quantityControl);
-            
-            itemElement.appendChild(createSafeElement('div', {}, [`Precio: $${discountedPrice.toLocaleString('es-CL')}`]));
-            itemElement.appendChild(createSafeElement('div', {}, [`Subtotal: $${(discountedPrice * item.quantity).toLocaleString('es-CL')}`]));
-            itemElement.appendChild(createSafeElement('button', { class: 'btn btn-sm btn-danger remove-item', 'data-id': item.id }, ['Eliminar']));
-            
+            const itemElement = document.createElement('div');
+            itemElement.className = 'cart-item mb-3';
+            itemElement.innerHTML = `
+                <div>${sanitizeHTML(item.name)}</div>
+                <div>
+                    <button class="btn btn-sm btn-secondary decrease-quantity" data-id="${item.id}">-</button>
+                    <span class="mx-2 item-quantity">${item.quantity}</span>
+                    <button class="btn btn-sm btn-secondary increase-quantity" data-id="${item.id}">+</button>
+                </div>
+                <div>Precio: $${discountedPrice.toLocaleString('es-CL')}</div>
+                <div>Subtotal: $${(discountedPrice * item.quantity).toLocaleString('es-CL')}</div>
+                <button class="btn btn-sm btn-danger remove-item" data-id="${item.id}">Eliminar</button>
+            `;
             cartItems.appendChild(itemElement);
             
             total += discountedPrice * item.quantity;
@@ -478,14 +503,9 @@ const initApp = async () => {
         const submitCartBtn = document.getElementById('submit-cart');
         
         cartIcon.addEventListener('click', () => {
-            if (typeof bootstrap !== 'undefined' && bootstrap.Offcanvas) {
-                const cartOffcanvas = new bootstrap.Offcanvas(document.getElementById('cartOffcanvas'));
-                renderCart();
-                cartOffcanvas.show();
-            } else {
-                console.error('Bootstrap Offcanvas is not available');
-                showErrorMessage('Unable to open cart. Please try again later.');
-            }
+            const cartOffcanvas = new bootstrap.Offcanvas(document.getElementById('cartOffcanvas'));
+            renderCart();
+            cartOffcanvas.show();
         });
         
         emptyCartBtn.addEventListener('click', emptyCart);
@@ -525,5 +545,15 @@ const initApp = async () => {
     }
 };
 
+// Cleanup function
+const cleanup = () => {
+    window.removeEventListener('online', updateOnlineStatus);
+    window.removeEventListener('offline', updateOnlineStatus);
+    // Add other cleanup operations here
+};
+
 // Run the application when the DOM is ready
 document.addEventListener('DOMContentLoaded', initApp);
+
+// Call cleanup when appropriate, e.g., when the component unmounts
+// window.addEventListener('beforeunload', cleanup);
