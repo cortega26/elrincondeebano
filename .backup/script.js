@@ -1,30 +1,5 @@
 'use strict';
 
-// Utility functions
-const memoize = (fn) => {
-    const cache = new Map();
-    return (...args) => {
-        const key = JSON.stringify(args);
-        if (cache.has(key)) return cache.get(key);
-        const result = fn(...args);
-        cache.set(key, result);
-        return result;
-    };
-};
-
-const debounce = (func, delay) => {
-    let timeoutId;
-    return (...args) => {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => func(...args), delay);
-    };
-};
-
-let uniqueId = 0;
-const generateUniqueId = () => {
-    return `product-${Date.now()}-${uniqueId++}`;
-};
-
 // Main function to initialize the application
 const initApp = async () => {
     const navbarContainer = document.getElementById('navbar-container');
@@ -37,6 +12,7 @@ const initApp = async () => {
     let products = [];
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
+    // Utility functions
     const sanitizeHTML = (unsafe) => {
         const element = document.createElement('div');
         element.textContent = unsafe;
@@ -84,7 +60,7 @@ const initApp = async () => {
             console.log('Components loaded successfully');
         } catch (error) {
             console.error('Error loading components:', error);
-            showErrorMessage('Failed to load page components. Please refresh the page.');
+            throw error;
         }
     };
 
@@ -101,10 +77,9 @@ const initApp = async () => {
                 throw new Error(`HTTP error. Status: ${response.status}`);
             }
             const products = await response.json();
-            return products.map(product => ({ ...product, id: generateUniqueId() }));
+            return products.map((product, index) => ({ ...product, id: index, originalIndex: index }));
         } catch (error) {
             console.error('Error fetching products:', error);
-            showErrorMessage('Failed to load products. Please try again later.');
             throw error;
         }
     };
@@ -149,6 +124,10 @@ const initApp = async () => {
             'aria-label': 'Quantity',
             'data-id': product.id
         });
+
+        minusBtn.addEventListener('click', () => updateQuantity(product, -1));
+        plusBtn.addEventListener('click', () => updateQuantity(product, 1));
+        input.addEventListener('change', (e) => setQuantity(product, parseInt(e.target.value)));
 
         quantityControl.appendChild(minusBtn);
         quantityControl.appendChild(input);
@@ -231,6 +210,7 @@ const initApp = async () => {
 
     // Lazy load images
     const lazyLoadImages = () => {
+        const lazyImages = document.querySelectorAll('img.lazyload');
         const imageObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -240,9 +220,9 @@ const initApp = async () => {
                     observer.unobserve(img);
                 }
             });
-        }, { rootMargin: '100px' });
+        });
 
-        document.querySelectorAll('img.lazyload').forEach(img => imageObserver.observe(img));
+        lazyImages.forEach(img => imageObserver.observe(img));
     };
 
     // Filter and sort products
@@ -267,23 +247,19 @@ const initApp = async () => {
             (valueB < valueA ? -1 : valueB > valueA ? 1 : 0);
     };
 
-    const memoizedFilterProducts = memoize(filterProducts);
-
     // Update product display
     const updateProductDisplay = () => {
         try {
             const criterion = sortOptions.value || 'original';
             const keyword = sanitizeHTML(filterKeyword.value.trim());
             const showOnlyInStock = showInStock.checked;
-            const filteredAndSortedProducts = memoizedFilterProducts(products, keyword, criterion, showOnlyInStock);
+            const filteredAndSortedProducts = filterProducts(products, keyword, criterion, showOnlyInStock);
             renderProducts(filteredAndSortedProducts);
         } catch (error) {
             console.error('Error updating product display:', error);
             showErrorMessage('Error updating product display. Please try again later.');
         }
     };
-
-    const debouncedUpdateProductDisplay = debounce(updateProductDisplay, 300);
 
     // Error handling
     const showErrorMessage = (message) => {
@@ -305,125 +281,96 @@ const initApp = async () => {
     };
 
     // Shopping Cart Functions
-    const updateCartIcon = () => {
+    function updateCartIcon() {
         const cartCount = document.getElementById('cart-count');
         const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
         cartCount.textContent = totalItems;
-    };
+    }
 
-    const addToCart = (product, quantity) => {
-        try {
-            const existingItem = cart.find(item => item.id === product.id);
-            if (existingItem) {
-                existingItem.quantity = Math.min(existingItem.quantity + quantity, 50);
-            } else {
-                cart.push({ ...product, quantity: Math.min(quantity, 50) });
-            }
-            saveCart();
-            updateCartIcon();
-            renderCart();
-            
-            const quantityInput = document.querySelector(`[data-id="${product.id}"].quantity-input`);
-            if (quantityInput) {
-                quantityInput.value = Math.max(getCartItemQuantity(product.id), 1);
-            }
-        } catch (error) {
-            console.error('Error adding to cart:', error);
-            showErrorMessage('Failed to add item to cart. Please try again.');
+    function addToCart(product, quantity) {
+        const existingItem = cart.find(item => item.id === product.id);
+        if (existingItem) {
+            existingItem.quantity = Math.min(existingItem.quantity + quantity, 50);
+        } else {
+            cart.push({ ...product, quantity: Math.min(quantity, 50) });
         }
-    };
-
-    const removeFromCart = (productId) => {
-        try {
-            cart = cart.filter(item => item.id !== productId);
-            saveCart();
-            updateCartIcon();
-            renderCart();
-            updateProductDisplay();
-        } catch (error) {
-            console.error('Error removing from cart:', error);
-            showErrorMessage('Failed to remove item from cart. Please try again.');
+        saveCart();
+        updateCartIcon();
+        renderCart();
+        
+        // Update the quantity control for this product
+        const quantityInput = document.querySelector(`[data-id="${product.id}"].quantity-input`);
+        if (quantityInput) {
+            quantityInput.value = Math.max(getCartItemQuantity(product.id), 1);
         }
-    };
+    }
 
-    const updateQuantity = (product, change) => {
-        try {
-            const item = cart.find(item => item.id === product.id);
-            if (item) {
-                item.quantity = Math.min(Math.max(item.quantity + change, 0), 50);
-                if (item.quantity === 0) {
-                    removeFromCart(product.id);
-                } else {
-                    saveCart();
-                    updateCartIcon();
-                    renderCart();
-                }
-            } else {
-                addToCart(product, 1);
-            }
-            const quantityInput = document.querySelector(`[data-id="${product.id}"].quantity-input`);
-            if (quantityInput) {
-                quantityInput.value = item ? item.quantity : 1;
-                quantityInput.classList.add('quantity-changed');
-                setTimeout(() => quantityInput.classList.remove('quantity-changed'), 300);
-            }
-        } catch (error) {
-            console.error('Error updating quantity:', error);
-            showErrorMessage('Failed to update quantity. Please try again.');
-        }
-    };
+    function removeFromCart(productId) {
+        cart = cart.filter(item => item.id !== productId);
+        saveCart();
+        updateCartIcon();
+        renderCart();
+        updateProductDisplay(); // Re-render products to show "Agregar al Carrito" for removed items
+    }
 
-    const setQuantity = (product, newQuantity) => {
-        try {
-            newQuantity = Math.min(Math.max(newQuantity, 0), 50);
-            if (newQuantity === 0) {
+    function updateQuantity(product, change) {
+        const item = cart.find(item => item.id === product.id);
+        if (item) {
+            item.quantity = Math.min(Math.max(item.quantity + change, 0), 50);
+            if (item.quantity === 0) {
                 removeFromCart(product.id);
             } else {
-                const item = cart.find(item => item.id === product.id);
-                if (item) {
-                    item.quantity = newQuantity;
-                } else {
-                    addToCart(product, newQuantity);
-                }
                 saveCart();
                 updateCartIcon();
                 renderCart();
             }
-            const quantityInput = document.querySelector(`[data-id="${product.id}"].quantity-input`);
-            if (quantityInput) {
-                quantityInput.value = newQuantity;
-                quantityInput.classList.add('quantity-changed');
-                setTimeout(() => quantityInput.classList.remove('quantity-changed'), 300);
-            }
-        } catch (error) {
-            console.error('Error setting quantity:', error);
-            showErrorMessage('Failed to set quantity. Please try again.');
+        } else {
+            addToCart(product, 1);
         }
-    };
+        const quantityInput = document.querySelector(`[data-id="${product.id}"].quantity-input`);
+        if (quantityInput) {
+            quantityInput.value = item ? item.quantity : 1;
+            quantityInput.classList.add('quantity-changed');
+            setTimeout(() => quantityInput.classList.remove('quantity-changed'), 300);
+        }
+    }
 
-    const emptyCart = () => {
-        try {
-            cart = [];
+    function setQuantity(product, newQuantity) {
+        newQuantity = Math.min(Math.max(newQuantity, 0), 50);
+        if (newQuantity === 0) {
+            removeFromCart(product.id);
+        } else {
+            const item = cart.find(item => item.id === product.id);
+            if (item) {
+                item.quantity = newQuantity;
+            } else {
+                addToCart(product, newQuantity);
+            }
             saveCart();
             updateCartIcon();
             renderCart();
-            updateProductDisplay();
-        } catch (error) {
-            console.error('Error emptying cart:', error);
-            showErrorMessage('Failed to empty cart. Please try again.');
         }
-    };
-
-    const saveCart = () => {
-        try {
-            localStorage.setItem('cart', JSON.stringify(cart));
-        } catch (error) {
-            console.error('Error saving cart:', error);
-            showErrorMessage('Failed to save cart. Your changes may not persist.');
+        const quantityInput = document.querySelector(`[data-id="${product.id}"].quantity-input`);
+        if (quantityInput) {
+            quantityInput.value = newQuantity;
+            quantityInput.classList.add('quantity-changed');
+            setTimeout(() => quantityInput.classList.remove('quantity-changed'), 300);
         }
-    };
+    }
 
-    const renderCart = () => {
+    function emptyCart() {
+        cart = [];
+        saveCart();
+        updateCartIcon();
+        renderCart();
+        updateProductDisplay();
+    }
+
+    function saveCart() {
+        localStorage.setItem('cart', JSON.stringify(cart));
+    }
+
+    function renderCart() {
         const cartItems = document.getElementById('cart-items');
         const cartTotal = document.getElementById('cart-total');
         cartItems.innerHTML = '';
@@ -451,9 +398,9 @@ const initApp = async () => {
         });
         
         cartTotal.textContent = `Total: $${total.toLocaleString('es-CL')}`;
-    };
+    }
 
-    const submitCart = () => {
+    function submitCart() {
         let message = "Mi pedido:\n\n";
         cart.forEach(item => {
             const discountedPrice = item.price - (item.discount || 0);
@@ -468,7 +415,7 @@ const initApp = async () => {
         
         const encodedMessage = encodeURIComponent(message);
         window.open(`https://wa.me/56951118901?text=${encodedMessage}`, '_blank');
-    };
+    }
 
     // Main initialization function
     try {
@@ -485,9 +432,9 @@ const initApp = async () => {
             products = products.filter(product => sanitizeHTML(product.category) === sanitizeHTML(currentCategory));
         }
 
-        sortOptions.addEventListener('change', debouncedUpdateProductDisplay);
-        filterKeyword.addEventListener('input', debouncedUpdateProductDisplay);
-        showInStock.addEventListener('change', debouncedUpdateProductDisplay);
+        sortOptions.addEventListener('change', updateProductDisplay);
+        filterKeyword.addEventListener('input', updateProductDisplay);
+        showInStock.addEventListener('change', updateProductDisplay);
 
         // Initial product display
         updateProductDisplay();
@@ -512,16 +459,12 @@ const initApp = async () => {
         submitCartBtn.addEventListener('click', submitCart);
         
         document.getElementById('cart-items').addEventListener('click', (e) => {
-            const target = e.target;
-            const productId = target.closest('[data-id]')?.dataset.id;
-            
-            if (!productId) return;
-
-            if (target.classList.contains('decrease-quantity')) {
+            const productId = parseInt(e.target.dataset.id);
+            if (e.target.classList.contains('decrease-quantity')) {
                 updateQuantity({id: productId}, -1);
-            } else if (target.classList.contains('increase-quantity')) {
+            } else if (e.target.classList.contains('increase-quantity')) {
                 updateQuantity({id: productId}, 1);
-            } else if (target.classList.contains('remove-item')) {
+            } else if (e.target.classList.contains('remove-item')) {
                 removeFromCart(productId);
             }
         });
@@ -545,15 +488,5 @@ const initApp = async () => {
     }
 };
 
-// Cleanup function
-const cleanup = () => {
-    window.removeEventListener('online', updateOnlineStatus);
-    window.removeEventListener('offline', updateOnlineStatus);
-    // Add other cleanup operations here
-};
-
 // Run the application when the DOM is ready
 document.addEventListener('DOMContentLoaded', initApp);
-
-// Call cleanup when appropriate, e.g., when the component unmounts
-// window.addEventListener('beforeunload', cleanup);
