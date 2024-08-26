@@ -382,34 +382,6 @@ const initApp = async () => {
         }
     };
 
-    const setQuantity = (product, newQuantity) => {
-        try {
-            newQuantity = Math.min(Math.max(newQuantity, 0), 50);
-            if (newQuantity === 0) {
-                removeFromCart(product.id);
-            } else {
-                const item = cart.find(item => item.id === product.id);
-                if (item) {
-                    item.quantity = newQuantity;
-                } else {
-                    addToCart(product, newQuantity);
-                }
-                saveCart();
-                updateCartIcon();
-                renderCart();
-            }
-            const quantityInput = document.querySelector(`[data-id="${product.id}"].quantity-input`);
-            if (quantityInput) {
-                quantityInput.value = newQuantity;
-                quantityInput.classList.add('quantity-changed');
-                setTimeout(() => quantityInput.classList.remove('quantity-changed'), 300);
-            }
-        } catch (error) {
-            console.error('Error setting quantity:', error);
-            showErrorMessage('Failed to set quantity. Please try again.');
-        }
-    };
-
     const emptyCart = () => {
         try {
             cart = [];
@@ -518,9 +490,19 @@ const initApp = async () => {
         const submitCartBtn = document.getElementById('submit-cart');
         
         cartIcon.addEventListener('click', () => {
-            const cartOffcanvas = new bootstrap.Offcanvas(document.getElementById('cartOffcanvas'));
-            renderCart();
-            cartOffcanvas.show();
+            if (typeof bootstrap !== 'undefined' && bootstrap.Offcanvas) {
+                const cartOffcanvas = new bootstrap.Offcanvas(document.getElementById('cartOffcanvas'));
+                renderCart();
+                cartOffcanvas.show();
+            } else {
+                console.error('Bootstrap Offcanvas is not available');
+                // Fallback behavior if Bootstrap is not loaded
+                renderCart();
+                const cartOffcanvasElement = document.getElementById('cartOffcanvas');
+                if (cartOffcanvasElement) {
+                    cartOffcanvasElement.classList.add('show');
+                }
+            }
         });
         
         emptyCartBtn.addEventListener('click', emptyCart);
