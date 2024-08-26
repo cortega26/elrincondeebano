@@ -27,7 +27,25 @@ const debounce = (func, delay) => {
 let uniqueId = 0;
 const generateUniqueId = () => `product-${Date.now()}-${uniqueId++}`;
 
-// Move showErrorMessage function definition to the top
+const createSafeElement = (tag, attributes = {}, children = []) => {
+    const element = document.createElement(tag);
+    Object.entries(attributes).forEach(([key, value]) => {
+        if (key === 'text') {
+            element.textContent = value;
+        } else {
+            element.setAttribute(key, value);
+        }
+    });
+    children.forEach(child => {
+        if (typeof child === 'string') {
+            element.appendChild(document.createTextNode(child));
+        } else {
+            element.appendChild(child);
+        }
+    });
+    return element;
+};
+
 const showErrorMessage = (message) => {
     const errorMessage = createSafeElement('div', { class: 'error-message', role: 'alert' }, [
         createSafeElement('p', {}, [message]),
@@ -78,25 +96,6 @@ const initApp = async () => {
         const element = document.createElement('div');
         element.textContent = unsafe;
         return element.innerHTML;
-    };
-
-    const createSafeElement = (tag, attributes = {}, children = []) => {
-        const element = document.createElement(tag);
-        Object.entries(attributes).forEach(([key, value]) => {
-            if (key === 'text') {
-                element.textContent = value;
-            } else {
-                element.setAttribute(key, value);
-            }
-        });
-        children.forEach(child => {
-            if (typeof child === 'string') {
-                element.appendChild(document.createTextNode(child));
-            } else {
-                element.appendChild(child);
-            }
-        });
-        return element;
     };
 
     const loadComponent = async (container, filename) => {
