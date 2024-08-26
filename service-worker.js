@@ -1,4 +1,3 @@
-const CACHE_NAME = 'el-rincon-de-ebano-v2';
 const STATIC_CACHE_NAME = 'el-rincon-de-ebano-static-v2';
 const DYNAMIC_CACHE_NAME = 'el-rincon-de-ebano-dynamic-v2';
 
@@ -86,7 +85,24 @@ self.addEventListener('push', (event) => {
 // Handle notification clicks
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
+
     event.waitUntil(
-        clients.openWindow('https://cortega26.github.io/elrincondeebano/')
+        (async () => {
+            try {
+                if (self.clients && typeof self.clients.openWindow === 'function') {
+                    await self.clients.openWindow('https://cortega26.github.io/elrincondeebano/');
+                } else {
+                    console.warn('self.clients.openWindow is not available');
+                    // Fallback: You could potentially post a message to the main thread
+                    // to handle opening the window, if appropriate in your app's architecture
+                    self.postMessage({
+                        type: 'OPEN_WINDOW',
+                        url: 'https://cortega26.github.io/elrincondeebano/'
+                    });
+                }
+            } catch (error) {
+                console.error('Error handling notification click:', error);
+            }
+        })()
     );
 });
