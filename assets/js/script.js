@@ -37,6 +37,14 @@ const initApp = async () => {
     let products = [];
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
+    // Place updateOnlineStatus function here, right after the variable declarations
+    const updateOnlineStatus = () => {
+        const offlineIndicator = document.getElementById('offline-indicator');
+        if (offlineIndicator) {
+            offlineIndicator.style.display = navigator.onLine ? 'none' : 'block';
+        }
+    };
+
     const sanitizeHTML = (unsafe) => {
         const element = document.createElement('div');
         element.textContent = unsafe;
@@ -305,14 +313,6 @@ const initApp = async () => {
         errorMessage.querySelector('.retry-button').addEventListener('click', initApp);
     };
 
-    // Offline support
-    const updateOnlineStatus = () => {
-        const offlineIndicator = document.getElementById('offline-indicator');
-        if (offlineIndicator) {
-            offlineIndicator.style.display = navigator.onLine ? 'none' : 'block';
-        }
-    };
-
     // Shopping Cart Functions
     const updateCartIcon = () => {
         const cartCount = document.getElementById('cart-count');
@@ -560,15 +560,6 @@ const initApp = async () => {
     }
 };
 
-// Cleanup function
-const cleanup = () => {
-    window.removeEventListener('online', updateOnlineStatus);
-    window.removeEventListener('offline', updateOnlineStatus);
-    // Add other cleanup operations here
-};
 
 // Run the application when the DOM is ready
 document.addEventListener('DOMContentLoaded', initApp);
-
-// Call cleanup when appropriate, e.g., when the component unmounts
-// window.addEventListener('beforeunload', cleanup);
