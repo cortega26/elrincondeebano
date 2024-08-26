@@ -37,7 +37,6 @@ const initApp = async () => {
     let products = [];
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
-    // Place updateOnlineStatus function here, right after the variable declarations
     const updateOnlineStatus = () => {
         const offlineIndicator = document.getElementById('offline-indicator');
         if (offlineIndicator) {
