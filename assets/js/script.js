@@ -68,7 +68,16 @@ const initApp = async () => {
             const response = await fetch(filename);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const html = await response.text();
-            container.innerHTML = html;
+            
+            // Use DOMParser to parse the HTML content
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Clear the container and append the new content
+            container.innerHTML = '';
+            Array.from(doc.body.children).forEach(child => {
+                container.appendChild(child.cloneNode(true));
+            });
         } catch (error) {
             console.error('Error loading component:', error);
             throw error;
@@ -432,19 +441,25 @@ const initApp = async () => {
         
         cart.forEach(item => {
             const discountedPrice = item.price - (item.discount || 0);
-            const itemElement = document.createElement('div');
-            itemElement.className = 'cart-item mb-3';
-            itemElement.innerHTML = `
-                <div>${sanitizeHTML(item.name)}</div>
-                <div>
-                    <button class="btn btn-sm btn-secondary decrease-quantity" data-id="${item.id}">-</button>
-                    <span class="mx-2 item-quantity">${item.quantity}</span>
-                    <button class="btn btn-sm btn-secondary increase-quantity" data-id="${item.id}">+</button>
-                </div>
-                <div>Precio: $${discountedPrice.toLocaleString('es-CL')}</div>
-                <div>Subtotal: $${(discountedPrice * item.quantity).toLocaleString('es-CL')}</div>
-                <button class="btn btn-sm btn-danger remove-item" data-id="${item.id}">Eliminar</button>
-            `;
+            const itemElement = createSafeElement('div', { class: 'cart-item mb-3' });
+            itemElement.appendChild(createSafeElement('div', {}, [sanitizeHTML(item.name)]));
+            
+            const quantityContainer = createSafeElement('div');
+            const decreaseBtn = createSafeElement('button', { class: 'btn btn-sm btn-secondary decrease-quantity', 'data-id': item.id }, ['-']);
+            const increaseBtn = createSafeElement('button', { class: 'btn btn-sm btn-secondary increase-quantity', 'data-id': item.id }, ['+']);
+            const quantitySpan = createSafeElement('span', { class: 'mx-2 item-quantity' }, [item.quantity.toString()]);
+            
+            quantityContainer.appendChild(decreaseBtn);
+            quantityContainer.appendChild(quantitySpan);
+            quantityContainer.appendChild(increaseBtn);
+            itemElement.appendChild(quantityContainer);
+            
+            itemElement.appendChild(createSafeElement('div', {}, [`Precio: $${discountedPrice.toLocaleString('es-CL')}`]));
+            itemElement.appendChild(createSafeElement('div', {}, [`Subtotal: $${(discountedPrice * item.quantity).toLocaleString('es-CL')}`]));
+            
+            const removeBtn = createSafeElement('button', { class: 'btn btn-sm btn-danger remove-item', 'data-id': item.id }, ['Eliminar']);
+            itemElement.appendChild(removeBtn);
+            
             cartItems.appendChild(itemElement);
             
             total += discountedPrice * item.quantity;
@@ -457,7 +472,7 @@ const initApp = async () => {
         let message = "Mi pedido:\n\n";
         cart.forEach(item => {
             const discountedPrice = item.price - (item.discount || 0);
-            message += `${item.name}\n`;
+            message += `${sanitizeHTML(item.name)}\n`;
             message += `Cantidad: ${item.quantity}\n`;
             message += `Precio unitario: $${discountedPrice.toLocaleString('es-CL')}\n`;
             message += `Subtotal: $${(discountedPrice * item.quantity).toLocaleString('es-CL')}\n\n`;
