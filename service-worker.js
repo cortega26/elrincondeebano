@@ -1,31 +1,28 @@
-const STATIC_CACHE_NAME = 'el-rincon-de-ebano-static-v2';
-const DYNAMIC_CACHE_NAME = 'el-rincon-de-ebano-dynamic-v2';
-
+const CACHE_NAME = 'el-rincon-de-ebano-v3';
 const STATIC_ASSETS = [
-    '/',
-    '/index.html',
-    '/assets/css/style.css',
-    '/assets/js/script.js',
-    '/assets/images/web/logo.webp',
-    '/assets/images/web/favicon.ico',
-    '/offline.html'
+    '/elrincondeebano/',
+    '/elrincondeebano/index.html',
+    '/elrincondeebano/assets/css/style.css',
+    '/elrincondeebano/assets/js/script.js',
+    '/elrincondeebano/assets/images/web/logo.webp',
+    '/elrincondeebano/assets/images/web/favicon.ico',
+    '/elrincondeebano/offline.html'
 ];
 
 self.addEventListener('install', (event) => {
     event.waitUntil(
-        caches.open(STATIC_CACHE_NAME)
+        caches.open(CACHE_NAME)
             .then((cache) => cache.addAll(STATIC_ASSETS))
             .then(() => self.skipWaiting())
     );
 });
 
 self.addEventListener('activate', (event) => {
-    const cacheWhitelist = [STATIC_CACHE_NAME, DYNAMIC_CACHE_NAME];
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
                 cacheNames.map((cacheName) => {
-                    if (cacheWhitelist.indexOf(cacheName) === -1) {
+                    if (cacheName !== CACHE_NAME) {
                         return caches.delete(cacheName);
                     }
                 })
@@ -35,46 +32,41 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-    const request = event.request;
-    const url = new URL(request.url);
+    event.respondWith(
+        caches.match(event.request)
+            .then((response) => {
+                if (response) {
+                    return response;
+                }
+                return fetch(event.request).then((response) => {
+                    // Check if we received a valid response
+                    if (!response || response.status !== 200 || response.type !== 'basic') {
+                        return response;
+                    }
 
-    // Don't cache API calls or external resources
-    if (url.origin !== self.origin || url.pathname.startsWith('/api/')) {
-        event.respondWith(fetch(request));
-        return;
-    }
+                    // Clone the response as it's a stream and can only be consumed once
+                    const responseToCache = response.clone();
 
-    // Cache-first strategy for static assets
-    if (STATIC_ASSETS.includes(url.pathname)) {
-        event.respondWith(cacheFirst(request));
-    } else {
-        event.respondWith(networkFirst(request));
-    }
+                    caches.open(CACHE_NAME)
+                        .then((cache) => {
+                            cache.put(event.request, responseToCache);
+                        });
+
+                    return response;
+                });
+            })
+            .catch(() => {
+                return caches.match('/elrincondeebano/offline.html');
+            })
+    );
 });
 
-async function cacheFirst(request) {
-    const cachedResponse = await caches.match(request);
-    return cachedResponse || fetch(request);
-}
-
-async function networkFirst(request) {
-    try {
-        const networkResponse = await fetch(request);
-        const cache = await caches.open(DYNAMIC_CACHE_NAME);
-        cache.put(request, networkResponse.clone());
-        return networkResponse;
-    } catch (error) {
-        const cachedResponse = await caches.match(request);
-        return cachedResponse || caches.match('/offline.html');
-    }
-}
-
-// Handle push notifications
+// Basic push notification handling
 self.addEventListener('push', (event) => {
     const options = {
-        body: event.data.text(),
-        icon: '/assets/images/web/logo.webp',
-        badge: '/assets/images/web/favicon.ico'
+        body: event.data ? event.data.text() : 'No payload',
+        icon: '/elrincondeebano/assets/images/web/logo.webp',
+        badge: '/elrincondeebano/assets/images/web/favicon.ico'
     };
 
     event.waitUntil(
@@ -82,27 +74,11 @@ self.addEventListener('push', (event) => {
     );
 });
 
-// Handle notification clicks
+// Basic notification click handling
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
 
     event.waitUntil(
-        (async () => {
-            try {
-                if (self.clients && typeof self.clients.openWindow === 'function') {
-                    await self.clients.openWindow('https://cortega26.github.io/elrincondeebano/');
-                } else {
-                    console.warn('self.clients.openWindow is not available');
-                    // Fallback: You could potentially post a message to the main thread
-                    // to handle opening the window, if appropriate in your app's architecture
-                    self.postMessage({
-                        type: 'OPEN_WINDOW',
-                        url: 'https://cortega26.github.io/elrincondeebano/'
-                    });
-                }
-            } catch (error) {
-                console.error('Error handling notification click:', error);
-            }
-        })()
+        clients.openWindow('https://cortega26.github.io/elrincondeebano/')
     );
 });
