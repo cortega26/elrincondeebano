@@ -1,12 +1,16 @@
 'use strict';
 
 // Utility functions
-const memoize = (fn) => {
+const memoize = (fn, cacheSize = 100) => {
     const cache = new Map();
     return (...args) => {
         const key = JSON.stringify(args);
         if (cache.has(key)) return cache.get(key);
         const result = fn(...args);
+        if (cache.size >= cacheSize) {
+            const oldestKey = cache.keys().next().value;
+            cache.delete(oldestKey);
+        }
         cache.set(key, result);
         return result;
     };
@@ -21,9 +25,13 @@ const debounce = (func, delay) => {
 };
 
 let uniqueId = 0;
-const generateUniqueId = () => {
-    return `product-${Date.now()}-${uniqueId++}`;
-};
+const generateUniqueId = () => `product-${Date.now()}-${uniqueId++}`;
+
+// Global error handler
+window.addEventListener('error', (event) => {
+    console.error('Global error:', event.error);
+    showErrorMessage('An unexpected error occurred. Please try refreshing the page.');
+});
 
 // Main function to initialize the application
 const initApp = async () => {
@@ -42,8 +50,14 @@ const initApp = async () => {
         if (offlineIndicator) {
             offlineIndicator.style.display = navigator.onLine ? 'none' : 'block';
         }
+        // Placeholder for enhanced offline functionality
+        if (!navigator.onLine) {
+            // Implement offline mode behavior here
+            console.log('App is offline. Using cached data if available.');
+        }
     };
 
+    // Note: For production, consider using a robust sanitization library
     const sanitizeHTML = (unsafe) => {
         const element = document.createElement('div');
         element.textContent = unsafe;
@@ -69,24 +83,21 @@ const initApp = async () => {
         return element;
     };
 
-    // Load components (navbar and footer)
     const loadComponent = async (container, filename) => {
         try {
             const response = await fetch(filename);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const html = await response.text();
             
-            // Use DOMParser to parse the HTML content
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
             
-            // Clear the container and append the new content
             container.innerHTML = '';
             Array.from(doc.body.children).forEach(child => {
                 container.appendChild(child.cloneNode(true));
             });
         } catch (error) {
-            console.error('Error loading component:', error);
+            console.error(`Error loading component ${filename}:`, error);
             throw error;
         }
     };
@@ -100,11 +111,10 @@ const initApp = async () => {
             console.log('Components loaded successfully');
         } catch (error) {
             console.error('Error loading components:', error);
-            showErrorMessage('Failed to load page components. Please refresh the page.');
+            showErrorMessage('Failed to load page components. Please refresh the page or check your internet connection.');
         }
     };
 
-    // Fetch product data
     const fetchProducts = async () => {
         try {
             const response = await fetch('/elrincondeebano/_products/product_data.json', {
@@ -116,16 +126,21 @@ const initApp = async () => {
             if (!response.ok) {
                 throw new Error(`HTTP error. Status: ${response.status}`);
             }
-            const products = await response.json();
-            return products.map(product => ({ ...product, id: generateUniqueId() }));
+            const fetchedProducts = await response.json();
+            return fetchedProducts.map(product => ({
+                ...product,
+                id: generateUniqueId(),
+                name: sanitizeHTML(product.name),
+                description: sanitizeHTML(product.description),
+                category: sanitizeHTML(product.category)
+            }));
         } catch (error) {
             console.error('Error fetching products:', error);
-            showErrorMessage('Failed to load products. Please try again later.');
+            showErrorMessage(`Failed to load products. Please check your internet connection and try again. (Error: ${error.message})`);
             throw error;
         }
     };
 
-    // Render price HTML
     const renderPriceHtml = (price, discount, currencyCode = 'CLP') => {
         const formatter = new Intl.NumberFormat('es-CL', {
             style: 'currency',
@@ -139,19 +154,18 @@ const initApp = async () => {
             const formattedDiscountedPrice = formatter.format(discountedPrice);
             const formattedDiscount = formatter.format(discount);
             return createSafeElement('div', { class: 'precio-container' }, [
-                createSafeElement('span', { class: 'precio-descuento' }, [formattedDiscountedPrice]),
-                createSafeElement('span', { class: 'ahorra' }, [`Ahorra ${formattedDiscount}`]),
-                createSafeElement('span', { class: 'precio-original' }, [
+                createSafeElement('span', { class: 'precio-descuento', 'aria-label': 'Precio con descuento' }, [formattedDiscountedPrice]),
+                createSafeElement('span', { class: 'ahorra', 'aria-label': 'Monto de ahorro' }, [`Ahorra ${formattedDiscount}`]),
+                createSafeElement('span', { class: 'precio-original', 'aria-label': 'Precio original' }, [
                     'Regular: ',
                     createSafeElement('span', { class: 'tachado' }, [formattedPrice])
                 ])
             ]);
         } else {
-            return createSafeElement('span', { class: 'precio' }, [formattedPrice]);
+            return createSafeElement('span', { class: 'precio', 'aria-label': 'Precio' }, [formattedPrice]);
         }
     };
 
-    // Render quantity control
     const renderQuantityControl = (product) => {
         const quantityControl = createSafeElement('div', { class: 'quantity-control' });
         const minusBtn = createSafeElement('button', { class: 'quantity-btn', 'aria-label': 'Decrease quantity' }, ['-']);
@@ -173,13 +187,11 @@ const initApp = async () => {
         return quantityControl;
     };
 
-    // Get cart item quantity
     const getCartItemQuantity = (productId) => {
         const item = cart.find(item => item.id === productId);
         return item ? item.quantity : 0;
     };
 
-    // Render products
     const renderProducts = (productsToRender) => {
         const fragment = document.createDocumentFragment();
         
@@ -187,21 +199,22 @@ const initApp = async () => {
             const { id, name, description, image_path, price, discount, stock } = product;
             
             const productElement = createSafeElement('div', {
-                class: `producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4 ${!stock ? 'agotado' : ''}`
+                class: `producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4 ${!stock ? 'agotado' : ''}`,
+                'aria-label': `Product: ${name}`
             });
 
             const cardElement = createSafeElement('div', { class: 'card' });
             
             const imgElement = createSafeElement('img', {
                 'data-src': encodeURI(image_path),
-                alt: sanitizeHTML(name),
+                alt: name,
                 class: 'card-img-top lazyload'
             });
             cardElement.appendChild(imgElement);
 
             const cardBody = createSafeElement('div', { class: 'card-body' });
-            cardBody.appendChild(createSafeElement('h3', { class: 'card-title' }, [sanitizeHTML(name)]));
-            cardBody.appendChild(createSafeElement('p', { class: 'card-text' }, [sanitizeHTML(description)]));
+            cardBody.appendChild(createSafeElement('h3', { class: 'card-title' }, [name]));
+            cardBody.appendChild(createSafeElement('p', { class: 'card-text' }, [description]));
             
             cardBody.appendChild(renderPriceHtml(price, discount));
 
@@ -214,7 +227,8 @@ const initApp = async () => {
                     class: 'btn btn-primary mt-2',
                     'data-id': id,
                     'data-name': name,
-                    'data-price': price - (discount || 0)
+                    'data-price': price - (discount || 0),
+                    'aria-label': `Add ${name} to cart`
                 }, ['Agregar']);
                 
                 addToCartBtn.addEventListener('click', (e) => {
@@ -224,7 +238,6 @@ const initApp = async () => {
                     quantityControl.classList.add('fade-in-up');
                     addToCart(product, 1);
                     
-                    // Ensure the input shows 1 immediately after adding to cart
                     const quantityInput = quantityControl.querySelector('.quantity-input');
                     if (quantityInput) {
                         quantityInput.value = 1;
@@ -245,7 +258,6 @@ const initApp = async () => {
         lazyLoadImages();
     };
 
-    // Lazy load images
     const lazyLoadImages = () => {
         const imageObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
@@ -261,12 +273,10 @@ const initApp = async () => {
         document.querySelectorAll('img.lazyload').forEach(img => imageObserver.observe(img));
     };
 
-    // Filter and sort products
     const filterProducts = (products, keyword, sortCriterion, showOnlyInStock) => {
-        const safeKeyword = sanitizeHTML(keyword.toLowerCase());
         return products.filter(product => 
-            (sanitizeHTML(product.name.toLowerCase()).includes(safeKeyword) ||
-            sanitizeHTML(product.description.toLowerCase()).includes(safeKeyword)) &&
+            (product.name.toLowerCase().includes(keyword.toLowerCase()) ||
+            product.description.toLowerCase().includes(keyword.toLowerCase())) &&
             (!showOnlyInStock || product.stock)
         ).sort((a, b) => sortProducts(a, b, sortCriterion));
     };
@@ -285,11 +295,10 @@ const initApp = async () => {
 
     const memoizedFilterProducts = memoize(filterProducts);
 
-    // Update product display
     const updateProductDisplay = () => {
         try {
             const criterion = sortOptions.value || 'original';
-            const keyword = sanitizeHTML(filterKeyword.value.trim());
+            const keyword = filterKeyword.value.trim();
             const showOnlyInStock = showInStock.checked;
             const filteredAndSortedProducts = memoizedFilterProducts(products, keyword, criterion, showOnlyInStock);
             renderProducts(filteredAndSortedProducts);
@@ -301,9 +310,8 @@ const initApp = async () => {
 
     const debouncedUpdateProductDisplay = debounce(updateProductDisplay, 300);
 
-    // Error handling
     const showErrorMessage = (message) => {
-        const errorMessage = createSafeElement('div', { class: 'error-message' }, [
+        const errorMessage = createSafeElement('div', { class: 'error-message', role: 'alert' }, [
             createSafeElement('p', {}, [message]),
             createSafeElement('button', { class: 'retry-button' }, ['Try Again'])
         ]);
@@ -312,11 +320,11 @@ const initApp = async () => {
         errorMessage.querySelector('.retry-button').addEventListener('click', initApp);
     };
 
-    // Shopping Cart Functions
     const updateCartIcon = () => {
         const cartCount = document.getElementById('cart-count');
         const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
         cartCount.textContent = totalItems;
+        cartCount.setAttribute('aria-label', `${totalItems} items in cart`);
     };
 
     const addToCart = (product, quantity) => {
@@ -412,13 +420,24 @@ const initApp = async () => {
         
         cart.forEach(item => {
             const discountedPrice = item.price - (item.discount || 0);
-            const itemElement = createSafeElement('div', { class: 'cart-item mb-3' });
-            itemElement.appendChild(createSafeElement('div', {}, [sanitizeHTML(item.name)]));
+            const itemElement = createSafeElement('div', { class: 'cart-item mb-3', 'aria-label': `Cart item: ${item.name}` });
+            itemElement.appendChild(createSafeElement('div', {}, [item.name]));
             
             const quantityContainer = createSafeElement('div');
-            const decreaseBtn = createSafeElement('button', { class: 'btn btn-sm btn-secondary decrease-quantity', 'data-id': item.id }, ['-']);
-            const increaseBtn = createSafeElement('button', { class: 'btn btn-sm btn-secondary increase-quantity', 'data-id': item.id }, ['+']);
-            const quantitySpan = createSafeElement('span', { class: 'mx-2 item-quantity' }, [item.quantity.toString()]);
+            const decreaseBtn = createSafeElement('button', { 
+                class: 'btn btn-sm btn-secondary decrease-quantity', 
+                'data-id': item.id, 
+                'aria-label': `Decrease quantity of ${item.name}`
+            }, ['-']);
+            const increaseBtn = createSafeElement('button', { 
+                class: 'btn btn-sm btn-secondary increase-quantity', 
+                'data-id': item.id, 
+                'aria-label': `Increase quantity of ${item.name}`
+            }, ['+']);
+            const quantitySpan = createSafeElement('span', { 
+                class: 'mx-2 item-quantity', 
+                'aria-label': `Quantity of ${item.name}`
+            }, [item.quantity.toString()]);
             
             quantityContainer.appendChild(decreaseBtn);
             quantityContainer.appendChild(quantitySpan);
@@ -428,7 +447,11 @@ const initApp = async () => {
             itemElement.appendChild(createSafeElement('div', {}, [`Precio: $${discountedPrice.toLocaleString('es-CL')}`]));
             itemElement.appendChild(createSafeElement('div', {}, [`Subtotal: $${(discountedPrice * item.quantity).toLocaleString('es-CL')}`]));
             
-            const removeBtn = createSafeElement('button', { class: 'btn btn-sm btn-danger remove-item', 'data-id': item.id }, ['Eliminar']);
+            const removeBtn = createSafeElement('button', { 
+                class: 'btn btn-sm btn-danger remove-item', 
+                'data-id': item.id, 
+                'aria-label': `Remove ${item.name} from cart`
+            }, ['Eliminar']);
             itemElement.appendChild(removeBtn);
             
             cartItems.appendChild(itemElement);
@@ -437,13 +460,14 @@ const initApp = async () => {
         });
         
         cartTotal.textContent = `Total: $${total.toLocaleString('es-CL')}`;
+        cartTotal.setAttribute('aria-label', `Total cart value: $${total.toLocaleString('es-CL')}`);
     };
 
     const submitCart = () => {
         let message = "Mi pedido:\n\n";
         cart.forEach(item => {
             const discountedPrice = item.price - (item.discount || 0);
-            message += `${sanitizeHTML(item.name)}\n`;
+            message += `${item.name}\n`;
             message += `Cantidad: ${item.quantity}\n`;
             message += `Precio unitario: $${discountedPrice.toLocaleString('es-CL')}\n`;
             message += `Subtotal: $${(discountedPrice * item.quantity).toLocaleString('es-CL')}\n\n`;
@@ -456,7 +480,6 @@ const initApp = async () => {
         window.open(`https://wa.me/56951118901?text=${encodedMessage}`, '_blank');
     };
 
-    // Main initialization function
     try {
         await loadComponents();
         products = await fetchProducts();
@@ -468,7 +491,7 @@ const initApp = async () => {
 
         const currentCategory = document.querySelector('main').dataset.category;
         if (currentCategory) {
-            products = products.filter(product => sanitizeHTML(product.category) === sanitizeHTML(currentCategory));
+            products = products.filter(product => product.category === currentCategory);
         }
 
         sortOptions.addEventListener('change', debouncedUpdateProductDisplay);
@@ -540,7 +563,6 @@ const initApp = async () => {
         showErrorMessage('Error loading products. Please try again later.');
     }
 };
-
 
 // Run the application when the DOM is ready
 document.addEventListener('DOMContentLoaded', initApp);
