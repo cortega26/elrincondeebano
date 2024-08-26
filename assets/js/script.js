@@ -179,11 +179,19 @@ const initApp = async () => {
             'aria-label': 'Quantity',
             'data-id': product.id
         });
-
+    
+        minusBtn.addEventListener('click', () => updateQuantity(product, -1));
+        plusBtn.addEventListener('click', () => updateQuantity(product, 1));
+        input.addEventListener('change', (e) => {
+            const newQuantity = parseInt(e.target.value, 10);
+            const currentQuantity = getCartItemQuantity(product.id);
+            updateQuantity(product, newQuantity - currentQuantity);
+        });
+    
         quantityControl.appendChild(minusBtn);
         quantityControl.appendChild(input);
         quantityControl.appendChild(plusBtn);
-
+    
         return quantityControl;
     };
 
