@@ -27,6 +27,22 @@ const debounce = (func, delay) => {
 let uniqueId = 0;
 const generateUniqueId = () => `product-${Date.now()}-${uniqueId++}`;
 
+// Move showErrorMessage function definition to the top
+const showErrorMessage = (message) => {
+    const errorMessage = createSafeElement('div', { class: 'error-message', role: 'alert' }, [
+        createSafeElement('p', {}, [message]),
+        createSafeElement('button', { class: 'retry-button' }, ['Try Again'])
+    ]);
+    const productContainer = document.getElementById('product-container');
+    if (productContainer) {
+        productContainer.innerHTML = '';
+        productContainer.appendChild(errorMessage);
+        errorMessage.querySelector('.retry-button').addEventListener('click', initApp);
+    } else {
+        console.error('Product container not found');
+    }
+};
+
 // Global error handler
 window.addEventListener('error', (event) => {
     console.error('Global error:', event.error);
@@ -179,7 +195,7 @@ const initApp = async () => {
             'aria-label': 'Quantity',
             'data-id': product.id
         });
-    
+
         minusBtn.addEventListener('click', () => updateQuantity(product, -1));
         plusBtn.addEventListener('click', () => updateQuantity(product, 1));
         input.addEventListener('change', (e) => {
@@ -187,11 +203,11 @@ const initApp = async () => {
             const currentQuantity = getCartItemQuantity(product.id);
             updateQuantity(product, newQuantity - currentQuantity);
         });
-    
+
         quantityControl.appendChild(minusBtn);
         quantityControl.appendChild(input);
         quantityControl.appendChild(plusBtn);
-    
+
         return quantityControl;
     };
 
@@ -318,16 +334,6 @@ const initApp = async () => {
 
     const debouncedUpdateProductDisplay = debounce(updateProductDisplay, 300);
 
-    const showErrorMessage = (message) => {
-        const errorMessage = createSafeElement('div', { class: 'error-message', role: 'alert' }, [
-            createSafeElement('p', {}, [message]),
-            createSafeElement('button', { class: 'retry-button' }, ['Try Again'])
-        ]);
-        productContainer.innerHTML = '';
-        productContainer.appendChild(errorMessage);
-        errorMessage.querySelector('.retry-button').addEventListener('click', initApp);
-    };
-
     const updateCartIcon = () => {
         const cartCount = document.getElementById('cart-count');
         const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
@@ -364,7 +370,8 @@ const initApp = async () => {
             updateCartIcon();
             renderCart();
             updateProductDisplay();
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Error removing from cart:', error);
             showErrorMessage('Failed to remove item from cart. Please try again.');
         }
@@ -520,8 +527,8 @@ const initApp = async () => {
         const submitCartBtn = document.getElementById('submit-cart');
         
         cartIcon.addEventListener('click', () => {
-            if (typeof bootstrap !== 'undefined' && bootstrap.Offcanvas) {
-                const cartOffcanvas = new bootstrap.Offcanvas(document.getElementById('cartOffcanvas'));
+            if (typeof window.bootstrap !== 'undefined' && window.bootstrap.Offcanvas) {
+                const cartOffcanvas = new window.bootstrap.Offcanvas(document.getElementById('cartOffcanvas'));
                 renderCart();
                 cartOffcanvas.show();
             } else {
