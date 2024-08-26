@@ -70,3 +70,4 @@ Pipfile.lock
 *.old
 *.orig
 output.txt
+.backup/
