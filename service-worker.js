@@ -79,6 +79,19 @@ self.addEventListener('notificationclick', (event) => {
     event.notification.close();
 
     event.waitUntil(
-        clients.openWindow('https://cortega26.github.io/elrincondeebano/')
+        (async () => {
+            try {
+                // Check if we can use the clients.openWindow API
+                if (self.clients && typeof self.clients.openWindow === 'function') {
+                    await self.clients.openWindow('https://cortega26.github.io/elrincondeebano/');
+                } else {
+                    // Fallback if clients.openWindow is not available
+                    console.warn('self.clients.openWindow is not available');
+                    // You might want to implement a fallback mechanism here
+                }
+            } catch (error) {
+                console.error('Error handling notification click:', error);
+            }
+        })()
     );
 });
