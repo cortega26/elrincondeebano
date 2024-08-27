@@ -1,5 +1,14 @@
 [
   {
+    "name": "Galletas de Coco McKay",
+    "description": "Presentación de 120g",
+    "price": 1300,
+    "discount": 0,
+    "stock": true,
+    "category": "SnacksDulces",
+    "image_path": "assets/images/snacks_dulces/Galletas Coco McKay 120g.webp"
+  },
+  {
     "name": "Salsa de tomate Líder",
     "description": "Botella de 1L",
     "price": 4500,
