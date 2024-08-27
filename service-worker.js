@@ -1,4 +1,4 @@
-const CACHE_NAME = 'el-rincon-de-ebano-v3';
+const CACHE_NAME = 'el-rincon-de-ebano-v4';
 const STATIC_ASSETS = [
     '/elrincondeebano/',
     '/elrincondeebano/index.html',
@@ -8,6 +8,11 @@ const STATIC_ASSETS = [
     '/elrincondeebano/assets/images/web/favicon.ico',
     '/elrincondeebano/offline.html'
 ];
+
+// Helper function to determine if URL is from the same origin
+const isInternalUrl = (url) => {
+    return new URL(url, self.location.origin).origin === self.location.origin;
+};
 
 self.addEventListener('install', (event) => {
     event.waitUntil(
@@ -32,36 +37,47 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+    const request = event.request;
+
+    // For navigation requests, use network-first strategy
+    if (request.mode === 'navigate') {
+        event.respondWith(
+            fetch(request)
+                .catch(() => caches.match('/elrincondeebano/offline.html'))
+        );
+        return;
+    }
+
+    // For other requests, use cache-first strategy
     event.respondWith(
-        caches.match(event.request)
+        caches.match(request)
             .then((response) => {
                 if (response) {
                     return response;
                 }
-                return fetch(event.request).then((response) => {
-                    // Check if we received a valid response
-                    if (!response || response.status !== 200 || response.type !== 'basic') {
-                        return response;
+                return fetch(request).then((networkResponse) => {
+                    if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+                        return networkResponse;
                     }
-
-                    // Clone the response as it's a stream and can only be consumed once
-                    const responseToCache = response.clone();
-
-                    caches.open(CACHE_NAME)
-                        .then((cache) => {
-                            cache.put(event.request, responseToCache);
-                        });
-
-                    return response;
+                    if (isInternalUrl(request.url)) {
+                        const responseToCache = networkResponse.clone();
+                        caches.open(CACHE_NAME)
+                            .then((cache) => {
+                                cache.put(request, responseToCache);
+                            });
+                    }
+                    return networkResponse;
                 });
             })
             .catch(() => {
-                return caches.match('/elrincondeebano/offline.html');
+                // If the request is for an image, you could return a default offline image
+                if (request.destination === 'image') {
+                    return caches.match('/elrincondeebano/assets/images/web/offline-image-placeholder.webp');
+                }
             })
     );
 });
 
-// Basic push notification handling
 self.addEventListener('push', (event) => {
     const options = {
         body: event.data ? event.data.text() : 'No payload',
@@ -74,24 +90,17 @@ self.addEventListener('push', (event) => {
     );
 });
 
-// Basic notification click handling
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
 
     event.waitUntil(
-        (async () => {
-            try {
-                // Check if we can use the clients.openWindow API
-                if (self.clients && typeof self.clients.openWindow === 'function') {
-                    await self.clients.openWindow('https://cortega26.github.io/elrincondeebano/');
-                } else {
-                    // Fallback if clients.openWindow is not available
-                    console.warn('self.clients.openWindow is not available');
-                    // You might want to implement a fallback mechanism here
-                }
-            } catch (error) {
-                console.error('Error handling notification click:', error);
-            }
-        })()
+        clients.openWindow('https://cortega26.github.io/elrincondeebano/')
     );
+});
+
+// Self update
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
 });
