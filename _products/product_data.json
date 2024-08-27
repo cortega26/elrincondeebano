@@ -175,7 +175,7 @@
     "description": "Vino tinto • Botella 750mL • 13,5° G.L.",
     "price": 5500,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Vinos",
     "image_path": "assets/images/vinos/Carmenere Reserva Chivilingo Cousiño-Macul botella 750mL.webp"
   },
@@ -463,7 +463,7 @@
     "description": "Presentación de 500g",
     "price": 7500,
     "discount": 600,
-    "stock": true,
+    "stock": false,
     "category": "Carnesyembutidos",
     "image_path": "assets/images/carnes_y_embutidos/Salame La Preferida 500g.webp"
   },
