@@ -580,7 +580,7 @@
     "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
     "price": 10000,
     "discount": 1100,
-    "stock": true,
+    "stock": false,
     "category": "Vinos",
     "image_path": "assets/images/vinos/Casillero del Diablo Devil's Collection 750mL.webp"
   },
@@ -606,7 +606,7 @@
     "name": "Kunstmann lata 470cc",
     "description": "Cerveza Torobayo Pale Ale",
     "price": 1900,
-    "discount": 400,
+    "discount": 0,
     "stock": true,
     "category": "Cervezas",
     "image_path": "assets/images/cervezas/Kunstmann Torobayo lata 470cc.webp"
