@@ -1,5 +1,23 @@
 [
   {
+    "name": "Kross lata 470cc",
+    "description": "Cerveza Golden Pale Ale",
+    "price": 1900,
+    "discount": 0,
+    "stock": true,
+    "category": "Cervezas",
+    "image_path": "assets/images/cervezas/Kross lata 470mL.webp"
+  },
+  {
+    "name": "Crunchis Queso • Marco Polo",
+    "description": "Bolsa de 160g",
+    "price": 2000,
+    "discount": 0,
+    "stock": true,
+    "category": "SnacksSalados",
+    "image_path": "assets/images/snacks_salados/Crunchis Queso 160g.jpg"
+  },
+  {
     "name": "Galletas de Coco McKay",
     "description": "Presentación de 120g",
     "price": 1300,
