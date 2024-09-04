@@ -678,7 +678,7 @@
     "name": "Especial 35° • Artesanos del Cochiguaz",
     "description": "Botella de 750mL",
     "price": 5500,
-    "discount": 0,
+    "discount": 600,
     "stock": true,
     "category": "Piscos",
     "image_path": "assets/images/piscos/Pisco Artesanos del Cochiguaz.webp"
