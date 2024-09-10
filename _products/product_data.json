@@ -1,5 +1,23 @@
 [
   {
+    "name": "Merlot • Misiones de Rengo",
+    "description": "Vino tinto • Botella de 750mL • 13° G.L.",
+    "price": 4500,
+    "discount": 0,
+    "stock": true,
+    "category": "Vinos",
+    "image_path": "assets/images/vinos/Merlot Misiones de Rengo 750mL.webp"
+  },
+  {
+    "name": "Sauvignon Blanc • Misiones de Rengo",
+    "description": "Vino blanco • Botella de 750mL • 12° G.L.",
+    "price": 4900,
+    "discount": 0,
+    "stock": true,
+    "category": "Vinos",
+    "image_path": "assets/images/vinos/Misiones de Rengo Sauvignon Blanc botella 750mL.webp"
+  },
+  {
     "name": "Kross lata 470cc",
     "description": "Cerveza Golden Pale Ale",
     "price": 1900,
@@ -310,7 +328,7 @@
     "description": "Empaque de 500g",
     "price": 6900,
     "discount": 0,
-    "stock": false,
+    "stock": true,
     "category": "Despensa",
     "image_path": "assets/images/despensa/Cafe-El-Peñon-Gourmet-500g.webp"
   },
@@ -416,9 +434,9 @@
   {
     "name": "Nescafé Fina Selección",
     "description": "Frasco de 200g",
-    "price": 9900,
+    "price": 9500,
     "discount": 0,
-    "stock": false,
+    "stock": true,
     "category": "Despensa",
     "image_path": "assets/images/despensa/Cafe-Nescafe-Fina-Seleccion-200-g.webp"
   },
@@ -551,18 +569,18 @@
   {
     "name": "Cabernet Sauvignon • Misiones de Rengo",
     "description": "Vino tinto • Botella de 750mL • 13° G.L.",
-    "price": 5000,
+    "price": 4500,
     "discount": 0,
-    "stock": false,
+    "stock": true,
     "category": "Vinos",
     "image_path": "assets/images/vinos/Vino Cabernet Sauvignon Misiones de Rengo 750 cc.webp"
   },
   {
     "name": "Carmenere • Misiones de Rengo",
     "description": "Vino tinto • Botella de 750mL • 13° G.L.",
-    "price": 5000,
+    "price": 4500,
     "discount": 0,
-    "stock": false,
+    "stock": true,
     "category": "Vinos",
     "image_path": "assets/images/vinos/Vino Carmenere Misiones de Rengo 750 cc.webp"
   },
@@ -570,7 +588,7 @@
     "name": "Cabernet Sauvignon • Gran 120, Santa Rita",
     "description": "Vino tinto • Botella de 700mL • 12° G.L.",
     "price": 5000,
-    "discount": 500,
+    "discount": 600,
     "stock": true,
     "category": "Vinos",
     "image_path": "assets/images/vinos/Gran 120 Cabernet Sauvignon 700mL.webp"
@@ -606,7 +624,7 @@
     "name": "Carmenere Reserva Privada • Casillero del Diablo, Concha y Toro",
     "description": "Vino tinto • Botella 750mL • 13,5° G.L.",
     "price": 11500,
-    "discount": 1500,
+    "discount": 1600,
     "stock": true,
     "category": "Vinos",
     "image_path": "assets/images/vinos/Casillero del Diablo Carmenere Reserva Privada 750mL.webp"
@@ -615,7 +633,7 @@
     "name": "Cabernet Sauvignon Reserva Privada • Casillero del Diablo, Concha y Toro",
     "description": "Vino tinto • Botella 750mL • 13,5° G.L.",
     "price": 11500,
-    "discount": 1500,
+    "discount": 1600,
     "stock": true,
     "category": "Vinos",
     "image_path": "assets/images/vinos/Casillero del Diablo Cabernet Sauvignon Reserva Privada 750mL.webp"
@@ -687,7 +705,7 @@
     "name": "Carmenere Gran Reserva 2019 • Castillo de Molina, San Pedro",
     "description": "Vino tinto • Botella de 750mL • 14,5° G.L.",
     "price": 12000,
-    "discount": 2100,
+    "discount": 2600,
     "stock": true,
     "category": "Vinos",
     "image_path": "assets/images/vinos/Castillo de Molina Carmenere Gran Reserva 2019 San Pedro.webp"
@@ -704,7 +722,7 @@
   {
     "name": "Rosé • Misiones de Rengo",
     "description": "Vino rosado • Botella de 750mL • 13,5° G.L.",
-    "price": 5000,
+    "price": 4900,
     "discount": 0,
     "stock": true,
     "category": "Vinos",
@@ -769,7 +787,7 @@
     "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
     "price": 7500,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Vinos",
     "image_path": "assets/images/vinos/Cabernet Reserva Especial Casillero del Diablo botella de 750mL.webp"
   },
@@ -803,8 +821,8 @@
   {
     "name": "Merlot • Santa Emiliana, Concha y Toro",
     "description": "Vino tinto • Botella de 700mL • 13° G.L.",
-    "price": 4200,
-    "discount": 0,
+    "price": 4500,
+    "discount": 600,
     "stock": true,
     "category": "Vinos",
     "image_path": "assets/images/vinos/Vino-Santa-Emiliana-merlot-700-cc.webp"
