@@ -315,13 +315,13 @@
     "image_path": "assets/images/lacteos/Leche semidescramada deslactosada Surlat 1L.webp"
   },
   {
-    "name": "Aceite de Oliva Extra Virgen Nutricampo",
+    "name": "Aceite de Oliva Extra Virgen Pepita de Oro",
     "description": "Botella de 1L",
-    "price": 9900,
+    "price": 10900,
     "discount": 0,
     "stock": true,
     "category": "Despensa",
-    "image_path": "assets/images/despensa/Aceite de Oliva Nutricampo 1L.webp"
+    "image_path": "assets/images/despensa/Aceite de Oliva Pepita de Oro 1L.webp"
   },
   {
     "name": "Café El Peñón Gourmet",
