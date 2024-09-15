@@ -1,5 +1,14 @@
 [
   {
+    "name": "Mostaza Clásica Great Value",
+    "description": "Botella de 397g",
+    "price": 2500,
+    "discount": 0,
+    "stock": true,
+    "category": "Despensa",
+    "image_path": "assets/images/../../despensa/Mostaza Great Value 397g.webp"
+  },
+  {
     "name": "Salame Italiano PF laminado",
     "description": "Presentación 100g",
     "price": 1900,
