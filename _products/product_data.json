@@ -1,5 +1,32 @@
 [
   {
+    "name": "Salame Italiano PF laminado",
+    "description": "Presentación 100g",
+    "price": 1900,
+    "discount": 0,
+    "stock": true,
+    "category": "Carnesyembutidos",
+    "image_path": "assets/images/carnes_y_embutidos/Salame Italiano PF 100g.webp"
+  },
+  {
+    "name": "Salame Ahumado PF laminado",
+    "description": "Presentación 100g",
+    "price": 1900,
+    "discount": 0,
+    "stock": true,
+    "category": "Carnesyembutidos",
+    "image_path": "assets/images/carnes_y_embutidos/Salame Ahumado PF 100g.webp"
+  },
+  {
+    "name": "Queso Llanero Guárico 1Kg",
+    "description": "A granel, trozo",
+    "price": 9500,
+    "discount": 0,
+    "stock": true,
+    "category": "Lacteos",
+    "image_path": "assets/images/lacteos/Queso-Llanero2.webp"
+  },
+  {
     "name": "Merlot • Misiones de Rengo",
     "description": "Vino tinto • Botella de 750mL • 13° G.L.",
     "price": 4500,
@@ -110,7 +137,7 @@
   {
     "name": "Mantequilla Kumey 250g",
     "description": "Artesanal",
-    "price": 2800,
+    "price": 2900,
     "discount": 0,
     "stock": true,
     "category": "Lacteos",
@@ -466,15 +493,6 @@
     "stock": true,
     "category": "Lacteos",
     "image_path": "assets/images/lacteos/Queso-Llanero2.webp"
-  },
-  {
-    "name": "Queso Parmesano La Vaquita 1/4Kg",
-    "description": "A granel, en trozo",
-    "price": 4000,
-    "discount": 0,
-    "stock": true,
-    "category": "Lacteos",
-    "image_path": "assets/images/lacteos/Parmesano La Vaquita.webp"
   },
   {
     "name": "Chuleta Ahumada sin hueso Idaca (Kg)",
@@ -1064,7 +1082,7 @@
   {
     "name": "Leche Condensada Parmalat",
     "description": "Envase Tetra Brik® de 395g",
-    "price": 1600,
+    "price": 1700,
     "discount": 0,
     "stock": true,
     "category": "Lacteos",
