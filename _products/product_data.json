@@ -1,5 +1,14 @@
 [
   {
+    "name": "Azúcar Blanca Iansa",
+    "description": "Empaque de 900g",
+    "price": 1500,
+    "discount": 0,
+    "stock": true,
+    "category": "Despensa",
+    "image_path": "assets/images/despensa/Azúcar blanca Iansa 900g.webp"
+  },
+  {
     "name": "Tortilla Grande Mexicana Líder",
     "description": "Empaque de 350g (10 unidades)",
     "price": 2400,
