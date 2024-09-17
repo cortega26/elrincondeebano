@@ -324,7 +324,7 @@
     "image_path": "assets/images/espumantes/Undurraga Sweet Moscato 750mL.webp"
   },
   {
-    "name": "Especial 35° m • Alto del Carmen",
+    "name": "Pisco Especial 35° m • Alto del Carmen",
     "description": "Botella de 750 de mL",
     "price": 8000,
     "discount": 1100,
@@ -333,7 +333,7 @@
     "image_path": "assets/images/piscos/Pisco Alto del Carmen Especial 35° 750mL.webp"
   },
   {
-    "name": "Especial 35° g • Alto del Carmen",
+    "name": "Pisco Especial 35° g • Alto del Carmen",
     "description": "Botella de 1L",
     "price": 10000,
     "discount": 1100,
@@ -729,7 +729,7 @@
     "image_path": "assets/images/limpieza_y_aseo/Wypall-X75.webp"
   },
   {
-    "name": "Reservado 40° • Alto del Carmen",
+    "name": "Pisco Reservado 40° • Alto del Carmen",
     "description": "Botella de 750mL",
     "price": 9900,
     "discount": 1000,
@@ -738,7 +738,7 @@
     "image_path": "assets/images/piscos/Pisco Alto del Carmen Reservado 750mL.webp"
   },
   {
-    "name": "Envejecido Barricas de Selección 40° • Alto del Carmen",
+    "name": "Pisco Envejecido Barricas de Selección 40° • Alto del Carmen",
     "description": "Botella de 750mL",
     "price": 9900,
     "discount": 1000,
@@ -747,7 +747,7 @@
     "image_path": "assets/images/piscos/Pisco Alto del Carmen Envejecido 40°.webp"
   },
   {
-    "name": "Especial 35° • Artesanos del Cochiguaz",
+    "name": "Pisco Especial 35° • Artesanos del Cochiguaz",
     "description": "Botella de 750mL",
     "price": 5500,
     "discount": 600,
@@ -783,7 +783,7 @@
     "image_path": "assets/images/vinos/Rosé Misiones de Rengo.webp"
   },
   {
-    "name": "Reservado 40° • Malpaso",
+    "name": "Pisco Reservado 40° • Malpaso",
     "description": "Botella de 750mL • D.O. Valle del Limarí",
     "price": 10500,
     "discount": 0,
@@ -792,7 +792,7 @@
     "image_path": "assets/images/piscos/Pisco Malpaso Reservado 40°.webp"
   },
   {
-    "name": "Añejado en Roble 46° • Mistral",
+    "name": "Pisco Añejado en Roble 46° • Mistral",
     "description": "Botella de 750mL",
     "price": 11000,
     "discount": 0,
@@ -900,7 +900,7 @@
     "image_path": "assets/images/vinos/Carmenere Reserva Especial Heroes Santa Rita.webp"
   },
   {
-    "name": "Cóctel Limón Zero 14° • Secreto Peruano",
+    "name": "Pisco Sour Limón Zero 14° • Secreto Peruano",
     "description": "Pisco Sour • Botella de 700mL",
     "price": 4500,
     "discount": 0,
