@@ -22,7 +22,7 @@
     "description": "Envase desechable",
     "price": 2300,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Bebidas",
     "image_path": "assets/images/bebidas/Coca Cola 1,75L sin azucar.webp"
   },
