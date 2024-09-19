@@ -1,5 +1,14 @@
 [
   {
+    "name": "Harina Mont Blanc",
+    "description": "Empaque de 1Kg",
+    "price": 1500,
+    "discount": 0,
+    "stock": true,
+    "category": "Despensa",
+    "image_path": "assets/images/despensa/Harina Mont Blanc 1Kg.webp"
+  },
+  {
     "name": "Azúcar Blanca Iansa",
     "description": "Empaque de 900g",
     "price": 1500,
