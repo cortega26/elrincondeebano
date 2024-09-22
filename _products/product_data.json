@@ -1,5 +1,41 @@
 [
   {
+    "name": "Agua gasificada 2L Benedictino",
+    "description": "Envase desechable",
+    "price": 1800,
+    "discount": 0,
+    "stock": true,
+    "category": "Bebidas",
+    "image_path": "assets/images/bebidas/Agua 2L con gas Benedictino.webp"
+  },
+  {
+    "name": "Agua sin gas 1,6L Cachantun",
+    "description": "Envase desechable",
+    "price": 1500,
+    "discount": 0,
+    "stock": true,
+    "category": "Bebidas",
+    "image_path": "assets/images/bebidas/Agua 1,6L sin gas Cachantun.webp"
+  },
+  {
+    "name": "Agua gasificada 1,6L Cachantun",
+    "description": "Envase desechable",
+    "price": 1500,
+    "discount": 0,
+    "stock": true,
+    "category": "Bebidas",
+    "image_path": "assets/images/bebidas/Agua 1,6L con gas Cachantun.webp"
+  },
+  {
+    "name": "Coca-Cola Zero 3L",
+    "description": "Envase retornable",
+    "price": 3500,
+    "discount": 0,
+    "stock": true,
+    "category": "Bebidas",
+    "image_path": "assets/images/bebidas/Coca Cola Zero 3L.webp"
+  },
+  {
     "name": "Harina Mont Blanc",
     "description": "Empaque de 1Kg",
     "price": 1500,
@@ -25,15 +61,6 @@
     "stock": true,
     "category": "Despensa",
     "image_path": "assets/images/despensa/Tortilla grande mexicana Líder 350g.webp"
-  },
-  {
-    "name": "Coca-Cola Zero 1,75L",
-    "description": "Envase desechable",
-    "price": 2300,
-    "discount": 0,
-    "stock": false,
-    "category": "Bebidas",
-    "image_path": "assets/images/bebidas/Coca Cola 1,75L sin azucar.webp"
   },
   {
     "name": "Mostaza Clásica Great Value",
