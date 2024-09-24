@@ -513,15 +513,6 @@
     "image_path": "assets/images/lacteos/Crema de leche Surlat 200mL.webp"
   },
   {
-    "name": "Harina La Nieve",
-    "description": "Empaque de 1Kg",
-    "price": 1900,
-    "discount": 0,
-    "stock": false,
-    "category": "Despensa",
-    "image_path": "assets/images/despensa/Harina de Maíz Nieve.webp"
-  },
-  {
     "name": "Harina PAN",
     "description": "Empaque de 1Kg",
     "price": 2200,
