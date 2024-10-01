@@ -51,7 +51,7 @@
             "addressCountry": "CL"
         },
         "telephone": "+56951118901",
-        "url": "https://cortega26.github.io/elrincondeebano/"
+        "url": "http://www.elrincondeebano.com/"
     }
     </script>
 </head>
@@ -126,7 +126,7 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/elrincondeebano/service-worker.js', {scope: '/elrincondeebano/'})
+                navigator.serviceWorker.register('/service-worker.js', {scope: '/'})
                     .then(registration => {
                         console.log('Service Worker registered successfully:', registration.scope);
                     })
