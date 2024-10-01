@@ -83,7 +83,7 @@ self.addEventListener('notificationclick', (event) => {
             try {
                 // Check if we can use the clients.openWindow API
                 if (self.clients && typeof self.clients.openWindow === 'function') {
-                    await self.clients.openWindow('https://cortega26.github.io/');
+                    await self.clients.openWindow('https://elrincondeebano.com/');
                 } else {
                     // Fallback if clients.openWindow is not available
                     console.warn('self.clients.openWindow is not available');
