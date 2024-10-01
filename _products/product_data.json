@@ -184,7 +184,7 @@
     "description": "Cilindro de 85g",
     "price": 1900,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Lacteos",
     "image_path": "assets/images/lacteos/Queso parmesano llanero Kraft 85g.webp"
   },

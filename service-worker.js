@@ -1,12 +1,12 @@
 const CACHE_NAME = 'el-rincon-de-ebano-v3';
 const STATIC_ASSETS = [
-    '/elrincondeebano/',
-    '/elrincondeebano/index.html',
-    '/elrincondeebano/assets/css/style.css',
-    '/elrincondeebano/assets/js/script.js',
-    '/elrincondeebano/assets/images/web/logo.webp',
-    '/elrincondeebano/assets/images/web/favicon.ico',
-    '/elrincondeebano/offline.html'
+    '/',
+    '/index.html',
+    '/assets/css/style.css',
+    '/assets/js/script.js',
+    '/assets/images/web/logo.webp',
+    '/assets/images/web/favicon.ico',
+    '/offline.html'
 ];
 
 self.addEventListener('install', (event) => {
@@ -56,7 +56,7 @@ self.addEventListener('fetch', (event) => {
                 });
             })
             .catch(() => {
-                return caches.match('/elrincondeebano/offline.html');
+                return caches.match('/offline.html');
             })
     );
 });
@@ -65,8 +65,8 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('push', (event) => {
     const options = {
         body: event.data ? event.data.text() : 'No payload',
-        icon: '/elrincondeebano/assets/images/web/logo.webp',
-        badge: '/elrincondeebano/assets/images/web/favicon.ico'
+        icon: '/assets/images/web/logo.webp',
+        badge: '/assets/images/web/favicon.ico'
     };
 
     event.waitUntil(
@@ -83,7 +83,7 @@ self.addEventListener('notificationclick', (event) => {
             try {
                 // Check if we can use the clients.openWindow API
                 if (self.clients && typeof self.clients.openWindow === 'function') {
-                    await self.clients.openWindow('https://cortega26.github.io/elrincondeebano/');
+                    await self.clients.openWindow('https://cortega26.github.io/');
                 } else {
                     // Fallback if clients.openWindow is not available
                     console.warn('self.clients.openWindow is not available');
