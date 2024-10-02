@@ -103,14 +103,18 @@ const initApp = async () => {
             const response = await fetch(filename);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const html = await response.text();
-
-            // Use DOMPurify to sanitize the HTML
-            const sanitizedHtml = DOMPurify.sanitize(html);
+    
+            // Use DOMPurify to sanitize the HTML with more specific options
+            const sanitizedHtml = DOMPurify.sanitize(html, {
+                USE_PROFILES: { html: true },
+                ALLOWED_TAGS: ['div', 'span', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a', 'img', 'br', 'strong', 'em', 'button', 'nav', 'footer', 'header', 'main', 'section'],
+                ALLOWED_ATTR: ['href', 'src', 'alt', 'class', 'id', 'style', 'aria-label', 'role', 'type', 'data-bs-toggle', 'data-bs-target', 'aria-controls', 'aria-expanded']
+            });
             
+            container.innerHTML = '';
             const parser = new DOMParser();
             const doc = parser.parseFromString(sanitizedHtml, 'text/html');
             
-            container.innerHTML = '';
             Array.from(doc.body.children).forEach(child => {
                 container.appendChild(child.cloneNode(true));
             });
