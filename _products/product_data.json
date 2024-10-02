@@ -418,7 +418,7 @@
     "description": "Botella de 1L",
     "price": 10900,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Despensa",
     "image_path": "assets/images/despensa/Aceite de Oliva Pepita de Oro 1L.webp"
   },
@@ -1080,7 +1080,7 @@
     "image_path": "assets/images/snacks_dulces/Pirulin 300g.webp"
   },
   {
-    "name": "Súper 8 • Pack 5 un.",
+    "name": "Súper 8 • Pack 5 unidades",
     "description": "Barras de 29g c/u",
     "price": 2000,
     "discount": 200,
