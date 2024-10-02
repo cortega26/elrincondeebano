@@ -1,3 +1,6 @@
+// At the beginning of your script.js file
+console.log('Script.js loaded');
+
 'use strict';
 
 // Utility functions
@@ -69,6 +72,7 @@ window.addEventListener('error', (event) => {
 
 // Main function to initialize the application
 const initApp = async () => {
+    console.log('Initializing app...');
     const navbarContainer = document.getElementById('navbar-container');
     const footerContainer = document.getElementById('footer-container');
     const productContainer = document.getElementById('product-container');
