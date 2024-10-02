@@ -586,4 +586,9 @@ const initApp = async () => {
 };
 
 // Run the application when the DOM is ready
-document.addEventListener('DOMContentLoaded', initApp);
+document.addEventListener('DOMContentLoaded', function() {
+    initApp().catch(error => {
+        console.error('Error initializing app:', error);
+        showErrorMessage('Failed to initialize the application. Please try refreshing the page.');
+    });
+});
