@@ -103,16 +103,19 @@ const initApp = async () => {
             const response = await fetch(filename);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const html = await response.text();
+
+            // Use DOMPurify to sanitize the HTML
+            const sanitizedHtml = DOMPurify.sanitize(html);
             
             const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
+            const doc = parser.parseFromString(sanitizedHtml, 'text/html');
             
             container.innerHTML = '';
             Array.from(doc.body.children).forEach(child => {
                 container.appendChild(child.cloneNode(true));
             });
         } catch (error) {
-            console.error(`Error loading component ${filename}:`, error);
+            console.error('Error loading component:', { component: filename, message: error.message });
             throw error;
         }
     };
