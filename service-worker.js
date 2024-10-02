@@ -13,10 +13,14 @@ self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
+                // Instead of cache.addAll(), we'll use a more resilient approach
                 return Promise.all(
                     STATIC_ASSETS.map(url => {
-                        return cache.add(url).catch(err => {
-                            console.error(`Failed to cache: ${url}`, err);
+                        // Attempt to cache each asset individually
+                        return cache.add(url).catch(error => {
+                            console.warn(`Failed to cache asset: ${url}`, error);
+                            // Continue with the installation process even if an asset fails to cache
+                            return Promise.resolve();
                         });
                     })
                 );
@@ -87,19 +91,6 @@ self.addEventListener('notificationclick', (event) => {
     event.notification.close();
 
     event.waitUntil(
-        (async () => {
-            try {
-                // Check if we can use the clients.openWindow API
-                if (self.clients && typeof self.clients.openWindow === 'function') {
-                    await self.clients.openWindow('https://elrincondeebano.com/');
-                } else {
-                    // Fallback if clients.openWindow is not available
-                    console.warn('self.clients.openWindow is not available');
-                    // You might want to implement a fallback mechanism here
-                }
-            } catch (error) {
-                console.error('Error handling notification click:', error);
-            }
-        })()
+        clients.openWindow('https://elrincondeebano.com/')
     );
 });
