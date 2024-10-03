@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Explora nuestra selección de agua y bebidas en El Rincón de Ébano.">
+    <meta name="description" content="Explora nuestra selección de juegos de mesa en El Rincón de Ébano.">
     <script src="assets/js/csp.js"></script>
-    <title>Agua y Bebidas - El Rincón de Ébano</title>
+    <title>Juegos - El Rincón de Ébano</title>
     <link rel="icon" type="image/x-icon" href="assets/images/web/favicon.ico">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,30 +14,30 @@
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap"></noscript>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
-    <link rel="preload" href="assets/css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="assets/css/style.css"></noscript>
+    <link rel="preload" href="../assets/css/style.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="../assets/css/style.css"></noscript>
 
-    <!-- DOMPurify for XSS protection -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.8/purify.min.js"></script>
+        <!-- DOMPurify for XSS protection -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.8/purify.min.js"></script>
 
-    <!-- Open Graph tags -->
-    <meta property="og:title" content="El Rincón de Ébano - ¿No quieres ir al súper? ¿Necesitas un producto para? ¿Quieres delivery en tu puerta? No busques más...">
-    <meta property="og:description" content="Todo lo que buscas en un solo sitio: alimentos, bebidas, licores, snacks, confites, y más, mucho más...">
-    <meta property="og:image" content="https://elrincondeebano.com/assets/images/web/logo.webp">
-    <meta property="og:url" content="https://elrincondeebano.com/">
-    <meta property="og:type" content="website">
+        <!-- Open Graph tags -->
+        <meta property="og:title" content="El Rincón de Ébano - ¿No quieres ir al súper? ¿Necesitas un producto para? ¿Quieres delivery en tu puerta? No busques más...">
+        <meta property="og:description" content="Todo lo que buscas en un solo sitio: alimentos, bebidas, licores, snacks, confites, y más, mucho más...">
+        <meta property="og:image" content="https://elrincondeebano.com/assets/images/web/logo.webp">
+        <meta property="og:url" content="https://elrincondeebano.com/">
+        <meta property="og:type" content="website">
+        
+        <!-- Preload critical assets -->
+        <link rel="preload" href="assets/images/web/logo.webp" as="image" type="image/webp">
+        <link rel="preload" href="assets/js/script.js" as="script">
     
-    <!-- Preload critical assets -->
-    <link rel="preload" href="assets/images/web/logo.webp" as="image" type="image/webp">
-    <link rel="preload" href="assets/js/script.js" as="script">
-
-    <!-- Inline critical CSS -->
-    <style>
-        body { font-family: 'Calibri', serif; padding-top: 64px; }
-        .loading-skeleton { background: #f0f0f0; height: 200px; margin-bottom: 20px; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
-    </style>
-
+        <!-- Inline critical CSS -->
+        <style>
+            body { font-family: 'Calibri', serif; padding-top: 64px; }
+            .loading-skeleton { background: #f0f0f0; height: 200px; margin-bottom: 20px; animation: pulse 1.5s infinite; }
+            @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+        </style>
+    
 </head>
 <body>
     <!-- Google tag (gtag.js) -->
@@ -51,7 +51,7 @@
 
     <header id="navbar-container" role="banner"></header>
     
-    <main data-category="Bebidas" role="main">
+    <main data-category="Juegos" role="main">
         <div class="container my-4">
             <section aria-label="Opciones de filtrado y ordenación">
                 <div class="row mb-3">
@@ -80,7 +80,7 @@
                 </div>
             </section>
             <section aria-labelledby="category-heading">
-                <h1 id="category-heading">Agua y Bebidas</h1>
+                <h1 id="category-heading">Juegos</h1>
                 <div class="row" id="product-container" aria-live="polite">
                     <!-- Productos se cargarán aquí desde script.js -->
                 </div>
@@ -93,6 +93,6 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-vtXRMe3mGCbOeY7l30aIg8H9p3GdeSe4IFlP6G8JMa7o7lXvnz3GFKzPxzJdPfGK" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
-    <script src="assets/js/script.js" defer></script>
+    <script src="../assets/js/script.js" defer></script>
 </body>
 </html>
