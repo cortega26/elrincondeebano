@@ -131,8 +131,8 @@ const initApp = async () => {
     const loadComponents = async () => {
         try {
             await Promise.all([
-                loadComponent(navbarContainer, "navbar.html"),
-                loadComponent(footerContainer, "footer.html")
+                loadComponent(navbarContainer, '../components/navbar.html),
+                loadComponent(footerContainer, '../components/footer.html)
             ]);
             console.log('Components loaded successfully');
         } catch (error) {

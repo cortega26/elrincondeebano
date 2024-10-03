@@ -6,7 +6,7 @@ const STATIC_ASSETS = [
     '/assets/js/script.js',
     '/assets/images/web/logo.webp',
     '/assets/images/web/favicon.ico',
-    '/offline.html'
+    '/pages/offline.html'
 ];
 
 self.addEventListener('install', (event) => {
@@ -68,7 +68,7 @@ self.addEventListener('fetch', (event) => {
                 });
             })
             .catch(() => {
-                return caches.match('/offline.html');
+                return caches.match('/pages/offline.html');
             })
     );
 });
