@@ -240,7 +240,7 @@ const initApp = async () => {
             const cardElement = createSafeElement('div', { class: 'card' });
             
             const imgElement = createSafeElement('img', {
-                'data-src': encodeURI(image_path),
+                'data-src': window.location.pathname.includes('/pages/') ? `../${encodeURI(image_path)}` : encodeURI(image_path),
                 alt: name,
                 class: 'card-img-top lazyload'
             });
