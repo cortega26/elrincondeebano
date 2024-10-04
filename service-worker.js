@@ -59,20 +59,24 @@ self.addEventListener('fetch', (event) => {
     );
 });
 
-function fetchAndUpdate(request) {
-    return fetch(request).then((response) => {
+async function fetchAndCacheResponse(request) {
+    try {
+        const response = await fetch(request);
         if (!response || response.status !== 200 || response.type !== 'basic') {
             return response;
         }
 
         const responseToCache = response.clone();
 
-        caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseToCache);
-        });
+        const cache = await caches.open(CACHE_NAME);
+        await cache.put(request, responseToCache);
 
         return response;
-    });
+    } catch (error) {
+        // Handle errors here
+        console.error('Error fetching and caching data:', error);
+        return null;
+    }
 }
 
 self.addEventListener('message', (event) => {
