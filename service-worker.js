@@ -1,4 +1,5 @@
-const CACHE_NAME = 'el-rincon-de-ebano-v4';
+const CACHE_NAME = 'el-rincon-de-ebano-v5';
+const CACHE_VERSION_KEY = 'cache-version';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
@@ -13,17 +14,15 @@ self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
-                // Instead of cache.addAll(), we'll use a more resilient approach
-                return Promise.all(
-                    STATIC_ASSETS.map(url => {
-                        // Attempt to cache each asset individually
-                        return cache.add(url).catch(error => {
+                return Promise.all([
+                    ...STATIC_ASSETS.map(url => 
+                        cache.add(url).catch(error => {
                             console.warn(`Failed to cache asset: ${url}`, error);
-                            // Continue with the installation process even if an asset fails to cache
                             return Promise.resolve();
-                        });
-                    })
-                );
+                        })
+                    ),
+                    cache.put(CACHE_VERSION_KEY, new Response(CACHE_NAME))
+                ]);
             })
             .then(() => self.skipWaiting())
     );
@@ -48,29 +47,53 @@ self.addEventListener('fetch', (event) => {
         caches.match(event.request)
             .then((response) => {
                 if (response) {
+                    // If we have a cached response, return it but also fetch an update
+                    fetchAndUpdate(event.request);
                     return response;
                 }
-                return fetch(event.request).then((response) => {
-                    // Check if we received a valid response
-                    if (!response || response.status !== 200 || response.type !== 'basic') {
-                        return response;
-                    }
-
-                    // Clone the response as it's a stream and can only be consumed once
-                    const responseToCache = response.clone();
-
-                    caches.open(CACHE_NAME)
-                        .then((cache) => {
-                            cache.put(event.request, responseToCache);
-                        });
-
-                    return response;
-                });
+                return fetchAndUpdate(event.request);
             })
             .catch(() => {
                 return caches.match('/pages/offline.html');
             })
     );
+});
+
+function fetchAndUpdate(request) {
+    return fetch(request).then((response) => {
+        if (!response || response.status !== 200 || response.type !== 'basic') {
+            return response;
+        }
+
+        const responseToCache = response.clone();
+
+        caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, responseToCache);
+        });
+
+        return response;
+    });
+}
+
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'CHECK_VERSION') {
+        event.waitUntil(
+            caches.open(CACHE_NAME).then((cache) => {
+                return cache.match(CACHE_VERSION_KEY).then((response) => {
+                    if (response) {
+                        return response.text();
+                    }
+                    return null;
+                });
+            }).then((cachedVersion) => {
+                event.source.postMessage({
+                    type: 'VERSION_CHECK_RESULT',
+                    currentVersion: CACHE_NAME,
+                    cachedVersion: cachedVersion
+                });
+            })
+        );
+    }
 });
 
 // Basic push notification handling
@@ -80,7 +103,6 @@ self.addEventListener('push', (event) => {
         icon: '/assets/images/web/logo.webp',
         badge: '/assets/images/web/favicon.ico'
     };
-
     event.waitUntil(
         self.registration.showNotification('El Rincón de Ébano', options)
     );
@@ -89,7 +111,6 @@ self.addEventListener('push', (event) => {
 // Basic notification click handling
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
-
     event.waitUntil(
         clients.openWindow('https://elrincondeebano.com/')
     );
