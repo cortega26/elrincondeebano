@@ -1,5 +1,14 @@
 [
   {
+    "name": "Sprite 3L",
+    "description": "Envase desechable",
+    "price": 3500,
+    "discount": 0,
+    "stock": true,
+    "category": "Bebidas",
+    "image_path": "assets/images/bebidas/Sprite 3L retornable.webp"
+  },
+  {
     "name": "Agua gasificada 2L Benedictino",
     "description": "Envase desechable",
     "price": 1800,
@@ -292,7 +301,7 @@
     "description": "Envase desechable",
     "price": 3000,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Bebidas",
     "image_path": "assets/images/bebidas/Coca Cola 2,5L.webp"
   },
@@ -376,15 +385,6 @@
     "stock": true,
     "category": "Piscos",
     "image_path": "assets/images/piscos/Pisco Alto del Carmen Especial 35° 1L.webp"
-  },
-  {
-    "name": "Ramitas Sal • Evercrisp",
-    "description": "Bolsa de 170g",
-    "price": 1800,
-    "discount": 0,
-    "stock": false,
-    "category": "SnacksSalados",
-    "image_path": "assets/images/snacks_salados/Ramitas-Sal-170gr.webp"
   },
   {
     "name": "Corona lata 473cc",
@@ -585,33 +585,6 @@
     "image_path": "assets/images/carnes_y_embutidos/Salame La Preferida 500g.webp"
   },
   {
-    "name": "Coca-Cola 2L",
-    "description": "Envase retornable",
-    "price": 2500,
-    "discount": 0,
-    "stock": true,
-    "category": "Bebidas",
-    "image_path": "assets/images/bebidas/Coca-Cola-2L.webp"
-  },
-  {
-    "name": "Coca-Cola Zero 2L",
-    "description": "Envase retornable",
-    "price": 2500,
-    "discount": 0,
-    "stock": true,
-    "category": "Bebidas",
-    "image_path": "assets/images/bebidas/Coca-Cola-2L sin azucar.webp"
-  },
-  {
-    "name": "Sprite 2L",
-    "description": "Envase retornable",
-    "price": 2500,
-    "discount": 0,
-    "stock": true,
-    "category": "Bebidas",
-    "image_path": "assets/images/bebidas/Sprite 2L.webp"
-  },
-  {
     "name": "Sprite Zero 2L",
     "description": "Envase retornable",
     "price": 2500,
@@ -621,13 +594,13 @@
     "image_path": "assets/images/bebidas/Sprite 2L zero.webp"
   },
   {
-    "name": "Fanta 2L",
+    "name": "Fanta 3L",
     "description": "Envase retornable",
-    "price": 2500,
+    "price": 3500,
     "discount": 0,
     "stock": true,
     "category": "Bebidas",
-    "image_path": "assets/images/bebidas/Fanta 2L.webp"
+    "image_path": "assets/images/bebidas/Fanta Naranja 3L retornable.webp"
   },
   {
     "name": "Fanta Zero 2L",
