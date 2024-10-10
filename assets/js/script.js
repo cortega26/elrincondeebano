@@ -1,6 +1,3 @@
-// At the beginning of your script.js file
-console.log('Script.js loaded');
-
 'use strict';
 
 // Utility functions
@@ -88,14 +85,11 @@ const initApp = async () => {
         if (offlineIndicator) {
             offlineIndicator.style.display = navigator.onLine ? 'none' : 'block';
         }
-        // Placeholder for enhanced offline functionality
         if (!navigator.onLine) {
-            // Implement offline mode behavior here
             console.log('App is offline. Using cached data if available.');
         }
     };
 
-    // Note: For production, consider using a robust sanitization library
     const sanitizeHTML = (unsafe) => {
         const element = document.createElement('div');
         element.textContent = unsafe;
@@ -108,7 +102,6 @@ const initApp = async () => {
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const html = await response.text();
     
-            // Use DOMPurify to sanitize the HTML with more specific options
             const sanitizedHtml = DOMPurify.sanitize(html, {
                 USE_PROFILES: { html: true },
                 ALLOWED_TAGS: ['div', 'span', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a', 'img', 'br', 'strong', 'em', 'button', 'nav', 'footer', 'header', 'main', 'section'],
@@ -131,8 +124,8 @@ const initApp = async () => {
     const loadComponents = async () => {
         try {
             await Promise.all([
-                loadComponent(navbarContainer, '../pages/navbar.html'),
-                loadComponent(footerContainer, '../pages/footer.html')
+                loadComponent(navbarContainer, '/pages/navbar.html'),
+                loadComponent(footerContainer, '/pages/footer.html')
             ]);
             console.log('Components loaded successfully');
         } catch (error) {
@@ -240,7 +233,7 @@ const initApp = async () => {
             const cardElement = createSafeElement('div', { class: 'card' });
             
             const imgElement = createSafeElement('img', {
-                'data-src': window.location.pathname.includes('/pages/') ? `../${encodeURI(image_path)}` : encodeURI(image_path),
+                'data-src': image_path,
                 alt: name,
                 class: 'card-img-top lazyload'
             });
@@ -543,7 +536,6 @@ const initApp = async () => {
                 cartOffcanvas.show();
             } else {
                 console.error('Bootstrap Offcanvas is not available');
-                // Fallback behavior if Bootstrap is not loaded
                 renderCart();
                 const cartOffcanvasElement = document.getElementById('cartOffcanvas');
                 if (cartOffcanvasElement) {
