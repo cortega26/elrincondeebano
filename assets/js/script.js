@@ -236,7 +236,14 @@ const initApp = async () => {
             const cardElement = createSafeElement('div', { class: 'card' });
             
             // Ajustar la ruta de la imagen basándose en la ubicación de la página
-            const adjustedImagePath = isSubcategoryPage ? `../${image_path}` : image_path;
+            let adjustedImagePath;
+            if (isSubcategoryPage) {
+                // Eliminar "/pages/" de la ruta y agregar ".." para subir un nivel
+                adjustedImagePath = `../${image_path.replace(/^\//, '')}`;
+            } else {
+                // Para la página principal, usar la ruta tal como está
+                adjustedImagePath = image_path;
+            }
             
             const imgElement = createSafeElement('img', {
                 'data-src': adjustedImagePath,
@@ -291,7 +298,6 @@ const initApp = async () => {
         lazyLoadImages();
     };
     
-    // Asegúrate de que esta función esté actualizada para manejar las nuevas rutas de imágenes
     const lazyLoadImages = () => {
         const imageObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
