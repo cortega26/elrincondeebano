@@ -1,4 +1,4 @@
-const CACHE_NAME = 'el-rincon-de-ebano-v5';
+const CACHE_NAME = 'el-rincon-de-ebano-v6';
 const CACHE_VERSION_KEY = 'cache-version';
 const STATIC_ASSETS = [
     '/',
