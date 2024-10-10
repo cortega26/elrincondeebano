@@ -1100,16 +1100,6 @@
     "order": 109
   },
   {
-    "name": "Papas Jamón Serrano • Lay's",
-    "description": "Bolsa de 140g",
-    "price": 1900,
-    "discount": 0,
-    "stock": true,
-    "category": "SnacksSalados",
-    "image_path": "assets/images/snacks_salados/Lays-Jamón-Serrano-140gr.webp",
-    "order": 110
-  },
-  {
     "name": "Papas Onduladas • Marco Polo",
     "description": "Bolsa de 200g",
     "price": 2000,
