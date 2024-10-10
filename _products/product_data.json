@@ -1110,26 +1110,6 @@
     "order": 110
   },
   {
-    "name": "Papas Orégano • Lay's",
-    "description": "Bolsa de 140g",
-    "price": 1900,
-    "discount": 0,
-    "stock": false,
-    "category": "SnacksSalados",
-    "image_path": "assets/images/snacks_salados/Lays Orégano 140g.webp",
-    "order": 111
-  },
-  {
-    "name": "Ramitas Queso • Evercrisp",
-    "description": "Bolsa de 170g",
-    "price": 1800,
-    "discount": 0,
-    "stock": false,
-    "category": "SnacksSalados",
-    "image_path": "assets/images/snacks_salados/Ramitas-Queso-170gr.webp",
-    "order": 112
-  },
-  {
     "name": "Papas Onduladas • Marco Polo",
     "description": "Bolsa de 200g",
     "price": 2000,
@@ -1278,5 +1258,15 @@
     "category": "Juegos",
     "image_path": "assets/images/juegos/UNO.webp",
     "order": 127
+  },
+  {
+    "name": "Papas Orégano • Lay's",
+    "description": "Bolsa de 180g",
+    "price": 2500,
+    "discount": 0,
+    "stock": true,
+    "category": "SnacksSalados",
+    "image_path": "assets/images/SnacksSalados/Lays Orégano 180g.webp",
+    "order": 126
   }
 ]
