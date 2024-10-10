@@ -1,6 +1,9 @@
-const CACHE_NAME = 'el-rincon-de-ebano-v6';
-const CACHE_VERSION_KEY = 'cache-version';
-const STATIC_ASSETS = [
+// Version del cache
+const CACHE_VERSION = 'v1';
+const CACHE_NAME = `el-rincon-de-ebano-${CACHE_VERSION}`;
+
+// Assets to precache
+const PRECACHE_ASSETS = [
     '/',
     '/index.html',
     '/assets/css/style.css',
@@ -10,24 +13,16 @@ const STATIC_ASSETS = [
     '/pages/offline.html'
 ];
 
+// Install event
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
-            .then((cache) => {
-                return Promise.all([
-                    ...STATIC_ASSETS.map(url => 
-                        cache.add(url).catch(error => {
-                            console.warn(`Failed to cache asset: ${url}`, error);
-                            return Promise.resolve();
-                        })
-                    ),
-                    cache.put(CACHE_VERSION_KEY, new Response(CACHE_NAME))
-                ]);
-            })
+            .then((cache) => cache.addAll(PRECACHE_ASSETS))
             .then(() => self.skipWaiting())
     );
 });
 
+// Activate event
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((cacheNames) => {
@@ -42,80 +37,39 @@ self.addEventListener('activate', (event) => {
     );
 });
 
+// Fetch event
 self.addEventListener('fetch', (event) => {
     event.respondWith(
         caches.match(event.request)
             .then((response) => {
                 if (response) {
-                    // If we have a cached response, return it but also fetch an update
-                    fetchAndUpdate(event.request);
                     return response;
                 }
-                return fetchAndUpdate(event.request);
+        
+        return fetch(event.request)
+            .then((response) => {
+                if (!response || response.status !== 200 || response.type !== 'basic') {
+                    return response;
+                }
+            
+                const responseToCache = response.clone();
+                caches.open(CACHE_NAME)
+                    .then((cache) => {
+                        cache.put(event.request, responseToCache);
+                    });
+            
+                    return response;
             })
-            .catch(() => {
+                .catch(() => {
                 return caches.match('/pages/offline.html');
+                });
             })
     );
 });
 
-async function fetchAndCacheResponse(request) {
-    try {
-        const response = await fetch(request);
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-        }
-
-        const responseToCache = response.clone();
-
-        const cache = await caches.open(CACHE_NAME);
-        await cache.put(request, responseToCache);
-
-        return response;
-    } catch (error) {
-        // Handle errors here
-        console.error('Error fetching and caching data:', error);
-        return null;
-    }
-}
-
+// Message event for cache updates
 self.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'CHECK_VERSION') {
-        event.waitUntil(
-            caches.open(CACHE_NAME).then((cache) => {
-                return cache.match(CACHE_VERSION_KEY).then((response) => {
-                    if (response) {
-                        return response.text();
-                    }
-                    return null;
-                });
-            }).then((cachedVersion) => {
-                event.source.postMessage({
-                    type: 'VERSION_CHECK_RESULT',
-                    currentVersion: CACHE_NAME,
-                    cachedVersion: cachedVersion
-                });
-            })
-        );
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
     }
-});
-
-// Basic push notification handling
-self.addEventListener('push', (event) => {
-    const options = {
-        body: event.data ? event.data.text() : 'No payload',
-        icon: '/assets/images/web/logo.webp',
-        badge: '/assets/images/web/favicon.ico'
-    };
-    event.waitUntil(
-        self.registration.showNotification('El Rincón de Ébano', options)
-    );
-});
-
-// Basic notification click handling
-self.addEventListener('notificationclick', (event) => {
-    event.notification.close();
-    event.waitUntil(
-        clients.openWindow('https://elrincondeebano.com/')
-    );
 });
