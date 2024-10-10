@@ -222,6 +222,9 @@ const initApp = async () => {
     const renderProducts = (productsToRender) => {
         const fragment = document.createDocumentFragment();
         
+        // Determinar si estamos en una página de subcategoría
+        const isSubcategoryPage = window.location.pathname.includes('/pages/');
+        
         productsToRender.forEach(product => {
             const { id, name, description, image_path, price, discount, stock } = product;
             
@@ -229,22 +232,25 @@ const initApp = async () => {
                 class: `producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4 ${!stock ? 'agotado' : ''}`,
                 'aria-label': `Product: ${name}`
             });
-
+    
             const cardElement = createSafeElement('div', { class: 'card' });
             
+            // Ajustar la ruta de la imagen basándose en la ubicación de la página
+            const adjustedImagePath = isSubcategoryPage ? `../${image_path}` : image_path;
+            
             const imgElement = createSafeElement('img', {
-                'data-src': image_path,
+                'data-src': adjustedImagePath,
                 alt: name,
                 class: 'card-img-top lazyload'
             });
             cardElement.appendChild(imgElement);
-
+    
             const cardBody = createSafeElement('div', { class: 'card-body' });
             cardBody.appendChild(createSafeElement('h3', { class: 'card-title' }, [name]));
             cardBody.appendChild(createSafeElement('p', { class: 'card-text' }, [description]));
             
             cardBody.appendChild(renderPriceHtml(price, discount));
-
+    
             const cartItemQuantity = getCartItemQuantity(id);
             if (cartItemQuantity > 0) {
                 const quantityControl = renderQuantityControl(product);
@@ -273,18 +279,19 @@ const initApp = async () => {
                 
                 cardBody.appendChild(addToCartBtn);
             }
-
+    
             cardElement.appendChild(cardBody);
             productElement.appendChild(cardElement);
             
             fragment.appendChild(productElement);
         });
-
+    
         productContainer.innerHTML = '';
         productContainer.appendChild(fragment);
         lazyLoadImages();
     };
-
+    
+    // Asegúrate de que esta función esté actualizada para manejar las nuevas rutas de imágenes
     const lazyLoadImages = () => {
         const imageObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
@@ -296,7 +303,7 @@ const initApp = async () => {
                 }
             });
         }, { rootMargin: '100px' });
-
+    
         document.querySelectorAll('img.lazyload').forEach(img => imageObserver.observe(img));
     };
 
