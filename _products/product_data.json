@@ -990,16 +990,6 @@
     "order": 98
   },
   {
-    "name": "Carmenere Reserva Especial • Héroes, Santa Rita",
-    "description": "Vino tinto • Botella de 750mL • 13° G.L.",
-    "price": 6000,
-    "discount": 500,
-    "stock": true,
-    "category": "Vinos",
-    "image_path": "assets/images/vinos/Carmenere Reserva Especial Heroes Santa Rita.webp",
-    "order": 99
-  },
-  {
     "name": "Pisco Sour Limón Zero 14° • Secreto Peruano",
     "description": "Pisco Sour • Botella de 700mL",
     "price": 4500,
