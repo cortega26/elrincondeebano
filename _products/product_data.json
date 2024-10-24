@@ -354,7 +354,7 @@
     "description": "Vino tinto • Botella 750mL • 13,5° G.L.",
     "price": 5500,
     "discount": 0,
-    "stock": false,
+    "stock": true,
     "category": "Vinos",
     "image_path": "assets/images/vinos/Carmenere Reserva Chivilingo Cousiño-Macul botella 750mL.webp",
     "order": 35
