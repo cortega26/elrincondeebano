@@ -210,16 +210,6 @@
     "order": 20
   },
   {
-    "name": "Queso Parmesano rallado Kraft",
-    "description": "Cilindro de 85g",
-    "price": 1900,
-    "discount": 0,
-    "stock": false,
-    "category": "Lacteos",
-    "image_path": "assets/images/lacteos/Queso parmesano llanero Kraft 85g.webp",
-    "order": 21
-  },
-  {
     "name": "Mentos Frutas",
     "description": "Roll 29g",
     "price": 900,
@@ -464,7 +454,7 @@
     "description": "Botella de 1L",
     "price": 10900,
     "discount": 0,
-    "stock": false,
+    "stock": true,
     "category": "Despensa",
     "image_path": "assets/images/despensa/Aceite de Oliva Pepita de Oro 1L.webp",
     "order": 46
@@ -644,7 +634,7 @@
     "description": "Presentación de 500g",
     "price": 7500,
     "discount": 600,
-    "stock": false,
+    "stock": true,
     "category": "Carnesyembutidos",
     "image_path": "assets/images/carnes_y_embutidos/Salame La Preferida 500g.webp",
     "order": 64
@@ -1004,7 +994,7 @@
     "description": "Envase de 1L • Sin azúcar añadida",
     "price": 1300,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Jugos",
     "image_path": "assets/images/jugos/jugo-soprole-1-lt.webp",
     "order": 101
@@ -1014,7 +1004,7 @@
     "description": "Envase de 1L • Sin azúcar añadida",
     "price": 1300,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Jugos",
     "image_path": "assets/images/jugos/Jugo-Durazno-Soprole-1L.webp",
     "order": 102
