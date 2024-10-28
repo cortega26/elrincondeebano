@@ -1,5 +1,5 @@
 // Version del cache
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 const CACHE_NAME = `el-rincon-de-ebano-${CACHE_VERSION}`;
 
 // Assets to precache
