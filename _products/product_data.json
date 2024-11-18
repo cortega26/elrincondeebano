@@ -4,7 +4,7 @@
     "description": "Envase desechable",
     "price": 1800,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Bebidas",
     "image_path": "assets/images/bebidas/Agua 2L con gas Benedictino.webp",
     "order": 0
