@@ -124,7 +124,7 @@
     "description": "Vino tinto • Botella de 750mL • 13° G.L.",
     "price": 4500,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Vinos",
     "image_path": "assets/images/vinos/Merlot Misiones de Rengo 750mL.webp",
     "order": 12
@@ -734,7 +734,7 @@
     "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
     "price": 10000,
     "discount": 1100,
-    "stock": false,
+    "stock": true,
     "category": "Vinos",
     "image_path": "assets/images/vinos/Casillero del Diablo Devil's Collection 750mL.webp",
     "order": 74
@@ -994,7 +994,7 @@
     "description": "Envase de 1L • Sin azúcar añadida",
     "price": 1300,
     "discount": 0,
-    "stock": false,
+    "stock": true,
     "category": "Jugos",
     "image_path": "assets/images/jugos/jugo-soprole-1-lt.webp",
     "order": 101
@@ -1004,7 +1004,7 @@
     "description": "Envase de 1L • Sin azúcar añadida",
     "price": 1300,
     "discount": 0,
-    "stock": false,
+    "stock": true,
     "category": "Jugos",
     "image_path": "assets/images/jugos/Jugo-Durazno-Soprole-1L.webp",
     "order": 102
