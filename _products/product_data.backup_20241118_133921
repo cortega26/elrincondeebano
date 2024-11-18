@@ -1010,6 +1010,16 @@
     "order": 102
   },
   {
+    "name": "Chocolate con almendras • Ambrosoli",
+    "description": "Barra de 100g",
+    "price": 1700,
+    "discount": 0,
+    "stock": false,
+    "category": "Chocolates",
+    "image_path": "assets/images/chocolates/Chocolate de leche con almendras Ambrosoli 100g.webp",
+    "order": 107
+  },
+  {
     "name": "Chocolate amargo • Our Finest",
     "description": "Barra de 100g • 90% cacao",
     "price": 3500,
