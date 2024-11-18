@@ -1,13 +1,13 @@
 {
-  "version": "20241118-184218",
-  "last_updated": "2024-11-18T18:42:18.776871",
+  "version": "20241118-184204",
+  "last_updated": "2024-11-18T18:42:04.828334",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
       "description": "Envase desechable",
       "price": 1800,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Bebidas",
       "image_path": "assets/images/bebidas/Agua 2L con gas Benedictino.webp",
       "order": 0

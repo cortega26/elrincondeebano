@@ -4,7 +4,7 @@
     "description": "Envase desechable",
     "price": 1800,
     "discount": 0,
-    "stock": true,
+    "stock": false,
     "category": "Bebidas",
     "image_path": "assets/images/bebidas/Agua 2L con gas Benedictino.webp",
     "order": 0
@@ -1028,16 +1028,6 @@
     "category": "SnacksSalados",
     "image_path": "assets/images/snacks_salados/Doritos Queso 140gr.webp",
     "order": 109
-  },
-  {
-    "name": "Papas Onduladas • Marco Polo",
-    "description": "Bolsa de 200g",
-    "price": 2000,
-    "discount": 0,
-    "stock": false,
-    "category": "SnacksSalados",
-    "image_path": "assets/images/snacks_salados/Papas-Marco-Polo-Onduladas-200g.webp",
-    "order": 113
   },
   {
     "name": "Papas Lisas • Marco Polo",
