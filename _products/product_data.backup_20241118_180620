@@ -94,7 +94,7 @@
     "description": "Envase desechable",
     "price": 3500,
     "discount": 0,
-    "stock": false,
+    "stock": true,
     "category": "Bebidas",
     "image_path": "assets/images/bebidas/Sprite 3L retornable.webp",
     "order": 9
@@ -1008,56 +1008,6 @@
     "category": "Jugos",
     "image_path": "assets/images/jugos/Jugo-Durazno-Soprole-1L.webp",
     "order": 102
-  },
-  {
-    "name": "Chocolate con leche • Great Value",
-    "description": "Barra de 100g • 30% cacao",
-    "price": 1800,
-    "discount": 0,
-    "stock": false,
-    "category": "Chocolates",
-    "image_path": "assets/images/chocolates/Chocolate de Leche Great Value 100g.webp",
-    "order": 103
-  },
-  {
-    "name": "Chocolate con almendras • Great Value",
-    "description": "Barra de 100g • 37% cacao",
-    "price": 2000,
-    "discount": 0,
-    "stock": false,
-    "category": "Chocolates",
-    "image_path": "assets/images/chocolates/Chocolate con Almendras Great Value 100g.webp",
-    "order": 104
-  },
-  {
-    "name": "Chocolate con avellanas • Great Value",
-    "description": "Barra de 100g • 37% cacao",
-    "price": 2000,
-    "discount": 0,
-    "stock": false,
-    "category": "Chocolates",
-    "image_path": "assets/images/chocolates/Chocolate con Avellanas Great Value 100g.webp",
-    "order": 105
-  },
-  {
-    "name": "Chocolate blanco • Great Value",
-    "description": "Barra de 100g • 31% cacao",
-    "price": 1800,
-    "discount": 0,
-    "stock": false,
-    "category": "Chocolates",
-    "image_path": "assets/images/chocolates/Chocolate blanco 100g.webp",
-    "order": 106
-  },
-  {
-    "name": "Chocolate con almendras • Ambrosoli",
-    "description": "Barra de 100g",
-    "price": 1700,
-    "discount": 0,
-    "stock": false,
-    "category": "Chocolates",
-    "image_path": "assets/images/chocolates/Chocolate de leche con almendras Ambrosoli 100g.webp",
-    "order": 107
   },
   {
     "name": "Chocolate amargo • Our Finest",

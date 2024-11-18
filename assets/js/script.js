@@ -1,5 +1,41 @@
 'use strict';
 
+// Service Worker Registration
+function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/service-worker.js')
+            .then(registration => {
+                console.log('ServiceWorker registered:', registration);
+
+                // Check for updates
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            // New content is available - show update prompt
+                            if (confirm('New content is available! Would you like to refresh?')) {
+                                newWorker.postMessage('skipWaiting');
+                                window.location.reload();
+                            }
+                        }
+                    });
+                });
+            })
+            .catch(error => {
+                console.error('ServiceWorker registration failed:', error);
+            });
+
+        // Handle updates when the page is refreshed/reopened
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!refreshing) {
+                refreshing = true;
+                window.location.reload();
+            }
+        });
+    }
+}
+
 // Utility functions
 const memoize = (fn, cacheSize = 100) => {
     const cache = new Map();
@@ -596,6 +632,10 @@ const initApp = async () => {
 
 // Run the application when the DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
+    // Register service worker first
+    registerServiceWorker();
+    
+    // Then initialize the app
     initApp().catch(error => {
         console.error('Error initializing app:', error);
         showErrorMessage('Failed to initialize the application. Please try refreshing the page.');
