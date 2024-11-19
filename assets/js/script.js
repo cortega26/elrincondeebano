@@ -181,8 +181,9 @@ const initApp = async () => {
             if (!response.ok) {
                 throw new Error(`HTTP error. Status: ${response.status}`);
             }
-            const fetchedProducts = await response.json();
-            return fetchedProducts.map(product => ({
+            const data = await response.json();
+            // Access the nested products array
+            return data.products.map(product => ({
                 ...product,
                 id: generateUniqueId(),
                 name: sanitizeHTML(product.name),
