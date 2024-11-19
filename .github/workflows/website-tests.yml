@@ -1,0 +1,87 @@
+name: Website Tests
+
+on:
+  # Run on every push to main branch
+  push:
+    branches: [ main ]
+  
+  # Keep manual trigger option
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # Wait for GitHub Pages to update
+      - name: Wait for GitHub Pages
+        run: sleep 60
+        
+      - uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: |
+          npm init -y
+          npm install node-fetch
+
+      - name: Run website tests
+        run: node website-testing.js
+        env:
+          SITE_URL: ${{ github.event.repository.homepage || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}
+
+      - name: Create Issue on Failure
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const result = await github.rest.issues.create({
+              owner,
+              repo,
+              title: `🚨 Website Tests Failed - ${new Date().toISOString()}`,
+              body: `
+              # Website Test Failure Alert
+              
+              Tests failed after push by @${context.actor}
+              
+              ## Details:
+              - 🌐 Site URL: ${process.env.SITE_URL}
+              - 🔄 Action Run: [View Logs](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+              - 📝 Commit: ${context.sha}
+              
+              Please check the GitHub Actions logs for detailed test results.
+              `,
+              labels: ['bug', 'automated test', 'high priority']
+            });
+
+            // Add comment to the commit
+            await github.rest.repos.createCommitComment({
+              owner,
+              repo,
+              commit_sha: context.sha,
+              body: `⚠️ Website tests failed for this commit. [View Issue](${result.data.html_url})`
+            });
+
+      # Optional: Add email notification using GitHub's built-in notification system
+      - name: Send Email Notification
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { repo, owner } = context.repo;
+            await github.rest.repos.createDispatchEvent({
+              owner,
+              repo,
+              event_type: 'website_test_failed',
+              client_payload: {
+                url: process.env.SITE_URL,
+                run_id: context.runId,
+                commit: context.sha
+              }
+            });
