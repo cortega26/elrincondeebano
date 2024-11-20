@@ -1,5 +1,5 @@
-// service-worker.js
-const CACHE_VERSION = 'v1'; // We'll use a timestamp in production
+// service-worker.js - Updated version with pagination support
+const CACHE_VERSION = 'v3';  // Incremented version
 const CACHE_NAME = `el-rincon-de-ebano-${CACHE_VERSION}`;
 
 // Assets that should be cached
@@ -9,8 +9,15 @@ const STATIC_ASSETS = [
     '/assets/css/style.css',
     '/assets/js/script.js',
     '/assets/images/web/logo.webp',
-    '/assets/images/web/favicon.ico'
+    '/assets/images/web/favicon.ico',
+    '/assets/images/web/placeholder.webp'  // Added placeholder image
 ];
+
+// NEW: Cache duration settings
+const CACHE_DURATION = {
+    products: 60 * 60 * 1000, // 1 hour for product data
+    assets: 7 * 24 * 60 * 60 * 1000 // 7 days for static assets
+};
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
@@ -36,27 +43,76 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-// Fetch event with network-first strategy for product data
-self.addEventListener('fetch', (event) => {
-    const productDataUrl = '/_products/product_data.json';
+// NEW: Helper function to parse URL parameters
+const getQueryParams = (url) => {
+    const params = {};
+    const searchParams = new URL(url).searchParams;
+    for (const [key, value] of searchParams) {
+        params[key] = value;
+    }
+    return params;
+};
+
+// NEW: Helper function to check cache freshness
+const isCacheFresh = (response) => {
+    const timestamp = response.headers.get('sw-timestamp');
+    if (!timestamp) return false;
+
+    const age = Date.now() - parseInt(timestamp);
+    const maxAge = response.url.includes('product_data.json') 
+        ? CACHE_DURATION.products 
+        : CACHE_DURATION.assets;
     
-    if (event.request.url.includes(productDataUrl)) {
+    return age < maxAge;
+};
+
+// NEW: Modified fetch event handler with improved caching strategy
+self.addEventListener('fetch', (event) => {
+    const url = new URL(event.request.url);
+    
+    // Handle product data requests
+    if (url.pathname.includes('product_data.json')) {
         event.respondWith(
-            fetch(event.request)
-                .then((networkResponse) => {
-                    if (networkResponse.ok) {
-                        // Clone the response before caching it
-                        const responseToCache = networkResponse.clone();
-                        caches.open(CACHE_NAME)
-                            .then((cache) => cache.put(event.request, responseToCache));
-                        return networkResponse;
+            caches.match(event.request)
+                .then(async (cachedResponse) => {
+                    // Return cached response if it's fresh
+                    if (cachedResponse && isCacheFresh(cachedResponse)) {
+                        return cachedResponse;
                     }
-                    throw new Error('Network response was not ok');
+
+                    // Otherwise fetch new data
+                    try {
+                        const response = await fetch(event.request);
+                        if (!response.ok) throw new Error('Network response was not ok');
+
+                        // Clone the response before caching
+                        const responseToCache = response.clone();
+
+                        // Add timestamp header
+                        const headers = new Headers(responseToCache.headers);
+                        headers.append('sw-timestamp', Date.now().toString());
+
+                        // Create new response with timestamp
+                        const timestampedResponse = new Response(
+                            await responseToCache.blob(),
+                            {
+                                status: responseToCache.status,
+                                statusText: responseToCache.statusText,
+                                headers: headers
+                            }
+                        );
+
+                        // Cache the timestamped response
+                        const cache = await caches.open(CACHE_NAME);
+                        await cache.put(event.request, timestampedResponse);
+
+                        return response;
+                    } catch (error) {
+                        // Return stale cache if network fails
+                        if (cachedResponse) return cachedResponse;
+                        throw error;
+                    }
                 })
-                .catch(() => 
-                    // If network fails, try to return cached response
-                    caches.match(event.request)
-                )
         );
         return;
     }
@@ -65,12 +121,29 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
         caches.match(event.request)
             .then((response) => response || fetch(event.request))
+            .catch(() => {
+                // Return default placeholder for failed image requests
+                if (event.request.url.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
+                    return caches.match('/assets/images/web/placeholder.webp');
+                }
+                throw new Error('Network and cache both failed');
+            })
     );
 });
 
-// Listen for messages from the client
+// NEW: Handle cache invalidation messages
 self.addEventListener('message', (event) => {
-    if (event.data === 'skipWaiting') {
-        self.skipWaiting();
+    if (event.data.type === 'INVALIDATE_PRODUCT_CACHE') {
+        caches.open(CACHE_NAME)
+            .then((cache) => {
+                return cache.keys()
+                    .then((requests) => {
+                        return Promise.all(
+                            requests
+                                .filter(request => request.url.includes('product_data.json'))
+                                .map(request => cache.delete(request))
+                        );
+                    });
+            });
     }
 });
