@@ -1,6 +1,6 @@
 {
-  "version": "20241123-185539",
-  "last_updated": "2024-11-23T18:55:39.423765",
+  "version": "20241123-185503",
+  "last_updated": "2024-11-23T18:55:03.470885",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -1151,6 +1151,16 @@
       "category": "Juegos",
       "image_path": "assets/images/juegos/UNO.webp",
       "order": 114
+    },
+    {
+      "name": "Papas Orégano • Lay's",
+      "description": "Bolsa de 180g",
+      "price": 2500,
+      "discount": 0,
+      "stock": true,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Lays Orégano 180g.webp",
+      "order": 115
     },
     {
       "name": "Nescafé Tradición",

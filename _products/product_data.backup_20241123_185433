@@ -1,6 +1,6 @@
 {
-  "version": "20241123-185539",
-  "last_updated": "2024-11-23T18:55:39.423765",
+  "version": "20241123-185426",
+  "last_updated": "2024-11-23T18:54:26.039522",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -43,6 +43,16 @@
       "order": 3
     },
     {
+      "name": "Sprite 3L",
+      "description": "Envase desechable",
+      "price": 3500,
+      "discount": 0,
+      "stock": true,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Sprite 3L retornable.webp",
+      "order": 4
+    },
+    {
       "name": "Agua sin gas 1,6L Cachantun",
       "description": "Envase desechable",
       "price": 1500,
@@ -50,7 +60,7 @@
       "stock": true,
       "category": "Bebidas",
       "image_path": "assets/images/bebidas/Agua 1,6L sin gas Cachantun.webp",
-      "order": 4
+      "order": 5
     },
     {
       "name": "Agua gasificada 1,6L Cachantun",
@@ -60,7 +70,7 @@
       "stock": true,
       "category": "Bebidas",
       "image_path": "assets/images/bebidas/Agua 1,6L con gas Cachantun.webp",
-      "order": 5
+      "order": 6
     },
     {
       "name": "Coca-Cola Zero 3L",
@@ -70,7 +80,7 @@
       "stock": true,
       "category": "Bebidas",
       "image_path": "assets/images/bebidas/Coca Cola Zero 3L.webp",
-      "order": 6
+      "order": 7
     },
     {
       "name": "Salame Italiano Líder laminado",
@@ -80,16 +90,6 @@
       "stock": true,
       "category": "Carnesyembutidos",
       "image_path": "assets/images/Carnesyembutidos/Salame Italiano Líder 100g.webp",
-      "order": 7
-    },
-    {
-      "name": "Sprite 3L",
-      "description": "Envase desechable",
-      "price": 3500,
-      "discount": 0,
-      "stock": true,
-      "category": "Bebidas",
-      "image_path": "assets/images/bebidas/Sprite 3L retornable.webp",
       "order": 8
     },
     {
@@ -973,24 +973,24 @@
       "order": 96
     },
     {
-      "name": "Jugo de Naranja • Soprole",
+      "name": "Juego de Naranja • Soprole",
       "description": "Envase de 1L • Sin azúcar añadida",
       "price": 1300,
       "discount": 0,
       "stock": true,
       "category": "Jugos",
       "image_path": "assets/images/jugos/jugo-soprole-1-lt.webp",
-      "order": 99
+      "order": 97
     },
     {
-      "name": "Jugo de Durazno • Soprole",
+      "name": "Juego de Durazno • Soprole",
       "description": "Envase de 1L • Sin azúcar añadida",
       "price": 1300,
       "discount": 0,
       "stock": true,
       "category": "Jugos",
       "image_path": "assets/images/jugos/Jugo-Durazno-Soprole-1L.webp",
-      "order": 100
+      "order": 98
     },
     {
       "name": "Chocolate amargo • Our Finest",
@@ -1151,6 +1151,16 @@
       "category": "Juegos",
       "image_path": "assets/images/juegos/UNO.webp",
       "order": 114
+    },
+    {
+      "name": "Papas Orégano • Lay's",
+      "description": "Bolsa de 180g",
+      "price": 2500,
+      "discount": 0,
+      "stock": true,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Lays Orégano 180g.webp",
+      "order": 115
     },
     {
       "name": "Nescafé Tradición",
