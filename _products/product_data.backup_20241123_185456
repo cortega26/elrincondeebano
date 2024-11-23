@@ -1,6 +1,6 @@
 {
-  "version": "20241123-185539",
-  "last_updated": "2024-11-23T18:55:39.423765",
+  "version": "20241123-185433",
+  "last_updated": "2024-11-23T18:54:33.380141",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -973,24 +973,24 @@
       "order": 96
     },
     {
-      "name": "Jugo de Naranja • Soprole",
+      "name": "Juego de Naranja • Soprole",
       "description": "Envase de 1L • Sin azúcar añadida",
       "price": 1300,
       "discount": 0,
       "stock": true,
       "category": "Jugos",
       "image_path": "assets/images/jugos/jugo-soprole-1-lt.webp",
-      "order": 99
+      "order": 97
     },
     {
-      "name": "Jugo de Durazno • Soprole",
+      "name": "Juego de Durazno • Soprole",
       "description": "Envase de 1L • Sin azúcar añadida",
       "price": 1300,
       "discount": 0,
       "stock": true,
       "category": "Jugos",
       "image_path": "assets/images/jugos/Jugo-Durazno-Soprole-1L.webp",
-      "order": 100
+      "order": 98
     },
     {
       "name": "Chocolate amargo • Our Finest",
@@ -1151,6 +1151,16 @@
       "category": "Juegos",
       "image_path": "assets/images/juegos/UNO.webp",
       "order": 114
+    },
+    {
+      "name": "Papas Orégano • Lay's",
+      "description": "Bolsa de 180g",
+      "price": 2500,
+      "discount": 0,
+      "stock": true,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Lays Orégano 180g.webp",
+      "order": 115
     },
     {
       "name": "Nescafé Tradición",
