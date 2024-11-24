@@ -1,6 +1,6 @@
 {
-  "version": "20241123-185503",
-  "last_updated": "2024-11-23T18:55:03.470885",
+  "version": "20241124-152727",
+  "last_updated": "2024-11-24T15:27:27.677093",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -164,12 +164,12 @@
     },
     {
       "name": "Salsa de tomate Líder",
-      "description": "Botella de 1L",
-      "price": 4500,
+      "description": "Botella de 680g",
+      "price": 3000,
       "discount": 0,
       "stock": true,
       "category": "Despensa",
-      "image_path": "assets/images/despensa/Salsa de Tomate Ketchup Lider 1Kg.webp",
+      "image_path": "assets/images/Despensa/Salsa de Tomate Ketchup Lider 680g.webp",
       "order": 16
     },
     {
@@ -201,26 +201,6 @@
       "category": "SnacksDulces",
       "image_path": "assets/images/snacks_dulces/Galletas Mantequilla McKay 140g.webp",
       "order": 19
-    },
-    {
-      "name": "Mentos Frutas",
-      "description": "Roll 29g",
-      "price": 900,
-      "discount": 100,
-      "stock": true,
-      "category": "SnacksDulces",
-      "image_path": "assets/images/snacks_dulces/Mentos Frutas 29g.png",
-      "order": 20
-    },
-    {
-      "name": "Mentos Menta",
-      "description": "Roll 29g",
-      "price": 900,
-      "discount": 100,
-      "stock": true,
-      "category": "SnacksDulces",
-      "image_path": "assets/images/snacks_dulces/Mentos Menta 29g.webp",
-      "order": 21
     },
     {
       "name": "Mantequilla Kumey 250g",
@@ -1151,16 +1131,6 @@
       "category": "Juegos",
       "image_path": "assets/images/juegos/UNO.webp",
       "order": 114
-    },
-    {
-      "name": "Papas Orégano • Lay's",
-      "description": "Bolsa de 180g",
-      "price": 2500,
-      "discount": 0,
-      "stock": true,
-      "category": "SnacksSalados",
-      "image_path": "assets/images/snacks_salados/Lays Orégano 180g.webp",
-      "order": 115
     },
     {
       "name": "Nescafé Tradición",

@@ -1,6 +1,6 @@
 {
-  "version": "20241123-185422",
-  "last_updated": "2024-11-23T18:54:22.336459",
+  "version": "20241124-152935",
+  "last_updated": "2024-11-24T15:29:35.856470",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -33,13 +33,13 @@
       "order": 2
     },
     {
-      "name": "Sprite 3L",
-      "description": "Envase desechable",
-      "price": 3500,
+      "name": "Azúcar Blanca Iansa",
+      "description": "Empaque de 900g",
+      "price": 1500,
       "discount": 0,
       "stock": true,
-      "category": "Bebidas",
-      "image_path": "assets/images/bebidas/Sprite 3L retornable.webp",
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Azúcar blanca Iansa 900g.webp",
       "order": 3
     },
     {
@@ -73,16 +73,6 @@
       "order": 6
     },
     {
-      "name": "Azúcar Blanca Iansa",
-      "description": "Empaque de 900g",
-      "price": 1500,
-      "discount": 0,
-      "stock": true,
-      "category": "Despensa",
-      "image_path": "assets/images/despensa/Azúcar blanca Iansa 900g.webp",
-      "order": 7
-    },
-    {
       "name": "Salame Italiano Líder laminado",
       "description": "Presentación 100g",
       "price": 1900,
@@ -90,6 +80,16 @@
       "stock": true,
       "category": "Carnesyembutidos",
       "image_path": "assets/images/Carnesyembutidos/Salame Italiano Líder 100g.webp",
+      "order": 7
+    },
+    {
+      "name": "Sprite 3L",
+      "description": "Envase desechable",
+      "price": 3500,
+      "discount": 0,
+      "stock": true,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Sprite 3L retornable.webp",
       "order": 8
     },
     {
@@ -164,12 +164,12 @@
     },
     {
       "name": "Salsa de tomate Líder",
-      "description": "Botella de 1L",
-      "price": 4500,
+      "description": "Botella de 680g",
+      "price": 3000,
       "discount": 0,
       "stock": true,
       "category": "Despensa",
-      "image_path": "assets/images/despensa/Salsa de Tomate Ketchup Lider 1Kg.webp",
+      "image_path": "assets/images/Despensa/Salsa de Tomate Ketchup Lider 680g.webp",
       "order": 16
     },
     {
@@ -201,26 +201,6 @@
       "category": "SnacksDulces",
       "image_path": "assets/images/snacks_dulces/Galletas Mantequilla McKay 140g.webp",
       "order": 19
-    },
-    {
-      "name": "Mentos Frutas",
-      "description": "Roll 29g",
-      "price": 900,
-      "discount": 100,
-      "stock": true,
-      "category": "SnacksDulces",
-      "image_path": "assets/images/snacks_dulces/Mentos Frutas 29g.png",
-      "order": 20
-    },
-    {
-      "name": "Mentos Menta",
-      "description": "Roll 29g",
-      "price": 900,
-      "discount": 100,
-      "stock": true,
-      "category": "SnacksDulces",
-      "image_path": "assets/images/snacks_dulces/Mentos Menta 29g.webp",
-      "order": 21
     },
     {
       "name": "Mantequilla Kumey 250g",
@@ -301,16 +281,6 @@
       "category": "Bebidas",
       "image_path": "assets/images/bebidas/Coca Cola 3L.webp",
       "order": 29
-    },
-    {
-      "name": "Coca-Cola 2,5L",
-      "description": "Envase desechable",
-      "price": 3000,
-      "discount": 0,
-      "stock": false,
-      "category": "Bebidas",
-      "image_path": "assets/images/bebidas/Coca Cola 2,5L.webp",
-      "order": 30
     },
     {
       "name": "Red Blend Reserva • Chivilingo, Mousiño-Macul",
@@ -407,7 +377,7 @@
       "description": "Cerveza Lager x 6 unidades",
       "price": 6900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Cervezas",
       "image_path": "assets/images/cervezas/Corona Extra lata 473cc.webp",
       "order": 40
@@ -565,7 +535,7 @@
     {
       "name": "Queso Crema Rafulco",
       "description": "Presentación de 190g",
-      "price": 1700,
+      "price": 1900,
       "discount": 0,
       "stock": true,
       "category": "Lacteos",
@@ -973,24 +943,24 @@
       "order": 96
     },
     {
-      "name": "Juego de Naranja • Soprole",
+      "name": "Jugo de Naranja • Soprole",
       "description": "Envase de 1L • Sin azúcar añadida",
       "price": 1300,
       "discount": 0,
       "stock": true,
       "category": "Jugos",
       "image_path": "assets/images/jugos/jugo-soprole-1-lt.webp",
-      "order": 97
+      "order": 99
     },
     {
-      "name": "Juego de Durazno • Soprole",
+      "name": "Jugo de Durazno • Soprole",
       "description": "Envase de 1L • Sin azúcar añadida",
       "price": 1300,
       "discount": 0,
       "stock": true,
       "category": "Jugos",
       "image_path": "assets/images/jugos/Jugo-Durazno-Soprole-1L.webp",
-      "order": 98
+      "order": 100
     },
     {
       "name": "Chocolate amargo • Our Finest",
@@ -1151,16 +1121,6 @@
       "category": "Juegos",
       "image_path": "assets/images/juegos/UNO.webp",
       "order": 114
-    },
-    {
-      "name": "Papas Orégano • Lay's",
-      "description": "Bolsa de 180g",
-      "price": 2500,
-      "discount": 0,
-      "stock": true,
-      "category": "SnacksSalados",
-      "image_path": "assets/images/snacks_salados/Lays Orégano 180g.webp",
-      "order": 115
     },
     {
       "name": "Nescafé Tradición",
