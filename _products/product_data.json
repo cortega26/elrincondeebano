@@ -1,6 +1,6 @@
 {
-  "version": "20241128-165223",
-  "last_updated": "2024-11-28T16:52:23.163409",
+  "version": "20241128-165505",
+  "last_updated": "2024-11-28T16:55:05.550834",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -169,7 +169,7 @@
       "discount": 0,
       "stock": true,
       "category": "Despensa",
-      "image_path": "assets/images/Despensa/Salsa de Tomate Ketchup Lider 680g.webp",
+      "image_path": "assets/images/despensa/Salsa de Tomate Ketchup Lider 680g.webp",
       "order": 16
     },
     {
