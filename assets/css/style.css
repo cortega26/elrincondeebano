@@ -99,8 +99,7 @@ h1 {
 /* Product Card Styles */
 .producto {
   position: relative;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  background: white;
+  transition: transform 0.3s ease;
   height: 100%;
 }
 
@@ -117,74 +116,86 @@ h1 {
 }
 
 .producto .card {
-  border: none;
   height: 100%;
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background-color);
+  border-radius: var(--border-radius);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .producto .card-body {
+  display: flex;
+  flex-direction: column;
   padding: 1.25rem;
+  flex-grow: 1;
 }
 
 .producto img {
-  transition: transform 0.3s ease;
-  transform-origin: center;
-  object-fit: contain;
-  height: 200px;
   width: 100%;
+  height: 200px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
 }
 
 .producto .card-title {
-  color: #1a202c;
   font-size: 1.125rem;
-  font-weight: 600;
   margin-bottom: 0.5rem;
-  line-height: 1.4;
+  color: var(--text-color);
+  font-weight: 600;
 }
 
 .producto .card-text {
-  color: #4a5568;
   font-size: 0.875rem;
-  line-height: 1.5;
+  color: var(--secondary-color);
   margin-bottom: 1rem;
+  flex-grow: 1;
 }
 
 /* Price Styles */
 .precio-container {
   margin-top: auto;
-  padding-top: 0.5rem;
-  border-top: 1px solid #e2e8f0;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
 }
 
-.precio-descuento,
 .precio {
-  font-size: 1.125rem;
-  font-weight: bold;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-color);
+  display: block;
+  width: 100%;
+  margin-bottom: 0.5rem;
 }
 
 .precio-descuento {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #2d3748;
+  color: var(--text-color);
+  margin-right: 0.5rem;
 }
 
 .ahorra {
-  background-color: #e53e3e;
-  color: white;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
   font-size: 0.75rem;
-  font-weight: 500;
-  margin-left: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+  background-color: var(--accent-color);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  white-space: nowrap;
 }
 
 .precio-original {
-  color: #718096;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--secondary-color);
   font-size: 0.875rem;
-  text-decoration: line-through;
+  margin-top: 0.25rem;
 }
 
 .tachado {
@@ -239,6 +250,13 @@ h1 {
 #sort-options,
 #filter-keyword {
   margin-bottom: 1rem;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-weight: 500;
+  margin-top: auto;
 }
 
 .btn-success {
