@@ -1,31 +1,49 @@
 'use strict';
 
-// Service Worker Registration
+// Enhanced version checking function
+function compareVersions(currentVersion, storedVersion) {
+    if (!currentVersion || !storedVersion) return true;
+    try {
+        const [currentDate, currentTime] = currentVersion.split('-');
+        const [storedDate, storedTime] = storedVersion.split('-');
+        
+        if (currentDate !== storedDate) return true;
+        return currentTime > storedTime;
+    } catch (error) {
+        console.error('Error comparing versions:', error);
+        return true;
+    }
+}
+
+// Enhanced service worker registration
 function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/service-worker.js')
-            .then(registration => {
-                console.log('ServiceWorker registered:', registration);
-
-                // Check for updates
+        window.addEventListener('load', async () => {
+            try {
+                const registration = await navigator.serviceWorker.register('/service-worker.js', {
+                    updateViaCache: 'none'
+                });
+                
+                console.log('ServiceWorker registered:', registration.scope);
+                
                 registration.addEventListener('updatefound', () => {
                     const newWorker = registration.installing;
-                    newWorker.addEventListener('statechange', () => {
+                    
+                    newWorker?.addEventListener('statechange', () => {
                         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            // New content is available - show update prompt
-                            if (confirm('New content is available! Would you like to refresh?')) {
-                                newWorker.postMessage('skipWaiting');
-                                window.location.reload();
-                            }
+                            showUpdateNotification(newWorker);
                         }
                     });
                 });
-            })
-            .catch(error => {
-                console.error('ServiceWorker registration failed:', error);
-            });
 
-        // Handle updates when the page is refreshed/reopened
+                const cleanup = setUpPeriodicChecks(registration);
+                window.addEventListener('unload', cleanup);
+                
+            } catch (error) {
+                console.error('ServiceWorker registration failed:', error);
+            }
+        });
+
         let refreshing = false;
         navigator.serviceWorker.addEventListener('controllerchange', () => {
             if (!refreshing) {
@@ -34,6 +52,87 @@ function registerServiceWorker() {
             }
         });
     }
+}
+
+// Enhanced update notification
+function showUpdateNotification(newWorker, message = 'New content is available!') {
+    const existingNotification = document.querySelector('.update-notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+
+    const notification = document.createElement('div');
+    notification.className = 'update-notification';
+    notification.innerHTML = `
+        <div class="update-content">
+            <p>${message}</p>
+            <button class="update-button">Update Now</button>
+            <button class="dismiss-button">Later</button>
+        </div>
+    `;
+
+    notification.querySelector('.update-button').addEventListener('click', () => {
+        if (newWorker) {
+            newWorker.postMessage({ type: 'SKIP_WAITING' });
+        } else {
+            window.location.reload();
+        }
+        notification.remove();
+    });
+
+    notification.querySelector('.dismiss-button').addEventListener('click', () => {
+        notification.remove();
+    });
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        if (document.body.contains(notification)) {
+            notification.remove();
+        }
+    }, 5 * 60 * 1000);
+}
+
+// Enhanced periodic checks
+function setUpPeriodicChecks(registration) {
+    let checkInterval;
+
+    const performCheck = async () => {
+        try {
+            const response = await fetch('/_products/product_data.json', {
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                }
+            });
+            
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const data = await response.json();
+            const currentVersion = data.version;
+            const storedVersion = localStorage.getItem('productDataVersion');
+            
+            if (compareVersions(currentVersion, storedVersion)) {
+                registration.active?.postMessage({
+                    type: 'INVALIDATE_PRODUCT_CACHE'
+                });
+                
+                localStorage.setItem('productDataVersion', currentVersion);
+                showUpdateNotification(null, 'New product data available');
+            }
+        } catch (error) {
+            console.error('Error checking for product updates:', error);
+        }
+    };
+
+    performCheck();
+    checkInterval = setInterval(performCheck, 5 * 60 * 1000);
+
+    return () => {
+        if (checkInterval) {
+            clearInterval(checkInterval);
+        }
+    };
 }
 
 // Utility functions
@@ -182,7 +281,6 @@ const initApp = async () => {
                 throw new Error(`HTTP error. Status: ${response.status}`);
             }
             const data = await response.json();
-            // Access the nested products array
             return data.products.map(product => ({
                 ...product,
                 id: generateUniqueId(),
@@ -258,8 +356,6 @@ const initApp = async () => {
 
     const renderProducts = (productsToRender) => {
         const fragment = document.createDocumentFragment();
-        
-        // Determinar si estamos en una página de subcategoría
         const isSubcategoryPage = window.location.pathname.includes('/pages/');
         
         productsToRender.forEach(product => {
@@ -272,13 +368,10 @@ const initApp = async () => {
     
             const cardElement = createSafeElement('div', { class: 'card' });
             
-            // Ajustar la ruta de la imagen basándose en la ubicación de la página
             let adjustedImagePath;
             if (isSubcategoryPage) {
-                // Eliminar "/pages/" de la ruta y agregar ".." para subir un nivel
                 adjustedImagePath = `../${image_path.replace(/^\//, '')}`;
             } else {
-                // Para la página principal, usar la ruta tal como está
                 adjustedImagePath = image_path;
             }
             
@@ -326,7 +419,6 @@ const initApp = async () => {
     
             cardElement.appendChild(cardBody);
             productElement.appendChild(cardElement);
-            
             fragment.appendChild(productElement);
         });
     

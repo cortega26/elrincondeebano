@@ -1,6 +1,6 @@
 {
-  "version": "20241124-152848",
-  "last_updated": "2024-11-24T15:28:48.790198",
+  "version": "20241128-165505",
+  "last_updated": "2024-11-28T16:55:05.550834",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -79,7 +79,7 @@
       "discount": 0,
       "stock": true,
       "category": "Carnesyembutidos",
-      "image_path": "assets/images/Carnesyembutidos/Salame Italiano Líder 100g.webp",
+      "image_path": "assets/images/carnes_y_embutidos/Salame Italiano Líder 100g.webp",
       "order": 7
     },
     {
@@ -169,7 +169,7 @@
       "discount": 0,
       "stock": true,
       "category": "Despensa",
-      "image_path": "assets/images/Despensa/Salsa de Tomate Ketchup Lider 680g.webp",
+      "image_path": "assets/images/despensa/Salsa de Tomate Ketchup Lider 680g.webp",
       "order": 16
     },
     {
@@ -377,7 +377,7 @@
       "description": "Cerveza Lager x 6 unidades",
       "price": 6900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Cervezas",
       "image_path": "assets/images/cervezas/Corona Extra lata 473cc.webp",
       "order": 40
@@ -535,7 +535,7 @@
     {
       "name": "Queso Crema Rafulco",
       "description": "Presentación de 190g",
-      "price": 1700,
+      "price": 1900,
       "discount": 0,
       "stock": true,
       "category": "Lacteos",
@@ -833,13 +833,13 @@
       "order": 85
     },
     {
-      "name": "Austral botella 330cc",
+      "name": "Austral lata 350cc",
       "description": "Cerveza Calafate Ale x 6 unidades",
-      "price": 9500,
+      "price": 9000,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
-      "image_path": "assets/images/cervezas/Austral Calafate Ale botella botella 330cc-2.webp",
+      "image_path": "assets/images/Cervezas/Austral Calafate Ale.webp",
       "order": 86
     },
     {

@@ -1,6 +1,6 @@
 {
-  "version": "20241128-165505",
-  "last_updated": "2024-11-28T16:55:05.550834",
+  "version": "20241128-171617",
+  "last_updated": "2024-11-28T17:16:17.829269",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -839,7 +839,7 @@
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
-      "image_path": "assets/images/Cervezas/Austral Calafate Ale.webp",
+      "image_path": "assets/images/cervezas/Austral Calafate Ale lata 350cc.webp",
       "order": 86
     },
     {
