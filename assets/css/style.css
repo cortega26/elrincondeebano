@@ -872,3 +872,50 @@ textarea:focus {
 }
 
 /* Add any additional custom styles here */
+
+.update-notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  z-index: 9999;
+  animation: slideIn 0.3s ease-out;
+}
+
+.update-notification .update-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.update-notification button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.update-notification .update-button {
+  background-color: #0066cc;
+  color: white;
+}
+
+.update-notification .dismiss-button {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+@keyframes slideIn {
+  from {
+      transform: translateY(100px);
+      opacity: 0;
+  }
+  to {
+      transform: translateY(0);
+      opacity: 1;
+  }
+}
