@@ -55,7 +55,7 @@ function registerServiceWorker() {
 }
 
 // Enhanced update notification
-function showUpdateNotification(newWorker, message = 'New content is available!') {
+function showUpdateNotification(newWorker, message = 'Nuevo contenido Disponible') {
     const existingNotification = document.querySelector('.update-notification');
     if (existingNotification) {
         existingNotification.remove();
@@ -66,8 +66,8 @@ function showUpdateNotification(newWorker, message = 'New content is available!'
     notification.innerHTML = `
         <div class="update-content">
             <p>${message}</p>
-            <button class="update-button">Update Now</button>
-            <button class="dismiss-button">Later</button>
+            <button class="update-button">Actualizar ahora</button>
+            <button class="dismiss-button">Luego</button>
         </div>
     `;
 
@@ -106,7 +106,7 @@ function setUpPeriodicChecks(registration) {
                 }
             });
             
-            if (!response.ok) throw new Error('Network response was not ok');
+            if (!response.ok) throw new Error('Error de red');
             
             const data = await response.json();
             const currentVersion = data.version;
@@ -118,10 +118,10 @@ function setUpPeriodicChecks(registration) {
                 });
                 
                 localStorage.setItem('productDataVersion', currentVersion);
-                showUpdateNotification(null, 'New product data available');
+                showUpdateNotification(null, 'Nuevos productos disponibles');
             }
         } catch (error) {
-            console.error('Error checking for product updates:', error);
+            console.error('Error buscando nuevos productos:', error);
         }
     };
 
