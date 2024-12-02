@@ -81,7 +81,7 @@ h1 {
 .producto {
   position: relative;
   height: 100%;
-  transition: var(--transition);
+  transition: none;
 }
 
 .producto:hover {
@@ -89,7 +89,7 @@ h1 {
 }
 
 .producto:hover .card {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
 }
 
 .producto:hover img {
@@ -102,7 +102,8 @@ h1 {
   flex-direction: column;
   background-color: var(--background-color);
   border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
   border: none !important;
 }
 
@@ -117,7 +118,7 @@ h1 {
   width: 100%;
   height: 200px;
   object-fit: contain;
-  transition: transform 0.3s ease;
+  transition: none;
 }
 
 .producto .card-title {
