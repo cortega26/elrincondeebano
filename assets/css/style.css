@@ -84,17 +84,21 @@ h1 {
   transition: none;
 }
 
+/*
 .producto:hover {
   transform: translateY(-4px);
 }
+  */
 
 .producto:hover .card {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
 }
 
+/*
 .producto:hover img {
   transform: scale(1.05);
 }
+  */
 
 .producto .card {
   height: 100%;
