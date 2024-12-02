@@ -18,7 +18,7 @@ const STATIC_ASSETS = [
 // Cache duration settings (in milliseconds)
 const CACHE_DURATION = {
     products: 5 * 60 * 1000,  // 5 minutes for product data
-    static: 24 * 60 * 60 * 1000,  // 24 hours for static assets
+    static: 24 * 60 * 60 * 0,  // 24 hours for static assets
     dynamic: 12 * 60 * 60 * 1000  // 12 hours for dynamic content
 };
 
