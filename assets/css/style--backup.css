@@ -210,20 +210,6 @@ h1 {
   position: relative;
 }
 
-/* Stock indicator
-.producto:not(.agotado)::before {
-  content: "";
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  width: 8px;
-  height: 8px;
-  background-color: #48bb78;
-  border-radius: 50%;
-  z-index: 1;
-}
-*/
-
 .producto.agotado::before {
   content: "AGOTADO";
   position: absolute;

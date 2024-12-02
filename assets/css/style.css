@@ -96,6 +96,10 @@ h1 {
   transform: scale(1.05);
 }
 
+.producto:not(.agotado)::before {
+  display: none !important;
+}
+
 .producto .card {
   height: 100%;
   display: flex;
