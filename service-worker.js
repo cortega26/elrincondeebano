@@ -1,6 +1,6 @@
 // Enhanced service-worker.js with improved cache management
 const CACHE_NAME_PREFIX = 'el-rincon-de-ebano-';
-const STATIC_CACHE = `${CACHE_NAME_PREFIX}static-v1`;
+const STATIC_CACHE = `${CACHE_NAME_PREFIX}static-v2`;
 const DYNAMIC_CACHE = `${CACHE_NAME_PREFIX}dynamic-v1`;
 const PRODUCT_CACHE = `${CACHE_NAME_PREFIX}products-v1`;
 
