@@ -200,7 +200,7 @@ const fetchProducts = async () => {
         }));
     } catch (error) {
         console.error('Error al obtener productos:', error);
-        showErrorMessage(`Failed to load products. Please check your internet connection and try again. (Error: ${error.message})`);
+        showErrorMessage(`Error al cargar los productos. Por favor, verifique su conexión a internet e inténtelo de nuevo. (Error: ${error.message})`);
         throw error;
     }
 };
@@ -241,7 +241,7 @@ const showErrorMessage = (message) => {
 
 // Global error handler
 window.addEventListener('error', (event) => {
-    console.error('Global error:', event.error);
+    console.error("Error global:", event.error);
     showErrorMessage('Ocurrió un error inesperado. Por favor, recarga la página.');
 });
 
@@ -294,7 +294,7 @@ const initApp = async () => {
                 container.appendChild(child.cloneNode(true));
             });
         } catch (error) {
-            console.error('Error loading component:', { component: filename, message: error.message });
+            console.error("Error al cargar componente:", { component: filename, message: error.message });
             throw error;
         }
     };
@@ -333,7 +333,7 @@ const initApp = async () => {
             }));
         } catch (error) {
             console.error('Error al obtener productos:', error);
-            showErrorMessage(`Failed to load products. Please check your internet connection and try again. (Error: ${error.message})`);
+            showErrorMessage(`Error al cargar los productos. Por favor, verifique su conexión a internet e inténtelo de nuevo. (Error: ${error.message})`);
             throw error;
         }
     };
@@ -777,7 +777,7 @@ const initApp = async () => {
         }
 
     } catch (error) {
-        console.error('Error initializing products:', error);
+        console.error("Error al inicializar productos:", error);
         showErrorMessage('Error al cargar productos. Por favor, inténtelo más tarde.');
     }
 };
