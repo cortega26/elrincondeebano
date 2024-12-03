@@ -388,40 +388,35 @@ const initApp = async () => {
             
             cardBody.appendChild(renderPriceHtml(price, discount));
     
-            // Get the initial cart state for this product
-            const cartItemQuantity = getCartItemQuantity(id);
-    
-            // Create a container for the quantity controls/add button
-            const controlsContainer = createSafeElement('div', { 
-                class: 'product-controls',
-                'data-product-id': id
-            });
+            // Get cart item state
+            const cartItem = cart.find(item => item.id === id);
+            const cartItemQuantity = cartItem ? cartItem.quantity : 0;
     
             if (cartItemQuantity > 0) {
                 const quantityControl = renderQuantityControl(product);
-                controlsContainer.appendChild(quantityControl);
+                cardBody.appendChild(quantityControl);
+                // Update quantity input value
+                const quantityInput = quantityControl.querySelector('.quantity-input');
+                if (quantityInput) {
+                    quantityInput.value = cartItemQuantity;
+                }
             } else {
                 const addToCartBtn = createSafeElement('button', {
                     class: 'btn btn-primary mt-2',
                     'data-id': id,
-                    'data-name': name,
-                    'data-price': price - (discount || 0),
                     'aria-label': `Add ${name} to cart`
                 }, ['Agregar']);
                 
-                addToCartBtn.addEventListener('click', (e) => {
-                    const controls = e.target.closest('.product-controls');
-                    controls.innerHTML = ''; // Clear the container
-                    const quantityControl = renderQuantityControl(product);
-                    controls.appendChild(quantityControl);
-                    quantityControl.classList.add('fade-in-up');
+                addToCartBtn.addEventListener('click', () => {
                     addToCart(product, 1);
+                    const quantityControl = renderQuantityControl(product);
+                    addToCartBtn.replaceWith(quantityControl);
+                    quantityControl.classList.add('fade-in-up');
                 });
                 
-                controlsContainer.appendChild(addToCartBtn);
+                cardBody.appendChild(addToCartBtn);
             }
     
-            cardBody.appendChild(controlsContainer);
             cardElement.appendChild(cardBody);
             productElement.appendChild(cardElement);
             fragment.appendChild(productElement);
@@ -498,7 +493,18 @@ const initApp = async () => {
             if (existingItem) {
                 existingItem.quantity = Math.min(existingItem.quantity + quantity, 50);
             } else {
-                cart.push({ ...product, quantity: Math.min(quantity, 50) });
+                // Store complete product information
+                cart.push({
+                    id: product.id,
+                    name: product.name,
+                    description: product.description,
+                    price: product.price,
+                    discount: product.discount,
+                    image_path: product.image_path,
+                    quantity: Math.min(quantity, 50),
+                    category: product.category,
+                    stock: product.stock
+                });
             }
             saveCart();
             updateCartIcon();
@@ -531,47 +537,27 @@ const initApp = async () => {
     const updateQuantity = (product, change) => {
         try {
             const item = cart.find(item => item.id === product.id);
-            if (item) {
-                item.quantity = Math.min(Math.max(item.quantity + change, 0), 50);
-                if (item.quantity === 0) {
-                    removeFromCart(product.id);
-                    // Update the UI to show the Add button again
-                    const controlsContainer = document.querySelector(`.product-controls[data-product-id="${product.id}"]`);
-                    if (controlsContainer) {
-                        controlsContainer.innerHTML = '';
-                        const addToCartBtn = createSafeElement('button', {
-                            class: 'btn btn-primary mt-2',
-                            'data-id': product.id,
-                            'data-name': product.name,
-                            'data-price': product.price - (product.discount || 0),
-                            'aria-label': `Add ${product.name} to cart`
-                        }, ['Agregar']);
-                        
-                        addToCartBtn.addEventListener('click', (e) => {
-                            const controls = e.target.closest('.product-controls');
-                            controls.innerHTML = '';
-                            const quantityControl = renderQuantityControl(product);
-                            controls.appendChild(quantityControl);
-                            quantityControl.classList.add('fade-in-up');
-                            addToCart(product, 1);
-                        });
-                        
-                        controlsContainer.appendChild(addToCartBtn);
-                    }
-                } else {
-                    saveCart();
-                    updateCartIcon();
-                    renderCart();
-                }
-            } else {
-                addToCart(product, 1);
-            }
+            const newQuantity = item ? item.quantity + change : 1;
     
-            const quantityInput = document.querySelector(`[data-id="${product.id}"].quantity-input`);
-            if (quantityInput) {
-                quantityInput.value = item ? item.quantity : 1;
-                quantityInput.classList.add('quantity-changed');
-                setTimeout(() => quantityInput.classList.remove('quantity-changed'), 300);
+            if (newQuantity <= 0) {
+                removeFromCart(product.id);
+                updateProductDisplay(); // Refresh the entire product display
+            } else if (newQuantity <= 50) {
+                if (item) {
+                    item.quantity = newQuantity;
+                } else {
+                    addToCart(product, 1);
+                }
+                saveCart();
+                updateCartIcon();
+                renderCart();
+    
+                const quantityInput = document.querySelector(`[data-id="${product.id}"].quantity-input`);
+                if (quantityInput) {
+                    quantityInput.value = newQuantity;
+                    quantityInput.classList.add('quantity-changed');
+                    setTimeout(() => quantityInput.classList.remove('quantity-changed'), 300);
+                }
             }
         } catch (error) {
             console.error('Error updating quantity:', error);
