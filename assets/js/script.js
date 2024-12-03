@@ -388,10 +388,18 @@ const initApp = async () => {
             
             cardBody.appendChild(renderPriceHtml(price, discount));
     
+            // Get the initial cart state for this product
             const cartItemQuantity = getCartItemQuantity(id);
+    
+            // Create a container for the quantity controls/add button
+            const controlsContainer = createSafeElement('div', { 
+                class: 'product-controls',
+                'data-product-id': id
+            });
+    
             if (cartItemQuantity > 0) {
                 const quantityControl = renderQuantityControl(product);
-                cardBody.appendChild(quantityControl);
+                controlsContainer.appendChild(quantityControl);
             } else {
                 const addToCartBtn = createSafeElement('button', {
                     class: 'btn btn-primary mt-2',
@@ -402,26 +410,24 @@ const initApp = async () => {
                 }, ['Agregar']);
                 
                 addToCartBtn.addEventListener('click', (e) => {
-                    e.target.style.display = 'none';
+                    const controls = e.target.closest('.product-controls');
+                    controls.innerHTML = ''; // Clear the container
                     const quantityControl = renderQuantityControl(product);
-                    e.target.parentNode.appendChild(quantityControl);
+                    controls.appendChild(quantityControl);
                     quantityControl.classList.add('fade-in-up');
                     addToCart(product, 1);
-                    
-                    const quantityInput = quantityControl.querySelector('.quantity-input');
-                    if (quantityInput) {
-                        quantityInput.value = 1;
-                    }
                 });
                 
-                cardBody.appendChild(addToCartBtn);
+                controlsContainer.appendChild(addToCartBtn);
             }
     
+            cardBody.appendChild(controlsContainer);
             cardElement.appendChild(cardBody);
             productElement.appendChild(cardElement);
             fragment.appendChild(productElement);
         });
     
+        const productContainer = document.getElementById('product-container');
         productContainer.innerHTML = '';
         productContainer.appendChild(fragment);
         lazyLoadImages();
@@ -529,6 +535,29 @@ const initApp = async () => {
                 item.quantity = Math.min(Math.max(item.quantity + change, 0), 50);
                 if (item.quantity === 0) {
                     removeFromCart(product.id);
+                    // Update the UI to show the Add button again
+                    const controlsContainer = document.querySelector(`.product-controls[data-product-id="${product.id}"]`);
+                    if (controlsContainer) {
+                        controlsContainer.innerHTML = '';
+                        const addToCartBtn = createSafeElement('button', {
+                            class: 'btn btn-primary mt-2',
+                            'data-id': product.id,
+                            'data-name': product.name,
+                            'data-price': product.price - (product.discount || 0),
+                            'aria-label': `Add ${product.name} to cart`
+                        }, ['Agregar']);
+                        
+                        addToCartBtn.addEventListener('click', (e) => {
+                            const controls = e.target.closest('.product-controls');
+                            controls.innerHTML = '';
+                            const quantityControl = renderQuantityControl(product);
+                            controls.appendChild(quantityControl);
+                            quantityControl.classList.add('fade-in-up');
+                            addToCart(product, 1);
+                        });
+                        
+                        controlsContainer.appendChild(addToCartBtn);
+                    }
                 } else {
                     saveCart();
                     updateCartIcon();
@@ -537,6 +566,7 @@ const initApp = async () => {
             } else {
                 addToCart(product, 1);
             }
+    
             const quantityInput = document.querySelector(`[data-id="${product.id}"].quantity-input`);
             if (quantityInput) {
                 quantityInput.value = item ? item.quantity : 1;
