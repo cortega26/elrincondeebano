@@ -159,8 +159,51 @@ const debounce = (func, delay) => {
     };
 };
 
-let uniqueId = 0;
-const generateUniqueId = () => `product-${Date.now()}-${uniqueId++}`;
+
+// Add this utility function for generating stable product IDs
+const generateStableId = (product) => {
+    // Create a stable ID using product properties that shouldn't change
+    // Using name and category as they should be unique together
+    const baseString = `${product.name}-${product.category}`.toLowerCase();
+    
+    // Create a simple hash of the string
+    let hash = 0;
+    for (let i = 0; i < baseString.length; i++) {
+        const char = baseString.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32-bit integer
+    }
+    
+    // Return a more readable ID format
+    return `pid-${Math.abs(hash)}`;
+};
+
+// Modify the fetchProducts function
+const fetchProducts = async () => {
+    try {
+        const response = await fetch('/_products/product_data.json', {
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error. Status: ${response.status}`);
+        }
+        const data = await response.json();
+        return data.products.map(product => ({
+            ...product,
+            id: generateStableId(product), // Use stable ID instead of random
+            name: sanitizeHTML(product.name),
+            description: sanitizeHTML(product.description),
+            category: sanitizeHTML(product.category)
+        }));
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        showErrorMessage(`Failed to load products. Please check your internet connection and try again. (Error: ${error.message})`);
+        throw error;
+    }
+};
 
 const createSafeElement = (tag, attributes = {}, children = []) => {
     const element = document.createElement(tag);
@@ -283,7 +326,7 @@ const initApp = async () => {
             const data = await response.json();
             return data.products.map(product => ({
                 ...product,
-                id: generateUniqueId(),
+                id: generateStableId(product),
                 name: sanitizeHTML(product.name),
                 description: sanitizeHTML(product.description),
                 category: sanitizeHTML(product.category)
