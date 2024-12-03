@@ -337,6 +337,27 @@ h1 {
   margin-bottom: 5px;
 }
 
+/* Cart quantity controls */
+.cart-item .quantity-btn {
+  width: 24px;
+  height: 24px;
+  font-size: 16px;
+  font-weight: 500;
+  background-color: var(--primary-color);
+  transition: background-color 0.2s ease;
+}
+
+.cart-item .quantity-btn:hover {
+  background-color: var(--secondary-color);
+}
+
+.cart-item .quantity-input {
+  width: 40px;
+  height: 24px;
+  padding: 0.25rem;
+  font-size: 14px;
+}
+
 /* Animations */
 @keyframes quantityPulse {
   0% { transform: scale(1); }
