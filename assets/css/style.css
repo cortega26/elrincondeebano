@@ -127,7 +127,7 @@ h1 {
 }
 
 .producto .card-title {
-  font-size: 1.125rem;
+  font-size: 1rem;
   margin-bottom: 0.5rem;
   color: var(--text-color);
   font-weight: 600;
@@ -152,7 +152,7 @@ h1 {
 
 .precio,
 .precio-descuento {
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--text-color);
 }
