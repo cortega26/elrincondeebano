@@ -30,262 +30,299 @@ const CONFIG = {
       fetchTimeout: 8000,
       maxRetries: 3,
       retryDelay: 1000
-    }
-  };
-  
-  // Función auxiliar para verificar frescura del caché
-  const isCacheFresh = (response, type = 'static') => {
+    },
+    scope: '/' // Added explicit scope
+};
+
+// Función mejorada para verificar frescura del caché
+const isCacheFresh = (response, type = 'static') => {
     if (!response || !response.headers) return false;
     
     const timestamp = response.headers.get('sw-timestamp');
     if (!timestamp) return false;
-  
+
     const age = Date.now() - parseInt(timestamp);
     return age < CONFIG.cacheDuration[type];
-  };
-  
-  // Función auxiliar para agregar marca de tiempo a la respuesta
-  const addTimestamp = async (response, type = 'static') => {
-    const headers = new Headers(response.headers);
+};
+
+// Función mejorada para agregar marca de tiempo a la respuesta
+const addTimestamp = async (response, type = 'static') => {
+    const clone = response.clone();
+    const headers = new Headers(clone.headers);
     headers.append('sw-timestamp', Date.now().toString());
     headers.append('cache-type', type);
     
-    return new Response(await response.blob(), {
-      status: response.status,
-      statusText: response.statusText,
-      headers: headers
-    });
-  };
-  
-  // Evento de instalación
-  self.addEventListener('install', (event) => {
-    event.waitUntil(
-      caches.open(CONFIG.cacheNames.static)
-        .then((cache) => {
-          console.log('Almacenando recursos estáticos en caché...');
-          return cache.addAll(CONFIG.staticAssets);
-        })
-        .then(() => {
-          console.log('Instalación completada con éxito');
-          return self.skipWaiting();
-        })
-        .catch(error => {
-          console.error('Error durante la instalación:', error);
-          throw error;
-        })
-    );
-  });
-  
-  // Evento de activación
-  self.addEventListener('activate', (event) => {
-    event.waitUntil(
-      Promise.all([
-        // Limpieza de cachés antiguos
-        caches.keys()
-          .then((cacheNames) => {
-            return Promise.all(
-              cacheNames
-                .filter((name) => name.startsWith('el-rincon-de-ebano-'))
-                .filter((name) => !Object.values(CONFIG.cacheNames).includes(name))
-                .map((name) => {
-                  console.log(`Eliminando caché antiguo: ${name}`);
-                  return caches.delete(name);
-                })
-            );
-          }),
-        self.clients.claim()
-      ])
-      .then(() => {
-        console.log('Service Worker activado y controlando la página');
-      })
-    );
-  });
-  
-  // Manejo de datos de productos
-  async function handleProductDataFetch(request) {
     try {
-      // Intentar red primero
-      const networkResponse = await fetchWithRetry(request);
-      if (networkResponse.ok) {
-        const cache = await caches.open(CONFIG.cacheNames.products);
-        const timestampedResponse = await addTimestamp(networkResponse.clone(), 'products');
-        await cache.put(request, timestampedResponse);
-        return networkResponse;
-      }
+        const blob = await clone.blob();
+        return new Response(blob, {
+            status: clone.status,
+            statusText: clone.statusText,
+            headers: headers
+        });
     } catch (error) {
-      console.log('Error en la red, intentando caché:', error);
+        console.error('Error al clonar respuesta:', error);
+        return response;
     }
-  
-    // Usar caché como respaldo
+};
+
+// Evento de instalación mejorado
+self.addEventListener('install', (event) => {
+    event.waitUntil((async () => {
+        try {
+            const cache = await caches.open(CONFIG.cacheNames.static);
+            console.log('Almacenando recursos estáticos en caché...');
+            
+            // Cache each resource individually
+            for (const url of CONFIG.staticAssets) {
+                try {
+                    const response = await fetch(url, { 
+                        cache: 'reload',
+                        credentials: 'same-origin'
+                    });
+                    if (response.ok) {
+                        await cache.put(url, response);
+                        console.log(`Recurso cacheado exitosamente: ${url}`);
+                    } else {
+                        console.warn(`No se pudo cachear: ${url}, status: ${response.status}`);
+                    }
+                } catch (error) {
+                    console.error(`Error al cachear ${url}:`, error);
+                    // Continue with other resources
+                }
+            }
+            
+            console.log('Instalación completada con éxito');
+            await self.skipWaiting();
+            
+        } catch (error) {
+            console.error('Error durante la instalación:', error);
+            throw error;
+        }
+    })());
+});
+
+// Evento de activación mejorado
+self.addEventListener('activate', (event) => {
+    event.waitUntil((async () => {
+        try {
+            // Tomar control inmediatamente
+            await self.clients.claim();
+            
+            // Limpiar cachés antiguos
+            const cacheNames = await caches.keys();
+            await Promise.all(
+                cacheNames
+                    .filter((name) => name.startsWith('el-rincon-de-ebano-'))
+                    .filter((name) => !Object.values(CONFIG.cacheNames).includes(name))
+                    .map(async (name) => {
+                        console.log(`Eliminando caché antiguo: ${name}`);
+                        await caches.delete(name);
+                    })
+            );
+            
+            console.log('Service Worker activado y controlando la página');
+        } catch (error) {
+            console.error('Error durante la activación:', error);
+            throw error;
+        }
+    })());
+});
+
+// Manejo mejorado de datos de productos
+async function handleProductDataFetch(request) {
+    try {
+        // Intentar red primero con opciones mejoradas
+        const networkResponse = await fetchWithRetry(request, 0, {
+            cache: 'reload',
+            credentials: 'same-origin',
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            }
+        });
+        
+        if (networkResponse.ok) {
+            const cache = await caches.open(CONFIG.cacheNames.products);
+            const timestampedResponse = await addTimestamp(networkResponse.clone(), 'products');
+            await cache.put(request, timestampedResponse);
+            return networkResponse;
+        }
+    } catch (error) {
+        console.log('Error en la red, intentando caché:', error);
+    }
+
+    // El resto de la función permanece igual...
     const cachedResponse = await caches.match(request);
     if (cachedResponse && isCacheFresh(cachedResponse, 'products')) {
-      console.log('Sirviendo datos de productos desde caché fresco');
-      return cachedResponse;
-    }
-  
-    // Si el caché está obsoleto, intentar red nuevamente
-    try {
-      const networkResponse = await fetchWithRetry(request);
-      if (networkResponse.ok) {
-        const cache = await caches.open(CONFIG.cacheNames.products);
-        const timestampedResponse = await addTimestamp(networkResponse.clone(), 'products');
-        await cache.put(request, timestampedResponse);
-        return networkResponse;
-      }
-    } catch (error) {
-      console.log('Falló la red y el caché:', error);
-      if (cachedResponse) {
-        console.log('Usando caché obsoleto como último recurso');
+        console.log('Sirviendo datos de productos desde caché fresco');
         return cachedResponse;
-      }
     }
-  
+
+    try {
+        const networkResponse = await fetchWithRetry(request);
+        if (networkResponse.ok) {
+            const cache = await caches.open(CONFIG.cacheNames.products);
+            const timestampedResponse = await addTimestamp(networkResponse.clone(), 'products');
+            await cache.put(request, timestampedResponse);
+            return networkResponse;
+        }
+    } catch (error) {
+        console.log('Falló la red y el caché:', error);
+        if (cachedResponse) {
+            console.log('Usando caché obsoleto como último recurso');
+            return cachedResponse;
+        }
+    }
+
     throw new Error('No se pudieron obtener los datos de productos');
-  }
-  
-  // Manejo de recursos estáticos
-  async function handleStaticAssetFetch(request) {
+}
+
+// Función fetchWithRetry mejorada
+async function fetchWithRetry(request, retryCount = 0, options = {}) {
+    try {
+        const response = await Promise.race([
+            fetch(request, {
+                ...options,
+                mode: 'cors',
+                credentials: 'same-origin'
+            }),
+            new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Tiempo de espera agotado')), CONFIG.gitHubPages.fetchTimeout)
+            )
+        ]);
+
+        if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+        return response;
+    } catch (error) {
+        if (retryCount >= CONFIG.gitHubPages.maxRetries) throw error;
+        
+        const delay = CONFIG.gitHubPages.retryDelay * Math.pow(2, retryCount);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        
+        console.log(`Reintentando solicitud (${retryCount + 1}/${CONFIG.gitHubPages.maxRetries})`);
+        return fetchWithRetry(request, retryCount + 1, options);
+    }
+}
+
+// Manejo de recursos estáticos
+async function handleStaticAssetFetch(request) {
     const cachedResponse = await caches.match(request);
     if (cachedResponse && isCacheFresh(cachedResponse, 'static')) {
-      return cachedResponse;
+        return cachedResponse;
     }
-  
+
     try {
-      const networkResponse = await fetchWithRetry(request);
-      if (networkResponse.ok) {
-        const cache = await caches.open(CONFIG.cacheNames.static);
-        const timestampedResponse = await addTimestamp(networkResponse.clone(), 'static');
-        await cache.put(request, timestampedResponse);
-        return networkResponse;
-      }
+        const networkResponse = await fetchWithRetry(request);
+        if (networkResponse.ok) {
+            const cache = await caches.open(CONFIG.cacheNames.static);
+            const timestampedResponse = await addTimestamp(networkResponse.clone(), 'static');
+            await cache.put(request, timestampedResponse);
+            return networkResponse;
+        }
     } catch (error) {
-      if (cachedResponse) return cachedResponse;
-      console.error('Error al obtener recurso estático:', error);
-      return handleOfflineFallback(request);
+        if (cachedResponse) return cachedResponse;
+        console.error('Error al obtener recurso estático:', error);
+        return handleOfflineFallback(request);
     }
-  }
-  
-  // Manejo de contenido dinámico
-  async function handleDynamicFetch(request) {
+}
+
+// Manejo de contenido dinámico
+async function handleDynamicFetch(request) {
     if (request.method !== 'GET') {
-      return fetch(request);
+        return fetch(request);
     }
-  
+
     try {
-      const networkResponse = await fetchWithRetry(request);
-      if (networkResponse.ok) {
-        const cache = await caches.open(CONFIG.cacheNames.dynamic);
-        const timestampedResponse = await addTimestamp(networkResponse.clone(), 'dynamic');
-        await cache.put(request, timestampedResponse);
-        return networkResponse;
-      }
+        const networkResponse = await fetchWithRetry(request);
+        if (networkResponse.ok) {
+            const cache = await caches.open(CONFIG.cacheNames.dynamic);
+            const timestampedResponse = await addTimestamp(networkResponse.clone(), 'dynamic');
+            await cache.put(request, timestampedResponse);
+            return networkResponse;
+        }
     } catch (error) {
-      const cachedResponse = await caches.match(request);
-      if (cachedResponse) return cachedResponse;
-      
-      if (request.url.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
-        return handleImageFallback();
-      }
-  
-      return handleOfflineFallback(request);
+        const cachedResponse = await caches.match(request);
+        if (cachedResponse) return cachedResponse;
+        
+        if (request.url.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
+            return handleImageFallback();
+        }
+
+        return handleOfflineFallback(request);
     }
-  }
-  
-  // Función para reintentos de fetch
-  async function fetchWithRetry(request, retryCount = 0) {
-    try {
-      const response = await Promise.race([
-        fetch(request),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Tiempo de espera agotado')), CONFIG.gitHubPages.fetchTimeout)
-        )
-      ]);
-  
-      if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
-      return response;
-    } catch (error) {
-      if (retryCount >= CONFIG.gitHubPages.maxRetries) throw error;
-      
-      await new Promise(resolve => 
-        setTimeout(resolve, CONFIG.gitHubPages.retryDelay * Math.pow(2, retryCount))
-      );
-      
-      console.log(`Reintentando solicitud (${retryCount + 1}/${CONFIG.gitHubPages.maxRetries})`);
-      return fetchWithRetry(request, retryCount + 1);
-    }
-  }
-  
-  // Manejadores de respaldo
-  async function handleImageFallback() {
+}
+
+// Manejadores de respaldo
+async function handleImageFallback() {
     return caches.match('/assets/images/web/placeholder.webp');
-  }
-  
-  async function handleOfflineFallback(request) {
+}
+
+async function handleOfflineFallback(request) {
     if (request.headers.get('Accept').includes('text/html')) {
-      return caches.match('/offline.html');
+        return caches.match('/offline.html');
     }
     throw new Error('Recurso no disponible sin conexión');
-  }
-  
-  // Evento principal de fetch
-  self.addEventListener('fetch', (event) => {
+}
+
+// Evento principal de fetch
+self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
     
     // Ignorar peticiones de browser-sync durante desarrollo
     if (url.hostname.includes('browser-sync')) {
-      return;
+        return;
     }
-  
+
     // Manejar datos de productos
     if (url.pathname.includes('product_data.json')) {
-      event.respondWith(handleProductDataFetch(event.request));
-      return;
+        event.respondWith(handleProductDataFetch(event.request));
+        return;
     }
-  
+
     // Manejar recursos estáticos
     if (CONFIG.staticAssets.includes(url.pathname)) {
-      event.respondWith(handleStaticAssetFetch(event.request));
-      return;
+        event.respondWith(handleStaticAssetFetch(event.request));
+        return;
     }
-  
+
     // Manejar otras peticiones
     event.respondWith(handleDynamicFetch(event.request));
-  });
-  
-  // Manejo de mensajes
-  self.addEventListener('message', (event) => {
+});
+
+// Manejo de mensajes
+self.addEventListener('message', (event) => {
     if (event.data.type === 'SKIP_WAITING') {
-      self.skipWaiting();
+        self.skipWaiting();
     } else if (event.data.type === 'INVALIDATE_PRODUCT_CACHE') {
-      invalidateCache(CONFIG.cacheNames.products);
+        invalidateCache(CONFIG.cacheNames.products);
     } else if (event.data.type === 'INVALIDATE_ALL_CACHES') {
-      invalidateAllCaches();
+        invalidateAllCaches();
     }
-  });
-  
-  // Función para invalidar caché específico
-  async function invalidateCache(cacheName) {
+});
+
+// Función para invalidar caché específico
+async function invalidateCache(cacheName) {
     try {
-      const cache = await caches.open(cacheName);
-      const requests = await cache.keys();
-      await Promise.all(requests.map(request => cache.delete(request)));
-      console.log(`Caché ${cacheName} invalidado exitosamente`);
+        const cache = await caches.open(cacheName);
+        const requests = await cache.keys();
+        await Promise.all(requests.map(request => cache.delete(request)));
+        console.log(`Caché ${cacheName} invalidado exitosamente`);
     } catch (error) {
-      console.error(`Error al invalidar caché ${cacheName}:`, error);
+        console.error(`Error al invalidar caché ${cacheName}:`, error);
     }
-  }
-  
-  // Función para invalidar todos los cachés
-  async function invalidateAllCaches() {
+}
+
+// Función para invalidar todos los cachés
+async function invalidateAllCaches() {
     try {
-      const cacheNames = await caches.keys();
-      await Promise.all(
-        cacheNames
-          .filter(name => name.startsWith('el-rincon-de-ebano-'))
-          .map(name => caches.delete(name))
-      );
-      console.log('Todos los cachés invalidados exitosamente');
+        const cacheNames = await caches.keys();
+        await Promise.all(
+            cacheNames
+                .filter(name => name.startsWith('el-rincon-de-ebano-'))
+                .map(name => caches.delete(name))
+        );
+        console.log('Todos los cachés invalidados exitosamente');
     } catch (error) {
-      console.error('Error al invalidar todos los cachés:', error);
+        console.error('Error al invalidar todos los cachés:', error);
     }
-  }
+}
