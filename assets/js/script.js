@@ -24,7 +24,13 @@ const initServiceWorker = () => {
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
             try {
-                // Register service worker with enhanced error handling
+                // First, unregister any existing service workers
+                const existingRegistrations = await navigator.serviceWorker.getRegistrations();
+                await Promise.all(existingRegistrations.map(registration => registration.unregister()));
+                
+                console.log('Registraciones anteriores del Service Worker eliminadas');
+
+                // Now register the new service worker
                 const registration = await navigator.serviceWorker.register('/service-worker.js', {
                     scope: '/',
                     updateViaCache: 'none'
@@ -48,50 +54,46 @@ const initServiceWorker = () => {
                 // Unified update checking mechanism
                 const checkForUpdates = async () => {
                     try {
-                        await registration.update();
-                        console.log('Verificación de actualización completada');
-                        
-                        const response = await fetch('/_products/product_data.json', {
-                            headers: {
-                                'Cache-Control': 'no-cache',
-                                'Pragma': 'no-cache'
-                            }
-                        });
-                        
-                        if (!response.ok) throw new Error('Error de red');
-                        
-                        const data = await response.json();
-                        const currentVersion = data.version;
-                        const storedVersion = localStorage.getItem('productDataVersion');
-                        
-                        if (compareVersions(currentVersion, storedVersion)) {
-                            registration.active?.postMessage({
-                                type: 'INVALIDATE_PRODUCT_CACHE'
+                        if (registration.active) {  // Only check for updates if we have an active worker
+                            await registration.update();
+                            console.log('Verificación de actualización completada');
+                            
+                            const response = await fetch('/_products/product_data.json', {
+                                headers: {
+                                    'Cache-Control': 'no-cache',
+                                    'Pragma': 'no-cache'
+                                }
                             });
                             
-                            localStorage.setItem('productDataVersion', currentVersion);
-                            showUpdateNotification('Nuevos productos disponibles');
+                            if (!response.ok) throw new Error('Error de red');
+                            
+                            const data = await response.json();
+                            const currentVersion = data.version;
+                            const storedVersion = localStorage.getItem('productDataVersion');
+                            
+                            if (compareVersions(currentVersion, storedVersion)) {
+                                registration.active?.postMessage({
+                                    type: 'INVALIDATE_PRODUCT_CACHE'
+                                });
+                                
+                                localStorage.setItem('productDataVersion', currentVersion);
+                                showUpdateNotification('Nuevos productos disponibles');
+                            }
                         }
                     } catch (error) {
                         console.error('Error al verificar actualizaciones:', error);
                     }
                 };
 
-                // Initial check after registration
-                await checkForUpdates();
+                // Wait for activation before setting up update checks
+                if (registration.active) {
+                    await checkForUpdates();
+                    setInterval(checkForUpdates, 15 * 60 * 1000);
+                }
 
-                // Set up periodic checks
-                setInterval(checkForUpdates, 15 * 60 * 1000); // Check every 15 minutes
-
-                // Enhanced update handling
-                registration.addEventListener('updatefound', () => {
-                    const newWorker = registration.installing;
-                    newWorker.addEventListener('statechange', () => {
-                        console.log('Nuevo Service Worker - Estado:', newWorker.state);
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            showUpdateNotification('Nueva versión disponible');
-                        }
-                    });
+                registration.addEventListener('activate', () => {
+                    checkForUpdates();
+                    setInterval(checkForUpdates, 15 * 60 * 1000);
                 });
 
                 console.log('Service Worker registrado exitosamente:', registration.scope);
@@ -104,10 +106,10 @@ const initServiceWorker = () => {
             }
         });
 
-        // Unified page refresh handling
+        // Unified page refresh handling with safety check
         let refreshing = false;
         navigator.serviceWorker.addEventListener('controllerchange', () => {
-            if (!refreshing) {
+            if (!refreshing && navigator.serviceWorker.controller) {
                 refreshing = true;
                 window.location.reload();
             }
