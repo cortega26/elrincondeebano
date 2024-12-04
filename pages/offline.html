@@ -1,24 +1,89 @@
+<!-- Actualizar /offline.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>El Rincón de Ébano - Sin conexión</title>
+    <title>Sin conexión - El Rincón de Ébano</title>
+    <link rel="stylesheet" href="/assets/css/critical.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        .offline-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
             text-align: center;
-            padding: 50px;
         }
-        h1 {
-            color: #343a40;
+
+        .offline-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #6c757d;
+        }
+
+        .retry-button {
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .retry-button:hover {
+            background-color: #0056b3;
+        }
+
+        .cached-content {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #dee2e6;
         }
     </style>
 </head>
 <body>
-    <h1>El Rincón de Ébano</h1>
-    <p>Lo sentimos, parece que no tienes conexión a internet en este momento.</p>
-    <p>Por favor, verifica tu conexión e intenta nuevamente.</p>
-    <button onclick="window.location.reload()">Intentar de nuevo</button>
+    <div class="offline-container">
+        <div class="offline-icon">📡</div>
+        <h1>Sin conexión</h1>
+        <p>No pudimos conectar con el servidor. Por favor, verifica tu conexión a internet.</p>
+        <button class="retry-button" onclick="window.location.reload()">
+            Intentar nuevamente
+        </button>
+        <div class="cached-content">
+            <h2>Contenido disponible sin conexión</h2>
+            <div id="cached-items"></div>
+        </div>
+    </div>
+    <script>
+        // Script para mostrar contenido en caché disponible
+        async function showCachedContent() {
+            if ('caches' in window) {
+                try {
+                    const cache = await caches.open('el-rincon-de-ebano-static-v3');
+                    const keys = await cache.keys();
+                    const cachedItems = document.getElementById('cached-items');
+                    
+                    if (keys.length > 0) {
+                        const itemsList = keys
+                            .map(request => request.url)
+                            .map(url => `<li>${new URL(url).pathname}</li>`)
+                            .join('');
+                        
+                        cachedItems.innerHTML = `<ul>${itemsList}</ul>`;
+                    } else {
+                        cachedItems.innerHTML = '<p>No hay contenido disponible sin conexión</p>';
+                    }
+                } catch (error) {
+                    console.error('Error al mostrar contenido en caché:', error);
+                }
+            }
+        }
+
+        showCachedContent();
+    </script>
 </body>
 </html>

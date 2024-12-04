@@ -15,35 +15,75 @@ function compareVersions(currentVersion, storedVersion) {
     }
 }
 
-// Enhanced service worker registration
-function registerServiceWorker() {
+
+
+// Enhanced registration for GitHub Pages deployment
+// Replace the existing service worker initialization with:
+
+const initServiceWorker = () => {
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
             try {
                 const registration = await navigator.serviceWorker.register('/service-worker.js', {
+                    scope: '/',
                     updateViaCache: 'none'
                 });
-                
-                console.log('ServiceWorker registered:', registration.scope);
-                
+
+                // Unified update checking mechanism
+                const checkForUpdates = async () => {
+                    try {
+                        await registration.update();
+                        console.log('Verificación de actualización completada');
+                        
+                        // Check product data version
+                        const response = await fetch('/_products/product_data.json', {
+                            headers: {
+                                'Cache-Control': 'no-cache',
+                                'Pragma': 'no-cache'
+                            }
+                        });
+                        
+                        if (!response.ok) throw new Error('Error de red');
+                        
+                        const data = await response.json();
+                        const currentVersion = data.version;
+                        const storedVersion = localStorage.getItem('productDataVersion');
+                        
+                        if (compareVersions(currentVersion, storedVersion)) {
+                            registration.active?.postMessage({
+                                type: 'INVALIDATE_PRODUCT_CACHE'
+                            });
+                            
+                            localStorage.setItem('productDataVersion', currentVersion);
+                            showUpdateNotification('Nuevos productos disponibles');
+                        }
+                    } catch (error) {
+                        console.error('Error al verificar actualizaciones:', error);
+                    }
+                };
+
+                // Initial check
+                await checkForUpdates();
+
+                // Set up periodic checks - unified interval
+                setInterval(checkForUpdates, 15 * 60 * 1000); // Check every 15 minutes
+
                 registration.addEventListener('updatefound', () => {
                     const newWorker = registration.installing;
-                    
-                    newWorker?.addEventListener('statechange', () => {
+                    newWorker.addEventListener('statechange', () => {
                         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            showUpdateNotification(newWorker);
+                            showUpdateNotification('Nueva versión disponible');
                         }
                     });
                 });
 
-                const cleanup = setUpPeriodicChecks(registration);
-                window.addEventListener('unload', cleanup);
-                
+                console.log('Service Worker registrado exitosamente en GitHub Pages');
             } catch (error) {
-                console.error('Error en el registro del ServiceWorker:', error);
+                console.error('Error al registrar el Service Worker:', error);
             }
         });
 
+        // Unified page refresh handling
         let refreshing = false;
         navigator.serviceWorker.addEventListener('controllerchange', () => {
             if (!refreshing) {
@@ -52,7 +92,47 @@ function registerServiceWorker() {
             }
         });
     }
-}
+};
+
+// Unified update notification function
+const showUpdateNotification = (message = 'Nueva versión disponible') => {
+    const existingNotification = document.querySelector('.update-notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+
+    const notification = document.createElement('div');
+    notification.className = 'update-notification';
+    notification.innerHTML = `
+        <div class="update-content">
+            <p>${message}</p>
+            <button onclick="window.location.reload()">Actualizar ahora</button>
+            <button onclick="this.parentElement.remove()">Más tarde</button>
+        </div>
+    `;
+    document.body.appendChild(notification);
+
+    // Auto-remove after 5 minutes
+    setTimeout(() => {
+        if (document.body.contains(notification)) {
+            notification.remove();
+        }
+    }, 5 * 60 * 1000);
+};
+
+// Función para mostrar notificación de actualización
+const showUpdateNotification = () => {
+    const notification = document.createElement('div');
+    notification.className = 'update-notification';
+    notification.innerHTML = `
+        <div class="update-content">
+            <p>Hay una nueva versión disponible del sitio.</p>
+            <button onclick="window.location.reload()">Actualizar ahora</button>
+            <button onclick="this.parentElement.remove()">Más tarde</button>
+        </div>
+    `;
+    document.body.appendChild(notification);
+};
 
 // Enhanced update notification
 function showUpdateNotification(newWorker, message = 'Nuevo contenido Disponible') {
@@ -785,7 +865,7 @@ const initApp = async () => {
 // Run the application when the DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     // Register service worker first
-    registerServiceWorker();
+    initServiceWorker();
     
     // Then initialize the app
     initApp().catch(error => {

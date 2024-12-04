@@ -1,225 +1,291 @@
-// Enhanced service-worker.js with improved cache management
-const CACHE_NAME_PREFIX = 'el-rincon-de-ebano-';
-const STATIC_CACHE = `${CACHE_NAME_PREFIX}static-v2`;
-const DYNAMIC_CACHE = `${CACHE_NAME_PREFIX}dynamic-v1`;
-const PRODUCT_CACHE = `${CACHE_NAME_PREFIX}products-v1`;
-
-// Assets that should be cached
-const STATIC_ASSETS = [
-    '/',
-    '/index.html',
-    '/assets/css/style.css',
-    '/assets/js/script.js',
-    '/assets/images/web/logo.webp',
-    '/assets/images/web/favicon.ico',
-    '/assets/images/web/placeholder.webp'
-];
-
-// Cache duration settings (in milliseconds)
-const CACHE_DURATION = {
-    products: 5 * 60 * 1000,  // 5 minutes for product data
-    static: 24 * 60 * 60 * 0,  // 24 hours for static assets
-    dynamic: 12 * 60 * 60 * 1000  // 12 hours for dynamic content
-};
-
-// Install event - cache static assets
-self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(STATIC_CACHE)
-            .then((cache) => cache.addAll(STATIC_ASSETS))
-            .then(() => self.skipWaiting())
-    );
-});
-
-// Helper function to check if a response is fresh
-const isCacheFresh = (response, type = 'static') => {
+// Service Worker optimizado para GitHub Pages
+const CONFIG = {
+    cacheNames: {
+      static: 'el-rincon-de-ebano-static-v3',
+      dynamic: 'el-rincon-de-ebano-dynamic-v2', 
+      products: 'el-rincon-de-ebano-products-v2',
+      images: 'el-rincon-de-ebano-images-v1'
+    },
+    cacheDuration: {
+      static: 12 * 60 * 60 * 1000,    // 12 horas para GitHub Pages
+      dynamic: 2 * 60 * 60 * 1000,    // 2 horas para GitHub Pages
+      products: 5 * 60 * 1000,        // 5 minutos
+      images: 24 * 60 * 60 * 1000     // 24 horas
+    },
+    staticAssets: [
+      '/',
+      '/index.html',
+      '/404.html',
+      '/offline.html',
+      '/assets/css/style.css',
+      '/assets/css/critical.css',
+      '/assets/js/script.js',
+      '/assets/images/web/logo.webp',
+      '/assets/images/web/favicon.ico',
+      '/assets/images/web/placeholder.webp'
+    ],
+    gitHubPages: {
+      hostname: 'cortega26.github.io',
+      repository: 'elrincondeebano',
+      fetchTimeout: 8000,
+      maxRetries: 3,
+      retryDelay: 1000
+    }
+  };
+  
+  // Función auxiliar para verificar frescura del caché
+  const isCacheFresh = (response, type = 'static') => {
     if (!response || !response.headers) return false;
     
     const timestamp = response.headers.get('sw-timestamp');
     if (!timestamp) return false;
-
+  
     const age = Date.now() - parseInt(timestamp);
-    return age < CACHE_DURATION[type];
-};
-
-// Helper function to add timestamp to response
-const addTimestamp = async (response, type = 'static') => {
+    return age < CONFIG.cacheDuration[type];
+  };
+  
+  // Función auxiliar para agregar marca de tiempo a la respuesta
+  const addTimestamp = async (response, type = 'static') => {
     const headers = new Headers(response.headers);
     headers.append('sw-timestamp', Date.now().toString());
     headers.append('cache-type', type);
     
     return new Response(await response.blob(), {
-        status: response.status,
-        statusText: response.statusText,
-        headers: headers
+      status: response.status,
+      statusText: response.statusText,
+      headers: headers
     });
-};
-
-// Activate event - clean up old caches
-self.addEventListener('activate', (event) => {
+  };
+  
+  // Evento de instalación
+  self.addEventListener('install', (event) => {
     event.waitUntil(
-        Promise.all([
-            caches.keys()
-                .then((cacheNames) => {
-                    return Promise.all(
-                        cacheNames
-                            .filter((name) => name.startsWith(CACHE_NAME_PREFIX))
-                            .map((name) => {
-                                if (![STATIC_CACHE, DYNAMIC_CACHE, PRODUCT_CACHE].includes(name)) {
-                                    return caches.delete(name);
-                                }
-                            })
-                    );
-                }),
-            self.clients.claim()
-        ])
+      caches.open(CONFIG.cacheNames.static)
+        .then((cache) => {
+          console.log('Almacenando recursos estáticos en caché...');
+          return cache.addAll(CONFIG.staticAssets);
+        })
+        .then(() => {
+          console.log('Instalación completada con éxito');
+          return self.skipWaiting();
+        })
+        .catch(error => {
+          console.error('Error durante la instalación:', error);
+          throw error;
+        })
     );
-});
-
-// Fetch event handler with improved caching strategy
-self.addEventListener('fetch', (event) => {
-    const url = new URL(event.request.url);
-    
-    // Special handling for product data
-    if (url.pathname.includes('product_data.json')) {
-        event.respondWith(handleProductDataFetch(event.request));
-        return;
-    }
-
-    // Handle static assets
-    if (STATIC_ASSETS.includes(url.pathname)) {
-        event.respondWith(handleStaticAssetFetch(event.request));
-        return;
-    }
-
-    // Handle other requests
-    event.respondWith(handleDynamicFetch(event.request));
-});
-
-// Handle product data fetch
-async function handleProductDataFetch(request) {
+  });
+  
+  // Evento de activación
+  self.addEventListener('activate', (event) => {
+    event.waitUntil(
+      Promise.all([
+        // Limpieza de cachés antiguos
+        caches.keys()
+          .then((cacheNames) => {
+            return Promise.all(
+              cacheNames
+                .filter((name) => name.startsWith('el-rincon-de-ebano-'))
+                .filter((name) => !Object.values(CONFIG.cacheNames).includes(name))
+                .map((name) => {
+                  console.log(`Eliminando caché antiguo: ${name}`);
+                  return caches.delete(name);
+                })
+            );
+          }),
+        self.clients.claim()
+      ])
+      .then(() => {
+        console.log('Service Worker activado y controlando la página');
+      })
+    );
+  });
+  
+  // Manejo de datos de productos
+  async function handleProductDataFetch(request) {
     try {
-        // Try network first for product data
-        const networkResponse = await fetch(request);
-        if (networkResponse.ok) {
-            const cache = await caches.open(PRODUCT_CACHE);
-            const timestampedResponse = await addTimestamp(networkResponse.clone(), 'products');
-            await cache.put(request, timestampedResponse);
-            return networkResponse;
-        }
+      // Intentar red primero
+      const networkResponse = await fetchWithRetry(request);
+      if (networkResponse.ok) {
+        const cache = await caches.open(CONFIG.cacheNames.products);
+        const timestampedResponse = await addTimestamp(networkResponse.clone(), 'products');
+        await cache.put(request, timestampedResponse);
+        return networkResponse;
+      }
     } catch (error) {
-        console.log('Network fetch failed, trying cache:', error);
+      console.log('Error en la red, intentando caché:', error);
     }
-
-    // Fall back to cache
+  
+    // Usar caché como respaldo
     const cachedResponse = await caches.match(request);
     if (cachedResponse && isCacheFresh(cachedResponse, 'products')) {
-        return cachedResponse;
+      console.log('Sirviendo datos de productos desde caché fresco');
+      return cachedResponse;
     }
-
-    // If cache is stale, try network again
+  
+    // Si el caché está obsoleto, intentar red nuevamente
     try {
-        const networkResponse = await fetch(request);
-        if (networkResponse.ok) {
-            const cache = await caches.open(PRODUCT_CACHE);
-            const timestampedResponse = await addTimestamp(networkResponse.clone(), 'products');
-            await cache.put(request, timestampedResponse);
-            return networkResponse;
-        }
+      const networkResponse = await fetchWithRetry(request);
+      if (networkResponse.ok) {
+        const cache = await caches.open(CONFIG.cacheNames.products);
+        const timestampedResponse = await addTimestamp(networkResponse.clone(), 'products');
+        await cache.put(request, timestampedResponse);
+        return networkResponse;
+      }
     } catch (error) {
-        console.log('Both network and cache failed:', error);
-        // Return stale cache as last resort
-        if (cachedResponse) {
-            return cachedResponse;
-        }
+      console.log('Falló la red y el caché:', error);
+      if (cachedResponse) {
+        console.log('Usando caché obsoleto como último recurso');
+        return cachedResponse;
+      }
     }
-
-    // If all else fails, throw error
-    throw new Error('Unable to fetch product data');
-}
-
-// Handle static asset fetch
-async function handleStaticAssetFetch(request) {
+  
+    throw new Error('No se pudieron obtener los datos de productos');
+  }
+  
+  // Manejo de recursos estáticos
+  async function handleStaticAssetFetch(request) {
     const cachedResponse = await caches.match(request);
     if (cachedResponse && isCacheFresh(cachedResponse, 'static')) {
-        return cachedResponse;
+      return cachedResponse;
     }
-
+  
     try {
-        const networkResponse = await fetch(request);
-        if (networkResponse.ok) {
-            const cache = await caches.open(STATIC_CACHE);
-            const timestampedResponse = await addTimestamp(networkResponse.clone(), 'static');
-            await cache.put(request, timestampedResponse);
-            return networkResponse;
-        }
+      const networkResponse = await fetchWithRetry(request);
+      if (networkResponse.ok) {
+        const cache = await caches.open(CONFIG.cacheNames.static);
+        const timestampedResponse = await addTimestamp(networkResponse.clone(), 'static');
+        await cache.put(request, timestampedResponse);
+        return networkResponse;
+      }
     } catch (error) {
-        if (cachedResponse) return cachedResponse;
-        throw error;
+      if (cachedResponse) return cachedResponse;
+      console.error('Error al obtener recurso estático:', error);
+      return handleOfflineFallback(request);
     }
-}
-
-// Handle dynamic content fetch
-async function handleDynamicFetch(request) {
-    // For non-GET requests, go straight to network
+  }
+  
+  // Manejo de contenido dinámico
+  async function handleDynamicFetch(request) {
     if (request.method !== 'GET') {
-        return fetch(request);
+      return fetch(request);
     }
-
+  
     try {
-        const networkResponse = await fetch(request);
-        if (networkResponse.ok) {
-            const cache = await caches.open(DYNAMIC_CACHE);
-            const timestampedResponse = await addTimestamp(networkResponse.clone(), 'dynamic');
-            await cache.put(request, timestampedResponse);
-            return networkResponse;
-        }
+      const networkResponse = await fetchWithRetry(request);
+      if (networkResponse.ok) {
+        const cache = await caches.open(CONFIG.cacheNames.dynamic);
+        const timestampedResponse = await addTimestamp(networkResponse.clone(), 'dynamic');
+        await cache.put(request, timestampedResponse);
+        return networkResponse;
+      }
     } catch (error) {
-        const cachedResponse = await caches.match(request);
-        if (cachedResponse) return cachedResponse;
-        
-        // Return default placeholder for failed image requests
-        if (request.url.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
-            return caches.match('/assets/images/web/placeholder.webp');
-        }
-        throw error;
+      const cachedResponse = await caches.match(request);
+      if (cachedResponse) return cachedResponse;
+      
+      if (request.url.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
+        return handleImageFallback();
+      }
+  
+      return handleOfflineFallback(request);
     }
-}
-
-// Message event handler for cache invalidation
-self.addEventListener('message', (event) => {
+  }
+  
+  // Función para reintentos de fetch
+  async function fetchWithRetry(request, retryCount = 0) {
+    try {
+      const response = await Promise.race([
+        fetch(request),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Tiempo de espera agotado')), CONFIG.gitHubPages.fetchTimeout)
+        )
+      ]);
+  
+      if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+      return response;
+    } catch (error) {
+      if (retryCount >= CONFIG.gitHubPages.maxRetries) throw error;
+      
+      await new Promise(resolve => 
+        setTimeout(resolve, CONFIG.gitHubPages.retryDelay * Math.pow(2, retryCount))
+      );
+      
+      console.log(`Reintentando solicitud (${retryCount + 1}/${CONFIG.gitHubPages.maxRetries})`);
+      return fetchWithRetry(request, retryCount + 1);
+    }
+  }
+  
+  // Manejadores de respaldo
+  async function handleImageFallback() {
+    return caches.match('/assets/images/web/placeholder.webp');
+  }
+  
+  async function handleOfflineFallback(request) {
+    if (request.headers.get('Accept').includes('text/html')) {
+      return caches.match('/offline.html');
+    }
+    throw new Error('Recurso no disponible sin conexión');
+  }
+  
+  // Evento principal de fetch
+  self.addEventListener('fetch', (event) => {
+    const url = new URL(event.request.url);
+    
+    // Ignorar peticiones de browser-sync durante desarrollo
+    if (url.hostname.includes('browser-sync')) {
+      return;
+    }
+  
+    // Manejar datos de productos
+    if (url.pathname.includes('product_data.json')) {
+      event.respondWith(handleProductDataFetch(event.request));
+      return;
+    }
+  
+    // Manejar recursos estáticos
+    if (CONFIG.staticAssets.includes(url.pathname)) {
+      event.respondWith(handleStaticAssetFetch(event.request));
+      return;
+    }
+  
+    // Manejar otras peticiones
+    event.respondWith(handleDynamicFetch(event.request));
+  });
+  
+  // Manejo de mensajes
+  self.addEventListener('message', (event) => {
     if (event.data.type === 'SKIP_WAITING') {
-        self.skipWaiting();
+      self.skipWaiting();
     } else if (event.data.type === 'INVALIDATE_PRODUCT_CACHE') {
-        invalidateCache(PRODUCT_CACHE);
+      invalidateCache(CONFIG.cacheNames.products);
     } else if (event.data.type === 'INVALIDATE_ALL_CACHES') {
-        invalidateAllCaches();
+      invalidateAllCaches();
     }
-});
-
-// Helper function to invalidate specific cache
-async function invalidateCache(cacheName) {
+  });
+  
+  // Función para invalidar caché específico
+  async function invalidateCache(cacheName) {
     try {
-        const cache = await caches.open(cacheName);
-        const requests = await cache.keys();
-        await Promise.all(requests.map(request => cache.delete(request)));
-        console.log(`Cache ${cacheName} invalidated successfully`);
+      const cache = await caches.open(cacheName);
+      const requests = await cache.keys();
+      await Promise.all(requests.map(request => cache.delete(request)));
+      console.log(`Caché ${cacheName} invalidado exitosamente`);
     } catch (error) {
-        console.error(`Error invalidating cache ${cacheName}:`, error);
+      console.error(`Error al invalidar caché ${cacheName}:`, error);
     }
-}
-
-// Helper function to invalidate all caches
-async function invalidateAllCaches() {
+  }
+  
+  // Función para invalidar todos los cachés
+  async function invalidateAllCaches() {
     try {
-        const cacheNames = await caches.keys();
-        await Promise.all(
-            cacheNames
-                .filter(name => name.startsWith(CACHE_NAME_PREFIX))
-                .map(name => caches.delete(name))
-        );
-        console.log('All caches invalidated successfully');
+      const cacheNames = await caches.keys();
+      await Promise.all(
+        cacheNames
+          .filter(name => name.startsWith('el-rincon-de-ebano-'))
+          .map(name => caches.delete(name))
+      );
+      console.log('Todos los cachés invalidados exitosamente');
     } catch (error) {
-        console.error('Error invalidating all caches:', error);
+      console.error('Error al invalidar todos los cachés:', error);
     }
-}
+  }
