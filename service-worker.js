@@ -12,27 +12,32 @@ const CONFIG = {
       products: 5 * 60 * 1000,        // 5 minutos
       images: 24 * 60 * 60 * 1000     // 24 horas
     },
+    // Adjusted paths for GitHub Pages
     staticAssets: [
-      '/',
-      '/index.html',
-      '/404.html',
-      '/offline.html',
-      '/assets/css/style.css',
-      '/assets/css/critical.css',
-      '/assets/js/script.js',
-      '/assets/images/web/logo.webp',
-      '/assets/images/web/favicon.ico',
-      '/assets/images/web/placeholder.webp'
+      './index.html',
+      './404.html',
+      './offline.html',
+      './assets/css/style.css',
+      './assets/css/critical.css',
+      './assets/js/script.js',
+      './assets/images/web/logo.webp',
+      './assets/images/web/favicon.ico',
+      './assets/images/web/placeholder.webp'
     ],
     gitHubPages: {
-      hostname: 'cortega26.github.io',
+      hostname: 'www.elrincondeebano.com',
       repository: 'elrincondeebano',
       fetchTimeout: 8000,
       maxRetries: 3,
       retryDelay: 1000
-    },
-    scope: '/' // Added explicit scope
-};
+    }
+  };
+
+// Helper function to resolve paths
+function resolveUrl(url) {
+    const baseUrl = self.registration.scope;
+    return new URL(url, baseUrl).href;
+  }
 
 // Función mejorada para verificar frescura del caché
 const isCacheFresh = (response, type = 'static') => {
@@ -67,39 +72,44 @@ const addTimestamp = async (response, type = 'static') => {
 
 // Evento de instalación mejorado
 self.addEventListener('install', (event) => {
-    event.waitUntil((async () => {
-        try {
-            const cache = await caches.open(CONFIG.cacheNames.static);
-            console.log('Almacenando recursos estáticos en caché...');
-            
-            // Cache each resource individually
-            for (const url of CONFIG.staticAssets) {
-                try {
-                    const response = await fetch(url, { 
-                        cache: 'reload',
-                        credentials: 'same-origin'
-                    });
-                    if (response.ok) {
-                        await cache.put(url, response);
-                        console.log(`Recurso cacheado exitosamente: ${url}`);
-                    } else {
-                        console.warn(`No se pudo cachear: ${url}, status: ${response.status}`);
-                    }
-                } catch (error) {
-                    console.error(`Error al cachear ${url}:`, error);
-                    // Continue with other resources
-                }
+    event.waitUntil(
+      caches.open(CONFIG.cacheNames.static)
+        .then(async (cache) => {
+          console.log('Iniciando almacenamiento en caché...');
+          
+          // Resolve and validate each URL before caching
+          const urlsToCache = CONFIG.staticAssets.map(path => resolveUrl(path));
+          
+          // Cache resources individually to handle failures gracefully
+          const cachePromises = urlsToCache.map(async url => {
+            try {
+              const response = await fetch(url, { 
+                credentials: 'same-origin',
+                mode: 'cors'
+              });
+              if (response.ok) {
+                await cache.put(url, response);
+                console.log(`Recurso almacenado en caché: ${url}`);
+              } else {
+                console.warn(`No se pudo almacenar en caché: ${url} - Estado: ${response.status}`);
+              }
+            } catch (error) {
+              console.error(`Error al almacenar en caché: ${url}`, error);
+              // Continue with other resources even if one fails
             }
-            
-            console.log('Instalación completada con éxito');
-            await self.skipWaiting();
-            
-        } catch (error) {
-            console.error('Error durante la instalación:', error);
-            throw error;
-        }
-    })());
-});
+          });
+  
+          await Promise.allSettled(cachePromises);
+          console.log('Proceso de caché completado');
+        })
+        .then(() => self.skipWaiting())
+        .catch(error => {
+          console.error('Error durante la instalación:', error);
+          // Continue installation even if caching fails
+          return self.skipWaiting();
+        })
+    );
+  });
 
 // Evento de activación mejorado
 self.addEventListener('activate', (event) => {

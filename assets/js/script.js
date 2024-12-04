@@ -24,10 +24,26 @@ const initServiceWorker = () => {
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
             try {
+                // Register service worker with enhanced error handling
                 const registration = await navigator.serviceWorker.register('/service-worker.js', {
                     scope: '/',
                     updateViaCache: 'none'
                 });
+
+                // Enhanced monitoring and logging
+                registration.addEventListener('error', (error) => {
+                    console.error('Error en el Service Worker:', error);
+                });
+
+                registration.addEventListener('activate', () => {
+                    console.log('Service Worker activado');
+                });
+
+                if (registration.installing) {
+                    registration.installing.addEventListener('statechange', (e) => {
+                        console.log('Estado del Service Worker:', e.target.state);
+                    });
+                }
 
                 // Unified update checking mechanism
                 const checkForUpdates = async () => {
@@ -35,7 +51,6 @@ const initServiceWorker = () => {
                         await registration.update();
                         console.log('Verificación de actualización completada');
                         
-                        // Check product data version
                         const response = await fetch('/_products/product_data.json', {
                             headers: {
                                 'Cache-Control': 'no-cache',
@@ -62,24 +77,30 @@ const initServiceWorker = () => {
                     }
                 };
 
-                // Initial check
+                // Initial check after registration
                 await checkForUpdates();
 
-                // Set up periodic checks - unified interval
+                // Set up periodic checks
                 setInterval(checkForUpdates, 15 * 60 * 1000); // Check every 15 minutes
 
+                // Enhanced update handling
                 registration.addEventListener('updatefound', () => {
                     const newWorker = registration.installing;
                     newWorker.addEventListener('statechange', () => {
+                        console.log('Nuevo Service Worker - Estado:', newWorker.state);
                         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                             showUpdateNotification('Nueva versión disponible');
                         }
                     });
                 });
 
-                console.log('Service Worker registrado exitosamente en GitHub Pages');
+                console.log('Service Worker registrado exitosamente:', registration.scope);
+
             } catch (error) {
-                console.error('Error al registrar el Service Worker:', error);
+                console.error('Error al registrar el Service Worker:', {
+                    mensaje: error.message,
+                    detalles: error.stack
+                });
             }
         });
 
