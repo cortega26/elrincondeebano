@@ -198,33 +198,26 @@ async function handleDynamicFetch(request) {
 // Fetch event handler
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
-
+    
     // Ignore Chrome extension requests
     if (url.protocol === 'chrome-extension:') {
         return;
     }
 
-    // Handle only requests from our own domain and specific CDN resources
-    if (!url.pathname.includes('product_data.json') && 
-        !CACHE_CONFIG.staticAssets.includes(url.pathname) && 
-        url.origin !== self.location.origin) {
+    // Only handle requests from our domain and approved static assets
+    if (url.origin !== self.location.origin && 
+        !CACHE_CONFIG.staticAssets.includes(url.pathname)) {
         return;
     }
-    
-    // Special handling for product data
+
+    // Handle different types of requests
     if (url.pathname.includes('product_data.json')) {
         event.respondWith(handleProductDataFetch(event.request));
-        return;
-    }
-
-    // Handle static assets
-    if (CACHE_CONFIG.staticAssets.includes(url.pathname)) {
+    } else if (CACHE_CONFIG.staticAssets.includes(url.pathname)) {
         event.respondWith(handleStaticAssetFetch(event.request));
-        return;
+    } else {
+        event.respondWith(handleDynamicFetch(event.request));
     }
-
-    // Handle other requests
-    event.respondWith(handleDynamicFetch(event.request));
 });
 
 // Message event handler for cache invalidation
