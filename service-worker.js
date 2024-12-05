@@ -24,6 +24,39 @@ const CACHE_CONFIG = {
     ]
 };
 
+// Add this at the beginning of service-worker.js
+self.addEventListener('install', event => {
+    console.log('Service Worker: Installing...');
+    event.waitUntil(
+        (async () => {
+            try {
+                const cache = await caches.open(CACHE_CONFIG.prefixes.static);
+                console.log('Service Worker: Cache opened');
+                await self.skipWaiting();
+                console.log('Service Worker: Installation complete');
+            } catch (error) {
+                console.error('Service Worker: Installation failed:', error);
+                throw error;
+            }
+        })()
+    );
+});
+
+self.addEventListener('activate', event => {
+    console.log('Service Worker: Activating...');
+    event.waitUntil(
+        (async () => {
+            try {
+                await self.clients.claim();
+                console.log('Service Worker: Now controlling all clients');
+            } catch (error) {
+                console.error('Service Worker: Activation failed:', error);
+                throw error;
+            }
+        })()
+    );
+});
+
 // Helper function to check if a response is fresh
 const isCacheFresh = (response, type = 'static') => {
     if (!response?.headers) return false;
