@@ -46,7 +46,6 @@ const addTimestamp = async (response, type = 'static') => {
 };
 
 // Install event - cache static assets
-// Install event - cache static assets
 self.addEventListener('install', event => {
     console.log('Service Worker: Installing...');
     event.waitUntil(
@@ -185,19 +184,13 @@ async function handleDynamicFetch(request) {
 self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
     
-    // Quick bypass checks for external resources
-    if (url.protocol === 'chrome-extension:' ||
-        url.hostname === 'www.googletagmanager.com' ||
-        url.hostname === 'www.google-analytics.com' ||
-        url.hostname === 'stats.g.doubleclick.net' ||
-        url.hostname === 'cdn.jsdelivr.net' ||
-        url.hostname === 'cdnjs.cloudflare.com' ||
-        url.hostname === 'fonts.googleapis.com' ||
-        url.hostname === 'fonts.gstatic.com') {
+    // Only handle requests from our domain and our static assets
+    if (url.origin !== self.location.origin && 
+        !CACHE_CONFIG.staticAssets.includes(url.pathname)) {
         return;
     }
 
-    // Handle different types of requests
+    // Now we only handle our application's requests
     if (url.pathname.includes('product_data.json')) {
         event.respondWith(handleProductDataFetch(event.request));
     } else if (CACHE_CONFIG.staticAssets.includes(url.pathname)) {
