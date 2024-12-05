@@ -161,6 +161,15 @@ async function handleStaticAssetFetch(request) {
 
 // Handle dynamic content fetch
 async function handleDynamicFetch(request) {
+
+    // Don't intercept CDN requests
+    const url = new URL(request.url);
+    if (url.hostname.includes('cdn') || 
+        url.hostname.includes('fonts.googleapis.com') ||
+        url.hostname.includes('fonts.gstatic.com')) {
+        return fetch(request);
+    }
+    
     // For non-GET requests, go straight to network
     if (request.method !== 'GET') {
         return fetch(request);
