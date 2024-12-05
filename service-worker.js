@@ -199,42 +199,58 @@ async function handleDynamicFetch(request) {
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
     
-    // Define allowed external domains
-    const allowedDomains = [
-        'www.googletagmanager.com',
-        'www.google-analytics.com',
-        'stats.g.doubleclick.net',
-        'cdn.jsdelivr.net',
-        'cdnjs.cloudflare.com',
-        'fonts.googleapis.com',
-        'fonts.gstatic.com'
-    ];
+    // 1. First, handle special cases that should bypass the service worker completely
+    if (shouldBypassServiceWorker(url)) {
+        return; // Let the browser handle these requests normally
+    }
 
-    // Ignore Chrome extension requests
+    // 2. Handle our application's specific routes
+    if (shouldHandleRequest(url)) {
+        handleApplicationRequest(event);
+    }
+});
+
+function shouldBypassServiceWorker(url) {
+    // Chrome extensions
     if (url.protocol === 'chrome-extension:') {
-        return;
+        return true;
     }
 
-    // Allow specific third-party services to bypass service worker
-    if (allowedDomains.some(domain => url.hostname === domain)) {
-        return;
+    // Analytics and tracking
+    if (url.hostname === 'www.googletagmanager.com' || 
+        url.hostname === 'www.google-analytics.com' ||
+        url.hostname === 'stats.g.doubleclick.net') {
+        return true;
     }
 
-    // Only handle requests from our domain and approved static assets
-    if (url.origin !== self.location.origin && 
-        !CACHE_CONFIG.staticAssets.includes(url.pathname)) {
-        return;
+    // External resources that don't need service worker intervention
+    if (url.hostname === 'cdn.jsdelivr.net' ||
+        url.hostname === 'cdnjs.cloudflare.com' ||
+        url.hostname === 'fonts.googleapis.com' ||
+        url.hostname === 'fonts.gstatic.com') {
+        return true;
     }
 
-    // Handle different types of requests
+    return false;
+}
+
+function shouldHandleRequest(url) {
+    // Only handle requests from our domain and configured static assets
+    return url.origin === self.location.origin || 
+           CACHE_CONFIG.staticAssets.includes(url.pathname);
+}
+
+function handleApplicationRequest(event) {
+    const url = new URL(event.request.url);
+
     if (url.pathname.includes('product_data.json')) {
         event.respondWith(handleProductDataFetch(event.request));
     } else if (CACHE_CONFIG.staticAssets.includes(url.pathname)) {
         event.respondWith(handleStaticAssetFetch(event.request));
-    } else {
+    } else if (url.origin === self.location.origin) {
         event.respondWith(handleDynamicFetch(event.request));
     }
-});
+}
 
 // Message event handler for cache invalidation
 self.addEventListener('message', (event) => {
