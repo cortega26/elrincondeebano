@@ -184,18 +184,28 @@ async function handleDynamicFetch(request) {
 self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
     
-    // Only handle requests from our domain and our static assets
-    if (url.origin !== self.location.origin && 
-        !CACHE_CONFIG.staticAssets.includes(url.pathname)) {
+    // First, explicitly check if this is a request we should handle
+    const isHandleableRequest = 
+        // Check if it's our product data
+        url.pathname.includes('product_data.json') ||
+        // Check if it's one of our static assets
+        CACHE_CONFIG.staticAssets.includes(url.pathname) ||
+        // Check if it's a request to our domain that isn't a third-party script
+        (url.origin === self.location.origin && 
+         !url.pathname.includes('gtag') && 
+         !url.pathname.includes('analytics'));
+
+    // Only proceed if it's a request we should handle
+    if (!isHandleableRequest) {
         return;
     }
 
-    // Now we only handle our application's requests
+    // Now we know this is a request we want to handle
     if (url.pathname.includes('product_data.json')) {
         event.respondWith(handleProductDataFetch(event.request));
     } else if (CACHE_CONFIG.staticAssets.includes(url.pathname)) {
         event.respondWith(handleStaticAssetFetch(event.request));
-    } else if (url.origin === self.location.origin) {
+    } else {
         event.respondWith(handleDynamicFetch(event.request));
     }
 });
