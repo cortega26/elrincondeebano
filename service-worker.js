@@ -1,71 +1,45 @@
-// Enhanced service-worker.js with improved cache management and error handling
-const CACHE_CONFIG = {
-    prefixes: {
-        static: 'ebano-static-v2',
-        dynamic: 'ebano-dynamic-v1',
-        products: 'ebano-products-v1'
-    },
-    duration: {
-        products: 5 * 60 * 1000,     // 5 minutes for product data
-        static: 24 * 60 * 60 * 1000, // 24 hours for static assets
-        dynamic: 12 * 60 * 60 * 1000 // 12 hours for dynamic content
-    },
-    staticAssets: [
-        '/',
-        '/index.html',
-        '/404.html',
-        '/assets/css/style.css',
-        '/assets/css/critical.css',
-        '/assets/js/script.js',
-        '/assets/images/web/logo.webp',
-        '/assets/images/web/favicon.ico',
-        '/assets/images/web/placeholder.webp',
-        '/pages/offline.html'
-    ]
+// Enhanced service-worker.js with improved cache management
+const CACHE_NAME_PREFIX = 'el-rincon-de-ebano-';
+const STATIC_CACHE = `${CACHE_NAME_PREFIX}static-v2`;
+const DYNAMIC_CACHE = `${CACHE_NAME_PREFIX}dynamic-v1`;
+const PRODUCT_CACHE = `${CACHE_NAME_PREFIX}products-v1`;
+
+// Assets that should be cached
+const STATIC_ASSETS = [
+    '/',
+    '/index.html',
+    '/assets/css/style.css',
+    '/assets/js/script.js',
+    '/assets/images/web/logo.webp',
+    '/assets/images/web/favicon.ico',
+    '/assets/images/web/placeholder.webp'
+];
+
+// Cache duration settings (in milliseconds)
+const CACHE_DURATION = {
+    products: 5 * 60 * 1000,  // 5 minutes for product data
+    static: 24 * 60 * 60 * 1000,  // 24 hours for static assets
+    dynamic: 12 * 60 * 60 * 1000  // 12 hours for dynamic content
 };
 
-// Add this at the beginning of service-worker.js
-self.addEventListener('install', event => {
-    console.log('Service Worker: Installing...');
+// Install event - cache static assets
+self.addEventListener('install', (event) => {
     event.waitUntil(
-        (async () => {
-            try {
-                const cache = await caches.open(CACHE_CONFIG.prefixes.static);
-                console.log('Service Worker: Cache opened');
-                await self.skipWaiting();
-                console.log('Service Worker: Installation complete');
-            } catch (error) {
-                console.error('Service Worker: Installation failed:', error);
-                throw error;
-            }
-        })()
-    );
-});
-
-self.addEventListener('activate', event => {
-    console.log('Service Worker: Activating...');
-    event.waitUntil(
-        (async () => {
-            try {
-                await self.clients.claim();
-                console.log('Service Worker: Now controlling all clients');
-            } catch (error) {
-                console.error('Service Worker: Activation failed:', error);
-                throw error;
-            }
-        })()
+        caches.open(STATIC_CACHE)
+            .then((cache) => cache.addAll(STATIC_ASSETS))
+            .then(() => self.skipWaiting())
     );
 });
 
 // Helper function to check if a response is fresh
 const isCacheFresh = (response, type = 'static') => {
-    if (!response?.headers) return false;
+    if (!response || !response.headers) return false;
     
     const timestamp = response.headers.get('sw-timestamp');
     if (!timestamp) return false;
 
     const age = Date.now() - parseInt(timestamp);
-    return age < CACHE_CONFIG.duration[type];
+    return age < CACHE_DURATION[type];
 };
 
 // Helper function to add timestamp to response
@@ -81,53 +55,50 @@ const addTimestamp = async (response, type = 'static') => {
     });
 };
 
-// Install event - cache static assets
-self.addEventListener('install', (event) => {
-    event.waitUntil(
-        (async () => {
-            try {
-                const cache = await caches.open(CACHE_CONFIG.prefixes.static);
-                
-                // Cache static assets individually for better error handling
-                for (const asset of CACHE_CONFIG.staticAssets) {
-                    try {
-                        const response = await fetch(asset);
-                        if (response.ok) {
-                            const timestampedResponse = await addTimestamp(response.clone(), 'static');
-                            await cache.put(asset, timestampedResponse);
-                        }
-                    } catch (err) {
-                        console.warn(`Failed to cache asset ${asset}:`, err);
-                    }
-                }
-                
-                await self.skipWaiting();
-                console.log('Service Worker installed successfully');
-            } catch (error) {
-                console.error('Service Worker installation failed:', error);
-            }
-        })()
-    );
-});
-
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         Promise.all([
-            // Clean up old caches
-            (async () => {
-                const cacheKeys = await caches.keys();
-                const validPrefixes = Object.values(CACHE_CONFIG.prefixes);
-                
-                return Promise.all(
-                    cacheKeys
-                        .filter(key => validPrefixes.every(prefix => !key.startsWith(prefix)))
-                        .map(key => caches.delete(key))
-                );
-            })(),
+            caches.keys()
+                .then((cacheNames) => {
+                    return Promise.all(
+                        cacheNames
+                            .filter((name) => name.startsWith(CACHE_NAME_PREFIX))
+                            .map((name) => {
+                                if (![STATIC_CACHE, DYNAMIC_CACHE, PRODUCT_CACHE].includes(name)) {
+                                    return caches.delete(name);
+                                }
+                            })
+                    );
+                }),
             self.clients.claim()
         ])
     );
+});
+
+// Fetch event handler with improved caching strategy
+self.addEventListener('fetch', (event) => {
+    const url = new URL(event.request.url);
+    
+    // Ignore Chrome extension requests
+    if (url.protocol === 'chrome-extension:') {
+        return;
+    }
+    
+    // Special handling for product data
+    if (url.pathname.includes('product_data.json')) {
+        event.respondWith(handleProductDataFetch(event.request));
+        return;
+    }
+
+    // Handle static assets
+    if (STATIC_ASSETS.includes(url.pathname)) {
+        event.respondWith(handleStaticAssetFetch(event.request));
+        return;
+    }
+
+    // Handle other requests
+    event.respondWith(handleDynamicFetch(event.request));
 });
 
 // Handle product data fetch
@@ -136,7 +107,7 @@ async function handleProductDataFetch(request) {
         // Try network first for product data
         const networkResponse = await fetch(request);
         if (networkResponse.ok) {
-            const cache = await caches.open(CACHE_CONFIG.prefixes.products);
+            const cache = await caches.open(PRODUCT_CACHE);
             const timestampedResponse = await addTimestamp(networkResponse.clone(), 'products');
             await cache.put(request, timestampedResponse);
             return networkResponse;
@@ -155,7 +126,7 @@ async function handleProductDataFetch(request) {
     try {
         const networkResponse = await fetch(request);
         if (networkResponse.ok) {
-            const cache = await caches.open(CACHE_CONFIG.prefixes.products);
+            const cache = await caches.open(PRODUCT_CACHE);
             const timestampedResponse = await addTimestamp(networkResponse.clone(), 'products');
             await cache.put(request, timestampedResponse);
             return networkResponse;
@@ -181,7 +152,7 @@ async function handleStaticAssetFetch(request) {
     try {
         const networkResponse = await fetch(request);
         if (networkResponse.ok) {
-            const cache = await caches.open(CACHE_CONFIG.prefixes.static);
+            const cache = await caches.open(STATIC_CACHE);
             const timestampedResponse = await addTimestamp(networkResponse.clone(), 'static');
             await cache.put(request, timestampedResponse);
             return networkResponse;
@@ -194,15 +165,6 @@ async function handleStaticAssetFetch(request) {
 
 // Handle dynamic content fetch
 async function handleDynamicFetch(request) {
-
-    // Don't intercept CDN requests
-    const url = new URL(request.url);
-    if (url.hostname.includes('cdn') || 
-        url.hostname.includes('fonts.googleapis.com') ||
-        url.hostname.includes('fonts.gstatic.com')) {
-        return fetch(request);
-    }
-    
     // For non-GET requests, go straight to network
     if (request.method !== 'GET') {
         return fetch(request);
@@ -211,7 +173,7 @@ async function handleDynamicFetch(request) {
     try {
         const networkResponse = await fetch(request);
         if (networkResponse.ok) {
-            const cache = await caches.open(CACHE_CONFIG.prefixes.dynamic);
+            const cache = await caches.open(DYNAMIC_CACHE);
             const timestampedResponse = await addTimestamp(networkResponse.clone(), 'dynamic');
             await cache.put(request, timestampedResponse);
             return networkResponse;
@@ -228,69 +190,12 @@ async function handleDynamicFetch(request) {
     }
 }
 
-// Fetch event handler
-self.addEventListener('fetch', (event) => {
-    const url = new URL(event.request.url);
-    
-    // 1. First, handle special cases that should bypass the service worker completely
-    if (shouldBypassServiceWorker(url)) {
-        return; // Let the browser handle these requests normally
-    }
-
-    // 2. Handle our application's specific routes
-    if (shouldHandleRequest(url)) {
-        handleApplicationRequest(event);
-    }
-});
-
-function shouldBypassServiceWorker(url) {
-    // Chrome extensions
-    if (url.protocol === 'chrome-extension:') {
-        return true;
-    }
-
-    // Analytics and tracking
-    if (url.hostname === 'www.googletagmanager.com' || 
-        url.hostname === 'www.google-analytics.com' ||
-        url.hostname === 'stats.g.doubleclick.net') {
-        return true;
-    }
-
-    // External resources that don't need service worker intervention
-    if (url.hostname === 'cdn.jsdelivr.net' ||
-        url.hostname === 'cdnjs.cloudflare.com' ||
-        url.hostname === 'fonts.googleapis.com' ||
-        url.hostname === 'fonts.gstatic.com') {
-        return true;
-    }
-
-    return false;
-}
-
-function shouldHandleRequest(url) {
-    // Only handle requests from our domain and configured static assets
-    return url.origin === self.location.origin || 
-           CACHE_CONFIG.staticAssets.includes(url.pathname);
-}
-
-function handleApplicationRequest(event) {
-    const url = new URL(event.request.url);
-
-    if (url.pathname.includes('product_data.json')) {
-        event.respondWith(handleProductDataFetch(event.request));
-    } else if (CACHE_CONFIG.staticAssets.includes(url.pathname)) {
-        event.respondWith(handleStaticAssetFetch(event.request));
-    } else if (url.origin === self.location.origin) {
-        event.respondWith(handleDynamicFetch(event.request));
-    }
-}
-
 // Message event handler for cache invalidation
 self.addEventListener('message', (event) => {
     if (event.data.type === 'SKIP_WAITING') {
         self.skipWaiting();
     } else if (event.data.type === 'INVALIDATE_PRODUCT_CACHE') {
-        invalidateCache(CACHE_CONFIG.prefixes.products);
+        invalidateCache(PRODUCT_CACHE);
     } else if (event.data.type === 'INVALIDATE_ALL_CACHES') {
         invalidateAllCaches();
     }
@@ -312,10 +217,9 @@ async function invalidateCache(cacheName) {
 async function invalidateAllCaches() {
     try {
         const cacheNames = await caches.keys();
-        const validPrefixes = Object.values(CACHE_CONFIG.prefixes);
         await Promise.all(
             cacheNames
-                .filter(name => validPrefixes.some(prefix => name.startsWith(prefix)))
+                .filter(name => name.startsWith(CACHE_NAME_PREFIX))
                 .map(name => caches.delete(name))
         );
         console.log('All caches invalidated successfully');
