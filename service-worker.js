@@ -46,16 +46,36 @@ const addTimestamp = async (response, type = 'static') => {
 };
 
 // Install event - cache static assets
+// Install event - cache static assets
 self.addEventListener('install', event => {
     console.log('Service Worker: Installing...');
     event.waitUntil(
-        caches.open(CACHE_CONFIG.prefixes.static)
-            .then(cache => {
+        (async () => {
+            try {
+                const cache = await caches.open(CACHE_CONFIG.prefixes.static);
                 console.log('Service Worker: Cache opened');
-                return cache.addAll(CACHE_CONFIG.staticAssets);
-            })
-            .then(() => self.skipWaiting())
-            .then(() => console.log('Service Worker: Installation complete'))
+                
+                // Cache static assets individually for better error handling
+                for (const asset of CACHE_CONFIG.staticAssets) {
+                    try {
+                        const response = await fetch(asset);
+                        if (response.ok) {
+                            const timestampedResponse = await addTimestamp(response.clone(), 'static');
+                            await cache.put(asset, timestampedResponse);
+                        }
+                    } catch (err) {
+                        console.warn(`Failed to cache asset ${asset}:`, err);
+                        // Continue with other assets even if one fails
+                    }
+                }
+                
+                await self.skipWaiting();
+                console.log('Service Worker: Installation complete');
+            } catch (error) {
+                console.error('Service Worker: Installation failed:', error);
+                throw error;
+            }
+        })()
     );
 });
 
