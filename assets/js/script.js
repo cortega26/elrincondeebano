@@ -1,139 +1,237 @@
 'use strict';
 
-// Enhanced version checking function
-function compareVersions(currentVersion, storedVersion) {
-    if (!currentVersion || !storedVersion) return true;
-    try {
-        const [currentDate, currentTime] = currentVersion.split('-');
-        const [storedDate, storedTime] = storedVersion.split('-');
-        
-        if (currentDate !== storedDate) return true;
-        return currentTime > storedTime;
-    } catch (error) {
-        console.error('Error al comparar versiones:', error);
-        return true;
-    }
-}
+// Service Worker Configuration and Initialization
+const SERVICE_WORKER_CONFIG = {
+    path: '/service-worker.js',
+    scope: '/',
+    updateCheckInterval: 5 * 60 * 1000, // 5 minutes
+};
 
-// Enhanced service worker registration
+// Enhanced service worker registration with proper error handling and lifecycle management
 function registerServiceWorker() {
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', async () => {
-            try {
-                const registration = await navigator.serviceWorker.register('/service-worker.js', {
-                    updateViaCache: 'none'
-                });
-                
-                console.log('ServiceWorker registered:', registration.scope);
-                
-                registration.addEventListener('updatefound', () => {
-                    const newWorker = registration.installing;
-                    
-                    newWorker?.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            showUpdateNotification(newWorker);
-                        }
-                    });
-                });
-
-                const cleanup = setUpPeriodicChecks(registration);
-                window.addEventListener('unload', cleanup);
-                
-            } catch (error) {
-                console.error('Error en el registro del ServiceWorker:', error);
-            }
-        });
-
-        let refreshing = false;
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-            if (!refreshing) {
-                refreshing = true;
-                window.location.reload();
-            }
-        });
-    }
-}
-
-// Enhanced update notification
-function showUpdateNotification(newWorker, message = 'Nuevo contenido Disponible') {
-    const existingNotification = document.querySelector('.update-notification');
-    if (existingNotification) {
-        existingNotification.remove();
+    if (!('serviceWorker' in navigator)) {
+        console.warn('Service workers are not supported in this browser');
+        return;
     }
 
-    const notification = document.createElement('div');
-    notification.className = 'update-notification';
-    notification.innerHTML = `
-        <div class="update-content">
-            <p>${message}</p>
-            <button class="update-button">Actualizar ahora</button>
-            <button class="dismiss-button">Luego</button>
-        </div>
-    `;
-
-    notification.querySelector('.update-button').addEventListener('click', () => {
-        if (newWorker) {
-            newWorker.postMessage({ type: 'SKIP_WAITING' });
-        } else {
-            window.location.reload();
-        }
-        notification.remove();
-    });
-
-    notification.querySelector('.dismiss-button').addEventListener('click', () => {
-        notification.remove();
-    });
-
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        if (document.body.contains(notification)) {
-            notification.remove();
-        }
-    }, 5 * 60 * 1000);
-}
-
-// Enhanced periodic checks
-function setUpPeriodicChecks(registration) {
-    let checkInterval;
-
-    const performCheck = async () => {
+    window.addEventListener('load', async () => {
         try {
-            const response = await fetch('/_products/product_data.json', {
-                headers: {
-                    'Cache-Control': 'no-cache',
-                    'Pragma': 'no-cache'
-                }
-            });
-            
-            if (!response.ok) throw new Error('Error de red');
-            
+            initializeServiceWorker();
+        } catch (error) {
+            console.error('Service Worker initialization failed:', error);
+            showServiceWorkerError('Failed to initialize service worker. Some features may not work offline.');
+        }
+    });
+}
+
+// Initialize the service worker and set up event handlers
+async function initializeServiceWorker() {
+    try {
+        const registration = await navigator.serviceWorker.register(
+            SERVICE_WORKER_CONFIG.path,
+            { scope: SERVICE_WORKER_CONFIG.scope }
+        );
+
+        console.log('ServiceWorker registered successfully:', registration.scope);
+        
+        // Set up update handling
+        setupUpdateHandling(registration);
+        
+        // Set up periodic update checks
+        setupPeriodicUpdateCheck(registration);
+        
+        // Handle controller changes
+        setupControllerChangeHandling();
+        
+        // Set up offline/online detection
+        setupConnectivityHandling();
+
+    } catch (error) {
+        console.error('ServiceWorker registration failed:', error);
+        throw error;
+    }
+}
+
+// Set up handling for service worker updates
+function setupUpdateHandling(registration) {
+    registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        
+        newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // New version available
+                showUpdateNotification(newWorker);
+            }
+        });
+    });
+}
+
+// Set up periodic checks for service worker updates
+function setupPeriodicUpdateCheck(registration) {
+    // Initial check
+    checkForUpdates(registration);
+    
+    // Set up periodic checks
+    setInterval(() => {
+        checkForUpdates(registration);
+    }, SERVICE_WORKER_CONFIG.updateCheckInterval);
+}
+
+// Check for service worker updates
+async function checkForUpdates(registration) {
+    try {
+        await registration.update();
+        
+        // Check if product data needs updating
+        const response = await fetch('/_products/product_data.json', {
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            }
+        });
+        
+        if (response.ok) {
             const data = await response.json();
             const currentVersion = data.version;
             const storedVersion = localStorage.getItem('productDataVersion');
             
-            if (compareVersions(currentVersion, storedVersion)) {
+            if (currentVersion !== storedVersion) {
                 registration.active?.postMessage({
                     type: 'INVALIDATE_PRODUCT_CACHE'
                 });
                 
                 localStorage.setItem('productDataVersion', currentVersion);
-                showUpdateNotification(null, 'Nuevos productos disponibles');
+                showUpdateNotification(null, 'New product data available');
             }
-        } catch (error) {
-            console.error('Error buscando nuevos productos:', error);
         }
-    };
-
-    performCheck();
-    checkInterval = setInterval(performCheck, 5 * 60 * 1000);
-
-    return () => {
-        if (checkInterval) {
-            clearInterval(checkInterval);
-        }
-    };
+    } catch (error) {
+        console.warn('Update check failed:', error);
+    }
 }
+
+// Set up handling for service worker controller changes
+function setupControllerChangeHandling() {
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+        }
+    });
+}
+
+// Set up handling for online/offline connectivity
+function setupConnectivityHandling() {
+    const updateOnlineStatus = () => {
+        const offlineIndicator = document.getElementById('offline-indicator');
+        if (offlineIndicator) {
+            offlineIndicator.style.display = navigator.onLine ? 'none' : 'block';
+        }
+        
+        if (!navigator.onLine) {
+            showConnectivityNotification('You are currently offline. Some features may be limited.');
+        }
+    };
+
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus(); // Initial check
+}
+
+// Show update notification to user
+function showUpdateNotification(serviceWorker, message = 'A new version is available') {
+    const notification = createNotificationElement(
+        message,
+        'Update now',
+        'Later',
+        () => {
+            if (serviceWorker) {
+                serviceWorker.postMessage({ type: 'SKIP_WAITING' });
+            } else {
+                window.location.reload();
+            }
+        }
+    );
+    
+    showNotification(notification);
+}
+
+// Show error notification to user
+function showServiceWorkerError(message) {
+    const notification = createNotificationElement(
+        message,
+        'Reload',
+        'Dismiss',
+        () => window.location.reload()
+    );
+    
+    showNotification(notification);
+}
+
+// Show connectivity notification to user
+function showConnectivityNotification(message) {
+    const notification = createNotificationElement(
+        message,
+        'Retry',
+        'Dismiss',
+        () => window.location.reload()
+    );
+    
+    showNotification(notification);
+}
+
+// Create notification element
+function createNotificationElement(message, primaryButtonText, secondaryButtonText, primaryAction) {
+    const notification = document.createElement('div');
+    notification.className = 'notification-toast';
+    notification.setAttribute('role', 'alert');
+    notification.setAttribute('aria-live', 'polite');
+    
+    notification.innerHTML = `
+        <div class="notification-content">
+            <p>${message}</p>
+            <div class="notification-actions">
+                <button class="primary-action">${primaryButtonText}</button>
+                <button class="secondary-action">${secondaryButtonText}</button>
+            </div>
+        </div>
+    `;
+    
+    // Set up event listeners
+    notification.querySelector('.primary-action').addEventListener('click', () => {
+        primaryAction();
+        notification.remove();
+    });
+    
+    notification.querySelector('.secondary-action').addEventListener('click', () => {
+        notification.remove();
+    });
+    
+    return notification;
+}
+
+// Show notification to user
+function showNotification(notificationElement) {
+    // Remove any existing notifications
+    const existingNotification = document.querySelector('.notification-toast');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+    
+    // Add new notification
+    document.body.appendChild(notificationElement);
+    
+    // Auto-dismiss after 5 minutes
+    setTimeout(() => {
+        if (document.body.contains(notificationElement)) {
+            notificationElement.remove();
+        }
+    }, 5 * 60 * 1000);
+}
+
+// Initialize the service worker
+registerServiceWorker();
+
 
 // Utility functions
 const memoize = (fn, cacheSize = 100) => {
