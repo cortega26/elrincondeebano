@@ -199,8 +199,24 @@ async function handleDynamicFetch(request) {
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
     
+    // Define allowed external domains
+    const allowedDomains = [
+        'www.googletagmanager.com',
+        'www.google-analytics.com',
+        'stats.g.doubleclick.net',
+        'cdn.jsdelivr.net',
+        'cdnjs.cloudflare.com',
+        'fonts.googleapis.com',
+        'fonts.gstatic.com'
+    ];
+
     // Ignore Chrome extension requests
     if (url.protocol === 'chrome-extension:') {
+        return;
+    }
+
+    // Allow specific third-party services to bypass service worker
+    if (allowedDomains.some(domain => url.hostname === domain)) {
         return;
     }
 
