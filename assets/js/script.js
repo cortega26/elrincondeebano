@@ -346,6 +346,24 @@ window.addEventListener('error', (event) => {
 // Main function to initialize the application
 const initApp = async () => {
     console.log('Initializing app...');
+
+    // Ensure DOMPurify is loaded before proceeding
+    if (typeof DOMPurify === 'undefined') {
+        try {
+            await new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.8/purify.min.js';
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        } catch (error) {
+            console.error('Failed to load DOMPurify:', error);
+            showErrorMessage('Failed to load required dependencies. Please refresh the page.');
+            return;
+        }
+    }
+
     const navbarContainer = document.getElementById('navbar-container');
     const footerContainer = document.getElementById('footer-container');
     const productContainer = document.getElementById('product-container');
@@ -373,6 +391,12 @@ const initApp = async () => {
     };
 
     const loadComponent = async (container, filename) => {
+
+        if (!container) {
+            console.warn(`Contenedor no encontrado para el componente: ${filename}`);
+            return;
+        }
+
         try {
             const response = await fetch(filename);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
