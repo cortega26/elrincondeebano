@@ -181,49 +181,34 @@ async function handleDynamicFetch(request) {
 }
 
 // Fetch event handler
-self.addEventListener('fetch', (event) => {
+self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
+    
+    // First, explicitly check if this is a request we should handle
+    const isHandleableRequest = 
+        // Check if it's our product data
+        url.pathname.includes('product_data.json') ||
+        // Check if it's one of our static assets
+        CACHE_CONFIG.staticAssets.includes(url.pathname) ||
+        // Check if it's a request to our domain that isn't a third-party script
+        (url.origin === self.location.origin && 
+         !url.pathname.includes('gtag') && 
+         !url.pathname.includes('analytics'));
 
-    // Log every intercepted request
-    console.log(`Intercepted request: ${event.request.url}`);
-
-    // Log if it's an external request
-    if (url.origin !== self.location.origin) {
-        console.log(`External request: ${url.origin}`);
+    // Only proceed if it's a request we should handle
+    if (!isHandleableRequest) {
+        return;
     }
 
-    // Bypass Google Tag Manager requests
-    if (url.origin === 'https://www.googletagmanager.com') {
-        console.log('Bypassing Google Tag Manager request.');
-        return; // Do not handle this request
-    }
-
-    // Handle internal requests
-    if (url.origin === self.location.origin) {
-        console.log(`Handling internal request: ${event.request.url}`);
-
-        event.respondWith(
-            caches.match(event.request).then(async (cachedResponse) => {
-                if (cachedResponse) {
-                    console.log(`Serving cached response for: ${event.request.url}`);
-                    return cachedResponse;
-                }
-
-                try {
-                    const networkResponse = await fetch(event.request);
-                    console.log(`Network response received for: ${event.request.url}`);
-                    return networkResponse;
-                } catch (error) {
-                    console.error(`Network fetch failed for: ${event.request.url}`, error);
-                    throw error;
-                }
-            })
-        );
+    // Now we know this is a request we want to handle
+    if (url.pathname.includes('product_data.json')) {
+        event.respondWith(handleProductDataFetch(event.request));
+    } else if (CACHE_CONFIG.staticAssets.includes(url.pathname)) {
+        event.respondWith(handleStaticAssetFetch(event.request));
     } else {
-        console.log(`Unhandled request: ${event.request.url}`);
+        event.respondWith(handleDynamicFetch(event.request));
     }
 });
-
 
 // Message event handler for cache invalidation
 self.addEventListener('message', event => {
