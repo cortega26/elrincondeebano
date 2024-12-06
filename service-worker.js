@@ -183,6 +183,21 @@ async function handleDynamicFetch(request) {
 // Fetch event handler
 self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
+
+    if (event.request.url.includes('googletagmanager.com/gtag/js')) {
+        event.respondWith(
+            fetch(event.request)
+                .then((response) => {
+                    console.log(`Response status: ${response.status}`);
+                    console.log(`Response headers:`, [...response.headers]);
+                    return response;
+                })
+                .catch((error) => {
+                    console.error(`Fetch error for ${event.request.url}:`, error);
+                    throw error;
+                })
+        );
+    }
     
     // First, explicitly check if this is a request we should handle
     const isHandleableRequest = 
