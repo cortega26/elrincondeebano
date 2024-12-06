@@ -181,32 +181,46 @@ async function handleDynamicFetch(request) {
 }
 
 // Fetch event handler
-// Fetch event handler
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 
-    // Explicitly allow Google Tag Manager and other third-party domains
+    // Log every intercepted request
+    console.log(`Intercepted request: ${event.request.url}`);
+
+    // Log if it's an external request
+    if (url.origin !== self.location.origin) {
+        console.log(`External request: ${url.origin}`);
+    }
+
+    // Bypass Google Tag Manager requests
     if (url.origin === 'https://www.googletagmanager.com') {
-        return; // Allow the browser to handle it
+        console.log('Bypassing Google Tag Manager request.');
+        return; // Do not handle this request
     }
 
-    // Continue handling application-specific requests
-    const isHandleableRequest =
-        url.pathname.includes('product_data.json') ||
-        CACHE_CONFIG.staticAssets.includes(url.pathname) ||
-        url.origin === self.location.origin;
+    // Handle internal requests
+    if (url.origin === self.location.origin) {
+        console.log(`Handling internal request: ${event.request.url}`);
 
-    if (!isHandleableRequest) {
-        return; // Let browser handle requests that are not our concern
-    }
+        event.respondWith(
+            caches.match(event.request).then(async (cachedResponse) => {
+                if (cachedResponse) {
+                    console.log(`Serving cached response for: ${event.request.url}`);
+                    return cachedResponse;
+                }
 
-    // Handle product data, static assets, or dynamic content
-    if (url.pathname.includes('product_data.json')) {
-        event.respondWith(handleProductDataFetch(event.request));
-    } else if (CACHE_CONFIG.staticAssets.includes(url.pathname)) {
-        event.respondWith(handleStaticAssetFetch(event.request));
+                try {
+                    const networkResponse = await fetch(event.request);
+                    console.log(`Network response received for: ${event.request.url}`);
+                    return networkResponse;
+                } catch (error) {
+                    console.error(`Network fetch failed for: ${event.request.url}`, error);
+                    throw error;
+                }
+            })
+        );
     } else {
-        event.respondWith(handleDynamicFetch(event.request));
+        console.log(`Unhandled request: ${event.request.url}`);
     }
 });
 
