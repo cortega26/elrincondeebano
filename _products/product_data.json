@@ -1,6 +1,6 @@
 {
-  "version": "20241128-171617",
-  "last_updated": "2024-11-28T17:16:17.829269",
+  "version": "20241206-190847",
+  "last_updated": "2024-12-06T19:08:47.453577",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -475,7 +475,7 @@
     {
       "name": "Royal Guard lata 350cc",
       "description": "Cerveza Lager x 6 unidades",
-      "price": 4400,
+      "price": 4600,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -715,7 +715,7 @@
     {
       "name": "Kunstmann lata 470cc",
       "description": "Cerveza Torobayo Pale Ale",
-      "price": 1900,
+      "price": 1800,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
