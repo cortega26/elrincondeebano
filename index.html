@@ -150,26 +150,44 @@
                     
                     // Check for updates
                     registration.addEventListener('updatefound', () => {
-                    const newWorker = registration.installing;
-                    newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                        // New version available, prompt user to refresh
-                        if (confirm('A new version of this site is available. Would you like to update?')) {
-                            newWorker.postMessage({ type: 'SKIP_WAITING' });
-                            window.location.reload();
-                        }
-                        }
-                    });
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // New version available, prompt user to refresh
+                                if (confirm('A new version of this site is available. Would you like to update?')) {
+                                    // Create a message channel
+                                    const messageChannel = new MessageChannel();
+                                    
+                                    // Set up response handling
+                                    messageChannel.port1.onmessage = (event) => {
+                                        if (event.data.error) {
+                                            console.error('Error during skip waiting:', event.data.error);
+                                        } else {
+                                            window.location.reload();
+                                        }
+                                        // Clean up
+                                        messageChannel.port1.close();
+                                        messageChannel.port2.close();
+                                    };
+
+                                    // Send message with port
+                                    newWorker.postMessage(
+                                        { type: 'SKIP_WAITING' },
+                                        [messageChannel.port2]
+                                    );
+                                }
+                            }
+                        });
                     });
                 })
                 .catch(error => {
                     console.error('Service Worker registration failed:', error);
                 });
-            });
 
-            // Listen for controller change
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-                window.location.reload();
+                // Handle controller change
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    window.location.reload();
+                });
             });
         }
     </script>
