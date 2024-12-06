@@ -24,64 +24,6 @@ const CACHE_CONFIG = {
     ]
 };
 
-// Message channel management
-const MESSAGE_CONFIG = {
-    timeout: 5000,
-    debug: false
-};
-
-const messageChannels = new Map();
-
-function cleanupMessageChannel(messageId) {
-    const channel = messageChannels.get(messageId);
-    if (channel) {
-        clearTimeout(channel.timeoutId);
-        messageChannels.delete(messageId);
-        if (MESSAGE_CONFIG.debug) {
-            console.log(`Cleaned up message channel ${messageId}`);
-        }
-    }
-}
-
-async function respondToMessage(event, handler) {
-    const messageId = crypto.randomUUID();
-    
-    if (event.ports && event.ports[0]) {
-        const timeoutId = setTimeout(() => {
-            cleanupMessageChannel(messageId);
-            event.ports[0].postMessage({ 
-                error: 'Message handling timed out',
-                messageId 
-            });
-        }, MESSAGE_CONFIG.timeout);
-
-        messageChannels.set(messageId, { 
-            port: event.ports[0],
-            timeoutId,
-            created: Date.now()
-        });
-
-        try {
-            const result = await handler();
-            event.ports[0].postMessage({ 
-                success: true, 
-                data: result,
-                messageId
-            });
-        } catch (error) {
-            event.ports[0].postMessage({ 
-                error: error.message,
-                messageId
-            });
-        } finally {
-            cleanupMessageChannel(messageId);
-        }
-    } else {
-        // Maintain backwards compatibility for existing message handling
-        await handler();
-    }
-}
-
 // Helper function to check if a response is fresh
 const isCacheFresh = (response, type = 'static') => {
     if (!response?.headers) return false;
@@ -283,23 +225,14 @@ self.addEventListener('fetch', event => {
     }
 });
 
-// Enhanced message event handler with backwards compatibility
+// Message event handler for cache invalidation
 self.addEventListener('message', event => {
     if (event.data.type === 'SKIP_WAITING') {
-        respondToMessage(event, async () => {
-            await self.skipWaiting();
-            return { status: 'completed' };
-        });
+        self.skipWaiting();
     } else if (event.data.type === 'INVALIDATE_PRODUCT_CACHE') {
-        respondToMessage(event, async () => {
-            await invalidateCache(CACHE_CONFIG.prefixes.products);
-            return { status: 'product_cache_invalidated' };
-        });
+        invalidateCache(CACHE_CONFIG.prefixes.products);
     } else if (event.data.type === 'INVALIDATE_ALL_CACHES') {
-        respondToMessage(event, async () => {
-            await invalidateAllCaches();
-            return { status: 'all_caches_invalidated' };
-        });
+        invalidateAllCaches();
     }
 });
 
@@ -312,7 +245,6 @@ async function invalidateCache(cacheName) {
         console.log(`Cache ${cacheName} invalidated successfully`);
     } catch (error) {
         console.error(`Error invalidating cache ${cacheName}:`, error);
-        throw error; // Propagate error for proper handling in message response
     }
 }
 
@@ -329,6 +261,5 @@ async function invalidateAllCaches() {
         console.log('All caches invalidated successfully');
     } catch (error) {
         console.error('Error invalidating all caches:', error);
-        throw error; // Propagate error for proper handling in message response
     }
 }
