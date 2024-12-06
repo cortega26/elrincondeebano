@@ -1,6 +1,6 @@
 {
-  "version": "20241124-152935",
-  "last_updated": "2024-11-24T15:29:35.856470",
+  "version": "20241128-171617",
+  "last_updated": "2024-11-28T17:16:17.829269",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -79,7 +79,7 @@
       "discount": 0,
       "stock": true,
       "category": "Carnesyembutidos",
-      "image_path": "assets/images/Carnesyembutidos/Salame Italiano Líder 100g.webp",
+      "image_path": "assets/images/carnes_y_embutidos/Salame Italiano Líder 100g.webp",
       "order": 7
     },
     {
@@ -169,7 +169,7 @@
       "discount": 0,
       "stock": true,
       "category": "Despensa",
-      "image_path": "assets/images/Despensa/Salsa de Tomate Ketchup Lider 680g.webp",
+      "image_path": "assets/images/despensa/Salsa de Tomate Ketchup Lider 680g.webp",
       "order": 16
     },
     {
@@ -833,13 +833,13 @@
       "order": 85
     },
     {
-      "name": "Austral botella 330cc",
+      "name": "Austral lata 350cc",
       "description": "Cerveza Calafate Ale x 6 unidades",
-      "price": 9500,
+      "price": 9000,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
-      "image_path": "assets/images/cervezas/Austral Calafate Ale botella botella 330cc-2.webp",
+      "image_path": "assets/images/cervezas/Austral Calafate Ale lata 350cc.webp",
       "order": 86
     },
     {
