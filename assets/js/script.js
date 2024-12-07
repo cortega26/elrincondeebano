@@ -369,7 +369,6 @@ const initApp = async () => {
     const productContainer = document.getElementById('product-container');
     const sortOptions = document.getElementById('sort-options');
     const filterKeyword = document.getElementById('filter-keyword');
-    const showInStock = document.getElementById('show-in-stock');
 
     let products = [];
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -608,12 +607,14 @@ const initApp = async () => {
         document.querySelectorAll('img.lazyload').forEach(img => imageObserver.observe(img));
     };
 
-    const filterProducts = (products, keyword, sortCriterion, showOnlyInStock) => {
-        return products.filter(product => 
-            (product.name.toLowerCase().includes(keyword.toLowerCase()) ||
-            product.description.toLowerCase().includes(keyword.toLowerCase())) &&
-            (!showOnlyInStock || product.stock)
-        ).sort((a, b) => sortProducts(a, b, sortCriterion));
+    const filterProducts = (products, keyword, sortCriterion) => {
+        return products
+            .filter(product => 
+                (product.name.toLowerCase().includes(keyword.toLowerCase()) ||
+                product.description.toLowerCase().includes(keyword.toLowerCase())) &&
+                product.stock  // This ensures only in-stock items are shown
+            )
+            .sort((a, b) => sortProducts(a, b, sortCriterion));
     };
 
     const sortProducts = (a, b, criterion) => {
@@ -634,8 +635,7 @@ const initApp = async () => {
         try {
             const criterion = sortOptions.value || 'original';
             const keyword = filterKeyword.value.trim();
-            const showOnlyInStock = showInStock.checked;
-            const filteredAndSortedProducts = memoizedFilterProducts(products, keyword, criterion, showOnlyInStock);
+            const filteredAndSortedProducts = memoizedFilterProducts(products, keyword, criterion);
             renderProducts(filteredAndSortedProducts);
         } catch (error) {
             console.error('Error al actualizar visualización de productos:', error);
@@ -837,7 +837,6 @@ const initApp = async () => {
 
         sortOptions.addEventListener('change', debouncedUpdateProductDisplay);
         filterKeyword.addEventListener('input', debouncedUpdateProductDisplay);
-        showInStock.addEventListener('change', debouncedUpdateProductDisplay);
 
         // Initial product display
         updateProductDisplay();

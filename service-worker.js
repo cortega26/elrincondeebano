@@ -161,30 +161,31 @@ async function handleProductDataFetch(request) {
         const networkResponse = await fetch(request);
         if (networkResponse.ok) {
             const cache = await caches.open(CACHE_CONFIG.prefixes.products);
-            const timestampedResponse = await addTimestamp(networkResponse.clone(), 'products');
+            const data = await networkResponse.clone().json();
+            
+            // Create modified response with only in-stock products
+            const modifiedData = {
+                ...data,
+                products: data.products.filter(product => product.stock)
+            };
+            
+            // Create new response with filtered data
+            const filteredResponse = new Response(JSON.stringify(modifiedData), {
+                headers: networkResponse.headers,
+                status: networkResponse.status,
+                statusText: networkResponse.statusText
+            });
+            
+            // Cache the filtered response
+            const timestampedResponse = await addTimestamp(filteredResponse.clone(), 'products');
             await cache.put(request, timestampedResponse);
-            return networkResponse;
+            
+            return filteredResponse;
         }
     } catch (error) {
         console.log('Network fetch failed, trying cache:', error);
-    }
-
-    const cachedResponse = await caches.match(request);
-    if (cachedResponse && isCacheFresh(cachedResponse, 'products')) {
-        return cachedResponse;
-    }
-
-    try {
-        const networkResponse = await fetch(request);
-        if (networkResponse.ok) {
-            const cache = await caches.open(CACHE_CONFIG.prefixes.products);
-            const timestampedResponse = await addTimestamp(networkResponse.clone(), 'products');
-            await cache.put(request, timestampedResponse);
-            return networkResponse;
-        }
-    } catch (error) {
-        console.log('Both network and cache failed:', error);
-        if (cachedResponse) {
+        const cachedResponse = await caches.match(request);
+        if (cachedResponse && isCacheFresh(cachedResponse, 'products')) {
             return cachedResponse;
         }
     }
