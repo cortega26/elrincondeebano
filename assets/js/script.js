@@ -291,7 +291,7 @@ const fetchProducts = async () => {
         const data = await response.json();
         return data.products.map(product => ({
             ...product,
-            id: generateStableId(product), // Use stable ID instead of random
+            id: generateStableId(product),
             name: sanitizeHTML(product.name),
             description: sanitizeHTML(product.description),
             category: sanitizeHTML(product.category)
