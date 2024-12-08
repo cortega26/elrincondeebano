@@ -1,6 +1,6 @@
 {
-  "version": "20241206-190847",
-  "last_updated": "2024-12-06T19:08:47.453577",
+  "version": "20241207-220453",
+  "last_updated": "2024-12-07T22:04:53.895730",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -817,7 +817,7 @@
       "description": "Botella de 750mL • D.O. Valle del Limarí",
       "price": 10500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Piscos",
       "image_path": "assets/images/piscos/Pisco Malpaso Reservado 40°.webp",
       "order": 84
