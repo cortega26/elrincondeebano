@@ -402,7 +402,7 @@ h1 {
 
   .precio-descuento,
   .precio {
-    font-size: 1.125rem;
+    font-size: var(--font-size);
   }
 }
 
