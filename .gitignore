@@ -71,3 +71,4 @@ Pipfile.lock
 *.orig
 output.txt
 .backup/
+product_data.backup_*
