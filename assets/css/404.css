@@ -1,85 +1,77 @@
-:root {
-    --primary-color: #343a40;
-    --secondary-color: #6c757d;
-    --accent-color: #0066cc;
-    --background-color: #f8f9fa;
-    --text-color: #333;
-}
-
-body {
-    font-family: Arial, sans-serif;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    margin: 0;
-    padding: 0;
+/* 404 Page Styles - Using variables from critical.css */
+body.error-page {
+    background-color: var(--error-background);
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 0;
 }
 
-.container {
+.error-container {
     max-width: 800px;
     padding: 2rem;
     text-align: center;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: var(--background-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
 }
 
-.image-container {
+.error-image-container {
     margin-bottom: 2rem;
 }
 
-.image-container img {
+.error-image-container img {
     max-width: 100%;
     height: auto;
 }
 
-h1 {
-    font-family: 'Playfair Display', serif;
+.error-title {
+    font-family: var(--font-family-display);
     color: var(--primary-color);
-    font-size: 2.5rem;
+    font-size: var(--font-size-2xl);
     margin-bottom: 1rem;
 }
 
-p {
-    font-size: 1.1rem;
+.error-text {
+    font-size: var(--font-size-md);
     line-height: 1.6;
     margin-bottom: 1rem;
 }
 
-a {
+.error-link {
     color: var(--accent-color);
     text-decoration: none;
-    transition: color 0.3s ease;
+    transition: var(--transition);
 }
 
-a:hover {
+.error-link:hover {
     color: #004999;
     text-decoration: underline;
 }
 
+/* Responsive adjustments */
 @media (max-width: 768px) {
-    .container {
+    .error-container {
         padding: 1.5rem;
+        margin: 1rem;
     }
 
-    h1 {
-        font-size: 2rem;
+    .error-title {
+        font-size: var(--font-size-xl);
     }
 
-    p {
-        font-size: 1rem;
+    .error-text {
+        font-size: var(--font-size-base);
     }
 }
 
 @media (max-width: 480px) {
-    .container {
+    .error-container {
         padding: 1rem;
     }
 
-    h1 {
-        font-size: 1.75rem;
+    .error-title {
+        font-size: var(--font-size-lg);
     }
 }

@@ -884,3 +884,62 @@ document.addEventListener('DOMContentLoaded', function() {
         showErrorMessage('Error al inicializar la aplicación. Por favor, actualice la página.');
     });
 });
+function createNotificationElement(message, primaryButtonText, secondaryButtonText, primaryAction) {
+    const notification = document.createElement('div');
+    notification.className = 'notification-toast';
+    notification.setAttribute('role', 'alert');
+    notification.setAttribute('aria-live', 'polite');
+    
+    notification.innerHTML = `
+        <div class="notification-content">
+            <p>${message}</p>
+            <div class="notification-actions">
+                <button class="primary-action">${primaryButtonText}</button>
+                <button class="secondary-action">${secondaryButtonText}</button>
+            </div>
+        </div>
+    `;
+    
+    // Set up event listeners
+    notification.querySelector('.primary-action').addEventListener('click', () => {
+        primaryAction();
+        notification.remove();
+    });
+    
+    notification.querySelector('.secondary-action').addEventListener('click', () => {
+        notification.remove();
+    });
+    
+    return notification;
+}
+
+// Show notification to user (moved to top)
+function showNotification(notificationElement) {
+    // Remove any existing notifications
+    const existingNotification = document.querySelector('.notification-toast');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+    
+    // Add new notification
+    document.body.appendChild(notificationElement);
+    
+    // Auto-dismiss after 5 minutes
+    setTimeout(() => {
+        if (document.body.contains(notificationElement)) {
+            notificationElement.remove();
+        }
+    }, 5 * 60 * 1000);
+}
+
+// Show connectivity notification to user (moved to top)
+function showConnectivityNotification(message) {
+    const notification = createNotificationElement(
+        message,
+        'Retry',
+        'Dismiss',
+        () => window.location.reload()
+    );
+    
+    showNotification(notification);
+}
