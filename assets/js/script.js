@@ -8,6 +8,18 @@ const sanitizeHTML = (unsafe) => {
     return element.innerHTML;
 };
 
+// Update online status function (moved to top level)
+const updateOnlineStatus = () => {
+    const offlineIndicator = document.getElementById('offline-indicator');
+    if (offlineIndicator) {
+        offlineIndicator.style.display = navigator.onLine ? 'none' : 'block';
+    }
+    
+    if (!navigator.onLine) {
+        showConnectivityNotification('You are currently offline. Some features may be limited.');
+    }
+};
+
 // Service Worker Configuration and Initialization
 const SERVICE_WORKER_CONFIG = {
     path: 'service-worker.js',
@@ -109,7 +121,7 @@ async function checkForUpdates(registration) {
                 });
                 
                 localStorage.setItem('productDataVersion', currentVersion);
-                showUpdateNotification(null, 'New product data available');
+                showUpdateNotification(null, 'Nuevo producto disponible');
             }
         }
     } catch (error) {
@@ -130,17 +142,6 @@ function setupControllerChangeHandling() {
 
 // Set up handling for online/offline connectivity
 function setupConnectivityHandling() {
-    const updateOnlineStatus = () => {
-        const offlineIndicator = document.getElementById('offline-indicator');
-        if (offlineIndicator) {
-            offlineIndicator.style.display = navigator.onLine ? 'none' : 'block';
-        }
-        
-        if (!navigator.onLine) {
-            showConnectivityNotification('You are currently offline. Some features may be limited.');
-        }
-    };
-
     window.addEventListener('online', updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
     updateOnlineStatus(); // Initial check
