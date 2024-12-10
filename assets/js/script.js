@@ -139,11 +139,11 @@ function setupConnectivityHandling() {
 }
 
 // Show update notification to user
-function showUpdateNotification(serviceWorker, message = 'A new version is available') {
+function showUpdateNotification(serviceWorker, message = 'Una versión está disponible') {
     const notification = createNotificationElement(
         message,
-        'Update now',
-        'Later',
+        'Actualizar ahora',
+        'Después',
         () => {
             if (serviceWorker) {
                 serviceWorker.postMessage({ type: 'SKIP_WAITING' });
