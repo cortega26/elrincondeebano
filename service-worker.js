@@ -11,16 +11,16 @@ const CACHE_CONFIG = {
         dynamic: 12 * 60 * 60 * 1000 // 12 hours for dynamic content
     },
     staticAssets: [
-        '/',
-        '/index.html',
-        '/404.html',
-        '/assets/css/style.css',
-        '/assets/css/critical.css',
-        '/assets/js/script.js',
-        '/assets/images/web/logo.webp',
-        '/assets/images/web/favicon.ico',
-        '/assets/images/web/placeholder.webp',
-        '/pages/offline.html'
+        './',
+        './index.html',
+        './404.html',
+        './assets/css/style.css',
+        './assets/css/critical.css',
+        './assets/js/script.js',
+        './assets/images/web/logo.webp',
+        './assets/images/web/favicon.ico',
+        './assets/images/web/placeholder.webp',
+        './pages/offline.html'
     ]
 };
 
@@ -233,7 +233,7 @@ async function handleDynamicFetch(request) {
         if (cachedResponse) return cachedResponse;
         
         if (request.url.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
-            return caches.match('/assets/images/web/placeholder.webp');
+            return caches.match('./assets/images/web/placeholder.webp');
         }
         throw error;
     }
@@ -256,6 +256,7 @@ self.addEventListener('fetch', event => {
                     throw error;
                 })
         );
+        return;
     }
     
     // First, explicitly check if this is a request we should handle
@@ -263,7 +264,7 @@ self.addEventListener('fetch', event => {
         // Check if it's our product data
         url.pathname.includes('product_data.json') ||
         // Check if it's one of our static assets
-        CACHE_CONFIG.staticAssets.includes(url.pathname) ||
+        CACHE_CONFIG.staticAssets.includes('.' + url.pathname) ||
         // Check if it's a request to our domain that isn't a third-party script
         (url.origin === self.location.origin && 
          !url.pathname.includes('gtag') && 
@@ -275,13 +276,20 @@ self.addEventListener('fetch', event => {
     }
 
     // Now we know this is a request we want to handle
-    if (url.pathname.includes('product_data.json')) {
-        event.respondWith(handleProductDataFetch(event.request));
-    } else if (CACHE_CONFIG.staticAssets.includes(url.pathname)) {
-        event.respondWith(handleStaticAssetFetch(event.request));
-    } else {
-        event.respondWith(handleDynamicFetch(event.request));
-    }
+    event.respondWith((async () => {
+        try {
+            if (url.pathname.includes('product_data.json')) {
+                return await handleProductDataFetch(event.request);
+            } else if (CACHE_CONFIG.staticAssets.includes('.' + url.pathname)) {
+                return await handleStaticAssetFetch(event.request);
+            } else {
+                return await handleDynamicFetch(event.request);
+            }
+        } catch (error) {
+            console.error('Error handling fetch:', error);
+            throw error;
+        }
+    })());
 });
 
 // Enhanced message event handler with backwards compatibility

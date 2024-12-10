@@ -2,7 +2,7 @@
 
 // Service Worker Configuration and Initialization
 const SERVICE_WORKER_CONFIG = {
-    path: '/service-worker.js',
+    path: 'service-worker.js', // Removed leading slash for relative path
     scope: '/',
     updateCheckInterval: 5 * 60 * 1000, // 5 minutes
 };
@@ -83,7 +83,7 @@ async function checkForUpdates(registration) {
         await registration.update();
         
         // Check if product data needs updating
-        const response = await fetch('/_products/product_data.json', {
+        const response = await fetch('_products/product_data.json', { // Removed leading slash
             headers: {
                 'Cache-Control': 'no-cache',
                 'Pragma': 'no-cache'
@@ -229,10 +229,6 @@ function showNotification(notificationElement) {
     }, 5 * 60 * 1000);
 }
 
-// Initialize the service worker
-registerServiceWorker();
-
-
 // Utility functions
 const memoize = (fn, cacheSize = 100) => {
     const cache = new Map();
@@ -257,7 +253,6 @@ const debounce = (func, delay) => {
     };
 };
 
-
 // Add this utility function for generating stable product IDs
 const generateStableId = (product) => {
     // Create a stable ID using product properties that shouldn't change
@@ -276,10 +271,10 @@ const generateStableId = (product) => {
     return `pid-${Math.abs(hash)}`;
 };
 
-// Modify the fetchProducts function
+// Fetch products function (single implementation)
 const fetchProducts = async () => {
     try {
-        const response = await fetch('/_products/product_data.json', {
+        const response = await fetch('_products/product_data.json', { // Removed leading slash
             headers: {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
@@ -373,24 +368,14 @@ const initApp = async () => {
     let products = [];
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
-    const updateOnlineStatus = () => {
-        const offlineIndicator = document.getElementById('offline-indicator');
-        if (offlineIndicator) {
-            offlineIndicator.style.display = navigator.onLine ? 'none' : 'block';
-        }
-        if (!navigator.onLine) {
-            console.log('App is offline. Using cached data if available.');
-        }
-    };
-
     const sanitizeHTML = (unsafe) => {
+        if (!unsafe) return '';
         const element = document.createElement('div');
         element.textContent = unsafe;
         return element.innerHTML;
     };
 
     const loadComponent = async (container, filename) => {
-
         if (!container) {
             console.warn(`Contenedor no encontrado para el componente: ${filename}`);
             return;
@@ -423,39 +408,13 @@ const initApp = async () => {
     const loadComponents = async () => {
         try {
             await Promise.all([
-                loadComponent(navbarContainer, '/pages/navbar.html'),
-                loadComponent(footerContainer, '/pages/footer.html')
+                loadComponent(navbarContainer, 'pages/navbar.html'),
+                loadComponent(footerContainer, 'pages/footer.html')
             ]);
             console.log('Components loaded successfully');
         } catch (error) {
             console.error('Error al cargar componentes:', error);
             showErrorMessage('Error al cargar los componentes de la página. Por favor, actualice la página o verifique su conexión a internet.');
-        }
-    };
-
-    const fetchProducts = async () => {
-        try {
-            const response = await fetch('/_products/product_data.json', {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            if (!response.ok) {
-                throw new Error(`HTTP error. Status: ${response.status}`);
-            }
-            const data = await response.json();
-            return data.products.map(product => ({
-                ...product,
-                id: generateStableId(product),
-                name: sanitizeHTML(product.name),
-                description: sanitizeHTML(product.description),
-                category: sanitizeHTML(product.category)
-            }));
-        } catch (error) {
-            console.error('Error al obtener productos:', error);
-            showErrorMessage(`Error al cargar los productos. Por favor, verifique su conexión a internet e inténtelo de nuevo. (Error: ${error.message})`);
-            throw error;
         }
     };
 
@@ -647,9 +606,11 @@ const initApp = async () => {
 
     const updateCartIcon = () => {
         const cartCount = document.getElementById('cart-count');
-        const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-        cartCount.textContent = totalItems;
-        cartCount.setAttribute('aria-label', `${totalItems} items in cart`);
+        if (cartCount) {
+            const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+            cartCount.textContent = totalItems;
+            cartCount.setAttribute('aria-label', `${totalItems} items in cart`);
+        }
     };
 
     const addToCart = (product, quantity) => {
@@ -755,6 +716,9 @@ const initApp = async () => {
     const renderCart = () => {
         const cartItems = document.getElementById('cart-items');
         const cartTotal = document.getElementById('cart-total');
+        
+        if (!cartItems || !cartTotal) return;
+        
         cartItems.innerHTML = '';
         
         let total = 0;
@@ -835,8 +799,12 @@ const initApp = async () => {
             products = products.filter(product => product.category === currentCategory);
         }
 
-        sortOptions.addEventListener('change', debouncedUpdateProductDisplay);
-        filterKeyword.addEventListener('input', debouncedUpdateProductDisplay);
+        if (sortOptions) {
+            sortOptions.addEventListener('change', debouncedUpdateProductDisplay);
+        }
+        if (filterKeyword) {
+            filterKeyword.addEventListener('input', debouncedUpdateProductDisplay);
+        }
 
         // Initial product display
         updateProductDisplay();
