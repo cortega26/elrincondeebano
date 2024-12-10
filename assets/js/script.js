@@ -1,8 +1,16 @@
 'use strict';
 
+// Utility function for sanitizing HTML (moved to top)
+const sanitizeHTML = (unsafe) => {
+    if (!unsafe) return '';
+    const element = document.createElement('div');
+    element.textContent = unsafe;
+    return element.innerHTML;
+};
+
 // Service Worker Configuration and Initialization
 const SERVICE_WORKER_CONFIG = {
-    path: 'service-worker.js', // Removed leading slash for relative path
+    path: 'service-worker.js',
     scope: '/',
     updateCheckInterval: 5 * 60 * 1000, // 5 minutes
 };
@@ -83,7 +91,7 @@ async function checkForUpdates(registration) {
         await registration.update();
         
         // Check if product data needs updating
-        const response = await fetch('_products/product_data.json', { // Removed leading slash
+        const response = await fetch('_products/product_data.json', {
             headers: {
                 'Cache-Control': 'no-cache',
                 'Pragma': 'no-cache'
@@ -274,7 +282,7 @@ const generateStableId = (product) => {
 // Fetch products function (single implementation)
 const fetchProducts = async () => {
     try {
-        const response = await fetch('_products/product_data.json', { // Removed leading slash
+        const response = await fetch('_products/product_data.json', {
             headers: {
                 'Content-Type': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
@@ -367,13 +375,6 @@ const initApp = async () => {
 
     let products = [];
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
-
-    const sanitizeHTML = (unsafe) => {
-        if (!unsafe) return '';
-        const element = document.createElement('div');
-        element.textContent = unsafe;
-        return element.innerHTML;
-    };
 
     const loadComponent = async (container, filename) => {
         if (!container) {
