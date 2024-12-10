@@ -1,6 +1,6 @@
 {
-  "version": "20241207-220453",
-  "last_updated": "2024-12-07T22:04:53.895730",
+  "version": "20241209-222822",
+  "last_updated": "2024-12-09T22:28:22.112578",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -1161,6 +1161,16 @@
       "category": "Lacteos",
       "image_path": "assets/images/Lacteos/Leche entera Líder 1L.webp",
       "order": 119
+    },
+    {
+      "name": "Atún Lomitos en Agua Líder",
+      "description": "Lata de 160g (peso neto)",
+      "price": 1800,
+      "discount": 0,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Atún Líder en agua 160g.webp",
+      "order": 116
     }
   ]
 }

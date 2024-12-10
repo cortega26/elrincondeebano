@@ -1,6 +1,6 @@
 {
-  "version": "20241128-165223",
-  "last_updated": "2024-11-28T16:52:23.163409",
+  "version": "20241207-220453",
+  "last_updated": "2024-12-07T22:04:53.895730",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -169,7 +169,7 @@
       "discount": 0,
       "stock": true,
       "category": "Despensa",
-      "image_path": "assets/images/Despensa/Salsa de Tomate Ketchup Lider 680g.webp",
+      "image_path": "assets/images/despensa/Salsa de Tomate Ketchup Lider 680g.webp",
       "order": 16
     },
     {
@@ -475,7 +475,7 @@
     {
       "name": "Royal Guard lata 350cc",
       "description": "Cerveza Lager x 6 unidades",
-      "price": 4400,
+      "price": 4600,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -715,7 +715,7 @@
     {
       "name": "Kunstmann lata 470cc",
       "description": "Cerveza Torobayo Pale Ale",
-      "price": 1900,
+      "price": 1800,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -817,7 +817,7 @@
       "description": "Botella de 750mL • D.O. Valle del Limarí",
       "price": 10500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Piscos",
       "image_path": "assets/images/piscos/Pisco Malpaso Reservado 40°.webp",
       "order": 84
@@ -839,7 +839,7 @@
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
-      "image_path": "assets/images/Cervezas/Austral Calafate Ale.webp",
+      "image_path": "assets/images/cervezas/Austral Calafate Ale lata 350cc.webp",
       "order": 86
     },
     {
