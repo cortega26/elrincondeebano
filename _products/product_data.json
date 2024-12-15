@@ -1,6 +1,6 @@
 {
-  "version": "20241209-222822",
-  "last_updated": "2024-12-09T22:28:22.112578",
+  "version": "20241215-162452",
+  "last_updated": "2024-12-15T16:24:52.958298",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -405,7 +405,7 @@
     {
       "name": "Aceite de Oliva Extra Virgen Pepita de Oro",
       "description": "Botella de 1L",
-      "price": 10900,
+      "price": 11900,
       "discount": 0,
       "stock": true,
       "category": "Despensa",
