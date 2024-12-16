@@ -1,6 +1,6 @@
 {
-  "version": "20241216-182911",
-  "last_updated": "2024-12-16T18:29:11.987222",
+  "version": "20241216-200721",
+  "last_updated": "2024-12-16T20:07:21.174111",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -53,6 +53,16 @@
       "order": 4
     },
     {
+      "name": "Queso Llanero 1Kg",
+      "description": "A granel, trozo",
+      "price": 9500,
+      "discount": 0,
+      "stock": true,
+      "category": "Lacteos",
+      "image_path": "assets/images/lacteos/Queso-Llanero2.webp",
+      "order": 5
+    },
+    {
       "name": "Merlot • Misiones de Rengo",
       "description": "Vino tinto • Botella de 750mL • 13° G.L.",
       "price": 4500,
@@ -60,7 +70,7 @@
       "stock": false,
       "category": "Vinos",
       "image_path": "assets/images/vinos/Merlot Misiones de Rengo 750mL.webp",
-      "order": 5
+      "order": 6
     },
     {
       "name": "Agua gasificada 1,6L Cachantun",
@@ -70,7 +80,7 @@
       "stock": true,
       "category": "Bebidas",
       "image_path": "assets/images/bebidas/Agua 1,6L con gas Cachantun.webp",
-      "order": 6
+      "order": 7
     },
     {
       "name": "Coca-Cola Zero 3L",
@@ -80,7 +90,7 @@
       "stock": true,
       "category": "Bebidas",
       "image_path": "assets/images/bebidas/Coca Cola Zero 3L.webp",
-      "order": 7
+      "order": 8
     },
     {
       "name": "Salame Italiano Líder laminado",
@@ -90,7 +100,7 @@
       "stock": true,
       "category": "Carnesyembutidos",
       "image_path": "assets/images/carnes_y_embutidos/Salame Italiano Líder 100g.webp",
-      "order": 8
+      "order": 9
     },
     {
       "name": "Sprite 3L",
@@ -100,7 +110,7 @@
       "stock": true,
       "category": "Bebidas",
       "image_path": "assets/images/bebidas/Sprite 3L retornable.webp",
-      "order": 9
+      "order": 10
     },
     {
       "name": "Harina Mont Blanc",
@@ -110,16 +120,6 @@
       "stock": true,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Harina Mont Blanc 1Kg.webp",
-      "order": 10
-    },
-    {
-      "name": "Queso Llanero 1Kg",
-      "description": "A granel, trozo",
-      "price": 9500,
-      "discount": 0,
-      "stock": true,
-      "category": "Lacteos",
-      "image_path": "assets/images/lacteos/Queso-Llanero2.webp",
       "order": 11
     },
     {
@@ -1181,6 +1181,16 @@
       "category": "Despensa",
       "image_path": "assets/images/despensa/Aceite de Maravilla Líder 1L.webp",
       "order": 117
+    },
+    {
+      "name": "Mix de Papas Terra",
+      "description": "Bolsa de 120g",
+      "price": 2000,
+      "discount": 0,
+      "stock": true,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Terra Mix Papas 120g.webp",
+      "order": 118
     }
   ]
 }
