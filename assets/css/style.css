@@ -71,13 +71,14 @@ h1 {
   left: auto; /* Ensure the left property is not set */
 }
 
-/* Ensure dropdown menu stays within the viewport */
+/* Ensure dropdown menu stays within the viewport
 .navbar .dropdown-menu-end {
   position: absolute;
   right: 0;
   left: auto;
   transform: translateX(-100%);
 }
+  */
 
 /* Cart Icon Styles */
 #cart-icon {
