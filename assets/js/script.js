@@ -276,6 +276,12 @@ const generateStableId = (product) => {
     return `pid-${Math.abs(hash)}`;
 };
 
+const sanitizeHTML = (unsafe) => {
+    const element = document.createElement('div');
+    element.textContent = unsafe;
+    return element.innerHTML;
+};
+
 // Modify the fetchProducts function
 const fetchProducts = async () => {
     try {
@@ -383,11 +389,13 @@ const initApp = async () => {
         }
     };
 
+    /*
     const sanitizeHTML = (unsafe) => {
         const element = document.createElement('div');
         element.textContent = unsafe;
         return element.innerHTML;
     };
+    */
 
     const loadComponent = async (container, filename) => {
 
