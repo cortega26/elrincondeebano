@@ -1,6 +1,6 @@
 {
-  "version": "20241219-105908",
-  "last_updated": "2024-12-19T10:59:08.693433",
+  "version": "20241219-165239",
+  "last_updated": "2024-12-19T16:52:39.082299",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -1201,6 +1201,16 @@
       "category": "Mascotas",
       "image_path": "assets/images/mascotas/Bolsa biodegradable caca perro.webp",
       "order": 119
+    },
+    {
+      "name": "Maíz Curagua Líder (cabritas/cotufas)",
+      "description": "Bolsa de 500g",
+      "price": 2000,
+      "discount": 0,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/maiz-removebg-preview.webp",
+      "order": 120
     }
   ]
 }
