@@ -257,7 +257,6 @@ const debounce = (func, delay) => {
     };
 };
 
-
 // Add this utility function for generating stable product IDs
 const generateStableId = (product) => {
     // Create a stable ID using product properties that shouldn't change
@@ -389,14 +388,6 @@ const initApp = async () => {
         }
     };
 
-    /*
-    const sanitizeHTML = (unsafe) => {
-        const element = document.createElement('div');
-        element.textContent = unsafe;
-        return element.innerHTML;
-    };
-    */
-
     const loadComponent = async (container, filename) => {
 
         if (!container) {
@@ -440,34 +431,6 @@ const initApp = async () => {
             showErrorMessage('Error al cargar los componentes de la página. Por favor, actualice la página o verifique su conexión a internet.');
         }
     };
-
-    /*
-    const fetchProducts = async () => {
-        try {
-            const response = await fetch('/_products/product_data.json', {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            if (!response.ok) {
-                throw new Error(`HTTP error. Status: ${response.status}`);
-            }
-            const data = await response.json();
-            return data.products.map(product => ({
-                ...product,
-                id: generateStableId(product),
-                name: sanitizeHTML(product.name),
-                description: sanitizeHTML(product.description),
-                category: sanitizeHTML(product.category)
-            }));
-        } catch (error) {
-            console.error('Error al obtener productos:', error);
-            showErrorMessage(`Error al cargar los productos. Por favor, verifique su conexión a internet e inténtelo de nuevo. (Error: ${error.message})`);
-            throw error;
-        }
-    };
-    */
 
     const renderPriceHtml = (price, discount, currencyCode = 'CLP') => {
         const formatter = new Intl.NumberFormat('es-CL', {
