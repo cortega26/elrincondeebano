@@ -1,6 +1,6 @@
 {
-  "version": "20241218-212352",
-  "last_updated": "2024-12-18T21:23:52.798521",
+  "version": "20241218-214755",
+  "last_updated": "2024-12-18T21:47:55.796803",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -507,7 +507,7 @@
       "description": "Presentación de 200mL",
       "price": 1500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Lacteos",
       "image_path": "assets/images/lacteos/Crema de leche Surlat 200mL.webp",
       "order": 50
@@ -545,7 +545,7 @@
     {
       "name": "Queso Gauda La Vaquita",
       "description": "Laminado 400g",
-      "price": 4200,
+      "price": 4600,
       "discount": 0,
       "stock": true,
       "category": "Lacteos",
@@ -1087,7 +1087,7 @@
       "description": "Envase Tetra Brik® de 395g",
       "price": 1700,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Lacteos",
       "image_path": "assets/images/lacteos/Parmalat-Leche-Condensada-395-gr.png",
       "order": 108
