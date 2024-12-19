@@ -1,6 +1,6 @@
 {
-  "version": "20241218-214755",
-  "last_updated": "2024-12-18T21:47:55.796803",
+  "version": "20241219-105908",
+  "last_updated": "2024-12-19T10:59:08.693433",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -1191,6 +1191,16 @@
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Terra Mix Papas 120g.webp",
       "order": 118
+    },
+    {
+      "name": "Bolsas biodegradables para mascotas",
+      "description": "3 rollos de 15 bolsas cada una",
+      "price": 2000,
+      "discount": 0,
+      "stock": true,
+      "category": "Mascotas",
+      "image_path": "assets/images/mascotas/Bolsa biodegradable caca perro.webp",
+      "order": 119
     }
   ]
 }
