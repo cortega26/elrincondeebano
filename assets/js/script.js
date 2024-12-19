@@ -433,6 +433,7 @@ const initApp = async () => {
         }
     };
 
+    /*
     const fetchProducts = async () => {
         try {
             const response = await fetch('/_products/product_data.json', {
@@ -458,6 +459,7 @@ const initApp = async () => {
             throw error;
         }
     };
+    */
 
     const renderPriceHtml = (price, discount, currencyCode = 'CLP') => {
         const formatter = new Intl.NumberFormat('es-CL', {
