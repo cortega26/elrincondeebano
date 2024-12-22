@@ -1,6 +1,6 @@
 {
-  "version": "20241221-204420",
-  "last_updated": "2024-12-21T20:44:20.195181",
+  "version": "20241222-164503",
+  "last_updated": "2024-12-22T16:45:03.471623",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -345,7 +345,7 @@
     {
       "name": "Sweet Moscato • Undurraga",
       "description": "Espumante • Botella de 750mL",
-      "price": 5900,
+      "price": 6900,
       "discount": 0,
       "stock": true,
       "category": "Espumantes",
