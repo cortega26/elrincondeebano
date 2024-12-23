@@ -1,6 +1,6 @@
 {
-  "version": "20241223-113211",
-  "last_updated": "2024-12-23T11:32:11.912336",
+  "version": "20241223-182013",
+  "last_updated": "2024-12-23T18:20:13.891505",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -1221,6 +1221,26 @@
       "category": "Chocolates",
       "image_path": "assets/images/chocolates/Chocolate con Avellanas Great Value 100g.webp",
       "order": 121
+    },
+    {
+      "name": "Corona Sin Alcohol botella 330cc",
+      "description": "Cerveza Lager x 6 unidades",
+      "price": 6900,
+      "discount": 0,
+      "stock": true,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/Corona sin alcohol botella 330mL.webp",
+      "order": 122
+    },
+    {
+      "name": "Royal Guard Sin Alcohol botella 355cc",
+      "description": "Cerveza Lager x 6 unidades",
+      "price": 6700,
+      "discount": 0,
+      "stock": true,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/Royal Guard botella 355cc.webp",
+      "order": 123
     }
   ]
 }
