@@ -1,6 +1,6 @@
 {
-  "version": "20241223-182013",
-  "last_updated": "2024-12-23T18:20:13.891505",
+  "version": "20241227-141327",
+  "last_updated": "2024-12-27T14:13:27.496217",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -205,7 +205,7 @@
     {
       "name": "Mantequilla Kumey 250g",
       "description": "Artesanal",
-      "price": 2900,
+      "price": 3000,
       "discount": 0,
       "stock": true,
       "category": "Lacteos",
@@ -395,7 +395,7 @@
     {
       "name": "Leche Semidescremada Deslactosada",
       "description": "Envase Tetrabrik de 1L",
-      "price": 1700,
+      "price": 1800,
       "discount": 0,
       "stock": true,
       "category": "Lacteos",
