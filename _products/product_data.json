@@ -1,11 +1,11 @@
 {
-  "version": "20241227-141327",
-  "last_updated": "2024-12-27T14:13:27.496217",
+  "version": "20241228-183515",
+  "last_updated": "2024-12-28T18:35:15.178077",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
       "description": "Envase desechable",
-      "price": 1800,
+      "price": 1900,
       "discount": 0,
       "stock": true,
       "category": "Bebidas",
@@ -37,7 +37,7 @@
       "description": "Empaque de 900g",
       "price": 1500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Azúcar blanca Iansa 900g.webp",
       "order": 3
@@ -47,7 +47,7 @@
       "description": "Envase desechable",
       "price": 1500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Bebidas",
       "image_path": "assets/images/bebidas/Agua 1,6L sin gas Cachantun.webp",
       "order": 4
@@ -77,7 +77,7 @@
       "description": "Envase desechable",
       "price": 1500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Bebidas",
       "image_path": "assets/images/bebidas/Agua 1,6L con gas Cachantun.webp",
       "order": 7
@@ -367,7 +367,7 @@
       "description": "Botella de 1L",
       "price": 10000,
       "discount": 1100,
-      "stock": true,
+      "stock": false,
       "category": "Piscos",
       "image_path": "assets/images/piscos/Pisco Alto del Carmen Especial 35° 1L.webp",
       "order": 36
@@ -455,7 +455,7 @@
     {
       "name": "Cristal lata 350cc",
       "description": "Cerveza Lager x 6 unidades",
-      "price": 4000,
+      "price": 3900,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -807,7 +807,7 @@
       "description": "Vino rosado • Botella de 750mL • 13,5° G.L.",
       "price": 4900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Vinos",
       "image_path": "assets/images/vinos/Rosé Misiones de Rengo.webp",
       "order": 80
@@ -887,7 +887,7 @@
       "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
       "price": 7500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Vinos",
       "image_path": "assets/images/vinos/Merlot Casillero del Diablo Concha y Toro botella 750mL.webp",
       "order": 88
@@ -945,7 +945,7 @@
     {
       "name": "Jugo de Naranja • Soprole",
       "description": "Envase de 1L • Sin azúcar añadida",
-      "price": 1300,
+      "price": 1500,
       "discount": 0,
       "stock": true,
       "category": "Jugos",
@@ -955,7 +955,7 @@
     {
       "name": "Jugo de Durazno • Soprole",
       "description": "Envase de 1L • Sin azúcar añadida",
-      "price": 1300,
+      "price": 1500,
       "discount": 0,
       "stock": true,
       "category": "Jugos",
@@ -975,7 +975,7 @@
     {
       "name": "Doritos Queso",
       "description": "Bolsa de 140g",
-      "price": 1900,
+      "price": 2000,
       "discount": 0,
       "stock": true,
       "category": "SnacksSalados",
@@ -987,7 +987,7 @@
       "description": "Bolsa de 200g",
       "price": 2000,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Papas-Marco-Polo-Caseras-200g.webp",
       "order": 98
@@ -1007,7 +1007,7 @@
       "description": "Lata de 300g",
       "price": 6900,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "SnacksDulces",
       "image_path": "assets/images/snacks_dulces/Pirulin 300g.webp",
       "order": 100
@@ -1153,7 +1153,7 @@
       "order": 114
     },
     {
-      "name": "Leche Entera",
+      "name": "Leche Entera/Semidescremada",
       "description": "Envase Tetrabrik de 1L",
       "price": 1700,
       "discount": 0,
@@ -1227,7 +1227,7 @@
       "description": "Cerveza Lager x 6 unidades",
       "price": 6900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Cervezas",
       "image_path": "assets/images/cervezas/Corona sin alcohol botella 330mL.webp",
       "order": 122
