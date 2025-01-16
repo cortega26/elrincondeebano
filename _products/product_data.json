@@ -1,6 +1,6 @@
 {
-  "version": "20250116-160406",
-  "last_updated": "2025-01-16T16:04:06.776352",
+  "version": "20250116-174923",
+  "last_updated": "2025-01-16T17:49:23.614272",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -1097,7 +1097,7 @@
       "description": "Rollo de 45m",
       "price": 2600,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Limpiezayaseo",
       "image_path": "assets/images/limpieza_y_aseo/Nova Clásica XL 45m.webp",
       "order": 109
