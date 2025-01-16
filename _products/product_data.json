@@ -1,6 +1,6 @@
 {
-  "version": "20250114-185525",
-  "last_updated": "2025-01-14T18:55:25.167871",
+  "version": "20250116-160406",
+  "last_updated": "2025-01-16T16:04:06.776352",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -1241,6 +1241,16 @@
       "category": "Cervezas",
       "image_path": "assets/images/cervezas/Royal Guard botella 355cc.webp",
       "order": 123
+    },
+    {
+      "name": "OMO Ultraconcentrado 500mL",
+      "description": "Ultraconcentrado para piel sensible",
+      "price": 4900,
+      "discount": 0,
+      "stock": true,
+      "category": "Limpiezayaseo",
+      "image_path": "assets/images/limpieza_y_aseo/OMO-piel-sensible-500mL.webp",
+      "order": 124
     }
   ]
 }
