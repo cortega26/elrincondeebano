@@ -1,6 +1,6 @@
 {
-  "version": "20241228-183515",
-  "last_updated": "2024-12-28T18:35:15.178077",
+  "version": "20250114-185525",
+  "last_updated": "2025-01-14T18:55:25.167871",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -595,7 +595,7 @@
     {
       "name": "Sprite Zero 2L",
       "description": "Envase retornable",
-      "price": 2500,
+      "price": 2800,
       "discount": 0,
       "stock": true,
       "category": "Bebidas",
@@ -615,7 +615,7 @@
     {
       "name": "Fanta Zero 2L",
       "description": "Envase retornable",
-      "price": 2500,
+      "price": 2800,
       "discount": 0,
       "stock": true,
       "category": "Bebidas",
