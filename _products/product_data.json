@@ -1,6 +1,6 @@
 {
-  "version": "20250116-174923",
-  "last_updated": "2025-01-16T17:49:23.614272",
+  "version": "20250206-091822",
+  "last_updated": "2025-02-06T09:18:22.066740",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -455,7 +455,7 @@
     {
       "name": "Cristal lata 350cc",
       "description": "Cerveza Lager x 6 unidades",
-      "price": 3900,
+      "price": 4200,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -715,7 +715,7 @@
     {
       "name": "Kunstmann lata 470cc",
       "description": "Cerveza Torobayo Pale Ale",
-      "price": 1800,
+      "price": 1900,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
