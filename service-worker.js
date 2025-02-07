@@ -303,10 +303,6 @@ self.addEventListener('fetch', event => {
 // Enhanced message event handler with backwards compatibility
 self.addEventListener('message', event => {
     if (event.data.type === 'SKIP_WAITING') {
-        //respondToMessage(event, async () => {
-        //    await self.skipWaiting();
-        //    return { status: 'completed' };
-        //});
         self.skipWaiting();
     } else if (event.data.type === 'INVALIDATE_PRODUCT_CACHE') {
         respondToMessage(event, async () => {
