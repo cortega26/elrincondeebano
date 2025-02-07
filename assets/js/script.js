@@ -56,15 +56,15 @@ async function initializeServiceWorker() {
 function setupUpdateHandling(registration) {
     registration.addEventListener('updatefound', () => {
         const newWorker = registration.installing;
-        
         newWorker.addEventListener('statechange', () => {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // New version available
-                showUpdateNotification(newWorker);
+                // Immediately activate the new service worker without a prompt
+                newWorker.postMessage({ type: 'SKIP_WAITING' });
             }
         });
     });
 }
+
 
 // Set up periodic checks for service worker updates
 function setupPeriodicUpdateCheck(registration) {
