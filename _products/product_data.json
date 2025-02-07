@@ -1,7 +1,17 @@
 {
-  "version": "20250207-132606",
-  "last_updated": "2025-02-07T13:26:06.567381",
+  "version": "20250207-183659",
+  "last_updated": "2025-02-07T18:36:59.342842",
   "products": [
+    {
+      "name": "Coca-Cola Zero 3L",
+      "description": "Envase retornable",
+      "price": 3500,
+      "discount": 0,
+      "stock": true,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Coca Cola Zero 3L.webp",
+      "order": 0
+    },
     {
       "name": "Benedictino • Agua gasificada 2L",
       "description": "Envase desechable",
@@ -10,7 +20,7 @@
       "stock": true,
       "category": "Bebidas",
       "image_path": "assets/images/bebidas/Agua 2L con gas Benedictino.webp",
-      "order": 0
+      "order": 1
     },
     {
       "name": "Tortilla Grande Mexicana Líder",
@@ -20,16 +30,6 @@
       "stock": true,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Tortilla grande mexicana Líder 350g.webp",
-      "order": 1
-    },
-    {
-      "name": "Mostaza Clásica Great Value",
-      "description": "Botella de 397g",
-      "price": 2500,
-      "discount": 0,
-      "stock": true,
-      "category": "Despensa",
-      "image_path": "assets/images/despensa/Mostaza Great Value 397g.webp",
       "order": 2
     },
     {
@@ -83,16 +83,6 @@
       "order": 7
     },
     {
-      "name": "Coca-Cola Zero 3L",
-      "description": "Envase retornable",
-      "price": 3500,
-      "discount": 0,
-      "stock": true,
-      "category": "Bebidas",
-      "image_path": "assets/images/bebidas/Coca Cola Zero 3L.webp",
-      "order": 8
-    },
-    {
       "name": "Salame Italiano Líder laminado",
       "description": "Presentación 100g",
       "price": 1900,
@@ -100,6 +90,16 @@
       "stock": true,
       "category": "Carnesyembutidos",
       "image_path": "assets/images/carnes_y_embutidos/Salame Italiano Líder 100g.webp",
+      "order": 8
+    },
+    {
+      "name": "Mostaza Clásica Great Value",
+      "description": "Botella de 397g",
+      "price": 2500,
+      "discount": 0,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Mostaza Great Value 397g.webp",
       "order": 9
     },
     {
@@ -1153,7 +1153,7 @@
       "order": 114
     },
     {
-      "name": "Leche Entera/Semidescremada",
+      "name": "Leche Entera",
       "description": "Envase Tetrabrik de 1L",
       "price": 1700,
       "discount": 0,
