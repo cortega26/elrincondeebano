@@ -1,6 +1,6 @@
 {
-  "version": "20250207-185613",
-  "last_updated": "2025-02-07T18:56:13.133597",
+  "version": "20250207-191105",
+  "last_updated": "2025-02-07T19:11:05.946716",
   "products": [
     {
       "name": "Benedictino • Agua gasificada 2L",
@@ -13,106 +13,6 @@
       "order": 0
     },
     {
-      "name": "Mostaza Clásica Great Value",
-      "description": "Botella de 397g",
-      "price": 2500,
-      "discount": 0,
-      "stock": true,
-      "category": "Despensa",
-      "image_path": "assets/images/despensa/Mostaza Great Value 397g.webp",
-      "order": 1
-    },
-    {
-      "name": "Sprite 3L",
-      "description": "Envase desechable",
-      "price": 3500,
-      "discount": 0,
-      "stock": true,
-      "category": "Bebidas",
-      "image_path": "assets/images/bebidas/Sprite 3L retornable.webp",
-      "order": 2
-    },
-    {
-      "name": "Cachantun • Agua sin gas 1,6L",
-      "description": "Envase desechable",
-      "price": 1500,
-      "discount": 0,
-      "stock": false,
-      "category": "Bebidas",
-      "image_path": "assets/images/bebidas/Agua 1,6L sin gas Cachantun.webp",
-      "order": 3
-    },
-    {
-      "name": "Salame Italiano Líder laminado",
-      "description": "Presentación 100g",
-      "price": 1900,
-      "discount": 0,
-      "stock": true,
-      "category": "Carnesyembutidos",
-      "image_path": "assets/images/carnes_y_embutidos/Salame Italiano Líder 100g.webp",
-      "order": 4
-    },
-    {
-      "name": "Queso Llanero 1Kg",
-      "description": "A granel, trozo",
-      "price": 9500,
-      "discount": 0,
-      "stock": true,
-      "category": "Lacteos",
-      "image_path": "assets/images/lacteos/Queso-Llanero2.webp",
-      "order": 5
-    },
-    {
-      "name": "Azúcar Blanca Iansa",
-      "description": "Empaque de 900g",
-      "price": 1500,
-      "discount": 0,
-      "stock": false,
-      "category": "Despensa",
-      "image_path": "assets/images/despensa/Azúcar blanca Iansa 900g.webp",
-      "order": 6
-    },
-    {
-      "name": "Coca-Cola Zero 3L",
-      "description": "Envase retornable",
-      "price": 3500,
-      "discount": 0,
-      "stock": true,
-      "category": "Bebidas",
-      "image_path": "assets/images/bebidas/Coca Cola Zero 3L.webp",
-      "order": 7
-    },
-    {
-      "name": "Merlot • Misiones de Rengo",
-      "description": "Vino tinto • Botella de 750mL • 13° G.L.",
-      "price": 4500,
-      "discount": 0,
-      "stock": false,
-      "category": "Vinos",
-      "image_path": "assets/images/vinos/Merlot Misiones de Rengo 750mL.webp",
-      "order": 8
-    },
-    {
-      "name": "Cachantun • Agua gasificada 1,6L",
-      "description": "Envase desechable",
-      "price": 1500,
-      "discount": 0,
-      "stock": false,
-      "category": "Bebidas",
-      "image_path": "assets/images/bebidas/Agua 1,6L con gas Cachantun.webp",
-      "order": 9
-    },
-    {
-      "name": "Harina Mont Blanc",
-      "description": "Empaque de 1Kg",
-      "price": 1500,
-      "discount": 0,
-      "stock": true,
-      "category": "Despensa",
-      "image_path": "assets/images/despensa/Harina Mont Blanc 1Kg.webp",
-      "order": 10
-    },
-    {
       "name": "Sauvignon Blanc • Misiones de Rengo",
       "description": "Vino blanco • Botella de 750mL • 12° G.L.",
       "price": 4900,
@@ -120,7 +20,7 @@
       "stock": true,
       "category": "Vinos",
       "image_path": "assets/images/vinos/Misiones de Rengo Sauvignon Blanc botella 750mL.webp",
-      "order": 11
+      "order": 1
     },
     {
       "name": "Tortilla Grande Mexicana Líder",
@@ -130,6 +30,106 @@
       "stock": true,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Tortilla grande mexicana Líder 350g.webp",
+      "order": 2
+    },
+    {
+      "name": "Mostaza Clásica Great Value",
+      "description": "Botella de 397g",
+      "price": 2500,
+      "discount": 0,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Mostaza Great Value 397g.webp",
+      "order": 3
+    },
+    {
+      "name": "Sprite 3L",
+      "description": "Envase desechable",
+      "price": 3500,
+      "discount": 0,
+      "stock": true,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Sprite 3L retornable.webp",
+      "order": 4
+    },
+    {
+      "name": "Cachantun • Agua sin gas 1,6L",
+      "description": "Envase desechable",
+      "price": 1500,
+      "discount": 0,
+      "stock": false,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Agua 1,6L sin gas Cachantun.webp",
+      "order": 5
+    },
+    {
+      "name": "Salame Italiano Líder laminado",
+      "description": "Presentación 100g",
+      "price": 1900,
+      "discount": 0,
+      "stock": true,
+      "category": "Carnesyembutidos",
+      "image_path": "assets/images/carnes_y_embutidos/Salame Italiano Líder 100g.webp",
+      "order": 6
+    },
+    {
+      "name": "Queso Llanero 1Kg",
+      "description": "A granel, trozo",
+      "price": 9500,
+      "discount": 0,
+      "stock": true,
+      "category": "Lacteos",
+      "image_path": "assets/images/lacteos/Queso-Llanero2.webp",
+      "order": 7
+    },
+    {
+      "name": "Azúcar Blanca Iansa",
+      "description": "Empaque de 900g",
+      "price": 1500,
+      "discount": 0,
+      "stock": false,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Azúcar blanca Iansa 900g.webp",
+      "order": 8
+    },
+    {
+      "name": "Coca-Cola Zero 3L",
+      "description": "Envase retornable",
+      "price": 3500,
+      "discount": 0,
+      "stock": true,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Coca Cola Zero 3L.webp",
+      "order": 9
+    },
+    {
+      "name": "Merlot • Misiones de Rengo",
+      "description": "Vino tinto • Botella de 750mL • 13° G.L.",
+      "price": 4500,
+      "discount": 0,
+      "stock": false,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Merlot Misiones de Rengo 750mL.webp",
+      "order": 10
+    },
+    {
+      "name": "Cachantun • Agua gasificada 1,6L",
+      "description": "Envase desechable",
+      "price": 1500,
+      "discount": 0,
+      "stock": false,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Agua 1,6L con gas Cachantun.webp",
+      "order": 11
+    },
+    {
+      "name": "Harina Mont Blanc",
+      "description": "Empaque de 1Kg",
+      "price": 1500,
+      "discount": 0,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Harina Mont Blanc 1Kg.webp",
       "order": 12
     },
     {
