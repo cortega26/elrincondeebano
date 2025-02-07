@@ -1,9 +1,9 @@
 {
-  "version": "20250207-131713",
-  "last_updated": "2025-02-07T13:17:13.786441",
+  "version": "20250207-132606",
+  "last_updated": "2025-02-07T13:26:06.567381",
   "products": [
     {
-      "name": "Agua gasificada 2L Benedictino",
+      "name": "Benedictino • Agua gasificada 2L",
       "description": "Envase desechable",
       "price": 1900,
       "discount": 0,
@@ -43,7 +43,7 @@
       "order": 3
     },
     {
-      "name": "Agua sin gas 1,6L Cachantun",
+      "name": "Cachantun • Agua sin gas 1,6L",
       "description": "Envase desechable",
       "price": 1500,
       "discount": 0,
@@ -143,7 +143,7 @@
       "order": 13
     },
     {
-      "name": "Crunchis Queso • Marco Polo",
+      "name": "Marco Polo • Crunchis Queso 160g",
       "description": "Bolsa de 160g",
       "price": 2000,
       "discount": 0,
@@ -973,7 +973,7 @@
       "order": 96
     },
     {
-      "name": "Doritos Queso",
+      "name": "Doritos Queso 140g",
       "description": "Bolsa de 140g",
       "price": 2000,
       "discount": 0,
@@ -983,7 +983,7 @@
       "order": 97
     },
     {
-      "name": "Papas Lisas • Marco Polo",
+      "name": "Marco Polo • Papas Caseras 200g",
       "description": "Bolsa de 200g",
       "price": 2300,
       "discount": 0,
@@ -1183,7 +1183,7 @@
       "order": 117
     },
     {
-      "name": "Mix de Papas Terra",
+      "name": "Mix de Papas Terra 120g",
       "description": "Bolsa de 120g",
       "price": 2000,
       "discount": 0,
@@ -1261,6 +1261,26 @@
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Americano 170g.webp",
       "order": 125
+    },
+    {
+      "name": "Sprite 2L",
+      "description": "Envase retornable",
+      "price": 2800,
+      "discount": 0,
+      "stock": true,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Sprite 2L.webp",
+      "order": 126
+    },
+    {
+      "name": "Sprite Zero 3L",
+      "description": "Envase desechable",
+      "price": 3500,
+      "discount": 0,
+      "stock": true,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Sprite Zero 3L desechable.webp",
+      "order": 127
     }
   ]
 }
