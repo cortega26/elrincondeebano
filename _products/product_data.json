@@ -1,6 +1,6 @@
 {
-  "version": "20250206-091822",
-  "last_updated": "2025-02-06T09:18:22.066740",
+  "version": "20250207-104902",
+  "last_updated": "2025-02-07T10:49:02.500748",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -147,7 +147,7 @@
       "description": "Bolsa de 160g",
       "price": 2000,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Crunchis Queso 160g.webp",
       "order": 14
@@ -977,7 +977,7 @@
       "description": "Bolsa de 140g",
       "price": 2000,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Doritos Queso 140gr.webp",
       "order": 97
@@ -985,7 +985,7 @@
     {
       "name": "Papas Lisas • Marco Polo",
       "description": "Bolsa de 200g",
-      "price": 2000,
+      "price": 2300,
       "discount": 0,
       "stock": false,
       "category": "SnacksSalados",
@@ -997,7 +997,7 @@
       "description": "Bolsa de 150g",
       "price": 1900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Papas Rústicas Sal de Mar Marco Polo 150g.webp",
       "order": 99
@@ -1187,7 +1187,7 @@
       "description": "Bolsa de 120g",
       "price": 2000,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Terra Mix Papas 120g.webp",
       "order": 118
