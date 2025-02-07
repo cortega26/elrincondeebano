@@ -243,6 +243,22 @@ async function handleDynamicFetch(request) {
 self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
 
+    // For product_data.json, always try the network first.
+    if (requestUrl.pathname.endsWith('product_data.json')) {
+        event.respondWith(
+        fetch(event.request)
+            .then(networkResponse => {
+            // Optionally, update the cache with the new response.
+            return networkResponse;
+            })
+            .catch(() => {
+            // If network fails, fall back to cache.
+            return caches.match(event.request);
+            })
+        );
+        return;
+    }
+
     if (event.request.url.includes('googletagmanager.com/gtag/js')) {
         event.respondWith(
             fetch(event.request)
@@ -287,10 +303,11 @@ self.addEventListener('fetch', event => {
 // Enhanced message event handler with backwards compatibility
 self.addEventListener('message', event => {
     if (event.data.type === 'SKIP_WAITING') {
-        respondToMessage(event, async () => {
-            await self.skipWaiting();
-            return { status: 'completed' };
-        });
+        //respondToMessage(event, async () => {
+        //    await self.skipWaiting();
+        //    return { status: 'completed' };
+        //});
+        self.skipWaiting();
     } else if (event.data.type === 'INVALIDATE_PRODUCT_CACHE') {
         respondToMessage(event, async () => {
             await invalidateCache(CACHE_CONFIG.prefixes.products);
