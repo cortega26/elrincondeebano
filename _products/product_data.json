@@ -1,6 +1,6 @@
 {
-  "version": "20250207-104902",
-  "last_updated": "2025-02-07T10:49:02.500748",
+  "version": "20250207-131713",
+  "last_updated": "2025-02-07T13:17:13.786441",
   "products": [
     {
       "name": "Agua gasificada 2L Benedictino",
@@ -987,7 +987,7 @@
       "description": "Bolsa de 200g",
       "price": 2300,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Papas-Marco-Polo-Caseras-200g.webp",
       "order": 98
@@ -1251,6 +1251,16 @@
       "category": "Limpiezayaseo",
       "image_path": "assets/images/limpieza_y_aseo/OMO-piel-sensible-500mL.webp",
       "order": 124
+    },
+    {
+      "name": "Marco Polo • Papas Corte Americano 170g",
+      "description": "Bolsa de 170g",
+      "price": 2000,
+      "discount": 0,
+      "stock": true,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Americano 170g.webp",
+      "order": 125
     }
   ]
 }
