@@ -1,6 +1,6 @@
 {
-  "version": "20250207-191353",
-  "last_updated": "2025-02-07T19:13:53.545980",
+  "version": "20250208-193424",
+  "last_updated": "2025-02-08T19:34:24.692931",
   "products": [
     {
       "name": "Benedictino • Agua gasificada 2L",
@@ -25,7 +25,7 @@
     {
       "name": "Harina Mont Blanc",
       "description": "Empaque de 1Kg",
-      "price": 1500,
+      "price": 1700,
       "discount": 0,
       "stock": true,
       "category": "Despensa",
