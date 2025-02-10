@@ -1,9 +1,9 @@
 // Service Worker Configuration
 const CACHE_CONFIG = {
     prefixes: {
-        static: 'ebano-static-v2',
-        dynamic: 'ebano-dynamic-v1',
-        products: 'ebano-products-v1'
+        static: 'ebano-static-v3',
+        dynamic: 'ebano-dynamic-v2',
+        products: 'ebano-products-v2'
     },
     duration: {
         products: 5 * 60 * 1000,     // 5 minutes for product data
