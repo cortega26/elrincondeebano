@@ -1,6 +1,6 @@
 {
-  "version": "20250212-150145",
-  "last_updated": "2025-02-12T15:01:45.337488",
+  "version": "20250212-171533",
+  "last_updated": "2025-02-12T17:15:33.171693",
   "products": [
     {
       "name": "Benedictino • Agua gasificada 2L",
@@ -69,7 +69,7 @@
       "discount": 0,
       "stock": true,
       "category": "Bebidas",
-      "image_path": "assets/images/bebidas/Sprite 3L retornable.webp",
+      "image_path": "assets/images/bebidas/Sprite 3L desechable.webp",
       "order": 6
     },
     {
