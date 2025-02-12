@@ -1,6 +1,6 @@
 {
-  "version": "20250208-193424",
-  "last_updated": "2025-02-08T19:34:24.692931",
+  "version": "20250212-144353",
+  "last_updated": "2025-02-12T14:43:53.788043",
   "products": [
     {
       "name": "Benedictino • Agua gasificada 2L",
@@ -967,7 +967,7 @@
       "description": "Barra de 100g • 90% cacao",
       "price": 3500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Chocolates",
       "image_path": "assets/images/chocolates/Chocolate amargo Our Finest 90_ cacao.webp",
       "order": 96
@@ -1301,6 +1301,16 @@
       "category": "Bebidas",
       "image_path": "assets/images/bebidas/Agua 2,5L con gas Vital.webp",
       "order": 129
+    },
+    {
+      "name": "Chocolate con Avellanas Milka",
+      "description": "Barra de 100g",
+      "price": 2700,
+      "discount": 0,
+      "stock": true,
+      "category": "Chocolates",
+      "image_path": "assets/images/chocolates/Chocolate con Almendras Milka 100g.webp",
+      "order": 130
     }
   ]
 }
