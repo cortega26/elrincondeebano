@@ -1,6 +1,6 @@
 {
-  "version": "20250212-144353",
-  "last_updated": "2025-02-12T14:43:53.788043",
+  "version": "20250212-150145",
+  "last_updated": "2025-02-12T15:01:45.337488",
   "products": [
     {
       "name": "Benedictino • Agua gasificada 2L",
@@ -1311,6 +1311,16 @@
       "category": "Chocolates",
       "image_path": "assets/images/chocolates/Chocolate con Almendras Milka 100g.webp",
       "order": 130
+    },
+    {
+      "name": "Galletas Oreo Original",
+      "description": "Presentación de 108g",
+      "price": 1300,
+      "discount": 0,
+      "stock": true,
+      "category": "SnacksDulces",
+      "image_path": "assets/images/snacks_dulces/Galletas Oreo Original 108g.webp",
+      "order": 131
     }
   ]
 }
