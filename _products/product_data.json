@@ -1,6 +1,6 @@
 {
-  "version": "20250213-103813",
-  "last_updated": "2025-02-13T10:38:13.788749",
+  "version": "20250213-120056",
+  "last_updated": "2025-02-13T12:00:56.150608",
   "products": [
     {
       "name": "Benedictino • Agua gasificada 2L",
@@ -1321,6 +1321,16 @@
       "category": "SnacksDulces",
       "image_path": "assets/images/snacks_dulces/Galletas Oreo Original 108g.webp",
       "order": 131
+    },
+    {
+      "name": "Galletas Choco Chips Costa",
+      "description": "Presentación de 125g",
+      "price": 1300,
+      "discount": 0,
+      "stock": true,
+      "category": "SnacksDulces",
+      "image_path": "assets/images/snacks_dulces/Choco Chips  Costa 125g.webp",
+      "order": 132
     }
   ]
 }
