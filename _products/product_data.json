@@ -1,6 +1,6 @@
 {
-  "version": "20250212-171533",
-  "last_updated": "2025-02-12T17:15:33.171693",
+  "version": "20250213-103813",
+  "last_updated": "2025-02-13T10:38:13.788749",
   "products": [
     {
       "name": "Benedictino • Agua gasificada 2L",
@@ -47,7 +47,7 @@
       "description": "Empaque de 350g",
       "price": 2400,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Tortilla grande mexicana Líder 350g.webp",
       "order": 4
@@ -525,8 +525,8 @@
     {
       "name": "Nescafé Fina Selección",
       "description": "Frasco de 200g",
-      "price": 9500,
-      "discount": 600,
+      "price": 10900,
+      "discount": 1000,
       "stock": true,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Cafe-Nescafe-Fina-Seleccion-200-g.webp",
@@ -1125,8 +1125,8 @@
     {
       "name": "Nescafé Tradición",
       "description": "Lata 150g",
-      "price": 5500,
-      "discount": 0,
+      "price": 6000,
+      "discount": 500,
       "stock": true,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Cafe Nescafé Tradición 150g.webp",
