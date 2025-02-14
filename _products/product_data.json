@@ -1,6 +1,6 @@
 {
-  "version": "20250213-120056",
-  "last_updated": "2025-02-13T12:00:56.150608",
+  "version": "20250214-143700",
+  "last_updated": "2025-02-14T14:37:00.910959",
   "products": [
     {
       "name": "Benedictino • Agua gasificada 2L",
@@ -8,7 +8,7 @@
       "price": 1900,
       "discount": 0,
       "stock": true,
-      "category": "Bebidas",
+      "category": "Aguas",
       "image_path": "assets/images/bebidas/Agua 2L con gas Benedictino.webp",
       "order": 0
     },
@@ -18,7 +18,7 @@
       "price": 1500,
       "discount": 0,
       "stock": false,
-      "category": "Bebidas",
+      "category": "Aguas",
       "image_path": "assets/images/bebidas/Agua 1,6L con gas Cachantun.webp",
       "order": 1
     },
@@ -78,7 +78,7 @@
       "price": 1500,
       "discount": 0,
       "stock": false,
-      "category": "Bebidas",
+      "category": "Aguas",
       "image_path": "assets/images/bebidas/Agua 1,6L sin gas Cachantun.webp",
       "order": 7
     },
@@ -1288,7 +1288,7 @@
       "price": 1500,
       "discount": 0,
       "stock": true,
-      "category": "Bebidas",
+      "category": "Aguas",
       "image_path": "assets/images/bebidas/Agua 1,6L con gas Vital.webp",
       "order": 128
     },
@@ -1298,7 +1298,7 @@
       "price": 2000,
       "discount": 0,
       "stock": true,
-      "category": "Bebidas",
+      "category": "Aguas",
       "image_path": "assets/images/bebidas/Agua 2,5L con gas Vital.webp",
       "order": 129
     },
