@@ -1,6 +1,6 @@
 {
-  "version": "20250214-143700",
-  "last_updated": "2025-02-14T14:37:00.910959",
+  "version": "20250215-170339",
+  "last_updated": "2025-02-15T17:03:39.514986",
   "products": [
     {
       "name": "Benedictino • Agua gasificada 2L",
@@ -455,7 +455,7 @@
     {
       "name": "Cristal lata 350cc",
       "description": "Cerveza Lager x 6 unidades",
-      "price": 4200,
+      "price": 4500,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -475,7 +475,7 @@
     {
       "name": "Royal Guard lata 350cc",
       "description": "Cerveza Lager x 6 unidades",
-      "price": 4600,
+      "price": 5000,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -485,7 +485,7 @@
     {
       "name": "Stella Artois lata 354cc",
       "description": "Cerveza Lager x 6 unidades",
-      "price": 4500,
+      "price": 4900,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -725,7 +725,7 @@
     {
       "name": "Budweiser lata 354cc",
       "description": "Cerveza Lager x 6 unidades",
-      "price": 4400,
+      "price": 5000,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
