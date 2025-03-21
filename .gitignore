@@ -72,3 +72,4 @@ Pipfile.lock
 output.txt
 .backup/
 product_data.backup_*
+.qodo
