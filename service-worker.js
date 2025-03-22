@@ -3,7 +3,7 @@ const CACHE_CONFIG = {
     prefixes: {
         static: 'ebano-static-v3',
         dynamic: 'ebano-dynamic-v2',
-        products: 'ebano-products-v2'
+        products: 'ebano-products-v3'
     },
     duration: {
         products: 5 * 60 * 1000,     // 5 minutes for product data
