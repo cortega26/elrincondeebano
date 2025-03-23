@@ -1,6 +1,6 @@
 {
-  "version": "20250323-094217",
-  "last_updated": "2025-03-23T09:42:17.859590",
+  "version": "20250323-161506",
+  "last_updated": "2025-03-23T16:15:06.045709",
   "products": [
     {
       "name": "Benedictino • Agua gasificada 2L",
@@ -55,7 +55,7 @@
     {
       "name": "Mostaza Clásica Great Value",
       "description": "Botella de 397g",
-      "price": 2500,
+      "price": 3000,
       "discount": 0,
       "stock": true,
       "category": "Despensa",
@@ -65,7 +65,7 @@
     {
       "name": "Sprite 3L",
       "description": "Envase desechable",
-      "price": 3500,
+      "price": 4000,
       "discount": 0,
       "stock": true,
       "category": "Bebidas",
@@ -84,10 +84,10 @@
     },
     {
       "name": "Salame Italiano Líder laminado",
-      "description": "Presentación 100g",
+      "description": "Empaque de 100g",
       "price": 1900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Carnesyembutidos",
       "image_path": "assets/images/carnes_y_embutidos/Salame Italiano Líder 100g.webp",
       "order": 8
@@ -115,7 +115,7 @@
     {
       "name": "Coca-Cola Zero 3L",
       "description": "Envase retornable",
-      "price": 3500,
+      "price": 4000,
       "discount": 0,
       "stock": true,
       "category": "Bebidas",
@@ -275,7 +275,7 @@
     {
       "name": "Coca-Cola 3L",
       "description": "Envase retornable",
-      "price": 3500,
+      "price": 4000,
       "discount": 0,
       "stock": true,
       "category": "Bebidas",
@@ -427,7 +427,7 @@
       "description": "Cerveza Lager x 6 unidades",
       "price": 3500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Cervezas",
       "image_path": "assets/images/cervezas/Becker lata 350cc.webp",
       "order": 42
@@ -495,7 +495,7 @@
     {
       "name": "Stones Lemon lata 350cc",
       "description": "Cerveza Lager Saborizada x 6 unidades",
-      "price": 5200,
+      "price": 5500,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -564,7 +564,7 @@
     },
     {
       "name": "Chuleta Ahumada con hueso x Kg",
-      "description": "Congelada y al vacío (empaque aprox. 500g)",
+      "description": "Empaque congelado y al vacío (peso aprox. 600g)",
       "price": 8900,
       "discount": 500,
       "stock": true,
@@ -574,7 +574,7 @@
     },
     {
       "name": "Jamón de Pierna Acaramelado PF",
-      "description": "Presentación de 200g",
+      "description": "Empaque al vacío de 200g",
       "price": 2400,
       "discount": 0,
       "stock": true,
@@ -584,7 +584,7 @@
     },
     {
       "name": "Salame La Preferida",
-      "description": "Presentación de 500g",
+      "description": "Empaque al vacío de 500g",
       "price": 7500,
       "discount": 600,
       "stock": false,
@@ -605,7 +605,7 @@
     {
       "name": "Fanta 3L",
       "description": "Envase retornable",
-      "price": 3500,
+      "price": 4000,
       "discount": 0,
       "stock": true,
       "category": "Bebidas",
@@ -846,7 +846,7 @@
       "name": "Miller lata 355c",
       "description": "Cerveza Lager x 6 unidades",
       "price": 7900,
-      "discount": 0,
+      "discount": 1000,
       "stock": true,
       "category": "Cervezas",
       "image_path": "assets/images/cervezas/Miller lata 350cc.webp",
@@ -1227,7 +1227,7 @@
       "description": "Cerveza Lager x 6 unidades",
       "price": 6900,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Cervezas",
       "image_path": "assets/images/cervezas/Corona sin alcohol botella 330mL.webp",
       "order": 122
@@ -1275,7 +1275,7 @@
     {
       "name": "Sprite Zero 3L",
       "description": "Envase desechable",
-      "price": 3500,
+      "price": 4000,
       "discount": 0,
       "stock": true,
       "category": "Bebidas",
@@ -1351,6 +1351,56 @@
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Lays-Jamón-Serrano-140gr.webp",
       "order": 134
+    },
+    {
+      "name": "Tocino Ahumado PF",
+      "description": "Empaque de 150g",
+      "price": 2800,
+      "discount": 0,
+      "stock": true,
+      "category": "Carnesyembutidos",
+      "image_path": "assets/images/carnes_y_embutidos/Tocino PF 150g.webp",
+      "order": 135
+    },
+    {
+      "name": "Coca-Cola 2L",
+      "description": "Envare retornable",
+      "price": 2800,
+      "discount": 0,
+      "stock": true,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Coca-Cola-2L.webp",
+      "order": 136
+    },
+    {
+      "name": "Coca-Cola Zero 2L",
+      "description": "Envase retornable",
+      "price": 2800,
+      "discount": 0,
+      "stock": true,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Coca-Cola-2L sin azucar.webp",
+      "order": 137
+    },
+    {
+      "name": "Fanta 2L",
+      "description": "Envase retornable",
+      "price": 2800,
+      "discount": 0,
+      "stock": true,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Fanta 2L.webp",
+      "order": 138
+    },
+    {
+      "name": "Pollo Pechuga deshuesada Congelada Seara",
+      "description": "Empaque de 800g",
+      "price": 5500,
+      "discount": 0,
+      "stock": true,
+      "category": "Carnesyembutidos",
+      "image_path": "assets/images/carnes_y_embutidos/Pechuga pollo deshuesada 800g Seara.webp",
+      "order": 139
     }
   ]
 }
