@@ -1,6 +1,6 @@
 {
-  "version": "20250323-161506",
-  "last_updated": "2025-03-23T16:15:06.045709",
+  "version": "20250323-174403",
+  "last_updated": "2025-03-23T17:44:03.955432",
   "products": [
     {
       "name": "Benedictino • Agua gasificada 2L",
@@ -1355,7 +1355,7 @@
     {
       "name": "Tocino Ahumado PF",
       "description": "Empaque de 150g",
-      "price": 2800,
+      "price": 3500,
       "discount": 0,
       "stock": true,
       "category": "Carnesyembutidos",
