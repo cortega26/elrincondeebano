@@ -1,6 +1,6 @@
 {
-  "version": "20250323-222208",
-  "last_updated": "2025-03-23T22:22:08.952191",
+  "version": "20250323-222435",
+  "last_updated": "2025-03-23T22:24:35.810327",
   "products": [
     {
       "name": "Benedictino • Agua gasificada 2L",
@@ -211,56 +211,6 @@
       "category": "Lacteos",
       "image_path": "assets/images/lacteos/Mantequilla Kumey.webp",
       "order": 20
-    },
-    {
-      "name": "Microsoft Office Professional Plus 2016",
-      "description": "Licencia retail",
-      "price": 15000,
-      "discount": 0,
-      "stock": false,
-      "category": "Software",
-      "image_path": "assets/images/software/Office-professional-plus-2016-international.webp",
-      "order": 21
-    },
-    {
-      "name": "Microsoft Office Professional Plus 2021",
-      "description": "Licencia retail",
-      "price": 19000,
-      "discount": 0,
-      "stock": false,
-      "category": "Software",
-      "image_path": "assets/images/software/Office-pro-2021-plus.webp",
-      "order": 22
-    },
-    {
-      "name": "Windows 11 Pro",
-      "description": "Licencia retail",
-      "price": 29000,
-      "discount": 10000,
-      "stock": false,
-      "category": "Software",
-      "image_path": "assets/images/software/Windows 11 Pro.webp",
-      "order": 23
-    },
-    {
-      "name": "Windows 11 Home",
-      "description": "Licencia retail",
-      "price": 26000,
-      "discount": 8000,
-      "stock": false,
-      "category": "Software",
-      "image_path": "assets/images/software/licencia-digital-windows-11-home.webp",
-      "order": 24
-    },
-    {
-      "name": "Windows 10 Pro",
-      "description": "Licencia retail",
-      "price": 25000,
-      "discount": 8000,
-      "stock": false,
-      "category": "Software",
-      "image_path": "assets/images/software/Windows 10 Pro.webp",
-      "order": 25
     },
     {
       "name": "Easy Clean Lavanda L",
@@ -1131,16 +1081,6 @@
       "category": "Despensa",
       "image_path": "assets/images/despensa/Cafe Nescafé Tradición 150g.webp",
       "order": 112
-    },
-    {
-      "name": "Microsoft Office Professional Plus 2019",
-      "description": "Licencia retail",
-      "price": 17000,
-      "discount": 0,
-      "stock": false,
-      "category": "Software",
-      "image_path": "assets/images/software/Office-2019-Professional-Plus.webp",
-      "order": 113
     },
     {
       "name": "Queso Llanero 1/4Kg",
