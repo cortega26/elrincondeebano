@@ -1,6 +1,6 @@
 {
-  "version": "20250326-181412",
-  "last_updated": "2025-03-26T18:14:12.501520",
+  "version": "20250326-182127",
+  "last_updated": "2025-03-26T18:21:27.341060",
   "products": [
     {
       "name": "Benedictino • Agua gasificada 2L",
@@ -366,7 +366,7 @@
       "name": "Café El Peñón Gourmet",
       "description": "Empaque de 500g",
       "price": 6900,
-      "discount": 0,
+      "discount": 1000,
       "stock": true,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Cafe-El-Peñon-Gourmet-500g.webp",
@@ -665,7 +665,7 @@
     {
       "name": "Kunstmann lata 470cc",
       "description": "Cerveza Torobayo Pale Ale",
-      "price": 1900,
+      "price": 2000,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -1067,7 +1067,7 @@
       "description": "Lata 150g",
       "price": 6000,
       "discount": 500,
-      "stock": true,
+      "stock": false,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Cafe Nescafé Tradición 150g.webp",
       "order": 112
