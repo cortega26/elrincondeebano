@@ -1,6 +1,6 @@
 {
-  "version": "20250326-161552",
-  "last_updated": "2025-03-26T16:15:52.146524",
+  "version": "20250326-161920",
+  "last_updated": "2025-03-26T16:19:20.602862",
   "products": [
     {
       "name": "Benedictino • Agua gasificada 2L",
@@ -736,7 +736,7 @@
       "name": "San Pedro • Carmenere Gran Reserva 2023, Castillo de Molina",
       "description": "Vino tinto • Botella de 750mL • 14,5° G.L.",
       "price": 12000,
-      "discount": 2600,
+      "discount": 2100,
       "stock": true,
       "category": "Vinos",
       "image_path": "assets/images/vinos/Castillo de Molina Carmenere Gran Reserva 2019 San Pedro.webp",
