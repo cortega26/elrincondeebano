@@ -1,6 +1,6 @@
 {
-  "version": "20250326-155518",
-  "last_updated": "2025-03-26T15:55:18.195206",
+  "version": "20250326-160114",
+  "last_updated": "2025-03-26T16:01:14.561649",
   "products": [
     {
       "name": "Benedictino • Agua gasificada 2L",
@@ -647,7 +647,7 @@
       "description": "Vino tinto • Botella 750mL • 13,5° G.L.",
       "price": 11500,
       "discount": 1600,
-      "stock": true,
+      "stock": false,
       "category": "Vinos",
       "image_path": "assets/images/vinos/Casillero del Diablo Carmenere Reserva Privada 750mL.webp",
       "order": 69
