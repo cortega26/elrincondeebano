@@ -1,6 +1,6 @@
 {
-  "version": "20250326-161920",
-  "last_updated": "2025-03-26T16:19:20.602862",
+  "version": "20250326-181412",
+  "last_updated": "2025-03-26T18:14:12.501520",
   "products": [
     {
       "name": "Benedictino • Agua gasificada 2L",
@@ -165,7 +165,7 @@
     {
       "name": "Salsa de tomate Líder",
       "description": "Botella de 680g",
-      "price": 3000,
+      "price": 3500,
       "discount": 0,
       "stock": true,
       "category": "Despensa",
