@@ -1,6 +1,6 @@
 {
-  "version": "20250326-131356",
-  "last_updated": "2025-03-26T13:13:56.279897",
+  "version": "20250326-155518",
+  "last_updated": "2025-03-26T15:55:18.195206",
   "products": [
     {
       "name": "Benedictino • Agua gasificada 2L",
@@ -33,7 +33,7 @@
       "order": 2
     },
     {
-      "name": "Sauvignon Blanc • Misiones de Rengo",
+      "name": "Misiones de Rengo • Sauvignon Blanc",
       "description": "Vino blanco • Botella de 750mL • 12° G.L.",
       "price": 4900,
       "discount": 0,
@@ -123,7 +123,7 @@
       "order": 11
     },
     {
-      "name": "Merlot • Misiones de Rengo",
+      "name": "Misiones de Rengo • Merlot",
       "description": "Vino tinto • Botella de 750mL • 13° G.L.",
       "price": 4500,
       "discount": 0,
@@ -233,7 +233,7 @@
       "order": 27
     },
     {
-      "name": "Red Blend Reserva • Chivilingo, Mousiño-Macul",
+      "name": "Mousiño-Macul • Red Blend Reserva, Chivilingo",
       "description": "Vino tinto • Botella 750mL • 13,5° G.L.",
       "price": 5500,
       "discount": 0,
@@ -243,7 +243,7 @@
       "order": 28
     },
     {
-      "name": "Carmenere Reserva • Chivilingo, Mousiño-Macul",
+      "name": "Mousiño-Macul • Carmenere Reserva, Chivilingo",
       "description": "Vino tinto • Botella 750mL • 13,5° G.L.",
       "price": 5500,
       "discount": 0,
@@ -573,7 +573,7 @@
       "order": 61
     },
     {
-      "name": "Carmenere • Diablo, Concha y Toro",
+      "name": "Concha y Toro • Carmenere, Diablo",
       "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
       "price": 8900,
       "discount": 0,
@@ -583,7 +583,7 @@
       "order": 62
     },
     {
-      "name": "Cabernet Sauvignon • Misiones de Rengo",
+      "name": "Misiones de Rengo • Cabernet Sauvignon",
       "description": "Vino tinto • Botella de 750mL • 13° G.L.",
       "price": 4500,
       "discount": 0,
@@ -593,7 +593,7 @@
       "order": 63
     },
     {
-      "name": "Carmenere • Misiones de Rengo",
+      "name": "Misiones de Rengo • Carmenere",
       "description": "Vino tinto • Botella de 750mL • 13° G.L.",
       "price": 4500,
       "discount": 0,
@@ -603,7 +603,7 @@
       "order": 64
     },
     {
-      "name": "Cabernet Sauvignon • Gran 120, Santa Rita",
+      "name": "Santa Rita • Cabernet Sauvignon, Gran 120",
       "description": "Vino tinto • Botella de 700mL • 12° G.L.",
       "price": 5000,
       "discount": 600,
@@ -613,7 +613,7 @@
       "order": 65
     },
     {
-      "name": "Merlot • Gato, San Pedro",
+      "name": "San Pedro • Merlot, Gato",
       "description": "Vino tinto • Botella de 700mL • 12° G.L.",
       "price": 4000,
       "discount": 0,
@@ -623,7 +623,7 @@
       "order": 66
     },
     {
-      "name": "Cabernet Sauvignon • Gato, San Pedro",
+      "name": "San Pedro • Cabernet Sauvignon, Gato",
       "description": "Vino tinto • Botella de 700mL • 12° G.L.",
       "price": 4000,
       "discount": 0,
@@ -633,7 +633,7 @@
       "order": 67
     },
     {
-      "name": "Ensamblaje Devil's Collection • Casillero del Diablo, Concha y Toro",
+      "name": "Concha y Toro • Ensamblaje Devil's Collection, Casillero del Diablo",
       "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
       "price": 10000,
       "discount": 1100,
@@ -643,7 +643,7 @@
       "order": 68
     },
     {
-      "name": "Carmenere Reserva Privada • Casillero del Diablo, Concha y Toro",
+      "name": "Concha y Toro • Carmenere Reserva Privada, Casillero del Diablo",
       "description": "Vino tinto • Botella 750mL • 13,5° G.L.",
       "price": 11500,
       "discount": 1600,
@@ -653,7 +653,7 @@
       "order": 69
     },
     {
-      "name": "Cabernet Sauvignon Reserva Privada • Casillero del Diablo, Concha y Toro",
+      "name": "Concha y Toro • Cabernet Sauvignon Reserva Privada, Casillero del Diablo",
       "description": "Vino tinto • Botella 750mL • 13,5° G.L.",
       "price": 11500,
       "discount": 1600,
@@ -733,7 +733,7 @@
       "order": 77
     },
     {
-      "name": "Carmenere Gran Reserva 2023 • Castillo de Molina, San Pedro",
+      "name": "San Pedro • Carmenere Gran Reserva 2023, Castillo de Molina",
       "description": "Vino tinto • Botella de 750mL • 14,5° G.L.",
       "price": 12000,
       "discount": 2600,
@@ -743,7 +743,7 @@
       "order": 78
     },
     {
-      "name": "Carmere Secret Reserve • Santa Rita",
+      "name": "Santa Rita • Carmere Secret Reserve",
       "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
       "price": 6000,
       "discount": 0,
@@ -753,7 +753,7 @@
       "order": 79
     },
     {
-      "name": "Rosé • Misiones de Rengo",
+      "name": "Misiones de Rengo • Rosé",
       "description": "Vino rosado • Botella de 750mL • 13,5° G.L.",
       "price": 4900,
       "discount": 0,
@@ -803,7 +803,7 @@
       "order": 84
     },
     {
-      "name": "Cabernet Sauvignon Reserva • Misiones de Rengo",
+      "name": "Misiones de Rengo • Cabernet Sauvignon Reserva",
       "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
       "price": 7000,
       "discount": 500,
@@ -813,7 +813,7 @@
       "order": 85
     },
     {
-      "name": "Carmenere Reserva • Misiones de Rengo",
+      "name": "Misiones de Rengo • Carmenere Reserva",
       "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
       "price": 7000,
       "discount": 500,
@@ -823,7 +823,7 @@
       "order": 86
     },
     {
-      "name": "Cabernet Sauvignon Reserva Especial • Casillero del Diablo, Concha y Toro",
+      "name": "Concha y Toro • Cabernet Sauvignon Reserva Especial, Casillero del Diablo",
       "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
       "price": 7500,
       "discount": 0,
@@ -833,7 +833,7 @@
       "order": 87
     },
     {
-      "name": "Merlot Reserva Especial • Casillero del Diablo, Concha y Toro",
+      "name": "Concha y Toro • Merlot Reserva Especial, Casillero del Diablo",
       "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
       "price": 7500,
       "discount": 0,
@@ -843,7 +843,7 @@
       "order": 88
     },
     {
-      "name": "Cabernet Sauvignon Gran Reserva Black 2022 • Misiones de Rengo",
+      "name": "Misiones de Rengo • Cabernet Sauvignon Gran Reserva Black 2022",
       "description": "Vino tinto • Botella de 750mL • 14° G.L.",
       "price": 12000,
       "discount": 2100,
@@ -853,7 +853,7 @@
       "order": 89
     },
     {
-      "name": "Carmenere Gran Reserva Black 2022 • Misiones de Rengo",
+      "name": "Misiones de Rengo • Carmenere Gran Reserva Black 2022",
       "description": "Vino tinto • Botella de 750mL • 14° G.L.",
       "price": 12000,
       "discount": 2100,
@@ -863,7 +863,7 @@
       "order": 90
     },
     {
-      "name": "Cabernet Sauvignon Reserva • Chivilingo, Mousiño-Macul",
+      "name": "Mousiño-Macul • Cabernet Sauvignon Reserva, Chivilingo",
       "description": "Vino tinto • Botella 750mL • 13,5° G.L.",
       "price": 5500,
       "discount": 0,
