@@ -1,6 +1,6 @@
 {
-  "version": "20250323-222435",
-  "last_updated": "2025-03-23T22:24:35.810327",
+  "version": "20250326-131356",
+  "last_updated": "2025-03-26T13:13:56.279897",
   "products": [
     {
       "name": "Benedictino • Agua gasificada 2L",
@@ -637,7 +637,7 @@
       "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
       "price": 10000,
       "discount": 1100,
-      "stock": true,
+      "stock": false,
       "category": "Vinos",
       "image_path": "assets/images/vinos/Casillero del Diablo Devil's Collection 750mL.webp",
       "order": 68
@@ -733,7 +733,7 @@
       "order": 77
     },
     {
-      "name": "Carmenere Gran Reserva 2019 • Castillo de Molina, San Pedro",
+      "name": "Carmenere Gran Reserva 2023 • Castillo de Molina, San Pedro",
       "description": "Vino tinto • Botella de 750mL • 14,5° G.L.",
       "price": 12000,
       "discount": 2600,
@@ -747,7 +747,7 @@
       "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
       "price": 6000,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Vinos",
       "image_path": "assets/images/vinos/Secret Reserve Carmenere Santa Rita.webp",
       "order": 79
@@ -843,34 +843,24 @@
       "order": 88
     },
     {
-      "name": "Cabernet Sauvignon Gran Reserva Black • Misiones de Rengo",
+      "name": "Cabernet Sauvignon Gran Reserva Black 2022 • Misiones de Rengo",
       "description": "Vino tinto • Botella de 750mL • 14° G.L.",
       "price": 12000,
-      "discount": 0,
+      "discount": 2100,
       "stock": true,
       "category": "Vinos",
       "image_path": "assets/images/vinos/Cabernet Sauvignon Gran Reserva Misiones de Rengo botella 750mL.webp",
       "order": 89
     },
     {
-      "name": "Carmenere Gran Reserva Black • Misiones de Rengo",
+      "name": "Carmenere Gran Reserva Black 2022 • Misiones de Rengo",
       "description": "Vino tinto • Botella de 750mL • 14° G.L.",
       "price": 12000,
-      "discount": 0,
+      "discount": 2100,
       "stock": true,
       "category": "Vinos",
       "image_path": "assets/images/vinos/Carmenere Gran Reserva Misiones de Rengo botella 750mL.webp",
       "order": 90
-    },
-    {
-      "name": "Merlot • Santa Emiliana, Concha y Toro",
-      "description": "Vino tinto • Botella de 700mL • 13° G.L.",
-      "price": 4500,
-      "discount": 600,
-      "stock": true,
-      "category": "Vinos",
-      "image_path": "assets/images/vinos/Vino-Santa-Emiliana-merlot-700-cc.webp",
-      "order": 91
     },
     {
       "name": "Cabernet Sauvignon Reserva • Chivilingo, Mousiño-Macul",
