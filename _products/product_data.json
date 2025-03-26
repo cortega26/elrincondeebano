@@ -1,6 +1,6 @@
 {
-  "version": "20250326-160114",
-  "last_updated": "2025-03-26T16:01:14.561649",
+  "version": "20250326-161552",
+  "last_updated": "2025-03-26T16:15:52.146524",
   "products": [
     {
       "name": "Benedictino • Agua gasificada 2L",
@@ -1331,6 +1331,36 @@
       "category": "Carnesyembutidos",
       "image_path": "assets/images/carnes_y_embutidos/Pechuga pollo deshuesada 800g Seara.webp",
       "order": 139
+    },
+    {
+      "name": "Concha y Toro • Carmenere Reserva, Casillero del Diablo",
+      "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
+      "price": 6900,
+      "discount": 0,
+      "stock": true,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Concha y Toro, Carmenere, Casillero del Diablo.webp",
+      "order": 133
+    },
+    {
+      "name": "Concha y Toro • Cabernet Sauvignon Reserva, Casillero del Diablo",
+      "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
+      "price": 6900,
+      "discount": 0,
+      "stock": true,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Concha y Toro, Cabernet Sauvignon, Casillero del Diablo.webp",
+      "order": 134
+    },
+    {
+      "name": "Concha y Toro • Merlot Reserva, Casillero del Diablo",
+      "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
+      "price": 6900,
+      "discount": 0,
+      "stock": true,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Concha y Toro, Merlot, Casillero del Diablo.webp",
+      "order": 135
     }
   ]
 }
