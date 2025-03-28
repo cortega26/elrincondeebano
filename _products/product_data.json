@@ -1,6 +1,6 @@
 {
-  "version": "20250326-212609",
-  "last_updated": "2025-03-26T21:26:09.055053",
+  "version": "20250327-182756",
+  "last_updated": "2025-03-27T18:27:56.767420",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -87,7 +87,7 @@
       "description": "Empaque de 350g",
       "price": 2400,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Tortilla grande mexicana Líder 350g.webp",
       "order": 8
@@ -357,7 +357,7 @@
       "description": "Botella de 1L",
       "price": 11900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Aceite de Oliva Pepita de Oro 1L.webp",
       "order": 35
@@ -1106,7 +1106,7 @@
       "name": "Aceite de Maravilla Líder",
       "description": "Botella de 1L",
       "price": 3500,
-      "discount": 0,
+      "discount": 500,
       "stock": true,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Aceite de Maravilla Líder 1L.webp",
