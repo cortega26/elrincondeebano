@@ -1,6 +1,6 @@
 {
-  "version": "20250327-182756",
-  "last_updated": "2025-03-27T18:27:56.767420",
+  "version": "20250328-164156",
+  "last_updated": "2025-03-28T16:41:56.779526",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -63,9 +63,9 @@
       "order": 5
     },
     {
-      "name": "Harina Mont Blanc",
+      "name": "Harina sin polvos Mont Blanc",
       "description": "Empaque de 1Kg",
-      "price": 1700,
+      "price": 1800,
       "discount": 0,
       "stock": true,
       "category": "Despensa",
