@@ -1,6 +1,6 @@
 {
-  "version": "20250328-164156",
-  "last_updated": "2025-03-28T16:41:56.779526",
+  "version": "20250328-201323",
+  "last_updated": "2025-03-28T20:13:23.054225",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -1381,6 +1381,16 @@
       "category": "Vinos",
       "image_path": "assets/images/vinos/Vino Diablo Malbec.webp",
       "order": 137
+    },
+    {
+      "name": "Powerade Rojo",
+      "description": "Botella de 1.1L",
+      "price": 1900,
+      "discount": 0,
+      "stock": true,
+      "category": "Energeticaseisotonicas",
+      "image_path": "assets/images/bebidas/Powerade Rojo 1.1L.webp",
+      "order": 138
     }
   ]
 }
