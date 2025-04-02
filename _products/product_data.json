@@ -1,6 +1,6 @@
 {
-  "version": "20250328-202941",
-  "last_updated": "2025-03-28T20:29:41.749664",
+  "version": "20250402-184054",
+  "last_updated": "2025-04-02T18:40:54.733918",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -1391,6 +1391,16 @@
       "category": "Energeticaseisotonicas",
       "image_path": "assets/images/energeticaseisotonicas/Powerade Rojo 1.1L.webp",
       "order": 138
+    },
+    {
+      "name": "Galletas de Chocolate Costa",
+      "description": "Presentación de 140g",
+      "price": 1300,
+      "discount": 0,
+      "stock": true,
+      "category": "SnacksDulces",
+      "image_path": "assets/images/snacks_dulces/Galletas Chocolate Costa 140g.webp",
+      "order": 139
     }
   ]
 }
