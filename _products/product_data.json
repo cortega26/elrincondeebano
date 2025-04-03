@@ -1,6 +1,6 @@
 {
-  "version": "20250402-184054",
-  "last_updated": "2025-04-02T18:40:54.733918",
+  "version": "20250403-174611",
+  "last_updated": "2025-04-03T17:46:11.928209",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -1401,6 +1401,16 @@
       "category": "SnacksDulces",
       "image_path": "assets/images/snacks_dulces/Galletas Chocolate Costa 140g.webp",
       "order": 139
+    },
+    {
+      "name": "Canada Dry • Agua Tónica 1,5L",
+      "description": "Envase desechable",
+      "price": 2900,
+      "discount": 0,
+      "stock": true,
+      "category": "Aguas",
+      "image_path": "assets/images/bebidas/Canada Dry - Agua Tónica 1,5L.webp",
+      "order": 140
     }
   ]
 }
