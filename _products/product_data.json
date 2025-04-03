@@ -1,6 +1,6 @@
 {
-  "version": "20250403-174611",
-  "last_updated": "2025-04-03T17:46:11.928209",
+  "version": "20250403-185356",
+  "last_updated": "2025-04-03T18:53:56.730882",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -1411,6 +1411,16 @@
       "category": "Aguas",
       "image_path": "assets/images/bebidas/Canada Dry - Agua Tónica 1,5L.webp",
       "order": 140
+    },
+    {
+      "name": "Benedictino • Agua sin gas 2L",
+      "description": "Envase desechable",
+      "price": 1900,
+      "discount": 0,
+      "stock": true,
+      "category": "Aguas",
+      "image_path": "assets/images/bebidas/Agua 2L sin gas Benedictino.webp",
+      "order": 141
     }
   ]
 }
