@@ -1,6 +1,6 @@
 {
-  "version": "20250403-185356",
-  "last_updated": "2025-04-03T18:53:56.730882",
+  "version": "20250404-151056",
+  "last_updated": "2025-04-04T15:10:56.032135",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -13,6 +13,16 @@
       "order": 0
     },
     {
+      "name": "Harina sin polvos Mont Blanc",
+      "description": "Empaque de 1Kg",
+      "price": 1800,
+      "discount": 0,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Harina Mont Blanc 1Kg.webp",
+      "order": 1
+    },
+    {
       "name": "Coca-Cola 3L",
       "description": "Envase retornable",
       "price": 4000,
@@ -20,7 +30,7 @@
       "stock": true,
       "category": "Bebidas",
       "image_path": "assets/images/bebidas/Coca Cola 3L.webp",
-      "order": 1
+      "order": 2
     },
     {
       "name": "Galletas de Limón McKay",
@@ -30,7 +40,7 @@
       "stock": true,
       "category": "SnacksDulces",
       "image_path": "assets/images/snacks_dulces/Galletas Limón McKay 120g.webp",
-      "order": 2
+      "order": 3
     },
     {
       "name": "Mousiño-Macul • Carmenere Reserva, Chivilingo",
@@ -40,7 +50,7 @@
       "stock": true,
       "category": "Vinos",
       "image_path": "assets/images/vinos/Carmenere Reserva Chivilingo Cousiño-Macul botella 750mL.webp",
-      "order": 3
+      "order": 4
     },
     {
       "name": "Benedictino • Agua gasificada 2L",
@@ -50,7 +60,7 @@
       "stock": true,
       "category": "Aguas",
       "image_path": "assets/images/bebidas/Agua 2L con gas Benedictino.webp",
-      "order": 4
+      "order": 5
     },
     {
       "name": "Cachantun • Agua gasificada 1,6L",
@@ -60,16 +70,6 @@
       "stock": false,
       "category": "Aguas",
       "image_path": "assets/images/bebidas/Agua 1,6L con gas Cachantun.webp",
-      "order": 5
-    },
-    {
-      "name": "Harina sin polvos Mont Blanc",
-      "description": "Empaque de 1Kg",
-      "price": 1800,
-      "discount": 0,
-      "stock": true,
-      "category": "Despensa",
-      "image_path": "assets/images/despensa/Harina Mont Blanc 1Kg.webp",
       "order": 6
     },
     {
