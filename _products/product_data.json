@@ -1,6 +1,6 @@
 {
-  "version": "20250404-151056",
-  "last_updated": "2025-04-04T15:10:56.032135",
+  "version": "20250405-225645",
+  "last_updated": "2025-04-05T22:56:45.351029",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -587,7 +587,7 @@
       "description": "Vino tinto • Botella de 750mL • 13° G.L.",
       "price": 4500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Vinos",
       "image_path": "assets/images/vinos/Vino Cabernet Sauvignon Misiones de Rengo 750 cc.webp",
       "order": 58
@@ -597,7 +597,7 @@
       "description": "Vino tinto • Botella de 750mL • 13° G.L.",
       "price": 4500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Vinos",
       "image_path": "assets/images/vinos/Vino Carmenere Misiones de Rengo 750 cc.webp",
       "order": 59
@@ -1336,7 +1336,7 @@
       "name": "Concha y Toro • Carmenere Reserva, Casillero del Diablo",
       "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
       "price": 6900,
-      "discount": 0,
+      "discount": 1000,
       "stock": true,
       "category": "Vinos",
       "image_path": "assets/images/vinos/Concha y Toro, Carmenere, Casillero del Diablo.webp",
@@ -1346,7 +1346,7 @@
       "name": "Concha y Toro • Cabernet Sauvignon Reserva, Casillero del Diablo",
       "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
       "price": 6900,
-      "discount": 0,
+      "discount": 1000,
       "stock": true,
       "category": "Vinos",
       "image_path": "assets/images/vinos/Concha y Toro, Cabernet Sauvignon, Casillero del Diablo.webp",
@@ -1356,7 +1356,7 @@
       "name": "Concha y Toro • Merlot Reserva, Casillero del Diablo",
       "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
       "price": 6900,
-      "discount": 0,
+      "discount": 1000,
       "stock": true,
       "category": "Vinos",
       "image_path": "assets/images/vinos/Concha y Toro, Merlot, Casillero del Diablo.webp",
