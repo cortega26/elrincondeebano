@@ -1,6 +1,6 @@
 {
-  "version": "20250405-225645",
-  "last_updated": "2025-04-05T22:56:45.351029",
+  "version": "20250406-131732",
+  "last_updated": "2025-04-06T13:17:32.009860",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -77,7 +77,7 @@
       "description": "Vino blanco • Botella de 750mL • 12° G.L.",
       "price": 4900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Vinos",
       "image_path": "assets/images/vinos/Misiones de Rengo Sauvignon Blanc botella 750mL.webp",
       "order": 7
@@ -735,8 +735,8 @@
     {
       "name": "San Pedro • Carmenere Gran Reserva 2023, Castillo de Molina",
       "description": "Vino tinto • Botella de 750mL • 14,5° G.L.",
-      "price": 12000,
-      "discount": 2100,
+      "price": 11000,
+      "discount": 1200,
       "stock": true,
       "category": "Vinos",
       "image_path": "assets/images/vinos/Castillo de Molina Carmenere Gran Reserva 2019 San Pedro.webp",
