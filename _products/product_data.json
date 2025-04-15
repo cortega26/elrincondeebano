@@ -1,6 +1,6 @@
 {
-  "version": "20250406-131732",
-  "last_updated": "2025-04-06T13:17:32.009860",
+  "version": "20250415-132843",
+  "last_updated": "2025-04-15T13:28:43.072776",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -877,7 +877,7 @@
       "description": "Pisco Sour • Botella de 700mL",
       "price": 4500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Piscos",
       "image_path": "assets/images/piscos/Pisco Sour Limón Zero Secreto Peruano 700mL.webp",
       "order": 87
