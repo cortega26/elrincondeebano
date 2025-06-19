@@ -243,7 +243,7 @@ async function handleDynamicFetch(request) {
 self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
 
-    // For product_data.json, always try the network first with cache fallback.
+    // For product_data.json, always try the network first.
     if (url.pathname.endsWith('product_data.json')) {
         event.respondWith(
         fetch(event.request)
