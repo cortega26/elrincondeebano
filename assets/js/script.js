@@ -229,8 +229,10 @@ function showNotification(notificationElement) {
     }, 5 * 60 * 1000);
 }
 
-// Initialize the service worker
-registerServiceWorker();
+// Initialize the service worker when running in a browser environment
+if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+    registerServiceWorker();
+}
 
 
 // Utility functions
@@ -343,10 +345,12 @@ const showErrorMessage = (message) => {
 };
 
 // Global error handler
-window.addEventListener('error', (event) => {
-    console.error("Error global:", event.error);
-    showErrorMessage('Ocurrió un error inesperado. Por favor, recarga la página.');
-});
+if (typeof window !== 'undefined') {
+    window.addEventListener('error', (event) => {
+        console.error("Error global:", event.error);
+        showErrorMessage('Ocurrió un error inesperado. Por favor, recarga la página.');
+    });
+}
 
 // Main function to initialize the application
 const initApp = async () => {
@@ -877,13 +881,18 @@ const initApp = async () => {
 };
 
 // Run the application when the DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    // Register service worker first
-    registerServiceWorker();
-    
-    // Then initialize the app
-    initApp().catch(error => {
-        console.error('Error al inicializar la aplicación:', error);
-        showErrorMessage('Error al inicializar la aplicación. Por favor, actualice la página.');
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', function() {
+        // Register service worker first
+        registerServiceWorker();
+
+        // Then initialize the app
+        initApp().catch(error => {
+            console.error('Error al inicializar la aplicación:', error);
+            showErrorMessage('Error al inicializar la aplicación. Por favor, actualice la página.');
+        });
     });
-});
+}
+if (typeof module !== 'undefined') {
+    module.exports = { generateStableId };
+}
