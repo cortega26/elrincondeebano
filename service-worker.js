@@ -248,7 +248,7 @@ self.addEventListener('fetch', event => {
         event.respondWith(
         fetch(event.request)
             .then(networkResponse => {
-            // Optionally, update the cache with the new response.
+            // No caching of the network response is performed here.
             return networkResponse;
             })
             .catch(() => {
