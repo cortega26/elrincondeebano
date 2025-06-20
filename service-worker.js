@@ -244,11 +244,11 @@ self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
 
     // For product_data.json, always try the network first.
-    if (requestUrl.pathname.endsWith('product_data.json')) {
+    if (url.pathname.endsWith('product_data.json')) {
         event.respondWith(
         fetch(event.request)
             .then(networkResponse => {
-            // Optionally, update the cache with the new response.
+            // No caching of the network response is performed here.
             return networkResponse;
             })
             .catch(() => {
