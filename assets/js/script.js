@@ -806,6 +806,19 @@ const initApp = async () => {
         
         cartTotal.textContent = `Total: $${total.toLocaleString('es-CL')}`;
         cartTotal.setAttribute('aria-label', `Total cart value: $${total.toLocaleString('es-CL')}`);
+
+        const creditOption = document.getElementById('payment-credit-container');
+        if (creditOption) {
+            if (total >= 30000) {
+                creditOption.classList.remove('d-none');
+            } else {
+                creditOption.classList.add('d-none');
+                const creditInput = creditOption.querySelector('input');
+                if (creditInput) {
+                    creditInput.checked = false;
+                }
+            }
+        }
     };
 
     const submitCart = () => {
