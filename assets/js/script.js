@@ -259,32 +259,6 @@ const debounce = (func, delay) => {
     };
 };
 
-// Theme handling utilities
-function applyTheme(theme) {
-    if (theme === 'dark') {
-        document.body.classList.add('dark-mode');
-    } else {
-        document.body.classList.remove('dark-mode');
-    }
-
-    const icon = document.getElementById('theme-icon');
-    if (icon) {
-        icon.className = theme === 'dark' ? 'bi bi-sun' : 'bi bi-moon';
-    }
-}
-
-function toggleTheme() {
-    const newTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
-    localStorage.setItem('theme', newTheme);
-    applyTheme(newTheme);
-}
-
-function initTheme() {
-    const stored = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const theme = stored || (prefersDark ? 'dark' : 'light');
-    applyTheme(theme);
-}
 
 // Add this utility function for generating stable product IDs
 const generateStableId = (product) => {
@@ -932,13 +906,6 @@ if (typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', function() {
         // Register service worker first
         registerServiceWorker();
-
-        // Theme setup
-        initTheme();
-        const themeToggle = document.getElementById('theme-toggle');
-        if (themeToggle) {
-            themeToggle.addEventListener('click', toggleTheme);
-        }
 
         // Then initialize the app
         initApp().catch(error => {
