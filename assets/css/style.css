@@ -11,12 +11,23 @@
 }
 
 /* Base Styles */
+html,
+body {
+  height: 100%;
+}
+
 body {
   font-family: Arial, sans-serif;
   color: var(--text-color);
   background-color: var(--background-color);
   line-height: 1.6;
   padding-top: 64px;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
 }
 
 h1 {
