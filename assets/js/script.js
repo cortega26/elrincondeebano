@@ -782,6 +782,12 @@ const initApp = async () => {
     };
 
     const submitCart = () => {
+        const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
+        if (!selectedPayment) {
+            alert('Por favor seleccione un método de pago');
+            return;
+        }
+
         let message = "Mi pedido:\n\n";
         cart.forEach(item => {
             const discountedPrice = item.price - (item.discount || 0);
@@ -792,7 +798,8 @@ const initApp = async () => {
         });
         
         const total = cart.reduce((sum, item) => sum + (item.price - (item.discount || 0)) * item.quantity, 0);
-        message += `Total: $${total.toLocaleString('es-CL')}`;
+        message += `Total: $${total.toLocaleString('es-CL')}\n`;
+        message += `Método de pago: ${selectedPayment.value}`;
         
         const encodedMessage = encodeURIComponent(message);
         window.open(`https://wa.me/56951118901?text=${encodedMessage}`, '_blank');
