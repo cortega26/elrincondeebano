@@ -8,6 +8,9 @@
             <button class="navbar-toggler me-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+            <button id="theme-toggle" class="nav-link text-light btn" type="button" aria-label="Cambiar tema">
+                <i id="theme-icon" class="bi bi-moon"></i>
+            </button>
             <a class="nav-link text-light" href="#" id="cart-icon" aria-label="Carrito de compras">
                 <i class="bi bi-cart3"></i>
                 <span class="badge bg-danger" id="cart-count">0</span>
@@ -84,6 +87,10 @@
             <div class="form-check">
                 <input class="form-check-input" type="radio" name="paymentMethod" id="payment-transfer" value="Transferencia" required>
                 <label class="form-check-label" for="payment-transfer">Transferencia</label>
+            </div>
+            <div class="form-check d-none" id="payment-credit-container">
+                <input class="form-check-input" type="radio" name="paymentMethod" id="payment-credit" value="Tarjeta de Crédito" required>
+                <label class="form-check-label" for="payment-credit">Tarjeta de Crédito</label>
             </div>
         </div>
         <button id="empty-cart" class="btn btn-warning mt-3">Vaciar Carrito</button>
