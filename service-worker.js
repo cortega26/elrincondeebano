@@ -146,7 +146,7 @@ self.addEventListener('activate', event => {
                     const validPrefixes = Object.values(CACHE_CONFIG.prefixes);
                     return Promise.all(
                         cacheNames
-                            .filter(name => validPrefixes.some(prefix => !name.startsWith(prefix)))
+                            .filter(name => !validPrefixes.some(prefix => name.startsWith(prefix)))
                             .map(name => caches.delete(name))
                     );
                 }),
