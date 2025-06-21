@@ -10,13 +10,25 @@
   --transition: all 0.3s ease;
 }
 
+
 /* Base Styles */
+html,
 body {
-  font-family: Arial, sans-serif;
+  height: 100%;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
   color: var(--text-color);
   background-color: var(--background-color);
   line-height: 1.6;
   padding-top: 64px;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
 }
 
 h1 {
@@ -80,6 +92,7 @@ h1 {
   margin-right: 0.5rem;
   color: #fff;
 }
+
 
 #cart-count {
   position: absolute;
