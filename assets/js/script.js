@@ -259,6 +259,7 @@ const debounce = (func, delay) => {
     };
 };
 
+
 // Add this utility function for generating stable product IDs
 const generateStableId = (product) => {
     // Create a stable ID using product properties that shouldn't change
@@ -779,9 +780,28 @@ const initApp = async () => {
         
         cartTotal.textContent = `Total: $${total.toLocaleString('es-CL')}`;
         cartTotal.setAttribute('aria-label', `Total cart value: $${total.toLocaleString('es-CL')}`);
+
+        const creditOption = document.getElementById('payment-credit-container');
+        if (creditOption) {
+            if (total >= 30000) {
+                creditOption.classList.remove('d-none');
+            } else {
+                creditOption.classList.add('d-none');
+                const creditInput = creditOption.querySelector('input');
+                if (creditInput) {
+                    creditInput.checked = false;
+                }
+            }
+        }
     };
 
     const submitCart = () => {
+        const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
+        if (!selectedPayment) {
+            alert('Por favor seleccione un método de pago');
+            return;
+        }
+
         let message = "Mi pedido:\n\n";
         cart.forEach(item => {
             const discountedPrice = item.price - (item.discount || 0);
@@ -792,7 +812,8 @@ const initApp = async () => {
         });
         
         const total = cart.reduce((sum, item) => sum + (item.price - (item.discount || 0)) * item.quantity, 0);
-        message += `Total: $${total.toLocaleString('es-CL')}`;
+        message += `Total: $${total.toLocaleString('es-CL')}\n`;
+        message += `Método de pago: ${selectedPayment.value}`;
         
         const encodedMessage = encodeURIComponent(message);
         window.open(`https://wa.me/56951118901?text=${encodedMessage}`, '_blank');

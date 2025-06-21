@@ -19,7 +19,7 @@
   /* Critical layout elements */
   body {
     margin: 0;
-    font-family: system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', sans-serif;
     color: var(--text-color);
     background-color: var(--background-color);
     padding-top: 64px;
