@@ -13,12 +13,16 @@
         h1 {
             color: #343a40;
         }
+        .actions { margin-top: 20px; }
     </style>
 </head>
 <body>
     <h1>El Rincón de Ébano</h1>
-    <p>Lo sentimos, parece que no tienes conexión a internet en este momento.</p>
-    <p>Por favor, verifica tu conexión e intenta nuevamente.</p>
-    <button onclick="window.location.reload()">Intentar de nuevo</button>
+    <p role="status">Lo sentimos, parece que no tienes conexión a internet en este momento.</p>
+    <p>Puedes volver a la página principal o intentar recargar para reconectar.</p>
+    <div class="actions">
+        <button onclick="window.location.reload()">Intentar de nuevo</button>
+        <a href="/index.html">Ir al inicio</a>
+    </div>
 </body>
 </html>

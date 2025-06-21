@@ -1,4 +1,5 @@
 // Service Worker Configuration
+const TEST_MODE = typeof module !== 'undefined';
 const CACHE_CONFIG = {
     prefixes: {
         static: 'ebano-static-v3',
@@ -104,6 +105,7 @@ const addTimestamp = async (response, type = 'static') => {
 };
 
 // Install event - cache static assets
+if (!TEST_MODE) {
 self.addEventListener('install', event => {
     console.log('Service Worker: Installing...');
     event.waitUntil(
@@ -316,6 +318,7 @@ self.addEventListener('message', event => {
         });
     }
 });
+}
 
 // Helper function to invalidate specific cache
 async function invalidateCache(cacheName) {
@@ -346,3 +349,5 @@ async function invalidateAllCaches() {
         throw error; // Propagate error for proper handling in message response
     }
 }
+
+if (typeof module !== "undefined") { module.exports = { isCacheFresh, addTimestamp }; }
