@@ -445,17 +445,24 @@ const initApp = async () => {
         });
     
         const formattedPrice = formatter.format(price);
+        const priceContainer = createSafeElement('div', { class: 'precio-container' });
         if (discount) {
             const discountedPrice = price - discount;
             const formattedDiscountedPrice = formatter.format(discountedPrice);
-            return createSafeElement('div', { class: 'precio-container' }, [
-                createSafeElement('span', { class: 'precio-descuento', 'aria-label': 'Precio con descuento' }, [formattedDiscountedPrice]),
+            priceContainer.appendChild(
+                createSafeElement('span', { class: 'precio-descuento', 'aria-label': 'Precio con descuento' }, [formattedDiscountedPrice])
+            );
+            priceContainer.appendChild(
                 createSafeElement('span', { class: 'precio-original', 'aria-label': 'Precio original' }, [
                     createSafeElement('span', { class: 'tachado' }, [formattedPrice])
                 ])
-            ]);
+            );
+        } else {
+            priceContainer.appendChild(
+                createSafeElement('span', { class: 'precio', 'aria-label': 'Precio' }, [formattedPrice])
+            );
         }
-        return createSafeElement('span', { class: 'precio', 'aria-label': 'Precio' }, [formattedPrice]);
+        return priceContainer;
     };
 
     const renderQuantityControl = (product) => {
