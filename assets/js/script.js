@@ -362,7 +362,7 @@ const initApp = async () => {
         try {
             await new Promise((resolve, reject) => {
                 const script = document.createElement('script');
-                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.8/purify.min.js';
+                script.src = '/assets/js/purify.min.js';
                 script.onload = resolve;
                 script.onerror = reject;
                 document.head.appendChild(script);
@@ -445,21 +445,24 @@ const initApp = async () => {
         });
     
         const formattedPrice = formatter.format(price);
+        const priceContainer = createSafeElement('div', { class: 'precio-container' });
         if (discount) {
             const discountedPrice = price - discount;
             const formattedDiscountedPrice = formatter.format(discountedPrice);
-            const formattedDiscount = formatter.format(discount);
-            return createSafeElement('div', { class: 'precio-container' }, [
-                createSafeElement('span', { class: 'precio-descuento', 'aria-label': 'Precio con descuento' }, [formattedDiscountedPrice]),
-                createSafeElement('span', { class: 'ahorra', 'aria-label': 'Monto de ahorro' }, [`Ahorra ${formattedDiscount}`]),
+            priceContainer.appendChild(
+                createSafeElement('span', { class: 'precio-descuento', 'aria-label': 'Precio con descuento' }, [formattedDiscountedPrice])
+            );
+            priceContainer.appendChild(
                 createSafeElement('span', { class: 'precio-original', 'aria-label': 'Precio original' }, [
-                    'Regular: ',
                     createSafeElement('span', { class: 'tachado' }, [formattedPrice])
                 ])
-            ]);
+            );
         } else {
-            return createSafeElement('span', { class: 'precio', 'aria-label': 'Precio' }, [formattedPrice]);
+            priceContainer.appendChild(
+                createSafeElement('span', { class: 'precio', 'aria-label': 'Precio' }, [formattedPrice])
+            );
         }
+        return priceContainer;
     };
 
     const renderQuantityControl = (product) => {
