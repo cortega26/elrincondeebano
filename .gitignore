@@ -2,7 +2,6 @@
 *.pyc
 *.pyo
 *.pyd
-*.py
 
 # Python distribution / packaging
 dist/
@@ -15,7 +14,6 @@ venv/
 .venv/
 env/
 .env/
-/admin
 
 # IDE and editor files
 .vscode/

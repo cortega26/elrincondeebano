@@ -449,20 +449,19 @@ const initApp = async () => {
         if (discount) {
             const discountedPrice = price - discount;
             const formattedDiscountedPrice = formatter.format(discountedPrice);
-            priceContainer.appendChild(
-                createSafeElement('span', { class: 'precio-descuento', 'aria-label': 'Precio con descuento' }, [formattedDiscountedPrice])
-            );
-            priceContainer.appendChild(
+        if (hasDiscount) {
+            return createSafeElement('div', { class: 'precio-container' }, [
+                createSafeElement('span', { class: 'precio-descuento', 'aria-label': 'Precio con descuento' }, [formattedDiscountedPrice]),
                 createSafeElement('span', { class: 'precio-original', 'aria-label': 'Precio original' }, [
                     createSafeElement('span', { class: 'tachado' }, [formattedPrice])
                 ])
-            );
+            ]);
         } else {
-            priceContainer.appendChild(
+            return createSafeElement('div', { class: 'precio-container' }, [
                 createSafeElement('span', { class: 'precio', 'aria-label': 'Precio' }, [formattedPrice])
-            );
+            ]);
         }
-        return priceContainer;
+
     };
 
     const renderQuantityControl = (product) => {
