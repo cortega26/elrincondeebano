@@ -438,31 +438,47 @@ const initApp = async () => {
     };
 
     const renderPriceHtml = (price, discount, currencyCode = 'CLP') => {
-        const formatter = new Intl.NumberFormat('es-CL', {
-            style: 'currency',
-            currency: currencyCode,
-            minimumFractionDigits: 0
-        });
-    
-        const formattedPrice = formatter.format(price);
-        const priceContainer = createSafeElement('div', { class: 'precio-container' });
-        if (discount) {
-            const discountedPrice = price - discount;
-            const formattedDiscountedPrice = formatter.format(discountedPrice);
-        if (hasDiscount) {
-            return createSafeElement('div', { class: 'precio-container' }, [
-                createSafeElement('span', { class: 'precio-descuento', 'aria-label': 'Precio con descuento' }, [formattedDiscountedPrice]),
-                createSafeElement('span', { class: 'precio-original', 'aria-label': 'Precio original' }, [
-                    createSafeElement('span', { class: 'tachado' }, [formattedPrice])
-                ])
-            ]);
-        } else {
-            return createSafeElement('div', { class: 'precio-container' }, [
-                createSafeElement('span', { class: 'precio', 'aria-label': 'Precio' }, [formattedPrice])
-            ]);
-        }
+    const formatter = new Intl.NumberFormat('es-CL', {
+        style: 'currency',
+        currency: currencyCode,
+        minimumFractionDigits: 0
+    });
 
-    };
+    const formattedPrice = formatter.format(price);
+
+    if (discount) {
+        const discountedPrice = price - discount;
+        const formattedDiscountedPrice = formatter.format(discountedPrice);
+
+        return createSafeElement('div', { class: 'precio-container' }, [
+            createSafeElement(
+                'span',
+                { class: 'precio-descuento', 'aria-label': 'Precio con descuento' },
+                [formattedDiscountedPrice]
+            ),
+            createSafeElement(
+                'span',
+                { class: 'precio-original', 'aria-label': 'Precio original' },
+                [
+                    createSafeElement(
+                        'span',
+                        { class: 'tachado' },
+                        [formattedPrice]
+                    )
+                ]
+            )
+        ]);
+    }
+
+    return createSafeElement('div', { class: 'precio-container' }, [
+        createSafeElement(
+            'span',
+            { class: 'precio', 'aria-label': 'Precio' },
+            [formattedPrice]
+        )
+    ]);
+};
+
 
     const renderQuantityControl = (product) => {
         const quantityControl = createSafeElement('div', { class: 'quantity-control' });
