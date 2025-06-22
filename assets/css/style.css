@@ -183,7 +183,6 @@ h1 {
 .precio-descuento {
   font-size: 1rem;
   font-weight: 700;
-}
 
 .precio-descuento {
   color: var(--accent-color);
@@ -192,8 +191,6 @@ h1 {
 .precio {
   color: var(--text-color);
 }
-
-
 
 .precio-original {
   display: flex;
