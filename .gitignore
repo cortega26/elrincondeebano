@@ -71,3 +71,4 @@ output.txt
 .backup/
 product_data.backup_*
 .qodo
+node_modules/

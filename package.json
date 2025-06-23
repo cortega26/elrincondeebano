@@ -1,0 +1,20 @@
+{
+  "name": "elrincondeebano",
+  "version": "1.0.0",
+  "description": "",
+  "main": "service-worker.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "build": "node build.js",
+    "test": "node test/generateStableId.test.js && node test/serviceWorker.utils.test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "esbuild": "^0.25.5"
+  }
+}
