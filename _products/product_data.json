@@ -1,6 +1,6 @@
 {
-  "version": "20250415-132843",
-  "last_updated": "2025-04-15T13:28:43.072776",
+  "version": "20250623-203525",
+  "last_updated": "2025-06-23T20:35:25.407469",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -25,7 +25,7 @@
     {
       "name": "Coca-Cola 3L",
       "description": "Envase retornable",
-      "price": 4000,
+      "price": 3600,
       "discount": 0,
       "stock": true,
       "category": "Bebidas",
@@ -105,7 +105,7 @@
     {
       "name": "Sprite 3L",
       "description": "Envase desechable",
-      "price": 4000,
+      "price": 3600,
       "discount": 0,
       "stock": true,
       "category": "Bebidas",
@@ -155,7 +155,7 @@
     {
       "name": "Coca-Cola Zero 3L",
       "description": "Envase retornable",
-      "price": 4000,
+      "price": 3600,
       "discount": 0,
       "stock": true,
       "category": "Bebidas",
@@ -307,7 +307,7 @@
       "description": "Botella de 750 de mL",
       "price": 8000,
       "discount": 1100,
-      "stock": false,
+      "stock": true,
       "category": "Piscos",
       "image_path": "assets/images/piscos/Pisco Alto del Carmen Especial 35° 750mL.webp",
       "order": 30
@@ -315,9 +315,9 @@
     {
       "name": "Pisco Especial 35° g • Alto del Carmen",
       "description": "Botella de 1L",
-      "price": 10000,
-      "discount": 1100,
-      "stock": false,
+      "price": 9900,
+      "discount": 0,
+      "stock": true,
       "category": "Piscos",
       "image_path": "assets/images/piscos/Pisco Alto del Carmen Especial 35° 1L.webp",
       "order": 31
@@ -555,7 +555,7 @@
     {
       "name": "Fanta 3L",
       "description": "Envase retornable",
-      "price": 4000,
+      "price": 3600,
       "discount": 0,
       "stock": true,
       "category": "Bebidas",
@@ -1205,7 +1205,7 @@
     {
       "name": "Sprite Zero 3L",
       "description": "Envase desechable",
-      "price": 4000,
+      "price": 3900,
       "discount": 0,
       "stock": true,
       "category": "Bebidas",
