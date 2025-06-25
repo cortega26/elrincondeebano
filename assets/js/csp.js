@@ -1,7 +1,7 @@
 (function() {
     const cspPolicy = `
         default-src 'self';
-        script-src 'self' https://www.googletagmanager.com https://code.jquery.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline' 'unsafe-eval';
+        script-src 'self' https://www.googletagmanager.com https://code.jquery.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com data: 'unsafe-inline' 'unsafe-eval';
         style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com 'unsafe-inline';
         img-src 'self' data: https:;
         font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net;
