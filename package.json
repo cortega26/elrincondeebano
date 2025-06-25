@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "build": "node build.js",
+    "build": "node build.js && node build-pages.js",
     "test": "node test/generateStableId.test.js && node test/serviceWorker.utils.test.js"
   },
   "keywords": [],
@@ -16,5 +16,8 @@
   "type": "commonjs",
   "devDependencies": {
     "esbuild": "^0.25.5"
+  },
+  "dependencies": {
+    "ejs": "^3.1.10"
   }
 }
