@@ -16,6 +16,21 @@ document.addEventListener('DOMContentLoaded', () => {
             border-radius: 0.25rem;
             margin-right: 0.5rem;
         }
+
+        /* Navigation enhancement: mega menu and responsive dropdown */
+        @media (min-width: 992px) {
+            .navbar .dropdown-menu {
+                width: 400px;
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                column-gap: 1rem;
+            }
+        }
+        @media (max-width: 991.98px) {
+            .navbar .dropdown-menu {
+                width: 100%;
+            }
+        }
         `;
         document.head.appendChild(styleEl);
     }
