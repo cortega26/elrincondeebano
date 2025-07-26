@@ -58,12 +58,19 @@
                 margin-right: 0.5rem;
             }
 
-            /* Ajustes de ancho del menú desplegable conservando la estructura original.
-               Se evita modificar el comportamiento de los menús para no provocar
-               solapamientos ni apertura simultánea. */
+            /* Mega menú: en pantallas grandes, ampliamos los menús desplegables y los organizamos en varias columnas.
+               Con este diseño tipo mega menú se muestran todas las subcategorías en una cuadrícula uniforme.
+               Se utiliza display: grid para que cada lista se alinee adecuadamente y se añade padding para separación. */
             @media (min-width: 992px) {
                 .navbar .dropdown-menu {
-                    width: auto;
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                    width: 100%;
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                    column-gap: 1rem;
+                    padding: 1rem;
                 }
             }
             @media (max-width: 991.98px) {
@@ -84,7 +91,7 @@
                    así que se ajusta el margen superior para que queden más
                    juntos sin alterar el diseño general. */
                 #cartOffcanvas .btn.mt-3 {
-                    margin-top: 0.5rem;
+                    margin-top: 0.5rem !important;
                 }
         `;
         document.head.appendChild(styleEl);
@@ -181,6 +188,25 @@
         document.querySelectorAll('.navbar .dropdown-menu .dropdown-item').forEach(item => {
             item.setAttribute('role', 'menuitem');
         });
+
+        // En pantallas de escritorio, mostramos los menús desplegables al pasar el ratón
+        // por encima y los ocultamos al salir.  Esto evita solapamientos de menús
+        // y proporciona una experiencia tipo mega menú.  Requiere que Bootstrap
+        // esté cargado para utilizar su API de Dropdown.
+        if (typeof window.bootstrap !== 'undefined') {
+            document.querySelectorAll('.navbar-nav .nav-item.dropdown').forEach(item => {
+                const toggle = item.querySelector('.dropdown-toggle');
+                if (toggle) {
+                    const dropdown = new window.bootstrap.Dropdown(toggle, { autoClose: true });
+                    item.addEventListener('mouseenter', () => {
+                        dropdown.show();
+                    });
+                    item.addEventListener('mouseleave', () => {
+                        dropdown.hide();
+                    });
+                }
+            });
+        }
     }
 
     /**
