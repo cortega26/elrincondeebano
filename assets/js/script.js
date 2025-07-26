@@ -1,5 +1,6 @@
 'use strict';
 
+
 // Service Worker Configuration and Initialization
 const SERVICE_WORKER_CONFIG = {
     path: '/service-worker.js',
@@ -935,3 +936,11 @@ if (typeof document !== 'undefined') {
 if (typeof module !== 'undefined') {
     module.exports = { generateStableId };
 }
+
+
+// Dynamically load cart enhancements script
+document.addEventListener('DOMContentLoaded', function() {
+    var script = document.createElement('script');
+    script.src = 'assets/js/cart-enhancements.js';
+    document.body.appendChild(script);
+});
