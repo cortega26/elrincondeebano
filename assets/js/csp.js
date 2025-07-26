@@ -58,13 +58,12 @@
                 margin-right: 0.5rem;
             }
 
-            /* Mega menú para navegación de categorías en pantallas grandes */
+            /* Ajustes de ancho del menú desplegable conservando la estructura original.
+               Se evita modificar el comportamiento de los menús para no provocar
+               solapamientos ni apertura simultánea. */
             @media (min-width: 992px) {
                 .navbar .dropdown-menu {
-                    width: 400px;
-                    display: grid;
-                    grid-template-columns: repeat(2, 1fr);
-                    column-gap: 1rem;
+                    width: auto;
                 }
             }
             @media (max-width: 991.98px) {
@@ -80,10 +79,13 @@
                 outline-offset: 2px;
             }
 
-            /* Reducir el espacio vertical entre botones del carrito */
-            #cart-offcanvas .btn.mb-3 {
-                margin-bottom: 0.5rem;
-            }
+                /* Reducir el espacio vertical entre botones del carrito.
+                   Los botones utilizan la clase de Bootstrap mt-3 (margin-top),
+                   así que se ajusta el margen superior para que queden más
+                   juntos sin alterar el diseño general. */
+                #cartOffcanvas .btn.mt-3 {
+                    margin-top: 0.5rem;
+                }
         `;
         document.head.appendChild(styleEl);
     }
@@ -120,13 +122,26 @@
      * contenido del carrito se renderice primero.
      */
     function setupCartThumbnailListener() {
-        const cartIcon = document.getElementById('cart-icon');
-        if (cartIcon) {
-            cartIcon.addEventListener('click', () => {
+        // Añadimos las miniaturas cuando el carrito se muestra a través del componente Offcanvas.
+        const offcanvasEl = document.getElementById('cartOffcanvas');
+        if (offcanvasEl) {
+            // Bootstrap dispara el evento 'shown.bs.offcanvas' cuando el offcanvas se ha mostrado completamente.
+            offcanvasEl.addEventListener('shown.bs.offcanvas', () => {
+                // Esperamos brevemente para que el contenido se haya renderizado
                 setTimeout(() => {
                     addThumbnailsToCart();
-                }, 100);
+                }, 50);
             });
+        } else {
+            // Como alternativa, seguimos escuchando el clic en el icono del carrito por compatibilidad.
+            const cartIcon = document.getElementById('cart-icon');
+            if (cartIcon) {
+                cartIcon.addEventListener('click', () => {
+                    setTimeout(() => {
+                        addThumbnailsToCart();
+                    }, 100);
+                });
+            }
         }
     }
 
