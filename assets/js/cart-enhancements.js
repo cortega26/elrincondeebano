@@ -110,4 +110,38 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.navbar .dropdown-menu .dropdown-item').forEach(item => {
         item.setAttribute('role', 'menuitem');
     });
+
+    // Performance enhancement: preload critical styles and preconnect to font domains.
+    // Inject preconnect hints for Google Fonts (if used) and preload main CSS files
+    {
+        // Preconnect to Google Fonts domains to speed up font loading
+        const fontDomains = [
+            { href: 'https://fonts.googleapis.com' },
+            { href: 'https://fonts.gstatic.com', crossOrigin: '' }
+        ];
+        fontDomains.forEach(({ href, crossOrigin }) => {
+            const link = document.createElement('link');
+            link.rel = 'preconnect';
+            link.href = href;
+            if (crossOrigin !== undefined) link.crossOrigin = crossOrigin;
+            document.head.appendChild(link);
+        });
+        // Preload critical CSS and main stylesheet. When the preload finishes,
+        // change rel to stylesheet so it applies normally. This helps browsers
+        // fetch the styles earlier without blocking initial rendering.
+        const cssFiles = [
+            '/assets/css/critical.min.css',
+            '/assets/css/style.min.css'
+        ];
+        cssFiles.forEach(href => {
+            const link = document.createElement('link');
+            link.rel = 'preload';
+            link.href = href;
+            link.as = 'style';
+            link.onload = function() {
+                this.rel = 'stylesheet';
+            };
+            document.head.appendChild(link);
+        });
+    }
 });
