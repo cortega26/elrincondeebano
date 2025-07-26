@@ -136,6 +136,19 @@ function setupPerformanceOptimizations() {
 }
 
 /**
+ * Inyecta el enlace al manifiesto de la aplicación (PWA) para que los
+ * navegadores puedan instalar la tienda como una aplicación nativa.
+ */
+function injectPwaManifest() {
+    const existing = document.querySelector('link[rel="manifest"]');
+    if (existing) return;
+    const link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = '/app.webmanifest';
+    document.head.appendChild(link);
+}
+
+/**
  * Insert or update basic SEO metadata such as the page title and meta
  * description.  Keeping these values in Spanish mejora el posicionamiento
  * de la tienda en los buscadores y asegura que la información sea clara
@@ -217,4 +230,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inject SEO metadata and structured data after performance optimizations
     injectSeoMetadata();
     injectStructuredData();
+    injectPwaManifest();
 });
