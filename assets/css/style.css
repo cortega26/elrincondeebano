@@ -448,5 +448,22 @@ h1 {
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
+  
   border: 0;
+}
+/* UI improvement: enlarge sort dropdown and search input */
+#filter-keyword,
+#sort-options {
+  width: 300px;
+  max-width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+}
+
+@media (max-width: 600px) {
+  #filter-keyword,
+  #sort-options {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
 }
