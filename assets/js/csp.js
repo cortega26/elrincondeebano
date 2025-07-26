@@ -58,33 +58,7 @@
                 margin-right: 0.5rem;
             }
 
-            /* Mega menú: en pantallas grandes, ampliamos el ancho del menú desplegable
-               y organizamos sus elementos en varias columnas solo cuando está visible.
-               Utilizamos una cuadrícula para alinear las subcategorías y añadir espacio entre ellas. */
-            @media (min-width: 992px) {
-                /* Ajusta la anchura del menú desplegable al ancho completo del contenedor */
-                .navbar .dropdown-menu {
-                    position: absolute;
-                    left: 0;
-                    right: 0;
-                    width: 100%;
-                }
-                /* Mostrar el mega menú en formato de cuadrícula cuando el menú está visible (clase show)
-                   o cuando el ratón está sobre la categoría.  De lo contrario el menú permanece oculto
-                   como define Bootstrap. */
-                .navbar .dropdown.show .dropdown-menu,
-                .navbar .dropdown:hover > .dropdown-menu {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-                    column-gap: 1rem;
-                    padding: 1rem;
-                }
-            }
-            @media (max-width: 991.98px) {
-                .navbar .dropdown-menu {
-                    width: 100%;
-                }
-            }
+            /* Eliminado: reglas de mega menú y anchura de los menús para restaurar el comportamiento predeterminado. */
 
             /* Contornos de enfoque claros para accesibilidad */
             .navbar .nav-link:focus,
@@ -196,9 +170,7 @@
             item.setAttribute('role', 'menuitem');
         });
 
-        // La funcionalidad de mega menú se gestiona únicamente con CSS (ver injectEnhancementStyles),
-        // por lo que no es necesario depender de la API de Dropdown de Bootstrap para mostrar u ocultar
-        // los submenús al pasar el ratón.
+        // Restaurar el comportamiento de menú predeterminado sin aplicar un mega menú personalizado.
     }
 
     /**
