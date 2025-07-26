@@ -1,10 +1,10 @@
 // Cart enhancements: add product thumbnails and show progress indicator on checkout
 // This script runs after DOM is loaded and attaches listeners to cart interactions.
 document.addEventListener('DOMContentLoaded', () => {
-    // Inject a CSS rule for cart thumbnails. This avoids having to edit the
-    // global stylesheet and keeps the enhancement self‑contained. If the
-    // stylesheet injection has already run, it will append another copy,
-    // which is harmless because CSS is idempotent for identical rules.
+    // Inject CSS rules to style additional enhancements.  Putting these rules
+    // inline avoids touching the main stylesheet and ensures accessibility
+    // improvements apply immediately when the page loads.  If the injection
+    // runs more than once, duplicate rules are harmless.
     {
         const styleEl = document.createElement('style');
         styleEl.textContent = `
@@ -30,6 +30,13 @@ document.addEventListener('DOMContentLoaded', () => {
             .navbar .dropdown-menu {
                 width: 100%;
             }
+        }
+
+        /* Accessibility enhancement: show clear focus outlines on navigation links */
+        .navbar .nav-link:focus,
+        .navbar .dropdown-item:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
         }
         `;
         document.head.appendChild(styleEl);
@@ -86,4 +93,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 2000);
         });
     }
+
+    // Accessibility enhancement: assign ARIA roles and labels to navigation
+    const nav = document.querySelector('nav.navbar');
+    if (nav) {
+        // Mark the navigation landmark and provide a Spanish label
+        nav.setAttribute('role', 'navigation');
+        nav.setAttribute('aria-label', 'Navegación principal');
+    }
+    // Assign roles to dropdown menus for better screen reader support
+    document.querySelectorAll('.navbar .dropdown-menu').forEach(menu => {
+        menu.setAttribute('role', 'menu');
+        menu.setAttribute('aria-label', 'Subcategorías');
+    });
+    // Assign menuitem role to each dropdown link
+    document.querySelectorAll('.navbar .dropdown-menu .dropdown-item').forEach(item => {
+        item.setAttribute('role', 'menuitem');
+    });
 });
