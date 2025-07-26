@@ -39,6 +39,16 @@ function injectEnhancementStyles() {
             outline: 2px solid var(--primary-color);
             outline-offset: 2px;
         }
+
+        /* Reduce vertical spacing between cart action buttons (Vaciar Carrito,
+           Realizar Pedido y Continuar Comprando).  The original markup uses
+           the Bootstrap utility class mb-3 on these buttons, which adds
+           excessive margin-bottom.  This rule overrides the margin for
+           buttons inside the cart offcanvas so that they appear más juntos.
+           Adjust the value as needed to refine spacing. */
+        #cart-offcanvas .btn.mb-3 {
+            margin-bottom: 0.5rem;
+        }
     `;
     document.head.appendChild(styleEl);
 }
