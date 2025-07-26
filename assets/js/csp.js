@@ -33,15 +33,258 @@
     meta.content = cspPolicy;
     document.head.appendChild(meta);
 
-    // After writing the CSP meta tag, dynamically load the cart enhancements
-    // script.  This approach avoids modifying index.html directly while
-    // ensuring that additional functionality (miniaturas del carrito, mega
-    // menú, accesibilidad, SEO, PWA, etc.) se ejecute en todas las páginas.
-    const enhancementScript = document.createElement('script');
-    // Use an absolute path to ensure the script is loaded from the same
-    // origin regardless of the current document location.  The defer
-    // attribute defers execution until the HTML document has been parsed.
-    enhancementScript.src = '/assets/js/cart-enhancements.js';
-    enhancementScript.defer = true;
-    document.head.appendChild(enhancementScript);
+    // Después de escribir la política CSP, definimos todas las funciones de
+    // mejora de la interfaz, accesibilidad, SEO y PWA directamente en este
+    // script.  Esto evita tener que cargar archivos adicionales desde
+    // index.html o depender de la caché del service worker.  Cada función
+    // está documentada en español para mantener la claridad.
+
+    /**
+     * Inserta estilos adicionales para las miniaturas del carrito, el mega menú
+     * y los contornos de enfoque, así como ajustes al espaciado de los
+     * botones de acción del carrito.  Al utilizar un <style> dinámico,
+     * estos estilos se aplican sin necesidad de modificar hojas de estilo
+     * preexistentes.
+     */
+    function injectEnhancementStyles() {
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `
+            /* Miniatura del carrito */
+            .cart-item-thumb {
+                width: 40px;
+                height: 40px;
+                object-fit: cover;
+                border-radius: 0.25rem;
+                margin-right: 0.5rem;
+            }
+
+            /* Mega menú para navegación de categorías en pantallas grandes */
+            @media (min-width: 992px) {
+                .navbar .dropdown-menu {
+                    width: 400px;
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    column-gap: 1rem;
+                }
+            }
+            @media (max-width: 991.98px) {
+                .navbar .dropdown-menu {
+                    width: 100%;
+                }
+            }
+
+            /* Contornos de enfoque claros para accesibilidad */
+            .navbar .nav-link:focus,
+            .navbar .dropdown-item:focus {
+                outline: 2px solid var(--primary-color);
+                outline-offset: 2px;
+            }
+
+            /* Reducir el espacio vertical entre botones del carrito */
+            #cart-offcanvas .btn.mb-3 {
+                margin-bottom: 0.5rem;
+            }
+        `;
+        document.head.appendChild(styleEl);
+    }
+
+    /**
+     * Añade miniaturas de producto a cada elemento del carrito si no están
+     * presentes.  Se basa en los datos almacenados en localStorage por
+     * script.min.js.
+     */
+    function addThumbnailsToCart() {
+        const container = document.getElementById('cart-items');
+        if (!container) return;
+        const cartData = JSON.parse(localStorage.getItem('cart') || '[]');
+        container.querySelectorAll('.cart-item').forEach(itemEl => {
+            const removeBtn = itemEl.querySelector('.remove-item');
+            const productId = removeBtn ? removeBtn.getAttribute('data-id') : null;
+            if (!productId) return;
+            if (!itemEl.querySelector('img.cart-item-thumb')) {
+                const product = cartData.find(p => String(p.id) === String(productId));
+                if (product && product.image_path) {
+                    const img = document.createElement('img');
+                    img.src = product.image_path;
+                    img.alt = product.name;
+                    img.className = 'cart-item-thumb me-2';
+                    itemEl.insertBefore(img, itemEl.firstChild);
+                }
+            }
+        });
+    }
+
+    /**
+     * Configura un listener para añadir las miniaturas cuando el usuario
+     * abra el carrito.  Utiliza un pequeño retraso para permitir que el
+     * contenido del carrito se renderice primero.
+     */
+    function setupCartThumbnailListener() {
+        const cartIcon = document.getElementById('cart-icon');
+        if (cartIcon) {
+            cartIcon.addEventListener('click', () => {
+                setTimeout(() => {
+                    addThumbnailsToCart();
+                }, 100);
+            });
+        }
+    }
+
+    /**
+     * Muestra un indicador de progreso cuando se envía el pedido por WhatsApp.
+     * Deshabilita temporalmente el botón para evitar envíos múltiples.
+     */
+    function setupCheckoutProgress() {
+        const submitBtn = document.getElementById('submit-cart');
+        if (submitBtn) {
+            submitBtn.addEventListener('click', () => {
+                const originalText = submitBtn.textContent;
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Enviando…';
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }, 2000);
+            });
+        }
+    }
+
+    /**
+     * Añade atributos ARIA a la barra de navegación y a los menús para
+     * mejorar la accesibilidad del sitio.
+     */
+    function setupNavigationAccessibility() {
+        const nav = document.querySelector('nav.navbar');
+        if (nav) {
+            nav.setAttribute('role', 'navigation');
+            nav.setAttribute('aria-label', 'Navegación principal');
+        }
+        document.querySelectorAll('.navbar .dropdown-menu').forEach(menu => {
+            menu.setAttribute('role', 'menu');
+            menu.setAttribute('aria-label', 'Subcategorías');
+        });
+        document.querySelectorAll('.navbar .dropdown-menu .dropdown-item').forEach(item => {
+            item.setAttribute('role', 'menuitem');
+        });
+    }
+
+    /**
+     * Preconecta dominios de fuentes y precarga hojas de estilo críticas para
+     * mejorar el rendimiento inicial de la página.
+     */
+    function setupPerformanceOptimizations() {
+        const fontDomains = [
+            { href: 'https://fonts.googleapis.com' },
+            { href: 'https://fonts.gstatic.com', crossOrigin: '' }
+        ];
+        fontDomains.forEach(({ href, crossOrigin }) => {
+            const link = document.createElement('link');
+            link.rel = 'preconnect';
+            link.href = href;
+            if (crossOrigin !== undefined) link.crossOrigin = crossOrigin;
+            document.head.appendChild(link);
+        });
+        const cssFiles = [
+            '/assets/css/critical.min.css',
+            '/assets/css/style.min.css'
+        ];
+        cssFiles.forEach(href => {
+            const link = document.createElement('link');
+            link.rel = 'preload';
+            link.href = href;
+            link.as = 'style';
+            link.onload = function() {
+                this.rel = 'stylesheet';
+            };
+            document.head.appendChild(link);
+        });
+    }
+
+    /**
+     * Inyecta el enlace al manifiesto PWA de la tienda, permitiendo que los
+     * usuarios instalen la aplicación en sus dispositivos.
+     */
+    function injectPwaManifest() {
+        if (document.querySelector('link[rel="manifest"]')) return;
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = '/app.webmanifest';
+        document.head.appendChild(link);
+    }
+
+    /**
+     * Actualiza el título y la descripción de la página para mejorar el SEO.
+     */
+    function injectSeoMetadata() {
+        document.title = 'El Rincón de Ébano - Tienda en línea de productos gourmet y bebidas';
+        let metaDesc = document.querySelector('meta[name="description"]');
+        if (!metaDesc) {
+            metaDesc = document.createElement('meta');
+            metaDesc.setAttribute('name', 'description');
+            document.head.appendChild(metaDesc);
+        }
+        metaDesc.setAttribute('content', 'El Rincón de Ébano: tienda online con bebestibles, snacks, alimentos y más. Delivery instantáneo en Santiago.');
+    }
+
+    /**
+     * Genera e inserta datos estructurados Schema.org para la tienda y los
+     * productos (limitado a los primeros 20) para mejorar la visibilidad en
+     * buscadores.
+     */
+    async function injectStructuredData() {
+        try {
+            const response = await fetch('/_products/product_data.json');
+            if (!response.ok) return;
+            const products = await response.json();
+            const structuredProducts = products.slice(0, 20).map(p => ({
+                '@type': 'Product',
+                'name': p.name,
+                'image': p.image_path,
+                'description': p.description,
+                'brand': p.brand || 'Genérico',
+                'offers': {
+                    '@type': 'Offer',
+                    'price': p.price,
+                    'priceCurrency': 'CLP',
+                    'availability': p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'
+                }
+            }));
+            const structuredData = {
+                '@context': 'https://schema.org',
+                '@graph': [
+                    {
+                        '@type': 'Store',
+                        'name': 'El Rincón de Ébano',
+                        'image': 'https://elrincondeebano.com/assets/images/web/logo.webp',
+                        'description': 'Un minimarket en la puerta de tu departamento',
+                        'address': {
+                            '@type': 'PostalAddress',
+                            'addressCountry': 'CL'
+                        },
+                        'telephone': '+56951118901',
+                        'url': 'http://www.elrincondeebano.com/'
+                    },
+                    ...structuredProducts
+                ]
+            };
+            const scriptEl = document.createElement('script');
+            scriptEl.type = 'application/ld+json';
+            scriptEl.textContent = JSON.stringify(structuredData);
+            document.head.appendChild(scriptEl);
+        } catch (error) {
+            console.error('Error generating structured data', error);
+        }
+    }
+
+    // Inicializa todas las mejoras cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', () => {
+        injectEnhancementStyles();
+        setupCartThumbnailListener();
+        setupCheckoutProgress();
+        setupNavigationAccessibility();
+        setupPerformanceOptimizations();
+        injectSeoMetadata();
+        injectStructuredData();
+        injectPwaManifest();
+    });
 })();
