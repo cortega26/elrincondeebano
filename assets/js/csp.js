@@ -32,4 +32,16 @@
     meta.httpEquiv = 'Content-Security-Policy';
     meta.content = cspPolicy;
     document.head.appendChild(meta);
+
+    // After writing the CSP meta tag, dynamically load the cart enhancements
+    // script.  This approach avoids modifying index.html directly while
+    // ensuring that additional functionality (miniaturas del carrito, mega
+    // menú, accesibilidad, SEO, PWA, etc.) se ejecute en todas las páginas.
+    const enhancementScript = document.createElement('script');
+    // Use an absolute path to ensure the script is loaded from the same
+    // origin regardless of the current document location.  The defer
+    // attribute defers execution until the HTML document has been parsed.
+    enhancementScript.src = '/assets/js/cart-enhancements.js';
+    enhancementScript.defer = true;
+    document.head.appendChild(enhancementScript);
 })();
