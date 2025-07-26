@@ -71,7 +71,11 @@
                    Los botones utilizan la clase de Bootstrap mt-3 (margin-top),
                    así que se ajusta el margen superior para que queden más
                    juntos sin alterar el diseño general. */
-                #cartOffcanvas .btn.mt-3 {
+                /* Ajustar el espacio vertical entre los botones del carrito.  En lugar de depender de
+                   la clase mt-3 (que Bootstrap marca con !important), utilizamos un selector más
+                   específico para aplicar el margen superior solamente a los botones que siguen
+                   inmediatamente a otro botón dentro del cuerpo del offcanvas. */
+                #cartOffcanvas .offcanvas-body > .btn + .btn {
                     margin-top: 0.5rem !important;
                 }
         `;
@@ -102,6 +106,21 @@
                 }
             }
         });
+    }
+
+    /**
+     * Configura un observador de mutaciones para el contenedor de ítems del carrito.
+     * Cada vez que se añadan o eliminen elementos, se invocará addThumbnailsToCart
+     * para asegurarse de que las miniaturas estén presentes.  Esto mejora la
+     * fiabilidad frente a cambios dinámicos realizados por script.min.js.
+     */
+    function setupCartThumbnailObserver() {
+        const container = document.getElementById('cart-items');
+        if (!container) return;
+        const observer = new MutationObserver(() => {
+            addThumbnailsToCart();
+        });
+        observer.observe(container, { childList: true });
     }
 
     /**
@@ -285,6 +304,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         injectEnhancementStyles();
         setupCartThumbnailListener();
+        setupCartThumbnailObserver();
         setupCheckoutProgress();
         setupNavigationAccessibility();
         setupPerformanceOptimizations();
