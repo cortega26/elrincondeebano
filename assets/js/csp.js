@@ -58,15 +58,22 @@
                 margin-right: 0.5rem;
             }
 
-            /* Mega menú: en pantallas grandes, ampliamos los menús desplegables y los organizamos en varias columnas.
-               Con este diseño tipo mega menú se muestran todas las subcategorías en una cuadrícula uniforme.
-               Se utiliza display: grid para que cada lista se alinee adecuadamente y se añade padding para separación. */
+            /* Mega menú: en pantallas grandes, ampliamos el ancho del menú desplegable
+               y organizamos sus elementos en varias columnas solo cuando está visible.
+               Utilizamos una cuadrícula para alinear las subcategorías y añadir espacio entre ellas. */
             @media (min-width: 992px) {
+                /* Ajusta la anchura del menú desplegable al ancho completo del contenedor */
                 .navbar .dropdown-menu {
                     position: absolute;
                     left: 0;
                     right: 0;
                     width: 100%;
+                }
+                /* Mostrar el mega menú en formato de cuadrícula cuando el menú está visible (clase show)
+                   o cuando el ratón está sobre la categoría.  De lo contrario el menú permanece oculto
+                   como define Bootstrap. */
+                .navbar .dropdown.show .dropdown-menu,
+                .navbar .dropdown:hover > .dropdown-menu {
                     display: grid;
                     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
                     column-gap: 1rem;
@@ -189,24 +196,9 @@
             item.setAttribute('role', 'menuitem');
         });
 
-        // En pantallas de escritorio, mostramos los menús desplegables al pasar el ratón
-        // por encima y los ocultamos al salir.  Esto evita solapamientos de menús
-        // y proporciona una experiencia tipo mega menú.  Requiere que Bootstrap
-        // esté cargado para utilizar su API de Dropdown.
-        if (typeof window.bootstrap !== 'undefined') {
-            document.querySelectorAll('.navbar-nav .nav-item.dropdown').forEach(item => {
-                const toggle = item.querySelector('.dropdown-toggle');
-                if (toggle) {
-                    const dropdown = new window.bootstrap.Dropdown(toggle, { autoClose: true });
-                    item.addEventListener('mouseenter', () => {
-                        dropdown.show();
-                    });
-                    item.addEventListener('mouseleave', () => {
-                        dropdown.hide();
-                    });
-                }
-            });
-        }
+        // La funcionalidad de mega menú se gestiona únicamente con CSS (ver injectEnhancementStyles),
+        // por lo que no es necesario depender de la API de Dropdown de Bootstrap para mostrar u ocultar
+        // los submenús al pasar el ratón.
     }
 
     /**
