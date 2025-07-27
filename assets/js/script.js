@@ -34,16 +34,16 @@ async function initializeServiceWorker() {
         );
 
         console.log('ServiceWorker registered successfully:', registration.scope);
-        
+
         // Set up update handling
         setupUpdateHandling(registration);
-        
+
         // Set up periodic update checks
         setupPeriodicUpdateCheck(registration);
-        
+
         // Handle controller changes
         setupControllerChangeHandling();
-        
+
         // Set up offline/online detection
         setupConnectivityHandling();
 
@@ -71,7 +71,7 @@ function setupUpdateHandling(registration) {
 function setupPeriodicUpdateCheck(registration) {
     // Initial check
     checkForUpdates(registration);
-    
+
     // Set up periodic checks
     setInterval(() => {
         checkForUpdates(registration);
@@ -82,7 +82,7 @@ function setupPeriodicUpdateCheck(registration) {
 async function checkForUpdates(registration) {
     try {
         await registration.update();
-        
+
         // Check if product data needs updating
         const response = await fetch('/_products/product_data.json', {
             headers: {
@@ -90,17 +90,17 @@ async function checkForUpdates(registration) {
                 'Pragma': 'no-cache'
             }
         });
-        
+
         if (response.ok) {
             const data = await response.json();
             const currentVersion = data.version;
             const storedVersion = localStorage.getItem('productDataVersion');
-            
+
             if (currentVersion !== storedVersion) {
                 registration.active?.postMessage({
                     type: 'INVALIDATE_PRODUCT_CACHE'
                 });
-                
+
                 localStorage.setItem('productDataVersion', currentVersion);
                 showUpdateNotification(null, 'New product data available');
             }
@@ -128,7 +128,7 @@ function setupConnectivityHandling() {
         if (offlineIndicator) {
             offlineIndicator.style.display = navigator.onLine ? 'none' : 'block';
         }
-        
+
         if (!navigator.onLine) {
             showConnectivityNotification('You are currently offline. Some features may be limited.');
         }
@@ -153,7 +153,7 @@ function showUpdateNotification(serviceWorker, message = 'Una versión está dis
             }
         }
     );
-    
+
     showNotification(notification);
 }
 
@@ -165,7 +165,7 @@ function showServiceWorkerError(message) {
         'Dismiss',
         () => window.location.reload()
     );
-    
+
     showNotification(notification);
 }
 
@@ -177,7 +177,7 @@ function showConnectivityNotification(message) {
         'Dismiss',
         () => window.location.reload()
     );
-    
+
     showNotification(notification);
 }
 
@@ -187,7 +187,7 @@ function createNotificationElement(message, primaryButtonText, secondaryButtonTe
     notification.className = 'notification-toast';
     notification.setAttribute('role', 'alert');
     notification.setAttribute('aria-live', 'polite');
-    
+
     notification.innerHTML = `
         <div class="notification-content">
             <p>${message}</p>
@@ -197,17 +197,17 @@ function createNotificationElement(message, primaryButtonText, secondaryButtonTe
             </div>
         </div>
     `;
-    
+
     // Set up event listeners
     notification.querySelector('.primary-action').addEventListener('click', () => {
         primaryAction();
         notification.remove();
     });
-    
+
     notification.querySelector('.secondary-action').addEventListener('click', () => {
         notification.remove();
     });
-    
+
     return notification;
 }
 
@@ -218,10 +218,10 @@ function showNotification(notificationElement) {
     if (existingNotification) {
         existingNotification.remove();
     }
-    
+
     // Add new notification
     document.body.appendChild(notificationElement);
-    
+
     // Auto-dismiss after 5 minutes
     setTimeout(() => {
         if (document.body.contains(notificationElement)) {
@@ -266,7 +266,7 @@ const generateStableId = (product) => {
     // Create a stable ID using product properties that shouldn't change
     // Using name and category as they should be unique together
     const baseString = `${product.name}-${product.category}`.toLowerCase();
-    
+
     // Create a simple hash of the string
     let hash = 0;
     for (let i = 0; i < baseString.length; i++) {
@@ -274,7 +274,7 @@ const generateStableId = (product) => {
         hash = ((hash << 5) - hash) + char;
         hash = hash & hash; // Convert to 32-bit integer
     }
-    
+
     // Return a more readable ID format
     return `pid-${Math.abs(hash)}`;
 };
@@ -405,17 +405,17 @@ const initApp = async () => {
             const response = await fetch(filename);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const html = await response.text();
-    
+
             const sanitizedHtml = DOMPurify.sanitize(html, {
                 USE_PROFILES: { html: true },
                 ALLOWED_TAGS: ['div', 'span', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a', 'img', 'br', 'strong', 'em', 'button', 'nav', 'footer', 'header', 'main', 'section'],
                 ALLOWED_ATTR: ['href', 'src', 'alt', 'class', 'id', 'style', 'aria-label', 'role', 'type', 'data-bs-toggle', 'data-bs-target', 'aria-controls', 'aria-expanded']
             });
-            
+
             container.innerHTML = '';
             const parser = new DOMParser();
             const doc = parser.parseFromString(sanitizedHtml, 'text/html');
-            
+
             Array.from(doc.body.children).forEach(child => {
                 container.appendChild(child.cloneNode(true));
             });
@@ -439,46 +439,46 @@ const initApp = async () => {
     };
 
     const renderPriceHtml = (price, discount, currencyCode = 'CLP') => {
-    const formatter = new Intl.NumberFormat('es-CL', {
-        style: 'currency',
-        currency: currencyCode,
-        minimumFractionDigits: 0
-    });
+        const formatter = new Intl.NumberFormat('es-CL', {
+            style: 'currency',
+            currency: currencyCode,
+            minimumFractionDigits: 0
+        });
 
-    const formattedPrice = formatter.format(price);
+        const formattedPrice = formatter.format(price);
 
-    if (discount) {
-        const discountedPrice = price - discount;
-        const formattedDiscountedPrice = formatter.format(discountedPrice);
+        if (discount) {
+            const discountedPrice = price - discount;
+            const formattedDiscountedPrice = formatter.format(discountedPrice);
+
+            return createSafeElement('div', { class: 'precio-container' }, [
+                createSafeElement(
+                    'span',
+                    { class: 'precio-descuento', 'aria-label': 'Precio con descuento' },
+                    [formattedDiscountedPrice]
+                ),
+                createSafeElement(
+                    'span',
+                    { class: 'precio-original', 'aria-label': 'Precio original' },
+                    [
+                        createSafeElement(
+                            'span',
+                            { class: 'tachado' },
+                            [formattedPrice]
+                        )
+                    ]
+                )
+            ]);
+        }
 
         return createSafeElement('div', { class: 'precio-container' }, [
             createSafeElement(
                 'span',
-                { class: 'precio-descuento', 'aria-label': 'Precio con descuento' },
-                [formattedDiscountedPrice]
-            ),
-            createSafeElement(
-                'span',
-                { class: 'precio-original', 'aria-label': 'Precio original' },
-                [
-                    createSafeElement(
-                        'span',
-                        { class: 'tachado' },
-                        [formattedPrice]
-                    )
-                ]
+                { class: 'precio', 'aria-label': 'Precio' },
+                [formattedPrice]
             )
         ]);
-    }
-
-    return createSafeElement('div', { class: 'precio-container' }, [
-        createSafeElement(
-            'span',
-            { class: 'precio', 'aria-label': 'Precio' },
-            [formattedPrice]
-        )
-    ]);
-};
+    };
 
 
     const renderQuantityControl = (product) => {
@@ -518,41 +518,41 @@ const initApp = async () => {
     const renderProducts = (productsToRender) => {
         const fragment = document.createDocumentFragment();
         const isSubcategoryPage = window.location.pathname.includes('/pages/');
-        
+
         productsToRender.forEach(product => {
             const { id, name, description, image_path, price, discount, stock } = product;
-            
+
             const productElement = createSafeElement('div', {
                 class: `producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4 ${!stock ? 'agotado' : ''}`,
                 'aria-label': `Product: ${name}`
             });
-    
+
             const cardElement = createSafeElement('div', { class: 'card' });
-            
+
             let adjustedImagePath;
             if (isSubcategoryPage) {
                 adjustedImagePath = `../${image_path.replace(/^\//, '')}`;
             } else {
                 adjustedImagePath = image_path;
             }
-            
+
             const imgElement = createSafeElement('img', {
                 'data-src': adjustedImagePath,
                 alt: name,
                 class: 'card-img-top lazyload'
             });
             cardElement.appendChild(imgElement);
-    
+
             const cardBody = createSafeElement('div', { class: 'card-body' });
             cardBody.appendChild(createSafeElement('h3', { class: 'card-title' }, [name]));
             cardBody.appendChild(createSafeElement('p', { class: 'card-text' }, [description]));
-            
+
             cardBody.appendChild(renderPriceHtml(price, discount));
-    
+
             // Get cart item state
             const cartItem = cart.find(item => item.id === id);
             const cartItemQuantity = cartItem ? cartItem.quantity : 0;
-    
+
             if (cartItemQuantity > 0) {
                 const quantityControl = renderQuantityControl(product);
                 cardBody.appendChild(quantityControl);
@@ -567,28 +567,28 @@ const initApp = async () => {
                     'data-id': id,
                     'aria-label': `Add ${name} to cart`
                 }, ['Agregar']);
-                
+
                 addToCartBtn.addEventListener('click', () => {
                     addToCart(product, 1);
                     const quantityControl = renderQuantityControl(product);
                     addToCartBtn.replaceWith(quantityControl);
                     quantityControl.classList.add('fade-in-up');
                 });
-                
+
                 cardBody.appendChild(addToCartBtn);
             }
-    
+
             cardElement.appendChild(cardBody);
             productElement.appendChild(cardElement);
             fragment.appendChild(productElement);
         });
-    
+
         const productContainer = document.getElementById('product-container');
         productContainer.innerHTML = '';
         productContainer.appendChild(fragment);
         lazyLoadImages();
     };
-    
+
     const lazyLoadImages = () => {
         const imageObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
@@ -600,15 +600,15 @@ const initApp = async () => {
                 }
             });
         }, { rootMargin: '100px' });
-    
+
         document.querySelectorAll('img.lazyload').forEach(img => imageObserver.observe(img));
     };
 
     const filterProducts = (products, keyword, sortCriterion) => {
         return products
-            .filter(product => 
+            .filter(product =>
                 (product.name.toLowerCase().includes(keyword.toLowerCase()) ||
-                product.description.toLowerCase().includes(keyword.toLowerCase())) &&
+                    product.description.toLowerCase().includes(keyword.toLowerCase())) &&
                 product.stock  // This ensures only in-stock items are shown
             )
             .sort((a, b) => sortProducts(a, b, sortCriterion));
@@ -621,7 +621,7 @@ const initApp = async () => {
         const [property, order] = criterion.split('-');
         const valueA = property === 'price' ? a.price - (a.discount || 0) : a.name.toLowerCase();
         const valueB = property === 'price' ? b.price - (b.discount || 0) : b.name.toLowerCase();
-        return order === 'asc' ? 
+        return order === 'asc' ?
             (valueA < valueB ? -1 : valueA > valueB ? 1 : 0) :
             (valueB < valueA ? -1 : valueB > valueA ? 1 : 0);
     };
@@ -671,7 +671,7 @@ const initApp = async () => {
             saveCart();
             updateCartIcon();
             renderCart();
-            
+
             const quantityInput = document.querySelector(`[data-id="${product.id}"].quantity-input`);
             if (quantityInput) {
                 quantityInput.value = Math.max(getCartItemQuantity(product.id), 1);
@@ -700,7 +700,7 @@ const initApp = async () => {
         try {
             const item = cart.find(item => item.id === product.id);
             const newQuantity = item ? item.quantity + change : 1;
-    
+
             if (newQuantity <= 0) {
                 removeFromCart(product.id);
                 updateProductDisplay(); // Refresh the entire product display
@@ -713,7 +713,7 @@ const initApp = async () => {
                 saveCart();
                 updateCartIcon();
                 renderCart();
-    
+
                 const quantityInput = document.querySelector(`[data-id="${product.id}"].quantity-input`);
                 if (quantityInput) {
                     quantityInput.value = newQuantity;
@@ -749,54 +749,90 @@ const initApp = async () => {
         }
     };
 
+    // Find the renderCart function (around line 485) and modify it like this:
+
     const renderCart = () => {
         const cartItems = document.getElementById('cart-items');
         const cartTotal = document.getElementById('cart-total');
         cartItems.innerHTML = '';
-        
+
         let total = 0;
-        
+
         cart.forEach(item => {
             const discountedPrice = item.price - (item.discount || 0);
-            const itemElement = createSafeElement('div', { class: 'cart-item mb-3', 'aria-label': `Cart item: ${item.name}` });
-            itemElement.appendChild(createSafeElement('div', {}, [item.name]));
-            
-            const quantityContainer = createSafeElement('div');
-            const decreaseBtn = createSafeElement('button', { 
-                class: 'btn btn-sm btn-secondary decrease-quantity', 
-                'data-id': item.id, 
+            const itemElement = createSafeElement('div', {
+                class: 'cart-item mb-3 d-flex align-items-center', // Added d-flex and align-items-center
+                'aria-label': `Cart item: ${item.name}`
+            });
+
+            // ADD THIS: Create thumbnail image element
+            const thumbnailContainer = createSafeElement('div', {
+                class: 'cart-item-thumbnail me-3',
+                style: 'width: 60px; height: 60px; flex-shrink: 0;'
+            });
+
+            // Determine correct image path (same logic as in renderProducts)
+            const isSubcategoryPage = window.location.pathname.includes('/pages/');
+            let adjustedImagePath;
+            if (isSubcategoryPage) {
+                adjustedImagePath = `../${item.image_path.replace(/^\//, '')}`;
+            } else {
+                adjustedImagePath = item.image_path;
+            }
+
+            const thumbnailImg = createSafeElement('img', {
+                src: adjustedImagePath,
+                alt: item.name,
+                class: 'img-fluid rounded',
+                style: 'width: 100%; height: 100%; object-fit: cover;'
+            });
+
+            thumbnailContainer.appendChild(thumbnailImg);
+            itemElement.appendChild(thumbnailContainer);
+            // END OF ADDITION
+
+            // Create content container for the rest of the item info
+            const contentContainer = createSafeElement('div', { class: 'cart-item-content flex-grow-1' });
+
+            contentContainer.appendChild(createSafeElement('div', { class: 'fw-bold mb-1' }, [item.name]));
+
+            const quantityContainer = createSafeElement('div', { class: 'mb-2' });
+            const decreaseBtn = createSafeElement('button', {
+                class: 'btn btn-sm btn-secondary decrease-quantity',
+                'data-id': item.id,
                 'aria-label': `Decrease quantity of ${item.name}`
             }, ['-']);
-            const increaseBtn = createSafeElement('button', { 
-                class: 'btn btn-sm btn-secondary increase-quantity', 
-                'data-id': item.id, 
+            const increaseBtn = createSafeElement('button', {
+                class: 'btn btn-sm btn-secondary increase-quantity',
+                'data-id': item.id,
                 'aria-label': `Increase quantity of ${item.name}`
             }, ['+']);
-            const quantitySpan = createSafeElement('span', { 
-                class: 'mx-2 item-quantity', 
+            const quantitySpan = createSafeElement('span', {
+                class: 'mx-2 item-quantity',
                 'aria-label': `Quantity of ${item.name}`
             }, [item.quantity.toString()]);
-            
+
             quantityContainer.appendChild(decreaseBtn);
             quantityContainer.appendChild(quantitySpan);
             quantityContainer.appendChild(increaseBtn);
-            itemElement.appendChild(quantityContainer);
-            
-            itemElement.appendChild(createSafeElement('div', {}, [`Precio: $${discountedPrice.toLocaleString('es-CL')}`]));
-            itemElement.appendChild(createSafeElement('div', {}, [`Subtotal: $${(discountedPrice * item.quantity).toLocaleString('es-CL')}`]));
-            
-            const removeBtn = createSafeElement('button', { 
-                class: 'btn btn-sm btn-danger remove-item', 
-                'data-id': item.id, 
+            contentContainer.appendChild(quantityContainer);
+
+            contentContainer.appendChild(createSafeElement('div', { class: 'text-muted small' }, [`Precio: $${discountedPrice.toLocaleString('es-CL')}`]));
+            contentContainer.appendChild(createSafeElement('div', { class: 'fw-bold' }, [`Subtotal: $${(discountedPrice * item.quantity).toLocaleString('es-CL')}`]));
+
+            const removeBtn = createSafeElement('button', {
+                class: 'btn btn-sm btn-danger remove-item mt-2',
+                'data-id': item.id,
                 'aria-label': `Remove ${item.name} from cart`
             }, ['Eliminar']);
-            itemElement.appendChild(removeBtn);
-            
+            contentContainer.appendChild(removeBtn);
+
+            itemElement.appendChild(contentContainer);
             cartItems.appendChild(itemElement);
-            
+
             total += discountedPrice * item.quantity;
         });
-        
+
         cartTotal.textContent = `Total: $${total.toLocaleString('es-CL')}`;
         cartTotal.setAttribute('aria-label', `Total cart value: $${total.toLocaleString('es-CL')}`);
 
@@ -829,11 +865,11 @@ const initApp = async () => {
             message += `Precio unitario: $${discountedPrice.toLocaleString('es-CL')}\n`;
             message += `Subtotal: $${(discountedPrice * item.quantity).toLocaleString('es-CL')}\n\n`;
         });
-        
+
         const total = cart.reduce((sum, item) => sum + (item.price - (item.discount || 0)) * item.quantity, 0);
         message += `Total: $${total.toLocaleString('es-CL')}\n`;
         message += `Método de pago: ${selectedPayment.value}`;
-        
+
         const encodedMessage = encodeURIComponent(message);
         window.open(`https://wa.me/56951118901?text=${encodedMessage}`, '_blank');
     };
@@ -867,7 +903,7 @@ const initApp = async () => {
         const cartIcon = document.getElementById('cart-icon');
         const emptyCartBtn = document.getElementById('empty-cart');
         const submitCartBtn = document.getElementById('submit-cart');
-        
+
         cartIcon.addEventListener('click', () => {
             if (typeof window.bootstrap !== 'undefined' && window.bootstrap.Offcanvas) {
                 const cartOffcanvas = new window.bootstrap.Offcanvas(document.getElementById('cartOffcanvas'));
@@ -882,25 +918,25 @@ const initApp = async () => {
                 }
             }
         });
-        
+
         emptyCartBtn.addEventListener('click', emptyCart);
         submitCartBtn.addEventListener('click', submitCart);
-        
+
         document.getElementById('cart-items').addEventListener('click', (e) => {
             const target = e.target;
             const productId = target.closest('[data-id]')?.dataset.id;
-            
+
             if (!productId) return;
 
             if (target.classList.contains('decrease-quantity')) {
-                updateQuantity({id: productId}, -1);
+                updateQuantity({ id: productId }, -1);
             } else if (target.classList.contains('increase-quantity')) {
-                updateQuantity({id: productId}, 1);
+                updateQuantity({ id: productId }, 1);
             } else if (target.classList.contains('remove-item')) {
                 removeFromCart(productId);
             }
         });
-        
+
         updateCartIcon();
 
         // Performance monitoring
@@ -922,7 +958,7 @@ const initApp = async () => {
 
 // Run the application when the DOM is ready
 if (typeof document !== 'undefined') {
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // Register service worker first
         registerServiceWorker();
 
@@ -939,7 +975,7 @@ if (typeof module !== 'undefined') {
 
 
 // Dynamically load cart enhancements script
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     var script = document.createElement('script');
     script.src = 'assets/js/cart-enhancements.js';
     document.body.appendChild(script);
