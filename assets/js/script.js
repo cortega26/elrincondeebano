@@ -760,18 +760,67 @@ const initApp = async () => {
 
         cart.forEach(item => {
             const discountedPrice = item.price - (item.discount || 0);
+
+            // Contenedor principal del item: flex en fila
             const itemElement = createSafeElement('div', {
-                class: 'cart-item mb-3 d-flex align-items-center', // Added d-flex and align-items-center
-                'aria-label': `Cart item: ${item.name}`
+                class: 'cart-item mb-3 d-flex align-items-center',
+                'aria-label': `Cart item: ${item.name}`,
+                // Sobrescribe la dirección de la flexbox para alinear horizontalmente
+                style: 'flex-direction: row; align-items: center;'
             });
 
-            // ADD THIS: Create thumbnail image element
-            const thumbnailContainer = createSafeElement('div', {
-                class: 'cart-item-thumbnail me-3',
-                style: 'width: 60px; height: 60px; flex-shrink: 0;'
+            // Contenedor de datos del producto (nombre, controles, precio, subtotal, botón)
+            const contentContainer = createSafeElement('div', {
+                class: 'cart-item-content flex-grow-1'
             });
 
-            // Determine correct image path (same logic as in renderProducts)
+            // Nombre
+            contentContainer.appendChild(
+                createSafeElement('div', { class: 'fw-bold mb-1' }, [item.name])
+            );
+
+            // Controles de cantidad
+            const quantityContainer = createSafeElement('div', { class: 'mb-2' });
+            const decreaseBtn = createSafeElement('button', {
+                class: 'btn btn-sm btn-secondary decrease-quantity',
+                'data-id': item.id,
+                'aria-label': `Disminuir cantidad de ${item.name}`
+            }, ['-']);
+            const increaseBtn = createSafeElement('button', {
+                class: 'btn btn-sm btn-secondary increase-quantity',
+                'data-id': item.id,
+                'aria-label': `Aumentar cantidad de ${item.name}`
+            }, ['+']);
+            const quantitySpan = createSafeElement('span', {
+                class: 'mx-2 item-quantity',
+                'aria-label': `Cantidad de ${item.name}`
+            }, [item.quantity.toString()]);
+            quantityContainer.appendChild(decreaseBtn);
+            quantityContainer.appendChild(quantitySpan);
+            quantityContainer.appendChild(increaseBtn);
+            contentContainer.appendChild(quantityContainer);
+
+            // Precio y subtotal
+            contentContainer.appendChild(
+                createSafeElement('div', { class: 'text-muted small' },
+                    [`Precio: $${discountedPrice.toLocaleString('es-CL')}`]
+                )
+            );
+            contentContainer.appendChild(
+                createSafeElement('div', { class: 'fw-bold' },
+                    [`Subtotal: $${(discountedPrice * item.quantity).toLocaleString('es-CL')}`]
+                )
+            );
+
+            // Botón "Eliminar"
+            const removeBtn = createSafeElement('button', {
+                class: 'btn btn-sm btn-danger remove-item mt-2',
+                'data-id': item.id,
+                'aria-label': `Eliminar ${item.name} del carrito`
+            }, ['Eliminar']);
+            contentContainer.appendChild(removeBtn);
+
+            // Determinar ruta de la imagen (igual que en renderProducts)
             const isSubcategoryPage = window.location.pathname.includes('/pages/');
             let adjustedImagePath;
             if (isSubcategoryPage) {
@@ -780,62 +829,35 @@ const initApp = async () => {
                 adjustedImagePath = item.image_path;
             }
 
+            // Contenedor de la miniatura: se alinea a la derecha con margin-left: auto
+            const thumbnailContainer = createSafeElement('div', {
+                class: 'cart-item-thumbnail',
+                style: 'width: 60px; height: 60px; flex-shrink: 0; margin-left: auto;'
+            });
             const thumbnailImg = createSafeElement('img', {
                 src: adjustedImagePath,
                 alt: item.name,
                 class: 'img-fluid rounded',
                 style: 'width: 100%; height: 100%; object-fit: cover;'
             });
-
             thumbnailContainer.appendChild(thumbnailImg);
-            itemElement.appendChild(thumbnailContainer);
-            // END OF ADDITION
 
-            // Create content container for the rest of the item info
-            const contentContainer = createSafeElement('div', { class: 'cart-item-content flex-grow-1' });
-
-            contentContainer.appendChild(createSafeElement('div', { class: 'fw-bold mb-1' }, [item.name]));
-
-            const quantityContainer = createSafeElement('div', { class: 'mb-2' });
-            const decreaseBtn = createSafeElement('button', {
-                class: 'btn btn-sm btn-secondary decrease-quantity',
-                'data-id': item.id,
-                'aria-label': `Decrease quantity of ${item.name}`
-            }, ['-']);
-            const increaseBtn = createSafeElement('button', {
-                class: 'btn btn-sm btn-secondary increase-quantity',
-                'data-id': item.id,
-                'aria-label': `Increase quantity of ${item.name}`
-            }, ['+']);
-            const quantitySpan = createSafeElement('span', {
-                class: 'mx-2 item-quantity',
-                'aria-label': `Quantity of ${item.name}`
-            }, [item.quantity.toString()]);
-
-            quantityContainer.appendChild(decreaseBtn);
-            quantityContainer.appendChild(quantitySpan);
-            quantityContainer.appendChild(increaseBtn);
-            contentContainer.appendChild(quantityContainer);
-
-            contentContainer.appendChild(createSafeElement('div', { class: 'text-muted small' }, [`Precio: $${discountedPrice.toLocaleString('es-CL')}`]));
-            contentContainer.appendChild(createSafeElement('div', { class: 'fw-bold' }, [`Subtotal: $${(discountedPrice * item.quantity).toLocaleString('es-CL')}`]));
-
-            const removeBtn = createSafeElement('button', {
-                class: 'btn btn-sm btn-danger remove-item mt-2',
-                'data-id': item.id,
-                'aria-label': `Remove ${item.name} from cart`
-            }, ['Eliminar']);
-            contentContainer.appendChild(removeBtn);
-
+            // Añadir primero el contenido textual y luego la miniatura
             itemElement.appendChild(contentContainer);
+            itemElement.appendChild(thumbnailContainer);
+
+            // Insertar en el DOM
             cartItems.appendChild(itemElement);
 
+            // Calcular total
             total += discountedPrice * item.quantity;
         });
 
+        // Mostrar total
         cartTotal.textContent = `Total: $${total.toLocaleString('es-CL')}`;
-        cartTotal.setAttribute('aria-label', `Total cart value: $${total.toLocaleString('es-CL')}`);
+        cartTotal.setAttribute('aria-label', `Total: $${total.toLocaleString('es-CL')}`);
 
+        // Mostrar u ocultar la opción de pago con tarjeta de crédito según el total
         const creditOption = document.getElementById('payment-credit-container');
         if (creditOption) {
             if (total >= 30000) {
@@ -849,6 +871,7 @@ const initApp = async () => {
             }
         }
     };
+
 
     const submitCart = () => {
         const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
