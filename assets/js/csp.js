@@ -82,28 +82,77 @@
         document.head.appendChild(styleEl);
     }
 
+    // Mantiene en memoria un mapa de productos para búsqueda rápida.  Se
+    // inicializa a null y se rellena la primera vez que se solicita.
+    let productMap = null;
+
+    /**
+     * Carga los datos de productos desde el archivo JSON si aún no están en
+     * memoria.  Devuelve un objeto mapeando id de producto a toda su
+     * información, o null si la carga falla.
+     */
+    async function loadProductData() {
+        if (productMap) return productMap;
+        try {
+            const response = await fetch('/_products/product_data.json');
+            if (!response.ok) {
+                console.error('Error al obtener product_data.json:', response.status);
+                return null;
+            }
+            const data = await response.json();
+            productMap = {};
+            data.products.forEach(p => {
+                productMap[p.id] = p;
+            });
+            return productMap;
+        } catch (error) {
+            console.error('Error al cargar datos de productos:', error);
+            return null;
+        }
+    }
+
     /**
      * Añade miniaturas de producto a cada elemento del carrito si no están
-     * presentes.  Se basa en los datos almacenados en localStorage por
-     * script.min.js.
+     * presentes.  Utiliza los datos guardados en localStorage y, como
+     * respaldo, los datos de productos cargados desde el servidor para
+     * obtener la ruta de la imagen.
      */
-    function addThumbnailsToCart() {
+    async function addThumbnailsToCart() {
         const container = document.getElementById('cart-items');
         if (!container) return;
         const cartData = JSON.parse(localStorage.getItem('cart') || '[]');
+        const prodMap = await loadProductData();
         container.querySelectorAll('.cart-item').forEach(itemEl => {
+            // No hacer nada si la miniatura ya existe
+            if (itemEl.querySelector('img.cart-item-thumb')) return;
+            // Obtenemos el id del producto a partir del botón de eliminar
             const removeBtn = itemEl.querySelector('.remove-item');
             const productId = removeBtn ? removeBtn.getAttribute('data-id') : null;
-            if (!productId) return;
-            if (!itemEl.querySelector('img.cart-item-thumb')) {
-                const product = cartData.find(p => String(p.id) === String(productId));
-                if (product && product.image_path) {
-                    const img = document.createElement('img');
-                    img.src = product.image_path;
-                    img.alt = product.name;
-                    img.className = 'cart-item-thumb me-2';
-                    itemEl.insertBefore(img, itemEl.firstChild);
+            let imagePath = null;
+            let name = '';
+            if (productId) {
+                // Buscamos en los datos del carrito
+                const cartItem = cartData.find(p => String(p.id) === String(productId));
+                if (cartItem) {
+                    name = cartItem.name;
+                    imagePath = cartItem.image_path;
                 }
+            }
+            // Si no se obtuvo la imagen, buscamos en los datos de productos
+            if (!imagePath && prodMap) {
+                const prod = prodMap[productId];
+                if (prod) {
+                    imagePath = prod.image_path;
+                    if (!name) name = prod.name;
+                }
+            }
+            if (imagePath) {
+                const img = document.createElement('img');
+                img.src = imagePath.startsWith('/') ? imagePath : '/' + imagePath;
+                img.alt = name;
+                img.className = 'cart-item-thumb me-2';
+                // Insertamos la imagen al principio del elemento del carrito
+                itemEl.insertBefore(img, itemEl.firstChild);
             }
         });
     }
@@ -304,7 +353,16 @@
     document.addEventListener('DOMContentLoaded', () => {
         injectEnhancementStyles();
         setupCartThumbnailListener();
-        setupCartThumbnailObserver();
+        // Esperar a que el contenedor de items del carrito se cree dinámicamente
+        (function waitForCartContainer() {
+            const container = document.getElementById('cart-items');
+            if (container) {
+                setupCartThumbnailObserver();
+            } else {
+                // Vuelve a comprobar en 200 ms hasta que exista
+                setTimeout(waitForCartContainer, 200);
+            }
+        })();
         setupCheckoutProgress();
         setupNavigationAccessibility();
         setupPerformanceOptimizations();
