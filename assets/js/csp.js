@@ -39,13 +39,6 @@
     // index.html o depender de la caché del service worker.  Cada función
     // está documentada en español para mantener la claridad.
 
-    /**
-     * Inserta estilos adicionales para las miniaturas del carrito, el mega menú
-     * y los contornos de enfoque, así como ajustes al espaciado de los
-     * botones de acción del carrito.  Al utilizar un <style> dinámico,
-     * estos estilos se aplican sin necesidad de modificar hojas de estilo
-     * preexistentes.
-     */
     function injectEnhancementStyles() {
         const styleEl = document.createElement('style');
         styleEl.textContent = `
@@ -109,52 +102,6 @@
             console.error('Error al cargar datos de productos:', error);
             return null;
         }
-    }
-
-    /**
-     * Añade miniaturas de producto a cada elemento del carrito si no están
-     * presentes.  Utiliza los datos guardados en localStorage y, como
-     * respaldo, los datos de productos cargados desde el servidor para
-     * obtener la ruta de la imagen.
-     */
-    async function addThumbnailsToCart() {
-        const container = document.getElementById('cart-items');
-        if (!container) return;
-        const cartData = JSON.parse(localStorage.getItem('cart') || '[]');
-        const prodMap = await loadProductData();
-        container.querySelectorAll('.cart-item').forEach(itemEl => {
-            // No hacer nada si la miniatura ya existe
-            if (itemEl.querySelector('img.cart-item-thumb')) return;
-            // Obtenemos el id del producto a partir del botón de eliminar
-            const removeBtn = itemEl.querySelector('.remove-item');
-            const productId = removeBtn ? removeBtn.getAttribute('data-id') : null;
-            let imagePath = null;
-            let name = '';
-            if (productId) {
-                // Buscamos en los datos del carrito
-                const cartItem = cartData.find(p => String(p.id) === String(productId));
-                if (cartItem) {
-                    name = cartItem.name;
-                    imagePath = cartItem.image_path;
-                }
-            }
-            // Si no se obtuvo la imagen, buscamos en los datos de productos
-            if (!imagePath && prodMap) {
-                const prod = prodMap[productId];
-                if (prod) {
-                    imagePath = prod.image_path;
-                    if (!name) name = prod.name;
-                }
-            }
-            if (imagePath) {
-                const img = document.createElement('img');
-                img.src = imagePath.startsWith('/') ? imagePath : '/' + imagePath;
-                img.alt = name;
-                img.className = 'cart-item-thumb me-2';
-                // Insertamos la imagen al principio del elemento del carrito
-                itemEl.insertBefore(img, itemEl.firstChild);
-            }
-        });
     }
 
     /**
@@ -308,17 +255,6 @@
     // Inicializa todas las mejoras cuando el DOM esté listo
     document.addEventListener('DOMContentLoaded', () => {
         injectEnhancementStyles();
-        setupCartThumbnailListener();
-        // Esperar a que el contenedor de items del carrito se cree dinámicamente
-        (function waitForCartContainer() {
-            const container = document.getElementById('cart-items');
-            if (container) {
-                setupCartThumbnailObserver();
-            } else {
-                // Vuelve a comprobar en 200 ms hasta que exista
-                setTimeout(waitForCartContainer, 200);
-            }
-        })();
         setupCheckoutProgress();
         setupNavigationAccessibility();
         setupPerformanceOptimizations();
