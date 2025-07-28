@@ -1,7 +1,7 @@
 {
   "name": "El Rincón de Ébano",
   "short_name": "Ébano",
-  "description": "Tienda online con bebestibles, snacks, alimentos y más. Entrega inmediata en Santiago.",
+  "description": "Tienda online con bebestibles, snacks, alimentos y más. Entrega inmediata en edificio Ébano.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
