@@ -13,7 +13,7 @@
  * confianza, se pueden añadir a las directivas correspondientes.
  */
 
-(function() {
+(function () {
     const cspPolicy = `
         default-src 'self';
         script-src 'self' https://www.googletagmanager.com https://code.jquery.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com data: 'unsafe-inline';
@@ -158,50 +158,6 @@
     }
 
     /**
-     * Configura un observador de mutaciones para el contenedor de ítems del carrito.
-     * Cada vez que se añadan o eliminen elementos, se invocará addThumbnailsToCart
-     * para asegurarse de que las miniaturas estén presentes.  Esto mejora la
-     * fiabilidad frente a cambios dinámicos realizados por script.min.js.
-     */
-    function setupCartThumbnailObserver() {
-        const container = document.getElementById('cart-items');
-        if (!container) return;
-        const observer = new MutationObserver(() => {
-            addThumbnailsToCart();
-        });
-        observer.observe(container, { childList: true });
-    }
-
-    /**
-     * Configura un listener para añadir las miniaturas cuando el usuario
-     * abra el carrito.  Utiliza un pequeño retraso para permitir que el
-     * contenido del carrito se renderice primero.
-     */
-    function setupCartThumbnailListener() {
-        // Añadimos las miniaturas cuando el carrito se muestra a través del componente Offcanvas.
-        const offcanvasEl = document.getElementById('cartOffcanvas');
-        if (offcanvasEl) {
-            // Bootstrap dispara el evento 'shown.bs.offcanvas' cuando el offcanvas se ha mostrado completamente.
-            offcanvasEl.addEventListener('shown.bs.offcanvas', () => {
-                // Esperamos brevemente para que el contenido se haya renderizado
-                setTimeout(() => {
-                    addThumbnailsToCart();
-                }, 50);
-            });
-        } else {
-            // Como alternativa, seguimos escuchando el clic en el icono del carrito por compatibilidad.
-            const cartIcon = document.getElementById('cart-icon');
-            if (cartIcon) {
-                cartIcon.addEventListener('click', () => {
-                    setTimeout(() => {
-                        addThumbnailsToCart();
-                    }, 100);
-                });
-            }
-        }
-    }
-
-    /**
      * Muestra un indicador de progreso cuando se envía el pedido por WhatsApp.
      * Deshabilita temporalmente el botón para evitar envíos múltiples.
      */
@@ -266,7 +222,7 @@
             link.rel = 'preload';
             link.href = href;
             link.as = 'style';
-            link.onload = function() {
+            link.onload = function () {
                 this.rel = 'stylesheet';
             };
             document.head.appendChild(link);
