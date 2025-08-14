@@ -104,12 +104,28 @@ const enhancedSearch = {
 
     handleSearch: (event) => {
         const query = event.target.value.toLowerCase().trim();
-        enhancedSearch.filterProducts(query);
+        const productContainer = document.getElementById('product-container');
+
+        if (query.length > 0) {
+            enhancedLoading.show(productContainer);
+            setTimeout(() => {
+                enhancedSearch.filterProducts(query);
+                enhancedLoading.hide(productContainer);
+            }, 300);
+        } else {
+            enhancedSearch.filterProducts(query);
+        }
     },
 
     handleSort: () => {
         const sortValue = document.getElementById('sort-options').value;
-        enhancedSearch.sortProducts(sortValue);
+        const productContainer = document.getElementById('product-container');
+
+        enhancedLoading.show(productContainer);
+        setTimeout(() => {
+            enhancedSearch.sortProducts(sortValue);
+            enhancedLoading.hide(productContainer);
+        }, 300);
     },
 
     filterProducts: (query) => {
