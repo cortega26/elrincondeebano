@@ -1,13 +1,104 @@
 /**
  * Enhanced JavaScript for El Rincón de Ébano
- * Modern UX/UI improvements and animations
+ * Modern UX/UI improvements and animations + Core Loading Functionality
  */
 
 'use strict';
 
+// Core loading functionality
+const coreLoader = {
+    // Load navbar and footer
+    loadComponents: async () => {
+        const navbarContainer = document.getElementById('navbar-container');
+        const footerContainer = document.getElementById('footer-container');
+
+        if (!navbarContainer || !footerContainer) {
+            console.error('Navbar or footer container not found');
+            return;
+        }
+
+        try {
+            await Promise.all([
+                coreLoader.loadComponent(navbarContainer, '/pages/navbar.html'),
+                coreLoader.loadComponent(footerContainer, '/pages/footer.html')
+            ]);
+            console.log('Navbar and footer loaded successfully');
+        } catch (error) {
+            console.error('Error loading components:', error);
+        }
+    },
+
+    // Generic component loader
+    loadComponent: async (container, filename) => {
+        if (!container) {
+            console.warn(`Container not found for component: ${filename}`);
+            return;
+        }
+
+        try {
+            const response = await fetch(filename);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const html = await response.text();
+            container.innerHTML = html;
+        } catch (error) {
+            console.error("Error loading component:", { component: filename, message: error.message });
+            container.innerHTML = `<div class="alert alert-danger">Error loading ${filename}</div>`;
+        }
+    },
+
+    // Load products from JSON
+    loadProducts: async () => {
+        const productContainer = document.getElementById('product-container');
+        if (!productContainer) {
+            console.error('Product container not found');
+            return [];
+        }
+
+        try {
+            const response = await fetch('/_products/product_data.json');
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+
+            let products = data.products || [];
+
+            // Add stable IDs and sanitize
+            products = products.map(product => ({
+                ...product,
+                id: coreLoader.generateStableId(product),
+                name: coreLoader.sanitizeHTML(product.name),
+                description: coreLoader.sanitizeHTML(product.description),
+                category: coreLoader.sanitizeHTML(product.category)
+            }));
+
+            return products;
+        } catch (error) {
+            console.error('Error loading products:', error);
+            productContainer.innerHTML = '<div class="alert alert-danger">Error loading products</div>';
+            return [];
+        }
+    },
+
+    // Utility functions
+    generateStableId: (product) => {
+        const baseString = `${product.name}-${product.category}`.toLowerCase();
+        let hash = 0;
+        for (let i = 0; i < baseString.length; i++) {
+            const char = baseString.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+        return `pid-${Math.abs(hash)}`;
+    },
+
+    sanitizeHTML: (unsafe) => {
+        const element = document.createElement('div');
+        element.textContent = unsafe;
+        return element.innerHTML;
+    }
+};
+
 // Enhanced utility functions
 const enhancedUtils = {
-    // Smooth scroll to element
     smoothScroll: (element, offset = 0) => {
         const elementPosition = element.offsetTop - offset;
         window.scrollTo({
@@ -16,7 +107,6 @@ const enhancedUtils = {
         });
     },
 
-    // Debounce function for performance
     debounce: (func, delay) => {
         let timeoutId;
         return (...args) => {
@@ -25,7 +115,6 @@ const enhancedUtils = {
         };
     },
 
-    // Check if element is in viewport
     isInViewport: (element) => {
         const rect = element.getBoundingClientRect();
         return (
@@ -41,13 +130,10 @@ const enhancedUtils = {
 const productAnimations = {
     init: () => {
         const products = document.querySelectorAll('.producto');
-
         products.forEach((product, index) => {
-            // Stagger animation on load
             product.style.animationDelay = `${index * 0.1}s`;
             product.classList.add('fade-in-up');
 
-            // Add hover effects
             product.addEventListener('mouseenter', () => {
                 productAnimations.onHover(product);
             });
@@ -62,26 +148,16 @@ const productAnimations = {
         const img = product.querySelector('img');
         const card = product.querySelector('.card');
 
-        if (img) {
-            img.style.transform = 'scale(1.05)';
-        }
-
-        if (card) {
-            card.style.transform = 'translateY(-8px)';
-        }
+        if (img) img.style.transform = 'scale(1.05)';
+        if (card) card.style.transform = 'translateY(-8px)';
     },
 
     onLeave: (product) => {
         const img = product.querySelector('img');
         const card = product.querySelector('.card');
 
-        if (img) {
-            img.style.transform = 'scale(1)';
-        }
-
-        if (card) {
-            card.style.transform = 'translateY(0)';
-        }
+        if (img) img.style.transform = 'scale(1)';
+        if (card) card.style.transform = 'translateY(0)';
     }
 };
 
@@ -129,247 +205,182 @@ const enhancedSearch = {
     },
 
     filterProducts: (query) => {
-        const allProducts = document.querySelectorAll('.producto');
+        const allProducts = window.appState?.products || [];
+        const productContainer = document.getElementById('product-container');
 
-        allProducts.forEach(product => {
-            const title = product.querySelector('.card-title')?.textContent.toLowerCase() || '';
-            const description = product.querySelector('.card-text')?.textContent.toLowerCase() || '';
+        if (!productContainer) return;
 
-            const matches = title.includes(query) || description.includes(query);
-
-            if (matches) {
-                product.style.display = 'block';
-                product.classList.add('fade-in-up');
-            } else {
-                product.style.display = 'none';
-            }
+        const filtered = allProducts.filter(product => {
+            const title = product.name?.toLowerCase() || '';
+            const description = product.description?.toLowerCase() || '';
+            return title.includes(query) || description.includes(query);
         });
+
+        renderProducts(filtered);
     },
 
     sortProducts: (sortValue) => {
-        const productContainer = document.getElementById('product-container');
-        const products = Array.from(productContainer.querySelectorAll('.producto'));
+        const allProducts = window.appState?.products || [];
 
-        products.sort((a, b) => {
+        const sorted = [...allProducts].sort((a, b) => {
             switch (sortValue) {
                 case 'name-asc':
-                    return a.querySelector('.card-title').textContent.localeCompare(
-                        b.querySelector('.card-title').textContent
-                    );
+                    return a.name.localeCompare(b.name);
                 case 'name-desc':
-                    return b.querySelector('.card-title').textContent.localeCompare(
-                        a.querySelector('.card-title').textContent
-                    );
+                    return b.name.localeCompare(a.name);
                 case 'price-asc':
-                    return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+                    return a.price - b.price;
                 case 'price-desc':
-                    return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+                    return b.price - a.price;
                 default:
                     return 0;
             }
         });
 
-        products.forEach(product => {
-            productContainer.appendChild(product);
-        });
-    }
-};
-
-// Enhanced image loading
-const enhancedImages = {
-    init: () => {
-        const images = document.querySelectorAll('img[data-src]');
-
-        const imageObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    const src = img.dataset.src;
-
-                    img.src = src;
-                    img.classList.add('fade-in-up');
-
-                    img.addEventListener('load', () => {
-                        img.classList.remove('lazyload');
-                        img.classList.add('lazyloaded');
-                    });
-
-                    imageObserver.unobserve(img);
-                }
-            });
-        }, {
-            rootMargin: '50px 0px',
-            threshold: 0.01
-        });
-
-        images.forEach(img => imageObserver.observe(img));
-    }
-};
-
-// Enhanced mobile experience
-const mobileEnhancements = {
-    init: () => {
-        if (window.innerWidth <= 768) {
-            mobileEnhancements.optimizeForTouch();
-        }
-    },
-
-    optimizeForTouch: () => {
-        // Increase touch targets
-        const buttons = document.querySelectorAll('.btn, .quantity-btn');
-        buttons.forEach(button => {
-            button.style.minHeight = '44px';
-            button.style.minWidth = '44px';
-        });
-    }
-};
-
-// Enhanced cart functionality
-const enhancedCart = {
-    init: () => {
-        enhancedCart.addCartAnimations();
-    },
-
-    addCartAnimations: () => {
-        const cartItems = document.getElementById('cart-items');
-        if (cartItems) {
-            const observer = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                    if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                        mutation.addedNodes.forEach((node) => {
-                            if (node.classList && node.classList.contains('cart-item')) {
-                                node.classList.add('fade-in-up');
-                            }
-                        });
-                    }
-                });
-            });
-
-            observer.observe(cartItems, { childList: true, subtree: true });
-        }
+        renderProducts(sorted);
     }
 };
 
 // Enhanced loading states
 const enhancedLoading = {
     show: (container) => {
+        if (!container) return;
         container.innerHTML = `
-      <div class="loading-container">
-        <div class="loading-skeleton"></div>
-        <div class="loading-skeleton"></div>
-        <div class="loading-skeleton"></div>
-        <div class="loading-skeleton"></div>
-      </div>
-    `;
+            <div class="loading-container">
+                <div class="loading-skeleton"></div>
+                <div class="loading-skeleton"></div>
+                <div class="loading-skeleton"></div>
+                <div class="loading-skeleton"></div>
+            </div>
+        `;
     },
 
     hide: (container) => {
+        if (!container) return;
         const loadingElements = container.querySelectorAll('.loading-skeleton');
         loadingElements.forEach(el => el.remove());
     }
 };
 
-// Enhanced notifications
-const enhancedNotifications = {
-    show: (message, type = 'info') => {
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.innerHTML = `
-      <div class="notification-content">
-        <span>${message}</span>
-        <button class="notification-close">&times;</button>
-      </div>
-    `;
+// Product rendering function
+const renderProducts = (products) => {
+    const productContainer = document.getElementById('product-container');
+    if (!productContainer) return;
 
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            notification.remove();
-        }, 5000);
+    if (products.length === 0) {
+        productContainer.innerHTML = '<div class="alert alert-info">No products found</div>';
+        return;
     }
+
+    const fragment = document.createDocumentFragment();
+
+    products.forEach((product, index) => {
+        const productElement = document.createElement('div');
+        productElement.className = 'producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4';
+        productElement.style.animationDelay = `${index * 0.1}s`;
+
+        const discountedPrice = product.price - (product.discount || 0);
+
+        productElement.innerHTML = `
+            <div class="card h-100">
+                <img src="${product.image_path}" alt="${product.name}" class="card-img-top">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">${product.name}</h5>
+                    <p class="card-text flex-grow-1">${product.description}</p>
+                    <div class="mt-auto">
+                        <div class="price-container">
+                            ${product.discount ? `
+                                <span class="text-danger fw-bold">$${discountedPrice.toLocaleString()}</span>
+                                <span class="text-muted text-decoration-line-through">$${product.price.toLocaleString()}</span>
+                            ` : `
+                                <span class="fw-bold">$${product.price.toLocaleString()}</span>
+                            `}
+                        </div>
+                        <button class="btn btn-primary w-100 mt-2" onclick="addToCart('${product.id}')">
+                            Agregar al Carrito
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        fragment.appendChild(productElement);
+    });
+
+    productContainer.innerHTML = '';
+    productContainer.appendChild(fragment);
+
+    // Initialize animations
+    productAnimations.init();
 };
 
-// Enhanced accessibility
-const enhancedAccessibility = {
-    init: () => {
-        enhancedAccessibility.addKeyboardNavigation();
-        enhancedAccessibility.addFocusIndicators();
-    },
+// Simple cart functionality
+window.addToCart = (productId) => {
+    const product = window.appState.products.find(p => p.id === productId);
+    if (!product) return;
 
-    addKeyboardNavigation: () => {
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Tab') {
-                document.body.classList.add('keyboard-navigation');
-            }
-        });
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const existingItem = cart.find(item => item.id === productId);
 
-        document.addEventListener('mousedown', () => {
-            document.body.classList.remove('keyboard-navigation');
-        });
-    },
-
-    addFocusIndicators: () => {
-        const style = document.createElement('style');
-        style.textContent = `
-      .keyboard-navigation *:focus {
-        outline: 2px solid var(--primary-color);
-        outline-offset: 2px;
-      }
-    `;
-        document.head.appendChild(style);
-    }
-};
-
-// Enhanced performance monitoring
-const performanceMonitor = {
-    init: () => {
-        if ('performance' in window) {
-            window.addEventListener('load', () => {
-                const paintEntries = performance.getEntriesByType('paint');
-                const navigationEntries = performance.getEntriesByType('navigation');
-
-                console.log('Performance Metrics:', {
-                    firstPaint: paintEntries[0]?.startTime,
-                    firstContentfulPaint: paintEntries[1]?.startTime,
-                    domContentLoaded: navigationEntries[0]?.domContentLoadedEventEnd,
-                    loadComplete: navigationEntries[0]?.loadEventEnd
-                });
-            });
-        }
-    }
-};
-
-// Initialize all enhancements
-const initEnhancedFeatures = () => {
-    // Wait for DOM to be ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initFeatures);
+    if (existingItem) {
+        existingItem.quantity += 1;
     } else {
-        initFeatures();
+        cart.push({ ...product, quantity: 1 });
     }
 
-    function initFeatures() {
-        // Initialize all enhancements
+    localStorage.setItem('cart', JSON.stringify(cart));
+    alert(`${product.name} agregado al carrito`);
+};
+
+// Main application state
+window.appState = {
+    products: [],
+    cart: [],
+    init: async () => {
+        console.log('Initializing enhanced app...');
+
+        // Ensure DOMPurify is loaded
+        if (typeof DOMPurify === 'undefined') {
+            try {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.8/purify.min.js';
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
+                });
+            } catch (error) {
+                console.error('Failed to load DOMPurify:', error);
+                return;
+            }
+        }
+
+        // Load components first
+        await coreLoader.loadComponents();
+
+        // Then load products
+        const products = await coreLoader.loadProducts();
+        window.appState.products = products;
+
+        // Initialize enhanced features
         productAnimations.init();
         enhancedSearch.init();
-        enhancedImages.init();
-        mobileEnhancements.init();
-        enhancedCart.init();
-        enhancedAccessibility.init();
-        performanceMonitor.init();
 
-        console.log('Enhanced features initialized');
+        // Render products
+        renderProducts(products);
+
+        console.log('Enhanced app initialized successfully');
     }
 };
 
-// Export for use in other files
-window.enhancedFeatures = {
-    initEnhancedFeatures,
-    enhancedUtils,
-    enhancedSearch,
-    enhancedCart,
-    enhancedNotifications
+// Initialize when DOM is ready
+const initEnhancedApp = () => {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', window.appState.init);
+    } else {
+        window.appState.init();
+    }
 };
 
 // Auto-initialize
-initEnhancedFeatures();
+initEnhancedApp();
