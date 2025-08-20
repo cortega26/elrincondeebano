@@ -313,6 +313,13 @@ h1 {
   justify-content: center;
 }
 
+.add-to-cart-btn {
+  background-color: #2E7D32;
+  border-color: #2E7D32;
+  padding: 12px 20px;
+  color: #fff;
+}
+
 /* Cart Offcanvas Styles */
 .offcanvas {
   max-width: 100%;
