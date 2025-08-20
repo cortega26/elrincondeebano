@@ -1,9 +1,9 @@
 /* Modern Design System - Enhanced Variables */
 :root {
     /* Primary Color Palette */
-    --primary-color: #FF6B35;
-    --primary-light: #FF8A65;
-    --primary-dark: #E64A19;
+    --primary-color: #2E7D32;
+    --primary-light: #60AD5E;
+    --primary-dark: #1B5E20;
 
     /* Secondary Color Palette */
     --secondary-color: #2E8B57;
@@ -11,9 +11,9 @@
     --secondary-dark: #1B5E20;
 
     /* Accent Colors */
-    --accent-color: #6A5ACD;
-    --accent-light: #9575CD;
-    --accent-dark: #4527A0;
+    --accent-color: #FFB300;
+    --accent-light: #FFD54F;
+    --accent-dark: #FF8F00;
 
     /* Neutral Colors */
     --background-color: #F8F9FA;
@@ -116,7 +116,7 @@ h1 {
 
 /* Enhanced Navbar */
 .navbar {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)) !important;
+    background: linear-gradient(135deg, var(--primary-light), var(--primary-color)) !important;
     padding: var(--spacing-md) 0;
     box-shadow: var(--shadow-lg);
     backdrop-filter: blur(10px);
