@@ -1,10 +1,10 @@
 /* Core Variables */
 :root {
-  --primary-color: #343a40;
+  --primary-color: #2E7D32;
   --secondary-color: #6c757d;
-  --accent-color: #0066cc;
+  --accent-color: #FFB300;
   --text-color: #333;
-  --background-color: #fff;
+  --background-color: #F8F9FA;
   --border-radius: 0.25rem;
   --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   --transition: all 0.3s ease;
