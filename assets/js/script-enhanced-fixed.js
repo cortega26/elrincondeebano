@@ -296,8 +296,8 @@ const renderProducts = (products) => {
                                 <span class="fw-bold">$${product.price.toLocaleString()}</span>
                             `}
                         </div>
-                        <button class="btn btn-primary w-100 mt-2" onclick="addToCart('${product.id}')">
-                            Agregar al Carrito
+                        <button class="btn btn-primary add-to-cart-btn w-100 mt-2" onclick="addToCart('${product.id}')">
+                            Agregar al carrito
                         </button>
                     </div>
                 </div>

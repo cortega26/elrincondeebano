@@ -479,6 +479,17 @@ h1 {
     box-shadow: var(--shadow-sm);
 }
 
+.add-to-cart-btn {
+    padding: 12px 20px;
+    background: #2E7D32;
+    color: #fff;
+}
+
+.add-to-cart-btn:hover,
+.add-to-cart-btn:active {
+    background: #2E7D32;
+}
+
 /* Enhanced Cart Offcanvas */
 .offcanvas {
     max-width: 100%;

@@ -563,10 +563,10 @@ const initApp = async () => {
                 }
             } else {
                 const addToCartBtn = createSafeElement('button', {
-                    class: 'btn btn-primary mt-2',
+                    class: 'btn btn-primary add-to-cart-btn mt-2',
                     'data-id': id,
                     'aria-label': `Add ${name} to cart`
-                }, ['Agregar']);
+                }, ['Agregar al carrito']);
 
                 addToCartBtn.addEventListener('click', () => {
                     addToCart(product, 1);
@@ -996,10 +996,11 @@ if (typeof module !== 'undefined') {
     module.exports = { generateStableId };
 }
 
-
 // Dynamically load cart enhancements script
-document.addEventListener('DOMContentLoaded', function () {
-    var script = document.createElement('script');
-    script.src = 'assets/js/cart-enhancements.js';
-    document.body.appendChild(script);
-});
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', function () {
+        var script = document.createElement('script');
+        script.src = 'assets/js/cart-enhancements.js';
+        document.body.appendChild(script);
+    });
+}
