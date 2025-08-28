@@ -381,6 +381,31 @@ const initApp = async () => {
     const sortOptions = document.getElementById('sort-options');
     const filterKeyword = document.getElementById('filter-keyword');
 
+    // Ensure discount-only toggle exists in the filter UI
+    const ensureDiscountToggle = () => {
+        let toggle = document.getElementById('filter-discount');
+        if (toggle) return toggle;
+
+        const filterSection = document.querySelector('section[aria-label*="filtrado"], section[aria-label*="Opciones de filtrado"]');
+        const filterSectionRow = filterSection ? filterSection.querySelector('.row') : null;
+        if (!filterSectionRow) return null;
+
+        const col = createSafeElement('div', { class: 'col-12 mt-2' });
+        const formCheck = createSafeElement('div', { class: 'form-check form-switch' });
+        const input = createSafeElement('input', {
+            class: 'form-check-input',
+            type: 'checkbox',
+            id: 'filter-discount',
+            'aria-label': 'Mostrar solo productos con descuento'
+        });
+        const label = createSafeElement('label', { class: 'form-check-label', for: 'filter-discount' }, ['Solo productos con descuento']);
+        formCheck.appendChild(input);
+        formCheck.appendChild(label);
+        col.appendChild(formCheck);
+        filterSectionRow.appendChild(col);
+        return input;
+    };
+
     let products = [];
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
@@ -529,6 +554,13 @@ const initApp = async () => {
 
             const cardElement = createSafeElement('div', { class: 'card' });
 
+            // Discount badge
+            if (discount && Number(discount) > 0) {
+                const pct = Math.round((Number(discount) / Number(price)) * 100);
+                const badge = createSafeElement('span', { class: 'discount-badge badge bg-danger', 'aria-label': 'Producto en oferta' }, [`-${isFinite(pct) ? pct : 0}%`]);
+                cardElement.appendChild(badge);
+            }
+
             let adjustedImagePath;
             if (isSubcategoryPage) {
                 adjustedImagePath = `../${image_path.replace(/^\//, '')}`;
@@ -604,12 +636,13 @@ const initApp = async () => {
         document.querySelectorAll('img.lazyload').forEach(img => imageObserver.observe(img));
     };
 
-    const filterProducts = (products, keyword, sortCriterion) => {
+    const filterProducts = (products, keyword, sortCriterion, discountOnly = false) => {
         return products
             .filter(product =>
                 (product.name.toLowerCase().includes(keyword.toLowerCase()) ||
                     product.description.toLowerCase().includes(keyword.toLowerCase())) &&
-                product.stock  // This ensures only in-stock items are shown
+                product.stock && // This ensures only in-stock items are shown
+                (!discountOnly || (product.discount && Number(product.discount) > 0))
             )
             .sort((a, b) => sortProducts(a, b, sortCriterion));
     };
@@ -632,7 +665,8 @@ const initApp = async () => {
         try {
             const criterion = sortOptions.value || 'original';
             const keyword = filterKeyword.value.trim();
-            const filteredAndSortedProducts = memoizedFilterProducts(products, keyword, criterion);
+            const discountOnly = document.getElementById('filter-discount')?.checked || false;
+            const filteredAndSortedProducts = memoizedFilterProducts(products, keyword, criterion, discountOnly);
             renderProducts(filteredAndSortedProducts);
         } catch (error) {
             console.error('Error al actualizar visualización de productos:', error);
@@ -913,6 +947,12 @@ const initApp = async () => {
 
         sortOptions.addEventListener('change', debouncedUpdateProductDisplay);
         filterKeyword.addEventListener('input', debouncedUpdateProductDisplay);
+
+        // Set up discount-only toggle
+        const discountToggle = ensureDiscountToggle();
+        if (discountToggle) {
+            discountToggle.addEventListener('change', debouncedUpdateProductDisplay);
+        }
 
         // Initial product display
         updateProductDisplay();
