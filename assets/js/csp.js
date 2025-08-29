@@ -102,7 +102,9 @@
     async function loadProductData() {
     if (productMap) return productMap;
     try {
-        const response = await fetch('/_products/product_data.json', { cache: 'no-store' });
+        const version = localStorage.getItem('productDataVersion');
+        const url = version ? `/_products/product_data.json?v=${encodeURIComponent(version)}` : '/_products/product_data.json';
+        const response = await fetch(url, { cache: 'no-store', headers: { 'Accept': 'application/json' } });
         if (!response.ok) {
             console.error('Error al obtener product_data.json:', response.status);
             return null;
