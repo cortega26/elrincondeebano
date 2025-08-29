@@ -973,10 +973,6 @@ const initApp = async () => {
             const normCurrent = normalizeString(currentCategory);
             products = products.filter(product => normalizeString(product.category) === normCurrent);
         }
-        if (currentCategory) {
-            products = products.filter(product => product.category === currentCategory);
-        }
-
         sortOptions.addEventListener('change', debouncedUpdateProductDisplay);
         filterKeyword.addEventListener('input', debouncedUpdateProductDisplay);
 
@@ -1076,6 +1072,7 @@ if (typeof document !== 'undefined') {
         document.body.appendChild(script);
     });
 }
+
 
 
 
