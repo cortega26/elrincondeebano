@@ -1,10 +1,10 @@
 {
-  "version": "20250623-203525",
-  "last_updated": "2025-06-23T20:35:25.407469",
+  "version": "20250829-102803",
+  "last_updated": "2025-08-29T10:28:03.769296",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
-      "description": "Dos Rollos de 16m c/u",
+      "description": "Dos Rollos de 14m c/u",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -1226,7 +1226,7 @@
       "name": "Vital • Agua sin gas 2,5L",
       "description": "Envase desechable",
       "price": 2000,
-      "discount": 0,
+      "discount": 200,
       "stock": true,
       "category": "Aguas",
       "image_path": "assets/images/bebidas/Agua 2,5L con gas Vital.webp",
