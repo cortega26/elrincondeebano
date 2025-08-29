@@ -354,8 +354,10 @@ const showErrorMessage = (message) => {
     }
 };
 
-// Global error handler (ignore non-fatal resource load errors)
+// Global error handling: be conservative during initial render
 if (typeof window !== 'undefined') {
+    window.__APP_READY__ = false;
+
     window.addEventListener('error', (event) => {
         const target = event.target || event.srcElement;
         const isResourceError = !!(target && (
@@ -363,20 +365,33 @@ if (typeof window !== 'undefined') {
             target.tagName === 'SCRIPT' ||
             target.tagName === 'LINK'
         ));
-
-        // Many browsers do not populate event.error for resource errors.
         const hasRuntimeError = !!event.error;
 
+        // Ignore resource errors and non-runtime errors
         if (isResourceError || !hasRuntimeError) {
-            // Log and ignore — do not disrupt UI during initial render
-            console.warn('Ignored resource load error:', {
+            console.warn('Ignored non-fatal error:', {
                 tag: target && target.tagName,
                 src: target && (target.src || target.href || target.currentSrc)
             });
             return;
         }
+
+        // Only show banner after the app is ready; otherwise just log
+        if (!window.__APP_READY__) {
+            console.error('Runtime error before app ready:', event.error);
+            return;
+        }
         console.error('Unhandled JS error:', event.error);
         showErrorMessage('Ocurrió un error inesperado. Por favor, recarga la página.');
+    });
+
+    // Avoid noisy CSP warnings breaking UX
+    window.addEventListener('securitypolicyviolation', (e) => {
+        console.warn('CSP violation (logged only):', {
+            blockedURI: e.blockedURI,
+            violatedDirective: e.violatedDirective,
+            sourceFile: e.sourceFile,
+        });
     });
 }
 
@@ -1004,6 +1019,8 @@ const initApp = async () => {
 
         // Initial product display
         updateProductDisplay();
+        // Mark the app as ready after first successful render
+        if (typeof window !== 'undefined') window.__APP_READY__ = true;
 
         // Offline support
         window.addEventListener('online', updateOnlineStatus);

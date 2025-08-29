@@ -385,6 +385,7 @@ window.appState = {
 
         // Render products
         renderProducts(products);
+        if (typeof window !== 'undefined') window.__APP_READY__ = true;
 
         // Attach one-time delegated handler for add-to-cart
         attachAddToCartHandler();
