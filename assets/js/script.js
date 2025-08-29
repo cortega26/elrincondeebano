@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 
 // Service Worker Configuration and Initialization
@@ -258,6 +258,21 @@ const debounce = (func, delay) => {
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => func(...args), delay);
     };
+
+// Normalize strings for robust comparisons (remove accents, spaces, punctuation, lowercased)
+const normalizeString = (str) => {
+    if (!str) return '';
+    try {
+        return String(str)
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-zA-Z0-9]/g, '')
+            .toLowerCase();
+    } catch {
+        return String(str).toLowerCase();
+    }
+};
+
 };
 
 
@@ -965,6 +980,10 @@ const initApp = async () => {
 
         const currentCategory = document.querySelector('main').dataset.category;
         if (currentCategory) {
+            const normCurrent = normalizeString(currentCategory);
+            products = products.filter(product => normalizeString(product.category) === normCurrent);
+        }
+        if (currentCategory) {
             products = products.filter(product => product.category === currentCategory);
         }
 
@@ -1067,3 +1086,5 @@ if (typeof document !== 'undefined') {
         document.body.appendChild(script);
     });
 }
+
+
