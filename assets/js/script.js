@@ -253,6 +253,7 @@ const debounce = (func, delay) => {
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => func(...args), delay);
     };
+};
 
 // Normalize strings for robust comparisons (remove accents, spaces, punctuation, lowercased)
 const normalizeString = (str) => {
@@ -268,7 +269,6 @@ const normalizeString = (str) => {
     }
 };
 
-};
 
 
 // Add this utility function for generating stable product IDs
