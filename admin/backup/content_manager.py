@@ -41,7 +41,7 @@ class ProductManager:
         "log_dir": "~/product_manager_logs",
         "log_level": "INFO",
         "max_log_size": 5_242_880,  # 5MB
-        "backup_count": 5,
+        "backup_count": 3,
         "ui": {
             "font_size": 10,
             "window_size": [1000, 600],

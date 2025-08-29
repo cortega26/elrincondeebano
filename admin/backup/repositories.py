@@ -55,7 +55,7 @@ class JsonProductRepository(ProductRepositoryProtocol):
 
     # Class constants
     BACKUP_SUFFIX = '.backup'
-    MAX_BACKUPS = 5
+    MAX_BACKUPS = 3
     ENCODING = 'utf-8'
 
     def __init__(self, file_name: str, base_path: Optional[str] = None):

@@ -2,7 +2,7 @@ const esbuild = require('esbuild');
 
 async function build() {
   await esbuild.build({
-    entryPoints: ['assets/js/script.js'],
+    entryPoints: ['assets/js/main.js'],
     bundle: true,
     minify: true,
     outfile: 'assets/js/script.min.js',

@@ -296,7 +296,7 @@ const renderProducts = (products) => {
                                 <span class="fw-bold">$${product.price.toLocaleString()}</span>
                             `}
                         </div>
-                        <button class="btn btn-primary add-to-cart-btn w-100 mt-2" onclick="addToCart('${product.id}')">
+                        <button class="btn btn-primary add-to-cart-btn w-100 mt-2" data-product-id="${product.id}" aria-label="Agregar ${product.name} al carrito">
                             Agregar al carrito
                         </button>
                     </div>
@@ -313,6 +313,21 @@ const renderProducts = (products) => {
     // Initialize animations
     productAnimations.init();
 };
+
+// Delegate add-to-cart clicks to the container (avoids inline handlers)
+function attachAddToCartHandler() {
+    const container = document.getElementById('product-container');
+    if (!container || container.dataset.cartHandler === '1') return;
+    container.dataset.cartHandler = '1';
+    container.addEventListener('click', (e) => {
+        const btn = e.target.closest('.add-to-cart-btn');
+        if (!btn) return;
+        const id = btn.getAttribute('data-product-id');
+        if (id && typeof window.addToCart === 'function') {
+            window.addToCart(id);
+        }
+    });
+}
 
 // Simple cart functionality
 window.addToCart = (productId) => {
@@ -368,6 +383,9 @@ window.appState = {
 
         // Render products
         renderProducts(products);
+
+        // Attach one-time delegated handler for add-to-cart
+        attachAddToCartHandler();
 
         console.log('Enhanced app initialized successfully');
     }

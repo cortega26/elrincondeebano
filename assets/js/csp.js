@@ -14,10 +14,25 @@
  */
 
 (function () {
+    // Generate a per-load nonce to allow safe inline style tags and JSON-LD
+    function generateNonce() {
+        try {
+            const arr = new Uint8Array(16);
+            (window.crypto || window.msCrypto).getRandomValues(arr);
+            let str = '';
+            for (let i = 0; i < arr.length; i++) str += String.fromCharCode(arr[i]);
+            return btoa(str).replace(/\+/g, '-').replace(/\//g, '_');
+        } catch {
+            // Fallback (not cryptographically strong)
+            return Math.random().toString(36).slice(2);
+        }
+    }
+    const cspNonce = generateNonce();
+
     const cspPolicy = `
         default-src 'self';
-        script-src 'self' https://www.googletagmanager.com https://code.jquery.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com data: 'unsafe-inline';
-        style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com 'unsafe-inline';
+        script-src 'self' https://www.googletagmanager.com https://code.jquery.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'nonce-${cspNonce}';
+        style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com 'nonce-${cspNonce}';
         img-src 'self' data: https:;
         font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net;
         connect-src 'self' https://www.google-analytics.com;
@@ -33,14 +48,14 @@
     meta.content = cspPolicy;
     document.head.appendChild(meta);
 
-    // Después de escribir la política CSP, definimos todas las funciones de
-    // mejora de la interfaz, accesibilidad, SEO y PWA directamente en este
-    // script.  Esto evita tener que cargar archivos adicionales desde
-    // index.html o depender de la caché del service worker.  Cada función
-    // está documentada en español para mantener la claridad.
+    // Después de escribir la política CSP, definimos (o simulamos) funciones
+    // de mejora. Algunas llamadas más abajo hacían referencia a funciones que
+    // no existían, causando ReferenceError. Aquí agregamos implementaciones
+    // mínimas y seguras para evitar errores en consola.
 
     function injectEnhancementStyles() {
         const styleEl = document.createElement('style');
+        styleEl.setAttribute('nonce', cspNonce);
         styleEl.textContent = `
             /* Miniatura del carrito */
             .cart-item-thumb {
@@ -146,13 +161,113 @@ async function injectStructuredData() {
         };
         const scriptEl = document.createElement('script');
         scriptEl.type = 'application/ld+json';
+        scriptEl.setAttribute('nonce', cspNonce);
         scriptEl.textContent = JSON.stringify(structuredData);
         document.head.appendChild(scriptEl);
     } catch (error) {
         console.error('Error generating structured data', error);
     }
-}// Inicializa todas las mejoras cuando el DOM esté listo
+}
+
+// ---------- Implementaciones mínimas para evitar ReferenceError ----------
+
+// Paso/estado del checkout (no hay flujo de checkout multi‑paso hoy).
+function setupCheckoutProgress() {
+    // No‑op seguro; deje un rastro para depuración.
+    if (window?.console?.debug) console.debug('[csp] setupCheckoutProgress: no-op');
+}
+
+// Accesibilidad básica de navegación (teclas y foco).
+function setupNavigationAccessibility() {
+    try {
+        // Añade indicadores de foco al navegar con teclado.
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') document.body.classList.add('keyboard-navigation');
+        });
+        document.addEventListener('mousedown', () => {
+            document.body.classList.remove('keyboard-navigation');
+        });
+
+        const style = document.createElement('style');
+        style.textContent = `.keyboard-navigation *:focus { outline: 2px solid var(--primary-color); outline-offset: 2px; }`;
+        document.head.appendChild(style);
+    } catch (e) {
+        console.warn('[csp] setupNavigationAccessibility error:', e);
+    }
+}
+
+// Optimizaciones ligeras de rendimiento.
+function setupPerformanceOptimizations() {
+    try {
+        // Lazy-load para imágenes si el navegador lo soporta.
+        if ('loading' in HTMLImageElement.prototype) {
+            document.querySelectorAll('img:not([loading])').forEach(img => {
+                img.loading = 'lazy';
+            });
+        }
+    } catch (e) {
+        console.warn('[csp] setupPerformanceOptimizations error:', e);
+    }
+    }
+
+    // Inyección mínima de metadatos SEO si faltan.
+    function injectSeoMetadata() {
+    try {
+        // Asegura etiqueta canonical si no existe.
+        if (!document.querySelector('link[rel="canonical"]')) {
+            const link = document.createElement('link');
+            link.rel = 'canonical';
+            link.href = location.origin + location.pathname;
+            document.head.appendChild(link);
+        }
+        // Evita duplicar description si ya está presente en el HTML.
+        // Si falta, añade una genérica.
+        if (!document.querySelector('meta[name="description"]')) {
+            const meta = document.createElement('meta');
+            meta.name = 'description';
+            meta.content = 'El Rincón de Ébano - Minimarket con delivery instantáneo.';
+            document.head.appendChild(meta);
+        }
+    } catch (e) {
+        console.warn('[csp] injectSeoMetadata error:', e);
+    }
+    }
+
+    // Inyecta el manifest de la PWA si no está presente.
+    function injectPwaManifest() {
+    try {
+        if (!document.querySelector('link[rel="manifest"]')) {
+            const link = document.createElement('link');
+            link.rel = 'manifest';
+            link.href = '/app.webmanifest';
+            document.head.appendChild(link);
+        }
+    } catch (e) {
+        console.warn('[csp] injectPwaManifest error:', e);
+    }
+
+    // Habilita estilos diferidos sin usar onload inline en <link>.
+    function enableDeferredStyles() {
+        try {
+            const links = document.querySelectorAll('link[rel="stylesheet"][media="print"][data-defer]');
+            links.forEach(link => {
+                link.media = 'all';
+                link.removeAttribute('data-defer');
+            });
+        } catch (e) {
+            console.warn('[csp] enableDeferredStyles error:', e);
+        }
+    }
+}
+
+// Inicializa todas las mejoras cuando el DOM esté listo.
+// Con guardia para evitar ejecuciones duplicadas si un bundle ESM también inicializa.
     document.addEventListener('DOMContentLoaded', () => {
+        const root = document.documentElement;
+        if (root.dataset.enhancementsInit === '1') return;
+        root.dataset.enhancementsInit = '1';
+
+        enableDeferredStyles();
         injectEnhancementStyles();
         setupCheckoutProgress();
         setupNavigationAccessibility();
