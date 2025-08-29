@@ -87,7 +87,10 @@
     async function loadProductData() {
         if (productMap) return productMap;
         try {
-            const map = await loadProductData();\n            if (!map) return;\n            const products = Object.values(map);\n            const structuredProducts = products.slice(0, 20).map(p => ({
+            const map = await loadProductData();
+            if (!map) return;
+            const products = Object.values(map);
+            const structuredProducts = products.slice(0, 20).map(p => ({
                 '@type': 'Product',
                 'name': p.name,
                 'image': p.image_path,
