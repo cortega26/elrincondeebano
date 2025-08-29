@@ -85,52 +85,73 @@
      * información, o null si la carga falla.
      */
     async function loadProductData() {
-        if (productMap) return productMap;
-        try {
-            const map = await loadProductData();
-            if (!map) return;
-            const products = Object.values(map);
-            const structuredProducts = products.slice(0, 20).map(p => ({
-                '@type': 'Product',
-                'name': p.name,
-                'image': p.image_path,
-                'description': p.description,
-                'brand': p.brand || 'Genérico',
-                'offers': {
-                    '@type': 'Offer',
-                    'price': p.price,
-                    'priceCurrency': 'CLP',
-                    'availability': p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'
-                }
-            }));
-            const structuredData = {
-                '@context': 'https://schema.org',
-                '@graph': [
-                    {
-                        '@type': 'Store',
-                        'name': 'El Rincón de Ébano',
-                        'image': 'https://elrincondeebano.com/assets/images/web/logo.webp',
-                        'description': 'Un minimarket en la puerta de tu departamento',
-                        'address': {
-                            '@type': 'PostalAddress',
-                            'addressCountry': 'CL'
-                        },
-                        'telephone': '+56951118901',
-                        'url': 'http://www.elrincondeebano.com/'
-                    },
-                    ...structuredProducts
-                ]
-            };
-            const scriptEl = document.createElement('script');
-            scriptEl.type = 'application/ld+json';
-            scriptEl.textContent = JSON.stringify(structuredData);
-            document.head.appendChild(scriptEl);
-        } catch (error) {
-            console.error('Error generating structured data', error);
+    if (productMap) return productMap;
+    try {
+        const response = await fetch('/_products/product_data.json', { cache: 'no-store' });
+        if (!response.ok) {
+            console.error('Error al obtener product_data.json:', response.status);
+            return null;
         }
+        const data = await response.json();
+        const arr = Array.isArray(data?.products) ? data.products : (Array.isArray(data) ? data : []);
+        const map = {};
+        arr.forEach(p => {
+            // use provided id if exists, else build a stable key
+            const key = p.id || (String(p.name)+"-"+String(p.category));
+            map[key] = p;
+        });
+        productMap = map;
+        return productMap;
+    } catch (error) {
+        console.error('Error al cargar datos de productos:', error);
+        return null;
     }
+}
 
-    // Inicializa todas las mejoras cuando el DOM esté listo
+/**
+ * Genera e inserta datos estructurados Schema.org (primeros 20 productos)
+ */
+async function injectStructuredData() {
+    try {
+        const map = await loadProductData();
+        if (!map) return;
+        const products = Object.values(map);
+        const structuredProducts = products.slice(0, 20).map(p => ({
+            '@type': 'Product',
+            'name': p.name,
+            'image': p.image_path,
+            'description': p.description,
+            'brand': p.brand || 'Genérico',
+            'offers': {
+                '@type': 'Offer',
+                'price': p.price,
+                'priceCurrency': 'CLP',
+                'availability': p.stock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'
+            }
+        }));
+        const structuredData = {
+            '@context': 'https://schema.org',
+            '@graph': [
+                {
+                    '@type': 'Store',
+                    'name': 'El Rincón de Ébano',
+                    'image': 'https://elrincondeebano.com/assets/images/web/logo.webp',
+                    'description': 'Un minimarket en la puerta de tu departamento',
+                    'address': { '@type': 'PostalAddress', 'addressCountry': 'CL' },
+                    'telephone': '+56951118901',
+                    'url': 'http://www.elrincondeebano.com/'
+                },
+                ...structuredProducts
+            ]
+        };
+        const scriptEl = document.createElement('script');
+        scriptEl.type = 'application/ld+json';
+        scriptEl.textContent = JSON.stringify(structuredData);
+        document.head.appendChild(scriptEl);
+    } catch (error) {
+        console.error('Error generating structured data', error);
+    }
+}// Inicializa todas las mejoras cuando el DOM esté listo
     document.addEventListener('DOMContentLoaded', () => {
         injectEnhancementStyles();
         setupCheckoutProgress();
@@ -141,5 +162,6 @@
         injectPwaManifest();
     });
 })();
+
 
 
