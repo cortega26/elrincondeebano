@@ -399,7 +399,8 @@ h1 {
 
 .cart-item {
   display: flex;
-  flex-direction: column;
+  flex-direction: row; /* thumbnail + content side-by-side */
+  align-items: flex-start;
   padding: 10px 0;
   border-bottom: 1px solid #dee2e6;
 }
@@ -411,6 +412,11 @@ h1 {
 .cart-item > div {
   margin-bottom: 5px;
 }
+
+/* Cart layout helpers */
+.cart-item-content { flex: 1 1 auto; min-width: 0; }
+.cart-item-thumb { width: 60px; height: 60px; flex-shrink: 0; }
+.cart-item-thumb-img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
 
 /* Cart quantity controls */
 .cart-item .quantity-btn {
