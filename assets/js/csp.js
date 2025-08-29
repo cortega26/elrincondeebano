@@ -1,4 +1,4 @@
-// Updated Content Security Policy injection
+﻿// Updated Content Security Policy injection
 // This script writes a stricter Content Security Policy meta tag to the page
 // header.  It removes the use of 'unsafe-inline' and 'unsafe-eval' for scripts
 // and styles to mitigate cross‑site scripting risks while still permitting

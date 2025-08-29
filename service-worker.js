@@ -1,10 +1,10 @@
-// Service Worker Configuration
+﻿// Service Worker Configuration
 const TEST_MODE = typeof module !== 'undefined';
 const CACHE_CONFIG = {
     prefixes: {
-        static: 'ebano-static-v4',
-        dynamic: 'ebano-dynamic-v2',
-        products: 'ebano-products-v3'
+        static: 'ebano-static-v5',
+        dynamic: 'ebano-dynamic-v3',
+        products: 'ebano-products-v4'
     },
     duration: {
         products: 5 * 60 * 1000,     // 5 minutes for product data
@@ -351,3 +351,4 @@ async function invalidateAllCaches() {
 }
 
 if (typeof module !== "undefined") { module.exports = { isCacheFresh, addTimestamp }; }
+
