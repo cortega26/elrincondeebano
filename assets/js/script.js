@@ -939,8 +939,8 @@ const initApp = async () => {
                 class: 'cart-item-thumb-img',
                 loading: 'lazy',
                 decoding: 'async',
-                width: '72',
-                height: '72'
+                width: '100',
+                height: '100'
             });
             thumbnailContainer.appendChild(thumbnailImg);
 

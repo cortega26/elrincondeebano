@@ -414,7 +414,7 @@ h1 {
 
 /* Cart layout helpers */
 .cart-item-content { flex: 1 1 auto; min-width: 0; }
-.cart-item-thumb { width: 72px; height: 72px; flex-shrink: 0; }
+.cart-item-thumb { width: 100px; height: 100px; flex-shrink: 0; }
 .cart-item-thumb-img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
 
 /* Cart quantity controls */

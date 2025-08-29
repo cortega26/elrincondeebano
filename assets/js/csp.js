@@ -59,7 +59,7 @@
         styleEl.setAttribute('nonce', cspNonce);
         styleEl.textContent = `
             /* Miniatura del carrito */
-            .cart-item-thumb { width: 72px; height: 72px; flex-shrink: 0; }
+            .cart-item-thumb { width: 100px; height: 100px; flex-shrink: 0; }
             .cart-item-thumb img, .cart-item-thumb-img { width: 100%; height: 100%; object-fit: cover; border-radius: 0.25rem; }
 
             /* Cart item fallback minimal rules; Bootstrap will handle layout */
