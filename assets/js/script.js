@@ -931,22 +931,22 @@ const initApp = async () => {
                 adjustedImagePath = item.image_path;
             }
 
-            // Contenedor de la miniatura: se alinea a la derecha con margin-left: auto
+            // Miniatura a la izquierda (CSP-safe, sin estilos inline)
             const thumbnailContainer = createSafeElement('div', {
-                class: 'cart-item-thumbnail',
-                style: 'width: 60px; height: 60px; flex-shrink: 0; margin-left: auto;'
+                class: 'cart-item-thumb me-3'
             });
             const thumbnailImg = createSafeElement('img', {
                 src: adjustedImagePath,
                 alt: item.name,
-                class: 'img-fluid rounded',
-                style: 'width: 100%; height: 100%; object-fit: cover;'
+                class: 'cart-item-thumb-img',
+                loading: 'lazy',
+                decoding: 'async'
             });
             thumbnailContainer.appendChild(thumbnailImg);
 
-            // Añadir primero el contenido textual y luego la miniatura
-            itemElement.appendChild(contentContainer);
+            // Añadir primero la miniatura y luego el contenido textual
             itemElement.appendChild(thumbnailContainer);
+            itemElement.appendChild(contentContainer);
 
             // Insertar en el DOM
             cartItems.appendChild(itemElement);

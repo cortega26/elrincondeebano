@@ -857,3 +857,16 @@ h1 {
 .skip-link:focus {
   top: 8px;
 }
+
+/* Cart item thumbnail */
+.cart-item-thumb {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+}
+.cart-item-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.25rem;
+}
