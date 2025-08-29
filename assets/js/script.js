@@ -929,9 +929,9 @@ const initApp = async () => {
                 adjustedImagePath = item.image_path;
             }
 
-            // Miniatura a la izquierda (CSP-safe, sin estilos inline)
+            // Miniatura a la derecha (CSP-safe), contenido a la izquierda
             const thumbnailContainer = createSafeElement('div', {
-                class: 'cart-item-thumb me-3'
+                class: 'cart-item-thumb ms-3 flex-shrink-0'
             });
             const thumbnailImg = createSafeElement('img', {
                 src: adjustedImagePath,
@@ -944,9 +944,9 @@ const initApp = async () => {
             });
             thumbnailContainer.appendChild(thumbnailImg);
 
-            // Añadir primero la miniatura y luego el contenido textual
-            itemElement.appendChild(thumbnailContainer);
+            // Añadir primero el contenido (izquierda) y luego la miniatura (derecha)
             itemElement.appendChild(contentContainer);
+            itemElement.appendChild(thumbnailContainer);
 
             // Insertar en el DOM
             cartItems.appendChild(itemElement);
