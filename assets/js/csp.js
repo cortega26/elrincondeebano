@@ -59,7 +59,12 @@
         styleEl.setAttribute('nonce', cspNonce);
         styleEl.textContent = `
             /* Miniatura del carrito */
-            .cart-item-thumb {\n                width: 60px;\n                height: 60px;\n                object-fit: cover;\n                border-radius: 0.25rem;\n                margin-right: 0.5rem;\n            }
+            .cart-item-thumb { width: 60px; height: 60px; flex-shrink: 0; }
+            .cart-item-thumb img, .cart-item-thumb-img { width: 100%; height: 100%; object-fit: cover; border-radius: 0.25rem; }
+
+            /* Layout del item del carrito sin depender de Bootstrap */
+            .cart-item { display: flex; align-items: flex-start; gap: 0.75rem; }
+            .cart-item-content { flex: 1; }
 
             /* Eliminado: reglas de mega menú y anchura de los menús para restaurar el comportamiento predeterminado. */
 

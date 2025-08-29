@@ -933,7 +933,7 @@ const initApp = async () => {
 
             // Miniatura a la izquierda (CSP-safe, sin estilos inline)
             const thumbnailContainer = createSafeElement('div', {
-                class: 'cart-item-thumb me-3'
+                class: 'cart-item-thumb'
             });
             const thumbnailImg = createSafeElement('img', {
                 src: adjustedImagePath,
