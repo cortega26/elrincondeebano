@@ -5,6 +5,11 @@ import os
 from pathlib import Path
 from .models import Product
 from .services import ProductService, ProductNotFoundError, ProductServiceError
+try:
+    from PIL import Image, ImageTk  # type: ignore
+    PIL_AVAILABLE = True
+except Exception:
+    PIL_AVAILABLE = False
 import logging
 import shutil
 import threading
@@ -1133,6 +1138,27 @@ class ProductFormDialog(tk.Toplevel):
                 widget.grid(row=i, column=1, sticky=tk.EW, pady=5)
             if field == "image_path":
                 ttk.Button(self.main_frame, text="Explorar...", command=self.browse_image, width=10).grid(row=i, column=2, padx=(5, 0), pady=5)
+                # Update preview when typing a path
+                widget.bind("<KeyRelease>", lambda _e: self._update_image_preview())
+
+        # Image processing options
+        options_row = len(fields)
+        self.convert_webp_var = tk.BooleanVar(value=False)
+        self.resize_opt_var = tk.BooleanVar(value=True)
+        opts_frame = ttk.Frame(self.main_frame)
+        opts_frame.grid(row=options_row, column=0, columnspan=3, sticky=tk.W, pady=(0, 6))
+        ttk.Checkbutton(opts_frame, text="Convertir a WebP", variable=self.convert_webp_var,
+                        state=(tk.NORMAL if PIL_AVAILABLE else tk.DISABLED)).pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Checkbutton(opts_frame, text="Optimizar tamaño (máx 1000px)", variable=self.resize_opt_var,
+                        state=(tk.NORMAL if PIL_AVAILABLE else tk.DISABLED)).pack(side=tk.LEFT)
+
+        # Preview area
+        self.preview_label = ttk.Label(self.main_frame, text="Vista previa")
+        self.preview_label.grid(row=options_row+1, column=0, sticky=tk.W)
+        self.preview_canvas = tk.Label(self.main_frame, bd=1, relief=tk.SOLID)
+        self.preview_canvas.grid(row=options_row+1, column=1, sticky=tk.W, pady=4)
+        self._preview_photo = None
+        self._update_image_preview()
 
     def _focus_next(self, event):
         """Transfiere el foco al siguiente widget y evita la inserción de un tabulador."""
@@ -1170,18 +1196,42 @@ class ProductFormDialog(tk.Toplevel):
         if not file_path:
             return
         try:
-            abs_base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'assets', 'images'))
-            file_dir = os.path.dirname(file_path)
-            current_folder = os.path.basename(file_dir)
-            dest_dir = os.path.join(abs_base_dir, current_folder)
+            abs_base_dir = self._assets_images_root()
+            # Use category to choose destination subfolder
+            cat_widget = self.entries.get("category")
+            category = cat_widget.get() if isinstance(cat_widget, ttk.Combobox) else ""
+            subdir = self._category_subdir(str(category))
+            dest_dir = os.path.join(abs_base_dir, subdir)
             os.makedirs(dest_dir, exist_ok=True)
-            dest_path = os.path.join(dest_dir, os.path.basename(file_path))
-            if os.path.abspath(file_path) != os.path.abspath(dest_path):
-                shutil.copy2(file_path, dest_path)
+
+            filename = os.path.basename(file_path)
+            name_no_ext, ext = os.path.splitext(filename)
+
+            # Optional image optimization
+            if PIL_AVAILABLE and (self.convert_webp_var.get() or self.resize_opt_var.get()):
+                target_ext = '.webp' if self.convert_webp_var.get() else ext
+                dest_path = os.path.join(dest_dir, f"{name_no_ext}{target_ext}")
+                try:
+                    img = Image.open(file_path)
+                    if self.resize_opt_var.get():
+                        img.thumbnail((1000, 1000))
+                    save_params = {}
+                    if target_ext.lower() == '.webp':
+                        save_params = {"format": "WEBP", "quality": 85}
+                    img.save(dest_path, **save_params)
+                except Exception:
+                    dest_path = os.path.join(dest_dir, filename)
+                    shutil.copy2(file_path, dest_path)
+            else:
+                dest_path = os.path.join(dest_dir, filename)
+                if os.path.abspath(file_path) != os.path.abspath(dest_path):
+                    shutil.copy2(file_path, dest_path)
+
             rel_path = os.path.relpath(dest_path, abs_base_dir).replace('\\', '/')
             rel_path = 'assets/images/' + rel_path
             self.entries["image_path"].delete(0, tk.END)
             self.entries["image_path"].insert(0, rel_path)
+            self._update_image_preview()
         except Exception as e:
             messagebox.showerror("Error", f"Error al copiar la imagen: {str(e)}")
 
@@ -1232,6 +1282,59 @@ class ProductFormDialog(tk.Toplevel):
             if not data["image_path"].startswith("assets/images/"):
                 raise ValueError("La ruta de la imagen debe comenzar con 'assets/images/'")
         return data
+
+    # Helpers for image paths and preview
+    def _assets_images_root(self) -> str:
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+        return os.path.join(project_root, 'assets', 'images')
+
+    def _category_subdir(self, category: str) -> str:
+        mapping = {
+            'Limpiezayaseo': 'limpieza_y_aseo',
+            'Despensa': 'despensa',
+            'Lacteos': 'lacteos',
+            'Cervezas': 'cervezas',
+            'Vinos': 'vinos',
+            'Espumantes': 'espumantes',
+            'Piscos': 'piscos',
+            'Aguas': 'bebidas',
+            'Bebidas': 'bebidas',
+            'Jugos': 'jugos',
+            'Mascotas': 'mascotas',
+            'Llaveros': 'llaveros',
+            'Chocolates': 'chocolates',
+            'SnacksDulces': 'snacks_dulces',
+            'SnacksSalados': 'snacks_salados',
+            'Energeticaseisotonicas': 'energeticaseisotonicas',
+            'Carnesyembutidos': 'carnes_y_embutidos',
+            'Juegos': 'juegos',
+            'Software': 'software',
+        }
+        return mapping.get(category, category.strip().lower().replace(' ', '_'))
+
+    def _update_image_preview(self) -> None:
+        try:
+            entry = self.entries.get('image_path')
+            if not isinstance(entry, ttk.Entry):
+                return
+            rel_path = entry.get().strip()
+            if not rel_path:
+                self.preview_canvas.configure(image='', width=160, height=120, text='')
+                self._preview_photo = None
+                return
+            abs_base_dir = self._assets_images_root()
+            abs_path = os.path.join(abs_base_dir, rel_path.replace('assets/images/', '').replace('/', os.sep))
+            if PIL_AVAILABLE and os.path.exists(abs_path):
+                img = Image.open(abs_path)
+                img.thumbnail((240, 180))
+                self._preview_photo = ImageTk.PhotoImage(img)
+                self.preview_canvas.configure(image=self._preview_photo, width=self._preview_photo.width(), height=self._preview_photo.height(), text='')
+            else:
+                self.preview_canvas.configure(text='(Vista previa no disponible)', width=240, height=40, image='')
+                self._preview_photo = None
+        except Exception:
+            self.preview_canvas.configure(text='(Vista previa no disponible)', width=240, height=40, image='')
+            self._preview_photo = None
 
 class PreferencesDialog(tk.Toplevel):
     """Dialog for application preferences."""
