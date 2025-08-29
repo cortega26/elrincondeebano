@@ -19,6 +19,8 @@ const CACHE_CONFIG = {
         '/assets/css/critical.min.css',
         '/assets/js/script.min.js',
         '/assets/images/web/logo.webp',
+        '/assets/images/web/icon-192.png',
+        '/assets/images/web/icon-512.png',
         '/assets/images/web/favicon.ico',
         '/assets/images/web/placeholder.webp',
         '/pages/offline.html'
