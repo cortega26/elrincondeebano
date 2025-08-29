@@ -9,6 +9,8 @@
   "scripts": {
     "build": "node build.js && node build-pages.js",
     "icons": "node generate-icons.js",
+    "images:variants": "node scripts/generate-image-variants.js",
+    "prune:backups": "node scripts/prune-backups.js",
     "test": "node test/generateStableId.test.js && node test/serviceWorker.utils.test.js"
   },
   "keywords": [],
