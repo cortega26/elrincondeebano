@@ -1,6 +1,6 @@
 from typing import List, Optional, Dict, Set, Protocol, Callable
-from models import Product
-from repositories import ProductRepositoryProtocol, ProductRepositoryError
+from .models import Product
+from .repositories import ProductRepositoryProtocol, ProductRepositoryError
 import logging
 from functools import lru_cache
 from dataclasses import dataclass, field
