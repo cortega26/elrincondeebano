@@ -1,4 +1,4 @@
-﻿// Updated Content Security Policy injection
+// Updated Content Security Policy injection
 // This script writes a stricter Content Security Policy meta tag to the page
 // header.  It removes the use of 'unsafe-inline' and 'unsafe-eval' for scripts
 // and styles to mitigate cross‑site scripting risks while still permitting
@@ -191,15 +191,16 @@ function setupNavigationAccessibility() {
         });
 
         const style = document.createElement('style');
+        style.setAttribute('nonce', cspNonce);
         style.textContent = `.keyboard-navigation *:focus { outline: 2px solid var(--primary-color); outline-offset: 2px; }`;
         document.head.appendChild(style);
     } catch (e) {
         console.warn('[csp] setupNavigationAccessibility error:', e);
     }
-}
+    }
 
-// Optimizaciones ligeras de rendimiento.
-function setupPerformanceOptimizations() {
+    // Optimizaciones ligeras de rendimiento.
+    function setupPerformanceOptimizations() {
     try {
         // Lazy-load para imágenes si el navegador lo soporta.
         if ('loading' in HTMLImageElement.prototype) {
@@ -210,9 +211,8 @@ function setupPerformanceOptimizations() {
     } catch (e) {
         console.warn('[csp] setupPerformanceOptimizations error:', e);
     }
-    }
 
-    // Inyección mínima de metadatos SEO si faltan.
+// Inyección mínima de metadatos SEO si faltan.
     function injectSeoMetadata() {
     try {
         // Asegura etiqueta canonical si no existe.
@@ -260,7 +260,6 @@ function setupPerformanceOptimizations() {
             console.warn('[csp] enableDeferredStyles error:', e);
         }
     }
-}
 
 // Inicializa todas las mejoras cuando el DOM esté listo.
 // Con guardia para evitar ejecuciones duplicadas si un bundle ESM también inicializa.
