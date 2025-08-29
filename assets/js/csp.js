@@ -49,6 +49,17 @@
     meta.content = cspPolicy;
     document.head.appendChild(meta);
 
+    // Flip deferred styles (data-defer) as early as possible to improve LCP.
+    // Run in a microtask so we don't block the parser; enableDeferredStyles is hoisted.
+    try {
+        Promise.resolve().then(() => {
+            try { if (typeof enableDeferredStyles === 'function') enableDeferredStyles(); } catch (e) {}
+        });
+    } catch (e) {
+        // Fallback to direct call if Promise is unavailable
+        try { if (typeof enableDeferredStyles === 'function') enableDeferredStyles(); } catch (_) {}
+    }
+
     // Después de escribir la política CSP, definimos (o simulamos) funciones
     // de mejora. Algunas llamadas más abajo hacían referencia a funciones que
     // no existían, causando ReferenceError. Aquí agregamos implementaciones
