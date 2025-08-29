@@ -1205,6 +1205,11 @@ class ProductFormDialog(tk.Toplevel):
             else:
                 widget.delete(0, tk.END)
                 widget.insert(0, str(value))
+        # Ensure image preview syncs with populated image_path
+        try:
+            self._update_image_preview()
+        except Exception:
+            pass
 
     def browse_image(self) -> None:
         """Open file dialog to select image."""
