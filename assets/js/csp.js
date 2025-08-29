@@ -64,6 +64,7 @@
 
             /* Cart item fallback minimal rules; Bootstrap will handle layout */
             .cart-item-content { min-width: 0; }
+            .cart-item { flex-wrap: nowrap; }
 
             /* Eliminado: reglas de mega menú y anchura de los menús para restaurar el comportamiento predeterminado. */
 
