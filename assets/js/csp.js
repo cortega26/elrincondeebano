@@ -211,8 +211,7 @@
         try {
             const response = await fetch('/_products/product_data.json');
             if (!response.ok) return;
-            const products = await response.json();
-            const structuredProducts = products.slice(0, 20).map(p => ({
+            const data = await response.json();\n            const products = Array.isArray(data?.products) ? data.products : (Array.isArray(data) ? data : []);\n            const structuredProducts = products.slice(0, 20).map(p => ({
                 '@type': 'Product',
                 'name': p.name,
                 'image': p.image_path,
@@ -263,3 +262,4 @@
         injectPwaManifest();
     });
 })();
+
