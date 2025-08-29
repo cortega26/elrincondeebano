@@ -229,6 +229,10 @@ class ProductGUI(DragDropMixin):
         self.config = self._load_config()
         self._cell_editor: Optional[tk.Widget] = None
         self._cell_editor_info: Dict[str, Any] = {}
+        # Undo/Redo stacks for bulk operations only
+        self._undo_stack: List[Dict[str, Any]] = []
+        self._redo_stack: List[Dict[str, Any]] = []
+        self._undo_max = 20
         
         self.setup_gui()
         self.bind_shortcuts()
@@ -396,6 +400,14 @@ class ProductGUI(DragDropMixin):
         ttk.Button(bulk_frame, text="Stock OFF", width=10, command=lambda: self.bulk_set_stock(False)).pack(side=tk.LEFT, padx=3)
         ttk.Button(bulk_frame, text="Precio +%", width=10, command=lambda: self.bulk_adjust_price(True)).pack(side=tk.LEFT, padx=3)
         ttk.Button(bulk_frame, text="Precio -%", width=10, command=lambda: self.bulk_adjust_price(False)).pack(side=tk.LEFT, padx=3)
+
+        # Undo/Redo controls
+        history_frame = ttk.Frame(controls_frame)
+        history_frame.pack(side=tk.RIGHT, padx=6)
+        self.undo_btn = ttk.Button(history_frame, text="Deshacer", width=10, command=self.undo_last, state=tk.DISABLED)
+        self.redo_btn = ttk.Button(history_frame, text="Rehacer", width=10, command=self.redo_last, state=tk.DISABLED)
+        self.undo_btn.pack(side=tk.LEFT, padx=3)
+        self.redo_btn.pack(side=tk.LEFT, padx=3)
 
     def setup_status_bar(self) -> None:
         """Set up the status bar with version info."""
@@ -664,7 +676,7 @@ class ProductGUI(DragDropMixin):
         pct = self._ask_number("Aplicar descuento %", "Porcentaje (0-100):", min_val=0, max_val=100)
         if pct is None:
             return
-        updates: List[tuple[str, Product]] = []
+        pairs: List[tuple[Product, Product]] = []
         for p in products:
             new_p = Product(
                 name=p.name,
@@ -676,13 +688,8 @@ class ProductGUI(DragDropMixin):
                 image_path=p.image_path,
                 order=p.order
             )
-            updates.append((p.name, new_p))
-        try:
-            self.product_service.batch_update(updates)
-            self.refresh_products()
-            self.update_status(f"Descuento {pct}% aplicado a {len(products)} producto(s)")
-        except ProductServiceError as e:
-            messagebox.showerror("Error", str(e))
+            pairs.append((p, new_p))
+        self._preview_and_apply_operation(f"Descuento {pct}% a {len(products)} producto(s)", pairs)
 
     def bulk_fixed_discount(self) -> None:
         products = self._get_selected_products()
@@ -692,7 +699,7 @@ class ProductGUI(DragDropMixin):
         amount = self._ask_number("Descuento fijo", "Monto a descontar:", min_val=0)
         if amount is None:
             return
-        updates: List[tuple[str, Product]] = []
+        pairs: List[tuple[Product, Product]] = []
         for p in products:
             d = min(int(amount), p.price-1) if p.price>0 else 0
             new_p = Product(
@@ -705,20 +712,15 @@ class ProductGUI(DragDropMixin):
                 image_path=p.image_path,
                 order=p.order
             )
-            updates.append((p.name, new_p))
-        try:
-            self.product_service.batch_update(updates)
-            self.refresh_products()
-            self.update_status(f"Descuento de ${amount:,} aplicado a {len(products)} producto(s)")
-        except ProductServiceError as e:
-            messagebox.showerror("Error", str(e))
+            pairs.append((p, new_p))
+        self._preview_and_apply_operation(f"Descuento fijo ${int(amount):,} a {len(products)} producto(s)", pairs)
 
     def bulk_set_stock(self, value: bool) -> None:
         products = self._get_selected_products()
         if not products:
             messagebox.showinfo("Acción masiva", "Seleccione uno o más productos.")
             return
-        updates: List[tuple[str, Product]] = []
+        pairs: List[tuple[Product, Product]] = []
         for p in products:
             new_p = Product(
                 name=p.name,
@@ -730,13 +732,8 @@ class ProductGUI(DragDropMixin):
                 image_path=p.image_path,
                 order=p.order
             )
-            updates.append((p.name, new_p))
-        try:
-            self.product_service.batch_update(updates)
-            self.refresh_products()
-            self.update_status(f"Stock {'ON' if value else 'OFF'} para {len(products)} producto(s)")
-        except ProductServiceError as e:
-            messagebox.showerror("Error", str(e))
+            pairs.append((p, new_p))
+        self._preview_and_apply_operation(f"Stock {'ON' if value else 'OFF'} para {len(products)} producto(s)", pairs)
 
     def bulk_adjust_price(self, increase: bool) -> None:
         products = self._get_selected_products()
@@ -747,7 +744,7 @@ class ProductGUI(DragDropMixin):
         if pct is None:
             return
         factor = 1 + (pct/100) if increase else 1 - (pct/100)
-        updates: List[tuple[str, Product]] = []
+        pairs: List[tuple[Product, Product]] = []
         for p in products:
             new_price = max(1, int(round(p.price * factor)))
             new_discount = min(p.discount, new_price-1) if new_price>0 else 0
@@ -761,13 +758,110 @@ class ProductGUI(DragDropMixin):
                 image_path=p.image_path,
                 order=p.order
             )
-            updates.append((p.name, new_p))
+            pairs.append((p, new_p))
+        self._preview_and_apply_operation(f"Precio {'+' if increase else '-'}{pct}% a {len(products)} producto(s)", pairs)
+
+    def _preview_and_apply_operation(self, description: str, pairs: List[tuple[Product, Product]]) -> None:
+        """Show a preview for bulk updates and apply with undo support if confirmed."""
+        if not pairs:
+            return
+        # Build summary
+        lines = []
+        changed_count = 0
+        for old, new in pairs:
+            changes = []
+            if old.price != new.price:
+                changes.append(f"Precio: {old.price:,} → {new.price:,}")
+            if old.discount != new.discount:
+                changes.append(f"Desc.: {old.discount:,} → {new.discount:,}")
+            if old.stock != new.stock:
+                changes.append(f"Stock: {'☑' if old.stock else '☐'} → {'☑' if new.stock else '☐'}")
+            if changes:
+                changed_count += 1
+                lines.append(f"• {old.name} — " + "; ".join(changes))
+        preview_text = f"{description}\n\nCambios: {changed_count} de {len(pairs)} productos\n\n" + "\n".join(lines[:50])
+
+        if not self._show_preview_dialog(preview_text):
+            return
+
+        # Build do/undo updates
+        do_updates: List[tuple[str, Product]] = [(old.name, new) for old, new in pairs]
+        undo_updates: List[tuple[str, Product]] = [(new.name, old) for old, new in pairs]
         try:
-            self.product_service.batch_update(updates)
+            self.product_service.batch_update(do_updates)
+            # Push to undo history
+            op = {"description": description, "do": do_updates, "undo": undo_updates}
+            self._undo_stack.append(op)
+            if len(self._undo_stack) > self._undo_max:
+                self._undo_stack.pop(0)
+            self._redo_stack.clear()
+            self._update_history_buttons()
             self.refresh_products()
-            self.update_status(f"Precio {'+' if increase else '-'}{pct}% aplicado a {len(products)} producto(s)")
+            self.update_status(f"{description} — aplicado")
         except ProductServiceError as e:
             messagebox.showerror("Error", str(e))
+
+    def _show_preview_dialog(self, content: str) -> bool:
+        dialog = tk.Toplevel(self.master)
+        dialog.title("Previsualización de cambios")
+        dialog.transient(self.master)
+        dialog.grab_set()
+        dialog.geometry("720x520")
+
+        txt = tk.Text(dialog, wrap=tk.WORD)
+        txt.insert("1.0", content)
+        txt.configure(state=tk.DISABLED)
+        txt.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        btn_frame = ttk.Frame(dialog)
+        btn_frame.pack(pady=10)
+        result = {"ok": False}
+
+        def on_ok():
+            result["ok"] = True
+            dialog.destroy()
+
+        def on_cancel():
+            dialog.destroy()
+
+        ttk.Button(btn_frame, text="Confirmar", command=on_ok).pack(side=tk.LEFT, padx=6)
+        ttk.Button(btn_frame, text="Cancelar", command=on_cancel).pack(side=tk.LEFT, padx=6)
+        dialog.wait_window()
+        return result["ok"]
+
+    def _update_history_buttons(self) -> None:
+        if hasattr(self, 'undo_btn'):
+            self.undo_btn.config(state=tk.NORMAL if len(self._undo_stack) > 0 else tk.DISABLED)
+        if hasattr(self, 'redo_btn'):
+            self.redo_btn.config(state=tk.NORMAL if len(self._redo_stack) > 0 else tk.DISABLED)
+
+    def undo_last(self) -> None:
+        if not self._undo_stack:
+            return
+        op = self._undo_stack.pop()
+        try:
+            self.product_service.batch_update(op["undo"])
+            # Prepare for redo
+            self._redo_stack.append(op)
+            self._update_history_buttons()
+            self.refresh_products()
+            self.update_status(f"Deshecho: {op['description']}")
+        except ProductServiceError as e:
+            messagebox.showerror("Error", f"No se pudo deshacer: {str(e)}")
+
+    def redo_last(self) -> None:
+        if not self._redo_stack:
+            return
+        op = self._redo_stack.pop()
+        try:
+            self.product_service.batch_update(op["do"])
+            # Return to undo stack
+            self._undo_stack.append(op)
+            self._update_history_buttons()
+            self.refresh_products()
+            self.update_status(f"Rehecho: {op['description']}")
+        except ProductServiceError as e:
+            messagebox.showerror("Error", f"No se pudo rehacer: {str(e)}")
 
     def handle_double_click(self, event: tk.Event) -> None:
         # On double-click: inline edit for price/discount, toggle stock on stock column,
