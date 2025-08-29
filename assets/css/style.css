@@ -124,6 +124,7 @@ h1 {
   transition: box-shadow 0.25s ease, transform 0.2s ease;
   border: none !important;
   position: relative;
+  contain: layout paint; /* Isolate layout/paint to prevent image flicker on inner swaps */
 }
 
 .producto:hover .card {
@@ -159,6 +160,9 @@ h1 {
   height: 200px;
   object-fit: contain;
   transition: none;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 /* Improve image rounding continuity */
