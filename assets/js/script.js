@@ -308,7 +308,8 @@ const fetchProducts = async () => {
             id: generateStableId(product),
             name: sanitizeHTML(product.name),
             description: sanitizeHTML(product.description),
-            category: sanitizeHTML(product.category)
+            category: sanitizeHTML(product.category),
+            categoryKey: normalizeString(product.category)
         }));
     } catch (error) {
         console.error('Error al obtener productos:', error);
@@ -971,7 +972,7 @@ const initApp = async () => {
         const currentCategory = document.querySelector('main').dataset.category;
         if (currentCategory) {
             const normCurrent = normalizeString(currentCategory);
-            products = products.filter(product => normalizeString(product.category) === normCurrent);
+            products = products.filter(product => (product.categoryKey || normalizeString(product.category)) === normCurrent);
         }
         sortOptions.addEventListener('change', debouncedUpdateProductDisplay);
         filterKeyword.addEventListener('input', debouncedUpdateProductDisplay);

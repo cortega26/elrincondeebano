@@ -1304,6 +1304,41 @@ class ProductFormDialog(tk.Toplevel):
             if "invalid literal" in str(e):
                 raise ValueError("El descuento debe ser un número válido")
             raise
+        # Canonicalize category names to avoid mismatches (spaces/accents)
+        try:
+            def _norm(s: str) -> str:
+                import unicodedata, re
+                s = unicodedata.normalize('NFD', s)
+                s = re.sub(r"[\u0300-\u036f]", "", s)
+                s = re.sub(r"[^A-Za-z0-9]", "", s).lower()
+                return s
+            cat_map = {
+                'lacteos': 'Lacteos',
+                'carnesyembutidos': 'Carnesyembutidos',
+                'snacksdulces': 'SnacksDulces',
+                'snackssalados': 'SnacksSalados',
+                'energeticaseisotonicas': 'Energeticaseisotonicas',
+                'limpiezayaseo': 'Limpiezayaseo',
+                'aguas': 'Aguas',
+                'bebidas': 'Bebidas',
+                'jugos': 'Jugos',
+                'espumantes': 'Espumantes',
+                'cervezas': 'Cervezas',
+                'vinos': 'Vinos',
+                'piscos': 'Piscos',
+                'mascotas': 'Mascotas',
+                'llaveros': 'Llaveros',
+                'despensa': 'Despensa',
+                'chocolates': 'Chocolates',
+                'juegos': 'Juegos',
+                'software': 'Software',
+            }
+            key = _norm(data.get('category', ''))
+            if key in cat_map:
+                data['category'] = cat_map[key]
+        except Exception:
+            pass
+
         if data["image_path"]:
             if not data["image_path"].startswith("assets/images/"):
                 raise ValueError("La ruta de la imagen debe comenzar con 'assets/images/'")
