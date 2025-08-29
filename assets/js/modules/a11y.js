@@ -9,10 +9,12 @@ export function setupNavigationAccessibility() {
     });
 
     const style = document.createElement('style');
+    if (window && window.__CSP_NONCE__) {
+      style.setAttribute('nonce', window.__CSP_NONCE__);
+    }
     style.textContent = `.keyboard-navigation *:focus { outline: 2px solid var(--primary-color); outline-offset: 2px; }`;
     document.head.appendChild(style);
   } catch (e) {
     console.warn('[modules/a11y] setupNavigationAccessibility error:', e);
   }
 }
-

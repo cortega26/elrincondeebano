@@ -57,6 +57,9 @@ export async function injectStructuredData() {
 
     const scriptEl = document.createElement('script');
     scriptEl.type = 'application/ld+json';
+    if (window && window.__CSP_NONCE__) {
+      scriptEl.setAttribute('nonce', window.__CSP_NONCE__);
+    }
     scriptEl.textContent = JSON.stringify(structuredData);
     document.head.appendChild(scriptEl);
   } catch (e) {

@@ -2,6 +2,9 @@
 export function injectEnhancementStyles() {
   try {
     const styleEl = document.createElement('style');
+    if (window && window.__CSP_NONCE__) {
+      styleEl.setAttribute('nonce', window.__CSP_NONCE__);
+    }
     styleEl.textContent = `
       /* Miniatura del carrito */
       .cart-item-thumb {
@@ -29,4 +32,3 @@ export function injectEnhancementStyles() {
     console.warn('[modules/enhancements] injectEnhancementStyles error:', e);
   }
 }
-

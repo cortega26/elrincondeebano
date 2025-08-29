@@ -28,6 +28,7 @@
         }
     }
     const cspNonce = generateNonce();
+    try { window.__CSP_NONCE__ = cspNonce; } catch {}
 
     const cspPolicy = `
         default-src 'self';
