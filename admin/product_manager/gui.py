@@ -1094,12 +1094,19 @@ class ProductFormDialog(tk.Toplevel):
 
     def setup_dialog(self) -> None:
         """Set up dialog window."""
-        self.geometry("570x355")
-        self.resizable(False, False)
+        # Make the dialog large enough and resizable so all content fits
+        self.geometry("760x620")
+        self.minsize(700, 520)
+        self.resizable(True, True)
         self.transient(self.master)
         self.grab_set()
         self.main_frame = ttk.Frame(self, padding="10")
         self.main_frame.pack(fill=tk.BOTH, expand=True)
+        # Let the input column expand when the window grows
+        try:
+            self.main_frame.columnconfigure(1, weight=1)
+        except Exception:
+            pass
         self.create_widgets()
         self.create_buttons()
 
