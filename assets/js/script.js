@@ -581,33 +581,36 @@ const initApp = async () => {
 
             cardBody.appendChild(renderPriceHtml(price, discount));
 
-            // Get cart item state
+            // Action area: pre-render both states and toggle visibility to avoid image repaint/flicker
+            const actionArea = createSafeElement('div', { class: 'action-area', 'data-pid': id });
+
+            // Add button
+            const addToCartBtn = createSafeElement('button', {
+                class: 'btn btn-primary add-to-cart-btn mt-2',
+                'data-id': id,
+                'aria-label': `Add ${name} to cart`
+            }, ['Agregar al carrito']);
+            addToCartBtn.addEventListener('click', () => {
+                addToCart(product, 1);
+                toggleActionArea(id, true);
+            });
+
+            // Quantity controls
+            const quantityControl = renderQuantityControl(product);
+
+            actionArea.appendChild(addToCartBtn);
+            actionArea.appendChild(quantityControl);
+            cardBody.appendChild(actionArea);
+
+            // Set initial state based on cart
             const cartItem = cart.find(item => item.id === id);
             const cartItemQuantity = cartItem ? cartItem.quantity : 0;
-
             if (cartItemQuantity > 0) {
-                const quantityControl = renderQuantityControl(product);
-                cardBody.appendChild(quantityControl);
-                // Update quantity input value
                 const quantityInput = quantityControl.querySelector('.quantity-input');
-                if (quantityInput) {
-                    quantityInput.value = cartItemQuantity;
-                }
+                if (quantityInput) quantityInput.value = cartItemQuantity;
+                toggleActionArea(id, true);
             } else {
-                const addToCartBtn = createSafeElement('button', {
-                    class: 'btn btn-primary add-to-cart-btn mt-2',
-                    'data-id': id,
-                    'aria-label': `Add ${name} to cart`
-                }, ['Agregar al carrito']);
-
-                addToCartBtn.addEventListener('click', () => {
-                    addToCart(product, 1);
-                    const quantityControl = renderQuantityControl(product);
-                    addToCartBtn.replaceWith(quantityControl);
-                    quantityControl.classList.add('fade-in-up');
-                });
-
-                cardBody.appendChild(addToCartBtn);
+                toggleActionArea(id, false);
             }
 
             cardElement.appendChild(cardBody);
@@ -722,8 +725,8 @@ const initApp = async () => {
             saveCart();
             updateCartIcon();
             renderCart();
-            // Update only the affected card to avoid full re-render flicker
-            updateProductCardToAdd(productId);
+            // Toggle card back to add state without re-rendering
+            toggleActionArea(productId, false);
         }
         catch (error) {
             console.error('Error al eliminar del carrito:', error);
@@ -738,13 +741,13 @@ const initApp = async () => {
 
             if (newQuantity <= 0) {
                 removeFromCart(product.id);
-                // Switch this card back to the add button without re-rendering all
-                updateProductCardToAdd(product.id);
+                toggleActionArea(product.id, false);
             } else if (newQuantity <= 50) {
                 if (item) {
                     item.quantity = newQuantity;
                 } else {
                     addToCart(product, 1);
+                    toggleActionArea(product.id, true);
                 }
                 saveCart();
                 updateCartIcon();
@@ -776,39 +779,19 @@ const initApp = async () => {
         }
     };
 
-    // Update a specific product card back to the "Agregar" button without re-rendering the grid
-    const updateProductCardToAdd = (productId) => {
-        try {
-            const qtyInput = document.querySelector(`input.quantity-input[data-id="${productId}"]`);
-            if (!qtyInput) return; // Card not visible or already in add state
-            const cardBody = qtyInput.closest('.card-body');
-            if (!cardBody) return;
-
-            const product = products.find(p => p.id === productId);
-            if (!product) {
-                // Remove the control if product not found; grid may be filtered
-                const qc = qtyInput.closest('.quantity-control');
-                if (qc) qc.remove();
-                return;
-            }
-
-            const addBtn = createSafeElement('button', {
-                class: 'btn btn-primary mt-2',
-                'data-id': product.id,
-                'aria-label': `Add ${product.name} to cart`
-            }, ['Agregar']);
-
-            addBtn.addEventListener('click', () => {
-                addToCart(product, 1);
-                const quantityControl = renderQuantityControl(product);
-                addBtn.replaceWith(quantityControl);
-                // Do not animate to avoid any visual flicker
-            });
-
-            const qc = qtyInput.closest('.quantity-control');
-            if (qc) qc.replaceWith(addBtn);
-        } catch (e) {
-            console.warn('updateProductCardToAdd failed:', e);
+    // Toggle action area in a specific card without re-rendering the grid
+    const toggleActionArea = (productId, showQuantity) => {
+        const area = document.querySelector(`.action-area[data-pid="${productId}"]`);
+        if (!area) return;
+        const btn = area.querySelector('.btn.btn-primary');
+        const qc = area.querySelector('.quantity-control');
+        if (!btn || !qc) return;
+        if (showQuantity) {
+            btn.style.display = 'none';
+            qc.style.display = 'flex';
+        } else {
+            qc.style.display = 'none';
+            btn.style.display = 'flex';
         }
     };
 
