@@ -1,0 +1,32 @@
+// UI enhancement styles (migrated from csp.js)
+export function injectEnhancementStyles() {
+  try {
+    const styleEl = document.createElement('style');
+    styleEl.textContent = `
+      /* Miniatura del carrito */
+      .cart-item-thumb {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 0.25rem;
+        margin-right: 0.5rem;
+      }
+
+      /* Contornos de enfoque claros para accesibilidad */
+      .navbar .nav-link:focus,
+      .navbar .dropdown-item:focus {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+      }
+
+      /* Espaciado entre botones en el offcanvas del carrito */
+      #cartOffcanvas .offcanvas-body > .btn + .btn {
+        margin-top: 0.5rem !important;
+      }
+    `;
+    document.head.appendChild(styleEl);
+  } catch (e) {
+    console.warn('[modules/enhancements] injectEnhancementStyles error:', e);
+  }
+}
+

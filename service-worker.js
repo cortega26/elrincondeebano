@@ -245,21 +245,7 @@ if (!TEST_MODE) {
     self.addEventListener('fetch', event => {
         const url = new URL(event.request.url);
 
-        // For product_data.json, always try the network first.
-        if (url.pathname.endsWith('product_data.json')) {
-            event.respondWith(
-                fetch(event.request)
-                    .then(networkResponse => {
-                        // No caching of the network response is performed here.
-                        return networkResponse;
-                    })
-                    .catch(() => {
-                        // If network fails, fall back to cache.
-                        return caches.match(event.request);
-                    })
-            );
-            return;
-        }
+        // Removed early network-first branch; unified handling below
 
         if (event.request.url.includes('googletagmanager.com/gtag/js')) {
             event.respondWith(
