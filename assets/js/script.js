@@ -597,6 +597,8 @@ const initApp = async () => {
 
             // Quantity controls
             const quantityControl = renderQuantityControl(product);
+            // Hide quantity control by default to prevent brief double render
+            quantityControl.style.display = 'none';
 
             actionArea.appendChild(addToCartBtn);
             actionArea.appendChild(quantityControl);
