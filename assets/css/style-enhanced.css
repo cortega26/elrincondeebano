@@ -541,7 +541,9 @@ h1 {
 /* Enhanced Cart Items */
 .cart-item {
     display: flex;
-    flex-direction: column;
+    flex-direction: row; /* ensure thumbnail + content are side-by-side */
+    align-items: flex-start;
+    gap: var(--spacing-sm);
     padding: var(--spacing-md) 0;
     border-bottom: 1px solid var(--background-color);
     transition: var(--transition-fast);
