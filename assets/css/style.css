@@ -118,7 +118,7 @@ h1 {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background-color: var(--background-color);
+  background-color: #fff; /* Force pure white card background */
   border-radius: var(--border-radius);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.25s ease, transform 0.2s ease;
@@ -483,6 +483,18 @@ h1 {
   max-width: 100%;
   padding: 0.5rem 0.75rem;
   font-size: 1rem;
+}
+
+/* Ensure all product cards in the grid have the same height */
+#product-container > [class*='col-'] {
+  display: flex;            /* Make columns stretch */
+}
+.producto {
+  display: flex;            /* Let product wrapper stretch */
+  width: 100%;
+}
+.producto > .card {
+  flex: 1 1 auto;           /* Make the card fill the column height */
 }
 
 @media (max-width: 600px) {
