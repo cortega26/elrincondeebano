@@ -59,13 +59,7 @@
         styleEl.setAttribute('nonce', cspNonce);
         styleEl.textContent = `
             /* Miniatura del carrito */
-            .cart-item-thumb {
-                width: 40px;
-                height: 40px;
-                object-fit: cover;
-                border-radius: 0.25rem;
-                margin-right: 0.5rem;
-            }
+            .cart-item-thumb {\n                width: 60px;\n                height: 60px;\n                object-fit: cover;\n                border-radius: 0.25rem;\n                margin-right: 0.5rem;\n            }
 
             /* Eliminado: reglas de mega menú y anchura de los menús para restaurar el comportamiento predeterminado. */
 
