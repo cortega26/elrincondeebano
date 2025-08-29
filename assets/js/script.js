@@ -951,6 +951,27 @@ const initApp = async () => {
             // Insertar en el DOM
             cartItems.appendChild(itemElement);
 
+            // Debug (opt-in): inspect computed styles and rectangles
+            if (window.__DEBUG_CART__) {
+                try {
+                    const cs = window.getComputedStyle(itemElement);
+                    const csThumb = window.getComputedStyle(thumbnailContainer);
+                    const csContent = window.getComputedStyle(contentContainer);
+                    const rectThumb = thumbnailContainer.getBoundingClientRect();
+                    const rectContent = contentContainer.getBoundingClientRect();
+                    console.debug('[cart] item', {
+                        name: item.name,
+                        order: {
+                            firstIsContent: itemElement.firstChild === contentContainer,
+                            lastIsThumb: itemElement.lastChild === thumbnailContainer,
+                        },
+                        container: { display: cs.display, flexDirection: cs.flexDirection, flexWrap: cs.flexWrap },
+                        thumb: { width: csThumb.width, height: csThumb.height, rect: { w: rectThumb.width, h: rectThumb.height } },
+                        content: { rect: { w: rectContent.width, h: rectContent.height } },
+                    });
+                } catch (e) { /* ignore */ }
+            }
+
             // Calcular total
             total += discountedPrice * item.quantity;
         });

@@ -401,6 +401,7 @@ h1 {
   display: flex;
   flex-direction: row; /* thumbnail + content side-by-side */
   align-items: flex-start;
+  flex-wrap: nowrap; /* never wrap to next line */
   padding: 10px 0;
   border-bottom: 1px solid #dee2e6;
 }
@@ -409,9 +410,7 @@ h1 {
   border-bottom: none;
 }
 
-.cart-item > div {
-  margin-bottom: 5px;
-}
+.cart-item > div { margin-bottom: 0; }
 
 /* Cart layout helpers */
 .cart-item-content { flex: 1 1 auto; min-width: 0; }
