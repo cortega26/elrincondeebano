@@ -872,10 +872,5 @@ h1 {
 }
 
 /* Ensure cart item layout works even before Bootstrap CSS loads */
-.cart-item {
-  display: grid;
-  grid-template-columns: 60px 1fr;
-  column-gap: 0.75rem;
-  align-items: start;
-}
-.cart-item-content { min-width: 0; }
+/* Cart item content grows in Bootstrap flex layout */
+.cart-item-content { flex: 1 1 auto; min-width: 0; }
