@@ -722,7 +722,8 @@ const initApp = async () => {
             saveCart();
             updateCartIcon();
             renderCart();
-            updateProductDisplay();
+            // Update only the affected card to avoid full re-render flicker
+            updateProductCardToAdd(productId);
         }
         catch (error) {
             console.error('Error al eliminar del carrito:', error);
@@ -737,7 +738,8 @@ const initApp = async () => {
 
             if (newQuantity <= 0) {
                 removeFromCart(product.id);
-                updateProductDisplay(); // Refresh the entire product display
+                // Switch this card back to the add button without re-rendering all
+                updateProductCardToAdd(product.id);
             } else if (newQuantity <= 50) {
                 if (item) {
                     item.quantity = newQuantity;
@@ -771,6 +773,42 @@ const initApp = async () => {
         } catch (error) {
             console.error('Error al vaciar el carrito:', error);
             showErrorMessage('Error al vaciar el carrito. Por favor, inténtelo de nuevo.');
+        }
+    };
+
+    // Update a specific product card back to the "Agregar" button without re-rendering the grid
+    const updateProductCardToAdd = (productId) => {
+        try {
+            const qtyInput = document.querySelector(`input.quantity-input[data-id="${productId}"]`);
+            if (!qtyInput) return; // Card not visible or already in add state
+            const cardBody = qtyInput.closest('.card-body');
+            if (!cardBody) return;
+
+            const product = products.find(p => p.id === productId);
+            if (!product) {
+                // Remove the control if product not found; grid may be filtered
+                const qc = qtyInput.closest('.quantity-control');
+                if (qc) qc.remove();
+                return;
+            }
+
+            const addBtn = createSafeElement('button', {
+                class: 'btn btn-primary mt-2',
+                'data-id': product.id,
+                'aria-label': `Add ${product.name} to cart`
+            }, ['Agregar']);
+
+            addBtn.addEventListener('click', () => {
+                addToCart(product, 1);
+                const quantityControl = renderQuantityControl(product);
+                addBtn.replaceWith(quantityControl);
+                // Do not animate to avoid any visual flicker
+            });
+
+            const qc = qtyInput.closest('.quantity-control');
+            if (qc) qc.replaceWith(addBtn);
+        } catch (e) {
+            console.warn('updateProductCardToAdd failed:', e);
         }
     };
 
