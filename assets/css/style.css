@@ -257,7 +257,8 @@ h1 {
   /* Anchor to bottom of the card like the Add button to avoid height jump */
   margin-top: auto;
   gap: 8px;
-  min-height: 44px; /* Reserve consistent space equal to input height */
+  height: 44px; /* Reserve consistent space equal to input height */
+  margin-bottom: 0;
 }
 
 .quantity-input {
@@ -272,6 +273,7 @@ h1 {
   border-radius: var(--border-radius);
   padding: 0.375rem;
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  box-sizing: border-box; /* Ensure height includes borders */
 }
 
 /* Remove spinner arrows */
@@ -328,9 +330,11 @@ h1 {
   font-weight: 500;
   margin-top: auto; /* Keep action anchored to bottom */
   height: 44px;     /* Match quantity control input height to prevent layout shift */
+  box-sizing: border-box; /* Include borders in fixed height */
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 0;
 }
 
 .add-to-cart-btn {
@@ -428,7 +432,12 @@ h1 {
 }
 
 .fade-in-up {
-  animation: fadeInUp 0.3s ease-out;
+  animation: fadeInUp 0.2s ease-out;
+}
+
+/* Avoid layout shift when quantity control appears */
+.quantity-control.fade-in-up {
+  animation: none;
 }
 
 /* Media Queries */
