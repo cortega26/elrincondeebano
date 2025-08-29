@@ -863,12 +863,10 @@ const initApp = async () => {
         cart.forEach(item => {
             const discountedPrice = item.price - (item.discount || 0);
 
-            // Contenedor principal del item: flex en fila
+            // Contenedor principal del item: grid (60px + 1fr) independiente de Bootstrap
             const itemElement = createSafeElement('div', {
-                class: 'cart-item mb-3 d-flex align-items-center',
-                'aria-label': `Cart item: ${item.name}`,
-                // Sobrescribe la dirección de la flexbox para alinear horizontalmente
-                style: 'flex-direction: row; align-items: center;'
+                class: 'cart-item mb-3',
+                'aria-label': `Cart item: ${item.name}`
             });
 
             // Contenedor de datos del producto (nombre, controles, precio, subtotal, botón)

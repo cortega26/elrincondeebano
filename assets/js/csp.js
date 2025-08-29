@@ -63,8 +63,8 @@
             .cart-item-thumb img, .cart-item-thumb-img { width: 100%; height: 100%; object-fit: cover; border-radius: 0.25rem; }
 
             /* Layout del item del carrito sin depender de Bootstrap */
-            .cart-item { display: flex; align-items: flex-start; gap: 0.75rem; }
-            .cart-item-content { flex: 1; }
+            .cart-item { display: grid; grid-template-columns: 60px 1fr; column-gap: 0.75rem; align-items: start; }
+            .cart-item-content { min-width: 0; }
 
             /* Eliminado: reglas de mega menú y anchura de los menús para restaurar el comportamiento predeterminado. */
 
