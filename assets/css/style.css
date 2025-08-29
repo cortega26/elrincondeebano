@@ -140,19 +140,23 @@ h1 {
 }
 
 /* Ensure the bottom action area (button or qty controls) occupies identical space and anchoring */
-.producto .card-body > .btn.btn-primary {
-  margin-top: auto !important; /* override Bootstrap .mt-2 utility */
+.producto .card-body .action-area {
+  margin-top: auto;
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+}
+.producto .card-body .action-area .btn.btn-primary {
+  margin-top: 0 !important;
+  margin-bottom: 0;
   height: 44px;
-  line-height: 44px; /* vertically center text when height is fixed */
+  line-height: 44px;
   box-sizing: border-box;
 }
-.producto .card-body > .quantity-control {
-  margin-top: auto;
-  height: 44px;
-}
-.producto .card-body > .btn.btn-primary,
-.producto .card-body > .quantity-control {
+.producto .card-body .action-area .quantity-control {
+  margin-top: 0;
   margin-bottom: 0;
+  height: 44px;
 }
 
 .producto img {
