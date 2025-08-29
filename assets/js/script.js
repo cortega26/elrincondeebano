@@ -1065,15 +1065,4 @@ if (typeof module !== 'undefined') {
     module.exports = { generateStableId };
 }
 
-// Dynamically load cart enhancements script
-if (typeof document !== 'undefined') {
-    document.addEventListener('DOMContentLoaded', function () {
-        var script = document.createElement('script');
-        script.src = 'assets/js/cart-enhancements.js';
-        document.body.appendChild(script);
-    });
-}
-
-
-
 
