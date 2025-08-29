@@ -863,9 +863,9 @@ const initApp = async () => {
         cart.forEach(item => {
             const discountedPrice = item.price - (item.discount || 0);
 
-            // Contenedor principal del item: grid (60px + 1fr) independiente de Bootstrap
+            // Contenedor principal: usar flex de Bootstrap (con fallback CSS para thumbnail)
             const itemElement = createSafeElement('div', {
-                class: 'cart-item mb-3',
+                class: 'cart-item mb-3 d-flex align-items-start',
                 'aria-label': `Cart item: ${item.name}`
             });
 
@@ -931,7 +931,7 @@ const initApp = async () => {
 
             // Miniatura a la izquierda (CSP-safe, sin estilos inline)
             const thumbnailContainer = createSafeElement('div', {
-                class: 'cart-item-thumb'
+                class: 'cart-item-thumb me-3'
             });
             const thumbnailImg = createSafeElement('img', {
                 src: adjustedImagePath,
