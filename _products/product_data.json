@@ -1,6 +1,6 @@
 {
-  "version": "20250829-102803",
-  "last_updated": "2025-08-29T10:28:03.769296",
+  "version": "20250829-103508",
+  "last_updated": "2025-08-29T10:35:08.985445",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -9,7 +9,7 @@
       "discount": 0,
       "stock": true,
       "category": "Limpiezayaseo",
-      "image_path": "assets/images/limpieza_y_aseo/Nova Clásica 2x16m.webp",
+      "image_path": "assets/images/limpieza_y_aseo/Nova Clásica 2x14m.webp",
       "order": 0
     },
     {
@@ -207,7 +207,7 @@
       "description": "Botella de 680g",
       "price": 3500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Salsa de Tomate Ketchup Lider 680g.webp",
       "order": 20
