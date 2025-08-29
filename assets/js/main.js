@@ -13,6 +13,16 @@ import './script.js';
 
 function initEnhancementsOnce() {
   const root = document.documentElement;
+  // Always enable deferred styles first (idempotent)
+  try {
+    document
+      .querySelectorAll('link[rel="stylesheet"][media="print"][data-defer]')
+      .forEach((link) => {
+        link.media = 'all';
+        link.removeAttribute('data-defer');
+      });
+  } catch {}
+
   if (root.dataset.enhancementsInit === '1') return;
   root.dataset.enhancementsInit = '1';
 
@@ -30,4 +40,3 @@ if (document.readyState === 'loading') {
 } else {
   initEnhancementsOnce();
 }
-

@@ -263,11 +263,13 @@ function setupPerformanceOptimizations() {
 // Inicializa todas las mejoras cuando el DOM esté listo.
 // Con guardia para evitar ejecuciones duplicadas si un bundle ESM también inicializa.
     document.addEventListener('DOMContentLoaded', () => {
+        // Asegura que los estilos diferidos siempre se activen, incluso si
+        // otro bundle ya marcó la inicialización.
+        enableDeferredStyles();
+
         const root = document.documentElement;
         if (root.dataset.enhancementsInit === '1') return;
         root.dataset.enhancementsInit = '1';
-
-        enableDeferredStyles();
         injectEnhancementStyles();
         setupCheckoutProgress();
         setupNavigationAccessibility();
