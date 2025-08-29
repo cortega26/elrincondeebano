@@ -6,10 +6,12 @@ from pathlib import Path
 from .models import Product
 from .services import ProductService, ProductNotFoundError, ProductServiceError
 try:
-    from PIL import Image, ImageTk  # type: ignore
+    from PIL import Image, ImageTk, features  # type: ignore
     PIL_AVAILABLE = True
+    PIL_WEBP = features.check('webp')
 except Exception:
     PIL_AVAILABLE = False
+    PIL_WEBP = False
 import logging
 import shutil
 import threading
@@ -1173,6 +1175,9 @@ class ProductFormDialog(tk.Toplevel):
             bd=1,
         )
         self.preview_canvas.grid(row=options_row+1, column=1, sticky=tk.W, pady=4)
+        # Quick-open image in OS viewer
+        open_btn = ttk.Button(self.main_frame, text="Abrir imagen…", command=self._open_image_file)
+        open_btn.grid(row=options_row+1, column=2, sticky=tk.W)
         self._preview_photo = None
         self._update_image_preview()
 
@@ -1349,13 +1354,26 @@ class ProductFormDialog(tk.Toplevel):
                 return
             abs_base_dir = self._assets_images_root()
             abs_path = os.path.join(abs_base_dir, rel_path.replace('assets/images/', '').replace('/', os.sep))
-            if PIL_AVAILABLE and os.path.exists(abs_path):
-                img = Image.open(abs_path)
-                img.thumbnail((w-10, h-10))
-                self._preview_photo = ImageTk.PhotoImage(img)
-                cv.create_image(w//2, h//2, image=self._preview_photo, anchor='center')
+            if os.path.exists(abs_path) and PIL_AVAILABLE:
+                _, ext = os.path.splitext(abs_path)
+                ext = ext.lower()
+                if ext == '.webp' and not PIL_WEBP:
+                    cv.create_text(w//2, h//2, text='Pillow sin soporte WebP', fill='#666666')
+                    self._preview_photo = None
+                else:
+                    try:
+                        img = Image.open(abs_path)
+                        img.thumbnail((w-10, h-10))
+                        self._preview_photo = ImageTk.PhotoImage(img)
+                        cv.create_image(w//2, h//2, image=self._preview_photo, anchor='center')
+                    except Exception:
+                        cv.create_text(w//2, h//2, text='(Vista previa no disponible)', fill='#666666')
+                        self._preview_photo = None
             else:
-                cv.create_text(w//2, h//2, text='(Vista previa no disponible)', fill='#666666')
+                if not PIL_AVAILABLE:
+                    cv.create_text(w//2, h//2, text='Instale Pillow para vista previa', fill='#666666')
+                else:
+                    cv.create_text(w//2, h//2, text='(Vista previa no disponible)', fill='#666666')
                 self._preview_photo = None
         except Exception:
             cv = self.preview_canvas
@@ -1364,6 +1382,30 @@ class ProductFormDialog(tk.Toplevel):
             cv.create_rectangle(0, 0, w, h, fill="#fafafa", outline="#cccccc")
             cv.create_text(w//2, h//2, text='(Vista previa no disponible)', fill='#666666')
             self._preview_photo = None
+
+    def _open_image_file(self) -> None:
+        try:
+            entry = self.entries.get('image_path')
+            if not isinstance(entry, ttk.Entry):
+                return
+            rel_path = entry.get().strip()
+            if not rel_path:
+                return
+            abs_base_dir = self._assets_images_root()
+            abs_path = os.path.join(abs_base_dir, rel_path.replace('assets/images/', '').replace('/', os.sep))
+            if not os.path.exists(abs_path):
+                messagebox.showerror('Imagen', 'El archivo de imagen no existe en disco.')
+                return
+            if os.name == 'nt':
+                os.startfile(abs_path)  # type: ignore[attr-defined]
+            elif sys.platform == 'darwin':
+                import subprocess
+                subprocess.Popen(['open', abs_path])
+            else:
+                import subprocess
+                subprocess.Popen(['xdg-open', abs_path])
+        except Exception as e:
+            messagebox.showerror('Imagen', f'No se pudo abrir la imagen: {e}')
 
 class PreferencesDialog(tk.Toplevel):
     """Dialog for application preferences."""
