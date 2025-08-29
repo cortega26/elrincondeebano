@@ -675,11 +675,15 @@ class ProductGUI(DragDropMixin):
             messagebox.showerror("Error", str(e))
 
     def handle_double_click(self, event: tk.Event) -> None:
-        # Toggle stock on double-click of the Stock column
+        # On double-click: if stock column => toggle stock; otherwise open edit dialog for that product
         region = self.tree.identify("region", event.x, event.y)
         col = self.tree.identify_column(event.x)
         row = self.tree.identify_row(event.y)
-        if region == "cell" and col == "#5" and row:
+        if region != "cell" or not row:
+            return
+
+        if col == "#5":
+            # Toggle stock state
             product = self.get_product_by_tree_item(row)
             if not product:
                 return
@@ -699,6 +703,14 @@ class ProductGUI(DragDropMixin):
                 self.update_status(f"Stock de '{product.name}' actualizado: {'En stock' if updated.stock else 'Sin stock'}")
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo actualizar el stock: {str(e)}")
+        else:
+            # Open edit dialog for the double-clicked row
+            try:
+                self.tree.selection_set(row)
+                self.tree.focus(row)
+                self.edit_product()
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo abrir el editor: {str(e)}")
 
     def import_products(self) -> None:
         """Import products from JSON file."""
