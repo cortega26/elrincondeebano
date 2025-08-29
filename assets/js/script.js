@@ -121,7 +121,8 @@ function setupConnectivityHandling() {
     const updateOnlineStatus = () => {
         const offlineIndicator = document.getElementById('offline-indicator');
         if (offlineIndicator) {
-            offlineIndicator.style.display = navigator.onLine ? 'none' : 'block';
+            const hidden = navigator.onLine;
+            offlineIndicator.classList.toggle('is-hidden', hidden);
         }
 
         if (!navigator.onLine) {
@@ -452,7 +453,7 @@ const initApp = async () => {
     const updateOnlineStatus = () => {
         const offlineIndicator = document.getElementById('offline-indicator');
         if (offlineIndicator) {
-            offlineIndicator.style.display = navigator.onLine ? 'none' : 'block';
+            offlineIndicator.classList.toggle('is-hidden', navigator.onLine);
         }
         if (!navigator.onLine) {
             console.log('App is offline. Using cached data if available.');
@@ -611,7 +612,11 @@ const initApp = async () => {
             const imgElement = createSafeElement('img', {
                 'data-src': adjustedImagePath,
                 alt: name,
-                class: 'card-img-top lazyload'
+                class: 'card-img-top lazyload',
+                loading: 'lazy',
+                decoding: 'async',
+                width: '400',
+                height: '400'
             });
             cardElement.appendChild(imgElement);
 
