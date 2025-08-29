@@ -609,7 +609,7 @@ const initApp = async () => {
                 adjustedImagePath = image_path;
             }
 
-            const imgElement = createSafeElement('img', {
+            const imgDataAttrs = {
                 'data-src': adjustedImagePath,
                 alt: name,
                 class: 'card-img-top lazyload',
@@ -617,7 +617,18 @@ const initApp = async () => {
                 decoding: 'async',
                 width: '400',
                 height: '400'
-            });
+            };
+            if (Array.isArray(product.image_variants)) {
+                const variants = product.image_variants
+                    .filter(v => v && v.url && v.width)
+                    .sort((a,b) => a.width - b.width)
+                    .map(v => `${isSubcategoryPage ? `../${String(v.url).replace(/^\//,'')}` : v.url} ${v.width}w`);
+                if (variants.length) {
+                    imgDataAttrs['data-srcset'] = variants.join(', ');
+                    imgDataAttrs['data-sizes'] = '(max-width: 576px) 45vw, (max-width: 992px) 30vw, 25vw';
+                }
+            }
+            const imgElement = createSafeElement('img', imgDataAttrs);
             cardElement.appendChild(imgElement);
 
             const cardBody = createSafeElement('div', { class: 'card-body' });
@@ -677,6 +688,8 @@ const initApp = async () => {
                 if (entry.isIntersecting) {
                     const img = entry.target;
                     img.src = img.dataset.src;
+                    if (img.dataset.srcset) img.srcset = img.dataset.srcset;
+                    if (img.dataset.sizes) img.sizes = img.dataset.sizes;
                     img.classList.remove('lazyload');
                     observer.unobserve(img);
                 }
@@ -933,15 +946,27 @@ const initApp = async () => {
             const thumbnailContainer = createSafeElement('div', {
                 class: 'cart-item-thumb ms-3 flex-shrink-0'
             });
-            const thumbnailImg = createSafeElement('img', {
-                src: adjustedImagePath,
+            // Preferir miniatura específica si está disponible
+            const thumbSrc = item.thumbnail_path || adjustedImagePath;
+            const thumbAttrs = {
+                src: thumbSrc,
                 alt: item.name,
                 class: 'cart-item-thumb-img',
                 loading: 'lazy',
                 decoding: 'async',
                 width: '100',
                 height: '100'
-            });
+            };
+            if (Array.isArray(item.thumbnail_variants)) {
+                const parts = item.thumbnail_variants
+                    .filter(v => v && v.url && v.width)
+                    .map(v => `${v.url} ${v.width}w`);
+                if (parts.length) {
+                    thumbAttrs.srcset = parts.join(', ');
+                    thumbAttrs.sizes = '100px';
+                }
+            }
+            const thumbnailImg = createSafeElement('img', thumbAttrs);
             thumbnailContainer.appendChild(thumbnailImg);
 
             // Añadir primero el contenido (izquierda) y luego la miniatura (derecha)
