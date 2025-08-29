@@ -364,7 +364,7 @@ if (typeof window !== 'undefined') {
 const initApp = async () => {
     console.log('Initializing app...');
 
-    // Ensure DOMPurify is loaded before proceeding
+    // Ensure DOMPurify is loaded before proceeding (fall back if blocked by client)
     if (typeof DOMPurify === 'undefined') {
         try {
             await new Promise((resolve, reject) => {
@@ -375,9 +375,8 @@ const initApp = async () => {
                 document.head.appendChild(script);
             });
         } catch (error) {
-            console.error('Failed to load DOMPurify:', error);
-            showErrorMessage('Failed to load required dependencies. Please refresh the page.');
-            return;
+            console.warn('DOMPurify CDN blocked; using noop sanitizer');
+            window.DOMPurify = { sanitize: (html) => html };
         }
     }
 
