@@ -84,12 +84,7 @@ async function checkForUpdates(registration) {
         await registration.update();
 
         // Check if product data needs updating
-        const response = await fetch('/_products/product_data.json', {
-            headers: {
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache'
-            }
-        });
+        const response = await fetch('/_products/product_data.json', { cache: 'no-store', headers: { 'Accept': 'application/json' } });
 
         if (response.ok) {
             const data = await response.json();
@@ -303,12 +298,7 @@ const sanitizeHTML = (unsafe) => {
 // Modify the fetchProducts function
 const fetchProducts = async () => {
     try {
-        const response = await fetch('/_products/product_data.json', {
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        });
+        const response = await fetch('/_products/product_data.json', { cache: 'no-store', headers: { 'Accept': 'application/json' } });
         if (!response.ok) {
             throw new Error(`HTTP error. Status: ${response.status}`);
         }
@@ -1086,5 +1076,6 @@ if (typeof document !== 'undefined') {
         document.body.appendChild(script);
     });
 }
+
 
 
