@@ -100,152 +100,154 @@
      * información, o null si la carga falla.
      */
     async function loadProductData() {
-    if (productMap) return productMap;
-    try {
-        const version = localStorage.getItem('productDataVersion');
-        const url = version ? `/_products/product_data.json?v=${encodeURIComponent(version)}` : '/_products/product_data.json';
-        const response = await fetch(url, { cache: 'no-store', headers: { 'Accept': 'application/json' } });
-        if (!response.ok) {
-            console.error('Error al obtener product_data.json:', response.status);
+        if (productMap) return productMap;
+        try {
+            const version = localStorage.getItem('productDataVersion');
+            const url = version ? `/_products/product_data.json?v=${encodeURIComponent(version)}` : '/_products/product_data.json';
+            const response = await fetch(url, { cache: 'no-store', headers: { 'Accept': 'application/json' } });
+            if (!response.ok) {
+                console.error('Error al obtener product_data.json:', response.status);
+                return null;
+            }
+            const data = await response.json();
+            const arr = Array.isArray(data?.products) ? data.products : (Array.isArray(data) ? data : []);
+            const map = {};
+            arr.forEach(p => {
+                // use provided id if exists, else build a stable key
+                const key = p.id || (String(p.name) + "-" + String(p.category));
+                map[key] = p;
+            });
+            productMap = map;
+            return productMap;
+        } catch (error) {
+            console.error('Error al cargar datos de productos:', error);
             return null;
         }
-        const data = await response.json();
-        const arr = Array.isArray(data?.products) ? data.products : (Array.isArray(data) ? data : []);
-        const map = {};
-        arr.forEach(p => {
-            // use provided id if exists, else build a stable key
-            const key = p.id || (String(p.name)+"-"+String(p.category));
-            map[key] = p;
-        });
-        productMap = map;
-        return productMap;
-    } catch (error) {
-        console.error('Error al cargar datos de productos:', error);
-        return null;
     }
-}
 
-/**
- * Genera e inserta datos estructurados Schema.org (primeros 20 productos)
- */
-async function injectStructuredData() {
-    try {
-        const map = await loadProductData();
-        if (!map) return;
-        const products = Object.values(map);
-        const structuredProducts = products.slice(0, 20).map(p => ({
-            '@type': 'Product',
-            'name': p.name,
-            'image': p.image_path,
-            'description': p.description,
-            'brand': p.brand || 'Genérico',
-            'offers': {
-                '@type': 'Offer',
-                'price': p.price,
-                'priceCurrency': 'CLP',
-                'availability': p.stock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'
-            }
-        }));
-        const structuredData = {
-            '@context': 'https://schema.org',
-            '@graph': [
-                {
-                    '@type': 'Store',
-                    'name': 'El Rincón de Ébano',
-                    'image': 'https://elrincondeebano.com/assets/images/web/logo.webp',
-                    'description': 'Un minimarket en la puerta de tu departamento',
-                    'address': { '@type': 'PostalAddress', 'addressCountry': 'CL' },
-                    'telephone': '+56951118901',
-                    'url': 'http://www.elrincondeebano.com/'
-                },
-                ...structuredProducts
-            ]
-        };
-        const scriptEl = document.createElement('script');
-        scriptEl.type = 'application/ld+json';
-        scriptEl.setAttribute('nonce', cspNonce);
-        scriptEl.textContent = JSON.stringify(structuredData);
-        document.head.appendChild(scriptEl);
-    } catch (error) {
-        console.error('Error generating structured data', error);
+    /**
+     * Genera e inserta datos estructurados Schema.org (primeros 20 productos)
+     */
+    async function injectStructuredData() {
+        try {
+            const map = await loadProductData();
+            if (!map) return;
+            const products = Object.values(map);
+            const structuredProducts = products.slice(0, 20).map(p => ({
+                '@type': 'Product',
+                'name': p.name,
+                'image': p.image_path,
+                'description': p.description,
+                'brand': p.brand || 'Genérico',
+                'offers': {
+                    '@type': 'Offer',
+                    'price': p.price,
+                    'priceCurrency': 'CLP',
+                    'availability': p.stock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'
+                }
+            }));
+            const structuredData = {
+                '@context': 'https://schema.org',
+                '@graph': [
+                    {
+                        '@type': 'Store',
+                        'name': 'El Rincón de Ébano',
+                        'image': 'https://elrincondeebano.com/assets/images/web/logo.webp',
+                        'description': 'Un minimarket en la puerta de tu departamento',
+                        'address': { '@type': 'PostalAddress', 'addressCountry': 'CL' },
+                        'telephone': '+56951118901',
+                        'url': 'http://www.elrincondeebano.com/'
+                    },
+                    ...structuredProducts
+                ]
+            };
+            const scriptEl = document.createElement('script');
+            scriptEl.type = 'application/ld+json';
+            scriptEl.setAttribute('nonce', cspNonce);
+            scriptEl.textContent = JSON.stringify(structuredData);
+            document.head.appendChild(scriptEl);
+        } catch (error) {
+            console.error('Error generating structured data', error);
+        }
     }
-}
 
-// ---------- Implementaciones mínimas para evitar ReferenceError ----------
+    // ---------- Implementaciones mínimas para evitar ReferenceError ----------
 
-// Paso/estado del checkout (no hay flujo de checkout multi‑paso hoy).
-function setupCheckoutProgress() {
-    // No‑op seguro; deje un rastro para depuración.
-    if (window?.console?.debug) console.debug('[csp] setupCheckoutProgress: no-op');
-}
-
-// Accesibilidad básica de navegación (teclas y foco).
-function setupNavigationAccessibility() {
-    try {
-        // Añade indicadores de foco al navegar con teclado.
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Tab') document.body.classList.add('keyboard-navigation');
-        });
-        document.addEventListener('mousedown', () => {
-            document.body.classList.remove('keyboard-navigation');
-        });
-
-        const style = document.createElement('style');
-        style.setAttribute('nonce', cspNonce);
-        style.textContent = `.keyboard-navigation *:focus { outline: 2px solid var(--primary-color); outline-offset: 2px; }`;
-        document.head.appendChild(style);
-    } catch (e) {
-        console.warn('[csp] setupNavigationAccessibility error:', e);
+    // Paso/estado del checkout (no hay flujo de checkout multi‑paso hoy).
+    function setupCheckoutProgress() {
+        // No‑op seguro; deje un rastro para depuración.
+        if (window?.console?.debug) console.debug('[csp] setupCheckoutProgress: no-op');
     }
+
+    // Accesibilidad básica de navegación (teclas y foco).
+    function setupNavigationAccessibility() {
+        try {
+            // Añade indicadores de foco al navegar con teclado.
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Tab') document.body.classList.add('keyboard-navigation');
+            });
+            document.addEventListener('mousedown', () => {
+                document.body.classList.remove('keyboard-navigation');
+            });
+
+            const style = document.createElement('style');
+            style.setAttribute('nonce', cspNonce);
+            style.textContent = `.keyboard-navigation *:focus { outline: 2px solid var(--primary-color); outline-offset: 2px; }`;
+            document.head.appendChild(style);
+        } catch (e) {
+            console.warn('[csp] setupNavigationAccessibility error:', e);
+        }
     }
 
     // Optimizaciones ligeras de rendimiento.
     function setupPerformanceOptimizations() {
-    try {
-        // Lazy-load para imágenes si el navegador lo soporta.
-        if ('loading' in HTMLImageElement.prototype) {
-            document.querySelectorAll('img:not([loading])').forEach(img => {
-                img.loading = 'lazy';
-            });
+        try {
+            // Lazy-load para imágenes si el navegador lo soporta.
+            if ('loading' in HTMLImageElement.prototype) {
+                document.querySelectorAll('img:not([loading])').forEach(img => {
+                    img.loading = 'lazy';
+                });
+            }
+        } catch (e) {
+            console.warn('[csp] setupPerformanceOptimizations error:', e);
         }
-    } catch (e) {
-        console.warn('[csp] setupPerformanceOptimizations error:', e);
     }
 
-// Inyección mínima de metadatos SEO si faltan.
+    // Inyección mínima de metadatos SEO si faltan.
     function injectSeoMetadata() {
-    try {
-        // Asegura etiqueta canonical si no existe.
-        if (!document.querySelector('link[rel="canonical"]')) {
-            const link = document.createElement('link');
-            link.rel = 'canonical';
-            link.href = location.origin + location.pathname;
-            document.head.appendChild(link);
+        try {
+            // Asegura etiqueta canonical si no existe.
+            if (!document.querySelector('link[rel="canonical"]')) {
+                const link = document.createElement('link');
+                link.rel = 'canonical';
+                link.href = location.origin + location.pathname;
+                document.head.appendChild(link);
+            }
+            // Evita duplicar description si ya está presente en el HTML.
+            // Si falta, añade una genérica.
+            if (!document.querySelector('meta[name="description"]')) {
+                const meta = document.createElement('meta');
+                meta.name = 'description';
+                meta.content = 'El Rincón de Ébano - Minimarket con delivery instantáneo.';
+                document.head.appendChild(meta);
+            }
+        } catch (e) {
+            console.warn('[csp] injectSeoMetadata error:', e);
         }
-        // Evita duplicar description si ya está presente en el HTML.
-        // Si falta, añade una genérica.
-        if (!document.querySelector('meta[name="description"]')) {
-            const meta = document.createElement('meta');
-            meta.name = 'description';
-            meta.content = 'El Rincón de Ébano - Minimarket con delivery instantáneo.';
-            document.head.appendChild(meta);
-        }
-    } catch (e) {
-        console.warn('[csp] injectSeoMetadata error:', e);
-    }
     }
 
     // Inyecta el manifest de la PWA si no está presente.
     function injectPwaManifest() {
-    try {
-        if (!document.querySelector('link[rel="manifest"]')) {
-            const link = document.createElement('link');
-            link.rel = 'manifest';
-            link.href = '/app.webmanifest';
-            document.head.appendChild(link);
+        try {
+            if (!document.querySelector('link[rel="manifest"]')) {
+                const link = document.createElement('link');
+                link.rel = 'manifest';
+                link.href = '/app.webmanifest';
+                document.head.appendChild(link);
+            }
+        } catch (e) {
+            console.warn('[csp] injectPwaManifest error:', e);
         }
-    } catch (e) {
-        console.warn('[csp] injectPwaManifest error:', e);
     }
 
     // Habilita estilos diferidos sin usar onload inline en <link>.
@@ -261,8 +263,8 @@ function setupNavigationAccessibility() {
         }
     }
 
-// Inicializa todas las mejoras cuando el DOM esté listo.
-// Con guardia para evitar ejecuciones duplicadas si un bundle ESM también inicializa.
+    // Inicializa todas las mejoras cuando el DOM esté listo.
+    // Con guardia para evitar ejecuciones duplicadas si un bundle ESM también inicializa.
     document.addEventListener('DOMContentLoaded', () => {
         // Asegura que los estilos diferidos siempre se activen, incluso si
         // otro bundle ya marcó la inicialización.
