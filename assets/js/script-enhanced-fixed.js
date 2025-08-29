@@ -55,7 +55,9 @@ const coreLoader = {
         }
 
         try {
-            const response = await fetch('/_products/product_data.json');
+            const version = localStorage.getItem('productDataVersion');
+            const url = version ? `/_products/product_data.json?v=${encodeURIComponent(version)}` : '/_products/product_data.json';
+            const response = await fetch(url, { cache: 'no-store', headers: { 'Accept': 'application/json' } });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
 

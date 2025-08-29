@@ -2,7 +2,9 @@
 
 async function loadProductData() {
   try {
-    const response = await fetch('/_products/product_data.json', { cache: 'no-store' });
+    const version = localStorage.getItem('productDataVersion');
+    const url = version ? `/_products/product_data.json?v=${encodeURIComponent(version)}` : '/_products/product_data.json';
+    const response = await fetch(url, { cache: 'no-store', headers: { 'Accept': 'application/json' } });
     if (!response.ok) return null;
     const data = await response.json();
     const arr = Array.isArray(data?.products) ? data.products : (Array.isArray(data) ? data : []);
@@ -80,4 +82,3 @@ export function injectSeoMetadata() {
     console.warn('[modules/seo] injectSeoMetadata error:', e);
   }
 }
-
