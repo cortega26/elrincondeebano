@@ -285,7 +285,7 @@ const renderProducts = (products) => {
 
         productElement.innerHTML = `
             <div class="card h-100">
-                <img src="${product.image_path}" alt="${product.name}" class="card-img-top">
+                <img src="${product.image_path}" alt="${product.name}" class="card-img-top" loading="lazy" decoding="async" width="400" height="400">
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">${product.name}</h5>
                     <p class="card-text flex-grow-1">${product.description}</p>
