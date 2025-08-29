@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "node build.js && node build-pages.js",
+    "icons": "node generate-icons.js",
     "test": "node test/generateStableId.test.js && node test/serviceWorker.utils.test.js"
   },
   "keywords": [],
@@ -15,7 +16,8 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
-    "esbuild": "^0.25.8"
+    "esbuild": "^0.25.8",
+    "sharp": "^0.33.5"
   },
   "dependencies": {
     "ejs": "^3.1.10"
