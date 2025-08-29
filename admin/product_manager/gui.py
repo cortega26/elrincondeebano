@@ -1159,10 +1159,19 @@ class ProductFormDialog(tk.Toplevel):
         ttk.Checkbutton(opts_frame, text="Optimizar tamaño (máx 1000px)", variable=self.resize_opt_var,
                         state=(tk.NORMAL if PIL_AVAILABLE else tk.DISABLED)).pack(side=tk.LEFT)
 
-        # Preview area
+        # Preview area (fixed-size canvas to avoid stretching on resize)
         self.preview_label = ttk.Label(self.main_frame, text="Vista previa")
         self.preview_label.grid(row=options_row+1, column=0, sticky=tk.W)
-        self.preview_canvas = tk.Label(self.main_frame, bd=1, relief=tk.SOLID)
+        self._preview_w, self._preview_h = 260, 195
+        self.preview_canvas = tk.Canvas(
+            self.main_frame,
+            width=self._preview_w,
+            height=self._preview_h,
+            bg="#fafafa",
+            highlightthickness=1,
+            relief=tk.SOLID,
+            bd=1,
+        )
         self.preview_canvas.grid(row=options_row+1, column=1, sticky=tk.W, pady=4)
         self._preview_photo = None
         self._update_image_preview()
@@ -1325,22 +1334,30 @@ class ProductFormDialog(tk.Toplevel):
             if not isinstance(entry, ttk.Entry):
                 return
             rel_path = entry.get().strip()
+            cv = self.preview_canvas
+            w, h = getattr(self, '_preview_w', 260), getattr(self, '_preview_h', 195)
+            cv.delete("all")
+            cv.create_rectangle(0, 0, w, h, fill="#fafafa", outline="#cccccc")
             if not rel_path:
-                self.preview_canvas.configure(image='', width=160, height=120, text='')
+                cv.create_text(w//2, h//2, text='Sin imagen', fill='#666666')
                 self._preview_photo = None
                 return
             abs_base_dir = self._assets_images_root()
             abs_path = os.path.join(abs_base_dir, rel_path.replace('assets/images/', '').replace('/', os.sep))
             if PIL_AVAILABLE and os.path.exists(abs_path):
                 img = Image.open(abs_path)
-                img.thumbnail((240, 180))
+                img.thumbnail((w-10, h-10))
                 self._preview_photo = ImageTk.PhotoImage(img)
-                self.preview_canvas.configure(image=self._preview_photo, width=self._preview_photo.width(), height=self._preview_photo.height(), text='')
+                cv.create_image(w//2, h//2, image=self._preview_photo, anchor='center')
             else:
-                self.preview_canvas.configure(text='(Vista previa no disponible)', width=240, height=40, image='')
+                cv.create_text(w//2, h//2, text='(Vista previa no disponible)', fill='#666666')
                 self._preview_photo = None
         except Exception:
-            self.preview_canvas.configure(text='(Vista previa no disponible)', width=240, height=40, image='')
+            cv = self.preview_canvas
+            w, h = getattr(self, '_preview_w', 260), getattr(self, '_preview_h', 195)
+            cv.delete("all")
+            cv.create_rectangle(0, 0, w, h, fill="#fafafa", outline="#cccccc")
+            cv.create_text(w//2, h//2, text='(Vista previa no disponible)', fill='#666666')
             self._preview_photo = None
 
 class PreferencesDialog(tk.Toplevel):
