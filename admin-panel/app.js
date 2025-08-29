@@ -4,15 +4,41 @@ const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 let products = [];
 let originalMeta = { version: null, last_updated: null };
 
+async function fetchProductJson() {
+  const endpoints = [
+    `${window.location.origin}/_products/product_data.json`,
+    `https://elrincondeebano.com/_products/product_data.json`
+  ];
+  let lastErr;
+  for (const url of endpoints) {
+    try {
+      const res = await fetch(url, { cache: 'no-cache' });
+      if (!res.ok) {
+        lastErr = new Error(`HTTP ${res.status} @ ${url}`);
+        continue;
+      }
+      return await res.json();
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  throw lastErr || new Error('No se pudo obtener product_data.json');
+}
+
 function escapeHtml(s='') {
   const div = document.createElement('div');
   div.textContent = s; return div.innerHTML;
 }
 
 async function loadFromServer() {
-  const res = await fetch('https://elrincondeebano.com/_products/product_data.json', { cache: 'no-cache' });
-  if (!res.ok) { alert('No se pudo cargar product_data.json'); return; }
-  const data = await res.json();
+  let data;
+  try {
+    data = await fetchProductJson();
+  } catch (err) {
+    console.error('Error cargando productos:', err);
+    alert('No se pudo cargar product_data.json. Revise CORS/Cloudflare y vuelva a intentar.');
+    return;
+  }
   products = data.products || data;
   originalMeta.version = data.version || null;
   originalMeta.last_updated = data.last_updated || null;
