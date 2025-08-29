@@ -306,6 +306,8 @@ class ProductGUI(DragDropMixin):
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         
         self.tree.bind("<<TreeviewSelect>>", self.handle_selection)
+        # Faster stock toggle: double-click the Stock column
+        self.tree.bind("<Double-1>", self.handle_double_click)
 
     def setup_controls(self) -> None:
         """Set up control buttons and search."""
@@ -334,6 +336,17 @@ class ProductGUI(DragDropMixin):
         self.category_combobox.pack(side=tk.LEFT, padx=5)
         self.update_categories()
         self.category_combobox.bind("<<ComboboxSelected>>", self.handle_search)
+
+        # Bulk actions for faster workflows
+        bulk_frame = ttk.Frame(controls_frame)
+        bulk_frame.pack(side=tk.RIGHT)
+
+        ttk.Button(bulk_frame, text="% Desc.", width=8, command=self.bulk_percentage_discount).pack(side=tk.LEFT, padx=3)
+        ttk.Button(bulk_frame, text="Desc. fijo", width=10, command=self.bulk_fixed_discount).pack(side=tk.LEFT, padx=3)
+        ttk.Button(bulk_frame, text="Stock ON", width=10, command=lambda: self.bulk_set_stock(True)).pack(side=tk.LEFT, padx=3)
+        ttk.Button(bulk_frame, text="Stock OFF", width=10, command=lambda: self.bulk_set_stock(False)).pack(side=tk.LEFT, padx=3)
+        ttk.Button(bulk_frame, text="Precio +%", width=10, command=lambda: self.bulk_adjust_price(True)).pack(side=tk.LEFT, padx=3)
+        ttk.Button(bulk_frame, text="Precio -%", width=10, command=lambda: self.bulk_adjust_price(False)).pack(side=tk.LEFT, padx=3)
 
     def setup_status_bar(self) -> None:
         """Set up the status bar with version info."""
@@ -504,6 +517,188 @@ class ProductGUI(DragDropMixin):
         except Exception as e:
             messagebox.showerror("Error", f"Error al reordenar productos: {str(e)}")
             self.refresh_products()
+
+    def _get_selected_products(self) -> List[Product]:
+        selected = self.tree.selection()
+        products: List[Product] = []
+        for item in selected:
+            p = self.get_product_by_tree_item(item)
+            if p:
+                products.append(p)
+        return products
+
+    def _ask_number(self, title: str, prompt: str, min_val: Optional[int] = None, max_val: Optional[int] = None) -> Optional[float]:
+        dialog = tk.Toplevel(self.master)
+        dialog.title(title)
+        dialog.transient(self.master)
+        dialog.grab_set()
+        ttk.Label(dialog, text=prompt).pack(padx=10, pady=10)
+        var = tk.StringVar()
+        entry = ttk.Entry(dialog, textvariable=var)
+        entry.pack(padx=10, pady=5)
+        entry.focus_set()
+        result: Dict[str, Optional[float]] = {"value": None}
+
+        def on_ok():
+            try:
+                val = float(var.get())
+                if min_val is not None and val < min_val:
+                    raise ValueError
+                if max_val is not None and val > max_val:
+                    raise ValueError
+                result["value"] = val
+                dialog.destroy()
+            except ValueError:
+                messagebox.showerror("Valor inválido", f"Ingrese un número válido{f' entre {min_val} y {max_val}' if max_val is not None else ''}.")
+
+        def on_cancel():
+            dialog.destroy()
+
+        btn_frame = ttk.Frame(dialog)
+        btn_frame.pack(pady=10)
+        ttk.Button(btn_frame, text="Aceptar", command=on_ok).pack(side=tk.LEFT, padx=5)
+        ttk.Button(btn_frame, text="Cancelar", command=on_cancel).pack(side=tk.LEFT, padx=5)
+        dialog.wait_window()
+        return result["value"]
+
+    def bulk_percentage_discount(self) -> None:
+        products = self._get_selected_products()
+        if not products:
+            messagebox.showinfo("Acción masiva", "Seleccione uno o más productos.")
+            return
+        pct = self._ask_number("Aplicar descuento %", "Porcentaje (0-100):", min_val=0, max_val=100)
+        if pct is None:
+            return
+        updates: List[tuple[str, Product]] = []
+        for p in products:
+            new_p = Product(
+                name=p.name,
+                description=p.description,
+                price=p.price,
+                discount=int(p.price * (pct/100)),
+                stock=p.stock,
+                category=p.category,
+                image_path=p.image_path,
+                order=p.order
+            )
+            updates.append((p.name, new_p))
+        try:
+            self.product_service.batch_update(updates)
+            self.refresh_products()
+            self.update_status(f"Descuento {pct}% aplicado a {len(products)} producto(s)")
+        except ProductServiceError as e:
+            messagebox.showerror("Error", str(e))
+
+    def bulk_fixed_discount(self) -> None:
+        products = self._get_selected_products()
+        if not products:
+            messagebox.showinfo("Acción masiva", "Seleccione uno o más productos.")
+            return
+        amount = self._ask_number("Descuento fijo", "Monto a descontar:", min_val=0)
+        if amount is None:
+            return
+        updates: List[tuple[str, Product]] = []
+        for p in products:
+            d = min(int(amount), p.price-1) if p.price>0 else 0
+            new_p = Product(
+                name=p.name,
+                description=p.description,
+                price=p.price,
+                discount=d,
+                stock=p.stock,
+                category=p.category,
+                image_path=p.image_path,
+                order=p.order
+            )
+            updates.append((p.name, new_p))
+        try:
+            self.product_service.batch_update(updates)
+            self.refresh_products()
+            self.update_status(f"Descuento de ${amount:,} aplicado a {len(products)} producto(s)")
+        except ProductServiceError as e:
+            messagebox.showerror("Error", str(e))
+
+    def bulk_set_stock(self, value: bool) -> None:
+        products = self._get_selected_products()
+        if not products:
+            messagebox.showinfo("Acción masiva", "Seleccione uno o más productos.")
+            return
+        updates: List[tuple[str, Product]] = []
+        for p in products:
+            new_p = Product(
+                name=p.name,
+                description=p.description,
+                price=p.price,
+                discount=p.discount,
+                stock=value,
+                category=p.category,
+                image_path=p.image_path,
+                order=p.order
+            )
+            updates.append((p.name, new_p))
+        try:
+            self.product_service.batch_update(updates)
+            self.refresh_products()
+            self.update_status(f"Stock {'ON' if value else 'OFF'} para {len(products)} producto(s)")
+        except ProductServiceError as e:
+            messagebox.showerror("Error", str(e))
+
+    def bulk_adjust_price(self, increase: bool) -> None:
+        products = self._get_selected_products()
+        if not products:
+            messagebox.showinfo("Acción masiva", "Seleccione uno o más productos.")
+            return
+        pct = self._ask_number("Ajustar precio %", "Porcentaje (0-100):", min_val=0, max_val=100)
+        if pct is None:
+            return
+        factor = 1 + (pct/100) if increase else 1 - (pct/100)
+        updates: List[tuple[str, Product]] = []
+        for p in products:
+            new_price = max(1, int(round(p.price * factor)))
+            new_discount = min(p.discount, new_price-1) if new_price>0 else 0
+            new_p = Product(
+                name=p.name,
+                description=p.description,
+                price=new_price,
+                discount=new_discount,
+                stock=p.stock,
+                category=p.category,
+                image_path=p.image_path,
+                order=p.order
+            )
+            updates.append((p.name, new_p))
+        try:
+            self.product_service.batch_update(updates)
+            self.refresh_products()
+            self.update_status(f"Precio {'+' if increase else '-'}{pct}% aplicado a {len(products)} producto(s)")
+        except ProductServiceError as e:
+            messagebox.showerror("Error", str(e))
+
+    def handle_double_click(self, event: tk.Event) -> None:
+        # Toggle stock on double-click of the Stock column
+        region = self.tree.identify("region", event.x, event.y)
+        col = self.tree.identify_column(event.x)
+        row = self.tree.identify_row(event.y)
+        if region == "cell" and col == "#5" and row:
+            product = self.get_product_by_tree_item(row)
+            if not product:
+                return
+            try:
+                updated = Product(
+                    name=product.name,
+                    description=product.description,
+                    price=product.price,
+                    discount=product.discount,
+                    stock=not product.stock,
+                    category=product.category,
+                    image_path=product.image_path,
+                    order=product.order
+                )
+                self.product_service.update_product(product.name, updated)
+                self.tree.set(row, "stock", "☑" if updated.stock else "☐")
+                self.update_status(f"Stock de '{product.name}' actualizado: {'En stock' if updated.stock else 'Sin stock'}")
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo actualizar el stock: {str(e)}")
 
     def import_products(self) -> None:
         """Import products from JSON file."""
