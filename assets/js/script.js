@@ -354,10 +354,28 @@ const showErrorMessage = (message) => {
     }
 };
 
-// Global error handler
+// Global error handler (ignore non-fatal resource load errors)
 if (typeof window !== 'undefined') {
     window.addEventListener('error', (event) => {
-        console.error("Error global:", event.error);
+        const target = event.target || event.srcElement;
+        const isResourceError = !!(target && (
+            target.tagName === 'IMG' ||
+            target.tagName === 'SCRIPT' ||
+            target.tagName === 'LINK'
+        ));
+
+        // Many browsers do not populate event.error for resource errors.
+        const hasRuntimeError = !!event.error;
+
+        if (isResourceError || !hasRuntimeError) {
+            // Log and ignore — do not disrupt UI during initial render
+            console.warn('Ignored resource load error:', {
+                tag: target && target.tagName,
+                src: target && (target.src || target.href || target.currentSrc)
+            });
+            return;
+        }
+        console.error('Unhandled JS error:', event.error);
         showErrorMessage('Ocurrió un error inesperado. Por favor, recarga la página.');
     });
 }
