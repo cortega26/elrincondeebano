@@ -861,8 +861,8 @@ h1 {
 
 /* Cart item thumbnail */
 .cart-item-thumb {
-  width: 72px;
-  height: 72px;
+  width: 100px;
+  height: 100px;
   flex-shrink: 0;
 }
 .cart-item-thumb-img {

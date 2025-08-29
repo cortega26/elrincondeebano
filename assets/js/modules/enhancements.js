@@ -7,7 +7,7 @@ export function injectEnhancementStyles() {
     }
     styleEl.textContent = `
       /* Miniatura del carrito (mantener consistente con base/enhanced CSS) */
-      .cart-item-thumb { width: 72px; height: 72px; flex-shrink: 0; }
+      .cart-item-thumb { width: 100px; height: 100px; flex-shrink: 0; }
       .cart-item-thumb img, .cart-item-thumb-img { width: 100%; height: 100%; object-fit: cover; border-radius: 0.25rem; }
 
       /* Contornos de enfoque claros para accesibilidad */
