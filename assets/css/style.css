@@ -490,8 +490,7 @@ h1 {
   display: flex;            /* Make columns stretch */
 }
 .producto {
-  display: flex;            /* Let product wrapper stretch */
-  width: 100%;
+  display: flex;            /* Let product wrapper stretch, keep grid widths */
 }
 .producto > .card {
   flex: 1 1 auto;           /* Make the card fill the column height */
