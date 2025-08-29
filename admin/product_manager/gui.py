@@ -227,6 +227,8 @@ class ProductGUI(DragDropMixin):
         self.logger = logging.getLogger(__name__)
         self.state = UIState()
         self.config = self._load_config()
+        self._cell_editor: Optional[tk.Widget] = None
+        self._cell_editor_info: Dict[str, Any] = {}
         
         self.setup_gui()
         self.bind_shortcuts()
@@ -675,14 +677,22 @@ class ProductGUI(DragDropMixin):
             messagebox.showerror("Error", str(e))
 
     def handle_double_click(self, event: tk.Event) -> None:
-        # On double-click: if stock column => toggle stock; otherwise open edit dialog for that product
+        # On double-click: inline edit for price/discount, toggle stock on stock column,
+        # otherwise open edit dialog for that product
         region = self.tree.identify("region", event.x, event.y)
         col = self.tree.identify_column(event.x)
         row = self.tree.identify_row(event.y)
         if region != "cell" or not row:
             return
 
-        if col == "#5":
+        # Map column index to column key
+        try:
+            col_index = int(col[1:]) - 1
+            col_key = self.tree["columns"][col_index]
+        except Exception:
+            col_key = None
+
+        if col_key == "stock":
             # Toggle stock state
             product = self.get_product_by_tree_item(row)
             if not product:
@@ -703,6 +713,9 @@ class ProductGUI(DragDropMixin):
                 self.update_status(f"Stock de '{product.name}' actualizado: {'En stock' if updated.stock else 'Sin stock'}")
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo actualizar el stock: {str(e)}")
+        elif col_key in ("price", "discount"):
+            # Start inline editor for numeric fields
+            self._begin_inline_edit(row, col, col_key)
         else:
             # Open edit dialog for the double-clicked row
             try:
@@ -711,6 +724,119 @@ class ProductGUI(DragDropMixin):
                 self.edit_product()
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo abrir el editor: {str(e)}")
+
+    def _begin_inline_edit(self, item: str, col_id: str, field: str) -> None:
+        # Close any existing editor
+        self._end_inline_edit()
+
+        # Get cell bbox
+        try:
+            x, y, w, h = self.tree.bbox(item, col_id)
+        except Exception:
+            return
+
+        product = self.get_product_by_tree_item(item)
+        if not product:
+            return
+
+        # Determine initial value (raw integer)
+        initial_value = str(getattr(product, field) or 0)
+
+        # Create entry editor
+        entry = ttk.Entry(self.tree)
+        entry.insert(0, initial_value)
+        entry.select_range(0, tk.END)
+        entry.focus_set()
+        entry.place(x=x, y=y, width=w, height=h)
+
+        self._cell_editor = entry
+        self._cell_editor_info = {"item": item, "col_id": col_id, "field": field, "original": product}
+
+        def commit(_evt=None):
+            self._commit_inline_edit()
+
+        def cancel(_evt=None):
+            self._end_inline_edit()
+
+        entry.bind("<Return>", commit)
+        entry.bind("<FocusOut>", commit)
+        entry.bind("<Escape>", cancel)
+
+    def _commit_inline_edit(self) -> None:
+        if not self._cell_editor:
+            return
+        try:
+            value_str = self._cell_editor.get().strip()
+            info = self._cell_editor_info
+            item = info.get("item")
+            field = info.get("field")
+            product = self.get_product_by_tree_item(item)
+            if not product:
+                self._end_inline_edit()
+                return
+
+            # Parse integer
+            try:
+                new_val = int(value_str)
+            except ValueError:
+                messagebox.showerror("Valor inválido", "Ingrese un número entero válido.")
+                self._cell_editor.focus_set()
+                return
+
+            if field == "price" and new_val <= 0:
+                messagebox.showerror("Valor inválido", "El precio debe ser mayor que cero.")
+                self._cell_editor.focus_set()
+                return
+            if field == "discount" and new_val < 0:
+                messagebox.showerror("Valor inválido", "El descuento no puede ser negativo.")
+                self._cell_editor.focus_set()
+                return
+
+            # Build updated product with validated values
+            updated_kwargs = dict(
+                name=product.name,
+                description=product.description,
+                price=product.price,
+                discount=product.discount,
+                stock=product.stock,
+                category=product.category,
+                image_path=product.image_path,
+                order=product.order,
+            )
+            updated_kwargs[field] = new_val
+
+            # Validate discount < price
+            if updated_kwargs["discount"] >= updated_kwargs["price"]:
+                messagebox.showerror("Valor inválido", "El descuento no puede ser mayor o igual al precio.")
+                self._cell_editor.focus_set()
+                return
+
+            updated = Product(**updated_kwargs)
+
+            # Persist change
+            self.product_service.update_product(product.name, updated)
+
+            # Update tree cell display (formatted)
+            if field == "price":
+                self.tree.set(item, "price", f"{updated.price:,}")
+            elif field == "discount":
+                self.tree.set(item, "discount", f"{updated.discount:,}" if updated.discount else "")
+
+            self.update_status(f"{field.capitalize()} de '{product.name}' actualizado.")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo guardar el cambio: {str(e)}")
+        finally:
+            self._end_inline_edit()
+
+    def _end_inline_edit(self) -> None:
+        if self._cell_editor:
+            try:
+                self._cell_editor.place_forget()
+                self._cell_editor.destroy()
+            except Exception:
+                pass
+        self._cell_editor = None
+        self._cell_editor_info = {}
 
     def import_products(self) -> None:
         """Import products from JSON file."""
