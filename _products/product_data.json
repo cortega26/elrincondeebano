@@ -1,6 +1,6 @@
 {
-  "version": "20250829-104527",
-  "last_updated": "2025-08-29T10:45:27.005308",
+  "version": "20250829-134131",
+  "last_updated": "2025-08-29T13:41:31.561185",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -37,7 +37,7 @@
       "description": "Presentación de 120g",
       "price": 1300,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksDulces",
       "image_path": "assets/images/snacks_dulces/Galletas Limón McKay 120g.webp",
       "order": 3
@@ -197,7 +197,7 @@
       "description": "Presentación de 120g",
       "price": 1300,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksDulces",
       "image_path": "assets/images/snacks_dulces/Galletas Coco McKay 120g.webp",
       "order": 19
@@ -953,10 +953,10 @@
       "order": 94
     },
     {
-      "name": "Súper 8 • Pack 5 unidades",
+      "name": "Súper 8 • Pack 4 unidades",
       "description": "Barras de 29g c/u",
       "price": 2000,
-      "discount": 200,
+      "discount": 0,
       "stock": false,
       "category": "SnacksDulces",
       "image_path": "assets/images/snacks_dulces/Super 8 pack 5.webp",
