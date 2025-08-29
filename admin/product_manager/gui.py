@@ -3,8 +3,8 @@ from tkinter import ttk, messagebox, filedialog
 from typing import List, Optional, Callable, Dict, Any, TypeVar, Protocol
 import os
 from pathlib import Path
-from models import Product
-from services import ProductService, ProductNotFoundError, ProductServiceError
+from .models import Product
+from .services import ProductService, ProductNotFoundError, ProductServiceError
 import logging
 import shutil
 import threading

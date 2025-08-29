@@ -20,9 +20,9 @@ import threading
 import signal
 import traceback
 
-from repositories import JsonProductRepository
-from services import ProductService
-from gui import ProductGUI, UIConfig
+from .repositories import JsonProductRepository
+from .services import ProductService
+from .gui import ProductGUI, UIConfig
 
 class ApplicationError(Exception):
     """Base exception for application-level errors."""

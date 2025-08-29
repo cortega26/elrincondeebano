@@ -9,7 +9,7 @@ from pathlib import Path
 from contextlib import contextmanager
 import threading
 from functools import wraps
-from models import Product, ProductCatalog
+from .models import Product, ProductCatalog
 
 logger = logging.getLogger(__name__)
 
