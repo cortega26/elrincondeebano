@@ -339,6 +339,53 @@ class ProductGUI(DragDropMixin):
         self.update_categories()
         self.category_combobox.bind("<<ComboboxSelected>>", self.handle_search)
 
+        # Advanced filters
+        filters_frame = ttk.Frame(controls_frame)
+        filters_frame.pack(side=tk.LEFT, padx=10)
+
+        self.only_discount_var = tk.BooleanVar(value=False)
+        ttk.Checkbutton(filters_frame, text="Solo descuento", variable=self.only_discount_var,
+                        command=self.refresh_products).pack(side=tk.LEFT, padx=5)
+
+        self.only_out_of_stock_var = tk.BooleanVar(value=False)
+        ttk.Checkbutton(filters_frame, text="Solo sin stock", variable=self.only_out_of_stock_var,
+                        command=self.refresh_products).pack(side=tk.LEFT, padx=5)
+
+        # Price range filters
+        price_frame = ttk.Frame(filters_frame)
+        price_frame.pack(side=tk.LEFT, padx=5)
+        ttk.Label(price_frame, text="Precio:").pack(side=tk.LEFT)
+        self.min_price_var = tk.StringVar()
+        self.max_price_var = tk.StringVar()
+        min_entry = ttk.Entry(price_frame, width=8, textvariable=self.min_price_var)
+        max_entry = ttk.Entry(price_frame, width=8, textvariable=self.max_price_var)
+        ttk.Label(price_frame, text="min").pack(side=tk.LEFT, padx=(4, 2))
+        min_entry.pack(side=tk.LEFT)
+        ttk.Label(price_frame, text="max").pack(side=tk.LEFT, padx=(6, 2))
+        max_entry.pack(side=tk.LEFT)
+
+        def _on_price_change(*_):
+            self.refresh_products()
+        self.min_price_var.trace("w", _on_price_change)
+        self.max_price_var.trace("w", _on_price_change)
+
+        # Quick views
+        quick_frame = ttk.Frame(controls_frame)
+        quick_frame.pack(side=tk.LEFT, padx=10)
+        ttk.Label(quick_frame, text="Vista:").pack(side=tk.LEFT)
+        self.quick_view_var = tk.StringVar(value="Todos")
+        self.quick_view_combobox = ttk.Combobox(quick_frame, textvariable=self.quick_view_var, state="readonly",
+                                                values=[
+                                                    "Todos",
+                                                    "Descuentos activos",
+                                                    "Sin stock",
+                                                    "En stock",
+                                                    "Precio >= 10000",
+                                                    "Precio <= 2000"
+                                                ], width=18)
+        self.quick_view_combobox.pack(side=tk.LEFT, padx=5)
+        self.quick_view_combobox.bind("<<ComboboxSelected>>", self.apply_quick_view)
+
         # Bulk actions for faster workflows
         bulk_frame = ttk.Frame(controls_frame)
         bulk_frame.pack(side=tk.RIGHT)
@@ -432,11 +479,57 @@ class ProductGUI(DragDropMixin):
                 products = [p for p in products if p.category.lower() == category.lower()]
             if query:
                 products = [p for p in products if query in p.name.lower() or query in p.description.lower()]
+            # Apply advanced filters
+            if hasattr(self, 'only_discount_var') and self.only_discount_var.get():
+                products = [p for p in products if (p.discount or 0) > 0]
+            if hasattr(self, 'only_out_of_stock_var') and self.only_out_of_stock_var.get():
+                products = [p for p in products if not p.stock]
+
+            # Price range
+            def _parse_int(val: str):
+                try:
+                    return int(val)
+                except Exception:
+                    return None
+            min_p = _parse_int(self.min_price_var.get()) if hasattr(self, 'min_price_var') else None
+            max_p = _parse_int(self.max_price_var.get()) if hasattr(self, 'max_price_var') else None
+            if min_p is not None:
+                products = [p for p in products if p.price >= min_p]
+            if max_p is not None:
+                products = [p for p in products if p.price <= max_p]
+
             self.populate_tree(products)
             self.update_categories()
             self.update_status(f"Mostrando {len(products)} productos")
         except ProductServiceError as e:
             messagebox.showerror("Error", f"Error al cargar productos: {str(e)}")
+
+    def apply_quick_view(self, *_):
+        """Apply quick view presets by adjusting filters and refreshing."""
+        view = self.quick_view_var.get()
+        # Reset base filters
+        if hasattr(self, 'only_discount_var'):
+            self.only_discount_var.set(False)
+        if hasattr(self, 'only_out_of_stock_var'):
+            self.only_out_of_stock_var.set(False)
+        if hasattr(self, 'min_price_var'):
+            self.min_price_var.set("")
+        if hasattr(self, 'max_price_var'):
+            self.max_price_var.set("")
+
+        if view == "Descuentos activos":
+            self.only_discount_var.set(True)
+        elif view == "Sin stock":
+            self.only_out_of_stock_var.set(True)
+        elif view == "En stock":
+            # No explicit flag; leaving both toggles off shows all, but we can emulate by clearing "Solo sin stock"
+            pass
+        elif view == "Precio >= 10000":
+            self.min_price_var.set("10000")
+        elif view == "Precio <= 2000":
+            self.max_price_var.set("2000")
+
+        self.refresh_products()
 
     def populate_tree(self, products: List[Product]) -> None:
         """Populate treeview with products."""
