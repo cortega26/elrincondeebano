@@ -11,7 +11,7 @@ const PRODUCTS_JSON = path.resolve(process.env.USERPROFILE || process.env.HOME |
 const IMG_ROOT = path.resolve(REPO_ROOT, 'assets', 'images');
 const OUT_ROOT = path.join(IMG_ROOT, 'variants');
 
-const CARD_WIDTHS = [200, 320, 480, 640];
+const CARD_WIDTHS = [200, 320, 400, 480, 640];
 const THUMB_SIZE = 100; // square
 
 function ensureDir(p) { fs.mkdirSync(p, { recursive: true }); }
