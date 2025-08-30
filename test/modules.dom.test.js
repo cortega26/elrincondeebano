@@ -1,0 +1,67 @@
+const test = require('node:test');
+const assert = require('node:assert');
+const { JSDOM } = require('jsdom');
+const fs = require('node:fs');
+const path = require('node:path');
+
+function loadModule(relPath) {
+  const filePath = path.join(__dirname, relPath);
+  let code = fs.readFileSync(filePath, 'utf8');
+  code = code.replace(/export\s+(async\s+)?function\s+(\w+)/g, 'exports.$2 = $1function $2');
+  const exports = {};
+  const wrapper = new Function('exports', code + '\nreturn exports;');
+  return wrapper(exports);
+}
+
+test('setupNavigationAccessibility toggles class and inserts style', () => {
+  const dom = new JSDOM('<!DOCTYPE html><head></head><body></body>');
+  global.window = dom.window;
+  global.document = dom.window.document;
+  global.location = dom.window.location;
+
+  const { setupNavigationAccessibility } = loadModule('../assets/js/modules/a11y.js');
+
+  setupNavigationAccessibility();
+
+  const styleEl = document.querySelector('style');
+  assert.ok(styleEl, 'style element should be inserted');
+
+  document.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab' }));
+  assert.ok(document.body.classList.contains('keyboard-navigation'), 'class should be added on Tab');
+
+  document.dispatchEvent(new dom.window.MouseEvent('mousedown'));
+  assert.ok(!document.body.classList.contains('keyboard-navigation'), 'class should be removed on mouse click');
+});
+
+test('injectPwaManifest adds link only once', () => {
+  const dom = new JSDOM('<!DOCTYPE html><head></head><body></body>');
+  global.window = dom.window;
+  global.document = dom.window.document;
+  global.location = dom.window.location;
+
+  const { injectPwaManifest } = loadModule('../assets/js/modules/pwa.js');
+
+  injectPwaManifest();
+  assert.strictEqual(document.querySelectorAll('link[rel="manifest"]').length, 1, 'manifest link inserted');
+  injectPwaManifest();
+  assert.strictEqual(document.querySelectorAll('link[rel="manifest"]').length, 1, 'manifest link should not duplicate');
+});
+
+test('injectStructuredData and injectSeoMetadata insert expected elements', async () => {
+  const dom = new JSDOM('<!DOCTYPE html><head></head><body></body>', { url: 'https://example.com/path' });
+  global.window = dom.window;
+  global.document = dom.window.document;
+  global.location = dom.window.location;
+  global.localStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {}, clear: () => {} };
+  global.fetch = async () => ({ ok: true, json: async () => ({ products: [] }) });
+
+  const { injectStructuredData, injectSeoMetadata } = loadModule('../assets/js/modules/seo.js');
+
+  await injectStructuredData();
+  injectSeoMetadata();
+
+  assert.ok(document.querySelector('script[type="application/ld+json"]'), 'structured data script inserted');
+  assert.ok(document.querySelector('link[rel="canonical"]'), 'canonical link inserted');
+  assert.ok(document.querySelector('meta[name="description"]'), 'description meta inserted');
+});
+

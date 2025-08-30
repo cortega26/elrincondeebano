@@ -11,7 +11,7 @@
     "icons": "node generate-icons.js",
     "images:variants": "node scripts/generate-image-variants.js",
     "prune:backups": "node scripts/prune-backups.js",
-    "test": "node test/generateStableId.test.js && node test/serviceWorker.utils.test.js && node test/fetchProducts.test.js && node test/updateProductDisplay.test.js && node test/cart.test.js && node test/ensureDiscountToggle.test.js && node test/notifications.test.js && node test/swCache.test.js"
+    "test": "node test/generateStableId.test.js && node test/serviceWorker.utils.test.js && node test/fetchProducts.test.js && node test/updateProductDisplay.test.js && node test/cart.test.js && node test/ensureDiscountToggle.test.js && node test/notifications.test.js && node test/swCache.test.js && node test/modules.dom.test.js"
   },
   "keywords": [],
   "author": "",
