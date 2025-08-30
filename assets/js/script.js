@@ -1156,7 +1156,7 @@ if (typeof document !== 'undefined') {
     });
 }
 if (typeof module !== 'undefined') {
-    module.exports = { generateStableId };
+    module.exports = { generateStableId, fetchProducts };
 }
 
 
