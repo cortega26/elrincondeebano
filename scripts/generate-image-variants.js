@@ -1,9 +1,10 @@
-// Generate responsive product image variants and thumbnails, then augment product_data.json
+﻿// Generate responsive product image variants and thumbnails, then augment product_data.json
 // Requires: sharp (already in devDependencies)
 
 const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
+const crypto = require('crypto');
 
 // Paths
 const REPO_ROOT = path.resolve(__dirname, '..');
@@ -37,21 +38,7 @@ async function generateVariantsFor(srcRel) {
     outVariants.push({ url: outRel, width: w });
   }
 
-  // Thumbnail squares (1x/2x)
-  const thumbVariants = [];
-  for (const s of THUMB_SIZES) {
-    const outThumbDir = path.join(OUT_ROOT, `w${s}`, relDir);
-    ensureDir(outThumbDir);
-    const outThumbAbs = path.join(outThumbDir, baseName);
-    if (!fs.existsSync(outThumbAbs)) {
-      await sharp(srcAbs)
-        .resize(s, s, { fit: 'cover', withoutEnlargement: true })
-        .webp({ quality: 80 })
-        .toFile(outThumbAbs);
-    }
-    const rel = path.posix.join('/assets/images/variants', `w${s}`, relDir.split(path.sep).join('/'), baseName);
-    thumbVariants.push({ url: rel, width: s });
-  }
+  // Thumbnail squares (1x/2x) - separate 'thumbs' namespace to avoid collisions with w200 card variants\n  const thumbVariants = [];\n  for (const s of THUMB_SIZES) {\n    const outThumbDir = path.join(OUT_ROOT, 'thumbs', w, relDir);\n    ensureDir(outThumbDir);\n    const outThumbAbs = path.join(outThumbDir, baseName);\n    if (!fs.existsSync(outThumbAbs)) {\n      await sharp(srcAbs)\n        .resize(s, s, { fit: 'cover', withoutEnlargement: true })\n        .webp({ quality: 80 })\n        .toFile(outThumbAbs);\n    }\n    const rel = path.posix.join('/assets/images/variants', 'thumbs', w, relDir.split(path.sep).join('/'), baseName);\n    thumbVariants.push({ url: rel, width: s });\n  }
   const thumbRel = thumbVariants.find(v => v.width === 100)?.url || thumbVariants[0]?.url || null;
 
   return { variants: outVariants, thumb: thumbRel, thumbVariants };
