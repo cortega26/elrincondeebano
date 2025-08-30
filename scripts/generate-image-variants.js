@@ -12,7 +12,7 @@ const IMG_ROOT = path.resolve(REPO_ROOT, 'assets', 'images');
 const OUT_ROOT = path.join(IMG_ROOT, 'variants');
 
 const CARD_WIDTHS = [200, 320, 400, 480, 640];
-const THUMB_SIZE = 100; // square
+const THUMB_SIZES = [100, 200]; // square thumbs (1x, 2x)
 
 function ensureDir(p) { fs.mkdirSync(p, { recursive: true }); }
 
@@ -37,18 +37,24 @@ async function generateVariantsFor(srcRel) {
     outVariants.push({ url: outRel, width: w });
   }
 
-  // Thumbnail square
-  const outThumbDir = path.join(OUT_ROOT, `w${THUMB_SIZE}`, relDir);
-  ensureDir(outThumbDir);
-  const outThumbAbs = path.join(outThumbDir, baseName);
-  if (!fs.existsSync(outThumbAbs)) {
-    await sharp(srcAbs)
-      .resize(THUMB_SIZE, THUMB_SIZE, { fit: 'cover' })
-      .toFile(outThumbAbs);
+  // Thumbnail squares (1x/2x)
+  const thumbVariants = [];
+  for (const s of THUMB_SIZES) {
+    const outThumbDir = path.join(OUT_ROOT, `w${s}`, relDir);
+    ensureDir(outThumbDir);
+    const outThumbAbs = path.join(outThumbDir, baseName);
+    if (!fs.existsSync(outThumbAbs)) {
+      await sharp(srcAbs)
+        .resize(s, s, { fit: 'cover', withoutEnlargement: true })
+        .webp({ quality: 80 })
+        .toFile(outThumbAbs);
+    }
+    const rel = path.posix.join('/assets/images/variants', `w${s}`, relDir.split(path.sep).join('/'), baseName);
+    thumbVariants.push({ url: rel, width: s });
   }
-  const thumbRel = path.posix.join('/assets/images/variants', `w${THUMB_SIZE}`, relDir.split(path.sep).join('/'), baseName);
+  const thumbRel = thumbVariants.find(v => v.width === 100)?.url || thumbVariants[0]?.url || null;
 
-  return { variants: outVariants, thumb: thumbRel };
+  return { variants: outVariants, thumb: thumbRel, thumbVariants };
 }
 
 async function run() {
@@ -64,9 +70,10 @@ async function run() {
     try {
       const srcRel = String(p.image_path || '').replace(/^\//, '');
       if (!srcRel) continue;
-      const { variants, thumb } = await generateVariantsFor(srcRel);
+      const { variants, thumb, thumbVariants } = await generateVariantsFor(srcRel);
       if (variants.length) p.image_variants = variants;
       if (thumb) p.thumbnail_path = thumb;
+      if (thumbVariants && thumbVariants.length) p.thumbnail_variants = thumbVariants;
     } catch (e) {
       console.warn('Variant generation failed for', p.image_path, e.message);
     }
