@@ -22,6 +22,9 @@ async function loadProductData() {
 
 export async function injectStructuredData() {
   try {
+    if (document.querySelector('script[type="application/ld+json"]')) {
+      return;
+    }
     const map = await loadProductData();
     if (!map) return;
     const products = Object.values(map);
