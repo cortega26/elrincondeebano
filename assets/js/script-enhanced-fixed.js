@@ -421,12 +421,13 @@ const renderProducts = (products) => {
         `;
 
         fragment.appendChild(productElement);
-        // Hydrate card state from cart
-        updateProductCardState(product.id);
     });
 
     productContainer.innerHTML = '';
     productContainer.appendChild(fragment);
+
+    // Hydrate card state from cart now that elements are in the DOM
+    products.forEach(product => updateProductCardState(product.id));
 
     // Initialize animations
     productAnimations.init();
