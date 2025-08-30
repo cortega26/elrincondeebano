@@ -1,8 +1,7 @@
-const test = require('node:test');
-const assert = require('node:assert');
-const { MockAgent, setGlobalDispatcher, fetch: undiciFetch } = require('undici');
-
-const { fetchProducts } = require('../assets/js/script.js');
+import test from 'node:test';
+import assert from 'node:assert';
+import { MockAgent, setGlobalDispatcher, fetch as undiciFetch } from 'undici';
+import { fetchProducts } from '../assets/js/products.js';
 
 // Minimal DOM stubs for error handling paths
 global.window = { location: { reload() {} } };
