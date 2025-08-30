@@ -28,7 +28,7 @@ const pages = [
 ];
 
 pages.forEach(page => {
-  const html = ejs.render(template, { categoryName: page.name, description: page.description });
+  const html = ejs.render(template, { categoryName: page.name, description: page.description, slug: page.slug });
   const outputPath = path.join(__dirname, 'pages', `${page.slug}.html`);
   fs.writeFileSync(outputPath, html);
 });
