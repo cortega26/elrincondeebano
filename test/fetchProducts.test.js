@@ -1,0 +1,103 @@
+const test = require('node:test');
+const assert = require('node:assert');
+const { MockAgent, setGlobalDispatcher, fetch: undiciFetch } = require('undici');
+
+const { fetchProducts } = require('../assets/js/script.js');
+
+// Minimal DOM stubs for error handling paths
+global.window = { location: { reload() {} } };
+global.document = {
+  createElement: () => ({
+    setAttribute() {},
+    appendChild() {},
+    addEventListener() {},
+    querySelector() { return { addEventListener() {} }; },
+    remove() {}
+  }),
+  createTextNode: text => ({ textContent: text }),
+  getElementById: () => null,
+  body: { appendChild() {}, contains() { return false; } }
+};
+
+// Mock fetch using undici's MockAgent
+const mockAgent = new MockAgent();
+mockAgent.disableNetConnect();
+setGlobalDispatcher(mockAgent);
+const mockPool = mockAgent.get('http://localhost');
+
+global.fetch = (url, opts) => undiciFetch(new URL(url, 'http://localhost').toString(), opts);
+
+function setupLocalStorage(initial = {}) {
+  const store = { ...initial };
+  global.localStorage = {
+    getItem: key => (key in store ? store[key] : null),
+    setItem: (key, value) => { store[key] = String(value); },
+    removeItem: key => { delete store[key]; },
+    clear: () => { for (const k of Object.keys(store)) delete store[k]; }
+  };
+}
+
+test('fetchProducts', async (t) => {
+  await t.test('successful fetch without productDataVersion', async () => {
+    setupLocalStorage();
+    let path;
+    mockPool.intercept({ path: /^\/\_products\/product_data\.json/, method: 'GET' })
+      .reply((opts) => {
+        path = opts.path;
+        return {
+          statusCode: 200,
+          data: JSON.stringify({ products: [] }),
+          headers: { 'content-type': 'application/json' }
+        };
+      });
+    const products = await fetchProducts();
+    assert.deepStrictEqual(products, []);
+    assert.strictEqual(path, '/_products/product_data.json');
+    mockAgent.assertNoPendingInterceptors();
+  });
+
+  await t.test('successful fetch with productDataVersion', async () => {
+    const version = '123';
+    setupLocalStorage({ productDataVersion: version });
+    let path;
+    mockPool.intercept({ path: /^\/\_products\/product_data\.json/, method: 'GET' })
+      .reply((opts) => {
+        path = opts.path;
+        return {
+          statusCode: 200,
+          data: JSON.stringify({ products: [] }),
+          headers: { 'content-type': 'application/json' }
+        };
+      });
+    const products = await fetchProducts();
+    assert.deepStrictEqual(products, []);
+    assert.ok(path.includes(`v=${encodeURIComponent(version)}`));
+    mockAgent.assertNoPendingInterceptors();
+  });
+
+  await t.test('non-OK response throws', async () => {
+    setupLocalStorage();
+    mockPool.intercept({ path: /^\/\_products\/product_data\.json/, method: 'GET' })
+      .reply(500, {});
+    await assert.rejects(fetchProducts(), /HTTP error/);
+    mockAgent.assertNoPendingInterceptors();
+  });
+
+  await t.test('invalid JSON throws', async () => {
+    setupLocalStorage();
+    mockPool.intercept({ path: /^\/\_products\/product_data\.json/, method: 'GET' })
+      .reply(200, 'not json', { headers: { 'content-type': 'application/json' } });
+    await assert.rejects(fetchProducts(), SyntaxError);
+    mockAgent.assertNoPendingInterceptors();
+  });
+
+  await t.test('network failure throws', async () => {
+    setupLocalStorage();
+    mockPool.intercept({ path: /^\/\_products\/product_data\.json/, method: 'GET' })
+      .replyWithError(new Error('network failure'));
+    await assert.rejects(fetchProducts());
+    mockAgent.assertNoPendingInterceptors();
+  });
+
+  t.after(() => mockAgent.close());
+});
