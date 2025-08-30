@@ -53,6 +53,11 @@ export async function injectStructuredData() {
           address: { '@type': 'PostalAddress', addressCountry: 'CL' },
           telephone: '+56951118901',
           url: 'http://www.elrincondeebano.com/',
+          contactPoint: {
+            '@type': 'ContactPoint',
+            telephone: '+56-951118901',
+            contactType: 'customer service',
+          },
         },
         ...structuredProducts,
       ],
