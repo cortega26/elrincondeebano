@@ -1,6 +1,6 @@
 {
-  "version": "20250829-134131",
-  "last_updated": "2025-08-29T13:41:31.561185",
+  "version": "20250829-202943",
+  "last_updated": "2025-08-29T20:29:43.767335",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -135,7 +135,7 @@
     {
       "name": "Queso Llanero 1Kg",
       "description": "A granel, trozo",
-      "price": 9500,
+      "price": 10000,
       "discount": 0,
       "stock": true,
       "category": "Lacteos",
@@ -501,16 +501,6 @@
       "category": "Lacteos",
       "image_path": "assets/images/lacteos/Queso Gauda La Vaquita 400g.webp",
       "order": 49
-    },
-    {
-      "name": "Queso Llanero Guárico 1/4Kg",
-      "description": "A granel, en trozo",
-      "price": 2500,
-      "discount": 0,
-      "stock": true,
-      "category": "Lacteos",
-      "image_path": "assets/images/lacteos/Queso-Llanero2.webp",
-      "order": 50
     },
     {
       "name": "Chuleta Ahumada con hueso x Kg",
@@ -1075,7 +1065,7 @@
     {
       "name": "Queso Llanero 1/4Kg",
       "description": "A granel, trozo",
-      "price": 2500,
+      "price": 2900,
       "discount": 0,
       "stock": true,
       "category": "Lacteos",
