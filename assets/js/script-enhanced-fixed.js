@@ -28,7 +28,7 @@ const coreLoader = {
         }
     },
 
-    // Generic component loader
+    // Generic component loader (CSP-safe: strips inline scripts, re-adds JSON-LD with nonce)
     loadComponent: async (container, filename) => {
         if (!container) {
             console.warn(`Container not found for component: ${filename}`);
@@ -39,7 +39,38 @@ const coreLoader = {
             const response = await fetch(filename);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const html = await response.text();
-            container.innerHTML = html;
+
+            // Parse and strip inline scripts to satisfy CSP
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const ldJsonBlocks = [];
+            doc.querySelectorAll('script').forEach(scr => {
+                if (scr.type === 'application/ld+json') {
+                    ldJsonBlocks.push(scr.textContent);
+                }
+                scr.remove();
+            });
+
+            container.innerHTML = doc.body ? doc.body.innerHTML : html;
+
+            // Post-process: current year helper (replaces removed inline script)
+            const yearEl = container.querySelector('#current-year');
+            if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+            // Re-inject JSON-LD blocks with nonce
+            if (ldJsonBlocks.length) {
+                const nonce = (typeof window !== 'undefined' && window.__CSP_NONCE__) ? window.__CSP_NONCE__ : null;
+                ldJsonBlocks.forEach(text => {
+                    try {
+                        const s = document.createElement('script');
+                        s.type = 'application/ld+json';
+                        if (nonce) s.setAttribute('nonce', nonce);
+                        s.textContent = text;
+                        // Append near container to keep semantics; head is also valid
+                        container.appendChild(s);
+                    } catch {}
+                });
+            }
         } catch (error) {
             console.error("Error loading component:", { component: filename, message: error.message });
             container.innerHTML = `<div class="alert alert-danger">Error loading ${filename}</div>`;
@@ -101,6 +132,18 @@ const coreLoader = {
 
 // Enhanced utility functions
 const enhancedUtils = {
+    normalize: (str) => {
+        if (!str) return '';
+        try {
+            return String(str)
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/\s+/g, '')
+                .toLowerCase();
+        } catch {
+            return String(str).toLowerCase();
+        }
+    },
     smoothScroll: (element, offset = 0) => {
         const elementPosition = element.offsetTop - offset;
         window.scrollTo({
@@ -264,6 +307,70 @@ const enhancedLoading = {
     }
 };
 
+// Helpers for cart state (localStorage-backed)
+const readCart = () => {
+    try {
+        const raw = localStorage.getItem('cart');
+        return raw ? JSON.parse(raw) : [];
+    } catch {
+        return [];
+    }
+};
+
+const writeCart = (cart) => {
+    try {
+        localStorage.setItem('cart', JSON.stringify(cart));
+    } catch {}
+    // mirror to appState if present
+    if (window.appState) window.appState.cart = cart;
+    const badge = document.getElementById('cart-count');
+    if (badge) {
+        const total = cart.reduce((s, it) => s + (Number(it.quantity) || 0), 0);
+        badge.textContent = String(total);
+        badge.setAttribute('aria-label', `${total} items in cart`);
+    }
+};
+
+const getCartQuantityById = (productId) => {
+    const cart = readCart();
+    const item = cart.find(i => i.id === productId);
+    return item ? Number(item.quantity) || 0 : 0;
+};
+
+const updateCartQuantity = (productId, newQty) => {
+    let cart = readCart();
+    const idx = cart.findIndex(i => i.id === productId);
+    if (newQty <= 0) {
+        if (idx !== -1) cart.splice(idx, 1);
+    } else {
+        if (idx !== -1) {
+            cart[idx].quantity = newQty;
+        } else {
+            const prod = (window.appState?.products || []).find(p => p.id === productId);
+            if (prod) cart.push({ ...prod, quantity: newQty });
+        }
+    }
+    writeCart(cart);
+    updateProductCardState(productId);
+};
+
+const updateProductCardState = (productId) => {
+    const wrapper = document.querySelector(`.cart-controls[data-product-id="${productId}"]`);
+    if (!wrapper) return;
+    const addBtn = wrapper.querySelector('.add-to-cart-btn');
+    const qtyBox = wrapper.querySelector('.quantity-controls');
+    const input = wrapper.querySelector('.quantity-input');
+    const qty = getCartQuantityById(productId);
+    if (qty > 0) {
+        if (input) input.value = qty;
+        addBtn?.classList.add('d-none');
+        qtyBox?.classList.remove('d-none');
+    } else {
+        qtyBox?.classList.add('d-none');
+        addBtn?.classList.remove('d-none');
+    }
+};
+
 // Product rendering function
 const renderProducts = (products) => {
     const productContainer = document.getElementById('product-container');
@@ -298,15 +405,24 @@ const renderProducts = (products) => {
                                 <span class="fw-bold">$${product.price.toLocaleString()}</span>
                             `}
                         </div>
-                        <button class="btn btn-primary add-to-cart-btn w-100 mt-2" data-product-id="${product.id}" aria-label="Agregar ${product.name} al carrito">
-                            Agregar al carrito
-                        </button>
+                        <div class="cart-controls mt-2" data-product-id="${product.id}">
+                            <button class="btn btn-primary add-to-cart-btn w-100" data-product-id="${product.id}" aria-label="Agregar ${product.name} al carrito">
+                                Agregar al carrito
+                            </button>
+                            <div class="quantity-controls d-none mt-2" role="group" aria-label="Cantidad para ${product.name}">
+                                <button class="btn btn-outline-secondary btn-sm decrease-qty" aria-label="Disminuir">-</button>
+                                <input type="number" class="form-control form-control-sm quantity-input mx-2" data-product-id="${product.id}" value="1" min="1" max="50" aria-label="Cantidad">
+                                <button class="btn btn-outline-secondary btn-sm increase-qty" aria-label="Aumentar">+</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         `;
 
         fragment.appendChild(productElement);
+        // Hydrate card state from cart
+        updateProductCardState(product.id);
     });
 
     productContainer.innerHTML = '';
@@ -327,7 +443,40 @@ function attachAddToCartHandler() {
         const id = btn.getAttribute('data-product-id');
         if (id && typeof window.addToCart === 'function') {
             window.addToCart(id);
+            updateProductCardState(id);
         }
+    });
+}
+
+// Quantity controls (delegated)
+function attachQuantityHandlers() {
+    const container = document.getElementById('product-container');
+    if (!container || container.dataset.qtyHandler === '1') return;
+    container.dataset.qtyHandler = '1';
+
+    container.addEventListener('click', (e) => {
+        const inc = e.target.closest('.increase-qty');
+        const dec = e.target.closest('.decrease-qty');
+        if (!inc && !dec) return;
+        const wrap = e.target.closest('.cart-controls');
+        if (!wrap) return;
+        const id = wrap.getAttribute('data-product-id');
+        const input = wrap.querySelector('.quantity-input');
+        let current = parseInt(input.value, 10) || 0;
+        current = current + (inc ? 1 : -1);
+        current = Math.max(0, Math.min(50, current));
+        updateCartQuantity(id, current);
+    });
+
+    container.addEventListener('change', (e) => {
+        const input = e.target.closest('.quantity-input');
+        if (!input) return;
+        const wrap = input.closest('.cart-controls');
+        const id = wrap?.getAttribute('data-product-id');
+        if (!id) return;
+        let newQty = parseInt(input.value, 10) || 0;
+        newQty = Math.max(0, Math.min(50, newQty));
+        updateCartQuantity(id, newQty);
     });
 }
 
@@ -336,17 +485,17 @@ window.addToCart = (productId) => {
     const product = window.appState.products.find(p => p.id === productId);
     if (!product) return;
 
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let cart = readCart();
     const existingItem = cart.find(item => item.id === productId);
 
     if (existingItem) {
-        existingItem.quantity += 1;
+        existingItem.quantity = Math.min(existingItem.quantity + 1, 50);
     } else {
         cart.push({ ...product, quantity: 1 });
     }
-
-    localStorage.setItem('cart', JSON.stringify(cart));
-    alert(`${product.name} agregado al carrito`);
+    writeCart(cart);
+    // Optional UX: keep alert to confirm action
+    try { alert(`${product.name} agregado al carrito`); } catch {}
 };
 
 // Main application state
@@ -362,6 +511,7 @@ window.appState = {
                 await new Promise((resolve, reject) => {
                     const script = document.createElement('script');
                     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.8/purify.min.js';
+                    try { if (window && window.__CSP_NONCE__) script.setAttribute('nonce', window.__CSP_NONCE__); } catch {}
                     script.onload = resolve;
                     script.onerror = reject;
                     document.head.appendChild(script);
@@ -379,16 +529,45 @@ window.appState = {
         const products = await coreLoader.loadProducts();
         window.appState.products = products;
 
+        // Migrate existing cart item IDs if product hashing changed
+        try {
+            const cart = readCart();
+            if (cart.length && products.length) {
+                const byName = new Map(products.map(p => [enhancedUtils.normalize(p.name), p]));
+                let changed = false;
+                cart.forEach(item => {
+                    // If ID not found in current products, try fallback by normalized name
+                    const stillExists = products.some(p => p.id === item.id);
+                    if (!stillExists) {
+                        const match = byName.get(enhancedUtils.normalize(item.name));
+                        if (match) {
+                            item.id = match.id;
+                            changed = true;
+                        }
+                    }
+                });
+                if (changed) writeCart(cart);
+            }
+        } catch {}
+
         // Initialize enhanced features
         productAnimations.init();
         enhancedSearch.init();
+
+        // Ensure navbar badge reflects persisted cart
+        try { writeCart(readCart()); } catch {}
 
         // Render products
         renderProducts(products);
         if (typeof window !== 'undefined') window.__APP_READY__ = true;
 
-        // Attach one-time delegated handler for add-to-cart
+        // Attach one-time delegated handler for add-to-cart and quantity controls
         attachAddToCartHandler();
+        attachQuantityHandlers();
+
+        // Initialize cart from storage for UI
+        window.appState.cart = readCart();
+        window.appState.cart.forEach(item => updateProductCardState(item.id));
 
         console.log('Enhanced app initialized successfully');
     }
