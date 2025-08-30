@@ -91,6 +91,9 @@ h1 {
   padding: 0.25rem;
   margin-right: 0.5rem;
   color: #fff;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 
