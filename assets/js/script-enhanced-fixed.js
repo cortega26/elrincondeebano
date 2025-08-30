@@ -512,6 +512,8 @@ window.appState = {
                 await new Promise((resolve, reject) => {
                     const script = document.createElement('script');
                     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.8/purify.min.js';
+                    script.integrity = 'sha384-AsiVBlzbaNOq8OOKcXm2ZVjjKJwiQ9UmzLwfetDjC74OMQdkb6vBHH5QRJH3x1SE';
+                    script.crossOrigin = 'anonymous';
                     try { if (window && window.__CSP_NONCE__) script.setAttribute('nonce', window.__CSP_NONCE__); } catch {}
                     script.onload = resolve;
                     script.onerror = reject;
