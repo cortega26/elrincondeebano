@@ -167,7 +167,12 @@
                         'description': 'Un minimarket en la puerta de tu departamento',
                         'address': { '@type': 'PostalAddress', 'addressCountry': 'CL' },
                         'telephone': '+56951118901',
-                        'url': 'http://www.elrincondeebano.com/'
+                        'url': 'http://www.elrincondeebano.com/',
+                        'contactPoint': {
+                            '@type': 'ContactPoint',
+                            'telephone': '+56-951118901',
+                            'contactType': 'customer service'
+                        }
                     },
                     ...structuredProducts
                 ]
