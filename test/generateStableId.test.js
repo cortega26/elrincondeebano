@@ -1,5 +1,5 @@
-const assert = require('assert');
-const { generateStableId } = require('../assets/js/script.js');
+import assert from 'node:assert';
+import { generateStableId } from '../assets/js/utils.js';
 
 const prodA1 = { name: 'Milk', category: 'Dairy' };
 const prodA2 = { name: 'Milk', category: 'Dairy' };
@@ -17,4 +17,3 @@ assert.notStrictEqual(
 );
 
 console.log('All tests passed');
-

@@ -1,8 +1,7 @@
-const test = require('node:test');
-const assert = require('node:assert');
-const { JSDOM } = require('jsdom');
-
-let addToCart, removeFromCart, updateQuantity, updateCartIcon, __getCart;
+import test from 'node:test';
+import assert from 'node:assert';
+import { JSDOM } from 'jsdom';
+import { addToCart, removeFromCart, updateQuantity, updateCartIcon, __getCart, __resetCart } from '../assets/js/cart.js';
 
 function setupDom() {
   const dom = new JSDOM(`<!DOCTYPE html><body>
@@ -13,9 +12,7 @@ function setupDom() {
   global.window = dom.window;
   global.document = dom.window.document;
   global.localStorage = dom.window.localStorage;
-
-  delete require.cache[require.resolve('../assets/js/script.js')];
-  ({ addToCart, removeFromCart, updateQuantity, updateCartIcon, __getCart } = require('../assets/js/script.js'));
+  __resetCart();
 }
 
 test('cart helpers', async (t) => {
