@@ -32,7 +32,7 @@
 
     const cspPolicy = `
         default-src 'self';
-        script-src 'self' https://www.googletagmanager.com https://code.jquery.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'nonce-${cspNonce}';
+        script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'nonce-${cspNonce}';
         style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com 'nonce-${cspNonce}';
         img-src 'self' data: https:;
         font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net;
