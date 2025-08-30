@@ -646,15 +646,15 @@ const initApp = async () => {
                 'data-id': id,
                 'aria-label': `Add ${name} to cart`
             }, ['Agregar al carrito']);
-            addToCartBtn.addEventListener('click', () => {
-                addToCart(product, 1);
-                toggleActionArea(id, true);
-            });
-
             // Quantity controls
             const quantityControl = renderQuantityControl(product);
             // Hide quantity control by default to prevent brief double render
             quantityControl.style.display = 'none';
+
+            addToCartBtn.addEventListener('click', () => {
+                addToCart(product, 1);
+                toggleActionArea(addToCartBtn, quantityControl, true);
+            });
 
             actionArea.appendChild(addToCartBtn);
             actionArea.appendChild(quantityControl);
@@ -663,12 +663,14 @@ const initApp = async () => {
             // Set initial state based on cart
             const cartItem = cart.find(item => item.id === id);
             const cartItemQuantity = cartItem ? cartItem.quantity : 0;
+            const quantityInput = quantityControl.querySelector('.quantity-input');
             if (cartItemQuantity > 0) {
-                const quantityInput = quantityControl.querySelector('.quantity-input');
                 if (quantityInput) quantityInput.value = cartItemQuantity;
-                toggleActionArea(id, true);
+                addToCartBtn.style.display = 'none';
+                quantityControl.style.display = 'flex';
             } else {
-                toggleActionArea(id, false);
+                addToCartBtn.style.display = 'flex';
+                quantityControl.style.display = 'none';
             }
 
             cardElement.appendChild(cardBody);
@@ -786,7 +788,12 @@ const initApp = async () => {
             updateCartIcon();
             renderCart();
             // Toggle card back to add state without re-rendering
-            toggleActionArea(productId, false);
+            const actionArea = document.querySelector(`.action-area[data-pid="${productId}"]`);
+            if (actionArea) {
+                const btn = actionArea.querySelector('.add-to-cart-btn');
+                const qc = actionArea.querySelector('.quantity-control');
+                toggleActionArea(btn, qc, false);
+            }
         }
         catch (error) {
             console.error('Error al eliminar del carrito:', error);
@@ -799,15 +806,19 @@ const initApp = async () => {
             const item = cart.find(item => item.id === product.id);
             const newQuantity = item ? item.quantity + change : 1;
 
+            const actionArea = document.querySelector(`.action-area[data-pid="${product.id}"]`);
+            const btn = actionArea?.querySelector('.add-to-cart-btn');
+            const qc = actionArea?.querySelector('.quantity-control');
+
             if (newQuantity <= 0) {
                 removeFromCart(product.id);
-                toggleActionArea(product.id, false);
+                toggleActionArea(btn, qc, false);
             } else if (newQuantity <= 50) {
                 if (item) {
                     item.quantity = newQuantity;
                 } else {
                     addToCart(product, 1);
-                    toggleActionArea(product.id, true);
+                    toggleActionArea(btn, qc, true);
                 }
                 saveCart();
                 updateCartIcon();
@@ -840,17 +851,13 @@ const initApp = async () => {
     };
 
     // Toggle action area in a specific card without re-rendering the grid
-    const toggleActionArea = (productId, showQuantity) => {
-        const area = document.querySelector(`.action-area[data-pid="${productId}"]`);
-        if (!area) return;
-        const btn = area.querySelector('.btn.btn-primary');
-        const qc = area.querySelector('.quantity-control');
-        if (!btn || !qc) return;
+    const toggleActionArea = (btn, quantityControl, showQuantity) => {
+        if (!btn || !quantityControl) return;
         if (showQuantity) {
             btn.style.display = 'none';
-            qc.style.display = 'flex';
+            quantityControl.style.display = 'flex';
         } else {
-            qc.style.display = 'none';
+            quantityControl.style.display = 'none';
             btn.style.display = 'flex';
         }
     };
