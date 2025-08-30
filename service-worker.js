@@ -1,5 +1,4 @@
 ﻿// Service Worker Configuration
-const TEST_MODE = typeof module !== 'undefined';
 const CACHE_CONFIG = {
     prefixes: {
         static: 'ebano-static-v5',
@@ -106,8 +105,8 @@ const addTimestamp = async (response, type = 'static') => {
     });
 };
 
-// Install event - cache static assets
-if (!TEST_MODE) {
+if (typeof self !== 'undefined') {
+    // Install event - cache static assets
     self.addEventListener('install', event => {
         console.log('Service Worker: Installing...');
         event.waitUntil(
@@ -338,13 +337,11 @@ async function invalidateAllCaches() {
     }
 }
 
-if (typeof module !== "undefined") {
-    module.exports = {
-        isCacheFresh,
-        addTimestamp,
-        invalidateCache,
-        invalidateAllCaches,
-        CACHE_CONFIG
-    };
-}
+export {
+    isCacheFresh,
+    addTimestamp,
+    invalidateCache,
+    invalidateAllCaches,
+    CACHE_CONFIG
+};
 
