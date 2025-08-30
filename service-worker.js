@@ -338,5 +338,13 @@ async function invalidateAllCaches() {
     }
 }
 
-if (typeof module !== "undefined") { module.exports = { isCacheFresh, addTimestamp }; }
+if (typeof module !== "undefined") {
+    module.exports = {
+        isCacheFresh,
+        addTimestamp,
+        invalidateCache,
+        invalidateAllCaches,
+        CACHE_CONFIG
+    };
+}
 
