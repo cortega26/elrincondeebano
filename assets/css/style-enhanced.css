@@ -192,6 +192,8 @@ h1 {
     border-radius: var(--border-radius-md);
     background: rgba(255, 255, 255, 0.1);
     transition: var(--transition-normal);
+    border: none;
+    cursor: pointer;
 }
 
 #cart-icon:hover {
