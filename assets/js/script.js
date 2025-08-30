@@ -648,6 +648,13 @@ const initApp = async () => {
         }
     };
 
+    function initFooter() {
+        const yearSpan = document.getElementById('current-year');
+        if (yearSpan) {
+            yearSpan.textContent = new Date().getFullYear();
+        }
+    }
+
     const loadComponents = async () => {
         try {
             await Promise.all([
@@ -655,6 +662,7 @@ const initApp = async () => {
                 loadComponent(footerContainer, '/pages/footer.html')
             ]);
             console.log('Components loaded successfully');
+            initFooter();
         } catch (error) {
             console.error('Error al cargar componentes:', error);
             showErrorMessage('Error al cargar los componentes de la página. Por favor, actualice la página o verifique su conexión a internet.');
