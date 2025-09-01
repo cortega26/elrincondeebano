@@ -1,15 +1,25 @@
-import test from 'node:test';
-import assert from 'node:assert';
-import { JSDOM } from 'jsdom';
-import { setupNavigationAccessibility } from '../assets/js/modules/a11y.js';
-import { injectPwaManifest } from '../assets/js/modules/pwa.js';
-import { injectStructuredData, injectSeoMetadata } from '../assets/js/modules/seo.js';
+const test = require('node:test');
+const assert = require('node:assert');
+const { JSDOM } = require('jsdom');
+const fs = require('node:fs');
+const path = require('node:path');
+
+function loadModule(relPath) {
+  const filePath = path.join(__dirname, relPath);
+  let code = fs.readFileSync(filePath, 'utf8');
+  code = code.replace(/export\s+(async\s+)?function\s+(\w+)/g, 'exports.$2 = $1function $2');
+  const exports = {};
+  const wrapper = new Function('exports', code + '\nreturn exports;');
+  return wrapper(exports);
+}
 
 test('setupNavigationAccessibility toggles class and inserts style', () => {
   const dom = new JSDOM('<!DOCTYPE html><head></head><body></body>');
   global.window = dom.window;
   global.document = dom.window.document;
   global.location = dom.window.location;
+
+  const { setupNavigationAccessibility } = loadModule('../assets/js/modules/a11y.js');
 
   setupNavigationAccessibility();
 
@@ -29,6 +39,8 @@ test('injectPwaManifest adds link only once', () => {
   global.document = dom.window.document;
   global.location = dom.window.location;
 
+  const { injectPwaManifest } = loadModule('../assets/js/modules/pwa.js');
+
   injectPwaManifest();
   assert.strictEqual(document.querySelectorAll('link[rel="manifest"]').length, 1, 'manifest link inserted');
   injectPwaManifest();
@@ -43,6 +55,8 @@ test('injectStructuredData and injectSeoMetadata insert expected elements', asyn
   global.localStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {}, clear: () => {} };
   global.fetch = async () => ({ ok: true, json: async () => ({ products: [] }) });
 
+  const { injectStructuredData, injectSeoMetadata } = loadModule('../assets/js/modules/seo.js');
+
   await injectStructuredData();
   injectSeoMetadata();
 
@@ -50,3 +64,4 @@ test('injectStructuredData and injectSeoMetadata insert expected elements', asyn
   assert.ok(document.querySelector('link[rel="canonical"]'), 'canonical link inserted');
   assert.ok(document.querySelector('meta[name="description"]'), 'description meta inserted');
 });
+
