@@ -1,0 +1,32 @@
+name: Daily integrity tests
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+      - run: npm test
+      - name: Send failure notification
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: '[URGENT] Website integrity tests failed'
+          to: ${{ secrets.ALERT_EMAIL }}
+          from: ${{ secrets.FROM_EMAIL }}
+          body: |
+            The scheduled tests for elrincondeebano have failed.
+            Please check the workflow logs for details.
+
