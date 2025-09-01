@@ -1,6 +1,6 @@
-import test from 'node:test';
-import assert from 'node:assert';
-import { JSDOM } from 'jsdom';
+const test = require('node:test');
+const assert = require('node:assert');
+const { JSDOM } = require('jsdom');
 
 // Setup JSDOM environment
 const dom = new JSDOM(`<!DOCTYPE html><div id="product-container"></div>
@@ -106,3 +106,4 @@ test('updateProductDisplay', async (t) => {
     assert.deepStrictEqual(getDisplayedNames(), ['Banana']);
   });
 });
+

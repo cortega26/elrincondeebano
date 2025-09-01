@@ -1,6 +1,6 @@
-import test from 'node:test';
-import assert from 'node:assert';
-import { JSDOM } from 'jsdom';
+const test = require('node:test');
+const assert = require('node:assert');
+const { JSDOM } = require('jsdom');
 
 test('ensureDiscountToggle inserts a single toggle', () => {
   const dom = new JSDOM(`<!DOCTYPE html><section aria-label="Opciones de filtrado"><div class="row"></div></section>`);
