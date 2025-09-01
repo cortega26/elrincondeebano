@@ -868,56 +868,89 @@ const initApp = async () => {
         document.querySelectorAll('img.lazyload').forEach(img => imageObserver.observe(img));
     };
 
-    // Simple fuzzy matching function
-    function fuzzyMatch(query, text, threshold = 0.6) {
-    if (!query || !text) return false;
+    // MUCH MORE CONSERVATIVE fuzzy matching - only for obvious typos
+    function simpleTypoFix(query, text) {
+    if (!query || !text || query.length < 3) return false;
     
-    // Normalize both strings
     const normalizeText = (str) => str.toLowerCase()
         .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '') // Remove accents
-        .replace(/[^\w\s]/g, ' ') // Replace punctuation with spaces
-        .replace(/\s+/g, ' ') // Collapse multiple spaces
+        .replace(/[\u0300-\u036f]/g, '') // Remove accents only
         .trim();
     
     const normalizedQuery = normalizeText(query);
     const normalizedText = normalizeText(text);
     
-    // Direct substring match (highest priority)
+    // First try exact match (same as original)
     if (normalizedText.includes(normalizedQuery)) {
         return true;
     }
     
-    // Word boundary matches
-    const queryWords = normalizedQuery.split(' ').filter(w => w.length > 1);
-    const textWords = normalizedText.split(' ');
+    // ONLY try typo correction if query is 4+ characters
+    // and the difference is just 1-2 characters
+    if (normalizedQuery.length >= 4) {
+        // Check if it's a simple 1-character typo
+        // Like "choclate" vs "chocolate" or "galetas" vs "galletas"
+        return isSimpleTypo(normalizedQuery, normalizedText);
+    }
     
-    if (queryWords.length === 0) return false;
-    
-    // Simple character similarity for typos
-    const matchedWords = queryWords.filter(queryWord => {
-        return textWords.some(textWord => {
-        if (textWord.includes(queryWord)) return true;
-        
-        // Simple typo tolerance for longer words
-        if (queryWord.length >= 3 && textWord.length >= 3) {
-            const longer = queryWord.length > textWord.length ? queryWord : textWord;
-            const shorter = queryWord.length > textWord.length ? textWord : queryWord;
-            let matches = 0;
-            for (let i = 0; i < shorter.length; i++) {
-            if (longer.includes(shorter[i])) matches++;
-            }
-            return (matches / longer.length) >= threshold;
-        }
-        
-        return false;
-        });
-    });
-    
-    return matchedWords.length / queryWords.length >= 0.7;
+    return false;
     }
 
-    // Enhanced filter function (REPLACES your existing filterProducts function)
+    // Very strict typo detection - only catches obvious single-character mistakes
+    function isSimpleTypo(query, text) {
+    const words = text.split(/\s+/);
+    
+    return words.some(word => {
+        if (Math.abs(word.length - query.length) > 1) return false;
+        
+        // Count character differences
+        let differences = 0;
+        const maxLen = Math.max(word.length, query.length);
+        const minLen = Math.min(word.length, query.length);
+        
+        // Too short to safely compare
+        if (minLen < 4) return false;
+        
+        // Check for single character insertion/deletion
+        if (word.length === query.length) {
+        // Same length - check for substitution
+        for (let i = 0; i < word.length; i++) {
+            if (word[i] !== query[i]) differences++;
+            if (differences > 1) return false; // More than 1 difference
+        }
+        return differences === 1;
+        } else {
+        // Different length - check for insertion/deletion
+        return isOneCharacterDifference(query, word);
+        }
+    });
+    }
+
+    // Check if two words differ by exactly one character (insertion/deletion)
+    function isOneCharacterDifference(str1, str2) {
+    const longer = str1.length > str2.length ? str1 : str2;
+    const shorter = str1.length > str2.length ? str2 : str1;
+    
+    if (longer.length - shorter.length !== 1) return false;
+    
+    let shifts = 0;
+    let i = 0, j = 0;
+    
+    while (i < shorter.length && j < longer.length) {
+        if (shorter[i] === longer[j]) {
+        i++;
+        j++;
+        } else {
+        shifts++;
+        if (shifts > 1) return false; // More than one shift needed
+        j++; // Skip the extra character in longer string
+        }
+    }
+    
+    return true;
+    }
+
+    // REPLACE your filterProducts function with this CONSERVATIVE version:
     const filterProducts = (products, keyword, sortCriterion, discountOnly = false) => {
     const trimmedKeyword = keyword.trim();
     
@@ -929,15 +962,18 @@ const initApp = async () => {
         // If no keyword, show all (same as original behavior)
         if (!trimmedKeyword) return true;
         
-        // Try original exact matching first (faster)
-        if (product.name.toLowerCase().includes(trimmedKeyword.toLowerCase()) ||
-            product.description.toLowerCase().includes(trimmedKeyword.toLowerCase())) {
-            return true;
+        // Try EXACT matching first (exactly like original)
+        const exactMatch = product.name.toLowerCase().includes(trimmedKeyword.toLowerCase()) ||
+                            product.description.toLowerCase().includes(trimmedKeyword.toLowerCase());
+        
+        if (exactMatch) return true;
+        
+        // ONLY try typo fix for longer queries and only for name field
+        if (trimmedKeyword.length >= 4) {
+            return simpleTypoFix(trimmedKeyword, product.name);
         }
         
-        // Fallback to fuzzy matching for typos
-        return fuzzyMatch(trimmedKeyword, product.name) || 
-                fuzzyMatch(trimmedKeyword, product.description);
+        return false;
         })
         .sort((a, b) => sortProducts(a, b, sortCriterion));
     };
