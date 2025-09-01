@@ -3,8 +3,8 @@ from tkinter import ttk, messagebox, filedialog
 from typing import List, Optional, Callable, Dict, Any, TypeVar, Protocol
 import os
 from pathlib import Path
-from .models import Product
-from .services import ProductService, ProductNotFoundError, ProductServiceError
+from models import Product
+from services import ProductService, ProductNotFoundError, ProductServiceError
 try:
     from PIL import Image, ImageTk, features  # type: ignore
     PIL_AVAILABLE = True
@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 T = TypeVar('T')
 
+
 @dataclass
 class UIConfig:
     """Configuration for UI elements."""
@@ -32,9 +33,10 @@ class UIConfig:
     enable_animations: bool = True
     locale: str = 'es'
 
+
 class UIState:
     """Manages UI state with change notifications."""
-    
+
     def __init__(self):
         self._state: Dict[str, Any] = {}
         self._observers: Dict[str, List[Callable[[Any], None]]] = {}
@@ -60,9 +62,10 @@ class UIState:
         if key in self._observers:
             self._observers[key].remove(callback)
 
+
 class AsyncOperation:
     """Handles asynchronous operations with UI feedback."""
-    
+
     def __init__(self, parent: tk.Widget):
         self.parent = parent
         self.queue: Queue = Queue()
@@ -72,14 +75,14 @@ class AsyncOperation:
     def start(self, operation: Callable, on_complete: Optional[Callable] = None):
         """Start async operation with progress dialog."""
         dialog = self._create_progress_dialog()
-        
+
         def worker():
             try:
                 result = operation()
                 self.queue.put(("success", result))
             except Exception as e:
                 self.queue.put(("error", str(e)))
-            
+
         def check_queue():
             try:
                 status, result = self.queue.get_nowait()
@@ -90,7 +93,7 @@ class AsyncOperation:
                     messagebox.showerror("Error", str(result))
             except Empty:
                 dialog.after(100, check_queue)
-        
+
         threading.Thread(target=worker, daemon=True).start()
         check_queue()
 
@@ -100,15 +103,17 @@ class AsyncOperation:
         dialog.title("Procesando...")
         dialog.transient(self.parent)
         dialog.grab_set()
-        
+
         ttk.Label(dialog, textvariable=self.status_var).pack(pady=10)
-        ttk.Progressbar(dialog, variable=self.progress_var, maximum=100).pack(pady=10, padx=20, fill=tk.X)
-        
+        ttk.Progressbar(dialog, variable=self.progress_var,
+                        maximum=100).pack(pady=10, padx=20, fill=tk.X)
+
         return dialog
+
 
 class TreeviewManager:
     """Manages Treeview widget operations."""
-    
+
     def __init__(self, tree: ttk.Treeview, columns: Dict[str, Dict[str, Any]]):
         self.tree = tree
         self.columns = columns
@@ -137,7 +142,8 @@ class TreeviewManager:
                 del self.sort_order[column]
         self.sort_order[col] = not self.sort_order.get(col, False)
         reverse = self.sort_order[col]
-        items = [(self.tree.set(k, col), k) for k in self.tree.get_children("")]
+        items = [(self.tree.set(k, col), k)
+                 for k in self.tree.get_children("")]
         if col in ("price", "discount"):
             items.sort(key=lambda x: self._parse_number(x[0]), reverse=reverse)
         elif col == "stock":
@@ -165,8 +171,10 @@ class TreeviewManager:
             else:
                 self.tree.heading(col, text=heading_text)
 
+
 class DragDropMixin:
     """Mixin to add drag & drop functionality to Treeview."""
+
     def setup_drag_and_drop(self, tree: ttk.Treeview):
         self._drag_data = {"item": None, "start_index": -1}
         tree.bind("<ButtonPress-1>", self._on_drag_start)
@@ -201,7 +209,8 @@ class DragDropMixin:
                 product = self.get_product_by_tree_item(clicked_item)
                 if not product:
                     return
-                self.logger.debug(f"Toggling stock for product: {product.name} (current: {product.stock})")
+                self.logger.debug(
+                    f"Toggling stock for product: {product.name} (current: {product.stock})")
                 updated_product = Product(
                     name=product.name,
                     description=product.description,
@@ -212,8 +221,10 @@ class DragDropMixin:
                     image_path=product.image_path,
                     order=product.order
                 )
-                self.product_service.update_product(product.name, updated_product)
-                self.tree.set(clicked_item, "stock", "☑" if updated_product.stock else "☐")
+                self.product_service.update_product(
+                    product.name, updated_product)
+                self.tree.set(clicked_item, "stock",
+                              "☑" if updated_product.stock else "☐")
                 self.logger.info(
                     f"Stock updated for '{product.name}': "
                     f"{'En stock' if updated_product.stock else 'Sin stock'}"
@@ -224,10 +235,13 @@ class DragDropMixin:
                 )
         except Exception as e:
             self.logger.error(f"Error in drag & drop handling: {str(e)}")
-            messagebox.showerror("Error", f"Error al actualizar el estado de stock: {str(e)}")
+            messagebox.showerror(
+                "Error", f"Error al actualizar el estado de stock: {str(e)}")
+
 
 class ProductGUI(DragDropMixin):
     """Main Product Manager GUI."""
+
     def __init__(self, master: tk.Tk, product_service: ProductService):
         self.master = master
         self.product_service = product_service
@@ -240,7 +254,7 @@ class ProductGUI(DragDropMixin):
         self._undo_stack: List[Dict[str, Any]] = []
         self._redo_stack: List[Dict[str, Any]] = []
         self._undo_max = 20
-        
+
         self.setup_gui()
         self.bind_shortcuts()
         # Configure drag & drop after treeview has been created in setup_treeview()
@@ -254,7 +268,8 @@ class ProductGUI(DragDropMixin):
                 with open(config_path) as f:
                     data = json.load(f)
                     valid_fields = {field.name for field in fields(UIConfig)}
-                    filtered_data = {k: v for k, v in data.items() if k in valid_fields}
+                    filtered_data = {k: v for k,
+                                     v in data.items() if k in valid_fields}
                     return UIConfig(**filtered_data)
         except Exception as e:
             logger.warning(f"Error loading config: {e}")
@@ -263,43 +278,49 @@ class ProductGUI(DragDropMixin):
     def setup_gui(self) -> None:
         """Set up the main GUI components."""
         self.master.title("Gestor de Productos")
-        self.master.geometry(f"{self.config.window_size[0]}x{self.config.window_size[1]}")
-        
+        self.master.geometry(
+            f"{self.config.window_size[0]}x{self.config.window_size[1]}")
+
         self.create_menu()
         self.setup_treeview()
         self.setup_controls()
         self.setup_status_bar()
-        
+
         self.async_operation = AsyncOperation(self.master)
-        self.async_operation.start(self.product_service.get_all_products, self.populate_tree)
+        self.async_operation.start(
+            self.product_service.get_all_products, self.populate_tree)
 
     def create_menu(self) -> None:
         """Create application menu."""
         menubar = tk.Menu(self.master)
-        
+
         file_menu = tk.Menu(menubar, tearoff=0)
-        file_menu.add_command(label="Importar Productos...", command=self.import_products)
-        file_menu.add_command(label="Exportar Productos...", command=self.export_products)
+        file_menu.add_command(label="Importar Productos...",
+                              command=self.import_products)
+        file_menu.add_command(label="Exportar Productos...",
+                              command=self.export_products)
         file_menu.add_separator()
         file_menu.add_command(label="Salir", command=self.master.quit)
         menubar.add_cascade(label="Archivo", menu=file_menu)
-        
+
         edit_menu = tk.Menu(menubar, tearoff=0)
-        edit_menu.add_command(label="Preferencias...", command=self.show_preferences)
+        edit_menu.add_command(label="Preferencias...",
+                              command=self.show_preferences)
         menubar.add_cascade(label="Editar", menu=edit_menu)
-        
+
         help_menu = tk.Menu(menubar, tearoff=0)
-        help_menu.add_command(label="Manual de Usuario", command=self.show_help)
+        help_menu.add_command(label="Manual de Usuario",
+                              command=self.show_help)
         help_menu.add_command(label="Acerca de", command=self.show_about)
         menubar.add_cascade(label="Ayuda", menu=help_menu)
-        
+
         self.master.config(menu=menubar)
 
     def setup_treeview(self) -> None:
         """Set up the treeview component."""
         tree_frame = ttk.Frame(self.master)
         tree_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
+
         self.columns = {
             "name": {"text": "Nombre", "width": 300},
             "description": {"text": "Descripción", "width": 250},
@@ -308,16 +329,17 @@ class ProductGUI(DragDropMixin):
             "stock": {"text": "Stock", "width": 60, "anchor": tk.CENTER},
             "category": {"text": "Categoría", "width": 150},
         }
-        
+
         self.tree = ttk.Treeview(tree_frame, show="headings")
         self.treeview_manager = TreeviewManager(self.tree, self.columns)
-        
-        scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=self.tree.yview)
+
+        scrollbar = ttk.Scrollbar(
+            tree_frame, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=scrollbar.set)
-        
+
         self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
+
         self.tree.bind("<<TreeviewSelect>>", self.handle_selection)
         # Faster stock toggle: double-click the Stock column
         self.tree.bind("<Double-1>", self.handle_double_click)
@@ -326,26 +348,31 @@ class ProductGUI(DragDropMixin):
         """Set up control buttons and search."""
         controls_frame = ttk.Frame(self.master)
         controls_frame.pack(fill=tk.X, padx=10, pady=5)
-        
-        ttk.Button(controls_frame, text="Agregar", command=self.add_product).pack(side=tk.LEFT, padx=5)
-        
-        self.edit_button = ttk.Button(controls_frame, text="Editar", command=self.edit_product, state=tk.DISABLED)
+
+        ttk.Button(controls_frame, text="Agregar",
+                   command=self.add_product).pack(side=tk.LEFT, padx=5)
+
+        self.edit_button = ttk.Button(
+            controls_frame, text="Editar", command=self.edit_product, state=tk.DISABLED)
         self.edit_button.pack(side=tk.LEFT, padx=5)
-        
-        self.delete_button = ttk.Button(controls_frame, text="Eliminar", command=self.delete_product, state=tk.DISABLED)
+
+        self.delete_button = ttk.Button(
+            controls_frame, text="Eliminar", command=self.delete_product, state=tk.DISABLED)
         self.delete_button.pack(side=tk.LEFT, padx=5)
-        
+
         search_frame = ttk.Frame(controls_frame)
         search_frame.pack(side=tk.LEFT, padx=20, fill=tk.X, expand=True)
-        
+
         ttk.Label(search_frame, text="Buscar:").pack(side=tk.LEFT, padx=5)
         self.search_var = tk.StringVar()
         self.search_var.trace("w", self.handle_search)
-        ttk.Entry(search_frame, textvariable=self.search_var).pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
-        
+        ttk.Entry(search_frame, textvariable=self.search_var).pack(
+            side=tk.LEFT, fill=tk.X, expand=True, padx=5)
+
         ttk.Label(search_frame, text="Categoría:").pack(side=tk.LEFT, padx=5)
         self.category_var = tk.StringVar(value="Todas")
-        self.category_combobox = ttk.Combobox(search_frame, textvariable=self.category_var, state="readonly")
+        self.category_combobox = ttk.Combobox(
+            search_frame, textvariable=self.category_var, state="readonly")
         self.category_combobox.pack(side=tk.LEFT, padx=5)
         self.update_categories()
         self.category_combobox.bind("<<ComboboxSelected>>", self.handle_search)
@@ -368,8 +395,10 @@ class ProductGUI(DragDropMixin):
         ttk.Label(price_frame, text="Precio:").pack(side=tk.LEFT)
         self.min_price_var = tk.StringVar()
         self.max_price_var = tk.StringVar()
-        min_entry = ttk.Entry(price_frame, width=8, textvariable=self.min_price_var)
-        max_entry = ttk.Entry(price_frame, width=8, textvariable=self.max_price_var)
+        min_entry = ttk.Entry(price_frame, width=8,
+                              textvariable=self.min_price_var)
+        max_entry = ttk.Entry(price_frame, width=8,
+                              textvariable=self.max_price_var)
         ttk.Label(price_frame, text="min").pack(side=tk.LEFT, padx=(4, 2))
         min_entry.pack(side=tk.LEFT)
         ttk.Label(price_frame, text="max").pack(side=tk.LEFT, padx=(6, 2))
@@ -395,24 +424,33 @@ class ProductGUI(DragDropMixin):
                                                     "Precio <= 2000"
                                                 ], width=18)
         self.quick_view_combobox.pack(side=tk.LEFT, padx=5)
-        self.quick_view_combobox.bind("<<ComboboxSelected>>", self.apply_quick_view)
+        self.quick_view_combobox.bind(
+            "<<ComboboxSelected>>", self.apply_quick_view)
 
         # Bulk actions for faster workflows
         bulk_frame = ttk.Frame(controls_frame)
         bulk_frame.pack(side=tk.RIGHT)
 
-        ttk.Button(bulk_frame, text="% Desc.", width=8, command=self.bulk_percentage_discount).pack(side=tk.LEFT, padx=3)
-        ttk.Button(bulk_frame, text="Desc. fijo", width=10, command=self.bulk_fixed_discount).pack(side=tk.LEFT, padx=3)
-        ttk.Button(bulk_frame, text="Stock ON", width=10, command=lambda: self.bulk_set_stock(True)).pack(side=tk.LEFT, padx=3)
-        ttk.Button(bulk_frame, text="Stock OFF", width=10, command=lambda: self.bulk_set_stock(False)).pack(side=tk.LEFT, padx=3)
-        ttk.Button(bulk_frame, text="Precio +%", width=10, command=lambda: self.bulk_adjust_price(True)).pack(side=tk.LEFT, padx=3)
-        ttk.Button(bulk_frame, text="Precio -%", width=10, command=lambda: self.bulk_adjust_price(False)).pack(side=tk.LEFT, padx=3)
+        ttk.Button(bulk_frame, text="% Desc.", width=8,
+                   command=self.bulk_percentage_discount).pack(side=tk.LEFT, padx=3)
+        ttk.Button(bulk_frame, text="Desc. fijo", width=10,
+                   command=self.bulk_fixed_discount).pack(side=tk.LEFT, padx=3)
+        ttk.Button(bulk_frame, text="Stock ON", width=10,
+                   command=lambda: self.bulk_set_stock(True)).pack(side=tk.LEFT, padx=3)
+        ttk.Button(bulk_frame, text="Stock OFF", width=10,
+                   command=lambda: self.bulk_set_stock(False)).pack(side=tk.LEFT, padx=3)
+        ttk.Button(bulk_frame, text="Precio +%", width=10,
+                   command=lambda: self.bulk_adjust_price(True)).pack(side=tk.LEFT, padx=3)
+        ttk.Button(bulk_frame, text="Precio -%", width=10,
+                   command=lambda: self.bulk_adjust_price(False)).pack(side=tk.LEFT, padx=3)
 
         # Undo/Redo controls
         history_frame = ttk.Frame(controls_frame)
         history_frame.pack(side=tk.RIGHT, padx=6)
-        self.undo_btn = ttk.Button(history_frame, text="Deshacer", width=10, command=self.undo_last, state=tk.DISABLED)
-        self.redo_btn = ttk.Button(history_frame, text="Rehacer", width=10, command=self.redo_last, state=tk.DISABLED)
+        self.undo_btn = ttk.Button(
+            history_frame, text="Deshacer", width=10, command=self.undo_last, state=tk.DISABLED)
+        self.redo_btn = ttk.Button(
+            history_frame, text="Rehacer", width=10, command=self.redo_last, state=tk.DISABLED)
         self.undo_btn.pack(side=tk.LEFT, padx=3)
         self.redo_btn.pack(side=tk.LEFT, padx=3)
 
@@ -420,15 +458,17 @@ class ProductGUI(DragDropMixin):
         """Set up the status bar with version info."""
         status_frame = ttk.Frame(self.master)
         status_frame.pack(side=tk.BOTTOM, fill=tk.X)
-        
+
         self.status_var = tk.StringVar()
-        status_label = ttk.Label(status_frame, textvariable=self.status_var, relief=tk.SUNKEN, anchor=tk.W)
+        status_label = ttk.Label(
+            status_frame, textvariable=self.status_var, relief=tk.SUNKEN, anchor=tk.W)
         status_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
-        
+
         self.version_var = tk.StringVar()
-        version_label = ttk.Label(status_frame, textvariable=self.version_var, relief=tk.SUNKEN, anchor=tk.E, width=50)
+        version_label = ttk.Label(
+            status_frame, textvariable=self.version_var, relief=tk.SUNKEN, anchor=tk.E, width=50)
         version_label.pack(side=tk.RIGHT, padx=(5, 0))
-        
+
         self.update_version_info()
 
     def update_version_info(self) -> None:
@@ -452,26 +492,31 @@ class ProductGUI(DragDropMixin):
 
     def add_product(self) -> None:
         """Open dialog to add new product."""
-        ProductFormDialog(self.master, "Agregar Producto", self.product_service, on_save=self.refresh_products)
+        ProductFormDialog(self.master, "Agregar Producto",
+                          self.product_service, on_save=self.refresh_products)
 
     def edit_product(self) -> None:
         """Open dialog to edit selected product."""
         selected = self.tree.selection()
         if not selected:
-            messagebox.showwarning("Advertencia", "Por favor seleccione un producto para editar.")
+            messagebox.showwarning(
+                "Advertencia", "Por favor seleccione un producto para editar.")
             return
         product = self.get_product_by_tree_item(selected[0])
         if product:
-            ProductFormDialog(self.master, "Editar Producto", self.product_service, product, on_save=self.refresh_products)
+            ProductFormDialog(self.master, "Editar Producto",
+                              self.product_service, product, on_save=self.refresh_products)
 
     def delete_product(self) -> None:
         """Delete selected product(s)."""
         selected = self.tree.selection()
         if not selected:
-            messagebox.showwarning("Advertencia", "Por favor seleccione uno o más productos para eliminar.")
+            messagebox.showwarning(
+                "Advertencia", "Por favor seleccione uno o más productos para eliminar.")
             return
 
-        products = [self.get_product_by_tree_item(item) for item in selected if self.get_product_by_tree_item(item) is not None]
+        products = [self.get_product_by_tree_item(
+            item) for item in selected if self.get_product_by_tree_item(item) is not None]
 
         if not products:
             return
@@ -495,9 +540,11 @@ class ProductGUI(DragDropMixin):
         try:
             products = self.product_service.get_all_products()
             if category != "Todas":
-                products = [p for p in products if p.category.lower() == category.lower()]
+                products = [p for p in products if p.category.lower()
+                            == category.lower()]
             if query:
-                products = [p for p in products if query in p.name.lower() or query in p.description.lower()]
+                products = [p for p in products if query in p.name.lower(
+                ) or query in p.description.lower()]
             # Apply advanced filters
             if hasattr(self, 'only_discount_var') and self.only_discount_var.get():
                 products = [p for p in products if (p.discount or 0) > 0]
@@ -510,8 +557,10 @@ class ProductGUI(DragDropMixin):
                     return int(val)
                 except Exception:
                     return None
-            min_p = _parse_int(self.min_price_var.get()) if hasattr(self, 'min_price_var') else None
-            max_p = _parse_int(self.max_price_var.get()) if hasattr(self, 'max_price_var') else None
+            min_p = _parse_int(self.min_price_var.get()) if hasattr(
+                self, 'min_price_var') else None
+            max_p = _parse_int(self.max_price_var.get()) if hasattr(
+                self, 'max_price_var') else None
             if min_p is not None:
                 products = [p for p in products if p.price >= min_p]
             if max_p is not None:
@@ -521,7 +570,8 @@ class ProductGUI(DragDropMixin):
             self.update_categories()
             self.update_status(f"Mostrando {len(products)} productos")
         except ProductServiceError as e:
-            messagebox.showerror("Error", f"Error al cargar productos: {str(e)}")
+            messagebox.showerror(
+                "Error", f"Error al cargar productos: {str(e)}")
 
     def apply_quick_view(self, *_):
         """Apply quick view presets by adjusting filters and refreshing."""
@@ -572,12 +622,14 @@ class ProductGUI(DragDropMixin):
         """Update category filter choices."""
         try:
             current_category = self.category_var.get()
-            categories = ["Todas"] + sorted(self.product_service.get_categories())
+            categories = ["Todas"] + \
+                sorted(self.product_service.get_categories())
             self.category_combobox["values"] = categories
             if current_category != "Todas" and current_category.lower() not in [cat.lower() for cat in categories]:
                 self.category_var.set("Todas")
         except ProductServiceError as e:
-            messagebox.showerror("Error", f"Error al cargar categorías: {str(e)}")
+            messagebox.showerror(
+                "Error", f"Error al cargar categorías: {str(e)}")
 
     def get_product_by_tree_item(self, item: str) -> Optional[Product]:
         """Get Product object from treeview item."""
@@ -601,7 +653,8 @@ class ProductGUI(DragDropMixin):
             if len(selected) == 1:
                 product = self.get_product_by_tree_item(selected[0])
                 if product:
-                    self.update_status(f"Seleccionado: {product.name} - Precio: ${product.price:,} - Categoría: {product.category}")
+                    self.update_status(
+                        f"Seleccionado: {product.name} - Precio: ${product.price:,} - Categoría: {product.category}")
             else:
                 self.update_status(f"{len(selected)} productos seleccionados")
         else:
@@ -624,12 +677,13 @@ class ProductGUI(DragDropMixin):
         products = self.product_service.get_all_products()
         item = products.pop(self._drag_data["start_index"])
         products.insert(new_index, item)
-        
+
         try:
             self.product_service.reorder_products(products)
             self.update_status("Productos reordenados exitosamente")
         except Exception as e:
-            messagebox.showerror("Error", f"Error al reordenar productos: {str(e)}")
+            messagebox.showerror(
+                "Error", f"Error al reordenar productos: {str(e)}")
             self.refresh_products()
 
     def _get_selected_products(self) -> List[Product]:
@@ -663,24 +717,29 @@ class ProductGUI(DragDropMixin):
                 result["value"] = val
                 dialog.destroy()
             except ValueError:
-                messagebox.showerror("Valor inválido", f"Ingrese un número válido{f' entre {min_val} y {max_val}' if max_val is not None else ''}.")
+                messagebox.showerror(
+                    "Valor inválido", f"Ingrese un número válido{f' entre {min_val} y {max_val}' if max_val is not None else ''}.")
 
         def on_cancel():
             dialog.destroy()
 
         btn_frame = ttk.Frame(dialog)
         btn_frame.pack(pady=10)
-        ttk.Button(btn_frame, text="Aceptar", command=on_ok).pack(side=tk.LEFT, padx=5)
-        ttk.Button(btn_frame, text="Cancelar", command=on_cancel).pack(side=tk.LEFT, padx=5)
+        ttk.Button(btn_frame, text="Aceptar", command=on_ok).pack(
+            side=tk.LEFT, padx=5)
+        ttk.Button(btn_frame, text="Cancelar",
+                   command=on_cancel).pack(side=tk.LEFT, padx=5)
         dialog.wait_window()
         return result["value"]
 
     def bulk_percentage_discount(self) -> None:
         products = self._get_selected_products()
         if not products:
-            messagebox.showinfo("Acción masiva", "Seleccione uno o más productos.")
+            messagebox.showinfo(
+                "Acción masiva", "Seleccione uno o más productos.")
             return
-        pct = self._ask_number("Aplicar descuento %", "Porcentaje (0-100):", min_val=0, max_val=100)
+        pct = self._ask_number("Aplicar descuento %",
+                               "Porcentaje (0-100):", min_val=0, max_val=100)
         if pct is None:
             return
         pairs: List[tuple[Product, Product]] = []
@@ -696,19 +755,22 @@ class ProductGUI(DragDropMixin):
                 order=p.order
             )
             pairs.append((p, new_p))
-        self._preview_and_apply_operation(f"Descuento {pct}% a {len(products)} producto(s)", pairs)
+        self._preview_and_apply_operation(
+            f"Descuento {pct}% a {len(products)} producto(s)", pairs)
 
     def bulk_fixed_discount(self) -> None:
         products = self._get_selected_products()
         if not products:
-            messagebox.showinfo("Acción masiva", "Seleccione uno o más productos.")
+            messagebox.showinfo(
+                "Acción masiva", "Seleccione uno o más productos.")
             return
-        amount = self._ask_number("Descuento fijo", "Monto a descontar:", min_val=0)
+        amount = self._ask_number(
+            "Descuento fijo", "Monto a descontar:", min_val=0)
         if amount is None:
             return
         pairs: List[tuple[Product, Product]] = []
         for p in products:
-            d = min(int(amount), p.price-1) if p.price>0 else 0
+            d = min(int(amount), p.price-1) if p.price > 0 else 0
             new_p = Product(
                 name=p.name,
                 description=p.description,
@@ -720,12 +782,14 @@ class ProductGUI(DragDropMixin):
                 order=p.order
             )
             pairs.append((p, new_p))
-        self._preview_and_apply_operation(f"Descuento fijo ${int(amount):,} a {len(products)} producto(s)", pairs)
+        self._preview_and_apply_operation(
+            f"Descuento fijo ${int(amount):,} a {len(products)} producto(s)", pairs)
 
     def bulk_set_stock(self, value: bool) -> None:
         products = self._get_selected_products()
         if not products:
-            messagebox.showinfo("Acción masiva", "Seleccione uno o más productos.")
+            messagebox.showinfo(
+                "Acción masiva", "Seleccione uno o más productos.")
             return
         pairs: List[tuple[Product, Product]] = []
         for p in products:
@@ -740,21 +804,24 @@ class ProductGUI(DragDropMixin):
                 order=p.order
             )
             pairs.append((p, new_p))
-        self._preview_and_apply_operation(f"Stock {'ON' if value else 'OFF'} para {len(products)} producto(s)", pairs)
+        self._preview_and_apply_operation(
+            f"Stock {'ON' if value else 'OFF'} para {len(products)} producto(s)", pairs)
 
     def bulk_adjust_price(self, increase: bool) -> None:
         products = self._get_selected_products()
         if not products:
-            messagebox.showinfo("Acción masiva", "Seleccione uno o más productos.")
+            messagebox.showinfo(
+                "Acción masiva", "Seleccione uno o más productos.")
             return
-        pct = self._ask_number("Ajustar precio %", "Porcentaje (0-100):", min_val=0, max_val=100)
+        pct = self._ask_number(
+            "Ajustar precio %", "Porcentaje (0-100):", min_val=0, max_val=100)
         if pct is None:
             return
         factor = 1 + (pct/100) if increase else 1 - (pct/100)
         pairs: List[tuple[Product, Product]] = []
         for p in products:
             new_price = max(1, int(round(p.price * factor)))
-            new_discount = min(p.discount, new_price-1) if new_price>0 else 0
+            new_discount = min(p.discount, new_price-1) if new_price > 0 else 0
             new_p = Product(
                 name=p.name,
                 description=p.description,
@@ -766,7 +833,8 @@ class ProductGUI(DragDropMixin):
                 order=p.order
             )
             pairs.append((p, new_p))
-        self._preview_and_apply_operation(f"Precio {'+' if increase else '-'}{pct}% a {len(products)} producto(s)", pairs)
+        self._preview_and_apply_operation(
+            f"Precio {'+' if increase else '-'}{pct}% a {len(products)} producto(s)", pairs)
 
     def _preview_and_apply_operation(self, description: str, pairs: List[tuple[Product, Product]]) -> None:
         """Show a preview for bulk updates and apply with undo support if confirmed."""
@@ -782,22 +850,27 @@ class ProductGUI(DragDropMixin):
             if old.discount != new.discount:
                 changes.append(f"Desc.: {old.discount:,} → {new.discount:,}")
             if old.stock != new.stock:
-                changes.append(f"Stock: {'☑' if old.stock else '☐'} → {'☑' if new.stock else '☐'}")
+                changes.append(
+                    f"Stock: {'☑' if old.stock else '☐'} → {'☑' if new.stock else '☐'}")
             if changes:
                 changed_count += 1
                 lines.append(f"• {old.name} — " + "; ".join(changes))
-        preview_text = f"{description}\n\nCambios: {changed_count} de {len(pairs)} productos\n\n" + "\n".join(lines[:50])
+        preview_text = f"{description}\n\nCambios: {changed_count} de {len(pairs)} productos\n\n" + "\n".join(
+            lines[:50])
 
         if not self._show_preview_dialog(preview_text):
             return
 
         # Build do/undo updates
-        do_updates: List[tuple[str, Product]] = [(old.name, new) for old, new in pairs]
-        undo_updates: List[tuple[str, Product]] = [(new.name, old) for old, new in pairs]
+        do_updates: List[tuple[str, Product]] = [
+            (old.name, new) for old, new in pairs]
+        undo_updates: List[tuple[str, Product]] = [
+            (new.name, old) for old, new in pairs]
         try:
             self.product_service.batch_update(do_updates)
             # Push to undo history
-            op = {"description": description, "do": do_updates, "undo": undo_updates}
+            op = {"description": description,
+                  "do": do_updates, "undo": undo_updates}
             self._undo_stack.append(op)
             if len(self._undo_stack) > self._undo_max:
                 self._undo_stack.pop(0)
@@ -831,16 +904,20 @@ class ProductGUI(DragDropMixin):
         def on_cancel():
             dialog.destroy()
 
-        ttk.Button(btn_frame, text="Confirmar", command=on_ok).pack(side=tk.LEFT, padx=6)
-        ttk.Button(btn_frame, text="Cancelar", command=on_cancel).pack(side=tk.LEFT, padx=6)
+        ttk.Button(btn_frame, text="Confirmar",
+                   command=on_ok).pack(side=tk.LEFT, padx=6)
+        ttk.Button(btn_frame, text="Cancelar",
+                   command=on_cancel).pack(side=tk.LEFT, padx=6)
         dialog.wait_window()
         return result["ok"]
 
     def _update_history_buttons(self) -> None:
         if hasattr(self, 'undo_btn'):
-            self.undo_btn.config(state=tk.NORMAL if len(self._undo_stack) > 0 else tk.DISABLED)
+            self.undo_btn.config(state=tk.NORMAL if len(
+                self._undo_stack) > 0 else tk.DISABLED)
         if hasattr(self, 'redo_btn'):
-            self.redo_btn.config(state=tk.NORMAL if len(self._redo_stack) > 0 else tk.DISABLED)
+            self.redo_btn.config(state=tk.NORMAL if len(
+                self._redo_stack) > 0 else tk.DISABLED)
 
     def undo_last(self) -> None:
         if not self._undo_stack:
@@ -904,9 +981,11 @@ class ProductGUI(DragDropMixin):
                 )
                 self.product_service.update_product(product.name, updated)
                 self.tree.set(row, "stock", "☑" if updated.stock else "☐")
-                self.update_status(f"Stock de '{product.name}' actualizado: {'En stock' if updated.stock else 'Sin stock'}")
+                self.update_status(
+                    f"Stock de '{product.name}' actualizado: {'En stock' if updated.stock else 'Sin stock'}")
             except Exception as e:
-                messagebox.showerror("Error", f"No se pudo actualizar el stock: {str(e)}")
+                messagebox.showerror(
+                    "Error", f"No se pudo actualizar el stock: {str(e)}")
         elif col_key in ("price", "discount"):
             # Start inline editor for numeric fields
             self._begin_inline_edit(row, col, col_key)
@@ -917,7 +996,8 @@ class ProductGUI(DragDropMixin):
                 self.tree.focus(row)
                 self.edit_product()
             except Exception as e:
-                messagebox.showerror("Error", f"No se pudo abrir el editor: {str(e)}")
+                messagebox.showerror(
+                    "Error", f"No se pudo abrir el editor: {str(e)}")
 
     def _begin_inline_edit(self, item: str, col_id: str, field: str) -> None:
         # Close any existing editor
@@ -944,7 +1024,8 @@ class ProductGUI(DragDropMixin):
         entry.place(x=x, y=y, width=w, height=h)
 
         self._cell_editor = entry
-        self._cell_editor_info = {"item": item, "col_id": col_id, "field": field, "original": product}
+        self._cell_editor_info = {
+            "item": item, "col_id": col_id, "field": field, "original": product}
 
         def commit(_evt=None):
             self._commit_inline_edit()
@@ -973,16 +1054,19 @@ class ProductGUI(DragDropMixin):
             try:
                 new_val = int(value_str)
             except ValueError:
-                messagebox.showerror("Valor inválido", "Ingrese un número entero válido.")
+                messagebox.showerror(
+                    "Valor inválido", "Ingrese un número entero válido.")
                 self._cell_editor.focus_set()
                 return
 
             if field == "price" and new_val <= 0:
-                messagebox.showerror("Valor inválido", "El precio debe ser mayor que cero.")
+                messagebox.showerror(
+                    "Valor inválido", "El precio debe ser mayor que cero.")
                 self._cell_editor.focus_set()
                 return
             if field == "discount" and new_val < 0:
-                messagebox.showerror("Valor inválido", "El descuento no puede ser negativo.")
+                messagebox.showerror(
+                    "Valor inválido", "El descuento no puede ser negativo.")
                 self._cell_editor.focus_set()
                 return
 
@@ -1001,7 +1085,8 @@ class ProductGUI(DragDropMixin):
 
             # Validate discount < price
             if updated_kwargs["discount"] >= updated_kwargs["price"]:
-                messagebox.showerror("Valor inválido", "El descuento no puede ser mayor o igual al precio.")
+                messagebox.showerror(
+                    "Valor inválido", "El descuento no puede ser mayor o igual al precio.")
                 self._cell_editor.focus_set()
                 return
 
@@ -1014,11 +1099,14 @@ class ProductGUI(DragDropMixin):
             if field == "price":
                 self.tree.set(item, "price", f"{updated.price:,}")
             elif field == "discount":
-                self.tree.set(item, "discount", f"{updated.discount:,}" if updated.discount else "")
+                self.tree.set(
+                    item, "discount", f"{updated.discount:,}" if updated.discount else "")
 
-            self.update_status(f"{field.capitalize()} de '{product.name}' actualizado.")
+            self.update_status(
+                f"{field.capitalize()} de '{product.name}' actualizado.")
         except Exception as e:
-            messagebox.showerror("Error", f"No se pudo guardar el cambio: {str(e)}")
+            messagebox.showerror(
+                "Error", f"No se pudo guardar el cambio: {str(e)}")
         finally:
             self._end_inline_edit()
 
@@ -1034,7 +1122,8 @@ class ProductGUI(DragDropMixin):
 
     def import_products(self) -> None:
         """Import products from JSON file."""
-        file_path = filedialog.askopenfilename(filetypes=[("Archivos JSON", "*.json")])
+        file_path = filedialog.askopenfilename(
+            filetypes=[("Archivos JSON", "*.json")])
         if not file_path:
             return
 
@@ -1051,7 +1140,8 @@ class ProductGUI(DragDropMixin):
 
     def export_products(self) -> None:
         """Export products to JSON file."""
-        file_path = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("Archivos JSON", "*.json")])
+        file_path = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[
+                                                 ("Archivos JSON", "*.json")])
         if not file_path:
             return
 
@@ -1068,7 +1158,8 @@ class ProductGUI(DragDropMixin):
         """Show preferences dialog."""
         def on_preferences_saved():
             self.config = self._load_config()
-        PreferencesDialog(self.master, self.config, on_save=on_preferences_saved)
+        PreferencesDialog(self.master, self.config,
+                          on_save=on_preferences_saved)
 
     def show_help(self) -> None:
         """Show help dialog."""
@@ -1078,8 +1169,10 @@ class ProductGUI(DragDropMixin):
         """Show about dialog."""
         AboutDialog(self.master)
 
+
 class ProductFormDialog(tk.Toplevel):
     """Dialog for adding/editing products."""
+
     def __init__(self, parent: tk.Tk, title: str, product_service: ProductService, product: Optional[Product] = None, on_save: Optional[Callable[[], None]] = None):
         super().__init__(parent)
         self.title(title)
@@ -1090,7 +1183,7 @@ class ProductFormDialog(tk.Toplevel):
         temp_entry = ttk.Entry(self)
         self.default_font = temp_entry.cget('font')
         temp_entry.destroy()
-        
+
         self.setup_dialog()
         self.populate_fields()
 
@@ -1117,7 +1210,8 @@ class ProductFormDialog(tk.Toplevel):
         self.entries: Dict[str, tk.Widget] = {}
         fields = [
             ("name", "Nombre:", ttk.Entry, {"width": 40}),
-            ("description", "Descripción:", tk.Text, {"width": 40, "height": 3}),
+            ("description", "Descripción:",
+             tk.Text, {"width": 40, "height": 3}),
             ("price", "Precio:", ttk.Entry, {"width": 40}),
             ("discount", "Descuento:", ttk.Entry, {"width": 40}),
             ("stock", "En Stock:", tk.Checkbutton, {}),
@@ -1126,18 +1220,21 @@ class ProductFormDialog(tk.Toplevel):
         ]
         for i, (field, label, widget_class, widget_opts) in enumerate(fields):
             label_widget = ttk.Label(self.main_frame, text=label)
-            label_widget.grid(row=i, column=0, sticky=tk.W, padx=(0, 10), pady=5)
+            label_widget.grid(row=i, column=0, sticky=tk.W,
+                              padx=(0, 10), pady=5)
             if widget_class == tk.Checkbutton:
                 var = tk.BooleanVar(value=True)
                 widget = widget_class(self.main_frame, variable=var)
                 self.entries[field] = var
                 widget.grid(row=i, column=1, sticky=tk.W, pady=5)
             elif widget_class == ttk.Combobox:
-                widget = widget_class(self.main_frame, values=sorted(self.product_service.get_categories()), **widget_opts)
+                widget = widget_class(self.main_frame, values=sorted(
+                    self.product_service.get_categories()), **widget_opts)
                 self.entries[field] = widget
                 widget.grid(row=i, column=1, sticky=tk.EW, pady=5)
             elif widget_class == tk.Text:
-                widget = widget_class(self.main_frame, font=self.default_font, **widget_opts)
+                widget = widget_class(
+                    self.main_frame, font=self.default_font, **widget_opts)
                 widget.grid(row=i, column=1, sticky=tk.EW, pady=5)
                 widget.bind("<Tab>", self._focus_next)  # Agrega este binding
                 self.entries[field] = widget
@@ -1146,16 +1243,19 @@ class ProductFormDialog(tk.Toplevel):
                 self.entries[field] = widget
                 widget.grid(row=i, column=1, sticky=tk.EW, pady=5)
             if field == "image_path":
-                ttk.Button(self.main_frame, text="Explorar...", command=self.browse_image, width=10).grid(row=i, column=2, padx=(5, 0), pady=5)
+                ttk.Button(self.main_frame, text="Explorar...", command=self.browse_image, width=10).grid(
+                    row=i, column=2, padx=(5, 0), pady=5)
                 # Update preview when typing a path
-                widget.bind("<KeyRelease>", lambda _e: self._update_image_preview())
+                widget.bind("<KeyRelease>",
+                            lambda _e: self._update_image_preview())
 
         # Image processing options
         options_row = len(fields)
         self.convert_webp_var = tk.BooleanVar(value=False)
         self.resize_opt_var = tk.BooleanVar(value=True)
         opts_frame = ttk.Frame(self.main_frame)
-        opts_frame.grid(row=options_row, column=0, columnspan=3, sticky=tk.W, pady=(0, 6))
+        opts_frame.grid(row=options_row, column=0,
+                        columnspan=3, sticky=tk.W, pady=(0, 6))
         ttk.Checkbutton(opts_frame, text="Convertir a WebP", variable=self.convert_webp_var,
                         state=(tk.NORMAL if PIL_AVAILABLE else tk.DISABLED)).pack(side=tk.LEFT, padx=(0, 10))
         ttk.Checkbutton(opts_frame, text="Optimizar tamaño (máx 1000px)", variable=self.resize_opt_var,
@@ -1174,9 +1274,11 @@ class ProductFormDialog(tk.Toplevel):
             relief=tk.SOLID,
             bd=1,
         )
-        self.preview_canvas.grid(row=options_row+1, column=1, sticky=tk.W, pady=4)
+        self.preview_canvas.grid(
+            row=options_row+1, column=1, sticky=tk.W, pady=4)
         # Quick-open image in OS viewer
-        open_btn = ttk.Button(self.main_frame, text="Abrir imagen…", command=self._open_image_file)
+        open_btn = ttk.Button(
+            self.main_frame, text="Abrir imagen…", command=self._open_image_file)
         open_btn.grid(row=options_row+1, column=2, sticky=tk.W)
         self._preview_photo = None
         self._update_image_preview()
@@ -1186,13 +1288,14 @@ class ProductFormDialog(tk.Toplevel):
         event.widget.tk_focusNext().focus()
         return "break"
 
-
     def create_buttons(self) -> None:
         """Create dialog buttons."""
         button_frame = ttk.Frame(self)
         button_frame.pack(side=tk.BOTTOM, pady=(0, 10))
-        ttk.Button(button_frame, text="Guardar", command=self.save_product, width=10).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Cancelar", command=self.destroy, width=10).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="Guardar",
+                   command=self.save_product, width=10).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="Cancelar",
+                   command=self.destroy, width=10).pack(side=tk.LEFT, padx=5)
 
     def populate_fields(self) -> None:
         """Populate form fields with product data."""
@@ -1218,7 +1321,8 @@ class ProductFormDialog(tk.Toplevel):
 
     def browse_image(self) -> None:
         """Open file dialog to select image."""
-        file_path = filedialog.askopenfilename(filetypes=[("Archivos de imagen", "*.png *.jpg *.jpeg *.gif *.webp")])
+        file_path = filedialog.askopenfilename(
+            filetypes=[("Archivos de imagen", "*.png *.jpg *.jpeg *.gif *.webp")])
         if not file_path:
             return
         try:
@@ -1236,7 +1340,8 @@ class ProductFormDialog(tk.Toplevel):
             # Optional image optimization
             if PIL_AVAILABLE and (self.convert_webp_var.get() or self.resize_opt_var.get()):
                 target_ext = '.webp' if self.convert_webp_var.get() else ext
-                dest_path = os.path.join(dest_dir, f"{name_no_ext}{target_ext}")
+                dest_path = os.path.join(
+                    dest_dir, f"{name_no_ext}{target_ext}")
                 try:
                     img = Image.open(file_path)
                     if self.resize_opt_var.get():
@@ -1253,13 +1358,15 @@ class ProductFormDialog(tk.Toplevel):
                 if os.path.abspath(file_path) != os.path.abspath(dest_path):
                     shutil.copy2(file_path, dest_path)
 
-            rel_path = os.path.relpath(dest_path, abs_base_dir).replace('\\', '/')
+            rel_path = os.path.relpath(
+                dest_path, abs_base_dir).replace('\\', '/')
             rel_path = 'assets/images/' + rel_path
             self.entries["image_path"].delete(0, tk.END)
             self.entries["image_path"].insert(0, rel_path)
             self._update_image_preview()
         except Exception as e:
-            messagebox.showerror("Error", f"Error al copiar la imagen: {str(e)}")
+            messagebox.showerror(
+                "Error", f"Error al copiar la imagen: {str(e)}")
 
     def save_product(self) -> None:
         """Save product data."""
@@ -1293,13 +1400,15 @@ class ProductFormDialog(tk.Toplevel):
             if data["price"] <= 0:
                 raise ValueError("El precio debe ser mayor que cero")
         except ValueError:
-            raise ValueError("El precio debe ser un número válido mayor que cero")
+            raise ValueError(
+                "El precio debe ser un número válido mayor que cero")
         try:
             data["discount"] = int(data["discount"] or "0")
             if data["discount"] < 0:
                 raise ValueError("El descuento no puede ser negativo")
             if data["discount"] >= data["price"]:
-                raise ValueError("El descuento no puede ser mayor que el precio")
+                raise ValueError(
+                    "El descuento no puede ser mayor que el precio")
         except ValueError as e:
             if "invalid literal" in str(e):
                 raise ValueError("El descuento debe ser un número válido")
@@ -1307,7 +1416,8 @@ class ProductFormDialog(tk.Toplevel):
         # Canonicalize category names to avoid mismatches (spaces/accents)
         try:
             def _norm(s: str) -> str:
-                import unicodedata, re
+                import unicodedata
+                import re
                 s = unicodedata.normalize('NFD', s)
                 s = re.sub(r"[\u0300-\u036f]", "", s)
                 s = re.sub(r"[^A-Za-z0-9]", "", s).lower()
@@ -1341,12 +1451,14 @@ class ProductFormDialog(tk.Toplevel):
 
         if data["image_path"]:
             if not data["image_path"].startswith("assets/images/"):
-                raise ValueError("La ruta de la imagen debe comenzar con 'assets/images/'")
+                raise ValueError(
+                    "La ruta de la imagen debe comenzar con 'assets/images/'")
         return data
 
     # Helpers for image paths and preview
     def _assets_images_root(self) -> str:
-        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+        project_root = os.path.abspath(os.path.join(
+            os.path.dirname(__file__), '..', '..'))
         return os.path.join(project_root, 'assets', 'images')
 
     def _category_subdir(self, category: str) -> str:
@@ -1380,7 +1492,8 @@ class ProductFormDialog(tk.Toplevel):
                 return
             rel_path = entry.get().strip()
             cv = self.preview_canvas
-            w, h = getattr(self, '_preview_w', 260), getattr(self, '_preview_h', 195)
+            w, h = getattr(self, '_preview_w', 260), getattr(
+                self, '_preview_h', 195)
             cv.delete("all")
             cv.create_rectangle(0, 0, w, h, fill="#fafafa", outline="#cccccc")
             if not rel_path:
@@ -1388,34 +1501,42 @@ class ProductFormDialog(tk.Toplevel):
                 self._preview_photo = None
                 return
             abs_base_dir = self._assets_images_root()
-            abs_path = os.path.join(abs_base_dir, rel_path.replace('assets/images/', '').replace('/', os.sep))
+            abs_path = os.path.join(abs_base_dir, rel_path.replace(
+                'assets/images/', '').replace('/', os.sep))
             if os.path.exists(abs_path) and PIL_AVAILABLE:
                 _, ext = os.path.splitext(abs_path)
                 ext = ext.lower()
                 if ext == '.webp' and not PIL_WEBP:
-                    cv.create_text(w//2, h//2, text='Pillow sin soporte WebP', fill='#666666')
+                    cv.create_text(
+                        w//2, h//2, text='Pillow sin soporte WebP', fill='#666666')
                     self._preview_photo = None
                 else:
                     try:
                         img = Image.open(abs_path)
                         img.thumbnail((w-10, h-10))
                         self._preview_photo = ImageTk.PhotoImage(img)
-                        cv.create_image(w//2, h//2, image=self._preview_photo, anchor='center')
+                        cv.create_image(
+                            w//2, h//2, image=self._preview_photo, anchor='center')
                     except Exception:
-                        cv.create_text(w//2, h//2, text='(Vista previa no disponible)', fill='#666666')
+                        cv.create_text(
+                            w//2, h//2, text='(Vista previa no disponible)', fill='#666666')
                         self._preview_photo = None
             else:
                 if not PIL_AVAILABLE:
-                    cv.create_text(w//2, h//2, text='Instale Pillow para vista previa', fill='#666666')
+                    cv.create_text(
+                        w//2, h//2, text='Instale Pillow para vista previa', fill='#666666')
                 else:
-                    cv.create_text(w//2, h//2, text='(Vista previa no disponible)', fill='#666666')
+                    cv.create_text(
+                        w//2, h//2, text='(Vista previa no disponible)', fill='#666666')
                 self._preview_photo = None
         except Exception:
             cv = self.preview_canvas
-            w, h = getattr(self, '_preview_w', 260), getattr(self, '_preview_h', 195)
+            w, h = getattr(self, '_preview_w', 260), getattr(
+                self, '_preview_h', 195)
             cv.delete("all")
             cv.create_rectangle(0, 0, w, h, fill="#fafafa", outline="#cccccc")
-            cv.create_text(w//2, h//2, text='(Vista previa no disponible)', fill='#666666')
+            cv.create_text(
+                w//2, h//2, text='(Vista previa no disponible)', fill='#666666')
             self._preview_photo = None
 
     def _open_image_file(self) -> None:
@@ -1427,9 +1548,11 @@ class ProductFormDialog(tk.Toplevel):
             if not rel_path:
                 return
             abs_base_dir = self._assets_images_root()
-            abs_path = os.path.join(abs_base_dir, rel_path.replace('assets/images/', '').replace('/', os.sep))
+            abs_path = os.path.join(abs_base_dir, rel_path.replace(
+                'assets/images/', '').replace('/', os.sep))
             if not os.path.exists(abs_path):
-                messagebox.showerror('Imagen', 'El archivo de imagen no existe en disco.')
+                messagebox.showerror(
+                    'Imagen', 'El archivo de imagen no existe en disco.')
                 return
             if os.name == 'nt':
                 os.startfile(abs_path)  # type: ignore[attr-defined]
@@ -1442,8 +1565,10 @@ class ProductFormDialog(tk.Toplevel):
         except Exception as e:
             messagebox.showerror('Imagen', f'No se pudo abrir la imagen: {e}')
 
+
 class PreferencesDialog(tk.Toplevel):
     """Dialog for application preferences."""
+
     def __init__(self, parent: tk.Tk, config: UIConfig, on_save: Optional[Callable] = None):
         super().__init__(parent)
         self.title("Preferencias")
@@ -1457,17 +1582,23 @@ class PreferencesDialog(tk.Toplevel):
         self.resizable(False, False)
         self.transient(self.master)
         self.grab_set()
-        ttk.Label(self, text="Tamaño de Fuente:").grid(row=1, column=0, padx=10, pady=5, sticky=tk.W)
+        ttk.Label(self, text="Tamaño de Fuente:").grid(
+            row=1, column=0, padx=10, pady=5, sticky=tk.W)
         self.font_var = tk.IntVar(value=self.config.font_size)
-        font_spin = ttk.Spinbox(self, from_=8, to=16, textvariable=self.font_var, width=5)
+        font_spin = ttk.Spinbox(self, from_=8, to=16,
+                                textvariable=self.font_var, width=5)
         font_spin.grid(row=1, column=1, padx=10, pady=5, sticky=tk.W)
-        ttk.Label(self, text="Habilitar Animaciones:").grid(row=2, column=0, padx=10, pady=5, sticky=tk.W)
+        ttk.Label(self, text="Habilitar Animaciones:").grid(
+            row=2, column=0, padx=10, pady=5, sticky=tk.W)
         self.anim_var = tk.BooleanVar(value=self.config.enable_animations)
-        ttk.Checkbutton(self, variable=self.anim_var).grid(row=2, column=1, padx=10, pady=5, sticky=tk.W)
+        ttk.Checkbutton(self, variable=self.anim_var).grid(
+            row=2, column=1, padx=10, pady=5, sticky=tk.W)
         button_frame = ttk.Frame(self)
         button_frame.grid(row=3, column=0, columnspan=2, pady=20)
-        ttk.Button(button_frame, text="Guardar", command=self.save_preferences).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Cancelar", command=self.destroy).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="Guardar",
+                   command=self.save_preferences).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="Cancelar",
+                   command=self.destroy).pack(side=tk.LEFT, padx=5)
 
     def save_preferences(self) -> None:
         """Save preferences to configuration."""
@@ -1488,10 +1619,13 @@ class PreferencesDialog(tk.Toplevel):
             self.destroy()
             messagebox.showinfo("Éxito", "Preferencias guardadas y aplicadas.")
         except Exception as e:
-            messagebox.showerror("Error", f"Error al guardar preferencias: {str(e)}")
+            messagebox.showerror(
+                "Error", f"Error al guardar preferencias: {str(e)}")
+
 
 class HelpDialog(tk.Toplevel):
     """Dialog for application help."""
+
     def __init__(self, parent: tk.Tk):
         super().__init__(parent)
         self.title("Ayuda")
@@ -1503,7 +1637,8 @@ class HelpDialog(tk.Toplevel):
         self.resizable(True, True)
         help_text = tk.Text(self, wrap=tk.WORD, padx=10, pady=10)
         help_text.pack(fill=tk.BOTH, expand=True)
-        scrollbar = ttk.Scrollbar(help_text, orient="vertical", command=help_text.yview)
+        scrollbar = ttk.Scrollbar(
+            help_text, orient="vertical", command=help_text.yview)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         help_text.configure(yscrollcommand=scrollbar.set)
         help_content = """
@@ -1529,8 +1664,10 @@ Para más información, consulte el manual de usuario o contacte con soporte.
         help_text.insert("1.0", help_content)
         help_text.configure(state="disabled")
 
+
 class AboutDialog(tk.Toplevel):
     """Dialog for application information."""
+
     def __init__(self, parent: tk.Tk):
         super().__init__(parent)
         self.title("Acerca de Gestor de Productos")
@@ -1560,6 +1697,7 @@ class AboutDialog(tk.Toplevel):
         label = ttk.Label(self, text=about_text, justify=tk.CENTER, padding=20)
         label.pack(expand=True)
         ttk.Button(self, text="Cerrar", command=self.destroy).pack(pady=10)
+
 
 if __name__ == "__main__":
     root = tk.Tk()
