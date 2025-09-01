@@ -12,7 +12,18 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="../assets/css/critical.min.css">
+    
+    <!-- Performance Resource Hints -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="//www.googletagmanager.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    
+    <!-- Preload critical assets -->
+    <link rel="preload" href="/assets/css/critical.min.css" as="style" fetchpriority="high">
+    <link rel="preload" href="/assets/images/web/logo.webp" as="image" type="image/webp" fetchpriority="high">
+<link rel="stylesheet" href="../assets/css/critical.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.8/purify.min.js" integrity="sha384-AsiVBlzbaNOq8OOKcXm2ZVjjKJwiQ9UmzLwfetDjC74OMQdkb6vBHH5QRJH3x1SE" crossorigin="anonymous"></script>
     <link rel="preload" href="../assets/images/web/logo.webp" as="image" type="image/webp">
     <link rel="preload" href="../assets/js/script.min.js" as="script">
