@@ -390,9 +390,13 @@ const renderProducts = (products) => {
 
         const discountedPrice = product.price - (product.discount || 0);
 
+        const relativePath = product.image_path.replace(/^\/?assets\/images\//, '');
+        const w200 = `assets/images/variants/w200/images/${relativePath}`;
+        const w400 = `assets/images/variants/w400/images/${relativePath}`;
+
         productElement.innerHTML = `
             <div class="card h-100">
-                <img src="${product.image_path}" alt="${product.name}" class="card-img-top" loading="lazy" decoding="async" width="400" height="400">
+                <img src="${w400}" srcset="${w200} 200w, ${w400} 400w" sizes="(max-width: 400px) 100vw, 400px" alt="${product.name}" class="card-img-top" loading="lazy" decoding="async" width="400" height="400">
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">${product.name}</h5>
                     <p class="card-text flex-grow-1">${product.description}</p>
