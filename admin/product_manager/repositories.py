@@ -9,25 +9,29 @@ from pathlib import Path
 from contextlib import contextmanager
 import threading
 from functools import wraps
-from .models import Product, ProductCatalog
+from models import Product, ProductCatalog
 
 logger = logging.getLogger(__name__)
+
 
 class ProductRepositoryError(Exception):
     """Base exception for repository errors."""
     pass
 
+
 class ProductLoadError(ProductRepositoryError):
     """Exception raised when there's an error loading products."""
     pass
+
 
 class ProductSaveError(ProductRepositoryError):
     """Exception raised when there's an error saving products."""
     pass
 
+
 class ProductRepositoryProtocol(Protocol):
     """Protocol defining the interface for product repositories."""
-    
+
     def load_products(self) -> List[Product]:
         """Load products from the repository."""
         ...
@@ -35,6 +39,7 @@ class ProductRepositoryProtocol(Protocol):
     def save_products(self, products: List[Product]) -> None:
         """Save products to the repository."""
         ...
+
 
 def with_file_lock(func):
     """Decorator to ensure file operations are thread-safe."""
@@ -44,9 +49,10 @@ def with_file_lock(func):
             return func(self, *args, **kwargs)
     return wrapper
 
+
 class JsonProductRepository(ProductRepositoryProtocol):
     """Repository for storing and retrieving products using JSON files."""
-    
+
     BACKUP_SUFFIX = '.backup'
     MAX_BACKUPS = 5
     ENCODING = 'utf-8'
@@ -60,7 +66,8 @@ class JsonProductRepository(ProductRepositoryProtocol):
             base_path (str, optional): Base path for the JSON file
         """
         self._file_lock = threading.Lock()
-        self._base_path = Path(base_path) if base_path else Path(r"C:\Users\corte\OneDrive\Tienda Ebano\_products")
+        self._base_path = Path(base_path) if base_path else Path(
+            r"C:\Users\corte\OneDrive\Tienda Ebano\_products")
         self._file_path = self._base_path / file_name
         self._ensure_directory_exists()
 
@@ -69,14 +76,16 @@ class JsonProductRepository(ProductRepositoryProtocol):
         try:
             self._base_path.mkdir(parents=True, exist_ok=True)
         except OSError as e:
-            raise ProductRepositoryError(f"Error al crear el directorio {self._base_path}: {e}")
+            raise ProductRepositoryError(
+                f"Error al crear el directorio {self._base_path}: {e}")
 
     def _create_backup(self) -> None:
         """Create a backup of the current data file."""
         if not self._file_path.exists():
             return
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        backup_path = self._file_path.with_suffix(f'{self.BACKUP_SUFFIX}_{timestamp}')
+        backup_path = self._file_path.with_suffix(
+            f'{self.BACKUP_SUFFIX}_{timestamp}')
         try:
             shutil.copy2(self._file_path, backup_path)
             self._cleanup_old_backups()
@@ -93,7 +102,8 @@ class JsonProductRepository(ProductRepositoryProtocol):
                 backup_files[0].unlink()
                 backup_files.pop(0)
             except OSError as e:
-                logger.error(f"Error al eliminar copia de seguridad antigua: {e}")
+                logger.error(
+                    f"Error al eliminar copia de seguridad antigua: {e}")
 
     @contextmanager
     def _open_file(self, mode: str = 'r'):
@@ -118,7 +128,8 @@ class JsonProductRepository(ProductRepositoryProtocol):
                 file_obj = None
                 os.replace(temp_path, self._file_path)
         except OSError as e:
-            raise ProductRepositoryError(f"Error al acceder al archivo {self._file_path}: {e}")
+            raise ProductRepositoryError(
+                f"Error al acceder al archivo {self._file_path}: {e}")
         finally:
             if file_obj:
                 try:
@@ -131,13 +142,15 @@ class JsonProductRepository(ProductRepositoryProtocol):
     def load_products(self) -> List[Product]:
         """Load products from the JSON file."""
         if not self._file_path.exists():
-            logger.warning(f"Archivo de productos no encontrado: {self._file_path}")
+            logger.warning(
+                f"Archivo de productos no encontrado: {self._file_path}")
             return []
         try:
             with self._open_file('r') as file:
                 data = json.load(file)
                 if isinstance(data, list):
-                    catalog = ProductCatalog.create([self._create_product(p) for p in data])
+                    catalog = ProductCatalog.create(
+                        [self._create_product(p) for p in data])
                 else:
                     catalog = ProductCatalog.from_dict(data)
                 return catalog.products
@@ -173,14 +186,17 @@ class JsonProductRepository(ProductRepositoryProtocol):
         if latest_backup:
             try:
                 shutil.copy2(latest_backup, self._file_path)
-                logger.info(f"Restaurado desde copia de seguridad: {latest_backup}")
+                logger.info(
+                    f"Restaurado desde copia de seguridad: {latest_backup}")
             except OSError as e:
-                logger.error(f"Error al restaurar desde copia de seguridad: {e}")
+                logger.error(
+                    f"Error al restaurar desde copia de seguridad: {e}")
 
     def _find_latest_backup(self) -> Optional[Path]:
         """Find the most recent backup file."""
         backup_pattern = f'*{self.BACKUP_SUFFIX}*'
-        backup_files = sorted(self._base_path.glob(backup_pattern), reverse=True)
+        backup_files = sorted(self._base_path.glob(
+            backup_pattern), reverse=True)
         return backup_files[0] if backup_files else None
 
     @staticmethod
@@ -219,7 +235,8 @@ class JsonProductRepository(ProductRepositoryProtocol):
                     product = self._create_product(item)
                     valid_products.append(product)
                 except Exception as e:
-                    logger.warning(f"Omitiendo datos de producto inválidos: {e}")
+                    logger.warning(
+                        f"Omitiendo datos de producto inválidos: {e}")
             self.save_products(valid_products)
             return True
         except Exception as e:

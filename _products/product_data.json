@@ -1,6 +1,6 @@
 {
-  "version": "20250829-203104",
-  "last_updated": "2025-08-29T20:31:04.923608",
+  "version": "20250901-135009",
+  "last_updated": "2025-09-01T13:50:09.858117",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -917,7 +917,7 @@
       "description": "Bolsa de plástico",
       "price": 2200,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Papas-Marco-Polo-Caseras-200g.webp",
       "order": 92
@@ -1177,7 +1177,7 @@
       "description": "Bolsa de plástico",
       "price": 2000,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Americano 170g.webp",
       "order": 118
@@ -1257,7 +1257,7 @@
       "description": "Bolsa de plástico",
       "price": 1900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Lays Orégano 140g.webp",
       "order": 126
@@ -1267,7 +1267,7 @@
       "description": "Bolsa de plástico",
       "price": 1900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Lays-Jamón-Serrano-140gr.webp",
       "order": 127

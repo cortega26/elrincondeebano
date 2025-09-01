@@ -1,6 +1,6 @@
 from typing import List, Optional, Dict, Set, Protocol, Callable
-from .models import Product
-from .repositories import ProductRepositoryProtocol, ProductRepositoryError
+from models import Product
+from repositories import ProductRepositoryProtocol, ProductRepositoryError
 import logging
 from functools import lru_cache
 from dataclasses import dataclass, field
@@ -12,12 +12,14 @@ import json
 
 logger = logging.getLogger(__name__)
 
+
 class ProductEventType(Enum):
     """Event types for product operations."""
     CREATED = auto()
     UPDATED = auto()
     DELETED = auto()
     REORDERED = auto()
+
 
 @dataclass
 class ProductEvent:
@@ -27,6 +29,7 @@ class ProductEvent:
     timestamp: datetime = field(default_factory=datetime.now)
     details: Optional[Dict] = None
 
+
 @dataclass
 class VersionInfo:
     """Version information for product catalog."""
@@ -34,26 +37,33 @@ class VersionInfo:
     last_updated: datetime
     product_count: int
 
+
 class ProductServiceError(Exception):
     """Base exception for ProductService errors."""
     pass
+
 
 class ProductNotFoundError(ProductServiceError):
     """Raised when a product is not found."""
     pass
 
+
 class DuplicateProductError(ProductServiceError):
     """Raised when attempting to create a duplicate product."""
     pass
 
+
 class ProductEventHandler(Protocol):
     """Protocol for product event handlers."""
+
     def handle_event(self, event: ProductEvent) -> None:
         """Handle a product event."""
         ...
 
+
 class ProductService:
     """Service class for managing product operations."""
+
     def __init__(self, repository: ProductRepositoryProtocol):
         """
         Initialize the ProductService.
@@ -61,7 +71,8 @@ class ProductService:
         self.repository = repository
         self._products: Optional[List[Product]] = None
         self._products_lock = threading.RLock()
-        self._event_handlers: Dict[ProductEventType, Set[ProductEventHandler]] = defaultdict(set)
+        self._event_handlers: Dict[ProductEventType,
+                                   Set[ProductEventHandler]] = defaultdict(set)
         self._product_index: Dict[str, Product] = {}
         self._category_index: Dict[str, Set[Product]] = defaultdict(set)
         self._rebuild_indexes()
@@ -128,7 +139,8 @@ class ProductService:
         """
         with self._products_lock:
             if product.name.lower() in self._product_index:
-                raise DuplicateProductError(f"El producto ya existe: {product.name}")
+                raise DuplicateProductError(
+                    f"El producto ya existe: {product.name}")
             try:
                 products = self.get_all_products()
                 product.order = len(products)
@@ -157,11 +169,14 @@ class ProductService:
                 products = self.get_all_products()
                 if original_name.lower() != updated_product.name.lower():
                     del self._product_index[original_name.lower()]
-                self._product_index[updated_product.name.lower()] = updated_product
+                self._product_index[updated_product.name.lower()
+                                    ] = updated_product
                 if original_product.category:
-                    self._category_index[original_product.category.lower()].discard(original_product)
+                    self._category_index[original_product.category.lower()].discard(
+                        original_product)
                 if updated_product.category:
-                    self._category_index[updated_product.category.lower()].add(updated_product)
+                    self._category_index[updated_product.category.lower()].add(
+                        updated_product)
                 index = products.index(original_product)
                 updated_product.order = original_product.order
                 products[index] = updated_product
@@ -177,7 +192,8 @@ class ProductService:
                     }
                 ))
             except ValueError:
-                raise ProductNotFoundError(f"Producto no encontrado: {original_name}")
+                raise ProductNotFoundError(
+                    f"Producto no encontrado: {original_name}")
             except Exception as e:
                 logger.error(f"Error al actualizar producto: {e}")
                 raise ProductServiceError(f"Error al actualizar producto: {e}")
@@ -193,7 +209,8 @@ class ProductService:
                 products.remove(product)
                 del self._product_index[name.lower()]
                 if product.category:
-                    self._category_index[product.category.lower()].discard(product)
+                    self._category_index[product.category.lower()].discard(
+                        product)
                 self.repository.save_products(products)
                 self.clear_cache()
                 self._notify_event_handlers(ProductEvent(
@@ -225,7 +242,8 @@ class ProductService:
         """
         category_lower = category.lower()
         return sorted(
-            [p for p in self.get_all_products() if p.category.lower() == category_lower],
+            [p for p in self.get_all_products() if p.category.lower()
+             == category_lower],
             key=lambda p: p.order
         )
 
@@ -235,7 +253,8 @@ class ProductService:
         """
         query = query.lower()
         return sorted(
-            [p for p in self.get_all_products() if query in p.name.lower() or (p.description and query in p.description.lower())],
+            [p for p in self.get_all_products() if query in p.name.lower() or (
+                p.description and query in p.description.lower())],
             key=lambda p: p.order
         )
 
@@ -275,7 +294,8 @@ class ProductService:
                 product_dict = {p.name.lower(): p for p in products}
                 for original_name, _ in updates:
                     if original_name.lower() not in product_dict:
-                        raise ProductNotFoundError(f"Producto no encontrado: {original_name}")
+                        raise ProductNotFoundError(
+                            f"Producto no encontrado: {original_name}")
                 for original_name, updated_product in updates:
                     index = products.index(product_dict[original_name.lower()])
                     updated_product.order = products[index].order
@@ -290,7 +310,8 @@ class ProductService:
                 ))
             except Exception as e:
                 logger.error(f"Error en actualización por lotes: {e}")
-                raise ProductServiceError(f"Error en actualización por lotes: {e}")
+                raise ProductServiceError(
+                    f"Error en actualización por lotes: {e}")
 
     def get_version_info(self) -> VersionInfo:
         """Get current version information."""
@@ -306,8 +327,10 @@ class ProductService:
                             product_count=len(products)
                         )
                     return VersionInfo(
-                        version=data.get('version', datetime.now().strftime('%Y%m%d-%H%M%S')),
-                        last_updated=datetime.fromisoformat(data.get('last_updated', datetime.now().isoformat())),
+                        version=data.get(
+                            'version', datetime.now().strftime('%Y%m%d-%H%M%S')),
+                        last_updated=datetime.fromisoformat(
+                            data.get('last_updated', datetime.now().isoformat())),
                         product_count=len(products)
                     )
         except Exception as e:

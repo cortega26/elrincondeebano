@@ -20,17 +20,20 @@ import threading
 import signal
 import traceback
 
-from .repositories import JsonProductRepository
-from .services import ProductService
-from .gui import ProductGUI, UIConfig
+from repositories import JsonProductRepository
+from services import ProductService
+from gui import ProductGUI, UIConfig
+
 
 class ApplicationError(Exception):
     """Base exception for application-level errors."""
     pass
 
+
 class ConfigurationError(ApplicationError):
     """Raised when there's an error in configuration."""
     pass
+
 
 class ProductManager:
     """Main application class managing lifecycle and dependencies."""
@@ -67,7 +70,8 @@ class ProductManager:
     def _handle_shutdown_signal(self, signum: int, frame) -> None:
         """Handle shutdown signals gracefully."""
         if self.logger:
-            self.logger.info(f"Received signal {signum}, initiating shutdown...")
+            self.logger.info(
+                f"Received signal {signum}, initiating shutdown...")
         self.exit_event.set()
 
     def initialize(self, config_path: Optional[str] = None) -> None:
@@ -76,7 +80,7 @@ class ProductManager:
 
         Args:
             config_path: Optional path to configuration file
-        
+
         Raises:
             ConfigurationError: If configuration is invalid
         """
@@ -106,7 +110,8 @@ class ProductManager:
                     user_config = json.load(f)
                 config.update(user_config)
             except Exception as e:
-                raise ConfigurationError(f"Failed to load configuration from {config_path}: {e}")
+                raise ConfigurationError(
+                    f"Failed to load configuration from {config_path}: {e}")
 
         # Expand paths
         config['data_dir'] = os.path.expanduser(config['data_dir'])
@@ -194,7 +199,7 @@ class ProductManager:
         """Run the application using Tkinter's main loop."""
         with self.error_handler():
             self.logger.info("Starting application")
-            
+
             # Initialize Tk
             root = tk.Tk()
             root.protocol("WM_DELETE_WINDOW", self._on_window_close)
@@ -206,10 +211,11 @@ class ProductManager:
 
             # Create and run GUI
             self.gui = ProductGUI(root, service)
-            
+
             # Configure window using ui_config
             root.title("Gestor de Productos")
-            root.geometry(f"{ui_config.window_size[0]}x{ui_config.window_size[1]}")
+            root.geometry(
+                f"{ui_config.window_size[0]}x{ui_config.window_size[1]}")
 
             # Start update checker in background
             self._start_update_checker()
@@ -260,6 +266,7 @@ class ProductManager:
             self.logger.info("Application shutdown complete")
             logging.shutdown()
 
+
 def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Product Manager Application")
@@ -275,6 +282,7 @@ def parse_arguments():
     )
     return parser.parse_args()
 
+
 def main():
     """Application entry point."""
     args = parse_arguments()
@@ -283,13 +291,14 @@ def main():
         os.environ['PRODUCT_MANAGER_ENV'] = 'development'
 
     app = ProductManager()
-    
+
     try:
         app.initialize(args.config)
         app.run()
     except Exception as e:
         print(f"Error fatal: {e}", file=sys.stderr)
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
