@@ -868,78 +868,15 @@ const initApp = async () => {
         document.querySelectorAll('img.lazyload').forEach(img => imageObserver.observe(img));
     };
 
-    // Simple fuzzy matching function
-    function fuzzyMatch(query, text, threshold = 0.6) {
-    if (!query || !text) return false;
-    
-    // Normalize both strings
-    const normalizeText = (str) => str.toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '') // Remove accents
-        .replace(/[^\w\s]/g, ' ') // Replace punctuation with spaces
-        .replace(/\s+/g, ' ') // Collapse multiple spaces
-        .trim();
-    
-    const normalizedQuery = normalizeText(query);
-    const normalizedText = normalizeText(text);
-    
-    // Direct substring match (highest priority)
-    if (normalizedText.includes(normalizedQuery)) {
-        return true;
-    }
-    
-    // Word boundary matches
-    const queryWords = normalizedQuery.split(' ').filter(w => w.length > 1);
-    const textWords = normalizedText.split(' ');
-    
-    if (queryWords.length === 0) return false;
-    
-    // Simple character similarity for typos
-    const matchedWords = queryWords.filter(queryWord => {
-        return textWords.some(textWord => {
-        if (textWord.includes(queryWord)) return true;
-        
-        // Simple typo tolerance for longer words
-        if (queryWord.length >= 3 && textWord.length >= 3) {
-            const longer = queryWord.length > textWord.length ? queryWord : textWord;
-            const shorter = queryWord.length > textWord.length ? textWord : queryWord;
-            let matches = 0;
-            for (let i = 0; i < shorter.length; i++) {
-            if (longer.includes(shorter[i])) matches++;
-            }
-            return (matches / longer.length) >= threshold;
-        }
-        
-        return false;
-        });
-    });
-    
-    return matchedWords.length / queryWords.length >= 0.7;
-    }
-
-    // Enhanced filter function (REPLACES your existing filterProducts function)
     const filterProducts = (products, keyword, sortCriterion, discountOnly = false) => {
-    const trimmedKeyword = keyword.trim();
-    
-    return products
-        .filter(product => {
-        if (!product.stock) return false;
-        if (discountOnly && !(product.discount && Number(product.discount) > 0)) return false;
-        
-        // If no keyword, show all (same as original behavior)
-        if (!trimmedKeyword) return true;
-        
-        // Try original exact matching first (faster)
-        if (product.name.toLowerCase().includes(trimmedKeyword.toLowerCase()) ||
-            product.description.toLowerCase().includes(trimmedKeyword.toLowerCase())) {
-            return true;
-        }
-        
-        // Fallback to fuzzy matching for typos
-        return fuzzyMatch(trimmedKeyword, product.name) || 
-                fuzzyMatch(trimmedKeyword, product.description);
-        })
-        .sort((a, b) => sortProducts(a, b, sortCriterion));
+        return products
+            .filter(product =>
+                (product.name.toLowerCase().includes(keyword.toLowerCase()) ||
+                    product.description.toLowerCase().includes(keyword.toLowerCase())) &&
+                product.stock && // This ensures only in-stock items are shown
+                (!discountOnly || (product.discount && Number(product.discount) > 0))
+            )
+            .sort((a, b) => sortProducts(a, b, sortCriterion));
     };
 
     const sortProducts = (a, b, criterion) => {
