@@ -1,65 +1,81 @@
-import test from 'node:test';
-import assert from 'node:assert';
-import { JSDOM } from 'jsdom';
-import { showUpdateNotification, showServiceWorkerError, showConnectivityNotification } from '../assets/js/notifications.js';
+const test = require('node:test');
+const assert = require('node:assert');
+const { JSDOM } = require('jsdom');
+const fs = require('fs');
+const path = require('path');
+const vm = require('node:vm');
+
+const scriptPath = path.join(__dirname, '../assets/js/script.js');
+const scriptContent = fs.readFileSync(scriptPath, 'utf-8');
 
 function setupDom() {
-  const dom = new JSDOM('<!DOCTYPE html><body></body>', { url: 'http://localhost/' });
-  global.window = dom.window;
-  global.document = dom.window.document;
+  const dom = new JSDOM('<!DOCTYPE html><body></body>', {
+    url: 'http://localhost/',
+    runScripts: 'outside-only',
+  });
+  // Prevent long-running timers and service worker registration from blocking tests
+  dom.window.setTimeout = () => ({ unref() {} });
+  delete dom.window.navigator.serviceWorker;
+  dom.window.document.addEventListener = () => {};
+  vm.runInContext(scriptContent, dom.getInternalVMContext());
   return dom;
 }
 
 test('notifications', async (t) => {
   await t.test('showUpdateNotification', () => {
     const dom = setupDom();
+    const { window } = dom;
     const sw = { postMessage: () => {} };
-    showUpdateNotification(sw);
-    const toast = dom.window.document.querySelector('.notification-toast');
+    window.showUpdateNotification(sw);
+    const toast = window.document.querySelector('.notification-toast');
     assert.ok(toast, 'toast should exist');
     const primary = toast.querySelector('.primary-action');
     const secondary = toast.querySelector('.secondary-action');
     assert.strictEqual(primary.textContent, 'Actualizar ahora');
     assert.strictEqual(secondary.textContent, 'Después');
-    primary.dispatchEvent(new dom.window.Event('click'));
-    assert.ok(!dom.window.document.querySelector('.notification-toast'));
-    showUpdateNotification(sw);
-    const toast2 = dom.window.document.querySelector('.notification-toast');
-    toast2.querySelector('.secondary-action').dispatchEvent(new dom.window.Event('click'));
-    assert.ok(!dom.window.document.querySelector('.notification-toast'));
+    // primary click removes toast
+    primary.dispatchEvent(new window.Event('click'));
+    assert.ok(!window.document.querySelector('.notification-toast'));
+    // secondary click removes toast
+    window.showUpdateNotification(sw);
+    const toast2 = window.document.querySelector('.notification-toast');
+    toast2.querySelector('.secondary-action').dispatchEvent(new window.Event('click'));
+    assert.ok(!window.document.querySelector('.notification-toast'));
   });
 
   await t.test('showServiceWorkerError', () => {
     const dom = setupDom();
-    showServiceWorkerError('Error');
-    const toast = dom.window.document.querySelector('.notification-toast');
-    assert.ok(toast);
+    const { window } = dom;
+    window.showServiceWorkerError('Error');
+    const toast = window.document.querySelector('.notification-toast');
+    assert.ok(toast, 'toast should exist');
     const primary = toast.querySelector('.primary-action');
     const secondary = toast.querySelector('.secondary-action');
     assert.strictEqual(primary.textContent, 'Reload');
     assert.strictEqual(secondary.textContent, 'Dismiss');
-    primary.dispatchEvent(new dom.window.Event('click'));
-    assert.ok(!dom.window.document.querySelector('.notification-toast'));
-    showServiceWorkerError('Error');
-    const toast2 = dom.window.document.querySelector('.notification-toast');
-    toast2.querySelector('.secondary-action').dispatchEvent(new dom.window.Event('click'));
-    assert.ok(!dom.window.document.querySelector('.notification-toast'));
+    primary.dispatchEvent(new window.Event('click'));
+    assert.ok(!window.document.querySelector('.notification-toast'));
+    window.showServiceWorkerError('Error');
+    const toast2 = window.document.querySelector('.notification-toast');
+    toast2.querySelector('.secondary-action').dispatchEvent(new window.Event('click'));
+    assert.ok(!window.document.querySelector('.notification-toast'));
   });
 
   await t.test('showConnectivityNotification', () => {
     const dom = setupDom();
-    showConnectivityNotification('Offline');
-    const toast = dom.window.document.querySelector('.notification-toast');
-    assert.ok(toast);
+    const { window } = dom;
+    window.showConnectivityNotification('Offline');
+    const toast = window.document.querySelector('.notification-toast');
+    assert.ok(toast, 'toast should exist');
     const primary = toast.querySelector('.primary-action');
     const secondary = toast.querySelector('.secondary-action');
     assert.strictEqual(primary.textContent, 'Retry');
     assert.strictEqual(secondary.textContent, 'Dismiss');
-    primary.dispatchEvent(new dom.window.Event('click'));
-    assert.ok(!dom.window.document.querySelector('.notification-toast'));
-    showConnectivityNotification('Offline');
-    const toast2 = dom.window.document.querySelector('.notification-toast');
-    toast2.querySelector('.secondary-action').dispatchEvent(new dom.window.Event('click'));
-    assert.ok(!dom.window.document.querySelector('.notification-toast'));
+    primary.dispatchEvent(new window.Event('click'));
+    assert.ok(!window.document.querySelector('.notification-toast'));
+    window.showConnectivityNotification('Offline');
+    const toast2 = window.document.querySelector('.notification-toast');
+    toast2.querySelector('.secondary-action').dispatchEvent(new window.Event('click'));
+    assert.ok(!window.document.querySelector('.notification-toast'));
   });
 });
