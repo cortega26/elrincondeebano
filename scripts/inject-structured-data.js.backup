@@ -2,9 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 function generateStructuredData(products) {
-  // CHANGED: Remove the .slice(0, 20) limit to include ALL products
-  // OLD: const structuredProducts = products.slice(0, 20).map((p) => ({
-  const structuredProducts = products.map((p) => ({
+  const structuredProducts = products.slice(0, 20).map((p) => ({
     '@type': 'Product',
     name: p.name,
     image: p.image_path,
