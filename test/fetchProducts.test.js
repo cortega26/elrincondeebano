@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert');
 const { MockAgent, setGlobalDispatcher, fetch: undiciFetch } = require('undici');
 
-const { fetchProducts } = require('../assets/js/script.js');
+const { fetchProducts } = require('../src/js/script.js');
 
 // Minimal DOM stubs for error handling paths
 global.window = { location: { reload() {} } };
