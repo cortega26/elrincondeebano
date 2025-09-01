@@ -72,3 +72,6 @@ output.txt
 product_data.backup_*
 .qodo
 node_modules/
+prompts.txt
+results.json
+
