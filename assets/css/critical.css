@@ -110,3 +110,7 @@
       padding-top: 56px;
     }
   }
+/* Utility: hide element without inline styles (CSP safe) */
+.is-hidden {
+  display: none !important;
+}
