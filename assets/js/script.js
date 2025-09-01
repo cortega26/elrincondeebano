@@ -123,6 +123,7 @@ function setupConnectivityHandling() {
         if (offlineIndicator) {
             const hidden = navigator.onLine;
             offlineIndicator.classList.toggle('is-hidden', hidden);
+            offlineIndicator.style.display = hidden ? 'none' : 'block';
         }
 
         if (!navigator.onLine) {
@@ -612,7 +613,9 @@ const initApp = async () => {
     const updateOnlineStatus = () => {
         const offlineIndicator = document.getElementById('offline-indicator');
         if (offlineIndicator) {
-            offlineIndicator.classList.toggle('is-hidden', navigator.onLine);
+            const hidden = navigator.onLine;
+            offlineIndicator.classList.toggle('is-hidden', hidden);
+            offlineIndicator.style.display = hidden ? 'none' : 'block';
         }
         if (!navigator.onLine) {
             console.log('App is offline. Using cached data if available.');
