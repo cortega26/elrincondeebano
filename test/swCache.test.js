@@ -1,6 +1,6 @@
-import test from 'node:test';
-import assert from 'node:assert';
-import { invalidateCache, invalidateAllCaches, CACHE_CONFIG } from '../service-worker.js';
+const test = require('node:test');
+const assert = require('node:assert');
+const { invalidateCache, invalidateAllCaches, CACHE_CONFIG } = require('../service-worker.js');
 
 function createCachesMock() {
   const stores = new Map();
