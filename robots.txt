@@ -1,4 +1,16 @@
 User-agent: *
-Disallow: /admin-web/
-Disallow: /admin-panel/
+Allow: /
 
+# Disallow admin areas
+Disallow: /admin-panel/
+Disallow: /_products/
+
+# Allow important resources
+Allow: /assets/
+Allow: /pages/
+
+# Sitemap location
+Sitemap: https://elrincondeebano.com/sitemap.xml
+
+# Crawl delay
+Crawl-delay: 1

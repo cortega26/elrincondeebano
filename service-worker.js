@@ -11,6 +11,10 @@ const CACHE_CONFIG = {
         dynamic: 12 * 60 * 60 * 1000 // 12 hours for dynamic content
     },
     staticAssets: [
+        // Core pages and assets
+    
+        // Core pages and assets
+    
         '/',
         '/index.html',
         '/404.html',

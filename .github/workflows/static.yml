@@ -33,6 +33,12 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      - name: Install dependencies and build with SEO enhancements
+        run: |
+          npm ci
+          npm run build:seo
+      - name: Run SEO audit
+        run: npm run seo:audit
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

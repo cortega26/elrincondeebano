@@ -1,6 +1,10 @@
-const fs = require('fs');
-const path = require('path');
-const ejs = require('ejs');
+import fs from 'fs';
+import path from 'path';
+import ejs from 'ejs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const templatePath = path.join(__dirname, 'templates', 'category.ejs');
 const template = fs.readFileSync(templatePath, 'utf8');

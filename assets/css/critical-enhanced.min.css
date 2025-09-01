@@ -1,0 +1,127 @@
+/* Critical CSS for Core Web Vitals */
+/* Prevent CLS with skeleton loading */
+.loading-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, transparent 37%, #f0f0f0 63%);
+    background-size: 400% 100%;
+    animation: loading 1.4s ease-in-out infinite;
+    height: 200px;
+    border-radius: 8px;
+}
+
+@keyframes loading {
+    0% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Optimize font loading */
+@font-face {
+    font-family: 'Inter';
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Playfair Display';
+    font-display: swap;
+}
+
+/* Critical layout styles */
+.navbar-brand img {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+}
+
+.hero-section {
+    padding: 2rem 0;
+    min-height: 200px;
+}
+
+/* Product card optimizations */
+.card {
+    transition: transform 0.2s ease;
+    height: 100%;
+}
+
+.card-img-top {
+    height: 200px;
+    object-fit: contain;
+    width: 100%;
+}
+
+/* Price display */
+.precio-descuento {
+    font-weight: bold;
+    color: #28a745;
+    font-size: 1.1em;
+}
+
+.precio-original .tachado {
+    text-decoration: line-through;
+    color: #6c757d;
+}
+
+/* Notification system for updates */
+.notification-toast {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1060;
+    max-width: 350px;
+    border-left: 4px solid #007bff;
+    font-family: 'Inter', sans-serif;
+}
+
+.notification-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+}
+
+.primary-action {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.secondary-action {
+    background: transparent;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    .loading-skeleton {
+        animation: none;
+    }
+    
+    .card {
+        transition: none;
+    }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 1rem 0;
+        min-height: 150px;
+    }
+    
+    .notification-toast {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+}
