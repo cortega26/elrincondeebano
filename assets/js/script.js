@@ -118,22 +118,26 @@ function setupControllerChangeHandling() {
 
 // Set up handling for online/offline connectivity
 function setupConnectivityHandling() {
+    const offlineIndicator = document.getElementById('offline-indicator');
+    if (!offlineIndicator) {
+        return;
+    }
     const updateOnlineStatus = () => {
-        const offlineIndicator = document.getElementById('offline-indicator');
-        if (offlineIndicator) {
-            const hidden = navigator.onLine;
-            offlineIndicator.classList.toggle('is-hidden', hidden);
-            offlineIndicator.style.display = hidden ? 'none' : 'block';
-        }
+        const hidden = navigator.onLine;
+        offlineIndicator.classList.toggle('is-hidden', hidden);
+        offlineIndicator.style.display = hidden ? 'none' : 'block';
 
-        if (!navigator.onLine) {
+        if (!hidden) {
             showConnectivityNotification('You are currently offline. Some features may be limited.');
         }
     };
 
     window.addEventListener('online', updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
-    updateOnlineStatus(); // Initial check
+
+        if (!hidden) {
+            updateOnlineStatus();
+        }
 }
 
 // Show update notification to user
