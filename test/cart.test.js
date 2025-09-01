@@ -14,8 +14,8 @@ function setupDom() {
   global.document = dom.window.document;
   global.localStorage = dom.window.localStorage;
 
-  delete require.cache[require.resolve('../assets/js/script.js')];
-  ({ addToCart, removeFromCart, updateQuantity, updateCartIcon, __getCart } = require('../assets/js/script.js'));
+  delete require.cache[require.resolve('../src/js/script.js')];
+  ({ addToCart, removeFromCart, updateQuantity, updateCartIcon, __getCart } = require('../src/js/script.js'));
 }
 
 test('cart helpers', async (t) => {

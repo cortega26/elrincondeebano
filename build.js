@@ -1,12 +1,19 @@
 const esbuild = require('esbuild');
+const fs = require('fs');
+const path = require('path');
 
 async function build() {
   await esbuild.build({
-    entryPoints: ['assets/js/main.js'],
+    entryPoints: ['src/js/main.js'],
     bundle: true,
     minify: true,
     outfile: 'assets/js/script.min.js',
   });
+
+  const staticJs = ['csp.js', 'gtag-init.js', 'sw-register.js'];
+  for (const file of staticJs) {
+    fs.copyFileSync(path.join('src/js', file), path.join('assets/js', file));
+  }
 
   await esbuild.build({
     entryPoints: ['assets/css/style.css'],
