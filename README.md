@@ -42,6 +42,14 @@ Se ejecutan pruebas unitarias para utilidades de generación de IDs y el Service
 - `build.js` – Tareas de empaquetado con esbuild.
 - `build-pages.js` – Script para generar las páginas desde las plantillas.
 
+## Código fuente y herramientas
+
+- `src/js/` – Módulos de frontend sin empaquetar. Coloca aquí cualquier módulo nuevo.
+- `assets/js/` – Directorio de salida del build con los bundles minificados.
+- `tools/` – Scripts de Node.js para tareas de construcción y mantenimiento.
+
+Los colaboradores deben ubicar los módulos de frontend nuevos en `src/js/` y los scripts de construcción en `tools/`.
+
 ## Despliegue
 
 El sitio puede hospedarse en cualquier servidor estático. Solo es necesario colocar los archivos resultantes en el servidor y asegurarse de servir `service-worker.js` en la raíz.
