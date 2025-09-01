@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "build": "node build.js && node build-pages.js && node scripts/inject-structured-data.js",
+    "build": "node build.js && node build-pages.js && node scripts/inject-structured-data.js && node scripts/generate-sitemap.js",
     "icons": "node generate-icons.js",
     "images:variants": "node scripts/generate-image-variants.js",
     "prune:backups": "node scripts/prune-backups.js",
