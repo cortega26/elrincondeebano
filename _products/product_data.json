@@ -1,6 +1,6 @@
 {
-  "version": "20250901-215122",
-  "last_updated": "2025-09-01T21:51:22.808126",
+  "version": "20250901-215311",
+  "last_updated": "2025-09-01T21:53:11.027401",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -396,7 +396,7 @@
       "name": "Coors lata 350cc",
       "description": "Cerveza Lager x 6 unidades",
       "price": 5900,
-      "discount": 400,
+      "discount": 0,
       "stock": true,
       "category": "Cervezas",
       "image_path": "assets/images/cervezas/Coors lata 350cc.webp",
