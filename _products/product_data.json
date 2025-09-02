@@ -1,6 +1,6 @@
 {
-  "version": "20250901-135009",
-  "last_updated": "2025-09-01T13:50:09.858117",
+  "version": "20250901-215122",
+  "last_updated": "2025-09-01T21:51:22.808126",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -297,7 +297,7 @@
       "description": "Espumante • Botella de 750mL",
       "price": 6500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Espumantes",
       "image_path": "assets/images/espumantes/Undurraga Sweet Moscato 750mL.webp",
       "order": 29
