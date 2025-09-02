@@ -1,6 +1,6 @@
 {
-  "version": "20250901-215311",
-  "last_updated": "2025-09-01T21:53:11.027401",
+  "version": "20250901-215509",
+  "last_updated": "2025-09-01T21:55:09.347625",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -506,7 +506,7 @@
       "name": "Chuleta Ahumada con hueso x Kg",
       "description": "Empaque congelado y al vacío (peso aprox. 600g)",
       "price": 8900,
-      "discount": 500,
+      "discount": 0,
       "stock": true,
       "category": "Carnesyembutidos",
       "image_path": "assets/images/carnes_y_embutidos/Chuleta Ahumada con hueso.webp",
