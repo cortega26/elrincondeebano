@@ -27,7 +27,7 @@ This repository contains the source code for the static website **El Rincón de 
   - `assets/images/variants/` – Generated image variants.
 - `templates/` – EJS templates for generating pages. Modify these instead of files in `pages/`.
 - `pages/` – Generated HTML pages. **Do not edit directly**; run the build to regenerate.
-- `scripts/` – Node build and maintenance scripts.
+- `tools/` – Node build and maintenance scripts.
 - `test/` – Node-based unit tests.
 - `admin/`, `admin-panel/` – Administrative tools; follow existing patterns when editing.
 

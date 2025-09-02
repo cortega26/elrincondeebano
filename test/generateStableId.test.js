@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { generateStableId } = require('../assets/js/script.js');
+const { generateStableId } = require('../src/js/script.js');
 
 const prodA1 = { name: 'Milk', category: 'Dairy' };
 const prodA2 = { name: 'Milk', category: 'Dairy' };

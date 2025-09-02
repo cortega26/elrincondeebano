@@ -19,7 +19,7 @@ test('setupNavigationAccessibility toggles class and inserts style', () => {
   global.document = dom.window.document;
   global.location = dom.window.location;
 
-  const { setupNavigationAccessibility } = loadModule('../assets/js/modules/a11y.js');
+  const { setupNavigationAccessibility } = loadModule('../src/js/modules/a11y.js');
 
   setupNavigationAccessibility();
 
@@ -39,7 +39,7 @@ test('injectPwaManifest adds link only once', () => {
   global.document = dom.window.document;
   global.location = dom.window.location;
 
-  const { injectPwaManifest } = loadModule('../assets/js/modules/pwa.js');
+  const { injectPwaManifest } = loadModule('../src/js/modules/pwa.js');
 
   injectPwaManifest();
   assert.strictEqual(document.querySelectorAll('link[rel="manifest"]').length, 1, 'manifest link inserted');
@@ -55,7 +55,7 @@ test('injectStructuredData and injectSeoMetadata insert expected elements', asyn
   global.localStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {}, clear: () => {} };
   global.fetch = async () => ({ ok: true, json: async () => ({ products: [] }) });
 
-  const { injectStructuredData, injectSeoMetadata } = loadModule('../assets/js/modules/seo.js');
+  const { injectStructuredData, injectSeoMetadata } = loadModule('../src/js/modules/seo.js');
 
   await injectStructuredData();
   injectSeoMetadata();

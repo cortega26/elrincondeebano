@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('node:vm');
 
-const scriptPath = path.join(__dirname, '../assets/js/script.js');
+const scriptPath = path.join(__dirname, '../src/js/script.js');
 const scriptContent = fs.readFileSync(scriptPath, 'utf-8');
 
 function setupDom() {
