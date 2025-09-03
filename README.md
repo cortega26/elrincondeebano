@@ -26,6 +26,17 @@ npm run build    # compila CSS/JS y genera las páginas estáticas
 Los archivos generados se encuentran en la carpeta `pages/` y en `assets/`.
 El script `build-pages.js` toma las plantillas EJS de `templates/` y crea las páginas de cada categoría, evitando repetir código HTML.
 
+## Imágenes responsivas
+
+Las imágenes fuente se colocan en `assets/img/originals`. Un flujo de GitHub Actions genera variantes optimizadas en `assets/img/variants` utilizando AVIF, WebP y un formato de respaldo. Para reescribir las referencias en HTML y CSS usa:
+
+```bash
+npm run images:rewrite
+npm run lint:images
+```
+
+Para saltar esta fase establece la variable `SKIP_IMAGE_OPT=1`.
+
 ## Pruebas
 
 ```bash
