@@ -776,19 +776,17 @@ const initApp = async () => {
 
             const imgPath = `/${image_path.replace(/^\//, '')}`;
             const imgElement = createSafeElement('img', {
-                src: cfimg(imgPath, { ...CFIMG_THUMB, width: 400 }),
+                src: cfimg(imgPath, { ...CFIMG_THUMB, width: 200 }),
                 srcset: [
-                    `${cfimg(imgPath, { ...CFIMG_THUMB, width: 200 })} 200w`,
-                    `${cfimg(imgPath, { ...CFIMG_THUMB, width: 400 })} 400w`,
-                    `${cfimg(imgPath, { ...CFIMG_THUMB, width: 800 })} 800w`
+                    `${cfimg(imgPath, { ...CFIMG_THUMB, width: 200, dpr: 1 })} 1x`,
+                    `${cfimg(imgPath, { ...CFIMG_THUMB, width: 200, dpr: 2 })} 2x`
                 ].join(', '),
-                sizes: '(max-width: 640px) 200px, 400px',
                 alt: name,
                 class: 'card-img-top product-thumb',
                 loading: 'lazy',
                 decoding: 'async',
-                width: '400',
-                height: '400'
+                width: '200',
+                height: '200'
             });
             cardElement.appendChild(imgElement);
 

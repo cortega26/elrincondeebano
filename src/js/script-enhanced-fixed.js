@@ -394,14 +394,12 @@ const renderProducts = (products) => {
             <div class="card h-100">
                 <img
                   class="product-thumb card-img-top"
-                  src="${cfimg(product.image_path, { ...CFIMG_THUMB, width: 400 })}"
+                  src="${cfimg(product.image_path, { ...CFIMG_THUMB, width: 200 })}"
                   srcset="
-                    ${cfimg(product.image_path, { ...CFIMG_THUMB, width: 200 })} 200w,
-                    ${cfimg(product.image_path, { ...CFIMG_THUMB, width: 400 })} 400w,
-                    ${cfimg(product.image_path, { ...CFIMG_THUMB, width: 800 })} 800w
+                    ${cfimg(product.image_path, { ...CFIMG_THUMB, width: 200, dpr: 1 })} 1x,
+                    ${cfimg(product.image_path, { ...CFIMG_THUMB, width: 200, dpr: 2 })} 2x
                   "
-                  sizes="(max-width: 640px) 200px, 400px"
-                  width="400" height="400"
+                  width="200" height="200"
                   loading="lazy" decoding="async"
                 >
                 <div class="card-body d-flex flex-column">
