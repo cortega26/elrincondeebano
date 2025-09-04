@@ -1,5 +1,4 @@
-﻿'use strict';
-
+import { cfimg, CFIMG_THUMB } from './utils/cfimg.mjs';
 
 // Service Worker Configuration and Initialization
 const SERVICE_WORKER_CONFIG = {
@@ -757,7 +756,6 @@ const initApp = async () => {
 
     const renderProducts = (productsToRender) => {
         const fragment = document.createDocumentFragment();
-        const isSubcategoryPage = window.location.pathname.includes('/pages/');
 
         productsToRender.forEach(product => {
             const { id, name, description, image_path, price, discount, stock } = product;
@@ -776,33 +774,22 @@ const initApp = async () => {
                 cardElement.appendChild(badge);
             }
 
-            let adjustedImagePath;
-            if (isSubcategoryPage) {
-                adjustedImagePath = `../${image_path.replace(/^\//, '')}`;
-            } else {
-                adjustedImagePath = image_path;
-            }
-
-            const imgDataAttrs = {
-                'data-src': adjustedImagePath,
+            const imgPath = `/${image_path.replace(/^\//, '')}`;
+            const imgElement = createSafeElement('img', {
+                src: cfimg(imgPath, { ...CFIMG_THUMB, width: 400 }),
+                srcset: [
+                    `${cfimg(imgPath, { ...CFIMG_THUMB, width: 200 })} 200w`,
+                    `${cfimg(imgPath, { ...CFIMG_THUMB, width: 400 })} 400w`,
+                    `${cfimg(imgPath, { ...CFIMG_THUMB, width: 800 })} 800w`
+                ].join(', '),
+                sizes: '(max-width: 640px) 200px, 400px',
                 alt: name,
-                class: 'card-img-top lazyload',
+                class: 'card-img-top product-thumb',
                 loading: 'lazy',
                 decoding: 'async',
                 width: '400',
                 height: '400'
-            };
-            if (Array.isArray(product.image_variants)) {
-                const variants = product.image_variants
-                    .filter(v => v && v.url && v.width)
-                    .sort((a,b) => a.width - b.width)
-                    .map(v => `${isSubcategoryPage ? `../${String(v.url).replace(/^\//,'')}` : v.url} ${v.width}w`);
-                if (variants.length) {
-                    imgDataAttrs['data-srcset'] = variants.join(', ');
-                    imgDataAttrs['data-sizes'] = '(max-width: 576px) 45vw, (max-width: 992px) 30vw, 25vw';
-                }
-            }
-            const imgElement = createSafeElement('img', imgDataAttrs);
+            });
             cardElement.appendChild(imgElement);
 
             const cardBody = createSafeElement('div', { class: 'card-body' });
@@ -1428,16 +1415,26 @@ if (typeof document !== 'undefined') {
         });
     });
 }
-if (typeof module !== 'undefined') {
-    module.exports = {
-        generateStableId,
-        fetchProducts,
-        addToCart,
-        removeFromCart,
-        updateQuantity,
-        updateCartIcon,
-        __getCart: () => cart
-    };
+function __getCart() {
+    return cart;
 }
+
+function __resetCart() {
+    cart = [];
+}
+
+export {
+    generateStableId,
+    fetchProducts,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    updateCartIcon,
+    showUpdateNotification,
+    showServiceWorkerError,
+    showConnectivityNotification,
+    __getCart,
+    __resetCart
+};
 
 
