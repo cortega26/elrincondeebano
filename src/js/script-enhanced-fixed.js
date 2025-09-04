@@ -3,7 +3,7 @@
  * Modern UX/UI improvements and animations + Core Loading Functionality
  */
 
-'use strict';
+import { cfimg, CFIMG_THUMB } from './utils/cfimg.mjs';
 
 // Core loading functionality
 const coreLoader = {
@@ -392,7 +392,18 @@ const renderProducts = (products) => {
 
         productElement.innerHTML = `
             <div class="card h-100">
-                <img src="${product.image_path}" alt="${product.name}" class="card-img-top" loading="lazy" decoding="async" width="400" height="400">
+                <img
+                  class="product-thumb card-img-top"
+                  src="${cfimg(product.image_path, { ...CFIMG_THUMB, width: 400 })}"
+                  srcset="
+                    ${cfimg(product.image_path, { ...CFIMG_THUMB, width: 200 })} 200w,
+                    ${cfimg(product.image_path, { ...CFIMG_THUMB, width: 400 })} 400w,
+                    ${cfimg(product.image_path, { ...CFIMG_THUMB, width: 800 })} 800w
+                  "
+                  sizes="(max-width: 640px) 200px, 400px"
+                  width="400" height="400"
+                  loading="lazy" decoding="async"
+                >
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">${product.name}</h5>
                     <p class="card-text flex-grow-1">${product.description}</p>

@@ -9,7 +9,7 @@ import { setupCheckoutProgress } from './modules/checkout.js';
 
 // Import the core app for side effects when bundling.
 // Note: When bundling via esbuild, this pulls in the main application logic.
-import './script.js';
+import './script.mjs';
 
 function initEnhancementsOnce() {
   const root = document.documentElement;

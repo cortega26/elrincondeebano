@@ -2,42 +2,46 @@ const test = require('node:test');
 const assert = require('node:assert');
 const { MockAgent, setGlobalDispatcher, fetch: undiciFetch } = require('undici');
 
-const { fetchProducts } = require('../src/js/script.js');
+let fetchProducts;
 
-// Minimal DOM stubs for error handling paths
-global.window = { location: { reload() {} } };
-global.document = {
-  createElement: () => ({
-    setAttribute() {},
-    appendChild() {},
+(async () => {
+  // Minimal DOM stubs for error handling paths
+  global.window = { location: { reload() {} }, addEventListener() {} };
+  global.document = {
     addEventListener() {},
-    querySelector() { return { addEventListener() {} }; },
-    remove() {}
-  }),
-  createTextNode: text => ({ textContent: text }),
-  getElementById: () => null,
-  body: { appendChild() {}, contains() { return false; } }
-};
-
-// Mock fetch using undici's MockAgent
-const mockAgent = new MockAgent();
-mockAgent.disableNetConnect();
-setGlobalDispatcher(mockAgent);
-const mockPool = mockAgent.get('http://localhost');
-
-global.fetch = (url, opts) => undiciFetch(new URL(url, 'http://localhost').toString(), opts);
-
-function setupLocalStorage(initial = {}) {
-  const store = { ...initial };
-  global.localStorage = {
-    getItem: key => (key in store ? store[key] : null),
-    setItem: (key, value) => { store[key] = String(value); },
-    removeItem: key => { delete store[key]; },
-    clear: () => { for (const k of Object.keys(store)) delete store[k]; }
+    createElement: () => ({
+      setAttribute() {},
+      appendChild() {},
+      addEventListener() {},
+      querySelector() { return { addEventListener() {} }; },
+      remove() {}
+    }),
+    createTextNode: text => ({ textContent: text }),
+    getElementById: () => null,
+    body: { appendChild() {}, contains() { return false; } }
   };
-}
 
-test('fetchProducts', async (t) => {
+  ({ fetchProducts } = await import('../src/js/script.mjs'));
+
+  // Mock fetch using undici's MockAgent
+  const mockAgent = new MockAgent();
+  mockAgent.disableNetConnect();
+  setGlobalDispatcher(mockAgent);
+  const mockPool = mockAgent.get('http://localhost');
+
+  global.fetch = (url, opts) => undiciFetch(new URL(url, 'http://localhost').toString(), opts);
+
+  function setupLocalStorage(initial = {}) {
+    const store = { ...initial };
+    global.localStorage = {
+      getItem: key => (key in store ? store[key] : null),
+      setItem: (key, value) => { store[key] = String(value); },
+      removeItem: key => { delete store[key]; },
+      clear: () => { for (const k of Object.keys(store)) delete store[k]; }
+    };
+  }
+
+  test('fetchProducts', async (t) => {
   await t.test('successful fetch without productDataVersion', async () => {
     setupLocalStorage();
     let path;
@@ -99,5 +103,9 @@ test('fetchProducts', async (t) => {
     mockAgent.assertNoPendingInterceptors();
   });
 
-  t.after(() => mockAgent.close());
+    t.after(() => mockAgent.close());
+  });
+})().catch(err => {
+  console.error(err);
+  process.exit(1);
 });

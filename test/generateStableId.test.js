@@ -1,20 +1,28 @@
 const assert = require('assert');
-const { generateStableId } = require('../src/js/script.js');
 
-const prodA1 = { name: 'Milk', category: 'Dairy' };
-const prodA2 = { name: 'Milk', category: 'Dairy' };
-assert.strictEqual(
-  generateStableId(prodA1),
-  generateStableId(prodA2),
-  'identical products should yield the same id'
-);
+(async () => {
+  global.window = { addEventListener() {}, navigator: {} };
+  global.document = { addEventListener() {}, getElementById: () => null };
+  const { generateStableId } = await import('../src/js/script.mjs');
 
-const prodB = { name: 'Cheese', category: 'Dairy' };
-assert.notStrictEqual(
-  generateStableId(prodA1),
-  generateStableId(prodB),
-  'different products should yield different ids'
-);
+  const prodA1 = { name: 'Milk', category: 'Dairy' };
+  const prodA2 = { name: 'Milk', category: 'Dairy' };
+  assert.strictEqual(
+    generateStableId(prodA1),
+    generateStableId(prodA2),
+    'identical products should yield the same id'
+  );
 
-console.log('All tests passed');
+  const prodB = { name: 'Cheese', category: 'Dairy' };
+  assert.notStrictEqual(
+    generateStableId(prodA1),
+    generateStableId(prodB),
+    'different products should yield different ids'
+  );
+
+  console.log('All tests passed');
+})().catch(err => {
+  console.error(err);
+  process.exit(1);
+});
 
