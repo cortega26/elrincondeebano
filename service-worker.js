@@ -246,6 +246,7 @@ if (!TEST_MODE) {
     // Fetch event handler
     self.addEventListener('fetch', event => {
         const url = new URL(event.request.url);
+        if (url.pathname.startsWith('/cdn-cgi/image/')) return; // let edge handle it
 
         // Removed early network-first branch; unified handling below
 

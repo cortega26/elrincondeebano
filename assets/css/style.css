@@ -173,13 +173,18 @@ h1 {
 }
 
 /* Improve image rounding continuity */
-.producto .card-img-top {
-  border-top-left-radius: var(--border-radius);
-  border-top-right-radius: var(--border-radius);
+  .producto .card-img-top {
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+  }
+
+.product-thumb {
+  object-fit: cover;
+  aspect-ratio: 1 / 1;
 }
 
-/* Discount badge */
-.discount-badge {
+  /* Discount badge */
+  .discount-badge {
   position: absolute;
   top: 8px;
   left: 8px;

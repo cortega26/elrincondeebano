@@ -37,6 +37,13 @@ npm run lint:images
 
 Para saltar esta fase establece la variable `SKIP_IMAGE_OPT=1`.
 
+## Responsive product images via Cloudflare
+
+Las miniaturas de productos se sirven mediante `/cdn-cgi/image` con `fit=cover`, `format=auto` y `quality=82`.
+Se definen tres anchos (200w, 400w y 800w) con `srcset` y `sizes="(max-width: 640px) 200px, 400px"` para evitar descargas innecesarias en móviles.
+El Service Worker omite las solicitudes a `/cdn-cgi/image/` para que Cloudflare maneje la caché.
+Esto corrige la advertencia de Lighthouse sobre "imagen más grande que el tamaño mostrado" y mantiene bajo el número de transformaciones en el plan gratuito.
+
 ## Pruebas
 
 ```bash
