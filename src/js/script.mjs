@@ -134,9 +134,9 @@ function setupConnectivityHandling() {
     window.addEventListener('online', updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
 
-        if (!hidden) {
-            updateOnlineStatus();
-        }
+    if (!navigator.onLine) {
+        updateOnlineStatus();
+    }
 }
 
 // Show update notification to user
