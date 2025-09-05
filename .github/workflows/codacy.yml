@@ -33,6 +33,8 @@ jobs:
       actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
     name: Codacy Security Scan
     runs-on: ubuntu-latest
+    outputs:
+      sarif_files: ${{ steps.sarif-list.outputs.files }}
     steps:
       # Checkout the repository to the GitHub Actions runner
       - name: Checkout code
@@ -55,8 +57,37 @@ jobs:
           # This will handover control about PR rejection to the GitHub side
           max-allowed-issues: 2147483647
 
-      # Upload the SARIF file generated in the previous step
+      - name: Split SARIF per run
+        run: |
+          jq -c '.runs[]' results.sarif | nl -v0 -w1 | while read i run; do
+            echo "{\"$schema\":\"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json\",\"version\":\"2.1.0\",\"runs\":[${run}]}" > results-${i}.sarif
+          done
+      - name: List SARIF files
+        id: sarif-list
+        run: echo "files=$(ls results-*.sarif | jq -R -s -c 'split(\"\\n\")[:-1] | to_entries | map({index:.key,file:.value})')" >> "$GITHUB_OUTPUT"
+      - name: Upload SARIF artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarif-results
+          path: results-*.sarif
+
+  upload-sarif:
+    needs: codacy-security-scan
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include: ${{ fromJson(needs.codacy-security-scan.outputs.sarif_files) }}
+    steps:
+      - name: Download SARIF artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: sarif-results
       - name: Upload SARIF results file
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: results.sarif
+          sarif_file: ${{ matrix.file }}
+          category: codacy-${{ matrix.index }}
