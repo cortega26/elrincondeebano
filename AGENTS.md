@@ -2,6 +2,13 @@
 
 This repository contains the source code for the static website **El Rincón de Ébano**. It is built with Node.js scripts, EJS templates and static assets. Follow the guidelines below when contributing.
 
+## Priority & Safety Rules
+
+- Stability first. Preserving existing behavior is higher priority than adding new code or fixes.
+- Do not break current functionality. If a proposed change risks altering existing features or behavior, do not proceed without explicit approval and a mitigation plan.
+- Test anything that could plausibly introduce a bug. Verify in a safe environment (staging/sandbox) or add automated tests and run them in CI.
+- Merge gate: No change may be merged unless all impacted behavior is verified as unchanged and required tests pass. If uncertainty remains, stop and escalate instead of shipping.
+
 ## General Guidelines
 
 - Keep changes focused and minimal; avoid unrelated edits in the same commit.
