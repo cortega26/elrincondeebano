@@ -551,3 +551,18 @@ h1 {
     margin-bottom: 0.5rem;
   }
 }
+
+/* Layout Containers */
+#navbar-container {
+  min-height: 56px;
+}
+
+#footer-container {
+  min-height: 120px;
+}
+
+/* Utility: hide element without inline styles (CSP safe) */
+.is-hidden {
+  display: none !important;
+}
+
