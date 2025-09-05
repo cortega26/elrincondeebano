@@ -55,7 +55,8 @@ async function main() {
   const products = Array.isArray(raw.products) ? raw.products : Array.isArray(raw) ? raw : [];
   const scriptTag = generateStructuredData(products);
 
-  const files = [path.join(rootDir, 'index.html')];
+  // Skip injecting structured data into the index page; handled at runtime by csp.js
+  const files = [];
   const pagesDir = path.join(rootDir, 'pages');
   if (fs.existsSync(pagesDir)) {
     for (const file of fs.readdirSync(pagesDir)) {
