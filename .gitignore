@@ -4,7 +4,6 @@
 *.pyd
 
 # Python distribution / packaging
-dist/
 build/
 *.egg-info/
 *.egg
@@ -75,3 +74,6 @@ node_modules/
 text_files/
 results.json
 
+# Build output and temporary files
+dist/
+temp/

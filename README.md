@@ -23,8 +23,8 @@ npm install      # instala las dependencias
 npm run build    # compila CSS/JS y genera las páginas estáticas
 ```
 
-Los archivos generados se encuentran en la carpeta `pages/` y en `assets/`.
-El script `build-pages.js` toma las plantillas EJS de `templates/` y crea las páginas de cada categoría, evitando repetir código HTML.
+Los archivos generados se encuentran en las carpetas `pages/` y `dist/`.
+El script `tools/build-pages.js` toma las plantillas EJS de `templates/` y crea las páginas de cada categoría, evitando repetir código HTML.
 
 ## Imágenes responsivas
 
@@ -54,16 +54,16 @@ Se ejecutan pruebas unitarias para utilidades de generación de IDs y el Service
 
 ## Estructura del proyecto
 
-- `assets/` – Archivos estáticos (CSS, JS, imágenes, fuentes).
+- `assets/` – Archivos estáticos (CSS, imágenes, fuentes).
+- `dist/` – Directorio de salida del build con los bundles minificados.
 - `pages/` – Páginas HTML generadas a partir de plantillas.
 - `templates/` – Plantillas EJS para las páginas de categorías.
-- `build.js` – Tareas de empaquetado con esbuild.
-- `build-pages.js` – Script para generar las páginas desde las plantillas.
+- `tools/` – Scripts de Node.js para construcción y mantenimiento.
 
 ## Código fuente y herramientas
 
 - `src/js/` – Módulos de frontend sin empaquetar. Coloca aquí cualquier módulo nuevo.
-- `assets/js/` – Directorio de salida del build con los bundles minificados.
+- `dist/` – Salida de los bundles minificados.
 - `tools/` – Scripts de Node.js para tareas de construcción y mantenimiento.
 
 Los colaboradores deben ubicar los módulos de frontend nuevos en `src/js/` y los scripts de construcción en `tools/`.
