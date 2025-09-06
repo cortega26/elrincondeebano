@@ -1,26 +1,26 @@
 /* Modern Design System - Enhanced Variables */
 :root {
     /* Primary Color Palette */
-    --primary-color: #2E7D32;
-    --primary-light: #60AD5E;
-    --primary-dark: #1B5E20;
+    --primary-color: #005b4f;
+    --primary-light: #00897b;
+    --primary-dark: #003d33;
 
     /* Secondary Color Palette */
-    --secondary-color: #2E8B57;
-    --secondary-light: #4CAF50;
-    --secondary-dark: #1B5E20;
+    --secondary-color: #546e7a;
+    --secondary-light: #819ca9;
+    --secondary-dark: #29434e;
 
     /* Accent Colors */
-    --accent-color: #FFB300;
-    --accent-light: #FFD54F;
-    --accent-dark: #FF8F00;
+    --accent-color: #f4b400;
+    --accent-light: #ffcf33;
+    --accent-dark: #c68400;
 
     /* Neutral Colors */
-    --background-color: #F8F9FA;
-    --surface-color: #FFFFFF;
-    --text-primary: #2C3E50;
-    --text-secondary: #5D6D7E;
-    --text-muted: #85929E;
+    --background-color: #ffffff;
+    --surface-color: #ffffff;
+    --text-primary: #212529;
+    --text-secondary: #495057;
+    --text-muted: #6c757d;
 
     /* Semantic Colors */
     --success-color: #27AE60;
@@ -483,13 +483,13 @@ h1 {
 
 .add-to-cart-btn {
     padding: 12px 20px;
-    background: #2E7D32;
-    color: #fff;
+    background: var(--accent-color);
+    color: var(--text-color);
 }
 
 .add-to-cart-btn:hover,
 .add-to-cart-btn:active {
-    background: #2E7D32;
+    background: var(--accent-dark);
 }
 
 /* Enhanced Cart Offcanvas */
@@ -851,7 +851,7 @@ h1 {
   position: absolute;
   top: -40px;
   left: 0;
-  background: #0d6efd;
+  background: var(--primary-color);
   color: #fff;
   padding: 8px 12px;
   z-index: 10000;
