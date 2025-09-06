@@ -1,9 +1,9 @@
 :root {
-    --primary-color: #2E7D32;
-    --secondary-color: #6c757d;
-    --accent-color: #FFB300;
-    --background-color: #F8F9FA;
-    --text-color: #333;
+    --primary-color: #005b4f;
+    --secondary-color: #546e7a;
+    --accent-color: #f4b400;
+    --background-color: #ffffff;
+    --text-color: #212529;
 }
 
 body {
@@ -56,7 +56,7 @@ a {
 }
 
 a:hover {
-    color: #004999;
+    color: var(--primary-color);
     text-decoration: underline;
 }
 
