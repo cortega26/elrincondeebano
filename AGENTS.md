@@ -28,10 +28,10 @@ This repository contains the source code for the static website **El Rincón de 
 
 ## Directory Overview
 
-- `assets/` – Static assets (JS, CSS, images, fonts).
-  - `assets/js/` – Front-end scripts bundled via esbuild.
+- `assets/` – Static assets (CSS, images, fonts).
   - `assets/css/` – Stylesheets.
   - `assets/images/variants/` – Generated image variants.
+- `dist/` – Built JS/CSS bundles.
 - `templates/` – EJS templates for generating pages. Modify these instead of files in `pages/`.
 - `pages/` – Generated HTML pages. **Do not edit directly**; run the build to regenerate.
 - `tools/` – Node build and maintenance scripts.

@@ -10,7 +10,7 @@ function generateResourceHints() {
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
     
     <!-- Preload critical assets -->
-    <link rel="preload" href="/assets/css/critical.min.css" as="style" fetchpriority="high">
+    <link rel="preload" href="/dist/css/critical.min.css" as="style" fetchpriority="high">
     <link rel="preload" href="/assets/images/web/logo.webp" as="image" type="image/webp" fetchpriority="high">`;
 }
 
