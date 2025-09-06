@@ -16,8 +16,9 @@ async function ensureSharp() {
 
 async function main() {
   const sharp = await ensureSharp();
-  const src = path.resolve(__dirname, 'assets/images/web/logo.webp');
-  const outDir = path.resolve(__dirname, 'assets/images/web');
+  const rootDir = path.resolve(__dirname, '..');
+  const src = path.join(rootDir, 'assets/images/web/logo.webp');
+  const outDir = path.join(rootDir, 'assets/images/web');
   const targets = [
     { size: 192, name: 'icon-192.png' },
     { size: 512, name: 'icon-512.png' },
