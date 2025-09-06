@@ -28,12 +28,14 @@ El script `tools/build-pages.js` toma las plantillas EJS de `templates/` y crea 
 
 ## Imágenes responsivas
 
-Las imágenes fuente se colocan en `assets/img/originals`. Un flujo de GitHub Actions genera variantes optimizadas en `assets/img/variants` utilizando AVIF, WebP y un formato de respaldo. Para reescribir las referencias en HTML y CSS usa:
+Las imágenes fuente se colocan en `assets/images/originals`. Un flujo de GitHub Actions genera variantes optimizadas en `assets/images/variants` utilizando AVIF, WebP y un formato de respaldo. Para reescribir las referencias en HTML y CSS usa:
 
 ```bash
 npm run images:rewrite
 npm run lint:images
 ```
+
+Para convertir archivos manualmente a WebP usa los scripts de Python en `scripts/`.
 
 Para saltar esta fase establece la variable `SKIP_IMAGE_OPT=1`.
 
