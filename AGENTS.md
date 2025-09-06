@@ -44,6 +44,7 @@ This repository contains the source code for the static website **El Rincón de 
 - Run `npm test` after modifying any code. Add or update tests for new functionality.
 - For changes affecting templates or assets, run `npm run build` to regenerate output.
 - When adding or updating product images, run `npm run images:variants` to produce responsive variants and update manifests.
+- If the website logo or PWA icons change, run `npm run icons` to regenerate `assets/images/web/icon-192.png` and `icon-512.png`, committing any newly generated files.
 - Whenever images are added or modified, run `npm run lint:images` to check dimensions and formats, resolving all issues before committing.
 - Ensure all scripts complete successfully before committing.
 
