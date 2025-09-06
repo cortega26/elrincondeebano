@@ -8,7 +8,7 @@ const crypto = require('crypto');
 
 // Paths
 const REPO_ROOT = path.resolve(__dirname, '..');
-const PRODUCTS_JSON = path.resolve(process.env.USERPROFILE || process.env.HOME || '', 'OneDrive', 'Tienda Ebano', '_products', 'product_data.json');
+const PRODUCTS_JSON = path.resolve(process.env.USERPROFILE || process.env.HOME || '', 'OneDrive', 'Tienda Ebano', 'data', 'product_data.json');
 const IMG_ROOT = path.resolve(REPO_ROOT, 'assets', 'images');
 const OUT_ROOT = path.join(IMG_ROOT, 'variants');
 const MANIFEST_PATH = path.join(OUT_ROOT, 'manifest.json');

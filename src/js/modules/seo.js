@@ -3,7 +3,7 @@
 async function loadProductData() {
   try {
     const version = localStorage.getItem('productDataVersion');
-    const url = version ? `/_products/product_data.json?v=${encodeURIComponent(version)}` : '/_products/product_data.json';
+    const url = version ? `/data/product_data.json?v=${encodeURIComponent(version)}` : '/data/product_data.json';
     const response = await fetch(url, { cache: 'no-store', headers: { 'Accept': 'application/json' } });
     if (!response.ok) return null;
     const data = await response.json();
