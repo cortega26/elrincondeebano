@@ -75,5 +75,4 @@ text_files/
 results.json
 
 # Build output and temporary files
-dist/
 temp/
