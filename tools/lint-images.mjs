@@ -21,13 +21,13 @@ function lintHtml(file, errors) {
   const imgs = dom.window.document.querySelectorAll('img');
   imgs.forEach(img => {
     const src = img.getAttribute('src') || '';
-    if (src.includes('/assets/img/originals/')) {
+    if (src.includes('/assets/images/originals/')) {
       errors.push(`${file}: image points to originals ${src}`);
     }
     if (!img.getAttribute('width') || !img.getAttribute('height')) {
       errors.push(`${file}: <img> missing width/height`);
     }
-    if (src.includes('/assets/img/')) {
+    if (src.includes('/assets/images/variants/')) {
       if (!img.getAttribute('srcset') || !img.getAttribute('sizes')) {
         errors.push(`${file}: <img> missing srcset/sizes`);
       }
@@ -37,7 +37,7 @@ function lintHtml(file, errors) {
 
 function lintCss(file, errors) {
   const css = fs.readFileSync(file, 'utf8');
-  if (css.includes('/assets/img/originals/')) {
+  if (css.includes('/assets/images/originals/')) {
     errors.push(`${file}: references originals`);
   }
 }
