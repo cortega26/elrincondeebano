@@ -5,7 +5,7 @@ import { JSDOM } from 'jsdom';
 const repoRoot = process.cwd();
 const htmlDirs = [repoRoot, path.join(repoRoot, 'pages')];
 const cssDir = path.join(repoRoot, 'assets', 'css');
-const varRoot = '/assets/img/variants';
+const varRoot = '/assets/images/variants';
 
 const defaultWidths = [200, 400, 600, 800, 1200, 1600, 2000];
 const thumbWidths = [200, 400, 600];
@@ -28,9 +28,9 @@ function buildSrcset(base, ext, widths) {
 function rewriteHtml(file) {
   const dom = new JSDOM(fs.readFileSync(file, 'utf8'));
   const { document } = dom.window;
-  document.querySelectorAll('img[src*="/assets/img/originals/"]').forEach(img => {
+  document.querySelectorAll('img[src*="/assets/images/originals/"]').forEach(img => {
     const src = img.getAttribute('src');
-    const rel = src.replace('/assets/img/originals/', '');
+    const rel = src.replace('/assets/images/originals/', '');
     const base = rel.replace(/\.[^./]+$/, '');
     const origExt = path.extname(rel).slice(1);
     const w = parseInt(img.getAttribute('width') || '0', 10);
@@ -79,7 +79,7 @@ function rewriteHtml(file) {
 
 function rewriteCss(file) {
   let css = fs.readFileSync(file, 'utf8');
-  css = css.replace(/url\((['"])?\/assets\/img\/originals\/(.+?)\.(jpe?g|png)\1\)/g, (_m, q, name, ext) => {
+  css = css.replace(/url\((['"])?\/assets\/images\/originals\/(.+?)\.(jpe?g|png)\1\)/g, (_m, q, name, ext) => {
     const base = name;
     return `image-set(url(${varRoot}/${base}-800.avif) type('image/avif'), url(${varRoot}/${base}-800.webp) type('image/webp'), url(${varRoot}/${base}-800.${ext}) type('image/${ext === 'png' ? 'png' : 'jpeg'}'))`;
   });
