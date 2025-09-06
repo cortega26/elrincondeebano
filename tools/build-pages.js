@@ -2,7 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const ejs = require('ejs');
 
-const templatePath = path.join(__dirname, 'templates', 'category.ejs');
+const rootDir = path.join(__dirname, '..');
+const templatePath = path.join(rootDir, 'templates', 'category.ejs');
 const template = fs.readFileSync(templatePath, 'utf8');
 
 const pages = [
@@ -29,6 +30,6 @@ const pages = [
 
 pages.forEach(page => {
   const html = ejs.render(template, { categoryName: page.name, description: page.description, slug: page.slug });
-  const outputPath = path.join(__dirname, 'pages', `${page.slug}.html`);
+  const outputPath = path.join(rootDir, 'pages', `${page.slug}.html`);
   fs.writeFileSync(outputPath, html);
 });
