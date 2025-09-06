@@ -67,7 +67,7 @@ class JsonProductRepository(ProductRepositoryProtocol):
         """
         self._file_lock = threading.Lock()
         self._base_path = Path(base_path) if base_path else Path(
-            r"C:\Users\corte\OneDrive\Tienda Ebano\_products")
+            r"C:\Users\corte\OneDrive\Tienda Ebano\data")
         self._file_path = self._base_path / file_name
         self._ensure_directory_exists()
 

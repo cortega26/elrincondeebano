@@ -48,7 +48,7 @@ function injectIntoFile(filePath, scriptTag) {
 
 async function main() {
   const rootDir = path.join(__dirname, '..');
-  const dataPath = path.join(rootDir, '_products', 'product_data.json');
+  const dataPath = path.join(rootDir, 'data', 'product_data.json');
   const raw = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
   const products = Array.isArray(raw.products) ? raw.products : Array.isArray(raw) ? raw : [];
   const scriptTag = generateStructuredData(products);

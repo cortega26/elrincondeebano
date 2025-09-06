@@ -40,7 +40,7 @@ class ProductManager:
 
     # Default configuration
     DEFAULT_CONFIG = {
-        "data_dir": r"C:\Users\corte\VS Code Projects\Tienda Ebano\_products",
+        "data_dir": r"C:\Users\corte\VS Code Projects\Tienda Ebano\data",
         "product_file": "product_data.json",
         "log_dir": "~/product_manager_logs",
         "log_level": "INFO",
