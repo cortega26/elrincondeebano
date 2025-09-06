@@ -45,7 +45,7 @@ let fetchProducts;
   await t.test('successful fetch without productDataVersion', async () => {
     setupLocalStorage();
     let path;
-    mockPool.intercept({ path: /^\/\_products\/product_data\.json/, method: 'GET' })
+    mockPool.intercept({ path: /^\/data\/product_data\.json/, method: 'GET' })
       .reply((opts) => {
         path = opts.path;
         return {
@@ -56,7 +56,7 @@ let fetchProducts;
       });
     const products = await fetchProducts();
     assert.deepStrictEqual(products, []);
-    assert.strictEqual(path, '/_products/product_data.json');
+    assert.strictEqual(path, '/data/product_data.json');
     mockAgent.assertNoPendingInterceptors();
   });
 
@@ -64,7 +64,7 @@ let fetchProducts;
     const version = '123';
     setupLocalStorage({ productDataVersion: version });
     let path;
-    mockPool.intercept({ path: /^\/\_products\/product_data\.json/, method: 'GET' })
+    mockPool.intercept({ path: /^\/data\/product_data\.json/, method: 'GET' })
       .reply((opts) => {
         path = opts.path;
         return {
@@ -81,7 +81,7 @@ let fetchProducts;
 
   await t.test('non-OK response throws', async () => {
     setupLocalStorage();
-    mockPool.intercept({ path: /^\/\_products\/product_data\.json/, method: 'GET' })
+    mockPool.intercept({ path: /^\/data\/product_data\.json/, method: 'GET' })
       .reply(500, {});
     await assert.rejects(fetchProducts(), /HTTP error/);
     mockAgent.assertNoPendingInterceptors();
@@ -89,7 +89,7 @@ let fetchProducts;
 
   await t.test('invalid JSON throws', async () => {
     setupLocalStorage();
-    mockPool.intercept({ path: /^\/\_products\/product_data\.json/, method: 'GET' })
+    mockPool.intercept({ path: /^\/data\/product_data\.json/, method: 'GET' })
       .reply(200, 'not json', { headers: { 'content-type': 'application/json' } });
     await assert.rejects(fetchProducts(), SyntaxError);
     mockAgent.assertNoPendingInterceptors();
@@ -97,7 +97,7 @@ let fetchProducts;
 
   await t.test('network failure throws', async () => {
     setupLocalStorage();
-    mockPool.intercept({ path: /^\/\_products\/product_data\.json/, method: 'GET' })
+    mockPool.intercept({ path: /^\/data\/product_data\.json/, method: 'GET' })
       .replyWithError(new Error('network failure'));
     await assert.rejects(fetchProducts());
     mockAgent.assertNoPendingInterceptors();
