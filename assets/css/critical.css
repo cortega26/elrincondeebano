@@ -1,10 +1,10 @@
 /* Base variables */
 :root {
-    --primary-color: #2E7D32;
-    --secondary-color: #6c757d;
-    --accent-color: #FFB300;
-    --text-color: #333;
-    --background-color: #F8F9FA;
+    --primary-color: #005b4f;
+    --secondary-color: #546e7a;
+    --accent-color: #f4b400;
+    --text-color: #212529;
+    --background-color: #ffffff;
     --border-radius: 0.25rem;
     --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     --transition: all 0.3s ease;
