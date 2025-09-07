@@ -11,9 +11,9 @@
     --secondary-dark: #29434e;
 
     /* Accent Colors */
-    --accent-color: #f4b400;
-    --accent-light: #ffcf33;
-    --accent-dark: #c68400;
+    --accent-color: #a15c00;
+    --accent-light: #ffb74d;
+    --accent-dark: #7a4100;
 
     /* Neutral Colors */
     --background-color: #ffffff;
@@ -481,11 +481,11 @@ h1 {
     box-shadow: var(--shadow-sm);
 }
 
-.add-to-cart-btn {
-    padding: 12px 20px;
-    background: var(--accent-color);
-    color: var(--text-color);
-}
+  .add-to-cart-btn {
+      padding: 12px 20px;
+      background: var(--accent-color);
+      color: #fff;
+  }
 
 .add-to-cart-btn:hover,
 .add-to-cart-btn:active {

@@ -2,7 +2,7 @@
 :root {
   --primary-color: #005b4f;
   --secondary-color: #546e7a;
-  --accent-color: #f4b400;
+  --accent-color: #a15c00;
   --text-color: #212529;
   --background-color: #ffffff;
   --border-radius: 0.25rem;
@@ -373,7 +373,7 @@ h1 {
   background-color: var(--accent-color);
   border-color: var(--accent-color);
   padding: 12px 20px;
-  color: var(--text-color);
+  color: #fff;
 }
 
 /* Cart Offcanvas Styles */
