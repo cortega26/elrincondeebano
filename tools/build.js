@@ -12,7 +12,7 @@ async function build() {
     outfile: path.join(rootDir, 'dist/js/script.min.js'),
   });
 
-  const staticJs = ['csp.js', 'gtag-init.js', 'sw-register.js'];
+  const staticJs = ['csp.js', 'sw-register.js'];
   const distJsDir = path.join(rootDir, 'dist/js');
   fs.mkdirSync(distJsDir, { recursive: true });
   for (const file of staticJs) {
