@@ -201,7 +201,11 @@ function createNotificationElement(message, primaryButtonText, secondaryButtonTe
 
     // Set up event listeners
     notification.querySelector('.primary-action').addEventListener('click', () => {
-        primaryAction();
+        try {
+            primaryAction();
+        } catch (err) {
+            console.error('Primary action failed:', err);
+        }
         notification.remove();
     });
 
@@ -311,12 +315,17 @@ class ProductDataError extends Error {
 }
 
 const fetchWithRetry = async (url, opts, retries, backoffMs, correlationId) => {
+    const parsed = new URL(url, window.location.origin);
+    if (parsed.origin !== window.location.origin || parsed.protocol !== 'https:') {
+        throw new Error('Invalid request URL: only same-origin HTTPS requests are allowed');
+    }
+    const sanitizedUrl = parsed.toString();
     let attempt = 0;
     let lastError;
     while (attempt <= retries) {
         try {
             const start = Date.now();
-            const response = await fetch(url, opts);
+            const response = await fetch(sanitizedUrl, opts);
             const durationMs = Date.now() - start;
             log('info', 'fetch_products_attempt', { correlationId, attempt: attempt + 1, durationMs });
             if (!response.ok) {
@@ -1468,6 +1477,7 @@ function __resetCart() {
 export {
     generateStableId,
     fetchProducts,
+    fetchWithRetry,
     addToCart,
     removeFromCart,
     updateQuantity,
