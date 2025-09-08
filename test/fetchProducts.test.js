@@ -2,9 +2,15 @@ const test = require('node:test');
 const assert = require('node:assert');
 const { MockAgent, setGlobalDispatcher, fetch: undiciFetch } = require('undici');
 
-let fetchProducts;
+let fetchProducts, logs;
 
 (async () => {
+  logs = [];
+  global.console = {
+    log: msg => logs.push(msg),
+    warn: msg => logs.push(msg),
+    error: msg => logs.push(msg)
+  };
   // Minimal DOM stubs for error handling paths
   global.window = { location: { reload() {} }, addEventListener() {} };
   global.document = {
@@ -83,7 +89,15 @@ let fetchProducts;
     setupLocalStorage();
     mockPool.intercept({ path: /^\/data\/product_data\.json/, method: 'GET' })
       .reply(500, {});
-    await assert.rejects(fetchProducts(), /HTTP error/);
+    mockPool.intercept({ path: /^\/data\/product_data\.json/, method: 'GET' })
+      .reply(500, {});
+    mockPool.intercept({ path: /^\/data\/product_data\.json/, method: 'GET' })
+      .reply(500, {});
+    await assert.rejects(fetchProducts(), err => {
+      assert.strictEqual(err.name, 'ProductDataError');
+      assert.ok(/HTTP error/.test(err.message));
+      return true;
+    });
     mockAgent.assertNoPendingInterceptors();
   });
 
@@ -91,7 +105,11 @@ let fetchProducts;
     setupLocalStorage();
     mockPool.intercept({ path: /^\/data\/product_data\.json/, method: 'GET' })
       .reply(200, 'not json', { headers: { 'content-type': 'application/json' } });
-    await assert.rejects(fetchProducts(), SyntaxError);
+    await assert.rejects(fetchProducts(), err => {
+      assert.strictEqual(err.name, 'ProductDataError');
+      assert.ok(err.cause instanceof SyntaxError);
+      return true;
+    });
     mockAgent.assertNoPendingInterceptors();
   });
 
@@ -99,7 +117,36 @@ let fetchProducts;
     setupLocalStorage();
     mockPool.intercept({ path: /^\/data\/product_data\.json/, method: 'GET' })
       .replyWithError(new Error('network failure'));
+    await assert.rejects(fetchProducts(), err => {
+      assert.strictEqual(err.name, 'ProductDataError');
+      assert.ok(err.correlationId);
+      return true;
+    });
+    mockAgent.assertNoPendingInterceptors();
+  });
+
+  await t.test('retries then succeeds', async () => {
+    setupLocalStorage();
+    logs.length = 0;
+    mockPool.intercept({ path: /^\/data\/product_data\.json/, method: 'GET' })
+      .reply(500, {});
+    mockPool.intercept({ path: /^\/data\/product_data\.json/, method: 'GET' })
+      .reply(200, JSON.stringify({ products: [] }), { headers: { 'content-type': 'application/json' } });
+    const products = await fetchProducts();
+    assert.deepStrictEqual(products, []);
+    const warnLogs = logs.map(l => JSON.parse(l)).filter(l => l.level === 'warn');
+    assert.ok(warnLogs.length >= 1);
+    mockAgent.assertNoPendingInterceptors();
+  });
+
+  await t.test('logs structured error', async () => {
+    setupLocalStorage();
+    logs.length = 0;
+    mockPool.intercept({ path: /^\/data\/product_data\.json/, method: 'GET' })
+      .reply(500, {});
     await assert.rejects(fetchProducts());
+    const parsed = logs.map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+    assert.ok(parsed.some(p => p.level === 'error' && p.correlationId));
     mockAgent.assertNoPendingInterceptors();
   });
 
