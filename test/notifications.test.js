@@ -14,6 +14,7 @@ const { JSDOM } = require('jsdom');
   function setupDom() {
     const dom = new JSDOM('<!DOCTYPE html><body></body>', { url: 'http://localhost/' });
     dom.window.setTimeout = () => ({ unref() {} });
+    global.setTimeout = dom.window.setTimeout;
     delete dom.window.navigator.serviceWorker;
     dom.window.document.addEventListener = () => {};
     dom.window.location.reload = () => {};
