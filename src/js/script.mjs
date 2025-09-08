@@ -1,4 +1,5 @@
 import { cfimg, CFIMG_THUMB } from './utils/cfimg.mjs';
+import { log, createCorrelationId } from './utils/logger.mjs';
 
 // Service Worker Configuration and Initialization
 const SERVICE_WORKER_CONFIG = {
@@ -300,16 +301,54 @@ const sanitizeHTML = (unsafe) => {
     return element.innerHTML;
 };
 
+class ProductDataError extends Error {
+    constructor(message, { cause, correlationId }) {
+        super(message);
+        this.name = 'ProductDataError';
+        this.correlationId = correlationId;
+        if (cause) this.cause = cause;
+    }
+}
+
+const fetchWithRetry = async (url, opts, retries, backoffMs, correlationId) => {
+    let attempt = 0;
+    let lastError;
+    while (attempt <= retries) {
+        try {
+            const start = Date.now();
+            const response = await fetch(url, opts);
+            const durationMs = Date.now() - start;
+            log('info', 'fetch_products_attempt', { correlationId, attempt: attempt + 1, durationMs });
+            if (!response.ok) {
+                throw new Error(`HTTP error. Status: ${response.status}`);
+            }
+            return response;
+        } catch (err) {
+            lastError = err;
+            attempt++;
+            if (attempt > retries) break;
+            log('warn', 'fetch_products_retry', { correlationId, attempt, error: err.message, runbook: 'RUNBOOK.md#product-data' });
+            await new Promise(resolve => setTimeout(resolve, backoffMs * attempt));
+        }
+    }
+    throw new ProductDataError(`Failed to fetch products: ${lastError.message}`, { cause: lastError, correlationId });
+};
+
 // Modify the fetchProducts function
 const fetchProducts = async () => {
+    const correlationId = createCorrelationId();
     try {
         const version = localStorage.getItem('productDataVersion');
         const url = version ? `/data/product_data.json?v=${encodeURIComponent(version)}` : '/data/product_data.json';
-        const response = await fetch(url, { cache: 'no-store', headers: { 'Accept': 'application/json' } });
-        if (!response.ok) {
-            throw new Error(`HTTP error. Status: ${response.status}`);
-        }
+        const response = await fetchWithRetry(
+            url,
+            { cache: 'no-store', headers: { 'Accept': 'application/json' } },
+            2,
+            300,
+            correlationId
+        );
         const data = await response.json();
+        log('info', 'fetch_products_success', { correlationId, count: data.products.length });
         return data.products.map(product => ({
             ...product,
             id: generateStableId(product),
@@ -319,9 +358,12 @@ const fetchProducts = async () => {
             categoryKey: normalizeString(product.category)
         }));
     } catch (error) {
-        console.error('Error al obtener productos:', error);
+        log('error', 'fetch_products_failure', { correlationId, error: error.message, runbook: 'RUNBOOK.md#product-data' });
         showErrorMessage(`Error al cargar los productos. Por favor, verifique su conexión a internet e inténtelo de nuevo. (Error: ${error.message})`);
-        throw error;
+        if (error instanceof ProductDataError) {
+            throw error;
+        }
+        throw new ProductDataError(error.message, { cause: error, correlationId });
     }
 };
 
