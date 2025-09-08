@@ -12,7 +12,7 @@ let fetchProducts, logs;
     error: msg => logs.push(msg)
   };
   // Minimal DOM stubs for error handling paths
-  global.window = { location: { reload() {} }, addEventListener() {} };
+  global.window = { location: { origin: 'https://localhost', reload() {} }, addEventListener() {} };
   global.document = {
     addEventListener() {},
     createElement: () => ({
@@ -33,9 +33,9 @@ let fetchProducts, logs;
   const mockAgent = new MockAgent();
   mockAgent.disableNetConnect();
   setGlobalDispatcher(mockAgent);
-  const mockPool = mockAgent.get('http://localhost');
+  const mockPool = mockAgent.get('https://localhost');
 
-  global.fetch = (url, opts) => undiciFetch(new URL(url, 'http://localhost').toString(), opts);
+  global.fetch = (url, opts) => undiciFetch(new URL(url, 'https://localhost').toString(), opts);
 
   function setupLocalStorage(initial = {}) {
     const store = { ...initial };
