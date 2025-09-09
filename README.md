@@ -46,6 +46,24 @@ Se definen tres anchos (200w, 400w y 800w) con `srcset` y `sizes="(max-width: 64
 El Service Worker omite las solicitudes a `/cdn-cgi/image/` para que Cloudflare maneje la caché.
 Esto corrige la advertencia de Lighthouse sobre "imagen más grande que el tamaño mostrado" y mantiene bajo el número de transformaciones en el plan gratuito.
 
+### Utilidades de JavaScript
+
+Helpers internos permiten componer URLs de Cloudflare y registrar eventos estructurados.
+
+```js
+import { cfimg, CFIMG_THUMB } from './src/js/utils/cfimg.mjs';
+
+const url = cfimg('assets/images/banana.jpg', CFIMG_THUMB);
+// /cdn-cgi/image/fit=cover,quality=82,format=auto/assets/images/banana.jpg
+
+import { createCorrelationId, log } from './src/js/utils/logger.mjs';
+
+const id = createCorrelationId();
+log('info', 'Producto cargado', { id });
+```
+
+Consulta la [referencia completa](docs/api/utils.md) para más detalles.
+
 ## Pruebas
 
 ```bash
