@@ -1,19 +1,70 @@
 // SEO metadata + structured data (migrated/adapted from csp.js)
 
+const PRODUCT_DATA_GLOBAL_KEY = '__PRODUCT_DATA__';
+
+function getSharedProducts() {
+  try {
+    if (typeof window === 'undefined') return null;
+    const payload = window[PRODUCT_DATA_GLOBAL_KEY];
+    if (payload && Array.isArray(payload.products)) {
+      return payload.products;
+    }
+  } catch (e) {
+    console.warn('[modules/seo] Unable to read shared product data:', e);
+  }
+  return null;
+}
+
+function persistSharedProducts(products, metadata = {}) {
+  if (typeof window === 'undefined' || !Array.isArray(products)) {
+    return;
+  }
+  const existing = window[PRODUCT_DATA_GLOBAL_KEY] || {};
+  window[PRODUCT_DATA_GLOBAL_KEY] = {
+    ...existing,
+    products,
+    version: metadata.version ?? existing.version ?? null,
+    updatedAt: metadata.updatedAt || Date.now(),
+    source: metadata.source || existing.source || 'seo'
+  };
+}
+
+function createProductMap(products = []) {
+  const map = {};
+  products.forEach((p) => {
+    const key = p.id || String(p.name) + '-' + String(p.category);
+    map[key] = p;
+  });
+  return map;
+}
+
+function markStructuredDataInjected() {
+  if (typeof window === 'undefined') return;
+  const payload = window[PRODUCT_DATA_GLOBAL_KEY] || {};
+  if (payload.structuredDataInjected) {
+    return;
+  }
+  window[PRODUCT_DATA_GLOBAL_KEY] = {
+    ...payload,
+    structuredDataInjected: true
+  };
+}
+
 async function loadProductData() {
   try {
+    const sharedProducts = getSharedProducts();
+    if (sharedProducts) {
+      return createProductMap(sharedProducts);
+    }
+
     const version = localStorage.getItem('productDataVersion');
     const url = version ? `/data/product_data.json?v=${encodeURIComponent(version)}` : '/data/product_data.json';
     const response = await fetch(url, { cache: 'no-store', headers: { 'Accept': 'application/json' } });
     if (!response.ok) return null;
     const data = await response.json();
     const arr = Array.isArray(data?.products) ? data.products : (Array.isArray(data) ? data : []);
-    const map = {};
-    arr.forEach((p) => {
-      const key = p.id || String(p.name) + '-' + String(p.category);
-      map[key] = p;
-    });
-    return map;
+    persistSharedProducts(arr, { version: data?.version || version || null, source: 'seo-fallback' });
+    return createProductMap(arr);
   } catch (e) {
     console.error('[modules/seo] Error loading product data:', e);
     return null;
@@ -23,6 +74,11 @@ async function loadProductData() {
 export async function injectStructuredData() {
   try {
     if (document.querySelector('script[type="application/ld+json"]')) {
+      markStructuredDataInjected();
+      return;
+    }
+    const sharedPayload = typeof window !== 'undefined' ? window[PRODUCT_DATA_GLOBAL_KEY] : null;
+    if (sharedPayload?.structuredDataInjected) {
       return;
     }
     const map = await loadProductData();
@@ -70,6 +126,7 @@ export async function injectStructuredData() {
     }
     scriptEl.textContent = JSON.stringify(structuredData);
     document.head.appendChild(scriptEl);
+    markStructuredDataInjected();
   } catch (e) {
     console.error('[modules/seo] Error generating structured data:', e);
   }
