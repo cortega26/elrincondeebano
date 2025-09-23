@@ -53,14 +53,37 @@ test('injectStructuredData and injectSeoMetadata insert expected elements', asyn
   global.document = dom.window.document;
   global.location = dom.window.location;
   global.localStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {}, clear: () => {} };
-  global.fetch = async () => ({ ok: true, json: async () => ({ products: [] }) });
+  let fetchCalled = false;
+  global.fetch = async () => {
+    fetchCalled = true;
+    return { ok: true, json: async () => ({ products: [] }) };
+  };
+
+  window.__PRODUCT_DATA__ = {
+    products: [
+      {
+        id: 'p-1',
+        name: 'Producto 1',
+        description: 'Descripción breve',
+        price: 1200,
+        stock: true,
+        category: 'General',
+        image_path: '/assets/producto-1.webp',
+        brand: 'Marca Uno'
+      }
+    ]
+  };
 
   const { injectStructuredData, injectSeoMetadata } = loadModule('../src/js/modules/seo.js');
 
   await injectStructuredData();
   injectSeoMetadata();
 
+  assert.strictEqual(fetchCalled, false, 'should use shared product data without fetching');
   assert.ok(document.querySelector('script[type="application/ld+json"]'), 'structured data script inserted');
+  assert.ok(window.__PRODUCT_DATA__.structuredDataInjected, 'shared data should record structured data injection');
+  await injectStructuredData();
+  assert.strictEqual(document.querySelectorAll('script[type="application/ld+json"]').length, 1, 'structured data script should not duplicate');
   assert.ok(document.querySelector('link[rel="canonical"]'), 'canonical link inserted');
   assert.ok(document.querySelector('meta[name="description"]'), 'description meta inserted');
 });

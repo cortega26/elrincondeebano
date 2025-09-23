@@ -45,6 +45,7 @@ let fetchProducts, logs;
       removeItem: key => { delete store[key]; },
       clear: () => { for (const k of Object.keys(store)) delete store[k]; }
     };
+    resetSharedProductData();
   }
 
   const defaultGetElementById = global.document.getElementById;
@@ -59,6 +60,12 @@ let fetchProducts, logs;
       }
       return null;
     };
+  }
+
+  function resetSharedProductData() {
+    if (global.window && Object.prototype.hasOwnProperty.call(global.window, '__PRODUCT_DATA__')) {
+      delete global.window.__PRODUCT_DATA__;
+    }
   }
 
   test('fetchProducts', async (t) => {
@@ -78,6 +85,8 @@ let fetchProducts, logs;
     const products = await fetchProducts();
     assert.deepStrictEqual(products, []);
     assert.strictEqual(path, '/data/product_data.json');
+    assert.ok(global.window.__PRODUCT_DATA__, 'shared product payload should be populated');
+    assert.deepStrictEqual(global.window.__PRODUCT_DATA__.products, []);
     mockAgent.assertNoPendingInterceptors();
   });
 
@@ -98,6 +107,8 @@ let fetchProducts, logs;
     const products = await fetchProducts();
     assert.deepStrictEqual(products, []);
     assert.ok(path.includes(`v=${encodeURIComponent(version)}`));
+    assert.ok(global.window.__PRODUCT_DATA__, 'shared product payload should be populated');
+    assert.deepStrictEqual(global.window.__PRODUCT_DATA__.products, []);
     mockAgent.assertNoPendingInterceptors();
   });
 
@@ -199,10 +210,13 @@ let fetchProducts, logs;
       assert.strictEqual(products.length, 1);
       assert.strictEqual(fetchCalled, false);
       assert.strictEqual(global.localStorage.getItem('productDataVersion'), 'inline-1');
+      assert.ok(global.window.__PRODUCT_DATA__, 'shared product payload should be populated');
+      assert.strictEqual(global.window.__PRODUCT_DATA__.products.length, 1);
     } finally {
       global.fetch = originalFetch;
       setInlineProductData(null);
       global.document.getElementById = defaultGetElementById;
+      resetSharedProductData();
     }
   });
 
@@ -234,10 +248,13 @@ let fetchProducts, logs;
       assert.strictEqual(products.length, 1);
       assert.ok(fetchAttempts >= 1);
       assert.strictEqual(global.localStorage.getItem('productDataVersion'), 'inline-version');
+      assert.ok(global.window.__PRODUCT_DATA__, 'shared product payload should be populated');
+      assert.strictEqual(global.window.__PRODUCT_DATA__.products.length, 1);
     } finally {
       global.fetch = originalFetch;
       setInlineProductData(null);
       global.document.getElementById = defaultGetElementById;
+      resetSharedProductData();
     }
   });
 
