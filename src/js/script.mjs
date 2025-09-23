@@ -326,6 +326,78 @@ const sanitizeHTML = (unsafe) => {
     return element.innerHTML;
 };
 
+const INLINE_PRODUCT_SCRIPT_ID = 'product-data';
+
+const getStoredProductVersion = () => {
+    try {
+        if (typeof localStorage === 'undefined') {
+            return null;
+        }
+        return localStorage.getItem('productDataVersion');
+    } catch (error) {
+        console.warn('Unable to read stored product data version:', error);
+        return null;
+    }
+};
+
+const setStoredProductVersion = (version) => {
+    if (!version) {
+        return;
+    }
+    try {
+        if (typeof localStorage === 'undefined') {
+            return;
+        }
+        localStorage.setItem('productDataVersion', version);
+    } catch (error) {
+        console.warn('Unable to persist product data version:', error);
+    }
+};
+
+const parseInlineProductData = () => {
+    if (typeof document === 'undefined') {
+        return null;
+    }
+    try {
+        const script = document.getElementById(INLINE_PRODUCT_SCRIPT_ID);
+        if (!script || !script.textContent) {
+            return null;
+        }
+        const payload = script.textContent.trim();
+        if (!payload) {
+            return null;
+        }
+        const parsed = JSON.parse(payload);
+        if (!parsed || !Array.isArray(parsed.products)) {
+            return null;
+        }
+        return parsed;
+    } catch (error) {
+        log('warn', 'inline_product_parse_failure', { error: error.message });
+        return null;
+    }
+};
+
+const transformProduct = (product, index) => {
+    const id = product.id || generateStableId(product);
+    const originalIndex = typeof product.originalIndex === 'number'
+        ? product.originalIndex
+        : typeof product.order === 'number'
+            ? product.order
+            : index;
+    return {
+        ...product,
+        id,
+        name: sanitizeHTML(product.name),
+        description: sanitizeHTML(product.description),
+        category: sanitizeHTML(product.category),
+        categoryKey: product.categoryKey || normalizeString(product.category),
+        originalIndex
+    };
+};
+
+const transformProducts = (products = []) => products.map((product, index) => transformProduct(product, index));
+
 class ProductDataError extends Error {
     constructor(message, { cause, correlationId }) {
         super(message);
@@ -367,9 +439,25 @@ const fetchWithRetry = async (url, opts, retries, backoffMs, correlationId) => {
 // Modify the fetchProducts function
 const fetchProducts = async () => {
     const correlationId = createCorrelationId();
+    const inlineData = parseInlineProductData();
+    const inlineProducts = inlineData ? transformProducts(inlineData.products) : null;
+    const inlineVersion = inlineData?.version || null;
+    const storedVersion = getStoredProductVersion();
+    const hasInlineProducts = Array.isArray(inlineProducts);
+    const inlineCount = hasInlineProducts ? inlineProducts.length : 0;
+
+    const canTrustInline = hasInlineProducts && (!inlineVersion || !storedVersion || storedVersion === inlineVersion);
+    if (canTrustInline) {
+        if (inlineVersion) {
+            setStoredProductVersion(inlineVersion);
+        }
+        log('info', 'fetch_products_inline', { correlationId, count: inlineCount });
+        return inlineProducts;
+    }
+
     try {
-        const version = localStorage.getItem('productDataVersion');
-        const url = version ? `/data/product_data.json?v=${encodeURIComponent(version)}` : '/data/product_data.json';
+        const versionForUrl = storedVersion || inlineVersion || null;
+        const url = versionForUrl ? `/data/product_data.json?v=${encodeURIComponent(versionForUrl)}` : '/data/product_data.json';
         const response = await fetchWithRetry(
             url,
             { cache: 'no-store', headers: { 'Accept': 'application/json' } },
@@ -378,16 +466,20 @@ const fetchProducts = async () => {
             correlationId
         );
         const data = await response.json();
-        log('info', 'fetch_products_success', { correlationId, count: data.products.length });
-        return data.products.map(product => ({
-            ...product,
-            id: generateStableId(product),
-            name: sanitizeHTML(product.name),
-            description: sanitizeHTML(product.description),
-            category: sanitizeHTML(product.category),
-            categoryKey: normalizeString(product.category)
-        }));
+        const transformed = transformProducts(data.products || []);
+        if (data.version) {
+            setStoredProductVersion(data.version);
+        }
+        log('info', 'fetch_products_success', { correlationId, count: transformed.length, source: 'network' });
+        return transformed;
     } catch (error) {
+        if (hasInlineProducts) {
+            if (inlineVersion) {
+                setStoredProductVersion(inlineVersion);
+            }
+            log('warn', 'fetch_products_network_fallback_inline', { correlationId, error: error.message, runbook: 'RUNBOOK.md#product-data' });
+            return inlineProducts;
+        }
         log('error', 'fetch_products_failure', { correlationId, error: error.message, runbook: 'RUNBOOK.md#product-data' });
         showErrorMessage(`Error al cargar los productos. Por favor, verifique su conexión a internet e inténtelo de nuevo. (Error: ${error.message})`);
         if (error instanceof ProductDataError) {
@@ -793,9 +885,17 @@ const initApp = async () => {
 
 
     const renderQuantityControl = (product) => {
-        const quantityControl = createSafeElement('div', { class: 'quantity-control' });
-        const minusBtn = createSafeElement('button', { class: 'quantity-btn', 'aria-label': 'Decrease quantity' }, ['-']);
-        const plusBtn = createSafeElement('button', { class: 'quantity-btn', 'aria-label': 'Increase quantity' }, ['+']);
+        const quantityControl = createSafeElement('div', { class: 'quantity-control', style: 'display:none;' });
+        const minusBtn = createSafeElement('button', {
+            class: 'quantity-btn',
+            'data-action': 'decrease',
+            'aria-label': 'Decrease quantity'
+        }, ['-']);
+        const plusBtn = createSafeElement('button', {
+            class: 'quantity-btn',
+            'data-action': 'increase',
+            'aria-label': 'Increase quantity'
+        }, ['+']);
         const input = createSafeElement('input', {
             type: 'number',
             class: 'quantity-input',
@@ -806,20 +906,57 @@ const initApp = async () => {
             'data-id': product.id
         });
 
-        minusBtn.addEventListener('click', () => updateQuantity(product, -1));
-        plusBtn.addEventListener('click', () => updateQuantity(product, 1));
-        input.addEventListener('change', (e) => {
-            const newQuantity = parseInt(e.target.value, 10);
-            const currentQuantity = getCartItemQuantity(product.id);
-            updateQuantity(product, newQuantity - currentQuantity);
-        });
-
         quantityControl.appendChild(minusBtn);
         quantityControl.appendChild(input);
         quantityControl.appendChild(plusBtn);
 
         return quantityControl;
     };
+
+    function setupActionArea(actionArea, product) {
+        if (!actionArea) {
+            return;
+        }
+        const addToCartBtn = actionArea.querySelector('.add-to-cart-btn');
+        const quantityControl = actionArea.querySelector('.quantity-control');
+        const quantityInput = quantityControl?.querySelector('.quantity-input');
+        const minusBtn = quantityControl?.querySelector('.quantity-btn[data-action="decrease"]') || quantityControl?.querySelector('.quantity-btn');
+        const plusBtn = quantityControl?.querySelector('.quantity-btn[data-action="increase"]') || quantityControl?.querySelectorAll('.quantity-btn')?.[1];
+
+        const bind = (element, event, handler) => {
+            if (!element) {
+                return;
+            }
+            if (element.dataset.listenerAttached === 'true') {
+                return;
+            }
+            element.addEventListener(event, handler);
+            element.dataset.listenerAttached = 'true';
+        };
+
+        bind(addToCartBtn, 'click', () => {
+            addToCart(product, 1);
+            toggleActionArea(addToCartBtn, quantityControl, true);
+        });
+
+        bind(minusBtn, 'click', () => updateQuantity(product, -1));
+        bind(plusBtn, 'click', () => updateQuantity(product, 1));
+        bind(quantityInput, 'change', (event) => {
+            const newQuantity = parseInt(event.target.value, 10);
+            if (!Number.isFinite(newQuantity)) {
+                event.target.value = Math.max(getCartItemQuantity(product.id), 1);
+                return;
+            }
+            const currentQuantity = getCartItemQuantity(product.id);
+            updateQuantity(product, newQuantity - currentQuantity);
+        });
+
+        const currentQuantity = getCartItemQuantity(product.id);
+        if (quantityInput) {
+            quantityInput.value = currentQuantity > 0 ? currentQuantity : 1;
+        }
+        toggleActionArea(addToCartBtn, quantityControl, currentQuantity > 0);
+    }
 
     const getCartItemQuantity = (productId) => {
         const item = cart.find(item => item.id === productId);
@@ -834,7 +971,8 @@ const initApp = async () => {
 
             const productElement = createSafeElement('div', {
                 class: `producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4 ${!stock ? 'agotado' : ''}`,
-                'aria-label': `Product: ${name}`
+                'aria-label': `Product: ${name}`,
+                'data-product-id': id
             });
 
             const cardElement = createSafeElement('div', { class: 'card' });
@@ -881,30 +1019,12 @@ const initApp = async () => {
             }, ['Agregar al carrito']);
             // Quantity controls
             const quantityControl = renderQuantityControl(product);
-            // Hide quantity control by default to prevent brief double render
-            quantityControl.style.display = 'none';
-
-            addToCartBtn.addEventListener('click', () => {
-                addToCart(product, 1);
-                toggleActionArea(addToCartBtn, quantityControl, true);
-            });
 
             actionArea.appendChild(addToCartBtn);
             actionArea.appendChild(quantityControl);
             cardBody.appendChild(actionArea);
 
-            // Set initial state based on cart
-            const cartItem = cart.find(item => item.id === id);
-            const cartItemQuantity = cartItem ? cartItem.quantity : 0;
-            const quantityInput = quantityControl.querySelector('.quantity-input');
-            if (cartItemQuantity > 0) {
-                if (quantityInput) quantityInput.value = cartItemQuantity;
-                addToCartBtn.style.display = 'none';
-                quantityControl.style.display = 'flex';
-            } else {
-                addToCartBtn.style.display = 'flex';
-                quantityControl.style.display = 'none';
-            }
+            setupActionArea(actionArea, product);
 
             cardElement.appendChild(cardBody);
             productElement.appendChild(cardElement);
@@ -915,6 +1035,27 @@ const initApp = async () => {
         productContainer.innerHTML = '';
         productContainer.appendChild(fragment);
         lazyLoadImages();
+    };
+
+    const hydratePreRenderedProducts = (productList) => {
+        if (!productContainer) {
+            return false;
+        }
+        const cards = productContainer.querySelectorAll('[data-product-id]');
+        if (!cards.length) {
+            return false;
+        }
+        const map = new Map(productList.map(item => [item.id, item]));
+        cards.forEach(card => {
+            const productId = card.getAttribute('data-product-id');
+            if (!productId || !map.has(productId)) {
+                return;
+            }
+            const product = map.get(productId);
+            const actionArea = card.querySelector('.action-area');
+            setupActionArea(actionArea, product);
+        });
+        return true;
     };
 
     const lazyLoadImages = () => {
@@ -1393,10 +1534,21 @@ const initApp = async () => {
             return;
         }
 
+        products = products.map((product, index) => ({
+            ...product,
+            originalIndex: typeof product.originalIndex === 'number' ? product.originalIndex : index,
+            categoryKey: product.categoryKey || normalizeString(product.category)
+        }));
+
         const currentCategory = document.querySelector('main').dataset.category;
         if (currentCategory) {
             const normCurrent = normalizeString(currentCategory);
-            products = products.filter(product => (product.categoryKey || normalizeString(product.category)) === normCurrent);
+            products = products
+                .filter(product => (product.categoryKey || normalizeString(product.category)) === normCurrent)
+                .map((product, index) => ({
+                    ...product,
+                    originalIndex: typeof product.originalIndex === 'number' ? product.originalIndex : index
+                }));
         }
         sortOptions.addEventListener('change', debouncedUpdateProductDisplay);
         filterKeyword.addEventListener('input', debouncedUpdateProductDisplay);
@@ -1407,9 +1559,11 @@ const initApp = async () => {
             discountToggle.addEventListener('change', debouncedUpdateProductDisplay);
         }
 
-        // Initial product display
-        updateProductDisplay();
-        // Mark the app as ready after first successful render
+        const hydrated = hydratePreRenderedProducts(products);
+        if (!hydrated) {
+            updateProductDisplay();
+        }
+        // Mark the app as ready after first successful render or hydration
         if (typeof window !== 'undefined') window.__APP_READY__ = true;
 
         // Offline support
