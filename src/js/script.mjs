@@ -1,6 +1,59 @@
 import { cfimg, CFIMG_THUMB } from './utils/cfimg.mjs';
 import { log, createCorrelationId } from './utils/logger.mjs';
 
+const PRODUCT_DATA_GLOBAL_KEY = '__PRODUCT_DATA__';
+let sharedProductData = null;
+
+function getSharedProductData() {
+    if (typeof window !== 'undefined') {
+        const payload = window[PRODUCT_DATA_GLOBAL_KEY];
+        if (payload && Array.isArray(payload.products)) {
+            return payload;
+        }
+    }
+    if (sharedProductData && Array.isArray(sharedProductData.products)) {
+        return sharedProductData;
+    }
+    return null;
+}
+
+function writeSharedProductData(products, metadata = {}, { force = false } = {}) {
+    if (!Array.isArray(products)) {
+        return null;
+    }
+    const payload = {
+        products,
+        version: metadata.version || null,
+        source: metadata.source || null,
+        updatedAt: metadata.updatedAt || Date.now()
+    };
+    const existing = getSharedProductData();
+    if (existing && !force) {
+        const existingVersion = existing.version || null;
+        const payloadVersion = payload.version || null;
+        const shouldKeepExisting =
+            (!payloadVersion && existingVersion) ||
+            (!payloadVersion && !existingVersion) ||
+            (payloadVersion && existingVersion === payloadVersion);
+        if (shouldKeepExisting) {
+            return existing;
+        }
+    }
+    sharedProductData = payload;
+    if (typeof window !== 'undefined') {
+        window[PRODUCT_DATA_GLOBAL_KEY] = { ...payload };
+    }
+    return payload;
+}
+
+function ensureSharedProductData(products, metadata = {}) {
+    return writeSharedProductData(products, metadata, { force: false });
+}
+
+function overwriteSharedProductData(products, metadata = {}) {
+    return writeSharedProductData(products, metadata, { force: true });
+}
+
 // Service Worker Configuration and Initialization
 const SERVICE_WORKER_CONFIG = {
     path: '/service-worker.js',
@@ -398,6 +451,21 @@ const transformProduct = (product, index) => {
 
 const transformProducts = (products = []) => products.map((product, index) => transformProduct(product, index));
 
+function hydrateSharedProductDataFromInline() {
+    const existing = getSharedProductData();
+    if (existing) {
+        return existing;
+    }
+    const inlineData = parseInlineProductData();
+    if (!inlineData || !Array.isArray(inlineData.products)) {
+        return null;
+    }
+    const transformed = transformProducts(inlineData.products);
+    return ensureSharedProductData(transformed, { version: inlineData.version || null, source: 'inline' });
+}
+
+hydrateSharedProductDataFromInline();
+
 class ProductDataError extends Error {
     constructor(message, { cause, correlationId }) {
         super(message);
@@ -451,6 +519,7 @@ const fetchProducts = async () => {
         if (inlineVersion) {
             setStoredProductVersion(inlineVersion);
         }
+        ensureSharedProductData(inlineProducts, { version: inlineVersion || null, source: 'inline' });
         log('info', 'fetch_products_inline', { correlationId, count: inlineCount });
         return inlineProducts;
     }
@@ -467,6 +536,7 @@ const fetchProducts = async () => {
         );
         const data = await response.json();
         const transformed = transformProducts(data.products || []);
+        overwriteSharedProductData(transformed, { version: data.version || null, source: 'network' });
         if (data.version) {
             setStoredProductVersion(data.version);
         }
@@ -477,6 +547,7 @@ const fetchProducts = async () => {
             if (inlineVersion) {
                 setStoredProductVersion(inlineVersion);
             }
+            ensureSharedProductData(inlineProducts, { version: inlineVersion || null, source: 'inline-fallback' });
             log('warn', 'fetch_products_network_fallback_inline', { correlationId, error: error.message, runbook: 'RUNBOOK.md#product-data' });
             return inlineProducts;
         }
