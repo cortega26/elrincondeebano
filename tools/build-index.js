@@ -78,6 +78,27 @@ function enrichProduct(product, index) {
   };
 }
 
+const INITIAL_RENDER_COUNT = 12;
+
+function mapProductForInline(product) {
+  const {
+    image,
+    discountedPrice,
+    discountPercent,
+    isDiscounted,
+    originalIndex,
+    ...rest
+  } = product;
+  return {
+    ...rest,
+    originalIndex,
+    discounted_price: discountedPrice,
+    discount_percent: discountPercent,
+    is_discounted: isDiscounted,
+    image
+  };
+}
+
 function build() {
   const template = fs.readFileSync(TEMPLATE_PATH, 'utf8');
   const productData = readJson(DATA_PATH);
@@ -90,19 +111,17 @@ function build() {
     })
     .map(({ product }, index) => enrichProduct(product, index));
 
+  const initialProducts = sortedProducts.slice(0, INITIAL_RENDER_COUNT);
+
   const inlinePayload = safeJsonStringify({
-    ...productData,
-    products: sortedProducts.map(({ image, discountedPrice, discountPercent, isDiscounted, originalIndex, ...rest }) => ({
-      ...rest,
-      originalIndex,
-      discounted_price: discountedPrice,
-      discount_percent: discountPercent,
-      is_discounted: isDiscounted
-    }))
+    version: productData.version || null,
+    totalProducts: sortedProducts.length,
+    initialProducts: initialProducts.map(mapProductForInline)
   });
 
   const html = ejs.render(template, {
-    products: sortedProducts,
+    products: initialProducts,
+    totalProducts: sortedProducts.length,
     inlinePayload
   }, { rmWhitespace: false, filename: TEMPLATE_PATH });
 

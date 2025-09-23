@@ -186,7 +186,8 @@ let fetchProducts, logs;
     setupLocalStorage({ productDataVersion: 'inline-1' });
     const inlinePayload = {
       version: 'inline-1',
-      products: [
+      totalProducts: 20,
+      initialProducts: [
         {
           name: 'Producto de prueba',
           description: 'Descripción',
@@ -203,15 +204,17 @@ let fetchProducts, logs;
     let fetchCalled = false;
     global.fetch = () => {
       fetchCalled = true;
-      return Promise.reject(new Error('should not fetch'));
+      return Promise.reject(new Error('network offline'));
     };
     try {
       const products = await fetchProducts();
       assert.strictEqual(products.length, 1);
-      assert.strictEqual(fetchCalled, false);
+      assert.strictEqual(fetchCalled, true);
       assert.strictEqual(global.localStorage.getItem('productDataVersion'), 'inline-1');
       assert.ok(global.window.__PRODUCT_DATA__, 'shared product payload should be populated');
       assert.strictEqual(global.window.__PRODUCT_DATA__.products.length, 1);
+      assert.strictEqual(global.window.__PRODUCT_DATA__.isPartial, true);
+      assert.strictEqual(global.window.__PRODUCT_DATA__.total, 20);
     } finally {
       global.fetch = originalFetch;
       setInlineProductData(null);
@@ -224,7 +227,8 @@ let fetchProducts, logs;
     setupLocalStorage({ productDataVersion: 'newer-version' });
     const inlinePayload = {
       version: 'inline-version',
-      products: [
+      totalProducts: 10,
+      initialProducts: [
         {
           name: 'Fallback',
           description: 'Inline',
@@ -250,6 +254,8 @@ let fetchProducts, logs;
       assert.strictEqual(global.localStorage.getItem('productDataVersion'), 'inline-version');
       assert.ok(global.window.__PRODUCT_DATA__, 'shared product payload should be populated');
       assert.strictEqual(global.window.__PRODUCT_DATA__.products.length, 1);
+      assert.strictEqual(global.window.__PRODUCT_DATA__.total, 10);
+      assert.strictEqual(global.window.__PRODUCT_DATA__.isPartial, true);
     } finally {
       global.fetch = originalFetch;
       setInlineProductData(null);
