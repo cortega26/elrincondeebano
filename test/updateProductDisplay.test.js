@@ -2,36 +2,24 @@ const test = require('node:test');
 const assert = require('node:assert');
 const { JSDOM } = require('jsdom');
 
-// Setup JSDOM environment
 const dom = new JSDOM(`<!DOCTYPE html><div id="product-container"></div>
-<input id="filter-keyword" />
-<select id="sort-options"></select>
-<input type="checkbox" id="filter-discount" />`);
+<button id="catalog-load-more" class="d-none"></button>
+<div id="catalog-sentinel"></div>`);
 
 global.window = dom.window;
 global.document = dom.window.document;
 
-const sortOptions = document.getElementById('sort-options');
-const filterKeyword = document.getElementById('filter-keyword');
-const discountCheckbox = document.getElementById('filter-discount');
-
-// Sample products
 const products = [
   { id: 1, name: 'Banana', description: 'Yellow banana', price: 2, discount: 1, stock: true, originalIndex: 0 },
   { id: 2, name: 'Apple', description: 'Red apple', price: 3, discount: 0, stock: true, originalIndex: 1 },
-  { id: 3, name: 'Cherry', description: 'Red cherry', price: 5, discount: 0, stock: true, originalIndex: 2 }
+  { id: 3, name: 'Cherry', description: 'Red cherry', price: 5, discount: 0, stock: true, originalIndex: 2 },
+  { id: 4, name: 'Date', description: 'Sweet date', price: 4, discount: 0, stock: true, originalIndex: 3 }
 ];
 
-function memoize(fn) {
-  const cache = new Map();
-  return (...args) => {
-    const key = JSON.stringify(args);
-    if (cache.has(key)) return cache.get(key);
-    const result = fn(...args);
-    cache.set(key, result);
-    return result;
-  };
-}
+const INITIAL_BATCH = 2;
+const SUBSEQUENT_BATCH = 2;
+let filteredProducts = [...products];
+let visibleCount = 0;
 
 function sortProducts(a, b, criterion) {
   if (!criterion || criterion === 'original') {
@@ -45,64 +33,92 @@ function sortProducts(a, b, criterion) {
     : (valueB < valueA ? -1 : valueB > valueA ? 1 : 0);
 }
 
-function filterProducts(list, keyword, sortCriterion, discountOnly = false) {
-  return list
+function applyFilters(keyword = '', sortCriterion = 'original', discountOnly = false) {
+  const lower = keyword.toLowerCase();
+  return products
     .filter(p => (
-      p.name.toLowerCase().includes(keyword.toLowerCase()) ||
-      p.description.toLowerCase().includes(keyword.toLowerCase())
-    ) && p.stock && (!discountOnly || (p.discount && Number(p.discount) > 0)))
+      (p.name.toLowerCase().includes(lower) || p.description.toLowerCase().includes(lower)) &&
+      p.stock && (!discountOnly || (p.discount && Number(p.discount) > 0))
+    ))
     .sort((a, b) => sortProducts(a, b, sortCriterion));
 }
 
-const memoizedFilterProducts = memoize(filterProducts);
+function updateLoadMore(hasMore) {
+  const loadMoreButton = document.getElementById('catalog-load-more');
+  loadMoreButton.classList.toggle('d-none', !hasMore);
+  loadMoreButton.disabled = !hasMore;
+}
 
 function renderProducts(list) {
   const container = document.getElementById('product-container');
-  container.innerHTML = '';
-  const frag = document.createDocumentFragment();
+  const fragment = document.createDocumentFragment();
   list.forEach(p => {
     const div = document.createElement('div');
     div.className = 'product';
     div.textContent = p.name;
-    frag.appendChild(div);
+    fragment.appendChild(div);
   });
-  container.appendChild(frag);
+  container.appendChild(fragment);
 }
 
-function updateProductDisplay() {
-  const criterion = sortOptions.value || 'original';
-  const keyword = filterKeyword.value.trim();
-  const discountOnly = document.getElementById('filter-discount')?.checked || false;
-  const filteredAndSorted = memoizedFilterProducts(products, keyword, criterion, discountOnly);
-  renderProducts(filteredAndSorted);
+function clearProducts() {
+  const container = document.getElementById('product-container');
+  container.innerHTML = '';
+  visibleCount = 0;
+}
+
+function appendBatch(size) {
+  const next = filteredProducts.slice(visibleCount, visibleCount + size);
+  if (!next.length) {
+    updateLoadMore(false);
+    return 0;
+  }
+  renderProducts(next);
+  visibleCount += next.length;
+  updateLoadMore(visibleCount < filteredProducts.length);
+  return next.length;
+}
+
+function updateProductDisplay({ keyword = '', sort = 'original', discountOnly = false } = {}) {
+  filteredProducts = applyFilters(keyword, sort, discountOnly);
+  clearProducts();
+  if (!filteredProducts.length) {
+    updateLoadMore(false);
+    return;
+  }
+  appendBatch(INITIAL_BATCH);
+}
+
+function loadMore() {
+  appendBatch(SUBSEQUENT_BATCH);
 }
 
 function getDisplayedNames() {
   return Array.from(document.querySelectorAll('#product-container .product')).map(el => el.textContent);
 }
 
-test('updateProductDisplay', async (t) => {
-  await t.test('sorts by price ascending', () => {
-    sortOptions.value = 'price-asc';
-    filterKeyword.value = '';
-    discountCheckbox.checked = false;
+test('updateProductDisplay incremental flow', async (t) => {
+  await t.test('initial render limits to first batch', () => {
     updateProductDisplay();
-    assert.deepStrictEqual(getDisplayedNames(), ['Banana', 'Apple', 'Cherry']);
+    assert.deepStrictEqual(getDisplayedNames(), ['Banana', 'Apple']);
+    const loadMoreButton = document.getElementById('catalog-load-more');
+    assert.strictEqual(loadMoreButton.classList.contains('d-none'), false);
   });
 
-  await t.test('filters by keyword', () => {
-    sortOptions.value = 'original';
-    filterKeyword.value = 'cher';
-    discountCheckbox.checked = false;
-    updateProductDisplay();
+  await t.test('load more appends additional products', () => {
+    loadMore();
+    assert.deepStrictEqual(getDisplayedNames(), ['Banana', 'Apple', 'Cherry', 'Date']);
+  });
+
+  await t.test('filtering resets visible batch', () => {
+    updateProductDisplay({ keyword: 'che' });
     assert.deepStrictEqual(getDisplayedNames(), ['Cherry']);
+    const loadMoreButton = document.getElementById('catalog-load-more');
+    assert.strictEqual(loadMoreButton.classList.contains('d-none'), true);
   });
 
-  await t.test('filters discount only', () => {
-    sortOptions.value = 'original';
-    filterKeyword.value = '';
-    discountCheckbox.checked = true;
-    updateProductDisplay();
+  await t.test('discount-only filter respects incremental flow', () => {
+    updateProductDisplay({ discountOnly: true });
     assert.deepStrictEqual(getDisplayedNames(), ['Banana']);
   });
 });
