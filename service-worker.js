@@ -165,26 +165,9 @@ if (!TEST_MODE) {
             const networkResponse = await fetch(request);
             if (networkResponse.ok) {
                 const cache = await caches.open(CACHE_CONFIG.prefixes.products);
-                const data = await networkResponse.clone().json();
-
-                // Create modified response with only in-stock products
-                const modifiedData = {
-                    ...data,
-                    products: data.products.filter(product => product.stock)
-                };
-
-                // Create new response with filtered data
-                const filteredResponse = new Response(JSON.stringify(modifiedData), {
-                    headers: networkResponse.headers,
-                    status: networkResponse.status,
-                    statusText: networkResponse.statusText
-                });
-
-                // Cache the filtered response
-                const timestampedResponse = await addTimestamp(filteredResponse.clone(), 'products');
-                await cache.put(request, timestampedResponse);
-
-                return filteredResponse;
+                const timestampedResponse = await addTimestamp(networkResponse.clone(), 'products');
+                await cache.put(request, timestampedResponse.clone());
+                return timestampedResponse;
             }
         } catch (error) {
             console.log('Network fetch failed, trying cache:', error);

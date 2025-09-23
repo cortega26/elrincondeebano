@@ -95,7 +95,7 @@
       </section>
       <section aria-labelledby="products-heading">
         <h2 id="products-heading" class="visually-hidden">Productos disponibles</h2>
-        <div class="row" id="product-container" aria-live="polite">
+        <div class="row" id="product-container" aria-live="polite" data-total-products="<%= totalProducts %>">
 <% products.forEach((product) => { %>
           <div class="producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4 <%= product.stock ? '' : 'agotado' %>" data-product-id="<%= product.id %>" aria-label="Product: <%= product.name %>">
             <div class="card">
@@ -127,6 +127,21 @@
           </div>
 <% }); %>
         </div>
+        <div id="catalog-controls" class="text-center my-4">
+          <button type="button" id="catalog-load-more" class="btn btn-outline-primary d-none">Cargar más productos</button>
+        </div>
+        <div id="catalog-sentinel" aria-hidden="true"></div>
+        <noscript>
+          <div class="alert alert-info mt-4" role="status">Explora nuestras categorías mientras JavaScript está deshabilitado:</div>
+          <ul class="list-unstyled row g-2 mt-3">
+            <li class="col-12 col-sm-6 col-md-4"><a href="/pages/aguas.html">Aguas</a></li>
+            <li class="col-12 col-sm-6 col-md-4"><a href="/pages/bebidas.html">Bebidas</a></li>
+            <li class="col-12 col-sm-6 col-md-4"><a href="/pages/despensa.html">Despensa</a></li>
+            <li class="col-12 col-sm-6 col-md-4"><a href="/pages/snacksdulces.html">Snacks dulces</a></li>
+            <li class="col-12 col-sm-6 col-md-4"><a href="/pages/snackssalados.html">Snacks salados</a></li>
+            <li class="col-12 col-sm-6 col-md-4"><a href="/pages/vinos.html">Vinos</a></li>
+          </ul>
+        </noscript>
       </section>
     </div>
     <div id="offline-indicator" aria-live="assertive" class="alert alert-warning is-hidden" role="alert">Actualmente estás sin conexión</div>
