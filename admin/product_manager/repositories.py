@@ -233,15 +233,36 @@ class JsonProductRepository(ProductRepositoryProtocol):
         """
         try:
             with self._open_file('r') as file:
-                data = json.load(file)
+                raw_data = json.load(file)
+            if isinstance(raw_data, dict):
+                products_data = raw_data.get('products', raw_data)
+            else:
+                products_data = raw_data
+            if isinstance(products_data, dict) or not isinstance(products_data, list):
+                logger.error(
+                    "Estructura inválida del catálogo en %s: se esperaba una lista de productos y se recibió %s",
+                    self._file_path,
+                    type(products_data).__name__
+                )
+                return False
             valid_products = []
-            for item in data:
+            for index, item in enumerate(products_data):
+                if not isinstance(item, dict):
+                    logger.warning(
+                        "Omitiendo entrada %s de tipo %s: se esperaba un objeto con datos de producto.",
+                        index,
+                        type(item).__name__
+                    )
+                    continue
                 try:
                     product = self._create_product(item)
                     valid_products.append(product)
                 except Exception as e:
                     logger.warning(
-                        f"Omitiendo datos de producto inválidos: {e}")
+                        "Omitiendo datos de producto inválidos en índice %s: %s",
+                        index,
+                        e
+                    )
             self.save_products(valid_products)
             return True
         except Exception as e:
