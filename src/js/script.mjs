@@ -1042,7 +1042,7 @@ const initApp = async () => {
                     `${cfimg(imgPath, { ...CFIMG_THUMB, width: 400 })} 400w`,
                     `${cfimg(imgPath, { ...CFIMG_THUMB, width: 800 })} 800w`
                 ].join(', '),
-                sizes: '(max-width: 640px) 200px, 400px',
+                sizes: '200px',
                 alt: name,
                 class: 'card-img-top product-thumb',
                 loading: 'lazy',
