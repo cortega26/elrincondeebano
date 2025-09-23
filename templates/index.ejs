@@ -102,7 +102,7 @@
 <% if (product.isDiscounted) { %>
               <span class="discount-badge badge bg-danger" aria-label="Producto en oferta">-<%= product.discountPercent %>%</span>
 <% } %>
-              <img src="<%= product.image.src %>" srcset="<%= product.image.srcset %>" sizes="(max-width: 640px) 200px, 400px" alt="<%= product.name %>" class="card-img-top product-thumb" loading="lazy" decoding="async" width="400" height="400">
+              <img src="<%= product.image.src %>" srcset="<%= product.image.srcset %>" sizes="200px" alt="<%= product.name %>" class="card-img-top product-thumb" loading="lazy" decoding="async" width="400" height="400">
               <div class="card-body">
                 <h3 class="card-title"><%= product.name %></h3>
                 <p class="card-text"><%= product.description %></p>
