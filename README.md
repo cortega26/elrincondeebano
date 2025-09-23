@@ -72,6 +72,10 @@ npm test
 
 Se ejecutan pruebas unitarias para utilidades de generación de IDs y el Service Worker.
 
+## Gestor de productos
+
+Las herramientas de administración escritas en Python guardan el catálogo en un archivo JSON. Por omisión el repositorio utiliza `C:\Users\corte\OneDrive\Tienda Ebano\data`, pero también acepta rutas absolutas. Cuando se proporciona una ruta absoluta, el archivo y sus copias de seguridad se crean directamente en el directorio indicado sin generar subcarpetas adicionales.
+
 ## Estructura del proyecto
 
 - `assets/` – Archivos estáticos (CSS, imágenes, fuentes).

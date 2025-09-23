@@ -40,6 +40,8 @@ secrets.json
 # Test files
 tests/
 test_*.py
+!admin/product_manager/tests/
+!admin/product_manager/tests/test_*.py
 
 # Documentation build
 docs/_build/

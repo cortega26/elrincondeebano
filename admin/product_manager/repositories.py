@@ -66,18 +66,23 @@ class JsonProductRepository(ProductRepositoryProtocol):
             base_path (str, optional): Base path for the JSON file
         """
         self._file_lock = threading.Lock()
-        self._base_path = Path(base_path) if base_path else Path(
-            r"C:\Users\corte\OneDrive\Tienda Ebano\data")
-        self._file_path = self._base_path / file_name
+        provided_path = Path(file_name)
+        if provided_path.is_absolute():
+            self._file_path = provided_path
+            self._base_path = provided_path.parent
+        else:
+            self._base_path = Path(base_path) if base_path else Path(
+                r"C:\Users\corte\OneDrive\Tienda Ebano\data")
+            self._file_path = self._base_path / provided_path
         self._ensure_directory_exists()
 
     def _ensure_directory_exists(self) -> None:
         """Ensure that the directory for the JSON file exists."""
         try:
-            self._base_path.mkdir(parents=True, exist_ok=True)
+            self._file_path.parent.mkdir(parents=True, exist_ok=True)
         except OSError as e:
             raise ProductRepositoryError(
-                f"Error al crear el directorio {self._base_path}: {e}")
+                f"Error al crear el directorio {self._file_path.parent}: {e}")
 
     def _create_backup(self) -> None:
         """Create a backup of the current data file."""
@@ -96,7 +101,7 @@ class JsonProductRepository(ProductRepositoryProtocol):
     def _cleanup_old_backups(self) -> None:
         """Remove old backup files keeping only the most recent ones."""
         backup_pattern = f'*{self.BACKUP_SUFFIX}*'
-        backup_files = sorted(self._base_path.glob(backup_pattern))
+        backup_files = sorted(self._file_path.parent.glob(backup_pattern))
         while len(backup_files) > self.MAX_BACKUPS:
             try:
                 backup_files[0].unlink()
@@ -195,7 +200,7 @@ class JsonProductRepository(ProductRepositoryProtocol):
     def _find_latest_backup(self) -> Optional[Path]:
         """Find the most recent backup file."""
         backup_pattern = f'*{self.BACKUP_SUFFIX}*'
-        backup_files = sorted(self._base_path.glob(
+        backup_files = sorted(self._file_path.parent.glob(
             backup_pattern), reverse=True)
         return backup_files[0] if backup_files else None
 
