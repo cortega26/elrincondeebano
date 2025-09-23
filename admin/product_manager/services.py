@@ -110,7 +110,6 @@ class ProductService:
             except Exception as e:
                 logger.error(f"Error en el manejador de eventos: {e}")
 
-    @lru_cache(maxsize=None)
     def get_all_products(self) -> List[Product]:
         """
         Get all products from the repository.
@@ -118,8 +117,8 @@ class ProductService:
         try:
             with self._products_lock:
                 if self._products is None:
-                    self._products = self.repository.load_products()
-                return self._products.copy()
+                    self._products = list(self.repository.load_products())
+                return list(self._products)
         except ProductRepositoryError as e:
             logger.error(f"Error al cargar productos: {e}")
             raise ProductServiceError(f"Error al cargar productos: {e}")
@@ -281,7 +280,6 @@ class ProductService:
     def clear_cache(self) -> None:
         """Clear all cached data."""
         self._products = None
-        self.get_all_products.cache_clear()
         self.get_categories.cache_clear()
 
     def batch_update(self, updates: List[tuple[str, Product]]) -> None:
