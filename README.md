@@ -78,6 +78,8 @@ Las herramientas de administración escritas en Python guardan el catálogo en u
 
 `ProductService` mantiene un caché en memoria respaldado por una copia defensiva por llamada para `get_all_products()`. Esto garantiza que las listas retornadas puedan modificarse en pruebas o scripts sin alterar el estado interno del servicio.
 
+> Nota de validación: El catálogo JSON puede guardarse como una lista de productos o como un objeto con metadatos (`version`, `last_updated`) y una clave `products`. Durante la reparación del archivo, las entradas corruptas se omiten, se conservan solo los productos válidos y el archivo se reescribe con un nuevo bloque de metadatos.
+
 ## Estructura del proyecto
 
 - `assets/` – Archivos estáticos (CSS, imágenes, fuentes).
