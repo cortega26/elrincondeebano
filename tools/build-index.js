@@ -104,7 +104,7 @@ function build() {
   const html = ejs.render(template, {
     products: sortedProducts,
     inlinePayload
-  }, { rmWhitespace: false });
+  }, { rmWhitespace: false, filename: TEMPLATE_PATH });
 
   fs.writeFileSync(OUTPUT_PATH, html);
 }
