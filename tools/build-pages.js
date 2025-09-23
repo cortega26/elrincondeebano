@@ -29,7 +29,11 @@ const pages = [
 ];
 
 pages.forEach(page => {
-  const html = ejs.render(template, { categoryName: page.name, description: page.description, slug: page.slug });
+  const html = ejs.render(
+    template,
+    { categoryName: page.name, description: page.description, slug: page.slug },
+    { filename: templatePath }
+  );
   const outputPath = path.join(rootDir, 'pages', `${page.slug}.html`);
   fs.writeFileSync(outputPath, html);
 });
