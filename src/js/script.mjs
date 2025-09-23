@@ -8,6 +8,8 @@ const SERVICE_WORKER_CONFIG = {
     updateCheckInterval: 5 * 60 * 1000, // 5 minutes
 };
 
+let serviceWorkerRegistrationSetup = false;
+
 // Enhanced service worker registration with proper error handling and lifecycle management
 function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) {
@@ -15,14 +17,33 @@ function registerServiceWorker() {
         return;
     }
 
-    window.addEventListener('load', async () => {
-        try {
-            initializeServiceWorker();
-        } catch (error) {
-            console.error('Service Worker initialization failed:', error);
-            showServiceWorkerError('Failed to initialize service worker. Some features may not work offline.');
-        }
-    });
+    if (serviceWorkerRegistrationSetup) {
+        return;
+    }
+
+    serviceWorkerRegistrationSetup = true;
+
+    window.addEventListener('load', startRegistration);
+    startRegistration();
+}
+
+async function startRegistration() {
+    if (document.readyState !== 'complete') {
+        return;
+    }
+
+    window.removeEventListener('load', startRegistration);
+
+    try {
+        await initializeServiceWorker();
+    } catch (error) {
+        console.error('Service Worker initialization failed:', error);
+        showServiceWorkerError('Failed to initialize service worker. Some features may not work offline.');
+    }
+}
+
+function __resetServiceWorkerRegistrationForTest() {
+    serviceWorkerRegistrationSetup = false;
 }
 
 // Initialize the service worker and set up event handlers
@@ -1485,6 +1506,8 @@ export {
     showUpdateNotification,
     showServiceWorkerError,
     showConnectivityNotification,
+    registerServiceWorker as __registerServiceWorkerForTest,
+    __resetServiceWorkerRegistrationForTest,
     __getCart,
     __resetCart
 };
