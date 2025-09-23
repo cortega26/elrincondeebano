@@ -47,9 +47,24 @@ let fetchProducts, logs;
     };
   }
 
+  const defaultGetElementById = global.document.getElementById;
+
+  function setInlineProductData(payload) {
+    global.document.getElementById = (id) => {
+      if (id === 'product-data') {
+        if (!payload) {
+          return null;
+        }
+        return { textContent: JSON.stringify(payload) };
+      }
+      return null;
+    };
+  }
+
   test('fetchProducts', async (t) => {
   await t.test('successful fetch without productDataVersion', async () => {
     setupLocalStorage();
+    setInlineProductData(null);
     let path;
     mockPool.intercept({ path: /^\/data\/product_data\.json/, method: 'GET' })
       .reply((opts) => {
@@ -69,6 +84,7 @@ let fetchProducts, logs;
   await t.test('successful fetch with productDataVersion', async () => {
     const version = '123';
     setupLocalStorage({ productDataVersion: version });
+    setInlineProductData(null);
     let path;
     mockPool.intercept({ path: /^\/data\/product_data\.json/, method: 'GET' })
       .reply((opts) => {
@@ -87,6 +103,7 @@ let fetchProducts, logs;
 
   await t.test('non-OK response throws', async () => {
     setupLocalStorage();
+    setInlineProductData(null);
     mockPool.intercept({ path: /^\/data\/product_data\.json/, method: 'GET' })
       .reply(500, {});
     mockPool.intercept({ path: /^\/data\/product_data\.json/, method: 'GET' })
@@ -103,6 +120,7 @@ let fetchProducts, logs;
 
   await t.test('invalid JSON throws', async () => {
     setupLocalStorage();
+    setInlineProductData(null);
     mockPool.intercept({ path: /^\/data\/product_data\.json/, method: 'GET' })
       .reply(200, 'not json', { headers: { 'content-type': 'application/json' } });
     await assert.rejects(fetchProducts(), err => {
@@ -115,6 +133,7 @@ let fetchProducts, logs;
 
   await t.test('network failure throws', async () => {
     setupLocalStorage();
+    setInlineProductData(null);
     mockPool.intercept({ path: /^\/data\/product_data\.json/, method: 'GET' })
       .replyWithError(new Error('network failure'));
     await assert.rejects(fetchProducts(), err => {
@@ -127,6 +146,7 @@ let fetchProducts, logs;
 
   await t.test('retries then succeeds', async () => {
     setupLocalStorage();
+    setInlineProductData(null);
     logs.length = 0;
     mockPool.intercept({ path: /^\/data\/product_data\.json/, method: 'GET' })
       .reply(500, {});
@@ -141,6 +161,7 @@ let fetchProducts, logs;
 
   await t.test('logs structured error', async () => {
     setupLocalStorage();
+    setInlineProductData(null);
     logs.length = 0;
     mockPool.intercept({ path: /^\/data\/product_data\.json/, method: 'GET' })
       .reply(500, {});
@@ -148,6 +169,76 @@ let fetchProducts, logs;
     const parsed = logs.map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
     assert.ok(parsed.some(p => p.level === 'error' && p.correlationId));
     mockAgent.assertNoPendingInterceptors();
+  });
+
+  await t.test('uses inline dataset when available', async () => {
+    setupLocalStorage({ productDataVersion: 'inline-1' });
+    const inlinePayload = {
+      version: 'inline-1',
+      products: [
+        {
+          name: 'Producto de prueba',
+          description: 'Descripción',
+          price: 1200,
+          discount: 0,
+          stock: true,
+          category: 'General',
+          image_path: '/assets/example.webp'
+        }
+      ]
+    };
+    setInlineProductData(inlinePayload);
+    const originalFetch = global.fetch;
+    let fetchCalled = false;
+    global.fetch = () => {
+      fetchCalled = true;
+      return Promise.reject(new Error('should not fetch'));
+    };
+    try {
+      const products = await fetchProducts();
+      assert.strictEqual(products.length, 1);
+      assert.strictEqual(fetchCalled, false);
+      assert.strictEqual(global.localStorage.getItem('productDataVersion'), 'inline-1');
+    } finally {
+      global.fetch = originalFetch;
+      setInlineProductData(null);
+      global.document.getElementById = defaultGetElementById;
+    }
+  });
+
+  await t.test('falls back to inline data when network fails', async () => {
+    setupLocalStorage({ productDataVersion: 'newer-version' });
+    const inlinePayload = {
+      version: 'inline-version',
+      products: [
+        {
+          name: 'Fallback',
+          description: 'Inline',
+          price: 500,
+          discount: 0,
+          stock: true,
+          category: 'General',
+          image_path: '/assets/fallback.webp'
+        }
+      ]
+    };
+    setInlineProductData(inlinePayload);
+    const originalFetch = global.fetch;
+    let fetchAttempts = 0;
+    global.fetch = () => {
+      fetchAttempts += 1;
+      return Promise.reject(new Error('network failure'));
+    };
+    try {
+      const products = await fetchProducts();
+      assert.strictEqual(products.length, 1);
+      assert.ok(fetchAttempts >= 1);
+      assert.strictEqual(global.localStorage.getItem('productDataVersion'), 'inline-version');
+    } finally {
+      global.fetch = originalFetch;
+      setInlineProductData(null);
+      global.document.getElementById = defaultGetElementById;
+    }
   });
 
     t.after(() => mockAgent.close());
