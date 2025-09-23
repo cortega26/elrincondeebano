@@ -6,6 +6,7 @@ import { setupPerformanceOptimizations } from './modules/perf.js';
 import { injectSeoMetadata, injectStructuredData } from './modules/seo.js';
 import { injectPwaManifest } from './modules/pwa.js';
 import { setupCheckoutProgress } from './modules/checkout.js';
+import { initializeBootstrapUI } from './modules/bootstrap.mjs';
 
 // Import the core app for side effects when bundling.
 // Note: When bundling via esbuild, this pulls in the main application logic.
@@ -33,6 +34,7 @@ function initEnhancementsOnce() {
   injectSeoMetadata();
   injectStructuredData();
   injectPwaManifest();
+  initializeBootstrapUI();
 }
 
 if (document.readyState === 'loading') {
