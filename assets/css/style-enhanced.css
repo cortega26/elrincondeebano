@@ -846,6 +846,24 @@ h1 {
   display: none !important;
 }
 
+/* Utility: force layout display modes */
+.is-flex {
+  display: flex !important;
+}
+
+.is-block {
+  display: block !important;
+}
+
+/* Utility: hydrate content visibility without inline styles */
+.has-content-visibility {
+  content-visibility: auto;
+}
+
+.has-contain-intrinsic {
+  contain-intrinsic-size: 400px 560px;
+}
+
 /* Skip link for accessibility */
 .skip-link {
   position: absolute;

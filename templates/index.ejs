@@ -97,7 +97,7 @@
         <h2 id="products-heading" class="visually-hidden">Productos disponibles</h2>
         <div class="row" id="product-container" aria-live="polite" data-total-products="<%= totalProducts %>">
 <% products.forEach((product) => { %>
-          <div class="producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4 <%= product.stock ? '' : 'agotado' %>" data-product-id="<%= product.id %>" aria-label="Product: <%= product.name %>">
+          <div class="producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4 <%= product.stock ? '' : 'agotado' %> has-content-visibility has-contain-intrinsic" data-product-id="<%= product.id %>" aria-label="Product: <%= product.name %>">
             <div class="card">
 <% if (product.isDiscounted) { %>
               <span class="discount-badge badge bg-danger" aria-label="Producto en oferta">-<%= product.discountPercent %>%</span>
@@ -116,7 +116,7 @@
                 </div>
                 <div class="action-area" data-pid="<%= product.id %>">
                   <button class="btn btn-primary add-to-cart-btn mt-2" data-id="<%= product.id %>" aria-label="Agregar <%= product.name %> al carrito">Agregar al carrito</button>
-                  <div class="quantity-control" style="display:none;">
+                  <div class="quantity-control is-hidden">
                     <button class="quantity-btn" data-action="decrease" aria-label="Disminuir cantidad">-</button>
                     <input type="number" class="quantity-input" value="1" min="1" max="50" aria-label="Cantidad" data-id="<%= product.id %>">
                     <button class="quantity-btn" data-action="increase" aria-label="Aumentar cantidad">+</button>

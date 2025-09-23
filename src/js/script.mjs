@@ -5,6 +5,14 @@ import { showOffcanvas } from './modules/bootstrap.mjs';
 const PRODUCT_DATA_GLOBAL_KEY = '__PRODUCT_DATA__';
 let sharedProductData = null;
 
+const UTILITY_CLASSES = Object.freeze({
+    hidden: 'is-hidden',
+    flex: 'is-flex',
+    block: 'is-block',
+    contentVisible: 'has-content-visibility',
+    containIntrinsic: 'has-contain-intrinsic'
+});
+
 function getSharedProductData() {
     if (typeof window !== 'undefined') {
         const payload = window[PRODUCT_DATA_GLOBAL_KEY];
@@ -201,8 +209,8 @@ function setupConnectivityHandling() {
     }
     const updateOnlineStatus = () => {
         const hidden = navigator.onLine;
-        offlineIndicator.classList.toggle('is-hidden', hidden);
-        offlineIndicator.style.display = hidden ? 'none' : 'block';
+        offlineIndicator.classList.toggle(UTILITY_CLASSES.hidden, hidden);
+        offlineIndicator.classList.toggle(UTILITY_CLASSES.block, !hidden);
 
         if (!hidden) {
             showConnectivityNotification('You are currently offline. Some features may be limited.');
@@ -653,13 +661,12 @@ const saveCart = () => {
 
 const toggleActionArea = (btn, quantityControl, showQuantity) => {
     if (!btn || !quantityControl) return;
-    if (showQuantity) {
-        btn.style.display = 'none';
-        quantityControl.style.display = 'flex';
-    } else {
-        quantityControl.style.display = 'none';
-        btn.style.display = 'flex';
-    }
+    const showButton = !showQuantity;
+    btn.classList.toggle(UTILITY_CLASSES.hidden, !showButton);
+    btn.classList.toggle(UTILITY_CLASSES.flex, showButton);
+
+    quantityControl.classList.toggle(UTILITY_CLASSES.hidden, !showQuantity);
+    quantityControl.classList.toggle(UTILITY_CLASSES.flex, showQuantity);
 };
 
 const renderCart = () => {
@@ -892,8 +899,8 @@ const initApp = async () => {
         const offlineIndicator = document.getElementById('offline-indicator');
         if (offlineIndicator) {
             const hidden = navigator.onLine;
-            offlineIndicator.classList.toggle('is-hidden', hidden);
-            offlineIndicator.style.display = hidden ? 'none' : 'block';
+            offlineIndicator.classList.toggle(UTILITY_CLASSES.hidden, hidden);
+            offlineIndicator.classList.toggle(UTILITY_CLASSES.block, !hidden);
         }
         if (!navigator.onLine) {
             console.log('App is offline. Using cached data if available.');
@@ -951,7 +958,7 @@ const initApp = async () => {
 
 
     const renderQuantityControl = (product) => {
-        const quantityControl = createSafeElement('div', { class: 'quantity-control', style: 'display:none;' });
+        const quantityControl = createSafeElement('div', { class: `quantity-control ${UTILITY_CLASSES.hidden}` });
         const minusBtn = createSafeElement('button', {
             class: 'quantity-btn',
             'data-action': 'decrease',
@@ -1042,13 +1049,23 @@ const initApp = async () => {
         productsToRender.forEach(product => {
             const { id, name, description, image_path, price, discount, stock } = product;
 
+            const productClasses = [
+                'producto',
+                'col-12',
+                'col-sm-6',
+                'col-md-4',
+                'col-lg-3',
+                'mb-4',
+                !stock ? 'agotado' : '',
+                UTILITY_CLASSES.contentVisible,
+                UTILITY_CLASSES.containIntrinsic
+            ].filter(Boolean).join(' ');
+
             const productElement = createSafeElement('div', {
-                class: `producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4 ${!stock ? 'agotado' : ''}`,
+                class: productClasses,
                 'aria-label': `Product: ${name}`,
                 'data-product-id': id
             });
-            productElement.style.setProperty('content-visibility', 'auto');
-            productElement.style.setProperty('contain-intrinsic-size', '400px 560px');
 
             const cardElement = createSafeElement('div', { class: 'card' });
 
@@ -1121,8 +1138,7 @@ const initApp = async () => {
                 return;
             }
             const product = map.get(productId);
-            card.style.setProperty('content-visibility', 'auto');
-            card.style.setProperty('contain-intrinsic-size', '400px 560px');
+            card.classList.add(UTILITY_CLASSES.contentVisible, UTILITY_CLASSES.containIntrinsic);
             const actionArea = card.querySelector('.action-area');
             setupActionArea(actionArea, product);
             hydrated += 1;
@@ -1476,13 +1492,12 @@ const initApp = async () => {
     // Toggle action area in a specific card without re-rendering the grid
     const toggleActionArea = (btn, quantityControl, showQuantity) => {
         if (!btn || !quantityControl) return;
-        if (showQuantity) {
-            btn.style.display = 'none';
-            quantityControl.style.display = 'flex';
-        } else {
-            quantityControl.style.display = 'none';
-            btn.style.display = 'flex';
-        }
+        const showButton = !showQuantity;
+        btn.classList.toggle(UTILITY_CLASSES.hidden, !showButton);
+        btn.classList.toggle(UTILITY_CLASSES.flex, showButton);
+
+        quantityControl.classList.toggle(UTILITY_CLASSES.hidden, !showQuantity);
+        quantityControl.classList.toggle(UTILITY_CLASSES.flex, showQuantity);
     };
 
     const saveCart = () => {
