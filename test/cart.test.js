@@ -60,4 +60,42 @@ test('cart helpers', async (t) => {
     updateCartIcon();
     assert.strictEqual(document.getElementById('cart-count').textContent, '5');
   });
+
+  await t.test('action area toggles utility classes', async () => {
+    await setupDom();
+    const product = { id: 'utility-test', name: 'Producto utilitario', price: 10, description: '', image_path: '', category: '', stock: 10 };
+
+    const actionArea = document.createElement('div');
+    actionArea.className = 'action-area';
+    actionArea.dataset.pid = product.id;
+
+    const addButton = document.createElement('button');
+    addButton.className = 'btn btn-primary add-to-cart-btn';
+    addButton.dataset.id = product.id;
+    actionArea.appendChild(addButton);
+
+    const quantityControl = document.createElement('div');
+    quantityControl.className = 'quantity-control is-hidden';
+
+    const quantityInput = document.createElement('input');
+    quantityInput.className = 'quantity-input';
+    quantityInput.dataset.id = product.id;
+    quantityInput.value = '1';
+    quantityControl.appendChild(quantityInput);
+
+    actionArea.appendChild(quantityControl);
+    document.body.appendChild(actionArea);
+
+    updateQuantity(product, 1);
+    assert.ok(addButton.classList.contains('is-hidden'));
+    assert.ok(!addButton.classList.contains('is-flex'));
+    assert.ok(!quantityControl.classList.contains('is-hidden'));
+    assert.ok(quantityControl.classList.contains('is-flex'));
+
+    updateQuantity(product, -1);
+    assert.ok(!addButton.classList.contains('is-hidden'));
+    assert.ok(addButton.classList.contains('is-flex'));
+    assert.ok(quantityControl.classList.contains('is-hidden'));
+    assert.ok(!quantityControl.classList.contains('is-flex'));
+  });
 });
