@@ -825,6 +825,30 @@ const initApp = async () => {
     const productContainer = document.getElementById('product-container');
     const sortOptions = document.getElementById('sort-options');
     const filterKeyword = document.getElementById('filter-keyword');
+    const cartCountElement = document.getElementById('cart-count');
+    const cartItemsElement = document.getElementById('cart-items');
+    const cartTotalElement = document.getElementById('cart-total');
+
+    const essentialElements = {
+        '#product-container': productContainer,
+        '#sort-options': sortOptions,
+        '#filter-keyword': filterKeyword,
+        '#cart-count': cartCountElement,
+        '#cart-items': cartItemsElement,
+        '#cart-total': cartTotalElement
+    };
+
+    const missingSelectors = Object.entries(essentialElements)
+        .filter(([, element]) => !element)
+        .map(([selector]) => selector);
+
+    if (missingSelectors.length) {
+        log('warn', 'init_app_missing_dom', {
+            missingSelectors,
+            location: typeof window !== 'undefined' ? window.location?.pathname : 'unknown'
+        });
+        return;
+    }
 
     // Ensure discount-only toggle exists in the filter UI
     const ensureDiscountToggle = () => {
@@ -1755,36 +1779,44 @@ const initApp = async () => {
         const emptyCartBtn = document.getElementById('empty-cart');
         const submitCartBtn = document.getElementById('submit-cart');
 
-        cartIcon.addEventListener('click', async () => {
-            renderCart();
-            try {
-                await showOffcanvas('#cartOffcanvas');
-            } catch (error) {
-                console.error('Bootstrap Offcanvas no está disponible', error);
-                const cartOffcanvasElement = document.getElementById('cartOffcanvas');
-                if (cartOffcanvasElement) {
-                    cartOffcanvasElement.classList.add('show');
+        if (cartIcon) {
+            cartIcon.addEventListener('click', async () => {
+                renderCart();
+                try {
+                    await showOffcanvas('#cartOffcanvas');
+                } catch (error) {
+                    console.error('Bootstrap Offcanvas no está disponible', error);
+                    const cartOffcanvasElement = document.getElementById('cartOffcanvas');
+                    if (cartOffcanvasElement) {
+                        cartOffcanvasElement.classList.add('show');
+                    }
                 }
-            }
-        });
+            });
+        }
 
-        emptyCartBtn.addEventListener('click', emptyCart);
-        submitCartBtn.addEventListener('click', submitCart);
+        if (emptyCartBtn) {
+            emptyCartBtn.addEventListener('click', emptyCart);
+        }
+        if (submitCartBtn) {
+            submitCartBtn.addEventListener('click', submitCart);
+        }
 
-        document.getElementById('cart-items').addEventListener('click', (e) => {
-            const target = e.target;
-            const productId = target.closest('[data-id]')?.dataset.id;
+        if (cartItemsElement) {
+            cartItemsElement.addEventListener('click', (e) => {
+                const target = e.target;
+                const productId = target.closest('[data-id]')?.dataset.id;
 
-            if (!productId) return;
+                if (!productId) return;
 
-            if (target.classList.contains('decrease-quantity')) {
-                updateQuantity({ id: productId }, -1);
-            } else if (target.classList.contains('increase-quantity')) {
-                updateQuantity({ id: productId }, 1);
-            } else if (target.classList.contains('remove-item')) {
-                removeFromCart(productId);
-            }
-        });
+                if (target.classList.contains('decrease-quantity')) {
+                    updateQuantity({ id: productId }, -1);
+                } else if (target.classList.contains('increase-quantity')) {
+                    updateQuantity({ id: productId }, 1);
+                } else if (target.classList.contains('remove-item')) {
+                    removeFromCart(productId);
+                }
+            });
+        }
 
         updateCartIcon();
 
@@ -1829,6 +1861,7 @@ export {
     generateStableId,
     fetchProducts,
     fetchWithRetry,
+    initApp,
     addToCart,
     removeFromCart,
     updateQuantity,
