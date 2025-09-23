@@ -23,23 +23,23 @@ function registerServiceWorker() {
 
     serviceWorkerRegistrationSetup = true;
 
+    const startRegistration = async () => {
+        if (document.readyState !== 'complete') {
+            return;
+        }
+
+        window.removeEventListener('load', startRegistration);
+
+        try {
+            await initializeServiceWorker();
+        } catch (error) {
+            console.error('Service Worker initialization failed:', error);
+            showServiceWorkerError('Failed to initialize service worker. Some features may not work offline.');
+        }
+    };
+
     window.addEventListener('load', startRegistration);
     startRegistration();
-}
-
-async function startRegistration() {
-    if (document.readyState !== 'complete') {
-        return;
-    }
-
-    window.removeEventListener('load', startRegistration);
-
-    try {
-        await initializeServiceWorker();
-    } catch (error) {
-        console.error('Service Worker initialization failed:', error);
-        showServiceWorkerError('Failed to initialize service worker. Some features may not work offline.');
-    }
 }
 
 function __resetServiceWorkerRegistrationForTest() {
