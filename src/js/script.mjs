@@ -1,5 +1,6 @@
 import { cfimg, CFIMG_THUMB } from './utils/cfimg.mjs';
 import { log, createCorrelationId } from './utils/logger.mjs';
+import { showOffcanvas } from './modules/bootstrap.mjs';
 
 const PRODUCT_DATA_GLOBAL_KEY = '__PRODUCT_DATA__';
 let sharedProductData = null;
@@ -1754,14 +1755,12 @@ const initApp = async () => {
         const emptyCartBtn = document.getElementById('empty-cart');
         const submitCartBtn = document.getElementById('submit-cart');
 
-        cartIcon.addEventListener('click', () => {
-            if (typeof window.bootstrap !== 'undefined' && window.bootstrap.Offcanvas) {
-                const cartOffcanvas = new window.bootstrap.Offcanvas(document.getElementById('cartOffcanvas'));
-                renderCart();
-                cartOffcanvas.show();
-            } else {
-                console.error('Bootstrap Offcanvas no está disponible');
-                renderCart();
+        cartIcon.addEventListener('click', async () => {
+            renderCart();
+            try {
+                await showOffcanvas('#cartOffcanvas');
+            } catch (error) {
+                console.error('Bootstrap Offcanvas no está disponible', error);
                 const cartOffcanvasElement = document.getElementById('cartOffcanvas');
                 if (cartOffcanvasElement) {
                     cartOffcanvasElement.classList.add('show');
