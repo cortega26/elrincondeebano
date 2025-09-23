@@ -725,26 +725,6 @@ if (typeof window !== 'undefined') {
 const initApp = async () => {
     console.log('Initializing app...');
 
-    // Ensure DOMPurify is loaded before proceeding (fall back if blocked by client)
-    if (typeof DOMPurify === 'undefined') {
-        try {
-            await new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.3.8/purify.min.js';
-                script.integrity = 'sha384-AsiVBlzbaNOq8OOKcXm2ZVjjKJwiQ9UmzLwfetDjC74OMQdkb6vBHH5QRJH3x1SE';
-                script.crossOrigin = 'anonymous';
-                script.onload = resolve;
-                script.onerror = reject;
-                document.head.appendChild(script);
-            });
-        } catch (error) {
-            console.warn('DOMPurify CDN blocked; using noop sanitizer');
-            window.DOMPurify = { sanitize: (html) => html };
-        }
-    }
-
-    const navbarContainer = document.getElementById('navbar-container');
-    const footerContainer = document.getElementById('footer-container');
     const productContainer = document.getElementById('product-container');
     const sortOptions = document.getElementById('sort-options');
     const filterKeyword = document.getElementById('filter-keyword');
@@ -789,57 +769,12 @@ const initApp = async () => {
         }
     };
 
-    const loadComponent = async (container, filename) => {
-
-        if (!container) {
-            console.warn(`Contenedor no encontrado para el componente: ${filename}`);
-            return;
-        }
-
-        try {
-            const response = await fetch(filename);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const html = await response.text();
-
-            const sanitizedHtml = DOMPurify.sanitize(html, {
-                USE_PROFILES: { html: true },
-                ALLOWED_TAGS: ['div', 'span', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a', 'img', 'br', 'strong', 'em', 'button', 'nav', 'footer', 'header', 'main', 'section'],
-                ALLOWED_ATTR: ['href', 'src', 'alt', 'class', 'id', 'style', 'aria-label', 'role', 'type', 'data-bs-toggle', 'data-bs-target', 'aria-controls', 'aria-expanded']
-            });
-
-            container.innerHTML = '';
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(sanitizedHtml, 'text/html');
-
-            Array.from(doc.body.children).forEach(child => {
-                container.appendChild(child.cloneNode(true));
-            });
-        } catch (error) {
-            console.error("Error al cargar componente:", { component: filename, message: error.message });
-            throw error;
-        }
-    };
-
     function initFooter() {
         const yearSpan = document.getElementById('current-year');
         if (yearSpan) {
             yearSpan.textContent = new Date().getFullYear();
         }
     }
-
-    const loadComponents = async () => {
-        try {
-            await Promise.all([
-                loadComponent(navbarContainer, '/pages/navbar.html'),
-                loadComponent(footerContainer, '/pages/footer.html')
-            ]);
-            console.log('Components loaded successfully');
-            initFooter();
-        } catch (error) {
-            console.error('Error al cargar componentes:', error);
-            showErrorMessage('Error al cargar los componentes de la página. Por favor, actualice la página o verifique su conexión a internet.');
-        }
-    };
 
     const renderPriceHtml = (price, discount, currencyCode = 'CLP') => {
         const formatter = new Intl.NumberFormat('es-CL', {
@@ -1526,7 +1461,7 @@ const initApp = async () => {
     };
 
     try {
-        await loadComponents();
+        initFooter();
         products = await fetchProducts();
 
         if (products.length === 0) {
