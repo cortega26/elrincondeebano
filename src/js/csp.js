@@ -266,17 +266,56 @@
         }
     }
 
-    // Habilita estilos diferidos sin usar onload inline en <link>.
-    function enableDeferredStyles() {
+    // Habilita estilos diferidos sin usar onload inline en <link> y evita forzar
+    // reprocesamientos durante el render inicial programando el cambio de media.
+    let deferredStylesScheduled = false;
+
+    function applyDeferredStyles() {
         try {
             const links = document.querySelectorAll('link[rel="stylesheet"][media="print"][data-defer]');
             links.forEach(link => {
+                if (link.media === 'all') {
+                    return;
+                }
                 link.media = 'all';
                 link.removeAttribute('data-defer');
             });
         } catch (e) {
             console.warn('[csp] enableDeferredStyles error:', e);
         }
+    }
+
+    function enableDeferredStyles() {
+        if (deferredStylesScheduled) {
+            return;
+        }
+        deferredStylesScheduled = true;
+
+        const run = () => {
+            try {
+                applyDeferredStyles();
+            } catch (e) {
+                console.warn('[csp] deferred style application failed:', e);
+            }
+        };
+
+        const idle = typeof window !== 'undefined' && typeof window.requestIdleCallback === 'function'
+            ? window.requestIdleCallback
+            : null;
+        if (idle) {
+            idle(run, { timeout: 1500 });
+            return;
+        }
+
+        const raf = typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function'
+            ? window.requestAnimationFrame
+            : null;
+        if (raf) {
+            raf(() => setTimeout(run, 0));
+            return;
+        }
+
+        setTimeout(run, 0);
     }
 
     // Inicializa todas las mejoras cuando el DOM esté listo.
