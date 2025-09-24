@@ -76,16 +76,16 @@ const assert = require('assert');
   const pointerListener = listeners.find((listener) => listener.event === 'pointerdown');
   assert.ok(pointerListener, 'pointerdown listener should be registered for deferred loading');
 
-  assert.strictEqual(appendedScripts.length, 0, 'gtag script should not load immediately');
-
-  pointerListener.handler();
-
-  assert.strictEqual(appendedScripts.length, 1, 'gtag script should append on first interaction');
+  assert.strictEqual(appendedScripts.length, 1, 'gtag script should load immediately');
+  assert.ok(appendedScripts[0].async, 'gtag script should load asynchronously');
   assert.ok(appendedScripts[0].src.includes('googletagmanager.com/gtag/js'), 'gtag script should target Google endpoint');
 
-  // Triggering the handler again should not append duplicate scripts
+  // Triggering the handler should not append duplicate scripts
   pointerListener.handler();
-  assert.strictEqual(appendedScripts.length, 1, 'gtag script should only append once');
+  assert.strictEqual(appendedScripts.length, 1, 'gtag script should only append once after interaction');
+
+  pointerListener.handler();
+  assert.strictEqual(appendedScripts.length, 1, 'gtag script should remain single on repeated triggers');
 
   const initialListenerCount = listeners.length;
   module.initializeAnalytics();
