@@ -14,15 +14,26 @@ function readPolicy(fileRelativePath) {
 function verifyPolicy(fileRelativePath) {
   const directive = readPolicy(fileRelativePath);
   const requiredHosts = [
-    'https://www.google-analytics.com',
-    'https://analytics.google.com',
-    'https://region1.google-analytics.com'
+    'https://cloudflareinsights.com'
   ];
 
   requiredHosts.forEach((host) => {
     assert.ok(
       directive.includes(host),
       `Expected ${host} in connect-src directive for ${fileRelativePath}`
+    );
+  });
+
+  const forbiddenHosts = [
+    'https://www.google-analytics.com',
+    'https://analytics.google.com',
+    'https://region1.google-analytics.com'
+  ];
+
+  forbiddenHosts.forEach((host) => {
+    assert.ok(
+      !directive.includes(host),
+      `Did not expect ${host} in connect-src directive for ${fileRelativePath}`
     );
   });
 }

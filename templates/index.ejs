@@ -7,15 +7,6 @@
   <link rel="canonical" href="https://elrincondeebano.com/">
   <link rel="manifest" href="/app.webmanifest">
 
-  <!-- Google tag (gtag.js) for GA4 property G-H0YG3RTJVM -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-H0YG3RTJVM"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'G-H0YG3RTJVM', { 'send_page_view': true, 'transport_type': 'beacon' });
-  </script>
-
   <!-- Security -->
   <script src="dist/js/csp.js?v=2" async></script>
 
@@ -27,14 +18,12 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&amp;family=Playfair+Display:wght@400;700&amp;display=swap" as="style">
 
   <!-- Performance Resource Hints -->
   <link rel="dns-prefetch" href="//fonts.googleapis.com">
   <link rel="dns-prefetch" href="//fonts.gstatic.com">
   <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
-  <link rel="dns-prefetch" href="//www.googletagmanager.com">
   <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
 
   <% const lcpImage = Array.isArray(products) && products.length > 0 ? products[0].image : null; %>
