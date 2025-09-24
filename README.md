@@ -9,6 +9,7 @@ Sitio web estático de un mini‑market online. Incluye un catálogo de producto
 - Componentes reutilizables (navbar y footer) cargados dinámicamente.
 - Sistema de carrito de compras en el navegador.
 - Tipografías "Inter" y "Playfair Display" servidas desde Google Fonts junto a los íconos de Bootstrap.
+- Analítica web servida íntegramente mediante Cloudflare Web Analytics, sin dependencias de Google.
 - Filtros y ordenamiento de productos directamente en el navegador.
 - Plantillas EJS para generar las páginas de forma consistente.
 

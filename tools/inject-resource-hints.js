@@ -6,7 +6,6 @@ function generateResourceHints() {
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
-    <link rel="dns-prefetch" href="//www.googletagmanager.com">
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
     
     <!-- Preload critical assets -->
@@ -16,10 +15,20 @@ function generateResourceHints() {
 
 function injectResourceHints(filePath) {
   let html = fs.readFileSync(filePath, 'utf8');
-  
+  let modified = false;
+
+  const cleanedHtml = html.replace(/\s*<link rel="dns-prefetch" href="\/\/www\.googletagmanager\.com">\s*/g, '\n');
+  if (cleanedHtml !== html) {
+    html = cleanedHtml;
+    modified = true;
+  }
+
   // Skip if already has our resource hints
   if (html.includes('<!-- Performance Resource Hints -->')) {
-    return false; // No changes made
+    if (modified) {
+      fs.writeFileSync(filePath, html, 'utf8');
+    }
+    return modified; // reflect whether cleanup occurred
   }
 
   // Find a good place to inject - after existing preconnects but before title
@@ -31,16 +40,20 @@ function injectResourceHints(filePath) {
     const lastMatch = matches[matches.length - 1];
     const insertPosition = lastMatch.index + lastMatch[0].length;
     
-    html = html.slice(0, insertPosition) + 
-           '\n' + generateResourceHints() + '\n' + 
+    html = html.slice(0, insertPosition) +
+           '\n' + generateResourceHints() + '\n' +
            html.slice(insertPosition);
+    modified = true;
   } else {
     // Fallback: insert before title tag
     html = html.replace(/<title>/, generateResourceHints() + '\n\n    <title>');
+    modified = true;
   }
 
-  fs.writeFileSync(filePath, html, 'utf8');
-  return true; // Changes made
+  if (modified) {
+    fs.writeFileSync(filePath, html, 'utf8');
+  }
+  return modified; // Indicate whether the file was updated
 }
 
 function main() {
