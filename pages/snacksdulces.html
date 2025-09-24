@@ -124,6 +124,35 @@
   </nav>
 </header>
 
+<div class="offcanvas offcanvas-end" tabindex="-1" id="cartOffcanvas" aria-labelledby="cartOffcanvasLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="cartOffcanvasLabel">Carrito de Compras</h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div id="cart-items"></div>
+    <div id="cart-total" class="mt-3"></div>
+    <div class="mt-3" id="payment-method-container">
+      <label class="form-label d-block" for="payment-cash">Método de Pago</label>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="paymentMethod" id="payment-cash" value="Efectivo" required>
+        <label class="form-check-label" for="payment-cash">Efectivo</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="paymentMethod" id="payment-transfer" value="Transferencia" required>
+        <label class="form-check-label" for="payment-transfer">Transferencia</label>
+      </div>
+      <div class="form-check d-none" id="payment-credit-container">
+        <input class="form-check-input" type="radio" name="paymentMethod" id="payment-credit" value="Tarjeta de Crédito" required>
+        <label class="form-check-label" for="payment-credit">Tarjeta de Crédito</label>
+      </div>
+    </div>
+    <button id="empty-cart" class="btn btn-warning mt-3">Vaciar Carrito</button>
+    <button id="submit-cart" class="btn btn-success mt-3">Realizar Pedido</button>
+    <button id="continue-shopping" class="btn btn-primary mt-3" data-bs-dismiss="offcanvas">Continuar Comprando</button>
+  </div>
+</div>
+
 
     <main data-category="Snacks Dulces" role="main">
         <div class="container my-4">
