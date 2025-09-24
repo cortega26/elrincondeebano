@@ -233,21 +233,6 @@ if (!TEST_MODE) {
 
         // Removed early network-first branch; unified handling below
 
-        if (event.request.url.includes('googletagmanager.com/gtag/js')) {
-            event.respondWith(
-                fetch(event.request)
-                    .then((response) => {
-                        console.log(`Response status: ${response.status}`);
-                        console.log(`Response headers:`, [...response.headers]);
-                        return response;
-                    })
-                    .catch((error) => {
-                        console.error(`Fetch error for ${event.request.url}:`, error);
-                        throw error;
-                    })
-            );
-        }
-
         // First, explicitly check if this is a request we should handle
         const isHandleableRequest =
             // Check if it's our product data
@@ -255,9 +240,7 @@ if (!TEST_MODE) {
             // Check if it's one of our static assets
             CACHE_CONFIG.staticAssets.includes(url.pathname) ||
             // Check if it's a request to our domain that isn't a third-party script
-            (url.origin === self.location.origin &&
-                !url.pathname.includes('gtag') &&
-                !url.pathname.includes('analytics'));
+            (url.origin === self.location.origin && !url.pathname.includes('analytics'));
 
         // Only proceed if it's a request we should handle
         if (!isHandleableRequest) {
