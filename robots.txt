@@ -1,5 +1,5 @@
 User-agent: *
 Disallow: /admin-web/
 Disallow: /admin-panel/
-https://elrincondeebano.com/sitemap.xml
+Sitemap: https://elrincondeebano.com/sitemap.xml
 
