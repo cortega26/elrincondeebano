@@ -1,10 +1,24 @@
 const assert = require('assert');
+const path = require('path');
+const { pathToFileURL } = require('url');
 
-(async () => {
+let importCounter = 0;
+
+async function loadAnalyticsModule() {
+  importCounter += 1;
+  const moduleUrl = pathToFileURL(path.resolve(__dirname, '../src/js/modules/analytics.mjs'));
+  return import(`${moduleUrl.href}?v=${importCounter}`);
+}
+
+function createEnvironment({ preconfigured = false } = {}) {
   const listeners = [];
   const idleCallbacks = [];
   const timeouts = [];
   const appendedScripts = [];
+  const existingScript = {
+    dataset: { loaded: 'true' },
+    addEventListener() {}
+  };
 
   const documentMock = {
     visibilityState: 'visible',
@@ -40,7 +54,7 @@ const assert = require('assert');
       };
     },
     querySelector() {
-      return null;
+      return preconfigured ? existingScript : null;
     }
   };
 
@@ -60,38 +74,82 @@ const assert = require('assert');
     }
   };
 
-  global.window = windowMock;
-  global.document = documentMock;
+  if (preconfigured) {
+    windowMock.dataLayer = [
+      ['js', new Date()],
+      ['config', 'G-H0YG3RTJVM', { send_page_view: true }]
+    ];
+    windowMock.gtag = function gtag() {
+      windowMock.dataLayer.push(Array.from(arguments));
+    };
+    windowMock.__gtagInitialised = false;
+  }
 
-  const module = await import('../src/js/modules/analytics.mjs');
+  return {
+    listeners,
+    idleCallbacks,
+    timeouts,
+    appendedScripts,
+    documentMock,
+    windowMock
+  };
+}
+
+async function runInitialisationFromScratch() {
+  const env = createEnvironment();
+  global.window = env.windowMock;
+  global.document = env.documentMock;
+
+  const module = await loadAnalyticsModule();
 
   module.initializeAnalytics();
 
-  assert.ok(idleCallbacks.length > 0 || timeouts.length > 0, 'analytics should schedule a deferred loader');
-  assert.ok(Array.isArray(windowMock.dataLayer), 'dataLayer should be initialised as an array');
-  assert.strictEqual(typeof windowMock.gtag, 'function', 'gtag stub should be defined');
-  assert.strictEqual(windowMock.dataLayer.length, 2, 'initial config commands should be queued');
-  assert.strictEqual(windowMock.__gtagInitialised, true, 'window flag should mark analytics initialised');
+  assert.ok(env.idleCallbacks.length > 0 || env.timeouts.length > 0, 'analytics should schedule a deferred loader');
+  assert.ok(Array.isArray(env.windowMock.dataLayer), 'dataLayer should be initialised as an array');
+  assert.strictEqual(typeof env.windowMock.gtag, 'function', 'gtag stub should be defined');
+  assert.strictEqual(env.windowMock.dataLayer.length, 2, 'initial config commands should be queued');
+  assert.strictEqual(env.windowMock.__gtagInitialised, true, 'window flag should mark analytics initialised');
 
-  const pointerListener = listeners.find((listener) => listener.event === 'pointerdown');
+  const pointerListener = env.listeners.find((listener) => listener.event === 'pointerdown');
   assert.ok(pointerListener, 'pointerdown listener should be registered for deferred loading');
 
-  assert.strictEqual(appendedScripts.length, 1, 'gtag script should load immediately');
-  assert.ok(appendedScripts[0].async, 'gtag script should load asynchronously');
-  assert.ok(appendedScripts[0].src.includes('googletagmanager.com/gtag/js'), 'gtag script should target Google endpoint');
-
-  // Triggering the handler should not append duplicate scripts
-  pointerListener.handler();
-  assert.strictEqual(appendedScripts.length, 1, 'gtag script should only append once after interaction');
+  assert.strictEqual(env.appendedScripts.length, 1, 'gtag script should load immediately');
+  assert.ok(env.appendedScripts[0].async, 'gtag script should load asynchronously');
+  assert.ok(env.appendedScripts[0].src.includes('googletagmanager.com/gtag/js'), 'gtag script should target Google endpoint');
 
   pointerListener.handler();
-  assert.strictEqual(appendedScripts.length, 1, 'gtag script should remain single on repeated triggers');
+  assert.strictEqual(env.appendedScripts.length, 1, 'gtag script should only append once after interaction');
 
-  const initialListenerCount = listeners.length;
+  pointerListener.handler();
+  assert.strictEqual(env.appendedScripts.length, 1, 'gtag script should remain single on repeated triggers');
+
+  const initialListenerCount = env.listeners.length;
   module.initializeAnalytics();
-  assert.strictEqual(listeners.length, initialListenerCount, 'initialiseAnalytics should be idempotent');
-  assert.strictEqual(windowMock.dataLayer.length, 2, 'initial config should not queue duplicates on reinitialisation');
+  assert.strictEqual(env.listeners.length, initialListenerCount, 'initialiseAnalytics should be idempotent');
+  assert.strictEqual(env.windowMock.dataLayer.length, 2, 'initial config should not queue duplicates on reinitialisation');
 
   delete global.window;
   delete global.document;
+}
+
+async function runRespectsPreconfiguredSnippet() {
+  const env = createEnvironment({ preconfigured: true });
+  global.window = env.windowMock;
+  global.document = env.documentMock;
+
+  const module = await loadAnalyticsModule();
+
+  module.initializeAnalytics();
+
+  assert.strictEqual(env.windowMock.__gtagInitialised, true, 'existing config should mark analytics initialised');
+  assert.strictEqual(env.windowMock.dataLayer.length, 2, 'existing dataLayer entries should remain unchanged');
+  assert.strictEqual(env.appendedScripts.length, 0, 'existing script should prevent duplicate loader injection');
+
+  delete global.window;
+  delete global.document;
+}
+
+(async () => {
+  await runInitialisationFromScratch();
+  await runRespectsPreconfiguredSnippet();
 })();

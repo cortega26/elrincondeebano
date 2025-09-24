@@ -19,8 +19,18 @@ function ensureDataLayer(globalWindow) {
   return globalWindow.gtag;
 }
 
+function hasMeasurementConfig(globalWindow) {
+  const { dataLayer } = globalWindow;
+  if (!Array.isArray(dataLayer)) return false;
+
+  return dataLayer.some((entry) => Array.isArray(entry) && entry[0] === 'config' && entry[1] === MEASUREMENT_ID);
+}
+
 function queueInitialConfig(globalWindow) {
-  if (globalWindow.__gtagInitialised) return;
+  if (globalWindow.__gtagInitialised || hasMeasurementConfig(globalWindow)) {
+    globalWindow.__gtagInitialised = true;
+    return;
+  }
   globalWindow.__gtagInitialised = true;
   globalWindow.gtag('js', new Date());
   globalWindow.gtag('config', MEASUREMENT_ID, {
