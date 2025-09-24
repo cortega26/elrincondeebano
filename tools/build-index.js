@@ -111,17 +111,19 @@ function build() {
     })
     .map(({ product }, index) => enrichProduct(product, index));
 
-  const initialProducts = sortedProducts.slice(0, INITIAL_RENDER_COUNT);
+  const availableProducts = sortedProducts.filter(product => product.stock);
+
+  const initialProducts = availableProducts.slice(0, INITIAL_RENDER_COUNT);
 
   const inlinePayload = safeJsonStringify({
     version: productData.version || null,
-    totalProducts: sortedProducts.length,
+    totalProducts: availableProducts.length,
     initialProducts: initialProducts.map(mapProductForInline)
   });
 
   const html = ejs.render(template, {
     products: initialProducts,
-    totalProducts: sortedProducts.length,
+    totalProducts: availableProducts.length,
     inlinePayload
   }, { rmWhitespace: false, filename: TEMPLATE_PATH });
 
