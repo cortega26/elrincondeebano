@@ -6,7 +6,8 @@ let scriptRequested = false;
 let loadPromise = null;
 
 function ensureDataLayer(globalWindow) {
-  const dataLayer = globalWindow.dataLayer || [];
+  const existingDataLayer = Array.isArray(globalWindow.dataLayer) ? globalWindow.dataLayer : [];
+  const dataLayer = existingDataLayer;
   globalWindow.dataLayer = dataLayer;
 
   if (typeof globalWindow.gtag !== 'function') {
@@ -16,17 +17,38 @@ function ensureDataLayer(globalWindow) {
     globalWindow.gtag = gtag;
   }
 
-  return globalWindow.gtag;
+  return { gtag: globalWindow.gtag, dataLayer };
+}
+
+function hasCommand(dataLayer, command) {
+  return Array.isArray(dataLayer) && dataLayer.some((entry) => Array.isArray(entry) && entry[0] === command);
+}
+
+function hasConfigForMeasurement(dataLayer) {
+  return Array.isArray(dataLayer) && dataLayer.some((entry) => (
+    Array.isArray(entry) && entry[0] === 'config' && entry[1] === MEASUREMENT_ID
+  ));
 }
 
 function queueInitialConfig(globalWindow) {
   if (globalWindow.__gtagInitialised) return;
+
+  const { dataLayer } = globalWindow;
+  const hasJsCommand = hasCommand(dataLayer, 'js');
+  const hasConfigCommand = hasConfigForMeasurement(dataLayer);
+
+  if (!hasJsCommand) {
+    globalWindow.gtag('js', new Date());
+  }
+
+  if (!hasConfigCommand) {
+    globalWindow.gtag('config', MEASUREMENT_ID, {
+      send_page_view: true,
+      transport_type: 'beacon'
+    });
+  }
+
   globalWindow.__gtagInitialised = true;
-  globalWindow.gtag('js', new Date());
-  globalWindow.gtag('config', MEASUREMENT_ID, {
-    send_page_view: true,
-    transport_type: 'beacon'
-  });
 }
 
 function loadGtagScript(globalWindow) {
