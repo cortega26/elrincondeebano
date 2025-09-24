@@ -32,9 +32,13 @@
   <link rel="dns-prefetch" href="//www.googletagmanager.com">
   <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
 
+  <% const lcpImage = Array.isArray(products) && products.length > 0 ? products[0].image : null; %>
   <!-- Preload critical assets -->
   <link rel="preload" href="/dist/css/critical.min.css" as="style" fetchpriority="high">
   <link rel="preload" href="/assets/images/web/logo.webp" as="image" type="image/webp" fetchpriority="high">
+  <% if (lcpImage) { %>
+  <link rel="preload" href="<%= lcpImage.src %>" as="image" imagesrcset="<%= lcpImage.srcset %>" imagesizes="200px" fetchpriority="high">
+  <% } %>
   <!-- Critical CSS -->
   <link rel="stylesheet" href="dist/css/critical.min.css">
 
@@ -96,13 +100,13 @@
       <section aria-labelledby="products-heading">
         <h2 id="products-heading" class="visually-hidden">Productos disponibles</h2>
         <div class="row" id="product-container" aria-live="polite" data-total-products="<%= totalProducts %>">
-<% products.forEach((product) => { %>
+<% products.forEach((product, index) => { %>
           <div class="producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4 <%= product.stock ? '' : 'agotado' %> has-content-visibility has-contain-intrinsic" data-product-id="<%= product.id %>" aria-label="Product: <%= product.name %>">
             <div class="card">
 <% if (product.isDiscounted) { %>
               <span class="discount-badge badge bg-danger" aria-label="Producto en oferta">-<%= product.discountPercent %>%</span>
 <% } %>
-              <img src="<%= product.image.src %>" srcset="<%= product.image.srcset %>" sizes="200px" alt="<%= product.name %>" class="card-img-top product-thumb" loading="lazy" decoding="async" width="400" height="400">
+              <img src="<%= product.image.src %>" srcset="<%= product.image.srcset %>" sizes="200px" alt="<%= product.name %>" class="card-img-top product-thumb" loading="<%= index === 0 ? 'eager' : 'lazy' %>" fetchpriority="<%= index === 0 ? 'high' : 'auto' %>" decoding="async" width="400" height="400">
               <div class="card-body">
                 <h3 class="card-title"><%= product.name %></h3>
                 <p class="card-text"><%= product.description %></p>

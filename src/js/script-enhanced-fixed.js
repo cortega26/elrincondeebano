@@ -389,6 +389,8 @@ const renderProducts = (products) => {
         productElement.style.animationDelay = `${index * 0.1}s`;
 
         const discountedPrice = product.price - (product.discount || 0);
+        const loadingAttr = index === 0 ? 'eager' : 'lazy';
+        const fetchPriorityAttr = index === 0 ? 'high' : 'auto';
 
         productElement.innerHTML = `
             <div class="card h-100">
@@ -402,7 +404,7 @@ const renderProducts = (products) => {
                   "
                   sizes="(max-width: 640px) 200px, 400px"
                   width="400" height="400"
-                  loading="lazy" decoding="async"
+                  loading="${loadingAttr}" fetchpriority="${fetchPriorityAttr}" decoding="async"
                 >
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">${product.name}</h5>

@@ -1154,6 +1154,7 @@ const initApp = async () => {
                 alt: name,
                 class: 'card-img-top product-thumb',
                 loading: 'lazy',
+                fetchpriority: 'auto',
                 decoding: 'async',
                 width: '400',
                 height: '400'
