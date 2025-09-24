@@ -7,13 +7,11 @@ import { injectSeoMetadata, injectStructuredData } from './modules/seo.js';
 import { injectPwaManifest } from './modules/pwa.js';
 import { setupCheckoutProgress } from './modules/checkout.js';
 import { initializeBootstrapUI } from './modules/bootstrap.mjs';
-import { initializeAnalytics } from './modules/analytics.mjs';
 
 // Import the core app for side effects when bundling.
 // Note: When bundling via esbuild, this pulls in the main application logic.
 import './script.mjs';
 
-initializeAnalytics();
 
 function initEnhancementsOnce() {
   const root = document.documentElement;

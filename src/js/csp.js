@@ -7,10 +7,10 @@
 
 /*
  * Este script injerta una política de seguridad de contenidos (CSP) en la página.
- * Mantiene 'unsafe-inline' en script-src y style-src para permitir etiquetas
- * de Google Analytics y estilos inline necesarios, pero elimina 'unsafe-eval'
- * para reducir la superficie de ataque.  Si se necesitan más dominios de
- * confianza, se pueden añadir a las directivas correspondientes.
+ * Mantiene 'unsafe-inline' en script-src y style-src para permitir fragmentos
+ * inline necesarios, pero elimina 'unsafe-eval' para reducir la superficie de
+ * ataque.  Si se requieren más dominios de confianza, se pueden añadir a las
+ * directivas correspondientes.
  */
 
 (function () {
@@ -32,11 +32,11 @@
 
     const cspPolicy = `
         default-src 'self';
-        script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://static.cloudflareinsights.com 'unsafe-inline' 'nonce-${cspNonce}';
+        script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://static.cloudflareinsights.com 'unsafe-inline' 'nonce-${cspNonce}';
         style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com 'nonce-${cspNonce}';
         img-src 'self' data: https:;
         font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net;
-        connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://cloudflareinsights.com https://cdn.jsdelivr.net;
+        connect-src 'self' https://cloudflareinsights.com https://cdn.jsdelivr.net;
         frame-src 'none';
         object-src 'none';
         base-uri 'self';
