@@ -32,11 +32,11 @@
 
     const cspPolicy = `
         default-src 'self';
-        script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://static.cloudflareinsights.com 'nonce-${cspNonce}';
+        script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://static.cloudflareinsights.com 'unsafe-inline' 'nonce-${cspNonce}';
         style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com 'nonce-${cspNonce}';
         img-src 'self' data: https:;
         font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net;
-        connect-src 'self' https://www.google-analytics.com https://cloudflareinsights.com;
+        connect-src 'self' https://www.google-analytics.com https://cloudflareinsights.com https://cdn.jsdelivr.net;
         frame-src 'none';
         object-src 'none';
         base-uri 'self';
