@@ -6,6 +6,13 @@
     <meta name="description" content="<%= description %>">
     <link rel="canonical" href="https://elrincondeebano.com/pages/<%= slug %>.html">
     <link rel="manifest" href="/app.webmanifest">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H0YG3RTJVM"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'G-H0YG3RTJVM');
+    </script>
     <script src="../dist/js/csp.js"></script>
     <title><%= categoryName %> - El Rincón de Ébano</title>
     <link rel="icon" type="image/x-icon" href="../assets/images/web/favicon.ico">
@@ -33,7 +40,6 @@
     <meta property="og:type" content="website">
 </head>
 <body>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H0YG3RTJVM"></script>
 
     <%- include('partials/navbar') %>
 
