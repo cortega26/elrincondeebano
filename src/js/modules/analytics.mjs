@@ -127,11 +127,13 @@ function initializeAnalytics() {
   queueInitialConfig(globalWindow);
 
   if (hasInitialized) {
+    loadGtagScript(globalWindow);
     return;
   }
 
   hasInitialized = true;
 
+  loadGtagScript(globalWindow);
   attachDeferredLoadHandlers(globalWindow);
 }
 
