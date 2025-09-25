@@ -7,6 +7,7 @@
     "test": "test"
   },
   "scripts": {
+    "fonts": "node tools/fetch-fonts.mjs",
     "build": "node tools/build.js && node tools/build-index.js && node tools/build-pages.js && node tools/inject-structured-data.js && node tools/generate-sitemap.js && node tools/inject-resource-hints.js",
     "icons": "node tools/generate-icons.js",
     "images:variants": "node tools/generate-image-variants.js",
