@@ -122,6 +122,10 @@
     min-height: 120px;
   }
 
+  /* Minimal nav collapse and list reset to avoid flash of expanded menus before Bootstrap loads */
+  .collapse:not(.show) { display: none; }
+  .navbar-nav, .navbar-nav ul { list-style: none; margin: 0; padding: 0; }
+
   /* Notifications overlay; fixed so they don't push layout */
   .notification-toast {
     position: fixed;
