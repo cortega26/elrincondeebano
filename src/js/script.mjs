@@ -225,99 +225,25 @@ function setupConnectivityHandling() {
     }
 }
 
-// Show update notification to user
-function showUpdateNotification(serviceWorker, message = 'Una versión está disponible') {
-    const notification = createNotificationElement(
-        message,
-        'Actualizar ahora',
-        'Después',
-        () => {
-            if (serviceWorker) {
-                serviceWorker.postMessage({ type: 'SKIP_WAITING' });
-            } else {
-                window.location.reload();
-            }
-        }
-    );
-
-    showNotification(notification);
-}
-
-// Show error notification to user
-function showServiceWorkerError(message) {
-    const notification = createNotificationElement(
-        message,
-        'Reload',
-        'Dismiss',
-        () => window.location.reload()
-    );
-
-    showNotification(notification);
-}
-
-// Show connectivity notification to user
-function showConnectivityNotification(message) {
-    const notification = createNotificationElement(
-        message,
-        'Retry',
-        'Dismiss',
-        () => window.location.reload()
-    );
-
-    showNotification(notification);
-}
-
-// Create notification element
-function createNotificationElement(message, primaryButtonText, secondaryButtonText, primaryAction) {
-    const notification = document.createElement('div');
-    notification.className = 'notification-toast';
-    notification.setAttribute('role', 'alert');
-    notification.setAttribute('aria-live', 'polite');
-
-    notification.innerHTML = `
-        <div class="notification-content">
-            <p>${message}</p>
-            <div class="notification-actions">
-                <button class="primary-action">${primaryButtonText}</button>
-                <button class="secondary-action">${secondaryButtonText}</button>
-            </div>
-        </div>
-    `;
-
-    // Set up event listeners
-    notification.querySelector('.primary-action').addEventListener('click', () => {
-        try {
-            primaryAction();
-        } catch (err) {
-            console.error('Primary action failed:', err);
-        }
-        notification.remove();
-    });
-
-    notification.querySelector('.secondary-action').addEventListener('click', () => {
-        notification.remove();
-    });
-
-    return notification;
-}
-
-// Show notification to user
-function showNotification(notificationElement) {
-    // Remove any existing notifications
-    const existingNotification = document.querySelector('.notification-toast');
-    if (existingNotification) {
-        existingNotification.remove();
+// Notifications are lazy-loaded to reduce initial JS
+let __notificationsModulePromise = null;
+function __loadNotifications() {
+    if (!__notificationsModulePromise) {
+        __notificationsModulePromise = import('./modules/notifications.mjs');
     }
+    return __notificationsModulePromise;
+}
 
-    // Add new notification
-    document.body.appendChild(notificationElement);
+function showUpdateNotification(serviceWorker, message = 'Una versión está disponible') {
+    __loadNotifications().then((m) => m.showUpdateNotification(serviceWorker, message));
+}
 
-    // Auto-dismiss after 5 minutes
-    setTimeout(() => {
-        if (document.body.contains(notificationElement)) {
-            notificationElement.remove();
-        }
-    }, 5 * 60 * 1000);
+function showServiceWorkerError(message) {
+    __loadNotifications().then((m) => m.showServiceWorkerError(message));
+}
+
+function showConnectivityNotification(message) {
+    __loadNotifications().then((m) => m.showConnectivityNotification(message));
 }
 
 // Initialize the service worker when running in a browser environment
