@@ -31,16 +31,16 @@ async function main() {
     { family: 'Playfair Display', weight: '700', file: 'playfair-700.woff2' },
   ];
 
+  // Split into blocks once to make matching reliable
   for (const t of targets) {
-    // Tolerant search: locate a @font-face block that mentions the family and weight, then pick the first woff2 URL.
-    const fam = t.family.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-    const blockRe = new RegExp(`@font-face\\s*{[\\s\\S]*?font-family:\\s*['\"]?${fam}['\"]?;[\\s\\S]*?font-weight:\\s*${t.weight}[\\s\\S]*?}`, 'm');
-    const blockMatch = css.match(blockRe);
-    if (!blockMatch) {
-      console.warn(`No @font-face block found for ${t.family} ${t.weight}`);
+    const famEsc = t.family.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+    const re = new RegExp(`@font-face\\s*{[\\s\\S]*?font-family:\\s*['\"]${famEsc}['\"][\\s\\S]*?font-weight:\\s*${t.weight}[\\s\\S]*?unicode-range:[^}]*U\\+0000-00FF[\\s\\S]*?}`, 'm');
+    const match = css.match(re);
+    const block = match ? match[0] : null;
+    if (!block) {
+      console.warn(`No latin subset block for ${t.family} ${t.weight}`);
       continue;
     }
-    const block = blockMatch[0];
     const urlMatch = block.match(/url\(([^)]+\.woff2)\)/i);
     if (!urlMatch) {
       console.warn(`No woff2 URL inside block for ${t.family} ${t.weight}`);

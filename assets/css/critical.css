@@ -14,17 +14,66 @@
     --font-size-base: 1rem;      /* 16px */
     --font-size-md: 1.125rem;    /* 18px */
     --font-size-lg: 1.25rem;     /* 20px */
-  }
-  
-  /* Critical layout elements */
-  body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    color: var(--text-color);
-    background-color: var(--background-color);
-    padding-top: 64px;
-    font-size: var(--font-size-base);
-  }
+}
+
+/* Self-hosted font faces (Inter, Playfair) */
+/* Peso 400 y 700 para contenido above-the-fold */
+@font-face {
+  font-family: 'Inter';
+  src: url('../fonts/inter-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('../fonts/inter-700.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Playfair Display';
+  src: url('../fonts/playfair-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Playfair Display';
+  src: url('../fonts/playfair-700.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Fallbacks con métricas ajustadas para evitar reflow al cargar las fuentes reales */
+@font-face {
+  font-family: 'Inter Fallback';
+  src: local('Arial');
+  size-adjust: 107%;
+  ascent-override: 90%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Playfair Fallback';
+  src: local('Georgia');
+  size-adjust: 104%;
+  ascent-override: 88%;
+  descent-override: 24%;
+  line-gap-override: 0%;
+}
+
+/* Critical layout elements */
+body {
+  margin: 0;
+  font-family: 'Inter', 'Inter Fallback', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  padding-top: 64px;
+  font-size: var(--font-size-base);
+}
 
   h1 {
     text-align: center;
@@ -81,6 +130,10 @@
     font-size: var(--font-size-lg);
     display: flex;
     align-items: center;
+  }
+
+  .brand-text {
+    font-family: 'Playfair Display', 'Playfair Fallback', Georgia, 'Times New Roman', serif;
   }
   
   /* Product grid initial layout */
@@ -145,6 +198,9 @@
     gap: 8px;
     margin-top: 8px;
   }
+
+  /* Hero section spacing lock */
+  .hero-section { min-height: 96px; }
   
   /* Essential responsive breakpoints */
   @media (max-width: 768px) {

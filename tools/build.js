@@ -32,7 +32,7 @@ async function build() {
     bundle: true,
     minify: true,
     outfile: path.join(rootDir, 'dist/css/style.min.css'),
-    loader: { '.css': 'css' }
+    loader: { '.css': 'css', '.woff2': 'file', '.woff': 'file' }
   });
 
   await esbuild.build({
@@ -40,7 +40,7 @@ async function build() {
     bundle: true,
     minify: true,
     outfile: path.join(rootDir, 'dist/css/critical.min.css'),
-    loader: { '.css': 'css' }
+    loader: { '.css': 'css', '.woff2': 'file', '.woff': 'file' }
   });
 }
 
