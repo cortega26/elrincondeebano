@@ -73,6 +73,17 @@ npm test
 
 Se ejecutan pruebas unitarias para utilidades de generación de IDs y el Service Worker.
 
+## Auditoría Lighthouse
+
+El repositorio incluye un flujo automatizado para generar reportes de Lighthouse en formatos HTML y JSON.
+
+```bash
+npm install           # asegura que Chrome y Lighthouse estén disponibles
+npm run lighthouse:audit
+```
+
+El script compila el sitio con la canalización existente, levanta un servidor estático temporal y ejecuta las auditorías con los presets de escritorio y móvil. Los reportes generados se guardan en `reports/lighthouse/` con marcas de tiempo para cada ejecución.
+
 ## Gestor de productos
 
 Las herramientas de administración escritas en Python guardan el catálogo en un archivo JSON. Por omisión el repositorio utiliza `C:\Users\corte\OneDrive\Tienda Ebano\data`, pero también acepta rutas absolutas. Cuando se proporciona una ruta absoluta, el archivo y sus copias de seguridad se crean directamente en el directorio indicado sin generar subcarpetas adicionales.
