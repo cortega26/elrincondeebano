@@ -5,7 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { once } from 'node:events';
 import lighthouse from 'lighthouse';
-import chromeLauncher from 'chrome-launcher';
+import { launch as launchChrome } from 'chrome-launcher';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,7 +32,8 @@ async function runBuild() {
   await new Promise((resolve, reject) => {
     const buildProcess = spawn(npmCmd, ['run', 'build'], {
       cwd: rootDir,
-      stdio: 'inherit'
+      stdio: 'inherit',
+      shell: true
     });
 
     buildProcess.on('error', (err) => {
@@ -108,7 +109,7 @@ function createStaticServer(root) {
 
 async function runLighthouseAudit(targetUrl, preset, timestamp) {
   console.log(`Iniciando auditoría Lighthouse (${preset})...`);
-  const chrome = await chromeLauncher.launch({
+  const chrome = await launchChrome({
     chromeFlags: ['--headless=new', '--no-sandbox', '--disable-gpu']
   });
 

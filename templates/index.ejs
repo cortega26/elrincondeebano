@@ -29,15 +29,15 @@
   <% const lcpImage = Array.isArray(products) && products.length > 0 ? products[0].image : null; %>
   <!-- Preload critical assets -->
   <link rel="preload" href="/dist/css/critical.min.css" as="style" fetchpriority="high">
-  <link rel="preload" href="/assets/images/web/logo.webp" as="image" type="image/webp" fetchpriority="high">
+  <link rel="preload" href="/cdn-cgi/image/fit=cover,quality=82,format=auto,width=64/assets/images/web/logo.webp" as="image" type="image/webp" fetchpriority="high">
   <% if (lcpImage) { %>
-  <link rel="preload" href="<%= lcpImage.src %>" as="image" imagesrcset="<%= lcpImage.srcset %>" imagesizes="200px" fetchpriority="high">
+  <link rel="preload" href="<%= lcpImage.src %>" as="image" imagesrcset="<%= lcpImage.srcset %>" imagesizes="(min-width: 1200px) 25vw, (min-width: 992px) 33vw, (min-width: 576px) 50vw, 100vw" fetchpriority="high">
   <% } %>
   <!-- Critical CSS -->
   <link rel="stylesheet" href="dist/css/critical.min.css">
 
   <!-- Preload Critical Assets -->
-  <link rel="preload" href="assets/images/web/logo.webp" as="image" type="image/webp" fetchpriority="high">
+  <link rel="preload" href="/cdn-cgi/image/fit=cover,quality=82,format=auto,width=64/assets/images/web/logo.webp" as="image" type="image/webp" fetchpriority="high">
   <link rel="preload" href="dist/js/script.min.js" as="script">
 
   <!-- Deferred Non-Critical CSS -->
@@ -97,7 +97,7 @@
 <% if (product.isDiscounted) { %>
               <span class="discount-badge badge bg-danger" aria-label="Producto en oferta">-<%= product.discountPercent %>%</span>
 <% } %>
-              <img src="<%= product.image.src %>" srcset="<%= product.image.srcset %>" sizes="200px" alt="<%= product.name %>" class="card-img-top product-thumb" loading="<%= index === 0 ? 'eager' : 'lazy' %>" fetchpriority="<%= index === 0 ? 'high' : 'auto' %>" decoding="async" width="400" height="400">
+              <img src="<%= product.image.src %>" srcset="<%= product.image.srcset %>" sizes="(min-width: 1200px) 25vw, (min-width: 992px) 33vw, (min-width: 576px) 50vw, 100vw" alt="<%= product.name %>" class="card-img-top product-thumb" loading="<%= index === 0 ? 'eager' : 'lazy' %>" fetchpriority="<%= index === 0 ? 'high' : 'auto' %>" decoding="async" width="400" height="400">
               <div class="card-body">
                 <h3 class="card-title"><%= product.name %></h3>
                 <p class="card-text"><%= product.description %></p>
