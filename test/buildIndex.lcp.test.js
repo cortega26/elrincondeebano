@@ -60,7 +60,10 @@ const { document } = new JSDOM(html).window;
 const lcpLink = document.querySelector('link[rel="preload"][as="image"][fetchpriority="high"][href="/cdn-cgi/image/fit=cover,width=400/sample.webp"]');
 assert(lcpLink, 'Expected preload link for the LCP image');
 assert.strictEqual(lcpLink.getAttribute('imagesrcset'), sampleProducts[0].image.srcset);
-assert.strictEqual(lcpLink.getAttribute('imagesizes'), '200px');
+assert.strictEqual(
+  lcpLink.getAttribute('imagesizes'),
+  '(min-width: 1200px) 25vw, (min-width: 992px) 33vw, (min-width: 576px) 50vw, 100vw'
+);
 
 const productImages = document.querySelectorAll('.product-thumb');
 assert.strictEqual(productImages.length, 2, 'Expected two product thumbnails');
