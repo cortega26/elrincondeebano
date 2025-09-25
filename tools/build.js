@@ -9,7 +9,15 @@ async function build() {
     entryPoints: [path.join(rootDir, 'src/js/main.js')],
     bundle: true,
     minify: true,
-    outfile: path.join(rootDir, 'dist/js/script.min.js'),
+    splitting: true,
+    format: 'esm',
+    outdir: path.join(rootDir, 'dist/js'),
+    entryNames: 'script.min',
+    chunkNames: 'chunks/[name]-[hash]',
+    define: { 'process.env.NODE_ENV': '"production"' },
+    treeShaking: true,
+    target: 'es2018',
+    platform: 'browser'
   });
 
   const staticJs = ['csp.js', 'sw-register.js'];

@@ -9,7 +9,7 @@ const { JSDOM } = require('jsdom');
     showUpdateNotification,
     showServiceWorkerError,
     showConnectivityNotification,
-  } = await import('../src/js/script.mjs');
+  } = await import('../src/js/modules/notifications.mjs');
 
   function setupDom() {
     const dom = new JSDOM('<!DOCTYPE html><body></body>', { url: 'http://localhost/' });
