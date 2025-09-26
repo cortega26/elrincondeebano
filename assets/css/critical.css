@@ -30,7 +30,7 @@
   src: url('../fonts/inter-700.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
-  font-display: swap;
+  font-display: optional;
 }
 @font-face {
   font-family: 'Playfair Display';
@@ -44,7 +44,7 @@
   src: url('../fonts/playfair-700.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
-  font-display: swap;
+  font-display: optional;
 }
 
 /* Fallbacks con métricas ajustadas para evitar reflow al cargar las fuentes reales */
