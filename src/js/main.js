@@ -43,3 +43,8 @@ if (document.readyState === 'loading') {
 } else {
   initEnhancementsOnce();
 }
+
+// Test hook: expose the initializer to allow unit tests to verify
+// the deferred CSS swap logic and one-time initialization behavior.
+// This export has no effect on runtime behavior.
+export { initEnhancementsOnce as __initEnhancementsOnceForTest };
