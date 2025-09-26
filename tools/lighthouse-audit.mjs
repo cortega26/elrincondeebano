@@ -50,15 +50,29 @@ async function runBuild() {
   });
 }
 
-function getMimeType(filePath) {
+export function getMimeType(filePath) {
   const ext = path.extname(filePath).toLowerCase();
   return MIME_TYPES[ext] || 'application/octet-stream';
 }
 
-function createStaticServer(root) {
+function sanitizePath(pathname) {
+  // Normalize and strip leading slashes to avoid absolute path resets on Windows
+  const normalized = path.normalize(pathname).replace(/^([/\\])+/, '');
+  return normalized;
+}
+
+export function createStaticServer(root) {
   return http.createServer(async (req, res) => {
     try {
       const url = new URL(req.url, `http://${req.headers.host}`);
+      // Allow only GET/HEAD
+      if (req.method !== 'GET' && req.method !== 'HEAD') {
+        res.statusCode = 405;
+        res.setHeader('Allow', 'GET, HEAD');
+        res.end('Method Not Allowed');
+        return;
+      }
+
       let pathname = decodeURIComponent(url.pathname);
       if (pathname.endsWith('/')) {
         pathname = `${pathname}index.html`;
@@ -67,7 +81,9 @@ function createStaticServer(root) {
         pathname = '/index.html';
       }
 
-      const filePath = path.join(root, pathname);
+      // Sanitize to avoid absolute join behavior on Windows and path traversal
+      const safeRel = sanitizePath(pathname);
+      const filePath = path.join(root, safeRel);
       if (!filePath.startsWith(root)) {
         res.statusCode = 403;
         res.end('Forbidden');
@@ -96,6 +112,9 @@ function createStaticServer(root) {
       });
 
       res.setHeader('Content-Type', getMimeType(finalPath));
+      res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
       stream.pipe(res);
     } catch (error) {
       console.error('Error en el servidor estático:', error);
@@ -137,7 +156,11 @@ async function runLighthouseAudit(targetUrl, preset, timestamp) {
 
 async function main() {
   fs.mkdirSync(reportDir, { recursive: true });
-  await runBuild();
+  if (!process.env.LH_SKIP_BUILD) {
+    await runBuild();
+  } else {
+    console.log('Omitiendo build (LH_SKIP_BUILD=1).');
+  }
 
   const server = createStaticServer(rootDir);
   const port = 4173;
@@ -159,7 +182,7 @@ async function main() {
       await runLighthouseAudit(targetUrl, preset, timestamp);
     }
   } finally {
-    server.close();
+    await new Promise((resolve) => server.close(resolve));
     await once(server, 'close');
     console.log('Servidor estático detenido.');
   }
