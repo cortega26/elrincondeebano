@@ -45,6 +45,14 @@ function showNotification(notificationElement) {
   }, 5 * 60 * 1000);
 }
 
+function safeReload() {
+  try {
+    if (typeof window !== 'undefined' && window.location && typeof window.location.reload === 'function') {
+      window.location.reload();
+    }
+  } catch {}
+}
+
 export function showUpdateNotification(serviceWorker, message = 'Una versión está disponible') {
   const notification = createNotificationElement(
     message,
@@ -54,7 +62,7 @@ export function showUpdateNotification(serviceWorker, message = 'Una versión es
       if (serviceWorker) {
         serviceWorker.postMessage({ type: 'SKIP_WAITING' });
       } else {
-        window.location.reload();
+        safeReload();
       }
     }
   );
@@ -66,7 +74,7 @@ export function showServiceWorkerError(message) {
     message,
     'Reload',
     'Dismiss',
-    () => window.location.reload()
+    () => safeReload()
   );
   showNotification(notification);
 }
@@ -76,7 +84,7 @@ export function showConnectivityNotification(message) {
     message,
     'Retry',
     'Dismiss',
-    () => window.location.reload()
+    () => safeReload()
   );
   showNotification(notification);
 }
@@ -85,4 +93,3 @@ export {
   createNotificationElement,
   showNotification
 };
-
