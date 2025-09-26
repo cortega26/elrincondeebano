@@ -47,8 +47,13 @@ function showNotification(notificationElement) {
 
 function safeReload() {
   try {
-    if (typeof window !== 'undefined' && window.location && typeof window.location.reload === 'function') {
-      window.location.reload();
+    if (typeof window === 'undefined') return;
+    const ua = window.navigator && window.navigator.userAgent || '';
+    // Avoid jsdom virtual console noise: jsdom advertises itself in UA
+    if (/jsdom/i.test(ua)) return;
+    const reloadFn = window.location && window.location.reload;
+    if (typeof reloadFn === 'function') {
+      reloadFn.call(window.location);
     }
   } catch {}
 }
