@@ -1204,7 +1204,8 @@ const initApp = async () => {
                 appendNextBatch();
             });
         }
-        if (catalogSentinel) {
+        // Guard: some test/browser environments may lack IntersectionObserver
+        if (catalogSentinel && typeof window !== 'undefined' && 'IntersectionObserver' in window) {
             sentinelObserver = new IntersectionObserver(entries => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -1217,20 +1218,30 @@ const initApp = async () => {
     };
 
     const lazyLoadImages = () => {
-        const imageObserver = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    img.src = img.dataset.src;
-                    if (img.dataset.srcset) img.srcset = img.dataset.srcset;
-                    if (img.dataset.sizes) img.sizes = img.dataset.sizes;
-                    img.classList.remove('lazyload');
-                    observer.unobserve(img);
-                }
-            });
-        }, { rootMargin: '100px' });
+        if (typeof window !== 'undefined' && 'IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        if (img.dataset.srcset) img.srcset = img.dataset.srcset;
+                        if (img.dataset.sizes) img.sizes = img.dataset.sizes;
+                        img.classList.remove('lazyload');
+                        observer.unobserve(img);
+                    }
+                });
+            }, { rootMargin: '100px' });
 
-        document.querySelectorAll('img.lazyload').forEach(img => imageObserver.observe(img));
+            document.querySelectorAll('img.lazyload').forEach(img => imageObserver.observe(img));
+        } else {
+            // Fallback: eagerly set sources without observing (avoids runtime errors)
+            document.querySelectorAll('img.lazyload').forEach(img => {
+                if (img.dataset.src) img.src = img.dataset.src;
+                if (img.dataset.srcset) img.srcset = img.dataset.srcset;
+                if (img.dataset.sizes) img.sizes = img.dataset.sizes;
+                img.classList.remove('lazyload');
+            });
+        }
     };
 
     // MUCH MORE CONSERVATIVE fuzzy matching - only for obvious typos
