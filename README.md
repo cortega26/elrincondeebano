@@ -8,7 +8,7 @@ Sitio web estático de un mini‑market online. Incluye un catálogo de producto
 - Uso de Service Worker para cacheo inteligente y notificaciones de actualización.
 - Componentes reutilizables (navbar y footer) cargados dinámicamente.
 - Sistema de carrito de compras en el navegador.
-- Tipografías "Inter" y "Playfair Display" servidas desde Google Fonts junto a los íconos de Bootstrap.
+- Tipografías "Inter" y "Playfair Display" auto‑hospedadas (WOFF2) con fallbacks métricos para evitar reflow.
 - Analítica web servida íntegramente mediante Cloudflare Web Analytics, sin dependencias de Google.
 - Filtros y ordenamiento de productos directamente en el navegador.
 - Plantillas EJS para generar las páginas de forma consistente.
@@ -83,6 +83,21 @@ npm run lighthouse:audit
 ```
 
 El script compila el sitio con la canalización existente, levanta un servidor estático temporal y ejecuta las auditorías con los presets de escritorio y móvil. Los reportes generados se guardan en `reports/lighthouse/` con marcas de tiempo para cada ejecución.
+
+Consejos:
+- Establece `LH_SKIP_BUILD=1` para omitir la compilación si ya ejecutaste `npm run build`.
+- El servidor interno solo acepta métodos `GET/HEAD` y bloquea recorridos de ruta (..). Se sirven cabeceras seguras como `X-Content-Type-Options: nosniff`.
+- Los tipos de contenido se resuelven en función de la extensión del archivo para resultados consistentes.
+
+### Fuentes auto‑hospedadas
+
+Para descargar (una sola vez) las fuentes locales:
+
+```bash
+npm run fonts
+```
+
+Las fuentes se almacenan en `assets/fonts` y se empaquetan a través del build. Esto reduce jank y dependencia externa.
 
 ## Gestor de productos
 
