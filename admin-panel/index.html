@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-light">
+  <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
   <div class="container py-4" id="app-view">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1 class="h4 mb-0">Gestión de Productos</h1>
@@ -46,21 +47,22 @@
       </div>
     </div>
 
-    <div class="table-responsive bg-white shadow-sm rounded">
-      <table class="table table-sm align-middle mb-0" id="grid">
+    <div class="table-responsive bg-white shadow-sm rounded" id="main-content" tabindex="-1">
+      <table class="table table-sm align-middle mb-0" id="grid" aria-describedby="grid-desc">
+        <caption id="grid-desc" class="visually-hidden">Lista de productos con controles de edición en línea.</caption>
         <thead class="table-light">
           <tr>
-            <th style="width:28px"><input type="checkbox" id="select-all"></th>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Precio</th>
-            <th>Desc.</th>
-            <th>Stock</th>
-            <th>Categoría</th>
-            <th>Imagen</th>
+            <th scope="col" style="width:28px"><input type="checkbox" id="select-all" aria-label="Seleccionar todos"></th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Descripción</th>
+            <th scope="col">Precio</th>
+            <th scope="col">Desc.</th>
+            <th scope="col">Stock</th>
+            <th scope="col">Categoría</th>
+            <th scope="col">Imagen</th>
           </tr>
         </thead>
-        <tbody id="grid-body"></tbody>
+        <tbody id="grid-body" aria-live="polite" aria-atomic="false"></tbody>
       </table>
     </div>
   </div>

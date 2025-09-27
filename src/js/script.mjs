@@ -699,6 +699,7 @@ const addToCart = (product, quantity) => {
         saveCart();
         updateCartIcon();
         renderCart();
+        try { if (typeof window !== 'undefined' && typeof window.__analyticsTrack === 'function') window.__analyticsTrack('add_to_cart', { id: product.id, q: quantity, price: product.price }); } catch {}
         const quantityInput = document.querySelector(`[data-id="${product.id}"].quantity-input`);
         if (quantityInput) {
             quantityInput.value = Math.max(getCartItemQuantity(product.id), 1);
@@ -715,6 +716,7 @@ const removeFromCart = (productId) => {
         saveCart();
         updateCartIcon();
         renderCart();
+        try { if (typeof window !== 'undefined' && typeof window.__analyticsTrack === 'function') window.__analyticsTrack('remove_from_cart', { id: productId }); } catch {}
         const actionArea = document.querySelector(`.action-area[data-pid="${productId}"]`);
         if (actionArea) {
             const btn = actionArea.querySelector('.add-to-cart-btn');
