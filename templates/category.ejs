@@ -31,10 +31,11 @@
     <meta property="og:type" content="website">
 </head>
 <body>
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
 
     <%- include('partials/navbar') %>
 
-    <main data-category="<%= categoryName %>" role="main">
+    <main id="main-content" data-category="<%= categoryName %>" role="main" tabindex="-1">
         <div class="container my-4">
             <section aria-label="Opciones de filtrado y ordenación">
                 <div class="row mb-3">

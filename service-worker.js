@@ -218,9 +218,14 @@ if (!TEST_MODE) {
         } catch (error) {
             const cachedResponse = await caches.match(request);
             if (cachedResponse) return cachedResponse;
-
+            // Offline navigation fallback when possible
+            if (request.mode === 'navigate') {
+                const offline = await caches.match('/pages/offline.html');
+                if (offline) return offline;
+            }
             if (request.url.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
-                return caches.match('/assets/images/web/placeholder.webp');
+                const ph = await caches.match('/assets/images/web/placeholder.webp');
+                if (ph) return ph;
             }
             throw error;
         }
