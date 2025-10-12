@@ -58,19 +58,32 @@ jobs:
           # This will handover control about PR rejection to the GitHub side
           max-allowed-issues: 2147483647
 
-      - name: Split SARIF per run
+      - name: Split SARIF per run (stream-safe)
         shell: bash
         run: |
           set -euo pipefail
-          jq -c '.runs[]' results.sarif | nl -v0 -w1 | while read -r i run; do
-            jq -n --argjson run "$run" '
-              {
+
+          input="results.sarif"
+
+          if ! jq -e 'has("runs") and (.runs | type == "array") and (.runs | length > 0)' "$input" > /dev/null; then
+            echo "No runs found in $input. Nothing to split."
+            exit 0
+          fi
+
+          find . -maxdepth 1 -type f -name 'results-*.sarif' -delete || true
+
+          jq -c '
+            .runs[]
+            | {
                 "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
                 "version": "2.1.0",
-                "runs": [$run]
+                "runs": [ . ]
               }
-            ' > "results-${i}.sarif"
-          done
+          ' "$input" \
+          | awk 'BEGIN{i=0} { fn=sprintf("results-%d.sarif", i++); print > fn; close(fn) }'
+
+          echo "Created split files:"
+          ls -1 results-*.sarif || true
       - name: Sanitize SARIF files
         if: always()
         shell: bash
