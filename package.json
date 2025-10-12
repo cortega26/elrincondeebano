@@ -16,7 +16,7 @@
     "images:rewrite": "node tools/rewrite-images.mjs",
     "lint:images": "node tools/lint-images.mjs",
     "prune:backups": "node tools/prune-backups.js",
-    "test": "node test/generateStableId.test.js && node test/serviceWorker.utils.test.js && node test/registerServiceWorker.test.js && node test/fetchProducts.test.js && node test/updateProductDisplay.test.js && node test/cart.test.js && node test/ensureDiscountToggle.test.js && node test/memoize.test.js && node test/notifications.test.js && node test/swCache.test.js && node test/modules.dom.test.js && node test/fetchWithRetry.test.js && node test/bootstrap.module.test.js && node test/initAppFallback.test.js && node test/buildIndex.lcp.test.js && node test/resourceHints.integrity.test.js && node test/robots.test.js && node test/csp.connect.test.js && node test/snapshot.utils.test.mjs",
+    "test": "node test/generateStableId.test.js && node test/serviceWorker.utils.test.js && node test/registerServiceWorker.test.js && node test/fetchProducts.test.js && node test/updateProductDisplay.test.js && node test/cart.test.js && node test/ensureDiscountToggle.test.js && node test/memoize.test.js && node test/notifications.test.js && node test/swCache.test.js && node test/modules.dom.test.js && node test/fetchWithRetry.test.js && node test/bootstrap.module.test.js && node test/initAppFallback.test.js && node test/buildIndex.lcp.test.js && node test/resourceHints.integrity.test.js && node test/robots.test.js && node test/csp.connect.test.js && node test/performance.metrics.test.js && node test/snapshot.utils.test.mjs",
     "test:e2e": "playwright test",
     "lighthouse:audit": "node tools/lighthouse-audit.mjs",
     "snapshot": "node tools/snapshot-site.mjs --tag dev"
