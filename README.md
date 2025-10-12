@@ -93,7 +93,8 @@ Las herramientas aceptan variables de entorno para personalizar su comportamient
 | `npm test` | Ejecuta todas las pruebas unitarias basadas en `node:test` para utilidades de frontend y Service Worker. | Tras cambios en código fuente o scripts que afectan comportamiento.
 | `npm run check:css-order` | Verifica que los entrypoints HTML carguen `critical → Bootstrap → site` sin `media=print` ni cambios de orden. | Siempre que se modifiquen plantillas o el `<head>`.
 | `npm run test:e2e` | Lanza Playwright contra Home y dos categorías para detectar parpadeos del navbar/cart bajo condiciones móviles lentas. | Después de tocar estilos globales o la navegación.
-| `npm run lighthouse:audit` | Genera reportes Lighthouse (escritorio/móvil) y los guarda en `reports/lighthouse/`. | Auditorías de rendimiento previas a release.
+| `npm run lighthouse:audit` | Genera reportes Lighthouse (escritorio/móvil) y los guarda en `reports/lighthouse/`. | Auditorías de rendimiento previas a release. |
+| `npm run snapshot -- --tag <etiqueta>` | Toma una captura del sitio en ejecución y la etiqueta con un identificador para su trazabilidad. | Documentar estados visuales relevantes o generar evidencia previa a un release. |
 
 ## Ejecución local
 
@@ -108,6 +109,24 @@ Las herramientas aceptan variables de entorno para personalizar su comportamient
 - `npm run icons` y `npm run fonts` se integran con el build cuando los assets requeridos faltan.
 - Para un chequeo rápido posterior al build puedes ejecutar `npm run lighthouse:audit` (acepta `LH_SKIP_BUILD=1`).
 - Los artefactos generados se despliegan tal cual en GitHub Pages mediante el workflow `Deploy static content to Pages`.
+
+### Snapshots etiquetados
+
+El script `tools/snapshot-site.mjs` automatiza la toma de capturas del sitio en ejecución (sirve la carpeta raíz con tu servidor estático favorito). Guarda los archivos dentro de `reports/snapshots/` y mantiene un `manifest.json` ordenado por fecha más reciente. Los parámetros disponibles son:
+
+| Parámetro | Tipo | Requerido | Predeterminado | Descripción |
+| --- | --- | --- | --- | --- |
+| `--tag` | string | Sí | N/A | Identificador humano legible que se sanitiza antes de usarse en los nombres de archivo. |
+| `--url` | string | No | `http://127.0.0.1:8080/` | URL que se abrirá en Chromium para capturar el snapshot (debe estar sirviendo el sitio). |
+| `--outdir` | string | No | `reports/snapshots` | Carpeta donde se guardarán la captura y el `manifest.json`. |
+
+Ejemplo:
+
+```bash
+npm run snapshot -- --tag staging -- --url http://localhost:4173/
+```
+
+Cada ejecución añade una entrada al manifiesto con el tag, URL, nombre de archivo relativo y la hora de captura, lo que facilita referenciar visualmente los estados del sitio.
 
 ## Pruebas
 
