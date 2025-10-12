@@ -1,6 +1,6 @@
 {
-  "version": "20250901-215509",
-  "last_updated": "2025-09-01T21:55:09.347625",
+  "version": "20251012-155540",
+  "last_updated": "2025-10-12T15:55:40.685994",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -86,7 +86,7 @@
       "name": "Tortilla Grande Mexicana Líder",
       "description": "Empaque de 350g",
       "price": 2400,
-      "discount": 400,
+      "discount": 200,
       "stock": true,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Tortilla grande mexicana Líder 350g.webp",
@@ -95,7 +95,7 @@
     {
       "name": "Mostaza Clásica Great Value",
       "description": "Botella de 397g",
-      "price": 3000,
+      "price": 3500,
       "discount": 0,
       "stock": true,
       "category": "Despensa",
@@ -317,7 +317,7 @@
       "description": "Botella de 1L",
       "price": 9900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Piscos",
       "image_path": "assets/images/piscos/Pisco Alto del Carmen Especial 35° 1L.webp",
       "order": 31
@@ -495,7 +495,7 @@
     {
       "name": "Queso Gauda La Vaquita",
       "description": "Laminado 400g",
-      "price": 4600,
+      "price": 4900,
       "discount": 0,
       "stock": true,
       "category": "Lacteos",
@@ -707,7 +707,7 @@
       "description": "Botella de 750mL",
       "price": 9900,
       "discount": 1000,
-      "stock": true,
+      "stock": false,
       "category": "Piscos",
       "image_path": "assets/images/piscos/Pisco Alto del Carmen Envejecido 40°.webp",
       "order": 71
@@ -907,7 +907,7 @@
       "description": "Bolsa de plástico",
       "price": 2000,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Doritos Queso 140gr.webp",
       "order": 91
@@ -945,9 +945,9 @@
     {
       "name": "Súper 8 • Pack 4 unidades",
       "description": "Barras de 29g c/u",
-      "price": 2000,
+      "price": 2200,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "SnacksDulces",
       "image_path": "assets/images/snacks_dulces/Super 8 pack 5.webp",
       "order": 95
@@ -1065,7 +1065,7 @@
     {
       "name": "Queso Llanero 1/4Kg",
       "description": "A granel, trozo",
-      "price": 2900,
+      "price": 3000,
       "discount": 0,
       "stock": true,
       "category": "Lacteos",
@@ -1085,7 +1085,7 @@
     {
       "name": "Atún Lomitos en Agua Líder",
       "description": "Lata de 160g (peso neto)",
-      "price": 1800,
+      "price": 1900,
       "discount": 0,
       "stock": true,
       "category": "Despensa",
@@ -1095,7 +1095,7 @@
     {
       "name": "Aceite de Maravilla Líder",
       "description": "Botella de 1L",
-      "price": 3500,
+      "price": 3600,
       "discount": 200,
       "stock": true,
       "category": "Despensa",
@@ -1125,7 +1125,7 @@
     {
       "name": "Maíz Curagua Líder (cabritas/cotufas)",
       "description": "Bolsa de 500g",
-      "price": 2000,
+      "price": 2200,
       "discount": 0,
       "stock": true,
       "category": "Despensa",
@@ -1165,7 +1165,7 @@
     {
       "name": "OMO Ultraconcentrado 500mL",
       "description": "Ultraconcentrado para piel sensible",
-      "price": 4900,
+      "price": 5500,
       "discount": 0,
       "stock": true,
       "category": "Limpiezayaseo",
@@ -1206,7 +1206,7 @@
       "name": "Vital • Agua sin gas 1,6L",
       "description": "Envase desechable",
       "price": 1500,
-      "discount": 300,
+      "discount": 0,
       "stock": true,
       "category": "Aguas",
       "image_path": "assets/images/bebidas/Agua 1,6L con gas Vital.webp",
@@ -1216,7 +1216,7 @@
       "name": "Vital • Agua sin gas 2,5L",
       "description": "Envase desechable",
       "price": 2000,
-      "discount": 200,
+      "discount": 0,
       "stock": true,
       "category": "Aguas",
       "image_path": "assets/images/bebidas/Agua 2,5L con gas Vital.webp",
@@ -1227,7 +1227,7 @@
       "description": "Barra de 100g",
       "price": 3200,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Chocolates",
       "image_path": "assets/images/chocolates/Chocolate con Almendras Milka 100g.webp",
       "order": 123
@@ -1377,7 +1377,7 @@
       "description": "Botella de 1.1L",
       "price": 1900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Energeticaseisotonicas",
       "image_path": "assets/images/energeticaseisotonicas/Powerade Rojo 1.1L.webp",
       "order": 138
