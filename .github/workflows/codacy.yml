@@ -65,7 +65,22 @@ jobs:
 
           input="results.sarif"
 
-          if ! jq -e 'has("runs") and (.runs | type == "array") and (.runs | length > 0)' "$input" > /dev/null; then
+          if [[ ! -s "$input" ]]; then
+            echo "Expected SARIF output in $input but the file is missing or empty" >&2
+            exit 1
+          fi
+
+          if ! jq empty "$input" > /dev/null 2>&1; then
+            echo "Failed to parse $input as valid JSON" >&2
+            exit 1
+          fi
+
+          if ! jq -e 'has("runs") and (.runs | type == "array")' "$input" > /dev/null; then
+            echo "SARIF file $input does not contain a valid runs array" >&2
+            exit 1
+          fi
+
+          if jq -e '(.runs | length) == 0' "$input" > /dev/null; then
             echo "No runs found in $input. Nothing to split."
             exit 0
           fi
