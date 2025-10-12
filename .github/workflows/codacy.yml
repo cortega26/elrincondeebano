@@ -64,12 +64,26 @@ jobs:
           done
       - name: List SARIF files
         id: sarif-list
+        shell: bash
         run: |
-          files=$(ls results-*.sarif 2>/dev/null | jq -R -s -c 'split(\"\\n\")[:-1] | to_entries | map({index:.key,file:.value})')
-          if [ -z "$files" ] || [ "$files" = "" ]; then
-            files='[]'
+          shopt -s nullglob
+          files=(results-*.sarif)
+
+          if (( ${#files[@]} == 0 )); then
+            echo 'files=[]' >> "$GITHUB_OUTPUT"
+            echo "No SARIF files found."
+            exit 0
           fi
-          echo "files=${files}" >> "$GITHUB_OUTPUT"
+
+          json=$(jq -cn --args "${files[@]}" '
+            $ARGS.positional
+            | to_entries
+            | map({index: .key, file: .value})
+          ')
+
+          echo "files=${json}" >> "$GITHUB_OUTPUT"
+          echo "Discovered SARIF files:"
+          echo "${json}"
       - name: Upload SARIF artifacts
         uses: actions/upload-artifact@v4
         with:
