@@ -299,6 +299,8 @@
             }
         };
 
+        // Apply immediately to avoid any flash of unstyled content when the
+        // main module bundle loads slowly (e.g. additional chunk waterfalls).
         run();
 
         const idle = typeof window !== 'undefined' && typeof window.requestIdleCallback === 'function'
