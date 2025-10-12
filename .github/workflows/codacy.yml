@@ -64,7 +64,12 @@ jobs:
           done
       - name: List SARIF files
         id: sarif-list
-        run: echo "files=$(ls results-*.sarif | jq -R -s -c 'split(\"\\n\")[:-1] | to_entries | map({index:.key,file:.value})')" >> "$GITHUB_OUTPUT"
+        run: |
+          files=$(ls results-*.sarif 2>/dev/null | jq -R -s -c 'split(\"\\n\")[:-1] | to_entries | map({index:.key,file:.value})')
+          if [ -z "$files" ] || [ "$files" = "" ]; then
+            files='[]'
+          fi
+          echo "files=${files}" >> "$GITHUB_OUTPUT"
       - name: Upload SARIF artifacts
         uses: actions/upload-artifact@v4
         with:
