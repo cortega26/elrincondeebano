@@ -107,6 +107,12 @@ Las herramientas de administración escritas en Python guardan el catálogo en u
 
 > Nota de validación: El catálogo JSON puede guardarse como una lista de productos o como un objeto con metadatos (`version`, `last_updated`) y una clave `products`. Durante la reparación del archivo, las entradas corruptas se omiten, se conservan solo los productos válidos y el archivo se reescribe con un nuevo bloque de metadatos.
 
+## Notas para desarrolladores
+
+- Los slugs de categoría definidos en `tools/build-pages.js` se generan sin espacios ni tildes (p. ej. `snackssalados`). El bundle en `dist/js/script.min.js` normaliza los nombres visibles (`Snacks Salados`) eliminando diacríticos y puntuación antes de comparar, por lo que cualquier plantilla nueva debe seguir el mismo esquema.
+- Cada página de categoría referencia el bundle como módulo ES (`<script type="module" src="../dist/js/script.min.js"></script>`). Esto es obligatorio desde la migración a ES modules (commit `2be2299`) porque el archivo importa fragmentos generados por esbuild.
+- El catálogo se carga desde `/data/product_data.json` mediante peticiones HTTPS de mismo origen. Cualquier entorno de pruebas que use HTTP simple debe proveer un bootstrap inline o un proxy HTTPS para evitar errores de carga.
+
 ## Estructura del proyecto
 
 - `assets/` – Archivos estáticos (CSS, imágenes, fuentes).
