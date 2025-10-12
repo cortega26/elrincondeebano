@@ -104,7 +104,8 @@ body {
   
   /* Header and navigation essentials */
   .navbar {
-    background-color: var(--primary-color);
+    /* Lock the navbar on its final dark theme color to avoid green flash before Bootstrap loads */
+    background-color: #212529;
     position: fixed;
     top: 0;
     left: 0;
