@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { pathToFileURL } = require('url');
 const ejs = require('ejs');
 
 const rootDir = path.join(__dirname, '..');
@@ -28,12 +29,33 @@ const pages = [
   { slug: 'vinos', name: 'Vinos', description: 'Explora nuestra amplia selección de vinos en El Rincón de Ébano y encuentra la vid que satisfaga tu paladar.' },
 ];
 
-pages.forEach(page => {
-  const html = ejs.render(
-    template,
-    { categoryName: page.name, description: page.description, slug: page.slug },
-    { filename: templatePath }
-  );
-  const outputPath = path.join(rootDir, 'pages', `${page.slug}.html`);
-  fs.writeFileSync(outputPath, html);
+async function buildCategoryPages() {
+  const slugUtilUrl = pathToFileURL(path.join(rootDir, 'src/js/utils/slugify.mjs')).href;
+  const { slugify } = await import(slugUtilUrl);
+
+  const normalizedPages = pages.map(page => {
+    const desiredSlug = slugify(page.slug || page.name);
+    if (!desiredSlug) {
+      throw new Error(`No se pudo generar un slug para la categoría "${page.name}".`);
+    }
+    if (page.slug && slugify(page.slug) !== desiredSlug) {
+      throw new Error(`El slug configurado "${page.slug}" no coincide con el slug normalizado "${desiredSlug}" para "${page.name}".`);
+    }
+    return { ...page, slug: desiredSlug };
+  });
+
+  normalizedPages.forEach(page => {
+    const html = ejs.render(
+      template,
+      { categoryName: page.name, description: page.description, slug: page.slug },
+      { filename: templatePath }
+    );
+    const outputPath = path.join(rootDir, 'pages', `${page.slug}.html`);
+    fs.writeFileSync(outputPath, html);
+  });
+}
+
+buildCategoryPages().catch(error => {
+  console.error('Error al generar las páginas de categorías:', error);
+  process.exitCode = 1;
 });

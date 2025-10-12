@@ -1,6 +1,7 @@
 import { cfimg, CFIMG_THUMB } from './utils/cfimg.mjs';
 import { log, createCorrelationId } from './utils/logger.mjs';
 import { showOffcanvas } from './modules/bootstrap.mjs';
+import { slugify } from './utils/slugify.mjs';
 
 const PRODUCT_DATA_GLOBAL_KEY = '__PRODUCT_DATA__';
 let sharedProductData = null;
@@ -344,20 +345,6 @@ const debounce = (func, delay) => {
 };
 
 // Normalize strings for robust comparisons (remove accents, spaces, punctuation, lowercased)
-const normalizeString = (str) => {
-    if (!str) return '';
-    try {
-        return String(str)
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/[^a-zA-Z0-9]/g, '')
-            .toLowerCase();
-    } catch {
-        return String(str).toLowerCase();
-    }
-};
-
-
 
 // Add this utility function for generating stable product IDs
 const generateStableId = (product) => {
@@ -448,13 +435,21 @@ const transformProduct = (product, index) => {
         : typeof product.order === 'number'
             ? product.order
             : index;
+    const rawCategory = product.category ?? '';
+    const normalizedCategory = sanitizeHTML(rawCategory);
+    const slugFromExplicit = slugify(product.categorySlug);
+    const slugFromKey = slugify(product.categoryKey);
+    const slugFromCategory = slugify(rawCategory);
+    const categorySlug = slugFromExplicit || slugFromKey || slugFromCategory;
+    const categoryKey = slugFromKey || categorySlug;
     return {
         ...product,
         id,
         name: sanitizeHTML(product.name),
         description: sanitizeHTML(product.description),
-        category: sanitizeHTML(product.category),
-        categoryKey: product.categoryKey || normalizeString(product.category),
+        category: normalizedCategory,
+        categorySlug,
+        categoryKey,
         originalIndex
     };
 };
@@ -1702,23 +1697,23 @@ const initApp = async () => {
 
         const bootstrapPayload = getSharedProductData();
         if (bootstrapPayload?.products?.length) {
-            products = bootstrapPayload.products.map((product, index) => ({
-                ...product,
-                originalIndex: typeof product.originalIndex === 'number' ? product.originalIndex : index,
-                categoryKey: product.categoryKey || normalizeString(product.category)
-            }));
+            products = bootstrapPayload.products.map((product, index) => transformProduct(product, index));
         }
 
         const mainElement = document.querySelector('main');
-        const currentCategory = mainElement?.dataset?.category || '';
-        if (currentCategory) {
-            const normCurrent = normalizeString(currentCategory);
+        const currentCategoryName = mainElement?.dataset?.category || '';
+        const currentCategorySlug = mainElement?.dataset?.categorySlug || slugify(currentCategoryName);
+        const matchesCurrentCategory = (product) => {
+            if (!currentCategorySlug) {
+                return true;
+            }
+            const productSlug = product.categorySlug || slugify(product.category);
+            return productSlug === currentCategorySlug;
+        };
+        if (currentCategorySlug) {
             products = products
-                .filter(product => (product.categoryKey || normalizeString(product.category)) === normCurrent)
-                .map((product, index) => ({
-                    ...product,
-                    originalIndex: typeof product.originalIndex === 'number' ? product.originalIndex : index
-                }));
+                .filter(matchesCurrentCategory)
+                .map((product, index) => transformProduct(product, index));
         }
 
         const hydratedCount = hydratePreRenderedProducts(products);
@@ -1763,19 +1758,11 @@ const initApp = async () => {
                 return;
             }
         } else {
-            products = networkProducts.map((product, index) => ({
-                ...product,
-                originalIndex: typeof product.originalIndex === 'number' ? product.originalIndex : index,
-                categoryKey: product.categoryKey || normalizeString(product.category)
-            }));
-            if (currentCategory) {
-                const normCurrent = normalizeString(currentCategory);
+            products = networkProducts.map((product, index) => transformProduct(product, index));
+            if (currentCategorySlug) {
                 products = products
-                    .filter(product => (product.categoryKey || normalizeString(product.category)) === normCurrent)
-                    .map((product, index) => ({
-                        ...product,
-                        originalIndex: typeof product.originalIndex === 'number' ? product.originalIndex : index
-                    }));
+                    .filter(matchesCurrentCategory)
+                    .map((product, index) => transformProduct(product, index));
             }
         }
 

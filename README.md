@@ -73,6 +73,26 @@ npm test
 
 Se ejecutan pruebas unitarias para utilidades de generación de IDs y el Service Worker.
 
+## Notas para desarrolladores
+
+- Usa `npm run build` para regenerar las páginas de categorías después de modificar `templates/category.ejs` o agregar nuevas entradas en `tools/build-pages.js`.
+- Las categorías y subcategorías se filtran mediante un slug ASCII consistente generado por `src/js/utils/slugify.mjs`.
+- Cada plantilla de categoría expone el slug en `data-category-slug`, lo que permite el filtrado inmediato al cargar una URL directa.
+- El script `tools/build-pages.js` valida que cualquier slug manual coincida con la normalización automática. Si hay un desajuste, el build se detiene con un mensaje explícito.
+
+| Nombre              | Tipo    | Valor por defecto          | Requerido | Descripción                                                                 |
+| ------------------- | ------- | -------------------------- | --------- | --------------------------------------------------------------------------- |
+| `slug`              | string  | `slugify(nombre)`          | Sí        | Identificador ASCII para rutas y archivos HTML (ej. `snackssalados`).       |
+| `data-category-slug`| string  | `slugify(nombre)`          | Sí        | Atributo HTML que expone el slug para los módulos de filtrado en el cliente.|
+| `categorySlug`      | string  | `slugify(product.category)`| Sí        | Propiedad agregada a cada producto durante la transformación de datos.      |
+
+### Cómo agregar una subcategoría nueva
+
+1. Añade la definición en `tools/build-pages.js` (nombre y descripción). El script normaliza el slug automáticamente.
+2. Actualiza la navegación en `templates/partials/navbar.ejs` para enlazar al nuevo slug.
+3. Inserta los productos en `data/product_data.json` asignando la categoría con el mismo slug lógico (antes de normalizar).
+4. Ejecuta `npm run build` y `npm test` para validar que la nueva subcategoría se genere y filtre correctamente.
+
 ## Auditoría Lighthouse
 
 El repositorio incluye un flujo automatizado para generar reportes de Lighthouse en formatos HTML y JSON.
