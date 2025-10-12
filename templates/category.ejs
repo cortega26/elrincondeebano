@@ -10,7 +10,17 @@
     <title><%= categoryName %> - El Rincón de Ébano</title>
     <link rel="icon" type="image/x-icon" href="../assets/images/web/favicon.ico">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <!-- No font preloads for Variant C -->
+    
+    <!-- Performance Resource Hints -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+
+    <!-- Preload critical assets -->
+    <link rel="preload" href="/dist/css/critical.min.css" as="style" fetchpriority="high">
+    <link rel="preload" href="/assets/images/web/logo.webp" as="image" type="image/webp" fetchpriority="high">
+<!-- No font preloads for Variant C -->
     <link rel="stylesheet" href="../dist/css/critical.min.css">
     <link rel="preload" href="../assets/images/web/logo.webp" as="image" type="image/webp">
     <link rel="preload" href="../dist/js/script.min.js" as="script">
@@ -74,6 +84,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
-    <script src="../dist/js/script.min.js" defer></script>
+    <script type="module" src="../dist/js/script.min.js"></script>
 </body>
 </html>
