@@ -65,9 +65,12 @@ jobs:
       - name: List SARIF files
         id: sarif-list
         run: |
-          files=$(ls results-*.sarif 2>/dev/null | jq -R -s -c 'split(\"\\n\")[:-1] | to_entries | map({index:.key,file:.value})')
-          if [ -z "$files" ] || [ "$files" = "" ]; then
+          shopt -s nullglob
+          sarif_files=(results-*.sarif)
+          if [ ${#sarif_files[@]} -eq 0 ]; then
             files='[]'
+          else
+            files=$(printf '%s\n' "${sarif_files[@]}" | jq -R -s -c 'split(\"\\n\")[:-1] | to_entries | map({index:.key,file:.value})')
           fi
           echo "files=${files}" >> "$GITHUB_OUTPUT"
       - name: Upload SARIF artifacts
