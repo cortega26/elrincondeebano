@@ -1,16 +1,20 @@
 const fs = require('fs');
 const path = require('path');
 
+const LOGO_PRELOAD_PATH = '/cdn-cgi/image/fit=cover,quality=82,format=auto,width=64/assets/images/web/logo.webp';
+const SCRIPT_PRELOAD_PATH = '/dist/js/script.min.js';
+
 function generateResourceHints() {
   return `    <!-- Performance Resource Hints -->
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
-    
+
     <!-- Preload critical assets -->
     <link rel="preload" href="/dist/css/critical.min.css" as="style" fetchpriority="high">
-    <link rel="preload" href="/assets/images/web/logo.webp" as="image" type="image/webp" fetchpriority="high">`;
+    <link rel="preload" href="${LOGO_PRELOAD_PATH}" as="image" type="image/webp" fetchpriority="high">
+    <link rel="modulepreload" href="${SCRIPT_PRELOAD_PATH}">`;
 }
 
 function injectResourceHints(filePath) {
