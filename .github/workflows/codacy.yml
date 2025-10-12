@@ -34,7 +34,8 @@ jobs:
     name: Codacy Security Scan
     runs-on: ubuntu-latest
     outputs:
-      sarif_files: ${{ steps.sarif-list.outputs.files }}
+      sarif_files: ${{ steps.list_sarif.outputs.files_json }}
+      sarif_files_str: ${{ steps.list_sarif.outputs.files_str }}
     steps:
       # Checkout the repository to the GitHub Actions runner
       - name: Checkout code
@@ -62,35 +63,37 @@ jobs:
           jq -c '.runs[]' results.sarif | nl -v0 -w1 | while read i run; do
             echo "{\"$schema\":\"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json\",\"version\":\"2.1.0\",\"runs\":[${run}]}" > results-${i}.sarif
           done
-      - name: List SARIF files
-        id: sarif-list
+      - name: List SARIF files (Python)
+        id: list_sarif
         shell: bash
         run: |
-          shopt -s nullglob
-          files=(results-*.sarif)
+          python3 - <<'PY'
+          import glob
+          import json
+          import os
 
-          if (( ${#files[@]} == 0 )); then
-            echo 'files=[]' >> "$GITHUB_OUTPUT"
-            echo "No SARIF files found."
-            exit 0
-          fi
+          files = sorted(glob.glob("results-*.sarif"))
+          entries = [{"index": idx, "file": path} for idx, path in enumerate(files)]
 
-          json=$(jq -cn --args "${files[@]}" '
-            $ARGS.positional
-            | to_entries
-            | map({index: .key, file: .value})
-          ')
+          output_path = os.environ["GITHUB_OUTPUT"]
+          with open(output_path, "a", encoding="utf-8") as handle:
+              handle.write("files_json=" + json.dumps(entries) + "\n")
+              handle.write("files_str<<EOF\n")
+              if files:
+                  handle.write("\n".join(files) + "\n")
+              handle.write("EOF\n")
 
-          echo "files=${json}" >> "$GITHUB_OUTPUT"
-          echo "Discovered SARIF files:"
-          echo "${json}"
+          print(json.dumps(entries))
+          PY
       - name: Upload SARIF artifacts
+        if: ${{ steps.list_sarif.outputs.files_str != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: sarif-results
           path: results-*.sarif
 
   upload-sarif:
+    if: ${{ needs.codacy-security-scan.outputs.sarif_files != '[]' }}
     needs: codacy-security-scan
     permissions:
       contents: read
