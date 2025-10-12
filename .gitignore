@@ -37,8 +37,8 @@ Thumbs.db
 config.ini
 secrets.json
 
-# Test files
-tests/
+# Python test files
+tests/**/*.py
 test_*.py
 !admin/product_manager/tests/
 !admin/product_manager/tests/test_*.py

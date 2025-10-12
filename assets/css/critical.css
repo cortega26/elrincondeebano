@@ -255,6 +255,28 @@ body {
     background-color: rgba(0, 0, 0, 0.05);
   }
 
+  /* Ensure the cart offcanvas stays hidden until Bootstrap CSS is ready */
+  .offcanvas {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(100%, 360px);
+    max-width: 100%;
+    background-color: #ffffff;
+    box-shadow: var(--box-shadow);
+    transform: translateX(100%);
+    visibility: hidden;
+    transition: transform 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    z-index: 1050;
+    display: block;
+  }
+
+  .offcanvas.show {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
   /* Notifications overlay; fixed so they don't push layout */
   .notification-toast {
     position: fixed;

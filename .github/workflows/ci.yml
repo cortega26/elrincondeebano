@@ -1,0 +1,43 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Run unit tests
+        run: npm test
+
+      - name: Check stylesheet order consistency
+        run: npm run check:css-order
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run anti-flicker Playwright suite
+        run: npm run test:e2e
+
+      - name: Lighthouse regression audit
+        run: npm run lighthouse:audit
+        env:
+          LH_SKIP_BUILD: '1'

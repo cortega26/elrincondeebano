@@ -91,6 +91,8 @@ Las herramientas aceptan variables de entorno para personalizar su comportamient
 | `npm run lint:images` | Valida consistencia de rutas, tamaños y manifiesto de imágenes. | Antes de commitear cambios en assets responsivos.
 | `npm run prune:backups` | Limpia respaldos antiguos del catálogo conservando los más recientes. | Operaciones periódicas de mantenimiento del inventario.
 | `npm test` | Ejecuta todas las pruebas unitarias basadas en `node:test` para utilidades de frontend y Service Worker. | Tras cambios en código fuente o scripts que afectan comportamiento.
+| `npm run check:css-order` | Verifica que los entrypoints HTML carguen `critical → Bootstrap → site` sin `media=print` ni cambios de orden. | Siempre que se modifiquen plantillas o el `<head>`.
+| `npm run test:e2e` | Lanza Playwright contra Home y dos categorías para detectar parpadeos del navbar/cart bajo condiciones móviles lentas. | Después de tocar estilos globales o la navegación.
 | `npm run lighthouse:audit` | Genera reportes Lighthouse (escritorio/móvil) y los guarda en `reports/lighthouse/`. | Auditorías de rendimiento previas a release.
 
 ## Ejecución local
@@ -111,10 +113,12 @@ Las herramientas aceptan variables de entorno para personalizar su comportamient
 
 ```bash
 npm test
+npm run check:css-order
+npm run test:e2e
 ```
 
-La suite cubre utilidades de generación de IDs, Service Worker, lógica de carrito, fetch de productos, registros estructurados y
-comportamiento del índice. Todos los archivos de prueba están en `test/` y utilizan `node:test` con `assert`.
+La suite de `node:test` cubre utilidades de generación de IDs, Service Worker, lógica de carrito, fetch de productos, registros estructurados y
+comportamiento del índice. Los nuevos chequeos aseguran el orden determinista de CSS y que navbar/cart no parpadeen (Playwright bajo viewport móvil, ver `tests/`).
 
 ## Calidad de código
 
