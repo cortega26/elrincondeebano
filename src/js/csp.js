@@ -299,11 +299,15 @@
             }
         };
 
+        // Apply immediately to avoid any flash of unstyled content when the
+        // main module bundle loads slowly (e.g. additional chunk waterfalls).
+        run();
+
         const idle = typeof window !== 'undefined' && typeof window.requestIdleCallback === 'function'
             ? window.requestIdleCallback
             : null;
         if (idle) {
-            idle(run, { timeout: 1500 });
+            idle(run, { timeout: 300 });
             return;
         }
 
