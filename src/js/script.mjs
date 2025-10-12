@@ -652,6 +652,45 @@ const saveCart = () => {
     }
 };
 
+const logPerformanceMetrics = (perf = (typeof window !== 'undefined' ? window.performance : undefined)) => {
+    let fcpValue = 'unavailable';
+    let domContentLoadedValue = 'unavailable';
+    let loadTimeValue = 'unavailable';
+
+    try {
+        if (!perf || typeof perf.getEntriesByType !== 'function') {
+            return;
+        }
+
+        const paintEntries = perf.getEntriesByType('paint') || [];
+        const navigationEntries = perf.getEntriesByType('navigation') || [];
+
+        const fcpEntry = paintEntries.find(entry => entry?.name === 'first-contentful-paint') || paintEntries[0];
+        if (fcpEntry && typeof fcpEntry.startTime === 'number') {
+            fcpValue = fcpEntry.startTime;
+        }
+
+        const navigationEntry = navigationEntries[0];
+        if (navigationEntry && typeof navigationEntry.domContentLoadedEventEnd === 'number') {
+            domContentLoadedValue = navigationEntry.domContentLoadedEventEnd;
+        } else if (perf.timing && typeof perf.timing.domContentLoadedEventEnd === 'number') {
+            domContentLoadedValue = perf.timing.domContentLoadedEventEnd;
+        }
+
+        if (navigationEntry && typeof navigationEntry.loadEventEnd === 'number') {
+            loadTimeValue = navigationEntry.loadEventEnd;
+        } else if (perf.timing && typeof perf.timing.loadEventEnd === 'number') {
+            loadTimeValue = perf.timing.loadEventEnd;
+        }
+    } catch (error) {
+        console.warn('Performance metrics unavailable:', error);
+    } finally {
+        console.log('First Contentful Paint:', fcpValue);
+        console.log('DOM Content Loaded:', domContentLoadedValue);
+        console.log('Load Time:', loadTimeValue);
+    }
+};
+
 const toggleActionArea = (btn, quantityControl, showQuantity) => {
     if (!btn || !quantityControl) return;
     const showButton = !showQuantity;
@@ -1844,11 +1883,7 @@ const initApp = async () => {
 
         if ('performance' in window) {
             window.addEventListener('load', () => {
-                const paintTime = performance.getEntriesByType('paint');
-                const navigationTime = performance.getEntriesByType('navigation')[0];
-                console.log('First Contentful Paint:', paintTime[0].startTime);
-                console.log('DOM Content Loaded:', navigationTime.domContentLoadedEventEnd);
-                console.log('Load Time:', navigationTime.loadEventEnd);
+                logPerformanceMetrics();
             });
         }
 
@@ -1895,7 +1930,8 @@ export {
     __resetServiceWorkerRegistrationForTest,
     memoize as __memoizeForTest,
     __getCart,
-    __resetCart
+    __resetCart,
+    logPerformanceMetrics
 };
 
 
