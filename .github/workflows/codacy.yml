@@ -59,10 +59,42 @@ jobs:
           max-allowed-issues: 2147483647
 
       - name: Split SARIF per run
+        shell: bash
         run: |
-          jq -c '.runs[]' results.sarif | nl -v0 -w1 | while read i run; do
-            echo "{\"$schema\":\"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json\",\"version\":\"2.1.0\",\"runs\":[${run}]}" > results-${i}.sarif
+          set -euo pipefail
+          jq -c '.runs[]' results.sarif | nl -v0 -w1 | while read -r i run; do
+            jq -n --argjson run "$run" '
+              {
+                "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+                "version": "2.1.0",
+                "runs": [$run]
+              }
+            ' > "results-${i}.sarif"
           done
+      - name: Sanitize SARIF files
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          files=(results-*.sarif)
+          if (( ${#files[@]} == 0 )); then
+            echo "No SARIF files to sanitize."
+            exit 0
+          fi
+
+          for f in "${files[@]}"; do
+            tmp="${f}.clean"
+            jq '
+              with_entries(select(.key != ""))
+              | if has("$schema") then . else . + {"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"} end
+              | .version = "2.1.0"
+            ' "$f" > "$tmp"
+            mv "$tmp" "$f"
+          done
+
+          echo "Sanitized: ${files[*]}"
       - name: List SARIF files (Python)
         id: list_sarif
         shell: bash
