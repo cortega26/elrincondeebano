@@ -1,73 +1,142 @@
 # AGENTS
 
-This repository contains the source code for the static website **El Rincón de Ébano**. It is built with Node.js scripts, EJS templates and static assets. Follow the guidelines below when contributing.
+## Resumen
+Este documento coordina a los agentes automatizados y humanos que mantienen **El Rincón de Ébano**, una web estática construida con scripts de Node.js, plantillas EJS y activos precompilados. Establece responsabilidades, comandos verificados y guardrails para preservar la estabilidad de builds, pruebas, seguridad de la cadena de suministro y los flujos de CI/CD actuales.
 
-## Priority & Safety Rules
+## Arquitectura de agentes
+```
+                +---------------------+
+                |  Repo Cartographer  |
+                +----------+----------+
+                           |
+        +------------------+-------------------+
+        |                  |                   |
+        v                  v                   v
++---------------+  +------------------+  +-----------------------+
+| Docs Steward  |  | Type & Lint      |  | Security / Supply     |
+|               |  | Guardian         |  | Chain Agent           |
++-------+-------+  +---------+--------+  +-----------+-----------+
+        |                    |                      |
+        v                    v                      v
+                 +----------------------+            |
+                 |    Test Sentinel     |<-----------+
+                 +----------+-----------+
+                            |
+                            v
+                     +--------------+
+                     |  CI Guardian |
+                     +------+-------+
+                            |
+                            v
+                     +--------------+
+                     | PR/Release   |
+                     | Manager      |
+                     +--------------+
+```
 
-- Stability first. Preserving existing behavior is higher priority than adding new code or fixes.
-- Do not break current functionality. If a proposed change risks altering existing features or behavior, do not proceed without explicit approval and a mitigation plan.
-- Test anything that could plausibly introduce a bug. Verify in a safe environment (staging/sandbox) or add automated tests and run them in CI.
-- Merge gate: No change may be merged unless all impacted behavior is verified as unchanged and required tests pass. If uncertainty remains, stop and escalate instead of shipping.
+- **Repo Cartographer:** inventaría scripts (`package.json`), configuraciones y workflows.
+- **Docs Steward:** mantiene `AGENTS.md`, `README.md`, `RUNBOOK.md` y material operativo.
+- **Type & Lint Guardian:** valida estilo y calidad de código JavaScript.
+- **Security / Supply Chain Agent:** monitoriza dependencias y SARIF antes de publicación.
+- **Test Sentinel:** ejecuta suites de pruebas Node y controla flakiness.
+- **CI Guardian:** asegura que los workflows de GitHub Actions respeten versiones, cachés y permisos mínimos.
+- **PR/Release Manager:** orquesta ramas, PRs, versionado y evidencia de verificación.
 
-## General Guidelines
+## Matriz de comandos por agente
+| Agente | Comando | Cuándo se ejecuta | Salida esperada | Artefactos |
+| --- | --- | --- | --- | --- |
+| Repo Cartographer | `node -v` | Antes de cualquier trabajo para verificar Node ≥ 18 tal como consume CI (`images.yml`). | Versión fija compatible con scripts (`^18.x`). | Registro en informe de descubrimiento. |
+| Repo Cartographer | `npm pkg get scripts` | Al actualizar documentación o scripts. | JSON con scripts de `package.json`. | Tabla de scripts actualizada en docs. |
+| Docs Steward | `npm run build` | Tras cambios en plantillas (`templates/`), datos o herramientas. | Build completo sin errores ni warnings críticos; genera `dist/`, `pages/`, `sitemap.xml`. | Artifacts regenerados listos para commit. |
+| Docs Steward | `npm run lighthouse:audit` | Auditorías de rendimiento previas a release. | Reportes en `reports/lighthouse/`. | Archivos HTML de Lighthouse. |
+| Type & Lint Guardian | `npx eslint .` | En cada PR y antes de merges; ejecutado también localmente. | Salida limpia sin errores ESLint usando `.eslintrc.json`. | Logs de lint. |
+| Type & Lint Guardian | `Missing: Prettier config/dependency` | Registrar TODO en PR hasta que se incorpore Prettier. | N/A | Issue/seguimiento abierto. |
+| Security / Supply Chain Agent | `npm audit --production` | Mensual o ante cambios de dependencias. | Sin vulnerabilidades altas/crit.; documentar hallazgos. | Reporte de auditoría. |
+| Security / Supply Chain Agent | `npx codacy-analysis-cli` (a través de workflow) | En CI (`codacy.yml`). | SARIF sanitizado y subido. | `results-*.sarif`. |
+| Test Sentinel | `npm ci && npm test` | Después de tocar código fuente o utilidades. Repetir si se detecta flakiness. | Todas las pruebas Node pasan dos veces cuando aplique. | Logs de pruebas. |
+| Test Sentinel | `node test/<name>.test.js` | Depuración puntual al aislar fallos. | Test individual pasa consistentemente. | Log focalizado. |
+| CI Guardian | `gh workflow view <name>` (opcional) | Revisiones periódicas de pipelines. | Workflow refleja nodos fijados, permisos mínimos y cachés con lockfile. | Informe de revisión. |
+| PR/Release Manager | `git status && git diff --stat` | Antes de solicitar revisión/merge. | Árbol limpio y diff reducido (≤400 líneas netas salvo acuerdos). | Evidencia en PR. |
+| PR/Release Manager | `npx npm-check-updates --target=minor` (en seguimiento) | Evaluar upgrades permitidos. | Lista de updates patch/minor para próximas iteraciones. | Comentario o issue con plan. |
 
-- Keep changes focused and minimal; avoid unrelated edits in the same commit.
-- Commit messages and pull request descriptions must be in **English**.
-- All user-facing text (HTML, JSON, UI strings) must remain in **Spanish**.
-- Ensure the working tree is clean (`git status` shows no changes) before finishing a task.
+## Guardrails CI/tests
+- **Checklist de ejecución determinista**
+  - [ ] `node -v` coincide con la versión fijada en workflows (`18.x`).
+  - [ ] `npm ci` es obligatorio en CI; queda prohibido `npm install` cuando exista `package-lock.json`.
+- **Compilación estricta**
+  - [ ] `npm run build` finaliza sin warnings críticos ni errores. Atender cualquier fallo en scripts de `tools/`.
+- **Tests obligatorios**
+  - [ ] `npm ci && npm test` deben ejecutarse completos tras modificaciones; repetir suite si algún caso es flaky.
+  - [ ] Prohibido introducir `test.skip`, `--forceExit`, `--passWithNoTests` o eliminar asserts sin reemplazo.
+- **Cobertura mínima**
+  - Baseline objetivo: 80%. *Missing:* instrumentación de cobertura; abrir seguimiento para integrar `c8` o similar y reportar métricas.
+- **Linter/formatter**
+  - [ ] `npx eslint .` debe terminar en verde. Auto-fixes solo locales; los commits deben incluir diff resultante.
+  - *Missing:* `prettier --check` hasta incorporar configuración y dependencia.
+- **SARIF estable**
+  - Reutilizar el sanitizador existente en `.github/workflows/codacy.yml` (`jq` con `with_entries`). Si se generan SARIF manualmente, aplicar:
+    ```bash
+    jq 'with_entries(select(.key != "")) | if has("$schema") then . else . + {"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"} end | .version = "2.1.0"' input.sarif > sanitized.sarif
+    ```
+  - Prohibido construir JSON mediante `echo` con interpolaciones; usar `jq` o scripts dedicados.
+- **Cambios de dependencias**
+  - Patch/minor permitidos si pruebas y auditorías están en verde.
+  - Major requieren RFC documentado (impacto, plan de migración, pruebas extra).
+- **Seguridad/secretos**
+  - Nunca registrar valores sensibles en logs ni en `git diff`.
+  - Mantener permisos mínimos en workflows (`contents: read`, `pages: write`, etc.).
+- **Presupuesto de cambio**
+  - Objetivo ≤400 líneas netas por PR. Refactors grandes requieren desglose.
+- **Rollback**
+  - Documentar `git revert <sha>` en PRs y aplicar feature flags en scripts si se introducen cambios condicionales.
 
-## Coding Conventions
+## Políticas de cambio y PR
+- Usar ramas `tipo/slug`, p. ej. `docs/agents-refresh-YYYYMMDD`.
+- Commits en formato Conventional Commits (`docs(agents): ...`).
+- PRs deben incluir evidencia de pruebas (`npm test`, `npm run build`, auditorías relevantes) y la checklist de guardrails marcada.
+- Actualizar documentación relacionada (`README.md`, `RUNBOOK.md`, `docs/`) en el mismo PR cuando cambian comportamientos.
+- Adjuntar resultados de `npm audit --production` cuando se toquen dependencias.
 
-- Use **two spaces** for indentation; never use tabs.
-- End statements with semicolons.
-- Prefer `const` and `let`; avoid `var`.
-- Place `require`/`import` statements at the top of files.
-- Use single quotes `'` for strings unless HTML requires double quotes.
-- Keep functions small and descriptive. Extract helpers when logic becomes complex.
-- Document non-trivial logic with comments.
+## Flujos de trabajo (CI)
+- **`Deploy static content to Pages` (`.github/workflows/static.yml`)**
+  - Trigger: push a `main` y `workflow_dispatch`.
+  - Permisos: `contents: read`, `pages: write`, `id-token: write`.
+  - Concurrency: `group: "pages"`, `cancel-in-progress: false`.
+  - Artefacto: repo completo desplegado con `actions/deploy-pages@v4`.
+- **`Optimize images` (`.github/workflows/images.yml`)**
+  - Trigger: cambios en `assets/img/originals/**` o manual.
+  - Node fijado con `actions/setup-node@v4` (`node-version: 18`). Usa `npm ci` + scripts `images:generate`, `images:rewrite`, `lint:images`. Auto-commitea resultados.
+  - Permisos: `contents: write` para subir optimizaciones.
+- **`Codacy Security Scan` (`.github/workflows/codacy.yml`)**
+  - Trigger: push/PR a `main` y cron semanal.
+  - Permisos mínimos (`security-events: write` solo para subir SARIF).
+  - Pasos clave: ejecutar Codacy CLI, dividir SARIF, sanitizar con `jq`, subir a Code Scanning.
+  - *Missing:* caché de dependencias; evaluar usar `actions/setup-node` con caché `npm` si se añade instalación de paquetes.
 
-## Directory Overview
+## Playbooks
+### Cómo añadir un test nuevo
+1. Crear archivo en `test/` siguiendo convención `<feature>.test.js` y usar `node:test`/`assert` como en los existentes.
+2. Ejecutar `npm ci` si es la primera vez y luego `npm test` dos veces consecutivas para asegurar estabilidad.
+3. Actualizar documentación si el test cubre nueva funcionalidad o corrige regresiones.
+4. Adjuntar logs de ambas ejecuciones en el PR.
 
-- `assets/` – Static assets (CSS, images, fonts).
-  - `assets/css/` – Stylesheets.
-  - `assets/images/variants/` – Generated image variants.
-- `dist/` – Built JS/CSS bundles.
-- `templates/` – EJS templates for generating pages. Modify these instead of files in `pages/`.
-- `pages/` – Generated HTML pages. **Do not edit directly**; run the build to regenerate.
-- `tools/` – Node build and maintenance scripts.
-- `test/` – Node-based unit tests.
-- `admin/`, `admin-panel/` – Administrative tools; follow existing patterns when editing.
+### Cómo actualizar una dependencia
+1. Ejecutar `npm pkg get dependencies["<paquete>"]` para conocer versión actual.
+2. Para patch/minor: `npm install <paquete>@latest --save` y confirmar que `package-lock.json` se actualiza.
+3. Correr `npm audit --production`, `npm test`, `npm run build` y documentar resultados.
+4. Para major: preparar RFC (alcance, breaking changes, plan de validación) antes de abrir PR. No mezclar con otros cambios.
 
-## Testing and Build
+### Cómo depurar fallos de CI
+1. Identificar workflow fallido (`gh workflow run list` o interfaz web) y revisar logs.
+2. Reproducir localmente con `npm ci`, `npm test`, `npm run build` o scripts específicos del job (p.ej. `npm run images:generate`).
+3. Si falla Codacy SARIF, ejecutar localmente el sanitizador con `jq` y verificar esquema `2.1.0`.
+4. Documentar hallazgos en el PR con pasos reproducibles y solución propuesta.
 
-- Install dependencies with `npm install` before running scripts.
-- Run `npm test` after modifying any code. Add or update tests for new functionality.
-- For changes affecting templates or assets, run `npm run build` to regenerate output.
-- When adding or updating product images, run `npm run images:variants` to produce responsive variants and update manifests.
-- If the website logo or PWA icons change, run `npm run icons` to regenerate `assets/images/web/icon-192.png` and `icon-512.png`, committing any newly generated files.
-- Whenever images are added or modified, run `npm run lint:images` to check dimensions and formats, resolving all issues before committing.
-- After large refactors or file rewrites, run `npm run prune:backups`. This script ensures no temporary backup files remain before committing.
-- Ensure all scripts complete successfully before committing.
-
-## Commit & PR Guidelines
-
-- Use concise, present-tense commit messages (e.g., `Add cart utility tests`).
-- Group related changes into a single commit.
-- Reference relevant files or issues in commit messages when helpful.
-- Avoid committing temporary files, editor configs, or build artifacts outside version-controlled directories.
-- Provide a clear summary of changes and testing steps in the PR description.
-
-## Environment
-
-- Target **Node.js 18** or later.
-- Use `npm` for package management. Do not switch to `yarn` or `pnpm` without explicit instruction.
-- Scripts assume a POSIX-like shell environment.
-
-## Documentation
-
-- Update `README.md` or other docs when behavior or setup steps change.
-- Keep comments and documentation in sync with the code.
-
----
-
-These instructions are intended for machine agents working on this repository. If you must deviate from them, explain why in your pull request.
+## Anexos
+- `package.json` (scripts y dependencias). [`package.json`](package.json)
+- Lockfile para instalaciones deterministas. [`package-lock.json`](package-lock.json)
+- Configuración de ESLint. [`.eslintrc.json`](.eslintrc.json)
+- Workflows de GitHub Actions. [`static.yml`](.github/workflows/static.yml), [`images.yml`](.github/workflows/images.yml), [`codacy.yml`](.github/workflows/codacy.yml)
+- Scripts de build y utilidades. [`tools/`](tools/)
+- Suite de pruebas Node. [`test/`](test/)
+- Documentación operativa existente. [`README.md`](README.md), [`RUNBOOK.md`](RUNBOOK.md)
