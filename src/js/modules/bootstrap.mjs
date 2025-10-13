@@ -113,26 +113,38 @@ function shouldPreventNavigation(toggle) {
 function setupDropdownToggles() {
   const toggles = document.querySelectorAll('[data-bs-toggle="dropdown"]');
   toggles.forEach((toggle) => {
-    toggle.addEventListener('click', (event) => {
+    const handler = async (event) => {
       if (shouldPreventNavigation(toggle)) {
         event.preventDefault();
       }
       if (typeof event.stopImmediatePropagation === 'function') {
         event.stopImmediatePropagation();
       }
-      event.stopPropagation();
-      void activateDropdown(toggle, event);
-    });
+      if (typeof event.stopPropagation === 'function') {
+        event.stopPropagation();
+      }
+      toggle.removeEventListener('click', handler);
+      try {
+        await activateDropdown(toggle, event);
+      } catch (error) {
+        toggle.addEventListener('click', handler);
+      }
+    };
+    toggle.addEventListener('click', handler);
   });
 }
 
 async function activateDropdown(toggle, event) {
   try {
     const Dropdown = await loadDropdown();
+    if (event && typeof Dropdown?.clearMenus === 'function') {
+      Dropdown.clearMenus(event);
+    }
     const instance = getOrCreateInstance(Dropdown, toggle);
     instance?.toggle?.(event);
   } catch (error) {
     console.error('No se pudo inicializar el Dropdown de Bootstrap', error);
+    throw error;
   }
 }
 
