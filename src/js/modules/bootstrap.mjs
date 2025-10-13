@@ -71,13 +71,20 @@ async function loadOffcanvas() {
 function setupCollapseToggles() {
   const toggles = document.querySelectorAll('[data-bs-toggle="collapse"][data-bs-target]');
   toggles.forEach((toggle) => {
-    toggle.addEventListener('click', () => {
-      void activateCollapse(toggle);
+    toggle.addEventListener('click', (event) => {
+      if (shouldPreventNavigation(toggle)) {
+        event.preventDefault();
+      }
+      if (typeof event.stopImmediatePropagation === 'function') {
+        event.stopImmediatePropagation();
+      }
+      event.stopPropagation();
+      void activateCollapse(toggle, event);
     });
   });
 }
 
-async function activateCollapse(toggle) {
+async function activateCollapse(toggle, event) {
   try {
     const targetSelector = toggle.getAttribute('data-bs-target');
     if (!targetSelector) {
@@ -89,27 +96,41 @@ async function activateCollapse(toggle) {
     }
     const Collapse = await loadCollapse();
     const instance = getOrCreateInstance(Collapse, target);
-    instance?.toggle?.();
+    instance?.toggle?.(event);
   } catch (error) {
     console.error('No se pudo inicializar el Collapse de Bootstrap', error);
   }
+}
+
+function shouldPreventNavigation(toggle) {
+  if (!toggle || toggle.tagName !== 'A') {
+    return false;
+  }
+  const href = toggle.getAttribute('href');
+  return !href || href === '#';
 }
 
 function setupDropdownToggles() {
   const toggles = document.querySelectorAll('[data-bs-toggle="dropdown"]');
   toggles.forEach((toggle) => {
     toggle.addEventListener('click', (event) => {
-      event.preventDefault();
-      void activateDropdown(toggle);
+      if (shouldPreventNavigation(toggle)) {
+        event.preventDefault();
+      }
+      if (typeof event.stopImmediatePropagation === 'function') {
+        event.stopImmediatePropagation();
+      }
+      event.stopPropagation();
+      void activateDropdown(toggle, event);
     });
   });
 }
 
-async function activateDropdown(toggle) {
+async function activateDropdown(toggle, event) {
   try {
     const Dropdown = await loadDropdown();
     const instance = getOrCreateInstance(Dropdown, toggle);
-    instance?.toggle?.();
+    instance?.toggle?.(event);
   } catch (error) {
     console.error('No se pudo inicializar el Dropdown de Bootstrap', error);
   }
