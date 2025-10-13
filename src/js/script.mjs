@@ -72,12 +72,62 @@ const SERVICE_WORKER_CONFIG = {
     updateCheckInterval: 5 * 60 * 1000, // 5 minutes
 };
 
+const LOCALHOST_HOSTNAMES = new Set(['localhost', '127.0.0.1', '::1', '[::1]']);
+
+function safeReadLocalStorage(key) {
+    if (typeof window === 'undefined') {
+        return null;
+    }
+
+    try {
+        const storage = window.localStorage ?? globalThis.localStorage ?? null;
+        if (!storage) {
+            return null;
+        }
+        return storage.getItem(key);
+    } catch (error) {
+        console.warn('Unable to access localStorage for key', key, error);
+        return null;
+    }
+}
+
+function shouldRegisterServiceWorker() {
+    if (typeof window === 'undefined') {
+        return false;
+    }
+
+    const disabledFlag = safeReadLocalStorage('ebano-sw-disabled');
+    if (disabledFlag === 'true') {
+        console.info('Service worker registration skipped by kill-switch flag.');
+        return false;
+    }
+
+    const hostname = window.location?.hostname ?? '';
+    const isLocalhost = LOCALHOST_HOSTNAMES.has(hostname);
+    if (isLocalhost) {
+        const enableLocalFlag = safeReadLocalStorage('ebano-sw-enable-local');
+        const query = window.location?.search ?? '';
+        const queryEnables = typeof query === 'string' && /(?:^|[?&])sw=on(?:&|$)/i.test(query);
+        if (enableLocalFlag === 'true' || queryEnables) {
+            return true;
+        }
+        console.info('Service worker registration skipped on localhost. Set localStorage ebano-sw-enable-local=true to override.');
+        return false;
+    }
+
+    return true;
+}
+
 let serviceWorkerRegistrationSetup = false;
 
 // Enhanced service worker registration with proper error handling and lifecycle management
 function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) {
         console.warn('Service workers are not supported in this browser');
+        return;
+    }
+
+    if (!shouldRegisterServiceWorker()) {
         return;
     }
 
@@ -1927,6 +1977,7 @@ export {
     showServiceWorkerError,
     showConnectivityNotification,
     registerServiceWorker as __registerServiceWorkerForTest,
+    shouldRegisterServiceWorker as __shouldRegisterServiceWorkerForTest,
     __resetServiceWorkerRegistrationForTest,
     memoize as __memoizeForTest,
     __getCart,
