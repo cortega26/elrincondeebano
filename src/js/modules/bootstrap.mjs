@@ -3,6 +3,10 @@ const loaderOverrides = new Map();
 let collapseModulePromise = null;
 let dropdownModulePromise = null;
 let offcanvasModulePromise = null;
+let dropdownIdCounter = 0;
+let expandedDropdownId = null;
+const dropdownToggleRegistry = new Map();
+let dropdownCleanupCallbacks = [];
 
 function getModuleExport(module) {
   if (module && typeof module === 'object') {
@@ -102,6 +106,81 @@ async function activateCollapse(toggle, event) {
   }
 }
 
+function cleanupDropdownListeners() {
+  if (dropdownCleanupCallbacks.length === 0) {
+    return;
+  }
+  dropdownCleanupCallbacks.forEach((cleanup) => {
+    try {
+      cleanup();
+    } catch (error) {
+      // Silenciamos errores de limpieza para evitar fugas de listeners en entornos sin DOM completo.
+    }
+  });
+  dropdownCleanupCallbacks = [];
+  dropdownToggleRegistry.clear();
+  expandedDropdownId = null;
+  dropdownIdCounter = 0;
+}
+
+/**
+ * Ensures that every dropdown toggle has a stable identifier so we can manage
+ * controlled expanded state.
+ * @param {HTMLElement} toggle
+ * @returns {string}
+ */
+function ensureDropdownId(toggle) {
+  if (!toggle) {
+    return '';
+  }
+  const datasetId = typeof toggle.dataset === 'object' ? toggle.dataset.dropdownId : undefined;
+  const attributeId = typeof toggle.getAttribute === 'function' ? toggle.getAttribute('data-dropdown-id') : undefined;
+  const existingId = datasetId || attributeId;
+  if (existingId) {
+    if (toggle.dataset) {
+      toggle.dataset.dropdownId = existingId;
+    }
+    if (typeof toggle.setAttribute === 'function') {
+      toggle.setAttribute('data-dropdown-id', existingId);
+    }
+    dropdownToggleRegistry.set(existingId, toggle);
+    return existingId;
+  }
+  const elementId = typeof toggle.id === 'string' && toggle.id ? toggle.id : '';
+  const baseId = elementId ? `id:${elementId}` : `auto:${++dropdownIdCounter}`;
+  if (toggle.dataset) {
+    toggle.dataset.dropdownId = baseId;
+  }
+  if (typeof toggle.setAttribute === 'function') {
+    toggle.setAttribute('data-dropdown-id', baseId);
+  }
+  dropdownToggleRegistry.set(baseId, toggle);
+  return baseId;
+}
+
+function trackDropdownLifecycle(toggle, id) {
+  if (!toggle || !id) {
+    return;
+  }
+  const onShown = () => {
+    expandedDropdownId = id;
+  };
+  const onHidden = () => {
+    if (expandedDropdownId === id) {
+      expandedDropdownId = null;
+    }
+  };
+  toggle.addEventListener('shown.bs.dropdown', onShown);
+  toggle.addEventListener('hidden.bs.dropdown', onHidden);
+  dropdownCleanupCallbacks.push(() => {
+    toggle.removeEventListener('shown.bs.dropdown', onShown);
+    toggle.removeEventListener('hidden.bs.dropdown', onHidden);
+    if (dropdownToggleRegistry.get(id) === toggle) {
+      dropdownToggleRegistry.delete(id);
+    }
+  });
+}
+
 function shouldPreventNavigation(toggle) {
   if (!toggle || toggle.tagName !== 'A') {
     return false;
@@ -111,8 +190,12 @@ function shouldPreventNavigation(toggle) {
 }
 
 function setupDropdownToggles() {
+  cleanupDropdownListeners();
   const toggles = document.querySelectorAll('[data-bs-toggle="dropdown"]');
   toggles.forEach((toggle) => {
+    const dropdownId = ensureDropdownId(toggle);
+    trackDropdownLifecycle(toggle, dropdownId);
+
     const handler = async (event) => {
       if (shouldPreventNavigation(toggle)) {
         event.preventDefault();
@@ -123,28 +206,52 @@ function setupDropdownToggles() {
       if (typeof event.stopPropagation === 'function') {
         event.stopPropagation();
       }
-      toggle.removeEventListener('click', handler);
       try {
-        await activateDropdown(toggle, event);
+        await activateDropdown(toggle, dropdownId);
       } catch (error) {
-        toggle.addEventListener('click', handler);
+        console.error('No se pudo inicializar el Dropdown de Bootstrap', error);
       }
     };
+
     toggle.addEventListener('click', handler);
+    dropdownCleanupCallbacks.push(() => {
+      toggle.removeEventListener('click', handler);
+    });
   });
 }
 
-async function activateDropdown(toggle, event) {
-  try {
-    const Dropdown = await loadDropdown();
-    if (event && typeof Dropdown?.clearMenus === 'function') {
-      Dropdown.clearMenus(event);
+async function activateDropdown(toggle, dropdownId) {
+  const Dropdown = await loadDropdown();
+  const instance = getOrCreateInstance(Dropdown, toggle);
+  if (!instance) {
+    return;
+  }
+
+  if (expandedDropdownId && expandedDropdownId !== dropdownId) {
+    const previousToggle = dropdownToggleRegistry.get(expandedDropdownId);
+    if (previousToggle) {
+      const previousInstance = getOrCreateInstance(Dropdown, previousToggle);
+      if (typeof previousInstance?.hide === 'function') {
+        previousInstance.hide();
+      } else {
+        previousInstance?.toggle?.();
+      }
     }
-    const instance = getOrCreateInstance(Dropdown, toggle);
-    instance?.toggle?.(event);
-  } catch (error) {
-    console.error('No se pudo inicializar el Dropdown de Bootstrap', error);
-    throw error;
+  }
+
+  if (expandedDropdownId === dropdownId) {
+    if (typeof instance.hide === 'function') {
+      instance.hide();
+    } else {
+      instance.toggle?.();
+    }
+    return;
+  }
+
+  if (typeof instance.show === 'function') {
+    instance.show();
+  } else {
+    instance.toggle?.();
   }
 }
 
@@ -194,4 +301,12 @@ export function __resetBootstrapTestState() {
   dropdownModulePromise = null;
   offcanvasModulePromise = null;
   bootstrapInitialized = false;
+  cleanupDropdownListeners();
+}
+
+export function __getDropdownStateSnapshot() {
+  return {
+    expandedDropdownId,
+    registeredToggleCount: dropdownToggleRegistry.size,
+  };
 }
