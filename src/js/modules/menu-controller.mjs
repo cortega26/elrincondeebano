@@ -124,6 +124,18 @@ function handleTogglePointerDown(event, state, entry) {
   state.expandedId = entry.id;
 }
 
+function handleToggleClick(event, state, entry) {
+  if (state.preventNavigation && entry.toggle.tagName === 'A') {
+    event.preventDefault();
+  }
+  if (state.justOpened) {
+    event.stopPropagation();
+    if (typeof event.stopImmediatePropagation === 'function') {
+      event.stopImmediatePropagation();
+    }
+  }
+}
+
 function handleToggleKeyDown(event, state, entry) {
   const key = event.key;
   if (key === 'Enter' || key === ' ' || key === 'Spacebar') {
@@ -184,11 +196,14 @@ function createController(nav) {
     state.toggles.push(entry);
 
     const pointerHandler = (event) => handleTogglePointerDown(event, state, entry);
+    const clickHandler = (event) => handleToggleClick(event, state, entry);
     const keyHandler = (event) => handleToggleKeyDown(event, state, entry);
     toggle.addEventListener('pointerdown', pointerHandler);
+    toggle.addEventListener('click', clickHandler);
     toggle.addEventListener('keydown', keyHandler);
     entry.cleanup = () => {
       toggle.removeEventListener('pointerdown', pointerHandler);
+      toggle.removeEventListener('click', clickHandler);
       toggle.removeEventListener('keydown', keyHandler);
       delete toggle.dataset.menuControllerBound;
     };

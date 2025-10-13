@@ -97,3 +97,35 @@ test('menu controller closes previous dropdown when opening a new one', async ()
   delete global.document;
   delete global.HTMLElement;
 });
+
+test('menu controller prevents navigation on click when toggling dropdowns', async () => {
+  const dom = new JSDOM(`<!DOCTYPE html><body>
+    <div id="navbar-container">
+      <div class="dropdown">
+        <a id="firstToggle" class="dropdown-toggle" href="#hash-target" data-bs-toggle="dropdown" aria-expanded="false">Primero</a>
+        <ul class="dropdown-menu" id="firstMenu"></ul>
+      </div>
+    </div>
+  </body>`, { url: 'http://localhost' });
+  global.window = dom.window;
+  global.document = dom.window.document;
+  global.HTMLElement = dom.window.HTMLElement;
+
+  const module = loadModule('../src/js/modules/menu-controller.mjs');
+  module.setupUnifiedMenuController();
+
+  const firstToggle = document.getElementById('firstToggle');
+  firstToggle.dispatchEvent(new dom.window.Event('pointerdown', { bubbles: true }));
+  await new Promise((resolve) => setTimeout(resolve, 25));
+
+  const clickEvent = new dom.window.Event('click', { bubbles: true, cancelable: true });
+  const dispatchResult = firstToggle.dispatchEvent(clickEvent);
+
+  assert.strictEqual(dispatchResult, false);
+  assert.strictEqual(dom.window.location.hash, '');
+
+  module.__resetMenuControllerForTest();
+  delete global.window;
+  delete global.document;
+  delete global.HTMLElement;
+});
