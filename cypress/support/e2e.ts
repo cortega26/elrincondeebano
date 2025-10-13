@@ -8,6 +8,9 @@ Cypress.on('window:before:load', (win) => {
     if (/Failed to convert value to 'Response'|FetchEvent/i.test(message)) {
       throw new Error(`SW error still present: ${message}`);
     }
+    if (/Invalid currency code\s*:?\s*null|Cannot read properties of undefined \(reading 'id'\)/i.test(message)) {
+      throw new Error(`Runtime error still present: ${message}`);
+    }
 
     return originalError(...args);
   };

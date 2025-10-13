@@ -410,21 +410,30 @@ const normalizeString = (str) => {
 
 
 // Add this utility function for generating stable product IDs
-const generateStableId = (product) => {
-    // Create a stable ID using product properties that shouldn't change
-    // Using name and category as they should be unique together
-    const baseString = `${product.name}-${product.category}`.toLowerCase();
+const DEFAULT_CATEGORY = 'General';
+const DEFAULT_PRODUCT_NAME_PREFIX = 'Producto';
 
-    // Create a simple hash of the string
+const generateStableId = (product, index = 0) => {
+    const hasValidShape = product && typeof product === 'object';
+    const rawName = hasValidShape && typeof product.name === 'string' ? product.name.trim() : '';
+    const rawCategory = hasValidShape && typeof product.category === 'string' ? product.category.trim() : '';
+
+    const safeName = rawName.length > 0 ? rawName : `${DEFAULT_PRODUCT_NAME_PREFIX}-${index + 1}`;
+    const safeCategory = rawCategory.length > 0 ? rawCategory : DEFAULT_CATEGORY;
+
+    const baseString = `${safeName}-${safeCategory}`.toLowerCase();
+
     let hash = 0;
-    for (let i = 0; i < baseString.length; i++) {
-        const char = baseString.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash; // Convert to 32-bit integer
+    for (let i = 0; i < baseString.length; i += 1) {
+        const charCode = baseString.charCodeAt(i);
+        hash = ((hash << 5) - hash) + charCode;
+        hash &= hash; // Convert to 32-bit integer
     }
 
-    // Return a more readable ID format
-    return `pid-${Math.abs(hash)}`;
+    const needsFallbackSuffix = rawName.length === 0 || rawCategory.length === 0;
+    const suffix = needsFallbackSuffix ? `-${index}` : '';
+
+    return `pid-${Math.abs(hash)}${suffix}`;
 };
 
 const sanitizeHTML = (unsafe) => {
@@ -492,24 +501,43 @@ const parseInlineProductData = () => {
 };
 
 const transformProduct = (product, index) => {
-    const id = product.id || generateStableId(product);
+    if (!product || typeof product !== 'object') {
+        return null;
+    }
+
+    const id = typeof product.id === 'string' && product.id.trim().length > 0
+        ? product.id.trim()
+        : generateStableId(product, index);
+
     const originalIndex = typeof product.originalIndex === 'number'
         ? product.originalIndex
         : typeof product.order === 'number'
             ? product.order
             : index;
+
+    const safeName = typeof product.name === 'string' && product.name.trim().length > 0
+        ? product.name
+        : `${DEFAULT_PRODUCT_NAME_PREFIX} ${index + 1}`;
+
+    const safeDescription = typeof product.description === 'string' ? product.description : '';
+    const safeCategory = typeof product.category === 'string' && product.category.trim().length > 0
+        ? product.category
+        : DEFAULT_CATEGORY;
+
     return {
         ...product,
         id,
-        name: sanitizeHTML(product.name),
-        description: sanitizeHTML(product.description),
-        category: sanitizeHTML(product.category),
-        categoryKey: product.categoryKey || normalizeString(product.category),
+        name: sanitizeHTML(safeName),
+        description: sanitizeHTML(safeDescription),
+        category: sanitizeHTML(safeCategory),
+        categoryKey: product.categoryKey || normalizeString(safeCategory),
         originalIndex
     };
 };
 
-const transformProducts = (products = []) => products.map((product, index) => transformProduct(product, index));
+const transformProducts = (products = []) => products
+    .map((product, index) => transformProduct(product, index))
+    .filter(Boolean);
 
 function hydrateSharedProductDataFromInline() {
     const existing = getSharedProductData();
@@ -998,17 +1026,50 @@ const initApp = async () => {
         }
     }
 
-    const renderPriceHtml = (price, discount, currencyCode = 'CLP') => {
-        const formatter = new Intl.NumberFormat('es-CL', {
-            style: 'currency',
-            currency: currencyCode,
-            minimumFractionDigits: 0
-        });
+    const DEFAULT_CURRENCY_CODE = 'CLP';
+    let hasLoggedCurrencyFallback = false;
 
-        const formattedPrice = formatter.format(price);
+    const normalizeCurrencyCode = (currencyCode) => {
+        if (typeof currencyCode !== 'string') {
+            return DEFAULT_CURRENCY_CODE;
+        }
+        const trimmed = currencyCode.trim().toUpperCase();
+        if (/^[A-Z]{3}$/.test(trimmed)) {
+            return trimmed;
+        }
+        return DEFAULT_CURRENCY_CODE;
+    };
 
-        if (discount) {
-            const discountedPrice = price - discount;
+    const createCurrencyFormatter = (currencyCode) => {
+        const fallbackCode = normalizeCurrencyCode(currencyCode);
+        try {
+            return new Intl.NumberFormat('es-CL', {
+                style: 'currency',
+                currency: fallbackCode,
+                minimumFractionDigits: 0
+            });
+        } catch (error) {
+            if (!hasLoggedCurrencyFallback) {
+                console.warn('Falling back to CLP currency formatter', { error, currencyCode });
+                hasLoggedCurrencyFallback = true;
+            }
+            return new Intl.NumberFormat('es-CL', {
+                style: 'currency',
+                currency: DEFAULT_CURRENCY_CODE,
+                minimumFractionDigits: 0
+            });
+        }
+    };
+
+    const renderPriceHtml = (price, discount, currencyCode = DEFAULT_CURRENCY_CODE) => {
+        const numericPrice = Number(price) || 0;
+        const numericDiscount = Number(discount) || 0;
+        const formatter = createCurrencyFormatter(currencyCode);
+
+        const formattedPrice = formatter.format(numericPrice);
+
+        if (numericDiscount) {
+            const discountedPrice = Math.max(numericPrice - numericDiscount, 0);
             const formattedDiscountedPrice = formatter.format(discountedPrice);
 
             return createSafeElement('div', { class: 'precio-container' }, [
