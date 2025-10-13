@@ -8,7 +8,7 @@ describe('Submenu on subpages', () => {
 
     cy.contains('a.dropdown-toggle', /Snacks y Confites/i)
       .as('snacksToggle')
-      .trigger('pointerdown', { pointerType: 'mouse' });
+      .click();
 
     cy.get('@snacksToggle')
       .should('have.attr', 'aria-expanded', 'true')
@@ -17,9 +17,11 @@ describe('Submenu on subpages', () => {
       .should('be.visible')
       .and('have.class', 'show');
 
+    cy.contains('a.dropdown-item', /Chocolates/i).should('be.visible');
+
     cy.contains('a.dropdown-toggle', /Bebestibles/i)
       .as('beveragesToggle')
-      .trigger('pointerdown', { pointerType: 'mouse' });
+      .click();
 
     cy.get('@beveragesToggle')
       .should('have.attr', 'aria-expanded', 'true')
