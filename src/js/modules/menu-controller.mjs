@@ -135,11 +135,18 @@ function handleToggleKeyDown(event, state, entry) {
   }
 }
 
+function now() {
+  if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
+    return performance.now();
+  }
+  return Date.now();
+}
+
 function createEntry(toggle, index) {
   const dropdownNode = toggle.closest('.dropdown');
   const menu = dropdownNode?.querySelector('.dropdown-menu');
   const id = ensureId(toggle, 'auto', index);
-  const entry = { toggle, menu, dropdownNode, id };
+  const entry = { toggle, menu, dropdownNode, id, lastPointerTime: 0 };
   if (menu && !menu.id) {
     menu.id = `${id}-menu`;
   }
@@ -183,12 +190,29 @@ function createController(nav) {
     const entry = createEntry(toggle, index);
     state.toggles.push(entry);
 
-    const pointerHandler = (event) => handleTogglePointerDown(event, state, entry);
+    const pointerHandler = (event) => {
+      entry.lastPointerTime = now();
+      handleTogglePointerDown(event, state, entry);
+    };
+    const clickHandler = (event) => {
+      const sincePointer = now() - (entry.lastPointerTime || 0);
+      if (sincePointer < 250) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (typeof event.stopImmediatePropagation === 'function') {
+          event.stopImmediatePropagation();
+        }
+        return;
+      }
+      handleTogglePointerDown(event, state, entry);
+    };
     const keyHandler = (event) => handleToggleKeyDown(event, state, entry);
     toggle.addEventListener('pointerdown', pointerHandler);
+    toggle.addEventListener('click', clickHandler);
     toggle.addEventListener('keydown', keyHandler);
     entry.cleanup = () => {
       toggle.removeEventListener('pointerdown', pointerHandler);
+      toggle.removeEventListener('click', clickHandler);
       toggle.removeEventListener('keydown', keyHandler);
       delete toggle.dataset.menuControllerBound;
     };
