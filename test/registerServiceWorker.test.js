@@ -86,7 +86,9 @@ const assert = require('assert');
       }
     },
     location: {
-      reload: () => {}
+      reload: () => {},
+      hostname: 'example.com',
+      search: ''
     },
     document: documentMock
   };
@@ -163,6 +165,54 @@ const assert = require('assert');
 
   assert.strictEqual(registerCalls, 2, 'registerServiceWorker should not run multiple times without reset');
   assert.strictEqual(windowListeners.has('load'), false, 'load listener should not be reattached on repeated calls');
+
+  windowMock.location.hostname = 'localhost';
+  windowMock.location.search = '';
+  delete storage['ebano-sw-enable-local'];
+  delete storage['ebano-sw-disabled'];
+  assert.strictEqual(
+    module.__shouldRegisterServiceWorkerForTest(),
+    false,
+    'service worker should not register on localhost without explicit opt-in'
+  );
+
+  windowMock.location.search = '?sw=on';
+  assert.strictEqual(
+    module.__shouldRegisterServiceWorkerForTest(),
+    true,
+    'query parameter sw=on should allow localhost registration'
+  );
+
+  windowMock.location.search = '';
+  storage['ebano-sw-enable-local'] = 'true';
+  assert.strictEqual(
+    module.__shouldRegisterServiceWorkerForTest(),
+    true,
+    'localStorage flag should allow localhost registration'
+  );
+
+  storage['ebano-sw-disabled'] = 'true';
+  assert.strictEqual(
+    module.__shouldRegisterServiceWorkerForTest(),
+    false,
+    'kill-switch flag should disable registration'
+  );
+
+  registerCalls = 0;
+  module.__resetServiceWorkerRegistrationForTest();
+  await module.__registerServiceWorkerForTest();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.strictEqual(registerCalls, 0, 'kill-switch should bypass registerServiceWorker');
+
+  delete storage['ebano-sw-disabled'];
+  windowMock.location.hostname = 'example.com';
+  module.__resetServiceWorkerRegistrationForTest();
+
+  // Ensure pending async cleanup (e.g., fs close requests triggered by dynamic import) is flushed
+  // before restoring global timers to avoid hanging test processes.
+  while (process._getActiveRequests().length > 0) {
+    await new Promise((resolve) => setImmediate(resolve));
+  }
 
   global.setInterval = originalSetInterval;
   global.setTimeout = originalSetTimeout;
