@@ -58,8 +58,11 @@ test('initializeBootstrapUI lazy-loads collapse and dropdown handlers', async ()
       this.toggleElement = toggle;
       this.menu = toggle.nextElementSibling;
     }
-    toggle() {
-      const isOpen = !this.toggleElement.classList.contains('show');
+    _applyState(isOpen) {
+      const currentlyOpen = this.toggleElement.classList.contains('show');
+      if (currentlyOpen === isOpen) {
+        return;
+      }
       this.toggleElement.classList.toggle('show', isOpen);
       this.toggleElement.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
       if (this.menu) {
@@ -69,6 +72,18 @@ test('initializeBootstrapUI lazy-loads collapse and dropdown handlers', async ()
       if (parent) {
         parent.classList.toggle('show', isOpen);
       }
+      const eventName = isOpen ? 'shown.bs.dropdown' : 'hidden.bs.dropdown';
+      this.toggleElement.dispatchEvent(new dom.window.Event(eventName, { bubbles: true }));
+    }
+    toggle() {
+      const isOpen = !this.toggleElement.classList.contains('show');
+      this._applyState(isOpen);
+    }
+    show() {
+      this._applyState(true);
+    }
+    hide() {
+      this._applyState(false);
     }
     static getOrCreateInstance(toggle) {
       if (!this.instances) {
@@ -97,6 +112,10 @@ test('initializeBootstrapUI lazy-loads collapse and dropdown handlers', async ()
 
   assert.strictEqual(collapseLoaded, 0);
   assert.strictEqual(dropdownLoaded, 0);
+  assert.deepStrictEqual(module.__getDropdownStateSnapshot(), {
+    expandedDropdownId: null,
+    registeredToggleCount: 1,
+  });
 
   const toggleButton = document.getElementById('navToggle');
   toggleButton.dispatchEvent(new dom.window.Event('click', { bubbles: true }));
@@ -112,6 +131,100 @@ test('initializeBootstrapUI lazy-loads collapse and dropdown handlers', async ()
   assert.strictEqual(dropdownLoaded, 1);
   assert.strictEqual(dropdownToggle.getAttribute('aria-expanded'), 'true');
   assert.ok(dropdownToggle.nextElementSibling.classList.contains('show'));
+  assert.deepStrictEqual(module.__getDropdownStateSnapshot(), {
+    expandedDropdownId: 'id:menuDropdown',
+    registeredToggleCount: 1,
+  });
+
+  dropdownToggle.dispatchEvent(new dom.window.Event('hidden.bs.dropdown', { bubbles: true }));
+  assert.deepStrictEqual(module.__getDropdownStateSnapshot(), {
+    expandedDropdownId: null,
+    registeredToggleCount: 1,
+  });
+
+  module.__resetBootstrapTestState();
+  delete global.window;
+  delete global.document;
+});
+
+test('dropdown controller closes previous toggle when opening a new one', async () => {
+  const dom = new JSDOM(`<!DOCTYPE html><body>
+    <div class="dropdown">
+      <a id="firstDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">Primero</a>
+      <ul class="dropdown-menu" id="firstMenu"></ul>
+    </div>
+    <div class="dropdown">
+      <a id="secondDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">Segundo</a>
+      <ul class="dropdown-menu" id="secondMenu"></ul>
+    </div>
+  </body>`, { url: 'http://localhost' });
+  global.window = dom.window;
+  global.document = dom.window.document;
+
+  const module = loadModule('../src/js/modules/bootstrap.mjs');
+
+  class DropdownStub {
+    constructor(toggle) {
+      this.toggleElement = toggle;
+      this.menu = toggle.nextElementSibling;
+    }
+    _applyState(isOpen) {
+      const alreadyOpen = this.toggleElement.classList.contains('show');
+      if (alreadyOpen === isOpen) {
+        return;
+      }
+      this.toggleElement.classList.toggle('show', isOpen);
+      this.toggleElement.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      if (this.menu) {
+        this.menu.classList.toggle('show', isOpen);
+      }
+      const parent = this.toggleElement.closest('.dropdown');
+      if (parent) {
+        parent.classList.toggle('show', isOpen);
+      }
+      const eventName = isOpen ? 'shown.bs.dropdown' : 'hidden.bs.dropdown';
+      this.toggleElement.dispatchEvent(new dom.window.Event(eventName, { bubbles: true }));
+    }
+    show() {
+      this._applyState(true);
+    }
+    hide() {
+      this._applyState(false);
+    }
+    static getOrCreateInstance(toggle) {
+      if (!this.instances) {
+        this.instances = new WeakMap();
+      }
+      if (!this.instances.has(toggle)) {
+        this.instances.set(toggle, new DropdownStub(toggle));
+      }
+      return this.instances.get(toggle);
+    }
+  }
+
+  module.__setBootstrapLoaderOverride('dropdown', async () => ({ default: DropdownStub }));
+  module.initializeBootstrapUI();
+
+  const firstToggle = document.getElementById('firstDropdown');
+  const secondToggle = document.getElementById('secondDropdown');
+  firstToggle.dispatchEvent(new dom.window.Event('click', { bubbles: true }));
+  await new Promise((resolve) => setImmediate(resolve));
+
+  let snapshot = module.__getDropdownStateSnapshot();
+  assert.strictEqual(snapshot.expandedDropdownId, 'id:firstDropdown');
+  assert.strictEqual(snapshot.registeredToggleCount, 2);
+  assert.ok(firstToggle.classList.contains('show'));
+  assert.ok(document.getElementById('firstMenu').classList.contains('show'));
+
+  secondToggle.dispatchEvent(new dom.window.Event('click', { bubbles: true }));
+  await new Promise((resolve) => setImmediate(resolve));
+
+  snapshot = module.__getDropdownStateSnapshot();
+  assert.strictEqual(snapshot.expandedDropdownId, 'id:secondDropdown');
+  assert.ok(!firstToggle.classList.contains('show'));
+  assert.ok(!document.getElementById('firstMenu').classList.contains('show'));
+  assert.ok(secondToggle.classList.contains('show'));
+  assert.ok(document.getElementById('secondMenu').classList.contains('show'));
 
   module.__resetBootstrapTestState();
   delete global.window;
