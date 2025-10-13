@@ -1,12 +1,13 @@
+import {
+  setupUnifiedMenuController,
+  __getMenuControllerSnapshot,
+  __resetMenuControllerForTest,
+} from './menu-controller.mjs';
+
 let bootstrapInitialized = false;
 const loaderOverrides = new Map();
 let collapseModulePromise = null;
-let dropdownModulePromise = null;
 let offcanvasModulePromise = null;
-let dropdownIdCounter = 0;
-let expandedDropdownId = null;
-const dropdownToggleRegistry = new Map();
-let dropdownCleanupCallbacks = [];
 
 function getModuleExport(module) {
   if (module && typeof module === 'object') {
@@ -56,14 +57,6 @@ async function loadCollapse() {
   return getModuleExport(module);
 }
 
-async function loadDropdown() {
-  if (!dropdownModulePromise) {
-    dropdownModulePromise = loadWithOverride('dropdown', () => import('bootstrap/js/dist/dropdown'));
-  }
-  const module = await dropdownModulePromise;
-  return getModuleExport(module);
-}
-
 async function loadOffcanvas() {
   if (!offcanvasModulePromise) {
     offcanvasModulePromise = loadWithOverride('offcanvas', () => import('bootstrap/js/dist/offcanvas'));
@@ -106,153 +99,12 @@ async function activateCollapse(toggle, event) {
   }
 }
 
-function cleanupDropdownListeners() {
-  if (dropdownCleanupCallbacks.length === 0) {
-    return;
-  }
-  dropdownCleanupCallbacks.forEach((cleanup) => {
-    try {
-      cleanup();
-    } catch (error) {
-      // Silenciamos errores de limpieza para evitar fugas de listeners en entornos sin DOM completo.
-    }
-  });
-  dropdownCleanupCallbacks = [];
-  dropdownToggleRegistry.clear();
-  expandedDropdownId = null;
-  dropdownIdCounter = 0;
-}
-
-/**
- * Ensures that every dropdown toggle has a stable identifier so we can manage
- * controlled expanded state.
- * @param {HTMLElement} toggle
- * @returns {string}
- */
-function ensureDropdownId(toggle) {
-  if (!toggle) {
-    return '';
-  }
-  const datasetId = typeof toggle.dataset === 'object' ? toggle.dataset.dropdownId : undefined;
-  const attributeId = typeof toggle.getAttribute === 'function' ? toggle.getAttribute('data-dropdown-id') : undefined;
-  const existingId = datasetId || attributeId;
-  if (existingId) {
-    if (toggle.dataset) {
-      toggle.dataset.dropdownId = existingId;
-    }
-    if (typeof toggle.setAttribute === 'function') {
-      toggle.setAttribute('data-dropdown-id', existingId);
-    }
-    dropdownToggleRegistry.set(existingId, toggle);
-    return existingId;
-  }
-  const elementId = typeof toggle.id === 'string' && toggle.id ? toggle.id : '';
-  const baseId = elementId ? `id:${elementId}` : `auto:${++dropdownIdCounter}`;
-  if (toggle.dataset) {
-    toggle.dataset.dropdownId = baseId;
-  }
-  if (typeof toggle.setAttribute === 'function') {
-    toggle.setAttribute('data-dropdown-id', baseId);
-  }
-  dropdownToggleRegistry.set(baseId, toggle);
-  return baseId;
-}
-
-function trackDropdownLifecycle(toggle, id) {
-  if (!toggle || !id) {
-    return;
-  }
-  const onShown = () => {
-    expandedDropdownId = id;
-  };
-  const onHidden = () => {
-    if (expandedDropdownId === id) {
-      expandedDropdownId = null;
-    }
-  };
-  toggle.addEventListener('shown.bs.dropdown', onShown);
-  toggle.addEventListener('hidden.bs.dropdown', onHidden);
-  dropdownCleanupCallbacks.push(() => {
-    toggle.removeEventListener('shown.bs.dropdown', onShown);
-    toggle.removeEventListener('hidden.bs.dropdown', onHidden);
-    if (dropdownToggleRegistry.get(id) === toggle) {
-      dropdownToggleRegistry.delete(id);
-    }
-  });
-}
-
 function shouldPreventNavigation(toggle) {
   if (!toggle || toggle.tagName !== 'A') {
     return false;
   }
   const href = toggle.getAttribute('href');
   return !href || href === '#';
-}
-
-function setupDropdownToggles() {
-  cleanupDropdownListeners();
-  const toggles = document.querySelectorAll('[data-bs-toggle="dropdown"]');
-  toggles.forEach((toggle) => {
-    const dropdownId = ensureDropdownId(toggle);
-    trackDropdownLifecycle(toggle, dropdownId);
-
-    const handler = async (event) => {
-      if (shouldPreventNavigation(toggle)) {
-        event.preventDefault();
-      }
-      if (typeof event.stopImmediatePropagation === 'function') {
-        event.stopImmediatePropagation();
-      }
-      if (typeof event.stopPropagation === 'function') {
-        event.stopPropagation();
-      }
-      try {
-        await activateDropdown(toggle, dropdownId);
-      } catch (error) {
-        console.error('No se pudo inicializar el Dropdown de Bootstrap', error);
-      }
-    };
-
-    toggle.addEventListener('click', handler);
-    dropdownCleanupCallbacks.push(() => {
-      toggle.removeEventListener('click', handler);
-    });
-  });
-}
-
-async function activateDropdown(toggle, dropdownId) {
-  const Dropdown = await loadDropdown();
-  const instance = getOrCreateInstance(Dropdown, toggle);
-  if (!instance) {
-    return;
-  }
-
-  if (expandedDropdownId && expandedDropdownId !== dropdownId) {
-    const previousToggle = dropdownToggleRegistry.get(expandedDropdownId);
-    if (previousToggle) {
-      const previousInstance = getOrCreateInstance(Dropdown, previousToggle);
-      if (typeof previousInstance?.hide === 'function') {
-        previousInstance.hide();
-      } else {
-        previousInstance?.toggle?.();
-      }
-    }
-  }
-
-  if (expandedDropdownId === dropdownId) {
-    if (typeof instance.hide === 'function') {
-      instance.hide();
-    } else {
-      instance.toggle?.();
-    }
-    return;
-  }
-
-  if (typeof instance.show === 'function') {
-    instance.show();
-  } else {
-    instance.toggle?.();
-  }
 }
 
 export function initializeBootstrapUI() {
@@ -264,7 +116,7 @@ export function initializeBootstrapUI() {
     return;
   }
   setupCollapseToggles();
-  setupDropdownToggles();
+  setupUnifiedMenuController();
 }
 
 export async function showOffcanvas(target) {
@@ -288,8 +140,6 @@ export function __setBootstrapLoaderOverride(name, loader) {
   loaderOverrides.set(name, loader);
   if (name === 'collapse') {
     collapseModulePromise = null;
-  } else if (name === 'dropdown') {
-    dropdownModulePromise = null;
   } else if (name === 'offcanvas') {
     offcanvasModulePromise = null;
   }
@@ -298,15 +148,11 @@ export function __setBootstrapLoaderOverride(name, loader) {
 export function __resetBootstrapTestState() {
   loaderOverrides.clear();
   collapseModulePromise = null;
-  dropdownModulePromise = null;
   offcanvasModulePromise = null;
   bootstrapInitialized = false;
-  cleanupDropdownListeners();
+  __resetMenuControllerForTest();
 }
 
 export function __getDropdownStateSnapshot() {
-  return {
-    expandedDropdownId,
-    registeredToggleCount: dropdownToggleRegistry.size,
-  };
+  return __getMenuControllerSnapshot();
 }
