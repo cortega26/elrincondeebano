@@ -8,14 +8,14 @@
   <link rel="manifest" href="/app.webmanifest">
 
   <!-- Security -->
-  <script src="dist/js/csp.js?v=2" async></script>
+  <script src="dist/js/csp.js?v=2" async=""></script>
 
   <!-- Title and Favicon -->
   <title>El Rincón de Ébano</title>
   <link rel="icon" href="assets/images/web/favicon.ico" type="image/x-icon">
 
   <!-- Preconnect to External Domains -->
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="">
   <!-- Self-hosted fonts: preload above-the-fold weights -->
   <!-- No font preloads for Variant C -->
 
@@ -29,8 +29,8 @@
   <!-- Preload critical assets -->
   <link rel="preload" href="/dist/css/critical.min.css" as="style" fetchpriority="high">
   <link rel="preload" href="/cdn-cgi/image/fit=cover,quality=82,format=auto,width=64/assets/images/web/logo.webp" as="image" type="image/webp" fetchpriority="high">
-  <link rel="preload" href="/dist/css/playfair-400-4OM7HYDI.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="/dist/css/inter-700-NRMW37G5.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/dist/css/playfair-400-4OM7HYDI.woff2" as="font" type="font/woff2" crossorigin="">
+  <link rel="preload" href="/dist/css/inter-700-NRMW37G5.woff2" as="font" type="font/woff2" crossorigin="">
   
   <link rel="preload" href="/cdn-cgi/image/fit=cover,quality=82,format=auto,width=400/assets/images/limpieza_y_aseo/Nova%20Cl%C3%A1sica%202x14m.webp" as="image" imagesrcset="/cdn-cgi/image/fit=cover,quality=82,format=auto,width=200/assets/images/limpieza_y_aseo/Nova%20Cl%C3%A1sica%202x14m.webp 200w, /cdn-cgi/image/fit=cover,quality=82,format=auto,width=400/assets/images/limpieza_y_aseo/Nova%20Cl%C3%A1sica%202x14m.webp 400w, /cdn-cgi/image/fit=cover,quality=82,format=auto,width=800/assets/images/limpieza_y_aseo/Nova%20Cl%C3%A1sica%202x14m.webp 800w" imagesizes="(min-width: 1200px) 25vw, (min-width: 992px) 33vw, (min-width: 576px) 50vw, 100vw" fetchpriority="high">
   
@@ -67,14 +67,7 @@
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" aria-label="Navegación principal">
     <div class="container-fluid">
       <a class="navbar-brand d-flex align-items-center" href="/index.html">
-        <img
-          src="/cdn-cgi/image/fit=cover,quality=82,format=auto,width=64/assets/images/web/logo.webp"
-          srcset="/cdn-cgi/image/fit=cover,quality=82,format=auto,width=32/assets/images/web/logo.webp 32w, /cdn-cgi/image/fit=cover,quality=82,format=auto,width=64/assets/images/web/logo.webp 64w, /cdn-cgi/image/fit=cover,quality=82,format=auto,width=96/assets/images/web/logo.webp 96w"
-          sizes="40px"
-          alt="Logo de El Rincón de Ébano"
-          width="30"
-          height="30"
-          class="d-inline-block align-top me-1">
+        <img src="/cdn-cgi/image/fit=cover,quality=82,format=auto,width=64/assets/images/web/logo.webp" srcset="/cdn-cgi/image/fit=cover,quality=82,format=auto,width=32/assets/images/web/logo.webp 32w, /cdn-cgi/image/fit=cover,quality=82,format=auto,width=64/assets/images/web/logo.webp 64w, /cdn-cgi/image/fit=cover,quality=82,format=auto,width=96/assets/images/web/logo.webp 96w" sizes="40px" alt="Logo de El Rincón de Ébano" width="30" height="30" class="d-inline-block align-top me-1">
         <span class="brand-text">El Rincón de Ébano</span>
       </a>
       <div class="d-flex align-items-center order-lg-last">
@@ -152,15 +145,15 @@
     <div class="mt-3" id="payment-method-container">
       <label class="form-label d-block" for="payment-cash">Método de Pago</label>
       <div class="form-check">
-        <input class="form-check-input" type="radio" name="paymentMethod" id="payment-cash" value="Efectivo" required>
+        <input class="form-check-input" type="radio" name="paymentMethod" id="payment-cash" value="Efectivo" required="">
         <label class="form-check-label" for="payment-cash">Efectivo</label>
       </div>
       <div class="form-check">
-        <input class="form-check-input" type="radio" name="paymentMethod" id="payment-transfer" value="Transferencia" required>
+        <input class="form-check-input" type="radio" name="paymentMethod" id="payment-transfer" value="Transferencia" required="">
         <label class="form-check-label" for="payment-transfer">Transferencia</label>
       </div>
       <div class="form-check d-none" id="payment-credit-container">
-        <input class="form-check-input" type="radio" name="paymentMethod" id="payment-credit" value="Tarjeta de Crédito" required>
+        <input class="form-check-input" type="radio" name="paymentMethod" id="payment-credit" value="Tarjeta de Crédito" required="">
         <label class="form-check-label" for="payment-credit">Tarjeta de Crédito</label>
       </div>
     </div>
@@ -181,7 +174,7 @@
         <div class="row mb-3">
           <div class="col-md-6">
             <select id="sort-options" class="form-select" aria-label="Ordenar productos">
-              <option value="original" selected>Orden por defecto</option>
+              <option value="original" selected="">Orden por defecto</option>
               <option value="name-asc">Nombre (A-Z)</option>
               <option value="name-desc">Nombre (Z-A)</option>
               <option value="price-asc">Precio (menor a mayor)</option>
@@ -524,5 +517,6 @@
 
   <script type="module" src="/dist/js/script.min.js"></script>
   <!-- Service Worker registration handled in dist/js/script.min.js -->
-</body></html>
 
+
+</body></html>
