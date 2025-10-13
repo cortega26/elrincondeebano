@@ -92,7 +92,7 @@ Las herramientas aceptan variables de entorno para personalizar su comportamient
 | `npm run prune:backups` | Limpia respaldos antiguos del catálogo conservando los más recientes. | Operaciones periódicas de mantenimiento del inventario.
 | `npm test` | Ejecuta todas las pruebas unitarias basadas en `node:test` para utilidades de frontend y Service Worker. | Tras cambios en código fuente o scripts que afectan comportamiento.
 | `npm run check:css-order` | Verifica que los entrypoints HTML carguen `critical → Bootstrap → site` sin `media=print` ni cambios de orden. | Siempre que se modifiquen plantillas o el `<head>`.
-| `npm run test:e2e` | Lanza Playwright contra Home y dos categorías para detectar parpadeos del navbar/cart bajo condiciones móviles lentas. | Después de tocar estilos globales o la navegación.
+| `npm run test:e2e` | Lanza Playwright (incluye `tests/navbar-dropdown.spec.ts`) contra Home y dos categorías para detectar parpadeos del navbar/cart y validar que el primer click deja los menús abiertos. | Después de tocar estilos globales o la navegación.
 | `npm run lighthouse:audit` | Genera reportes Lighthouse (escritorio/móvil) y los guarda en `reports/lighthouse/`. | Auditorías de rendimiento previas a release. |
 | `npm run snapshot -- --tag <etiqueta>` | Toma una captura del sitio en ejecución y la etiqueta con un identificador para su trazabilidad. | Documentar estados visuales relevantes o generar evidencia previa a un release. |
 

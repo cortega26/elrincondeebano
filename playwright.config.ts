@@ -15,6 +15,10 @@ export default defineConfig({
       name: 'chromium-mobile',
       use: { ...devices['Pixel 5'], viewport: { width: 390, height: 844 } },
     },
+    {
+      name: 'chromium-desktop',
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } },
+    },
   ],
   webServer: {
     command: `node scripts/dev-server.mjs`,
