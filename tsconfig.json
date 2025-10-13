@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ES2018",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "strict": false,
+    "types": ["cypress"]
+  },
+  "include": [
+    "cypress/**/*.ts"
+  ]
+}

@@ -14,13 +14,13 @@ describe('Nav menu regressions', () => {
       onBeforeLoad: enableServiceWorker,
     });
 
-    cy.contains('a', /Bebestibles|Category A/i).click();
+    cy.contains('a', /Bebestibles|Category A/i).trigger('pointerdown', { pointerType: 'mouse' });
     cy.contains('a', /Aguas|Panel|Productos/i).should('be.visible');
 
-    cy.contains('a', /Alimentos|Category B/i).click();
+    cy.contains('a', /Alimentos|Category B/i).trigger('pointerdown', { pointerType: 'mouse' });
     cy.contains('a', /Despensa|Panel|Productos/i).should('be.visible');
 
-    cy.contains('a', /Bebestibles|Category A/i).click();
+    cy.contains('a', /Bebestibles|Category A/i).trigger('pointerdown', { pointerType: 'mouse' });
     cy.contains('a', /Aguas|Panel|Productos/i).should('be.visible');
   });
 
@@ -29,7 +29,7 @@ describe('Nav menu regressions', () => {
       onBeforeLoad: enableServiceWorker,
     });
 
-    cy.contains('a', /Bebestibles|Category A/i).click();
+    cy.contains('a', /Bebestibles|Category A/i).trigger('pointerdown', { pointerType: 'mouse' });
     cy.contains('a', /Aguas|Subcat|Productos/i).should('be.visible');
   });
 });
