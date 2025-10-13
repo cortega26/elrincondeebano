@@ -104,6 +104,21 @@ Las herramientas aceptan variables de entorno para personalizar su comportamient
 3. Sirve la carpeta raíz con un servidor estático (por ejemplo, `npx http-server .`) y accede a `http://localhost:8080`.
 4. El Service Worker cachea `dist/`, `pages/` y `/data/product_data.json`; usa modo incógnito para probar la actualización de versión.
 
+### Service Worker en producción y localhost
+
+- El registro automático solo ocurre en hosts distintos de `localhost`. Para probar el Service Worker en local, ejecuta antes de recargar:
+  ```js
+  localStorage.setItem('ebano-sw-enable-local', 'true');
+  ```
+  También puedes anexar `?sw=on` a la URL.
+- Kill-switch temporal: `localStorage.setItem('ebano-sw-disabled', 'true')` seguido de una recarga forzada. Elimina la clave o ponla en `false` para revertir.
+- Invalida cachés antiguas ejecutando en consola:
+  ```js
+  navigator.serviceWorker.getRegistrations().then((regs) => regs.forEach((r) => r.unregister()));
+  caches.keys().then((keys) => keys.forEach((key) => caches.delete(key)));
+  ```
+- La versión activa del Service Worker utiliza los cachés `ebano-static-v6`, `ebano-dynamic-v4` y `ebano-products-v5`.
+
 ## Build y entrega
 
 - `npm run build` produce HTML en `pages/`, bundles y assets en `dist/`, actualiza `index.html`, `sitemap.xml` y `robots.txt`.
