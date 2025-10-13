@@ -2,9 +2,9 @@
 const TEST_MODE = typeof module !== 'undefined';
 const CACHE_CONFIG = {
     prefixes: {
-        static: 'ebano-static-v5',
-        dynamic: 'ebano-dynamic-v3',
-        products: 'ebano-products-v4'
+        static: 'ebano-static-v6',
+        dynamic: 'ebano-dynamic-v4',
+        products: 'ebano-products-v5'
     },
     duration: {
         products: 5 * 60 * 1000,     // 5 minutes for product data
@@ -109,157 +109,124 @@ const addTimestamp = async (response, type = 'static') => {
 // Install event - cache static assets
 if (!TEST_MODE) {
     self.addEventListener('install', event => {
-        console.log('Service Worker: Installing...');
-        event.waitUntil(
-            (async () => {
-                try {
-                    const cache = await caches.open(CACHE_CONFIG.prefixes.static);
-                    console.log('Service Worker: Cache opened');
-
-                    // Cache static assets individually for better error handling
-                    for (const asset of CACHE_CONFIG.staticAssets) {
+        event.waitUntil((async () => {
+            await self.skipWaiting();
+            try {
+                const cache = await caches.open(CACHE_CONFIG.prefixes.static);
+                await Promise.all(
+                    CACHE_CONFIG.staticAssets.map(async (asset) => {
                         try {
                             const response = await fetch(asset);
-                            if (response.ok) {
+                            if (response && response.ok) {
                                 const timestampedResponse = await addTimestamp(response.clone(), 'static');
                                 await cache.put(asset, timestampedResponse);
                             }
-                        } catch (err) {
-                            console.warn(`Failed to cache asset ${asset}:`, err);
-                            // Continue with other assets even if one fails
+                        } catch (error) {
+                            console.warn(`Failed to cache asset ${asset}:`, error);
                         }
-                    }
-
-                    await self.skipWaiting();
-                    console.log('Service Worker: Installation complete');
-                } catch (error) {
-                    console.error('Service Worker: Installation failed:', error);
-                    throw error;
-                }
-            })()
-        );
+                    })
+                );
+            } catch (error) {
+                console.error('Service Worker: Installation caching failed:', error);
+            }
+        })());
     });
 
     // Activate event - clean up old caches
     self.addEventListener('activate', event => {
-        console.log('Service Worker: Activating...');
-        event.waitUntil(
-            Promise.all([
-                caches.keys()
-                    .then(cacheNames => {
-                        const validPrefixes = Object.values(CACHE_CONFIG.prefixes);
-                        return Promise.all(
-                            cacheNames
-                                .filter(name => !validPrefixes.some(prefix => name.startsWith(prefix)))
-                                .map(name => caches.delete(name))
-                        );
-                    }),
-                self.clients.claim()
-            ]).then(() => console.log('Service Worker: Now controlling all clients'))
-        );
+        event.waitUntil((async () => {
+            try {
+                const validPrefixes = Object.values(CACHE_CONFIG.prefixes);
+                const cacheNames = await caches.keys();
+                await Promise.all(
+                    cacheNames
+                        .filter(name => !validPrefixes.some(prefix => name.startsWith(prefix)))
+                        .map(name => caches.delete(name))
+                );
+            } catch (error) {
+                console.error('Service Worker: Activation cleanup failed:', error);
+            }
+            await self.clients.claim();
+        })());
     });
 
-    // Handle product data fetch
-    async function handleProductDataFetch(request) {
-        try {
-            const networkResponse = await fetch(request);
-            if (networkResponse.ok) {
-                const cache = await caches.open(CACHE_CONFIG.prefixes.products);
-                const timestampedResponse = await addTimestamp(networkResponse.clone(), 'products');
-                await cache.put(request, timestampedResponse.clone());
-                return timestampedResponse;
-            }
-        } catch (error) {
-            console.log('Network fetch failed, trying cache:', error);
-            const cachedResponse = await caches.match(request);
-            if (cachedResponse && isCacheFresh(cachedResponse, 'products')) {
-                return cachedResponse;
-            }
+    const shouldBypass = (url) => url.pathname === '/service-worker.js' || url.pathname.startsWith('/cdn-cgi/image/');
+
+    const getCacheKeyForRequest = (request, url) => {
+        if (url.pathname.includes('product_data.json')) {
+            return { cacheName: CACHE_CONFIG.prefixes.products, type: 'products' };
         }
-
-        throw new Error('Unable to fetch product data');
-    }
-
-    // Handle static asset fetch
-    async function handleStaticAssetFetch(request) {
-        const cachedResponse = await caches.match(request);
-        if (cachedResponse && isCacheFresh(cachedResponse, 'static')) {
-            return cachedResponse;
+        if (CACHE_CONFIG.staticAssets.includes(url.pathname)) {
+            return { cacheName: CACHE_CONFIG.prefixes.static, type: 'static' };
         }
+        return { cacheName: CACHE_CONFIG.prefixes.dynamic, type: 'dynamic' };
+    };
 
-        try {
-            const networkResponse = await fetch(request);
-            if (networkResponse.ok) {
-                const cache = await caches.open(CACHE_CONFIG.prefixes.static);
-                const timestampedResponse = await addTimestamp(networkResponse.clone(), 'static');
-                await cache.put(request, timestampedResponse);
-                return networkResponse;
-            }
-        } catch (error) {
-            if (cachedResponse) return cachedResponse;
-            throw error;
-        }
-    }
-
-    // Handle dynamic content fetch
-    async function handleDynamicFetch(request) {
-        if (request.method !== 'GET') {
-            return fetch(request);
-        }
-
-        try {
-            const networkResponse = await fetch(request);
-            if (networkResponse.ok) {
-                const cache = await caches.open(CACHE_CONFIG.prefixes.dynamic);
-                const timestampedResponse = await addTimestamp(networkResponse.clone(), 'dynamic');
-                await cache.put(request, timestampedResponse);
-                return networkResponse;
-            }
-        } catch (error) {
-            const cachedResponse = await caches.match(request);
-            if (cachedResponse) return cachedResponse;
-            // Offline navigation fallback when possible
-            if (request.mode === 'navigate') {
-                const offline = await caches.match('/pages/offline.html');
-                if (offline) return offline;
-            }
-            if (request.url.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
-                const ph = await caches.match('/assets/images/web/placeholder.webp');
-                if (ph) return ph;
-            }
-            throw error;
-        }
-    }
-
-    // Fetch event handler
     self.addEventListener('fetch', event => {
-        const url = new URL(event.request.url);
-        if (url.pathname.startsWith('/cdn-cgi/image/')) return; // let edge handle it
+        const req = event.request;
+        const url = new URL(req.url);
 
-        // Removed early network-first branch; unified handling below
-
-        // First, explicitly check if this is a request we should handle
-        const isHandleableRequest =
-            // Check if it's our product data
-            url.pathname.includes('product_data.json') ||
-            // Check if it's one of our static assets
-            CACHE_CONFIG.staticAssets.includes(url.pathname) ||
-            // Check if it's a request to our domain that isn't a third-party script
-            (url.origin === self.location.origin && !url.pathname.includes('analytics'));
-
-        // Only proceed if it's a request we should handle
-        if (!isHandleableRequest) {
+        if (req.method !== 'GET' || shouldBypass(url)) {
             return;
         }
 
-        // Now we know this is a request we want to handle
-        if (url.pathname.includes('product_data.json')) {
-            event.respondWith(handleProductDataFetch(event.request));
-        } else if (CACHE_CONFIG.staticAssets.includes(url.pathname)) {
-            event.respondWith(handleStaticAssetFetch(event.request));
-        } else {
-            event.respondWith(handleDynamicFetch(event.request));
+        if (req.mode === 'navigate') {
+            event.respondWith((async () => {
+                try {
+                    const networkResponse = await fetch(req);
+                    if (networkResponse) {
+                        return networkResponse;
+                    }
+                } catch (error) {
+                    console.warn('Navigation fetch failed, attempting cache fallback:', error);
+                }
+
+                const fallback = await caches.match(req)
+                    || await caches.match('/index.html')
+                    || await caches.match('/pages/offline.html');
+
+                if (fallback) {
+                    return fallback;
+                }
+
+                return new Response('Offline', {
+                    status: 503,
+                    headers: { 'Content-Type': 'text/plain' }
+                });
+            })());
+            return;
         }
+
+        if (url.origin !== self.location.origin) {
+            return;
+        }
+
+        event.respondWith((async () => {
+            const { cacheName, type } = getCacheKeyForRequest(req, url);
+            const cache = await caches.open(cacheName);
+            const cached = await cache.match(req);
+
+            let freshResponse;
+            try {
+                freshResponse = await fetch(req);
+                if (freshResponse && freshResponse.ok) {
+                    const responseToCache = await addTimestamp(freshResponse.clone(), type);
+                    await cache.put(req, responseToCache);
+                }
+            } catch (error) {
+                console.warn('Asset fetch failed, falling back to cache:', error);
+            }
+
+            if (freshResponse && (freshResponse.ok || freshResponse.type === 'opaque')) {
+                return freshResponse;
+            }
+
+            if (cached) {
+                return cached;
+            }
+
+            return Response.error();
+        })());
     });
 
     // Enhanced message event handler with backwards compatibility
