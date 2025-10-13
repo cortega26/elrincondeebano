@@ -49,6 +49,7 @@ for (const path of paths) {
 
     await expect(toggle).toBeVisible();
     await toggle.click();
+    await page.waitForTimeout(100);
     await expect(menu).toBeVisible();
     await expect(toggle).toHaveAttribute('aria-expanded', /true/i);
 
@@ -94,5 +95,10 @@ for (const path of paths) {
     await firstToggle.click();
     await expect(firstMenu).toBeVisible();
     await expect(secondMenu).not.toBeVisible();
+    await secondToggle.click();
+    await firstToggle.click();
+    await secondToggle.click();
+    await expect(secondMenu).toBeVisible();
+    await expect(secondToggle).toHaveAttribute('aria-expanded', /true/i);
   });
 }
