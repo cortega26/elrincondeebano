@@ -1,6 +1,11 @@
 const test = require('node:test');
 const assert = require('node:assert');
 const { JSDOM } = require('jsdom');
+const { File } = require('undici');
+
+if (typeof global.File === 'undefined') {
+  global.File = File;
+}
 const fs = require('node:fs');
 const path = require('node:path');
 
