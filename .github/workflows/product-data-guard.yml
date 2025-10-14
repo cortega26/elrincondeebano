@@ -1,0 +1,42 @@
+name: Verify catalog build artifacts
+
+on:
+  push:
+    paths:
+      - data/product_data.json
+      - templates/**/*
+      - tools/**/*
+  pull_request:
+    paths:
+      - data/product_data.json
+      - templates/**/*
+      - tools/**/*
+
+jobs:
+  ensure-build-in-sync:
+    name: Ensure build artifacts are committed
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Rebuild catalog
+        run: npm run build
+
+      - name: Verify working tree is clean
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "::error::Detected uncommitted changes after running npm run build. Commit generated artifacts (index.html, pages/, dist/, sitemap.xml, etc.) before pushing."
+            git status --short
+            exit 1
+          fi
