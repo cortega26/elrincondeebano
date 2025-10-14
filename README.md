@@ -135,6 +135,7 @@ El script `tools/snapshot-site.mjs` automatiza la toma de capturas del sitio en 
 | `--tag` | string | Sí | N/A | Identificador humano legible que se sanitiza antes de usarse en los nombres de archivo. |
 | `--url` | string | No | `http://127.0.0.1:8080/` | URL que se abrirá en Chromium para capturar el snapshot (debe estar sirviendo el sitio). |
 | `--outdir` | string | No | `reports/snapshots` | Carpeta donde se guardarán la captura y el `manifest.json`. |
+| `--replace-last` | boolean | No | `false` | Elimina el snapshot más reciente (y su archivo) antes de capturar una nueva etiqueta. |
 
 Ejemplo:
 

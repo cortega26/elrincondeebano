@@ -8,3 +8,7 @@ Este directorio almacena capturas de pantalla generadas por `tools/snapshot-site
 - `capturedAt`: marca temporal ISO‑8601 de cuando se generó la evidencia.
 
 Sube únicamente archivos generados por el script para conservar consistencia.
+
+Para sustituir una captura previa (por ejemplo, cuando se desea mantener solo la más reciente de una etiqueta), ejecuta el script
+con `--replace-last`. Esto elimina la última entrada registrada en `manifest.json` y borra el artefacto asociado antes de generar
+la nueva captura, manteniendo el historial limpio y cronológicamente ordenado.
