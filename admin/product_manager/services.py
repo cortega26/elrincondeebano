@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict, Set, Protocol, Callable
+from typing import List, Optional, Dict, Set, Protocol, Callable, Any
 from models import Product
 from repositories import ProductRepositoryProtocol, ProductRepositoryError
 import logging
@@ -11,6 +11,14 @@ from enum import Enum, auto
 import json
 
 logger = logging.getLogger(__name__)
+
+
+def _utc_now_iso() -> str:
+    """Return current UTC timestamp with millisecond precision."""
+    try:
+        return datetime.utcnow().isoformat(timespec='milliseconds') + 'Z'
+    except TypeError:
+        return datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
 
 
 class ProductEventType(Enum):
@@ -75,6 +83,7 @@ class ProductService:
                                    Set[ProductEventHandler]] = defaultdict(set)
         self._product_index: Dict[str, Product] = {}
         self._category_index: Dict[str, Set[Product]] = defaultdict(set)
+        self.sync_engine = None
         self._rebuild_indexes()
 
     def _rebuild_indexes(self) -> None:
@@ -110,6 +119,89 @@ class ProductService:
             except Exception as e:
                 logger.error(f"Error en el manejador de eventos: {e}")
 
+    def set_sync_engine(self, sync_engine) -> None:
+        """Attach a sync engine for remote coordination."""
+        self.sync_engine = sync_engine
+
+    def get_conflicts(self) -> List[Dict[str, Any]]:
+        """Retrieve pending sync conflicts."""
+        if not self.sync_engine:
+            return []
+        return self.sync_engine.get_conflicts()
+
+    def get_sync_pending_count(self) -> int:
+        """Return number of queued outbound changes."""
+        if not self.sync_engine:
+            return 0
+        return self.sync_engine.pending_count()
+
+    def consume_conflicts(self) -> List[Dict[str, Any]]:
+        """Return and clear accumulated sync conflicts."""
+        if not self.sync_engine:
+            return []
+        return self.sync_engine.clear_conflicts()
+
+    def _compute_changed_fields(self, original: Product, updated: Product) -> Dict[str, Any]:
+        """Compute field-level differences between two products."""
+        tracked_fields = [
+            "name",
+            "description",
+            "price",
+            "discount",
+            "stock",
+            "category",
+            "image_path",
+            "order",
+        ]
+        diffs: Dict[str, Any] = {}
+        for field_name in tracked_fields:
+            if getattr(original, field_name) != getattr(updated, field_name):
+                diffs[field_name] = getattr(updated, field_name)
+        return diffs
+
+    def _stamp_local_metadata(self, product: Product, fields: List[str], base_rev: int) -> str:
+        """Update metadata for locally modified fields and return timestamp."""
+        timestamp = _utc_now_iso()
+        product.rev = base_rev
+        for field_name in fields:
+            product.update_field_metadata(
+                field_name,
+                ts=timestamp,
+                by="offline",
+                rev=base_rev,
+                base_rev=base_rev,
+                changeset_id=None
+            )
+        return timestamp
+
+    def apply_server_snapshot(self, snapshot: Dict[str, Any], catalog_rev: int, metadata: Optional[Dict[str, Any]] = None) -> Product:
+        """Apply server-provided product state locally."""
+        with self._products_lock:
+            products = self.get_all_products()
+            target_name = snapshot.get("name")
+            if not target_name:
+                raise ProductServiceError("Instantánea de producto inválida: falta nombre")
+            new_product = Product.from_dict(snapshot)
+            replaced = False
+            for index, existing in enumerate(products):
+                if existing.name.lower() == target_name.lower():
+                    new_product.order = snapshot.get("order", existing.order)
+                    products[index] = new_product
+                    replaced = True
+                    break
+            if not replaced:
+                new_product.order = snapshot.get("order", len(products))
+                products.append(new_product)
+            catalog_meta = {"rev": catalog_rev}
+            if metadata:
+                for key in ("version", "last_updated"):
+                    if key in metadata:
+                        catalog_meta[key] = metadata[key]
+            self.repository.save_products(products, metadata=catalog_meta)
+            self.clear_cache()
+            self._rebuild_indexes()
+            return new_product
+
     def get_all_products(self) -> List[Product]:
         """
         Get all products from the repository.
@@ -143,6 +235,11 @@ class ProductService:
             try:
                 products = self.get_all_products()
                 product.order = len(products)
+                self._stamp_local_metadata(
+                    product,
+                    ["name", "description", "price", "discount", "stock", "category", "image_path", "order"],
+                    0
+                )
                 products.append(product)
                 self.repository.save_products(products)
                 self._product_index[product.name.lower()] = product
@@ -162,20 +259,27 @@ class ProductService:
         """
         Update an existing product.
         """
+        queue_payload: Optional[Dict[str, Any]] = None
         with self._products_lock:
             try:
                 original_product = self.get_product_by_name(original_name)
                 products = self.get_all_products()
+                changes = self._compute_changed_fields(original_product, updated_product)
+                if not changes:
+                    return
+                base_rev = original_product.rev
+                timestamp = self._stamp_local_metadata(
+                    updated_product,
+                    list(changes.keys()),
+                    base_rev
+                )
                 if original_name.lower() != updated_product.name.lower():
                     del self._product_index[original_name.lower()]
-                self._product_index[updated_product.name.lower()
-                                    ] = updated_product
+                self._product_index[updated_product.name.lower()] = updated_product
                 if original_product.category:
-                    self._category_index[original_product.category.lower()].discard(
-                        original_product)
+                    self._category_index[original_product.category.lower()].discard(original_product)
                 if updated_product.category:
-                    self._category_index[updated_product.category.lower()].add(
-                        updated_product)
+                    self._category_index[updated_product.category.lower()].add(updated_product)
                 index = products.index(original_product)
                 updated_product.order = original_product.order
                 products[index] = updated_product
@@ -190,12 +294,21 @@ class ProductService:
                         'nueva_categoria': updated_product.category
                     }
                 ))
+                queue_payload = {
+                    "product_id": original_product.name,
+                    "base_rev": base_rev,
+                    "fields": changes,
+                    "timestamp": timestamp,
+                    "snapshot": updated_product.to_dict(),
+                }
             except ValueError:
                 raise ProductNotFoundError(
                     f"Producto no encontrado: {original_name}")
             except Exception as e:
                 logger.error(f"Error al actualizar producto: {e}")
                 raise ProductServiceError(f"Error al actualizar producto: {e}")
+        if self.sync_engine and queue_payload:
+            self.sync_engine.enqueue_update(**queue_payload)
 
     def delete_product(self, name: str) -> bool:
         """
