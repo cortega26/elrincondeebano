@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict, Set, Protocol, Callable, Any
+from typing import List, Optional, Dict, Set, Protocol, Any
 from models import Product
 from repositories import ProductRepositoryProtocol, ProductRepositoryError
 import logging
@@ -181,7 +181,8 @@ class ProductService:
             products = self.get_all_products()
             target_name = snapshot.get("name")
             if not target_name:
-                raise ProductServiceError("Instantánea de producto inválida: falta nombre")
+                raise ProductServiceError(
+                    "Instantánea de producto inválida: falta nombre")
             new_product = Product.from_dict(snapshot)
             replaced = False
             for index, existing in enumerate(products):
@@ -238,7 +239,8 @@ class ProductService:
                 product.order = len(products)
                 self._stamp_local_metadata(
                     product,
-                    ["name", "description", "price", "discount", "stock", "category", "image_path", "order"],
+                    ["name", "description", "price", "discount",
+                        "stock", "category", "image_path", "order"],
                     0
                 )
                 products.append(product)
@@ -265,7 +267,8 @@ class ProductService:
             try:
                 original_product = self.get_product_by_name(original_name)
                 products = self.get_all_products()
-                changes = self._compute_changed_fields(original_product, updated_product)
+                changes = self._compute_changed_fields(
+                    original_product, updated_product)
                 if not changes:
                     return
                 base_rev = original_product.rev
@@ -276,11 +279,14 @@ class ProductService:
                 )
                 if original_name.lower() != updated_product.name.lower():
                     del self._product_index[original_name.lower()]
-                self._product_index[updated_product.name.lower()] = updated_product
+                self._product_index[updated_product.name.lower()
+                                    ] = updated_product
                 if original_product.category:
-                    self._category_index[original_product.category.lower()].discard(original_product)
+                    self._category_index[original_product.category.lower()].discard(
+                        original_product)
                 if updated_product.category:
-                    self._category_index[updated_product.category.lower()].add(updated_product)
+                    self._category_index[updated_product.category.lower()].add(
+                        updated_product)
                 index = products.index(original_product)
                 updated_product.order = original_product.order
                 products[index] = updated_product
