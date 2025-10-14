@@ -319,6 +319,138 @@ body {
     background-color: #dc3545;
   }
 
+  .lead {
+    font-size: 1.25rem;
+    font-weight: 300;
+  }
+
+  .text-muted {
+    color: #6c757d !important;
+  }
+
+  .mt-2 { margin-top: 0.5rem !important; }
+  .mt-3 { margin-top: 1rem !important; }
+  .mt-4 { margin-top: 1.5rem !important; }
+  .mt-5 { margin-top: 3rem !important; }
+  .mb-2 { margin-bottom: 0.5rem !important; }
+  .mb-3 { margin-bottom: 1rem !important; }
+  .mb-4 { margin-bottom: 1.5rem !important; }
+  .mb-5 { margin-bottom: 3rem !important; }
+  .my-4 { margin-top: 1.5rem !important; margin-bottom: 1.5rem !important; }
+  .mt-auto { margin-top: auto !important; }
+  .mb-0 { margin-bottom: 0 !important; }
+
+  .g-2 {
+    --bs-gutter-x: 0.5rem;
+    --bs-gutter-y: 0.5rem;
+  }
+
+  .g-2 > * {
+    padding: var(--bs-gutter-y) var(--bs-gutter-x);
+  }
+
+  .form-check {
+    display: block;
+    min-height: 1.5rem;
+    padding-left: 1.5rem;
+    margin-bottom: 0.5rem;
+    position: relative;
+  }
+
+  .form-check-input {
+    width: 1em;
+    height: 1em;
+    margin-top: 0.25em;
+    margin-left: -1.5rem;
+    vertical-align: top;
+    background-color: #fff;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+    appearance: none;
+    print-color-adjust: exact;
+    border-radius: 0.25em;
+  }
+
+  .form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+
+  .form-check-label {
+    margin-bottom: 0;
+  }
+
+  .form-switch .form-check-input {
+    width: 2.5em;
+    height: 1.5em;
+    margin-left: -2.5em;
+    background-color: rgba(0, 0, 0, 0.25);
+    border-radius: 3em;
+    position: relative;
+  }
+
+  .form-switch .form-check-input::before {
+    content: "";
+    position: absolute;
+    width: 1.2em;
+    height: 1.2em;
+    border-radius: 50%;
+    background-color: #fff;
+    top: 0.15em;
+    left: 0.15em;
+    transition: transform var(--transition);
+  }
+
+  .form-switch .form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+
+  .form-switch .form-check-input:checked::before {
+    transform: translateX(1em);
+  }
+
+  .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .btn-outline-secondary {
+    color: #6c757d;
+    border-color: #6c757d;
+    background-color: transparent;
+  }
+
+  .btn-outline-secondary:hover,
+  .btn-outline-secondary:focus {
+    color: #fff;
+    background-color: #6c757d;
+    border-color: #6c757d;
+  }
+
+  .quantity-control,
+  .quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .quantity-btn,
+  .quantity-controls .btn {
+    min-width: 2rem;
+  }
+
+  .quantity-input,
+  .quantity-controls .quantity-input {
+    width: 3rem;
+    text-align: center;
+    padding: 0.25rem;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 0.25rem;
+  }
+
   /* Ensure the cart offcanvas stays hidden until Bootstrap CSS is ready */
   .offcanvas {
     position: fixed;
