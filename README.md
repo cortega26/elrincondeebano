@@ -33,6 +33,8 @@ mantenimiento.
 - Imágenes responsivas optimizadas (AVIF, WebP y fallback) administradas por scripts y GitHub Actions.
 - Tipografías auto‑hospedadas y hints de precarga para mejorar métricas de rendimiento.
 - Auditorías Lighthouse repetibles mediante script dedicado y reportes versionados.
+- Offcanvas del carrito tratado como diálogo accesible con gestión de enfoque y tabulación segura.
+- Filtros de catálogo con debounce e inyección diferida para mantener la interactividad por debajo de los presupuestos de INP.
 
 ## Arquitectura y stack
 
@@ -169,6 +171,7 @@ comportamiento del índice. Los nuevos chequeos aseguran el orden determinista d
 - **Imágenes responsivas:** usa `npm run images:generate`, `npm run images:rewrite` y `npm run lint:images`; puedes forzar regeneración con `FULL_REGEN=1` y limpieza con `CLEAN_ORPHANS=1`.
 - **Backups del catálogo:** `npm run prune:backups` conserva los últimos respaldos según `PRUNE_KEEP`.
 - **Lighthouse:** `npm run lighthouse:audit` lanza Chrome, ejecuta auditorías de escritorio y móvil, y guarda reportes con timestamp en `reports/lighthouse/`.
+- **Scoreboard del audit:** sigue el avance en `docs/audit/e2e-frontend-audit.md#audit-scoreboard` para saber qué pendientes y regresiones están resueltos.
 
 ## CI/CD
 

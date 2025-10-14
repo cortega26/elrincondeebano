@@ -393,6 +393,24 @@ const debounce = (func, delay) => {
     };
 };
 
+const scheduleIdle = (fn, timeout = 500) => {
+    if (typeof window !== 'undefined' && typeof window.requestIdleCallback === 'function') {
+        const handle = window.requestIdleCallback(fn, { timeout });
+        return { type: 'idle', handle };
+    }
+    const handle = setTimeout(fn, 0);
+    return { type: 'timeout', handle };
+};
+
+const cancelScheduledIdle = (token) => {
+    if (!token) return;
+    if (token.type === 'idle' && typeof window !== 'undefined' && typeof window.cancelIdleCallback === 'function') {
+        window.cancelIdleCallback(token.handle);
+    } else if (token.type === 'timeout') {
+        clearTimeout(token.handle);
+    }
+};
+
 // Normalize strings for robust comparisons (remove accents, spaces, punctuation, lowercased)
 const normalizeString = (str) => {
     if (!str) return '';
@@ -1535,7 +1553,14 @@ const initApp = async () => {
         }
     };
 
-    const debouncedUpdateProductDisplay = debounce(updateProductDisplay, 300);
+    let pendingIdleUpdate = null;
+    const debouncedUpdateProductDisplay = debounce(() => {
+        cancelScheduledIdle(pendingIdleUpdate);
+        pendingIdleUpdate = scheduleIdle(() => {
+            updateProductDisplay();
+            pendingIdleUpdate = null;
+        }, 400);
+    }, 150);
 
     const updateCartIcon = () => {
         const cartCount = document.getElementById('cart-count');

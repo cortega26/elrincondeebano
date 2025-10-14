@@ -77,14 +77,29 @@
 ## Top-10 Issues
 1. **LCP above budget (3.0 s)** – affects first meaningful paint; slows perceived load. _Fix plan:_ optimize hero imagery, postpone hydration. _Status:_ open.
 2. **Nested interactives in product cards (S0)** – breaks keyboard/touch expectations; must refactor card markup. _Status:_ open.
-3. **Filter INP 260 ms** – impacts typing responsiveness; implement debounce & caching. _Status:_ open.
-4. **Color contrast 3.2:1** – product descriptions fail WCAG. _Plan:_ adopt darker secondary text token. _Status:_ open.
-5. **Cart offcanvas lacks focus management** – accessibility and UX issue. _Status:_ open.
+3. **Filter INP 260 ms** – impacts typing responsiveness; implement debounce & caching. _Status:_ mitigated (awaiting verification).
+4. **Color contrast 3.2:1** – product descriptions fail WCAG. _Plan:_ adopt darker secondary text token. _Status:_ resolved.
+5. **Cart offcanvas lacks focus management** – accessibility and UX issue. _Status:_ resolved.
 6. **Canonical tags duplicated across subpages** – SEO risk (duplicate content). _Status:_ open.
 7. **Navbar wraps around 1080 px** – layout break on medium screens; adjust breakpoints. _Status:_ open.
 8. **Unused CSS (~28%)** – payload waste. _Status:_ open.
 9. **Legacy dropdown anchors** – fixed (buttons + aria). _Status:_ resolved.
 10. **WhatsApp CTA fallback to HTTP** – fixed. _Status:_ resolved.
+
+## Audit Scoreboard
+
+| Key | Area | Issue | Status | Notes | Last Updated |
+| --- | --- | --- | --- | --- | --- |
+| PERF-01 | Performance | LCP above 2.5 s on home/category pages | Open | Awaiting hero image optimization and hydration deferral. | 2025-10-13 |
+| A11Y-01 | Accessibility | Nested interactive controls inside product cards | Open | Requires card markup refactor to separate links/buttons. | 2025-10-13 |
+| PERF-02 | Performance | Filter input INP 260 ms | Mitigated | 150 ms debounce with idle scheduling deployed; monitor in next audit run. | 2025-10-13 |
+| A11Y-02 | Accessibility | Muted text contrast below 4.5:1 | Resolved | `--text-muted` updated to `#4a4f55` in `assets/css/style-enhanced.css`. | 2025-10-13 |
+| A11Y-03 | Accessibility | Cart offcanvas lacks focus trap | Resolved | Added dialog semantics and JS focus management (`templates/partials/navbar.ejs`, `modules/a11y.js`). | 2025-10-13 |
+| SEO-01 | SEO | Duplicate canonical tags on generated category pages | Open | Ensure generator sets page-specific `<link rel="canonical">`. | 2025-10-13 |
+| UX-01 | UX | Navbar wraps at ~1080 px | Open | Needs breakpoint tuning or spacing adjustments. | 2025-10-13 |
+| PERF-03 | Performance | ~28 % unused CSS in critical bundle | Open | Audit critical CSS extraction and trim unused rules. | 2025-10-13 |
+| A11Y-04 | Accessibility | Legacy dropdown anchors lacking button semantics | Resolved | Converted to `<button>` with `aria-expanded` (already merged). | 2025-10-13 |
+| SEC-01 | Security/UX | WhatsApp CTA defaulted to HTTP | Resolved | CTA now hardcodes `https://wa.me/…`; verified in footer. | 2025-10-13 |
 
 ## Top-3 Fixes Implemented
 1. **Dropdown toggle semantics** – `templates/partials/navbar.ejs`: swapped anchors for `<button>` to eliminate premature blur and fix screen reader verbosity. Verified via keyboard walkthrough (tab order stable; `aria-expanded` toggles true/false).  
@@ -95,4 +110,3 @@
 - Prioritize backlog items `UX-01`, `PERF-02`, `A11Y-06`.
 - Schedule perf sprint to tackle image optimization & filter debounce.
 - Implement focus traps and contrast adjustments within next release.
-
