@@ -80,7 +80,7 @@
 3. **Filter INP 260 ms** – impacts typing responsiveness; implement debounce & caching. _Status:_ mitigated (awaiting verification).
 4. **Color contrast 3.2:1** – product descriptions fail WCAG. _Plan:_ adopt darker secondary text token. _Status:_ resolved.
 5. **Cart offcanvas lacks focus management** – accessibility and UX issue. _Status:_ resolved.
-6. **Canonical tags duplicated across subpages** – SEO risk (duplicate content). _Status:_ open.
+6. **Canonical tags duplicated across subpages** – SEO risk (duplicate content). _Status:_ resolved.
 7. **Navbar wraps around 1080 px** – layout break on medium screens; adjust breakpoints. _Status:_ open.
 8. **Unused CSS (~28%)** – payload waste. _Status:_ open.
 9. **Legacy dropdown anchors** – fixed (buttons + aria). _Status:_ resolved.
@@ -95,7 +95,7 @@
 | PERF-02 | Performance | Filter input INP 260 ms | Mitigated | 150 ms debounce with idle scheduling deployed; monitor in next audit run. | 2025-10-13 |
 | A11Y-02 | Accessibility | Muted text contrast below 4.5:1 | Resolved | `--text-muted` updated to `#4a4f55` in `assets/css/style-enhanced.css`. | 2025-10-13 |
 | A11Y-03 | Accessibility | Cart offcanvas lacks focus trap | Resolved | Added dialog semantics and JS focus management (`templates/partials/navbar.ejs`, `modules/a11y.js`). | 2025-10-13 |
-| SEO-01 | SEO | Duplicate canonical tags on generated category pages | Open | Ensure generator sets page-specific `<link rel="canonical">`. | 2025-10-13 |
+| SEO-01 | SEO | Duplicate canonical tags on generated category pages | Resolved | Build pipeline regenerates pages with slugged canonical URLs. | 2025-10-13 |
 | UX-01 | UX | Navbar wraps at ~1080 px | Open | Needs breakpoint tuning or spacing adjustments. | 2025-10-13 |
 | PERF-03 | Performance | ~28 % unused CSS in critical bundle | Open | Audit critical CSS extraction and trim unused rules. | 2025-10-13 |
 | A11Y-04 | Accessibility | Legacy dropdown anchors lacking button semantics | Resolved | Converted to `<button>` with `aria-expanded` (already merged). | 2025-10-13 |
