@@ -396,13 +396,13 @@ const renderProducts = (products) => {
             <div class="card h-100">
                 <img
                   class="product-thumb card-img-top"
-                  src="${cfimg(product.image_path, { ...CFIMG_THUMB, width: 400 })}"
+                  src="${cfimg(product.image_path, { ...CFIMG_THUMB, width: 360 })}"
                   srcset="
                     ${cfimg(product.image_path, { ...CFIMG_THUMB, width: 200 })} 200w,
-                    ${cfimg(product.image_path, { ...CFIMG_THUMB, width: 400 })} 400w,
-                    ${cfimg(product.image_path, { ...CFIMG_THUMB, width: 800 })} 800w
+                    ${cfimg(product.image_path, { ...CFIMG_THUMB, width: 320 })} 320w,
+                    ${cfimg(product.image_path, { ...CFIMG_THUMB, width: 480 })} 480w
                   "
-                  sizes="(max-width: 640px) 200px, 400px"
+                  sizes="(max-width: 640px) 200px, 360px"
                   width="400" height="400"
                   loading="${loadingAttr}" fetchpriority="${fetchPriorityAttr}" decoding="async"
                 >

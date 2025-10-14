@@ -15,4 +15,4 @@ export function cfimg(path, opts = {}) {
  * Default options for product thumbnail transformations.
  * @type {Record<string, string|number>}
  */
-export const CFIMG_THUMB = { fit: 'cover', quality: 82, format: 'auto' };
+export const CFIMG_THUMB = { fit: 'cover', quality: 75, format: 'auto' };

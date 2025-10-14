@@ -1240,11 +1240,11 @@ const initApp = async () => {
 
             const imgPath = `/${image_path.replace(/^\//, '')}`;
             const imgElement = createSafeElement('img', {
-                src: cfimg(imgPath, { ...CFIMG_THUMB, width: 400 }),
+                src: cfimg(imgPath, { ...CFIMG_THUMB, width: 360 }),
                 srcset: [
                     `${cfimg(imgPath, { ...CFIMG_THUMB, width: 200 })} 200w`,
-                    `${cfimg(imgPath, { ...CFIMG_THUMB, width: 400 })} 400w`,
-                    `${cfimg(imgPath, { ...CFIMG_THUMB, width: 800 })} 800w`
+                    `${cfimg(imgPath, { ...CFIMG_THUMB, width: 320 })} 320w`,
+                    `${cfimg(imgPath, { ...CFIMG_THUMB, width: 480 })} 480w`
                 ].join(', '),
                 sizes: '(min-width: 1200px) 25vw, (min-width: 992px) 33vw, (min-width: 576px) 50vw, 100vw',
                 alt: name,
