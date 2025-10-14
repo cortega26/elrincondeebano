@@ -734,7 +734,10 @@ const updateCartIcon = () => {
     const cartCount = document.getElementById('cart-count');
     const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
     if (cartCount) {
-        cartCount.textContent = totalItems;
+        if (cartCount.dataset.initialized !== '1') {
+            cartCount.dataset.initialized = '1';
+        }
+        cartCount.textContent = String(totalItems);
         cartCount.setAttribute('aria-label', `${totalItems} items in cart`);
     }
 };
