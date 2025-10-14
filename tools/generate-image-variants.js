@@ -33,11 +33,11 @@ function saveManifest(m) {
   fs.writeFileSync(MANIFEST_PATH, JSON.stringify(m, null, 2));
 }
 
-async function generateVariantsFor(srcRel, manifest) {
+async function generateVariantsFor(srcRel, manifest, seenSet) {
   const srcAbs = path.resolve(REPO_ROOT, srcRel);
   if (!fs.existsSync(srcAbs)) return { variants: [], thumb: null };
 
-  const relDir = path.dirname(srcRel).replace(/^assets[\\/]/, '');
+  const relDir = path.dirname(srcRel).replace(/^assets[\\\/](?:images[\\\/])?/, '');
   const baseName = path.basename(srcRel);
   const key = srcRel.replace(/\\/g, '/');
   const hash = fileHash(srcAbs);
@@ -57,10 +57,27 @@ async function generateVariantsFor(srcRel, manifest) {
     outVariants.push({ url: outRel, width: w });
   }
 
-  // Thumbnail squares (1x/2x) - separate 'thumbs' namespace to avoid collisions with w200 card variants\n  const thumbVariants = [];\n  for (const s of THUMB_SIZES) {\n    const outThumbDir = path.join(OUT_ROOT, 'thumbs', w, relDir);\n    ensureDir(outThumbDir);\n    const outThumbAbs = path.join(outThumbDir, baseName);\n    if (!fs.existsSync(outThumbAbs)) {\n      await sharp(srcAbs)\n        .resize(s, s, { fit: 'cover', withoutEnlargement: true })\n        .webp({ quality: 80 })\n        .toFile(outThumbAbs);\n    }\n    const rel = path.posix.join('/assets/images/variants', 'thumbs', w, relDir.split(path.sep).join('/'), baseName);\n    thumbVariants.push({ url: rel, width: s });\n  }
+  // Thumbnail squares (1x/2x) - separate 'thumbs' namespace to avoid collisions with card variants
+  const thumbVariants = [];
+  for (const s of THUMB_SIZES) {
+    const outThumbDir = path.join(OUT_ROOT, 'thumbs', `w${s}`, relDir);
+    ensureDir(outThumbDir);
+    const outThumbAbs = path.join(outThumbDir, baseName);
+    if (process.env.FULL_REGEN === '1' || !fs.existsSync(outThumbAbs) || !previous || previous.hash !== hash) {
+      await sharp(srcAbs)
+        .resize(s, s, { fit: 'cover', withoutEnlargement: true })
+        .webp({ quality: 80 })
+        .toFile(outThumbAbs);
+    }
+    const rel = path.posix.join('/assets/images/variants', 'thumbs', `w${s}`, relDir.split(path.sep).join('/'), baseName);
+    thumbVariants.push({ url: rel, width: s });
+  }
   const thumbRel = thumbVariants.find(v => v.width === 100)?.url || thumbVariants[0]?.url || null;
 
   manifest[key] = { hash, updated: Date.now() };
+  if (seenSet) {
+    seenSet.add(key);
+  }
   return { variants: outVariants, thumb: thumbRel, thumbVariants };
 }
 
@@ -79,13 +96,34 @@ async function run() {
     try {
       const srcRel = String(p.image_path || '').replace(/^\//, '');
       if (!srcRel) continue;
-      const { variants, thumb, thumbVariants } = await generateVariantsFor(srcRel);
+      const { variants, thumb, thumbVariants } = await generateVariantsFor(srcRel, manifest, seen);
       if (variants.length) p.image_variants = variants;
       if (thumb) p.thumbnail_path = thumb;
       if (thumbVariants && thumbVariants.length) p.thumbnail_variants = thumbVariants;
     } catch (e) {
       console.warn('Variant generation failed for', p.image_path, e.message);
-    }\n\n  // Optional orphan cleanup (remove manifest entries + files for images not present)\n  if (process.env.CLEAN_ORPHANS === '1') {\n    for (const key of Object.keys(manifest)) {\n      if (seen.has(key)) continue;\n      const relDir = path.dirname(key).replace(/^assets[\\\/]/, '');\n      const baseName = path.basename(key);\n      for (const w of CARD_WIDTHS) {\n        const p = path.join(OUT_ROOT, w, relDir, baseName);\n        try { fs.existsSync(p) && fs.unlinkSync(p); } catch {}\n      }\n      for (const s of THUMB_SIZES) {\n        const p = path.join(OUT_ROOT, 'thumbs', w, relDir, baseName);\n        try { fs.existsSync(p) && fs.unlinkSync(p); } catch {}\n      }\n      delete manifest[key];\n    }\n  }\n\n  // Bump version suffix to invalidate caches downstream
+    }
+  }
+
+  // Optional orphan cleanup (remove manifest entries + files for images not present)
+  if (process.env.CLEAN_ORPHANS === '1') {
+    for (const key of Object.keys(manifest)) {
+      if (seen.has(key)) continue;
+      const relDir = path.dirname(key).replace(/^assets[\\\/](?:images[\\\/])?/, '');
+      const baseName = path.basename(key);
+      for (const w of CARD_WIDTHS) {
+        const variantPath = path.join(OUT_ROOT, `w${w}`, relDir, baseName);
+        try { if (fs.existsSync(variantPath)) fs.unlinkSync(variantPath); } catch {}
+      }
+      for (const s of THUMB_SIZES) {
+        const thumbPath = path.join(OUT_ROOT, 'thumbs', `w${s}`, relDir, baseName);
+        try { if (fs.existsSync(thumbPath)) fs.unlinkSync(thumbPath); } catch {}
+      }
+      delete manifest[key];
+    }
+  }
+
+  // Bump version suffix to invalidate caches downstream
   const version = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14);
   if (data.version) data.version += `-v${version}`; else data.version = `v${version}`;
   fs.writeFileSync(PRODUCTS_JSON, JSON.stringify(data, null, 2));
