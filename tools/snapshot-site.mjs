@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -53,14 +53,12 @@ export async function ensureDirectory(targetDir) {
  * @param {string} manifestPath - Path to the JSON manifest file.
  * @param {object} entry - Snapshot entry to record.
  */
-export async function appendSnapshotMetadata(manifestPath, entry) {
-  let data = { snapshots: [] };
-
+async function loadManifest(manifestPath) {
   try {
     const file = await readFile(manifestPath, 'utf8');
     const parsed = JSON.parse(file);
     if (Array.isArray(parsed.snapshots)) {
-      data = parsed;
+      return { ...parsed, snapshots: [...parsed.snapshots] };
     }
   } catch (error) {
     if (error.code !== 'ENOENT') {
@@ -68,10 +66,70 @@ export async function appendSnapshotMetadata(manifestPath, entry) {
     }
   }
 
-  data.snapshots.push(entry);
-  data.snapshots.sort((a, b) => new Date(b.capturedAt) - new Date(a.capturedAt));
+  return { snapshots: [] };
+}
 
-  await writeFile(manifestPath, `${JSON.stringify(data, null, 2)}\n`);
+function sortByCapturedAtDesc(entries) {
+  return [...entries].sort((a, b) => new Date(b.capturedAt) - new Date(a.capturedAt));
+}
+
+export async function appendSnapshotMetadata(manifestPath, entry) {
+  const data = await loadManifest(manifestPath);
+
+  data.snapshots.push(entry);
+  const sorted = sortByCapturedAtDesc(data.snapshots);
+
+  await writeFile(
+    manifestPath,
+    `${JSON.stringify({ ...data, snapshots: sorted }, null, 2)}\n`
+  );
+}
+
+function resolveSnapshotPath(snapshotPath) {
+  if (!snapshotPath) {
+    return null;
+  }
+
+  return path.isAbsolute(snapshotPath)
+    ? snapshotPath
+    : path.resolve(process.cwd(), snapshotPath);
+}
+
+/**
+ * Remove the most recent snapshot entry from the manifest and optionally
+ * delete the associated artifact from disk.
+ * @param {string} manifestPath - Path to the JSON manifest file.
+ * @param {object} [options] - Removal configuration.
+ * @param {boolean} [options.deleteArtifact=true] - Whether to delete the file.
+ * @returns {Promise<object|null>} metadata of the removed snapshot or null when empty.
+ */
+export async function removeLatestSnapshot(manifestPath, { deleteArtifact = true } = {}) {
+  const data = await loadManifest(manifestPath);
+  if (data.snapshots.length === 0) {
+    return null;
+  }
+
+  const [latest, ...remaining] = sortByCapturedAtDesc(data.snapshots);
+
+  if (deleteArtifact) {
+    const targetPath = resolveSnapshotPath(latest.file);
+    if (targetPath) {
+      try {
+        await unlink(targetPath);
+      } catch (error) {
+        if (error.code !== 'ENOENT') {
+          throw error;
+        }
+      }
+    }
+  }
+
+  await writeFile(
+    manifestPath,
+    `${JSON.stringify({ ...data, snapshots: remaining }, null, 2)}\n`
+  );
+
+  return latest;
 }
 
 /**
@@ -125,6 +183,10 @@ async function runCli() {
       outdir: {
         type: 'string',
       },
+      'replace-last': {
+        type: 'boolean',
+        default: false,
+      },
     },
     allowPositionals: true,
   });
@@ -145,19 +207,55 @@ async function runCli() {
     throw new Error('Invalid --url parameter, expected an absolute URL');
   }
 
-  const entry = await captureSnapshot({
-    baseUrl: targetUrl.toString(),
-    tag: sanitized,
-    outputDir: targetDir,
-  });
+  const manifestPath = path.join(targetDir, 'manifest.json');
+  let removedSnapshot = null;
 
-  console.info(
-    JSON.stringify({
-      level: 'info',
-      message: 'snapshot-created',
-      snapshot: entry,
-    })
-  );
+  if (values['replace-last']) {
+    removedSnapshot = await removeLatestSnapshot(manifestPath, { deleteArtifact: false });
+    if (removedSnapshot) {
+      console.info(
+        JSON.stringify({
+          level: 'info',
+          message: 'snapshot-removed',
+          snapshot: removedSnapshot,
+        })
+      );
+    }
+  }
+
+  try {
+    const entry = await captureSnapshot({
+      baseUrl: targetUrl.toString(),
+      tag: sanitized,
+      outputDir: targetDir,
+    });
+
+    if (removedSnapshot) {
+      const artifactPath = resolveSnapshotPath(removedSnapshot.file);
+      if (artifactPath) {
+        try {
+          await unlink(artifactPath);
+        } catch (error) {
+          if (error.code !== 'ENOENT') {
+            throw error;
+          }
+        }
+      }
+    }
+
+    console.info(
+      JSON.stringify({
+        level: 'info',
+        message: 'snapshot-created',
+        snapshot: entry,
+      })
+    );
+  } catch (error) {
+    if (removedSnapshot) {
+      await appendSnapshotMetadata(manifestPath, removedSnapshot);
+    }
+    throw error;
+  }
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
