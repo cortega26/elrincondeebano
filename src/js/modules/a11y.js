@@ -46,8 +46,17 @@ export function setupCartOffcanvasAccessibility() {
     const heading = cartOffcanvas.querySelector('#cartOffcanvasLabel');
     const triggerButton = document.getElementById('cart-icon');
     let lastFocusedElement = null;
+    let keydownAttached = false;
 
     const handleKeydown = (event) => {
+      if (event.key === 'Escape' && cartOffcanvas.dataset.bsFallback === '1') {
+        event.preventDefault();
+        cartOffcanvas.classList.remove('show');
+        cartOffcanvas.setAttribute('aria-hidden', 'true');
+        handleHide();
+        return;
+      }
+
       if (event.key !== 'Tab') return;
       const focusable = getFocusableElements(cartOffcanvas);
       if (!focusable.length) {
@@ -64,33 +73,66 @@ export function setupCartOffcanvasAccessibility() {
           event.preventDefault();
           last.focus();
         }
-      } else {
-        if (active === last) {
-          event.preventDefault();
-          first.focus();
-        }
+      } else if (active === last) {
+        event.preventDefault();
+        first.focus();
       }
     };
 
-    cartOffcanvas.addEventListener('show.bs.offcanvas', () => {
-      lastFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-      cartOffcanvas.addEventListener('keydown', handleKeydown);
-    });
+    const attachKeydown = () => {
+      if (!keydownAttached) {
+        cartOffcanvas.addEventListener('keydown', handleKeydown);
+        keydownAttached = true;
+      }
+    };
 
-    cartOffcanvas.addEventListener('shown.bs.offcanvas', () => {
+    const detachKeydown = () => {
+      if (keydownAttached) {
+        cartOffcanvas.removeEventListener('keydown', handleKeydown);
+        keydownAttached = false;
+      }
+    };
+
+    const focusInitial = () => {
       if (heading instanceof HTMLElement && typeof heading.focus === 'function') {
         heading.focus();
       } else {
         cartOffcanvas.focus();
       }
-    });
+    };
 
-    cartOffcanvas.addEventListener('hidden.bs.offcanvas', () => {
-      cartOffcanvas.removeEventListener('keydown', handleKeydown);
+    function handleHide() {
+      detachKeydown();
       if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
         lastFocusedElement.focus();
       } else if (triggerButton && typeof triggerButton.focus === 'function') {
         triggerButton.focus();
+      }
+    }
+
+    cartOffcanvas.addEventListener('show.bs.offcanvas', () => {
+      lastFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      attachKeydown();
+    });
+
+    cartOffcanvas.addEventListener('shown.bs.offcanvas', () => {
+      focusInitial();
+    });
+
+    cartOffcanvas.addEventListener('hidden.bs.offcanvas', () => {
+      handleHide();
+    });
+
+    cartOffcanvas.addEventListener('click', (event) => {
+      const target = event.target instanceof HTMLElement ? event.target : null;
+      if (!target) return;
+      const dismissTrigger = target.closest('[data-bs-dismiss="offcanvas"]');
+      if (!dismissTrigger) return;
+      if (cartOffcanvas.dataset.bsFallback === '1') {
+        event.preventDefault();
+        cartOffcanvas.classList.remove('show');
+        cartOffcanvas.setAttribute('aria-hidden', 'true');
+        handleHide();
       }
     });
   } catch (e) {
