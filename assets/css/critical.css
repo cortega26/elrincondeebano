@@ -218,41 +218,11 @@ body {
     position: absolute;
     top: 100%;
     left: 0;
-    z-index: 1000;
     display: none;
-    min-width: 10rem;
-    padding: 0.5rem 0;
-    margin: 0;
-    font-size: 1rem;
-    color: #212529;
-    text-align: left;
-    list-style: none;
-    background-color: #ffffff;
-    background-clip: padding-box;
-    border: 1px solid rgba(0, 0, 0, 0.15);
-    border-radius: 0.5rem;
-    box-shadow: var(--box-shadow);
   }
 
   .dropdown-menu.show {
     display: block;
-  }
-
-  .dropdown-item {
-    display: block;
-    width: 100%;
-    padding: 0.25rem 1rem;
-    clear: both;
-    color: #212529;
-    text-align: inherit;
-    text-decoration: none;
-    white-space: nowrap;
-  }
-
-  .dropdown-item:hover,
-  .dropdown-item:focus {
-    color: #16181b;
-    background-color: rgba(0, 0, 0, 0.05);
   }
 
   /* Ensure the cart offcanvas stays hidden until Bootstrap CSS is ready */
@@ -264,10 +234,8 @@ body {
     width: min(100%, 360px);
     max-width: 100%;
     background-color: #ffffff;
-    box-shadow: var(--box-shadow);
     transform: translateX(100%);
     visibility: hidden;
-    transition: transform 0.3s ease-in-out, visibility 0.3s ease-in-out;
     z-index: 1050;
     display: block;
   }
@@ -275,26 +243,6 @@ body {
   .offcanvas.show {
     transform: translateX(0);
     visibility: visible;
-  }
-
-  /* Notifications overlay; fixed so they don't push layout */
-  .notification-toast {
-    position: fixed;
-    right: 16px;
-    bottom: 16px;
-    z-index: 1050;
-    max-width: 360px;
-    background: rgba(33, 37, 41, 0.95);
-    color: #fff;
-    padding: 12px 16px;
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-  }
-  .notification-toast .notification-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-top: 8px;
   }
 
   /* Hero section spacing lock */
