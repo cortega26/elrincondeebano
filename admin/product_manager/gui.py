@@ -1,10 +1,10 @@
 ﻿import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
-from typing import List, Optional, Callable, Dict, Any, TypeVar, Protocol
+from typing import List, Optional, Callable, Dict, Any, TypeVar
 import os
 from pathlib import Path
 from models import Product
-from services import ProductService, ProductNotFoundError, ProductServiceError
+from services import ProductService, ProductServiceError
 try:
     from PIL import Image, ImageTk, features  # type: ignore
     PIL_AVAILABLE = True
@@ -516,9 +516,11 @@ class ProductGUI(DragDropMixin):
         else:
             self.sync_var.set("Sincronizado")
         if conflicts:
-            self.conflict_button.configure(text=f"Conflictos ({len(conflicts)})", state=tk.NORMAL)
+            self.conflict_button.configure(
+                text=f"Conflictos ({len(conflicts)})", state=tk.NORMAL)
         else:
-            self.conflict_button.configure(text="Conflictos (0)", state=tk.DISABLED)
+            self.conflict_button.configure(
+                text="Conflictos (0)", state=tk.DISABLED)
         self.master.after(5000, self.refresh_sync_status)
 
     def show_sync_conflicts(self) -> None:
@@ -543,8 +545,7 @@ class ProductGUI(DragDropMixin):
                 lines.append(
                     f"  • {field}: servidor={server_value} | local={client_value} ({reason})"
                 )
-        messagebox.showwarning("Conflictos de sincronización", "
-".join(lines))
+        messagebox.showwarning("Conflictos de sincronización", "".join(lines))
         self.refresh_sync_status()
 
     def bind_shortcuts(self) -> None:

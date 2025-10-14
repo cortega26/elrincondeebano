@@ -4,7 +4,7 @@ from repositories import ProductRepositoryProtocol, ProductRepositoryError
 import logging
 from functools import lru_cache
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 import threading
 from collections import defaultdict
 from enum import Enum, auto
@@ -15,10 +15,11 @@ logger = logging.getLogger(__name__)
 
 def _utc_now_iso() -> str:
     """Return current UTC timestamp with millisecond precision."""
+    dt = datetime.now(timezone.utc)
     try:
-        return datetime.utcnow().isoformat(timespec='milliseconds') + 'Z'
+        return dt.isoformat(timespec='milliseconds').replace('+00:00', 'Z')
     except TypeError:
-        return datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+        return dt.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
 
 
 class ProductEventType(Enum):
