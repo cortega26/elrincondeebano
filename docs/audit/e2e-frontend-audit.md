@@ -82,7 +82,7 @@
 5. **Cart offcanvas lacks focus management** – accessibility and UX issue. _Status:_ resolved.
 6. **Canonical tags duplicated across subpages** – SEO risk (duplicate content). _Status:_ resolved.
 7. **Navbar wraps around 1080 px** – layout break on medium screens; adjust breakpoints. _Status:_ open.
-8. **Unused CSS (~28%)** – payload waste. _Status:_ open.
+8. **Unused CSS (~28%)** – payload waste. _Status:_ resolved.
 9. **Legacy dropdown anchors** – fixed (buttons + aria). _Status:_ resolved.
 10. **WhatsApp CTA fallback to HTTP** – fixed. _Status:_ resolved.
 
@@ -97,7 +97,7 @@
 | A11Y-03 | Accessibility | Cart offcanvas lacks focus trap | Resolved | Added dialog semantics and JS focus management (`templates/partials/navbar.ejs`, `modules/a11y.js`). | 2025-10-13 |
 | SEO-01 | SEO | Duplicate canonical tags on generated category pages | Resolved | Build pipeline regenerates pages with slugged canonical URLs. | 2025-10-13 |
 | UX-01 | UX | Navbar wraps at ~1080 px | Open | Needs breakpoint tuning or spacing adjustments. | 2025-10-13 |
-| PERF-03 | Performance | ~28 % unused CSS in critical bundle | Open | Audit critical CSS extraction and trim unused rules. | 2025-10-13 |
+| PERF-03 | Performance | ~28 % unused CSS in critical bundle | Resolved | Critical stylesheet pared down (dropdown/menu/offcanvas rules trimmed). | 2025-10-13 |
 | A11Y-04 | Accessibility | Legacy dropdown anchors lacking button semantics | Resolved | Converted to `<button>` with `aria-expanded` (already merged). | 2025-10-13 |
 | SEC-01 | Security/UX | WhatsApp CTA defaulted to HTTP | Resolved | CTA now hardcodes `https://wa.me/…`; verified in footer. | 2025-10-13 |
 
