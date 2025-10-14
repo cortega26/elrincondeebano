@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert');
 const { JSDOM } = require('jsdom');
+const { File } = require('undici');
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -11,6 +12,10 @@ function loadModule(relPath) {
   const exports = {};
   const wrapper = new Function('exports', code + '\nreturn exports;');
   return wrapper(exports);
+}
+
+if (typeof global.File === 'undefined') {
+  global.File = File;
 }
 
 test('setupNavigationAccessibility toggles class and inserts style', () => {
