@@ -12,6 +12,7 @@ import logging.handlers
 import json
 import sys
 import os
+from copy import deepcopy
 from typing import Optional, Dict, Any
 from pathlib import Path
 import argparse
@@ -23,6 +24,7 @@ import traceback
 from repositories import JsonProductRepository
 from services import ProductService
 from gui import ProductGUI, UIConfig
+from sync import SyncEngine
 
 
 class ApplicationError(Exception):
@@ -51,6 +53,14 @@ class ProductManager:
             "window_size": [1200, 800],
             "enable_animations": True,
             "locale": "es"
+        },
+        "sync": {
+            "enabled": True,
+            "api_base": "http://127.0.0.1:4000",
+            "queue_file": "sync_queue.json",
+            "poll_interval": 60,
+            "pull_interval": 300,
+            "timeout": 10
         }
     }
 
@@ -60,6 +70,7 @@ class ProductManager:
         self.config: Dict[str, Any] = {}
         self.logger: Optional[logging.Logger] = None
         self.gui: Optional[ProductGUI] = None
+        self.sync_engine = None
         self._setup_signal_handlers()
 
     def _setup_signal_handlers(self) -> None:
@@ -102,13 +113,17 @@ class ProductManager:
         Returns:
             Dict containing configuration
         """
-        config = self.DEFAULT_CONFIG.copy()
+        config = deepcopy(self.DEFAULT_CONFIG)
 
         if config_path:
             try:
                 with open(config_path, 'r') as f:
                     user_config = json.load(f)
-                config.update(user_config)
+                for key, value in user_config.items():
+                    if key in ("ui", "sync") and isinstance(value, dict):
+                        config[key].update(value)
+                    else:
+                        config[key] = value
             except Exception as e:
                 raise ConfigurationError(
                     f"Failed to load configuration from {config_path}: {e}")
@@ -185,6 +200,25 @@ class ProductManager:
         """Create and configure the product service."""
         return ProductService(repository)
 
+    def _create_sync_engine(self, repository: JsonProductRepository, service: ProductService) -> Optional[SyncEngine]:
+        """Initialize the synchronization engine if enabled."""
+        sync_cfg = self.config.get('sync', {})
+        queue_name = sync_cfg.get('queue_file', 'sync_queue.json')
+        queue_path = os.path.join(self.config['data_dir'], queue_name)
+        engine = SyncEngine(
+            api_base=sync_cfg.get('api_base', ''),
+            repository=repository,
+            service=service,
+            queue_file=queue_path,
+            enabled=sync_cfg.get('enabled', True),
+            poll_interval=sync_cfg.get('poll_interval', 60),
+            pull_interval=sync_cfg.get('pull_interval', 300),
+            timeout=sync_cfg.get('timeout', 10),
+            logger=self.logger,
+        )
+        service.set_sync_engine(engine)
+        return engine
+
     def _create_ui_config(self) -> UIConfig:
         """Create UI configuration."""
         ui_config = self.config['ui']
@@ -207,6 +241,7 @@ class ProductManager:
             # Set up components
             repository = self._create_repository()
             service = self._create_service(repository)
+            self.sync_engine = self._create_sync_engine(repository, service)
             ui_config = self._create_ui_config()
 
             # Create and run GUI
@@ -237,17 +272,9 @@ class ProductManager:
             root.after(100, lambda: self._check_exit(root))
 
     def _start_update_checker(self) -> None:
-        """Start background thread for checking updates."""
-        def check_updates():
-            while not self.exit_event.is_set():
-                try:
-                    # Lógica de verificación de actualizaciones (placeholder)
-                    self.exit_event.wait(3600)  # Cada hora
-                except Exception as e:
-                    self.logger.error(f"Error checking updates: {e}")
-
-        thread = threading.Thread(target=check_updates, daemon=True)
-        thread.start()
+        """Start background synchronization loop if available."""
+        if self.sync_engine:
+            self.sync_engine.start_background(self.exit_event)
 
     def _on_window_close(self) -> None:
         """Handle window close event."""

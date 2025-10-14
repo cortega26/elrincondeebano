@@ -1,4 +1,4 @@
-import tkinter as tk
+﻿import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 from typing import List, Optional, Callable, Dict, Any, TypeVar, Protocol
 import os
@@ -464,12 +464,27 @@ class ProductGUI(DragDropMixin):
             status_frame, textvariable=self.status_var, relief=tk.SUNKEN, anchor=tk.W)
         status_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
+        self.conflict_button = ttk.Button(
+            status_frame,
+            text="Conflictos (0)",
+            width=16,
+            command=self.show_sync_conflicts,
+            state=tk.DISABLED
+        )
+        self.conflict_button.pack(side=tk.RIGHT, padx=(5, 0))
+
+        self.sync_var = tk.StringVar(value="Sincronizado")
+        sync_label = ttk.Label(
+            status_frame, textvariable=self.sync_var, relief=tk.SUNKEN, anchor=tk.E, width=20)
+        sync_label.pack(side=tk.RIGHT, padx=(5, 0))
+
         self.version_var = tk.StringVar()
         version_label = ttk.Label(
             status_frame, textvariable=self.version_var, relief=tk.SUNKEN, anchor=tk.E, width=50)
         version_label.pack(side=tk.RIGHT, padx=(5, 0))
 
         self.update_version_info()
+        self.refresh_sync_status()
 
     def update_version_info(self) -> None:
         """Update version information display."""
@@ -482,6 +497,55 @@ class ProductGUI(DragDropMixin):
             logger.error(f"Error updating version info: {e}")
             self.version_var.set("Versión: desconocida")
         self.master.after(60000, self.update_version_info)
+
+    def refresh_sync_status(self) -> None:
+        """Refresh synchronization indicators."""
+        pending = 0
+        if hasattr(self.product_service, "get_sync_pending_count"):
+            try:
+                pending = int(self.product_service.get_sync_pending_count())
+            except Exception:  # pylint: disable=broad-except
+                pending = 0
+        conflicts = []
+        try:
+            conflicts = self.product_service.get_conflicts()
+        except Exception:  # pylint: disable=broad-except
+            conflicts = []
+        if pending:
+            self.sync_var.set(f"Cambios pendientes: {pending}")
+        else:
+            self.sync_var.set("Sincronizado")
+        if conflicts:
+            self.conflict_button.configure(text=f"Conflictos ({len(conflicts)})", state=tk.NORMAL)
+        else:
+            self.conflict_button.configure(text="Conflictos (0)", state=tk.DISABLED)
+        self.master.after(5000, self.refresh_sync_status)
+
+    def show_sync_conflicts(self) -> None:
+        """Display conflict details to the user."""
+        try:
+            conflicts = self.product_service.consume_conflicts()
+        except Exception:  # pylint: disable=broad-except
+            conflicts = None
+        if not conflicts:
+            messagebox.showinfo("Conflictos", "No hay conflictos pendientes.")
+            self.refresh_sync_status()
+            return
+        lines = []
+        for conflict in conflicts:
+            product = conflict.get("product_id", "Producto desconocido")
+            lines.append(f"{product}:")
+            for detail in conflict.get("fields", []):
+                field = detail.get("field", "?")
+                server_value = detail.get("server_value")
+                client_value = detail.get("client_value")
+                reason = detail.get("reason", "conflicto")
+                lines.append(
+                    f"  • {field}: servidor={server_value} | local={client_value} ({reason})"
+                )
+        messagebox.showwarning("Conflictos de sincronización", "
+".join(lines))
+        self.refresh_sync_status()
 
     def bind_shortcuts(self) -> None:
         """Bind keyboard shortcuts."""

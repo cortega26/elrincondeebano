@@ -75,6 +75,11 @@ class JsonProductRepository(ProductRepositoryProtocol):
                 r"C:\Users\corte\OneDrive\Tienda Ebano\data")
             self._file_path = self._base_path / provided_path
         self._ensure_directory_exists()
+        self._catalog_meta: Dict[str, Any] = {
+            "version": "",
+            "last_updated": "",
+            "rev": 0
+        }
 
     def _ensure_directory_exists(self) -> None:
         """Ensure that the directory for the JSON file exists."""
@@ -156,8 +161,19 @@ class JsonProductRepository(ProductRepositoryProtocol):
                 if isinstance(data, list):
                     catalog = ProductCatalog.create(
                         [self._create_product(p) for p in data])
+                    max_rev = max((product.rev for product in catalog.products), default=0)
+                    self._catalog_meta = {
+                        "version": catalog.metadata.version,
+                        "last_updated": catalog.metadata.last_updated,
+                        "rev": max_rev
+                    }
                 else:
                     catalog = ProductCatalog.from_dict(data)
+                    self._catalog_meta = {
+                        "version": catalog.metadata.version,
+                        "last_updated": catalog.metadata.last_updated,
+                        "rev": data.get('rev', catalog.metadata.rev)
+                    }
                 return catalog.products
         except json.JSONDecodeError as e:
             error_msg = f"Error al analizar JSON en {self._file_path}: {e}"
@@ -169,13 +185,23 @@ class JsonProductRepository(ProductRepositoryProtocol):
             logger.error(error_msg)
             raise ProductLoadError(error_msg)
 
-    def save_products(self, products: List[Product]) -> None:
+    def save_products(self, products: List[Product], metadata: Optional[Dict[str, Any]] = None) -> None:
         """Save products to the JSON file."""
         try:
             self._create_backup()
+            if metadata:
+                allowed_keys = {"version", "last_updated", "rev"}
+                for key in allowed_keys:
+                    if key in metadata:
+                        self._catalog_meta[key] = metadata[key]
+            else:
+                now = datetime.now()
+                self._catalog_meta["version"] = now.strftime('%Y%m%d-%H%M%S')
+                self._catalog_meta["last_updated"] = now.isoformat()
             catalog = {
-                "version": datetime.now().strftime('%Y%m%d-%H%M%S'),
-                "last_updated": datetime.now().isoformat(),
+                "version": self._catalog_meta.get("version"),
+                "last_updated": self._catalog_meta.get("last_updated"),
+                "rev": self._catalog_meta.get("rev", 0),
                 "products": [product.to_dict() for product in products]
             }
             with self._open_file('w') as file:
@@ -217,6 +243,21 @@ class JsonProductRepository(ProductRepositoryProtocol):
             return Product.from_dict(data)
         except (ValueError, TypeError) as e:
             raise ProductRepositoryError(f"Datos de producto inválidos: {e}")
+
+    def get_catalog_meta(self) -> Dict[str, Any]:
+        """Return current catalog metadata."""
+        return dict(self._catalog_meta)
+
+    def update_catalog_meta(self, **kwargs: Any) -> None:
+        """Update catalog metadata with allowed keys."""
+        allowed = {"version", "last_updated", "rev"}
+        for key, value in kwargs.items():
+            if key in allowed:
+                self._catalog_meta[key] = value
+
+    def get_file_path(self) -> Path:
+        """Return path to the catalog file."""
+        return self._file_path
 
     @with_file_lock
     def reorder_products(self, products: List[Product]) -> None:

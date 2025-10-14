@@ -1,8 +1,11 @@
-from dataclasses import dataclass
-from typing import Dict, Any, List
+from dataclasses import dataclass, field
+from typing import Dict, Any, List, Optional
 import os
 from functools import cached_property
 from datetime import datetime
+from copy import deepcopy
+
+DEFAULT_FIELD_TS = "1970-01-01T00:00:00.000Z"
 
 class ProductError(Exception):
     """Base exception for Product-related errors."""
@@ -30,6 +33,8 @@ class Product:
     category: str = ""
     image_path: str = ""
     order: int = 0
+    rev: int = 0
+    field_last_modified: Dict[str, Dict[str, Any]] = field(default_factory=dict)
 
     MAX_PRICE: int = 1_000_000  # 1 million
     MAX_NAME_LENGTH: int = 200
@@ -44,6 +49,8 @@ class Product:
         self._validate_discount()
         self._validate_category()
         self._validate_image_path()
+        if not isinstance(self.field_last_modified, dict):
+            self.field_last_modified = {}
 
     def _validate_name(self) -> None:
         """Validate product name."""
@@ -129,6 +136,34 @@ class Product:
         if 'discounted_price' in self.__dict__:
             del self.__dict__['discounted_price']
 
+    def ensure_field_metadata(self, field_name: str) -> Dict[str, Any]:
+        """Ensure metadata exists for a given field."""
+        if field_name not in self.field_last_modified or not isinstance(self.field_last_modified[field_name], dict):
+            self.field_last_modified[field_name] = {
+                "ts": DEFAULT_FIELD_TS,
+                "by": "admin",
+                "rev": self.rev,
+                "base_rev": 0,
+                "changeset_id": None
+            }
+        meta = self.field_last_modified[field_name]
+        meta.setdefault("ts", DEFAULT_FIELD_TS)
+        meta.setdefault("by", "admin")
+        meta.setdefault("rev", self.rev)
+        meta.setdefault("base_rev", 0)
+        meta.setdefault("changeset_id", None)
+        return meta
+
+    def update_field_metadata(self, field_name: str, *, ts: str, by: str, rev: int, base_rev: int, changeset_id: Optional[str] = None) -> None:
+        """Update metadata for a field."""
+        meta = self.ensure_field_metadata(field_name)
+        meta["ts"] = ts
+        meta["by"] = by
+        meta["rev"] = rev
+        meta["base_rev"] = base_rev
+        if changeset_id is not None:
+            meta["changeset_id"] = changeset_id
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'Product':
         """Create a Product instance from a dictionary."""
@@ -136,8 +171,32 @@ class Product:
         missing_fields = required_fields - set(data.keys())
         if missing_fields:
             raise ValueError(f"Faltan campos requeridos: {', '.join(missing_fields)}")
-        
-        return cls(**data)
+
+        payload = data.copy()
+        payload.setdefault("rev", data.get("rev", 0))
+        field_meta = payload.get("field_last_modified")
+        if not isinstance(field_meta, dict):
+            field_meta = {}
+        normalised_meta: Dict[str, Dict[str, Any]] = {}
+        for key, value in field_meta.items():
+            if isinstance(value, dict):
+                normalised_meta[key] = {
+                    "ts": value.get("ts", DEFAULT_FIELD_TS),
+                    "by": value.get("by", "admin"),
+                    "rev": value.get("rev", payload["rev"]),
+                    "base_rev": value.get("base_rev", 0),
+                    "changeset_id": value.get("changeset_id")
+                }
+            else:
+                normalised_meta[key] = {
+                    "ts": DEFAULT_FIELD_TS,
+                    "by": "admin",
+                    "rev": payload["rev"],
+                    "base_rev": 0,
+                    "changeset_id": None
+                }
+        payload["field_last_modified"] = normalised_meta
+        return cls(**payload)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert the product to a dictionary."""
@@ -149,7 +208,9 @@ class Product:
             "stock": self.stock,
             "category": self.category,
             "image_path": self.image_path,
-            "order": self.order
+            "order": self.order,
+            "rev": self.rev,
+            "field_last_modified": deepcopy(self.field_last_modified)
         }
 
     def __eq__(self, other: object) -> bool:
@@ -167,6 +228,7 @@ class ProductMetadata:
     """Metadata for the product catalog."""
     version: str
     last_updated: str
+    rev: int = 0
 
 @dataclass
 class ProductCatalog:
@@ -179,7 +241,8 @@ class ProductCatalog:
         """Create a new catalog with current metadata."""
         metadata = ProductMetadata(
             version=datetime.now().strftime('%Y%m%d-%H%M%S'),
-            last_updated=datetime.now().isoformat()
+            last_updated=datetime.now().isoformat(),
+            rev=0
         )
         return cls(metadata=metadata, products=products)
 
@@ -188,6 +251,7 @@ class ProductCatalog:
         return {
             "version": self.metadata.version,
             "last_updated": self.metadata.last_updated,
+            "rev": self.metadata.rev,
             "products": [p.to_dict() for p in self.products]
         }
 
@@ -196,7 +260,8 @@ class ProductCatalog:
         """Create catalog from dictionary data."""
         metadata = ProductMetadata(
             version=data.get('version', ''),
-            last_updated=data.get('last_updated', '')
+            last_updated=data.get('last_updated', ''),
+            rev=data.get('rev', 0)
         )
         products = [Product.from_dict(p) for p in data.get('products', [])]
         return cls(metadata=metadata, products=products)

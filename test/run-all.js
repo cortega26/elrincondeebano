@@ -27,6 +27,7 @@ const tests = [
   'csp.connect.test.js',
   'performance.metrics.test.js',
   'snapshot.utils.test.mjs',
+  'product-sync.server.test.js',
 ];
 
 for (const testFile of tests) {
