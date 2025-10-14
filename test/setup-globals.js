@@ -2,10 +2,10 @@
 
 /**
  * Test-only bootstrap that fills in missing fetch/Web API globals when running
- * under Node.js versions that do not yet expose them by default (e.g. Node 18).
+ * under Node.js versions that do not yet expose them by default (e.g. Node 20).
  *
  * The shim only installs each global if it is absent to preserve the runtime's
- * native implementations on modern Node LTS releases.
+ * native implementations on modern Node LTS releases (Node 22+ today).
  */
 try {
   const {

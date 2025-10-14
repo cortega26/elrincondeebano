@@ -45,7 +45,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 ## Matriz de comandos por agente
 | Agente | Comando | Cuándo se ejecuta | Salida esperada | Artefactos |
 | --- | --- | --- | --- | --- |
-| Repo Cartographer | `node -v` | Antes de cualquier trabajo para verificar Node ≥ 18 tal como consume CI (`images.yml`). | Versión fija compatible con scripts (`^18.x`). | Registro en informe de descubrimiento. |
+| Repo Cartographer | `node -v` | Antes de cualquier trabajo para verificar Node ≥ 22 tal como consume CI (`images.yml`). | Versión fija compatible con scripts (`22.x`). | Registro en informe de descubrimiento. |
 | Repo Cartographer | `npm pkg get scripts` | Al actualizar documentación o scripts. | JSON con scripts de `package.json`. | Tabla de scripts actualizada en docs. |
 | Docs Steward | `npm run build` | Tras cambios en plantillas (`templates/`), datos o herramientas. | Build completo sin errores ni warnings críticos; genera `dist/`, `pages/`, `sitemap.xml`. | Artifacts regenerados listos para commit. |
 | Docs Steward | `npm run lighthouse:audit` | Auditorías de rendimiento previas a release. | Reportes en `reports/lighthouse/`. | Archivos HTML de Lighthouse. |
@@ -61,7 +61,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 
 ## Guardrails CI/tests
 - **Checklist de ejecución determinista**
-  - [ ] `node -v` coincide con la versión fijada en workflows (`18.x`).
+  - [ ] `node -v` coincide con la versión fijada en workflows (`22.x`).
   - [ ] `npm ci` es obligatorio en CI; queda prohibido `npm install` cuando exista `package-lock.json`.
 - **Compilación estricta**
   - [ ] `npm run build` finaliza sin warnings críticos ni errores. Atender cualquier fallo en scripts de `tools/`.
@@ -105,7 +105,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - Artefacto: repo completo desplegado con `actions/deploy-pages@v4`.
 - **`Optimize images` (`.github/workflows/images.yml`)**
   - Trigger: cambios en `assets/img/originals/**` o manual.
-  - Node fijado con `actions/setup-node@v4` (`node-version: 18`). Usa `npm ci` + scripts `images:generate`, `images:rewrite`, `lint:images`. Auto-commitea resultados.
+  - Node fijado con `actions/setup-node@v4` (`node-version: 22.x`). Usa `npm ci` + scripts `images:generate`, `images:rewrite`, `lint:images`. Auto-commitea resultados.
   - Permisos: `contents: write` para subir optimizaciones.
 - **`Codacy Security Scan` (`.github/workflows/codacy.yml`)**
   - Trigger: push/PR a `main` y cron semanal.
