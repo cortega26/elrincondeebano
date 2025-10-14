@@ -34,8 +34,8 @@ function generateStableId(product) {
   return `pid-${Math.abs(hash)}`;
 }
 
-const HERO_WIDTHS = [200, 320, 480];
-const HERO_BASE_WIDTH = 360;
+const HERO_WIDTHS = [200, 320, 400];
+const HERO_BASE_WIDTH = 320;
 
 function buildImageMeta(imagePath) {
   const normalized = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
