@@ -54,18 +54,22 @@ Catálogo JSON + plantillas EJS ──┘
 
 | Herramienta | Versión | Notas |
 | --- | --- | --- |
-| Node.js | 20.x (recomendado) | LTS actual en CI. `>=18.17` funciona para desarrollo/test gracias al bootstrap de Web APIs.
-| npm | 10.x | Se instala con Node 20; usar `npm ci` para instalaciones deterministas.
+| Node.js | 22.20.0 (LTS) | Baseline en CI. Se requiere `>=22`; el bootstrap de Web APIs mantiene compatibilidad puntual con Node 20.
+| npm | 10.9.3 | Se instala con Node 22.20.0; usar `npm ci` para instalaciones deterministas.
 | Navegador Chromium | Opcional | Necesario solo para `npm run lighthouse:audit` (Lighthouse requiere Chrome).
 
 ## Instalación
 
 ```bash
-node -v        # verifica que sea >= 18.17 (20.x recomendado)
+node -v        # verifica que sea >= 22 (22.20.0 recomendado)
 npm ci         # instala dependencias usando package-lock.json
 ```
 
 `npm ci` limpia `node_modules/` y garantiza versiones reproducibles tal como en CI.
+
+> `nvm use`, `asdf install` o `volta install` detectan automáticamente la versión
+> 22.20.0 gracias a `.nvmrc`, `.tool-versions` y el bloque `volta` en
+> `package.json`.
 
 ## Configuración
 
@@ -157,8 +161,8 @@ npm run test:cypress
 ```
 
 > Nota: El runner `npm test` precarga `test/setup-globals.js` para instalar
-> `fetch`, `File` y APIs asociadas cuando se ejecute con Node 18, manteniendo
-> paridad con el entorno de CI en Node 20.
+> `fetch`, `File` y APIs asociadas cuando se ejecute con Node 20, manteniendo
+> paridad con el entorno de CI en Node 22.
 
 La suite de `node:test` cubre utilidades de generación de IDs, Service Worker, lógica de carrito, fetch de productos, registros estructurados y
 comportamiento del índice. Los nuevos chequeos aseguran el orden determinista de CSS y que navbar/cart no parpadeen (Playwright bajo viewport móvil, ver `tests/`). La suite Cypress documenta y previene las regresiones CAT-01/SUB-01 del menú principal y puede automatizarse vía `./.git-bisect-test.sh`.
@@ -185,7 +189,7 @@ comportamiento del índice. Los nuevos chequeos aseguran el orden determinista d
 | Optimize images | `.github/workflows/images.yml` | Ejecuta `npm ci`, genera/re‑escribe variantes optimizadas, aplica lint y commitea los cambios.
 | Codacy Security Scan | `.github/workflows/codacy.yml` | Corre Codacy Analysis CLI (ESLint), fragmenta y sanea SARIF y sube reportes a GitHub Code Scanning.
 
-Los workflows fijan Node 20 y usan `npm ci`, alineado con los requisitos locales. Mantén el lockfile actualizado para aprovechar las cachés de Actions.
+Los workflows fijan Node 22 y usan `npm ci`, alineado con los requisitos locales. Mantén el lockfile actualizado para aprovechar las cachés de Actions.
 
 ## Despliegue
 
