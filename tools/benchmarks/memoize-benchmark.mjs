@@ -45,10 +45,6 @@ Object.defineProperty(globalThis, 'navigator', {
 });
 windowStub.navigator = global.navigator;
 
-defineLegacyMemoize();
-
-const { __memoizeForTest: optimizedMemoize } = await import('../../src/js/script.mjs');
-
 function defineLegacyMemoize() {
   global.legacyMemoize = (fn, cacheSize = 100) => {
     const cache = new Map();
@@ -142,11 +138,21 @@ function runBenchmark(label, memoizeImpl) {
   return duration;
 }
 
-const legacyDuration = runBenchmark('legacy', global.legacyMemoize);
-const optimizedDuration = runBenchmark('optimized', optimizedMemoize);
+async function main() {
+  defineLegacyMemoize();
+  const { __memoizeForTest: optimizedMemoize } = await import('../../src/js/script.mjs');
 
-console.log('Memoize benchmark (2000 products,', iterations, 'queries)');
-console.log(`Legacy JSON.stringify cache key: ${legacyDuration.toFixed(2)} ms`);
-console.log(`Optimized structural cache:      ${optimizedDuration.toFixed(2)} ms`);
-console.log(`Speedup: ${(legacyDuration / optimizedDuration).toFixed(2)}x faster`);
+  const legacyDuration = runBenchmark('legacy', global.legacyMemoize);
+  const optimizedDuration = runBenchmark('optimized', optimizedMemoize);
+
+  console.log('Memoize benchmark (2000 products,', iterations, 'queries)');
+  console.log(`Legacy JSON.stringify cache key: ${legacyDuration.toFixed(2)} ms`);
+  console.log(`Optimized structural cache:      ${optimizedDuration.toFixed(2)} ms`);
+  console.log(`Speedup: ${(legacyDuration / optimizedDuration).toFixed(2)}x faster`);
+}
+
+main().catch((error) => {
+  console.error('Memoize benchmark failed:', error);
+  process.exit(1);
+});
 
