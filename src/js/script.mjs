@@ -1979,13 +1979,18 @@ const initApp = async () => {
         if (cartIcon) {
             cartIcon.addEventListener('click', async () => {
                 renderCart();
+                const cartOffcanvasElement = document.getElementById('cartOffcanvas');
                 try {
                     await showOffcanvas('#cartOffcanvas');
+                    if (cartOffcanvasElement) {
+                        cartOffcanvasElement.dataset.bsFallback = '0';
+                    }
                 } catch (error) {
                     console.error('Bootstrap Offcanvas no está disponible', error);
-                    const cartOffcanvasElement = document.getElementById('cartOffcanvas');
                     if (cartOffcanvasElement) {
+                        cartOffcanvasElement.dataset.bsFallback = '1';
                         cartOffcanvasElement.classList.add('show');
+                        cartOffcanvasElement.removeAttribute('aria-hidden');
                     }
                 }
             });
