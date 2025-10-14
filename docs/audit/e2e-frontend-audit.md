@@ -90,7 +90,7 @@
 
 | Key | Area | Issue | Status | Notes | Last Updated |
 | --- | --- | --- | --- | --- | --- |
-| PERF-01 | Performance | LCP above 2.5 s on home/category pages | Open | Awaiting hero image optimization and hydration deferral. | 2025-10-13 |
+| PERF-01 | Performance | LCP above 2.5 s on home/category pages | Open | Hero images now request ≤480 px, q=75 variants; rerun Lighthouse to confirm LCP drop. | 2025-10-13 |
 | A11Y-01 | Accessibility | Nested interactive controls inside product cards | Open | Requires card markup refactor to separate links/buttons. | 2025-10-13 |
 | PERF-02 | Performance | Filter input INP 260 ms | Mitigated | 150 ms debounce with idle scheduling deployed; monitor in next audit run. | 2025-10-13 |
 | A11Y-02 | Accessibility | Muted text contrast below 4.5:1 | Resolved | `--text-muted` updated to `#4a4f55` in `assets/css/style-enhanced.css`. | 2025-10-13 |

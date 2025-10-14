@@ -7,7 +7,7 @@ const TEMPLATE_PATH = path.join(ROOT_DIR, 'templates', 'index.ejs');
 const DATA_PATH = path.join(ROOT_DIR, 'data', 'product_data.json');
 const OUTPUT_PATH = path.join(ROOT_DIR, 'index.html');
 
-const CFIMG_THUMB = { fit: 'cover', quality: 82, format: 'auto' };
+const CFIMG_THUMB = { fit: 'cover', quality: 75, format: 'auto' };
 
 function readJson(filePath) {
   const raw = fs.readFileSync(filePath, 'utf8');
@@ -34,11 +34,13 @@ function generateStableId(product) {
   return `pid-${Math.abs(hash)}`;
 }
 
+const HERO_WIDTHS = [200, 320, 480];
+const HERO_BASE_WIDTH = 360;
+
 function buildImageMeta(imagePath) {
   const normalized = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
-  const src = cfimg(normalized, { ...CFIMG_THUMB, width: 400 });
-  const widths = [200, 400, 800];
-  const srcset = widths
+  const src = cfimg(normalized, { ...CFIMG_THUMB, width: HERO_BASE_WIDTH });
+  const srcset = HERO_WIDTHS
     .map(width => `${cfimg(normalized, { ...CFIMG_THUMB, width })} ${width}w`)
     .join(', ');
   return { src, srcset };
