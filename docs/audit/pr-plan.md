@@ -20,7 +20,7 @@
    - Introduce AVIF variants for hero & top SKUs, inline LQIP placeholder.
 
 ## 1–2 Weeks
-1. **Product card markup refactor**  
+1. **Product card markup refactor** *(completed 2025-10-14)*  
    - Remove nested interactive elements; adopt semantic buttons.  
    - Requires reworking cart logic + tests.
 2. **Critical CSS pruning**  

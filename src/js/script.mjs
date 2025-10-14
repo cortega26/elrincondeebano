@@ -1123,15 +1123,22 @@ const initApp = async () => {
     };
 
 
-    const renderQuantityControl = (product) => {
-        const quantityControl = createSafeElement('div', { class: `quantity-control ${UTILITY_CLASSES.hidden}` });
+const renderQuantityControl = (product) => {
+        const quantityControl = createSafeElement('div', {
+            class: `quantity-control ${UTILITY_CLASSES.hidden}`,
+            role: 'group',
+            'aria-label': 'Seleccionar cantidad',
+            'aria-live': 'polite'
+        });
         const minusBtn = createSafeElement('button', {
             class: 'quantity-btn',
+            type: 'button',
             'data-action': 'decrease',
             'aria-label': 'Decrease quantity'
         }, ['-']);
         const plusBtn = createSafeElement('button', {
             class: 'quantity-btn',
+            type: 'button',
             'data-action': 'increase',
             'aria-label': 'Increase quantity'
         }, ['+']);
@@ -1227,13 +1234,14 @@ const initApp = async () => {
                 UTILITY_CLASSES.containIntrinsic
             ].filter(Boolean).join(' ');
 
-            const productElement = createSafeElement('div', {
+            const titleId = `product-title-${id}`;
+            const productElement = createSafeElement('article', {
                 class: productClasses,
-                'aria-label': `Product: ${name}`,
-                'data-product-id': id
+                'data-product-id': id,
+                'aria-labelledby': titleId
             });
 
-            const cardElement = createSafeElement('div', { class: 'card' });
+            const cardElement = createSafeElement('div', { class: 'card h-100' });
 
             if (discount && Number(discount) > 0) {
                 const pct = Math.round((Number(discount) / Number(price)) * 100);
@@ -1260,14 +1268,22 @@ const initApp = async () => {
             });
             cardElement.appendChild(imgElement);
 
-            const cardBody = createSafeElement('div', { class: 'card-body' });
-            cardBody.appendChild(createSafeElement('h3', { class: 'card-title' }, [name]));
-            cardBody.appendChild(createSafeElement('p', { class: 'card-text' }, [description]));
-            cardBody.appendChild(renderPriceHtml(price, discount));
+            const cardBody = createSafeElement('div', { class: 'card-body d-flex flex-column' });
+            cardBody.appendChild(createSafeElement('h3', { class: 'card-title mb-2', id: titleId }, [name]));
+            cardBody.appendChild(createSafeElement('p', { class: 'card-text mb-3' }, [description]));
+            const priceContainer = renderPriceHtml(price, discount);
+            priceContainer.classList.add('mb-3');
+            cardBody.appendChild(priceContainer);
 
-            const actionArea = createSafeElement('div', { class: 'action-area', 'data-pid': id });
+            const actionArea = createSafeElement('div', {
+                class: 'action-area mt-auto',
+                'data-pid': id,
+                role: 'group',
+                'aria-label': `Acciones de compra para ${name}`
+            });
             const addToCartBtn = createSafeElement('button', {
                 class: 'btn btn-primary add-to-cart-btn mt-2',
+                type: 'button',
                 'data-id': id,
                 'aria-label': `Add ${name} to cart`
             }, ['Agregar al carrito']);

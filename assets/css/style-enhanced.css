@@ -328,7 +328,6 @@ h1 {
 
 /* Enhanced Price Styles */
 .precio-container {
-    margin-top: auto;
     margin-bottom: var(--spacing-lg);
     display: flex;
     align-items: center;

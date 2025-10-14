@@ -6,7 +6,7 @@
 - **Perf Snapshot (Moto G4, Slow 4G, Chrome 119):**
   - Home `/index.html`: **LCP 3.0 s**, INP 110 ms, CLS 0.00.
   - Category `/pages/chocolates.html`: manual observation places LCP ~3.2 s (largest card image), INP ~140 ms.
-- Accessibility: axe detects nested interactive elements within product cards (S0) and lack of focus management on off-canvas cart.
+- Accessibility: product cards now render without nested interactive controls (former S0), and the cart off-canvas has managed focus.
 - Visual & UX: product grids exhibit 18–24px vertical rhythm gaps; muted text falls below 4.5:1 contrast on white.
 
 ## Methodology
@@ -35,8 +35,8 @@
 4. **Trim critical CSS**: audit `critical.min.css` to remove unused Bootstrap overrides; target ≤60 KB.
 
 ## Accessibility
-- **Nested interactive elements**: `.card` anchor wrappers contain `button.add-to-cart-btn` (fails WCAG 2.1 SC 1.4.13). Severity S0.
-- **Offcanvas focus management**: focus does not move into cart when opened; ESC closes but no role=dialog attributes.
+- **Nested interactive elements**: _Resolved._ Product cards now use `<article>` wrappers with isolated action footers; no interactive control nests inside another.
+- **Offcanvas focus management**: _Resolved._ Focus now moves into the cart dialog, tab trapping is enforced, and dismiss buttons return focus to the launcher.
 - **Dropdown toggles** (fixed): toggles now `<button>` with `aria-expanded`. Previously anchors with `href="#"` caused focus loss; fix validated on home + subpages.
 - **Color contrast**: `.text-muted` (#6c757d) on white yields ratio 3.2:1 (<4.5). Applies to product descriptions and policy footer.
 - **Form labels**: search/filter inputs have explicit labels (accessible).
@@ -76,7 +76,7 @@
 
 ## Top-10 Issues
 1. **LCP above budget (3.0 s)** – affects first meaningful paint; slows perceived load. _Fix plan:_ optimize hero imagery, postpone hydration. _Status:_ open.
-2. **Nested interactives in product cards (S0)** – breaks keyboard/touch expectations; must refactor card markup. _Status:_ open.
+2. **Nested interactives in product cards (S0)** – breaks keyboard/touch expectations; must refactor card markup. _Status:_ resolved.
 3. **Filter INP 260 ms** – impacts typing responsiveness; implement debounce & caching. _Status:_ mitigated (awaiting verification).
 4. **Color contrast 3.2:1** – product descriptions fail WCAG. _Plan:_ adopt darker secondary text token. _Status:_ resolved.
 5. **Cart offcanvas lacks focus management** – accessibility and UX issue. _Status:_ resolved.
@@ -91,7 +91,7 @@
 | Key | Area | Issue | Status | Notes | Last Updated |
 | --- | --- | --- | --- | --- | --- |
 | PERF-01 | Performance | LCP above 2.5 s on home/category pages | Open | Hero images now request ≤400 px (refined sizes) while CSS stays render-blocking to avoid FOOC; rerun Lighthouse to gauge impact. | 2025-10-13 |
-| A11Y-01 | Accessibility | Nested interactive controls inside product cards | Open | Requires card markup refactor to separate links/buttons. | 2025-10-13 |
+| A11Y-01 | Accessibility | Nested interactive controls inside product cards | Resolved | Cards now render as articles with independent action footers; no nested interactive controls. | 2025-10-14 |
 | PERF-02 | Performance | Filter input INP 260 ms | Mitigated | 150 ms debounce with idle scheduling deployed; monitor in next audit run. | 2025-10-13 |
 | A11Y-02 | Accessibility | Muted text contrast below 4.5:1 | Resolved | `--text-muted` updated to `#4a4f55` in `assets/css/style-enhanced.css`. | 2025-10-13 |
 | A11Y-03 | Accessibility | Cart offcanvas lacks focus trap | Resolved | Added dialog semantics and JS focus management (`templates/partials/navbar.ejs`, `modules/a11y.js`). | 2025-10-13 |
