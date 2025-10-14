@@ -1,7 +1,7 @@
 // ESM entry point to compose site enhancements and core app
 
 import { injectEnhancementStyles } from './modules/enhancements.js';
-import { setupNavigationAccessibility } from './modules/a11y.js';
+import { setupNavigationAccessibility, setupCartOffcanvasAccessibility } from './modules/a11y.js';
 import { setupPerformanceOptimizations } from './modules/perf.js';
 import { injectSeoMetadata, injectStructuredData } from './modules/seo.js';
 import { injectPwaManifest } from './modules/pwa.js';
@@ -31,6 +31,7 @@ function initEnhancementsOnce() {
   injectEnhancementStyles();
   setupCheckoutProgress();
   setupNavigationAccessibility();
+  setupCartOffcanvasAccessibility();
   setupPerformanceOptimizations();
   injectSeoMetadata();
   injectStructuredData();
