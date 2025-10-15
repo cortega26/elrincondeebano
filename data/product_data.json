@@ -1,6 +1,6 @@
 {
-  "version": "20251015-161348",
-  "last_updated": "2025-10-15T16:13:48.273363",
+  "version": "20251015-162650",
+  "last_updated": "2025-10-15T16:26:50.473371",
   "rev": 0,
   "products": [
     {
@@ -423,7 +423,7 @@
     {
       "name": "Brut • Undurraga",
       "description": "Espumante • Botella de 750mL",
-      "price": 6500,
+      "price": 6800,
       "discount": 0,
       "stock": false,
       "category": "Espumantes",
@@ -431,7 +431,22 @@
       "image_avif_path": "",
       "order": 29,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-10-15T19:26:50.471Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-15T19:26:50.471Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Pisco Especial 35° m • Alto del Carmen",
