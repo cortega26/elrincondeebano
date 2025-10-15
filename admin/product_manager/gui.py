@@ -8,10 +8,27 @@ from services import ProductService, ProductServiceError
 try:
     from PIL import Image, ImageTk, features  # type: ignore
     PIL_AVAILABLE = True
-    PIL_WEBP = features.check('webp')
+    try:
+        PIL_WEBP = features.check('webp')
+    except Exception:
+        PIL_WEBP = False
+    try:
+        import pillow_heif  # type: ignore
+        pillow_heif.register_heif_opener()
+        PIL_AVIF = True
+    except Exception:
+        try:
+            import pillow_avif  # type: ignore  # pylint: disable=unused-import
+            PIL_AVIF = True
+        except Exception:
+            try:
+                PIL_AVIF = features.check('avif')
+            except Exception:
+                PIL_AVIF = False
 except Exception:
     PIL_AVAILABLE = False
     PIL_WEBP = False
+    PIL_AVIF = False
 import logging
 import shutil
 import threading
@@ -1252,14 +1269,15 @@ class ProductFormDialog(tk.Toplevel):
         self.default_font = temp_entry.cget('font')
         temp_entry.destroy()
 
+        self._preview_warning_shown = False
         self.setup_dialog()
         self.populate_fields()
 
     def setup_dialog(self) -> None:
         """Set up dialog window."""
         # Make the dialog large enough and resizable so all content fits
-        self.geometry("760x620")
-        self.minsize(700, 520)
+        self.geometry("780x660")
+        self.minsize(720, 560)
         self.resizable(True, True)
         self.transient(self.master)
         self.grab_set()
@@ -1337,7 +1355,7 @@ class ProductFormDialog(tk.Toplevel):
         # Preview area (fixed-size canvas to avoid stretching on resize)
         self.preview_label = ttk.Label(self.main_frame, text="Vista previa")
         self.preview_label.grid(row=options_row+1, column=0, sticky=tk.W)
-        self._preview_w, self._preview_h = 260, 195
+        self._preview_w = self._preview_h = 260
         self.preview_canvas = tk.Canvas(
             self.main_frame,
             width=self._preview_w,
@@ -1610,54 +1628,90 @@ class ProductFormDialog(tk.Toplevel):
         }
         return mapping.get(category, category.strip().lower().replace(' ', '_'))
 
+    def _resolve_image_candidates(self) -> list[tuple[str, str]]:
+        candidates: list[tuple[str, str]] = []
+        fallback_entry = self.entries.get('image_path')
+        if isinstance(fallback_entry, ttk.Entry):
+            rel = fallback_entry.get().strip()
+            if rel:
+                candidates.append(('fallback', rel))
+        avif_entry = self.entries.get('image_avif_path')
+        if isinstance(avif_entry, ttk.Entry):
+            rel = avif_entry.get().strip()
+            if rel:
+                candidates.append(('avif', rel))
+        return candidates
+
     def _update_image_preview(self) -> None:
         try:
-            entry = self.entries.get('image_path')
-            if not isinstance(entry, ttk.Entry):
-                return
-            rel_path = entry.get().strip()
             cv = self.preview_canvas
-            w, h = getattr(self, '_preview_w', 260), getattr(
-                self, '_preview_h', 195)
+            w, h = getattr(self, '_preview_w', 240), getattr(
+                self, '_preview_h', 240)
             cv.delete("all")
             cv.create_rectangle(0, 0, w, h, fill="#fafafa", outline="#cccccc")
-            if not rel_path:
+            abs_base_dir = self._assets_images_root()
+            candidates = self._resolve_image_candidates()
+            if not candidates:
                 cv.create_text(w//2, h//2, text='Sin imagen', fill='#666666')
                 self._preview_photo = None
                 return
-            abs_base_dir = self._assets_images_root()
-            abs_path = os.path.join(abs_base_dir, rel_path.replace(
-                'assets/images/', '').replace('/', os.sep))
-            if os.path.exists(abs_path) and PIL_AVAILABLE:
-                _, ext = os.path.splitext(abs_path)
-                ext = ext.lower()
+
+            selected_path = None
+            unsupported_format = None
+            for _, rel_path in candidates:
+                abs_path = os.path.join(abs_base_dir, rel_path.replace(
+                    'assets/images/', '').replace('/', os.sep))
+                if not os.path.exists(abs_path):
+                    continue
+                ext = os.path.splitext(abs_path)[1].lower()
                 if ext == '.webp' and not PIL_WEBP:
-                    cv.create_text(
-                        w//2, h//2, text='Pillow sin soporte WebP', fill='#666666')
-                    self._preview_photo = None
-                else:
-                    try:
-                        img = Image.open(abs_path)
-                        img.thumbnail((w-10, h-10))
-                        self._preview_photo = ImageTk.PhotoImage(img)
-                        cv.create_image(
-                            w//2, h//2, image=self._preview_photo, anchor='center')
-                    except Exception:
-                        cv.create_text(
-                            w//2, h//2, text='(Vista previa no disponible)', fill='#666666')
-                        self._preview_photo = None
+                    unsupported_format = 'webp'
+                    continue
+                if ext == '.avif' and not PIL_AVIF:
+                    unsupported_format = 'avif'
+                    continue
+                selected_path = abs_path
+                break
+
+            if selected_path and PIL_AVAILABLE:
+                try:
+                    img = Image.open(selected_path)
+                    img.thumbnail((w-10, h-10))
+                    self._preview_photo = ImageTk.PhotoImage(img)
+                    cv.create_image(
+                        w//2, h//2, image=self._preview_photo, anchor='center')
+                    return
+                except Exception:
+                    pass
+
+            if unsupported_format == 'avif' and not getattr(self, '_preview_warning_shown_avif', False):
+                messagebox.showwarning(
+                    "Vista previa no disponible",
+                    "La librería Pillow instalada no soporta AVIF. \n"
+                    "Instala pillow-heif o pillow-avif-plugin para habilitar la vista previa.",
+                    parent=self
+                )
+                self._preview_warning_shown_avif = True
+
+            if not PIL_AVAILABLE:
+                cv.create_text(
+                    w//2, h//2, text='Instale Pillow para vista previa', fill='#666666')
+                if not getattr(self, '_preview_warning_shown', False):
+                    messagebox.showwarning(
+                        "Vista previa deshabilitada",
+                        "Pillow no está disponible, por lo que la vista previa no puede renderizarse.\n"
+                        "Instala Pillow (y pillow-heif si necesitas WebP/AVIF) para habilitarla.",
+                        parent=self
+                    )
+                    self._preview_warning_shown = True
             else:
-                if not PIL_AVAILABLE:
-                    cv.create_text(
-                        w//2, h//2, text='Instale Pillow para vista previa', fill='#666666')
-                else:
-                    cv.create_text(
-                        w//2, h//2, text='(Vista previa no disponible)', fill='#666666')
-                self._preview_photo = None
+                cv.create_text(
+                    w//2, h//2, text='(Vista previa no disponible)', fill='#666666')
+            self._preview_photo = None
         except Exception:
             cv = self.preview_canvas
-            w, h = getattr(self, '_preview_w', 260), getattr(
-                self, '_preview_h', 195)
+            w, h = getattr(self, '_preview_w', 240), getattr(
+                self, '_preview_h', 240)
             cv.delete("all")
             cv.create_rectangle(0, 0, w, h, fill="#fafafa", outline="#cccccc")
             cv.create_text(
@@ -1666,27 +1720,29 @@ class ProductFormDialog(tk.Toplevel):
 
     def _open_image_file(self) -> None:
         try:
-            entry = self.entries.get('image_path')
-            if not isinstance(entry, ttk.Entry):
-                return
-            rel_path = entry.get().strip()
-            if not rel_path:
+            candidates = self._resolve_image_candidates()
+            if not candidates:
                 return
             abs_base_dir = self._assets_images_root()
-            abs_path = os.path.join(abs_base_dir, rel_path.replace(
-                'assets/images/', '').replace('/', os.sep))
-            if not os.path.exists(abs_path):
+            target_path = None
+            for _, rel_path in candidates:
+                abs_path = os.path.join(abs_base_dir, rel_path.replace(
+                    'assets/images/', '').replace('/', os.sep))
+                if os.path.exists(abs_path):
+                    target_path = abs_path
+                    break
+            if not target_path:
                 messagebox.showerror(
                     'Imagen', 'El archivo de imagen no existe en disco.')
                 return
             if os.name == 'nt':
-                os.startfile(abs_path)  # type: ignore[attr-defined]
+                os.startfile(target_path)  # type: ignore[attr-defined]
             elif sys.platform == 'darwin':
                 import subprocess
-                subprocess.Popen(['open', abs_path])
+                subprocess.Popen(['open', target_path])
             else:
                 import subprocess
-                subprocess.Popen(['xdg-open', abs_path])
+                subprocess.Popen(['xdg-open', target_path])
         except Exception as e:
             messagebox.showerror('Imagen', f'No se pudo abrir la imagen: {e}')
 
