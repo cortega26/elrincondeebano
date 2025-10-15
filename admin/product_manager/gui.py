@@ -1473,8 +1473,10 @@ class ProductFormDialog(tk.Toplevel):
                 target_ext = '.webp' if self.convert_webp_var.get() else ext
                 dest_path = os.path.join(
                     dest_dir, f"{name_no_ext}{target_ext}")
+                img = None
                 try:
-                    img = Image.open(file_path)
+                    with Image.open(file_path) as src_img:
+                        img = src_img.copy()
                     if self.resize_opt_var.get():
                         img.thumbnail((1000, 1000))
                     save_params = {}
@@ -1484,6 +1486,12 @@ class ProductFormDialog(tk.Toplevel):
                 except Exception:
                     dest_path = os.path.join(dest_dir, filename)
                     shutil.copy2(file_path, dest_path)
+                finally:
+                    if img is not None:
+                        try:
+                            img.close()
+                        except Exception:
+                            pass
             else:
                 dest_path = os.path.join(dest_dir, filename)
                 if os.path.abspath(file_path) != os.path.abspath(dest_path):
@@ -1694,6 +1702,11 @@ class ProductFormDialog(tk.Toplevel):
         if guessed:
             fallback_entry.delete(0, tk.END)
             fallback_entry.insert(0, guessed)
+        else:
+            generated = self._generate_fallback_from_avif(avif_rel)
+            if generated:
+                fallback_entry.delete(0, tk.END)
+                fallback_entry.insert(0, generated)
 
     def _guess_fallback_from_avif(self, avif_rel: str) -> Optional[str]:
         """Infer a non-AVIF fallback path located alongside the AVIF."""
@@ -1709,6 +1722,43 @@ class ProductFormDialog(tk.Toplevel):
                 rel_path = os.path.relpath(candidate, base_dir).replace('\\', '/')
                 return f"assets/images/{rel_path}"
         return None
+
+    def _generate_fallback_from_avif(self, avif_rel: str) -> Optional[str]:
+        """Generate a fallback image from the AVIF source if missing."""
+        if not PIL_AVAILABLE or not PIL_AVIF:
+            return None
+        base_dir = self._assets_images_root()
+        relative = avif_rel[len("assets/images/"):].replace('/', os.sep)
+        avif_path = os.path.join(base_dir, relative)
+        if not os.path.exists(avif_path):
+            return None
+
+        base, _ = os.path.splitext(relative)
+        fallback_ext = ".webp" if PIL_WEBP else ".png"
+        fallback_abs = os.path.join(base_dir, base + fallback_ext)
+
+        try:
+            os.makedirs(os.path.dirname(fallback_abs), exist_ok=True)
+        except Exception:
+            return None
+
+        if os.path.exists(fallback_abs):
+            rel_path = os.path.relpath(fallback_abs, base_dir).replace('\\', '/')
+            return f"assets/images/{rel_path}"
+
+        try:
+            with Image.open(avif_path) as src_img:
+                img = src_img.convert("RGBA" if src_img.mode in ("P", "RGBA", "LA") else "RGB")
+                save_params: Dict[str, Any] = {}
+                if fallback_ext == ".webp":
+                    save_params = {"format": "WEBP", "quality": 85}
+                img.save(fallback_abs, **save_params)
+        except Exception as exc:
+            logger.warning("No se pudo generar fallback desde AVIF %s: %s", avif_path, exc)
+            return None
+
+        rel_path = os.path.relpath(fallback_abs, base_dir).replace('\\', '/')
+        return f"assets/images/{rel_path}"
 
     def _center_on_parent(self) -> None:
         """Center the dialog relative to its parent or screen."""
@@ -1825,12 +1875,14 @@ class ProductFormDialog(tk.Toplevel):
                 break
 
             if selected_path and PIL_AVAILABLE:
+                preview_img = None
                 try:
-                    img = Image.open(selected_path)
-                    if img.mode not in ('RGB', 'RGBA'):
-                        img = img.convert('RGBA')
-                    img.thumbnail((w-10, h-10))
-                    self._preview_photo = ImageTk.PhotoImage(img)
+                    with Image.open(selected_path) as src_img:
+                        preview_img = src_img.copy()
+                    if preview_img.mode not in ('RGB', 'RGBA'):
+                        preview_img = preview_img.convert('RGBA')
+                    preview_img.thumbnail((w-10, h-10))
+                    self._preview_photo = ImageTk.PhotoImage(preview_img)
                     cv.create_image(
                         w//2, h//2, image=self._preview_photo, anchor='center')
                     return
@@ -1842,6 +1894,12 @@ class ProductFormDialog(tk.Toplevel):
                             parent=self
                         )
                         self._preview_warning_shown = True
+                finally:
+                    if preview_img is not None:
+                        try:
+                            preview_img.close()
+                        except Exception:
+                            pass
 
             if unsupported_format == 'avif' and not getattr(self, '_preview_warning_shown_avif', False):
                 messagebox.showwarning(
