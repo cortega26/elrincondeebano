@@ -15,6 +15,10 @@ try:
     try:
         import pillow_heif  # type: ignore
         pillow_heif.register_heif_opener()
+        try:
+            pillow_heif.register_avif_opener()
+        except Exception:
+            pass
         PIL_AVIF = True
     except Exception:
         try:
@@ -575,8 +579,19 @@ class ProductGUI(DragDropMixin):
 
     def add_product(self) -> None:
         """Open dialog to add new product."""
-        ProductFormDialog(self.master, "Agregar Producto",
-                          self.product_service, on_save=self.refresh_products)
+        selected_category = getattr(self, "category_var", None)
+        default_category = None
+        if isinstance(selected_category, tk.StringVar):
+            current = selected_category.get().strip()
+            if current and current.lower() != "todas":
+                default_category = current
+        ProductFormDialog(
+            self.master,
+            "Agregar Producto",
+            self.product_service,
+            on_save=self.refresh_products,
+            default_category=default_category,
+        )
 
     def edit_product(self) -> None:
         """Open dialog to edit selected product."""
@@ -1258,31 +1273,48 @@ class ProductGUI(DragDropMixin):
 class ProductFormDialog(tk.Toplevel):
     """Dialog for adding/editing products."""
 
-    def __init__(self, parent: tk.Tk, title: str, product_service: ProductService, product: Optional[Product] = None, on_save: Optional[Callable[[], None]] = None):
+    def __init__(
+        self,
+        parent: tk.Tk,
+        title: str,
+        product_service: ProductService,
+        product: Optional[Product] = None,
+        on_save: Optional[Callable[[], None]] = None,
+        default_category: Optional[str] = None,
+    ):
         super().__init__(parent)
         self.title(title)
         self.product_service = product_service
         self.product = product
         self.on_save = on_save
+        self.default_category = default_category
 
         temp_entry = ttk.Entry(self)
         self.default_font = temp_entry.cget('font')
         temp_entry.destroy()
 
         self._preview_warning_shown = False
+        self._preview_warning_shown_avif = False
         self.setup_dialog()
         self.populate_fields()
+        self._center_on_parent()
 
     def setup_dialog(self) -> None:
         """Set up dialog window."""
         # Make the dialog large enough and resizable so all content fits
-        self.geometry("780x660")
-        self.minsize(720, 560)
+        self.geometry("700x700")
+        self.minsize(700, 660)
         self.resizable(True, True)
         self.transient(self.master)
         self.grab_set()
+
+        # Layout: main content frame plus persistent button bar
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
+
         self.main_frame = ttk.Frame(self, padding="10")
-        self.main_frame.pack(fill=tk.BOTH, expand=True)
+        self.main_frame.grid(row=0, column=0, sticky="nsew")
+
         # Let the input column expand when the window grows
         try:
             self.main_frame.columnconfigure(1, weight=1)
@@ -1331,13 +1363,13 @@ class ProductFormDialog(tk.Toplevel):
                 self.entries[field] = widget
                 widget.grid(row=i, column=1, sticky=tk.EW, pady=5)
             if field == "image_path":
-                ttk.Button(self.main_frame, text="Explorar...", command=self.browse_image, width=10).grid(
+                ttk.Button(self.main_frame, text="Explorar...", command=self.browse_image, width=15).grid(
                     row=i, column=2, padx=(5, 0), pady=5)
                 # Update preview when typing a path
                 widget.bind("<KeyRelease>",
                             lambda _e: self._update_image_preview())
             if field == "image_avif_path":
-                ttk.Button(self.main_frame, text="Explorar AVIF...", command=self.browse_avif_image, width=16).grid(
+                ttk.Button(self.main_frame, text="Explorar AVIF...", command=self.browse_avif_image, width=15).grid(
                     row=i, column=2, padx=(5, 0), pady=5)
 
         # Image processing options
@@ -1354,8 +1386,9 @@ class ProductFormDialog(tk.Toplevel):
 
         # Preview area (fixed-size canvas to avoid stretching on resize)
         self.preview_label = ttk.Label(self.main_frame, text="Vista previa")
-        self.preview_label.grid(row=options_row+1, column=0, sticky=tk.W)
-        self._preview_w = self._preview_h = 260
+        preview_row = options_row + 1
+        self.preview_label.grid(row=preview_row, column=0, sticky=tk.W)
+        self._preview_w = self._preview_h = 240
         self.preview_canvas = tk.Canvas(
             self.main_frame,
             width=self._preview_w,
@@ -1366,7 +1399,7 @@ class ProductFormDialog(tk.Toplevel):
             bd=1,
         )
         self.preview_canvas.grid(
-            row=options_row+1, column=1, sticky=tk.W, pady=4)
+            row=preview_row, column=1, sticky=tk.W, pady=4)
         # Quick-open image in OS viewer
         open_btn = ttk.Button(
             self.main_frame, text="Abrir imagen…", command=self._open_image_file)
@@ -1381,34 +1414,41 @@ class ProductFormDialog(tk.Toplevel):
 
     def create_buttons(self) -> None:
         """Create dialog buttons."""
-        button_frame = ttk.Frame(self)
-        button_frame.pack(side=tk.BOTTOM, pady=(0, 10))
-        ttk.Button(button_frame, text="Guardar",
-                   command=self.save_product, width=10).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Cancelar",
-                   command=self.destroy, width=10).pack(side=tk.LEFT, padx=5)
+        button_frame = ttk.Frame(self, padding=(10, 5))
+        button_frame.grid(
+            row=1, column=0, sticky=tk.E, pady=(10, 15), padx=(10, 16)
+        )
+        button_frame.grid_columnconfigure(0, weight=1)
+        ttk.Frame(button_frame).grid(row=0, column=0, sticky="ew")
+        ttk.Button(
+            button_frame, text="Guardar", command=self.save_product, width=10
+        ).grid(row=0, column=1, padx=5)
+        ttk.Button(
+            button_frame, text="Cancelar", command=self.destroy, width=10
+        ).grid(row=0, column=2, padx=5)
 
     def populate_fields(self) -> None:
         """Populate form fields with product data."""
-        if not self.product:
-            return
-        for field, widget in self.entries.items():
-            value = getattr(self.product, field)
-            if isinstance(widget, tk.BooleanVar):
-                widget.set(value)
-            elif isinstance(widget, tk.Text):
-                widget.delete("1.0", tk.END)
-                widget.insert("1.0", str(value))
-            elif isinstance(widget, ttk.Combobox):
-                widget.set(value)
-            else:
-                widget.delete(0, tk.END)
-                widget.insert(0, str(value))
-        # Ensure image preview syncs with populated image_path
-        try:
-            self._update_image_preview()
-        except Exception:
-            pass
+        if self.product:
+            for field, widget in self.entries.items():
+                value = getattr(self.product, field)
+                if isinstance(widget, tk.BooleanVar):
+                    widget.set(value)
+                elif isinstance(widget, tk.Text):
+                    widget.delete("1.0", tk.END)
+                    widget.insert("1.0", str(value))
+                elif isinstance(widget, ttk.Combobox):
+                    widget.set(value)
+                else:
+                    widget.delete(0, tk.END)
+                    widget.insert(0, str(value))
+            # Ensure image preview syncs with populated image_path
+            try:
+                self._update_image_preview()
+            except Exception:
+                pass
+        else:
+            self._prefill_category()
 
     def browse_image(self) -> None:
         """Open file dialog to select image."""
@@ -1498,6 +1538,8 @@ class ProductFormDialog(tk.Toplevel):
             if isinstance(entry, ttk.Entry):
                 entry.delete(0, tk.END)
                 entry.insert(0, rel_path)
+            self._ensure_fallback_for_avif()
+            self._update_image_preview()
         except Exception as e:
             messagebox.showerror(
                 "Error", f"Error al copiar la imagen AVIF: {str(e)}")
@@ -1519,6 +1561,9 @@ class ProductFormDialog(tk.Toplevel):
 
     def validate_and_get_data(self) -> Dict[str, Any]:
         """Validate and collect form data."""
+        # Try to infer fallback image if the user only selected AVIF
+        self._ensure_fallback_for_avif()
+
         data = {}
         for field, widget in self.entries.items():
             if isinstance(widget, tk.BooleanVar):
@@ -1594,9 +1639,115 @@ class ProductFormDialog(tk.Toplevel):
             if not data["image_avif_path"].lower().endswith(".avif"):
                 raise ValueError("La ruta AVIF debe terminar en '.avif'")
             if not data.get("image_path"):
+                guessed_fallback = self._guess_fallback_from_avif(
+                    data["image_avif_path"])
+                if guessed_fallback:
+                    data["image_path"] = guessed_fallback
+                    fallback_entry = self.entries.get("image_path")
+                    if isinstance(fallback_entry, ttk.Entry):
+                        fallback_entry.delete(0, tk.END)
+                        fallback_entry.insert(0, guessed_fallback)
+                if data.get("image_path"):
+                    # Ensure preview reflects inferred fallback
+                    try:
+                        self._update_image_preview()
+                    except Exception:
+                        pass
+            if not data.get("image_path"):
                 raise ValueError(
                     "Debes mantener una imagen de respaldo (PNG/JPG/GIF/WebP) al usar AVIF.")
         return data
+
+    def _prefill_category(self) -> None:
+        """Select default category when creating a new product."""
+        if not self.default_category:
+            return
+        cat_widget = self.entries.get("category")
+        if not isinstance(cat_widget, ttk.Combobox):
+            return
+        desired = self.default_category.strip()
+        if not desired:
+            return
+        try:
+            values = [str(v) for v in cat_widget["values"]]
+            match = next(
+                (value for value in values if value.lower() == desired.lower()),
+                None,
+            )
+            cat_widget.set(match or desired)
+        except Exception:
+            cat_widget.set(desired)
+
+    def _ensure_fallback_for_avif(self) -> None:
+        """Populate fallback image entry when an AVIF is selected."""
+        avif_entry = self.entries.get("image_avif_path")
+        fallback_entry = self.entries.get("image_path")
+        if not isinstance(avif_entry, ttk.Entry) or not isinstance(fallback_entry, ttk.Entry):
+            return
+        current_fallback = fallback_entry.get().strip()
+        if current_fallback:
+            return
+        avif_rel = avif_entry.get().strip()
+        if not avif_rel:
+            return
+        guessed = self._guess_fallback_from_avif(avif_rel)
+        if guessed:
+            fallback_entry.delete(0, tk.END)
+            fallback_entry.insert(0, guessed)
+
+    def _guess_fallback_from_avif(self, avif_rel: str) -> Optional[str]:
+        """Infer a non-AVIF fallback path located alongside the AVIF."""
+        avif_rel = avif_rel.strip()
+        if not avif_rel or not avif_rel.startswith("assets/images/"):
+            return None
+        base_dir = self._assets_images_root()
+        relative = avif_rel[len("assets/images/"):].replace('/', os.sep)
+        base, _ = os.path.splitext(relative)
+        for ext in (".webp", ".jpg", ".jpeg", ".png", ".gif"):
+            candidate = os.path.join(base_dir, base + ext)
+            if os.path.exists(candidate):
+                rel_path = os.path.relpath(candidate, base_dir).replace('\\', '/')
+                return f"assets/images/{rel_path}"
+        return None
+
+    def _center_on_parent(self) -> None:
+        """Center the dialog relative to its parent or screen."""
+        try:
+            self.update_idletasks()
+            width = self.winfo_width() or self.winfo_reqwidth()
+            height = self.winfo_height() or self.winfo_reqheight()
+
+            if self.master and self.master.winfo_ismapped():
+                parent_x = self.master.winfo_rootx()
+                parent_y = self.master.winfo_rooty()
+                parent_w = self.master.winfo_width()
+                parent_h = self.master.winfo_height()
+            else:
+                parent_x = 0
+                parent_y = 0
+                parent_w = self.winfo_screenwidth()
+                parent_h = self.winfo_screenheight()
+
+            if parent_w <= 1 or parent_h <= 1:
+                screen_w = self.winfo_screenwidth()
+                screen_h = self.winfo_screenheight()
+                x = max((screen_w - width) // 2, 0)
+                y = max((screen_h - height) // 2, 0)
+            else:
+                x = parent_x + (parent_w - width) // 2
+                y = parent_y + (parent_h - height) // 2
+                x = max(x, 0)
+                y = max(y, 0)
+
+            self.geometry(f"{width}x{height}+{int(x)}+{int(y)}")
+        except Exception:
+            screen_w = self.winfo_screenwidth()
+            screen_h = self.winfo_screenheight()
+            width = self.winfo_width() or self.winfo_reqwidth()
+            height = self.winfo_height() or self.winfo_reqheight()
+            x = max((screen_w - width) // 2, 0)
+            y = max((screen_h - height) // 2, 0)
+            self.geometry(f"{width}x{height}+{int(x)}+{int(y)}")
 
     # Helpers for image paths and preview
     def _assets_images_root(self) -> str:
@@ -1676,13 +1827,21 @@ class ProductFormDialog(tk.Toplevel):
             if selected_path and PIL_AVAILABLE:
                 try:
                     img = Image.open(selected_path)
+                    if img.mode not in ('RGB', 'RGBA'):
+                        img = img.convert('RGBA')
                     img.thumbnail((w-10, h-10))
                     self._preview_photo = ImageTk.PhotoImage(img)
                     cv.create_image(
                         w//2, h//2, image=self._preview_photo, anchor='center')
                     return
-                except Exception:
-                    pass
+                except Exception as img_error:
+                    if not getattr(self, '_preview_warning_shown', False):
+                        messagebox.showwarning(
+                            'Vista previa',
+                            f'No se pudo renderizar la imagen seleccionada: {img_error}',
+                            parent=self
+                        )
+                        self._preview_warning_shown = True
 
             if unsupported_format == 'avif' and not getattr(self, '_preview_warning_shown_avif', False):
                 messagebox.showwarning(
@@ -1692,6 +1851,13 @@ class ProductFormDialog(tk.Toplevel):
                     parent=self
                 )
                 self._preview_warning_shown_avif = True
+            elif unsupported_format == 'webp' and not getattr(self, '_preview_warning_shown', False):
+                messagebox.showwarning(
+                    "Vista previa no disponible",
+                    "El entorno actual de Pillow no soporta WebP. Instala pillow-heif o actualiza Pillow.",
+                    parent=self
+                )
+                self._preview_warning_shown = True
 
             if not PIL_AVAILABLE:
                 cv.create_text(
@@ -1777,9 +1943,9 @@ class PreferencesDialog(tk.Toplevel):
         button_frame = ttk.Frame(self)
         button_frame.grid(row=3, column=0, columnspan=2, pady=20)
         ttk.Button(button_frame, text="Guardar",
-                   command=self.save_preferences).pack(side=tk.LEFT, padx=5)
+                   command=self.save_preferences).pack(side=tk.CENTER, padx=5)
         ttk.Button(button_frame, text="Cancelar",
-                   command=self.destroy).pack(side=tk.LEFT, padx=5)
+                   command=self.destroy).pack(side=tk.CENTER, padx=5)
 
     def save_preferences(self) -> None:
         """Save preferences to configuration."""
