@@ -45,6 +45,17 @@ const buildCfSrcset = (assetPath, extraOpts = {}, widths = PRODUCT_IMAGE_WIDTHS)
 
 const STATIC_SRC_DESCRIPTOR_KEYS = Object.freeze(['descriptor', 'd']);
 
+const encodeStaticPath = (path) => {
+    if (!path) {
+        return '';
+    }
+    try {
+        return encodeURI(path);
+    } catch (_err) {
+        return path;
+    }
+};
+
 const buildStaticSrcset = (assetPath) => {
     if (!assetPath) {
         return '';
@@ -63,7 +74,8 @@ const buildStaticSrcset = (assetPath) => {
 
     const buildEntry = (entry) => {
         if (typeof entry === 'string') {
-            return normaliseAssetPath(entry);
+            const normalised = normaliseAssetPath(entry);
+            return encodeStaticPath(normalised);
         }
 
         if (entry && typeof entry === 'object') {
@@ -75,7 +87,8 @@ const buildStaticSrcset = (assetPath) => {
 
             const descriptorKey = STATIC_SRC_DESCRIPTOR_KEYS.find(key => key in entry);
             const descriptor = descriptorKey ? normaliseDescriptor(entry[descriptorKey]) : normaliseDescriptor(entry.width);
-            return descriptor ? `${src} ${descriptor}` : src;
+            const encodedSrc = encodeStaticPath(src);
+            return descriptor ? `${encodedSrc} ${descriptor}` : encodedSrc;
         }
 
         return '';
@@ -92,7 +105,7 @@ const buildStaticSrcset = (assetPath) => {
         if (typeof assetPath.srcset === 'string') {
             const trimmed = assetPath.srcset.trim();
             if (trimmed) {
-                return trimmed;
+                return encodeStaticPath(trimmed);
             }
         }
 
@@ -106,7 +119,8 @@ const buildStaticSrcset = (assetPath) => {
         return buildEntry(assetPath);
     }
 
-    return normaliseAssetPath(assetPath);
+    const normalised = normaliseAssetPath(assetPath);
+    return encodeStaticPath(normalised);
 };
 
 const isAvifAsset = (assetPath) => {
