@@ -31,11 +31,19 @@ Thumbs.db
 
 # Logs and databases
 *.log
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 *.sqlite
 
 # Configuration files
 config.ini
 secrets.json
+.env
+.env.*
+!.env.example
 
 # Python test files
 tests/**/*.py
@@ -51,6 +59,7 @@ docs/_build/
 .coverage.*
 coverage.xml
 *.cover
+coverage/
 
 # Pytest cache
 .pytest_cache/
@@ -75,6 +84,17 @@ product_data.backup_*
 node_modules/
 text_files/
 results.json
+.eslintcache
+cypress/screenshots/
+cypress/videos/
+playwright-report/
+test-results/
+.lighthouse/
+
+# Cache directories
+.cache/
+.parcel-cache/
+.turbo/
 
 # Build output and temporary files
 temp/
