@@ -29,9 +29,9 @@
       "timestamp": "2025-10-14T15:11:04.680Z",
       "changeset_id": "7b825c083bc847c89768b4cbbb19b375",
       "status": "error",
-      "attempts": 121,
+      "attempts": 145,
       "enqueued_at": "2025-10-14T15:11:04.687Z",
-      "last_attempt": "2025-10-15T21:12:24.443Z",
+      "last_attempt": "2025-10-15T23:29:33.178Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -63,9 +63,9 @@
       "timestamp": "2025-10-14T15:11:12.460Z",
       "changeset_id": "045413c4d30d4920b0b9694edd035bbc",
       "status": "error",
-      "attempts": 121,
+      "attempts": 143,
       "enqueued_at": "2025-10-14T15:11:12.466Z",
-      "last_attempt": "2025-10-15T21:12:25.472Z",
+      "last_attempt": "2025-10-15T23:29:34.192Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -97,9 +97,9 @@
       "timestamp": "2025-10-14T15:11:28.299Z",
       "changeset_id": "4efe369a8bce49578a5ae317f7a65c8a",
       "status": "error",
-      "attempts": 120,
+      "attempts": 142,
       "enqueued_at": "2025-10-14T15:11:28.306Z",
-      "last_attempt": "2025-10-15T21:12:26.500Z",
+      "last_attempt": "2025-10-15T23:29:35.225Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -131,9 +131,9 @@
       "timestamp": "2025-10-14T15:25:14.308Z",
       "changeset_id": "667baa4483a34be9965db3da1f155945",
       "status": "error",
-      "attempts": 107,
+      "attempts": 129,
       "enqueued_at": "2025-10-14T15:25:14.315Z",
-      "last_attempt": "2025-10-15T21:12:27.522Z",
+      "last_attempt": "2025-10-15T23:29:36.268Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -165,9 +165,9 @@
       "timestamp": "2025-10-14T15:25:18.008Z",
       "changeset_id": "a65f5a82bdb24917ab9850b840dc6537",
       "status": "error",
-      "attempts": 107,
+      "attempts": 129,
       "enqueued_at": "2025-10-14T15:25:18.018Z",
-      "last_attempt": "2025-10-15T21:12:28.551Z",
+      "last_attempt": "2025-10-15T23:29:37.298Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -199,9 +199,9 @@
       "timestamp": "2025-10-14T15:25:21.119Z",
       "changeset_id": "8f00dcb267584cc8814732c13351277b",
       "status": "error",
-      "attempts": 107,
+      "attempts": 129,
       "enqueued_at": "2025-10-14T15:25:21.126Z",
-      "last_attempt": "2025-10-15T21:12:29.581Z",
+      "last_attempt": "2025-10-15T23:29:38.305Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -233,9 +233,9 @@
       "timestamp": "2025-10-14T15:25:24.719Z",
       "changeset_id": "9eb71086e87e40a5ad8d48c6ae565a7d",
       "status": "error",
-      "attempts": 106,
+      "attempts": 128,
       "enqueued_at": "2025-10-14T15:25:24.726Z",
-      "last_attempt": "2025-10-15T21:12:30.615Z",
+      "last_attempt": "2025-10-15T23:29:39.332Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -267,9 +267,9 @@
       "timestamp": "2025-10-14T15:25:27.856Z",
       "changeset_id": "6be544d0552e4d8aa81e04e43b054b5d",
       "status": "error",
-      "attempts": 106,
+      "attempts": 128,
       "enqueued_at": "2025-10-14T15:25:27.862Z",
-      "last_attempt": "2025-10-15T21:12:31.645Z",
+      "last_attempt": "2025-10-15T23:29:40.351Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -301,9 +301,9 @@
       "timestamp": "2025-10-14T15:25:30.632Z",
       "changeset_id": "884b446d38f846dea4b73388c4e3b50e",
       "status": "error",
-      "attempts": 105,
+      "attempts": 127,
       "enqueued_at": "2025-10-14T15:25:30.638Z",
-      "last_attempt": "2025-10-15T21:12:32.676Z",
+      "last_attempt": "2025-10-15T23:29:41.375Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -335,9 +335,9 @@
       "timestamp": "2025-10-14T15:25:45.048Z",
       "changeset_id": "af993f4363d74715a93816788abfca69",
       "status": "error",
-      "attempts": 104,
+      "attempts": 126,
       "enqueued_at": "2025-10-14T15:25:45.055Z",
-      "last_attempt": "2025-10-15T21:12:33.694Z",
+      "last_attempt": "2025-10-15T23:29:42.394Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -369,9 +369,9 @@
       "timestamp": "2025-10-14T15:25:47.892Z",
       "changeset_id": "09b5b14895604d1d8ed95356ee925912",
       "status": "error",
-      "attempts": 102,
+      "attempts": 124,
       "enqueued_at": "2025-10-14T15:25:47.898Z",
-      "last_attempt": "2025-10-15T21:12:34.736Z",
+      "last_attempt": "2025-10-15T23:29:43.409Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -403,9 +403,9 @@
       "timestamp": "2025-10-14T15:25:52.795Z",
       "changeset_id": "464469a6b0d94fd6a276b28dd4cc80b7",
       "status": "error",
-      "attempts": 101,
+      "attempts": 123,
       "enqueued_at": "2025-10-14T15:25:52.802Z",
-      "last_attempt": "2025-10-15T21:12:35.740Z",
+      "last_attempt": "2025-10-15T23:29:44.426Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -437,9 +437,9 @@
       "timestamp": "2025-10-14T15:25:55.403Z",
       "changeset_id": "39e3b2b53d55427891d0d5d7bbfeb485",
       "status": "error",
-      "attempts": 99,
+      "attempts": 121,
       "enqueued_at": "2025-10-14T15:25:55.410Z",
-      "last_attempt": "2025-10-15T21:12:36.786Z",
+      "last_attempt": "2025-10-15T23:29:45.440Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -471,9 +471,9 @@
       "timestamp": "2025-10-14T15:26:34.407Z",
       "changeset_id": "1ed36bd34c094b5291aa9129dbd47321",
       "status": "error",
-      "attempts": 98,
+      "attempts": 120,
       "enqueued_at": "2025-10-14T15:26:34.414Z",
-      "last_attempt": "2025-10-15T21:12:37.816Z",
+      "last_attempt": "2025-10-15T23:29:46.459Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -505,9 +505,9 @@
       "timestamp": "2025-10-14T15:26:48.413Z",
       "changeset_id": "69790418570b432a9d931e83c722afc0",
       "status": "error",
-      "attempts": 97,
+      "attempts": 119,
       "enqueued_at": "2025-10-14T15:26:48.419Z",
-      "last_attempt": "2025-10-15T21:12:38.834Z",
+      "last_attempt": "2025-10-15T23:29:47.488Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -539,9 +539,9 @@
       "timestamp": "2025-10-14T15:28:27.614Z",
       "changeset_id": "24fe2dd24b5d48bc8c377197abe678b0",
       "status": "error",
-      "attempts": 96,
+      "attempts": 118,
       "enqueued_at": "2025-10-14T15:28:27.621Z",
-      "last_attempt": "2025-10-15T21:12:39.851Z",
+      "last_attempt": "2025-10-15T23:29:48.534Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -573,9 +573,9 @@
       "timestamp": "2025-10-14T15:28:31.473Z",
       "changeset_id": "6847259809ab434b8060b2e461dce843",
       "status": "error",
-      "attempts": 95,
+      "attempts": 117,
       "enqueued_at": "2025-10-14T15:28:31.479Z",
-      "last_attempt": "2025-10-15T21:12:40.865Z",
+      "last_attempt": "2025-10-15T23:29:49.563Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -607,9 +607,9 @@
       "timestamp": "2025-10-14T15:29:32.572Z",
       "changeset_id": "23ab79cf440b4a4d95a0853f2c288da0",
       "status": "error",
-      "attempts": 92,
+      "attempts": 114,
       "enqueued_at": "2025-10-14T15:29:32.579Z",
-      "last_attempt": "2025-10-15T21:12:41.896Z",
+      "last_attempt": "2025-10-15T23:29:50.595Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -641,9 +641,9 @@
       "timestamp": "2025-10-14T15:30:10.196Z",
       "changeset_id": "c2ba515065b440759069bc9fb0e707f2",
       "status": "error",
-      "attempts": 90,
+      "attempts": 112,
       "enqueued_at": "2025-10-14T15:30:10.203Z",
-      "last_attempt": "2025-10-15T21:12:42.942Z",
+      "last_attempt": "2025-10-15T23:29:51.614Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -675,9 +675,9 @@
       "timestamp": "2025-10-14T15:30:25.387Z",
       "changeset_id": "2df0098618644ee69a3a217c1c1f0f53",
       "status": "error",
-      "attempts": 90,
+      "attempts": 112,
       "enqueued_at": "2025-10-14T15:30:25.394Z",
-      "last_attempt": "2025-10-15T21:12:43.973Z",
+      "last_attempt": "2025-10-15T23:29:52.661Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -709,9 +709,9 @@
       "timestamp": "2025-10-14T15:30:31.152Z",
       "changeset_id": "66290bad11ba4ddebd7d0fb954d4c600",
       "status": "error",
-      "attempts": 90,
+      "attempts": 112,
       "enqueued_at": "2025-10-14T15:30:31.158Z",
-      "last_attempt": "2025-10-15T21:12:45.018Z",
+      "last_attempt": "2025-10-15T23:29:53.691Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -743,9 +743,9 @@
       "timestamp": "2025-10-14T15:30:35.272Z",
       "changeset_id": "e7e227f109914cb0a7f3c9a080144265",
       "status": "error",
-      "attempts": 90,
+      "attempts": 112,
       "enqueued_at": "2025-10-14T15:30:35.279Z",
-      "last_attempt": "2025-10-15T21:12:46.033Z",
+      "last_attempt": "2025-10-15T23:29:54.734Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -777,9 +777,9 @@
       "timestamp": "2025-10-14T15:30:38.103Z",
       "changeset_id": "8658f0399085404c8d683c25119cdd97",
       "status": "error",
-      "attempts": 88,
+      "attempts": 110,
       "enqueued_at": "2025-10-14T15:30:38.110Z",
-      "last_attempt": "2025-10-15T21:12:47.046Z",
+      "last_attempt": "2025-10-15T23:29:55.751Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -811,9 +811,9 @@
       "timestamp": "2025-10-14T15:30:40.704Z",
       "changeset_id": "06294ff7685f430fb0c25b21e62b3fa8",
       "status": "error",
-      "attempts": 88,
+      "attempts": 110,
       "enqueued_at": "2025-10-14T15:30:40.711Z",
-      "last_attempt": "2025-10-15T21:12:48.062Z",
+      "last_attempt": "2025-10-15T23:29:56.779Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -845,9 +845,9 @@
       "timestamp": "2025-10-14T15:30:43.135Z",
       "changeset_id": "306888a1b32f44908ea7c385cd965acc",
       "status": "error",
-      "attempts": 88,
+      "attempts": 110,
       "enqueued_at": "2025-10-14T15:30:43.142Z",
-      "last_attempt": "2025-10-15T21:12:49.091Z",
+      "last_attempt": "2025-10-15T23:29:57.824Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -879,9 +879,9 @@
       "timestamp": "2025-10-14T15:30:46.096Z",
       "changeset_id": "c1117e7c6024415a8b539c743d15d506",
       "status": "error",
-      "attempts": 87,
+      "attempts": 109,
       "enqueued_at": "2025-10-14T15:30:46.103Z",
-      "last_attempt": "2025-10-15T21:12:50.110Z",
+      "last_attempt": "2025-10-15T23:29:58.853Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -913,9 +913,9 @@
       "timestamp": "2025-10-14T15:30:54.687Z",
       "changeset_id": "1dae286e780a48a1bfb1364fa109ca12",
       "status": "error",
-      "attempts": 86,
+      "attempts": 108,
       "enqueued_at": "2025-10-14T15:30:54.694Z",
-      "last_attempt": "2025-10-15T21:12:51.139Z",
+      "last_attempt": "2025-10-15T23:29:59.897Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -947,9 +947,9 @@
       "timestamp": "2025-10-14T15:30:57.608Z",
       "changeset_id": "fa1363ac22164da5a4d73ba60e44f863",
       "status": "error",
-      "attempts": 85,
+      "attempts": 107,
       "enqueued_at": "2025-10-14T15:30:57.615Z",
-      "last_attempt": "2025-10-15T21:12:52.171Z",
+      "last_attempt": "2025-10-15T23:30:00.940Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -981,9 +981,9 @@
       "timestamp": "2025-10-14T15:31:00.347Z",
       "changeset_id": "07a4c379421149ca9b6bbc65d67e77a8",
       "status": "error",
-      "attempts": 84,
+      "attempts": 106,
       "enqueued_at": "2025-10-14T15:31:00.354Z",
-      "last_attempt": "2025-10-15T21:12:53.202Z",
+      "last_attempt": "2025-10-15T23:30:01.970Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -1015,9 +1015,9 @@
       "timestamp": "2025-10-14T15:31:02.685Z",
       "changeset_id": "9a3be62aebc04f529bb5551c90792f0a",
       "status": "error",
-      "attempts": 83,
+      "attempts": 105,
       "enqueued_at": "2025-10-14T15:31:02.692Z",
-      "last_attempt": "2025-10-15T21:12:54.232Z",
+      "last_attempt": "2025-10-15T23:30:03.000Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -1049,9 +1049,9 @@
       "timestamp": "2025-10-14T15:31:05.093Z",
       "changeset_id": "5a496b3a007f47d188b5b174354b63c2",
       "status": "error",
-      "attempts": 81,
+      "attempts": 103,
       "enqueued_at": "2025-10-14T15:31:05.100Z",
-      "last_attempt": "2025-10-15T21:12:55.235Z",
+      "last_attempt": "2025-10-15T23:30:04.015Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -1083,9 +1083,9 @@
       "timestamp": "2025-10-14T15:31:07.764Z",
       "changeset_id": "a18b8153225546d9bef0876f2c81f113",
       "status": "error",
-      "attempts": 80,
+      "attempts": 102,
       "enqueued_at": "2025-10-14T15:31:07.770Z",
-      "last_attempt": "2025-10-15T21:12:56.269Z",
+      "last_attempt": "2025-10-15T23:30:05.031Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -1117,9 +1117,9 @@
       "timestamp": "2025-10-14T15:32:03.292Z",
       "changeset_id": "c84bcd5647db45889b293c73ff46b848",
       "status": "error",
-      "attempts": 78,
+      "attempts": 100,
       "enqueued_at": "2025-10-14T15:32:03.299Z",
-      "last_attempt": "2025-10-15T21:12:57.314Z",
+      "last_attempt": "2025-10-15T23:30:06.047Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -1160,9 +1160,9 @@
       "timestamp": "2025-10-15T19:26:20.927Z",
       "changeset_id": "fe3317cc8b3d43c18e34c57e4402e47b",
       "status": "error",
-      "attempts": 13,
+      "attempts": 35,
       "enqueued_at": "2025-10-15T19:26:20.934Z",
-      "last_attempt": "2025-10-15T21:12:58.333Z",
+      "last_attempt": "2025-10-15T23:30:07.083Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -1203,9 +1203,9 @@
       "timestamp": "2025-10-15T19:26:50.471Z",
       "changeset_id": "02377b95d0f341a0a9ed8e7d3dcf7604",
       "status": "error",
-      "attempts": 12,
+      "attempts": 34,
       "enqueued_at": "2025-10-15T19:26:50.478Z",
-      "last_attempt": "2025-10-15T21:12:59.364Z",
+      "last_attempt": "2025-10-15T23:30:08.096Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -1246,9 +1246,9 @@
       "timestamp": "2025-10-15T19:32:32.735Z",
       "changeset_id": "a4f8db0cefaf4560bc5e3644fa8bb07b",
       "status": "error",
-      "attempts": 12,
+      "attempts": 34,
       "enqueued_at": "2025-10-15T19:32:32.743Z",
-      "last_attempt": "2025-10-15T21:13:00.396Z",
+      "last_attempt": "2025-10-15T23:30:09.132Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     },
     {
@@ -1289,9 +1289,44 @@
       "timestamp": "2025-10-15T19:39:49.167Z",
       "changeset_id": "31579eb5838840608536998bf58cab81",
       "status": "error",
-      "attempts": 11,
+      "attempts": 33,
       "enqueued_at": "2025-10-15T19:39:49.174Z",
-      "last_attempt": "2025-10-15T21:13:01.412Z",
+      "last_attempt": "2025-10-15T23:30:10.161Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+    },
+    {
+      "product_id": "Canada Dry • Agua Tónica 1,5L",
+      "base_rev": 0,
+      "fields": {
+        "order": 0
+      },
+      "snapshot": {
+        "name": "Canada Dry • Agua Tónica 1,5L",
+        "description": "Envase desechable",
+        "price": 2900,
+        "discount": 0,
+        "stock": false,
+        "category": "Aguas",
+        "image_path": "assets/images/bebidas/Canada Dry - Agua Tónica 1,5L.webp",
+        "image_avif_path": "",
+        "order": 140,
+        "rev": 0,
+        "field_last_modified": {
+          "order": {
+            "ts": "2025-10-15T22:35:18.285Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          }
+        }
+      },
+      "timestamp": "2025-10-15T22:35:18.285Z",
+      "changeset_id": "ebaa6081154d4c7386ee7d71fb05cf75",
+      "status": "error",
+      "attempts": 21,
+      "enqueued_at": "2025-10-15T22:35:18.293Z",
+      "last_attempt": "2025-10-15T23:30:11.177Z",
       "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
     }
   ],

@@ -1,6 +1,6 @@
 {
-  "version": "20251015-181306",
-  "last_updated": "2025-10-15T18:13:06.015960",
+  "version": "20251015-203006",
+  "last_updated": "2025-10-15T20:30:06.246388",
   "rev": 0,
   "products": [
     {
@@ -2036,7 +2036,15 @@
       "image_avif_path": "",
       "order": 140,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "order": {
+          "ts": "2025-10-15T22:35:18.285Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Benedictino • Agua sin gas 2L",
@@ -2114,6 +2122,146 @@
         },
         "order": {
           "ts": "2025-10-15T21:13:06.014Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Agua Tónica - Shweppes",
+      "description": "Botella de 1,5L",
+      "price": 2800,
+      "discount": 0,
+      "stock": true,
+      "category": "",
+      "image_path": "assets/images/Schweppes - Agua Tónica 1,5L.webp",
+      "image_avif_path": "assets/images/Schweppes - Agua Tónica 1,5L.avif",
+      "order": 142,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-15T23:08:38.853Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-15T23:08:38.853Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-15T23:08:38.853Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-15T23:08:38.853Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-15T23:08:38.853Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-15T23:08:38.853Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-15T23:08:38.853Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-15T23:08:38.853Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Agua Tónica Shweppes",
+      "description": "Botella de 1,5L",
+      "price": 2800,
+      "discount": 0,
+      "stock": true,
+      "category": "Aguas",
+      "image_path": "assets/images/aguas/Shweppes - Agua Tonica 1,5L.webp",
+      "image_avif_path": "assets/images/aguas/Shweppes - Agua Tonica 1,5L.avif",
+      "order": 143,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-15T23:30:06.244Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-15T23:30:06.244Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-15T23:30:06.244Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-15T23:30:06.244Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-15T23:30:06.244Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-15T23:30:06.244Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-15T23:30:06.244Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-15T23:30:06.244Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,

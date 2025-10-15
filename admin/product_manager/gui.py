@@ -1353,6 +1353,9 @@ class ProductFormDialog(tk.Toplevel):
                     self.product_service.get_categories()), **widget_opts)
                 self.entries[field] = widget
                 widget.grid(row=i, column=1, sticky=tk.EW, pady=5)
+                widget.bind("<<ComboboxSelected>>",
+                            self._on_category_change)
+                widget.bind("<FocusOut>", self._on_category_change)
             elif widget_class == tk.Text:
                 widget = widget_class(
                     self.main_frame, font=self.default_font, **widget_opts)
@@ -1458,25 +1461,24 @@ class ProductFormDialog(tk.Toplevel):
         if not file_path:
             return
         try:
-            abs_base_dir = self._assets_images_root()
-            # Use category to choose destination subfolder
+            base_dir = Path(self._assets_images_root()).resolve()
+            src_path = Path(file_path).resolve()
             cat_widget = self.entries.get("category")
-            category = cat_widget.get() if isinstance(cat_widget, ttk.Combobox) else ""
-            subdir = self._category_subdir(str(category))
-            dest_dir = os.path.join(abs_base_dir, subdir)
-            os.makedirs(dest_dir, exist_ok=True)
-
-            filename = os.path.basename(file_path)
+            current_category = cat_widget.get() if isinstance(
+                cat_widget, ttk.Combobox) else ""
+            dest_dir, category_updated = self._resolve_destination_directory(
+                src_path, base_dir, current_category, cat_widget)
+            filename = src_path.name
             name_no_ext, ext = os.path.splitext(filename)
 
-            # Optional image optimization
+            dest_dir.mkdir(parents=True, exist_ok=True)
+
             if PIL_AVAILABLE and (self.convert_webp_var.get() or self.resize_opt_var.get()):
                 target_ext = '.webp' if self.convert_webp_var.get() else ext
-                dest_path = os.path.join(
-                    dest_dir, f"{name_no_ext}{target_ext}")
+                dest_path = dest_dir / f"{name_no_ext}{target_ext}"
                 img = None
                 try:
-                    with Image.open(file_path) as src_img:
+                    with Image.open(src_path) as src_img:
                         img = src_img.copy()
                     if self.resize_opt_var.get():
                         img.thumbnail((1000, 1000))
@@ -1485,8 +1487,9 @@ class ProductFormDialog(tk.Toplevel):
                         save_params = {"format": "WEBP", "quality": 85}
                     img.save(dest_path, **save_params)
                 except Exception:
-                    dest_path = os.path.join(dest_dir, filename)
-                    shutil.copy2(file_path, dest_path)
+                    dest_path = dest_dir / filename
+                    if src_path != dest_path:
+                        shutil.copy2(src_path, dest_path)
                 finally:
                     if img is not None:
                         try:
@@ -1494,12 +1497,11 @@ class ProductFormDialog(tk.Toplevel):
                         except Exception:
                             pass
             else:
-                dest_path = os.path.join(dest_dir, filename)
-                if os.path.abspath(file_path) != os.path.abspath(dest_path):
-                    shutil.copy2(file_path, dest_path)
+                dest_path = dest_dir / filename
+                if src_path != dest_path:
+                    shutil.copy2(src_path, dest_path)
 
-            rel_path = os.path.relpath(
-                dest_path, abs_base_dir).replace('\\', '/')
+            rel_path = dest_path.relative_to(base_dir).as_posix()
             rel_path = 'assets/images/' + rel_path
             self.entries["image_path"].delete(0, tk.END)
             self.entries["image_path"].insert(0, rel_path)
@@ -1508,13 +1510,13 @@ class ProductFormDialog(tk.Toplevel):
             # If there is an AVIF counterpart in the same directory, pre-fill the field
             avif_entry = self.entries.get("image_avif_path")
             if isinstance(avif_entry, ttk.Entry):
-                guessed_avif = os.path.join(dest_dir, f"{name_no_ext}.avif")
-                if os.path.exists(guessed_avif):
-                    avif_rel = os.path.relpath(
-                        guessed_avif, abs_base_dir).replace('\\', '/')
-                    avif_rel = 'assets/images/' + avif_rel
+                guessed_avif = dest_dir / f"{name_no_ext}.avif"
+                if guessed_avif.exists():
+                    avif_rel = guessed_avif.relative_to(base_dir).as_posix()
                     avif_entry.delete(0, tk.END)
-                    avif_entry.insert(0, avif_rel)
+                    avif_entry.insert(0, f'assets/images/{avif_rel}')
+            if category_updated:
+                self._on_category_change()
         except Exception as e:
             messagebox.showerror(
                 "Error", f"Error al copiar la imagen: {str(e)}")
@@ -1526,34 +1528,24 @@ class ProductFormDialog(tk.Toplevel):
         if not file_path:
             return
         try:
-            abs_base_dir = self._assets_images_root()
+            base_dir = Path(self._assets_images_root()).resolve()
             cat_widget = self.entries.get("category")
             category = cat_widget.get() if isinstance(cat_widget, ttk.Combobox) else ""
-            subdir = self._category_subdir(str(category))
-            dest_dir = os.path.join(abs_base_dir, subdir)
-            os.makedirs(dest_dir, exist_ok=True)
+            src_path = Path(file_path).resolve()
+            dest_dir, category_updated = self._resolve_destination_directory(
+                src_path, base_dir, category, cat_widget)
+            dest_dir.mkdir(parents=True, exist_ok=True)
 
             filename = os.path.basename(file_path)
             if not filename.lower().endswith('.avif'):
                 filename = os.path.splitext(filename)[0] + '.avif'
-            dest_path = os.path.join(dest_dir, filename)
+            dest_path = dest_dir / filename
 
-            src_resolved = Path(file_path).resolve()
-            dest_resolved = Path(dest_path).resolve()
-            copy_needed = True
-            try:
-                if dest_resolved.exists() and os.path.samefile(src_resolved, dest_resolved):
-                    copy_needed = False
-                elif os.path.normcase(str(src_resolved)) == os.path.normcase(str(dest_resolved)):
-                    copy_needed = False
-            except FileNotFoundError:
-                pass
-
-            if copy_needed:
+            if src_path != dest_path:
                 last_error: Optional[Exception] = None
                 for attempt in range(5):
                     try:
-                        shutil.copy2(src_resolved, dest_resolved)
+                        shutil.copy2(src_path, dest_path)
                         last_error = None
                         break
                     except OSError as copy_err:
@@ -1563,19 +1555,18 @@ class ProductFormDialog(tk.Toplevel):
                         time.sleep(0.3 * (attempt + 1))
                 if last_error:
                     raise PermissionError(
-                        f"{last_error} (origen: {src_resolved}, destino: {dest_resolved})"
+                        f"{last_error} (origen: {src_path}, destino: {dest_path})"
                     ) from last_error
-            else:
-                dest_path = str(dest_resolved)
 
-            rel_path = os.path.relpath(
-                dest_path, abs_base_dir).replace('\\', '/')
+            rel_path = dest_path.relative_to(base_dir).as_posix()
             rel_path = 'assets/images/' + rel_path
             entry = self.entries.get("image_avif_path")
             if isinstance(entry, ttk.Entry):
                 entry.delete(0, tk.END)
                 entry.insert(0, rel_path)
             self._ensure_fallback_for_avif()
+            if category_updated:
+                self._on_category_change()
             self._update_image_preview()
         except Exception as e:
             messagebox.showerror(
@@ -1714,6 +1705,7 @@ class ProductFormDialog(tk.Toplevel):
             cat_widget.set(match or desired)
         except Exception:
             cat_widget.set(desired)
+        self._on_category_change()
 
     def _ensure_fallback_for_avif(self) -> None:
         """Populate fallback image entry when an AVIF is selected."""
@@ -1872,6 +1864,131 @@ class ProductFormDialog(tk.Toplevel):
             if rel:
                 candidates.append(('avif', rel))
         return candidates
+
+    def _on_category_change(self, _event: tk.Event = None) -> None:
+        """Ensure media files follow the selected category."""
+        cat_widget = self.entries.get("category")
+        if not isinstance(cat_widget, ttk.Combobox):
+            return
+        category = cat_widget.get().strip()
+        if not category:
+            return
+        target_subdir = self._category_subdir(category)
+        if not target_subdir:
+            return
+
+        moved = False
+        for field in ("image_path", "image_avif_path"):
+            moved |= self._relocate_media_to_category(field, target_subdir)
+        if moved:
+            try:
+                self._update_image_preview()
+            except Exception:
+                pass
+
+    def _relocate_media_to_category(self, field: str, target_subdir: str) -> bool:
+        """Move media referenced by the given field into the category directory."""
+        entry = self.entries.get(field)
+        if not isinstance(entry, ttk.Entry):
+            return False
+        rel_path = entry.get().strip()
+        if not rel_path or not rel_path.startswith("assets/images/"):
+            return False
+
+        base_dir = Path(self._assets_images_root())
+        current_relative = rel_path[len("assets/images/"):]
+        current_path = (base_dir / current_relative.replace('/', os.sep))
+        if not current_path.exists():
+            return False
+
+        try:
+            current_parent = current_path.parent.relative_to(base_dir)
+        except ValueError:
+            return False
+
+        desired_parent = Path(target_subdir.strip().replace('\\', '/'))
+        if not str(desired_parent):
+            return False
+
+        if current_parent.as_posix().lower() == desired_parent.as_posix().lower():
+            return False
+
+        destination_dir = (base_dir / desired_parent).resolve()
+        destination_dir.mkdir(parents=True, exist_ok=True)
+
+        destination_path = destination_dir / current_path.name
+        destination_path = self._unique_destination(destination_path)
+
+        try:
+            shutil.move(str(current_path), str(destination_path))
+        except Exception as exc:
+            logger.warning(
+                "No se pudo mover el archivo %s a %s: %s",
+                current_path,
+                destination_path,
+                exc
+            )
+            return False
+
+        new_rel = destination_path.relative_to(base_dir).as_posix()
+        entry.delete(0, tk.END)
+        entry.insert(0, f"assets/images/{new_rel}")
+        return True
+
+    def _unique_destination(self, destination: Path) -> Path:
+        """Ensure destination filename does not overwrite existing files."""
+        if not destination.exists():
+            return destination
+        stem = destination.stem
+        suffix = destination.suffix
+        parent = destination.parent
+        counter = 1
+        while True:
+            candidate = parent / f"{stem}_{counter}{suffix}"
+        if not candidate.exists():
+            return candidate
+        counter += 1
+
+    def _resolve_destination_directory(
+        self,
+        src_path: Path,
+        base_dir: Path,
+        current_category: str,
+        cat_widget: Optional[ttk.Combobox],
+    ) -> tuple[Path, bool]:
+        """Determine destination dir for a selected media file."""
+        category_updated = False
+        effective_category = current_category or ""
+        try:
+            relative = src_path.relative_to(base_dir)
+            subdir = relative.parent.as_posix()
+            guessed_category = self._guess_category_from_directory(subdir)
+            if guessed_category and isinstance(cat_widget, ttk.Combobox):
+                if cat_widget.get() != guessed_category:
+                    cat_widget.set(guessed_category)
+                    category_updated = True
+                effective_category = guessed_category
+            dest_dir = base_dir / subdir
+        except ValueError:
+            dest_subdir = self._category_subdir(str(effective_category))
+            dest_dir = base_dir / dest_subdir
+        return dest_dir.resolve(), category_updated
+
+    def _guess_category_from_directory(self, subdir: str) -> Optional[str]:
+        """Infer category name from an assets/images subdirectory."""
+        normalized = subdir.strip().replace('\\', '/').strip('/').lower()
+        if not normalized:
+            return None
+        try:
+            categories = self.product_service.get_categories()
+        except Exception:
+            categories = []
+        for category in categories:
+            candidate_dir = self._category_subdir(str(category)).strip(
+                '/').replace('\\', '/').lower()
+            if candidate_dir == normalized:
+                return category
+        return None
 
     def _update_image_preview(self) -> None:
         try:
