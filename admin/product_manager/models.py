@@ -7,21 +7,26 @@ from copy import deepcopy
 
 DEFAULT_FIELD_TS = "1970-01-01T00:00:00.000Z"
 
+
 class ProductError(Exception):
     """Base exception for Product-related errors."""
     pass
+
 
 class InvalidPriceError(ProductError):
     """Raised when price validation fails."""
     pass
 
+
 class InvalidDiscountError(ProductError):
     """Raised when discount validation fails."""
     pass
 
+
 class InvalidImagePathError(ProductError):
     """Raised when image path validation fails."""
     pass
+
 
 @dataclass
 class Product:
@@ -32,6 +37,7 @@ class Product:
     stock: bool = False
     category: str = ""
     image_path: str = ""
+    image_avif_path: str = ""
     order: int = 0
     rev: int = 0
     field_last_modified: Dict[str, Dict[str, Any]] = field(default_factory=dict)
@@ -49,6 +55,7 @@ class Product:
         self._validate_discount()
         self._validate_category()
         self._validate_image_path()
+        self._validate_image_avif_path()
         if not isinstance(self.field_last_modified, dict):
             self.field_last_modified = {}
 
@@ -110,6 +117,35 @@ class Product:
         if ext.lower() not in self.VALID_IMAGE_EXTENSIONS:
             allowed = ', '.join(self.VALID_IMAGE_EXTENSIONS)
             raise InvalidImagePathError(f"Extensión de imagen inválida. Permitidas: {allowed}")
+
+    def _validate_image_avif_path(self) -> None:
+        """Validate optional AVIF image path and ensure fallback exists."""
+        if not self.image_avif_path:
+            return
+
+        if not isinstance(self.image_avif_path, str):
+            raise InvalidImagePathError("La ruta AVIF debe ser texto.")
+
+        normalized_path = os.path.normpath(self.image_avif_path).replace('\\', '/')
+        if not normalized_path.startswith('assets/images/'):
+            raise InvalidImagePathError("La ruta AVIF debe comenzar con 'assets/images/'")
+
+        _, ext = os.path.splitext(normalized_path)
+        if ext.lower() != '.avif':
+            raise InvalidImagePathError("La ruta AVIF debe terminar en '.avif'")
+
+        if not self.image_path:
+            raise InvalidImagePathError(
+                "Para utilizar AVIF debes mantener una imagen de respaldo (PNG, JPG, GIF o WebP)."
+            )
+
+        fallback_normalized = os.path.normpath(self.image_path).replace('\\', '/')
+        _, fallback_ext = os.path.splitext(fallback_normalized)
+        if fallback_ext.lower() not in self.VALID_IMAGE_EXTENSIONS:
+            allowed = ', '.join(self.VALID_IMAGE_EXTENSIONS)
+            raise InvalidImagePathError(
+                f"La imagen de respaldo debe tener una extensión válida ({allowed})."
+            )
 
     @cached_property
     def discounted_price(self) -> int:
@@ -174,6 +210,7 @@ class Product:
 
         payload = data.copy()
         payload.setdefault("rev", data.get("rev", 0))
+        payload.setdefault("image_avif_path", data.get("image_avif_path", ""))
         field_meta = payload.get("field_last_modified")
         if not isinstance(field_meta, dict):
             field_meta = {}
@@ -208,6 +245,7 @@ class Product:
             "stock": self.stock,
             "category": self.category,
             "image_path": self.image_path,
+            "image_avif_path": self.image_avif_path,
             "order": self.order,
             "rev": self.rev,
             "field_last_modified": deepcopy(self.field_last_modified)

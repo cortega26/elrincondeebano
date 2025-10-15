@@ -13,6 +13,35 @@ const UTILITY_CLASSES = Object.freeze({
     containIntrinsic: 'has-contain-intrinsic'
 });
 
+const PRODUCT_IMAGE_WIDTHS = Object.freeze([200, 320, 400]);
+const PRODUCT_IMAGE_SIZES = '(min-width: 1200px) 280px, (min-width: 992px) 240px, (min-width: 576px) 45vw, 80vw';
+const CART_IMAGE_WIDTHS = Object.freeze([80, 120, 160]);
+
+const normaliseAssetPath = (value = '') => {
+    if (!value) {
+        return '';
+    }
+    const trimmed = value.startsWith('/') ? value.slice(1) : value;
+    return `/${trimmed}`;
+};
+
+const buildCfSrc = (assetPath, extraOpts = {}) => {
+    const normalised = normaliseAssetPath(assetPath);
+    if (!normalised) {
+        return '';
+    }
+    return cfimg(normalised, { ...CFIMG_THUMB, ...extraOpts });
+};
+
+const buildCfSrcset = (assetPath, extraOpts = {}, widths = PRODUCT_IMAGE_WIDTHS) => {
+    const normalised = normaliseAssetPath(assetPath);
+    if (!normalised) {
+        return '';
+    }
+    return widths
+        .map(width => `${cfimg(normalised, { ...CFIMG_THUMB, width, ...extraOpts })} ${width}w`)
+        .join(', ');
+};
 function getSharedProductData() {
     if (typeof window !== 'undefined') {
         const payload = window[PRODUCT_DATA_GLOBAL_KEY];
@@ -541,6 +570,8 @@ const transformProduct = (product, index) => {
     const safeCategory = typeof product.category === 'string' && product.category.trim().length > 0
         ? product.category
         : DEFAULT_CATEGORY;
+    const safeImagePath = typeof product.image_path === 'string' ? product.image_path : '';
+    const safeImageAvifPath = typeof product.image_avif_path === 'string' ? product.image_avif_path : '';
 
     return {
         ...product,
@@ -549,6 +580,8 @@ const transformProduct = (product, index) => {
         description: sanitizeHTML(safeDescription),
         category: sanitizeHTML(safeCategory),
         categoryKey: product.categoryKey || normalizeString(safeCategory),
+        image_path: safeImagePath,
+        image_avif_path: safeImageAvifPath,
         originalIndex
     };
 };
@@ -702,6 +735,68 @@ const createSafeElement = (tag, attributes = {}, children = []) => {
     return element;
 };
 
+const createProductPicture = ({ imagePath, avifPath, alt, eager = false }) => {
+    const sizes = PRODUCT_IMAGE_SIZES;
+    const pictureChildren = [];
+    const avifSrcset = buildCfSrcset(avifPath, { format: 'avif' });
+    if (avifSrcset) {
+        pictureChildren.push(createSafeElement('source', {
+            type: 'image/avif',
+            srcset: avifSrcset,
+            sizes
+        }));
+    }
+    const fallbackSrc = buildCfSrc(imagePath, { width: 320 }) || normaliseAssetPath(imagePath);
+    const fallbackSrcset = buildCfSrcset(imagePath);
+    const imgAttrs = {
+        src: fallbackSrc || '',
+        alt: alt || '',
+        class: 'card-img-top product-thumb',
+        loading: eager ? 'eager' : 'lazy',
+        fetchpriority: eager ? 'high' : 'auto',
+        decoding: 'async',
+        width: '400',
+        height: '400',
+        sizes
+    };
+    if (fallbackSrcset) {
+        imgAttrs.srcset = fallbackSrcset;
+    }
+    const imgElement = createSafeElement('img', imgAttrs);
+    pictureChildren.push(imgElement);
+    return createSafeElement('picture', {}, pictureChildren);
+};
+
+const createCartThumbnail = ({ imagePath, avifPath, alt }) => {
+    const sizes = '100px';
+    const sources = [];
+    const avifSrcset = buildCfSrcset(avifPath, { format: 'avif' }, CART_IMAGE_WIDTHS);
+    if (avifSrcset) {
+        sources.push(createSafeElement('source', {
+            type: 'image/avif',
+            srcset: avifSrcset,
+            sizes
+        }));
+    }
+    const fallbackSrc = buildCfSrc(imagePath, { width: CART_IMAGE_WIDTHS[1] }) || normaliseAssetPath(imagePath);
+    const fallbackSrcset = buildCfSrcset(imagePath, {}, CART_IMAGE_WIDTHS);
+    const imgAttrs = {
+        src: fallbackSrc || '',
+        alt: alt || '',
+        class: 'cart-item-thumb-img',
+        loading: 'lazy',
+        decoding: 'async',
+        width: '100',
+        height: '100',
+        sizes
+    };
+    if (fallbackSrcset) {
+        imgAttrs.srcset = fallbackSrcset;
+    }
+    const imgElement = createSafeElement('img', imgAttrs);
+    return createSafeElement('picture', {}, [...sources, imgElement]);
+};
+
 const showErrorMessage = (message) => {
     const errorMessage = createSafeElement('div', { class: 'error-message', role: 'alert' }, [
         createSafeElement('p', {}, [message]),
@@ -829,6 +924,7 @@ const addToCart = (product, quantity) => {
                 price: product.price,
                 discount: product.discount,
                 image_path: product.image_path,
+                image_avif_path: product.image_avif_path,
                 quantity: Math.min(quantity, 50),
                 category: product.category,
                 stock: product.stock
@@ -1220,7 +1316,7 @@ const renderQuantityControl = (product) => {
         const fragment = document.createDocumentFragment();
 
         productsToRender.forEach(product => {
-            const { id, name, description, image_path, price, discount, stock } = product;
+            const { id, name, description, image_path, image_avif_path, price, discount, stock } = product;
 
             const productClasses = [
                 'producto',
@@ -1249,24 +1345,13 @@ const renderQuantityControl = (product) => {
                 cardElement.appendChild(badge);
             }
 
-            const imgPath = `/${image_path.replace(/^\//, '')}`;
-            const imgElement = createSafeElement('img', {
-                src: cfimg(imgPath, { ...CFIMG_THUMB, width: 320 }),
-                srcset: [
-                    `${cfimg(imgPath, { ...CFIMG_THUMB, width: 200 })} 200w`,
-                    `${cfimg(imgPath, { ...CFIMG_THUMB, width: 320 })} 320w`,
-                    `${cfimg(imgPath, { ...CFIMG_THUMB, width: 400 })} 400w`
-                ].join(', '),
-                sizes: '(min-width: 1200px) 280px, (min-width: 992px) 240px, (min-width: 576px) 45vw, 80vw',
+            const pictureElement = createProductPicture({
+                imagePath: image_path,
+                avifPath: image_avif_path,
                 alt: name,
-                class: 'card-img-top product-thumb',
-                loading: 'lazy',
-                fetchpriority: 'auto',
-                decoding: 'async',
-                width: '400',
-                height: '400'
+                eager: false
             });
-            cardElement.appendChild(imgElement);
+            cardElement.appendChild(pictureElement);
 
             const cardBody = createSafeElement('div', { class: 'card-body d-flex flex-column' });
             cardBody.appendChild(createSafeElement('h3', { class: 'card-title mb-2', id: titleId }, [name]));
@@ -1602,6 +1687,7 @@ const renderQuantityControl = (product) => {
                     price: product.price,
                     discount: product.discount,
                     image_path: product.image_path,
+                    image_avif_path: product.image_avif_path,
                     quantity: Math.min(quantity, 50),
                     category: product.category,
                     stock: product.stock
@@ -1792,28 +1878,30 @@ const renderQuantityControl = (product) => {
             const thumbnailContainer = createSafeElement('div', {
                 class: 'cart-item-thumb ms-3 flex-shrink-0'
             });
-            // Preferir miniatura específica si está disponible
             const thumbSrc = item.thumbnail_path || adjustedImagePath;
-            const thumbAttrs = {
-                src: thumbSrc,
-                alt: item.name,
-                class: 'cart-item-thumb-img',
-                loading: 'lazy',
-                decoding: 'async',
-                width: '100',
-                height: '100'
-            };
-            if (Array.isArray(item.thumbnail_variants)) {
-                const parts = item.thumbnail_variants
-                    .filter(v => v && v.url && v.width)
-                    .map(v => `${v.url} ${v.width}w`);
-                if (parts.length) {
-                    thumbAttrs.srcset = parts.join(', ');
-                    thumbAttrs.sizes = '100px';
+            const thumbnailPicture = createCartThumbnail({
+                imagePath: item.thumbnail_path || item.image_path,
+                avifPath: item.image_avif_path,
+                alt: item.name
+            });
+            const fallbackImg = thumbnailPicture.querySelector('img');
+            if (fallbackImg) {
+                if (!fallbackImg.getAttribute('src') && thumbSrc) {
+                    fallbackImg.setAttribute('src', thumbSrc);
+                }
+                if (Array.isArray(item.thumbnail_variants)) {
+                    const parts = item.thumbnail_variants
+                        .filter(v => v && v.url && v.width)
+                        .map(v => `${v.url} ${v.width}w`);
+                    if (parts.length) {
+                        fallbackImg.setAttribute('srcset', parts.join(', '));
+                        fallbackImg.setAttribute('sizes', '100px');
+                    }
+                } else if (!fallbackImg.getAttribute('sizes')) {
+                    fallbackImg.setAttribute('sizes', '100px');
                 }
             }
-            const thumbnailImg = createSafeElement('img', thumbAttrs);
-            thumbnailContainer.appendChild(thumbnailImg);
+            thumbnailContainer.appendChild(thumbnailPicture);
 
             // Añadir primero el contenido (izquierda) y luego la miniatura (derecha)
             itemElement.appendChild(contentContainer);
@@ -2094,5 +2182,7 @@ export {
     __resetCart,
     logPerformanceMetrics
 };
+
+
 
 
