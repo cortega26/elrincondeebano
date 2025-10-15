@@ -1,6 +1,6 @@
 {
-  "version": "20251015-162650",
-  "last_updated": "2025-10-15T16:26:50.473371",
+  "version": "20251015-170117",
+  "last_updated": "2025-10-15T17:01:17.561753",
   "rev": 0,
   "products": [
     {
@@ -433,14 +433,14 @@
       "rev": 0,
       "field_last_modified": {
         "price": {
-          "ts": "2025-10-15T19:26:50.471Z",
+          "ts": "2025-10-15T19:39:49.167Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-15T19:26:50.471Z",
+          "ts": "2025-10-15T19:39:49.167Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2114,6 +2114,76 @@
         },
         "order": {
           "ts": "2025-10-15T19:13:48.271Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Gatorade Frutas Tropicales",
+      "description": "Botella de 1L",
+      "price": 2200,
+      "discount": 0,
+      "stock": true,
+      "category": "Energeticaseisotonicas",
+      "image_path": "assets/images/energeticaseisotonicas/Gatorade 1L Frutas Tropicales.webp",
+      "image_avif_path": "assets/images/energeticaseisotonicas/Gatorade 1L Frutas Tropicales.avif",
+      "order": 142,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-15T20:01:17.559Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-15T20:01:17.559Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-15T20:01:17.559Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-15T20:01:17.559Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-15T20:01:17.559Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-15T20:01:17.559Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-15T20:01:17.559Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-15T20:01:17.559Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
