@@ -42,6 +42,114 @@ const buildCfSrcset = (assetPath, extraOpts = {}, widths = PRODUCT_IMAGE_WIDTHS)
         .map(width => `${cfimg(normalised, { ...CFIMG_THUMB, width, ...extraOpts })} ${width}w`)
         .join(', ');
 };
+
+const STATIC_SRC_DESCRIPTOR_KEYS = Object.freeze(['descriptor', 'd']);
+
+const buildStaticSrcset = (assetPath) => {
+    if (!assetPath) {
+        return '';
+    }
+
+    const normaliseDescriptor = (descriptorCandidate) => {
+        if (typeof descriptorCandidate === 'string') {
+            const trimmed = descriptorCandidate.trim();
+            return trimmed ? trimmed : '';
+        }
+        if (typeof descriptorCandidate === 'number' && Number.isFinite(descriptorCandidate)) {
+            return `${descriptorCandidate}w`;
+        }
+        return '';
+    };
+
+    const buildEntry = (entry) => {
+        if (typeof entry === 'string') {
+            return normaliseAssetPath(entry);
+        }
+
+        if (entry && typeof entry === 'object') {
+            const srcCandidate = entry.src || entry.path || entry.url || '';
+            const src = normaliseAssetPath(srcCandidate);
+            if (!src) {
+                return '';
+            }
+
+            const descriptorKey = STATIC_SRC_DESCRIPTOR_KEYS.find(key => key in entry);
+            const descriptor = descriptorKey ? normaliseDescriptor(entry[descriptorKey]) : normaliseDescriptor(entry.width);
+            return descriptor ? `${src} ${descriptor}` : src;
+        }
+
+        return '';
+    };
+
+    if (Array.isArray(assetPath)) {
+        return assetPath
+            .map(buildEntry)
+            .filter(Boolean)
+            .join(', ');
+    }
+
+    if (assetPath && typeof assetPath === 'object') {
+        if (typeof assetPath.srcset === 'string') {
+            const trimmed = assetPath.srcset.trim();
+            if (trimmed) {
+                return trimmed;
+            }
+        }
+
+        if (Array.isArray(assetPath.variants)) {
+            return assetPath.variants
+                .map(buildEntry)
+                .filter(Boolean)
+                .join(', ');
+        }
+
+        return buildEntry(assetPath);
+    }
+
+    return normaliseAssetPath(assetPath);
+};
+
+const isAvifAsset = (assetPath) => {
+    if (typeof assetPath !== 'string') {
+        return false;
+    }
+    const trimmed = assetPath.trim();
+    if (!trimmed) {
+        return false;
+    }
+    return /\.avif(?:[?#].*)?$/i.test(trimmed);
+};
+
+const resolveAvifSrcset = (assetPath, widths = PRODUCT_IMAGE_WIDTHS) => {
+    if (!assetPath) {
+        return '';
+    }
+
+    if (Array.isArray(assetPath)) {
+        const staticSrcset = buildStaticSrcset(assetPath);
+        if (staticSrcset && /\.avif/i.test(staticSrcset)) {
+            return staticSrcset;
+        }
+    }
+
+    if (assetPath && typeof assetPath === 'object' && !Array.isArray(assetPath)) {
+        const srcsetFromObject = buildStaticSrcset(assetPath);
+        if (srcsetFromObject && /\.avif/i.test(srcsetFromObject)) {
+            return srcsetFromObject;
+        }
+
+        const srcCandidate = assetPath.src || assetPath.path || assetPath.url || '';
+        if (isAvifAsset(srcCandidate)) {
+            return buildStaticSrcset(srcCandidate);
+        }
+    }
+
+    if (isAvifAsset(assetPath)) {
+        return buildStaticSrcset(assetPath);
+    }
+
+    return buildCfSrcset(assetPath, { format: 'avif' }, widths);
+};
 function getSharedProductData() {
     if (typeof window !== 'undefined') {
         const payload = window[PRODUCT_DATA_GLOBAL_KEY];
@@ -738,7 +846,7 @@ const createSafeElement = (tag, attributes = {}, children = []) => {
 const createProductPicture = ({ imagePath, avifPath, alt, eager = false }) => {
     const sizes = PRODUCT_IMAGE_SIZES;
     const pictureChildren = [];
-    const avifSrcset = buildCfSrcset(avifPath, { format: 'avif' });
+    const avifSrcset = resolveAvifSrcset(avifPath);
     if (avifSrcset) {
         pictureChildren.push(createSafeElement('source', {
             type: 'image/avif',
@@ -770,7 +878,7 @@ const createProductPicture = ({ imagePath, avifPath, alt, eager = false }) => {
 const createCartThumbnail = ({ imagePath, avifPath, alt }) => {
     const sizes = '100px';
     const sources = [];
-    const avifSrcset = buildCfSrcset(avifPath, { format: 'avif' }, CART_IMAGE_WIDTHS);
+    const avifSrcset = resolveAvifSrcset(avifPath, CART_IMAGE_WIDTHS);
     if (avifSrcset) {
         sources.push(createSafeElement('source', {
             type: 'image/avif',
@@ -2178,6 +2286,8 @@ export {
     shouldRegisterServiceWorker as __shouldRegisterServiceWorkerForTest,
     __resetServiceWorkerRegistrationForTest,
     memoize as __memoizeForTest,
+    resolveAvifSrcset as __resolveAvifSrcsetForTest,
+    buildStaticSrcset as __buildStaticSrcsetForTest,
     __getCart,
     __resetCart,
     logPerformanceMetrics
