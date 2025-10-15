@@ -152,6 +152,7 @@ class ProductService:
             "stock",
             "category",
             "image_path",
+            "image_avif_path",
             "order",
         ]
         diffs: Dict[str, Any] = {}

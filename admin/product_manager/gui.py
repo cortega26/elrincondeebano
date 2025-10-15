@@ -1,4 +1,4 @@
-﻿import tkinter as tk
+import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 from typing import List, Optional, Callable, Dict, Any, TypeVar
 import os
@@ -219,6 +219,7 @@ class DragDropMixin:
                     stock=not product.stock,
                     category=product.category,
                     image_path=product.image_path,
+                    image_avif_path=product.image_avif_path,
                     order=product.order
                 )
                 self.product_service.update_product(
@@ -1042,6 +1043,7 @@ class ProductGUI(DragDropMixin):
                     stock=not product.stock,
                     category=product.category,
                     image_path=product.image_path,
+                    image_avif_path=product.image_avif_path,
                     order=product.order
                 )
                 self.product_service.update_product(product.name, updated)
@@ -1144,6 +1146,7 @@ class ProductGUI(DragDropMixin):
                 stock=product.stock,
                 category=product.category,
                 image_path=product.image_path,
+                image_avif_path=product.image_avif_path,
                 order=product.order,
             )
             updated_kwargs[field] = new_val
@@ -1282,6 +1285,7 @@ class ProductFormDialog(tk.Toplevel):
             ("stock", "En Stock:", tk.Checkbutton, {}),
             ("category", "Categoría:", ttk.Combobox, {"width": 39}),
             ("image_path", "Ruta de Imagen:", ttk.Entry, {"width": 40}),
+            ("image_avif_path", "Ruta imagen AVIF (opcional):", ttk.Entry, {"width": 40}),
         ]
         for i, (field, label, widget_class, widget_opts) in enumerate(fields):
             label_widget = ttk.Label(self.main_frame, text=label)
@@ -1313,6 +1317,9 @@ class ProductFormDialog(tk.Toplevel):
                 # Update preview when typing a path
                 widget.bind("<KeyRelease>",
                             lambda _e: self._update_image_preview())
+            if field == "image_avif_path":
+                ttk.Button(self.main_frame, text="Explorar AVIF...", command=self.browse_avif_image, width=16).grid(
+                    row=i, column=2, padx=(5, 0), pady=5)
 
         # Image processing options
         options_row = len(fields)
@@ -1429,9 +1436,37 @@ class ProductFormDialog(tk.Toplevel):
             self.entries["image_path"].delete(0, tk.END)
             self.entries["image_path"].insert(0, rel_path)
             self._update_image_preview()
+
+    def browse_avif_image(self) -> None:
+        """Open file dialog to select an AVIF image."""
+        file_path = filedialog.askopenfilename(
+            filetypes=[("Imágenes AVIF", "*.avif")])
+        if not file_path:
+            return
+        try:
+            abs_base_dir = self._assets_images_root()
+            cat_widget = self.entries.get("category")
+            category = cat_widget.get() if isinstance(cat_widget, ttk.Combobox) else ""
+            subdir = self._category_subdir(str(category))
+            dest_dir = os.path.join(abs_base_dir, subdir)
+            os.makedirs(dest_dir, exist_ok=True)
+
+            filename = os.path.basename(file_path)
+            if not filename.lower().endswith('.avif'):
+                filename = os.path.splitext(filename)[0] + '.avif'
+            dest_path = os.path.join(dest_dir, filename)
+            if os.path.abspath(file_path) != os.path.abspath(dest_path):
+                shutil.copy2(file_path, dest_path)
+
+            rel_path = os.path.relpath(dest_path, abs_base_dir).replace('\\', '/')
+            rel_path = 'assets/images/' + rel_path
+            entry = self.entries.get("image_avif_path")
+            if isinstance(entry, ttk.Entry):
+                entry.delete(0, tk.END)
+                entry.insert(0, rel_path)
         except Exception as e:
             messagebox.showerror(
-                "Error", f"Error al copiar la imagen: {str(e)}")
+                "Error", f"Error al copiar la imagen AVIF: {str(e)}")
 
     def save_product(self) -> None:
         """Save product data."""
@@ -1518,6 +1553,15 @@ class ProductFormDialog(tk.Toplevel):
             if not data["image_path"].startswith("assets/images/"):
                 raise ValueError(
                     "La ruta de la imagen debe comenzar con 'assets/images/'")
+        if data.get("image_avif_path"):
+            if not data["image_avif_path"].startswith("assets/images/"):
+                raise ValueError(
+                    "La ruta AVIF debe comenzar con 'assets/images/'")
+            if not data["image_avif_path"].lower().endswith(".avif"):
+                raise ValueError("La ruta AVIF debe terminar en '.avif'")
+            if not data.get("image_path"):
+                raise ValueError(
+                    "Debes mantener una imagen de respaldo (PNG/JPG/GIF/WebP) al usar AVIF.")
         return data
 
     # Helpers for image paths and preview
@@ -1770,3 +1814,4 @@ if __name__ == "__main__":
     # Aquí se omite su creación ya que la aplicación se lanza desde el módulo principal.
     app = ProductGUI(root, None)
     root.mainloop()
+

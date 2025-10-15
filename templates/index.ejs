@@ -32,8 +32,12 @@
   <link rel="preload" href="/dist/css/playfair-400-4OM7HYDI.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/dist/css/inter-400-NRMW37G5.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/dist/css/inter-700-NRMW37G5.woff2" as="font" type="font/woff2" crossorigin>
-  <% if (lcpImage) { %>
-  <link rel="preload" href="<%= lcpImage.src %>" as="image" imagesrcset="<%= lcpImage.srcset %>" imagesizes="(min-width: 1200px) 25vw, (min-width: 992px) 33vw, (min-width: 576px) 50vw, 100vw" fetchpriority="high">
+  <% if (lcpImage) { 
+       const preloadHref = lcpImage.avif ? lcpImage.avif.src : lcpImage.src;
+       const preloadSrcset = lcpImage.avif ? lcpImage.avif.srcset : lcpImage.srcset;
+       const preloadType = lcpImage.avif ? 'image/avif' : null;
+  %>
+  <link rel="preload" href="<%= preloadHref %>" as="image" imagesrcset="<%= preloadSrcset %>" imagesizes="(min-width: 1200px) 25vw, (min-width: 992px) 33vw, (min-width: 576px) 50vw, 100vw" fetchpriority="high"<%= preloadType ? ` type=\"${preloadType}\"` : '' %>>
   <% } %>
   <!-- Critical CSS -->
   <link rel="stylesheet" href="/dist/css/critical.min.css">
@@ -103,7 +107,12 @@
 <% if (product.isDiscounted) { %>
               <span class="discount-badge badge bg-danger" aria-label="Producto en oferta">-<%= product.discountPercent %>%</span>
 <% } %>
-              <img src="<%= product.image.src %>" srcset="<%= product.image.srcset %>" sizes="(min-width: 1200px) 280px, (min-width: 992px) 240px, (min-width: 576px) 45vw, 80vw" alt="<%= product.name %>" class="card-img-top product-thumb" loading="<%= index === 0 ? 'eager' : 'lazy' %>" fetchpriority="<%= index === 0 ? 'high' : 'auto' %>" decoding="async" width="400" height="400">
+              <picture>
+<% if (product.image.avif) { %>
+                <source type="image/avif" srcset="<%= product.image.avif.srcset %>" sizes="<%= product.image.sizes %>">
+<% } %>
+                <img src="<%= product.image.src %>" srcset="<%= product.image.srcset %>" sizes="<%= product.image.sizes %>" alt="<%= product.name %>" class="card-img-top product-thumb" loading="<%= index === 0 ? 'eager' : 'lazy' %>" fetchpriority="<%= index === 0 ? 'high' : 'auto' %>" decoding="async" width="400" height="400">
+              </picture>
               <div class="card-body d-flex flex-column">
                 <h3 class="card-title mb-2" id="product-title-<%= product.id %>"><%= product.name %></h3>
                 <p class="card-text mb-3"><%= product.description %></p>

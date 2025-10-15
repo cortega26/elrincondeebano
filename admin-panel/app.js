@@ -75,6 +75,7 @@ function renderGrid() {
       <td><input type="checkbox" ${p.stock? 'checked':''} data-field="stock" data-id="${pid(p)}"></td>
       <td>${escapeHtml(p.category||'')}</td>
       <td><input type="text" class="form-control form-control-sm" value="${escapeHtml(p.image_path||'')}" data-field="image_path" data-id="${pid(p)}"></td>
+      <td><input type="text" class="form-control form-control-sm" value="${escapeHtml(p.image_avif_path||'')}" placeholder="assets/images/... .avif" data-field="image_avif_path" data-id="${pid(p)}"></td>
     `;
     tbody.appendChild(tr);
   }

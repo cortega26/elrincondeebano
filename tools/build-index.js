@@ -8,6 +8,7 @@ const DATA_PATH = path.join(ROOT_DIR, 'data', 'product_data.json');
 const OUTPUT_PATH = path.join(ROOT_DIR, 'index.html');
 
 const CFIMG_THUMB = { fit: 'cover', quality: 75, format: 'auto' };
+const SIZES_ATTR = '(min-width: 1200px) 280px, (min-width: 992px) 240px, (min-width: 576px) 45vw, 80vw';
 
 function readJson(filePath) {
   const raw = fs.readFileSync(filePath, 'utf8');
@@ -37,13 +38,26 @@ function generateStableId(product) {
 const HERO_WIDTHS = [200, 320, 400];
 const HERO_BASE_WIDTH = 320;
 
-function buildImageMeta(imagePath) {
+function buildSrcset(imagePath, extraOpts = {}) {
+  const normalized = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+  return HERO_WIDTHS
+    .map(width => `${cfimg(normalized, { ...CFIMG_THUMB, width, ...extraOpts })} ${width}w`)
+    .join(', ');
+}
+
+function buildImageMeta(imagePath, avifPath) {
   const normalized = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
   const src = cfimg(normalized, { ...CFIMG_THUMB, width: HERO_BASE_WIDTH });
-  const srcset = HERO_WIDTHS
-    .map(width => `${cfimg(normalized, { ...CFIMG_THUMB, width })} ${width}w`)
-    .join(', ');
-  return { src, srcset };
+  const srcset = buildSrcset(imagePath);
+  let avif = null;
+  if (avifPath) {
+    const normalizedAvif = avifPath.startsWith('/') ? avifPath : `/${avifPath}`;
+    avif = {
+      src: cfimg(normalizedAvif, { ...CFIMG_THUMB, width: HERO_BASE_WIDTH, format: 'avif' }),
+      srcset: buildSrcset(avifPath, { format: 'avif' }),
+    };
+  }
+  return { src, srcset, avif, sizes: SIZES_ATTR };
 }
 
 function computeDiscountMeta(product) {
@@ -69,7 +83,7 @@ function safeJsonStringify(payload) {
 function enrichProduct(product, index) {
   const id = product.id || generateStableId(product);
   const order = typeof product.order === 'number' ? product.order : index;
-  const image = buildImageMeta(product.image_path || '');
+  const image = buildImageMeta(product.image_path || '', product.image_avif_path || '');
   const discountMeta = computeDiscountMeta(product);
   return {
     ...product,

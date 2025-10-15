@@ -110,6 +110,9 @@ class ProductStore {
     this._state.products = Array.isArray(this._state.products) ? this._state.products : [];
 
     for (const product of this._state.products) {
+      if (!Object.prototype.hasOwnProperty.call(product, 'image_avif_path')) {
+        product.image_avif_path = '';
+      }
       if (typeof product.rev !== 'number') {
         product.rev = this._state.rev || 0;
       }

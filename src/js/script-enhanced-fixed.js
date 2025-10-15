@@ -391,21 +391,41 @@ const renderProducts = (products) => {
         const discountedPrice = product.price - (product.discount || 0);
         const loadingAttr = index === 0 ? 'eager' : 'lazy';
         const fetchPriorityAttr = index === 0 ? 'high' : 'auto';
+        const fallbackSrc = cfimg(product.image_path, { ...CFIMG_THUMB, width: 360 });
+        const fallbackSrcset = [
+            `${cfimg(product.image_path, { ...CFIMG_THUMB, width: 200 })} 200w`,
+            `${cfimg(product.image_path, { ...CFIMG_THUMB, width: 320 })} 320w`,
+            `${cfimg(product.image_path, { ...CFIMG_THUMB, width: 480 })} 480w`
+        ].join(',\n                    ');
+        const avifSrcset = product.image_avif_path ? [
+            `${cfimg(product.image_avif_path, { ...CFIMG_THUMB, format: 'avif', width: 200 })} 200w`,
+            `${cfimg(product.image_avif_path, { ...CFIMG_THUMB, format: 'avif', width: 320 })} 320w`,
+            `${cfimg(product.image_avif_path, { ...CFIMG_THUMB, format: 'avif', width: 480 })} 480w`
+        ].join(',\n                    ') : '';
+        const avifSource = avifSrcset ? `
+                <source type="image/avif"
+                    srcset="
+                    ${avifSrcset}
+                    "
+                    sizes="(max-width: 640px) 200px, 360px">
+        ` : '';
 
         productElement.innerHTML = `
             <div class="card h-100">
-                <img
-                  class="product-thumb card-img-top"
-                  src="${cfimg(product.image_path, { ...CFIMG_THUMB, width: 360 })}"
-                  srcset="
-                    ${cfimg(product.image_path, { ...CFIMG_THUMB, width: 200 })} 200w,
-                    ${cfimg(product.image_path, { ...CFIMG_THUMB, width: 320 })} 320w,
-                    ${cfimg(product.image_path, { ...CFIMG_THUMB, width: 480 })} 480w
-                  "
-                  sizes="(max-width: 640px) 200px, 360px"
-                  width="400" height="400"
-                  loading="${loadingAttr}" fetchpriority="${fetchPriorityAttr}" decoding="async"
-                >
+                <picture>
+        ${avifSource}
+                    <img
+                      class="product-thumb card-img-top"
+                      src="${fallbackSrc}"
+                      srcset="
+                    ${fallbackSrcset}
+                      "
+                      sizes="(max-width: 640px) 200px, 360px"
+                      width="400" height="400"
+                      alt="${product.name}"
+                      loading="${loadingAttr}" fetchpriority="${fetchPriorityAttr}" decoding="async"
+                    >
+                </picture>
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">${product.name}</h5>
                     <p class="card-text flex-grow-1">${product.description}</p>
