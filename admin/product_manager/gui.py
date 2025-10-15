@@ -1285,7 +1285,8 @@ class ProductFormDialog(tk.Toplevel):
             ("stock", "En Stock:", tk.Checkbutton, {}),
             ("category", "Categoría:", ttk.Combobox, {"width": 39}),
             ("image_path", "Ruta de Imagen:", ttk.Entry, {"width": 40}),
-            ("image_avif_path", "Ruta imagen AVIF (opcional):", ttk.Entry, {"width": 40}),
+            ("image_avif_path", "Ruta imagen AVIF (opcional):",
+             ttk.Entry, {"width": 40}),
         ]
         for i, (field, label, widget_class, widget_opts) in enumerate(fields):
             label_widget = ttk.Label(self.main_frame, text=label)
@@ -1437,6 +1438,20 @@ class ProductFormDialog(tk.Toplevel):
             self.entries["image_path"].insert(0, rel_path)
             self._update_image_preview()
 
+            # If there is an AVIF counterpart in the same directory, pre-fill the field
+            avif_entry = self.entries.get("image_avif_path")
+            if isinstance(avif_entry, ttk.Entry):
+                guessed_avif = os.path.join(dest_dir, f"{name_no_ext}.avif")
+                if os.path.exists(guessed_avif):
+                    avif_rel = os.path.relpath(
+                        guessed_avif, abs_base_dir).replace('\\', '/')
+                    avif_rel = 'assets/images/' + avif_rel
+                    avif_entry.delete(0, tk.END)
+                    avif_entry.insert(0, avif_rel)
+        except Exception as e:
+            messagebox.showerror(
+                "Error", f"Error al copiar la imagen: {str(e)}")
+
     def browse_avif_image(self) -> None:
         """Open file dialog to select an AVIF image."""
         file_path = filedialog.askopenfilename(
@@ -1458,7 +1473,8 @@ class ProductFormDialog(tk.Toplevel):
             if os.path.abspath(file_path) != os.path.abspath(dest_path):
                 shutil.copy2(file_path, dest_path)
 
-            rel_path = os.path.relpath(dest_path, abs_base_dir).replace('\\', '/')
+            rel_path = os.path.relpath(
+                dest_path, abs_base_dir).replace('\\', '/')
             rel_path = 'assets/images/' + rel_path
             entry = self.entries.get("image_avif_path")
             if isinstance(entry, ttk.Entry):
@@ -1814,4 +1830,3 @@ if __name__ == "__main__":
     # Aquí se omite su creación ya que la aplicación se lanza desde el módulo principal.
     app = ProductGUI(root, None)
     root.mainloop()
-
