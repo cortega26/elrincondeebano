@@ -1,6 +1,6 @@
 {
-  "version": "20251015-203006",
-  "last_updated": "2025-10-15T20:30:06.246388",
+  "version": "20251015-204109",
+  "last_updated": "2025-10-15T20:41:09.361583",
   "rev": 0,
   "products": [
     {
@@ -2122,76 +2122,6 @@
         },
         "order": {
           "ts": "2025-10-15T21:13:06.014Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        }
-      }
-    },
-    {
-      "name": "Agua Tónica - Shweppes",
-      "description": "Botella de 1,5L",
-      "price": 2800,
-      "discount": 0,
-      "stock": true,
-      "category": "",
-      "image_path": "assets/images/Schweppes - Agua Tónica 1,5L.webp",
-      "image_avif_path": "assets/images/Schweppes - Agua Tónica 1,5L.avif",
-      "order": 142,
-      "rev": 0,
-      "field_last_modified": {
-        "name": {
-          "ts": "2025-10-15T23:08:38.853Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-15T23:08:38.853Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-15T23:08:38.853Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-15T23:08:38.853Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "stock": {
-          "ts": "2025-10-15T23:08:38.853Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-15T23:08:38.853Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-15T23:08:38.853Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-15T23:08:38.853Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
