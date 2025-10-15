@@ -39,6 +39,7 @@ import threading
 from queue import Queue, Empty
 import json
 from dataclasses import dataclass, fields
+import time
 
 # Se asume que la configuración centralizada del logging se realiza en el arranque de la aplicación.
 logger = logging.getLogger(__name__)
@@ -1536,8 +1537,36 @@ class ProductFormDialog(tk.Toplevel):
             if not filename.lower().endswith('.avif'):
                 filename = os.path.splitext(filename)[0] + '.avif'
             dest_path = os.path.join(dest_dir, filename)
-            if os.path.abspath(file_path) != os.path.abspath(dest_path):
-                shutil.copy2(file_path, dest_path)
+
+            src_resolved = Path(file_path).resolve()
+            dest_resolved = Path(dest_path).resolve()
+            copy_needed = True
+            try:
+                if dest_resolved.exists() and os.path.samefile(src_resolved, dest_resolved):
+                    copy_needed = False
+                elif os.path.normcase(str(src_resolved)) == os.path.normcase(str(dest_resolved)):
+                    copy_needed = False
+            except FileNotFoundError:
+                pass
+
+            if copy_needed:
+                last_error: Optional[Exception] = None
+                for attempt in range(5):
+                    try:
+                        shutil.copy2(src_resolved, dest_resolved)
+                        last_error = None
+                        break
+                    except OSError as copy_err:
+                        last_error = copy_err
+                        if getattr(copy_err, "winerror", None) not in (32,):
+                            raise
+                        time.sleep(0.3 * (attempt + 1))
+                if last_error:
+                    raise PermissionError(
+                        f"{last_error} (origen: {src_resolved}, destino: {dest_resolved})"
+                    ) from last_error
+            else:
+                dest_path = str(dest_resolved)
 
             rel_path = os.path.relpath(
                 dest_path, abs_base_dir).replace('\\', '/')
@@ -1753,6 +1782,7 @@ class ProductFormDialog(tk.Toplevel):
                 if fallback_ext == ".webp":
                     save_params = {"format": "WEBP", "quality": 85}
                 img.save(fallback_abs, **save_params)
+                img.close()
         except Exception as exc:
             logger.warning("No se pudo generar fallback desde AVIF %s: %s", avif_path, exc)
             return None

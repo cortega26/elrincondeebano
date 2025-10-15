@@ -22,6 +22,7 @@ import signal
 import traceback
 import subprocess
 import hashlib
+import shutil
 
 from repositories import JsonProductRepository
 from services import ProductService
@@ -247,7 +248,14 @@ class ProductManager:
     def _run_static_build(self) -> None:
         """Execute npm run build in the repository root."""
         env = os.environ.copy()
-        cmd = ["npm", "run", "build"]
+        npm_path = shutil.which("npm") or shutil.which("npm.cmd")
+        if not npm_path:
+            raise FileNotFoundError(
+                "No se encontró el ejecutable de 'npm'. Asegúrate de tener Node.js instalado y la carpeta en PATH.")
+        if npm_path.lower().endswith((".cmd", ".bat")):
+            cmd = ["cmd.exe", "/c", npm_path, "run", "build"]
+        else:
+            cmd = [npm_path, "run", "build"]
         try:
             result = subprocess.run(
                 cmd,
