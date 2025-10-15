@@ -15,6 +15,7 @@ const tests = [
   'ensureDiscountToggle.test.js',
   'memoize.test.js',
   'notifications.test.js',
+  'avif.sources.test.js',
   'swCache.test.js',
   'modules.dom.test.js',
   'fetchWithRetry.test.js',
