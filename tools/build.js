@@ -17,7 +17,8 @@ async function build() {
     define: { 'process.env.NODE_ENV': '"production"' },
     treeShaking: true,
     target: 'es2018',
-    platform: 'browser'
+    platform: 'browser',
+    sourcemap: true
   });
 
   const staticJs = ['csp.js', 'sw-register.js'];
@@ -32,7 +33,8 @@ async function build() {
     bundle: true,
     minify: true,
     outfile: path.join(rootDir, 'dist/css/style.min.css'),
-    loader: { '.css': 'css', '.woff2': 'file', '.woff': 'file' }
+    loader: { '.css': 'css', '.woff2': 'file', '.woff': 'file' },
+    sourcemap: true
   });
 
   await esbuild.build({
@@ -40,7 +42,8 @@ async function build() {
     bundle: true,
     minify: true,
     outfile: path.join(rootDir, 'dist/css/critical.min.css'),
-    loader: { '.css': 'css', '.woff2': 'file', '.woff': 'file' }
+    loader: { '.css': 'css', '.woff2': 'file', '.woff': 'file' },
+    sourcemap: true
   });
 }
 
