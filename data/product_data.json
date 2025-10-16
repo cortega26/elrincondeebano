@@ -1,6 +1,6 @@
 {
-  "version": "20251015-204109",
-  "last_updated": "2025-10-15T20:41:09.361583",
+  "version": "20251016-164942",
+  "last_updated": "2025-10-16T16:49:42.031023",
   "rev": 0,
   "products": [
     {
@@ -2192,6 +2192,146 @@
         },
         "order": {
           "ts": "2025-10-15T23:30:06.244Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Gatorade Frutas Tropicales",
+      "description": "Botella de 1L",
+      "price": 2200,
+      "discount": 0,
+      "stock": true,
+      "category": "Energeticaseisotonicas",
+      "image_path": "assets/images/energeticaseisotonicas/Gatorade 1L Frutas Tropicales.webp",
+      "image_avif_path": "assets/images/energeticaseisotonicas/Gatorade 1L Frutas Tropicales.avif",
+      "order": 143,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-16T19:49:16.718Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-16T19:49:16.718Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-16T19:49:16.718Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-16T19:49:16.718Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-16T19:49:16.718Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-16T19:49:16.718Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-16T19:49:16.718Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-16T19:49:16.718Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Gatorade Limón",
+      "description": "Botella de 1L",
+      "price": 2200,
+      "discount": 0,
+      "stock": true,
+      "category": "Energeticaseisotonicas",
+      "image_path": "assets/images/energeticaseisotonicas/Gatorade 1L Limón.webp",
+      "image_avif_path": "assets/images/energeticaseisotonicas/Gatorade 1L Limón.avif",
+      "order": 144,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-16T19:49:42.029Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-16T19:49:42.029Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-16T19:49:42.029Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-16T19:49:42.029Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-16T19:49:42.029Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-16T19:49:42.029Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-16T19:49:42.029Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-16T19:49:42.029Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
