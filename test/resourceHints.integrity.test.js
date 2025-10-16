@@ -35,6 +35,11 @@ test('index.html preloads the module bundle and logo consistently', () => {
     SCRIPT_BUNDLE_PATH,
     'module script src must align with preload hint'
   );
+  assert.strictEqual(
+    moduleScript.getAttribute('crossorigin'),
+    'anonymous',
+    'module script must request anonymous credentials to match modulepreload'
+  );
 
   const legacyScriptPreload = document.querySelector('link[rel="preload"][as="script"]');
   assert.strictEqual(legacyScriptPreload, null, 'legacy script preloads should be removed');
@@ -70,6 +75,11 @@ test('category pages reuse modulepreload and CDN logo hints', () => {
     moduleScript.getAttribute('src'),
     SCRIPT_BUNDLE_PATH,
     'category module script src must match preload path'
+  );
+  assert.strictEqual(
+    moduleScript.getAttribute('crossorigin'),
+    'anonymous',
+    'category module script must use anonymous credentials for reuse'
   );
 
   const legacyScriptPreload = document.querySelector('link[rel="preload"][as="script"]');
