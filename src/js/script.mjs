@@ -1289,7 +1289,13 @@ const initApp = async () => {
             });
         } catch (error) {
             if (!hasLoggedCurrencyFallback) {
-                console.warn('Falling back to CLP currency formatter', { error, currencyCode });
+                const message = (error && typeof error.message === 'string')
+                    ? error.message
+                    : 'Unknown currency formatter failure';
+                console.warn('Falling back to CLP currency formatter', {
+                    currencyCode,
+                    message
+                });
                 hasLoggedCurrencyFallback = true;
             }
             return new Intl.NumberFormat('es-CL', {
