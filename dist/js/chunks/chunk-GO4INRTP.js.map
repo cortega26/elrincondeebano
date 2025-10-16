@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/js/utils/logger.mjs"],
+  "sourcesContent": ["/**\n * Generate a short correlation ID useful for request tracing.\n * @returns {string} Base36 timestamp plus random segment.\n */\nexport function createCorrelationId() {\n  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;\n}\n\n/**\n * Log a JSON message to the console with an explicit level.\n * @param {'log'|'info'|'warn'|'error'} level - Console method to invoke.\n * @param {string} message - Human-readable message.\n * @param {object} [meta] - Additional structured data.\n */\nexport function log(level, message, meta = {}) {\n  const entry = { level, message, ...meta };\n  const out = JSON.stringify(entry);\n  if (typeof console[level] === 'function') {\n    console[level](out);\n  } else {\n    console.log(out);\n  }\n}\n"],
+  "mappings": "AAIO,SAASA,GAAsB,CACpC,MAAO,GAAG,KAAK,IAAI,EAAE,SAAS,EAAE,CAAC,IAAI,KAAK,OAAO,EAAE,SAAS,EAAE,EAAE,MAAM,EAAG,CAAC,CAAC,EAC7E,CAQO,SAASC,EAAIC,EAAOC,EAASC,EAAO,CAAC,EAAG,CAC7C,IAAMC,EAAQ,CAAE,MAAAH,EAAO,QAAAC,EAAS,GAAGC,CAAK,EAClCE,EAAM,KAAK,UAAUD,CAAK,EAC5B,OAAO,QAAQH,CAAK,GAAM,WAC5B,QAAQA,CAAK,EAAEI,CAAG,EAElB,QAAQ,IAAIA,CAAG,CAEnB",
+  "names": ["createCorrelationId", "log", "level", "message", "meta", "entry", "out"]
+}
