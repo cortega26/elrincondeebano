@@ -20,10 +20,6 @@ from contextlib import contextmanager
 import threading
 import signal
 import traceback
-import subprocess
-import hashlib
-import shutil
-
 from repositories import JsonProductRepository
 from services import ProductService
 from gui import ProductGUI, UIConfig
@@ -74,9 +70,6 @@ class ProductManager:
         self.logger: Optional[logging.Logger] = None
         self.gui: Optional[ProductGUI] = None
         self.sync_engine = None
-        self.repository: Optional[JsonProductRepository] = None
-        self._catalog_signature_initial: Optional[str] = None
-        self._repo_root = Path(__file__).resolve().parents[2]
         self._setup_signal_handlers()
 
     def _setup_signal_handlers(self) -> None:
@@ -174,112 +167,6 @@ class ProductManager:
         for path in (self.config['data_dir'], self.config['log_dir']):
             Path(path).mkdir(parents=True, exist_ok=True)
 
-    def _compute_catalog_signature(self) -> Optional[str]:
-        """Return a fingerprint for the product catalog file."""
-        if not self.repository:
-            return None
-        path = Path(self.repository.get_file_path())
-        try:
-            stat = path.stat()
-            hasher = hashlib.sha256()
-            with path.open('rb') as fh:
-                for chunk in iter(lambda: fh.read(1024 * 1024), b''):
-                    hasher.update(chunk)
-            return f"{stat.st_size}:{stat.st_mtime_ns}:{hasher.hexdigest()}"
-        except FileNotFoundError:
-            return None
-        except OSError as exc:
-            if self.logger:
-                self.logger.warning(
-                    "No se pudo calcular la firma del catálogo: %s", exc)
-            return None
-
-    def _has_catalog_changed(self, current_signature: Optional[str]) -> bool:
-        """Compare current catalog signature against the initial snapshot."""
-        return current_signature != self._catalog_signature_initial
-
-    def _maybe_run_static_build(self) -> None:
-        """Run npm build if the catalog file changed during the session."""
-        if not self.repository:
-            return
-        current_signature = self._compute_catalog_signature()
-        if not self._has_catalog_changed(current_signature):
-            if self.logger:
-                self.logger.info(
-                    "No se detectaron cambios en el catálogo; se omite 'npm run build'.")
-            return
-        if self.logger:
-            self.logger.info(
-                "Cambios detectados en product_data.json; ejecutando 'npm run build'.")
-        try:
-            self._run_static_build()
-            if self.logger:
-                self.logger.info("'npm run build' finalizó correctamente.")
-            self._catalog_signature_initial = current_signature
-        except Exception as exc:
-            if self.logger:
-                build_details = ""
-                if isinstance(exc, subprocess.CalledProcessError):
-                    if exc.stdout:
-                        build_details += f"\nstdout:\n{exc.stdout}"
-                    if exc.stderr:
-                        build_details += f"\nstderr:\n{exc.stderr}"
-                self.logger.error(
-                    "Error al ejecutar 'npm run build': %s%s",
-                    exc,
-                    build_details,
-                    exc_info=True,
-                )
-            error_msg = str(exc)
-            if isinstance(exc, subprocess.CalledProcessError) and exc.stderr:
-                error_msg = exc.stderr.strip() or error_msg
-            try:
-                messagebox.showerror(
-                    "Build fallido",
-                    "No fue posible completar 'npm run build'.\n\n"
-                    f"Detalle: {error_msg or 'Error desconocido.'}\n\n"
-                    "Revisa product_manager.log para mayor información.",
-                )
-            except Exception:
-                # El UI puede no estar disponible en este punto; ignorar.
-                pass
-        # En caso de fallo, se conservará la firma inicial para reintentar en la siguiente ejecución.
-
-    def _run_static_build(self) -> None:
-        """Execute npm run build in the repository root."""
-        env = os.environ.copy()
-        npm_path = shutil.which("npm") or shutil.which("npm.cmd")
-        if not npm_path:
-            raise FileNotFoundError(
-                "No se encontró el ejecutable de 'npm'. Asegúrate de tener Node.js instalado y la carpeta en PATH.")
-        if npm_path.lower().endswith((".cmd", ".bat")):
-            cmd = ["cmd.exe", "/c", npm_path, "run", "build"]
-        else:
-            cmd = [npm_path, "run", "build"]
-        try:
-            result = subprocess.run(
-                cmd,
-                cwd=self._repo_root,
-                env=env,
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-            if self.logger:
-                if result.stdout:
-                    self.logger.debug("npm run build stdout:\n%s", result.stdout)
-                if result.stderr:
-                    self.logger.debug("npm run build stderr:\n%s", result.stderr)
-        except subprocess.CalledProcessError as exc:
-            if self.logger:
-                self.logger.error(
-                    "npm run build falló con código %s", exc.returncode)
-                if exc.stdout:
-                    self.logger.error("stdout:\n%s", exc.stdout)
-                if exc.stderr:
-                    self.logger.error("stderr:\n%s", exc.stderr)
-            raise
-
     def _is_development_mode(self) -> bool:
         """Check if application is running in development mode."""
         return os.environ.get('PRODUCT_MANAGER_ENV') == 'development'
@@ -352,8 +239,6 @@ class ProductManager:
 
             # Set up components
             repository = self._create_repository()
-            self.repository = repository
-            self._catalog_signature_initial = self._compute_catalog_signature()
             service = self._create_service(repository)
             self.sync_engine = self._create_sync_engine(repository, service)
             ui_config = self._create_ui_config()
@@ -398,12 +283,6 @@ class ProductManager:
     def _cleanup(self) -> None:
         """Clean up resources before exit."""
         self.logger.info("Cleaning up resources")
-        try:
-            self._maybe_run_static_build()
-        except Exception as exc:
-            if self.logger:
-                self.logger.error(
-                    "Error durante la verificación de build: %s", exc, exc_info=True)
         try:
             if self.gui and self.gui.master:
                 self.gui.master.destroy()
