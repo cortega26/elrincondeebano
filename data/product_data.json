@@ -1,6 +1,6 @@
 {
-  "version": "20251016-185445",
-  "last_updated": "2025-10-16T18:54:45.454332",
+  "version": "20251016-204052",
+  "last_updated": "2025-10-16T20:40:52.005106",
   "rev": 0,
   "products": [
     {
@@ -2402,6 +2402,286 @@
         },
         "order": {
           "ts": "2025-10-16T21:54:45.451Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Lay's - Papas sabor Original",
+      "description": "Tarro de 134g",
+      "price": 2500,
+      "discount": 0,
+      "stock": true,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Lays - Papas Originales 134g.webp",
+      "image_avif_path": "assets/images/snacks_salados/Lays - Papas Originales 134g.avif",
+      "order": 146,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-16T23:39:28.403Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-16T23:39:28.403Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-16T23:39:28.403Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-16T23:39:28.403Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-16T23:39:28.403Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-16T23:39:28.403Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-16T23:39:28.403Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-16T23:39:28.403Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Lay's - Papas sabor Queso",
+      "description": "Tarro de 134g",
+      "price": 2500,
+      "discount": 0,
+      "stock": true,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Lays - Papas Queso 134g.webp",
+      "image_avif_path": "assets/images/snacks_salados/Lays - Papas Queso 134g.avif",
+      "order": 147,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-16T23:39:46.738Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-16T23:39:46.738Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-16T23:39:46.738Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-16T23:39:46.738Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-16T23:39:46.738Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-16T23:39:46.738Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-16T23:39:46.738Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-16T23:39:46.738Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Marco Polo - Papas Onduladas",
+      "description": "Bolsa de 200g",
+      "price": 2500,
+      "discount": 0,
+      "stock": true,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Americano 200g.webp",
+      "image_avif_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Americano 200g.avif",
+      "order": 148,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-16T23:40:22.370Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-16T23:40:22.370Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-16T23:40:22.370Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-16T23:40:22.370Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-16T23:40:22.370Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-16T23:40:22.370Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-16T23:40:22.370Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-16T23:40:22.370Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Marco Polo - Papas Lisas",
+      "description": "Bolsa de 200g",
+      "price": 2500,
+      "discount": 0,
+      "stock": true,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Liso 200g.webp",
+      "image_avif_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Liso 200g.avif",
+      "order": 149,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-16T23:40:52.003Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-16T23:40:52.003Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-16T23:40:52.003Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-16T23:40:52.003Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-16T23:40:52.003Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-16T23:40:52.003Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-16T23:40:52.003Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-16T23:40:52.003Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
