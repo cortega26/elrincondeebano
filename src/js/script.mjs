@@ -105,7 +105,7 @@ const buildStaticSrcset = (assetPath) => {
         if (typeof assetPath.srcset === 'string') {
             const trimmed = assetPath.srcset.trim();
             if (trimmed) {
-                return encodeStaticPath(trimmed);
+                return trimmed;
             }
         }
 
