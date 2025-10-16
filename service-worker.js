@@ -27,6 +27,10 @@ const CACHE_CONFIG = {
     ]
 };
 
+const FALLBACKS = {
+    imagePlaceholder: '/assets/images/web/placeholder.webp'
+};
+
 // Message channel management
 const MESSAGE_CONFIG = {
     timeout: 5000,
@@ -162,6 +166,46 @@ if (!TEST_MODE) {
         return { cacheName: CACHE_CONFIG.prefixes.dynamic, type: 'dynamic' };
     };
 
+    const isImageRequest = (request) => {
+        if (!request) {
+            return false;
+        }
+        if (request.destination === 'image') {
+            return true;
+        }
+        const accept = request.headers?.get('accept') || '';
+        return accept.includes('image/');
+    };
+
+    const getFallbackResponse = async (request) => {
+        if (!request) {
+            return null;
+        }
+
+        if (isImageRequest(request)) {
+            try {
+                const cache = await caches.open(CACHE_CONFIG.prefixes.static);
+                const cachedPlaceholder = await cache.match(FALLBACKS.imagePlaceholder);
+                if (cachedPlaceholder) {
+                    return cachedPlaceholder.clone();
+                }
+            } catch (error) {
+                console.warn('Service Worker: Failed to serve placeholder from cache:', error);
+            }
+
+            try {
+                const networkPlaceholder = await fetch(FALLBACKS.imagePlaceholder);
+                if (networkPlaceholder && networkPlaceholder.ok) {
+                    return networkPlaceholder;
+                }
+            } catch (error) {
+                console.warn('Service Worker: Failed to fetch placeholder image:', error);
+            }
+        }
+
+        return null;
+    };
+
     self.addEventListener('fetch', event => {
         const req = event.request;
         const url = new URL(req.url);
@@ -225,7 +269,15 @@ if (!TEST_MODE) {
                 return cached;
             }
 
-            return Response.error();
+            const fallback = await getFallbackResponse(req);
+            if (fallback) {
+                return fallback;
+            }
+
+            return new Response('Servicio no disponible', {
+                status: 504,
+                headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+            });
         })());
     });
 
