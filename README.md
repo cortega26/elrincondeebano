@@ -11,6 +11,7 @@ Providing a bilingual-friendly grocery catalog that ships as a static site, pre-
 - Inject schema.org structured data, preload hints, and robots metadata as part of the deterministic build chain. 
 - Exercise multiple layers of verification: node:test suites, Playwright anti-flicker checks, Cypress menu regression, and stylesheet order linting. 
 - Maintain reproducible operations with Volta-pinned runtime, npm lockfile, and backup pruning scripts for catalog data. 
+- Ship an optional desktop “Content Manager” (`admin/product_manager/`) that edits `data/product_data.json` locally; remote API sync is disabled by default so changes are committed through Git.
 
 > ```js
 > // service-worker.js

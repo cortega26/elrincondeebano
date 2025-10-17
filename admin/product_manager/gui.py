@@ -498,7 +498,7 @@ class ProductGUI(DragDropMixin):
 
         self.sync_var = tk.StringVar(value="Sincronizado")
         sync_label = ttk.Label(
-            status_frame, textvariable=self.sync_var, relief=tk.SUNKEN, anchor=tk.E, width=20)
+            status_frame, textvariable=self.sync_var, relief=tk.SUNKEN, anchor=tk.E, width=24)
         sync_label.pack(side=tk.RIGHT, padx=(5, 0))
 
         self.version_var = tk.StringVar()
@@ -543,6 +543,8 @@ class ProductGUI(DragDropMixin):
             conflicts = self.product_service.get_conflicts()
         except Exception:  # pylint: disable=broad-except
             conflicts = []
+        engine = getattr(self.product_service, "sync_engine", None)
+        engine_enabled = bool(getattr(engine, "enabled", False)) if engine else False
         if pending:
             self.sync_var.set(f"Cambios pendientes: {pending}")
         elif waiting:
@@ -550,7 +552,7 @@ class ProductGUI(DragDropMixin):
         elif errors:
             self.sync_var.set(f"Errores de sincronización: {errors}")
         else:
-            if getattr(self.product_service, "sync_engine", None):
+            if engine and engine_enabled:
                 self.sync_var.set("Sincronizado")
             else:
                 self.sync_var.set("Sincronización deshabilitada")
