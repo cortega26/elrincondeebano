@@ -93,7 +93,11 @@ _No environment variables are required for the default build. Optional flags suc
 - Emphasizes maintainability through documented scripts, Volta pinning, and automation-first image management. 
 
 ## Contributing & License
-Contributions via pull request are welcome — please run the CI suite (`npm run build`, `npm test`, `npm run check:css-order`, `npm run test:e2e`) before submitting. The project is licensed under ISC as declared in `package.json`; add a root `LICENSE` file before publishing externally. 
+Contributions via pull request are welcome — please run the CI suite (`npm run build`, `npm test`, `npm run check:css-order`, `npm run test:e2e`) before submitting. The project is licensed under ISC as declared in `package.json`; add a root `LICENSE` file before publishing externally.
+
+## Operational Runbooks
+- [Service worker + data recovery runbook](docs/operations/RUNBOOK.md) — canonical operational procedures for cache busting, incident response, and data refreshes.
+- [Backup management checklist](docs/operations/BACKUP.md) — retention policies and restoration steps for catalog data snapshots.
 
 ## Contact & Portfolio
 - GitHub: [Repository owner](../../..)
