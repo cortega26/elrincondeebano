@@ -1,6 +1,6 @@
 {
-  "version": "20251016-212527",
-  "last_updated": "2025-10-16T21:25:27.124693",
+  "version": "20251017-150024",
+  "last_updated": "2025-10-17T15:00:24.919979",
   "rev": 0,
   "products": [
     {
@@ -192,7 +192,7 @@
       "field_last_modified": {}
     },
     {
-      "name": "Salame Italiano Líder laminado",
+      "name": "Líder • Salame Italiano",
       "description": "Empaque de 100g",
       "price": 1900,
       "discount": 0,
@@ -202,7 +202,22 @@
       "image_avif_path": "",
       "order": 12,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T17:46:34.958Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T17:46:34.958Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Queso Llanero 1Kg",
@@ -754,7 +769,7 @@
       "field_last_modified": {}
     },
     {
-      "name": "Jamón de Pierna Acaramelado PF",
+      "name": "PF • Jamón de Pierna Acaramelado",
       "description": "Empaque al vacío de 200g",
       "price": 2600,
       "discount": 0,
@@ -764,7 +779,22 @@
       "image_avif_path": "",
       "order": 52,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T17:47:04.030Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T17:47:04.030Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Salame La Preferida",
@@ -1272,8 +1302,8 @@
       "field_last_modified": {}
     },
     {
-      "name": "Chocolate amargo • Our Finest",
-      "description": "Barra de 100g • 90% cacao",
+      "name": "Our Finest • Chocolate amargo 90% cacao",
+      "description": "Barra de 100g",
       "price": 3800,
       "discount": 0,
       "stock": true,
@@ -1282,7 +1312,29 @@
       "image_avif_path": "",
       "order": 90,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T17:48:13.742Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-17T17:48:13.742Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T17:48:13.742Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Doritos Queso 140g",
@@ -1648,17 +1700,32 @@
       "field_last_modified": {}
     },
     {
-      "name": "Chocolate con Avellanas Great Value",
+      "name": "Great Value • Chocolate con Avellanas",
       "description": "Barra de 100g",
       "price": 2800,
       "discount": 0,
       "stock": true,
       "category": "Chocolates",
       "image_path": "assets/images/chocolates/Chocolate con Avellanas Great Value 100g.webp",
-      "image_avif_path": "",
+      "image_avif_path": "assets/images/chocolates/Great Value - Chocolate con Avellanas.avif",
       "order": 114,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "image_avif_path": {
+          "ts": "2025-10-17T18:00:24.918Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T18:00:24.918Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Corona Sin Alcohol botella 330cc",
@@ -2130,7 +2197,7 @@
       }
     },
     {
-      "name": "Agua Tónica Shweppes",
+      "name": "Shweppes • Agua Tónica",
       "description": "Botella de 1,5L",
       "price": 2800,
       "discount": 0,
@@ -2142,56 +2209,14 @@
       "rev": 0,
       "field_last_modified": {
         "name": {
-          "ts": "2025-10-15T23:30:06.244Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-15T23:30:06.244Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-15T23:30:06.244Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-15T23:30:06.244Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "stock": {
-          "ts": "2025-10-15T23:30:06.244Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-15T23:30:06.244Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-15T23:30:06.244Z",
+          "ts": "2025-10-17T17:44:25.662Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-15T23:30:06.244Z",
+          "ts": "2025-10-17T17:44:25.662Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2822,6 +2847,76 @@
         },
         "order": {
           "ts": "2025-10-17T00:25:27.123Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Great Value • Chocolate con Almendras",
+      "description": "Barra de 100g",
+      "price": 2800,
+      "discount": 0,
+      "stock": true,
+      "category": "Chocolates",
+      "image_path": "assets/images/chocolates/Great Value - Chocolate con Almendras.webp",
+      "image_avif_path": "assets/images/chocolates/Great Value - Chocolate con Almendras.avif",
+      "order": 152,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T17:59:56.477Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-17T17:59:56.477Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-17T17:59:56.477Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-17T17:59:56.477Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-17T17:59:56.477Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-17T17:59:56.477Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-17T17:59:56.477Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T17:59:56.477Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
