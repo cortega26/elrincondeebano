@@ -499,6 +499,19 @@ h1 {
   .brand-text {
     font-size: clamp(1.25rem, 4vw, 2rem);
   }
+
+  .navbar-nav .nav-item {
+    margin-bottom: 0.25rem;
+  }
+
+  .navbar-nav .nav-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .navbar-nav .nav-link {
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+  }
 }
 
 @media (max-width: 767px) {
