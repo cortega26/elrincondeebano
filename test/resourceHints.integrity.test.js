@@ -4,14 +4,26 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { JSDOM } = require('jsdom');
 
-const SCRIPT_BUNDLE_PATH = '/dist/js/script.min.js';
-const LOGO_CDN_PREFIX = '/cdn-cgi/image/';
+const BUILD_ROOT = process.env.BUILD_OUTPUT_DIR
+  ? path.resolve(__dirname, '..', process.env.BUILD_OUTPUT_DIR)
+  : path.resolve(__dirname, '..', 'build');
+
+function resolveDocumentPath(relPath) {
+  const candidate = path.join(BUILD_ROOT, relPath);
+  if (fs.existsSync(candidate)) {
+    return candidate;
+  }
+  throw new Error(`Unable to locate HTML fixture in staged build: ${relPath}`);
+}
 
 function loadDocument(relPath) {
-  const filePath = path.join(__dirname, '..', relPath);
+  const filePath = resolveDocumentPath(relPath);
   const html = fs.readFileSync(filePath, 'utf8');
   return new JSDOM(html).window.document;
 }
+
+const SCRIPT_BUNDLE_PATH = '/dist/js/script.min.js';
+const LOGO_CDN_PREFIX = '/cdn-cgi/image/';
 
 test('index.html preloads the module bundle and logo consistently', () => {
   const document = loadDocument('index.html');

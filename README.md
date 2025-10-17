@@ -37,20 +37,18 @@ flowchart TD
   Data[data/product_data.json] --> BuildScripts[Node build scripts]
   Templates[EJS templates] --> BuildScripts
   Assets[assets/, src/] --> BuildScripts
-  BuildScripts --> Pages[pages/ static HTML]
-  BuildScripts --> Dist[dist/ optimized bundles]
-  Pages --> ServiceWorker
-  Dist --> ServiceWorker
+  BuildScripts --> Staging[build/ staged site snapshot]
+  Staging --> ServiceWorker
   ServiceWorker --> Browser[Browser cache & offline UX]
   BuildScripts --> CI[GitHub Actions CI]
-  CI --> Pages
+  CI --> Staging
 ```
 
 ## Quick Start
 1. `nvm use 22` – align with the Volta/CI runtime (`>=22 <25`).
 2. `npm ci` – install dependencies deterministically.
-3. `npm run build` – generate `pages/`, `dist/`, and sitemap artifacts.
-4. `npx serve pages -l 4173` – preview the static build locally (swap with your preferred static server).
+3. `npm run build` – generate a full static snapshot under `build/` (contains `dist/`, `pages/`, sitemap, etc.).
+4. `npx serve build -l 4173` – preview the staged site locally (swap with your preferred static server).
 
 _No environment variables are required for the default build. Optional flags such as `FULL_REGEN` or `LH_SKIP_BUILD` fine-tune heavy scripts and are documented inline in `tools/`._
 
@@ -59,7 +57,7 @@ _No environment variables are required for the default build. Optional flags suc
 - AVIF assets are now optional but supported through a new `image_avif_path` field stored alongside products in `data/product_data.json`.
 - The Node build emits `<picture>` tags and serves AVIF when browsers advertise support, while preserving the WebP/JPEG fallback for Safari/legacy clients.
 - Offline Product Manager and the admin panel expose new fields so you can paste the AVIF relative path (e.g. `assets/images/bebidas/Coca.webp` + `assets/images/bebidas/Coca.avif`). The dialog also offers a helper button to copy AVIF files into the canonical assets directory.
-- Keep both files committed and run `npm run build` after changes; the new GitHub Action (`product-data-guard.yml`) fails the build if generated artifacts fall out of sync with committed data.
+- Keep both files committed and run `npm run build` after changes; the guard workflow simply rebuilds from source and fails if the staged output diverges.
 
 ## Quality & Tests
 | Check | Command | Notes |

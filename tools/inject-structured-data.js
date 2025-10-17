@@ -1,5 +1,9 @@
 const fs = require('fs');
 const path = require('path');
+const {
+  resolveFromOutput,
+  resolveOutputDir,
+} = require('./utils/output-dir');
 
 function generateStructuredData(products) {
   // CHANGED: Remove the .slice(0, 20) limit to include ALL products
@@ -49,15 +53,14 @@ function injectIntoFile(filePath, scriptTag) {
 }
 
 async function main() {
-  const rootDir = path.join(__dirname, '..');
-  const dataPath = path.join(rootDir, 'data', 'product_data.json');
+  const outputDir = resolveOutputDir();
+  const dataPath = path.join(__dirname, '..', 'data', 'product_data.json');
   const raw = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
   const products = Array.isArray(raw.products) ? raw.products : Array.isArray(raw) ? raw : [];
   const scriptTag = generateStructuredData(products);
 
-  // Skip injecting structured data into the index page; handled at runtime by csp.js
   const files = [];
-  const pagesDir = path.join(rootDir, 'pages');
+  const pagesDir = resolveFromOutput('pages');
   if (fs.existsSync(pagesDir)) {
     for (const file of fs.readdirSync(pagesDir)) {
       if (file.endsWith('.html')) {

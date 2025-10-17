@@ -2,10 +2,16 @@ const fs = require('fs');
 const path = require('path');
 const ejs = require('ejs');
 
-const ROOT_DIR = path.join(__dirname, '..');
-const TEMPLATE_PATH = path.join(ROOT_DIR, 'templates', 'index.ejs');
-const DATA_PATH = path.join(ROOT_DIR, 'data', 'product_data.json');
-const OUTPUT_PATH = path.join(ROOT_DIR, 'index.html');
+const {
+  rootDir,
+  resolveOutputDir,
+  resolveFromOutput,
+  ensureDir,
+} = require('./utils/output-dir');
+
+const TEMPLATE_PATH = path.join(rootDir, 'templates', 'index.ejs');
+const DATA_PATH = path.join(rootDir, 'data', 'product_data.json');
+const OUTPUT_PATH = resolveFromOutput('index.html');
 
 const CFIMG_THUMB = { fit: 'cover', quality: 75, format: 'auto' };
 const SIZES_ATTR = '(min-width: 1200px) 280px, (min-width: 992px) 240px, (min-width: 576px) 45vw, 80vw';
@@ -143,6 +149,7 @@ function build() {
     inlinePayload
   }, { rmWhitespace: false, filename: TEMPLATE_PATH });
 
+  ensureDir(resolveOutputDir());
   fs.writeFileSync(OUTPUT_PATH, html);
 }
 

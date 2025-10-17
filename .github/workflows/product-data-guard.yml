@@ -14,7 +14,7 @@ on:
 
 jobs:
   ensure-build-in-sync:
-    name: Ensure build artifacts are committed
+    name: Ensure build artifacts remain reproducible
     runs-on: ubuntu-22.04
 
     steps:
@@ -33,10 +33,14 @@ jobs:
       - name: Rebuild catalog
         run: npm run build
 
+      - name: Inspect staged output
+        run: |
+          ls -R build | head -n 100
+
       - name: Verify working tree is clean
         run: |
           if [[ -n "$(git status --porcelain)" ]]; then
-            echo "::error::Detected uncommitted changes after running npm run build. Commit generated artifacts (index.html, pages/, dist/, sitemap.xml, etc.) before pushing."
+            echo "::error::Detected tracked changes after running npm run build. Generated artifacts must live only in the staged build/ directory."
             git status --short
             exit 1
           fi

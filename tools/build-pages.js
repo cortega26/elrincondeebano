@@ -2,7 +2,12 @@ const fs = require('fs');
 const path = require('path');
 const ejs = require('ejs');
 
-const rootDir = path.join(__dirname, '..');
+const {
+  resolveFromOutput,
+  ensureDir,
+  rootDir,
+} = require('./utils/output-dir');
+
 const templatePath = path.join(rootDir, 'templates', 'category.ejs');
 const template = fs.readFileSync(templatePath, 'utf8');
 
@@ -28,12 +33,15 @@ const pages = [
   { slug: 'vinos', name: 'Vinos', description: 'Explora nuestra amplia selección de vinos en El Rincón de Ébano y encuentra la vid que satisfaga tu paladar.' },
 ];
 
+const outputDir = resolveFromOutput('pages');
+ensureDir(outputDir);
+
 pages.forEach(page => {
   const html = ejs.render(
     template,
     { categoryName: page.name, description: page.description, slug: page.slug },
     { filename: templatePath }
   );
-  const outputPath = path.join(rootDir, 'pages', `${page.slug}.html`);
+  const outputPath = path.join(outputDir, `${page.slug}.html`);
   fs.writeFileSync(outputPath, html);
 });
