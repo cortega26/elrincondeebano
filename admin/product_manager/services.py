@@ -136,6 +136,12 @@ class ProductService:
             return 0
         return self.sync_engine.pending_count()
 
+    def get_sync_status(self) -> Dict[str, int]:
+        """Provide a summary of the synchronization queue state."""
+        if not self.sync_engine:
+            return {"pending": 0, "waiting": 0, "errors": 0, "total": 0}
+        return self.sync_engine.status_summary()
+
     def consume_conflicts(self) -> List[Dict[str, Any]]:
         """Return and clear accumulated sync conflicts."""
         if not self.sync_engine:

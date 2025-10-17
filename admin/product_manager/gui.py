@@ -523,12 +523,21 @@ class ProductGUI(DragDropMixin):
 
     def refresh_sync_status(self) -> None:
         """Refresh synchronization indicators."""
-        pending = 0
-        if hasattr(self.product_service, "get_sync_pending_count"):
+        status_summary = {"pending": 0, "waiting": 0, "errors": 0}
+        if hasattr(self.product_service, "get_sync_status"):
+            try:
+                status_summary = self.product_service.get_sync_status()
+            except Exception:  # pylint: disable=broad-except
+                status_summary = {"pending": 0, "waiting": 0, "errors": 0}
+        elif hasattr(self.product_service, "get_sync_pending_count"):
             try:
                 pending = int(self.product_service.get_sync_pending_count())
+                status_summary["pending"] = pending
             except Exception:  # pylint: disable=broad-except
-                pending = 0
+                status_summary["pending"] = 0
+        pending = int(status_summary.get("pending", 0) or 0)
+        waiting = int(status_summary.get("waiting", 0) or 0)
+        errors = int(status_summary.get("errors", 0) or 0)
         conflicts = []
         try:
             conflicts = self.product_service.get_conflicts()
@@ -536,8 +545,15 @@ class ProductGUI(DragDropMixin):
             conflicts = []
         if pending:
             self.sync_var.set(f"Cambios pendientes: {pending}")
+        elif waiting:
+            self.sync_var.set(f"En espera de red: {waiting}")
+        elif errors:
+            self.sync_var.set(f"Errores de sincronización: {errors}")
         else:
-            self.sync_var.set("Sincronizado")
+            if getattr(self.product_service, "sync_engine", None):
+                self.sync_var.set("Sincronizado")
+            else:
+                self.sync_var.set("Sincronización deshabilitada")
         if conflicts:
             self.conflict_button.configure(
                 text=f"Conflictos ({len(conflicts)})", state=tk.NORMAL)

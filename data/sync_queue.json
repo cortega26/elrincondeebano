@@ -28,11 +28,12 @@
       },
       "timestamp": "2025-10-14T15:11:04.680Z",
       "changeset_id": "7b825c083bc847c89768b4cbbb19b375",
-      "status": "error",
-      "attempts": 182,
+      "status": "pending",
+      "attempts": 205,
       "enqueued_at": "2025-10-14T15:11:04.687Z",
-      "last_attempt": "2025-10-17T18:10:45.971Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:02.255Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Coca-Cola 3L",
@@ -62,11 +63,12 @@
       },
       "timestamp": "2025-10-14T15:11:12.460Z",
       "changeset_id": "045413c4d30d4920b0b9694edd035bbc",
-      "status": "error",
-      "attempts": 180,
+      "status": "pending",
+      "attempts": 203,
       "enqueued_at": "2025-10-14T15:11:12.466Z",
-      "last_attempt": "2025-10-17T18:10:47.020Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:03.270Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Cousiño-Macul • Carmenere Reserva, Chivilingo",
@@ -96,11 +98,12 @@
       },
       "timestamp": "2025-10-14T15:11:28.299Z",
       "changeset_id": "4efe369a8bce49578a5ae317f7a65c8a",
-      "status": "error",
-      "attempts": 179,
+      "status": "pending",
+      "attempts": 202,
       "enqueued_at": "2025-10-14T15:11:28.306Z",
-      "last_attempt": "2025-10-17T18:10:48.065Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:04.288Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Sprite 3L",
@@ -130,11 +133,12 @@
       },
       "timestamp": "2025-10-14T15:25:14.308Z",
       "changeset_id": "667baa4483a34be9965db3da1f155945",
-      "status": "error",
-      "attempts": 166,
+      "status": "pending",
+      "attempts": 189,
       "enqueued_at": "2025-10-14T15:25:14.315Z",
-      "last_attempt": "2025-10-17T18:10:49.101Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:05.315Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Coca-Cola Zero 3L",
@@ -164,11 +168,12 @@
       },
       "timestamp": "2025-10-14T15:25:18.008Z",
       "changeset_id": "a65f5a82bdb24917ab9850b840dc6537",
-      "status": "error",
-      "attempts": 166,
+      "status": "pending",
+      "attempts": 189,
       "enqueued_at": "2025-10-14T15:25:18.018Z",
-      "last_attempt": "2025-10-17T18:10:50.136Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:06.333Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Sprite Zero 2L",
@@ -198,11 +203,12 @@
       },
       "timestamp": "2025-10-14T15:25:21.119Z",
       "changeset_id": "8f00dcb267584cc8814732c13351277b",
-      "status": "error",
-      "attempts": 165,
+      "status": "pending",
+      "attempts": 188,
       "enqueued_at": "2025-10-14T15:25:21.126Z",
-      "last_attempt": "2025-10-17T18:10:51.157Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:07.350Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Fanta 3L",
@@ -232,11 +238,12 @@
       },
       "timestamp": "2025-10-14T15:25:24.719Z",
       "changeset_id": "9eb71086e87e40a5ad8d48c6ae565a7d",
-      "status": "error",
-      "attempts": 164,
+      "status": "pending",
+      "attempts": 187,
       "enqueued_at": "2025-10-14T15:25:24.726Z",
-      "last_attempt": "2025-10-17T18:10:52.172Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:08.379Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Fanta Zero 2L",
@@ -266,11 +273,12 @@
       },
       "timestamp": "2025-10-14T15:25:27.856Z",
       "changeset_id": "6be544d0552e4d8aa81e04e43b054b5d",
-      "status": "error",
-      "attempts": 164,
+      "status": "pending",
+      "attempts": 187,
       "enqueued_at": "2025-10-14T15:25:27.862Z",
-      "last_attempt": "2025-10-17T18:10:53.216Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:09.397Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Sprite 2L",
@@ -300,11 +308,12 @@
       },
       "timestamp": "2025-10-14T15:25:30.632Z",
       "changeset_id": "884b446d38f846dea4b73388c4e3b50e",
-      "status": "error",
-      "attempts": 163,
+      "status": "pending",
+      "attempts": 186,
       "enqueued_at": "2025-10-14T15:25:30.638Z",
-      "last_attempt": "2025-10-17T18:10:54.234Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:10.426Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Sprite Zero 3L",
@@ -334,11 +343,12 @@
       },
       "timestamp": "2025-10-14T15:25:45.048Z",
       "changeset_id": "af993f4363d74715a93816788abfca69",
-      "status": "error",
-      "attempts": 162,
+      "status": "pending",
+      "attempts": 185,
       "enqueued_at": "2025-10-14T15:25:45.055Z",
-      "last_attempt": "2025-10-17T18:10:55.252Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:11.468Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Coca-Cola 2L",
@@ -368,11 +378,12 @@
       },
       "timestamp": "2025-10-14T15:25:47.892Z",
       "changeset_id": "09b5b14895604d1d8ed95356ee925912",
-      "status": "error",
-      "attempts": 160,
+      "status": "pending",
+      "attempts": 183,
       "enqueued_at": "2025-10-14T15:25:47.898Z",
-      "last_attempt": "2025-10-17T18:10:56.282Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:12.486Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Coca-Cola Zero 2L",
@@ -402,11 +413,12 @@
       },
       "timestamp": "2025-10-14T15:25:52.795Z",
       "changeset_id": "464469a6b0d94fd6a276b28dd4cc80b7",
-      "status": "error",
-      "attempts": 157,
+      "status": "pending",
+      "attempts": 180,
       "enqueued_at": "2025-10-14T15:25:52.802Z",
-      "last_attempt": "2025-10-17T18:09:11.109Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:13.514Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Fanta 2L",
@@ -436,11 +448,12 @@
       },
       "timestamp": "2025-10-14T15:25:55.403Z",
       "changeset_id": "39e3b2b53d55427891d0d5d7bbfeb485",
-      "status": "error",
-      "attempts": 155,
+      "status": "pending",
+      "attempts": 178,
       "enqueued_at": "2025-10-14T15:25:55.410Z",
-      "last_attempt": "2025-10-17T18:09:12.141Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:14.537Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Coors botella 355cc",
@@ -470,11 +483,12 @@
       },
       "timestamp": "2025-10-14T15:26:34.407Z",
       "changeset_id": "1ed36bd34c094b5291aa9129dbd47321",
-      "status": "error",
-      "attempts": 154,
+      "status": "pending",
+      "attempts": 177,
       "enqueued_at": "2025-10-14T15:26:34.414Z",
-      "last_attempt": "2025-10-17T18:09:13.161Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:15.559Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Cristal lata 350cc",
@@ -504,11 +518,12 @@
       },
       "timestamp": "2025-10-14T15:26:48.413Z",
       "changeset_id": "69790418570b432a9d931e83c722afc0",
-      "status": "error",
-      "attempts": 153,
+      "status": "pending",
+      "attempts": 176,
       "enqueued_at": "2025-10-14T15:26:48.419Z",
-      "last_attempt": "2025-10-17T18:09:14.192Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:16.583Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Aceite de Oliva Extra Virgen Pepita de Oro",
@@ -538,11 +553,12 @@
       },
       "timestamp": "2025-10-14T15:28:27.614Z",
       "changeset_id": "24fe2dd24b5d48bc8c377197abe678b0",
-      "status": "error",
-      "attempts": 152,
+      "status": "pending",
+      "attempts": 175,
       "enqueued_at": "2025-10-14T15:28:27.621Z",
-      "last_attempt": "2025-10-17T18:09:15.225Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:17.613Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Aceite de Oliva Extra Virgen Pepita de Oro",
@@ -572,11 +588,12 @@
       },
       "timestamp": "2025-10-14T15:28:31.473Z",
       "changeset_id": "6847259809ab434b8060b2e461dce843",
-      "status": "error",
-      "attempts": 151,
+      "status": "pending",
+      "attempts": 174,
       "enqueued_at": "2025-10-14T15:28:31.479Z",
-      "last_attempt": "2025-10-17T18:09:16.238Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:18.647Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Crema de Leche Surlat",
@@ -606,11 +623,12 @@
       },
       "timestamp": "2025-10-14T15:29:32.572Z",
       "changeset_id": "23ab79cf440b4a4d95a0853f2c288da0",
-      "status": "error",
-      "attempts": 148,
+      "status": "pending",
+      "attempts": 171,
       "enqueued_at": "2025-10-14T15:29:32.579Z",
-      "last_attempt": "2025-10-17T18:09:17.253Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:19.660Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Toalla Papel Favorita Estilo",
@@ -640,11 +658,12 @@
       },
       "timestamp": "2025-10-14T15:30:10.196Z",
       "changeset_id": "c2ba515065b440759069bc9fb0e707f2",
-      "status": "error",
-      "attempts": 146,
+      "status": "pending",
+      "attempts": 169,
       "enqueued_at": "2025-10-14T15:30:10.203Z",
-      "last_attempt": "2025-10-17T18:09:18.287Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:20.681Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Mario Bros",
@@ -674,11 +693,12 @@
       },
       "timestamp": "2025-10-14T15:30:25.387Z",
       "changeset_id": "2df0098618644ee69a3a217c1c1f0f53",
-      "status": "error",
-      "attempts": 146,
+      "status": "pending",
+      "attempts": 169,
       "enqueued_at": "2025-10-14T15:30:25.394Z",
-      "last_attempt": "2025-10-17T18:09:19.318Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:21.710Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Mario Bros",
@@ -708,11 +728,12 @@
       },
       "timestamp": "2025-10-14T15:30:31.152Z",
       "changeset_id": "66290bad11ba4ddebd7d0fb954d4c600",
-      "status": "error",
-      "attempts": 146,
+      "status": "pending",
+      "attempts": 169,
       "enqueued_at": "2025-10-14T15:30:31.158Z",
-      "last_attempt": "2025-10-17T18:09:20.334Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:22.739Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Luigi",
@@ -742,11 +763,12 @@
       },
       "timestamp": "2025-10-14T15:30:35.272Z",
       "changeset_id": "e7e227f109914cb0a7f3c9a080144265",
-      "status": "error",
-      "attempts": 146,
+      "status": "pending",
+      "attempts": 169,
       "enqueued_at": "2025-10-14T15:30:35.279Z",
-      "last_attempt": "2025-10-17T18:09:21.364Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:23.769Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Yoshi",
@@ -776,11 +798,12 @@
       },
       "timestamp": "2025-10-14T15:30:38.103Z",
       "changeset_id": "8658f0399085404c8d683c25119cdd97",
-      "status": "error",
-      "attempts": 144,
+      "status": "pending",
+      "attempts": 167,
       "enqueued_at": "2025-10-14T15:30:38.110Z",
-      "last_attempt": "2025-10-17T18:09:22.381Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:24.801Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Peach",
@@ -810,11 +833,12 @@
       },
       "timestamp": "2025-10-14T15:30:40.704Z",
       "changeset_id": "06294ff7685f430fb0c25b21e62b3fa8",
-      "status": "error",
-      "attempts": 144,
+      "status": "pending",
+      "attempts": 167,
       "enqueued_at": "2025-10-14T15:30:40.711Z",
-      "last_attempt": "2025-10-17T18:09:23.412Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:25.831Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Bowser",
@@ -844,11 +868,12 @@
       },
       "timestamp": "2025-10-14T15:30:43.135Z",
       "changeset_id": "306888a1b32f44908ea7c385cd965acc",
-      "status": "error",
-      "attempts": 144,
+      "status": "pending",
+      "attempts": 167,
       "enqueued_at": "2025-10-14T15:30:43.142Z",
-      "last_attempt": "2025-10-17T18:09:24.428Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:26.861Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Donkey Kong",
@@ -878,11 +903,12 @@
       },
       "timestamp": "2025-10-14T15:30:46.096Z",
       "changeset_id": "c1117e7c6024415a8b539c743d15d506",
-      "status": "error",
-      "attempts": 142,
+      "status": "pending",
+      "attempts": 165,
       "enqueued_at": "2025-10-14T15:30:46.103Z",
-      "last_attempt": "2025-10-17T18:09:25.441Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:27.906Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Mario Bros",
@@ -912,11 +938,12 @@
       },
       "timestamp": "2025-10-14T15:30:54.687Z",
       "changeset_id": "1dae286e780a48a1bfb1364fa109ca12",
-      "status": "error",
-      "attempts": 141,
+      "status": "pending",
+      "attempts": 164,
       "enqueued_at": "2025-10-14T15:30:54.694Z",
-      "last_attempt": "2025-10-17T18:09:26.473Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:28.935Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Luigi",
@@ -946,11 +973,12 @@
       },
       "timestamp": "2025-10-14T15:30:57.608Z",
       "changeset_id": "fa1363ac22164da5a4d73ba60e44f863",
-      "status": "error",
-      "attempts": 140,
+      "status": "pending",
+      "attempts": 163,
       "enqueued_at": "2025-10-14T15:30:57.615Z",
-      "last_attempt": "2025-10-17T18:09:27.521Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:30.013Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Yoshi",
@@ -980,11 +1008,12 @@
       },
       "timestamp": "2025-10-14T15:31:00.347Z",
       "changeset_id": "07a4c379421149ca9b6bbc65d67e77a8",
-      "status": "error",
-      "attempts": 139,
+      "status": "pending",
+      "attempts": 162,
       "enqueued_at": "2025-10-14T15:31:00.354Z",
-      "last_attempt": "2025-10-17T18:09:28.536Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:31.239Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Peach",
@@ -1014,11 +1043,12 @@
       },
       "timestamp": "2025-10-14T15:31:02.685Z",
       "changeset_id": "9a3be62aebc04f529bb5551c90792f0a",
-      "status": "error",
-      "attempts": 138,
+      "status": "pending",
+      "attempts": 161,
       "enqueued_at": "2025-10-14T15:31:02.692Z",
-      "last_attempt": "2025-10-17T18:09:29.567Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:32.254Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Bowser",
@@ -1048,11 +1078,12 @@
       },
       "timestamp": "2025-10-14T15:31:05.093Z",
       "changeset_id": "5a496b3a007f47d188b5b174354b63c2",
-      "status": "error",
-      "attempts": 136,
+      "status": "pending",
+      "attempts": 159,
       "enqueued_at": "2025-10-14T15:31:05.100Z",
-      "last_attempt": "2025-10-17T18:09:30.584Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:33.277Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Donkey Kong",
@@ -1082,11 +1113,12 @@
       },
       "timestamp": "2025-10-14T15:31:07.764Z",
       "changeset_id": "a18b8153225546d9bef0876f2c81f113",
-      "status": "error",
-      "attempts": 135,
+      "status": "pending",
+      "attempts": 158,
       "enqueued_at": "2025-10-14T15:31:07.770Z",
-      "last_attempt": "2025-10-17T18:09:31.604Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:34.291Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Súper 8 • Pack 4 unidades",
@@ -1116,11 +1148,12 @@
       },
       "timestamp": "2025-10-14T15:32:03.292Z",
       "changeset_id": "c84bcd5647db45889b293c73ff46b848",
-      "status": "error",
-      "attempts": 133,
+      "status": "pending",
+      "attempts": 156,
       "enqueued_at": "2025-10-14T15:32:03.299Z",
-      "last_attempt": "2025-10-17T18:09:32.630Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:35.319Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Brut • Undurraga",
@@ -1159,11 +1192,12 @@
       },
       "timestamp": "2025-10-15T19:26:20.927Z",
       "changeset_id": "fe3317cc8b3d43c18e34c57e4402e47b",
-      "status": "error",
-      "attempts": 67,
+      "status": "pending",
+      "attempts": 90,
       "enqueued_at": "2025-10-15T19:26:20.934Z",
-      "last_attempt": "2025-10-17T18:09:33.645Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:36.344Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Brut • Undurraga",
@@ -1202,11 +1236,12 @@
       },
       "timestamp": "2025-10-15T19:26:50.471Z",
       "changeset_id": "02377b95d0f341a0a9ed8e7d3dcf7604",
-      "status": "error",
-      "attempts": 66,
+      "status": "pending",
+      "attempts": 89,
       "enqueued_at": "2025-10-15T19:26:50.478Z",
-      "last_attempt": "2025-10-17T18:09:34.661Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:37.376Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Brut • Undurraga",
@@ -1245,11 +1280,12 @@
       },
       "timestamp": "2025-10-15T19:32:32.735Z",
       "changeset_id": "a4f8db0cefaf4560bc5e3644fa8bb07b",
-      "status": "error",
-      "attempts": 66,
+      "status": "pending",
+      "attempts": 89,
       "enqueued_at": "2025-10-15T19:32:32.743Z",
-      "last_attempt": "2025-10-17T18:09:35.692Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:38.405Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Brut • Undurraga",
@@ -1288,11 +1324,12 @@
       },
       "timestamp": "2025-10-15T19:39:49.167Z",
       "changeset_id": "31579eb5838840608536998bf58cab81",
-      "status": "error",
-      "attempts": 65,
+      "status": "pending",
+      "attempts": 88,
       "enqueued_at": "2025-10-15T19:39:49.174Z",
-      "last_attempt": "2025-10-17T18:09:36.721Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:39.442Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Canada Dry • Agua Tónica 1,5L",
@@ -1323,11 +1360,12 @@
       },
       "timestamp": "2025-10-15T22:35:18.285Z",
       "changeset_id": "ebaa6081154d4c7386ee7d71fb05cf75",
-      "status": "error",
-      "attempts": 53,
+      "status": "pending",
+      "attempts": 76,
       "enqueued_at": "2025-10-15T22:35:18.293Z",
-      "last_attempt": "2025-10-17T18:09:37.752Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:40.456Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Agua Tónica Shweppes",
@@ -1366,11 +1404,12 @@
       },
       "timestamp": "2025-10-17T17:44:25.662Z",
       "changeset_id": "e42e783216f9478e88370f3452f093e3",
-      "status": "error",
-      "attempts": 12,
+      "status": "pending",
+      "attempts": 35,
       "enqueued_at": "2025-10-17T17:44:25.670Z",
-      "last_attempt": "2025-10-17T18:09:38.789Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:41.488Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Salame Italiano Líder laminado",
@@ -1409,11 +1448,12 @@
       },
       "timestamp": "2025-10-17T17:46:34.958Z",
       "changeset_id": "2fa309410aee45b29276dd68bfecd735",
-      "status": "error",
-      "attempts": 10,
+      "status": "pending",
+      "attempts": 33,
       "enqueued_at": "2025-10-17T17:46:34.965Z",
-      "last_attempt": "2025-10-17T18:09:39.810Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:42.506Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Jamón de Pierna Acaramelado PF",
@@ -1452,11 +1492,12 @@
       },
       "timestamp": "2025-10-17T17:47:04.030Z",
       "changeset_id": "5c754e3a382d45c5a00ae8db3ae51feb",
-      "status": "error",
-      "attempts": 10,
+      "status": "pending",
+      "attempts": 33,
       "enqueued_at": "2025-10-17T17:47:04.036Z",
-      "last_attempt": "2025-10-17T18:09:40.839Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:43.550Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Chocolate amargo • Our Finest",
@@ -1503,11 +1544,12 @@
       },
       "timestamp": "2025-10-17T17:48:13.742Z",
       "changeset_id": "2f4c63b293894deca5166ab9f0392fbb",
-      "status": "error",
-      "attempts": 9,
+      "status": "pending",
+      "attempts": 32,
       "enqueued_at": "2025-10-17T17:48:13.749Z",
-      "last_attempt": "2025-10-17T18:09:41.872Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:44.577Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Chocolate con Avellanas Great Value",
@@ -1546,11 +1588,12 @@
       },
       "timestamp": "2025-10-17T17:51:13.133Z",
       "changeset_id": "f03ba8787f884005991cd7a96e2deae3",
-      "status": "error",
-      "attempts": 8,
+      "status": "pending",
+      "attempts": 31,
       "enqueued_at": "2025-10-17T17:51:13.142Z",
-      "last_attempt": "2025-10-17T18:09:42.886Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:45.589Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Great Value Chocolate con Avellanas",
@@ -1589,11 +1632,12 @@
       },
       "timestamp": "2025-10-17T17:51:27.125Z",
       "changeset_id": "cf1b724f253e4e3fb1684c25dd80dec4",
-      "status": "error",
-      "attempts": 8,
+      "status": "pending",
+      "attempts": 31,
       "enqueued_at": "2025-10-17T17:51:27.132Z",
-      "last_attempt": "2025-10-17T18:09:43.902Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:46.608Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     },
     {
       "product_id": "Great Value • Chocolate con Avellanas",
@@ -1632,11 +1676,876 @@
       },
       "timestamp": "2025-10-17T18:00:24.918Z",
       "changeset_id": "491161bd68cb42e194ce26b3297eeffe",
-      "status": "error",
-      "attempts": 3,
+      "status": "pending",
+      "attempts": 26,
       "enqueued_at": "2025-10-17T18:00:24.925Z",
-      "last_attempt": "2025-10-17T18:09:44.926Z",
-      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>"
+      "last_attempt": "2025-10-17T19:03:47.638Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
+    },
+    {
+      "product_id": "Tortilla Grande Mexicana Líder",
+      "base_rev": 0,
+      "fields": {
+        "discount": 400,
+        "order": 0
+      },
+      "snapshot": {
+        "name": "Tortilla Grande Mexicana Líder",
+        "description": "Empaque de 350g",
+        "price": 2400,
+        "discount": 400,
+        "stock": true,
+        "category": "Despensa",
+        "image_path": "assets/images/despensa/Tortilla grande mexicana Líder 350g.webp",
+        "image_avif_path": "",
+        "order": 8,
+        "rev": 0,
+        "field_last_modified": {
+          "discount": {
+            "ts": "2025-10-17T18:18:21.340Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          },
+          "order": {
+            "ts": "2025-10-17T18:18:21.340Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          }
+        }
+      },
+      "timestamp": "2025-10-17T18:18:21.340Z",
+      "changeset_id": "b438c8b95836476c854bbd187ef9c895",
+      "status": "pending",
+      "attempts": 22,
+      "enqueued_at": "2025-10-17T18:18:21.349Z",
+      "last_attempt": "2025-10-17T19:03:48.661Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
+    },
+    {
+      "product_id": "Atún Lomitos en Agua Líder",
+      "base_rev": 0,
+      "fields": {
+        "stock": false
+      },
+      "snapshot": {
+        "name": "Atún Lomitos en Agua Líder",
+        "description": "Lata de 160g (peso neto)",
+        "price": 1900,
+        "discount": 0,
+        "stock": false,
+        "category": "Despensa",
+        "image_path": "assets/images/despensa/Atún Líder en agua 160g.webp",
+        "image_avif_path": "",
+        "order": 109,
+        "rev": 0,
+        "field_last_modified": {
+          "stock": {
+            "ts": "2025-10-17T18:18:58.036Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          }
+        }
+      },
+      "timestamp": "2025-10-17T18:18:58.036Z",
+      "changeset_id": "5fb650b814854942bea9e38d7c1101c7",
+      "status": "pending",
+      "attempts": 22,
+      "enqueued_at": "2025-10-17T18:18:58.044Z",
+      "last_attempt": "2025-10-17T19:03:49.690Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
+    },
+    {
+      "product_id": "Atún Lomitos en Agua Líder",
+      "base_rev": 0,
+      "fields": {
+        "price": 1800
+      },
+      "snapshot": {
+        "name": "Atún Lomitos en Agua Líder",
+        "description": "Lata de 160g (peso neto)",
+        "price": 1800,
+        "discount": 0,
+        "stock": false,
+        "category": "Despensa",
+        "image_path": "assets/images/despensa/Atún Líder en agua 160g.webp",
+        "image_avif_path": "",
+        "order": 109,
+        "rev": 0,
+        "field_last_modified": {
+          "price": {
+            "ts": "2025-10-17T18:19:05.685Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          }
+        }
+      },
+      "timestamp": "2025-10-17T18:19:05.685Z",
+      "changeset_id": "52473645096c49f69f27e0b2a521f9c8",
+      "status": "pending",
+      "attempts": 22,
+      "enqueued_at": "2025-10-17T18:19:05.693Z",
+      "last_attempt": "2025-10-17T19:03:50.720Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
+    },
+    {
+      "product_id": "Atún Lomitos en Agua Líder",
+      "base_rev": 0,
+      "fields": {
+        "price": 1900
+      },
+      "snapshot": {
+        "name": "Atún Lomitos en Agua Líder",
+        "description": "Lata de 160g (peso neto)",
+        "price": 1900,
+        "discount": 0,
+        "stock": false,
+        "category": "Despensa",
+        "image_path": "assets/images/despensa/Atún Líder en agua 160g.webp",
+        "image_avif_path": "",
+        "order": 109,
+        "rev": 0,
+        "field_last_modified": {
+          "price": {
+            "ts": "2025-10-17T18:19:10.932Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          }
+        }
+      },
+      "timestamp": "2025-10-17T18:19:10.932Z",
+      "changeset_id": "eee6b04c2a2b451b92c590221aec364c",
+      "status": "pending",
+      "attempts": 22,
+      "enqueued_at": "2025-10-17T18:19:10.940Z",
+      "last_attempt": "2025-10-17T19:03:51.736Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
+    },
+    {
+      "product_id": "Atún Lomitos en Agua Líder",
+      "base_rev": 0,
+      "fields": {
+        "name": "Líder - Atún Lomitos en Agua",
+        "description": "Lata. Peso neto: 160g",
+        "order": 0
+      },
+      "snapshot": {
+        "name": "Líder - Atún Lomitos en Agua",
+        "description": "Lata. Peso neto: 160g",
+        "price": 1900,
+        "discount": 0,
+        "stock": false,
+        "category": "Despensa",
+        "image_path": "assets/images/despensa/Atún Líder en agua 160g.webp",
+        "image_avif_path": "",
+        "order": 109,
+        "rev": 0,
+        "field_last_modified": {
+          "name": {
+            "ts": "2025-10-17T18:24:32.293Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          },
+          "description": {
+            "ts": "2025-10-17T18:24:32.293Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          },
+          "order": {
+            "ts": "2025-10-17T18:24:32.293Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          }
+        }
+      },
+      "timestamp": "2025-10-17T18:24:32.293Z",
+      "changeset_id": "838ad9175eb14073932ff99bcd5bae53",
+      "status": "pending",
+      "attempts": 19,
+      "enqueued_at": "2025-10-17T18:24:32.300Z",
+      "last_attempt": "2025-10-17T19:03:52.766Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
+    },
+    {
+      "product_id": "Líder - Atún Lomitos en Agua",
+      "base_rev": 0,
+      "fields": {
+        "name": "Líder • Atún Lomitos en Agua",
+        "order": 0
+      },
+      "snapshot": {
+        "name": "Líder • Atún Lomitos en Agua",
+        "description": "Lata. Peso neto: 160g",
+        "price": 1900,
+        "discount": 0,
+        "stock": false,
+        "category": "Despensa",
+        "image_path": "assets/images/despensa/Atún Líder en agua 160g.webp",
+        "image_avif_path": "",
+        "order": 109,
+        "rev": 0,
+        "field_last_modified": {
+          "name": {
+            "ts": "2025-10-17T18:24:54.509Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          },
+          "order": {
+            "ts": "2025-10-17T18:24:54.509Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          }
+        }
+      },
+      "timestamp": "2025-10-17T18:24:54.509Z",
+      "changeset_id": "35ec62ae440d435a988c33c94ed24068",
+      "status": "pending",
+      "attempts": 19,
+      "enqueued_at": "2025-10-17T18:24:54.517Z",
+      "last_attempt": "2025-10-17T19:03:53.807Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
+    },
+    {
+      "product_id": "Robinson Crusoe - Atún Lomitos en Agua",
+      "base_rev": 0,
+      "fields": {
+        "name": "Robinson Crusoe • Atún Lomitos en Agua",
+        "order": 0
+      },
+      "snapshot": {
+        "name": "Robinson Crusoe • Atún Lomitos en Agua",
+        "description": "Lata. Peso neto: 140g - Peso drenado: 91g",
+        "price": 2200,
+        "discount": 0,
+        "stock": true,
+        "category": "Despensa",
+        "image_path": "assets/images/despensa/Robinson Crusoe - Atún en agua 140g.webp",
+        "image_avif_path": "assets/images/despensa/Robinson Crusoe - Atún en agua 140g.avif",
+        "order": 156,
+        "rev": 0,
+        "field_last_modified": {
+          "name": {
+            "ts": "2025-10-17T18:25:03.277Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          },
+          "order": {
+            "ts": "2025-10-17T18:25:03.277Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          }
+        }
+      },
+      "timestamp": "2025-10-17T18:25:03.277Z",
+      "changeset_id": "6f645fb00b224687a72a915814e87721",
+      "status": "pending",
+      "attempts": 19,
+      "enqueued_at": "2025-10-17T18:25:03.284Z",
+      "last_attempt": "2025-10-17T19:03:54.845Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
+    },
+    {
+      "product_id": "Aceite de Maravilla Líder",
+      "base_rev": 0,
+      "fields": {
+        "name": "Líder • Aceite de Maravilla",
+        "order": 0
+      },
+      "snapshot": {
+        "name": "Líder • Aceite de Maravilla",
+        "description": "Botella de 1L",
+        "price": 3600,
+        "discount": 200,
+        "stock": true,
+        "category": "Despensa",
+        "image_path": "assets/images/despensa/Aceite de Maravilla Líder 1L.webp",
+        "image_avif_path": "",
+        "order": 110,
+        "rev": 0,
+        "field_last_modified": {
+          "name": {
+            "ts": "2025-10-17T18:25:18.430Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          },
+          "order": {
+            "ts": "2025-10-17T18:25:18.430Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          }
+        }
+      },
+      "timestamp": "2025-10-17T18:25:18.430Z",
+      "changeset_id": "97db59b03c374e57978eacc68316897e",
+      "status": "pending",
+      "attempts": 18,
+      "enqueued_at": "2025-10-17T18:25:18.437Z",
+      "last_attempt": "2025-10-17T19:03:55.879Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
+    },
+    {
+      "product_id": "Salsa de tomate Líder",
+      "base_rev": 0,
+      "fields": {
+        "name": "Líder • Salsa de tomate",
+        "order": 0
+      },
+      "snapshot": {
+        "name": "Líder • Salsa de tomate",
+        "description": "Botella de 680g",
+        "price": 3500,
+        "discount": 0,
+        "stock": false,
+        "category": "Despensa",
+        "image_path": "assets/images/despensa/Salsa de Tomate Ketchup Lider 680g.webp",
+        "image_avif_path": "",
+        "order": 20,
+        "rev": 0,
+        "field_last_modified": {
+          "name": {
+            "ts": "2025-10-17T18:25:32.501Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          },
+          "order": {
+            "ts": "2025-10-17T18:25:32.501Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          }
+        }
+      },
+      "timestamp": "2025-10-17T18:25:32.501Z",
+      "changeset_id": "160ee5103bbe4d09a1dcf35838f19696",
+      "status": "pending",
+      "attempts": 18,
+      "enqueued_at": "2025-10-17T18:25:32.508Z",
+      "last_attempt": "2025-10-17T19:03:56.893Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
+    },
+    {
+      "product_id": "Maíz Curagua Líder (cabritas/cotufas)",
+      "base_rev": 0,
+      "fields": {
+        "name": "Líder • Maíz Curagua (cabritas/cotufas)",
+        "order": 0
+      },
+      "snapshot": {
+        "name": "Líder • Maíz Curagua (cabritas/cotufas)",
+        "description": "Bolsa de 500g",
+        "price": 2200,
+        "discount": 0,
+        "stock": true,
+        "category": "Despensa",
+        "image_path": "assets/images/despensa/maiz-removebg-preview.webp",
+        "image_avif_path": "",
+        "order": 113,
+        "rev": 0,
+        "field_last_modified": {
+          "name": {
+            "ts": "2025-10-17T18:25:55.541Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          },
+          "order": {
+            "ts": "2025-10-17T18:25:55.541Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          }
+        }
+      },
+      "timestamp": "2025-10-17T18:25:55.541Z",
+      "changeset_id": "b780c6421a4d4f51b987c503e6b71ca2",
+      "status": "pending",
+      "attempts": 18,
+      "enqueued_at": "2025-10-17T18:25:55.548Z",
+      "last_attempt": "2025-10-17T19:03:57.910Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
+    },
+    {
+      "product_id": "Harina PAN",
+      "base_rev": 0,
+      "fields": {
+        "name": "PAN • Harina de Maiz",
+        "order": 0
+      },
+      "snapshot": {
+        "name": "PAN • Harina de Maiz",
+        "description": "Empaque de 1Kg",
+        "price": 2200,
+        "discount": 0,
+        "stock": true,
+        "category": "Despensa",
+        "image_path": "assets/images/despensa/Harina-de-Maiz-blanca-PAN-1-kg.webp",
+        "image_avif_path": "",
+        "order": 46,
+        "rev": 0,
+        "field_last_modified": {
+          "name": {
+            "ts": "2025-10-17T18:26:30.589Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          },
+          "order": {
+            "ts": "2025-10-17T18:26:30.589Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          }
+        }
+      },
+      "timestamp": "2025-10-17T18:26:30.589Z",
+      "changeset_id": "215de0294c464a4586ea68dc41d240e0",
+      "status": "pending",
+      "attempts": 18,
+      "enqueued_at": "2025-10-17T18:26:30.597Z",
+      "last_attempt": "2025-10-17T19:03:58.941Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
+    },
+    {
+      "product_id": "Azúcar Blanca Iansa",
+      "base_rev": 0,
+      "fields": {
+        "name": "Iansa • Azúcar Blanca",
+        "order": 0
+      },
+      "snapshot": {
+        "name": "Iansa • Azúcar Blanca",
+        "description": "Empaque de 900g",
+        "price": 1500,
+        "discount": 0,
+        "stock": false,
+        "category": "Despensa",
+        "image_path": "assets/images/despensa/Azúcar blanca Iansa 900g.webp",
+        "image_avif_path": "",
+        "order": 14,
+        "rev": 0,
+        "field_last_modified": {
+          "name": {
+            "ts": "2025-10-17T18:26:43.781Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          },
+          "order": {
+            "ts": "2025-10-17T18:26:43.781Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          }
+        }
+      },
+      "timestamp": "2025-10-17T18:26:43.781Z",
+      "changeset_id": "3334d7db15524b54a5617c1ebcf2c7a9",
+      "status": "pending",
+      "attempts": 18,
+      "enqueued_at": "2025-10-17T18:26:43.788Z",
+      "last_attempt": "2025-10-17T19:03:59.955Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
+    },
+    {
+      "product_id": "Mostaza Clásica Great Value",
+      "base_rev": 0,
+      "fields": {
+        "name": "Great Value • Mostaza Clásica",
+        "order": 0
+      },
+      "snapshot": {
+        "name": "Great Value • Mostaza Clásica",
+        "description": "Botella de 397g",
+        "price": 3500,
+        "discount": 0,
+        "stock": true,
+        "category": "Despensa",
+        "image_path": "assets/images/despensa/Mostaza Great Value 397g.webp",
+        "image_avif_path": "",
+        "order": 9,
+        "rev": 0,
+        "field_last_modified": {
+          "name": {
+            "ts": "2025-10-17T18:26:54.534Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          },
+          "order": {
+            "ts": "2025-10-17T18:26:54.534Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          }
+        }
+      },
+      "timestamp": "2025-10-17T18:26:54.534Z",
+      "changeset_id": "5a5e19818b7340daa6ba47b468d0f351",
+      "status": "pending",
+      "attempts": 18,
+      "enqueued_at": "2025-10-17T18:26:54.541Z",
+      "last_attempt": "2025-10-17T19:04:00.971Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
+    },
+    {
+      "product_id": "Tortilla Grande Mexicana Líder",
+      "base_rev": 0,
+      "fields": {
+        "name": "Líder • Tortilla Grande Mexicana",
+        "order": 0
+      },
+      "snapshot": {
+        "name": "Líder • Tortilla Grande Mexicana",
+        "description": "Empaque de 350g",
+        "price": 2400,
+        "discount": 400,
+        "stock": true,
+        "category": "Despensa",
+        "image_path": "assets/images/despensa/Tortilla grande mexicana Líder 350g.webp",
+        "image_avif_path": "",
+        "order": 8,
+        "rev": 0,
+        "field_last_modified": {
+          "name": {
+            "ts": "2025-10-17T18:27:04.469Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          },
+          "order": {
+            "ts": "2025-10-17T18:27:04.469Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          }
+        }
+      },
+      "timestamp": "2025-10-17T18:27:04.469Z",
+      "changeset_id": "14ad913df4704071892b5e1407515b2c",
+      "status": "pending",
+      "attempts": 18,
+      "enqueued_at": "2025-10-17T18:27:04.477Z",
+      "last_attempt": "2025-10-17T19:04:02.007Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
+    },
+    {
+      "product_id": "Harina sin polvos Mont Blanc",
+      "base_rev": 0,
+      "fields": {
+        "name": "Mont Blanc • Harina sin polvos",
+        "order": 0
+      },
+      "snapshot": {
+        "name": "Mont Blanc • Harina sin polvos",
+        "description": "Empaque de 1Kg",
+        "price": 1800,
+        "discount": 0,
+        "stock": true,
+        "category": "Despensa",
+        "image_path": "assets/images/despensa/Harina Mont Blanc 1Kg.webp",
+        "image_avif_path": "",
+        "order": 1,
+        "rev": 0,
+        "field_last_modified": {
+          "name": {
+            "ts": "2025-10-17T18:27:19.701Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          },
+          "order": {
+            "ts": "2025-10-17T18:27:19.701Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          }
+        }
+      },
+      "timestamp": "2025-10-17T18:27:19.701Z",
+      "changeset_id": "b5a71a4c203b416389a7a2434823bd27",
+      "status": "pending",
+      "attempts": 17,
+      "enqueued_at": "2025-10-17T18:27:19.709Z",
+      "last_attempt": "2025-10-17T19:04:03.050Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
+    },
+    {
+      "product_id": "Aceite de Oliva Extra Virgen Pepita de Oro",
+      "base_rev": 0,
+      "fields": {
+        "name": "Pepita de Oro • Aceite de Oliva Extra Virgen",
+        "order": 0
+      },
+      "snapshot": {
+        "name": "Pepita de Oro • Aceite de Oliva Extra Virgen",
+        "description": "Botella de 1L",
+        "price": 12900,
+        "discount": 1000,
+        "stock": true,
+        "category": "Despensa",
+        "image_path": "assets/images/despensa/Aceite de Oliva Pepita de Oro 1L.webp",
+        "image_avif_path": "",
+        "order": 35,
+        "rev": 0,
+        "field_last_modified": {
+          "name": {
+            "ts": "2025-10-17T18:27:32.813Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          },
+          "order": {
+            "ts": "2025-10-17T18:27:32.813Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          }
+        }
+      },
+      "timestamp": "2025-10-17T18:27:32.813Z",
+      "changeset_id": "a1fc5e2659e8481486370e466905b2d2",
+      "status": "pending",
+      "attempts": 17,
+      "enqueued_at": "2025-10-17T18:27:32.820Z",
+      "last_attempt": "2025-10-17T19:04:04.080Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
+    },
+    {
+      "product_id": "Nescafé Tradición",
+      "base_rev": 0,
+      "fields": {
+        "name": "Nescafé • Tradición",
+        "order": 0
+      },
+      "snapshot": {
+        "name": "Nescafé • Tradición",
+        "description": "Lata 150g",
+        "price": 6000,
+        "discount": 500,
+        "stock": false,
+        "category": "Despensa",
+        "image_path": "assets/images/despensa/Cafe Nescafé Tradición 150g.webp",
+        "image_avif_path": "",
+        "order": 106,
+        "rev": 0,
+        "field_last_modified": {
+          "name": {
+            "ts": "2025-10-17T18:27:49.125Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          },
+          "order": {
+            "ts": "2025-10-17T18:27:49.125Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          }
+        }
+      },
+      "timestamp": "2025-10-17T18:27:49.125Z",
+      "changeset_id": "1b8a854d1b1043ddb7c45650fa6f5de7",
+      "status": "pending",
+      "attempts": 16,
+      "enqueued_at": "2025-10-17T18:27:49.132Z",
+      "last_attempt": "2025-10-17T19:01:57.110Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
+    },
+    {
+      "product_id": "Nescafé Fina Selección",
+      "base_rev": 0,
+      "fields": {
+        "name": "Nescafé • Café Fina Selección",
+        "order": 0
+      },
+      "snapshot": {
+        "name": "Nescafé • Café Fina Selección",
+        "description": "Frasco de 200g",
+        "price": 11900,
+        "discount": 1000,
+        "stock": true,
+        "category": "Despensa",
+        "image_path": "assets/images/despensa/Cafe-Nescafe-Fina-Seleccion-200-g.webp",
+        "image_avif_path": "",
+        "order": 47,
+        "rev": 0,
+        "field_last_modified": {
+          "name": {
+            "ts": "2025-10-17T18:28:01.085Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          },
+          "order": {
+            "ts": "2025-10-17T18:28:01.085Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          }
+        }
+      },
+      "timestamp": "2025-10-17T18:28:01.085Z",
+      "changeset_id": "63da02962c96430085ba92068ef43f3e",
+      "status": "pending",
+      "attempts": 16,
+      "enqueued_at": "2025-10-17T18:28:01.092Z",
+      "last_attempt": "2025-10-17T19:01:58.129Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
+    },
+    {
+      "product_id": "Nescafé • Tradición",
+      "base_rev": 0,
+      "fields": {
+        "name": "Nescafé • Café Tradición",
+        "order": 0
+      },
+      "snapshot": {
+        "name": "Nescafé • Café Tradición",
+        "description": "Lata 150g",
+        "price": 6000,
+        "discount": 500,
+        "stock": false,
+        "category": "Despensa",
+        "image_path": "assets/images/despensa/Cafe Nescafé Tradición 150g.webp",
+        "image_avif_path": "",
+        "order": 106,
+        "rev": 0,
+        "field_last_modified": {
+          "name": {
+            "ts": "2025-10-17T18:28:06.932Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          },
+          "order": {
+            "ts": "2025-10-17T18:28:06.932Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          }
+        }
+      },
+      "timestamp": "2025-10-17T18:28:06.932Z",
+      "changeset_id": "8e50dadbbd8644daa8d93f94c7f2a3b7",
+      "status": "pending",
+      "attempts": 16,
+      "enqueued_at": "2025-10-17T18:28:06.940Z",
+      "last_attempt": "2025-10-17T19:01:59.175Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
+    },
+    {
+      "product_id": "Café El Peñón Gourmet",
+      "base_rev": 0,
+      "fields": {
+        "name": "El Peñón • Café Gourmet",
+        "order": 0
+      },
+      "snapshot": {
+        "name": "El Peñón • Café Gourmet",
+        "description": "Empaque de 500g",
+        "price": 6900,
+        "discount": 1000,
+        "stock": false,
+        "category": "Despensa",
+        "image_path": "assets/images/despensa/Cafe-El-Peñon-Gourmet-500g.webp",
+        "image_avif_path": "",
+        "order": 36,
+        "rev": 0,
+        "field_last_modified": {
+          "name": {
+            "ts": "2025-10-17T18:28:27.253Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          },
+          "order": {
+            "ts": "2025-10-17T18:28:27.253Z",
+            "by": "offline",
+            "rev": 0,
+            "base_rev": 0,
+            "changeset_id": null
+          }
+        }
+      },
+      "timestamp": "2025-10-17T18:28:27.253Z",
+      "changeset_id": "818e94d4a0ed4ba889b7cd70224f3538",
+      "status": "pending",
+      "attempts": 16,
+      "enqueued_at": "2025-10-17T18:28:27.260Z",
+      "last_attempt": "2025-10-17T19:02:00.220Z",
+      "last_error": "<urlopen error [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión>",
+      "next_retry_at": "2025-10-17T19:32:41Z"
     }
   ],
   "conflicts": []
