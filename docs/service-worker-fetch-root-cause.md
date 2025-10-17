@@ -29,7 +29,7 @@
 ## Acciones preventivas
 - Nueva especificación de Cypress `Nav menu regressions` que reproduce los dos flujos (categorías y subcategorías) y falla ante errores de Service Worker en consola. 【F:cypress/e2e/nav_menu.cy.ts†L1-L35】【F:cypress/support/e2e.ts†L1-L14】
 - Pruebas unitarias amplían la cobertura para garantizar que el kill-switch evite registros accidentales en localhost y que respete el flag de desactivación. 【F:test/registerServiceWorker.test.js†L92-L154】
-- Documentación actualizada con instrucciones claras para invalidar cachés y forzar la adopción del nuevo Service Worker. 【F:RUNBOOK.md†L12-L47】【F:README.md†L86-L118】
+- Documentación actualizada con instrucciones claras para invalidar cachés y forzar la adopción del nuevo Service Worker. 【F:docs/operations/RUNBOOK.md†L12-L47】【F:README.md†L86-L118】
 
 ## Seguimiento
 - Monitorizar la consola de errores de la página desplegada durante 24 h posteriores al deploy.
