@@ -1,6 +1,6 @@
 {
-  "version": "20251016-204052",
-  "last_updated": "2025-10-16T20:40:52.005106",
+  "version": "20251016-212527",
+  "last_updated": "2025-10-16T21:25:27.124693",
   "rev": 0,
   "products": [
     {
@@ -2682,6 +2682,146 @@
         },
         "order": {
           "ts": "2025-10-16T23:40:52.003Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Marco Polo - Maní Salado",
+      "description": "Bolsa de 150g",
+      "price": 1900,
+      "discount": 0,
+      "stock": true,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Marco Polo - Maní Salado 150g.webp",
+      "image_avif_path": "assets/images/snacks_salados/Marco Polo - Maní Salado 150g.avif",
+      "order": 150,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T00:25:06.466Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-17T00:25:06.466Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-17T00:25:06.466Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-17T00:25:06.466Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-17T00:25:06.466Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-17T00:25:06.466Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-17T00:25:06.466Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T00:25:06.466Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Marco Polo - Maní sin Sal",
+      "description": "Bolsa de 150g",
+      "price": 1900,
+      "discount": 0,
+      "stock": true,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Marco Polo - Maní sin sal 150g.webp",
+      "image_avif_path": "assets/images/snacks_salados/Marco Polo - Maní sin sal 150g.avif",
+      "order": 151,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T00:25:27.123Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-17T00:25:27.123Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-17T00:25:27.123Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-17T00:25:27.123Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-17T00:25:27.123Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-17T00:25:27.123Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-17T00:25:27.123Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T00:25:27.123Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
