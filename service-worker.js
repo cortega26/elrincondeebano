@@ -1,4 +1,4 @@
-﻿// Service Worker Configuration
+// Service Worker Configuration
 const TEST_MODE = typeof module !== 'undefined';
 const CACHE_CONFIG = {
     prefixes: {
@@ -22,13 +22,13 @@ const CACHE_CONFIG = {
         '/assets/images/web/icon-192.png',
         '/assets/images/web/icon-512.png',
         '/assets/images/web/favicon.ico',
-        '/assets/images/web/placeholder.webp',
+        '/assets/images/web/placeholder.svg',
         '/pages/offline.html'
     ]
 };
 
 const FALLBACKS = {
-    imagePlaceholder: '/assets/images/web/placeholder.webp'
+    imagePlaceholder: '/assets/images/web/placeholder.svg'
 };
 
 // Message channel management

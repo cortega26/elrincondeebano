@@ -1,5 +1,9 @@
 const fs = require('fs');
 const path = require('path');
+const {
+  resolveFromOutput,
+  ensureDir,
+} = require('./utils/output-dir');
 
 function generateSitemap() {
   const baseUrl = 'https://elrincondeebano.com';
@@ -49,8 +53,9 @@ function generateSitemap() {
 function main() {
   try {
     const sitemapContent = generateSitemap();
-    const sitemapPath = path.join(__dirname, '..', 'sitemap.xml');
-    
+    const sitemapPath = resolveFromOutput('sitemap.xml');
+    ensureDir(path.dirname(sitemapPath));
+
     fs.writeFileSync(sitemapPath, sitemapContent, 'utf8');
     console.log('✅ Sitemap generated successfully at sitemap.xml');
     

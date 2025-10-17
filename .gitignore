@@ -91,6 +91,13 @@ playwright-report/
 test-results/
 .lighthouse/
 
+# Generated site artifacts
+build/
+dist/
+pages/
+sitemap.xml
+reports/
+
 # Cache directories
 .cache/
 .parcel-cache/

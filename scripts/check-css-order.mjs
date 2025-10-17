@@ -7,18 +7,28 @@ import { JSDOM } from 'jsdom';
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(currentDir, '..');
 
+const outputRoot = process.env.BUILD_OUTPUT_DIR
+  ? path.resolve(projectRoot, process.env.BUILD_OUTPUT_DIR)
+  : path.join(projectRoot, 'build');
+
 const htmlFiles = new Set([
-  path.join(projectRoot, 'index.html'),
+  path.join(outputRoot, 'index.html'),
 ]);
 
 const excludedFiles = new Set(['404.html', 'navbar.html', 'footer.html', 'offline.html']);
 
-const pagesDir = path.join(projectRoot, 'pages');
+const pagesDir = path.join(outputRoot, 'pages');
 async function main() {
-  const entries = await fs.readdir(pagesDir, { withFileTypes: true });
-  for (const entry of entries) {
-    if (entry.isFile() && entry.name.endsWith('.html') && !excludedFiles.has(entry.name)) {
-      htmlFiles.add(path.join(pagesDir, entry.name));
+  try {
+    const entries = await fs.readdir(pagesDir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.isFile() && entry.name.endsWith('.html') && !excludedFiles.has(entry.name)) {
+        htmlFiles.add(path.join(pagesDir, entry.name));
+      }
+    }
+  } catch (error) {
+    if (error.code !== 'ENOENT') {
+      throw error;
     }
   }
 
@@ -32,7 +42,17 @@ async function main() {
   let failures = 0;
 
   for (const filePath of htmlFiles) {
-    const html = await fs.readFile(filePath, 'utf8');
+    let html;
+    try {
+      html = await fs.readFile(filePath, 'utf8');
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        console.error(`❌ File not found for CSS order check: ${path.relative(projectRoot, filePath)}`);
+        failures += 1;
+        continue;
+      }
+      throw error;
+    }
     const dom = new JSDOM(html);
     const links = [...dom.window.document.querySelectorAll('head link[rel="stylesheet"]')];
     const hrefs = links.map((link) => ({

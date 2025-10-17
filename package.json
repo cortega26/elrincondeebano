@@ -8,7 +8,7 @@
   },
   "scripts": {
     "fonts": "node tools/fetch-fonts.mjs",
-    "build": "node tools/build.js && node tools/build-index.js && node tools/build-pages.js && node tools/inject-structured-data.js && node tools/generate-sitemap.js && node tools/inject-resource-hints.js",
+    "build": "node tools/build.js && node tools/build-index.js && node tools/build-pages.js && node tools/build-components.js && node tools/copy-static.js && node tools/inject-structured-data.js && node tools/inject-resource-hints.js && node tools/generate-sitemap.js && node tools/verify-sw-assets.js",
     "check:css-order": "node scripts/check-css-order.mjs",
     "icons": "node tools/generate-icons.js",
     "images:variants": "node tools/generate-image-variants.js",

@@ -64,7 +64,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - [ ] `node -v` coincide con la versión fijada en workflows (`22.x`).
   - [ ] `npm ci` es obligatorio en CI; queda prohibido `npm install` cuando exista `package-lock.json`.
 - **Compilación estricta**
-  - [ ] `npm run build` finaliza sin warnings críticos ni errores. Atender cualquier fallo en scripts de `tools/`.
+  - [ ] `npm run build` finaliza sin warnings críticos ni errores y deja artefactos en `build/`. Atender cualquier fallo en scripts de `tools/` y revisar que el staging contenga todos los archivos esperados.
 - **Tests obligatorios**
   - [ ] `npm ci && npm test` deben ejecutarse completos tras modificaciones; repetir suite si algún caso es flaky.
   - [ ] Prohibido introducir `test.skip`, `--forceExit`, `--passWithNoTests` o eliminar asserts sin reemplazo.

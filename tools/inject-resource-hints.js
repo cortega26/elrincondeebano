@@ -1,5 +1,9 @@
 const fs = require('fs');
 const path = require('path');
+const {
+  resolveOutputDir,
+  resolveFromOutput,
+} = require('./utils/output-dir');
 
 const LOGO_PRELOAD_PATH = '/cdn-cgi/image/fit=cover,quality=82,format=auto,width=64/assets/images/web/logo.webp';
 const SCRIPT_PRELOAD_PATH = '/dist/js/script.min.js';
@@ -61,13 +65,13 @@ function injectResourceHints(filePath) {
 }
 
 function main() {
-  const rootDir = path.join(__dirname, '..');
+  const outputRoot = resolveOutputDir();
   let processedCount = 0;
   let modifiedCount = 0;
   
   try {
     // Process main index.html
-    const indexPath = path.join(rootDir, 'index.html');
+    const indexPath = resolveFromOutput('index.html');
     if (fs.existsSync(indexPath)) {
       if (injectResourceHints(indexPath)) {
         modifiedCount++;
@@ -76,7 +80,7 @@ function main() {
     }
 
     // Process all pages in /pages/ directory
-    const pagesDir = path.join(rootDir, 'pages');
+    const pagesDir = resolveFromOutput('pages');
     if (fs.existsSync(pagesDir)) {
       const pageFiles = fs.readdirSync(pagesDir)
         .filter(file => file.endsWith('.html'))

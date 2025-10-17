@@ -2,8 +2,19 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 
+const BUILD_ROOT = process.env.BUILD_OUTPUT_DIR
+  ? path.resolve(__dirname, '..', process.env.BUILD_OUTPUT_DIR)
+  : path.resolve(__dirname, '..', 'build');
+
 function readPolicy(fileRelativePath) {
-  const filePath = path.resolve(__dirname, '..', fileRelativePath);
+  const stagedPath = path.resolve(BUILD_ROOT, fileRelativePath);
+  const repoPath = path.resolve(__dirname, '..', fileRelativePath);
+  const filePath = fs.existsSync(stagedPath) ? stagedPath : repoPath;
+
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Unable to locate policy file: ${fileRelativePath}`);
+  }
+
   const content = fs.readFileSync(filePath, 'utf8');
   const collapsed = content.replace(/\s+/g, ' ');
   const match = collapsed.match(/connect-src[^;]+;/);
