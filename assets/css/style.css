@@ -501,6 +501,15 @@ h1 {
 
 /* Media Queries */
 @media (max-width: 991.98px) {
+  #navbarNav {
+    justify-content: flex-start !important;
+  }
+
+  .navbar-nav {
+    width: 100%;
+    align-items: flex-start;
+  }
+
   .navbar-brand {
     max-width: calc(100% - 40px);
   }
@@ -520,6 +529,8 @@ h1 {
   .navbar-nav .nav-link {
     padding: 0.25rem 1rem;
     line-height: 1.2;
+    text-align: left;
+    width: 100%;
   }
 }
 
