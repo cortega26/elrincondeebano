@@ -124,6 +124,15 @@ h1 {
   row-gap: 1.25rem;
 }
 
+#empty-cart,
+#submit-cart,
+#continue-shopping {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Product Card Styles */
 .producto {
   position: relative;
