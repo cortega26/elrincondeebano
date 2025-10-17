@@ -35,7 +35,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 ```
 
 - **Repo Cartographer:** inventaría scripts (`package.json`), configuraciones y workflows.
-- **Docs Steward:** mantiene `AGENTS.md`, `README.md`, `RUNBOOK.md` y material operativo.
+- **Docs Steward:** mantiene `AGENTS.md`, `README.md`, `docs/operations/RUNBOOK.md`, `docs/operations/BACKUP.md` y material operativo.
 - **Type & Lint Guardian:** valida estilo y calidad de código JavaScript.
 - **Security / Supply Chain Agent:** monitoriza dependencias y SARIF antes de publicación.
 - **Test Sentinel:** ejecuta suites de pruebas Node y controla flakiness.
@@ -94,7 +94,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 - Usar ramas `tipo/slug`, p. ej. `docs/agents-refresh-YYYYMMDD`.
 - Commits en formato Conventional Commits (`docs(agents): ...`).
 - PRs deben incluir evidencia de pruebas (`npm test`, `npm run build`, auditorías relevantes) y la checklist de guardrails marcada.
-- Actualizar documentación relacionada (`README.md`, `RUNBOOK.md`, `docs/`) en el mismo PR cuando cambian comportamientos.
+- Actualizar documentación relacionada (`README.md`, `docs/operations/RUNBOOK.md`, `docs/operations/BACKUP.md`, `docs/`) en el mismo PR cuando cambian comportamientos.
 - Adjuntar resultados de `npm audit --production` cuando se toquen dependencias.
 
 ## Flujos de trabajo (CI)
@@ -139,4 +139,4 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 - Workflows de GitHub Actions. [`static.yml`](.github/workflows/static.yml), [`images.yml`](.github/workflows/images.yml), [`codacy.yml`](.github/workflows/codacy.yml)
 - Scripts de build y utilidades. [`tools/`](tools/)
 - Suite de pruebas Node. [`test/`](test/)
-- Documentación operativa existente. [`README.md`](README.md), [`RUNBOOK.md`](RUNBOOK.md)
+- Documentación operativa existente. [`README.md`](README.md), [`RUNBOOK`](docs/operations/RUNBOOK.md), [`BACKUP`](docs/operations/BACKUP.md)
