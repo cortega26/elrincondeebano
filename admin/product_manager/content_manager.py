@@ -54,8 +54,8 @@ class ProductManager:
             "locale": "es"
         },
         "sync": {
-            "enabled": True,
-            "api_base": "http://127.0.0.1:4000",
+            "enabled": False,
+            "api_base": "",
             "queue_file": "sync_queue.json",
             "poll_interval": 60,
             "pull_interval": 300,
@@ -204,8 +204,17 @@ class ProductManager:
         sync_cfg = self.config.get('sync', {})
         queue_name = sync_cfg.get('queue_file', 'sync_queue.json')
         queue_path = os.path.join(self.config['data_dir'], queue_name)
+        if not sync_cfg.get('enabled', True):
+            self.logger.info("Remote synchronization disabled by configuration")
+            service.set_sync_engine(None)
+            return None
+        api_base = (sync_cfg.get('api_base') or "").strip()
+        if not api_base:
+            self.logger.info("No sync API configured; skipping SyncEngine initialization")
+            service.set_sync_engine(None)
+            return None
         engine = SyncEngine(
-            api_base=sync_cfg.get('api_base', ''),
+            api_base=api_base,
             repository=repository,
             service=service,
             queue_file=queue_path,
