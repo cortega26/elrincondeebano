@@ -1,6 +1,6 @@
 {
-  "version": "20251017-164526",
-  "last_updated": "2025-10-17T16:45:26.743429",
+  "version": "20251017-195248",
+  "last_updated": "2025-10-17T19:52:48.411962",
   "rev": 0,
   "products": [
     {
@@ -2314,7 +2314,7 @@
       "field_last_modified": {}
     },
     {
-      "name": "Gatorade Cool Blue",
+      "name": "Gatorade • Bebida Isotónica Cool Blue",
       "description": "Botella de 1L",
       "price": 2200,
       "discount": 0,
@@ -2326,56 +2326,14 @@
       "rev": 0,
       "field_last_modified": {
         "name": {
-          "ts": "2025-10-15T21:13:06.014Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-15T21:13:06.014Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-15T21:13:06.014Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-15T21:13:06.014Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "stock": {
-          "ts": "2025-10-15T21:13:06.014Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-15T21:13:06.014Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-15T21:13:06.014Z",
+          "ts": "2025-10-17T22:51:54.378Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-15T21:13:06.014Z",
+          "ts": "2025-10-17T22:51:54.378Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2412,7 +2370,7 @@
       }
     },
     {
-      "name": "Gatorade Frutas Tropicales",
+      "name": "Gatorade • Bebida Isotónica Frutas Tropicales",
       "description": "Botella de 1L",
       "price": 2200,
       "discount": 0,
@@ -2424,56 +2382,14 @@
       "rev": 0,
       "field_last_modified": {
         "name": {
-          "ts": "2025-10-16T19:49:16.718Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-16T19:49:16.718Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-16T19:49:16.718Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-16T19:49:16.718Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "stock": {
-          "ts": "2025-10-16T19:49:16.718Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-16T19:49:16.718Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-16T19:49:16.718Z",
+          "ts": "2025-10-17T22:52:03.730Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-16T19:49:16.718Z",
+          "ts": "2025-10-17T22:52:03.730Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2482,7 +2398,7 @@
       }
     },
     {
-      "name": "Gatorade Limón",
+      "name": "Gatorade • Bebida Isotónica Limón",
       "description": "Botella de 1L",
       "price": 2200,
       "discount": 0,
@@ -2494,56 +2410,14 @@
       "rev": 0,
       "field_last_modified": {
         "name": {
-          "ts": "2025-10-16T19:49:42.029Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-16T19:49:42.029Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-16T19:49:42.029Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-16T19:49:42.029Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "stock": {
-          "ts": "2025-10-16T19:49:42.029Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-16T19:49:42.029Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-16T19:49:42.029Z",
+          "ts": "2025-10-17T22:52:15.123Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-16T19:49:42.029Z",
+          "ts": "2025-10-17T22:52:15.123Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3482,6 +3356,90 @@
         },
         "order": {
           "ts": "2025-10-17T19:45:26.741Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Mr. Big • Bebida Energética",
+      "description": "Lata de 473mL",
+      "price": 2000,
+      "discount": 0,
+      "stock": true,
+      "category": "Energeticaseisotonicas",
+      "image_path": "assets/images/energeticaseisotonicas/Mr Big lata 473mL.webp",
+      "image_avif_path": "assets/images/energeticaseisotonicas/Mr Big lata 473mL.avif",
+      "order": 159,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T22:52:48.410Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T22:52:48.410Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Score • Bebida Energética Mango",
+      "description": "Lata de 473mL",
+      "price": 2000,
+      "discount": 0,
+      "stock": true,
+      "category": "Energeticaseisotonicas",
+      "image_path": "assets/images/energeticaseisotonicas/Score Mango lata 473mL.webp",
+      "image_avif_path": "assets/images/energeticaseisotonicas/Score Mango lata 473mL.avif",
+      "order": 160,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T22:51:23.866Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T22:51:23.866Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Score • Bebida Energética Guaraná",
+      "description": "Lata de 473mL",
+      "price": 2000,
+      "discount": 0,
+      "stock": true,
+      "category": "Energeticaseisotonicas",
+      "image_path": "assets/images/energeticaseisotonicas/Score Guaraná lata 473mL.webp",
+      "image_avif_path": "assets/images/energeticaseisotonicas/Score Guaraná lata 473mL.avif",
+      "order": 161,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T22:51:29.706Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T22:51:29.706Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,

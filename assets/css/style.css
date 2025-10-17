@@ -501,7 +501,7 @@ h1 {
   }
 
   .navbar-nav .nav-item {
-    margin-bottom: 0.25rem;
+    margin-bottom: 0;
   }
 
   .navbar-nav .nav-item:last-child {
@@ -509,8 +509,8 @@ h1 {
   }
 
   .navbar-nav .nav-link {
-    padding-top: 0.4rem;
-    padding-bottom: 0.4rem;
+    padding: 0.25rem 1rem;
+    line-height: 1.2;
   }
 }
 
