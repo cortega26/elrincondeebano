@@ -113,6 +113,44 @@ test('initializeBootstrapUI wires collapse toggles and menu controller', async (
   delete global.HTMLElement;
 });
 
+test('initializeBootstrapUI falls back when collapse module fails to load', async () => {
+  const dom = new JSDOM(`<!DOCTYPE html><body>
+    <button id="navToggle" data-bs-toggle="collapse" data-bs-target="#navbarNav" class="collapsed" aria-expanded="false"></button>
+    <div id="navbarNav" class="collapse navbar-collapse"></div>
+  </body>`, { url: 'http://localhost' });
+  global.window = dom.window;
+  global.document = dom.window.document;
+  global.HTMLElement = dom.window.HTMLElement;
+
+  const module = loadModule('../src/js/modules/bootstrap.mjs');
+
+  module.__setBootstrapLoaderOverride('collapse', async () => {
+    throw new Error('Network error');
+  });
+
+  module.initializeBootstrapUI();
+
+  const toggleButton = document.getElementById('navToggle');
+  toggleButton.dispatchEvent(new dom.window.Event('click', { bubbles: true }));
+  await new Promise((resolve) => setImmediate(resolve));
+
+  assert.strictEqual(toggleButton.getAttribute('aria-expanded'), 'true');
+  assert.ok(toggleButton.classList.contains('collapsed') === false);
+  assert.ok(document.getElementById('navbarNav').classList.contains('show'));
+
+  toggleButton.dispatchEvent(new dom.window.Event('click', { bubbles: true }));
+  await new Promise((resolve) => setImmediate(resolve));
+
+  assert.strictEqual(toggleButton.getAttribute('aria-expanded'), 'false');
+  assert.ok(toggleButton.classList.contains('collapsed'));
+  assert.ok(!document.getElementById('navbarNav').classList.contains('show'));
+
+  module.__resetBootstrapTestState();
+  delete global.window;
+  delete global.document;
+  delete global.HTMLElement;
+});
+
 test('showOffcanvas loads module on demand and displays panel', async () => {
   const dom = new JSDOM(`<!DOCTYPE html><body>
     <div id="cartOffcanvas" class="offcanvas"></div>

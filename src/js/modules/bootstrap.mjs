@@ -82,20 +82,27 @@ function setupCollapseToggles() {
 }
 
 async function activateCollapse(toggle, event) {
+  const targetSelector = toggle?.getAttribute('data-bs-target');
+  if (!targetSelector) {
+    return;
+  }
+  const target = document.querySelector(targetSelector);
+  if (!target) {
+    return;
+  }
   try {
-    const targetSelector = toggle.getAttribute('data-bs-target');
-    if (!targetSelector) {
-      return;
-    }
-    const target = document.querySelector(targetSelector);
-    if (!target) {
-      return;
-    }
     const Collapse = await loadCollapse();
+    if (!Collapse) {
+      throw new Error('Bootstrap Collapse module no disponible');
+    }
     const instance = getOrCreateInstance(Collapse, target);
-    instance?.toggle?.(event);
+    if (!instance || typeof instance.toggle !== 'function') {
+      throw new Error('Instancia de Collapse inválida');
+    }
+    instance.toggle(event);
   } catch (error) {
     console.error('No se pudo inicializar el Collapse de Bootstrap', error);
+    fallbackToggleCollapse(toggle, target);
   }
 }
 
@@ -105,6 +112,21 @@ function shouldPreventNavigation(toggle) {
   }
   const href = toggle.getAttribute('href');
   return !href || href === '#';
+}
+
+function fallbackToggleCollapse(toggle, target) {
+  if (!target) {
+    return;
+  }
+  target.classList.remove('collapsing');
+  target.classList.add('collapse');
+  const willShow = !target.classList.contains('show');
+  target.classList.toggle('show', willShow);
+  if (toggle) {
+    toggle.setAttribute('aria-expanded', willShow ? 'true' : 'false');
+    toggle.classList.toggle('collapsed', !willShow);
+  }
+  target.style.height = '';
 }
 
 export function initializeBootstrapUI() {
