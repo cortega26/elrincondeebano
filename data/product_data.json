@@ -1,6 +1,6 @@
 {
-  "version": "20251017-150024",
-  "last_updated": "2025-10-17T15:00:24.919979",
+  "version": "20251017-151041",
+  "last_updated": "2025-10-17T15:10:41.198726",
   "rev": 0,
   "products": [
     {
@@ -2917,6 +2917,216 @@
         },
         "order": {
           "ts": "2025-10-17T17:59:56.477Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Hershey's • Chocolate Cookies and Creme",
+      "description": "Barra de 77g",
+      "price": 2200,
+      "discount": 200,
+      "stock": true,
+      "category": "Chocolates",
+      "image_path": "assets/images/chocolates/Hersheys - Chocolate Cookies n Creme 77g.webp",
+      "image_avif_path": "",
+      "order": 153,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T18:06:44.174Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-17T18:06:44.174Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-17T18:06:44.174Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-17T18:06:44.174Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-17T18:06:44.174Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-17T18:06:44.174Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-17T18:06:44.174Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T18:06:44.174Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Hershey's • Chocolate con Leche",
+      "description": "Barra de 82g",
+      "price": 2200,
+      "discount": 200,
+      "stock": true,
+      "category": "Chocolates",
+      "image_path": "assets/images/chocolates/Chocolate con leche Hershey's 82g.jpg",
+      "image_avif_path": "",
+      "order": 154,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T18:09:46.269Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-17T18:09:46.269Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-17T18:09:46.269Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-17T18:09:46.269Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-17T18:09:46.269Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-17T18:09:46.269Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-17T18:09:46.269Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T18:09:46.269Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Heyshey's • Chocolate Extra Cremoso",
+      "description": "Barra de 82g",
+      "price": 2200,
+      "discount": 200,
+      "stock": true,
+      "category": "Chocolates",
+      "image_path": "assets/images/chocolates/Hersheys - Chocolate Extra Cremoso 82g.webp",
+      "image_avif_path": "",
+      "order": 155,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T18:10:41.197Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-17T18:10:41.197Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-17T18:10:41.197Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-17T18:10:41.197Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-17T18:10:41.197Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-17T18:10:41.197Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-17T18:10:41.197Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T18:10:41.197Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
