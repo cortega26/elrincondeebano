@@ -763,7 +763,7 @@ const fetchWithRetry = async (url, opts, retries, backoffMs, correlationId) => {
             lastError = err;
             attempt++;
             if (attempt > retries) break;
-            log('warn', 'fetch_products_retry', { correlationId, attempt, error: err.message, runbook: 'RUNBOOK.md#product-data' });
+            log('warn', 'fetch_products_retry', { correlationId, attempt, error: err.message, runbook: 'docs/operations/RUNBOOK.md#product-data' });
             await new Promise(resolve => setTimeout(resolve, backoffMs * attempt));
         }
     }
@@ -826,10 +826,10 @@ const fetchProducts = async () => {
                 isPartial: true,
                 total: inlineTotal ?? inlineProducts.length
             });
-            log('warn', 'fetch_products_network_fallback_inline', { correlationId, error: error.message, runbook: 'RUNBOOK.md#product-data' });
+            log('warn', 'fetch_products_network_fallback_inline', { correlationId, error: error.message, runbook: 'docs/operations/RUNBOOK.md#product-data' });
             return inlineProducts;
         }
-        log('error', 'fetch_products_failure', { correlationId, error: error.message, runbook: 'RUNBOOK.md#product-data' });
+        log('error', 'fetch_products_failure', { correlationId, error: error.message, runbook: 'docs/operations/RUNBOOK.md#product-data' });
         showErrorMessage(`Error al cargar los productos. Por favor, verifique su conexión a internet e inténtelo de nuevo. (Error: ${error.message})`);
         if (error instanceof ProductDataError) {
             throw error;
