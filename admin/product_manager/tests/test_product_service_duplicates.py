@@ -1,7 +1,7 @@
 import sys
 import types
 from pathlib import Path
-from typing import List
+from typing import Any, Dict, List, Optional
 
 import pytest
 
@@ -40,12 +40,25 @@ class InMemoryRepository(ProductRepositoryProtocol):
 
   def __init__(self, products: List[Product]):
     self._products = list(products)
+    self._metadata: Dict[str, Any] = {}
 
   def load_products(self) -> List[Product]:
     return list(self._products)
 
-  def save_products(self, products: List[Product]) -> None:
+  def save_products(self, products: List[Product], metadata: Optional[Dict[str, Any]] = None) -> None:
     self._products = list(products)
+    if metadata is not None:
+      self._metadata = dict(metadata)
+
+
+class StubSyncEngine:
+  """Capture sync enqueue payloads for assertions."""
+
+  def __init__(self) -> None:
+    self.calls: List[Dict[str, Any]] = []
+
+  def enqueue_update(self, **payload: Any) -> None:
+    self.calls.append(payload)
 
 
 def test_add_product_allows_duplicate_name_with_unique_description() -> None:
@@ -114,3 +127,37 @@ def test_delete_product_with_duplicate_name_removes_exact_match() -> None:
   remaining = service.get_all_products()
   assert len(remaining) == 1
   assert remaining[0].description == 'Original'
+
+
+def test_update_product_enqueues_identity_key_for_duplicate_name() -> None:
+  original = Product(name='Producto', description='Original', price=1000)
+  variant = Product(name='Producto', description='Variante', price=900)
+  repo = InMemoryRepository([original, variant])
+  service = ProductService(repo)
+  sync_stub = StubSyncEngine()
+  service.sync_engine = sync_stub
+
+  updated_variant = Product(name='Producto', description='Variante', price=950)
+  service.update_product('Producto', updated_variant, 'Variante')
+
+  assert sync_stub.calls, 'expected sync payload to be enqueued'
+  payload = sync_stub.calls[0]
+  expected_identity = Product.identity_key_from_values('Producto', 'Variante')
+  assert payload['product_id'] == expected_identity
+
+
+def test_apply_server_snapshot_targets_matching_identity_key() -> None:
+  original = Product(name='Producto', description='Original', price=1000)
+  variant = Product(name='Producto', description='Variante', price=900)
+  repo = InMemoryRepository([original, variant])
+  service = ProductService(repo)
+
+  snapshot = variant.to_dict()
+  snapshot['price'] = 975
+
+  service.apply_server_snapshot(snapshot, catalog_rev=2)
+
+  refreshed_variant = service.get_product_by_name('Producto', 'Variante')
+  assert refreshed_variant.price == 975
+  untouched_original = service.get_product_by_name('Producto', 'Original')
+  assert untouched_original.price == 1000
