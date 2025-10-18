@@ -1,6 +1,6 @@
 {
-  "version": "20251017-195248",
-  "last_updated": "2025-10-17T19:52:48.411962",
+  "version": "20251017-212643",
+  "last_updated": "2025-10-17T21:26:43.554180",
   "rev": 0,
   "products": [
     {
@@ -340,9 +340,9 @@
       "field_last_modified": {}
     },
     {
-      "name": "Kross lata 470cc",
-      "description": "Cerveza Golden Pale Ale",
-      "price": 2200,
+      "name": "Kross • Cerveza Golden Pale Ale",
+      "description": "Lata de 470cc x 6 unidades",
+      "price": 12000,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -350,7 +350,36 @@
       "image_avif_path": "",
       "order": 17,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:14:10.617Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:14:10.617Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-18T00:14:10.617Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:14:10.617Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Crunchis Queso Marco Polo 160g",
@@ -565,8 +594,8 @@
       "field_last_modified": {}
     },
     {
-      "name": "Corona lata 473cc",
-      "description": "Cerveza Lager x 6 unidades",
+      "name": "Corona • Cerveza Lager",
+      "description": "Lata de 473cc x 6 unidades",
       "price": 6900,
       "discount": 0,
       "stock": false,
@@ -575,7 +604,29 @@
       "image_avif_path": "",
       "order": 32,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:25:32.081Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:25:32.081Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:25:32.081Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Tocino Ahumado La Preferida",
@@ -660,8 +711,8 @@
       }
     },
     {
-      "name": "Becker lata 354cc",
-      "description": "Cerveza Lager x 6 unidades",
+      "name": "Becker • Cerveza Lager",
+      "description": "Lata de 354cc x 6 unidades",
       "price": 3500,
       "discount": 0,
       "stock": false,
@@ -670,11 +721,33 @@
       "image_avif_path": "",
       "order": 37,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:25:07.152Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:25:07.152Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:25:07.152Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
-      "name": "Coors botella 355cc",
-      "description": "Cerveza Lager x 6 unidades",
+      "name": "Coors • Cerveza Lager",
+      "description": "Botella de 355cc x 6 unidades",
       "price": 6900,
       "discount": 0,
       "stock": true,
@@ -684,8 +757,22 @@
       "order": 38,
       "rev": 0,
       "field_last_modified": {
-        "price": {
-          "ts": "2025-10-14T15:26:34.407Z",
+        "name": {
+          "ts": "2025-10-18T00:14:54.153Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:14:54.153Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:14:54.153Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -694,8 +781,8 @@
       }
     },
     {
-      "name": "Coors lata 350cc",
-      "description": "Cerveza Lager x 6 unidades",
+      "name": "Coors • Cerveza Lager",
+      "description": "Lata de 350cc x 6 unidades",
       "price": 5900,
       "discount": 0,
       "stock": true,
@@ -704,11 +791,33 @@
       "image_avif_path": "",
       "order": 39,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:15:44.025Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:15:44.025Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:15:44.025Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
-      "name": "Cristal lata 350cc",
-      "description": "Cerveza Lager x 6 unidades",
+      "name": "Cristal • Cerveza Lager",
+      "description": "Lata de 350cc x 6 unidades",
       "price": 4500,
       "discount": 0,
       "stock": true,
@@ -718,8 +827,22 @@
       "order": 40,
       "rev": 0,
       "field_last_modified": {
-        "discount": {
-          "ts": "2025-10-14T15:26:48.413Z",
+        "name": {
+          "ts": "2025-10-18T00:16:32.369Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:16:32.369Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:16:32.369Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -728,8 +851,8 @@
       }
     },
     {
-      "name": "Heineken lata 350cc",
-      "description": "Cerveza Lager x 6 unidades",
+      "name": "Heineken • Cerveza Lager",
+      "description": "Lata de 350cc x 6 unidades",
       "price": 5500,
       "discount": 0,
       "stock": true,
@@ -738,11 +861,33 @@
       "image_avif_path": "",
       "order": 41,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:16:56.577Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:16:56.577Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:16:56.577Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
-      "name": "Royal Guard lata 350cc",
-      "description": "Cerveza Lager x 6 unidades",
+      "name": "Royal Guard • Cerveza Lager",
+      "description": "Lata de 350cc x 6 unidades",
       "price": 5500,
       "discount": 0,
       "stock": true,
@@ -751,11 +896,33 @@
       "image_avif_path": "",
       "order": 42,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:17:19.161Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:17:19.161Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:17:19.161Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
-      "name": "Stella Artois lata 354cc",
-      "description": "Cerveza Lager x 6 unidades",
+      "name": "Stella Artois • Cerveza Lager",
+      "description": "Lata de 354cc x 6 unidades",
       "price": 5500,
       "discount": 0,
       "stock": true,
@@ -764,20 +931,57 @@
       "image_avif_path": "",
       "order": 43,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:17:40.273Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:17:40.273Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:17:40.273Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
-      "name": "Stones Lemon lata 350cc",
-      "description": "Cerveza Lager Saborizada x 6 unidades",
+      "name": "Stones • Cerveza Lemon",
+      "description": "Lata de 350cc x 6 unidades",
       "price": 5900,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
       "image_path": "assets/images/cervezas/Stones Limón lata 350cc.webp",
-      "image_avif_path": "",
+      "image_avif_path": "assets/images/cervezas/Stones - Lemon lata 350cc.avif",
       "order": 44,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "image_avif_path": {
+          "ts": "2025-10-18T00:20:45.769Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:20:45.769Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Crema de Leche Surlat",
@@ -1117,8 +1321,8 @@
       "field_last_modified": {}
     },
     {
-      "name": "Kunstmann lata 470cc",
-      "description": "Cerveza Torobayo Pale Ale",
+      "name": "Kunstmann • Cerveza Torobayo",
+      "description": "Lata de 470cc",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -1127,11 +1331,33 @@
       "image_avif_path": "",
       "order": 66,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:23:54.025Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:23:54.025Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:23:54.025Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
-      "name": "Budweiser lata 354cc",
-      "description": "Cerveza Lager x 6 unidades",
+      "name": "Budweiser • Cerveza Lager",
+      "description": "Lata de 354cc x 6 unidades",
       "price": 5500,
       "discount": 0,
       "stock": true,
@@ -1140,7 +1366,29 @@
       "image_avif_path": "",
       "order": 67,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:24:48.785Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:24:48.785Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:24:48.785Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Paños Wypall X50",
@@ -1273,8 +1521,8 @@
       "field_last_modified": {}
     },
     {
-      "name": "Austral lata 350cc",
-      "description": "Cerveza Calafate Ale x 6 unidades",
+      "name": "Austral • Cerveza Calafate Ale",
+      "description": "Lata de 350cc x 6 unidades",
       "price": 9000,
       "discount": 0,
       "stock": false,
@@ -1283,11 +1531,33 @@
       "image_avif_path": "",
       "order": 78,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:22:59.625Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:22:59.625Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:22:59.625Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
-      "name": "Miller lata 355c",
-      "description": "Cerveza Lager x 6 unidades",
+      "name": "Miller • Cerveza Lager",
+      "description": "Lata de 355cc x 6 unidades",
       "price": 7900,
       "discount": 0,
       "stock": true,
@@ -1296,7 +1566,29 @@
       "image_avif_path": "",
       "order": 79,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:24:25.121Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:24:25.121Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:24:25.121Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Misiones de Rengo • Cabernet Sauvignon Reserva",
@@ -1915,9 +2207,9 @@
       }
     },
     {
-      "name": "Corona Sin Alcohol botella 330cc",
-      "description": "Cerveza Lager x 6 unidades",
-      "price": 6900,
+      "name": "Corona • Cerveza sin Alcohol",
+      "description": "Botella de 330cc x 6 unidades",
+      "price": 7500,
       "discount": 0,
       "stock": false,
       "category": "Cervezas",
@@ -1925,11 +2217,40 @@
       "image_avif_path": "",
       "order": 115,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:26:13.177Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:26:13.177Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-18T00:26:13.177Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:26:13.177Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
-      "name": "Royal Guard Sin Alcohol botella 355cc",
-      "description": "Cerveza Lager x 6 unidades",
+      "name": "Royal Guard • Cerveza sin Alcohol",
+      "description": "Botella de 355cc x 6 unidades",
       "price": 6700,
       "discount": 0,
       "stock": false,
@@ -1938,7 +2259,29 @@
       "image_avif_path": "",
       "order": 116,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:26:43.552Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:26:43.552Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:26:43.552Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "OMO Ultraconcentrado 500mL",
@@ -3440,6 +3783,216 @@
         },
         "order": {
           "ts": "2025-10-17T22:51:29.706Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Austral • Cerveza Calafate Ale",
+      "description": "Lata de 470cc x 6 unidades",
+      "price": 12000,
+      "discount": 0,
+      "stock": true,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/Austral Calafate Ale lata 470cc.webp",
+      "image_avif_path": "assets/images/cervezas/Austral Calafate Ale lata 470cc.avif",
+      "order": 162,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:12:51.546Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:12:51.546Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-18T00:12:51.546Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-18T00:12:51.546Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-18T00:12:51.546Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-18T00:12:51.546Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-18T00:12:51.546Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:12:51.546Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Stones • Cerveza Berry",
+      "description": "Lata de 350cc x 6 unidades",
+      "price": 5900,
+      "discount": 0,
+      "stock": true,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/Stones - Berry lata 350cc.webp",
+      "image_avif_path": "assets/images/cervezas/Stones - Berry lata 350cc.avif",
+      "order": 163,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:21:36.352Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:21:36.352Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-18T00:21:36.352Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-18T00:21:36.352Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-18T00:21:36.352Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-18T00:21:36.352Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-18T00:21:36.352Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:21:36.352Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Stones • Cerveza Mango",
+      "description": "Lata de 350cc x 6 unidades",
+      "price": 5900,
+      "discount": 0,
+      "stock": true,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/Stones - Mango lata 350cc.webp",
+      "image_avif_path": "assets/images/cervezas/Stones - Mango lata 350cc.avif",
+      "order": 164,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:22:07.601Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:22:07.601Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-18T00:22:07.601Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-18T00:22:07.601Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-18T00:22:07.601Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-18T00:22:07.601Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-18T00:22:07.601Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:22:07.601Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
