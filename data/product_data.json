@@ -1,6 +1,6 @@
 {
-  "version": "20251017-214240",
-  "last_updated": "2025-10-17T21:42:40.906945",
+  "version": "20251018-121955",
+  "last_updated": "2025-10-18T12:19:55.399108",
   "rev": 0,
   "products": [
     {
@@ -1695,7 +1695,7 @@
       "field_last_modified": {}
     },
     {
-      "name": "Jugo de Naranja • Soprole",
+      "name": "Soprole • Jugo de Naranja",
       "description": "Envase de 1L • Sin azúcar añadida",
       "price": 1500,
       "discount": 0,
@@ -1705,10 +1705,25 @@
       "image_avif_path": "",
       "order": 88,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T15:17:46.620Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T15:17:46.620Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
-      "name": "Jugo de Durazno • Soprole",
+      "name": "Soprole • Jugo de Durazno",
       "description": "Envase de 1L • Sin azúcar añadida",
       "price": 1500,
       "discount": 0,
@@ -1718,7 +1733,22 @@
       "image_avif_path": "",
       "order": 89,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T15:17:33.010Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T15:17:33.010Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Our Finest • Chocolate amargo 90% cacao",
@@ -1756,8 +1786,8 @@
       }
     },
     {
-      "name": "Doritos Queso 140g",
-      "description": "Bolsa de plástico",
+      "name": "Doritos • Tortillas Maíz Queso M",
+      "description": "Bolsa de 140g",
       "price": 2000,
       "discount": 0,
       "stock": false,
@@ -1766,7 +1796,22 @@
       "image_avif_path": "",
       "order": 91,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T15:19:55.397Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T15:19:55.397Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Papas Caseras Marco Polo 200g",
@@ -2769,7 +2814,7 @@
       }
     },
     {
-      "name": "Lay's - Papas Sabor Crema y Cebolla",
+      "name": "Lay's • Papas Sabor Crema y Cebolla",
       "description": "Tarro de 134g",
       "price": 2500,
       "discount": 0,
@@ -2781,56 +2826,14 @@
       "rev": 0,
       "field_last_modified": {
         "name": {
-          "ts": "2025-10-16T21:54:45.451Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-16T21:54:45.451Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-16T21:54:45.451Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-16T21:54:45.451Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "stock": {
-          "ts": "2025-10-16T21:54:45.451Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-16T21:54:45.451Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-16T21:54:45.451Z",
+          "ts": "2025-10-18T15:17:56.285Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-16T21:54:45.451Z",
+          "ts": "2025-10-18T15:17:56.285Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2839,7 +2842,7 @@
       }
     },
     {
-      "name": "Lay's - Papas sabor Original",
+      "name": "Lay's • Papas sabor Original",
       "description": "Tarro de 134g",
       "price": 2500,
       "discount": 0,
@@ -2851,56 +2854,14 @@
       "rev": 0,
       "field_last_modified": {
         "name": {
-          "ts": "2025-10-16T23:39:28.403Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-16T23:39:28.403Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-16T23:39:28.403Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-16T23:39:28.403Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "stock": {
-          "ts": "2025-10-16T23:39:28.403Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-16T23:39:28.403Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-16T23:39:28.403Z",
+          "ts": "2025-10-18T15:18:00.773Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-16T23:39:28.403Z",
+          "ts": "2025-10-18T15:18:00.773Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2909,7 +2870,7 @@
       }
     },
     {
-      "name": "Lay's - Papas sabor Queso",
+      "name": "Lay's • Papas sabor Queso",
       "description": "Tarro de 134g",
       "price": 2500,
       "discount": 0,
@@ -2921,56 +2882,14 @@
       "rev": 0,
       "field_last_modified": {
         "name": {
-          "ts": "2025-10-16T23:39:46.738Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-16T23:39:46.738Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-16T23:39:46.738Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-16T23:39:46.738Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "stock": {
-          "ts": "2025-10-16T23:39:46.738Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-16T23:39:46.738Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-16T23:39:46.738Z",
+          "ts": "2025-10-18T15:18:05.597Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-16T23:39:46.738Z",
+          "ts": "2025-10-18T15:18:05.597Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2979,7 +2898,7 @@
       }
     },
     {
-      "name": "Marco Polo - Papas Onduladas",
+      "name": "Marco Polo • Papas Onduladas",
       "description": "Bolsa de 200g",
       "price": 2500,
       "discount": 0,
@@ -2991,56 +2910,14 @@
       "rev": 0,
       "field_last_modified": {
         "name": {
-          "ts": "2025-10-16T23:40:22.370Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-16T23:40:22.370Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-16T23:40:22.370Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-16T23:40:22.370Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "stock": {
-          "ts": "2025-10-16T23:40:22.370Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-16T23:40:22.370Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-16T23:40:22.370Z",
+          "ts": "2025-10-18T15:18:10.349Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-16T23:40:22.370Z",
+          "ts": "2025-10-18T15:18:10.349Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3049,7 +2926,7 @@
       }
     },
     {
-      "name": "Marco Polo - Papas Lisas",
+      "name": "Marco Polo • Papas Lisas",
       "description": "Bolsa de 200g",
       "price": 2500,
       "discount": 0,
@@ -3061,56 +2938,14 @@
       "rev": 0,
       "field_last_modified": {
         "name": {
-          "ts": "2025-10-16T23:40:52.003Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-16T23:40:52.003Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-16T23:40:52.003Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-16T23:40:52.003Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "stock": {
-          "ts": "2025-10-16T23:40:52.003Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-16T23:40:52.003Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-16T23:40:52.003Z",
+          "ts": "2025-10-18T15:18:15.077Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-16T23:40:52.003Z",
+          "ts": "2025-10-18T15:18:15.077Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3119,7 +2954,7 @@
       }
     },
     {
-      "name": "Marco Polo - Maní Salado",
+      "name": "Marco Polo • Maní Salado",
       "description": "Bolsa de 150g",
       "price": 1900,
       "discount": 0,
@@ -3131,56 +2966,14 @@
       "rev": 0,
       "field_last_modified": {
         "name": {
-          "ts": "2025-10-17T00:25:06.466Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-17T00:25:06.466Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-17T00:25:06.466Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-17T00:25:06.466Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "stock": {
-          "ts": "2025-10-17T00:25:06.466Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-17T00:25:06.466Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-17T00:25:06.466Z",
+          "ts": "2025-10-18T15:18:19.757Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-17T00:25:06.466Z",
+          "ts": "2025-10-18T15:18:19.757Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3189,7 +2982,7 @@
       }
     },
     {
-      "name": "Marco Polo - Maní sin Sal",
+      "name": "Marco Polo • Maní sin Sal",
       "description": "Bolsa de 150g",
       "price": 1900,
       "discount": 0,
@@ -3201,56 +2994,14 @@
       "rev": 0,
       "field_last_modified": {
         "name": {
-          "ts": "2025-10-17T00:25:27.123Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-17T00:25:27.123Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-17T00:25:27.123Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-17T00:25:27.123Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "stock": {
-          "ts": "2025-10-17T00:25:27.123Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-17T00:25:27.123Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-17T00:25:27.123Z",
+          "ts": "2025-10-18T15:18:25.685Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-17T00:25:27.123Z",
+          "ts": "2025-10-18T15:18:25.685Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3895,6 +3646,76 @@
       "field_last_modified": {
         "order": {
           "ts": "2025-10-18T00:42:40.905Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Doritos • Tortillas Maíz Queso L",
+      "description": "Bolsa de 285g",
+      "price": 3500,
+      "discount": 0,
+      "stock": true,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Doritos Queso 285gr.webp",
+      "image_avif_path": "assets/images/snacks_salados/Doritos Queso 285gr.avif",
+      "order": 165,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T15:19:45.165Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T15:19:45.165Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-18T15:19:45.165Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-18T15:19:45.165Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-18T15:19:45.165Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-18T15:19:45.165Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-18T15:19:45.165Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T15:19:45.165Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
