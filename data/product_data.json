@@ -1,6 +1,6 @@
 {
-  "version": "20251018-122250",
-  "last_updated": "2025-10-18T12:22:50.352685",
+  "version": "20251018-122358",
+  "last_updated": "2025-10-18T12:23:58.960246",
   "rev": 0,
   "products": [
     {
@@ -1790,22 +1790,15 @@
       "description": "Bolsa de 140g",
       "price": 2000,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Doritos Queso 140gr.webp",
       "image_avif_path": "",
       "order": 91,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-18T15:19:55.397Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-18T15:19:55.397Z",
+        "stock": {
+          "ts": "2025-10-18T15:23:58.957Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
