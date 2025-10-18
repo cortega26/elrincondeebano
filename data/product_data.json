@@ -1,6 +1,6 @@
 {
-  "version": "20251017-212643",
-  "last_updated": "2025-10-17T21:26:43.554180",
+  "version": "20251017-214240",
+  "last_updated": "2025-10-17T21:42:40.906945",
   "rev": 0,
   "products": [
     {
@@ -3872,57 +3872,8 @@
       "order": 163,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-18T00:21:36.352Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-18T00:21:36.352Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-18T00:21:36.352Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-18T00:21:36.352Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "stock": {
-          "ts": "2025-10-18T00:21:36.352Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-18T00:21:36.352Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-18T00:21:36.352Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "order": {
-          "ts": "2025-10-18T00:21:36.352Z",
+          "ts": "2025-10-18T00:42:31.298Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3942,57 +3893,8 @@
       "order": 164,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-18T00:22:07.601Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-18T00:22:07.601Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-18T00:22:07.601Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-18T00:22:07.601Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "stock": {
-          "ts": "2025-10-18T00:22:07.601Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-18T00:22:07.601Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-18T00:22:07.601Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "order": {
-          "ts": "2025-10-18T00:22:07.601Z",
+          "ts": "2025-10-18T00:42:40.905Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
