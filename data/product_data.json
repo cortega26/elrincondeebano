@@ -1,6 +1,6 @@
 {
-  "version": "20251018-121955",
-  "last_updated": "2025-10-18T12:19:55.399108",
+  "version": "20251018-122250",
+  "last_updated": "2025-10-18T12:22:50.352685",
   "rev": 0,
   "products": [
     {
@@ -3716,6 +3716,76 @@
         },
         "order": {
           "ts": "2025-10-18T15:19:45.165Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Selección • Chips de Plátano Frito",
+      "description": "Bola de 240g",
+      "price": 3500,
+      "discount": 0,
+      "stock": true,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Selección - Plátano Frito 240g.webp",
+      "image_avif_path": "assets/images/snacks_salados/Selección - Plátano Frito 240g.avif",
+      "order": 166,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T15:22:50.350Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T15:22:50.350Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-18T15:22:50.350Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-18T15:22:50.350Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-18T15:22:50.350Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-18T15:22:50.350Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-18T15:22:50.350Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T15:22:50.350Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
