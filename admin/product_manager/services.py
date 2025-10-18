@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict, Set, Protocol, Any
+from typing import List, Optional, Dict, Set, Protocol, Any, Tuple, Union, cast
 from models import Product
 from repositories import ProductRepositoryProtocol, ProductRepositoryError
 import logging
@@ -11,6 +11,8 @@ from enum import Enum, auto
 import json
 
 logger = logging.getLogger(__name__)
+
+ProductUpdateSpec = Union[Tuple[str, Product], Tuple[str, str, Product]]
 
 
 def _utc_now_iso() -> str:
@@ -94,7 +96,7 @@ class ProductService:
             self._product_index.clear()
             self._category_index.clear()
             for product in products:
-                self._product_index[product.name.lower()] = product
+                self._product_index[product.identity_key()] = product
                 if product.category:
                     self._category_index[product.category.lower()].add(product)
 
@@ -224,23 +226,44 @@ class ProductService:
             logger.error(f"Error al cargar productos: {e}")
             raise ProductServiceError(f"Error al cargar productos: {e}")
 
-    def get_product_by_name(self, name: str) -> Product:
-        """
-        Get a product by its name.
-        """
-        product = self._product_index.get(name.lower())
-        if not product:
+    def get_product_by_name(self, name: str, description: Optional[str] = None) -> Product:
+        """Get a product by its name, optionally disambiguated by description."""
+
+        normalized_name = Product.normalized_name(name)
+        if description is not None:
+            key = Product.identity_key_from_values(name, description)
+            product = self._product_index.get(key)
+            if not product:
+                raise ProductNotFoundError(
+                    f"Producto no encontrado: {name} / {description}"
+                )
+            return product
+
+        matches = [
+            product
+            for product in self.get_all_products()
+            if Product.normalized_name(product.name) == normalized_name
+        ]
+
+        if not matches:
             raise ProductNotFoundError(f"Producto no encontrado: {name}")
-        return product
+        if len(matches) > 1:
+            raise ProductServiceError(
+                "Existen múltiples productos con el mismo nombre. "
+                "Proporcione la descripción para desambiguar la búsqueda."
+            )
+        return matches[0]
 
     def add_product(self, product: Product) -> None:
         """
         Add a new product.
         """
         with self._products_lock:
-            if product.name.lower() in self._product_index:
+            identity_key = product.identity_key()
+            if identity_key in self._product_index:
                 raise DuplicateProductError(
-                    f"El producto ya existe: {product.name}")
+                    "Ya existe un producto con el mismo nombre y descripción."
+                )
             try:
                 products = self.get_all_products()
                 product.order = len(products)
@@ -252,7 +275,7 @@ class ProductService:
                 )
                 products.append(product)
                 self.repository.save_products(products)
-                self._product_index[product.name.lower()] = product
+                self._product_index[identity_key] = product
                 if product.category:
                     self._category_index[product.category.lower()].add(product)
                 self.clear_cache()
@@ -265,14 +288,25 @@ class ProductService:
                 logger.error(f"Error al agregar producto: {e}")
                 raise ProductServiceError(f"Error al agregar producto: {e}")
 
-    def update_product(self, original_name: str, updated_product: Product) -> None:
-        """
-        Update an existing product.
-        """
+    def update_product(
+        self,
+        original_name: str,
+        updated_product: Product,
+        original_description: Optional[str] = None
+    ) -> None:
+        """Update an existing product, supporting duplicate names via description."""
         queue_payload: Optional[Dict[str, Any]] = None
         with self._products_lock:
             try:
-                original_product = self.get_product_by_name(original_name)
+                original_product = self.get_product_by_name(
+                    original_name, original_description
+                )
+                original_key = original_product.identity_key()
+                updated_key = updated_product.identity_key()
+                if updated_key != original_key and updated_key in self._product_index:
+                    raise DuplicateProductError(
+                        "Ya existe un producto con el mismo nombre y descripción."
+                    )
                 products = self.get_all_products()
                 changes = self._compute_changed_fields(
                     original_product, updated_product)
@@ -284,10 +318,9 @@ class ProductService:
                     list(changes.keys()),
                     base_rev
                 )
-                if original_name.lower() != updated_product.name.lower():
-                    del self._product_index[original_name.lower()]
-                self._product_index[updated_product.name.lower()
-                                    ] = updated_product
+                if updated_key != original_key:
+                    self._product_index.pop(original_key, None)
+                self._product_index[updated_key] = updated_product
                 if original_product.category:
                     self._category_index[original_product.category.lower()].discard(
                         original_product)
@@ -324,16 +357,14 @@ class ProductService:
         if self.sync_engine and queue_payload:
             self.sync_engine.enqueue_update(**queue_payload)
 
-    def delete_product(self, name: str) -> bool:
-        """
-        Delete a product by its name.
-        """
+    def delete_product(self, name: str, description: Optional[str] = None) -> bool:
+        """Delete a product by its name and optional description."""
         with self._products_lock:
             try:
-                product = self.get_product_by_name(name)
+                product = self.get_product_by_name(name, description)
                 products = self.get_all_products()
                 products.remove(product)
-                del self._product_index[name.lower()]
+                self._product_index.pop(product.identity_key(), None)
                 if product.category:
                     self._category_index[product.category.lower()].discard(
                         product)
@@ -409,34 +440,93 @@ class ProductService:
         self._products = None
         self.get_categories.cache_clear()
 
-    def batch_update(self, updates: List[tuple[str, Product]]) -> None:
-        """
-        Perform multiple updates in a single transaction.
-        """
+    def batch_update(self, updates: List[ProductUpdateSpec]) -> None:
+        """Perform multiple updates in a single transaction."""
+
+        if not updates:
+            return
+
         with self._products_lock:
             try:
                 products = self.get_all_products()
-                product_dict = {p.name.lower(): p for p in products}
-                for original_name, _ in updates:
-                    if original_name.lower() not in product_dict:
+                identity_map = {p.identity_key(): p for p in products}
+                name_groups: Dict[str, List[Product]] = defaultdict(list)
+                for product in products:
+                    name_groups[Product.normalized_name(product.name)].append(product)
+
+                normalized_updates: List[Tuple[str, str, Product]] = []
+                for entry in updates:
+                    if len(entry) == 2:
+                        original_name, updated_product = cast(Tuple[str, Product], entry)
+                        matches = name_groups.get(
+                            Product.normalized_name(original_name), []
+                        )
+                        if not matches:
+                            raise ProductNotFoundError(
+                                f"Producto no encontrado: {original_name}"
+                            )
+                        if len(matches) > 1:
+                            raise ProductServiceError(
+                                "Existen múltiples productos con el mismo nombre. "
+                                "Incluya la descripción original para continuar."
+                            )
+                        normalized_updates.append(
+                            (original_name, matches[0].description, updated_product)
+                        )
+                    elif len(entry) == 3:
+                        original_name, original_description, updated_product = cast(
+                            Tuple[str, str, Product], entry
+                        )
+                        normalized_updates.append(
+                            (original_name, original_description, updated_product)
+                        )
+                    else:
+                        raise ProductServiceError(
+                            "Formato de actualización inválido en lote."
+                        )
+
+                projected_keys = set(identity_map.keys())
+                processed_updates: List[Tuple[str, str, Product]] = []
+                for original_name, original_description, updated_product in normalized_updates:
+                    original_key = Product.identity_key_from_values(
+                        original_name, original_description
+                    )
+                    if original_key not in projected_keys:
                         raise ProductNotFoundError(
-                            f"Producto no encontrado: {original_name}")
-                for original_name, updated_product in updates:
-                    index = products.index(product_dict[original_name.lower()])
+                            f"Producto no encontrado: {original_name} / {original_description}"
+                        )
+                    new_key = updated_product.identity_key()
+                    projected_keys.remove(original_key)
+                    if new_key in projected_keys:
+                        raise DuplicateProductError(
+                            "La actualización crearía productos duplicados con el mismo nombre y descripción."
+                        )
+                    projected_keys.add(new_key)
+                    processed_updates.append((original_key, new_key, updated_product))
+
+                for original_key, new_key, updated_product in processed_updates:
+                    original_product = identity_map[original_key]
+                    index = products.index(original_product)
                     updated_product.order = products[index].order
                     products[index] = updated_product
+                    identity_map.pop(original_key, None)
+                    identity_map[new_key] = updated_product
+
                 self.repository.save_products(products)
                 self.clear_cache()
                 self._rebuild_indexes()
-                self._notify_event_handlers(ProductEvent(
-                    ProductEventType.UPDATED,
-                    '',
-                    details={'actualizaciones_totales': len(updates)}
-                ))
+                self._notify_event_handlers(
+                    ProductEvent(
+                        ProductEventType.UPDATED,
+                        '',
+                        details={'actualizaciones_totales': len(updates)}
+                    )
+                )
             except Exception as e:
                 logger.error(f"Error en actualización por lotes: {e}")
                 raise ProductServiceError(
-                    f"Error en actualización por lotes: {e}")
+                    f"Error en actualización por lotes: {e}"
+                )
 
     def get_version_info(self) -> VersionInfo:
         """Get current version information."""
