@@ -192,15 +192,30 @@ class ProductService:
             if not target_name:
                 raise ProductServiceError(
                     "Instantánea de producto inválida: falta nombre")
+            target_description = snapshot.get("description")
+            if target_description is None:
+                name_matches = [
+                    product for product in products
+                    if product.name.lower() == target_name.lower()
+                ]
+                if len(name_matches) == 1:
+                    target_description = name_matches[0].description
+                else:
+                    raise ProductServiceError(
+                        "Instantánea de producto inválida: falta descripción")
             new_product = Product.from_dict(snapshot)
-            replaced = False
-            for index, existing in enumerate(products):
-                if existing.name.lower() == target_name.lower():
-                    new_product.order = snapshot.get("order", existing.order)
-                    products[index] = new_product
-                    replaced = True
-                    break
-            if not replaced:
+            identity_map: Dict[str, int] = {
+                product.identity_key(): idx for idx, product in enumerate(products)
+            }
+            target_key = Product.identity_key_from_values(
+                target_name, target_description
+            )
+            index = identity_map.get(target_key)
+            if index is not None:
+                existing = products[index]
+                new_product.order = snapshot.get("order", existing.order)
+                products[index] = new_product
+            else:
                 new_product.order = snapshot.get("order", len(products))
                 products.append(new_product)
             catalog_meta = {"rev": catalog_rev}
@@ -342,7 +357,7 @@ class ProductService:
                     }
                 ))
                 queue_payload = {
-                    "product_id": original_product.name,
+                    "product_id": original_key,
                     "base_rev": base_rev,
                     "fields": changes,
                     "timestamp": timestamp,
