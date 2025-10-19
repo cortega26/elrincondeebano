@@ -1,6 +1,6 @@
 {
-  "version": "20251019-181109",
-  "last_updated": "2025-10-19T18:11:09.147017",
+  "version": "20251019-202750",
+  "last_updated": "2025-10-19T20:27:50.570322",
   "rev": 0,
   "products": [
     {
@@ -3737,6 +3737,146 @@
         },
         "order": {
           "ts": "2025-10-18T15:22:50.350Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Marco Polo • Papas Rústicas Sal de Mar",
+      "description": "Bolsa de 130g",
+      "price": 2000,
+      "discount": 0,
+      "stock": true,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Marco Polo - Papas Sal de Mar.webp",
+      "image_avif_path": "assets/images/snacks_salados/Marco Polo - Papas Sal de Mar.avif",
+      "order": 167,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-19T23:25:39.009Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-19T23:25:39.009Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-19T23:25:39.009Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-19T23:25:39.009Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-19T23:25:39.009Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-19T23:25:39.009Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-19T23:25:39.009Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-19T23:25:39.009Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Marco Polo • Tortilla Vegetal Kraks Sal de Mar",
+      "description": "Bolsa de 140g",
+      "price": 2000,
+      "discount": 0,
+      "stock": true,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Marco Polo - Tortillas Vegetal Sal de Mar.webp",
+      "image_avif_path": "assets/images/snacks_salados/Marco Polo - Tortillas Vegetal Sal de Mar.avif",
+      "order": 168,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-19T23:27:50.568Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-19T23:27:50.568Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-19T23:27:50.568Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-19T23:27:50.568Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-19T23:27:50.568Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-19T23:27:50.568Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-19T23:27:50.568Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-19T23:27:50.568Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
