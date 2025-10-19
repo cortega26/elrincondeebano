@@ -59,6 +59,38 @@ class Product:
         if not isinstance(self.field_last_modified, dict):
             self.field_last_modified = {}
 
+    @staticmethod
+    def _normalize_text(value: Any) -> str:
+        """Return a canonical lowercase representation collapsing whitespace."""
+
+        if not isinstance(value, str):
+            return ""
+        collapsed = " ".join(value.split())
+        return collapsed.casefold()
+
+    @classmethod
+    def normalized_name(cls, name: str) -> str:
+        """Normalize a product name for comparisons."""
+
+        return cls._normalize_text(name)
+
+    @classmethod
+    def normalized_description(cls, description: str) -> str:
+        """Normalize a product description for comparisons."""
+
+        return cls._normalize_text(description)
+
+    @classmethod
+    def identity_key_from_values(cls, name: str, description: str) -> str:
+        """Build the canonical identity key for the provided values."""
+
+        return f"{cls.normalized_name(name)}::{cls.normalized_description(description)}"
+
+    def identity_key(self) -> str:
+        """Return the canonical identity key for the current product."""
+
+        return self.identity_key_from_values(self.name, self.description)
+
     def _validate_name(self) -> None:
         """Validate product name."""
         if not isinstance(self.name, str):
@@ -255,11 +287,11 @@ class Product:
         """Check if two products are equal."""
         if not isinstance(other, Product):
             return NotImplemented
-        return self.name.lower() == other.name.lower()
+        return self.identity_key() == other.identity_key()
 
     def __hash__(self) -> int:
-        """Hash based on the product name."""
-        return hash(self.name.lower())
+        """Hash based on the canonical product identity."""
+        return hash(self.identity_key())
 
 @dataclass
 class ProductMetadata:

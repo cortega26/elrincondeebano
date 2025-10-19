@@ -245,7 +245,7 @@ class DragDropMixin:
                     order=product.order
                 )
                 self.product_service.update_product(
-                    product.name, updated_product)
+                    product.name, updated_product, product.description)
                 self.tree.set(clicked_item, "stock",
                               "☑" if updated_product.stock else "☐")
                 self.logger.info(
@@ -643,7 +643,8 @@ class ProductGUI(DragDropMixin):
 
         try:
             for product in products:
-                self.product_service.delete_product(product.name)
+                self.product_service.delete_product(
+                    product.name, product.description)
             self.refresh_products()
             self.update_status(f"{len(products)} producto(s) eliminado(s)")
         except ProductServiceError as e:
@@ -752,8 +753,14 @@ class ProductGUI(DragDropMixin):
         """Get Product object from treeview item."""
         values = self.tree.item(item)["values"]
         try:
-            return next(p for p in self.product_service.get_all_products() if p.name == values[0])
-        except (StopIteration, IndexError):
+            name = values[0]
+            description = values[1] if len(values) > 1 else ""
+        except (TypeError, IndexError):
+            return None
+
+        try:
+            return self.product_service.get_product_by_name(name, description)
+        except ProductServiceError:
             return None
 
     def update_status(self, message: str) -> None:
@@ -979,10 +986,10 @@ class ProductGUI(DragDropMixin):
             return
 
         # Build do/undo updates
-        do_updates: List[tuple[str, Product]] = [
-            (old.name, new) for old, new in pairs]
-        undo_updates: List[tuple[str, Product]] = [
-            (new.name, old) for old, new in pairs]
+        do_updates: List[tuple[str, str, Product]] = [
+            (old.name, old.description, new) for old, new in pairs]
+        undo_updates: List[tuple[str, str, Product]] = [
+            (new.name, new.description, old) for old, new in pairs]
         try:
             self.product_service.batch_update(do_updates)
             # Push to undo history
@@ -1097,7 +1104,8 @@ class ProductGUI(DragDropMixin):
                     image_avif_path=product.image_avif_path,
                     order=product.order
                 )
-                self.product_service.update_product(product.name, updated)
+                self.product_service.update_product(
+                    product.name, updated, product.description)
                 self.tree.set(row, "stock", "☑" if updated.stock else "☐")
                 self.update_status(
                     f"Stock de '{product.name}' actualizado: {'En stock' if updated.stock else 'Sin stock'}")
@@ -1212,7 +1220,8 @@ class ProductGUI(DragDropMixin):
             updated = Product(**updated_kwargs)
 
             # Persist change
-            self.product_service.update_product(product.name, updated)
+            self.product_service.update_product(
+                product.name, updated, product.description)
 
             # Update tree cell display (formatted)
             if field == "price":
@@ -1596,7 +1605,8 @@ class ProductFormDialog(tk.Toplevel):
             data = self.validate_and_get_data()
             product = Product(**data)
             if self.product:
-                self.product_service.update_product(self.product.name, product)
+                self.product_service.update_product(
+                    self.product.name, product, self.product.description)
             else:
                 self.product_service.add_product(product)
             if self.on_save:
