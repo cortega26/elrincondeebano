@@ -1,6 +1,6 @@
 {
-  "version": "20251018-122358",
-  "last_updated": "2025-10-18T12:23:58.960246",
+  "version": "20251019-162409",
+  "last_updated": "2025-10-19T16:24:09.235540",
   "rev": 0,
   "products": [
     {
@@ -1786,7 +1786,7 @@
       }
     },
     {
-      "name": "Doritos • Tortillas Maíz Queso M",
+      "name": "Doritos • Tortillas Maíz Queso",
       "description": "Bolsa de 140g",
       "price": 2000,
       "discount": 0,
@@ -1797,8 +1797,15 @@
       "order": 91,
       "rev": 0,
       "field_last_modified": {
-        "stock": {
-          "ts": "2025-10-18T15:23:58.957Z",
+        "name": {
+          "ts": "2025-10-19T19:24:09.233Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-19T19:24:09.233Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3647,7 +3654,7 @@
       }
     },
     {
-      "name": "Doritos • Tortillas Maíz Queso L",
+      "name": "Doritos • Tortillas Maíz Queso",
       "description": "Bolsa de 285g",
       "price": 3500,
       "discount": 0,
@@ -3659,56 +3666,14 @@
       "rev": 0,
       "field_last_modified": {
         "name": {
-          "ts": "2025-10-18T15:19:45.165Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-18T15:19:45.165Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-18T15:19:45.165Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-18T15:19:45.165Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "stock": {
-          "ts": "2025-10-18T15:19:45.165Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-18T15:19:45.165Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-18T15:19:45.165Z",
+          "ts": "2025-10-19T19:24:03.702Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-18T15:19:45.165Z",
+          "ts": "2025-10-19T19:24:03.702Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
