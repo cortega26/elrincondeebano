@@ -1,6 +1,6 @@
 {
-  "version": "20251019-162409",
-  "last_updated": "2025-10-19T16:24:09.235540",
+  "version": "20251019-181109",
+  "last_updated": "2025-10-19T18:11:09.147017",
   "rev": 0,
   "products": [
     {
@@ -2902,22 +2902,15 @@
       "description": "Bolsa de 200g",
       "price": 2500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Americano 200g.webp",
       "image_avif_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Americano 200g.avif",
       "order": 148,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-18T15:18:10.349Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-18T15:18:10.349Z",
+        "stock": {
+          "ts": "2025-10-19T21:11:09.144Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
