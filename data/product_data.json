@@ -1,6 +1,6 @@
 {
-  "version": "20251021-165034",
-  "last_updated": "2025-10-21T16:50:34.237059",
+  "version": "20251021-170409",
+  "last_updated": "2025-10-21T17:04:09.746891",
   "rev": 0,
   "products": [
     {
@@ -2182,25 +2182,32 @@
     },
     {
       "name": "Líder • Atún Lomitos en Agua",
-      "description": "Lata. Peso neto: 160g",
+      "description": "Lata. Peso neto: 140g",
       "price": 1900,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Despensa",
-      "image_path": "assets/images/despensa/Atún Líder en agua 160g.webp",
-      "image_avif_path": "",
+      "image_path": "assets/images/despensa/Líder - Atún en agua 140g.webp",
+      "image_avif_path": "assets/images/despensa/Líder - Atún en agua 140g.avif",
       "order": 109,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-17T18:24:54.509Z",
+        "image_path": {
+          "ts": "2025-10-21T19:55:52.575Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_avif_path": {
+          "ts": "2025-10-21T19:55:52.575Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-17T18:24:54.509Z",
+          "ts": "2025-10-21T19:55:52.575Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -4059,6 +4066,216 @@
         },
         "order": {
           "ts": "2025-10-21T19:49:35.323Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Nescafé • Café Dolca",
+      "description": "Lata de 170g",
+      "price": 6500,
+      "discount": 600,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Nescafé - Café instantáneo 170g.webp",
+      "image_avif_path": "assets/images/despensa/Nescafé - Café instantáneo 170g.avif",
+      "order": 170,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-21T19:59:41.753Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-21T19:59:41.753Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-21T19:59:41.753Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-21T19:59:41.753Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-21T19:59:41.753Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-21T19:59:41.753Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-21T19:59:41.753Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-21T19:59:41.753Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Lobos • Sal Fina",
+      "description": "Empaque de 1Kg",
+      "price": 1200,
+      "discount": 0,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Lobos - Sal 1Kg.webp",
+      "image_avif_path": "assets/images/despensa/Lobos - Sal 1Kg.avif",
+      "order": 171,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-21T20:01:35.329Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-21T20:01:35.329Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-21T20:01:35.329Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-21T20:01:35.329Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-21T20:01:35.329Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-21T20:01:35.329Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-21T20:01:35.329Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-21T20:01:35.329Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "La Romana • Arroz",
+      "description": "Empaque de 800g",
+      "price": 2000,
+      "discount": 0,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/La Romana - Arroz 800g.webp",
+      "image_avif_path": "assets/images/despensa/La Romana - Arroz 800g.avif",
+      "order": 172,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-21T20:04:09.745Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-21T20:04:09.745Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-21T20:04:09.745Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-21T20:04:09.745Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-21T20:04:09.745Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-21T20:04:09.745Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-21T20:04:09.745Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-21T20:04:09.745Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
