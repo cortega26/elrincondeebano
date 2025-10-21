@@ -1,6 +1,6 @@
 {
-  "version": "20251019-202750",
-  "last_updated": "2025-10-19T20:27:50.570322",
+  "version": "20251021-161421",
+  "last_updated": "2025-10-21T16:14:21.199174",
   "rev": 0,
   "products": [
     {
@@ -74,7 +74,7 @@
       }
     },
     {
-      "name": "Galletas de Limón McKay",
+      "name": "McKay • Galletas de Limón",
       "description": "Presentación de 120g",
       "price": 1300,
       "discount": 0,
@@ -84,7 +84,22 @@
       "image_avif_path": "",
       "order": 3,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-21T18:56:59.337Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-21T18:56:59.337Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Cousiño-Macul • Carmenere Reserva, Chivilingo",
@@ -395,7 +410,7 @@
       "field_last_modified": {}
     },
     {
-      "name": "Galletas de Coco McKay",
+      "name": "McKay • Galletas de Coco",
       "description": "Presentación de 120g",
       "price": 1300,
       "discount": 0,
@@ -405,7 +420,22 @@
       "image_avif_path": "",
       "order": 19,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-21T18:57:09.589Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-21T18:57:09.589Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Líder • Salsa de tomate",
@@ -436,7 +466,7 @@
       }
     },
     {
-      "name": "Galletas Niza McKay",
+      "name": "McKay • Galletas Niza",
       "description": "Presentación de 150g",
       "price": 1300,
       "discount": 0,
@@ -446,10 +476,25 @@
       "image_avif_path": "",
       "order": 21,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-21T18:57:24.371Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-21T18:57:24.371Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
-      "name": "Galletas de Mantequilla McKay",
+      "name": "McKay • Galletas de Mantequilla",
       "description": "Presentación de 140g",
       "price": 1300,
       "discount": 0,
@@ -459,7 +504,22 @@
       "image_avif_path": "",
       "order": 22,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-21T18:57:36.748Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-21T18:57:36.748Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Mantequilla Kumey 250g",
@@ -1790,22 +1850,15 @@
       "description": "Bolsa de 140g",
       "price": 2000,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Doritos Queso 140gr.webp",
       "image_avif_path": "",
       "order": 91,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-19T19:24:09.233Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-19T19:24:09.233Z",
+        "stock": {
+          "ts": "2025-10-21T18:55:54.243Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -1853,19 +1906,40 @@
       "field_last_modified": {}
     },
     {
-      "name": "Súper 8 • Pack 4 unidades",
+      "name": "Nestlé • Súper 8, pack de 4 unidades",
       "description": "Barras de 29g c/u",
       "price": 2000,
       "discount": 0,
       "stock": true,
       "category": "SnacksDulces",
-      "image_path": "assets/images/snacks_dulces/Super 8 pack 5.webp",
+      "image_path": "assets/images/snacks_dulces/Nestlé - Super 8 - 4 unidades.webp",
       "image_avif_path": "",
       "order": 95,
       "rev": 0,
       "field_last_modified": {
-        "price": {
-          "ts": "2025-10-14T15:32:03.292Z",
+        "name": {
+          "ts": "2025-10-21T19:14:21.196Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-21T19:14:21.196Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-21T19:14:21.196Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-21T19:14:21.196Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2436,7 +2510,7 @@
       "field_last_modified": {}
     },
     {
-      "name": "Galletas Oreo Original",
+      "name": "Nabisco • Galletas Oreo Original",
       "description": "Presentación de 108g",
       "price": 1300,
       "discount": 0,
@@ -2446,10 +2520,25 @@
       "image_avif_path": "",
       "order": 124,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-21T19:00:13.172Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-21T19:00:13.172Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
-      "name": "Galletas Choco Chips Costa",
+      "name": "Costa • Galletas Choco Chips",
       "description": "Presentación de 125g",
       "price": 1300,
       "discount": 0,
@@ -2459,7 +2548,22 @@
       "image_avif_path": "",
       "order": 125,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-21T19:00:27.339Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-21T19:00:27.339Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Papas Orégano Lay's 140g",
@@ -2655,7 +2759,7 @@
       "field_last_modified": {}
     },
     {
-      "name": "Galletas de Chocolate Costa",
+      "name": "Costa • Galletas de Chocolate",
       "description": "Presentación de 140g",
       "price": 1300,
       "discount": 0,
@@ -2665,7 +2769,22 @@
       "image_avif_path": "",
       "order": 139,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-21T19:00:36.836Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-21T19:00:36.836Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Canada Dry • Agua Tónica 1,5L",
