@@ -1,6 +1,6 @@
 {
-  "version": "20251021-161421",
-  "last_updated": "2025-10-21T16:14:21.199174",
+  "version": "20251021-165034",
+  "last_updated": "2025-10-21T16:50:34.237059",
   "rev": 0,
   "products": [
     {
@@ -498,22 +498,15 @@
       "description": "Presentación de 140g",
       "price": 1300,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksDulces",
       "image_path": "assets/images/snacks_dulces/Galletas Mantequilla McKay 140g.webp",
       "image_avif_path": "",
       "order": 22,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-21T18:57:36.748Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-21T18:57:36.748Z",
+        "stock": {
+          "ts": "2025-10-21T19:50:34.234Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3996,6 +3989,76 @@
         },
         "order": {
           "ts": "2025-10-19T23:27:50.568Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Costa • Galletas de Mantequilla",
+      "description": "Presentación de 140g",
+      "price": 1300,
+      "discount": 0,
+      "stock": true,
+      "category": "SnacksDulces",
+      "image_path": "assets/images/snacks_dulces/Costa - Galletas de Mantequilla 140g.webp",
+      "image_avif_path": "assets/images/snacks_dulces/Costa - Galletas de Mantequilla 140g.avif",
+      "order": 169,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-21T19:49:35.323Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-21T19:49:35.323Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-21T19:49:35.323Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-21T19:49:35.323Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-21T19:49:35.323Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-21T19:49:35.323Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-21T19:49:35.323Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-21T19:49:35.323Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
