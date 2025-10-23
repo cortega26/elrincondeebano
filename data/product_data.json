@@ -1,6 +1,6 @@
 {
-  "version": "20251021-170409",
-  "last_updated": "2025-10-21T17:04:09.746891",
+  "version": "20251023-111630",
+  "last_updated": "2025-10-23T11:16:30.401470",
   "rev": 0,
   "products": [
     {
@@ -75,7 +75,7 @@
     },
     {
       "name": "McKay • Galletas de Limón",
-      "description": "Presentación de 120g",
+      "description": "Empaque de 120g",
       "price": 1300,
       "discount": 0,
       "stock": false,
@@ -85,15 +85,15 @@
       "order": 3,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-21T18:56:59.337Z",
+        "description": {
+          "ts": "2025-10-23T14:16:03.942Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-21T18:56:59.337Z",
+          "ts": "2025-10-23T14:16:03.942Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -411,7 +411,7 @@
     },
     {
       "name": "McKay • Galletas de Coco",
-      "description": "Presentación de 120g",
+      "description": "Empaque de 120g",
       "price": 1300,
       "discount": 0,
       "stock": false,
@@ -421,15 +421,15 @@
       "order": 19,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-21T18:57:09.589Z",
+        "description": {
+          "ts": "2025-10-23T14:16:08.383Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-21T18:57:09.589Z",
+          "ts": "2025-10-23T14:16:08.383Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -467,7 +467,7 @@
     },
     {
       "name": "McKay • Galletas Niza",
-      "description": "Presentación de 150g",
+      "description": "Empaque de 150g",
       "price": 1300,
       "discount": 0,
       "stock": true,
@@ -477,15 +477,15 @@
       "order": 21,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-21T18:57:24.371Z",
+        "description": {
+          "ts": "2025-10-23T14:16:12.454Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-21T18:57:24.371Z",
+          "ts": "2025-10-23T14:16:12.454Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -495,7 +495,7 @@
     },
     {
       "name": "McKay • Galletas de Mantequilla",
-      "description": "Presentación de 140g",
+      "description": "Empaque de 140g",
       "price": 1300,
       "discount": 0,
       "stock": false,
@@ -505,8 +505,15 @@
       "order": 22,
       "rev": 0,
       "field_last_modified": {
-        "stock": {
-          "ts": "2025-10-21T19:50:34.234Z",
+        "description": {
+          "ts": "2025-10-23T14:16:15.567Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-23T14:16:15.567Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2511,7 +2518,7 @@
     },
     {
       "name": "Nabisco • Galletas Oreo Original",
-      "description": "Presentación de 108g",
+      "description": "Empaque de 108g",
       "price": 1300,
       "discount": 0,
       "stock": true,
@@ -2521,15 +2528,15 @@
       "order": 124,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-21T19:00:13.172Z",
+        "description": {
+          "ts": "2025-10-23T14:16:19.134Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-21T19:00:13.172Z",
+          "ts": "2025-10-23T14:16:19.134Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2539,7 +2546,7 @@
     },
     {
       "name": "Costa • Galletas Choco Chips",
-      "description": "Presentación de 125g",
+      "description": "Empaque de 125g",
       "price": 1300,
       "discount": 0,
       "stock": true,
@@ -2549,15 +2556,15 @@
       "order": 125,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-21T19:00:27.339Z",
+        "description": {
+          "ts": "2025-10-23T14:16:23.695Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-21T19:00:27.339Z",
+          "ts": "2025-10-23T14:16:23.695Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2760,7 +2767,7 @@
     },
     {
       "name": "Costa • Galletas de Chocolate",
-      "description": "Presentación de 140g",
+      "description": "Empaque de 140g",
       "price": 1300,
       "discount": 0,
       "stock": true,
@@ -2770,15 +2777,15 @@
       "order": 139,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-21T19:00:36.836Z",
+        "description": {
+          "ts": "2025-10-23T14:16:27.077Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-21T19:00:36.836Z",
+          "ts": "2025-10-23T14:16:27.077Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -4005,7 +4012,7 @@
     },
     {
       "name": "Costa • Galletas de Mantequilla",
-      "description": "Presentación de 140g",
+      "description": "Empaque de 140g",
       "price": 1300,
       "discount": 0,
       "stock": true,
@@ -4015,57 +4022,15 @@
       "order": 169,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-21T19:49:35.323Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "description": {
-          "ts": "2025-10-21T19:49:35.323Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-21T19:49:35.323Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-21T19:49:35.323Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "stock": {
-          "ts": "2025-10-21T19:49:35.323Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-21T19:49:35.323Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-21T19:49:35.323Z",
+          "ts": "2025-10-23T14:16:30.398Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-21T19:49:35.323Z",
+          "ts": "2025-10-23T14:16:30.398Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -4276,6 +4241,76 @@
         },
         "order": {
           "ts": "2025-10-21T20:04:09.745Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Costa • Galletas Brownie Chips",
+      "description": "Empaque de 120g",
+      "price": 1300,
+      "discount": 0,
+      "stock": true,
+      "category": "SnacksDulces",
+      "image_path": "assets/images/snacks_dulces/Costa - Galletas Brownie Chips 120g.webp",
+      "image_avif_path": "assets/images/snacks_dulces/Costa - Galletas Brownie Chips 120g.avif",
+      "order": 173,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-23T14:15:32.728Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-23T14:15:32.728Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-23T14:15:32.728Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-23T14:15:32.728Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-23T14:15:32.728Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-23T14:15:32.728Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-23T14:15:32.728Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-23T14:15:32.728Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,

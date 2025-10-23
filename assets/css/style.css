@@ -604,7 +604,7 @@ h1 {
 }
 
 #footer-container {
-  min-height: 120px;
+  min-height: 60px;
 }
 
 /* Utility: hide element without inline styles (CSP safe) */
