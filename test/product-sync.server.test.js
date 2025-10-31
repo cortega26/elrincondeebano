@@ -232,3 +232,69 @@ test('stable hash fallback provides deterministic result for identical sources',
   assert.equal(tieLoser.conflicts.length, 1);
   assert.equal(tieLoser.product.discount, 200);
 });
+
+test('rejects invalid price updates that fail validation', async () => {
+  const { store } = await createTempStore([
+    { name: 'Widget', price: 1000 },
+  ]);
+
+  await assert.rejects(
+    store.applyPatch({
+      productId: 'Widget',
+      baseRev: 0,
+      fields: { price: 'abc' },
+      source: 'admin',
+      changesetId: 'invalid-price',
+      timestamp: '2025-01-01T00:03:00.000Z',
+    }),
+    (error) => {
+      assert.equal(error.statusCode, 400);
+      assert.match(error.message, /price/i);
+      return true;
+    },
+  );
+});
+
+test('rejects discounts that exceed the product price', async () => {
+  const { store } = await createTempStore([
+    { name: 'Widget', price: 1000 },
+  ]);
+
+  await assert.rejects(
+    store.applyPatch({
+      productId: 'Widget',
+      baseRev: 0,
+      fields: { discount: 2000 },
+      source: 'offline',
+      changesetId: 'invalid-discount',
+      timestamp: '2025-01-01T00:03:30.000Z',
+    }),
+    (error) => {
+      assert.equal(error.statusCode, 400);
+      assert.match(error.message, /discount/i);
+      return true;
+    },
+  );
+});
+
+test('records conflicts for unsupported fields instead of mutating the product', async () => {
+  const { store } = await createTempStore([
+    { name: 'Widget', price: 1000 },
+  ]);
+
+  const response = await store.applyPatch({
+    productId: 'Widget',
+    baseRev: 0,
+    fields: { rev: 999 },
+    source: 'admin',
+    changesetId: 'unsupported-field',
+    timestamp: '2025-01-01T00:04:00.000Z',
+  });
+
+  assert.equal(response.rev, 0);
+  assert.deepEqual(response.accepted_fields, []);
+  assert.equal(response.conflicts.length, 1);
+  assert.equal(response.conflicts[0].field, 'rev');
+  assert.equal(response.conflicts[0].reason, 'field_not_supported');
+  assert.equal(response.product.rev, 0);
+});
