@@ -27,6 +27,7 @@ function main() {
   // Static directories needed at runtime
   copyDirectoryRelative('assets');
   copyDirectoryRelative('data');
+  copyDirectoryRelative('admin-panel'); // lightweight web admin
 
   // Root-level static files
   [
