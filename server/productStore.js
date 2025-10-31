@@ -6,6 +6,138 @@ const path = require('node:path');
 const DEFAULT_TIMESTAMP = '1970-01-01T00:00:00.000Z';
 const CHANGESET_CACHE_LIMIT = 200;
 const CHANGE_LOG_LIMIT = 2000;
+const MAX_PRICE = 1_000_000;
+const MAX_NAME_LENGTH = 200;
+const MAX_DESCRIPTION_LENGTH = 1000;
+const MAX_CATEGORY_LENGTH = 50;
+const FALLBACK_IMAGE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp']);
+
+function createValidationError(message) {
+  const error = new Error(message);
+  error.statusCode = 400;
+  return error;
+}
+
+function normaliseBoolean(value, field) {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+  if (value === 1 || value === '1' || value === 'true') {
+    return true;
+  }
+  if (value === 0 || value === '0' || value === 'false') {
+    return false;
+  }
+  throw createValidationError(`${field} must be a boolean.`);
+}
+
+function normaliseInteger(value, field, { min, max, allowZero = true } = {}) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric) || !Number.isInteger(numeric)) {
+    throw createValidationError(`${field} must be an integer.`);
+  }
+  if (!allowZero && numeric === 0) {
+    throw createValidationError(`${field} must be greater than zero.`);
+  }
+  if (typeof min === 'number' && numeric < min) {
+    throw createValidationError(`${field} must be greater than or equal to ${min}.`);
+  }
+  if (typeof max === 'number' && numeric > max) {
+    throw createValidationError(`${field} must be less than or equal to ${max}.`);
+  }
+  return numeric;
+}
+
+function normaliseNonEmptyString(value, field, maxLength) {
+  if (typeof value !== 'string') {
+    throw createValidationError(`${field} must be a string.`);
+  }
+  const trimmed = value.trim();
+  if (!trimmed) {
+    throw createValidationError(`${field} cannot be empty.`);
+  }
+  if (typeof maxLength === 'number' && trimmed.length > maxLength) {
+    throw createValidationError(`${field} cannot exceed ${maxLength} characters.`);
+  }
+  return trimmed;
+}
+
+function normaliseOptionalString(value, field, maxLength) {
+  if (typeof value !== 'string') {
+    throw createValidationError(`${field} must be a string.`);
+  }
+  if (typeof maxLength === 'number' && value.length > maxLength) {
+    throw createValidationError(`${field} cannot exceed ${maxLength} characters.`);
+  }
+  return value;
+}
+
+function normaliseAssetPath(rawValue, { field, allowEmpty = true, requireAvif = false }) {
+  if (rawValue === null || rawValue === undefined) {
+    if (allowEmpty) {
+      return '';
+    }
+    throw createValidationError(`${field} must be a string.`);
+  }
+  if (typeof rawValue !== 'string') {
+    throw createValidationError(`${field} must be a string.`);
+  }
+  const trimmed = rawValue.trim();
+  if (!trimmed) {
+    if (allowEmpty) {
+      return '';
+    }
+    throw createValidationError(`${field} cannot be empty.`);
+  }
+  const cleaned = trimmed.replace(/\\/g, '/');
+  const normalised = path.posix.normalize(cleaned);
+  if (!normalised.startsWith('assets/images/')) {
+    throw createValidationError(`${field} must start with "assets/images/".`);
+  }
+  if (normalised.includes('..')) {
+    throw createValidationError(`${field} cannot contain parent directory segments.`);
+  }
+  const lastDot = normalised.lastIndexOf('.');
+  if (lastDot === -1) {
+    throw createValidationError(`${field} must include a file extension.`);
+  }
+  const extension = normalised.slice(lastDot).toLowerCase();
+  if (requireAvif) {
+    if (extension !== '.avif') {
+      throw createValidationError(`${field} must use the .avif extension.`);
+    }
+  } else if (!FALLBACK_IMAGE_EXTENSIONS.has(extension)) {
+    throw createValidationError(`${field} must use one of the allowed extensions (${Array.from(FALLBACK_IMAGE_EXTENSIONS).join(', ')}).`);
+  }
+  return normalised;
+}
+
+const FIELD_SANITIZERS = {
+  name: (value) => normaliseNonEmptyString(value, 'name', MAX_NAME_LENGTH),
+  description: (value) => normaliseOptionalString(value, 'description', MAX_DESCRIPTION_LENGTH),
+  price: (value) => normaliseInteger(value, 'price', { min: 1, max: MAX_PRICE, allowZero: false }),
+  discount: (value, { product, pending }) => {
+    const discountValue = normaliseInteger(value, 'discount', { min: 0, max: MAX_PRICE });
+    const referencePrice = Object.prototype.hasOwnProperty.call(pending, 'price') ? pending.price : product.price;
+    if (typeof referencePrice !== 'number' || Number.isNaN(referencePrice)) {
+      throw createValidationError('Cannot apply discount without a valid price.');
+    }
+    if (discountValue > referencePrice) {
+      throw createValidationError('discount cannot exceed price.');
+    }
+    return discountValue;
+  },
+  stock: (value) => normaliseBoolean(value, 'stock'),
+  category: (value) => normaliseOptionalString(value, 'category', MAX_CATEGORY_LENGTH),
+  image_path: (value) => normaliseAssetPath(value, { field: 'image_path', allowEmpty: true, requireAvif: false }),
+  image_avif_path: (value) => normaliseAssetPath(value, { field: 'image_avif_path', allowEmpty: true, requireAvif: true }),
+  order: (value) => normaliseInteger(value, 'order', { min: 0 }),
+};
+
+const FIELD_PRIORITIES = new Map([
+  ['price', 10],
+  ['discount', 20],
+]);
 
 function stableHash(input) {
   const value = String(input ?? '');
@@ -258,19 +390,48 @@ class ProductStore {
       const acceptedFields = [];
       const acceptedFieldPayload = {};
       const conflicts = [];
+      const fieldEntries = Object.entries(fields);
+      const sanitizedUpdates = {};
 
-      for (const [field, clientValue] of Object.entries(fields)) {
-        if (!Object.prototype.hasOwnProperty.call(product, field)) {
+      const sanitizableEntries = fieldEntries
+        .filter(([field]) => Object.prototype.hasOwnProperty.call(product, field) && FIELD_SANITIZERS[field])
+        .sort((a, b) => {
+          const priorityA = FIELD_PRIORITIES.get(a[0]) ?? 100;
+          const priorityB = FIELD_PRIORITIES.get(b[0]) ?? 100;
+          if (priorityA === priorityB) {
+            return 0;
+          }
+          return priorityA - priorityB;
+        });
+
+      for (const [field, rawValue] of sanitizableEntries) {
+        const sanitizer = FIELD_SANITIZERS[field];
+        if (!sanitizer) {
+          continue;
+        }
+        try {
+          sanitizedUpdates[field] = sanitizer(rawValue, { product, pending: sanitizedUpdates });
+        } catch (validationError) {
+          if (!validationError || typeof validationError.statusCode !== 'number') {
+            validationError.statusCode = 400;
+          }
+          throw validationError;
+        }
+      }
+
+      for (const [field, rawValue] of fieldEntries) {
+        if (!Object.prototype.hasOwnProperty.call(product, field) || !FIELD_SANITIZERS[field]) {
           conflicts.push({
             field,
-            server_value: null,
-            client_value: clientValue,
-            resolved_to: null,
+            server_value: Object.prototype.hasOwnProperty.call(product, field) ? product[field] : null,
+            client_value: rawValue,
+            resolved_to: Object.prototype.hasOwnProperty.call(product, field) ? product[field] : null,
             reason: 'field_not_supported',
           });
           continue;
         }
 
+        const clientValue = sanitizedUpdates[field];
         const currentValue = product[field];
         const meta = ensureFieldMeta(product.field_last_modified[field]);
 
