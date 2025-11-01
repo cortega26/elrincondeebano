@@ -8,6 +8,10 @@ const {
   resolveFromOutput,
   ensureDir,
 } = require('./utils/output-dir');
+const {
+  loadCategoryCatalog,
+  buildNavModel,
+} = require('./utils/category-catalog');
 
 const TEMPLATE_PATH = path.join(rootDir, 'templates', 'index.ejs');
 const DATA_PATH = path.join(rootDir, 'data', 'product_data.json');
@@ -124,6 +128,8 @@ function mapProductForInline(product) {
 function build() {
   const template = fs.readFileSync(TEMPLATE_PATH, 'utf8');
   const productData = readJson(DATA_PATH);
+  const catalog = loadCategoryCatalog();
+  const navGroups = buildNavModel(catalog);
   const sortedProducts = [...(productData.products || [])]
     .map((product, index) => ({ product, index }))
     .sort((a, b) => {
@@ -146,7 +152,8 @@ function build() {
   const html = ejs.render(template, {
     products: initialProducts,
     totalProducts: availableProducts.length,
-    inlinePayload
+    inlinePayload,
+    navGroups
   }, { rmWhitespace: false, filename: TEMPLATE_PATH });
 
   ensureDir(resolveOutputDir());

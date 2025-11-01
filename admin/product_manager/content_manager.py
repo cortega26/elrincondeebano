@@ -21,6 +21,8 @@ import threading
 import signal
 import traceback
 from repositories import JsonProductRepository
+from category_repository import JsonCategoryRepository
+from category_service import CategoryService
 from services import ProductService
 from gui import ProductGUI, UIConfig
 from sync import SyncEngine
@@ -43,6 +45,7 @@ class ProductManager:
     DEFAULT_CONFIG = {
         "data_dir": r"C:\Users\corte\VS Code Projects\Tienda Ebano\data",
         "product_file": "product_data.json",
+        "category_file": "categories.json",
         "log_dir": "~/product_manager_logs",
         "log_level": "INFO",
         "max_log_size": 5_242_880,  # 5MB
@@ -69,6 +72,7 @@ class ProductManager:
         self.config: Dict[str, Any] = {}
         self.logger: Optional[logging.Logger] = None
         self.gui: Optional[ProductGUI] = None
+        self.category_service: Optional[CategoryService] = None
         self.sync_engine = None
         self._setup_signal_handlers()
 
@@ -187,6 +191,18 @@ class ProductManager:
             else:
                 print(f"Error: {e}", file=sys.stderr)
 
+    def _create_category_repository(self) -> JsonCategoryRepository:
+        """Create repository for category catalog."""
+        category_file = os.path.join(
+            self.config['data_dir'],
+            self.config.get('category_file', 'categories.json')
+        )
+        return JsonCategoryRepository(category_file)
+
+    def _create_category_service(self, repository: JsonCategoryRepository) -> CategoryService:
+        """Create the category service."""
+        return CategoryService(repository)
+
     def _create_repository(self) -> JsonProductRepository:
         """Create and configure the product repository."""
         product_file = os.path.join(
@@ -195,9 +211,9 @@ class ProductManager:
         )
         return JsonProductRepository(product_file)
 
-    def _create_service(self, repository: JsonProductRepository) -> ProductService:
+    def _create_service(self, repository: JsonProductRepository, category_service: Optional[CategoryService] = None) -> ProductService:
         """Create and configure the product service."""
-        return ProductService(repository)
+        return ProductService(repository, category_service)
 
     def _create_sync_engine(self, repository: JsonProductRepository, service: ProductService) -> Optional[SyncEngine]:
         """Initialize the synchronization engine if enabled."""
@@ -247,13 +263,16 @@ class ProductManager:
             root.protocol("WM_DELETE_WINDOW", self._on_window_close)
 
             # Set up components
+            category_repository = self._create_category_repository()
+            self.category_service = self._create_category_service(
+                category_repository)
             repository = self._create_repository()
-            service = self._create_service(repository)
+            service = self._create_service(repository, self.category_service)
             self.sync_engine = self._create_sync_engine(repository, service)
             ui_config = self._create_ui_config()
 
             # Create and run GUI
-            self.gui = ProductGUI(root, service)
+            self.gui = ProductGUI(root, service, self.category_service)
 
             # Configure window using ui_config
             root.title("Gestor de Productos")
