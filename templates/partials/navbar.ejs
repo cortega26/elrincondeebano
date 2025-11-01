@@ -27,7 +27,7 @@
             <% navGroups.forEach(function(group, index) { 
                 const dropdownId = `${group.id || 'grupo'}Dropdown`; 
                 const menuClasses = ['dropdown-menu'];
-                if (index === 0) { menuClasses.push('dropdown-menu-end'); }
+                menuClasses.push('dropdown-menu-end');
             %>
               <li class="nav-item dropdown" data-bs-auto-close="outside">
                 <button class="nav-link dropdown-toggle" type="button" id="<%= dropdownId %>" data-bs-toggle="dropdown" aria-expanded="false">
