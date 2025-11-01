@@ -1,6 +1,6 @@
 {
-  "version": "20251101-202130",
-  "last_updated": "2025-11-01T20:21:30.347828Z",
+  "version": "20251101-190523",
+  "last_updated": "2025-11-01T19:05:23.378529Z",
   "nav_groups": [
     {
       "id": "alimentos",
@@ -35,7 +35,7 @@
       "label": "Test",
       "order": 50,
       "description": "Test Categoría",
-      "enabled": false
+      "enabled": true
     }
   ],
   "categories": [
