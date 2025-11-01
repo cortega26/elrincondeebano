@@ -221,12 +221,14 @@ class ProductManager:
         queue_name = sync_cfg.get('queue_file', 'sync_queue.json')
         queue_path = os.path.join(self.config['data_dir'], queue_name)
         if not sync_cfg.get('enabled', True):
-            self.logger.info("Remote synchronization disabled by configuration")
+            self.logger.info(
+                "Remote synchronization disabled by configuration")
             service.set_sync_engine(None)
             return None
         api_base = (sync_cfg.get('api_base') or "").strip()
         if not api_base:
-            self.logger.info("No sync API configured; skipping SyncEngine initialization")
+            self.logger.info(
+                "No sync API configured; skipping SyncEngine initialization")
             service.set_sync_engine(None)
             return None
         engine = SyncEngine(
