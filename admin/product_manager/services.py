@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict, Set, Protocol, Any, Tuple, Union, cast
+from typing import List, Optional, Dict, Set, Protocol, Any, Tuple, Union, cast, TYPE_CHECKING
 from models import Product
 from repositories import ProductRepositoryProtocol, ProductRepositoryError
 import logging
@@ -9,6 +9,9 @@ import threading
 from collections import defaultdict
 from enum import Enum, auto
 import json
+
+if TYPE_CHECKING:
+    from category_service import CategoryService
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +78,11 @@ class ProductEventHandler(Protocol):
 class ProductService:
     """Service class for managing product operations."""
 
-    def __init__(self, repository: ProductRepositoryProtocol):
+    def __init__(
+        self,
+        repository: ProductRepositoryProtocol,
+        category_service: Optional["CategoryService"] = None,
+    ):
         """
         Initialize the ProductService.
         """
@@ -87,6 +94,9 @@ class ProductService:
         self._product_index: Dict[str, Product] = {}
         self._category_index: Dict[str, Set[Product]] = defaultdict(set)
         self.sync_engine = None
+        self.category_service = category_service
+        if self.category_service:
+            self.category_service.attach_product_service(self)
         self._rebuild_indexes()
 
     def _rebuild_indexes(self) -> None:
@@ -99,6 +109,13 @@ class ProductService:
                 self._product_index[product.identity_key()] = product
                 if product.category:
                     self._category_index[product.category.lower()].add(product)
+
+    def set_category_service(self, category_service: Optional["CategoryService"]) -> None:
+        """Attach or replace the category service reference."""
+        with self._products_lock:
+            self.category_service = category_service
+            if self.category_service:
+                self.category_service.attach_product_service(self)
 
     def register_event_handler(self, event_type: ProductEventType, handler: ProductEventHandler) -> None:
         """
@@ -168,6 +185,17 @@ class ProductService:
             if getattr(original, field_name) != getattr(updated, field_name):
                 diffs[field_name] = getattr(updated, field_name)
         return diffs
+
+    def _ensure_category_known(self, category_value: str) -> None:
+        """Validate that the provided category exists in the catalog when configured."""
+        if not category_value or not self.category_service:
+            return
+        match = self.category_service.find_category_by_product_key(category_value)
+        if not match:
+            raise ProductServiceError(
+                f"La categoría '{category_value}' no existe en el catálogo. "
+                "Actualiza el catálogo de categorías antes de asignarla."
+            )
 
     def _stamp_local_metadata(self, product: Product, fields: List[str], base_rev: int) -> str:
         """Update metadata for locally modified fields and return timestamp."""
@@ -266,6 +294,7 @@ class ProductService:
                 )
             try:
                 products = self.get_all_products()
+                self._ensure_category_known(product.category)
                 product.order = len(products)
                 self._stamp_local_metadata(
                     product,
@@ -312,6 +341,7 @@ class ProductService:
                     original_product, updated_product)
                 if not changes:
                     return
+                self._ensure_category_known(updated_product.category)
                 base_rev = original_product.rev
                 timestamp = self._stamp_local_metadata(
                     updated_product,
@@ -382,16 +412,30 @@ class ProductService:
                 logger.error(f"Error al eliminar producto: {e}")
                 raise ProductServiceError(f"Error al eliminar producto: {e}")
 
-    @lru_cache(maxsize=100)
     def get_categories(self) -> List[str]:
         """
         Get a list of unique categories.
         """
-        categories = set()
-        for product in self.get_all_products():
-            if product.category:
-                categories.add(product.category)
+        if self.category_service:
+            return [
+                product_key
+                for _, product_key in self.category_service.list_category_choices()
+            ]
+        categories = {
+            product.category
+            for product in self.get_all_products()
+            if product.category
+        }
         return sorted(categories)
+
+    def get_category_choices(self) -> List[Tuple[str, str]]:
+        """
+        Return (display_name, product_key) tuples for category selection widgets.
+        """
+        if self.category_service:
+            return self.category_service.list_category_choices()
+        categories = self.get_categories()
+        return [(category, category) for category in categories]
 
     def get_products_by_category(self, category: str) -> List[Product]:
         """
@@ -404,6 +448,37 @@ class ProductService:
             key=lambda p: p.order
         )
 
+    def count_products_by_category(self, category: str) -> int:
+        """Return the number of products assigned to the given category key."""
+        normalized = (category or "").strip().lower()
+        if not normalized:
+            return 0
+        with self._products_lock:
+            return sum(
+                1
+                for product in self.get_all_products()
+                if (product.category or "").strip().lower() == normalized
+            )
+
+    def reassign_category(self, old_category: str, new_category: str) -> int:
+        """Reassign all products from old_category to new_category."""
+        old_normalized = (old_category or "").strip().lower()
+        if not old_normalized:
+            return 0
+        self._ensure_category_known(new_category)
+        updated = 0
+        with self._products_lock:
+            products = self.get_all_products()
+            for product in products:
+                if (product.category or "").strip().lower() == old_normalized:
+                    product.category = new_category
+                    self._stamp_local_metadata(product, ["category"], product.rev)
+                    updated += 1
+            if updated:
+                self.repository.save_products(products)
+                self.clear_cache()
+                self._rebuild_indexes()
+        return updated
     def search_products(self, query: str) -> List[Product]:
         """
         Search for products by name or description.
@@ -438,7 +513,8 @@ class ProductService:
     def clear_cache(self) -> None:
         """Clear all cached data."""
         self._products = None
-        self.get_categories.cache_clear()
+        self._product_index.clear()
+        self._category_index.clear()
 
     def batch_update(self, updates: List[ProductUpdateSpec]) -> None:
         """Perform multiple updates in a single transaction."""
@@ -507,6 +583,7 @@ class ProductService:
                 for original_key, new_key, updated_product in processed_updates:
                     original_product = identity_map[original_key]
                     index = products.index(original_product)
+                    self._ensure_category_known(updated_product.category)
                     updated_product.order = products[index].order
                     products[index] = updated_product
                     identity_map.pop(original_key, None)

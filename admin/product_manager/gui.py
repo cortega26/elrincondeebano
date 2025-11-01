@@ -1,10 +1,12 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
-from typing import List, Optional, Callable, Dict, Any, TypeVar
+from typing import List, Optional, Callable, Dict, Any, TypeVar, Tuple
 import os
 from pathlib import Path
 from models import Product
 from services import ProductService, ProductServiceError
+from category_service import CategoryService, CategoryServiceError
+from category_gui import CategoryManagerDialog
 try:
     from PIL import Image, ImageTk, features  # type: ignore
     PIL_AVAILABLE = True
@@ -265,9 +267,15 @@ class DragDropMixin:
 class ProductGUI(DragDropMixin):
     """Main Product Manager GUI."""
 
-    def __init__(self, master: tk.Tk, product_service: ProductService):
+    def __init__(
+        self,
+        master: tk.Tk,
+        product_service: ProductService,
+        category_service: Optional[CategoryService] = None
+    ):
         self.master = master
         self.product_service = product_service
+        self.category_service = category_service
         self.logger = logging.getLogger(__name__)
         self.state = UIState()
         self.config = self._load_config()
@@ -277,6 +285,8 @@ class ProductGUI(DragDropMixin):
         self._undo_stack: List[Dict[str, Any]] = []
         self._redo_stack: List[Dict[str, Any]] = []
         self._undo_max = 20
+        self.category_label_by_key: Dict[str, str] = {}
+        self.category_value_by_label: Dict[str, str] = {}
 
         self.setup_gui()
         self.bind_shortcuts()
@@ -329,6 +339,9 @@ class ProductGUI(DragDropMixin):
         edit_menu = tk.Menu(menubar, tearoff=0)
         edit_menu.add_command(label="Preferencias...",
                               command=self.show_preferences)
+        edit_menu.add_separator()
+        edit_menu.add_command(label="Gestionar Categorías...",
+                              command=self.manage_categories)
         menubar.add_cascade(label="Editar", menu=edit_menu)
 
         help_menu = tk.Menu(menubar, tearoff=0)
@@ -598,18 +611,21 @@ class ProductGUI(DragDropMixin):
 
     def add_product(self) -> None:
         """Open dialog to add new product."""
+        self.update_categories()
         selected_category = getattr(self, "category_var", None)
         default_category = None
         if isinstance(selected_category, tk.StringVar):
             current = selected_category.get().strip()
             if current and current.lower() != "todas":
-                default_category = current
+                default_category = self.category_value_by_label.get(current, current)
+        category_choices = self._get_category_choices_for_form()
         ProductFormDialog(
             self.master,
             "Agregar Producto",
             self.product_service,
             on_save=self.refresh_products,
             default_category=default_category,
+            category_choices=category_choices,
         )
 
     def edit_product(self) -> None:
@@ -621,8 +637,15 @@ class ProductGUI(DragDropMixin):
             return
         product = self.get_product_by_tree_item(selected[0])
         if product:
-            ProductFormDialog(self.master, "Editar Producto",
-                              self.product_service, product, on_save=self.refresh_products)
+            category_choices = self._get_category_choices_for_form()
+            ProductFormDialog(
+                self.master,
+                "Editar Producto",
+                self.product_service,
+                product,
+                on_save=self.refresh_products,
+                category_choices=category_choices,
+            )
 
     def delete_product(self) -> None:
         """Delete selected product(s)."""
@@ -653,13 +676,19 @@ class ProductGUI(DragDropMixin):
     def refresh_products(self) -> None:
         """Refresh the product list."""
         query = self.search_var.get().lower()
-        category = self.category_var.get()
+        self.update_categories()
+        category_label = self.category_var.get()
 
         try:
             products = self.product_service.get_all_products()
-            if category != "Todas":
-                products = [p for p in products if p.category.lower()
-                            == category.lower()]
+            if category_label != "Todas":
+                category_key = self.category_value_by_label.get(
+                    category_label, category_label)
+                normalized = (category_key or "").strip().lower()
+                products = [
+                    p for p in products
+                    if (p.category or "").strip().lower() == normalized
+                ]
             if query:
                 products = [p for p in products if query in p.name.lower(
                 ) or query in p.description.lower()]
@@ -685,7 +714,6 @@ class ProductGUI(DragDropMixin):
                 products = [p for p in products if p.price <= max_p]
 
             self.populate_tree(products)
-            self.update_categories()
             self.update_status(f"Mostrando {len(products)} productos")
         except ProductServiceError as e:
             messagebox.showerror(
@@ -722,6 +750,7 @@ class ProductGUI(DragDropMixin):
         """Populate treeview with products."""
         self.tree.delete(*self.tree.get_children())
         for product in products:
+            category_display = self._category_display_label(product.category)
             self.tree.insert(
                 "",
                 "end",
@@ -731,23 +760,83 @@ class ProductGUI(DragDropMixin):
                     f"{product.price:,}",
                     f"{product.discount:,}" if product.discount else "",
                     "☑" if product.stock else "☐",
-                    product.category,
+                    category_display,
                 )
             )
         self.treeview_manager.update_sort_indicators()
 
+    def _category_display_label(self, category_value: str) -> str:
+        """Return human readable category label for the given product key."""
+        if not category_value:
+            return ""
+        return self.category_label_by_key.get(
+            category_value.strip().lower(),
+            category_value
+        )
+
+    def _get_category_choices_for_form(self) -> List[Tuple[str, str]]:
+        """Return category choices suitable for the product form dialog."""
+        try:
+            return self.product_service.get_category_choices()
+        except ProductServiceError as exc:
+            messagebox.showerror(
+                "Error",
+                f"No se pudieron cargar las categorías disponibles: {exc}",
+            )
+            return []
+
     def update_categories(self) -> None:
         """Update category filter choices."""
         try:
-            current_category = self.category_var.get()
-            categories = ["Todas"] + \
-                sorted(self.product_service.get_categories())
-            self.category_combobox["values"] = categories
-            if current_category != "Todas" and current_category.lower() not in [cat.lower() for cat in categories]:
-                self.category_var.set("Todas")
-        except ProductServiceError as e:
+            current_selection = self.category_var.get()
+            choices = self.product_service.get_category_choices()
+            self.category_label_by_key = {
+                (value or "").strip().lower(): label
+                for label, value in choices if value
+            }
+            self.category_value_by_label = {
+                label: value for label, value in choices
+            }
+            display_values = ["Todas"] + [label for label, _ in choices]
+            if hasattr(self, "category_combobox"):
+                self.category_combobox["values"] = display_values
+            if current_selection != "Todas":
+                if current_selection in self.category_value_by_label:
+                    pass
+                else:
+                    mapped_label = self.category_label_by_key.get(
+                        current_selection.lower())
+                    if mapped_label and mapped_label in display_values:
+                        self.category_var.set(mapped_label)
+                    else:
+                        self.category_var.set("Todas")
+        except (ProductServiceError, CategoryServiceError) as e:
             messagebox.showerror(
                 "Error", f"Error al cargar categorías: {str(e)}")
+
+    def manage_categories(self) -> None:
+        """Open the category management dialog."""
+        if not self.category_service:
+            messagebox.showinfo(
+                "Categorías",
+                "La gestión de categorías no está disponible en esta instalación.",
+            )
+            return
+        dialog = CategoryManagerDialog(
+            self.master,
+            self.category_service,
+            on_catalog_updated=self._on_categories_updated,
+        )
+        self.master.wait_window(dialog)
+
+    def _on_categories_updated(self) -> None:
+        """Refresh local caches after category catalog updates."""
+        try:
+            if self.category_service:
+                self.category_service.reload()
+            self.refresh_products()
+        except CategoryServiceError as exc:
+            messagebox.showerror("Error", str(exc))
 
     def get_product_by_tree_item(self, item: str) -> Optional[Product]:
         """Get Product object from treeview item."""
@@ -1309,6 +1398,7 @@ class ProductFormDialog(tk.Toplevel):
         product: Optional[Product] = None,
         on_save: Optional[Callable[[], None]] = None,
         default_category: Optional[str] = None,
+        category_choices: Optional[List[Tuple[str, str]]] = None,
     ):
         super().__init__(parent)
         self.title(title)
@@ -1316,6 +1406,23 @@ class ProductFormDialog(tk.Toplevel):
         self.product = product
         self.on_save = on_save
         self.default_category = default_category
+        if category_choices is not None:
+            self.category_choices = list(category_choices)
+        else:
+            try:
+                self.category_choices = self.product_service.get_category_choices()
+            except ProductServiceError:
+                self.category_choices = [
+                    (category, category)
+                    for category in self.product_service.get_categories()
+                ]
+
+        self.category_display_to_key: Dict[str, str] = {}
+        self.category_key_to_display: Dict[str, str] = {}
+        self.category_labels_by_key: Dict[str, str] = {}
+        self.category_display_values: List[str] = []
+        self._prepare_category_mappings()
+        self.category_combobox: Optional[ttk.Combobox] = None
 
         temp_entry = ttk.Entry(self)
         self.default_font = temp_entry.cget('font')
@@ -1326,6 +1433,44 @@ class ProductFormDialog(tk.Toplevel):
         self.setup_dialog()
         self.populate_fields()
         self._center_on_parent()
+
+    def _prepare_category_mappings(self) -> None:
+        self.category_display_to_key.clear()
+        self.category_key_to_display.clear()
+        self.category_labels_by_key.clear()
+        self.category_display_values.clear()
+        for label, key in self.category_choices:
+            display = self._format_category_display(label, key)
+            self.category_display_values.append(display)
+            self.category_display_to_key[display] = key
+            self.category_key_to_display[key.strip().lower()] = display
+            self.category_labels_by_key[key.strip().lower()] = label
+
+    @staticmethod
+    def _format_category_display(label: str, key: str) -> str:
+        cleaned_label = (label or "").strip()
+        cleaned_key = (key or "").strip()
+        if not cleaned_label:
+            return cleaned_key
+        if cleaned_label == cleaned_key:
+            return cleaned_key
+        return f"{cleaned_label} ({cleaned_key})"
+
+    def _category_display_for_key(self, key: str) -> str:
+        normalized = (key or "").strip().lower()
+        if not normalized:
+            return ""
+        display = self.category_key_to_display.get(normalized)
+        if display:
+            return display
+        label = self.category_labels_by_key.get(normalized, key)
+        return self._format_category_display(label, key)
+
+    def _category_key_from_label(self, label: str) -> str:
+        cleaned = (label or "").strip()
+        if not cleaned:
+            return ""
+        return self.category_display_to_key.get(cleaned, cleaned)
 
     def setup_dialog(self) -> None:
         """Set up dialog window."""
@@ -1376,9 +1521,17 @@ class ProductFormDialog(tk.Toplevel):
                 self.entries[field] = var
                 widget.grid(row=i, column=1, sticky=tk.W, pady=5)
             elif widget_class == ttk.Combobox:
-                widget = widget_class(self.main_frame, values=sorted(
-                    self.product_service.get_categories()), **widget_opts)
+                values = self.category_display_values
+                state = "readonly" if values else "normal"
+                widget = widget_class(
+                    self.main_frame,
+                    values=values,
+                    state=state,
+                    **widget_opts
+                )
                 self.entries[field] = widget
+                if field == "category":
+                    self.category_combobox = widget
                 widget.grid(row=i, column=1, sticky=tk.EW, pady=5)
                 widget.bind("<<ComboboxSelected>>",
                             self._on_category_change)
@@ -1469,7 +1622,10 @@ class ProductFormDialog(tk.Toplevel):
                     widget.delete("1.0", tk.END)
                     widget.insert("1.0", str(value))
                 elif isinstance(widget, ttk.Combobox):
-                    widget.set(value)
+                    if field == "category":
+                        widget.set(self._category_display_for_key(str(value)))
+                    else:
+                        widget.set(str(value))
                 else:
                     widget.delete(0, tk.END)
                     widget.insert(0, str(value))
@@ -1491,8 +1647,10 @@ class ProductFormDialog(tk.Toplevel):
             base_dir = Path(self._assets_images_root()).resolve()
             src_path = Path(file_path).resolve()
             cat_widget = self.entries.get("category")
-            current_category = cat_widget.get() if isinstance(
-                cat_widget, ttk.Combobox) else ""
+            if isinstance(cat_widget, ttk.Combobox):
+                current_category = self._category_key_from_label(cat_widget.get())
+            else:
+                current_category = ""
             dest_dir, category_updated = self._resolve_destination_directory(
                 src_path, base_dir, current_category, cat_widget)
             filename = src_path.name
@@ -1557,7 +1715,10 @@ class ProductFormDialog(tk.Toplevel):
         try:
             base_dir = Path(self._assets_images_root()).resolve()
             cat_widget = self.entries.get("category")
-            category = cat_widget.get() if isinstance(cat_widget, ttk.Combobox) else ""
+            if isinstance(cat_widget, ttk.Combobox):
+                category = self._category_key_from_label(cat_widget.get())
+            else:
+                category = ""
             src_path = Path(file_path).resolve()
             dest_dir, category_updated = self._resolve_destination_directory(
                 src_path, base_dir, category, cat_widget)
@@ -1626,6 +1787,12 @@ class ProductFormDialog(tk.Toplevel):
                 data[field] = widget.get()
             elif isinstance(widget, tk.Text):
                 data[field] = widget.get("1.0", tk.END).strip()
+            elif isinstance(widget, ttk.Combobox):
+                value = widget.get().strip()
+                if field == "category":
+                    data[field] = self._category_key_from_label(value)
+                else:
+                    data[field] = value
             else:
                 data[field] = widget.get().strip()
         if not data["name"]:
@@ -1716,24 +1883,22 @@ class ProductFormDialog(tk.Toplevel):
 
     def _prefill_category(self) -> None:
         """Select default category when creating a new product."""
-        if not self.default_category:
-            return
         cat_widget = self.entries.get("category")
         if not isinstance(cat_widget, ttk.Combobox):
             return
-        desired = self.default_category.strip()
-        if not desired:
-            return
-        try:
-            values = [str(v) for v in cat_widget["values"]]
-            match = next(
-                (value for value in values if value.lower() == desired.lower()),
-                None,
-            )
-            cat_widget.set(match or desired)
-        except Exception:
-            cat_widget.set(desired)
-        self._on_category_change()
+        desired_key = (self.default_category or "").strip()
+        if desired_key:
+            display_value = self._category_display_for_key(desired_key)
+        elif self.category_display_values:
+            display_value = self.category_display_values[0]
+        else:
+            display_value = ""
+        if display_value:
+            try:
+                cat_widget.set(display_value)
+            except Exception:
+                cat_widget.set(desired_key)
+            self._on_category_change()
 
     def _ensure_fallback_for_avif(self) -> None:
         """Populate fallback image entry when an AVIF is selected."""
@@ -1898,7 +2063,8 @@ class ProductFormDialog(tk.Toplevel):
         cat_widget = self.entries.get("category")
         if not isinstance(cat_widget, ttk.Combobox):
             return
-        category = cat_widget.get().strip()
+        category_label = cat_widget.get().strip()
+        category = self._category_key_from_label(category_label)
         if not category:
             return
         target_subdir = self._category_subdir(category)
@@ -1992,8 +2158,9 @@ class ProductFormDialog(tk.Toplevel):
             subdir = relative.parent.as_posix()
             guessed_category = self._guess_category_from_directory(subdir)
             if guessed_category and isinstance(cat_widget, ttk.Combobox):
-                if cat_widget.get() != guessed_category:
-                    cat_widget.set(guessed_category)
+                current_value = self._category_key_from_label(cat_widget.get())
+                if current_value != guessed_category:
+                    cat_widget.set(self._category_display_for_key(guessed_category))
                     category_updated = True
                 effective_category = guessed_category
             dest_dir = base_dir / subdir
@@ -2008,9 +2175,11 @@ class ProductFormDialog(tk.Toplevel):
         if not normalized:
             return None
         try:
-            categories = self.product_service.get_categories()
+            categories = [key for _, key in self.category_choices]
+            if not categories:
+                categories = self.product_service.get_categories()
         except Exception:
-            categories = []
+            categories = [key for _, key in self.category_choices]
         for category in categories:
             candidate_dir = self._category_subdir(str(category)).strip(
                 '/').replace('\\', '/').lower()
