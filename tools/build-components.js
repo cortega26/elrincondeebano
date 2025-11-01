@@ -6,6 +6,10 @@ const {
   resolveFromOutput,
   ensureDir,
 } = require('./utils/output-dir');
+const {
+  loadCategoryCatalog,
+  buildNavModel,
+} = require('./utils/category-catalog');
 
 function renderPartial(partialPath, context = {}) {
   const template = fs.readFileSync(partialPath, 'utf8');
@@ -21,12 +25,15 @@ function main() {
   const outputDir = resolveFromOutput('pages');
   ensureDir(outputDir);
 
+  const catalog = loadCategoryCatalog();
+  const navGroups = buildNavModel(catalog);
+
   const entries = fs.readdirSync(partialsDir);
   entries
     .filter((file) => file.endsWith('.ejs'))
     .forEach((file) => {
       const baseName = path.basename(file, '.ejs');
-      const html = renderPartial(path.join(partialsDir, file));
+      const html = renderPartial(path.join(partialsDir, file), { navGroups });
       const outputPath = path.join(outputDir, `${baseName}.html`);
       fs.writeFileSync(outputPath, html);
     });
