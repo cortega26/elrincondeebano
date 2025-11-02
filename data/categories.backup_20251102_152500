@@ -1,6 +1,6 @@
 {
-  "version": "20251102-182500",
-  "last_updated": "2025-11-02T18:25:00.937208Z",
+  "version": "20251102-182450",
+  "last_updated": "2025-11-02T18:24:50.602501Z",
   "nav_groups": [
     {
       "id": "alimentos",
@@ -35,7 +35,7 @@
       "label": "Al Mayor",
       "order": 50,
       "description": "Test Categoría",
-      "enabled": false
+      "enabled": true
     }
   ],
   "categories": [
