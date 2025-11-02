@@ -1,6 +1,6 @@
 {
-  "version": "20251102-182500",
-  "last_updated": "2025-11-02T18:25:00.937208Z",
+  "version": "20251102-182304",
+  "last_updated": "2025-11-02T18:23:04.050115Z",
   "nav_groups": [
     {
       "id": "alimentos",
@@ -35,7 +35,7 @@
       "label": "Al Mayor",
       "order": 50,
       "description": "Test Categoría",
-      "enabled": false
+      "enabled": true
     }
   ],
   "categories": [
@@ -139,10 +139,10 @@
       "subcategories": []
     },
     {
-      "id": "mayoraseolimpieza",
-      "title": "Aseo y Limpieza",
-      "product_key": "MayorAseoLimpieza",
-      "slug": "mayoraseolimpieza",
+      "id": "te2",
+      "title": "Test2",
+      "product_key": "te2",
+      "slug": "te2",
       "description": "",
       "group_id": "test",
       "order": 20,
