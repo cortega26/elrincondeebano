@@ -26,6 +26,7 @@
   <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
 
   <% const lcpImage = Array.isArray(products) && products.length > 0 ? products[0].image : null; %>
+  <% const currencyFormatter = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }); %>
   <!-- Preload critical assets -->
   <link rel="preload" href="/dist/css/critical.min.css" as="style" fetchpriority="high">
   <link rel="preload" href="/cdn-cgi/image/fit=cover,quality=82,format=auto,width=64/assets/images/web/logo.webp" as="image" type="image/webp" fetchpriority="high">
@@ -118,10 +119,12 @@
                 <p class="card-text mb-3"><%= product.description %></p>
                 <div class="precio-container mb-3">
 <% if (product.isDiscounted) { %>
-                  <span class="precio-anterior" aria-label="Precio anterior">$<%= product.price.toLocaleString('es-CL') %></span>
-                  <span class="precio" aria-label="Precio">$<%= product.discountedPrice.toLocaleString('es-CL') %></span>
+                  <span class="precio-descuento" aria-label="Precio con descuento"><%= currencyFormatter.format(product.discountedPrice) %></span>
+                  <span class="precio-original" aria-label="Precio original">
+                    <span class="tachado"><%= currencyFormatter.format(product.price) %></span>
+                  </span>
 <% } else { %>
-                  <span class="precio" aria-label="Precio">$<%= product.price.toLocaleString('es-CL') %></span>
+                  <span class="precio" aria-label="Precio"><%= currencyFormatter.format(product.price) %></span>
 <% } %>
                 </div>
                 <div class="action-area mt-auto" data-pid="<%= product.id %>" role="group" aria-label="Acciones de compra para <%= product.name %>">
