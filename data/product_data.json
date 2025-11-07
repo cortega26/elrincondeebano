@@ -1,6 +1,6 @@
 {
-  "version": "20251107-191727",
-  "last_updated": "2025-11-07T19:17:27.442320",
+  "version": "20251107-191944",
+  "last_updated": "2025-11-07T19:19:44.893466",
   "rev": 0,
   "products": [
     {
@@ -1940,36 +1940,15 @@
       "description": "Barras de 29g c/u",
       "price": 2000,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksDulces",
       "image_path": "assets/images/snacks_dulces/Nestlé - Super 8 - 4 unidades.webp",
       "image_avif_path": "",
       "order": 95,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-21T19:14:21.196Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-21T19:14:21.196Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-21T19:14:21.196Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-21T19:14:21.196Z",
+        "stock": {
+          "ts": "2025-11-07T22:18:38.528Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3835,64 +3814,15 @@
       "description": "Bola de 240g",
       "price": 3500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Selección - Plátano Frito 240g.webp",
       "image_avif_path": "assets/images/snacks_salados/Selección - Plátano Frito 240g.avif",
       "order": 166,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-18T15:22:50.350Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-18T15:22:50.350Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-18T15:22:50.350Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-18T15:22:50.350Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "stock": {
-          "ts": "2025-10-18T15:22:50.350Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-18T15:22:50.350Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-18T15:22:50.350Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-18T15:22:50.350Z",
+          "ts": "2025-11-07T22:19:11.504Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -4283,64 +4213,15 @@
       "description": "Empaque de 120g",
       "price": 1300,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksDulces",
       "image_path": "assets/images/snacks_dulces/Costa - Galletas Brownie Chips 120g.webp",
       "image_avif_path": "assets/images/snacks_dulces/Costa - Galletas Brownie Chips 120g.avif",
       "order": 173,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-23T14:15:32.728Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-23T14:15:32.728Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-23T14:15:32.728Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-23T14:15:32.728Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "stock": {
-          "ts": "2025-10-23T14:15:32.728Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-23T14:15:32.728Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-23T14:15:32.728Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-23T14:15:32.728Z",
+          "ts": "2025-11-07T22:19:44.888Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
