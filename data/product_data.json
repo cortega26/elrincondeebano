@@ -1,6 +1,6 @@
 {
-  "version": "20251102-184330",
-  "last_updated": "2025-11-02T18:43:30.797734",
+  "version": "20251107-191727",
+  "last_updated": "2025-11-07T19:17:27.442320",
   "rev": 0,
   "products": [
     {
@@ -1910,7 +1910,7 @@
     {
       "name": "Pirulín grande",
       "description": "Lata de 300g",
-      "price": 6900,
+      "price": 7900,
       "discount": 0,
       "stock": true,
       "category": "SnacksDulces",
@@ -1918,7 +1918,22 @@
       "image_avif_path": "",
       "order": 94,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-11-07T22:17:27.439Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-11-07T22:17:27.439Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Nestlé • Súper 8, pack de 4 unidades",
