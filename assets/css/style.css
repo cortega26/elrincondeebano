@@ -601,6 +601,10 @@ h1 {
 
 #footer-container {
   min-height: 60px;
+  display: flex;
+  align-items: center;      /* Vertically center footer text */
+  justify-content: center;
+  text-align: center;
 }
 
 /* Utility: hide element without inline styles (CSP safe) */
@@ -625,4 +629,3 @@ h1 {
 .has-contain-intrinsic {
   contain-intrinsic-size: 400px 560px;
 }
-
