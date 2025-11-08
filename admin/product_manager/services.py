@@ -93,6 +93,7 @@ class ProductService:
                                    Set[ProductEventHandler]] = defaultdict(set)
         self._product_index: Dict[str, Product] = {}
         self._category_index: Dict[str, Set[Product]] = defaultdict(set)
+        self._indexes_populated = False
         self.sync_engine = None
         self.category_service = category_service
         if self.category_service:
@@ -109,6 +110,12 @@ class ProductService:
                 self._product_index[product.identity_key()] = product
                 if product.category:
                     self._category_index[product.category.lower()].add(product)
+            self._indexes_populated = True
+
+    def _ensure_indexes_ready(self) -> None:
+        """Ensure lookup indexes are populated before accessing them."""
+        if not self._indexes_populated:
+            self._rebuild_indexes()
 
     def set_category_service(self, category_service: Optional["CategoryService"]) -> None:
         """Attach or replace the category service reference."""
@@ -259,6 +266,7 @@ class ProductService:
 
         normalized_name = Product.normalized_name(name)
         if description is not None:
+            self._ensure_indexes_ready()
             key = Product.identity_key_from_values(name, description)
             product = self._product_index.get(key)
             if not product:
@@ -287,6 +295,7 @@ class ProductService:
         Add a new product.
         """
         with self._products_lock:
+            self._ensure_indexes_ready()
             identity_key = product.identity_key()
             if identity_key in self._product_index:
                 raise DuplicateProductError(
@@ -326,6 +335,7 @@ class ProductService:
         """Update an existing product, supporting duplicate names via description."""
         queue_payload: Optional[Dict[str, Any]] = None
         with self._products_lock:
+            self._ensure_indexes_ready()
             try:
                 original_product = self.get_product_by_name(
                     original_name, original_description
@@ -515,6 +525,7 @@ class ProductService:
         self._products = None
         self._product_index.clear()
         self._category_index.clear()
+        self._indexes_populated = False
 
     def batch_update(self, updates: List[ProductUpdateSpec]) -> None:
         """Perform multiple updates in a single transaction."""
