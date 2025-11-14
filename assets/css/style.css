@@ -607,6 +607,19 @@ h1 {
   text-align: center;
 }
 
+#footer-container p {
+  margin: 0;
+  line-height: 1.4;          /* Ensure multiple lines keep comfortable spacing */
+}
+
+@media (max-width: 600px) {
+  #footer-container {
+    min-height: 96px;        /* Account for two-line copyright text */
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+}
+
 /* Utility: hide element without inline styles (CSP safe) */
 .is-hidden {
   display: none !important;

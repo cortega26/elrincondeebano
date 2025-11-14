@@ -173,11 +173,24 @@ body {
 
   /* Footer space reservation to prevent layout shift */
   #footer-container {
-    min-height: 120px;
+    min-height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
+  }
+
+  #footer-container p {
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  @media (max-width: 600px) {
+    #footer-container {
+      min-height: 96px;
+      padding-top: 1.5rem;
+      padding-bottom: 1.5rem;
+    }
   }
 
   /* Minimal nav collapse and list reset to avoid flash of expanded menus before Bootstrap loads */
