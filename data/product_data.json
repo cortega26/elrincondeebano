@@ -1,6 +1,6 @@
 {
-  "version": "20251108-113706",
-  "last_updated": "2025-11-08T11:37:06.180968",
+  "version": "20251108-122142",
+  "last_updated": "2025-11-08T12:21:42.880936",
   "rev": 0,
   "products": [
     {
@@ -132,7 +132,7 @@
     {
       "name": "Benedictino • Agua gasificada 2L",
       "description": "Envase desechable",
-      "price": 1900,
+      "price": 2000,
       "discount": 0,
       "stock": true,
       "category": "Aguas",
@@ -140,7 +140,22 @@
       "image_avif_path": "",
       "order": 5,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-11-08T15:21:42.878Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-11-08T15:21:42.878Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Cachantun • Agua gasificada 1,6L",
@@ -3020,7 +3035,7 @@
     {
       "name": "Benedictino • Agua sin gas 2L",
       "description": "Envase desechable",
-      "price": 1900,
+      "price": 2000,
       "discount": 0,
       "stock": true,
       "category": "Aguas",
@@ -3028,7 +3043,22 @@
       "image_avif_path": "",
       "order": 141,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-11-08T15:21:33.246Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-11-08T15:21:33.246Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Gatorade • Bebida Isotónica Cool Blue",
@@ -3062,7 +3092,7 @@
       "name": "Shweppes • Agua Tónica",
       "description": "Botella de 1,5L",
       "price": 2800,
-      "discount": 0,
+      "discount": 300,
       "stock": true,
       "category": "Aguas",
       "image_path": "assets/images/aguas/Shweppes - Agua Tonica 1,5L.webp",
@@ -3070,15 +3100,15 @@
       "order": 143,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-17T17:44:25.662Z",
+        "discount": {
+          "ts": "2025-11-08T15:21:19.872Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-17T17:44:25.662Z",
+          "ts": "2025-11-08T15:21:19.872Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,

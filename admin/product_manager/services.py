@@ -443,9 +443,14 @@ class ProductService:
         Return (display_name, product_key) tuples for category selection widgets.
         """
         if self.category_service:
-            return self.category_service.list_category_choices()
-        categories = self.get_categories()
-        return [(category, category) for category in categories]
+            choices = self.category_service.list_category_choices()
+        else:
+            categories = self.get_categories()
+            choices = [(category, category) for category in categories]
+        return sorted(
+            choices,
+            key=lambda entry: (entry[0] or "").casefold()
+        )
 
     def get_products_by_category(self, category: str) -> List[Product]:
         """
