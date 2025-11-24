@@ -125,9 +125,22 @@ function mapProductForInline(product) {
   };
 }
 
+function loadManifestFonts() {
+  const manifestPath = resolveFromOutput('asset-manifest.json');
+  try {
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    const files = Array.isArray(manifest?.files) ? manifest.files : [];
+    return files.filter((file) => typeof file === 'string' && file.toLowerCase().endsWith('.woff2'));
+  } catch (error) {
+    console.warn('build-index: Unable to read asset manifest for font preloads:', error);
+    return [];
+  }
+}
+
 function build() {
   const template = fs.readFileSync(TEMPLATE_PATH, 'utf8');
   const productData = readJson(DATA_PATH);
+  const preloadFonts = loadManifestFonts();
   const catalog = loadCategoryCatalog();
   const navGroups = buildNavModel(catalog);
   const sortedProducts = [...(productData.products || [])]
@@ -153,7 +166,8 @@ function build() {
     products: initialProducts,
     totalProducts: availableProducts.length,
     inlinePayload,
-    navGroups
+    navGroups,
+    preloadFonts,
   }, { rmWhitespace: false, filename: TEMPLATE_PATH });
 
   ensureDir(resolveOutputDir());
