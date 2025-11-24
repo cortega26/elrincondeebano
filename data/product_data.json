@@ -1,29 +1,22 @@
 {
-  "version": "20251124-164541",
-  "last_updated": "2025-11-24T16:45:41.848537",
+  "version": "20251124-165153",
+  "last_updated": "2025-11-24T16:51:53.745212",
   "rev": 0,
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
       "description": "Dos Rollos de 14m c/u",
-      "price": 2500,
+      "price": 2000,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Limpiezayaseo",
       "image_path": "assets/images/limpieza_y_aseo/Nova Clásica 2x14m.webp",
       "image_avif_path": "",
       "order": 0,
       "rev": 0,
       "field_last_modified": {
-        "price": {
-          "ts": "2025-10-14T15:11:04.680Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "stock": {
-          "ts": "2025-11-07T22:29:56.325Z",
+          "ts": "2025-11-24T19:47:04.614Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -64,22 +57,15 @@
       "description": "Envase retornable",
       "price": 3800,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Bebidas",
       "image_path": "assets/images/bebidas/Coca Cola 3L.webp",
       "image_avif_path": "",
       "order": 2,
       "rev": 0,
       "field_last_modified": {
-        "price": {
-          "ts": "2025-10-14T15:11:12.460Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "stock": {
-          "ts": "2025-11-07T22:32:56.715Z",
+          "ts": "2025-11-24T19:48:43.501Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -156,19 +142,6 @@
           "changeset_id": null
         }
       }
-    },
-    {
-      "name": "Cachantun • Agua gasificada 1,6L",
-      "description": "Envase desechable",
-      "price": 1500,
-      "discount": 0,
-      "stock": false,
-      "category": "Aguas",
-      "image_path": "assets/images/bebidas/Agua 1,6L con gas Cachantun.webp",
-      "image_avif_path": "",
-      "order": 6,
-      "rev": 0,
-      "field_last_modified": {}
     },
     {
       "name": "Misiones de Rengo • Sauvignon Blanc",
@@ -268,46 +241,19 @@
       }
     },
     {
-      "name": "Cachantun • Agua sin gas 1,6L",
-      "description": "Envase desechable",
-      "price": 1500,
-      "discount": 0,
-      "stock": false,
-      "category": "Aguas",
-      "image_path": "assets/images/bebidas/Agua 1,6L sin gas Cachantun.webp",
-      "image_avif_path": "",
-      "order": 11,
-      "rev": 0,
-      "field_last_modified": {}
-    },
-    {
       "name": "Líder • Salame Italiano",
       "description": "Empaque de 100g",
       "price": 1900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Carnesyembutidos",
       "image_path": "assets/images/carnes_y_embutidos/Salame Italiano Líder 100g.webp",
       "image_avif_path": "",
       "order": 12,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-17T17:46:34.958Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-17T17:46:34.958Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "stock": {
-          "ts": "2025-11-07T22:33:21.172Z",
+          "ts": "2025-11-24T19:47:58.846Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -361,22 +307,15 @@
       "description": "Envase retornable",
       "price": 3800,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Bebidas",
       "image_path": "assets/images/bebidas/Coca Cola Zero 3L.webp",
       "image_avif_path": "",
       "order": 15,
       "rev": 0,
       "field_last_modified": {
-        "price": {
-          "ts": "2025-10-14T15:25:18.008Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "stock": {
-          "ts": "2025-11-07T22:32:56.145Z",
+          "ts": "2025-11-24T19:48:48.013Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -920,36 +859,15 @@
       "description": "Lata de 350cc x 6 unidades",
       "price": 5900,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Cervezas",
       "image_path": "assets/images/cervezas/Coors lata 350cc.webp",
       "image_avif_path": "",
       "order": 39,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-18T00:15:44.025Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-18T00:15:44.025Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-18T00:15:44.025Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "stock": {
-          "ts": "2025-11-07T22:33:20.706Z",
+          "ts": "2025-11-24T19:50:17.381Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -1301,15 +1219,15 @@
       "description": "Envase retornable",
       "price": 3800,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Bebidas",
       "image_path": "assets/images/bebidas/Fanta Naranja 3L retornable.webp",
       "image_avif_path": "",
       "order": 55,
       "rev": 0,
       "field_last_modified": {
-        "price": {
-          "ts": "2025-10-14T15:25:24.719Z",
+        "stock": {
+          "ts": "2025-11-24T19:49:03.638Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -1734,36 +1652,15 @@
       "description": "Lata de 355cc x 6 unidades",
       "price": 7900,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Cervezas",
       "image_path": "assets/images/cervezas/Miller lata 350cc.webp",
       "image_avif_path": "",
       "order": 79,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-18T00:24:25.121Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-18T00:24:25.121Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-18T00:24:25.121Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "stock": {
-          "ts": "2025-11-07T22:33:20.741Z",
+          "ts": "2025-11-24T19:50:49.461Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -1951,29 +1848,8 @@
       "order": 90,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-17T17:48:13.742Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-17T17:48:13.742Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-17T17:48:13.742Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "stock": {
-          "ts": "2025-11-07T22:33:20.660Z",
+          "ts": "2025-11-24T19:51:35.102Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2620,15 +2496,15 @@
       "description": "Envase desechable",
       "price": 4000,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Bebidas",
       "image_path": "assets/images/bebidas/Sprite Zero 3L desechable.webp",
       "image_avif_path": "",
       "order": 120,
       "rev": 0,
       "field_last_modified": {
-        "price": {
-          "ts": "2025-10-14T15:25:45.048Z",
+        "stock": {
+          "ts": "2025-11-24T19:49:14.797Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2792,22 +2668,15 @@
       "description": "Envare retornable",
       "price": 3000,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Bebidas",
       "image_path": "assets/images/bebidas/Coca-Cola-2L.webp",
       "image_avif_path": "",
       "order": 129,
       "rev": 0,
       "field_last_modified": {
-        "price": {
-          "ts": "2025-10-14T15:25:47.892Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "stock": {
-          "ts": "2025-11-07T22:32:56.206Z",
+          "ts": "2025-11-24T19:49:18.206Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2860,15 +2729,23 @@
     {
       "name": "Pollo Pechuga deshuesada Congelada Seara",
       "description": "Empaque de 800g",
-      "price": 5500,
+      "price": 5900,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Carnesyembutidos",
       "image_path": "assets/images/carnes_y_embutidos/Pechuga pollo deshuesada 800g Seara.webp",
       "image_avif_path": "",
       "order": 132,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-11-24T19:50:00.154Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Concha y Toro • Carmenere Reserva, Casillero del Diablo",
@@ -3508,64 +3385,15 @@
       "description": "Barra de 82g",
       "price": 2200,
       "discount": 200,
-      "stock": false,
+      "stock": true,
       "category": "Chocolates",
       "image_path": "assets/images/chocolates/Chocolate con leche Hershey's 82g.jpg",
       "image_avif_path": "",
       "order": 154,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-17T18:09:46.269Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-17T18:09:46.269Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-17T18:09:46.269Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-17T18:09:46.269Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "stock": {
-          "ts": "2025-11-07T22:33:20.514Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-17T18:09:46.269Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-17T18:09:46.269Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-17T18:09:46.269Z",
+          "ts": "2025-11-24T19:51:53.741Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3984,15 +3812,15 @@
       "description": "Lata de 350cc x 6 unidades",
       "price": 6900,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Cervezas",
       "image_path": "assets/images/cervezas/Stones - Berry lata 350cc.webp",
       "image_avif_path": "assets/images/cervezas/Stones - Berry lata 350cc.avif",
       "order": 163,
       "rev": 0,
       "field_last_modified": {
-        "price": {
-          "ts": "2025-11-22T15:58:41.959Z",
+        "stock": {
+          "ts": "2025-11-24T19:50:33.198Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
