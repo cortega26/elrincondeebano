@@ -1,6 +1,6 @@
 {
-  "version": "20251122-125843",
-  "last_updated": "2025-11-22T12:58:43.851369",
+  "version": "20251124-164541",
+  "last_updated": "2025-11-24T16:45:41.848537",
   "rev": 0,
   "products": [
     {
@@ -2641,26 +2641,42 @@
       "description": "Envase desechable",
       "price": 1500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Aguas",
       "image_path": "assets/images/bebidas/Agua 1,6L con gas Vital.webp",
       "image_avif_path": "",
       "order": 121,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-24T19:45:33.101Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Vital • Agua sin gas 2,5L",
       "description": "Envase desechable",
       "price": 2000,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Aguas",
       "image_path": "assets/images/bebidas/Agua 2,5L con gas Vital.webp",
       "image_avif_path": "",
       "order": 122,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-24T19:45:41.845Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Chocolate con Avellanas Milka",
