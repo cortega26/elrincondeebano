@@ -22,6 +22,7 @@ const {
   buildCategoryPages,
   buildNavModel,
 } = require('./utils/category-catalog');
+const { appendToManifest } = require('./utils/manifest');
 
 const catalog = loadCategoryCatalog();
 const pages = buildCategoryPages(catalog);
@@ -43,6 +44,7 @@ function loadManifestFonts() {
 }
 
 const preloadFonts = loadManifestFonts();
+const manifestPath = resolveFromOutput('asset-manifest.json');
 
 const outputDir = resolveFromOutput('pages');
 ensureDir(outputDir);
@@ -74,4 +76,5 @@ pages.forEach(page => {
   );
   const outputPath = path.join(outputDir, `${page.slug}.html`);
   fs.writeFileSync(outputPath, html);
+  appendToManifest(manifestPath, [`/pages/${page.slug}.html`]);
 });

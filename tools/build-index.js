@@ -18,6 +18,7 @@ const {
   mapProductForInline,
   safeJsonStringify,
 } = require('./utils/product-mapper');
+const { appendToManifest } = require('./utils/manifest');
 
 const TEMPLATE_PATH = path.join(rootDir, 'templates', 'index.ejs');
 const OUTPUT_PATH = resolveFromOutput('index.html');
@@ -64,6 +65,7 @@ function build() {
 
   ensureDir(resolveOutputDir());
   fs.writeFileSync(OUTPUT_PATH, html);
+  appendToManifest(resolveFromOutput('asset-manifest.json'), ['/index.html']);
 }
 
 build();
