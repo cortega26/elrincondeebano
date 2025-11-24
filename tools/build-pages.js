@@ -7,6 +7,12 @@ const {
   ensureDir,
   rootDir,
 } = require('./utils/output-dir');
+const {
+  readProductData,
+  sortAndEnrichProducts,
+  mapProductForInline,
+  safeJsonStringify,
+} = require('./utils/product-mapper');
 
 const templatePath = path.join(rootDir, 'templates', 'category.ejs');
 const template = fs.readFileSync(templatePath, 'utf8');
@@ -20,6 +26,10 @@ const {
 const catalog = loadCategoryCatalog();
 const pages = buildCategoryPages(catalog);
 const navGroups = buildNavModel(catalog);
+const productData = readProductData();
+const enrichedProducts = sortAndEnrichProducts(productData.products || []);
+const availableProducts = enrichedProducts.filter((product) => product.stock);
+
 function loadManifestFonts() {
   const manifestPath = resolveFromOutput('asset-manifest.json');
   try {
@@ -38,6 +48,16 @@ const outputDir = resolveFromOutput('pages');
 ensureDir(outputDir);
 
 pages.forEach(page => {
+  const productKey = (page.productKey || page.slug || page.name || '').toLowerCase();
+  const categoryProducts = availableProducts.filter((product) => {
+    const categoryValue = (product.category || '').toLowerCase();
+    return categoryValue === productKey;
+  });
+  const inlinePayload = safeJsonStringify({
+    version: productData.version || null,
+    totalProducts: categoryProducts.length,
+    initialProducts: categoryProducts.map(mapProductForInline)
+  });
   const html = ejs.render(
     template,
     {
@@ -45,6 +65,9 @@ pages.forEach(page => {
       description: page.description,
       slug: page.slug,
       navGroups,
+      products: categoryProducts,
+      totalProducts: categoryProducts.length,
+      inlinePayload,
       preloadFonts,
     },
     { filename: templatePath }

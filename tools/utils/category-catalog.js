@@ -67,6 +67,7 @@ function buildCategoryPages(catalog) {
     .map((category) => ({
       slug: category.slug || category.id,
       name: category.title || category.product_key || category.id,
+      productKey: category.product_key || category.id,
       description: category.description
         || `Explora nuestra selección de ${category.title || category.id} en El Rincón de Ébano.`,
     }));
