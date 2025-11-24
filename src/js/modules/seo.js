@@ -1,6 +1,7 @@
 // SEO metadata + structured data (migrated/adapted from csp.js)
 
 const PRODUCT_DATA_GLOBAL_KEY = '__PRODUCT_DATA__';
+const INLINE_PRODUCT_DATA_ID = 'product-data';
 
 function getSharedProducts() {
   try {
@@ -50,8 +51,27 @@ function markStructuredDataInjected() {
   };
 }
 
+function readInlineProductPayload() {
+  try {
+    if (typeof document === 'undefined') return null;
+    const el = document.getElementById(INLINE_PRODUCT_DATA_ID);
+    if (!el || !el.textContent) return null;
+    const parsed = JSON.parse(el.textContent);
+    if (Array.isArray(parsed.products)) return parsed.products;
+    if (Array.isArray(parsed.initialProducts)) return parsed.initialProducts;
+  } catch (error) {
+    console.warn('[modules/seo] Unable to parse inline product payload:', error);
+  }
+  return null;
+}
+
 async function loadProductData() {
   try {
+    const inline = readInlineProductPayload();
+    if (inline?.length) {
+      persistSharedProducts(inline, { source: 'seo-inline' });
+      return createProductMap(inline);
+    }
     const sharedProducts = getSharedProducts();
     if (sharedProducts) {
       return createProductMap(sharedProducts);
@@ -59,7 +79,7 @@ async function loadProductData() {
 
     const version = localStorage.getItem('productDataVersion');
     const url = version ? `/data/product_data.json?v=${encodeURIComponent(version)}` : '/data/product_data.json';
-    const response = await fetch(url, { cache: 'no-store', headers: { 'Accept': 'application/json' } });
+    const response = await fetch(url, { cache: 'default', headers: { 'Accept': 'application/json' } });
     if (!response.ok) return null;
     const data = await response.json();
     const arr = Array.isArray(data?.products) ? data.products : (Array.isArray(data) ? data : []);

@@ -2084,10 +2084,20 @@ const renderQuantityControl = (product) => {
 
 
     const submitCart = () => {
+        const paymentError = document.getElementById('payment-error');
         const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
         if (!selectedPayment) {
-            alert('Por favor seleccione un método de pago');
+            if (paymentError) {
+                paymentError.textContent = 'Por favor seleccione un método de pago';
+            }
+            const firstPayment = document.querySelector('input[name="paymentMethod"]');
+            if (firstPayment && typeof firstPayment.focus === 'function') {
+                firstPayment.focus();
+            }
             return;
+        }
+        if (paymentError) {
+            paymentError.textContent = '';
         }
 
         let message = "Mi pedido:\n\n";
