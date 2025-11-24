@@ -33,12 +33,12 @@
     <link rel="modulepreload" href="/dist/js/script.min.js">
     <!-- Load shared styles in a consistent order to avoid first-paint flicker -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" integrity="sha384-EvBWSlnoFgZlXJvpzS+MAUEjvN7+gcCwH+qh7GRFOGgZO0PuwOFro7qPOJnLfe7l" crossorigin="anonymous">
     <link rel="stylesheet" href="/dist/css/style.min.css?v=100">
     <noscript>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" integrity="sha384-EvBWSlnoFgZlXJvpzS+MAUEjvN7+gcCwH+qh7GRFOGgZO0PuwOFro7qPOJnLfe7l" crossorigin="anonymous">
         <link rel="stylesheet" href="/dist/css/style.min.css?v=100">
     </noscript>
     <meta property="og:title" content="El Rincón de Ébano - <%= categoryName %>">
@@ -49,6 +49,7 @@
 </head>
 <body>
     <%- include('partials/navbar', { navGroups: typeof navGroups !== 'undefined' ? navGroups : [] }) %>
+<% const currencyFormatter = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }); %>
 
     <main id="main-content" data-category="<%= categoryName %>" role="main" tabindex="-1">
         <div class="container mt-2 mb-4">
@@ -78,8 +79,50 @@
             </section>
             <section aria-labelledby="category-heading">
                 <h1 id="category-heading"><%= categoryName %></h1>
-                <div class="row" id="product-container" aria-live="polite">
-                    <!-- Productos se cargarán aquí desde script.js -->
+                <div class="row" id="product-container" aria-live="polite" data-total-products="<%= totalProducts %>">
+<% if (Array.isArray(products) && products.length) { %>
+<% products.forEach((product, index) => { %>
+                    <article class="producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4 <%= product.stock ? '' : 'agotado' %> has-content-visibility has-contain-intrinsic" data-product-id="<%= product.id %>" aria-labelledby="product-title-<%= product.id %>">
+                        <div class="card h-100">
+<% if (product.isDiscounted) { %>
+                            <span class="discount-badge badge bg-danger" aria-label="Producto en oferta">-<%= product.discountPercent %>%</span>
+<% } %>
+                            <picture>
+<% if (product.image.avif) { %>
+                                <source type="image/avif" srcset="<%= product.image.avif.srcset %>" sizes="<%= product.image.sizes %>">
+<% } %>
+                                <img src="<%= product.image.src %>" srcset="<%= product.image.srcset %>" sizes="<%= product.image.sizes %>" alt="<%= product.name %>" class="card-img-top product-thumb" loading="<%= index === 0 ? 'eager' : 'lazy' %>" fetchpriority="<%= index === 0 ? 'high' : 'auto' %>" decoding="async" width="400" height="400">
+                            </picture>
+                            <div class="card-body d-flex flex-column">
+                                <h3 class="card-title mb-2" id="product-title-<%= product.id %>"><%= product.name %></h3>
+                                <p class="card-text mb-3"><%= product.description %></p>
+                                <div class="precio-container mb-3">
+<% if (product.isDiscounted) { %>
+                                    <span class="precio-descuento" aria-label="Precio con descuento"><%= currencyFormatter.format(product.discountedPrice) %></span>
+                                    <span class="precio-original" aria-label="Precio original">
+                                        <span class="tachado"><%= currencyFormatter.format(product.price) %></span>
+                                    </span>
+<% } else { %>
+                                    <span class="precio" aria-label="Precio"><%= currencyFormatter.format(product.price) %></span>
+<% } %>
+                                </div>
+                                <div class="action-area mt-auto" data-pid="<%= product.id %>" role="group" aria-label="Acciones de compra para <%= product.name %>">
+                                    <button class="btn btn-primary add-to-cart-btn mt-2" type="button" data-id="<%= product.id %>" aria-label="Agregar <%= product.name %> al carrito">Agregar al carrito</button>
+                                    <div class="quantity-control is-hidden" aria-live="polite" role="group" aria-label="Seleccionar cantidad">
+                                        <button class="quantity-btn" type="button" data-action="decrease" aria-label="Disminuir cantidad">-</button>
+                                        <input type="number" class="quantity-input" value="1" min="1" max="50" aria-label="Cantidad" data-id="<%= product.id %>">
+                                        <button class="quantity-btn" type="button" data-action="increase" aria-label="Aumentar cantidad">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+<% }); %>
+<% } else { %>
+                    <div class="col-12">
+                        <div class="alert alert-info" role="status">No hay productos disponibles en esta categoría actualmente.</div>
+                    </div>
+<% } %>
                 </div>
                 <div id="catalog-controls" class="text-center my-4">
                     <button type="button" id="catalog-load-more" class="btn btn-outline-primary d-none">Cargar más productos</button>
@@ -91,6 +134,7 @@
 
     <%- include('partials/footer') %>
 
+    <script type="application/json" id="product-data"><%- inlinePayload %></script>
     <script type="module" src="/dist/js/script.min.js" crossorigin="anonymous"></script>
 </body>
 </html>
