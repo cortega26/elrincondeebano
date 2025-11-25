@@ -151,4 +151,6 @@ module.exports = {
   sortAndEnrichProducts,
   mapProductForInline,
   safeJsonStringify,
+  cfimg,
+  shouldDisableCfRewrite,
 };
