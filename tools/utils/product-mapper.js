@@ -10,14 +10,24 @@ const HERO_BASE_WIDTH = 320;
 const PRODUCT_IMAGE_SIZES = '(min-width: 1200px) 280px, (min-width: 992px) 240px, (min-width: 576px) 45vw, 80vw';
 
 function shouldDisableCfRewrite() {
-  const flag = process.env.CFIMG_DISABLE;
-  if (typeof flag === 'string') {
-    const normalized = flag.toLowerCase();
+  const disableFlag = process.env.CFIMG_DISABLE;
+  if (typeof disableFlag === 'string') {
+    const normalized = disableFlag.toLowerCase();
     if (['1', 'true', 'yes'].includes(normalized)) {
       return true;
     }
   }
-  return false;
+
+  const enableFlag = process.env.CFIMG_ENABLE;
+  if (typeof enableFlag === 'string') {
+    const normalized = enableFlag.toLowerCase();
+    if (['1', 'true', 'yes'].includes(normalized)) {
+      return false;
+    }
+  }
+
+  // Default to disabling rewrite for static hosting unless explicitly enabled
+  return true;
 }
 
 function cfimg(imgPath, opts = {}) {
