@@ -38,15 +38,18 @@ class ConfigurationError(ApplicationError):
     pass
 
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+
 class ProductManager:
     """Main application class managing lifecycle and dependencies."""
 
     # Default configuration
     DEFAULT_CONFIG = {
-        "data_dir": r"C:\Users\corte\VS Code Projects\Tienda Ebano\data",
+        "data_dir": str(PROJECT_ROOT / "data"),
         "product_file": "product_data.json",
         "category_file": "categories.json",
-        "log_dir": "~/product_manager_logs",
+        "log_dir": str(PROJECT_ROOT / "logs"),
         "log_level": "INFO",
         "max_log_size": 5_242_880,  # 5MB
         "backup_count": 3,
