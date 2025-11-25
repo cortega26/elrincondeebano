@@ -6,20 +6,30 @@ export const CFIMG_THUMB = { fit: 'cover', quality: 75, format: 'auto' };
 
 function shouldDisableCfRewrite() {
   try {
+    if (typeof process !== 'undefined' && process.env) {
+      const disable = process.env.CFIMG_DISABLE;
+      if (typeof disable === 'string' && ['1', 'true', 'yes'].includes(disable.toLowerCase())) {
+        return true;
+      }
+      const enable = process.env.CFIMG_ENABLE;
+      if (typeof enable === 'string' && ['1', 'true', 'yes'].includes(enable.toLowerCase())) {
+        return false;
+      }
+    }
+
     if (typeof window !== 'undefined') {
       if (window.__CFIMG_DISABLE__ === true) return true;
+      const enable = window.__CFIMG_ENABLE__;
+      if (enable === true) return false;
       const host = window.location?.hostname;
       if (!host || host === 'localhost' || host === '127.0.0.1') return true;
       if (window.location?.protocol === 'file:') return true;
     }
-    if (typeof process !== 'undefined' && process.env && process.env.CFIMG_DISABLE) {
-      const raw = String(process.env.CFIMG_DISABLE).toLowerCase();
-      if (raw === '1' || raw === 'true' || raw === 'yes') return true;
-    }
   } catch (_) {
     // Fall through to enabling rewrite
   }
-  return false;
+  // Default: disable unless explicitly enabled
+  return true;
 }
 
 /**
