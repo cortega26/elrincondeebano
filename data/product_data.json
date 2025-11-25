@@ -1,6 +1,6 @@
 {
-  "version": "20251124-165153",
-  "last_updated": "2025-11-24T16:51:53.745212",
+  "version": "20251125-111816",
+  "last_updated": "2025-11-25T11:18:16.171488",
   "rev": 0,
   "products": [
     {
@@ -2647,7 +2647,7 @@
       "description": "Empaque al vacío de 150g",
       "price": 3500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Carnesyembutidos",
       "image_path": "assets/images/carnes_y_embutidos/Tocino PF 150g.webp",
       "image_avif_path": "",
@@ -2655,7 +2655,7 @@
       "rev": 0,
       "field_last_modified": {
         "stock": {
-          "ts": "2025-11-07T22:32:56.321Z",
+          "ts": "2025-11-25T14:18:16.167Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
