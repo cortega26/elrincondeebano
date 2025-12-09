@@ -30,6 +30,8 @@
   "type": "commonjs",
   "devDependencies": {
     "@playwright/test": "^1.44.1",
+    "@stryker-mutator/core": "^9.4.0",
+    "@stryker-mutator/vitest-runner": "^9.4.0",
     "@vitest/coverage-v8": "^4.0.15",
     "cypress": "^13.17.0",
     "esbuild": "^0.25.11",
