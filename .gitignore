@@ -106,3 +106,6 @@ reports/
 # Build output and temporary files
 temp/
 temp_patch.txt
+
+# Stryker
+.stryker-tmp

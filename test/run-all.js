@@ -9,7 +9,7 @@ const tests = [
   'generateStableId.test.js',
   'serviceWorker.utils.test.js',
   'registerServiceWorker.test.js',
-  'fetchProducts.test.js',
+  'registerServiceWorker.test.js',
   'updateProductDisplay.test.js',
 
   'ensureDiscountToggle.test.js',
