@@ -2,49 +2,49 @@ const test = require('node:test');
 const assert = require('node:assert');
 
 (async () => {
-  global.console = { log() {}, warn() {}, error() {} };
+  global.console = { log() { }, warn() { }, error() { } };
 
   const documentMock = {
     readyState: 'loading',
-    addEventListener() {},
-    removeEventListener() {},
+    addEventListener() { },
+    removeEventListener() { },
     querySelector() { return null; },
     querySelectorAll() { return []; },
     getElementById() { return null; },
     createElement() {
       return {
-        setAttribute() {},
-        appendChild() {},
-        remove() {},
+        setAttribute() { },
+        appendChild() { },
+        remove() { },
         querySelector() { return null; },
-        classList: { add() {}, remove() {}, toggle() {} },
+        classList: { add() { }, remove() { }, toggle() { } },
       };
     },
     createTextNode(text) {
       return { textContent: text };
     },
     body: {
-      appendChild() {},
+      appendChild() { },
       contains() { return false; },
-      classList: { add() {}, remove() {}, contains() { return false; } },
+      classList: { add() { }, remove() { }, contains() { return false; } },
     },
   };
 
   const serviceWorkerMock = {
-    register: async () => ({ addEventListener() {}, installing: null, active: null }),
-    addEventListener() {},
+    register: async () => ({ addEventListener() { }, installing: null, active: null }),
+    addEventListener() { },
     controller: null,
   };
 
   const windowMock = {
-    addEventListener() {},
-    removeEventListener() {},
+    addEventListener() { },
+    removeEventListener() { },
     navigator: { serviceWorker: serviceWorkerMock, onLine: true },
     localStorage: {
       getItem() { return null; },
-      setItem() {},
-      removeItem() {},
-      clear() {},
+      setItem() { },
+      removeItem() { },
+      clear() { },
     },
     location: { hostname: 'example.com', search: '' },
     document: documentMock,
@@ -53,6 +53,7 @@ const assert = require('node:assert');
   documentMock.defaultView = windowMock;
 
   global.window = windowMock;
+  global.window.__CFIMG_ENABLE__ = true; // Enable Cloudflare rewriting for tests
   global.document = documentMock;
   global.localStorage = windowMock.localStorage;
   Object.defineProperty(globalThis, 'navigator', {

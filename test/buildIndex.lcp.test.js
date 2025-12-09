@@ -60,7 +60,8 @@ const html = ejs.render(
   {
     products: sampleProducts,
     totalProducts: sampleProducts.length,
-    inlinePayload: '{}'
+    inlinePayload: '{}',
+    preloadFonts: []
   },
   { filename: templatePath, rmWhitespace: false }
 );
