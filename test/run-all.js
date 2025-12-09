@@ -33,7 +33,7 @@ const tests = [
 
 for (const testFile of tests) {
   const testPath = path.join(__dirname, testFile);
-  const result = spawnSync(process.execPath, [testPath], {
+  const result = spawnSync(process.execPath, ['--experimental-strip-types', testPath], {
     stdio: 'inherit',
   });
 

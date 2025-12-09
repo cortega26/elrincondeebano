@@ -1,5 +1,5 @@
 // Minimal analytics module with consent and sampling (opt-in)
-import { log, createCorrelationId } from '../utils/logger.mjs';
+import { log, createCorrelationId } from '../utils/logger.mts';
 
 let enabled = false;
 let consentRequired = true;
