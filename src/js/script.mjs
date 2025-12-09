@@ -1,5 +1,5 @@
 import { cfimg, CFIMG_THUMB } from './utils/cfimg.mjs';
-import { log, createCorrelationId } from './utils/logger.mjs';
+import { log, createCorrelationId } from './utils/logger.mts';
 import { showOffcanvas } from './modules/bootstrap.mjs';
 
 const PRODUCT_DATA_GLOBAL_KEY = '__PRODUCT_DATA__';
@@ -457,83 +457,83 @@ if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
 const isCacheableObject = (value) => (typeof value === 'object' && value !== null) || typeof value === 'function';
 
 const createCacheNode = () => ({
-  map: new Map(),
-  weakMap: new WeakMap(),
-  hasValue: false,
-  value: undefined
+    map: new Map(),
+    weakMap: new WeakMap(),
+    hasValue: false,
+    value: undefined
 });
 
 const memoize = (fn, cacheSize = 100) => {
-  if (typeof fn !== 'function') {
-    throw new TypeError('Expected a function to memoize');
-  }
+    if (typeof fn !== 'function') {
+        throw new TypeError('Expected a function to memoize');
+    }
 
-  if (!Number.isFinite(cacheSize) || cacheSize < 0) {
-    cacheSize = 0;
-  }
+    if (!Number.isFinite(cacheSize) || cacheSize < 0) {
+        cacheSize = 0;
+    }
 
-  const root = createCacheNode();
-  const lru = [];
+    const root = createCacheNode();
+    const lru = [];
 
-  const touch = (node) => {
-    const index = lru.indexOf(node);
-    if (index !== -1) {
-      lru.splice(index, 1);
-    }
-    if (cacheSize > 0) {
-      lru.push(node);
-    }
-  };
+    const touch = (node) => {
+        const index = lru.indexOf(node);
+        if (index !== -1) {
+            lru.splice(index, 1);
+        }
+        if (cacheSize > 0) {
+            lru.push(node);
+        }
+    };
 
-  const evictIfNeeded = () => {
-    if (cacheSize === 0) {
-      return;
-    }
-    while (lru.length > cacheSize) {
-      const oldest = lru.shift();
-      if (!oldest) {
-        continue;
-      }
-      oldest.hasValue = false;
-      oldest.value = undefined;
-    }
-  };
+    const evictIfNeeded = () => {
+        if (cacheSize === 0) {
+            return;
+        }
+        while (lru.length > cacheSize) {
+            const oldest = lru.shift();
+            if (!oldest) {
+                continue;
+            }
+            oldest.hasValue = false;
+            oldest.value = undefined;
+        }
+    };
 
-  const getChildNode = (node, arg) => {
-    const useWeakMap = isCacheableObject(arg);
-    if (useWeakMap) {
-      let next = node.weakMap.get(arg);
-      if (!next) {
-        next = createCacheNode();
-        node.weakMap.set(arg, next);
-      }
-      return next;
-    }
-    if (!node.map.has(arg)) {
-      node.map.set(arg, createCacheNode());
-    }
-    return node.map.get(arg);
-  };
+    const getChildNode = (node, arg) => {
+        const useWeakMap = isCacheableObject(arg);
+        if (useWeakMap) {
+            let next = node.weakMap.get(arg);
+            if (!next) {
+                next = createCacheNode();
+                node.weakMap.set(arg, next);
+            }
+            return next;
+        }
+        if (!node.map.has(arg)) {
+            node.map.set(arg, createCacheNode());
+        }
+        return node.map.get(arg);
+    };
 
-  return (...args) => {
-    if (cacheSize === 0) {
-      return fn(...args);
-    }
-    let node = root;
-    for (let i = 0; i < args.length; i += 1) {
-      node = getChildNode(node, args[i]);
-    }
-    if (node.hasValue) {
-      touch(node);
-      return node.value;
-    }
-    const result = fn(...args);
-    node.value = result;
-    node.hasValue = true;
-    touch(node);
-    evictIfNeeded();
-    return result;
-  };
+    return (...args) => {
+        if (cacheSize === 0) {
+            return fn(...args);
+        }
+        let node = root;
+        for (let i = 0; i < args.length; i += 1) {
+            node = getChildNode(node, args[i]);
+        }
+        if (node.hasValue) {
+            touch(node);
+            return node.value;
+        }
+        const result = fn(...args);
+        node.value = result;
+        node.hasValue = true;
+        touch(node);
+        evictIfNeeded();
+        return result;
+    };
 };
 
 const debounce = (func, delay) => {
@@ -1160,7 +1160,7 @@ const addToCart = (product, quantity) => {
         saveCart();
         updateCartIcon();
         renderCart();
-        try { if (typeof window !== 'undefined' && typeof window.__analyticsTrack === 'function') window.__analyticsTrack('add_to_cart', { id: product.id, q: quantity, price: product.price }); } catch {}
+        try { if (typeof window !== 'undefined' && typeof window.__analyticsTrack === 'function') window.__analyticsTrack('add_to_cart', { id: product.id, q: quantity, price: product.price }); } catch { }
         const quantityInput = document.querySelector(`[data-id="${product.id}"].quantity-input`);
         if (quantityInput) {
             quantityInput.value = Math.max(getCartItemQuantity(product.id), 1);
@@ -1177,7 +1177,7 @@ const removeFromCart = (productId) => {
         saveCart();
         updateCartIcon();
         renderCart();
-        try { if (typeof window !== 'undefined' && typeof window.__analyticsTrack === 'function') window.__analyticsTrack('remove_from_cart', { id: productId }); } catch {}
+        try { if (typeof window !== 'undefined' && typeof window.__analyticsTrack === 'function') window.__analyticsTrack('remove_from_cart', { id: productId }); } catch { }
         const actionArea = document.querySelector(`.action-area[data-pid="${productId}"]`);
         if (actionArea) {
             const btn = actionArea.querySelector('.add-to-cart-btn');
@@ -1452,7 +1452,7 @@ const initApp = async () => {
     };
 
 
-const renderQuantityControl = (product) => {
+    const renderQuantityControl = (product) => {
         const quantityControl = createSafeElement('div', {
             class: `quantity-control ${UTILITY_CLASSES.hidden}`,
             role: 'group',
@@ -1753,112 +1753,112 @@ const renderQuantityControl = (product) => {
 
     // MUCH MORE CONSERVATIVE fuzzy matching - only for obvious typos
     function simpleTypoFix(query, text) {
-    if (!query || !text || query.length < 3) return false;
-    
-    const normalizeText = (str) => str.toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '') // Remove accents only
-        .trim();
-    
-    const normalizedQuery = normalizeText(query);
-    const normalizedText = normalizeText(text);
-    
-    // First try exact match (same as original)
-    if (normalizedText.includes(normalizedQuery)) {
-        return true;
-    }
-    
-    // ONLY try typo correction if query is 4+ characters
-    // and the difference is just 1-2 characters
-    if (normalizedQuery.length >= 4) {
-        // Check if it's a simple 1-character typo
-        // Like "choclate" vs "chocolate" or "galetas" vs "galletas"
-        return isSimpleTypo(normalizedQuery, normalizedText);
-    }
-    
-    return false;
+        if (!query || !text || query.length < 3) return false;
+
+        const normalizeText = (str) => str.toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '') // Remove accents only
+            .trim();
+
+        const normalizedQuery = normalizeText(query);
+        const normalizedText = normalizeText(text);
+
+        // First try exact match (same as original)
+        if (normalizedText.includes(normalizedQuery)) {
+            return true;
+        }
+
+        // ONLY try typo correction if query is 4+ characters
+        // and the difference is just 1-2 characters
+        if (normalizedQuery.length >= 4) {
+            // Check if it's a simple 1-character typo
+            // Like "choclate" vs "chocolate" or "galetas" vs "galletas"
+            return isSimpleTypo(normalizedQuery, normalizedText);
+        }
+
+        return false;
     }
 
     // Very strict typo detection - only catches obvious single-character mistakes
     function isSimpleTypo(query, text) {
-    const words = text.split(/\s+/);
-    
-    return words.some(word => {
-        if (Math.abs(word.length - query.length) > 1) return false;
-        
-        // Count character differences
-        let differences = 0;
-        const maxLen = Math.max(word.length, query.length);
-        const minLen = Math.min(word.length, query.length);
-        
-        // Too short to safely compare
-        if (minLen < 4) return false;
-        
-        // Check for single character insertion/deletion
-        if (word.length === query.length) {
-        // Same length - check for substitution
-        for (let i = 0; i < word.length; i++) {
-            if (word[i] !== query[i]) differences++;
-            if (differences > 1) return false; // More than 1 difference
-        }
-        return differences === 1;
-        } else {
-        // Different length - check for insertion/deletion
-        return isOneCharacterDifference(query, word);
-        }
-    });
+        const words = text.split(/\s+/);
+
+        return words.some(word => {
+            if (Math.abs(word.length - query.length) > 1) return false;
+
+            // Count character differences
+            let differences = 0;
+            const maxLen = Math.max(word.length, query.length);
+            const minLen = Math.min(word.length, query.length);
+
+            // Too short to safely compare
+            if (minLen < 4) return false;
+
+            // Check for single character insertion/deletion
+            if (word.length === query.length) {
+                // Same length - check for substitution
+                for (let i = 0; i < word.length; i++) {
+                    if (word[i] !== query[i]) differences++;
+                    if (differences > 1) return false; // More than 1 difference
+                }
+                return differences === 1;
+            } else {
+                // Different length - check for insertion/deletion
+                return isOneCharacterDifference(query, word);
+            }
+        });
     }
 
     // Check if two words differ by exactly one character (insertion/deletion)
     function isOneCharacterDifference(str1, str2) {
-    const longer = str1.length > str2.length ? str1 : str2;
-    const shorter = str1.length > str2.length ? str2 : str1;
-    
-    if (longer.length - shorter.length !== 1) return false;
-    
-    let shifts = 0;
-    let i = 0, j = 0;
-    
-    while (i < shorter.length && j < longer.length) {
-        if (shorter[i] === longer[j]) {
-        i++;
-        j++;
-        } else {
-        shifts++;
-        if (shifts > 1) return false; // More than one shift needed
-        j++; // Skip the extra character in longer string
+        const longer = str1.length > str2.length ? str1 : str2;
+        const shorter = str1.length > str2.length ? str2 : str1;
+
+        if (longer.length - shorter.length !== 1) return false;
+
+        let shifts = 0;
+        let i = 0, j = 0;
+
+        while (i < shorter.length && j < longer.length) {
+            if (shorter[i] === longer[j]) {
+                i++;
+                j++;
+            } else {
+                shifts++;
+                if (shifts > 1) return false; // More than one shift needed
+                j++; // Skip the extra character in longer string
+            }
         }
-    }
-    
-    return true;
+
+        return true;
     }
 
     // REPLACE your filterProducts function with this CONSERVATIVE version:
     const filterProducts = (products, keyword, sortCriterion, discountOnly = false) => {
-    const trimmedKeyword = keyword.trim();
-    
-    return products
-        .filter(product => {
-        if (!product.stock) return false;
-        if (discountOnly && !(product.discount && Number(product.discount) > 0)) return false;
-        
-        // If no keyword, show all (same as original behavior)
-        if (!trimmedKeyword) return true;
-        
-        // Try EXACT matching first (exactly like original)
-        const exactMatch = product.name.toLowerCase().includes(trimmedKeyword.toLowerCase()) ||
-                            product.description.toLowerCase().includes(trimmedKeyword.toLowerCase());
-        
-        if (exactMatch) return true;
-        
-        // ONLY try typo fix for longer queries and only for name field
-        if (trimmedKeyword.length >= 4) {
-            return simpleTypoFix(trimmedKeyword, product.name);
-        }
-        
-        return false;
-        })
-        .sort((a, b) => sortProducts(a, b, sortCriterion));
+        const trimmedKeyword = keyword.trim();
+
+        return products
+            .filter(product => {
+                if (!product.stock) return false;
+                if (discountOnly && !(product.discount && Number(product.discount) > 0)) return false;
+
+                // If no keyword, show all (same as original behavior)
+                if (!trimmedKeyword) return true;
+
+                // Try EXACT matching first (exactly like original)
+                const exactMatch = product.name.toLowerCase().includes(trimmedKeyword.toLowerCase()) ||
+                    product.description.toLowerCase().includes(trimmedKeyword.toLowerCase());
+
+                if (exactMatch) return true;
+
+                // ONLY try typo fix for longer queries and only for name field
+                if (trimmedKeyword.length >= 4) {
+                    return simpleTypoFix(trimmedKeyword, product.name);
+                }
+
+                return false;
+            })
+            .sort((a, b) => sortProducts(a, b, sortCriterion));
     };
 
     const sortProducts = (a, b, criterion) => {

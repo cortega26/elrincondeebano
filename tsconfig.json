@@ -1,13 +1,20 @@
 {
   "compilerOptions": {
     "target": "ES2018",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "baseUrl": ".",
     "strict": false,
-    "types": ["cypress"]
+    "allowJs": true,
+    "checkJs": false,
+    "esModuleInterop": true,
+    "types": [
+      "cypress"
+    ]
   },
   "include": [
+    "src/**/*",
+    "test/**/*",
     "cypress/**/*.ts"
   ]
 }
