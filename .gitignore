@@ -108,4 +108,8 @@ temp/
 temp_patch.txt
 
 # Stryker
-.stryker-tmp
+.stryker-tmp/
+
+# Archived projects
+_archive/
+
