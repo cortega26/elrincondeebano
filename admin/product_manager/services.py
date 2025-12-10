@@ -20,11 +20,7 @@ ProductUpdateSpec = Union[Tuple[str, Product], Tuple[str, str, Product]]
 
 def _utc_now_iso() -> str:
     """Return current UTC timestamp with millisecond precision."""
-    dt = datetime.now(timezone.utc)
-    try:
-        return dt.isoformat(timespec='milliseconds').replace('+00:00', 'Z')
-    except TypeError:
-        return dt.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+    return datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
 
 
 class ProductEventType(Enum):
