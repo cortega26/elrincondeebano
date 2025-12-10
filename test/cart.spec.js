@@ -71,7 +71,9 @@ describe('Cart Helpers', () => {
     // 50 items * 100 price = 5000 (formatted es-CL: $5.000)
     // The code logic uses toLocaleString('es-CL').
     const totalEl = document.getElementById('cart-total');
-    expect(totalEl.textContent).toContain('5.000');
+    // Strict assertion to reject negative numbers (killed -= mutant)
+    expect(totalEl.textContent.trim()).toBe('Total: $5.000');
+    expect(totalEl.getAttribute('aria-label')).toBe('Total: $5.000');
   });
 
   it('removing or decreasing quantity updates state and DOM', () => {

@@ -71,8 +71,10 @@ class JsonProductRepository(ProductRepositoryProtocol):
             self._file_path = provided_path
             self._base_path = provided_path.parent
         else:
-            self._base_path = Path(base_path) if base_path else Path(
-                r"C:\Users\corte\OneDrive\Tienda Ebano\data")
+            if base_path:
+                self._base_path = Path(base_path)
+            else:
+                self._base_path = Path(__file__).resolve().parents[2] / 'data'
             self._file_path = self._base_path / provided_path
         self._ensure_directory_exists()
         self._catalog_meta: Dict[str, Any] = {
