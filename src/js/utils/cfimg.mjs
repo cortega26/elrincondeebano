@@ -42,7 +42,7 @@ function shouldDisableCfRewrite() {
 export function cfimg(path, opts = {}) {
   const normalized = path.startsWith('/') ? path : '/' + path;
   if (shouldDisableCfRewrite()) {
-    return normalized;
+    return normalized.split('/').map(encodeURIComponent).join('/');
   }
   const params = Object.entries(opts).map(([k, v]) => `${k}=${v}`).join(',');
   const encoded = normalized.split('/').map(encodeURIComponent).join('/');
