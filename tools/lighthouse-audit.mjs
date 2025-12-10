@@ -24,7 +24,7 @@ const MIME_TYPES = {
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
   '.woff2': 'font/woff2',
-  '.txt': 'text/plain; charset=utf-8'
+  '.txt': 'text/plain; charset=utf-8',
 };
 
 async function runBuild() {
@@ -33,7 +33,7 @@ async function runBuild() {
     const buildProcess = spawn(npmCmd, ['run', 'build'], {
       cwd: rootDir,
       stdio: 'inherit',
-      shell: true
+      shell: true,
     });
 
     buildProcess.on('error', (err) => {
@@ -129,7 +129,7 @@ export function createStaticServer(root) {
 async function runLighthouseAudit(targetUrl, preset, timestamp) {
   console.log(`Iniciando auditoría Lighthouse (${preset})...`);
   const chrome = await launchChrome({
-    chromeFlags: ['--headless=new', '--no-sandbox', '--disable-gpu']
+    chromeFlags: ['--headless=new', '--no-sandbox', '--disable-gpu'],
   });
 
   try {
@@ -137,7 +137,7 @@ async function runLighthouseAudit(targetUrl, preset, timestamp) {
       port: chrome.port,
       output: ['html', 'json'],
       logLevel: 'info',
-      preset
+      preset,
     });
 
     const [htmlReport, jsonReport] = result.report;
@@ -148,7 +148,9 @@ async function runLighthouseAudit(targetUrl, preset, timestamp) {
     fs.writeFileSync(htmlPath, htmlReport, 'utf8');
     fs.writeFileSync(jsonPath, jsonReport, 'utf8');
 
-    console.log(`Auditoría ${preset} completada. Reportes guardados en:\n  - ${htmlPath}\n  - ${jsonPath}`);
+    console.log(
+      `Auditoría ${preset} completada. Reportes guardados en:\n  - ${htmlPath}\n  - ${jsonPath}`
+    );
   } finally {
     await chrome.kill();
   }

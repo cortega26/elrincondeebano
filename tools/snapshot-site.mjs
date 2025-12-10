@@ -23,9 +23,7 @@ export function sanitizeTag(rawTag) {
   }
 
   const normalised = trimmed.normalize('NFKD');
-  const cleaned = normalised
-    .replace(/[^\p{Letter}\p{Number}\s_-]+/gu, '')
-    .replace(/\s+/g, '-');
+  const cleaned = normalised.replace(/[^\p{Letter}\p{Number}\s_-]+/gu, '').replace(/\s+/g, '-');
   const collapsed = cleaned.replace(/-+/g, '-').replace(/_+/g, '_');
   const result = collapsed.toLowerCase().replace(/^[-_]+|[-_]+$/g, '');
 
@@ -79,10 +77,7 @@ export async function appendSnapshotMetadata(manifestPath, entry) {
   data.snapshots.push(entry);
   const sorted = sortByCapturedAtDesc(data.snapshots);
 
-  await writeFile(
-    manifestPath,
-    `${JSON.stringify({ ...data, snapshots: sorted }, null, 2)}\n`
-  );
+  await writeFile(manifestPath, `${JSON.stringify({ ...data, snapshots: sorted }, null, 2)}\n`);
 }
 
 function resolveSnapshotPath(snapshotPath) {
@@ -90,9 +85,7 @@ function resolveSnapshotPath(snapshotPath) {
     return null;
   }
 
-  return path.isAbsolute(snapshotPath)
-    ? snapshotPath
-    : path.resolve(process.cwd(), snapshotPath);
+  return path.isAbsolute(snapshotPath) ? snapshotPath : path.resolve(process.cwd(), snapshotPath);
 }
 
 /**
@@ -124,10 +117,7 @@ export async function removeLatestSnapshot(manifestPath, { deleteArtifact = true
     }
   }
 
-  await writeFile(
-    manifestPath,
-    `${JSON.stringify({ ...data, snapshots: remaining }, null, 2)}\n`
-  );
+  await writeFile(manifestPath, `${JSON.stringify({ ...data, snapshots: remaining }, null, 2)}\n`);
 
   return latest;
 }
@@ -196,9 +186,7 @@ async function runCli() {
   }
 
   const sanitized = sanitizeTag(values.tag);
-  const targetDir = values.outdir
-    ? path.resolve(process.cwd(), values.outdir)
-    : DEFAULT_OUTPUT_DIR;
+  const targetDir = values.outdir ? path.resolve(process.cwd(), values.outdir) : DEFAULT_OUTPUT_DIR;
 
   let targetUrl;
   try {

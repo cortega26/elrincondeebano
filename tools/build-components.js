@@ -1,15 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const ejs = require('ejs');
-const {
-  rootDir,
-  resolveFromOutput,
-  ensureDir,
-} = require('./utils/output-dir');
-const {
-  loadCategoryCatalog,
-  buildNavModel,
-} = require('./utils/category-catalog');
+const { rootDir, resolveFromOutput, ensureDir } = require('./utils/output-dir');
+const { loadCategoryCatalog, buildNavModel } = require('./utils/category-catalog');
 
 function renderPartial(partialPath, context = {}) {
   const template = fs.readFileSync(partialPath, 'utf8');

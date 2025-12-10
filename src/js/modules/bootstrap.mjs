@@ -51,7 +51,10 @@ function loadWithOverride(name, importer) {
 
 async function loadCollapse() {
   if (!collapseModulePromise) {
-    collapseModulePromise = loadWithOverride('collapse', () => import('bootstrap/js/dist/collapse'));
+    collapseModulePromise = loadWithOverride(
+      'collapse',
+      () => import('bootstrap/js/dist/collapse')
+    );
   }
   const module = await collapseModulePromise;
   return getModuleExport(module);
@@ -59,7 +62,10 @@ async function loadCollapse() {
 
 async function loadOffcanvas() {
   if (!offcanvasModulePromise) {
-    offcanvasModulePromise = loadWithOverride('offcanvas', () => import('bootstrap/js/dist/offcanvas'));
+    offcanvasModulePromise = loadWithOverride(
+      'offcanvas',
+      () => import('bootstrap/js/dist/offcanvas')
+    );
   }
   const module = await offcanvasModulePromise;
   return getModuleExport(module);

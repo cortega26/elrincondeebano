@@ -50,7 +50,7 @@ function sendNotFound(res) {
 const server = http.createServer(async (req, res) => {
   try {
     const { method, url } = req;
-    if (!url || method !== 'GET' && method !== 'HEAD') {
+    if (!url || (method !== 'GET' && method !== 'HEAD')) {
       res.statusCode = 405;
       res.setHeader('content-type', 'text/plain; charset=utf-8');
       res.end('Method Not Allowed');

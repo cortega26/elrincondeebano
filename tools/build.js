@@ -1,12 +1,7 @@
 const esbuild = require('esbuild');
 const fs = require('fs');
 const path = require('path');
-const {
-  rootDir,
-  prepareOutputRoot,
-  resolveFromOutput,
-  ensureDir,
-} = require('./utils/output-dir');
+const { rootDir, prepareOutputRoot, resolveFromOutput, ensureDir } = require('./utils/output-dir');
 
 async function build() {
   const outputRoot = prepareOutputRoot();
@@ -44,7 +39,7 @@ async function build() {
     sourcemap: true,
     metafile: true,
   });
-  const jsOutputs = (jsBuild.metafile && jsBuild.metafile.outputs) ? jsBuild.metafile.outputs : {};
+  const jsOutputs = jsBuild.metafile && jsBuild.metafile.outputs ? jsBuild.metafile.outputs : {};
   Object.keys(jsOutputs).forEach((outputPath) => {
     const rel = path.relative(outputRoot, outputPath).replace(/\\/g, '/');
     manifestFiles.add(`/${rel}`);
@@ -55,10 +50,7 @@ async function build() {
 
   const staticJs = ['csp.js', 'sw-register.js'];
   for (const file of staticJs) {
-    fs.copyFileSync(
-      path.join(rootDir, 'src/js', file),
-      path.join(distJsDir, file),
-    );
+    fs.copyFileSync(path.join(rootDir, 'src/js', file), path.join(distJsDir, file));
     manifestFiles.add(`/dist/js/${file}`);
   }
 
@@ -74,7 +66,8 @@ async function build() {
     sourcemap: true,
     metafile: true,
   });
-  const cssOutputs = (cssBuild.metafile && cssBuild.metafile.outputs) ? cssBuild.metafile.outputs : {};
+  const cssOutputs =
+    cssBuild.metafile && cssBuild.metafile.outputs ? cssBuild.metafile.outputs : {};
   Object.keys(cssOutputs).forEach((outputPath) => {
     const rel = path.relative(outputRoot, outputPath).replace(/\\/g, '/');
     manifestFiles.add(`/${rel}`);
@@ -91,7 +84,10 @@ async function build() {
     loader: { '.css': 'css', '.woff2': 'file', '.woff': 'file' },
     sourcemap: true,
   });
-  const criticalOutputs = (criticalCssBuild.metafile && criticalCssBuild.metafile.outputs) ? criticalCssBuild.metafile.outputs : {};
+  const criticalOutputs =
+    criticalCssBuild.metafile && criticalCssBuild.metafile.outputs
+      ? criticalCssBuild.metafile.outputs
+      : {};
   Object.keys(criticalOutputs).forEach((outputPath) => {
     const rel = path.relative(outputRoot, outputPath).replace(/\\/g, '/');
     manifestFiles.add(`/${rel}`);
@@ -109,8 +105,8 @@ async function build() {
         files: Array.from(manifestFiles).sort(),
       },
       null,
-      2,
-    ),
+      2
+    )
   );
 
   return outputRoot;

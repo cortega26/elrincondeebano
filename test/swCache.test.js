@@ -9,13 +9,15 @@ function createCachesMock() {
       if (!stores.has(name)) stores.set(name, new Map());
       const cache = stores.get(name);
       return {
-        put: async (req, res) => { cache.set(req, res); },
+        put: async (req, res) => {
+          cache.set(req, res);
+        },
         delete: async (req) => cache.delete(req),
-        keys: async () => Array.from(cache.keys())
+        keys: async () => Array.from(cache.keys()),
       };
     },
     keys: async () => Array.from(stores.keys()),
-    delete: async (name) => stores.delete(name)
+    delete: async (name) => stores.delete(name),
   };
 }
 
@@ -42,7 +44,10 @@ test('invalidateAllCaches removes only caches matching configured prefixes', asy
   await (await caches.open(dynamicPrefix)).put('b', new Response('2'));
   await (await caches.open(unrelated)).put('c', new Response('3'));
 
-  assert.deepStrictEqual((await caches.keys()).sort(), [staticPrefix, dynamicPrefix, unrelated].sort());
+  assert.deepStrictEqual(
+    (await caches.keys()).sort(),
+    [staticPrefix, dynamicPrefix, unrelated].sort()
+  );
 
   await invalidateAllCaches();
 

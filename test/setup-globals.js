@@ -8,15 +8,7 @@
  * native implementations on modern Node LTS releases (Node 22+ today).
  */
 try {
-  const {
-    fetch,
-    Headers,
-    Request,
-    Response,
-    FormData,
-    File,
-    Blob,
-  } = require('undici');
+  const { fetch, Headers, Request, Response, FormData, File, Blob } = require('undici');
 
   const globalsToInstall = {
     fetch,
@@ -39,11 +31,8 @@ try {
     }
   }
 } catch (error) {
-  process.emitWarning(
-    `Failed to set up Web API test shims: ${error.message}`,
-    {
-      code: 'TEST_WEB_API_SHIM',
-      detail: error.stack,
-    },
-  );
+  process.emitWarning(`Failed to set up Web API test shims: ${error.message}`, {
+    code: 'TEST_WEB_API_SHIM',
+    detail: error.stack,
+  });
 }

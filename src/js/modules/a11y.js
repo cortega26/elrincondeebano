@@ -29,7 +29,7 @@ function getFocusableElements(container) {
     'select:not([disabled])',
     'textarea:not([disabled])',
     '[tabindex]:not([tabindex="-1"])',
-    '[contenteditable="true"]'
+    '[contenteditable="true"]',
   ];
   return Array.from(container.querySelectorAll(selectors.join(','))).filter((el) => {
     if (!(el instanceof HTMLElement)) return false;
@@ -111,7 +111,8 @@ export function setupCartOffcanvasAccessibility() {
     }
 
     cartOffcanvas.addEventListener('show.bs.offcanvas', () => {
-      lastFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      lastFocusedElement =
+        document.activeElement instanceof HTMLElement ? document.activeElement : null;
       attachKeydown();
     });
 

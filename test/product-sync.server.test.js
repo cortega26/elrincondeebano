@@ -32,9 +32,7 @@ async function createTempStore(initialProducts = []) {
 }
 
 test('accepts updates on distinct fields without conflict', async (t) => {
-  const { store } = await createTempStore([
-    { name: 'Widget', price: 1000 },
-  ]);
+  const { store } = await createTempStore([{ name: 'Widget', price: 1000 }]);
 
   const first = await store.applyPatch({
     productId: 'Widget',
@@ -69,9 +67,7 @@ test('accepts updates on distinct fields without conflict', async (t) => {
 });
 
 test('rejects outdated updates on same field with conflict details', async () => {
-  const { store } = await createTempStore([
-    { name: 'Widget', price: 1000 },
-  ]);
+  const { store } = await createTempStore([{ name: 'Widget', price: 1000 }]);
 
   await store.applyPatch({
     productId: 'Widget',
@@ -99,9 +95,7 @@ test('rejects outdated updates on same field with conflict details', async () =>
 });
 
 test('uses timestamp tiebreaker when base revisions match', async () => {
-  const { store } = await createTempStore([
-    { name: 'Widget', price: 1000 },
-  ]);
+  const { store } = await createTempStore([{ name: 'Widget', price: 1000 }]);
 
   await store.applyPatch({
     productId: 'Widget',
@@ -126,9 +120,7 @@ test('uses timestamp tiebreaker when base revisions match', async () => {
 });
 
 test('idempotent patches reuse prior response', async () => {
-  const { store } = await createTempStore([
-    { name: 'Widget', price: 1000 },
-  ]);
+  const { store } = await createTempStore([{ name: 'Widget', price: 1000 }]);
 
   const first = await store.applyPatch({
     productId: 'Widget',
@@ -155,9 +147,7 @@ test('idempotent patches reuse prior response', async () => {
 });
 
 test('admin precedence resolves exact timestamp collision', async () => {
-  const { store } = await createTempStore([
-    { name: 'Widget', price: 1000 },
-  ]);
+  const { store } = await createTempStore([{ name: 'Widget', price: 1000 }]);
 
   await store.applyPatch({
     productId: 'Widget',
@@ -194,9 +184,7 @@ test('admin precedence resolves exact timestamp collision', async () => {
 });
 
 test('stable hash fallback provides deterministic result for identical sources', async () => {
-  const { store } = await createTempStore([
-    { name: 'Widget', price: 1000 },
-  ]);
+  const { store } = await createTempStore([{ name: 'Widget', price: 1000 }]);
 
   const initial = await store.applyPatch({
     productId: 'Widget',
@@ -234,9 +222,7 @@ test('stable hash fallback provides deterministic result for identical sources',
 });
 
 test('rejects invalid price updates that fail validation', async () => {
-  const { store } = await createTempStore([
-    { name: 'Widget', price: 1000 },
-  ]);
+  const { store } = await createTempStore([{ name: 'Widget', price: 1000 }]);
 
   await assert.rejects(
     store.applyPatch({
@@ -251,14 +237,12 @@ test('rejects invalid price updates that fail validation', async () => {
       assert.equal(error.statusCode, 400);
       assert.match(error.message, /price/i);
       return true;
-    },
+    }
   );
 });
 
 test('rejects discounts that exceed the product price', async () => {
-  const { store } = await createTempStore([
-    { name: 'Widget', price: 1000 },
-  ]);
+  const { store } = await createTempStore([{ name: 'Widget', price: 1000 }]);
 
   await assert.rejects(
     store.applyPatch({
@@ -273,14 +257,12 @@ test('rejects discounts that exceed the product price', async () => {
       assert.equal(error.statusCode, 400);
       assert.match(error.message, /discount/i);
       return true;
-    },
+    }
   );
 });
 
 test('records conflicts for unsupported fields instead of mutating the product', async () => {
-  const { store } = await createTempStore([
-    { name: 'Widget', price: 1000 },
-  ]);
+  const { store } = await createTempStore([{ name: 'Widget', price: 1000 }]);
 
   const response = await store.applyPatch({
     productId: 'Widget',

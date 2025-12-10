@@ -14,7 +14,7 @@ const heroWidths = [1200, 1600, 2000];
 function findFiles(dir, exts) {
   if (!fs.existsSync(dir)) return [];
   const entries = fs.readdirSync(dir, { withFileTypes: true });
-  return entries.flatMap(e => {
+  return entries.flatMap((e) => {
     const res = path.join(dir, e.name);
     if (e.isDirectory()) return findFiles(res, exts);
     return exts.includes(path.extname(e.name)) ? [res] : [];
@@ -22,13 +22,13 @@ function findFiles(dir, exts) {
 }
 
 function buildSrcset(base, ext, widths) {
-  return widths.map(w => `${varRoot}/${base}-${w}.${ext} ${w}w`).join(', ');
+  return widths.map((w) => `${varRoot}/${base}-${w}.${ext} ${w}w`).join(', ');
 }
 
 function rewriteHtml(file) {
   const dom = new JSDOM(fs.readFileSync(file, 'utf8'));
   const { document } = dom.window;
-  document.querySelectorAll('img[src*="/assets/images/originals/"]').forEach(img => {
+  document.querySelectorAll('img[src*="/assets/images/originals/"]').forEach((img) => {
     const src = img.getAttribute('src');
     const rel = src.replace('/assets/images/originals/', '');
     const base = rel.replace(/\.[^./]+$/, '');
@@ -79,10 +79,13 @@ function rewriteHtml(file) {
 
 function rewriteCss(file) {
   let css = fs.readFileSync(file, 'utf8');
-  css = css.replace(/url\((['"])?\/assets\/images\/originals\/(.+?)\.(jpe?g|png)\1\)/g, (_m, q, name, ext) => {
-    const base = name;
-    return `image-set(url(${varRoot}/${base}-800.avif) type('image/avif'), url(${varRoot}/${base}-800.webp) type('image/webp'), url(${varRoot}/${base}-800.${ext}) type('image/${ext === 'png' ? 'png' : 'jpeg'}'))`;
-  });
+  css = css.replace(
+    /url\((['"])?\/assets\/images\/originals\/(.+?)\.(jpe?g|png)\1\)/g,
+    (_m, q, name, ext) => {
+      const base = name;
+      return `image-set(url(${varRoot}/${base}-800.avif) type('image/avif'), url(${varRoot}/${base}-800.webp) type('image/webp'), url(${varRoot}/${base}-800.${ext}) type('image/${ext === 'png' ? 'png' : 'jpeg'}'))`;
+    }
+  );
   fs.writeFileSync(file, css);
 }
 

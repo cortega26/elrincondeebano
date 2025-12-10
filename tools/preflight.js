@@ -25,7 +25,9 @@ function logCfimgMode() {
     console.log('CFIMG: rewrite enabled via CFIMG_ENABLE');
     return;
   }
-  console.log('CFIMG: rewrite disabled by default; set CFIMG_ENABLE=1 when building behind Cloudflare');
+  console.log(
+    'CFIMG: rewrite disabled by default; set CFIMG_ENABLE=1 when building behind Cloudflare'
+  );
 }
 
 function ensureManifestExists() {
@@ -34,7 +36,10 @@ function ensureManifestExists() {
     return;
   }
   fs.mkdirSync(path.dirname(manifestPath), { recursive: true });
-  fs.writeFileSync(manifestPath, JSON.stringify({ generatedAt: new Date().toISOString(), files: [] }, null, 2));
+  fs.writeFileSync(
+    manifestPath,
+    JSON.stringify({ generatedAt: new Date().toISOString(), files: [] }, null, 2)
+  );
 }
 
 function main() {

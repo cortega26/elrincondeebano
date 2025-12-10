@@ -46,15 +46,15 @@ const assert = require('assert');
         querySelector() {
           return {
             addEventListener: () => {},
-            remove: () => {}
+            remove: () => {},
           };
         },
         remove() {
           bodyChildren.delete(element);
         },
         classList: {
-          toggle: () => {}
-        }
+          toggle: () => {},
+        },
       };
       return element;
     },
@@ -64,8 +64,8 @@ const assert = require('assert');
       },
       contains(element) {
         return bodyChildren.has(element);
-      }
-    }
+      },
+    },
   };
 
   const windowMock = {
@@ -88,9 +88,9 @@ const assert = require('assert');
     location: {
       reload: () => {},
       hostname: 'example.com',
-      search: ''
+      search: '',
     },
-    document: documentMock
+    document: documentMock,
   };
 
   const storage = {};
@@ -100,7 +100,7 @@ const assert = require('assert');
     },
     setItem(key, value) {
       storage[key] = String(value);
-    }
+    },
   };
 
   let registerCalls = 0;
@@ -110,12 +110,12 @@ const assert = require('assert');
     installing: {
       addEventListener: () => {},
       state: 'installed',
-      postMessage: () => {}
+      postMessage: () => {},
     },
     active: {
-      postMessage: () => {}
+      postMessage: () => {},
     },
-    update: async () => {}
+    update: async () => {},
   };
 
   const serviceWorkerMock = {
@@ -124,12 +124,12 @@ const assert = require('assert');
       return registrationMock;
     },
     addEventListener: () => {},
-    controller: {}
+    controller: {},
   };
 
   global.fetch = async () => ({
     ok: true,
-    json: async () => ({ version: '1' })
+    json: async () => ({ version: '1' }),
   });
 
   global.window = windowMock;
@@ -137,34 +137,54 @@ const assert = require('assert');
   Object.defineProperty(globalThis, 'navigator', {
     value: {
       serviceWorker: serviceWorkerMock,
-      onLine: true
+      onLine: true,
     },
     configurable: true,
-    writable: true
+    writable: true,
   });
 
   windowMock.navigator = global.navigator;
 
   const module = await import('../src/js/script.mjs');
-  await new Promise(resolve => setImmediate(resolve));
+  await new Promise((resolve) => setImmediate(resolve));
 
-  assert.strictEqual(registerCalls, 1, 'service worker should register immediately when document is complete');
-  assert.strictEqual(windowListeners.has('load'), false, 'load listener should be removed after registration');
+  assert.strictEqual(
+    registerCalls,
+    1,
+    'service worker should register immediately when document is complete'
+  );
+  assert.strictEqual(
+    windowListeners.has('load'),
+    false,
+    'load listener should be removed after registration'
+  );
 
   module.__resetServiceWorkerRegistrationForTest();
   document.readyState = 'complete';
 
   module.__registerServiceWorkerForTest();
-  await new Promise(resolve => setImmediate(resolve));
+  await new Promise((resolve) => setImmediate(resolve));
 
   assert.strictEqual(registerCalls, 2, 'service worker should register after reset');
-  assert.strictEqual(windowListeners.has('load'), false, 'load listener should be cleaned up after reset registration');
+  assert.strictEqual(
+    windowListeners.has('load'),
+    false,
+    'load listener should be cleaned up after reset registration'
+  );
 
   module.__registerServiceWorkerForTest();
-  await new Promise(resolve => setImmediate(resolve));
+  await new Promise((resolve) => setImmediate(resolve));
 
-  assert.strictEqual(registerCalls, 2, 'registerServiceWorker should not run multiple times without reset');
-  assert.strictEqual(windowListeners.has('load'), false, 'load listener should not be reattached on repeated calls');
+  assert.strictEqual(
+    registerCalls,
+    2,
+    'registerServiceWorker should not run multiple times without reset'
+  );
+  assert.strictEqual(
+    windowListeners.has('load'),
+    false,
+    'load listener should not be reattached on repeated calls'
+  );
 
   windowMock.location.hostname = 'localhost';
   windowMock.location.search = '';
@@ -201,7 +221,7 @@ const assert = require('assert');
   registerCalls = 0;
   module.__resetServiceWorkerRegistrationForTest();
   await module.__registerServiceWorkerForTest();
-  await new Promise(resolve => setImmediate(resolve));
+  await new Promise((resolve) => setImmediate(resolve));
   assert.strictEqual(registerCalls, 0, 'kill-switch should bypass registerServiceWorker');
 
   delete storage['ebano-sw-disabled'];

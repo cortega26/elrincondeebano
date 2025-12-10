@@ -26,7 +26,7 @@ function persistSharedProducts(products, metadata = {}) {
     products,
     version: metadata.version ?? existing.version ?? null,
     updatedAt: metadata.updatedAt || Date.now(),
-    source: metadata.source || existing.source || 'seo'
+    source: metadata.source || existing.source || 'seo',
   };
 }
 
@@ -47,7 +47,7 @@ function markStructuredDataInjected() {
   }
   window[PRODUCT_DATA_GLOBAL_KEY] = {
     ...payload,
-    structuredDataInjected: true
+    structuredDataInjected: true,
   };
 }
 
@@ -78,12 +78,20 @@ async function loadProductData() {
     }
 
     const version = localStorage.getItem('productDataVersion');
-    const url = version ? `/data/product_data.json?v=${encodeURIComponent(version)}` : '/data/product_data.json';
-    const response = await fetch(url, { cache: 'default', headers: { 'Accept': 'application/json' } });
+    const url = version
+      ? `/data/product_data.json?v=${encodeURIComponent(version)}`
+      : '/data/product_data.json';
+    const response = await fetch(url, {
+      cache: 'default',
+      headers: { Accept: 'application/json' },
+    });
     if (!response.ok) return null;
     const data = await response.json();
-    const arr = Array.isArray(data?.products) ? data.products : (Array.isArray(data) ? data : []);
-    persistSharedProducts(arr, { version: data?.version || version || null, source: 'seo-fallback' });
+    const arr = Array.isArray(data?.products) ? data.products : Array.isArray(data) ? data : [];
+    persistSharedProducts(arr, {
+      version: data?.version || version || null,
+      source: 'seo-fallback',
+    });
     return createProductMap(arr);
   } catch (e) {
     console.error('[modules/seo] Error loading product data:', e);

@@ -22,14 +22,17 @@ function loadModule(relPath) {
 }
 
 test('menu controller opens on pointerdown and closes on outside interaction', async () => {
-  const dom = new JSDOM(`<!DOCTYPE html><body>
+  const dom = new JSDOM(
+    `<!DOCTYPE html><body>
     <div id="navbar-container">
       <div class="dropdown">
         <a id="firstToggle" class="dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Primero</a>
         <ul class="dropdown-menu" id="firstMenu"></ul>
       </div>
     </div>
-  </body>`, { url: 'http://localhost' });
+  </body>`,
+    { url: 'http://localhost' }
+  );
   global.window = dom.window;
   global.document = dom.window.document;
   global.HTMLElement = dom.window.HTMLElement;
@@ -57,7 +60,8 @@ test('menu controller opens on pointerdown and closes on outside interaction', a
 });
 
 test('menu controller closes previous dropdown when opening a new one', async () => {
-  const dom = new JSDOM(`<!DOCTYPE html><body>
+  const dom = new JSDOM(
+    `<!DOCTYPE html><body>
     <div id="navbar-container">
       <div class="dropdown">
         <a id="firstToggle" class="dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Primero</a>
@@ -68,7 +72,9 @@ test('menu controller closes previous dropdown when opening a new one', async ()
         <ul class="dropdown-menu" id="secondMenu"></ul>
       </div>
     </div>
-  </body>`, { url: 'http://localhost' });
+  </body>`,
+    { url: 'http://localhost' }
+  );
   global.window = dom.window;
   global.document = dom.window.document;
   global.HTMLElement = dom.window.HTMLElement;

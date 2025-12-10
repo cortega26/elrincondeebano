@@ -21,8 +21,7 @@ const assert = require('assert');
   );
 
   console.log('All tests passed');
-})().catch(err => {
+})().catch((err) => {
   console.error(err);
   process.exit(1);
 });
-

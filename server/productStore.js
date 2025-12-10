@@ -107,7 +107,9 @@ function normaliseAssetPath(rawValue, { field, allowEmpty = true, requireAvif = 
       throw createValidationError(`${field} must use the .avif extension.`);
     }
   } else if (!FALLBACK_IMAGE_EXTENSIONS.has(extension)) {
-    throw createValidationError(`${field} must use one of the allowed extensions (${Array.from(FALLBACK_IMAGE_EXTENSIONS).join(', ')}).`);
+    throw createValidationError(
+      `${field} must use one of the allowed extensions (${Array.from(FALLBACK_IMAGE_EXTENSIONS).join(', ')}).`
+    );
   }
   return normalised;
 }
@@ -118,7 +120,9 @@ const FIELD_SANITIZERS = {
   price: (value) => normaliseInteger(value, 'price', { min: 1, max: MAX_PRICE, allowZero: false }),
   discount: (value, { product, pending }) => {
     const discountValue = normaliseInteger(value, 'discount', { min: 0, max: MAX_PRICE });
-    const referencePrice = Object.prototype.hasOwnProperty.call(pending, 'price') ? pending.price : product.price;
+    const referencePrice = Object.prototype.hasOwnProperty.call(pending, 'price')
+      ? pending.price
+      : product.price;
     if (typeof referencePrice !== 'number' || Number.isNaN(referencePrice)) {
       throw createValidationError('Cannot apply discount without a valid price.');
     }
@@ -129,8 +133,10 @@ const FIELD_SANITIZERS = {
   },
   stock: (value) => normaliseBoolean(value, 'stock'),
   category: (value) => normaliseOptionalString(value, 'category', MAX_CATEGORY_LENGTH),
-  image_path: (value) => normaliseAssetPath(value, { field: 'image_path', allowEmpty: true, requireAvif: false }),
-  image_avif_path: (value) => normaliseAssetPath(value, { field: 'image_avif_path', allowEmpty: true, requireAvif: true }),
+  image_path: (value) =>
+    normaliseAssetPath(value, { field: 'image_path', allowEmpty: true, requireAvif: false }),
+  image_avif_path: (value) =>
+    normaliseAssetPath(value, { field: 'image_avif_path', allowEmpty: true, requireAvif: true }),
   order: (value) => normaliseInteger(value, 'order', { min: 0 }),
 };
 
@@ -144,7 +150,7 @@ function stableHash(input) {
   let hash = 0;
   for (let i = 0; i < value.length; i += 1) {
     const charCode = value.charCodeAt(i);
-    hash = ((hash << 5) - hash) + charCode;
+    hash = (hash << 5) - hash + charCode;
     hash |= 0;
   }
   return Math.abs(hash);
@@ -214,7 +220,8 @@ class ProductStore {
   constructor(options = {}) {
     const rootDir = options.rootDir || path.join(__dirname, '..');
     this.dataPath = options.dataPath || path.join(rootDir, 'data', 'product_data.json');
-    this.changeLogPath = options.changeLogPath || path.join(rootDir, 'data', 'product_changes.json');
+    this.changeLogPath =
+      options.changeLogPath || path.join(rootDir, 'data', 'product_changes.json');
     this.lock = new AsyncLock();
     this._state = null;
     this._changeLog = null;
@@ -338,14 +345,7 @@ class ProductStore {
   }
 
   async applyPatch(options) {
-    const {
-      productId,
-      baseRev,
-      fields,
-      source = 'admin',
-      changesetId,
-      timestamp,
-    } = options;
+    const { productId, baseRev, fields, source = 'admin', changesetId, timestamp } = options;
 
     if (!productId) {
       const error = new Error('productId is required');
@@ -357,7 +357,12 @@ class ProductStore {
       error.statusCode = 400;
       throw error;
     }
-    if (!fields || typeof fields !== 'object' || Array.isArray(fields) || !Object.keys(fields).length) {
+    if (
+      !fields ||
+      typeof fields !== 'object' ||
+      Array.isArray(fields) ||
+      !Object.keys(fields).length
+    ) {
       const error = new Error('fields must be a non-empty object');
       error.statusCode = 400;
       throw error;
@@ -394,7 +399,10 @@ class ProductStore {
       const sanitizedUpdates = {};
 
       const sanitizableEntries = fieldEntries
-        .filter(([field]) => Object.prototype.hasOwnProperty.call(product, field) && FIELD_SANITIZERS[field])
+        .filter(
+          ([field]) =>
+            Object.prototype.hasOwnProperty.call(product, field) && FIELD_SANITIZERS[field]
+        )
         .sort((a, b) => {
           const priorityA = FIELD_PRIORITIES.get(a[0]) ?? 100;
           const priorityB = FIELD_PRIORITIES.get(b[0]) ?? 100;
@@ -423,9 +431,13 @@ class ProductStore {
         if (!Object.prototype.hasOwnProperty.call(product, field) || !FIELD_SANITIZERS[field]) {
           conflicts.push({
             field,
-            server_value: Object.prototype.hasOwnProperty.call(product, field) ? product[field] : null,
+            server_value: Object.prototype.hasOwnProperty.call(product, field)
+              ? product[field]
+              : null,
             client_value: rawValue,
-            resolved_to: Object.prototype.hasOwnProperty.call(product, field) ? product[field] : null,
+            resolved_to: Object.prototype.hasOwnProperty.call(product, field)
+              ? product[field]
+              : null,
             reason: 'field_not_supported',
           });
           continue;

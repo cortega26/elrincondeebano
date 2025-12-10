@@ -28,9 +28,18 @@ const { JSDOM } = require('jsdom');
   const PRODUCT_DATA_GLOBAL_KEY = '__PRODUCT_DATA__';
   global.window[PRODUCT_DATA_GLOBAL_KEY] = {
     products: [
-      { id: 'p1', name: 'Producto', description: 'Desc', price: 1000, discount: 0, stock: true, image_path: 'assets/sample.webp', category: 'Cat' },
+      {
+        id: 'p1',
+        name: 'Producto',
+        description: 'Desc',
+        price: 1000,
+        discount: 0,
+        stock: true,
+        image_path: 'assets/sample.webp',
+        category: 'Cat',
+      },
     ],
-    version: 'test'
+    version: 'test',
   };
 
   const mod = await import('../src/js/script.mjs');
@@ -39,8 +48,10 @@ const { JSDOM } = require('jsdom');
 
   // Fallback eager load should have removed lazyload class
   const img = document.querySelector('img');
-  assert.ok(img && !img.classList.contains('lazyload'), 'image should be upgraded eagerly without IO');
+  assert.ok(
+    img && !img.classList.contains('lazyload'),
+    'image should be upgraded eagerly without IO'
+  );
 
   console.log('intersectionObserver.fallback.test.js passed');
 })();
-

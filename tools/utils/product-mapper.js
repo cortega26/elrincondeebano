@@ -7,7 +7,8 @@ const CFIMG_THUMB = { fit: 'cover', quality: 75, format: 'auto' };
 const PRODUCT_IMAGE_WIDTHS = [200, 320, 400];
 const HERO_WIDTHS = [200, 320, 400];
 const HERO_BASE_WIDTH = 320;
-const PRODUCT_IMAGE_SIZES = '(min-width: 1200px) 280px, (min-width: 992px) 240px, (min-width: 576px) 45vw, 80vw';
+const PRODUCT_IMAGE_SIZES =
+  '(min-width: 1200px) 280px, (min-width: 992px) 240px, (min-width: 576px) 45vw, 80vw';
 
 function shouldDisableCfRewrite() {
   const disableFlag = process.env.CFIMG_DISABLE;
@@ -35,7 +36,10 @@ function cfimg(imgPath, opts = {}) {
   if (shouldDisableCfRewrite()) {
     return normalized;
   }
-  const encoded = normalized.split('/').map(segment => encodeURIComponent(segment)).join('/');
+  const encoded = normalized
+    .split('/')
+    .map((segment) => encodeURIComponent(segment))
+    .join('/');
   const params = Object.entries(opts)
     .map(([key, value]) => `${key}=${value}`)
     .join(',');
@@ -52,7 +56,7 @@ function generateStableId(product) {
   let hash = 0;
   for (let i = 0; i < baseString.length; i += 1) {
     const charCode = baseString.charCodeAt(i);
-    hash = ((hash << 5) - hash) + charCode;
+    hash = (hash << 5) - hash + charCode;
     hash &= hash;
   }
   return `pid-${Math.abs(hash)}`;
@@ -66,14 +70,14 @@ function computeDiscountMeta(product) {
   return {
     discountedPrice,
     discountPercent: percent,
-    isDiscounted: discount > 0
+    isDiscounted: discount > 0,
   };
 }
 
 function buildSrcset(imagePath, widths = HERO_WIDTHS, extraOpts = {}) {
   const normalized = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
   return widths
-    .map(width => `${cfimg(normalized, { ...CFIMG_THUMB, width, ...extraOpts })} ${width}w`)
+    .map((width) => `${cfimg(normalized, { ...CFIMG_THUMB, width, ...extraOpts })} ${width}w`)
     .join(', ');
 }
 
@@ -102,7 +106,7 @@ function enrichProduct(product, index) {
     id,
     originalIndex: order,
     image,
-    ...discountMeta
+    ...discountMeta,
   };
 }
 
@@ -118,21 +122,14 @@ function sortAndEnrichProducts(products = []) {
 }
 
 function mapProductForInline(product) {
-  const {
-    image,
-    discountedPrice,
-    discountPercent,
-    isDiscounted,
-    originalIndex,
-    ...rest
-  } = product;
+  const { image, discountedPrice, discountPercent, isDiscounted, originalIndex, ...rest } = product;
   return {
     ...rest,
     originalIndex,
     discounted_price: discountedPrice,
     discount_percent: discountPercent,
     is_discounted: isDiscounted,
-    image
+    image,
   };
 }
 

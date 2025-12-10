@@ -49,9 +49,12 @@ async function handlePatch(store, req, res, url) {
     return;
   }
   const ifMatch = req.headers['if-match'];
-  const baseRev = typeof body?.base_rev === 'number'
-    ? body.base_rev
-    : (ifMatch ? Number(ifMatch.replace(/"/g, '')) : NaN);
+  const baseRev =
+    typeof body?.base_rev === 'number'
+      ? body.base_rev
+      : ifMatch
+        ? Number(ifMatch.replace(/"/g, ''))
+        : NaN;
   const changesetId = body?.changeset_id;
   const source = sanitizeSource(body?.source);
   const fields = body?.fields || {};
@@ -87,7 +90,8 @@ async function handleChanges(store, req, res, url) {
 
 function createServer(options = {}) {
   const dataPath = options.dataPath || path.join(__dirname, '..', 'data', 'product_data.json');
-  const changeLogPath = options.changeLogPath || path.join(__dirname, '..', 'data', 'product_changes.json');
+  const changeLogPath =
+    options.changeLogPath || path.join(__dirname, '..', 'data', 'product_changes.json');
   const store = new ProductStore({ dataPath, changeLogPath });
 
   const server = http.createServer(async (req, res) => {

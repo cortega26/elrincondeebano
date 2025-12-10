@@ -6,7 +6,12 @@ const path = require('path');
 
 const LOCATIONS = [
   path.resolve(__dirname, '..', 'data'),
-  path.resolve(process.env.USERPROFILE || process.env.HOME || '', 'OneDrive', 'Tienda Ebano', 'data'),
+  path.resolve(
+    process.env.USERPROFILE || process.env.HOME || '',
+    'OneDrive',
+    'Tienda Ebano',
+    'data'
+  ),
 ];
 
 const FILENAME_PREFIX = 'product_data.backup_';
@@ -50,4 +55,3 @@ function main() {
 }
 
 main();
-

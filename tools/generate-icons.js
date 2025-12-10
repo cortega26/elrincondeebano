@@ -33,7 +33,10 @@ async function main() {
     targets.map(async (t) => {
       const dest = path.join(outDir, t.name);
       await sharp(src)
-        .resize(t.size, t.size, { fit: 'contain', background: { r: 255, g: 255, b: 255, alpha: 0 } })
+        .resize(t.size, t.size, {
+          fit: 'contain',
+          background: { r: 255, g: 255, b: 255, alpha: 0 },
+        })
         .png({ compressionLevel: 9 })
         .toFile(dest);
       console.log(`Wrote ${dest}`);
@@ -45,4 +48,3 @@ main().catch((err) => {
   console.error('Icon generation failed:', err);
   process.exit(1);
 });
-

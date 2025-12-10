@@ -7,7 +7,9 @@ const { pathToFileURL } = require('node:url');
 
 const productMapper = require('../tools/utils/product-mapper.js');
 
-const runtimeCfimgUrl = pathToFileURL(path.resolve(__dirname, '..', 'src', 'js', 'utils', 'cfimg.mjs')).href;
+const runtimeCfimgUrl = pathToFileURL(
+  path.resolve(__dirname, '..', 'src', 'js', 'utils', 'cfimg.mjs')
+).href;
 
 test('cfimg defaults to raw asset paths without CF flags', async () => {
   delete process.env.CFIMG_DISABLE;

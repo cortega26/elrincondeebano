@@ -11,9 +11,7 @@ const outputRoot = process.env.BUILD_OUTPUT_DIR
   ? path.resolve(projectRoot, process.env.BUILD_OUTPUT_DIR)
   : path.join(projectRoot, 'build');
 
-const htmlFiles = new Set([
-  path.join(outputRoot, 'index.html'),
-]);
+const htmlFiles = new Set([path.join(outputRoot, 'index.html')]);
 
 const excludedFiles = new Set(['404.html', 'navbar.html', 'footer.html', 'offline.html']);
 
@@ -47,7 +45,9 @@ async function main() {
       html = await fs.readFile(filePath, 'utf8');
     } catch (error) {
       if (error.code === 'ENOENT') {
-        console.error(`❌ File not found for CSS order check: ${path.relative(projectRoot, filePath)}`);
+        console.error(
+          `❌ File not found for CSS order check: ${path.relative(projectRoot, filePath)}`
+        );
         failures += 1;
         continue;
       }
@@ -66,7 +66,10 @@ async function main() {
       return { pattern: pattern.toString(), index, link: index >= 0 ? hrefs[index] : null };
     });
     const missing = matches.some(({ index }) => index === -1);
-    const outOfOrder = matches.some(({ index }, i) => index !== -1 && matches.slice(0, i).some((prev) => prev.index !== -1 && prev.index > index));
+    const outOfOrder = matches.some(
+      ({ index }, i) =>
+        index !== -1 && matches.slice(0, i).some((prev) => prev.index !== -1 && prev.index > index)
+    );
     const hasDeferredMedia = matches.some(({ link }) => link && link.media && link.media !== 'all');
 
     if (missing || outOfOrder || hasDeferredMedia) {

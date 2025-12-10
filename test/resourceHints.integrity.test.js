@@ -63,10 +63,7 @@ test('index.html preloads the module bundle and logo consistently', () => {
   assert.ok(logoPreloads.length > 0, 'logo preload hint should be present');
   logoPreloads.forEach((link) => {
     const href = link.getAttribute('href');
-    assert.ok(
-      href.startsWith(LOGO_CDN_PREFIX),
-      `logo preload must use CDN path, received ${href}`
-    );
+    assert.ok(href.startsWith(LOGO_CDN_PREFIX), `logo preload must use CDN path, received ${href}`);
   });
 });
 
@@ -95,7 +92,11 @@ test('category pages reuse modulepreload and CDN logo hints', () => {
   );
 
   const legacyScriptPreload = document.querySelector('link[rel="preload"][as="script"]');
-  assert.strictEqual(legacyScriptPreload, null, 'category page should not preload scripts via rel="preload"');
+  assert.strictEqual(
+    legacyScriptPreload,
+    null,
+    'category page should not preload scripts via rel="preload"'
+  );
 
   const logoPreloads = Array.from(
     document.querySelectorAll('link[rel="preload"][as="image"]')

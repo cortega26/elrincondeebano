@@ -10,10 +10,42 @@ global.window = dom.window;
 global.document = dom.window.document;
 
 const products = [
-  { id: 1, name: 'Banana', description: 'Yellow banana', price: 2, discount: 1, stock: true, originalIndex: 0 },
-  { id: 2, name: 'Apple', description: 'Red apple', price: 3, discount: 0, stock: true, originalIndex: 1 },
-  { id: 3, name: 'Cherry', description: 'Red cherry', price: 5, discount: 0, stock: true, originalIndex: 2 },
-  { id: 4, name: 'Date', description: 'Sweet date', price: 4, discount: 0, stock: true, originalIndex: 3 }
+  {
+    id: 1,
+    name: 'Banana',
+    description: 'Yellow banana',
+    price: 2,
+    discount: 1,
+    stock: true,
+    originalIndex: 0,
+  },
+  {
+    id: 2,
+    name: 'Apple',
+    description: 'Red apple',
+    price: 3,
+    discount: 0,
+    stock: true,
+    originalIndex: 1,
+  },
+  {
+    id: 3,
+    name: 'Cherry',
+    description: 'Red cherry',
+    price: 5,
+    discount: 0,
+    stock: true,
+    originalIndex: 2,
+  },
+  {
+    id: 4,
+    name: 'Date',
+    description: 'Sweet date',
+    price: 4,
+    discount: 0,
+    stock: true,
+    originalIndex: 3,
+  },
 ];
 
 const INITIAL_BATCH = 2;
@@ -29,17 +61,27 @@ function sortProducts(a, b, criterion) {
   const valueA = property === 'price' ? a.price - (a.discount || 0) : a.name.toLowerCase();
   const valueB = property === 'price' ? b.price - (b.discount || 0) : b.name.toLowerCase();
   return order === 'asc'
-    ? (valueA < valueB ? -1 : valueA > valueB ? 1 : 0)
-    : (valueB < valueA ? -1 : valueB > valueA ? 1 : 0);
+    ? valueA < valueB
+      ? -1
+      : valueA > valueB
+        ? 1
+        : 0
+    : valueB < valueA
+      ? -1
+      : valueB > valueA
+        ? 1
+        : 0;
 }
 
 function applyFilters(keyword = '', sortCriterion = 'original', discountOnly = false) {
   const lower = keyword.toLowerCase();
   return products
-    .filter(p => (
-      (p.name.toLowerCase().includes(lower) || p.description.toLowerCase().includes(lower)) &&
-      p.stock && (!discountOnly || (p.discount && Number(p.discount) > 0))
-    ))
+    .filter(
+      (p) =>
+        (p.name.toLowerCase().includes(lower) || p.description.toLowerCase().includes(lower)) &&
+        p.stock &&
+        (!discountOnly || (p.discount && Number(p.discount) > 0))
+    )
     .sort((a, b) => sortProducts(a, b, sortCriterion));
 }
 
@@ -52,7 +94,7 @@ function updateLoadMore(hasMore) {
 function renderProducts(list) {
   const container = document.getElementById('product-container');
   const fragment = document.createDocumentFragment();
-  list.forEach(p => {
+  list.forEach((p) => {
     const div = document.createElement('div');
     div.className = 'product';
     div.textContent = p.name;
@@ -94,7 +136,9 @@ function loadMore() {
 }
 
 function getDisplayedNames() {
-  return Array.from(document.querySelectorAll('#product-container .product')).map(el => el.textContent);
+  return Array.from(document.querySelectorAll('#product-container .product')).map(
+    (el) => el.textContent
+  );
 }
 
 test('updateProductDisplay incremental flow', async (t) => {
@@ -122,4 +166,3 @@ test('updateProductDisplay incremental flow', async (t) => {
     assert.deepStrictEqual(getDisplayedNames(), ['Banana']);
   });
 });
-

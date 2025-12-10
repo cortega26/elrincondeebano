@@ -4,7 +4,7 @@ const { JSDOM } = require('jsdom');
 
 function setupMinimalDom() {
   const dom = new JSDOM('<!DOCTYPE html><html><body><main></main></body></html>', {
-    url: 'https://example.com/404'
+    url: 'https://example.com/404',
   });
   global.window = dom.window;
   global.document = dom.window.document;

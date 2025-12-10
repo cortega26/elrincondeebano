@@ -9,7 +9,11 @@ export function createCorrelationId() {
 /**
  * Log a JSON message to the console with an explicit level.
  */
-export function log(level: 'log' | 'info' | 'warn' | 'error', message: string, meta: Record<string, unknown> = {}): void {
+export function log(
+  level: 'log' | 'info' | 'warn' | 'error',
+  message: string,
+  meta: Record<string, unknown> = {}
+): void {
   const entry = { level, message, ...meta };
   const out = JSON.stringify(entry);
   if (typeof console[level] === 'function') {

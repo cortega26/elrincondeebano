@@ -1,7 +1,8 @@
 // Minimal Service Worker registration (extracted from inline script)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
+    navigator.serviceWorker
+      .register('/service-worker.js')
       .then((registration) => {
         console.log('Service Worker registered:', registration.scope);
       })
@@ -10,4 +11,3 @@ if ('serviceWorker' in navigator) {
       });
   });
 }
-
