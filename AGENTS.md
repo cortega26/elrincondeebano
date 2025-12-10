@@ -53,8 +53,9 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 | Type & Lint Guardian | `Missing: Prettier config/dependency` | Registrar TODO en PR hasta que se incorpore Prettier. | N/A | Issue/seguimiento abierto. |
 | Security / Supply Chain Agent | `npm audit --production` | Mensual o ante cambios de dependencias. | Sin vulnerabilidades altas/crit.; documentar hallazgos. | Reporte de auditoría. |
 | Security / Supply Chain Agent | `npx codacy-analysis-cli` (a través de workflow) | En CI (`codacy.yml`). | SARIF sanitizado y subido. | `results-*.sarif`. |
-| Test Sentinel | `npm ci && npm test` | Después de tocar código fuente o utilidades. Repetir si se detecta flakiness. | Todas las pruebas Node pasan dos veces cuando aplique. | Logs de pruebas. |
-| Test Sentinel | `node test/<name>.test.js` | Depuración puntual al aislar fallos. | Test individual pasa consistentemente. | Log focalizado. |
+| Test Sentinel | `npm ci && npm test` | Ejecuta suite híbrida: `node:test` (legacy) + `Vitest`. | Todas las pruebas pasan (Legacy + Vitest). | Logs de pruebas. |
+| Test Sentinel | `npx stryker run` | Regresión de calidad en lógica crítica (Cart, Fetch). | Mutation Score estable/incremental. | Reporte HTML en `reports/mutation/`. |
+| Test Sentinel | `npx vitest run <file>` | Ejecución rápida de tests modernos (`.spec.js`). | Test pasa aisladamente. | Output de Vitest. |
 | CI Guardian | `gh workflow view <name>` (opcional) | Revisiones periódicas de pipelines. | Workflow refleja nodos fijados, permisos mínimos y cachés con lockfile. | Informe de revisión. |
 | PR/Release Manager | `git status && git diff --stat` | Antes de solicitar revisión/merge. | Árbol limpio y diff reducido (≤400 líneas netas salvo acuerdos). | Evidencia en PR. |
 | PR/Release Manager | `npx npm-check-updates --target=minor` (en seguimiento) | Evaluar upgrades permitidos. | Lista de updates patch/minor para próximas iteraciones. | Comentario o issue con plan. |
@@ -69,7 +70,8 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - [ ] `npm ci && npm test` deben ejecutarse completos tras modificaciones; repetir suite si algún caso es flaky.
   - [ ] Prohibido introducir `test.skip`, `--forceExit`, `--passWithNoTests` o eliminar asserts sin reemplazo.
 - **Cobertura mínima**
-  - Baseline objetivo: 80%. *Missing:* instrumentación de cobertura; abrir seguimiento para integrar `c8` o similar y reportar métricas.
+  - Baseline objetivo: 80%.
+  - **Mutation Testing**: Verificar reportes de Stryker en cambios críticos. No reintroducir survivors en lógica Core (Cart, Analytics, Logger).
 - **Linter/formatter**
   - [ ] `npx eslint .` debe terminar en verde. Auto-fixes solo locales; los commits deben incluir diff resultante.
   - *Missing:* `prettier --check` hasta incorporar configuración y dependencia.
@@ -115,10 +117,12 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 
 ## Playbooks
 ### Cómo añadir un test nuevo
-1. Crear archivo en `test/` siguiendo convención `<feature>.test.js` y usar `node:test`/`assert` como en los existentes.
-2. Ejecutar `npm ci` si es la primera vez y luego `npm test` dos veces consecutivas para asegurar estabilidad.
-3. Actualizar documentación si el test cubre nueva funcionalidad o corrige regresiones.
-4. Adjuntar logs de ambas ejecuciones en el PR.
+1.  **Lógica compleja/DOM/Async**: Crear archivo `.spec.js` en `test/` usando **Vitest** (`describe`, `it`, `expect`, `vi`).
+    *   Ejemplo: `test/cart.spec.js` para lógica de negocio o mocks de `window`.
+2.  **Scripts simples/Legacy**: Crear archivo `.test.js` usando `node:test`.
+3.  **TypeScript**: Se permiten archivos `.mts` en `src/`. `npm test` y Vitest los soportan nativamente.
+4.  Ejecutar `npm test` para verificar integración en la suite completa.
+5.  Adjuntar logs de ejecución en el PR.
 
 ### Cómo actualizar una dependencia
 1. Ejecutar `npm pkg get dependencies["<paquete>"]` para conocer versión actual.

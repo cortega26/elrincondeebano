@@ -24,35 +24,95 @@ describe('Cart Helpers', () => {
     `;
 
     // Reset internal cart state
+    // Reset internal cart state
     if (__resetCart) __resetCart();
+
+    // Mock analytics
+    window.__analyticsTrack = vi.fn();
   });
 
   it('items accumulate with quantity caps', () => {
     const product = { id: '1', name: 'Prod', price: 100, description: '', image_path: '', category: '', stock: 100 };
 
+    // Setup mock product card input
+    const input = document.createElement('input');
+    input.className = 'quantity-input';
+    input.dataset.id = product.id;
+    document.body.appendChild(input);
+
     addToCart(product, 30);
+    expect(window.__analyticsTrack).toHaveBeenCalledWith('add_to_cart', expect.objectContaining({
+      id: '1',
+      q: 30,
+      price: 100
+    }));
+
+    // Check Thumbnail DOM generation (kills DOM attribute mutants)
+    const cartItem = document.querySelector('#cart-items .cart-item');
+    expect(cartItem).toBeTruthy();
+    const thumbImg = cartItem.querySelector('.cart-item-thumb-img');
+    expect(thumbImg).toBeTruthy();
+    // Assuming normaliseAssetPath or buildCfSrc returns something based on image_path (empty string in test product)
+    // The code says: src: fallbackSrc || ''
+    expect(thumbImg.getAttribute('width')).toBe('100');
+    expect(thumbImg.getAttribute('height')).toBe('100');
+    expect(thumbImg.getAttribute('loading')).toBe('lazy');
+
     addToCart(product, 30); // should cap at 50
 
     const cart = __getCart();
     expect(cart.length).toBe(1);
-    expect(cart[0].quantity).toBe(50);
+    // Verify DOM input value specifically (kills Math.max/min mutants)
+    const productInput = document.querySelector(`.quantity-input[data-id="${product.id}"]`);
+    expect(productInput.value).toBe('50');
     expect(document.querySelector('.item-quantity').textContent).toBe('50');
+
+    // Verify total price (kills Math ops mutants)
+    // 50 items * 100 price = 5000 (formatted es-CL: $5.000)
+    // The code logic uses toLocaleString('es-CL').
+    const totalEl = document.getElementById('cart-total');
+    expect(totalEl.textContent).toContain('5.000');
   });
 
   it('removing or decreasing quantity updates state and DOM', () => {
-    const product = { id: '1', name: 'Prod', price: 100, description: '', image_path: '', category: '', stock: 100 };
+    const p1 = { id: '1', name: 'Prod', price: 100, description: '', image_path: '', category: '', stock: 100 };
+    const p2 = { id: 'other', name: 'Other', price: 50, description: '', image_path: '', category: '', stock: 10 };
 
-    addToCart(product, 5);
-    updateQuantity(product, -2); // decrease to 3
+    // Setup mock inputs
+    const input1 = document.createElement('input');
+    input1.className = 'quantity-input';
+    input1.dataset.id = p1.id;
+    document.body.appendChild(input1);
 
+    const input2 = document.createElement('input');
+    input2.className = 'quantity-input';
+    input2.dataset.id = p2.id;
+    document.body.appendChild(input2);
+
+    addToCart(p1, 5);
+    addToCart(p2, 1);
+
+    // Decrease p1 quantity
+    updateQuantity(p1, -2); // decrease to 3
     let cart = __getCart();
     expect(cart[0].quantity).toBe(3);
-    expect(document.querySelector('.item-quantity').textContent).toBe('3');
 
-    removeFromCart(product.id);
+    // Strict Input Check
+    const inputP1 = document.querySelector(`.quantity-input[data-id="${p1.id}"]`);
+    expect(inputP1.value).toBe('3');
+
+    // Remove p1 completely
+    removeFromCart(p1.id);
+    expect(window.__analyticsTrack).toHaveBeenCalledWith('remove_from_cart', expect.objectContaining({ id: p1.id }));
+
+    cart = __getCart();
+    expect(cart.length).toBe(1); // Should still have p2 (kills filter() -> [] mutant)
+    expect(cart[0].id).toBe('other');
+
+    // Decrease below 1 removes item
+    updateQuantity(p2, -1);
     cart = __getCart();
     expect(cart.length).toBe(0);
-    expect(document.getElementById('cart-items').children.length).toBe(0);
   });
 
   it('updateCartIcon reflects total items', () => {
