@@ -11,7 +11,7 @@ const allowedDirectives = new Set([
   'disallow',
   'crawl-delay',
   'sitemap',
-  'host'
+  'host',
 ]);
 
 const lines = contents.split(/\r?\n/);

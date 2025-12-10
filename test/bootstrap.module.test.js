@@ -21,7 +21,7 @@ function loadModule(relPath) {
         .filter(Boolean)
         .join(', ');
       return `const { ${identifiers} } = loadModule('../src/js/modules/menu-controller.mjs');`;
-    },
+    }
   );
   code = code.replace(/export\s+(async\s+)?function\s+(\w+)/g, 'exports.$2 = $1function $2');
   code = code.replace(/export\s+\{([^}]+)\};?/g, (_, names) => {
@@ -38,7 +38,8 @@ function loadModule(relPath) {
 }
 
 test('initializeBootstrapUI wires collapse toggles and menu controller', async () => {
-  const dom = new JSDOM(`<!DOCTYPE html><body>
+  const dom = new JSDOM(
+    `<!DOCTYPE html><body>
     <button id="navToggle" data-bs-toggle="collapse" data-bs-target="#navbarNav"></button>
     <div id="navbarNav" class="collapse navbar-collapse"></div>
     <div id="navbar-container">
@@ -47,7 +48,9 @@ test('initializeBootstrapUI wires collapse toggles and menu controller', async (
         <ul class="dropdown-menu" id="menuDropdownMenu"></ul>
       </div>
     </div>
-  </body>`, { url: 'http://localhost' });
+  </body>`,
+    { url: 'http://localhost' }
+  );
   global.window = dom.window;
   global.document = dom.window.document;
   global.HTMLElement = dom.window.HTMLElement;
@@ -114,10 +117,13 @@ test('initializeBootstrapUI wires collapse toggles and menu controller', async (
 });
 
 test('initializeBootstrapUI falls back when collapse module fails to load', async () => {
-  const dom = new JSDOM(`<!DOCTYPE html><body>
+  const dom = new JSDOM(
+    `<!DOCTYPE html><body>
     <button id="navToggle" data-bs-toggle="collapse" data-bs-target="#navbarNav" class="collapsed" aria-expanded="false"></button>
     <div id="navbarNav" class="collapse navbar-collapse"></div>
-  </body>`, { url: 'http://localhost' });
+  </body>`,
+    { url: 'http://localhost' }
+  );
   global.window = dom.window;
   global.document = dom.window.document;
   global.HTMLElement = dom.window.HTMLElement;
@@ -152,9 +158,12 @@ test('initializeBootstrapUI falls back when collapse module fails to load', asyn
 });
 
 test('showOffcanvas loads module on demand and displays panel', async () => {
-  const dom = new JSDOM(`<!DOCTYPE html><body>
+  const dom = new JSDOM(
+    `<!DOCTYPE html><body>
     <div id="cartOffcanvas" class="offcanvas"></div>
-  </body>`, { url: 'http://localhost' });
+  </body>`,
+    { url: 'http://localhost' }
+  );
   global.window = dom.window;
   global.document = dom.window.document;
   global.HTMLElement = dom.window.HTMLElement;

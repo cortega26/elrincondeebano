@@ -24,9 +24,7 @@ function readPolicy(fileRelativePath) {
 
 function verifyPolicy(fileRelativePath) {
   const directive = readPolicy(fileRelativePath);
-  const requiredHosts = [
-    'https://cloudflareinsights.com'
-  ];
+  const requiredHosts = ['https://cloudflareinsights.com'];
 
   requiredHosts.forEach((host) => {
     assert.ok(
@@ -38,7 +36,7 @@ function verifyPolicy(fileRelativePath) {
   const forbiddenHosts = [
     'https://www.google-analytics.com',
     'https://analytics.google.com',
-    'https://region1.google-analytics.com'
+    'https://region1.google-analytics.com',
   ];
 
   forbiddenHosts.forEach((host) => {

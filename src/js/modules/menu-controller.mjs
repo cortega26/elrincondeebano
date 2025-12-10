@@ -2,13 +2,15 @@ const controllerRegistry = new WeakMap();
 const controllerContainers = new Set();
 const activeControllers = new Set();
 
-const raf = typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function'
-  ? window.requestAnimationFrame.bind(window)
-  : (cb) => setTimeout(cb, 16);
+const raf =
+  typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function'
+    ? window.requestAnimationFrame.bind(window)
+    : (cb) => setTimeout(cb, 16);
 
-const caf = typeof window !== 'undefined' && typeof window.cancelAnimationFrame === 'function'
-  ? window.cancelAnimationFrame.bind(window)
-  : (id) => clearTimeout(id);
+const caf =
+  typeof window !== 'undefined' && typeof window.cancelAnimationFrame === 'function'
+    ? window.cancelAnimationFrame.bind(window)
+    : (id) => clearTimeout(id);
 
 function composedPath(event) {
   if (typeof event.composedPath === 'function') {
@@ -262,7 +264,8 @@ export function setupUnifiedMenuController({ container } = {}) {
     navContainers = [container];
   } else {
     const preferred = Array.from(document.querySelectorAll('#navbar-container'));
-    navContainers = preferred.length > 0 ? preferred : Array.from(document.querySelectorAll('.navbar, nav'));
+    navContainers =
+      preferred.length > 0 ? preferred : Array.from(document.querySelectorAll('.navbar, nav'));
   }
 
   navContainers.forEach((nav) => {

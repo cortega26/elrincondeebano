@@ -9,13 +9,7 @@
     "checkJs": false,
     "noEmit": true,
     "esModuleInterop": true,
-    "types": [
-      "cypress"
-    ]
+    "types": ["cypress"]
   },
-  "include": [
-    "src/**/*",
-    "test/**/*",
-    "cypress/**/*.ts"
-  ]
+  "include": ["src/**/*", "test/**/*", "cypress/**/*.ts"]
 }

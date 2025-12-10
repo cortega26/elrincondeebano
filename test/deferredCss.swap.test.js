@@ -2,10 +2,12 @@ const assert = require('assert');
 const { JSDOM } = require('jsdom');
 
 (async () => {
-  const dom = new JSDOM('<!DOCTYPE html><html><head>\
+  const dom = new JSDOM(
+    '<!DOCTYPE html><html><head>\
     <link rel="stylesheet" href="a.css" media="print" data-defer>\
     <link rel="stylesheet" href="b.css" media="print" data-defer>\
-  </head><body></body></html>');
+  </head><body></body></html>'
+  );
 
   global.window = dom.window;
   global.document = dom.window.document;
@@ -23,4 +25,3 @@ const { JSDOM } = require('jsdom');
 
   console.log('deferredCss.swap.test.js passed');
 })();
-

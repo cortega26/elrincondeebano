@@ -1,10 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const pathsToCheck = [
-  '/',
-  '/pages/energeticaseisotonicas.html',
-  '/pages/limpiezayaseo.html',
-];
+const pathsToCheck = ['/', '/pages/energeticaseisotonicas.html', '/pages/limpiezayaseo.html'];
 
 test.describe('first-paint stability', () => {
   for (const relativePath of pathsToCheck) {

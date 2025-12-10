@@ -9,7 +9,7 @@ const cssDir = path.join(repoRoot, 'assets', 'css');
 function findFiles(dir, exts) {
   if (!fs.existsSync(dir)) return [];
   const entries = fs.readdirSync(dir, { withFileTypes: true });
-  return entries.flatMap(e => {
+  return entries.flatMap((e) => {
     const res = path.join(dir, e.name);
     if (e.isDirectory()) return findFiles(res, exts);
     return exts.includes(path.extname(e.name)) ? [res] : [];
@@ -19,7 +19,7 @@ function findFiles(dir, exts) {
 function lintHtml(file, errors) {
   const dom = new JSDOM(fs.readFileSync(file, 'utf8'));
   const imgs = dom.window.document.querySelectorAll('img');
-  imgs.forEach(img => {
+  imgs.forEach((img) => {
     const src = img.getAttribute('src') || '';
     if (src.includes('/assets/images/originals/')) {
       errors.push(`${file}: image points to originals ${src}`);
@@ -49,9 +49,9 @@ function run() {
   }
   const errors = [];
   for (const dir of htmlDirs) {
-    findFiles(dir, ['.html']).forEach(f => lintHtml(f, errors));
+    findFiles(dir, ['.html']).forEach((f) => lintHtml(f, errors));
   }
-  findFiles(cssDir, ['.css']).forEach(f => lintCss(f, errors));
+  findFiles(cssDir, ['.css']).forEach((f) => lintCss(f, errors));
   if (errors.length) {
     console.error(errors.join('\n'));
     process.exit(1);

@@ -11,4 +11,3 @@ export function setupPerformanceOptimizations() {
     console.warn('[modules/perf] setupPerformanceOptimizations error:', e);
   }
 }
-

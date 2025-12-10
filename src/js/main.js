@@ -12,7 +12,6 @@ import { initializeBootstrapUI } from './modules/bootstrap.mjs';
 // Note: When bundling via esbuild, this pulls in the main application logic.
 import './script.mjs';
 
-
 function initEnhancementsOnce() {
   const root = document.documentElement;
   // Always enable deferred styles first (idempotent)
@@ -53,10 +52,18 @@ export { initEnhancementsOnce as __initEnhancementsOnceForTest };
 // Optional analytics (fully opt-in via global flag to avoid any startup cost)
 try {
   if (typeof window !== 'undefined' && window.__ANALYTICS_ENABLE__ === true) {
-    import('./modules/analytics.mjs').then((m) => {
-      m.initAnalytics({ enabled: true, consentRequired: true, sampleRate: 1.0 });
-      window.__analyticsTrack = (name, props) => { try { return m.track(name, props); } catch { return false; } };
-      m.track('page_view', { path: location.pathname });
-    }).catch(() => {});
+    import('./modules/analytics.mjs')
+      .then((m) => {
+        m.initAnalytics({ enabled: true, consentRequired: true, sampleRate: 1.0 });
+        window.__analyticsTrack = (name, props) => {
+          try {
+            return m.track(name, props);
+          } catch {
+            return false;
+          }
+        };
+        m.track('page_view', { path: location.pathname });
+      })
+      .catch(() => {});
   }
 } catch {}

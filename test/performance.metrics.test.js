@@ -48,7 +48,7 @@ test('logPerformanceMetrics reports unavailable metrics when Performance API dat
     const originalPerformance = global.window.performance;
     global.window.performance = {
       getEntriesByType: () => [],
-      timing: {}
+      timing: {},
     };
 
     logPerformanceMetrics();
@@ -76,7 +76,7 @@ test('logPerformanceMetrics uses available paint and navigation entries', async 
         }
         return [];
       },
-      timing: {}
+      timing: {},
     };
 
     logPerformanceMetrics(perf);

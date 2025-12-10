@@ -10,12 +10,7 @@
     "ecmaVersion": 2021,
     "sourceType": "module"
   },
-  "ignorePatterns": [
-    "_products/**",
-    "assets/**",
-    "pages/**",
-    "templates/**"
-  ],
+  "ignorePatterns": ["_products/**", "assets/**", "pages/**", "templates/**"],
   "rules": {
     "indent": ["error", 2],
     "semi": ["error", "always"],

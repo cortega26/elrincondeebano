@@ -1,9 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const {
-  resolveFromOutput,
-  resolveOutputDir,
-} = require('./utils/output-dir');
+const { resolveFromOutput, resolveOutputDir } = require('./utils/output-dir');
 
 function generateStructuredData(products) {
   // CHANGED: Remove the .slice(0, 20) limit to include ALL products

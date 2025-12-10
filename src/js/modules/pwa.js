@@ -11,4 +11,3 @@ export function injectPwaManifest() {
     console.warn('[modules/pwa] injectPwaManifest error:', e);
   }
 }
-

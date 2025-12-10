@@ -1,11 +1,9 @@
 const fs = require('fs');
 const path = require('path');
-const {
-  resolveOutputDir,
-  resolveFromOutput,
-} = require('./utils/output-dir');
+const { resolveOutputDir, resolveFromOutput } = require('./utils/output-dir');
 
-const LOGO_PRELOAD_PATH = '/cdn-cgi/image/fit=cover,quality=82,format=auto,width=64/assets/images/web/logo.webp';
+const LOGO_PRELOAD_PATH =
+  '/cdn-cgi/image/fit=cover,quality=82,format=auto,width=64/assets/images/web/logo.webp';
 const SCRIPT_PRELOAD_PATH = '/dist/js/script.min.js';
 
 function generateResourceHints() {
@@ -25,7 +23,10 @@ function injectResourceHints(filePath) {
   let html = fs.readFileSync(filePath, 'utf8');
   let modified = false;
 
-  const cleanedHtml = html.replace(/\s*<link rel="dns-prefetch" href="\/\/www\.googletagmanager\.com">\s*/g, '\n');
+  const cleanedHtml = html.replace(
+    /\s*<link rel="dns-prefetch" href="\/\/www\.googletagmanager\.com">\s*/g,
+    '\n'
+  );
   if (cleanedHtml !== html) {
     html = cleanedHtml;
     modified = true;
@@ -42,15 +43,18 @@ function injectResourceHints(filePath) {
   // Find a good place to inject - after existing preconnects but before title
   const preconnectPattern = /(<link rel="preconnect"[^>]*>\s*)+/g;
   const matches = [...html.matchAll(preconnectPattern)];
-  
+
   if (matches.length > 0) {
     // Insert after the last preconnect
     const lastMatch = matches[matches.length - 1];
     const insertPosition = lastMatch.index + lastMatch[0].length;
-    
-    html = html.slice(0, insertPosition) +
-           '\n' + generateResourceHints() + '\n' +
-           html.slice(insertPosition);
+
+    html =
+      html.slice(0, insertPosition) +
+      '\n' +
+      generateResourceHints() +
+      '\n' +
+      html.slice(insertPosition);
     modified = true;
   } else {
     // Fallback: insert before title tag
@@ -68,7 +72,7 @@ function main() {
   const outputRoot = resolveOutputDir();
   let processedCount = 0;
   let modifiedCount = 0;
-  
+
   try {
     // Process main index.html
     const indexPath = resolveFromOutput('index.html');
@@ -82,11 +86,12 @@ function main() {
     // Process all pages in /pages/ directory
     const pagesDir = resolveFromOutput('pages');
     if (fs.existsSync(pagesDir)) {
-      const pageFiles = fs.readdirSync(pagesDir)
-        .filter(file => file.endsWith('.html'))
-        .filter(file => !file.includes('navbar') && !file.includes('footer')); // Skip components
-      
-      pageFiles.forEach(file => {
+      const pageFiles = fs
+        .readdirSync(pagesDir)
+        .filter((file) => file.endsWith('.html'))
+        .filter((file) => !file.includes('navbar') && !file.includes('footer')); // Skip components
+
+      pageFiles.forEach((file) => {
         const filePath = path.join(pagesDir, file);
         if (injectResourceHints(filePath)) {
           modifiedCount++;
@@ -97,13 +102,12 @@ function main() {
 
     console.log(`✅ Resource hints processed`);
     console.log(`📊 Files checked: ${processedCount}, Modified: ${modifiedCount}`);
-    
+
     if (modifiedCount > 0) {
       console.log(`🚀 Performance hints added! Pages should load slightly faster now.`);
     } else {
       console.log(`ℹ️ Resource hints already present in all files.`);
     }
-    
   } catch (error) {
     console.error('❌ Error injecting resource hints:', error.message);
     // Don't throw - we don't want to break the build

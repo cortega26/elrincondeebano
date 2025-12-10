@@ -49,10 +49,11 @@ function httpRequest(url, method) {
       let chunks = '';
       res.setEncoding('utf8');
       res.on('data', (d) => (chunks += d));
-      res.on('end', () => resolve({ statusCode: res.statusCode, headers: res.headers, body: chunks }));
+      res.on('end', () =>
+        resolve({ statusCode: res.statusCode, headers: res.headers, body: chunks })
+      );
     });
     req.on('error', reject);
     req.end();
   });
 }
-

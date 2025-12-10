@@ -4,15 +4,21 @@ const documentStub = {
   readyState: 'loading',
   addEventListener() {},
   removeEventListener() {},
-  querySelector() { return null; },
-  getElementById() { return null; },
+  querySelector() {
+    return null;
+  },
+  getElementById() {
+    return null;
+  },
   createElement() {
     return {
       setAttribute() {},
       appendChild() {},
       remove() {},
-      querySelector() { return null; },
-      classList: { add() {}, remove() {}, toggle() {} }
+      querySelector() {
+        return null;
+      },
+      classList: { add() {}, remove() {}, toggle() {} },
     };
   },
   createTextNode(text) {
@@ -20,28 +26,30 @@ const documentStub = {
   },
   body: {
     appendChild() {},
-    contains() { return false; }
-  }
+    contains() {
+      return false;
+    },
+  },
 };
 
 const windowStub = {
   addEventListener() {},
   removeEventListener() {},
   location: { reload() {} },
-  document: documentStub
+  document: documentStub,
 };
 
 const serviceWorkerStub = {
   register: async () => ({ addEventListener() {}, installing: null, active: null }),
   addEventListener() {},
-  controller: null
+  controller: null,
 };
 
 global.window = windowStub;
 global.document = documentStub;
 Object.defineProperty(globalThis, 'navigator', {
   value: { serviceWorker: serviceWorkerStub, onLine: true },
-  configurable: true
+  configurable: true,
 });
 windowStub.navigator = global.navigator;
 
@@ -79,7 +87,7 @@ function generateProducts(count) {
       price: 500 + (i % 200) * 10,
       discount: i % 3 === 0 ? 150 : 0,
       stock: i % 5 !== 0,
-      originalIndex: i
+      originalIndex: i,
     });
   }
   return items;
@@ -107,10 +115,10 @@ function filterScenario(productsList, keyword, sortCriterion, discountOnly = fal
   }
   switch (sortCriterion) {
     case 'price-asc':
-      matches.sort((a, b) => (a.price - a.discount) - (b.price - b.discount));
+      matches.sort((a, b) => a.price - a.discount - (b.price - b.discount));
       break;
     case 'price-desc':
-      matches.sort((a, b) => (b.price - b.discount) - (a.price - a.discount));
+      matches.sort((a, b) => b.price - b.discount - (a.price - a.discount));
       break;
     case 'name-asc':
       matches.sort((a, b) => a.name.localeCompare(b.name));
@@ -155,4 +163,3 @@ main().catch((error) => {
   console.error('Memoize benchmark failed:', error);
   process.exit(1);
 });
-

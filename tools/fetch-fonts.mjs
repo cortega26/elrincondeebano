@@ -8,7 +8,8 @@ const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 const outDir = path.join(rootDir, 'assets', 'fonts');
 
-const GOOGLE_CSS = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&display=swap';
+const GOOGLE_CSS =
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&display=swap';
 
 async function download(url, dest) {
   const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
@@ -34,7 +35,10 @@ async function main() {
   // Split into blocks once to make matching reliable
   for (const t of targets) {
     const famEsc = t.family.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-    const re = new RegExp(`@font-face\\s*{[\\s\\S]*?font-family:\\s*['\"]${famEsc}['\"][\\s\\S]*?font-weight:\\s*${t.weight}[\\s\\S]*?unicode-range:[^}]*U\\+0000-00FF[\\s\\S]*?}`, 'm');
+    const re = new RegExp(
+      `@font-face\\s*{[\\s\\S]*?font-family:\\s*['\"]${famEsc}['\"][\\s\\S]*?font-weight:\\s*${t.weight}[\\s\\S]*?unicode-range:[^}]*U\\+0000-00FF[\\s\\S]*?}`,
+      'm'
+    );
     const match = css.match(re);
     const block = match ? match[0] : null;
     if (!block) {
@@ -54,4 +58,7 @@ async function main() {
   console.log('Fonts downloaded to assets/fonts');
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

@@ -1,9 +1,11 @@
 # AGENTS
 
 ## Resumen
+
 Este documento coordina a los agentes automatizados y humanos que mantienen **El Rincón de Ébano**, una web estática construida con scripts de Node.js, plantillas EJS y activos precompilados. Establece responsabilidades, comandos verificados y guardrails para preservar la estabilidad de builds, pruebas, seguridad de la cadena de suministro y los flujos de CI/CD actuales.
 
 ## Arquitectura de agentes
+
 ```
                 +---------------------+
                 |  Repo Cartographer  |
@@ -43,24 +45,26 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 - **PR/Release Manager:** orquesta ramas, PRs, versionado y evidencia de verificación.
 
 ## Matriz de comandos por agente
-| Agente | Comando | Cuándo se ejecuta | Salida esperada | Artefactos |
-| --- | --- | --- | --- | --- |
-| Repo Cartographer | `node -v` | Antes de cualquier trabajo para verificar Node ≥ 22 tal como consume CI (`images.yml`). | Versión fija compatible con scripts (`22.x`). | Registro en informe de descubrimiento. |
-| Repo Cartographer | `npm pkg get scripts` | Al actualizar documentación o scripts. | JSON con scripts de `package.json`. | Tabla de scripts actualizada en docs. |
-| Docs Steward | `npm run build` | Tras cambios en plantillas (`templates/`), datos o herramientas. | Build completo sin errores ni warnings críticos; genera `dist/`, `pages/`, `sitemap.xml`. | Artifacts regenerados listos para commit. |
-| Docs Steward | `npm run lighthouse:audit` | Auditorías de rendimiento previas a release. | Reportes en `reports/lighthouse/`. | Archivos HTML de Lighthouse. |
-| Type & Lint Guardian | `npx eslint .` | En cada PR y antes de merges; ejecutado también localmente. | Salida limpia sin errores ESLint usando `.eslintrc.json`. | Logs de lint. |
-| Type & Lint Guardian | `Missing: Prettier config/dependency` | Registrar TODO en PR hasta que se incorpore Prettier. | N/A | Issue/seguimiento abierto. |
-| Security / Supply Chain Agent | `npm audit --production` | Mensual o ante cambios de dependencias. | Sin vulnerabilidades altas/crit.; documentar hallazgos. | Reporte de auditoría. |
-| Security / Supply Chain Agent | `npx codacy-analysis-cli` (a través de workflow) | En CI (`codacy.yml`). | SARIF sanitizado y subido. | `results-*.sarif`. |
-| Test Sentinel | `npm ci && npm test` | Ejecuta suite híbrida: `node:test` (legacy) + `Vitest`. | Todas las pruebas pasan (Legacy + Vitest). | Logs de pruebas. |
-| Test Sentinel | `npx stryker run` | Regresión de calidad en lógica crítica (Cart, Fetch). | Mutation Score estable/incremental. | Reporte HTML en `reports/mutation/`. |
-| Test Sentinel | `npx vitest run <file>` | Ejecución rápida de tests modernos (`.spec.js`). | Test pasa aisladamente. | Output de Vitest. |
-| CI Guardian | `gh workflow view <name>` (opcional) | Revisiones periódicas de pipelines. | Workflow refleja nodos fijados, permisos mínimos y cachés con lockfile. | Informe de revisión. |
-| PR/Release Manager | `git status && git diff --stat` | Antes de solicitar revisión/merge. | Árbol limpio y diff reducido (≤400 líneas netas salvo acuerdos). | Evidencia en PR. |
-| PR/Release Manager | `npx npm-check-updates --target=minor` (en seguimiento) | Evaluar upgrades permitidos. | Lista de updates patch/minor para próximas iteraciones. | Comentario o issue con plan. |
+
+| Agente                        | Comando                                                 | Cuándo se ejecuta                                                                       | Salida esperada                                                                           | Artefactos                                |
+| ----------------------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------- |
+| Repo Cartographer             | `node -v`                                               | Antes de cualquier trabajo para verificar Node ≥ 22 tal como consume CI (`images.yml`). | Versión fija compatible con scripts (`22.x`).                                             | Registro en informe de descubrimiento.    |
+| Repo Cartographer             | `npm pkg get scripts`                                   | Al actualizar documentación o scripts.                                                  | JSON con scripts de `package.json`.                                                       | Tabla de scripts actualizada en docs.     |
+| Docs Steward                  | `npm run build`                                         | Tras cambios en plantillas (`templates/`), datos o herramientas.                        | Build completo sin errores ni warnings críticos; genera `dist/`, `pages/`, `sitemap.xml`. | Artifacts regenerados listos para commit. |
+| Docs Steward                  | `npm run lighthouse:audit`                              | Auditorías de rendimiento previas a release.                                            | Reportes en `reports/lighthouse/`.                                                        | Archivos HTML de Lighthouse.              |
+| Type & Lint Guardian          | `npx eslint .`                                          | En cada PR y antes de merges; ejecutado también localmente.                             | Salida limpia sin errores ESLint usando `.eslintrc.json`.                                 | Logs de lint.                             |
+| Type & Lint Guardian          | `npm run format`                                        | En cada PR.                                                                             | Código formateado según `.prettierrc`.                                                    | Archivos modificados.                     |
+| Security / Supply Chain Agent | `npm audit --production`                                | Mensual o ante cambios de dependencias.                                                 | Sin vulnerabilidades altas/crit.; documentar hallazgos.                                   | Reporte de auditoría.                     |
+| Security / Supply Chain Agent | `npx codacy-analysis-cli` (a través de workflow)        | En CI (`codacy.yml`).                                                                   | SARIF sanitizado y subido.                                                                | `results-*.sarif`.                        |
+| Test Sentinel                 | `npm ci && npm test`                                    | Ejecuta suite híbrida: `node:test` (legacy) + `Vitest`.                                 | Todas las pruebas pasan (Legacy + Vitest).                                                | Logs de pruebas.                          |
+| Test Sentinel                 | `npx stryker run`                                       | Regresión de calidad en lógica crítica (Cart, Fetch).                                   | Mutation Score estable/incremental.                                                       | Reporte HTML en `reports/mutation/`.      |
+| Test Sentinel                 | `npx vitest run <file>`                                 | Ejecución rápida de tests modernos (`.spec.js`).                                        | Test pasa aisladamente.                                                                   | Output de Vitest.                         |
+| CI Guardian                   | `gh workflow view <name>` (opcional)                    | Revisiones periódicas de pipelines.                                                     | Workflow refleja nodos fijados, permisos mínimos y cachés con lockfile.                   | Informe de revisión.                      |
+| PR/Release Manager            | `git status && git diff --stat`                         | Antes de solicitar revisión/merge.                                                      | Árbol limpio y diff reducido (≤400 líneas netas salvo acuerdos).                          | Evidencia en PR.                          |
+| PR/Release Manager            | `npx npm-check-updates --target=minor` (en seguimiento) | Evaluar upgrades permitidos.                                                            | Lista de updates patch/minor para próximas iteraciones.                                   | Comentario o issue con plan.              |
 
 ## Guardrails CI/tests
+
 - **Checklist de ejecución determinista**
   - [ ] `node -v` coincide con la versión fijada en workflows (`22.x`).
   - [ ] `npm ci` es obligatorio en CI; queda prohibido `npm install` cuando exista `package-lock.json`.
@@ -74,7 +78,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - **Mutation Testing**: Verificar reportes de Stryker en cambios críticos. No reintroducir survivors en lógica Core (Cart, Analytics, Logger).
 - **Linter/formatter**
   - [ ] `npx eslint .` debe terminar en verde. Auto-fixes solo locales; los commits deben incluir diff resultante.
-  - *Missing:* `prettier --check` hasta incorporar configuración y dependencia.
+  - [ ] `npm run format` debe asegurar estilo consistente.
 - **SARIF estable**
   - Reutilizar el sanitizador existente en `.github/workflows/codacy.yml` (`jq` con `with_entries`). Si se generan SARIF manualmente, aplicar:
     ```bash
@@ -93,6 +97,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - Documentar `git revert <sha>` en PRs y aplicar feature flags en scripts si se introducen cambios condicionales.
 
 ## Políticas de cambio y PR
+
 - Usar ramas `tipo/slug`, p. ej. `docs/agents-refresh-YYYYMMDD`.
 - Commits en formato Conventional Commits (`docs(agents): ...`).
 - PRs deben incluir evidencia de pruebas (`npm test`, `npm run build`, auditorías relevantes) y la checklist de guardrails marcada.
@@ -100,6 +105,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 - Adjuntar resultados de `npm audit --production` cuando se toquen dependencias.
 
 ## Flujos de trabajo (CI)
+
 - **`Deploy static content to Pages` (`.github/workflows/static.yml`)**
   - Trigger: push a `main` y `workflow_dispatch`.
   - Permisos: `contents: read`, `pages: write`, `id-token: write`.
@@ -113,30 +119,43 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - Trigger: push/PR a `main` y cron semanal.
   - Permisos mínimos (`security-events: write` solo para subir SARIF).
   - Pasos clave: ejecutar Codacy CLI, dividir SARIF, sanitizar con `jq`, subir a Code Scanning.
-  - *Missing:* caché de dependencias; evaluar usar `actions/setup-node` con caché `npm` si se añade instalación de paquetes.
+  - _Missing:_ caché de dependencias; evaluar usar `actions/setup-node` con caché `npm` si se añade instalación de paquetes.
+- **`Continuous Integration` (`.github/workflows/ci.yml`)**
+  - Trigger: push/PR a `main` (excluyendo `admin/**`).
+  - Stack: Node.js 22.x.
+  - Tareas: `npm ci`, build, unit tests, estilo CSS, tests E2E (Playwright) y auditoría Lighthouse.
+- **`Admin Tools CI` (`.github/workflows/admin.yml`)**
+  - Trigger: cambios en `admin/**`.
+  - Stack: Python 3.12 (pytest).
+  - Tareas: Instalación de dependencias y ejecución de suite de pruebas para el gestor de contenido.
 
 ## Playbooks
+
 ### Cómo añadir un test nuevo
+
 1.  **Lógica compleja/DOM/Async**: Crear archivo `.spec.js` en `test/` usando **Vitest** (`describe`, `it`, `expect`, `vi`).
-    *   Ejemplo: `test/cart.spec.js` para lógica de negocio o mocks de `window`.
+    - Ejemplo: `test/cart.spec.js` para lógica de negocio o mocks de `window`.
 2.  **Scripts simples/Legacy**: Crear archivo `.test.js` usando `node:test`.
 3.  **TypeScript**: Se permiten archivos `.mts` en `src/`. `npm test` y Vitest los soportan nativamente.
 4.  Ejecutar `npm test` para verificar integración en la suite completa.
 5.  Adjuntar logs de ejecución en el PR.
 
 ### Cómo actualizar una dependencia
+
 1. Ejecutar `npm pkg get dependencies["<paquete>"]` para conocer versión actual.
 2. Para patch/minor: `npm install <paquete>@latest --save` y confirmar que `package-lock.json` se actualiza.
 3. Correr `npm audit --production`, `npm test`, `npm run build` y documentar resultados.
 4. Para major: preparar RFC (alcance, breaking changes, plan de validación) antes de abrir PR. No mezclar con otros cambios.
 
 ### Cómo depurar fallos de CI
+
 1. Identificar workflow fallido (`gh workflow run list` o interfaz web) y revisar logs.
 2. Reproducir localmente con `npm ci`, `npm test`, `npm run build` o scripts específicos del job (p.ej. `npm run images:generate`).
 3. Si falla Codacy SARIF, ejecutar localmente el sanitizador con `jq` y verificar esquema `2.1.0`.
 4. Documentar hallazgos en el PR con pasos reproducibles y solución propuesta.
 
 ## Anexos
+
 - `package.json` (scripts y dependencias). [`package.json`](package.json)
 - Lockfile para instalaciones deterministas. [`package-lock.json`](package-lock.json)
 - Configuración de ESLint. [`.eslintrc.json`](.eslintrc.json)

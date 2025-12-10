@@ -7,11 +7,15 @@ function readAll() {
   try {
     const raw = globalThis.localStorage?.getItem(KEY);
     return Array.isArray(JSON.parse(raw)) ? JSON.parse(raw) : [];
-  } catch { return []; }
+  } catch {
+    return [];
+  }
 }
 
 function writeAll(events) {
-  try { globalThis.localStorage?.setItem(KEY, JSON.stringify(events)); } catch { }
+  try {
+    globalThis.localStorage?.setItem(KEY, JSON.stringify(events));
+  } catch {}
 }
 
 export function record(event, details = {}) {
@@ -23,8 +27,12 @@ export function record(event, details = {}) {
   return entry;
 }
 
-export function list() { return readAll(); }
-export function clear() { writeAll([]); }
+export function list() {
+  return readAll();
+}
+export function clear() {
+  writeAll([]);
+}
 export function exportJson(autoDownload = true) {
   const data = JSON.stringify(readAll(), null, 2);
   if (!autoDownload) return data;
@@ -36,7 +44,6 @@ export function exportJson(autoDownload = true) {
     a.download = 'audit-log.json';
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-  } catch { }
+  } catch {}
   return data;
 }
-

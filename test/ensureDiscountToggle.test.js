@@ -3,7 +3,9 @@ const assert = require('node:assert');
 const { JSDOM } = require('jsdom');
 
 test('ensureDiscountToggle inserts a single toggle', () => {
-  const dom = new JSDOM(`<!DOCTYPE html><section aria-label="Opciones de filtrado"><div class="row"></div></section>`);
+  const dom = new JSDOM(
+    `<!DOCTYPE html><section aria-label="Opciones de filtrado"><div class="row"></div></section>`
+  );
   global.window = dom.window;
   global.document = dom.window.document;
 
@@ -11,7 +13,9 @@ test('ensureDiscountToggle inserts a single toggle', () => {
     let toggle = document.getElementById('filter-discount');
     if (toggle) return toggle;
 
-    const filterSection = document.querySelector('section[aria-label*="filtrado"], section[aria-label*="Opciones de filtrado"]');
+    const filterSection = document.querySelector(
+      'section[aria-label*="filtrado"], section[aria-label*="Opciones de filtrado"]'
+    );
     const filterSectionRow = filterSection ? filterSection.querySelector('.row') : null;
     if (!filterSectionRow) return null;
 
@@ -42,5 +46,9 @@ test('ensureDiscountToggle inserts a single toggle', () => {
 
   const second = ensureDiscountToggle();
   assert.strictEqual(second, first, 'should return existing toggle');
-  assert.strictEqual(document.querySelectorAll('#filter-discount').length, 1, 'should not duplicate toggle');
+  assert.strictEqual(
+    document.querySelectorAll('#filter-discount').length,
+    1,
+    'should not duplicate toggle'
+  );
 });

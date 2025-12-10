@@ -52,7 +52,10 @@ test('appendSnapshotMetadata appends entries and keeps them sorted', async () =>
   await appendSnapshotMetadata(manifestPath, latestEntry);
 
   const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-  assert.deepEqual(manifest.snapshots.map((entry) => entry.tag), ['release', 'baseline']);
+  assert.deepEqual(
+    manifest.snapshots.map((entry) => entry.tag),
+    ['release', 'baseline']
+  );
 });
 
 test('removeLatestSnapshot returns null when there are no entries', async () => {
@@ -95,7 +98,10 @@ test('removeLatestSnapshot deletes the newest snapshot and keeps the rest', asyn
   await assert.rejects(readFile(newerFile), (error) => error.code === 'ENOENT');
 
   const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-  assert.deepEqual(manifest.snapshots.map((entry) => entry.tag), ['baseline']);
+  assert.deepEqual(
+    manifest.snapshots.map((entry) => entry.tag),
+    ['baseline']
+  );
 });
 
 test('removeLatestSnapshot can skip deleting artifacts when requested', async () => {
@@ -130,7 +136,10 @@ test('removeLatestSnapshot can skip deleting artifacts when requested', async ()
 
   assert.equal(removed.tag, 'release');
   const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-  assert.deepEqual(manifest.snapshots.map((entry) => entry.tag), ['baseline']);
+  assert.deepEqual(
+    manifest.snapshots.map((entry) => entry.tag),
+    ['baseline']
+  );
   const artifact = await readFile(newerFile, 'utf8');
   assert.equal(artifact, 'release-artifact');
 });

@@ -9,15 +9,21 @@ const assert = require('node:assert');
     readyState: 'loading',
     addEventListener() {},
     removeEventListener() {},
-    querySelector() { return null; },
-    getElementById() { return null; },
+    querySelector() {
+      return null;
+    },
+    getElementById() {
+      return null;
+    },
     createElement() {
       return {
         setAttribute() {},
         appendChild() {},
         remove() {},
-        querySelector() { return null; },
-        classList: { add() {}, remove() {}, toggle() {} }
+        querySelector() {
+          return null;
+        },
+        classList: { add() {}, remove() {}, toggle() {} },
       };
     },
     createTextNode(text) {
@@ -25,8 +31,10 @@ const assert = require('node:assert');
     },
     body: {
       appendChild() {},
-      contains() { return false; }
-    }
+      contains() {
+        return false;
+      },
+    },
   };
 
   const windowMock = {
@@ -35,20 +43,20 @@ const assert = require('node:assert');
     },
     removeEventListener() {},
     location: { reload() {} },
-    document: documentMock
+    document: documentMock,
   };
 
   const serviceWorkerMock = {
     register: async () => ({ addEventListener() {}, installing: null, active: null }),
     addEventListener() {},
-    controller: null
+    controller: null,
   };
 
   global.window = windowMock;
   global.document = documentMock;
   Object.defineProperty(globalThis, 'navigator', {
     value: { serviceWorker: serviceWorkerMock, onLine: true },
-    configurable: true
+    configurable: true,
   });
   windowMock.navigator = global.navigator;
 

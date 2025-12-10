@@ -5,11 +5,8 @@ const { JSDOM } = require('jsdom');
 (async () => {
   global.window = { addEventListener() {}, navigator: {} };
   global.document = { addEventListener() {}, getElementById: () => null };
-  const {
-    showUpdateNotification,
-    showServiceWorkerError,
-    showConnectivityNotification,
-  } = await import('../src/js/modules/notifications.mjs');
+  const { showUpdateNotification, showServiceWorkerError, showConnectivityNotification } =
+    await import('../src/js/modules/notifications.mjs');
 
   function setupDom() {
     const dom = new JSDOM('<!DOCTYPE html><body></body>', { url: 'http://localhost/' });
@@ -76,7 +73,7 @@ const { JSDOM } = require('jsdom');
       assert.ok(!document.querySelector('.notification-toast'));
     });
   });
-})().catch(err => {
+})().catch((err) => {
   console.error(err);
   process.exit(1);
 });

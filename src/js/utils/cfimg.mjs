@@ -44,7 +44,9 @@ export function cfimg(path, opts = {}) {
   if (shouldDisableCfRewrite()) {
     return normalized.split('/').map(encodeURIComponent).join('/');
   }
-  const params = Object.entries(opts).map(([k, v]) => `${k}=${v}`).join(',');
+  const params = Object.entries(opts)
+    .map(([k, v]) => `${k}=${v}`)
+    .join(',');
   const encoded = normalized.split('/').map(encodeURIComponent).join('/');
   return `/cdn-cgi/image/${params}${encoded}`;
 }

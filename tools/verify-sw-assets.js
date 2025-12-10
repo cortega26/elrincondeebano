@@ -1,9 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const {
-  rootDir,
-  resolveOutputDir,
-} = require('./utils/output-dir');
+const { rootDir, resolveOutputDir } = require('./utils/output-dir');
 const { readManifest } = require('./utils/manifest');
 
 function main() {

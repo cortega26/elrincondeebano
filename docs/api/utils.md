@@ -2,12 +2,12 @@
 
 ### Table of Contents
 
-*   [cfimg][1]
-    *   [Parameters][2]
-*   [CFIMG\_THUMB][3]
-*   [createCorrelationId][4]
-*   [log][5]
-    *   [Parameters][6]
+- [cfimg][1]
+  - [Parameters][2]
+- [CFIMG_THUMB][3]
+- [createCorrelationId][4]
+- [log][5]
+  - [Parameters][6]
 
 ## cfimg
 
@@ -15,12 +15,12 @@ Build a Cloudflare image URL with optional transformation parameters.
 
 ### Parameters
 
-*   `path` **[string][7]** Image path, absolute or relative.
-*   `opts` **Record<[string][7], ([string][7] | [number][8])>?** Key/value pairs passed to the CDN. (optional, default `{}`)
+- `path` **[string][7]** Image path, absolute or relative.
+- `opts` **Record<[string][7], ([string][7] | [number][8])>?** Key/value pairs passed to the CDN. (optional, default `{}`)
 
 Returns **[string][7]** The rewritten URL.
 
-## CFIMG\_THUMB
+## CFIMG_THUMB
 
 Default options for product thumbnail transformations.
 
@@ -38,24 +38,16 @@ Log a JSON message to the console with an explicit level.
 
 ### Parameters
 
-*   `level` **(`"log"` | `"info"` | `"warn"` | `"error"`)** Console method to invoke.
-*   `message` **[string][7]** Human-readable message.
-*   `meta` **[object][9]?** Additional structured data. (optional, default `{}`)
+- `level` **(`"log"` | `"info"` | `"warn"` | `"error"`)** Console method to invoke.
+- `message` **[string][7]** Human-readable message.
+- `meta` **[object][9]?** Additional structured data. (optional, default `{}`)
 
 [1]: #cfimg
-
 [2]: #parameters
-
 [3]: #cfimg_thumb
-
 [4]: #createcorrelationid
-
 [5]: #log
-
 [6]: #parameters-1
-
 [7]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
-
 [8]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
-
 [9]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object

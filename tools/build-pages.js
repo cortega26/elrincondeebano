@@ -2,11 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const ejs = require('ejs');
 
-const {
-  resolveFromOutput,
-  ensureDir,
-  rootDir,
-} = require('./utils/output-dir');
+const { resolveFromOutput, ensureDir, rootDir } = require('./utils/output-dir');
 const {
   readProductData,
   sortAndEnrichProducts,
@@ -36,7 +32,9 @@ function loadManifestFonts() {
   try {
     const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
     const files = Array.isArray(manifest?.files) ? manifest.files : [];
-    return files.filter((file) => typeof file === 'string' && file.toLowerCase().endsWith('.woff2'));
+    return files.filter(
+      (file) => typeof file === 'string' && file.toLowerCase().endsWith('.woff2')
+    );
   } catch (error) {
     console.warn('build-pages: Unable to read asset manifest for font preloads:', error);
     return [];
@@ -49,7 +47,7 @@ const manifestPath = resolveFromOutput('asset-manifest.json');
 const outputDir = resolveFromOutput('pages');
 ensureDir(outputDir);
 
-pages.forEach(page => {
+pages.forEach((page) => {
   const productKey = (page.productKey || page.slug || page.name || '').toLowerCase();
   const categoryProducts = availableProducts.filter((product) => {
     const categoryValue = (product.category || '').toLowerCase();
@@ -58,7 +56,7 @@ pages.forEach(page => {
   const inlinePayload = safeJsonStringify({
     version: productData.version || null,
     totalProducts: categoryProducts.length,
-    initialProducts: categoryProducts.map(mapProductForInline)
+    initialProducts: categoryProducts.map(mapProductForInline),
   });
   const html = ejs.render(
     template,

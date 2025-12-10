@@ -9,7 +9,7 @@ const outRoot = path.join(repoRoot, 'assets', 'img', 'variants');
 
 function listImages(dir) {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
-  return entries.flatMap(e => {
+  return entries.flatMap((e) => {
     const res = path.join(dir, e.name);
     if (e.isDirectory()) return listImages(res);
     return /\.(jpe?g|png)$/i.test(e.name) ? [res] : [];
@@ -23,7 +23,9 @@ async function buildVariants(file) {
   fs.mkdirSync(outDir, { recursive: true });
   const ext = path.extname(file).slice(1).toLowerCase() === 'png' ? 'png' : 'jpg';
   for (const w of widths) {
-    const img = sharp(file).resize({ width: w, withoutEnlargement: true, fit: 'inside' }).withMetadata(false);
+    const img = sharp(file)
+      .resize({ width: w, withoutEnlargement: true, fit: 'inside' })
+      .withMetadata(false);
     await img.toFormat('avif', { cqLevel: 33 }).toFile(path.join(outDir, `${base}-${w}.avif`));
     await img.toFormat('webp', { quality: 75 }).toFile(path.join(outDir, `${base}-${w}.webp`));
     await img.toFormat(ext, { quality: 75 }).toFile(path.join(outDir, `${base}-${w}.${ext}`));
@@ -42,7 +44,7 @@ async function run() {
   }
 }
 
-run().catch(err => {
+run().catch((err) => {
   console.error(err);
   process.exit(1);
 });

@@ -4,4 +4,3 @@ export function setupCheckoutProgress() {
     if (window?.console?.debug) console.debug('[modules/checkout] setupCheckoutProgress: no-op');
   } catch {}
 }
-

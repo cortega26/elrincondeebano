@@ -38,17 +38,20 @@ function showNotification(notificationElement) {
     existingNotification.remove();
   }
   document.body.appendChild(notificationElement);
-  setTimeout(() => {
-    if (document.body.contains(notificationElement)) {
-      notificationElement.remove();
-    }
-  }, 5 * 60 * 1000);
+  setTimeout(
+    () => {
+      if (document.body.contains(notificationElement)) {
+        notificationElement.remove();
+      }
+    },
+    5 * 60 * 1000
+  );
 }
 
 function safeReload() {
   try {
     if (typeof window === 'undefined') return;
-    const ua = window.navigator && window.navigator.userAgent || '';
+    const ua = (window.navigator && window.navigator.userAgent) || '';
     // Avoid jsdom virtual console noise: jsdom advertises itself in UA
     if (/jsdom/i.test(ua)) return;
     const reloadFn = window.location && window.location.reload;
@@ -59,42 +62,24 @@ function safeReload() {
 }
 
 export function showUpdateNotification(serviceWorker, message = 'Una versión está disponible') {
-  const notification = createNotificationElement(
-    message,
-    'Actualizar ahora',
-    'Después',
-    () => {
-      if (serviceWorker) {
-        serviceWorker.postMessage({ type: 'SKIP_WAITING' });
-      } else {
-        safeReload();
-      }
+  const notification = createNotificationElement(message, 'Actualizar ahora', 'Después', () => {
+    if (serviceWorker) {
+      serviceWorker.postMessage({ type: 'SKIP_WAITING' });
+    } else {
+      safeReload();
     }
-  );
+  });
   showNotification(notification);
 }
 
 export function showServiceWorkerError(message) {
-  const notification = createNotificationElement(
-    message,
-    'Reload',
-    'Dismiss',
-    () => safeReload()
-  );
+  const notification = createNotificationElement(message, 'Reload', 'Dismiss', () => safeReload());
   showNotification(notification);
 }
 
 export function showConnectivityNotification(message) {
-  const notification = createNotificationElement(
-    message,
-    'Retry',
-    'Dismiss',
-    () => safeReload()
-  );
+  const notification = createNotificationElement(message, 'Retry', 'Dismiss', () => safeReload());
   showNotification(notification);
 }
 
-export {
-  createNotificationElement,
-  showNotification
-};
+export { createNotificationElement, showNotification };

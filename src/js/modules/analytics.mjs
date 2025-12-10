@@ -15,7 +15,9 @@ function hasConsent() {
   try {
     const v = (localStorage && localStorage.getItem('consent_analytics')) || '';
     return String(v).toLowerCase() === 'granted';
-  } catch { return false; }
+  } catch {
+    return false;
+  }
 }
 
 function sampledIn() {
@@ -31,4 +33,3 @@ export function track(eventName, properties = {}) {
   log('info', 'analytics_event', { id, event: eventName, props: properties });
   return true;
 }
-
