@@ -11,7 +11,6 @@ const tests = [
   'registerServiceWorker.test.js',
   'registerServiceWorker.test.js',
   'updateProductDisplay.test.js',
-
   'ensureDiscountToggle.test.js',
   'memoize.test.js',
   'notifications.test.js',

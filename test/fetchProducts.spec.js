@@ -4,6 +4,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { fetchProducts } from '../src/js/script.mjs';
 
+// Mock logger module
+vi.mock('../src/js/utils/logger.mts', () => ({
+    log: vi.fn(),
+    createCorrelationId: () => 'test-correlation-id'
+}));
+import { log } from '../src/js/utils/logger.mts';
+
 describe('fetchProducts', () => {
     let mockFetch;
 
@@ -66,6 +73,12 @@ describe('fetchProducts', () => {
     });
 
     it('non-OK response throws ProductDataError', async () => {
+        // Mock product container
+        const container = document.createElement('div');
+        container.id = 'product-container';
+        document.body.appendChild(container);
+        vi.spyOn(document, 'getElementById').mockReturnValue(container);
+
         mockFetch.mockResolvedValue({
             ok: false,
             status: 500,
@@ -73,6 +86,12 @@ describe('fetchProducts', () => {
         });
 
         await expect(fetchProducts()).rejects.toThrow(/HTTP error/);
+
+        expect(log).toHaveBeenCalledWith('error', 'fetch_products_failure', expect.objectContaining({
+            error: expect.stringMatching(/HTTP error/),
+            runbook: expect.stringContaining('RUNBOOK')
+        }));
+        expect(container.textContent).toContain('Error al cargar');
     });
 
     it('invalid JSON throws ProductDataError', async () => {
@@ -86,8 +105,22 @@ describe('fetchProducts', () => {
     });
 
     it('network failure throws ProductDataError', async () => {
+        // Mock product container
+        const container = document.createElement('div');
+        container.id = 'product-container';
+        document.body.appendChild(container);
+        vi.spyOn(document, 'getElementById').mockReturnValue(container);
+
         mockFetch.mockRejectedValue(new Error('Network error'));
         await expect(fetchProducts()).rejects.toThrow();
+
+        expect(log).toHaveBeenCalledWith('error', 'fetch_products_failure', expect.objectContaining({
+            error: expect.stringContaining('Network error'),
+            runbook: expect.stringContaining('RUNBOOK')
+        }));
+
+        // Verify UI
+        expect(container.querySelector('.error-message')).toBeTruthy();
     });
 
     it('retries then succeeds', async () => {
@@ -133,6 +166,12 @@ describe('fetchProducts', () => {
         // Logic in script.mjs: if inline version matches local version, it might use it.
         // Based on legacy test: it expects 1 product.
         expect(products).toHaveLength(1);
+
+        // Kill inline fallback logger mutants
+        expect(log).toHaveBeenCalledWith('warn', 'fetch_products_network_fallback_inline', expect.objectContaining({
+            error: expect.stringContaining('Offline'),
+            runbook: expect.stringContaining('RUNBOOK')
+        }));
         expect(window.__PRODUCT_DATA__.isPartial).toBe(true);
     });
 });
