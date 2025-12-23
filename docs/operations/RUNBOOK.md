@@ -36,3 +36,11 @@
 
 - `price`: entero en CLP, representa el precio base del producto.
 - `discount`: entero en CLP, representa un descuento absoluto que se resta a `price` para calcular el precio final mostrado.
+
+## Nota operativa de stock
+
+- `stock` debe mantenerse explícito en cada producto (`true` o `false`) al actualizar `data/product_data.json`.
+- Usa `stock: false` para productos sin disponibilidad temporal: el catálogo los marca
+  como **AGOTADO** y aplica escala de grises; además, los filtros del frontend los
+  ocultan.
+- Evita borrar productos por falta de stock; conserva el registro para reactivarlo cuando vuelva disponibilidad.
