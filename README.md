@@ -57,6 +57,17 @@ flowchart TD
 
 _No environment variables are required for the default build. Optional flags such as `FULL_REGEN` or `LH_SKIP_BUILD` fine-tune heavy scripts and are documented inline in `tools/`._
 
+## Language behavior
+
+- **Supported languages today:** Spanish-only content is shipped. Any bilingual support is
+  **aspirational** and should not be treated as a guaranteed feature yet.
+- **Default language:** Spanish (`es`) is the default for rendered pages (see `lang="es"` in
+  `templates/index.ejs` and `templates/category.ejs`).
+- **Fallback rules:** there is no runtime language negotiation. If future translations are
+  added, the expected fallback remains Spanish.
+- **Where strings live:** localized copy currently lives directly in EJS templates
+  (`templates/`) and product/category labels in `data/product_data.json`.
+
 ## Category Taxonomy
 
 Canonical product categories (authoritative list: `data/product_data.json`):
