@@ -57,6 +57,23 @@ flowchart TD
 
 _No environment variables are required for the default build. Optional flags such as `FULL_REGEN` or `LH_SKIP_BUILD` fine-tune heavy scripts and are documented inline in `tools/`._
 
+## Pricing & Discounts
+
+- **Currency:** prices are stored and rendered in Chilean pesos (CLP).
+- **Discount semantics:** `discount` is an absolute CLP amount (not a percentage), subtracted from `price`.
+- **Display rules:** when discounted, the UI shows the discounted price as primary and the original price struck through; otherwise it shows the base price only.
+
+Example (CLP amounts, absolute discount):
+
+```json
+{
+  "price": 5000,
+  "discount": 1000
+}
+```
+
+This yields a displayed final price of `CLP 4.000`, with the original `CLP 5.000` struck through and a derived `20%` badge.
+
 ### Product image workflow (WebP + AVIF)
 
 - Every catalog entry still needs a traditional fallback image (`image_path`) in `assets/images/` using one of the existing extensions (`.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`).

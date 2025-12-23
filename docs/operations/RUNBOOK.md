@@ -31,3 +31,8 @@
 - **Configuración:** `sync.enabled` se mantiene en `false` y `sync.api_base` vacío (`admin/product_manager/content_manager.py:44-69`).
 - **Ejecución:** abre la app → realiza ediciones → guarda. Los cambios quedan en el archivo del repo y se suben vía commit/push.
 - **Sincronización remota opcional:** habilítala sólo si hay un backend disponible. Crea un override (`config.json`) con `sync.enabled: true` y `sync.api_base` apuntando al endpoint. Mientras no haya backend, deja esos valores en blanco para evitar colas pendientes.
+
+## Nota de esquema de datos (price/discount)
+
+- `price`: entero en CLP, representa el precio base del producto.
+- `discount`: entero en CLP, representa un descuento absoluto que se resta a `price` para calcular el precio final mostrado.
