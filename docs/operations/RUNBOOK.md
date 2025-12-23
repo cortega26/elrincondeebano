@@ -53,11 +53,41 @@
 - **Configuración:** `sync.enabled` se mantiene en `false` y `sync.api_base` vacío (`admin/product_manager/content_manager.py:44-69`).
 - **Ejecución:** abre la app → realiza ediciones → guarda. Los cambios quedan en el archivo del repo y se suben vía commit/push.
 - **Sincronización remota opcional:** habilítala sólo si hay un backend disponible. Crea un override (`config.json`) con `sync.enabled: true` y `sync.api_base` apuntando al endpoint. Mientras no haya backend, deja esos valores en blanco para evitar colas pendientes.
+- **Campos normalizados obligatorios (size):**
+  - Completa siempre `size_value` y `size_unit` en cada producto.
+  - Usa unidades normalizadas (`g`, `ml`, `unit`) y convierte el input original:
+    - `1Kg` → `size_value: 1000`, `size_unit: "g"`.
+    - `1 L` → `size_value: 1000`, `size_unit: "ml"`.
+  - Si el producto es por unidades (p. ej. Llaveros), registra el conteo en `size_value`
+    y usa `size_unit: "unit"`.
+  - `size_display` es opcional; úsalo para conservar el string original si ayuda a ventas.
 
 ## Nota de esquema de datos (price/discount)
 
 - `price`: entero en CLP, representa el precio base del producto.
 - `discount`: entero en CLP, representa un descuento absoluto que se resta a `price` para calcular el precio final mostrado.
+
+## Nota de esquema de datos (size)
+
+**Unidades base por categoría**
+
+- `ml`: Aguas, Bebidas, Cervezas, Jugos, Piscos, Vinos, Espumantes, Energeticaseisotonicas.
+- `g`: Carnesyembutidos, Chocolates, Despensa, Lacteos, SnacksDulces, SnacksSalados.
+- `unit`: Juegos, Llaveros, Mascotas, Limpiezayaseo.
+
+**Schema mínimo**
+
+| Name | Type | Default | Required | Description |
+| ---- | ---- | ------- | -------- | ----------- |
+| `size_value` | number | `null` | ✅ | Cantidad numérica en la unidad base de la categoría. |
+| `size_unit` | string | `null` | ✅ | Unidad normalizada (`g`, `ml`, `unit`). |
+| `size_display` | string | `null` | ❌ | Etiqueta opcional para mostrar el formato original. |
+
+**Regla de display**
+
+- Si existe `size_display`, mostrarla tal cual.
+- Si no existe, renderizar `${size_value} ${size_unit}` desde los campos normalizados.
+
 
 ## Nota operativa de stock
 
