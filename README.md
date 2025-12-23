@@ -99,8 +99,11 @@ Canonical product categories (authoritative list: `data/product_data.json`):
 ## Pricing & Discounts
 
 - **Currency:** prices are stored and rendered in Chilean pesos (CLP).
-- **Discount semantics:** `discount` is an absolute CLP amount (not a percentage), subtracted from `price`.
-- **Display rules:** when discounted, the UI shows the discounted price as primary and the original price struck through; otherwise it shows the base price only.
+- **Integer vs decimals:** prices and discounts are integers only (no decimals); any intermediate math must end as a whole CLP value.
+- **Rounding rule:** when calculations produce fractional values, round half up to 0 decimals before display/storage.
+- **Locale formatting:** use Chilean formatting (thousands separator `.` and decimal symbol `,`), displayed as `CLP 4.000`.
+- **Discount semantics:** `discount` is an absolute CLP amount (not a percentage) subtracted from `price`.
+- **Discount display impact:** when discounted, show the final price as primary and the original price struck through, plus a derived percentage badge; otherwise show the base price only.
 
 Example (CLP amounts, absolute discount):
 
