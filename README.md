@@ -26,6 +26,32 @@ Providing a bilingual-friendly grocery catalog that ships as a static site, pre-
 > // Versioned prefixes make cache busting explicit, avoiding stale assets after data refreshes.
 > ```
 
+### Cache versioning guide
+
+Use explicit cache prefix bumps to force refreshes in the service worker. The
+prefixes live in `service-worker.js` under `CACHE_CONFIG.prefixes`.
+
+**Cache prefix configuration**
+
+| Name | Type | Default | Required | Description |
+| ---- | ---- | ------- | -------- | ----------- |
+| `prefixes.static` | string | `ebano-static-v6` | ✅ | Precached assets such as CSS, JS, icons, fonts, and offline pages. |
+| `prefixes.dynamic` | string | `ebano-dynamic-v4` | ✅ | Runtime cache for HTML fetches and dynamic endpoints outside precache. |
+| `prefixes.products` | string | `ebano-products-v5` | ✅ | Product data cache (JSON) and catalog refresh logic. |
+
+**When to bump**
+
+- **ebano-static:** changes to CSS/JS bundles, icon sets, offline pages, or any
+  precached assets list.
+- **ebano-dynamic:** cache strategy changes or new runtime endpoints.
+- **ebano-products:** data schema changes, catalog invalidation logic, or data
+  refreshes that must bypass old JSON.
+
+**Examples**
+
+- Data changes (prices, stock, product list) → bump `ebano-products`.
+- CSS/JS changes (new styles, UI scripts) → bump `ebano-static`.
+
 ## Tech Stack
 
 - **Runtime:** Node.js 22.x (Volta + `.nvmrc` guardrails). Admin Tools run on Python 3.12.
