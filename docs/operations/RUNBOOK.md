@@ -35,6 +35,21 @@
     invalidación del SW, o cuando se requiere forzar recarga completa del catálogo.
   - **Regla práctica:** cada release que cambie el SW o assets precacheados debe incrementar el
     prefijo correspondiente para evitar contenido obsoleto.
+  - **Ejemplos rápidos:**
+    - Cambios de datos (precios, stock, nuevos productos) → `ebano-products`.
+    - Cambios de CSS/JS (estilos, scripts, bundles) → `ebano-static`.
+    - Ajustes de estrategia runtime o nuevos endpoints → `ebano-dynamic`.
+- **Paso a paso: bump y verificación**
+  1. Edita `service-worker.js` y actualiza el prefijo correspondiente en
+     `CACHE_CONFIG.prefixes` (incremento de versión).
+  2. Ejecuta `npm run build` para regenerar el snapshot estático.
+  3. Publica los cambios (commit + deploy).
+  4. En un navegador limpio o incógnito, visita el sitio y abre DevTools →
+     Application → Service Workers.
+  5. Verifica que el SW activo muestre el nuevo prefijo y que los caches nuevos
+     existan en Cache Storage.
+  6. Recarga con hard refresh (`Ctrl+Shift+R`) y confirma que los assets/JSON
+     se sirven desde los nuevos caches.
 - **Invalidar cachés antiguas:**
   1. Abre DevTools → Application → Service Workers.
   2. Ejecuta en la consola:
