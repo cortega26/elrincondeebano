@@ -113,6 +113,38 @@ Example (CLP amounts, absolute discount):
 
 This yields a displayed final price of `CLP 4.000`, with the original `CLP 5.000` struck through and a derived `20%` badge.
 
+## Size normalization (product data)
+
+To keep catalog sizing consistent across the site and Content Manager exports, products
+carry normalized size fields. Normalize source strings like `1Kg` or `1 L` to base units.
+
+**Base units by category**
+
+| Category group (data/product_data.json) | Base unit |
+| --------------------------------------- | --------- |
+| Aguas, Bebidas, Cervezas, Jugos, Piscos, Vinos, Espumantes, Energeticaseisotonicas | `ml` |
+| Carnesyembutidos, Chocolates, Despensa, Lacteos, SnacksDulces, SnacksSalados | `g` |
+| Juegos, Llaveros, Mascotas, Limpiezayaseo | `unit` |
+
+**Minimal size schema**
+
+| Name | Type | Default | Required | Description |
+| ---- | ---- | ------- | -------- | ----------- |
+| `size_value` | number | `null` | ✅ | Numeric amount expressed in the base unit for the product category. |
+| `size_unit` | string | `null` | ✅ | Normalized unit: `g`, `ml`, or `unit`. |
+| `size_display` | string | `null` | ❌ | Optional human-readable label (e.g., `1Kg`, `2 x 350 ml`). |
+
+**Normalization examples**
+
+- `1Kg` → `size_value: 1000`, `size_unit: "g"`, `size_display: "1Kg"`.
+- `1 L` → `size_value: 1000`, `size_unit: "ml"`, `size_display: "1 L"`.
+- `Pack x2` → `size_value: 2`, `size_unit: "unit"`, `size_display: "Pack x2"`.
+
+**Display rule**
+
+- If `size_display` is present, render it as-is.
+- Otherwise render `${size_value} ${size_unit}` using the normalized fields.
+
 ## Availability
 
 - **Stock flag:** set `stock: false` in `data/product_data.json` to mark a product as unavailable.
