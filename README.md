@@ -74,6 +74,16 @@ Example (CLP amounts, absolute discount):
 
 This yields a displayed final price of `CLP 4.000`, with the original `CLP 5.000` struck through and a derived `20%` badge.
 
+## Availability
+
+- **Stock flag:** set `stock: false` in `data/product_data.json` to mark a product as unavailable.
+- **Visual treatment:** the card receives the `agotado` class, which applies a dark overlay
+  badge labeled **"AGOTADO"** and grayscales the product image (`assets/css/style.css`,
+  `assets/css/style-enhanced.css`).
+- **Catalog filtering:** client-side filtering/search excludes out-of-stock items, so
+  filtered views hide products with `stock: false` even though the base catalog can still
+  render them.
+
 ### Product image workflow (WebP + AVIF)
 
 - Every catalog entry still needs a traditional fallback image (`image_path`) in `assets/images/` using one of the existing extensions (`.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`).
