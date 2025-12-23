@@ -184,6 +184,22 @@ carry normalized size fields. Normalize source strings like `1Kg` or `1 L` to ba
   filtered views hide products with `stock: false` even though the base catalog can still
   render them.
 
+## Catalog data fetch UX policy
+
+When `/data/product_data.json` cannot be fetched, the UI follows a strict fallback order:
+
+1. **Last cached full catalog (preferred):** if the service worker cache has a copy of
+   `product_data.json`, the UI renders the last cached full catalog with no blocking error.
+2. **Inline subset (partial):** if cached data is unavailable but the inline catalog exists,
+   the UI renders only that subset. Missing items are hidden (no placeholders).
+3. **Error state:** if neither cached nor inline data is available, the UI shows the error
+   message:
+   `Error al cargar los productos. Por favor, verifique su conexión a internet e inténtelo de nuevo.`
+   and includes an **"Intentar nuevamente"** retry button.
+
+Operational recovery steps for this policy live in
+[`docs/operations/RUNBOOK.md`](docs/operations/RUNBOOK.md).
+
 ### Product image workflow (WebP + AVIF)
 
 - Every catalog entry still needs a traditional fallback image (`image_path`) in `assets/images/` using one of the existing extensions (`.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`).
