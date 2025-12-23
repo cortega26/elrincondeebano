@@ -57,6 +57,34 @@ flowchart TD
 
 _No environment variables are required for the default build. Optional flags such as `FULL_REGEN` or `LH_SKIP_BUILD` fine-tune heavy scripts and are documented inline in `tools/`._
 
+## Category Taxonomy
+
+Canonical product categories (authoritative list: `data/product_data.json`):
+
+- Aguas
+- Bebidas
+- Carnesyembutidos
+- Cervezas
+- Chocolates
+- Despensa
+- Energeticaseisotonicas
+- Espumantes
+- Juegos
+- Jugos
+- Lacteos
+- Limpiezayaseo
+- Llaveros
+- Mascotas
+- Piscos
+- SnacksDulces
+- SnacksSalados
+- Vinos
+
+**Rules**
+
+- Keep the exact casing and spacing from `data/product_data.json` (no spaces; TitleCase tokens).
+- New categories must be added to `data/product_data.json` and may require corresponding asset paths plus navigation/template updates if the UI exposes category menus.
+
 ## Pricing & Discounts
 
 - **Currency:** prices are stored and rendered in Chilean pesos (CLP).
