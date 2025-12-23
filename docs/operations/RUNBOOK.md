@@ -4,15 +4,37 @@
 
 - **Severity:** warning
 - **Logs:** `fetch_products_failure` with a `correlationId`.
+- **Expected behavior when `/data/product_data.json` fails:**
+  - If inline catalog data exists, the UI continues with the inline subset, marks it as partial,
+    and logs `fetch_products_network_fallback_inline`.
+  - If inline data is unavailable, the UI shows an error message to the user and logs
+    `fetch_products_failure`.
 - **Steps:**
   1. Verify network connectivity to `/data/product_data.json`.
   2. Check recent deployments for schema changes.
   3. Retry after backoff; persistent failures escalate to infrastructure.
   4. Remember that only the first catalog batch is inlined in `#product-data`; the rest streams from `/data/product_data.json`. Confirm the JSON endpoint is cached by the service worker (`ebano-products-*` cache) for offline support.
 
+## Data freshness
+
+- **Source of truth:** `data/product_data.json` (and `last_updated` field).
+- **Expected cadence:** refresh the catalog whenever pricing, stock, or availability changes, and
+  perform a scheduled review at least weekly even if no changes are detected.
+- **Operational note:** if `last_updated` is stale beyond the expected cadence, treat it as a
+  potential data pipeline issue and verify the content manager export before release.
+
 ## Service worker operations
 
 - **Cache versions activos:** `ebano-static-v6`, `ebano-dynamic-v4`, `ebano-products-v5`.
+- **Cuándo y cómo bump de versiones de caché (prefijos en `service-worker.js`):**
+  - `ebano-static-v*`: bump cuando cambian assets estáticos precacheados o su lista
+    (`CACHE_CONFIG.staticAssets`, CSS/JS compilados, íconos, offline page).
+  - `ebano-dynamic-v*`: bump cuando cambia la estrategia de caché dinámica o endpoints
+    cacheados fuera del precache.
+  - `ebano-products-v*`: bump cuando cambia el esquema de `product_data.json`, la lógica de
+    invalidación del SW, o cuando se requiere forzar recarga completa del catálogo.
+  - **Regla práctica:** cada release que cambie el SW o assets precacheados debe incrementar el
+    prefijo correspondiente para evitar contenido obsoleto.
 - **Invalidar cachés antiguas:**
   1. Abre DevTools → Application → Service Workers.
   2. Ejecuta en la consola:
