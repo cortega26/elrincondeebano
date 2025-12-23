@@ -5,15 +5,33 @@
 - **Severity:** warning
 - **Logs:** `fetch_products_failure` with a `correlationId`.
 - **Expected behavior when `/data/product_data.json` fails:**
-  - If inline catalog data exists, the UI continues with the inline subset, marks it as partial,
-    and logs `fetch_products_network_fallback_inline`.
-  - If inline data is unavailable, the UI shows an error message to the user and logs
-    `fetch_products_failure`.
+  - If the service worker has cached `product_data.json`, the UI renders the **last cached full
+    catalog** without blocking the user (no error state).
+  - If the cache is unavailable but inline catalog data exists, the UI renders the inline subset,
+    marks it as partial, logs `fetch_products_network_fallback_inline`, and **hides missing
+    items** (no placeholders).
+  - If neither cached nor inline data is available, the UI shows the error component with
+    the message:
+    `Error al cargar los productos. Por favor, verifique su conexión a internet e inténtelo de nuevo.`
+    plus a **"Intentar nuevamente"** button, and logs `fetch_products_failure`.
 - **Steps:**
   1. Verify network connectivity to `/data/product_data.json`.
   2. Check recent deployments for schema changes.
-  3. Retry after backoff; persistent failures escalate to infrastructure.
-  4. Remember that only the first catalog batch is inlined in `#product-data`; the rest streams from `/data/product_data.json`. Confirm the JSON endpoint is cached by the service worker (`ebano-products-*` cache) for offline support.
+  3. Confirm the service worker cache contains `product_data.json` in the `ebano-products-v*`
+     cache. If missing or stale, invalidate the cache (see steps below).
+  4. Retry after backoff; persistent failures escalate to infrastructure.
+  5. Remember that only the first catalog batch is inlined in `#product-data`; the rest streams
+     from `/data/product_data.json`. Confirm the JSON endpoint is cached by the service worker
+     (`ebano-products-v*`).
+
+**Recovery steps aligned to UX policy**
+
+1. **If users see the error message + retry button:** restore the JSON endpoint, then instruct a
+   hard refresh. The retry action in the UI calls `initApp` to re-fetch the catalog.
+2. **If users see a partial catalog (missing items hidden):** ensure the service worker cache is
+   refreshed (bump `CACHE_CONFIG.prefixes.products` or invalidate `ebano-products-v*` in DevTools).
+3. **If users keep seeing stale data:** bump `ebano-products-v*` in `service-worker.js`, rebuild,
+   and redeploy so the last cached version updates on next load.
 
 ## Data freshness
 
