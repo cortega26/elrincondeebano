@@ -8,10 +8,20 @@ const path = require('node:path');
 function loadModule(relPath) {
   const filePath = path.join(__dirname, relPath);
   let code = fs.readFileSync(filePath, 'utf8');
+  code = code.replace(
+    /import\s+{([^}]+)}\s+from\s+['"]([^'"]+)['"];?/g,
+    (_match, imports, specifier) =>
+      `const { ${imports.trim()} } = (__imports[${JSON.stringify(specifier)}] || {});`
+  );
   code = code.replace(/export\s+(async\s+)?function\s+(\w+)/g, 'exports.$2 = $1function $2');
   const exports = {};
-  const wrapper = new Function('exports', code + '\nreturn exports;');
-  return wrapper(exports);
+  const __imports = {
+    '../utils/data-endpoint.mjs': {
+      resolveProductDataUrl: () => '/data/product_data.json',
+    },
+  };
+  const wrapper = new Function('exports', '__imports', code + '\nreturn exports;');
+  return wrapper(exports, __imports);
 }
 
 if (typeof global.File === 'undefined') {

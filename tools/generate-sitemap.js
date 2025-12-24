@@ -2,10 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const { resolveFromOutput, ensureDir } = require('./utils/output-dir');
 const { loadCategoryCatalog, buildCategoryPages } = require('./utils/category-catalog');
+const { getDeterministicDate } = require('./utils/deterministic-time');
 
 function generateSitemap() {
   const baseUrl = 'https://elrincondeebano.com';
-  const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+  const currentDate = getDeterministicDate().toISOString().split('T')[0]; // YYYY-MM-DD format
 
   // Static pages (high priority)
   const staticPages = [

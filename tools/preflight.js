@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { getDeterministicTimestamp } = require('./utils/deterministic-time');
 
 const rootDir = path.resolve(__dirname, '..');
 const pkg = require(path.join(rootDir, 'package.json'));
@@ -38,7 +39,7 @@ function ensureManifestExists() {
   fs.mkdirSync(path.dirname(manifestPath), { recursive: true });
   fs.writeFileSync(
     manifestPath,
-    JSON.stringify({ generatedAt: new Date().toISOString(), files: [] }, null, 2)
+    JSON.stringify({ generatedAt: getDeterministicTimestamp(), files: [] }, null, 2)
   );
 }
 

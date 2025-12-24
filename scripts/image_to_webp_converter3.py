@@ -19,7 +19,7 @@ Usage:
 
 Arguments:
     folder_path (optional): Path to the folder containing images to convert.
-                            If not provided, the current directory is used.
+                            If not provided, defaults to assets/images in the repo.
 
 Options:
     --include-webp: Include existing WebP files for re-encoding. Default is False.
@@ -56,6 +56,8 @@ from PIL import Image
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from tqdm import tqdm
 import threading
+
+DEFAULT_INPUT_DIR = Path(__file__).resolve().parents[1] / "assets" / "images"
 
 # GUI imports
 try:
@@ -194,7 +196,7 @@ def parse_arguments():
     :return: Parsed arguments
     """
     parser = argparse.ArgumentParser(description="Convert images to WebP format.")
-    parser.add_argument("folder_path", nargs="?", default=r"C:/Users/corte/OneDrive/Tienda Ebano/assets/images/", 
+    parser.add_argument("folder_path", nargs="?", default=str(DEFAULT_INPUT_DIR),
                         help="Path to the folder containing images to convert.")
     parser.add_argument("--include-webp", action="store_true", default=False, 
                         help="Include existing WebP files for re-encoding.")

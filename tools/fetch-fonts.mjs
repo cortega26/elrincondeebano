@@ -11,7 +11,38 @@ const outDir = path.join(rootDir, 'assets', 'fonts');
 const GOOGLE_CSS =
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&display=swap';
 
+function shouldAllowRemoteFetch() {
+  const raw = process.env.ALLOW_REMOTE_FONTS;
+  if (!raw) return false;
+  const normalized = String(raw).trim().toLowerCase();
+  return ['1', 'true', 'yes'].includes(normalized);
+}
+
+async function loadFontsCss() {
+  const cssPath = process.env.FONTS_CSS_PATH;
+  if (cssPath && cssPath.trim()) {
+    const resolved = path.resolve(rootDir, cssPath.trim());
+    return fs.promises.readFile(resolved, 'utf8');
+  }
+
+  if (!shouldAllowRemoteFetch()) {
+    throw new Error(
+      'Remote font fetch disabled. Set ALLOW_REMOTE_FONTS=1 or provide FONTS_CSS_PATH.'
+    );
+  }
+
+  const url = process.env.FONTS_CSS_URL || GOOGLE_CSS;
+  const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+  if (!res.ok) throw new Error(`Failed to fetch Google Fonts CSS: ${res.status}`);
+  return res.text();
+}
+
 async function download(url, dest) {
+  if (/^https?:/i.test(url) && !shouldAllowRemoteFetch()) {
+    throw new Error(
+      'Remote font download disabled. Set ALLOW_REMOTE_FONTS=1 to download remote assets.'
+    );
+  }
   const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
   const buf = Buffer.from(await res.arrayBuffer());
@@ -20,9 +51,7 @@ async function download(url, dest) {
 
 async function main() {
   await fs.promises.mkdir(outDir, { recursive: true });
-  const res = await fetch(GOOGLE_CSS, { headers: { 'User-Agent': 'Mozilla/5.0' } });
-  if (!res.ok) throw new Error(`Failed to fetch Google Fonts CSS: ${res.status}`);
-  const css = await res.text();
+  const css = await loadFontsCss();
 
   // Very small parser: find one woff2 URL per family/weight (latin subset preferred)
   const targets = [

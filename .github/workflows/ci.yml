@@ -23,11 +23,31 @@ jobs:
           node-version: '22.x'
           cache: 'npm'
 
+      - name: Set deterministic build environment
+        run: |
+          echo "TZ=UTC" >> $GITHUB_ENV
+          echo "LC_ALL=C.UTF-8" >> $GITHUB_ENV
+          echo "LANG=C.UTF-8" >> $GITHUB_ENV
+          echo "CFIMG_DISABLE=1" >> $GITHUB_ENV
+          echo "SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)" >> $GITHUB_ENV
+
       - name: Install dependencies
         run: npm ci
 
+      - name: Determinism path scan
+        run: npm run check:determinism
+
       - name: Build project
         run: npm run build
+
+      - name: Deterministic build check
+        run: |
+          rm -rf build-determinism-a build-determinism-b
+          BUILD_OUTPUT_DIR=build-determinism-a npm run build
+          BUILD_OUTPUT_DIR=build-determinism-b npm run build
+          find build-determinism-a -type f -print0 | sort -z | xargs -0 sha256sum | sed 's#build-determinism-a/##' > build-a.sha
+          find build-determinism-b -type f -print0 | sort -z | xargs -0 sha256sum | sed 's#build-determinism-b/##' > build-b.sha
+          diff -u build-a.sha build-b.sha
 
       - name: Run unit tests
         run: npm test

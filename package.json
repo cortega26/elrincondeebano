@@ -10,6 +10,7 @@
     "fonts": "node tools/fetch-fonts.mjs",
     "preflight": "node tools/preflight.js",
     "build": "npm run preflight && node tools/build.js && node tools/build-index.js && node tools/build-pages.js && node tools/build-components.js && node tools/copy-static.js && node tools/inject-structured-data.js && node tools/inject-resource-hints.js && node tools/generate-sitemap.js && node tools/verify-sw-assets.js",
+    "check:determinism": "node tools/check-determinism-paths.mjs",
     "check:css-order": "node scripts/check-css-order.mjs",
     "format": "prettier --write .",
     "icons": "node tools/generate-icons.js",

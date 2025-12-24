@@ -41,6 +41,22 @@ class ConfigurationError(ApplicationError):
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
+def _resolve_config_path(path_value: str, label: str) -> str:
+    resolved = Path(path_value).expanduser().resolve()
+    try:
+        is_within = resolved.is_relative_to(PROJECT_ROOT.resolve())
+    except AttributeError:
+        is_within = str(resolved).startswith(str(PROJECT_ROOT.resolve()))
+    if not is_within:
+        allow = os.environ.get("ALLOW_EXTERNAL_PATHS", "").lower() in ("1", "true", "yes")
+        if not allow:
+            raise ConfigurationError(
+                f"{label} must be within the repo unless ALLOW_EXTERNAL_PATHS=1: {resolved}"
+            )
+        print(f"Warning: {label} points outside repo: {resolved}")
+    return str(resolved)
+
+
 class ProductManager:
     """Main application class managing lifecycle and dependencies."""
 
@@ -134,9 +150,8 @@ class ProductManager:
                 raise ConfigurationError(
                     f"Failed to load configuration from {config_path}: {e}")
 
-        # Expand paths
-        config['data_dir'] = os.path.expanduser(config['data_dir'])
-        config['log_dir'] = os.path.expanduser(config['log_dir'])
+        config['data_dir'] = _resolve_config_path(config['data_dir'], 'data_dir')
+        config['log_dir'] = _resolve_config_path(config['log_dir'], 'log_dir')
 
         return config
 

@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { getDeterministicTimestamp } = require('./deterministic-time');
 
 function readManifest(manifestPath) {
   try {
@@ -11,7 +12,7 @@ function readManifest(manifestPath) {
 
 function writeManifest(manifestPath, manifest) {
   const payload = {
-    generatedAt: manifest.generatedAt || new Date().toISOString(),
+    generatedAt: manifest.generatedAt || getDeterministicTimestamp(),
     files: Array.isArray(manifest.files) ? Array.from(new Set(manifest.files)).sort() : [],
   };
   fs.writeFileSync(manifestPath, JSON.stringify(payload, null, 2));
