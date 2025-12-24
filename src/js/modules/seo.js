@@ -1,4 +1,5 @@
 // SEO metadata + structured data (migrated/adapted from csp.js)
+import { resolveProductDataUrl } from '../utils/data-endpoint.mjs';
 
 const PRODUCT_DATA_GLOBAL_KEY = '__PRODUCT_DATA__';
 const INLINE_PRODUCT_DATA_ID = 'product-data';
@@ -78,9 +79,7 @@ async function loadProductData() {
     }
 
     const version = localStorage.getItem('productDataVersion');
-    const url = version
-      ? `/data/product_data.json?v=${encodeURIComponent(version)}`
-      : '/data/product_data.json';
+    const url = resolveProductDataUrl({ version });
     const response = await fetch(url, {
       cache: 'default',
       headers: { Accept: 'application/json' },
