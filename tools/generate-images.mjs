@@ -4,8 +4,8 @@ import sharp from 'sharp';
 
 const widths = [200, 400, 600, 800, 1200, 1600, 2000];
 const repoRoot = process.cwd();
-const srcRoot = path.join(repoRoot, 'assets', 'img', 'originals');
-const outRoot = path.join(repoRoot, 'assets', 'img', 'variants');
+const srcRoot = path.join(repoRoot, 'assets', 'images', 'originals');
+const outRoot = path.join(repoRoot, 'assets', 'images', 'variants');
 
 function listImages(dir) {
   const entries = fs.readdirSync(dir, { withFileTypes: true });

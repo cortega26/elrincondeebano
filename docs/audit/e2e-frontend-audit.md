@@ -113,6 +113,9 @@
 | PERF-03 | Performance   | ~28 % unused CSS in critical bundle                  | Resolved  | Critical stylesheet pared down (dropdown/menu/offcanvas rules trimmed).                                                          | 2025-10-13   |
 | A11Y-04 | Accessibility | Legacy dropdown anchors lacking button semantics     | Resolved  | Converted to `<button>` with `aria-expanded` (already merged).                                                                   | 2025-10-13   |
 | SEC-01  | Security/UX   | WhatsApp CTA defaulted to HTTP                       | Resolved  | CTA now hardcodes `https://wa.me/…`; verified in footer.                                                                         | 2025-10-13   |
+| DET-01  | Build         | Image pipeline path mismatch (`assets/img` vs `images`) | Resolved  | Image variants now read from `assets/images/originals` and write to `assets/images/variants`.                                    | 2025-12-23   |
+| DET-02  | Build         | Product data path coupled to OneDrive               | Resolved  | `tools/generate-image-variants.js` defaults to repo `data/product_data.json` with env override.                                 | 2025-12-23   |
+| DET-03  | Build         | Sitemap categories hard-coded                        | Resolved  | Sitemap generation reads enabled categories from `data/categories.json`.                                                         | 2025-12-23   |
 
 ## Top-3 Fixes Implemented
 
