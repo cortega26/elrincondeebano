@@ -1,5 +1,6 @@
 import { cfimg, CFIMG_THUMB } from './utils/cfimg.mjs';
 import { log, createCorrelationId } from './utils/logger.mts';
+import { resolveProductDataUrl, validateProductDataUrl } from './utils/data-endpoint.mjs';
 import { showOffcanvas } from './modules/bootstrap.mjs';
 
 const PRODUCT_DATA_GLOBAL_KEY = '__PRODUCT_DATA__';
@@ -368,7 +369,8 @@ async function checkForUpdates(registration) {
     await registration.update();
 
     // Check if product data needs updating
-    const response = await fetch('/data/product_data.json', {
+    const url = resolveProductDataUrl();
+    const response = await fetch(url, {
       cache: 'no-store',
       headers: { Accept: 'application/json' },
     });
@@ -751,11 +753,7 @@ class ProductDataError extends Error {
 }
 
 const fetchWithRetry = async (url, opts, retries, backoffMs, correlationId) => {
-  const parsed = new URL(url, window.location.origin);
-  if (parsed.origin !== window.location.origin || parsed.protocol !== 'https:') {
-    throw new Error('Invalid request URL: only same-origin HTTPS requests are allowed');
-  }
-  const sanitizedUrl = parsed.toString();
+  const sanitizedUrl = validateProductDataUrl(url);
   let attempt = 0;
   let lastError;
   while (attempt <= retries) {
@@ -812,12 +810,9 @@ const fetchProducts = async () => {
     log('info', 'fetch_products_inline_bootstrap', { correlationId, count: inlineProducts.length });
   }
 
-  const versionForUrl = storedVersion || inlineVersion || null;
-  const url = versionForUrl
-    ? `/data/product_data.json?v=${encodeURIComponent(versionForUrl)}`
-    : '/data/product_data.json';
-
   try {
+    const versionForUrl = storedVersion || inlineVersion || null;
+    const url = resolveProductDataUrl({ version: versionForUrl });
     const response = await fetchWithRetry(
       url,
       { cache: 'no-store', headers: { Accept: 'application/json' } },
