@@ -3,6 +3,7 @@ import { parseArgs } from 'node:util';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
+import deterministicTime from './utils/deterministic-time.js';
 
 const DEFAULT_OUTPUT_DIR = path.resolve(process.cwd(), 'reports', 'snapshots');
 const DEFAULT_VIEWPORT = { width: 1280, height: 720 };
@@ -131,7 +132,9 @@ export async function removeLatestSnapshot(manifestPath, { deleteArtifact = true
  * @returns {Promise<object>} snapshot metadata.
  */
 export async function captureSnapshot({ baseUrl, tag, outputDir = DEFAULT_OUTPUT_DIR }) {
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const { getDeterministicDate } = deterministicTime;
+  const snapshotDate = getDeterministicDate();
+  const timestamp = snapshotDate.toISOString().replace(/[:.]/g, '-');
   const fileName = `snapshot-${tag}-${timestamp}.png`;
   const manifestName = 'manifest.json';
   const filePath = path.join(outputDir, fileName);
@@ -153,7 +156,7 @@ export async function captureSnapshot({ baseUrl, tag, outputDir = DEFAULT_OUTPUT
     tag,
     url: baseUrl,
     file: path.relative(process.cwd(), filePath).split(path.sep).join('/'),
-    capturedAt: new Date().toISOString(),
+    capturedAt: snapshotDate.toISOString(),
   };
 
   await appendSnapshotMetadata(manifestPath, entry);

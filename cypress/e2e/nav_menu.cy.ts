@@ -9,19 +9,28 @@ describe('Nav menu regressions', () => {
     cy.clearAllLocalStorage();
   });
 
+  const openNavbar = () => {
+    cy.get('.navbar-toggler').then(($toggle) => {
+      if ($toggle.is(':visible')) {
+        cy.wrap($toggle).click();
+      }
+    });
+  };
+
   it('CAT-01: Switching categories works repeatedly', () => {
     cy.visit('/', {
       onBeforeLoad: enableServiceWorker,
     });
 
-    cy.contains('a', /Bebestibles|Category A/i).trigger('pointerdown', { pointerType: 'mouse' });
-    cy.contains('a', /Aguas|Panel|Productos/i).should('be.visible');
+    openNavbar();
+    cy.contains('button', /Bebestibles/i).trigger('pointerdown', { pointerType: 'mouse' });
+    cy.contains('a', /Aguas/i).should('be.visible');
 
-    cy.contains('a', /Alimentos|Category B/i).trigger('pointerdown', { pointerType: 'mouse' });
-    cy.contains('a', /Despensa|Panel|Productos/i).should('be.visible');
+    cy.contains('button', /Alimentos/i).trigger('pointerdown', { pointerType: 'mouse' });
+    cy.contains('a', /Despensa/i).should('be.visible');
 
-    cy.contains('a', /Bebestibles|Category A/i).trigger('pointerdown', { pointerType: 'mouse' });
-    cy.contains('a', /Aguas|Panel|Productos/i).should('be.visible');
+    cy.contains('button', /Bebestibles/i).trigger('pointerdown', { pointerType: 'mouse' });
+    cy.contains('a', /Aguas/i).should('be.visible');
   });
 
   it('SUB-01: First subcategory click does not auto-close', () => {
@@ -29,7 +38,8 @@ describe('Nav menu regressions', () => {
       onBeforeLoad: enableServiceWorker,
     });
 
-    cy.contains('a', /Bebestibles|Category A/i).trigger('pointerdown', { pointerType: 'mouse' });
-    cy.contains('a', /Aguas|Subcat|Productos/i).should('be.visible');
+    openNavbar();
+    cy.contains('button', /Bebestibles/i).trigger('pointerdown', { pointerType: 'mouse' });
+    cy.contains('a', /Aguas/i).should('be.visible');
   });
 });

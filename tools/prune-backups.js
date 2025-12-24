@@ -4,15 +4,16 @@
 const fs = require('fs');
 const path = require('path');
 
-const LOCATIONS = [
-  path.resolve(__dirname, '..', 'data'),
-  path.resolve(
-    process.env.USERPROFILE || process.env.HOME || '',
-    'OneDrive',
-    'Tienda Ebano',
-    'data'
-  ),
-];
+const LOCATIONS = [path.resolve(__dirname, '..', 'data')];
+const extraLocations = process.env.PRUNE_LOCATIONS
+  ? process.env.PRUNE_LOCATIONS.split(path.delimiter).map((entry) => entry.trim()).filter(Boolean)
+  : [];
+extraLocations.forEach((entry) => {
+  const resolved = path.resolve(entry);
+  if (!LOCATIONS.includes(resolved)) {
+    LOCATIONS.push(resolved);
+  }
+});
 
 const FILENAME_PREFIX = 'product_data.backup_';
 const KEEP = parseInt(process.env.PRUNE_KEEP || '3', 10) || 3;

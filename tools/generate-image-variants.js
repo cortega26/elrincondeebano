@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
 const crypto = require('crypto');
+const { getDeterministicDate } = require('./utils/deterministic-time');
 
 // Paths
 const REPO_ROOT = path.resolve(__dirname, '..');
@@ -46,6 +47,34 @@ function loadManifest() {
 function saveManifest(m) {
   ensureDir(OUT_ROOT);
   fs.writeFileSync(MANIFEST_PATH, JSON.stringify(m, null, 2));
+}
+
+function formatTimestamp(date) {
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  const hours = String(date.getUTCHours()).padStart(2, '0');
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+  const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+  return `${year}${month}${day}${hours}${minutes}${seconds}`;
+}
+
+function resolveVersionOverride() {
+  const raw = process.env.VERSION_OVERRIDE;
+  if (typeof raw !== 'string') {
+    return null;
+  }
+  const trimmed = raw.trim();
+  return trimmed ? trimmed : null;
+}
+
+function shouldSkipVersionBump() {
+  const raw = process.env.NO_VERSION_BUMP;
+  if (typeof raw !== 'string') {
+    return false;
+  }
+  const normalized = raw.trim().toLowerCase();
+  return ['1', 'true', 'yes'].includes(normalized);
 }
 
 async function generateVariantsFor(srcRel, manifest, seenSet) {
@@ -110,7 +139,8 @@ async function generateVariantsFor(srcRel, manifest, seenSet) {
   }
   const thumbRel = thumbVariants.find((v) => v.width === 100)?.url || thumbVariants[0]?.url || null;
 
-  manifest[key] = { hash, updated: Date.now() };
+  const deterministicMs = getDeterministicDate().getTime();
+  manifest[key] = { hash, updated: deterministicMs };
   if (seenSet) {
     seenSet.add(key);
   }
@@ -163,13 +193,14 @@ async function run() {
     }
   }
 
-  // Bump version suffix to invalidate caches downstream
-  const version = new Date()
-    .toISOString()
-    .replace(/[-:.TZ]/g, '')
-    .slice(0, 14);
-  if (data.version) data.version += `-v${version}`;
-  else data.version = `v${version}`;
+  const override = resolveVersionOverride();
+  if (override) {
+    data.version = override;
+  } else if (!shouldSkipVersionBump()) {
+    const version = formatTimestamp(getDeterministicDate());
+    if (data.version) data.version += `-v${version}`;
+    else data.version = `v${version}`;
+  }
   fs.writeFileSync(PRODUCTS_JSON, JSON.stringify(data, null, 2));
   console.log('Updated', PRODUCTS_JSON, 'with variants and thumbnails');
   saveManifest(manifest);

@@ -2,6 +2,7 @@ const esbuild = require('esbuild');
 const fs = require('fs');
 const path = require('path');
 const { rootDir, prepareOutputRoot, resolveFromOutput, ensureDir } = require('./utils/output-dir');
+const { getDeterministicTimestamp } = require('./utils/deterministic-time');
 
 async function build() {
   const outputRoot = prepareOutputRoot();
@@ -37,6 +38,8 @@ async function build() {
     target: 'es2018',
     platform: 'browser',
     sourcemap: true,
+    absWorkingDir: rootDir,
+    sourceRoot: '',
     metafile: true,
   });
   const jsOutputs = jsBuild.metafile && jsBuild.metafile.outputs ? jsBuild.metafile.outputs : {};
@@ -64,6 +67,8 @@ async function build() {
     outfile: path.join(distCssDir, 'style.min.css'),
     loader: { '.css': 'css', '.woff2': 'file', '.woff': 'file' },
     sourcemap: true,
+    absWorkingDir: rootDir,
+    sourceRoot: '',
     metafile: true,
   });
   const cssOutputs =
@@ -83,6 +88,8 @@ async function build() {
     outfile: path.join(distCssDir, 'critical.min.css'),
     loader: { '.css': 'css', '.woff2': 'file', '.woff': 'file' },
     sourcemap: true,
+    absWorkingDir: rootDir,
+    sourceRoot: '',
   });
   const criticalOutputs =
     criticalCssBuild.metafile && criticalCssBuild.metafile.outputs
@@ -101,7 +108,7 @@ async function build() {
     manifestPath,
     JSON.stringify(
       {
-        generatedAt: new Date().toISOString(),
+        generatedAt: getDeterministicTimestamp(),
         files: Array.from(manifestFiles).sort(),
       },
       null,

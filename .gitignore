@@ -28,6 +28,7 @@ env/
 
 # Windows
 Thumbs.db
+%SystemDrive%/
 
 # Logs and databases
 *.log

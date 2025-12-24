@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { once } from 'node:events';
 import lighthouse from 'lighthouse';
 import { launch as launchChrome } from 'chrome-launcher';
+import deterministicTime from './utils/deterministic-time.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -176,7 +177,8 @@ async function main() {
 
   const origin = `http://127.0.0.1:${port}`;
   const targetUrl = `${origin}/index.html`;
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const { getDeterministicDate } = deterministicTime;
+  const timestamp = getDeterministicDate().toISOString().replace(/[:.]/g, '-');
 
   try {
     const presets = ['desktop', 'mobile'];
