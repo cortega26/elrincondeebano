@@ -3,7 +3,7 @@ name: Optimize images
 on:
   push:
     paths:
-      - 'assets/img/originals/**'
+      - 'assets/images/originals/**'
   workflow_dispatch:
 
 permissions:

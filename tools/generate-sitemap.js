@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { resolveFromOutput, ensureDir } = require('./utils/output-dir');
+const { loadCategoryCatalog, buildCategoryPages } = require('./utils/category-catalog');
 
 function generateSitemap() {
   const baseUrl = 'https://elrincondeebano.com';
@@ -13,28 +14,10 @@ function generateSitemap() {
   ];
 
   // Category pages (medium-high priority)
-  const categoryPages = [
-    'aguas',
-    'bebidas',
-    'carnesyembutidos',
-    'cervezas',
-    'chocolates',
-    'despensa',
-    'energeticaseisotonicas',
-    'espumantes',
-    'juegos',
-    'jugos',
-    'lacteos',
-    'limpiezayaseo',
-    'llaveros',
-    'mascotas',
-    'piscos',
-    'snacksdulces',
-    'snackssalados',
-    'software',
-    'vinos',
-  ].map((category) => ({
-    url: `/pages/${category}.html`,
+  const catalog = loadCategoryCatalog();
+  const pages = buildCategoryPages(catalog);
+  const categoryPages = pages.map((page) => ({
+    url: `/pages/${page.slug}.html`,
     priority: '0.8',
     changefreq: 'weekly',
   }));

@@ -204,6 +204,8 @@ Operational recovery steps for this policy live in
 
 - Every catalog entry still needs a traditional fallback image (`image_path`) in `assets/images/` using one of the existing extensions (`.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`).
 - AVIF assets are now optional but supported through a new `image_avif_path` field stored alongside products in `data/product_data.json`.
+- Image variants are generated from `assets/images/originals/` into `assets/images/variants/` by the image pipeline.
+- `tools/generate-image-variants.js` reads `data/product_data.json` by default; override with `PRODUCTS_JSON=/path/to/product_data.json` when needed.
 - The Node build emits `<picture>` tags and serves AVIF when browsers advertise support, while preserving the WebP/JPEG fallback for Safari/legacy clients.
 - Offline Product Manager and the admin panel expose new fields so you can paste the AVIF relative path (e.g. `assets/images/bebidas/Coca.webp` + `assets/images/bebidas/Coca.avif`). The dialog also offers a helper button to copy AVIF files into the canonical assets directory.
 - Keep both files committed and run `npm run build` after changes; the guard workflow simply rebuilds from source and fails if the staged output diverges.

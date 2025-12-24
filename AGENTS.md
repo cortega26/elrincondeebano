@@ -112,7 +112,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - Concurrency: `group: "pages"`, `cancel-in-progress: false`.
   - Artefacto: repo completo desplegado con `actions/deploy-pages@v4`.
 - **`Optimize images` (`.github/workflows/images.yml`)**
-  - Trigger: cambios en `assets/img/originals/**` o manual.
+  - Trigger: cambios en `assets/images/originals/**` o manual.
   - Node fijado con `actions/setup-node@v4` (`node-version: 22.x`). Usa `npm ci` + scripts `images:generate`, `images:rewrite`, `lint:images`. Auto-commitea resultados.
   - Permisos: `contents: write` para subir optimizaciones.
 - **`Codacy Security Scan` (`.github/workflows/codacy.yml`)**

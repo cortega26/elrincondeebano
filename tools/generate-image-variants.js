@@ -8,13 +8,17 @@ const crypto = require('crypto');
 
 // Paths
 const REPO_ROOT = path.resolve(__dirname, '..');
-const PRODUCTS_JSON = path.resolve(
-  process.env.USERPROFILE || process.env.HOME || '',
-  'OneDrive',
-  'Tienda Ebano',
-  'data',
-  'product_data.json'
-);
+const DEFAULT_PRODUCTS_JSON = path.join(REPO_ROOT, 'data', 'product_data.json');
+
+function resolveProductsJsonPath() {
+  const override = process.env.PRODUCTS_JSON;
+  if (override && override.trim()) {
+    return path.resolve(override.trim());
+  }
+  return DEFAULT_PRODUCTS_JSON;
+}
+
+const PRODUCTS_JSON = resolveProductsJsonPath();
 const IMG_ROOT = path.resolve(REPO_ROOT, 'assets', 'images');
 const OUT_ROOT = path.join(IMG_ROOT, 'variants');
 const MANIFEST_PATH = path.join(OUT_ROOT, 'manifest.json');
@@ -171,7 +175,11 @@ async function run() {
   saveManifest(manifest);
 }
 
-run().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+if (require.main === module) {
+  run().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}
+
+module.exports = { resolveProductsJsonPath };
