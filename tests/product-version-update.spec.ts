@@ -43,9 +43,11 @@ test.describe('product data version updates', () => {
     await safeEvaluate(page, () => navigator.serviceWorker.ready);
 
     await page.waitForFunction(() => typeof window.__runUpdateCheck === 'function');
-    await safeEvaluate(page, () => window.__runUpdateCheck?.());
 
-    await page.waitForFunction(() => {
+    await page.waitForFunction(async () => {
+      if (typeof window.__runUpdateCheck === 'function') {
+        await window.__runUpdateCheck();
+      }
       const stored = window.localStorage.getItem('productDataVersion');
       return stored && stored === window.__TEST_UPDATE_VERSION__;
     });
