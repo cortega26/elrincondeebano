@@ -78,6 +78,7 @@
   3. Recarga forzando (`Ctrl+Shift+R`) para que el nuevo SW tome control.
 - **Kill-switch temporal:** establece `localStorage.setItem('ebano-sw-disabled', 'true')` y recarga. Para reactivar, elimina la clave o ponla en `false` y vuelve a cargar.
 - **Pruebas locales del SW:** por seguridad, el registro se desactiva en `localhost`. Habilítalo con `localStorage.setItem('ebano-sw-enable-local', 'true')` o agrega `?sw=on` a la URL antes de recargar.
+- **Fetch en HTTP (solo localhost):** la app exige HTTPS por defecto. Para permitir HTTP en `localhost`, usa `localStorage.setItem('ebano-allow-http-local', 'true')`, agrega `?http=on`, o define `window.__ALLOW_LOCALHOST_HTTP__ = true` en consola.
 
 ## Content Manager (modo offline)
 

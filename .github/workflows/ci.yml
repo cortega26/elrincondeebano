@@ -12,7 +12,7 @@ on:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -61,7 +61,25 @@ jobs:
       - name: Run anti-flicker Playwright suite
         run: npm run test:e2e
 
+      - name: Upload Playwright artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            test-results
+            playwright-report
+          if-no-files-found: ignore
+
       - name: Lighthouse regression audit
         run: npm run lighthouse:audit
         env:
           LH_SKIP_BUILD: '1'
+
+      - name: Upload Lighthouse reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: reports/lighthouse
+          if-no-files-found: ignore

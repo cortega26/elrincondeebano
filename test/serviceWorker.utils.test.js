@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { addTimestamp, isCacheFresh } = require('../service-worker.js');
+const { addTimestamp, isCacheFresh, CACHE_CONFIG } = require('../service-worker.js');
 
 (async () => {
   const resp = new Response('data');
@@ -13,6 +13,23 @@ const { addTimestamp, isCacheFresh } = require('../service-worker.js');
   headers.set('sw-timestamp', past.toString());
   const oldResp = new Response('old', { headers });
   assert.strictEqual(isCacheFresh(oldResp, 'static'), false, 'stale response should be stale');
+
+  const originalNow = Date.now;
+  const baseNow = 1_700_000_000_000;
+  Date.now = () => baseNow;
+  const productFresh = new Response('ok', {
+    headers: {
+      'sw-timestamp': String(baseNow - CACHE_CONFIG.duration.products + 1000),
+    },
+  });
+  assert.strictEqual(isCacheFresh(productFresh, 'products'), true, 'product cache should be fresh');
+  const productStale = new Response('ok', {
+    headers: {
+      'sw-timestamp': String(baseNow - CACHE_CONFIG.duration.products - 1000),
+    },
+  });
+  assert.strictEqual(isCacheFresh(productStale, 'products'), false, 'product cache should be stale');
+  Date.now = originalNow;
 
   console.log('All tests passed');
 })();

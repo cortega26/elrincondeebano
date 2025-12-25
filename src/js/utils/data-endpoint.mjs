@@ -1,5 +1,6 @@
 const DEFAULT_PRODUCT_DATA_PATH = '/data/product_data.json';
 const META_BASE_URL_NAME = 'data-base-url';
+const LOCALHOST_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
 
 const getWindowOrigin = () => {
   if (typeof window === 'undefined' || !window.location) {
@@ -19,6 +20,36 @@ const readMetaBaseUrl = () => {
   }
   const trimmed = content.trim();
   return trimmed ? trimmed : null;
+};
+
+const isLocalhostHost = (hostname = '') => {
+  const normalized = String(hostname || '').trim().toLowerCase();
+  return LOCALHOST_HOSTS.has(normalized);
+};
+
+const readLocalStorageFlag = (key) => {
+  try {
+    if (typeof window === 'undefined') return null;
+    return window.localStorage?.getItem(key) || null;
+  } catch {
+    return null;
+  }
+};
+
+const shouldAllowLocalhostHttp = () => {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+  const hostname = window.location?.hostname || '';
+  if (!isLocalhostHost(hostname)) {
+    return false;
+  }
+  const explicitFlag = window.__ALLOW_LOCALHOST_HTTP__ === true;
+  const query = window.location?.search || '';
+  const queryAllows =
+    typeof query === 'string' && /(?:^|[?&])http=on(?:&|$)/i.test(query);
+  const storageAllows = readLocalStorageFlag('ebano-allow-http-local') === 'true';
+  return explicitFlag || queryAllows || storageAllows;
 };
 
 const normaliseAllowlist = (value) => {
@@ -90,6 +121,9 @@ export const validateProductDataUrl = (url) => {
     throw new Error('Invalid request URL: only same-origin HTTPS requests are allowed');
   }
   if (parsed.protocol !== 'https:') {
+    if (parsed.protocol === 'http:' && sameOrigin && shouldAllowLocalhostHttp()) {
+      return parsed.toString();
+    }
     throw new Error('Invalid request URL: only same-origin HTTPS requests are allowed');
   }
   return parsed.toString();

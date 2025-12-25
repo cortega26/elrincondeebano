@@ -283,7 +283,13 @@ if (!TEST_MODE) {
         }
 
         if (cached) {
-          return cached;
+          const canCheckFreshness = cached.type !== 'opaque' && cached.type !== 'opaqueredirect';
+          if (canCheckFreshness && isCacheFresh(cached, type)) {
+            return cached;
+          }
+          if (!freshResponse) {
+            return cached;
+          }
         }
 
         const fallback = await getFallbackResponse(req);

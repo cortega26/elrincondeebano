@@ -5,8 +5,14 @@ let fetchWithRetry, lastUrl, fetchCalls;
 
 (async () => {
   global.console = { log() {}, warn() {}, error() {} };
+  const location = {
+    origin: 'https://example.com',
+    hostname: 'example.com',
+    search: '',
+    reload() {},
+  };
   global.window = {
-    location: { origin: 'https://example.com', reload() {} },
+    location,
     addEventListener() {},
   };
   global.document = {
@@ -71,6 +77,33 @@ let fetchWithRetry, lastUrl, fetchCalls;
         /same-origin HTTPS/
       );
       assert.strictEqual(fetchCalls, 0);
+    });
+
+    await t.test('rejects localhost http without explicit allow', async () => {
+      fetchCalls = 0;
+      global.fetch = () => {
+        fetchCalls++;
+        return Promise.resolve({ ok: true, status: 200 });
+      };
+      location.origin = 'http://localhost:3000';
+      location.hostname = 'localhost';
+      location.search = '';
+      delete global.window.__ALLOW_LOCALHOST_HTTP__;
+      await assert.rejects(fetchWithRetry('/data', {}, 0, 0, 'cid'), /same-origin HTTPS/);
+      assert.strictEqual(fetchCalls, 0);
+    });
+
+    await t.test('allows localhost http when explicitly enabled', async () => {
+      fetchCalls = 0;
+      global.fetch = mockFetch;
+      location.origin = 'http://localhost:3000';
+      location.hostname = 'localhost';
+      location.search = '';
+      global.window.__ALLOW_LOCALHOST_HTTP__ = true;
+      await fetchWithRetry('/data', {}, 0, 0, 'cid');
+      assert.strictEqual(lastUrl, 'http://localhost:3000/data');
+      assert.strictEqual(fetchCalls, 1);
+      delete global.window.__ALLOW_LOCALHOST_HTTP__;
     });
   });
 })();

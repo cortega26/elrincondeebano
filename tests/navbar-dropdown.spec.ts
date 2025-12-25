@@ -1,7 +1,13 @@
 import { test, expect } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
 
-const paths = ['/', '/pages/energeticaseisotonicas.html', '/pages/limpiezayaseo.html'];
+const paths = [
+  '/',
+  '/pages/energeticaseisotonicas.html',
+  '/pages/limpiezayaseo.html',
+  '/pages/chocolates.html',
+  '/pages/bebidas.html',
+];
 
 async function ensureToggleVisibility(page: Page, toggle: Locator) {
   const burger = page.locator('[data-bs-toggle="collapse"][data-bs-target="#navbarNav"]');
