@@ -270,6 +270,7 @@ function shouldRegisterServiceWorker() {
 }
 
 let serviceWorkerRegistrationSetup = false;
+let initAppHasRun = false;
 
 // Enhanced service worker registration with proper error handling and lifecycle management
 function registerServiceWorker() {
@@ -366,7 +367,11 @@ function setupPeriodicUpdateCheck(registration) {
 // Check for service worker updates
 async function checkForUpdates(registration) {
   try {
-    await registration.update();
+    try {
+      await registration.update();
+    } catch (error) {
+      console.warn('Service worker update check failed:', error);
+    }
 
     // Check if product data needs updating
     const url = resolveProductDataUrl();
@@ -377,15 +382,26 @@ async function checkForUpdates(registration) {
 
     if (response.ok) {
       const data = await response.json();
-      const currentVersion = data.version;
-      const storedVersion = localStorage.getItem('productDataVersion');
+      const currentVersion = normalizeProductVersion(data.version);
+      const storedVersion = getStoredProductVersion();
+
+      if (!currentVersion) {
+        return;
+      }
 
       if (currentVersion !== storedVersion) {
         registration.active?.postMessage({
           type: 'INVALIDATE_PRODUCT_CACHE',
         });
 
-        localStorage.setItem('productDataVersion', currentVersion);
+        setStoredProductVersion(currentVersion);
+        if (typeof window !== 'undefined' && window.__ENABLE_TEST_HOOKS__ === true) {
+          window.__updateNotificationCount =
+            typeof window.__updateNotificationCount === 'number'
+              ? window.__updateNotificationCount + 1
+              : 1;
+          window.__lastUpdateVersion = currentVersion;
+        }
         showUpdateNotification(null, 'New product data available');
       }
     }
@@ -394,11 +410,55 @@ async function checkForUpdates(registration) {
   }
 }
 
+async function runUpdateCheckForTest() {
+  if (typeof navigator === 'undefined' || !navigator.serviceWorker) {
+    return null;
+  }
+  if (typeof window !== 'undefined' && window.__ENABLE_TEST_HOOKS__ === true) {
+    const overrideVersion = normalizeProductVersion(window.__TEST_UPDATE_VERSION__);
+    if (overrideVersion) {
+      const storedVersion = getStoredProductVersion();
+      const updated = overrideVersion !== storedVersion;
+      if (updated) {
+        setStoredProductVersion(overrideVersion);
+        window.__updateNotificationCount =
+          typeof window.__updateNotificationCount === 'number'
+            ? window.__updateNotificationCount + 1
+            : 1;
+        window.__lastUpdateVersion = overrideVersion;
+        showUpdateNotification(null, 'New product data available');
+      }
+      return { updated, currentVersion: overrideVersion, storedVersion };
+    }
+  }
+  let registration = null;
+  try {
+    registration = await navigator.serviceWorker.ready;
+  } catch {
+    registration = null;
+  }
+  if (!registration) {
+    try {
+      registration = await navigator.serviceWorker.getRegistration();
+    } catch {
+      registration = null;
+    }
+  }
+  if (!registration) {
+    return null;
+  }
+  return checkForUpdates(registration);
+}
+
 // Set up handling for service worker controller changes
 function setupControllerChangeHandling() {
   let refreshing = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (!refreshing) {
+      if (typeof window !== 'undefined' && window.__DISABLE_SW_RELOAD__ === true) {
+        refreshing = true;
+        return;
+      }
       refreshing = true;
       window.location.reload();
     }
@@ -619,12 +679,32 @@ const sanitizeHTML = (unsafe) => {
 
 const INLINE_PRODUCT_SCRIPT_ID = 'product-data';
 
+const normalizeProductVersion = (value) => {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+  const lowered = trimmed.toLowerCase();
+  if (lowered === 'undefined' || lowered === 'null') {
+    return null;
+  }
+  return trimmed;
+};
+
 const getStoredProductVersion = () => {
   try {
     if (typeof localStorage === 'undefined') {
       return null;
     }
-    return localStorage.getItem('productDataVersion');
+    const stored = localStorage.getItem('productDataVersion');
+    const normalized = normalizeProductVersion(stored);
+    if (!normalized && stored) {
+      localStorage.removeItem('productDataVersion');
+    }
+    return normalized;
   } catch (error) {
     console.warn('Unable to read stored product data version:', error);
     return null;
@@ -632,14 +712,15 @@ const getStoredProductVersion = () => {
 };
 
 const setStoredProductVersion = (version) => {
-  if (!version) {
+  const normalized = normalizeProductVersion(version);
+  if (!normalized) {
     return;
   }
   try {
     if (typeof localStorage === 'undefined') {
       return;
     }
-    localStorage.setItem('productDataVersion', version);
+    localStorage.setItem('productDataVersion', normalized);
   } catch (error) {
     console.warn('Unable to persist product data version:', error);
   }
@@ -790,7 +871,7 @@ const fetchProducts = async () => {
   const correlationId = createCorrelationId();
   const inlineData = parseInlineProductData();
   const inlineSource = inlineData?.initialProducts || null;
-  const inlineVersion = inlineData?.version || null;
+  const inlineVersion = normalizeProductVersion(inlineData?.version);
   const inlineTotal =
     typeof inlineData?.totalProducts === 'number' ? inlineData.totalProducts : null;
   const inlineProducts = Array.isArray(inlineSource) ? transformProducts(inlineSource) : null;
@@ -822,14 +903,15 @@ const fetchProducts = async () => {
     );
     const data = await response.json();
     const transformed = transformProducts(data.products || []);
+    const networkVersion = normalizeProductVersion(data.version);
     overwriteSharedProductData(transformed, {
-      version: data.version || null,
+      version: networkVersion,
       source: 'network',
       isPartial: false,
       total: transformed.length,
     });
-    if (data.version) {
-      setStoredProductVersion(data.version);
+    if (networkVersion) {
+      setStoredProductVersion(networkVersion);
     }
     log('info', 'fetch_products_success', {
       correlationId,
@@ -953,6 +1035,18 @@ const createCartThumbnail = ({ imagePath, avifPath, alt }) => {
   return createSafeElement('picture', {}, [...sources, imgElement]);
 };
 
+const safeReload = () => {
+  try {
+    if (typeof window === 'undefined') return;
+    const ua = window.navigator?.userAgent || '';
+    if (/jsdom/i.test(ua)) return;
+    const reloadFn = window.location && window.location.reload;
+    if (typeof reloadFn === 'function') {
+      reloadFn.call(window.location);
+    }
+  } catch {}
+};
+
 const showErrorMessage = (message) => {
   const errorMessage = createSafeElement('div', { class: 'error-message', role: 'alert' }, [
     createSafeElement('p', {}, [message]),
@@ -962,7 +1056,10 @@ const showErrorMessage = (message) => {
   if (productContainer) {
     productContainer.innerHTML = '';
     productContainer.appendChild(errorMessage);
-    errorMessage.querySelector('.retry-button').addEventListener('click', initApp);
+    const retryButton = errorMessage.querySelector('.retry-button');
+    if (retryButton) {
+      retryButton.addEventListener('click', safeReload);
+    }
   } else {
     console.error('Contenedor de productos no encontrado');
   }
@@ -1344,6 +1441,10 @@ if (typeof window !== 'undefined') {
 
 // Main function to initialize the application
 const initApp = async () => {
+  if (initAppHasRun) {
+    return;
+  }
+  initAppHasRun = true;
   console.log('Initializing app...');
 
   const productContainer = document.getElementById('product-container');
@@ -2208,6 +2309,10 @@ if (typeof document !== 'undefined') {
     // Register service worker first
     registerServiceWorker();
 
+    if (typeof window !== 'undefined' && window.__ENABLE_TEST_HOOKS__ === true) {
+      window.__runUpdateCheck = runUpdateCheckForTest;
+    }
+
     // Then initialize the app
     initApp().catch((error) => {
       console.error('Error al inicializar la aplicación:', error);
@@ -2241,6 +2346,9 @@ export {
   memoize as __memoizeForTest,
   resolveAvifSrcset as __resolveAvifSrcsetForTest,
   buildStaticSrcset as __buildStaticSrcsetForTest,
+  normalizeProductVersion as __normalizeProductVersionForTest,
+  getStoredProductVersion as __getStoredProductVersionForTest,
+  setStoredProductVersion as __setStoredProductVersionForTest,
   __getCart,
   __resetCart,
   logPerformanceMetrics,

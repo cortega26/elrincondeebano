@@ -7,6 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 const outDir = path.join(rootDir, 'assets', 'fonts');
+const defaultCssPath = path.join(outDir, 'fonts.css');
 
 const GOOGLE_CSS =
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&display=swap';
@@ -22,36 +23,116 @@ async function loadFontsCss() {
   const cssPath = process.env.FONTS_CSS_PATH;
   if (cssPath && cssPath.trim()) {
     const resolved = path.resolve(rootDir, cssPath.trim());
-    return fs.promises.readFile(resolved, 'utf8');
+    const css = await fs.promises.readFile(resolved, 'utf8');
+    return { css, cssPath: resolved, source: 'FONTS_CSS_PATH' };
+  }
+
+  if (fs.existsSync(defaultCssPath)) {
+    const css = await fs.promises.readFile(defaultCssPath, 'utf8');
+    return { css, cssPath: defaultCssPath, source: 'default' };
   }
 
   if (!shouldAllowRemoteFetch()) {
     throw new Error(
-      'Remote font fetch disabled. Set ALLOW_REMOTE_FONTS=1 or provide FONTS_CSS_PATH.'
+      'Remote font fetch disabled. Add assets/fonts/fonts.css, set FONTS_CSS_PATH, or set ALLOW_REMOTE_FONTS=1.'
     );
   }
 
   const url = process.env.FONTS_CSS_URL || GOOGLE_CSS;
   const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
   if (!res.ok) throw new Error(`Failed to fetch Google Fonts CSS: ${res.status}`);
-  return res.text();
+  const css = await res.text();
+  return { css, cssPath: null, source: url };
 }
 
-async function download(url, dest) {
-  if (/^https?:/i.test(url) && !shouldAllowRemoteFetch()) {
-    throw new Error(
-      'Remote font download disabled. Set ALLOW_REMOTE_FONTS=1 to download remote assets.'
-    );
+function escapeRegExp(value) {
+  return value.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
+
+function parseFontFaceBlocks(css) {
+  return css.match(/@font-face\s*{[^}]*}/gi) ?? [];
+}
+
+function findFontFaceBlock(blocks, family, weight) {
+  const famEsc = escapeRegExp(family);
+  const famRe = new RegExp(`font-family:\\s*['"]${famEsc}['"]`, 'i');
+  const weightRe = new RegExp(`font-weight:\\s*${weight}\\b`, 'i');
+  let fallback = null;
+
+  for (const block of blocks) {
+    if (!famRe.test(block) || !weightRe.test(block)) {
+      continue;
+    }
+    if (block.includes('U+0000-00FF')) {
+      return block;
+    }
+    fallback = block;
   }
+
+  return fallback;
+}
+
+function extractWoff2Url(block) {
+  const urlMatch = block.match(/url\(([^)]+\.woff2)\)/i);
+  if (!urlMatch) return null;
+  return urlMatch[1];
+}
+
+function normalizeFontUrl(raw) {
+  return raw.replace(/\u0026/g, '&').replace(/^['"]|['"]$/g, '').trim();
+}
+
+function resolveLocalFontPath(rawUrl, cssPath) {
+  if (!cssPath) {
+    throw new Error(`Local font URL "${rawUrl}" requires a local CSS file path.`);
+  }
+  const normalized = rawUrl.replace(/^\/+/, '');
+  if (rawUrl.startsWith('/')) {
+    return path.join(rootDir, normalized);
+  }
+  return path.resolve(path.dirname(cssPath), normalized);
+}
+
+async function downloadRemote(url, dest) {
   const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
   const buf = Buffer.from(await res.arrayBuffer());
   await fs.promises.writeFile(dest, buf);
 }
 
+async function copyLocal(source, dest) {
+  const resolvedSource = path.resolve(source);
+  const resolvedDest = path.resolve(dest);
+  if (resolvedSource === resolvedDest) {
+    return;
+  }
+  await fs.promises.copyFile(resolvedSource, resolvedDest);
+}
+
+async function fetchFontAsset(rawUrl, cssPath, dest) {
+  const url = normalizeFontUrl(rawUrl);
+  if (/^https?:/i.test(url)) {
+    if (!shouldAllowRemoteFetch()) {
+      throw new Error(
+        'Remote font download disabled. Set ALLOW_REMOTE_FONTS=1 to download remote assets.'
+      );
+    }
+    return downloadRemote(url, dest);
+  }
+
+  if (/^data:/i.test(url)) {
+    throw new Error('Inline data URLs are not supported for font downloads.');
+  }
+
+  const sourcePath = resolveLocalFontPath(url, cssPath);
+  await copyLocal(sourcePath, dest);
+}
+
 async function main() {
   await fs.promises.mkdir(outDir, { recursive: true });
-  const css = await loadFontsCss();
+  const { css, cssPath, source } = await loadFontsCss();
+  const label = cssPath ? path.relative(rootDir, cssPath) : source;
+  console.log(`Using font CSS from ${label}`);
 
   // Very small parser: find one woff2 URL per family/weight (latin subset preferred)
   const targets = [
@@ -61,28 +142,21 @@ async function main() {
     { family: 'Playfair Display', weight: '700', file: 'playfair-700.woff2' },
   ];
 
-  // Split into blocks once to make matching reliable
+  const blocks = parseFontFaceBlocks(css);
   for (const t of targets) {
-    const famEsc = t.family.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-    const re = new RegExp(
-      `@font-face\\s*{[\\s\\S]*?font-family:\\s*['\"]${famEsc}['\"][\\s\\S]*?font-weight:\\s*${t.weight}[\\s\\S]*?unicode-range:[^}]*U\\+0000-00FF[\\s\\S]*?}`,
-      'm'
-    );
-    const match = css.match(re);
-    const block = match ? match[0] : null;
+    const block = findFontFaceBlock(blocks, t.family, t.weight);
     if (!block) {
-      console.warn(`No latin subset block for ${t.family} ${t.weight}`);
+      console.warn(`No @font-face block for ${t.family} ${t.weight}`);
       continue;
     }
-    const urlMatch = block.match(/url\(([^)]+\.woff2)\)/i);
-    if (!urlMatch) {
+    const url = extractWoff2Url(block);
+    if (!url) {
       console.warn(`No woff2 URL inside block for ${t.family} ${t.weight}`);
       continue;
     }
-    const url = urlMatch[1].replace(/\u0026/g, '&');
     const dest = path.join(outDir, t.file);
     console.log(`Downloading ${t.family} ${t.weight} -> ${t.file}`);
-    await download(url, dest);
+    await fetchFontAsset(url, cssPath, dest);
   }
   console.log('Fonts downloaded to assets/fonts');
 }
