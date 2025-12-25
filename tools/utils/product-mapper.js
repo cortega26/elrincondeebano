@@ -7,8 +7,7 @@ const CFIMG_THUMB = { fit: 'cover', quality: 75, format: 'auto' };
 const PRODUCT_IMAGE_WIDTHS = [200, 320, 400];
 const HERO_WIDTHS = [200, 320, 400];
 const HERO_BASE_WIDTH = 320;
-const PRODUCT_IMAGE_SIZES =
-  '(min-width: 1200px) 280px, (min-width: 992px) 240px, (min-width: 576px) 45vw, 80vw';
+const PRODUCT_IMAGE_SIZES = '200px';
 
 function shouldDisableCfRewrite() {
   const disableFlag = process.env.CFIMG_DISABLE;
