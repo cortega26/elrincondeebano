@@ -24,7 +24,7 @@ const sampleProducts = [
         '/cdn-cgi/image/fit=cover,width=400/sample.webp 400w',
         '/cdn-cgi/image/fit=cover,width=800/sample.webp 800w',
       ].join(', '),
-      sizes: '(min-width: 1200px) 280px, (min-width: 992px) 240px, (min-width: 576px) 45vw, 80vw',
+      sizes: '200px',
       avif: {
         src: '/cdn-cgi/image/fit=cover,width=400,format=avif/sample.avif',
         srcset: [
@@ -50,7 +50,7 @@ const sampleProducts = [
         '/cdn-cgi/image/fit=cover,width=200/sample-2.webp 200w',
         '/cdn-cgi/image/fit=cover,width=400/sample-2.webp 400w',
       ].join(', '),
-      sizes: '(min-width: 1200px) 280px, (min-width: 992px) 240px, (min-width: 576px) 45vw, 80vw',
+      sizes: '200px',
     },
   },
 ];
@@ -78,10 +78,7 @@ assert(lcpLink, 'Expected preload link for the LCP image');
 assert.strictEqual(lcpLink.getAttribute('href'), sampleProducts[0].image.avif.src);
 const preloadType = lcpLink.getAttribute('type');
 assert.strictEqual(preloadType && preloadType.replace(/"/g, ''), 'image/avif');
-assert.strictEqual(
-  lcpLink.getAttribute('imagesizes'),
-  '(min-width: 1200px) 25vw, (min-width: 992px) 33vw, (min-width: 576px) 50vw, 100vw'
-);
+assert.strictEqual(lcpLink.getAttribute('imagesizes'), sampleProducts[0].image.sizes);
 
 const productPictures = document.querySelectorAll('picture');
 assert.strictEqual(productPictures.length, 2, 'Expected two picture wrappers');
