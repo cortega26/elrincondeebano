@@ -103,6 +103,21 @@ async function build() {
     addDirFiles(distCssDir);
   }
 
+  const bootstrapCssSource = path.join(
+    rootDir,
+    'node_modules',
+    'bootstrap',
+    'dist',
+    'css',
+    'bootstrap.min.css'
+  );
+  const bootstrapCssTarget = path.join(distCssDir, 'bootstrap.min.css');
+  if (!fs.existsSync(bootstrapCssSource)) {
+    throw new Error(`Bootstrap CSS not found: ${bootstrapCssSource}`);
+  }
+  fs.copyFileSync(bootstrapCssSource, bootstrapCssTarget);
+  manifestFiles.add('/dist/css/bootstrap.min.css');
+
   const manifestPath = resolveFromOutput('asset-manifest.json');
   fs.writeFileSync(
     manifestPath,
