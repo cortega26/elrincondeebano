@@ -3,6 +3,10 @@ const assert = require('node:assert');
 
 (async () => {
   global.console = { log() {}, warn() {}, error() {} };
+  const originalDisable = process.env.CFIMG_DISABLE;
+  const originalEnable = process.env.CFIMG_ENABLE;
+  delete process.env.CFIMG_DISABLE;
+  process.env.CFIMG_ENABLE = '1';
 
   const documentMock = {
     readyState: 'loading',
@@ -114,4 +118,15 @@ const assert = require('node:assert');
     const srcset = __buildStaticSrcsetForTest({ srcset: 'images/a.avif 1x, images/b.avif 2x' });
     assert.strictEqual(srcset, 'images/a.avif 1x, images/b.avif 2x');
   });
+
+  if (typeof originalDisable === 'undefined') {
+    delete process.env.CFIMG_DISABLE;
+  } else {
+    process.env.CFIMG_DISABLE = originalDisable;
+  }
+  if (typeof originalEnable === 'undefined') {
+    delete process.env.CFIMG_ENABLE;
+  } else {
+    process.env.CFIMG_ENABLE = originalEnable;
+  }
 })();
