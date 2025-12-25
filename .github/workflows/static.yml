@@ -36,7 +36,7 @@ jobs:
           echo "TZ=UTC" >> $GITHUB_ENV
           echo "LC_ALL=C.UTF-8" >> $GITHUB_ENV
           echo "LANG=C.UTF-8" >> $GITHUB_ENV
-          echo "CFIMG_DISABLE=1" >> $GITHUB_ENV
+          echo "CFIMG_ENABLE=1" >> $GITHUB_ENV
           echo "SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)" >> $GITHUB_ENV
       - name: Set up Node.js
         uses: actions/setup-node@v4
