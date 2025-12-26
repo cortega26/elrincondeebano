@@ -35,7 +35,7 @@
     "@playwright/test": "^1.44.1",
     "@stryker-mutator/core": "^9.4.0",
     "@stryker-mutator/vitest-runner": "^9.4.0",
-    "@vitest/coverage-v8": "^4.0.15",
+    "@vitest/coverage-v8": "^4.0.16",
     "cypress": "^13.17.0",
     "esbuild": "^0.25.11",
     "eslint": "^8.57.0",
