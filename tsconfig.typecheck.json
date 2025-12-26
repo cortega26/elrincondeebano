@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "types": [],
+    "lib": ["ES2018", "DOM"]
+  },
+  "include": ["src/js/utils/**/*.mjs", "src/js/modules/**/*.mjs"]
+}

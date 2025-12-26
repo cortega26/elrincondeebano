@@ -1,118 +1,92 @@
-# Phase 4 - CI/CD & Automation Resilience Audit
+﻿# Phase 4 - CI/CD & Automation Resilience Audit
 
 Role: DevOps / CI Reliability Engineer
-Scope: CI/CD workflows determinism, resilience, and observability.
+Scope: CI/CD workflow determinism, resilience, and observability.
 
 ## P0 Constraints (from Phase 0/0.5/Phase 2/Phase 3)
-- `docs/audit/phase-3-tests.md` not found in repo; test-policy constraints may be incomplete for this audit.
-- No unresolved P0 items called out in Phase 0.5 or Phase 2 reports for the current repo state.
+- None. Phase 2 and Phase 3 report no unresolved P0 items for the current repo state.
 
 ## 1. Workflow Inventory
 | Workflow | File | Triggers | Concurrency | Permissions | Key steps |
 | --- | --- | --- | --- | --- | --- |
-| Continuous Integration | `.github/workflows/ci.yml` | push/PR to `main` (ignores `admin/**`) | none | default | checkout, Node 22.x + npm cache, deterministic env, `npm ci`, `check:determinism`, build, deterministic build diff, `npm test`, `check:css-order`, Playwright install + `test:e2e`, Lighthouse audit |
-| Deploy static content to Pages | `.github/workflows/static.yml` | push to `main`, manual | `group: pages`, no cancel | `contents: read`, `pages: write`, `id-token: write` | checkout, deterministic env, Node 22.x + npm cache, `npm ci`, build, deploy to Pages |
-| Optimize images | `.github/workflows/images.yml` | push `assets/images/originals/**`, manual | none | `contents: write` | checkout, deterministic env, Node 22.x, `npm ci`, images generate/rewrite/lint, commit + push |
-| Codacy Security Scan | `.github/workflows/codacy.yml` | push/PR to `main`, cron | none | `contents: read`, `security-events: write`, `actions: read` | Codacy CLI, split SARIF, sanitize via `jq`, upload artifacts, upload SARIF |
-| Admin Tools CI | `.github/workflows/admin.yml` | push/PR `admin/**` | none | default | checkout, Python 3.12, pip cache, install deps, pytest |
-| Verify catalog build artifacts | `.github/workflows/product-data-guard.yml` | push/PR `data/product_data.json`, `templates/**`, `tools/**` | none | default | checkout, Node 22.x + npm cache, `npm ci`, build, assert clean git status |
+| Continuous Integration | `.github/workflows/ci.yml` | push/PR to `main` (ignores `admin/**`) | none | default | checkout, Node 22.x + npm cache, deterministic env (TZ/LC_ALL/LANG/CFIMG_DISABLE/SOURCE_DATE_EPOCH), `npm ci`, `npm run check:determinism`, build, deterministic build diff, `npm test`, `check:css-order`, Playwright install + `test:e2e`, upload Playwright artifacts on failure, Lighthouse audit (`LH_SKIP_BUILD=1`) + upload reports on failure |
+| Deploy static content to Pages | `.github/workflows/static.yml` | push to `main`, manual | `group: pages`, no cancel | `contents: read`, `pages: write`, `id-token: write` | checkout, deterministic env (CFIMG_ENABLE), Node 22.x + npm cache, `npm ci`, build, upload `build/`, deploy Pages |
+| Optimize images | `.github/workflows/images.yml` | push `assets/images/originals/**`, manual | none | `contents: write` | checkout, deterministic env, Node 22.x, `npm ci`, `images:generate`, `images:rewrite`, `lint:images`, commit + push |
+| Codacy Security Scan | `.github/workflows/codacy.yml` | push/PR to `main`, weekly cron | none | `contents: read` (+ job `security-events: write`) | checkout, Codacy CLI -> `results.sarif`, split per run (jq), sanitize, list via python, upload SARIF artifacts, matrix upload |
+| Admin Tools CI | `.github/workflows/admin.yml` | push/PR `admin/**` | none | default | checkout, Python 3.12 + pip cache, install deps, pytest |
+| Verify catalog build artifacts | `.github/workflows/product-data-guard.yml` | push/PR `data/product_data.json`, `templates/**`, `tools/**` | none | default | checkout, deterministic env, Node 22.x + npm cache, `npm ci`, build, list build, verify clean git status |
 
 ## 2. Failure Mode Analysis
-P1 - Runner drift undermines determinism
-- `ci.yml`, `images.yml`, `codacy.yml`, `admin.yml` use `ubuntu-latest`, which can change Node/Python deps or system libs (notably libvips/Playwright), producing non-reproducible outputs or sudden failures.
+P1 - Codacy fork PRs can fail due to missing `CODACY_PROJECT_TOKEN`; job is not gated for forks, so PRs can be blocked or scans skipped.
+P1 - Codacy can report success without SARIF output: the split step exits 0 when no runs exist, so a misconfigured scan can pass silently with no security signal.
+P1 - Image optimization can race: direct push to `main` with no concurrency or rebase can fail on non-fast-forward or overwrite concurrent changes, leaving optimized assets out of sync.
 
-P1 - Image workflow push race and silent missed outputs
-- `images.yml` commits and pushes directly to `main` without rebasing or PR flow. Concurrent pushes can cause `git push` to fail, leaving optimized assets uncommitted and the workflow red.
-
-P1 - Codacy on forks fails due to missing secret
-- `codacy.yml` expects `CODACY_PROJECT_TOKEN`. Fork PRs do not receive secrets, so the job can fail and block PR visibility.
-
-P1 - Flaky UX checks with minimal diagnostics
-- `ci.yml` runs Playwright and Lighthouse but does not upload traces, screenshots, or reports. Failures are hard to reproduce and triage.
-
-P1 - Product-data guard lacks deterministic env
-- `product-data-guard.yml` does not set `SOURCE_DATE_EPOCH`, `TZ`, or `CFIMG_DISABLE`, so build outputs may drift if defaults change.
-
-P2 - Redundant CI runs and slower feedback
-- No concurrency or cancellation for `ci.yml` and other workflows; rapid pushes can create backlogs.
-
-P2 - Missing caching for image pipeline
-- `images.yml` omits npm cache, increasing runtime and variability.
-
-P2 - External tool dependencies assumed
-- `codacy.yml` assumes `jq` and `python3` are present on runner images; drift could break the workflow.
-
-P2 - No job timeouts
-- Long or hung steps can consume CI minutes without bounds.
+P2 - No concurrency cancellation for ci/admin/product-data-guard/codacy; rapid pushes create backlogs and slow feedback loops.
+P2 - No job timeouts; Playwright or Lighthouse hangs can consume minutes and delay CI.
+P2 - Playwright browsers are re-downloaded each run; variability in downloads and `apt` deps increases runtime and flakiness risk.
+P2 - `images.yml` lacks npm cache; longer runtime increases odds of timeouts and queueing.
 
 ## 3. Hardening Recommendations
-- Pin runner OS to `ubuntu-22.04` (or a chosen LTS) across all workflows for predictable system deps.
-- Add `concurrency` to `ci.yml` and `images.yml` (e.g., group by workflow + branch, `cancel-in-progress: true`) to avoid wasted runs.
-- Add deterministic env in `product-data-guard.yml` (`TZ`, `LC_ALL`, `LANG`, `CFIMG_DISABLE`, `SOURCE_DATE_EPOCH`).
-- Replace direct image pushes with a PR-based automation (e.g., `peter-evans/create-pull-request`) or pull/rebase before push to avoid collisions.
-- Add npm cache to `images.yml` and cache Playwright browsers to reduce runtime.
-- Guard Codacy job for fork PRs (skip when `CODACY_PROJECT_TOKEN` missing) and keep the scheduled scan on `main`.
-- Add job-level `timeout-minutes` for CI stages that can hang (Playwright/Lighthouse).
+- Add concurrency groups with cancel-in-progress for CI-like workflows (ci, images, admin, product-data-guard, codacy) to prevent backlog and avoid conflicting image pushes.
+- Add job-level `timeout-minutes` (e.g., CI 60, images 30, codacy 20, admin 20, product-data-guard 20) to bound hangs.
+- Gate Codacy scans on `CODACY_PROJECT_TOKEN` (skip fork PRs) and add a required SARIF presence check when the token is available.
+- Make the images workflow push-safe: switch to PR-based automation (create-pull-request) or rebase before push plus concurrency to avoid non-fast-forward failures.
+- Add caching: `cache: npm` in `images.yml`; Playwright browser cache in `ci.yml` via actions/cache and `PLAYWRIGHT_BROWSERS_PATH`.
+- Capture determinism diff artifacts and add `GITHUB_STEP_SUMMARY` entries for build hashes, scan counts, and artifact links.
 
 ## 4. Observability & Debuggability
-- Upload artifacts on failure:
-  - Playwright: `playwright-report/`, `test-results/`, traces.
-  - Lighthouse: `reports/lighthouse/*.html` and `*.json`.
-  - Determinism checks: `build-a.sha`, `build-b.sha`, and diff output.
-- Emit a `GITHUB_STEP_SUMMARY` with key timings and links to artifacts.
-- For `images.yml`, upload a diff summary or list of modified assets as an artifact or step summary.
-- For `product-data-guard.yml`, log `git status --short` on failure and keep a small build manifest as artifact.
+- Already present: Playwright and Lighthouse artifacts are uploaded on CI failure; Codacy SARIF files are uploaded and then published to Code Scanning.
+- Add deterministic build diff artifacts (`build-a.sha`, `build-b.sha`, and diff) on failure to make non-determinism actionable.
+- Add step summaries for CI and images workflows: record Node version, SOURCE_DATE_EPOCH, cache hits, and changed assets.
+- For `images.yml`, upload a manifest of modified files (e.g., `git diff --name-only`) to support quick review.
+- For `product-data-guard.yml`, upload a short build manifest or `build/asset-manifest.json` on failure for triage.
 
 ## 5. PR-ready CI Fix Plan
-PR 1 - Pin OS + permissions hygiene
-- Files: `.github/workflows/ci.yml`, `.github/workflows/images.yml`, `.github/workflows/codacy.yml`, `.github/workflows/admin.yml`.
-- Changes: replace `ubuntu-latest` with `ubuntu-22.04`, add explicit minimal `permissions` blocks where missing.
+PR 1 - Concurrency and timeouts
+- Files: `.github/workflows/ci.yml`, `.github/workflows/images.yml`, `.github/workflows/codacy.yml`, `.github/workflows/admin.yml`, `.github/workflows/product-data-guard.yml`.
+- Changes: add concurrency groups (e.g., `${{ github.workflow }}-${{ github.ref }}`) with cancel-in-progress for non-deploy workflows and set job-level `timeout-minutes`.
 - Acceptance criteria:
-  - Workflows run on pinned OS without behavior regressions.
-  - Permissions are least-privilege and do not block existing steps.
+  - A second push to the same branch cancels the in-progress run.
+  - Jobs terminate within the configured timeout bounds.
 - Tests:
-  - CI run on a sample PR validates unchanged outcomes.
+  - Push two commits quickly and confirm cancellation in the Actions UI.
+  - Trigger a run with a deliberate long-running step on a temporary branch to confirm timeout behavior.
 
-PR 2 - Concurrency and timeouts
-- Files: `.github/workflows/ci.yml`, `.github/workflows/images.yml`, `.github/workflows/product-data-guard.yml`.
-- Changes: add `concurrency` groups and `timeout-minutes` for long-running jobs.
-- Acceptance criteria:
-  - New pushes cancel older in-progress runs on the same branch.
-  - Jobs terminate within defined bounds on hangs.
-- Tests:
-  - Two rapid pushes confirm cancellation behavior in Actions UI.
-
-PR 3 - Deterministic env for guard workflow
-- Files: `.github/workflows/product-data-guard.yml`.
-- Changes: set `TZ`, `LC_ALL`, `LANG`, `CFIMG_DISABLE`, `SOURCE_DATE_EPOCH` (same as CI).
-- Acceptance criteria:
-  - `npm run build` produces stable outputs across repeated runs on the same commit.
-- Tests:
-  - Re-run the workflow on a no-op commit and confirm clean tree.
-
-PR 4 - Image workflow robustness + caching
-- Files: `.github/workflows/images.yml`.
-- Changes: add npm cache; switch to PR-based automation or add a rebase step before push.
-- Acceptance criteria:
-  - Workflow succeeds under concurrent pushes without leaving the repo in a conflicted state.
-  - Runtime decreases with cache hits.
-- Tests:
-  - Trigger two pushes that touch originals; workflow produces a single clean update.
-
-PR 5 - Observability artifacts for CI diagnostics
-- Files: `.github/workflows/ci.yml`, `.github/workflows/codacy.yml`.
-- Changes: upload Playwright/Lighthouse outputs on failure; upload determinism hashes on failure; include step summaries.
-- Acceptance criteria:
-  - Failed runs have artifacts available for triage.
-  - Successful runs stay within artifact storage limits.
-- Tests:
-  - Induce a controlled failure and confirm artifact availability.
-
-PR 6 - Codacy fork-safe gating
+PR 2 - Codacy fork-safe gating and SARIF assertion
 - Files: `.github/workflows/codacy.yml`.
-- Changes: skip Codacy CLI execution when `CODACY_PROJECT_TOKEN` is not available (fork PRs).
+- Changes: skip the scan when `CODACY_PROJECT_TOKEN` is unavailable (fork PRs) and add a step that fails the job if no SARIF files are produced when the token is present.
 - Acceptance criteria:
-  - Fork PRs do not fail due to missing secrets.
-  - Scheduled and `main` runs still execute the scan.
+  - Fork PRs show a skipped Codacy job with a clear log message.
+  - `main` and scheduled runs upload SARIF artifacts and publish Code Scanning results.
+  - Empty SARIF output causes a controlled failure with an explicit error.
 - Tests:
-  - Simulated fork PR (no secrets) shows job skipped with a clear log message.
+  - Open a fork PR and verify the Codacy job is skipped.
+  - Run on `main` and verify SARIF artifacts exist and are uploaded.
+
+PR 3 - Images workflow robustness and caching
+- Files: `.github/workflows/images.yml`.
+- Changes: add npm cache, add concurrency, and replace direct pushes with PR-based automation or a rebase-before-push flow.
+- Acceptance criteria:
+  - Concurrent image updates produce a single clean update without non-fast-forward failures.
+  - Workflow logs show npm cache hits on repeat runs.
+- Tests:
+  - Push two changes to `assets/images/originals/**` quickly and confirm a single update path.
+  - Re-run the workflow and confirm npm cache hits in logs.
+
+PR 4 - CI cache and determinism artifacts
+- Files: `.github/workflows/ci.yml`.
+- Changes: cache Playwright browsers (`~/.cache/ms-playwright`) and upload determinism hash artifacts on failure; add a short step summary.
+- Acceptance criteria:
+  - Second CI runs show Playwright cache hits and reduced install time.
+  - Determinism failures publish `build-a.sha` and `build-b.sha` artifacts for diffing.
+- Tests:
+  - Re-run CI twice to confirm cache hits.
+  - Force a determinism mismatch on a temporary branch and verify artifacts are uploaded.
+
+PR 5 - Product-data-guard diagnostics
+- Files: `.github/workflows/product-data-guard.yml`.
+- Changes: upload `build/asset-manifest.json` and a `git status --short` snapshot on failure; add a step summary with the build output root.
+- Acceptance criteria:
+  - Failures provide artifacts and summaries that identify drift quickly.
+- Tests:
+  - Introduce a controlled change in templates that alters tracked output and verify artifacts appear on failure.
