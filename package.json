@@ -32,7 +32,7 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
-    "@playwright/test": "^1.44.1",
+    "@playwright/test": "^1.57.0",
     "@stryker-mutator/core": "^9.4.0",
     "@stryker-mutator/vitest-runner": "^9.4.0",
     "@vitest/coverage-v8": "^4.0.15",
