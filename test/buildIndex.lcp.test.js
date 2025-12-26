@@ -24,7 +24,7 @@ const sampleProducts = [
         '/cdn-cgi/image/fit=cover,width=400/sample.webp 400w',
         '/cdn-cgi/image/fit=cover,width=800/sample.webp 800w',
       ].join(', '),
-      sizes: '(max-width: 575px) calc(100vw - 1.5rem), (max-width: 991px) 45vw, 280px',
+      sizes: '(max-width: 575px) 200px, (max-width: 991px) 45vw, 280px',
       avif: {
         src: '/cdn-cgi/image/fit=cover,width=400,format=avif/sample.avif',
         srcset: [
@@ -50,7 +50,7 @@ const sampleProducts = [
         '/cdn-cgi/image/fit=cover,width=200/sample-2.webp 200w',
         '/cdn-cgi/image/fit=cover,width=400/sample-2.webp 400w',
       ].join(', '),
-      sizes: '(max-width: 575px) calc(100vw - 1.5rem), (max-width: 991px) 45vw, 280px',
+      sizes: '(max-width: 575px) 200px, (max-width: 991px) 45vw, 280px',
     },
   },
 ];

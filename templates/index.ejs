@@ -44,7 +44,7 @@
        const preloadSrcset = lcpImage.avif ? lcpImage.avif.srcset : lcpImage.srcset;
        const preloadType = lcpImage.avif ? 'image/avif' : null;
   %>
-  <link rel="preload" href="<%= preloadHref %>" as="image" imagesrcset="<%= preloadSrcset %>" imagesizes="<%= lcpImage.sizes || '(max-width: 575px) calc(100vw - 1.5rem), (max-width: 991px) 45vw, 280px' %>" fetchpriority="high"<%= preloadType ? ` type=\"${preloadType}\"` : '' %>>
+  <link rel="preload" href="<%= preloadHref %>" as="image" imagesrcset="<%= preloadSrcset %>" imagesizes="<%= lcpImage.sizes || '(max-width: 575px) 200px, (max-width: 991px) 45vw, 280px' %>" fetchpriority="high"<%= preloadType ? ` type=\"${preloadType}\"` : '' %>>
   <% } %>
   <!-- Critical CSS -->
   <link rel="stylesheet" href="/dist/css/critical.min.css">

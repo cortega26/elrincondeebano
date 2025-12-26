@@ -15,8 +15,7 @@ const UTILITY_CLASSES = Object.freeze({
 });
 
 const PRODUCT_IMAGE_WIDTHS = Object.freeze([200, 320, 400]);
-const PRODUCT_IMAGE_SIZES =
-  '(max-width: 575px) calc(100vw - 1.5rem), (max-width: 991px) 45vw, 280px';
+const PRODUCT_IMAGE_SIZES = '(max-width: 575px) 200px, (max-width: 991px) 45vw, 280px';
 const CART_IMAGE_WIDTHS = Object.freeze([80, 120, 160]);
 
 const normaliseAssetPath = (value = '') => {
