@@ -19,6 +19,8 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Set deterministic build environment
         run: |
           echo "TZ=UTC" >> $GITHUB_ENV
@@ -28,14 +30,29 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22.x'
+          cache: 'npm'
       - run: npm ci
       - run: npm run images:generate
       - run: npm run images:rewrite
       - run: npm run lint:images
-      - name: Commit changes
+      - name: Prepare branch for image update
+        shell: bash
         run: |
+          set -euo pipefail
+          git fetch origin "${GITHUB_REF_NAME}"
+          git checkout -B "${GITHUB_REF_NAME}"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+      - name: Commit changes
+        shell: bash
+        run: |
+          set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           git add -A
-          git diff --cached --quiet || git commit -m 'chore: update optimized images'
-          git push
+          if git diff --cached --quiet; then
+            echo "No image changes detected. Skipping commit."
+            exit 0
+          fi
+          git commit -m 'chore: update optimized images'
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin HEAD:"${GITHUB_REF_NAME}"
