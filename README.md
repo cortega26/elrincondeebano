@@ -81,7 +81,7 @@ flowchart TD
 3. `npm run build` – generate a full static snapshot under `build/` (contains `dist/`, `pages/`, sitemap, etc.).
 4. `npx serve build -l 4173` – preview the staged site locally (swap with your preferred static server).
 
-_No environment variables are required for the default build. Optional flags such as `FULL_REGEN` or `LH_SKIP_BUILD` fine-tune heavy scripts and are documented inline in `tools/`._
+_No environment variables are required for the default build. The admin panel is excluded by default; set `INCLUDE_ADMIN_PANEL=1` to include it in the build. Optional flags such as `FULL_REGEN` or `LH_SKIP_BUILD` fine-tune heavy scripts and are documented inline in `tools/`._
 
 ## Language behavior
 

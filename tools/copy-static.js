@@ -15,6 +15,12 @@ function copyDirectoryRelative(relativePath) {
   fs.cpSync(source, destination, { recursive: true });
 }
 
+function shouldIncludeAdminPanel() {
+  const value = process.env.INCLUDE_ADMIN_PANEL;
+  if (!value) return false;
+  return ['1', 'true', 'yes'].includes(String(value).toLowerCase());
+}
+
 function main() {
   const outputRoot = resolveOutputDir();
   ensureDir(outputRoot);
@@ -22,7 +28,9 @@ function main() {
   // Static directories needed at runtime
   copyDirectoryRelative('assets');
   copyDirectoryRelative('data');
-  copyDirectoryRelative('admin-panel'); // lightweight web admin
+  if (shouldIncludeAdminPanel()) {
+    copyDirectoryRelative('admin-panel'); // lightweight web admin
+  }
 
   // Root-level static files
   ['404.html', 'app.webmanifest', 'robots.txt', 'service-worker.js'].forEach((file) =>
@@ -33,4 +41,11 @@ function main() {
   copyFileRelative(path.join('static', 'offline.html'), path.join('pages', 'offline.html'));
 }
 
-main();
+if (require.main === module) {
+  main();
+}
+
+module.exports = {
+  main,
+  shouldIncludeAdminPanel,
+};
