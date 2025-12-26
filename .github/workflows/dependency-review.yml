@@ -1,0 +1,30 @@
+name: Dependency Review
+
+on:
+  pull_request:
+    branches: ['main']
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+      - name: Dependency review
+        uses: actions/dependency-review-action@46a3c492319c890177366b6ef46d6b4f89743ed4 # v4
+        with:
+          fail-on-severity: high

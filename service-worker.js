@@ -111,6 +111,20 @@ const addTimestamp = async (response, type = 'static') => {
   });
 };
 
+const isNoStoreResponse = (response) => {
+  const cacheControl = response?.headers?.get('cache-control');
+  if (!cacheControl) return false;
+  return cacheControl.toLowerCase().includes('no-store');
+};
+
+const shouldSkipCache = (request, url) => {
+  if (url.pathname.startsWith('/admin-panel/')) {
+    return true;
+  }
+  const authHeader = request.headers.get('authorization');
+  return Boolean(authHeader);
+};
+
 // Install event - cache static assets
 if (!TEST_MODE) {
   self.addEventListener('install', (event) => {
@@ -261,8 +275,31 @@ if (!TEST_MODE) {
       return;
     }
 
+    const skipCache = shouldSkipCache(req, url);
+
     event.respondWith(
       (async () => {
+        if (skipCache) {
+          try {
+            const networkResponse = await fetch(req);
+            if (networkResponse) {
+              return networkResponse;
+            }
+          } catch (error) {
+            console.warn('Bypass cache request failed:', error);
+          }
+
+          const fallback = await getFallbackResponse(req);
+          if (fallback) {
+            return fallback;
+          }
+
+          return new Response('Servicio no disponible', {
+            status: 504,
+            headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+          });
+        }
+
         const { cacheName, type } = getCacheKeyForRequest(req, url);
         const cache = await caches.open(cacheName);
         const cached = await cache.match(req);
@@ -271,8 +308,10 @@ if (!TEST_MODE) {
         try {
           freshResponse = await fetch(req);
           if (freshResponse && freshResponse.ok) {
-            const responseToCache = await addTimestamp(freshResponse.clone(), type);
-            await cache.put(req, responseToCache);
+            if (!isNoStoreResponse(freshResponse)) {
+              const responseToCache = await addTimestamp(freshResponse.clone(), type);
+              await cache.put(req, responseToCache);
+            }
           }
         } catch (error) {
           console.warn('Asset fetch failed, falling back to cache:', error);
@@ -283,12 +322,20 @@ if (!TEST_MODE) {
         }
 
         if (cached) {
+          if (isNoStoreResponse(cached)) {
+            try {
+              await cache.delete(req);
+            } catch (error) {
+              console.warn('Failed to delete no-store cached response:', error);
+            }
+          } else {
           const canCheckFreshness = cached.type !== 'opaque' && cached.type !== 'opaqueredirect';
           if (canCheckFreshness && isCacheFresh(cached, type)) {
             return cached;
           }
           if (!freshResponse) {
             return cached;
+          }
           }
         }
 
@@ -383,6 +430,8 @@ if (typeof module !== 'undefined') {
   module.exports = {
     isCacheFresh,
     addTimestamp,
+    isNoStoreResponse,
+    shouldSkipCache,
     invalidateCache,
     invalidateAllCaches,
     CACHE_CONFIG,
