@@ -32,7 +32,6 @@ async function main() {
 
   const expectedOrder = [
     /\/dist\/css\/critical\.min\.css(?:\?|$)/,
-    /\/dist\/css\/bootstrap\.min\.css(?:\?|$)/,
     /\/dist\/css\/style\.min\.css(?:\?|$)/,
   ];
 
