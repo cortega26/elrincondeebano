@@ -36,7 +36,7 @@
     "@stryker-mutator/core": "^9.4.0",
     "@stryker-mutator/vitest-runner": "^9.4.0",
     "@vitest/coverage-v8": "^4.0.15",
-    "cypress": "^13.17.0",
+    "cypress": "^15.8.1",
     "esbuild": "^0.25.11",
     "eslint": "^8.57.0",
     "jsdom": "^24.1.3",
