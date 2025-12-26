@@ -57,3 +57,34 @@ jobs:
             git status --short
             exit 1
           fi
+
+      - name: Capture failure diagnostics
+        if: failure()
+        shell: bash
+        run: |
+          git status --short > git-status.txt
+
+      - name: Upload failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: product-data-guard-artifacts
+          path: |
+            build/asset-manifest.json
+            git-status.txt
+          if-no-files-found: warn
+
+      - name: Write guard summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Product Data Guard Summary"
+            echo ""
+            echo "- Build output root: build"
+            if [ -f build/asset-manifest.json ]; then
+              echo "- Asset manifest: build/asset-manifest.json"
+            else
+              echo "- Asset manifest: missing"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
