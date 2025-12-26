@@ -12,10 +12,15 @@ on:
       - templates/**/*
       - tools/**/*
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   ensure-build-in-sync:
     name: Ensure build artifacts remain reproducible
     runs-on: ubuntu-22.04
+    timeout-minutes: 20
 
     steps:
       - name: Checkout repository

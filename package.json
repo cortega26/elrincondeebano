@@ -21,6 +21,7 @@
     "prune:backups": "node tools/prune-backups.js",
     "test": "node test/run-all.js && vitest run",
     "test:coverage": "npx c8 npm test",
+    "typecheck": "tsc -p tsconfig.typecheck.json",
     "test:cypress": "cypress run --spec cypress/e2e/nav_menu.cy.ts",
     "test:e2e": "playwright test --trace on",
     "lighthouse:audit": "node tools/lighthouse-audit.mjs",
