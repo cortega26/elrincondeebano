@@ -52,13 +52,35 @@ jobs:
           BUILD_OUTPUT_DIR=build-determinism-b npm run build
           find build-determinism-a -type f -print0 | sort -z | xargs -0 sha256sum | sed 's#build-determinism-a/##' > build-a.sha
           find build-determinism-b -type f -print0 | sort -z | xargs -0 sha256sum | sed 's#build-determinism-b/##' > build-b.sha
-          diff -u build-a.sha build-b.sha
+          if ! diff -u build-a.sha build-b.sha > build-determinism.diff; then
+            cat build-determinism.diff
+            exit 1
+          fi
+
+      - name: Upload determinism artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: determinism-artifacts
+          path: |
+            build-a.sha
+            build-b.sha
+            build-determinism.diff
+          if-no-files-found: warn
 
       - name: Run unit tests
         run: npm test
 
       - name: Check stylesheet order consistency
         run: npm run check:css-order
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-chromium-
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
@@ -88,3 +110,19 @@ jobs:
           name: lighthouse-reports
           path: reports/lighthouse
           if-no-files-found: ignore
+
+      - name: Write CI summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## CI Summary"
+            echo ""
+            echo "- Node: $(node -v)"
+            echo "- SOURCE_DATE_EPOCH: ${SOURCE_DATE_EPOCH:-unset}"
+            if [ -f build-determinism.diff ]; then
+              echo "- Determinism diff: build-determinism.diff"
+            else
+              echo "- Determinism diff: none"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
