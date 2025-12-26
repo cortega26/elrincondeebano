@@ -2,7 +2,7 @@
  * Default options for product thumbnail transformations.
  * @type {Record<string, string|number>}
  */
-export const CFIMG_THUMB = { fit: 'cover', quality: 75, format: 'auto' };
+export const CFIMG_THUMB = { fit: 'cover', quality: 75, format: 'auto', dpr: 1 };
 
 function shouldDisableCfRewrite() {
   try {
