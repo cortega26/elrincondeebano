@@ -1516,7 +1516,6 @@ const initApp = async () => {
   let catalogSentinel = null;
   let sentinelObserver = null;
   let userHasInteracted = false;
-  let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
   const updateOnlineStatus = () => {
     const offlineIndicator = document.getElementById('offline-indicator');
