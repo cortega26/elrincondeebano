@@ -90,6 +90,8 @@ h1 {
 
 .navbar-toggler {
   padding: 0.25rem 0.4rem;
+  min-width: 44px;
+  min-height: 44px;
 }
 
 .dropdown-menu {
@@ -108,12 +110,22 @@ h1 {
   position: relative;
   display: flex;
   align-items: center;
-  padding: 0.25rem;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.5rem;
   margin-right: 0.5rem;
   color: #fff;
   background: none;
   border: none;
   cursor: pointer;
+  border-radius: 999px;
+  touch-action: manipulation;
+}
+
+#cart-icon svg {
+  width: 22px;
+  height: 22px;
 }
 
 #cart-count {
@@ -122,6 +134,11 @@ h1 {
   right: -5px;
   font-size: 0.65rem;
   padding: 0.15rem 0.3rem;
+  min-width: 18px;
+  min-height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Product Grid */
@@ -361,13 +378,14 @@ h1 {
   color: white;
   border: none;
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  touch-action: manipulation;
   transition:
     background-color 0.2s ease,
     transform 0.1s ease;
@@ -406,6 +424,7 @@ h1 {
   border-color: var(--accent-color);
   padding: 12px 20px;
   color: #fff;
+  touch-action: manipulation;
 }
 
 /* Cart Offcanvas Styles */
@@ -473,9 +492,9 @@ h1 {
 
 /* Cart quantity controls */
 .cart-item .quantity-btn {
-  width: 24px;
-  height: 24px;
-  font-size: 16px;
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
   font-weight: 500;
   background-color: var(--primary-color);
   transition: background-color 0.2s ease;
@@ -486,8 +505,8 @@ h1 {
 }
 
 .cart-item .quantity-input {
-  width: 40px;
-  height: 24px;
+  width: 52px;
+  height: 36px;
   padding: 0.25rem;
   font-size: 14px;
 }
@@ -507,6 +526,38 @@ h1 {
 
 .quantity-changed {
   animation: quantityPulse 0.3s ease-in-out;
+}
+
+@keyframes cartBadgePop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes addToCartPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+#cart-count.cart-count-bump {
+  animation: cartBadgePop 0.35s ease;
+}
+
+.add-to-cart-btn.is-added {
+  animation: addToCartPulse 0.25s ease;
 }
 
 @keyframes fadeInUp {
@@ -557,10 +608,13 @@ h1 {
   }
 
   .navbar-nav .nav-link {
-    padding: 0.25rem 1rem;
+    padding: 0.5rem 1rem;
     line-height: 1.2;
     text-align: left;
     width: 100%;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
   }
 }
 
@@ -573,11 +627,45 @@ h1 {
   .precio {
     font-size: 1.125rem;
   }
+
+  .quantity-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+  }
+
+  .cart-item .quantity-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+
+  .cart-item .quantity-input {
+    width: 56px;
+    height: 40px;
+    font-size: 15px;
+  }
 }
 
 @media (max-width: 576px) {
   .offcanvas {
     width: 100%;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .dropdown-item {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #cart-count.cart-count-bump,
+  .add-to-cart-btn.is-added,
+  .quantity-changed {
+    animation: none;
   }
 }
 
