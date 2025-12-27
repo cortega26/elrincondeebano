@@ -10,10 +10,12 @@
   --transition: all 0.3s ease;
 
   /* Typography scale */
+  --font-size-xs: 0.8125rem; /* 13px */
   --font-size-sm: 0.875rem; /* 14px */
   --font-size-base: 1rem; /* 16px */
-  --font-size-md: 1.125rem; /* 18px */
+  --font-size-md: 1.0625rem; /* 17px */
   --font-size-lg: 1.25rem; /* 20px */
+  --font-size-price: 1.125rem; /* 18px */
 }
 
 /* Self-hosted font faces (Inter, Playfair) */
@@ -88,26 +90,31 @@ h1 {
   font-size: clamp(1.75rem, 4vw, 2.25rem);
   margin-bottom: 1.25rem;
   font-weight: bold;
+  font-family: 'Playfair Display', 'Playfair Fallback', Georgia, 'Times New Roman', serif;
+  letter-spacing: 0.01em;
 }
 
 /* Product card specific typography */
 .producto .card-title {
-  font-size: var(--font-size);
+  font-size: var(--font-size-md);
   margin-bottom: 0.5rem;
   font-weight: 600;
-  /* line-height: 1.3; */
+  line-height: 1.3;
 }
 
 .producto .card-text {
   font-size: var(--font-size-sm);
   color: var(--secondary-color);
   margin-bottom: 1rem;
+  line-height: 1.4;
 }
 
 .precio,
 .precio-descuento {
-  font-size: var(--font-size);
+  font-size: var(--font-size-price);
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
 }
 
 /* Header and navigation essentials */
