@@ -4,7 +4,9 @@
   --secondary-color: #546e7a;
   --accent-color: #a15c00;
   --text-color: #212529;
-  --background-color: #ffffff;
+  --background-color: #f7f5f2;
+  --surface-color: #ffffff;
+  --surface-muted: #f1ede6;
   --border-radius: 0.25rem;
   --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   --transition: all 0.3s ease;
@@ -277,6 +279,8 @@ h1 {
 /* Hero section spacing lock */
 .hero-section {
   min-height: 96px;
+  background: linear-gradient(135deg, rgba(0, 91, 79, 0.08), rgba(161, 92, 0, 0.06));
+  border-radius: 16px;
 }
 
 /* Essential responsive breakpoints */
