@@ -1089,6 +1089,28 @@ const updateCartIcon = () => {
   }
 };
 
+const restartAnimationClass = (element, className, timeoutMs = 400) => {
+  if (!element || !className) return;
+  element.classList.remove(className);
+  void element.offsetWidth;
+  element.classList.add(className);
+  const cleanup = () => element.classList.remove(className);
+  element.addEventListener('animationend', cleanup, { once: true });
+  setTimeout(cleanup, timeoutMs);
+};
+
+const bumpCartBadge = () => {
+  const badge = document.getElementById('cart-count');
+  restartAnimationClass(badge, 'cart-count-bump', 500);
+};
+
+const pulseAddToCartButton = (productId) => {
+  if (!productId) return;
+  const actionArea = document.querySelector(`.action-area[data-pid="${productId}"]`);
+  const button = actionArea?.querySelector('.add-to-cart-btn');
+  restartAnimationClass(button, 'is-added', 350);
+};
+
 const saveCart = () => {
   try {
     globalThis.localStorage?.setItem('cart', JSON.stringify(cart));
@@ -1307,6 +1329,8 @@ const addToCart = (product, quantity) => {
     }
     saveCart();
     updateCartIcon();
+    bumpCartBadge();
+    pulseAddToCartButton(product.id);
     renderCart();
     try {
       if (typeof window !== 'undefined' && typeof window.__analyticsTrack === 'function')
@@ -1355,6 +1379,7 @@ const updateQuantity = (product, change) => {
     const actionArea = document.querySelector(`.action-area[data-pid="${product.id}"]`);
     const btn = actionArea?.querySelector('.add-to-cart-btn');
     const qc = actionArea?.querySelector('.quantity-control');
+    let usedAddToCart = false;
 
     if (newQuantity <= 0) {
       removeFromCart(product.id);
@@ -1364,10 +1389,14 @@ const updateQuantity = (product, change) => {
         item.quantity = newQuantity;
       } else {
         addToCart(product, 1);
+        usedAddToCart = true;
         toggleActionArea(btn, qc, true);
       }
       saveCart();
       updateCartIcon();
+      if (change > 0 && !usedAddToCart) {
+        bumpCartBadge();
+      }
       renderCart();
 
       const quantityInput = document.querySelector(`[data-id="${product.id}"].quantity-input`);
