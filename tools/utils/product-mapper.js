@@ -45,6 +45,14 @@ function cfimg(imgPath, opts = {}) {
   return `/cdn-cgi/image/${params}${encoded}`;
 }
 
+function encodePath(pathValue) {
+  const normalized = pathValue.startsWith('/') ? pathValue : `/${pathValue}`;
+  return normalized
+    .split('/')
+    .map((segment) => encodeURIComponent(segment))
+    .join('/');
+}
+
 function readProductData() {
   const raw = fs.readFileSync(DATA_PATH, 'utf8');
   return JSON.parse(raw);
@@ -87,10 +95,19 @@ function buildImageMeta(imagePath, avifPath) {
   let avif = null;
   if (avifPath) {
     const normalizedAvif = avifPath.startsWith('/') ? avifPath : `/${avifPath}`;
-    avif = {
-      src: cfimg(normalizedAvif, { ...CFIMG_THUMB, width: HERO_BASE_WIDTH, format: 'avif' }),
-      srcset: buildSrcset(avifPath, PRODUCT_IMAGE_WIDTHS, { format: 'avif' }),
-    };
+    const canRewrite = !shouldDisableCfRewrite();
+    if (canRewrite) {
+      avif = {
+        src: cfimg(normalized, { ...CFIMG_THUMB, width: HERO_BASE_WIDTH, format: 'avif' }),
+        srcset: buildSrcset(imagePath, PRODUCT_IMAGE_WIDTHS, { format: 'avif' }),
+      };
+    } else {
+      const encodedAvif = encodePath(normalizedAvif);
+      avif = {
+        src: encodedAvif,
+        srcset: encodedAvif,
+      };
+    }
   }
   return { src, srcset, avif, sizes: PRODUCT_IMAGE_SIZES };
 }
