@@ -181,7 +181,7 @@ flowchart LR
 
 ### 3.3 Service worker registration, cache strategies, offline fallbacks
 
-- Registration logic (`src/js/script.mjs` + `src/js/sw-register.js`):
+- Registration logic (`src/js/script.mjs`):
   - Guarded by `localStorage.ebano-sw-disabled=true` (kill-switch).
   - Disabled on localhost unless `localStorage.ebano-sw-enable-local=true` or `?sw=on`.
   - Registers `/service-worker.js` on window load, sets update checks every 5 minutes.

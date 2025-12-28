@@ -10,31 +10,18 @@ const {
   mapProductForInline,
   safeJsonStringify,
 } = require('./utils/product-mapper');
-const { appendToManifest } = require('./utils/manifest');
+const { appendToManifest, readManifestFonts } = require('./utils/manifest');
 
 const TEMPLATE_PATH = path.join(rootDir, 'templates', 'index.ejs');
 const OUTPUT_PATH = resolveFromOutput('index.html');
 
 const INITIAL_RENDER_COUNT = 12;
 
-function loadManifestFonts() {
-  const manifestPath = resolveFromOutput('asset-manifest.json');
-  try {
-    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-    const files = Array.isArray(manifest?.files) ? manifest.files : [];
-    return files.filter(
-      (file) => typeof file === 'string' && file.toLowerCase().endsWith('.woff2')
-    );
-  } catch (error) {
-    console.warn('build-index: Unable to read asset manifest for font preloads:', error);
-    return [];
-  }
-}
 
 function build() {
   const template = fs.readFileSync(TEMPLATE_PATH, 'utf8');
   const productData = readProductData();
-  const preloadFonts = loadManifestFonts();
+  const preloadFonts = readManifestFonts(resolveFromOutput('asset-manifest.json'), 'build-index');
   const catalog = loadCategoryCatalog();
   const navGroups = buildNavModel(catalog);
   const sortedProducts = sortAndEnrichProducts(productData.products || []);
