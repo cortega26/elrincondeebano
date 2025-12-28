@@ -245,6 +245,13 @@ h1 {
 .product-thumb {
   object-fit: cover;
   aspect-ratio: 1 / 1;
+  background-color: var(--surface-muted);
+}
+
+.product-thumb.is-loading {
+  background: linear-gradient(90deg, #efeae3 25%, #f7f2ec 50%, #efeae3 75%);
+  background-size: 200% 100%;
+  animation: loading 1.3s infinite;
 }
 
 /* Discount badge */
@@ -483,6 +490,7 @@ h1 {
   flex-wrap: nowrap; /* never wrap to next line */
   padding: 10px 0;
   border-bottom: 1px solid #dee2e6;
+  transition: background-color 0.2s ease;
 }
 
 .cart-item:last-child {
@@ -578,6 +586,38 @@ h1 {
 
 .add-to-cart-btn.is-added {
   animation: addToCartPulse 0.25s ease;
+}
+
+@keyframes cartItemPulse {
+  0% {
+    background-color: rgba(0, 91, 79, 0.08);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes cartTotalPop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.cart-item-updated {
+  animation: cartItemPulse 0.45s ease;
+  border-radius: 0.5rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+#cart-total.cart-total-bump {
+  animation: cartTotalPop 0.35s ease;
 }
 
 @keyframes fadeInUp {
@@ -690,7 +730,9 @@ h1 {
 @media (prefers-reduced-motion: reduce) {
   #cart-count.cart-count-bump,
   .add-to-cart-btn.is-added,
-  .quantity-changed {
+  .quantity-changed,
+  .cart-item-updated,
+  #cart-total.cart-total-bump {
     animation: none;
   }
 }
