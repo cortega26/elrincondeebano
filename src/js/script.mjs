@@ -1217,9 +1217,6 @@ const renderCart = (highlightId = null) => {
       class: 'cart-item mb-3 d-flex align-items-start',
       'aria-label': `Cart item: ${item.name}`,
     });
-    if (highlightId && item.id === highlightId) {
-      itemElement.classList.add('cart-item-updated');
-    }
 
     const contentContainer = createSafeElement('div', {
       class: 'cart-item-content flex-grow-1',

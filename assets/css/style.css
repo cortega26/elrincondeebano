@@ -588,15 +588,6 @@ h1 {
   animation: addToCartPulse 0.25s ease;
 }
 
-@keyframes cartItemPulse {
-  0% {
-    background-color: rgba(0, 91, 79, 0.08);
-  }
-  100% {
-    background-color: transparent;
-  }
-}
-
 @keyframes cartTotalPop {
   0% {
     transform: scale(1);
@@ -607,13 +598,6 @@ h1 {
   100% {
     transform: scale(1);
   }
-}
-
-.cart-item-updated {
-  animation: cartItemPulse 0.45s ease;
-  border-radius: 0.5rem;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
 }
 
 #cart-total.cart-total-bump {
@@ -731,7 +715,6 @@ h1 {
   #cart-count.cart-count-bump,
   .add-to-cart-btn.is-added,
   .quantity-changed,
-  .cart-item-updated,
   #cart-total.cart-total-bump {
     animation: none;
   }
