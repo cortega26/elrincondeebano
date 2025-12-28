@@ -178,6 +178,16 @@ h1 {
   animation: loading 1.5s infinite;
 }
 
+.product-thumb {
+  background-color: var(--surface-muted);
+}
+
+.product-thumb.is-loading {
+  background: linear-gradient(90deg, #efeae3 25%, #f7f2ec 50%, #efeae3 75%);
+  background-size: 200% 100%;
+  animation: loading 1.3s infinite;
+}
+
 /* Essential animations */
 @keyframes fadeIn {
   to {

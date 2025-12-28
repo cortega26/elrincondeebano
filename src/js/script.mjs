@@ -967,6 +967,30 @@ const createSafeElement = (tag, attributes = {}, children = []) => {
   return element;
 };
 
+const markImageLoaded = (img) => {
+  if (!img) return;
+  img.classList.remove('is-loading');
+  img.classList.add('is-loaded');
+};
+
+const setupImageSkeleton = (img) => {
+  if (!img || !img.classList.contains('product-thumb')) {
+    return;
+  }
+  img.classList.add('is-loading');
+  if (img.complete && img.naturalWidth > 0) {
+    markImageLoaded(img);
+    return;
+  }
+  img.addEventListener('load', () => markImageLoaded(img), { once: true });
+  img.addEventListener('error', () => img.classList.remove('is-loading'), { once: true });
+};
+
+const setupImageSkeletons = (root = document) => {
+  if (!root || typeof root.querySelectorAll !== 'function') return;
+  root.querySelectorAll('img.product-thumb').forEach(setupImageSkeleton);
+};
+
 const createProductPicture = ({ imagePath, avifPath, alt, eager = false }) => {
   const sizes = PRODUCT_IMAGE_SIZES;
   const pictureChildren = [];
@@ -985,7 +1009,7 @@ const createProductPicture = ({ imagePath, avifPath, alt, eager = false }) => {
   const imgAttrs = {
     src: fallbackSrc || '',
     alt: alt || '',
-    class: 'card-img-top product-thumb',
+    class: 'card-img-top product-thumb is-loading',
     loading: eager ? 'eager' : 'lazy',
     fetchpriority: eager ? 'high' : 'auto',
     decoding: 'async',
@@ -997,6 +1021,7 @@ const createProductPicture = ({ imagePath, avifPath, alt, eager = false }) => {
     imgAttrs.srcset = fallbackSrcset;
   }
   const imgElement = createSafeElement('img', imgAttrs);
+  setupImageSkeleton(imgElement);
   pictureChildren.push(imgElement);
   return createSafeElement('picture', {}, pictureChildren);
 };
@@ -1104,6 +1129,11 @@ const bumpCartBadge = () => {
   restartAnimationClass(badge, 'cart-count-bump', 500);
 };
 
+const bumpCartTotal = () => {
+  const total = document.getElementById('cart-total');
+  restartAnimationClass(total, 'cart-total-bump', 500);
+};
+
 const pulseAddToCartButton = (productId) => {
   if (!productId) return;
   const actionArea = document.querySelector(`.action-area[data-pid="${productId}"]`);
@@ -1172,7 +1202,7 @@ const toggleActionArea = (btn, quantityControl, showQuantity) => {
   quantityControl.classList.toggle(UTILITY_CLASSES.flex, showQuantity);
 };
 
-const renderCart = () => {
+const renderCart = (highlightId = null) => {
   const cartItems = document.getElementById('cart-items');
   const cartTotal = document.getElementById('cart-total');
   if (!cartItems || !cartTotal) return;
@@ -1187,6 +1217,9 @@ const renderCart = () => {
       class: 'cart-item mb-3 d-flex align-items-start',
       'aria-label': `Cart item: ${item.name}`,
     });
+    if (highlightId && item.id === highlightId) {
+      itemElement.classList.add('cart-item-updated');
+    }
 
     const contentContainer = createSafeElement('div', {
       class: 'cart-item-content flex-grow-1',
@@ -1331,7 +1364,8 @@ const addToCart = (product, quantity) => {
     updateCartIcon();
     bumpCartBadge();
     pulseAddToCartButton(product.id);
-    renderCart();
+    renderCart(product.id);
+    bumpCartTotal();
     try {
       if (typeof window !== 'undefined' && typeof window.__analyticsTrack === 'function')
         window.__analyticsTrack('add_to_cart', {
@@ -1356,6 +1390,7 @@ const removeFromCart = (productId) => {
     saveCart();
     updateCartIcon();
     renderCart();
+    bumpCartTotal();
     try {
       if (typeof window !== 'undefined' && typeof window.__analyticsTrack === 'function')
         window.__analyticsTrack('remove_from_cart', { id: productId });
@@ -1397,7 +1432,8 @@ const updateQuantity = (product, change) => {
       if (change > 0 && !usedAddToCart) {
         bumpCartBadge();
       }
-      renderCart();
+      renderCart(product.id);
+      bumpCartTotal();
 
       const quantityInput = document.querySelector(`[data-id="${product.id}"].quantity-input`);
       if (quantityInput) {
@@ -1502,6 +1538,8 @@ const initApp = async () => {
     });
     return;
   }
+
+  setupImageSkeletons(document);
 
   // Ensure discount-only toggle exists in the filter UI
   const ensureDiscountToggle = () => {
@@ -1747,18 +1785,19 @@ const initApp = async () => {
       const { id, name, description, image_path, image_avif_path, price, discount, stock } =
         product;
 
-      const productClasses = [
-        'producto',
-        'col-12',
-        'col-sm-6',
-        'col-md-4',
-        'col-lg-3',
-        'mb-4',
-        !stock ? 'agotado' : '',
-        UTILITY_CLASSES.contentVisible,
-        UTILITY_CLASSES.containIntrinsic,
-      ]
-        .filter(Boolean)
+    const productClasses = [
+      'producto',
+      'col-12',
+      'col-sm-6',
+      'col-md-4',
+      'col-lg-3',
+      'mb-4',
+      'fade-in-up',
+      !stock ? 'agotado' : '',
+      UTILITY_CLASSES.contentVisible,
+      UTILITY_CLASSES.containIntrinsic,
+    ]
+      .filter(Boolean)
         .join(' ');
 
       const titleId = `product-title-${id}`;
