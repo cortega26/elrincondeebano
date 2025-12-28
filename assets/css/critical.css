@@ -179,7 +179,7 @@ h1 {
 }
 
 .product-thumb {
-  background-color: var(--surface-muted);
+  background-color: var(--surface-color);
 }
 
 .product-thumb.is-loading {

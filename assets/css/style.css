@@ -245,7 +245,7 @@ h1 {
 .product-thumb {
   object-fit: cover;
   aspect-ratio: 1 / 1;
-  background-color: var(--surface-muted);
+  background-color: var(--surface-color);
 }
 
 .product-thumb.is-loading {
