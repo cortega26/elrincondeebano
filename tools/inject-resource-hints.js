@@ -99,13 +99,13 @@ function main() {
       });
     }
 
-    console.log(`✅ Resource hints processed`);
-    console.log(`📊 Files checked: ${processedCount}, Modified: ${modifiedCount}`);
+    console.log('✅ Resource hints processed');
+    console.log('📊 Files checked: ${processedCount}, Modified: ${modifiedCount}');
 
     if (modifiedCount > 0) {
-      console.log(`🚀 Performance hints added! Pages should load slightly faster now.`);
+      console.log('🚀 Performance hints added! Pages should load slightly faster now.');
     } else {
-      console.log(`ℹ️ Resource hints already present in all files.`);
+      console.log('ℹ️ Resource hints already present in all files.');
     }
   } catch (error) {
     console.error('❌ Error injecting resource hints:', error.message);
