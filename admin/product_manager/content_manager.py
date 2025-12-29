@@ -24,7 +24,8 @@ from repositories import JsonProductRepository
 from category_repository import JsonCategoryRepository
 from category_service import CategoryService
 from services import ProductService
-from gui import ProductGUI, UIConfig
+from ui.main_window import MainWindow
+from ui.components import UIConfig
 from sync import SyncEngine
 
 
@@ -90,7 +91,7 @@ class ProductManager:
         self.exit_event = threading.Event()
         self.config: Dict[str, Any] = {}
         self.logger: Optional[logging.Logger] = None
-        self.gui: Optional[ProductGUI] = None
+        self.gui: Optional[MainWindow] = None
         self.category_service: Optional[CategoryService] = None
         self.sync_engine = None
         self._setup_signal_handlers()
@@ -292,7 +293,7 @@ class ProductManager:
             ui_config = self._create_ui_config()
 
             # Create and run GUI
-            self.gui = ProductGUI(root, service, self.category_service, project_root=PROJECT_ROOT)
+            self.gui = MainWindow(root, service, self.category_service, project_root=PROJECT_ROOT)
 
             # Configure window using ui_config
             root.title("Gestor de Productos")
