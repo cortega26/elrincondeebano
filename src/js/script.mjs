@@ -8,6 +8,7 @@ import {
   getSharedProductData,
   hydrateSharedProductDataFromInline,
   fetchProducts,
+  generateStableId,
   normalizeString,
 } from './modules/product-data-manager.mjs';
 import {
@@ -31,6 +32,8 @@ export const UTILITY_CLASSES = Object.freeze({
   contentVisible: 'has-content-visibility',
   containIntrinsic: 'has-contain-intrinsic',
 });
+
+export { generateStableId };
 
 let updateProductDisplay = null;
 let initAppHasRun = false;
@@ -644,9 +647,12 @@ const initApp = async () => {
     window.addEventListener('online', updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
 
-    document.getElementById('checkout-btn')?.addEventListener('click', () => {
-      log('info', 'checkout_initiated');
-      submitCart();
+    const submitButtons = ['checkout-btn', 'submit-cart'];
+    submitButtons.forEach((id) => {
+      document.getElementById(id)?.addEventListener('click', () => {
+        log('info', 'checkout_initiated');
+        submitCart();
+      });
     });
 
     window.__APP_READY__ = true;
