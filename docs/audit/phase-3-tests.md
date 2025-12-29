@@ -11,7 +11,7 @@ Scope: Unit (node:test, Vitest), E2E (Playwright/Cypress), performance (Lighthou
 | --- | --- | --- | --- | --- | --- |
 | Node unit tests | `test/*.test.js`, `test/*.test.mjs` via `test/run-all.js` | node:test | `npm test` (first stage) | SW utils, SW registration guards, cache invalidation, CSP policy, resource hints, sitemap categories, robots, product sync server, UI controllers | Several tests read from `build/` when present (resource hints, buildIndex LCP). |
 | Vitest unit tests | `test/*.spec.js` | Vitest (jsdom) | `npm test` (second stage) | cart logic, fetchProducts retry/inline fallback | Focused on client data flow and cart logic. |
-| Playwright E2E | `tests/*.spec.ts` | Playwright | `npm run test:e2e` | navbar dropdown behavior, mobile toggle, first-paint flicker checks | Uses real browser; skips mobile-only tests per project. |
+| Playwright E2E | `test/e2e/*.spec.ts` | Playwright | `npm run test:e2e` | navbar dropdown behavior, mobile toggle, first-paint flicker checks | Uses real browser; skips mobile-only tests per project. |
 | Cypress E2E (smoke) | `cypress/e2e/*.cy.ts` | Cypress | `npm run test:cypress` | nav menu and submenu regressions | Not wired into CI. |
 | Performance audits | `tools/lighthouse-audit.mjs` | Lighthouse | `npm run lighthouse:audit` | performance/CLS/LCP reports | Runs in CI; output stored under `reports/lighthouse/`. |
 | Mutation testing | `stryker.conf.mjs` | Stryker + Vitest | `npx stryker run` | mutation testing for `src/js/script.mjs`, `src/js/modules/**/*.mjs` | Configured, not run in CI. |
@@ -64,12 +64,12 @@ Scope: Unit (node:test, Vitest), E2E (Playwright/Cypress), performance (Lighthou
    - Test: export helper or mock cache to validate `isCacheFresh` usage in fetch handler.
 
 5) Playwright - offline-first reload
-   - Scope: `tests/offline-reload.spec.ts`
+   - Scope: `test/e2e/offline-reload.spec.ts`
    - Acceptance: after online load and SW ready, offline reload shows products and offline indicator.
    - Test: toggle offline, reload, assert content renders from cache/inline data.
 
 6) Playwright - update version invalidates cache
-   - Scope: `tests/product-version-update.spec.ts`
+   - Scope: `test/e2e/product-version-update.spec.ts`
    - Acceptance: version bump triggers a single update notification and refreshes data.
    - Test: intercept `/data/product_data.json` with v1 then v2 and assert cache invalidation message.
 

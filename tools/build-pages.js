@@ -18,7 +18,7 @@ const {
   buildCategoryPages,
   buildNavModel,
 } = require('./utils/category-catalog');
-const { appendToManifest } = require('./utils/manifest');
+const { appendToManifest, readManifestFonts } = require('./utils/manifest');
 
 const catalog = loadCategoryCatalog();
 const pages = buildCategoryPages(catalog);
@@ -27,22 +27,9 @@ const productData = readProductData();
 const enrichedProducts = sortAndEnrichProducts(productData.products || []);
 const availableProducts = enrichedProducts.filter((product) => product.stock);
 
-function loadManifestFonts() {
-  const manifestPath = resolveFromOutput('asset-manifest.json');
-  try {
-    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-    const files = Array.isArray(manifest?.files) ? manifest.files : [];
-    return files.filter(
-      (file) => typeof file === 'string' && file.toLowerCase().endsWith('.woff2')
-    );
-  } catch (error) {
-    console.warn('build-pages: Unable to read asset manifest for font preloads:', error);
-    return [];
-  }
-}
 
-const preloadFonts = loadManifestFonts();
 const manifestPath = resolveFromOutput('asset-manifest.json');
+const preloadFonts = readManifestFonts(manifestPath, 'build-pages');
 
 const outputDir = resolveFromOutput('pages');
 ensureDir(outputDir);

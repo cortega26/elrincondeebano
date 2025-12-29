@@ -32,7 +32,9 @@
   const cspNonce = generateNonce();
   try {
     window.__CSP_NONCE__ = cspNonce;
-  } catch {}
+  } catch (error) {
+    // Ignore if the CSP nonce cannot be attached to window.
+  }
 
   const cspPolicy = `
         default-src 'self';
@@ -57,7 +59,7 @@
 
   try {
     Promise.resolve().then(enableDeferredStyles);
-  } catch {
+  } catch (error) {
     enableDeferredStyles();
   }
 })();

@@ -17,8 +17,8 @@ function generateSitemap() {
   // Category pages (medium-high priority)
   const catalog = loadCategoryCatalog();
   const pages = buildCategoryPages(catalog);
-  const categoryPages = pages.map((page) => ({
-    url: `/pages/${page.slug}.html`,
+  const categoryPages = pages.map((categoryPage) => ({
+    url: `/pages/${categoryPage.slug}.html`,
     priority: '0.8',
     changefreq: 'weekly',
   }));
@@ -41,7 +41,7 @@ function generateSitemap() {
 `;
   });
 
-  sitemap += `</urlset>`;
+  sitemap += '</urlset>';
 
   return sitemap;
 }

@@ -140,7 +140,7 @@ describe('fetchProducts', () => {
 
   it('retries then succeeds', async () => {
     let callCount = 0;
-    mockFetch.mockImplementation((url) => {
+    mockFetch.mockImplementation(() => {
       callCount++;
       if (callCount === 1) return Promise.resolve({ ok: false, status: 500 });
       return Promise.resolve({

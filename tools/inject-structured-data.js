@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { resolveFromOutput, resolveOutputDir } = require('./utils/output-dir');
+const { resolveFromOutput } = require('./utils/output-dir');
 
 function generateStructuredData(products) {
   // CHANGED: Remove the .slice(0, 20) limit to include ALL products
@@ -50,7 +50,6 @@ function injectIntoFile(filePath, scriptTag) {
 }
 
 async function main() {
-  const outputDir = resolveOutputDir();
   const dataPath = path.join(__dirname, '..', 'data', 'product_data.json');
   const raw = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
   const products = Array.isArray(raw.products) ? raw.products : Array.isArray(raw) ? raw : [];

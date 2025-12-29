@@ -5,12 +5,16 @@ const path = require('node:path');
 const { URL } = require('node:url');
 const { ProductStore } = require('./productStore');
 
+const MAX_PAYLOAD_BYTES = 1_000_000;
+
 function readBody(req) {
   return new Promise((resolve, reject) => {
     const chunks = [];
+    let totalBytes = 0;
     req.on('data', (chunk) => {
       chunks.push(chunk);
-      if (chunks.reduce((acc, item) => acc + item.length, 0) > 1e6) {
+      totalBytes += chunk.length;
+      if (totalBytes > MAX_PAYLOAD_BYTES) {
         reject(new Error('Payload too large'));
         req.destroy();
       }
