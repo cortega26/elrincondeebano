@@ -2,7 +2,7 @@ let cachedDate = null;
 let warned = false;
 
 const FALLBACK_DATE = new Date(0);
-const EPOCH_SECONDS_CUTOFF_MS = 1_000_000_000_000;
+const EPOCH_SECONDS_CUTOFF_MS = 1e12;
 
 function warnOnce(message) {
   if (warned) return;
