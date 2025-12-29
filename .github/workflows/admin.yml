@@ -33,12 +33,12 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'pip'
+          cache-dependency-path: admin/product_manager/requirements.txt
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install pytest pytest-mock
+          pip install -r requirements.txt
 
       - name: Run tests
         run: |

@@ -2,5 +2,7 @@
 export function setupCheckoutProgress() {
   try {
     if (window?.console?.debug) console.debug('[modules/checkout] setupCheckoutProgress: no-op');
-  } catch {}
+  } catch (error) {
+    // Ignore logging failures in sandboxed environments.
+  }
 }

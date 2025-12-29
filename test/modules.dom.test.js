@@ -1,38 +1,30 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const { JSDOM } = require('jsdom');
-const { File } = require('undici');
-const fs = require('node:fs');
-const path = require('node:path');
+const { createModuleLoader } = require('./helpers/module-loader');
+const {
+  ensureFileGlobal,
+  setupDom,
+  teardownDom,
+} = require('./helpers/dom-test-utils');
 
-function loadModule(relPath) {
-  const filePath = path.join(__dirname, relPath);
-  let code = fs.readFileSync(filePath, 'utf8');
-  code = code.replace(
-    /import\s+{([^}]+)}\s+from\s+['"]([^'"]+)['"];?/g,
-    (_match, imports, specifier) =>
-      `const { ${imports.trim()} } = (__imports[${JSON.stringify(specifier)}] || {});`
-  );
-  code = code.replace(/export\s+(async\s+)?function\s+(\w+)/g, 'exports.$2 = $1function $2');
-  const exports = {};
-  const __imports = {
+ensureFileGlobal();
+
+const loadModule = createModuleLoader(__dirname, {
+  importMap: {
     '../utils/data-endpoint.mjs': {
       resolveProductDataUrl: () => '/data/product_data.json',
     },
-  };
-  const wrapper = new Function('exports', '__imports', code + '\nreturn exports;');
-  return wrapper(exports, __imports);
-}
-
-if (typeof global.File === 'undefined') {
-  global.File = File;
-}
+  },
+  transform: (code) =>
+    code.replace(
+      /import\s+{([^}]+)}\s+from\s+['"]([^'"]+)['"];?/g,
+      (_match, imports, specifier) =>
+        `const { ${imports.trim()} } = (__imports[${JSON.stringify(specifier)}] || {});`
+    ),
+});
 
 test('setupNavigationAccessibility toggles class and inserts style', () => {
-  const dom = new JSDOM('<!DOCTYPE html><head></head><body></body>');
-  global.window = dom.window;
-  global.document = dom.window.document;
-  global.location = dom.window.location;
+  setupDom('<!DOCTYPE html><head></head><body></body>');
 
   const { setupNavigationAccessibility } = loadModule('../src/js/modules/a11y.js');
 
@@ -41,24 +33,23 @@ test('setupNavigationAccessibility toggles class and inserts style', () => {
   const styleEl = document.querySelector('style');
   assert.ok(styleEl, 'style element should be inserted');
 
-  document.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab' }));
+  document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Tab' }));
   assert.ok(
     document.body.classList.contains('keyboard-navigation'),
     'class should be added on Tab'
   );
 
-  document.dispatchEvent(new dom.window.MouseEvent('mousedown'));
+  document.dispatchEvent(new window.MouseEvent('mousedown'));
   assert.ok(
     !document.body.classList.contains('keyboard-navigation'),
     'class should be removed on mouse click'
   );
+
+  teardownDom();
 });
 
 test('injectPwaManifest adds link only once', () => {
-  const dom = new JSDOM('<!DOCTYPE html><head></head><body></body>');
-  global.window = dom.window;
-  global.document = dom.window.document;
-  global.location = dom.window.location;
+  setupDom('<!DOCTYPE html><head></head><body></body>');
 
   const { injectPwaManifest } = loadModule('../src/js/modules/pwa.js');
 
@@ -74,15 +65,14 @@ test('injectPwaManifest adds link only once', () => {
     1,
     'manifest link should not duplicate'
   );
+
+  teardownDom();
 });
 
 test('injectStructuredData and injectSeoMetadata insert expected elements', async () => {
-  const dom = new JSDOM('<!DOCTYPE html><head></head><body></body>', {
+  setupDom('<!DOCTYPE html><head></head><body></body>', {
     url: 'https://example.com/path',
   });
-  global.window = dom.window;
-  global.document = dom.window.document;
-  global.location = dom.window.location;
   global.localStorage = {
     getItem: () => null,
     setItem: () => {},
@@ -132,4 +122,8 @@ test('injectStructuredData and injectSeoMetadata insert expected elements', asyn
   );
   assert.ok(document.querySelector('link[rel="canonical"]'), 'canonical link inserted');
   assert.ok(document.querySelector('meta[name="description"]'), 'description meta inserted');
+
+  delete global.fetch;
+  delete global.localStorage;
+  teardownDom();
 });

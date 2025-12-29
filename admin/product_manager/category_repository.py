@@ -108,8 +108,8 @@ class JsonCategoryRepository:
             if file_obj:
                 try:
                     portalocker.unlock(file_obj)
-                except Exception:  # noqa: BLE001
-                    pass
+                except Exception as exc:  # noqa: BLE001
+                    logger.debug("No se pudo liberar el bloqueo del archivo: %s", exc)
                 file_obj.close()
             if temp_path and temp_path.exists():
                 try:
