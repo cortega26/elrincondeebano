@@ -1,9 +1,9 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const { JSDOM } = require('jsdom');
+const { setupAppDom, teardownAppDom } = require('./helpers/dom-test-utils');
 
-function setupDom() {
-  const dom = new JSDOM(
+test('initApp runs only once to avoid duplicate listeners', async () => {
+  setupAppDom(
     `<!DOCTYPE html>
      <html>
        <body>
@@ -18,22 +18,7 @@ function setupDom() {
      </html>`,
     { url: 'https://example.com/' }
   );
-  global.window = dom.window;
-  global.document = dom.window.document;
-  global.navigator = dom.window.navigator;
-  global.localStorage = dom.window.localStorage;
-  global.CustomEvent = dom.window.CustomEvent;
-  global.IntersectionObserver = class {
-    observe() {}
-    disconnect() {}
-    unobserve() {}
-  };
   global.window.open = () => {};
-  return dom;
-}
-
-test('initApp runs only once to avoid duplicate listeners', async () => {
-  setupDom();
 
   let fetchCalls = 0;
   global.fetch = async () => {
@@ -51,4 +36,7 @@ test('initApp runs only once to avoid duplicate listeners', async () => {
   await initApp();
 
   assert.strictEqual(fetchCalls, 1);
+
+  delete global.fetch;
+  teardownAppDom();
 });

@@ -181,7 +181,7 @@ flowchart LR
 
 ### 3.3 Service worker registration, cache strategies, offline fallbacks
 
-- Registration logic (`src/js/script.mjs` + `src/js/sw-register.js`):
+- Registration logic (`src/js/script.mjs`):
   - Guarded by `localStorage.ebano-sw-disabled=true` (kill-switch).
   - Disabled on localhost unless `localStorage.ebano-sw-enable-local=true` or `?sw=on`.
   - Registers `/service-worker.js` on window load, sets update checks every 5 minutes.
@@ -226,7 +226,7 @@ flowchart LR
 
 - Unit tests (node:test): `test/run-all.js` runs `test/*.test.js` and a few `.test.mjs` with `--experimental-strip-types`.
 - Vitest: `test/*.spec.js` (jsdom environment), configured in `vitest.config.mts`.
-- Playwright: `tests/*.spec.ts` with local static server (`scripts/dev-server.mjs build`).
+- Playwright: `test/e2e/*.spec.ts` with local static server (`scripts/dev-server.mjs build`).
 - Cypress: `cypress/e2e/*.cy.ts` (smoke/regression).
 - CSS order guard: `npm run check:css-order` checks `<link>` ordering in built HTML.
 - Mutation testing: `npx stryker run` (configured via `stryker.conf.mjs`).

@@ -4,9 +4,10 @@ import { test, expect, type Page } from '@playwright/test';
 
 const dataPath = path.join(process.cwd(), 'data', 'product_data.json');
 const baseData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-const baseVersion = typeof baseData.version === 'string' && baseData.version.trim()
-  ? baseData.version.trim()
-  : 'base';
+const baseVersion =
+  typeof baseData.version === 'string' && baseData.version.trim()
+    ? baseData.version.trim()
+    : 'base';
 
 async function safeEvaluate<T>(page: Page, fn: () => T | Promise<T>, attempts = 3) {
   for (let i = 0; i < attempts; i += 1) {
@@ -57,10 +58,7 @@ test.describe('product data version updates', () => {
     );
     expect(storedVersion).toBe(nextVersion);
 
-    const updateCount = await safeEvaluate(
-      page,
-      () => window.__updateNotificationCount ?? 0
-    );
+    const updateCount = await safeEvaluate(page, () => window.__updateNotificationCount ?? 0);
     expect(updateCount).toBe(1);
   });
 });

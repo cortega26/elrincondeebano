@@ -31,7 +31,7 @@ async function createTempStore(initialProducts = []) {
   return { store, dataPath, changeLogPath, tmpDir };
 }
 
-test('accepts updates on distinct fields without conflict', async (t) => {
+test('accepts updates on distinct fields without conflict', async () => {
   const { store } = await createTempStore([{ name: 'Widget', price: 1000 }]);
 
   const first = await store.applyPatch({

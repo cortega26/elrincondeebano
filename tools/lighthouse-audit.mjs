@@ -34,7 +34,6 @@ async function runBuild() {
     const buildProcess = spawn(npmCmd, ['run', 'build'], {
       cwd: rootDir,
       stdio: 'inherit',
-      shell: true,
     });
 
     buildProcess.on('error', (err) => {
