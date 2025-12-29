@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Optional, Tuple, Dict, Any
+from typing import Optional, Tuple, Dict, Any, List
 
 logger = logging.getLogger(__name__)
 
@@ -64,3 +64,53 @@ def load_thumbnail(path: str, w: int, h: int) -> Optional[Any]:
     except Exception as e:
         logger.warning(f"Failed to load thumbnail {path}: {e}")
         return None
+
+class CategoryHelper:
+    """Helper for managing category display names and keys."""
+    
+    def __init__(self, choices: List[Tuple[str, str]]):
+        self.choices = choices
+        self._prepare_mappings()
+    
+    def update_choices(self, choices: List[Tuple[str, str]]) -> None:
+        self.choices = choices
+        self._prepare_mappings()
+
+    def _prepare_mappings(self) -> None:
+        self.display_to_key: Dict[str, str] = {}
+        self.key_to_display: Dict[str, str] = {}
+        self.labels_by_key: Dict[str, str] = {}
+        self.display_values: List[str] = []
+
+        for label, key in self.choices:
+            display = self._format_display(label, key)
+            self.display_values.append(display)
+            self.display_to_key[display] = key
+            self.key_to_display[key.strip().lower()] = display
+            self.labels_by_key[key.strip().lower()] = label
+
+    @staticmethod
+    def _format_display(label: str, key: str) -> str:
+        cleaned_label = (label or "").strip()
+        cleaned_key = (key or "").strip()
+        if not cleaned_label:
+            return cleaned_key
+        if cleaned_label == cleaned_key:
+            return cleaned_key
+        return f"{cleaned_label} ({cleaned_key})"
+
+    def get_display_for_key(self, key: str) -> str:
+        normalized = (key or "").strip().lower()
+        if not normalized:
+            return ""
+        display = self.key_to_display.get(normalized)
+        if display:
+            return display
+        label = self.labels_by_key.get(normalized, key)
+        return self._format_display(label, key)
+
+    def get_key_from_display(self, display_value: str) -> str:
+        cleaned = (display_value or "").strip()
+        if not cleaned:
+            return ""
+        return self.display_to_key.get(cleaned, cleaned)

@@ -7,11 +7,12 @@ from pathlib import Path
 import webbrowser
 
 from models import Product
-from services import ProductService, ProductServiceError
+from services import ProductService, ProductServiceError, ProductFilterCriteria
 from category_service import CategoryService, CategoryServiceError
 from category_gui import CategoryManagerDialog
 
 from .components import UIConfig, UIState, AsyncOperation, TreeviewManager, DragDropMixin
+from .utils import CategoryHelper
 from .gallery import GalleryFrame
 from .dialogs import PreferencesDialog, HelpDialog, AboutDialog
 from .product_form import ProductFormDialog
@@ -45,8 +46,8 @@ class MainWindow(DragDropMixin):
         self._undo_stack: List[Dict[str, Any]] = []
         self._redo_stack: List[Dict[str, Any]] = []
         self._undo_max = 20
-        self.category_label_by_key: Dict[str, str] = {}
-        self.category_value_by_label: Dict[str, str] = {}
+        self._undo_max = 20
+        self.category_helper: Optional[CategoryHelper] = None
 
         self._configure_styles()
         self.setup_gui()
@@ -434,8 +435,8 @@ class MainWindow(DragDropMixin):
         default_category = None
         if isinstance(selected_category, tk.StringVar):
             current = selected_category.get().strip()
-            if current and current.lower() != "todas":
-                default_category = self.category_value_by_label.get(current, current)
+            if current and current.lower() != "todas" and self.category_helper:
+                default_category = self.category_helper.get_key_from_display(current)
         category_choices = self._get_category_choices_for_form()
         ProductFormDialog(
             self.master,
@@ -493,44 +494,43 @@ class MainWindow(DragDropMixin):
 
     def refresh_products(self) -> None:
         """Refresh the product list."""
-        query = self.search_var.get().lower()
+        query = self.search_var.get().strip()
         self.update_categories()
         category_label = self.category_var.get()
 
         try:
-            products = self.product_service.get_all_products()
-            if category_label != "Todas":
-                category_key = self.category_value_by_label.get(
-                    category_label, category_label)
-                normalized = (category_key or "").strip().lower()
-                products = [
-                    p for p in products
-                    if (p.category or "").strip().lower() == normalized
-                ]
+            # Build Filter Criteria
+            criteria = ProductFilterCriteria()
+            
+            if category_label != "Todas" and self.category_helper:
+                key = self.category_helper.get_key_from_display(category_label)
+                if key:
+                    criteria.category = key
+            
             if query:
-                products = [p for p in products if query in p.name.lower(
-                ) or query in p.description.lower()]
-            # Apply advanced filters
+                criteria.query = query
+
             if hasattr(self, 'only_discount_var') and self.only_discount_var.get():
-                products = [p for p in products if (p.discount or 0) > 0]
+                criteria.only_discount = True
+            
             if hasattr(self, 'only_out_of_stock_var') and self.only_out_of_stock_var.get():
-                products = [p for p in products if not p.stock]
+                criteria.only_out_of_stock = True
 
-            # Price range
-            def _parse_int(val: str):
+            # Price parsing
+            def _parse_float(val: str) -> Optional[float]:
                 try:
-                    return int(val)
-                except Exception:
+                    return float(val)
+                except ValueError:
                     return None
-            min_p = _parse_int(self.min_price_var.get()) if hasattr(
-                self, 'min_price_var') else None
-            max_p = _parse_int(self.max_price_var.get()) if hasattr(
-                self, 'max_price_var') else None
-            if min_p is not None:
-                products = [p for p in products if p.price >= min_p]
-            if max_p is not None:
-                products = [p for p in products if p.price <= max_p]
 
+            if hasattr(self, 'min_price_var'):
+                criteria.min_price = _parse_float(self.min_price_var.get())
+            if hasattr(self, 'max_price_var'):
+                criteria.max_price = _parse_float(self.max_price_var.get())
+
+            # Fetch Filtered Results
+            products = self.product_service.filter_products(criteria)
+            
             self.populate_tree(products)
             self.update_status(f"Mostrando {len(products)} productos")
         except ProductServiceError as e:
@@ -627,12 +627,9 @@ class MainWindow(DragDropMixin):
 
     def _category_display_label(self, category_value: str) -> str:
         """Return human readable category label for the given product key."""
-        if not category_value:
+        if not category_value or not self.category_helper:
             return ""
-        return self.category_label_by_key.get(
-            category_value.strip().lower(),
-            category_value
-        )
+        return self.category_helper.get_display_for_key(category_value)
 
     def _get_category_choices_for_form(self) -> List[Tuple[str, str]]:
         """Return category choices suitable for the product form dialog."""
@@ -650,22 +647,24 @@ class MainWindow(DragDropMixin):
         try:
             current_selection = self.category_var.get()
             choices = self.product_service.get_category_choices()
-            self.category_label_by_key = {
-                (value or "").strip().lower(): label
-                for label, value in choices if value
-            }
-            self.category_value_by_label = {
-                label: value for label, value in choices
-            }
-            display_values = ["Todas"] + [label for label, _ in choices]
+            
+            if self.category_helper is None:
+                self.category_helper = CategoryHelper(choices)
+            else:
+                self.category_helper.update_choices(choices)
+
+            display_values = ["Todas"] + self.category_helper.display_values
             if hasattr(self, "category_combobox"):
                 self.category_combobox["values"] = display_values
+            
             if current_selection != "Todas":
-                if current_selection in self.category_value_by_label:
-                    pass
+                # Verify if current selection is still valid
+                if current_selection in display_values:
+                   pass
                 else:
-                    mapped_label = self.category_label_by_key.get(
-                        current_selection.lower())
+                    # Try to map key to display if value persists
+                    key = self.category_helper.get_key_from_display(current_selection)
+                    mapped_label = self.category_helper.get_display_for_key(key)
                     if mapped_label and mapped_label in display_values:
                         self.category_var.set(mapped_label)
                     else:

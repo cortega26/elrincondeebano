@@ -4,6 +4,7 @@ from repositories import ProductRepositoryProtocol, ProductRepositoryError
 import logging
 from functools import lru_cache
 from dataclasses import dataclass, field
+from typing import Optional, List, Dict, Union
 from datetime import datetime, timezone
 import threading
 from collections import defaultdict
@@ -38,6 +39,17 @@ class ProductEvent:
     product_name: str
     timestamp: datetime = field(default_factory=datetime.now)
     details: Optional[Dict] = None
+
+
+@dataclass
+class ProductFilterCriteria:
+    """Criteria for filtering products."""
+    query: Optional[str] = None
+    category: Optional[str] = None
+    min_price: Optional[float] = None
+    max_price: Optional[float] = None
+    only_discount: bool = False
+    only_out_of_stock: bool = False
 
 
 @dataclass
@@ -493,13 +505,49 @@ class ProductService:
     def search_products(self, query: str) -> List[Product]:
         """
         Search for products by name or description.
+        Legacy method, prefer using filter_products.
         """
-        query = query.lower()
-        return sorted(
-            [p for p in self.get_all_products() if query in p.name.lower() or (
-                p.description and query in p.description.lower())],
-            key=lambda p: p.order
-        )
+        return self.filter_products(ProductFilterCriteria(query=query))
+
+    def filter_products(self, criteria: ProductFilterCriteria) -> List[Product]:
+        """Filter products based on multiple criteria."""
+        with self._products_lock:
+            # Start with all products
+            # Ideally this could be optimized with better indexing if dataset gets large,
+            # but for <10k items linear scan with python is usually fine.
+            products = self.get_all_products()
+            
+            # 1. Category Filter
+            if criteria.category:
+                normalized_cat = criteria.category.strip().lower()
+                products = [
+                    p for p in products 
+                    if (p.category or "").strip().lower() == normalized_cat
+                ]
+
+            # 2. Text Search
+            if criteria.query:
+                q = criteria.query.lower()
+                products = [
+                    p for p in products 
+                    if q in p.name.lower() or (p.description and q in p.description.lower())
+                ]
+
+            # 3. Attributes
+            if criteria.only_discount:
+                products = [p for p in products if (p.discount or 0) > 0]
+            
+            if criteria.only_out_of_stock:
+                products = [p for p in products if not p.stock]
+                
+            if criteria.min_price is not None:
+                products = [p for p in products if p.price >= criteria.min_price]
+                
+            if criteria.max_price is not None:
+                products = [p for p in products if p.price <= criteria.max_price]
+
+            # 4. Sorting (Default by order)
+            return sorted(products, key=lambda p: p.order)
 
     def reorder_products(self, new_order: List[Product]) -> None:
         """
