@@ -1,8 +1,21 @@
-import { cfimg, CFIMG_THUMB } from './utils/cfimg.mjs';
 import { log, createCorrelationId } from './utils/logger.mts';
-import { resolveProductDataUrl, validateProductDataUrl } from './utils/data-endpoint.mjs';
+import { resolveProductDataUrl } from './utils/data-endpoint.mjs';
 import { safeReload } from './utils/safe-reload.mjs';
 import { memoize, debounce, scheduleIdle, cancelScheduledIdle } from './utils/async.mjs';
+import {
+  fetchWithRetry,
+  normalizeProductVersion,
+  getStoredProductVersion,
+  setStoredProductVersion,
+  ProductDataError,
+} from './utils/product-data.mjs';
+import {
+  normaliseAssetPath,
+  buildCfSrc,
+  buildCfSrcset,
+  buildStaticSrcset,
+  resolveAvifSrcset,
+} from './utils/image-srcset.mjs';
 import { showOffcanvas } from './modules/bootstrap.mjs';
 
 const PRODUCT_DATA_GLOBAL_KEY = '__PRODUCT_DATA__';
@@ -16,153 +29,8 @@ const UTILITY_CLASSES = Object.freeze({
   containIntrinsic: 'has-contain-intrinsic',
 });
 
-const PRODUCT_IMAGE_WIDTHS = Object.freeze([200, 320, 400]);
 const PRODUCT_IMAGE_SIZES = '(max-width: 575px) 200px, (max-width: 991px) 45vw, 280px';
 const CART_IMAGE_WIDTHS = Object.freeze([80, 120, 160]);
-
-const normaliseAssetPath = (value = '') => {
-  if (!value) {
-    return '';
-  }
-  const trimmed = value.startsWith('/') ? value.slice(1) : value;
-  return `/${trimmed}`;
-};
-
-const buildCfSrc = (assetPath, extraOpts = {}) => {
-  const normalised = normaliseAssetPath(assetPath);
-  if (!normalised) {
-    return '';
-  }
-  return cfimg(normalised, { ...CFIMG_THUMB, ...extraOpts });
-};
-
-const buildCfSrcset = (assetPath, extraOpts = {}, widths = PRODUCT_IMAGE_WIDTHS) => {
-  const normalised = normaliseAssetPath(assetPath);
-  if (!normalised) {
-    return '';
-  }
-  return widths
-    .map((width) => `${cfimg(normalised, { ...CFIMG_THUMB, width, ...extraOpts })} ${width}w`)
-    .join(', ');
-};
-
-const STATIC_SRC_DESCRIPTOR_KEYS = Object.freeze(['descriptor', 'd']);
-
-const encodeStaticPath = (path) => {
-  if (!path) {
-    return '';
-  }
-  try {
-    return encodeURI(path);
-  } catch (_err) {
-    return path;
-  }
-};
-
-const buildStaticSrcset = (assetPath) => {
-  if (!assetPath) {
-    return '';
-  }
-
-  const normaliseDescriptor = (descriptorCandidate) => {
-    if (typeof descriptorCandidate === 'string') {
-      const trimmed = descriptorCandidate.trim();
-      return trimmed ? trimmed : '';
-    }
-    if (typeof descriptorCandidate === 'number' && Number.isFinite(descriptorCandidate)) {
-      return `${descriptorCandidate}w`;
-    }
-    return '';
-  };
-
-  const buildEntry = (entry) => {
-    if (typeof entry === 'string') {
-      const normalised = normaliseAssetPath(entry);
-      return encodeStaticPath(normalised);
-    }
-
-    if (entry && typeof entry === 'object') {
-      const srcCandidate = entry.src || entry.path || entry.url || '';
-      const src = normaliseAssetPath(srcCandidate);
-      if (!src) {
-        return '';
-      }
-
-      const descriptorKey = STATIC_SRC_DESCRIPTOR_KEYS.find((key) => key in entry);
-      const descriptor = descriptorKey
-        ? normaliseDescriptor(entry[descriptorKey])
-        : normaliseDescriptor(entry.width);
-      const encodedSrc = encodeStaticPath(src);
-      return descriptor ? `${encodedSrc} ${descriptor}` : encodedSrc;
-    }
-
-    return '';
-  };
-
-  if (Array.isArray(assetPath)) {
-    return assetPath.map(buildEntry).filter(Boolean).join(', ');
-  }
-
-  if (assetPath && typeof assetPath === 'object') {
-    if (typeof assetPath.srcset === 'string') {
-      const trimmed = assetPath.srcset.trim();
-      if (trimmed) {
-        return trimmed;
-      }
-    }
-
-    if (Array.isArray(assetPath.variants)) {
-      return assetPath.variants.map(buildEntry).filter(Boolean).join(', ');
-    }
-
-    return buildEntry(assetPath);
-  }
-
-  const normalised = normaliseAssetPath(assetPath);
-  return encodeStaticPath(normalised);
-};
-
-const isAvifAsset = (assetPath) => {
-  if (typeof assetPath !== 'string') {
-    return false;
-  }
-  const trimmed = assetPath.trim();
-  if (!trimmed) {
-    return false;
-  }
-  return /\.avif(?:[?#].*)?$/i.test(trimmed);
-};
-
-const resolveAvifSrcset = (assetPath, widths = PRODUCT_IMAGE_WIDTHS) => {
-  if (!assetPath) {
-    return '';
-  }
-
-  if (Array.isArray(assetPath)) {
-    const staticSrcset = buildStaticSrcset(assetPath);
-    if (staticSrcset && /\.avif/i.test(staticSrcset)) {
-      return staticSrcset;
-    }
-  }
-
-  if (assetPath && typeof assetPath === 'object' && !Array.isArray(assetPath)) {
-    const srcsetFromObject = buildStaticSrcset(assetPath);
-    if (srcsetFromObject && /\.avif/i.test(srcsetFromObject)) {
-      return srcsetFromObject;
-    }
-
-    const srcCandidate = assetPath.src || assetPath.path || assetPath.url || '';
-    if (isAvifAsset(srcCandidate)) {
-      return buildStaticSrcset(srcCandidate);
-    }
-  }
-
-  if (isAvifAsset(assetPath)) {
-    return buildStaticSrcset(assetPath);
-  }
-
-  return buildCfSrcset(assetPath, { format: 'avif' }, widths);
-};
 function getSharedProductData() {
   if (typeof window !== 'undefined') {
     const payload = window[PRODUCT_DATA_GLOBAL_KEY];
@@ -568,53 +436,6 @@ const sanitizeHTML = (unsafe) => {
 
 const INLINE_PRODUCT_SCRIPT_ID = 'product-data';
 
-const normalizeProductVersion = (value) => {
-  if (typeof value !== 'string') {
-    return null;
-  }
-  const trimmed = value.trim();
-  if (!trimmed) {
-    return null;
-  }
-  const lowered = trimmed.toLowerCase();
-  if (lowered === 'undefined' || lowered === 'null') {
-    return null;
-  }
-  return trimmed;
-};
-
-const getStoredProductVersion = () => {
-  try {
-    if (typeof localStorage === 'undefined') {
-      return null;
-    }
-    const stored = localStorage.getItem('productDataVersion');
-    const normalized = normalizeProductVersion(stored);
-    if (!normalized && stored) {
-      localStorage.removeItem('productDataVersion');
-    }
-    return normalized;
-  } catch (error) {
-    console.warn('Unable to read stored product data version:', error);
-    return null;
-  }
-};
-
-const setStoredProductVersion = (version) => {
-  const normalized = normalizeProductVersion(version);
-  if (!normalized) {
-    return;
-  }
-  try {
-    if (typeof localStorage === 'undefined') {
-      return;
-    }
-    localStorage.setItem('productDataVersion', normalized);
-  } catch (error) {
-    console.warn('Unable to persist product data version:', error);
-  }
-};
-
 const parseInlineProductData = () => {
   if (typeof document === 'undefined') {
     return null;
@@ -712,50 +533,6 @@ function hydrateSharedProductDataFromInline() {
 }
 
 hydrateSharedProductDataFromInline();
-
-class ProductDataError extends Error {
-  constructor(message, { cause, correlationId }) {
-    super(message);
-    this.name = 'ProductDataError';
-    this.correlationId = correlationId;
-    if (cause) this.cause = cause;
-  }
-}
-
-const fetchWithRetry = async (url, opts, retries, backoffMs, correlationId) => {
-  const sanitizedUrl = validateProductDataUrl(url);
-  let attempt = 0;
-  let lastError;
-    while (attempt <= retries) {
-      try {
-        const start = Date.now();
-        // URL is validated by validateProductDataUrl before fetch.
-        // nosemgrep
-        const response = await fetch(sanitizedUrl, opts);
-        const durationMs = Date.now() - start;
-        log('info', 'fetch_products_attempt', { correlationId, attempt: attempt + 1, durationMs });
-      if (!response.ok) {
-        throw new Error(`HTTP error. Status: ${response.status}`);
-      }
-      return response;
-    } catch (err) {
-      lastError = err;
-      attempt++;
-      if (attempt > retries) break;
-      log('warn', 'fetch_products_retry', {
-        correlationId,
-        attempt,
-        error: err.message,
-        runbook: 'docs/operations/RUNBOOK.md#product-data',
-      });
-      await new Promise((resolve) => setTimeout(resolve, backoffMs * attempt));
-    }
-  }
-  throw new ProductDataError(`Failed to fetch products: ${lastError.message}`, {
-    cause: lastError,
-    correlationId,
-  });
-};
 
 // Modify the fetchProducts function
 const fetchProducts = async () => {
