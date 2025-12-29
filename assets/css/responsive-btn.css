@@ -1,0 +1,18 @@
+/* Responsive Button Text Utilities */
+.btn-text-short {
+    display: none;
+}
+
+.btn-text-full {
+    display: inline;
+}
+
+@media (max-width: 575.98px) {
+    .btn-text-short {
+        display: inline;
+    }
+
+    .btn-text-full {
+        display: none;
+    }
+}

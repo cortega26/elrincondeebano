@@ -1143,19 +1143,19 @@ const initApp = async () => {
       const { id, name, description, image_path, image_avif_path, price, discount, stock } =
         product;
 
-    const productClasses = [
-      'producto',
-      'col-6',
-      'col-sm-6',
-      'col-md-4',
-      'col-lg-3',
-      'mb-4',
-      'fade-in-up',
-      !stock ? 'agotado' : '',
-      UTILITY_CLASSES.contentVisible,
-      UTILITY_CLASSES.containIntrinsic,
-    ]
-      .filter(Boolean)
+      const productClasses = [
+        'producto',
+        'col-6',
+        'col-sm-6',
+        'col-md-4',
+        'col-lg-3',
+        'mb-4',
+        'fade-in-up',
+        !stock ? 'agotado' : '',
+        UTILITY_CLASSES.contentVisible,
+        UTILITY_CLASSES.containIntrinsic,
+      ]
+        .filter(Boolean)
         .join(' ');
 
       const titleId = `product-title-${id}`;
@@ -1208,7 +1208,10 @@ const initApp = async () => {
           'data-id': id,
           'aria-label': `Add ${name} to cart`,
         },
-        ['Agregar al carrito']
+        [
+          createSafeElement('span', { class: 'btn-text-full' }, ['Agregar al carrito']),
+          createSafeElement('span', { class: 'btn-text-short' }, ['Agregar']),
+        ]
       );
       const quantityControl = renderQuantityControl(product);
 

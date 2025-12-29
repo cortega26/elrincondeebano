@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from test_support import bootstrap_tests
+from test_support import bootstrap_tests, require
 
 
 bootstrap_tests()
@@ -22,15 +22,21 @@ def test_absolute_path_uses_provided_directory(tmp_path: Path) -> None:
 
     repo.save_products([product])
 
-    assert products_path.exists()
-    assert products_path.parent == repo._file_path.parent
+    require(products_path.exists(), 'Expected products.json to be created')
+    require(products_path.parent == repo._file_path.parent, 'Expected repository path to match')
     with products_path.open(encoding=JsonProductRepository.ENCODING) as handler:
         saved_data = json.load(handler)
-    assert saved_data['products'][0]['name'] == product.name
-    assert not any(item.name.startswith('C:') for item in tmp_path.iterdir())
+    require(
+        saved_data['products'][0]['name'] == product.name,
+        'Expected saved product name to match'
+    )
+    require(
+        not any(item.name.startswith('C:') for item in tmp_path.iterdir()),
+        'Expected no stray drive-prefixed paths'
+    )
 
     repo.save_products([product])
     backups = sorted(products_path.parent.glob(f'*{JsonProductRepository.BACKUP_SUFFIX}*'))
-    assert backups, 'Se debe crear un respaldo en el mismo directorio'
+    require(backups, 'Se debe crear un respaldo en el mismo directorio')
     for backup in backups:
-        assert backup.parent == products_path.parent
+        require(backup.parent == products_path.parent, 'Expected backup in same directory')
