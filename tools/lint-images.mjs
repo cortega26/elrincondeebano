@@ -5,13 +5,19 @@ import { JSDOM } from 'jsdom';
 const repoRoot = process.cwd();
 const htmlDirs = [repoRoot, path.join(repoRoot, 'pages')];
 const cssDir = path.join(repoRoot, 'assets', 'css');
+const IGNORE_DIRS = new Set(['node_modules']);
 
 function findFiles(dir, exts) {
   if (!fs.existsSync(dir)) return [];
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   return entries.flatMap((e) => {
     const res = path.join(dir, e.name);
-    if (e.isDirectory()) return findFiles(res, exts);
+    if (e.isDirectory()) {
+      if (IGNORE_DIRS.has(e.name)) {
+        return [];
+      }
+      return findFiles(res, exts);
+    }
     return exts.includes(path.extname(e.name)) ? [res] : [];
   });
 }

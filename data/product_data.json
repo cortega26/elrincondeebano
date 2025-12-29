@@ -1,6 +1,6 @@
 {
-  "version": "20251125-111816",
-  "last_updated": "2025-11-25T11:18:16.171488",
+  "version": "20251228-223916",
+  "last_updated": "2025-12-28T22:39:16.631041",
   "rev": 0,
   "products": [
     {
@@ -582,13 +582,21 @@
       "description": "Espumante • Botella de 750mL",
       "price": 6900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Espumantes",
       "image_path": "assets/images/espumantes/Espumante Misiones de Rengo Brut.webp",
       "image_avif_path": "",
       "order": 28,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-12-29T01:39:16.628081Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Brut • Undurraga",
@@ -2957,7 +2965,7 @@
       "name": "Shweppes • Agua Tónica",
       "description": "Botella de 1,5L",
       "price": 2800,
-      "discount": 300,
+      "discount": 500,
       "stock": true,
       "category": "Aguas",
       "image_path": "assets/images/aguas/Shweppes - Agua Tonica 1,5L.webp",
@@ -2966,14 +2974,7 @@
       "rev": 0,
       "field_last_modified": {
         "discount": {
-          "ts": "2025-11-08T15:21:19.872Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-11-08T15:21:19.872Z",
+          "ts": "2025-12-28T22:50:50.936197Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,

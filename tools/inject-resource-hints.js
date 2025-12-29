@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { resolveOutputDir, resolveFromOutput } = require('./utils/output-dir');
+const { resolveFromOutput } = require('./utils/output-dir');
 
 const LOGO_PRELOAD_PATH =
   '/cdn-cgi/image/fit=cover,quality=82,format=auto,width=64/assets/images/web/logo.webp';
@@ -69,7 +69,6 @@ function injectResourceHints(filePath) {
 }
 
 function main() {
-  const outputRoot = resolveOutputDir();
   let processedCount = 0;
   let modifiedCount = 0;
 
@@ -100,13 +99,13 @@ function main() {
       });
     }
 
-    console.log(`✅ Resource hints processed`);
+    console.log('✅ Resource hints processed');
     console.log(`📊 Files checked: ${processedCount}, Modified: ${modifiedCount}`);
 
     if (modifiedCount > 0) {
-      console.log(`🚀 Performance hints added! Pages should load slightly faster now.`);
+      console.log('🚀 Performance hints added! Pages should load slightly faster now.');
     } else {
-      console.log(`ℹ️ Resource hints already present in all files.`);
+      console.log('ℹ️ Resource hints already present in all files.');
     }
   } catch (error) {
     console.error('❌ Error injecting resource hints:', error.message);

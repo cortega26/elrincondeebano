@@ -10,6 +10,19 @@ function readManifest(manifestPath) {
   }
 }
 
+function readManifestFonts(manifestPath, label = 'manifest') {
+  try {
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    const files = Array.isArray(manifest?.files) ? manifest.files : [];
+    return files.filter(
+      (file) => typeof file === 'string' && file.toLowerCase().endsWith('.woff2')
+    );
+  } catch (error) {
+    console.warn(`${label}: Unable to read asset manifest for font preloads:`, error);
+    return [];
+  }
+}
+
 function writeManifest(manifestPath, manifest) {
   const payload = {
     generatedAt: manifest.generatedAt || getDeterministicTimestamp(),
@@ -36,4 +49,5 @@ module.exports = {
   readManifest,
   writeManifest,
   appendToManifest,
+  readManifestFonts,
 };
