@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,10 +8,12 @@
     <link rel="canonical" href="https://elrincondeebano.com/pages/<%= slug %>.html">
     <link rel="manifest" href="/app.webmanifest">
     <script src="/dist/js/csp.js?v=2" async></script>
-    <title><%= categoryName %> - El Rincón de Ébano</title>
+    <title>
+        <%= categoryName %> - El Rincón de Ébano
+    </title>
     <link rel="icon" type="image/x-icon" href="../assets/images/web/favicon.ico">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    
+
     <!-- Performance Resource Hints -->
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
@@ -19,120 +22,173 @@
 
     <!-- Preload critical assets -->
     <link rel="preload" href="/dist/css/critical.min.css" as="style" fetchpriority="high">
-    <link rel="preload" href="/cdn-cgi/image/fit=cover,quality=82,format=auto,width=64/assets/images/web/logo.webp" as="image" type="image/webp" fetchpriority="high">
+    <link rel="preload" href="/cdn-cgi/image/fit=cover,quality=82,format=auto,width=64/assets/images/web/logo.webp"
+        as="image" type="image/webp" fetchpriority="high">
     <% if (Array.isArray(preloadFonts) && preloadFonts.length) { %>
-      <% preloadFonts.forEach(function(fontHref) { %>
-    <link rel="preload" href="<%= fontHref %>" as="font" type="font/woff2" crossorigin>
-      <% }); %>
-    <% } else { %>
-    <link rel="preload" href="/dist/css/playfair-400-4OM7HYDI.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="/dist/css/inter-400-NRMW37G5.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="/dist/css/inter-700-NRMW37G5.woff2" as="font" type="font/woff2" crossorigin>
-    <% } %>
-    <link rel="stylesheet" href="/dist/css/critical.min.css">
-    <link rel="modulepreload" href="/dist/js/script.min.js">
-    <!-- Load shared styles in a consistent order to avoid first-paint flicker -->
-    <link rel="stylesheet" href="/dist/css/style.min.css?v=100">
-    <noscript>
-        <link rel="stylesheet" href="/dist/css/style.min.css?v=100">
-    </noscript>
-    <meta property="og:title" content="El Rincón de Ébano - <%= categoryName %>">
-    <meta property="og:description" content="<%= description %>">
-    <meta property="og:image" content="https://elrincondeebano.com/assets/images/web/logo.webp">
-    <meta property="og:url" content="https://elrincondeebano.com/">
-    <meta property="og:type" content="website">
+        <% preloadFonts.forEach(function(fontHref) { %>
+            <link rel="preload" href="<%= fontHref %>" as="font" type="font/woff2" crossorigin>
+            <% }); %>
+                <% } else { %>
+                    <link rel="preload" href="/dist/css/playfair-400-4OM7HYDI.woff2" as="font" type="font/woff2"
+                        crossorigin>
+                    <link rel="preload" href="/dist/css/inter-400-NRMW37G5.woff2" as="font" type="font/woff2"
+                        crossorigin>
+                    <link rel="preload" href="/dist/css/inter-700-NRMW37G5.woff2" as="font" type="font/woff2"
+                        crossorigin>
+                    <% } %>
+                        <link rel="stylesheet" href="/dist/css/critical.min.css">
+                        <link rel="modulepreload" href="/dist/js/script.min.js">
+                        <!-- Load shared styles in a consistent order to avoid first-paint flicker -->
+                        <link rel="stylesheet" href="/dist/css/style.min.css?v=100">
+                        <noscript>
+                            <link rel="stylesheet" href="/dist/css/style.min.css?v=100">
+                        </noscript>
+                        <meta property="og:title" content="El Rincón de Ébano - <%= categoryName %>">
+                        <meta property="og:description" content="<%= description %>">
+                        <meta property="og:image" content="https://elrincondeebano.com/assets/images/web/logo.webp">
+                        <meta property="og:url" content="https://elrincondeebano.com/">
+                        <meta property="og:type" content="website">
 </head>
-<body>
-    <%- include('partials/navbar', { navGroups: typeof navGroups !== 'undefined' ? navGroups : [] }) %>
-<% const currencyFormatter = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }); %>
 
-    <main id="main-content" data-category="<%= categoryName %>" role="main" tabindex="-1">
-        <div class="container mt-2 mb-4">
-            <section aria-label="Opciones de filtrado y ordenación">
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="sort-options" class="visualmente-oculto visually-hidden">Ordenar productos</label>
-                        <select id="sort-options" class="form-control" aria-label="Ordenar productos">
-                            <option value="original" selected>Orden por defecto</option>
-                            <option value="name-asc">Nombre (A-Z)</option>
-                            <option value="name-desc">Nombre (Z-A)</option>
-                            <option value="price-asc">Precio (menor a mayor)</option>
-                            <option value="price-desc">Precio (mayor a menor)</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="filter-keyword" class="visualmente-oculto visually-hidden">Filtrar productos</label>
-                        <input type="text" id="filter-keyword" class="form-control" placeholder="Filtrar por nombre" aria-label="Filtrar productos por nombre">
-                    </div>
-                    <div class="col-12 mt-2">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="filter-discount" aria-label="Mostrar solo productos con descuento">
-                            <label class="form-check-label" for="filter-discount">Solo productos con descuento</label>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <section aria-labelledby="category-heading">
-                <h1 id="category-heading"><%= categoryName %></h1>
-                <div class="row" id="product-container" aria-live="polite" data-total-products="<%= totalProducts %>">
-<% if (Array.isArray(products) && products.length) { %>
-<% products.forEach((product, index) => { %>
-                    <article class="producto col-6 col-sm-6 col-md-4 col-lg-3 mb-4 <%= product.stock ? '' : 'agotado' %> has-content-visibility has-contain-intrinsic" data-product-id="<%= product.id %>" aria-labelledby="product-title-<%= product.id %>">
-                        <div class="card h-100">
-<% if (product.isDiscounted) { %>
-                            <span class="discount-badge badge bg-danger" aria-label="Producto en oferta">-<%= product.discountPercent %>%</span>
-<% } %>
-                            <picture>
-<% if (product.image.avif) { %>
-                                <source type="image/avif" srcset="<%= product.image.avif.srcset %>" sizes="<%= product.image.sizes %>">
-<% } %>
-                                <img src="<%= product.image.src %>" srcset="<%= product.image.srcset %>" sizes="<%= product.image.sizes %>" alt="<%= product.name %>" class="card-img-top product-thumb is-loading" loading="<%= index === 0 ? 'eager' : 'lazy' %>" fetchpriority="<%= index === 0 ? 'high' : 'auto' %>" decoding="async" width="400" height="400">
-                            </picture>
-                            <div class="card-body d-flex flex-column">
-                                <h3 class="card-title mb-2" id="product-title-<%= product.id %>"><%= product.name %></h3>
-                                <p class="card-text mb-3"><%= product.description %></p>
-                                <div class="precio-container mb-3">
-<% if (product.isDiscounted) { %>
-                                    <span class="precio-descuento" aria-label="Precio con descuento"><%= currencyFormatter.format(product.discountedPrice) %></span>
-                                    <span class="precio-original" aria-label="Precio original">
-                                        <span class="tachado"><%= currencyFormatter.format(product.price) %></span>
-                                    </span>
-<% } else { %>
-                                    <span class="precio" aria-label="Precio"><%= currencyFormatter.format(product.price) %></span>
-<% } %>
-                                </div>
-                                <div class="action-area mt-auto" data-pid="<%= product.id %>" role="group" aria-label="Acciones de compra para <%= product.name %>">
-                                    <button class="btn btn-primary add-to-cart-btn mt-2" type="button" data-id="<%= product.id %>" aria-label="Agregar <%= product.name %> al carrito">
-                                        <span class="btn-text-full">Agregar al carrito</span>
-                                        <span class="btn-text-short">Agregar</span>
-                                    </button>
-                                    <div class="quantity-control is-hidden" aria-live="polite" role="group" aria-label="Seleccionar cantidad">
-                                        <button class="quantity-btn" type="button" data-action="decrease" aria-label="Disminuir cantidad">-</button>
-                                        <input type="number" class="quantity-input" value="1" min="1" max="50" aria-label="Cantidad" data-id="<%= product.id %>">
-                                        <button class="quantity-btn" type="button" data-action="increase" aria-label="Aumentar cantidad">+</button>
-                                    </div>
+<body>
+    <%- include('partials/navbar', { navGroups: typeof navGroups !=='undefined' ? navGroups : [] }) %>
+        <% const currencyFormatter=new Intl.NumberFormat('es-CL', { style: 'currency' , currency: 'CLP' ,
+            minimumFractionDigits: 0 }); %>
+
+            <main id="main-content" data-category="<%= categoryName %>" role="main" tabindex="-1">
+                <div class="container mt-2 mb-4">
+                    <section aria-label="Opciones de filtrado y ordenación">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="sort-options" class="visualmente-oculto visually-hidden">Ordenar
+                                    productos</label>
+                                <select id="sort-options" class="form-control" aria-label="Ordenar productos">
+                                    <option value="original" selected>Orden por defecto</option>
+                                    <option value="name-asc">Nombre (A-Z)</option>
+                                    <option value="name-desc">Nombre (Z-A)</option>
+                                    <option value="price-asc">Precio (menor a mayor)</option>
+                                    <option value="price-desc">Precio (mayor a menor)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="filter-keyword" class="visualmente-oculto visually-hidden">Filtrar
+                                    productos</label>
+                                <input type="text" id="filter-keyword" class="form-control"
+                                    placeholder="Filtrar por nombre" aria-label="Filtrar productos por nombre">
+                            </div>
+                            <div class="col-12 mt-2">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="filter-discount"
+                                        aria-label="Mostrar solo productos con descuento">
+                                    <label class="form-check-label" for="filter-discount">Solo productos con
+                                        descuento</label>
                                 </div>
                             </div>
                         </div>
-                    </article>
-<% }); %>
-<% } else { %>
-                    <div class="col-12">
-                        <div class="alert alert-info" role="status">No hay productos disponibles en esta categoría actualmente.</div>
-                    </div>
-<% } %>
+                    </section>
+                    <section aria-labelledby="category-heading">
+                        <h1 id="category-heading">
+                            <%= categoryName %>
+                        </h1>
+                        <div class="row" id="product-container" aria-live="polite"
+                            data-total-products="<%= totalProducts %>">
+                            <% if (Array.isArray(products) && products.length) { %>
+                                <% products.forEach((product, index)=> { %>
+                                    <article
+                                        class="producto col-6 col-sm-6 col-md-4 col-lg-3 mb-4 <%= product.stock ? '' : 'agotado' %> has-content-visibility has-contain-intrinsic"
+                                        data-product-id="<%= product.id %>"
+                                        aria-labelledby="product-title-<%= product.id %>">
+                                        <div class="card h-100">
+                                            <% if (product.isDiscounted) { %>
+                                                <span class="discount-badge badge bg-danger"
+                                                    aria-label="Producto en oferta">-<%= product.discountPercent %>
+                                                        %</span>
+                                                <% } %>
+                                                    <picture>
+                                                        <% if (product.image.avif) { %>
+                                                            <source type="image/avif"
+                                                                srcset="<%= product.image.avif.srcset %>"
+                                                                sizes="<%= product.image.sizes %>">
+                                                            <% } %>
+                                                                <img src="<%= product.image.src %>"
+                                                                    srcset="<%= product.image.srcset %>"
+                                                                    sizes="<%= product.image.sizes %>"
+                                                                    alt="<%= product.name %>"
+                                                                    class="card-img-top product-thumb is-loading"
+                                                                    loading="<%= index === 0 ? 'eager' : 'lazy' %>"
+                                                                    fetchpriority="<%= index === 0 ? 'high' : 'auto' %>"
+                                                                    decoding="async" width="400" height="400">
+                                                    </picture>
+                                                    <div class="card-body d-flex flex-column">
+                                                        <h3 class="card-title mb-2"
+                                                            id="product-title-<%= product.id %>">
+                                                            <%= product.name %>
+                                                        </h3>
+                                                        <p class="card-text mb-3">
+                                                            <%= product.description %>
+                                                        </p>
+                                                        <div class="precio-container mb-3">
+                                                            <% if (product.isDiscounted) { %>
+                                                                <span class="precio-descuento"
+                                                                    aria-label="Precio con descuento">
+                                                                    <%= currencyFormatter.format(product.discountedPrice)
+                                                                        %>
+                                                                </span>
+                                                                <span class="precio-original"
+                                                                    aria-label="Precio original">
+                                                                    <span class="tachado">
+                                                                        <%= currencyFormatter.format(product.price) %>
+                                                                    </span>
+                                                                </span>
+                                                                <% } else { %>
+                                                                    <span class="precio" aria-label="Precio">
+                                                                        <%= currencyFormatter.format(product.price) %>
+                                                                    </span>
+                                                                    <% } %>
+                                                        </div>
+                                                        <div class="action-area mt-auto" data-pid="<%= product.id %>"
+                                                            role="group"
+                                                            aria-label="Acciones de compra para <%= product.name %>">
+                                                            <button class="btn btn-primary add-to-cart-btn mt-2"
+                                                                type="button" data-id="<%= product.id %>"
+                                                                aria-label="Agregar <%= product.name %> al carrito">Agregar</button>
+                                                            <div class="quantity-control is-hidden" aria-live="polite"
+                                                                role="group" aria-label="Seleccionar cantidad">
+                                                                <button class="quantity-btn" type="button"
+                                                                    data-action="decrease"
+                                                                    aria-label="Disminuir cantidad">-</button>
+                                                                <input type="number" class="quantity-input" value="1"
+                                                                    min="1" max="50" aria-label="Cantidad"
+                                                                    data-id="<%= product.id %>">
+                                                                <button class="quantity-btn" type="button"
+                                                                    data-action="increase"
+                                                                    aria-label="Aumentar cantidad">+</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                        </div>
+                                    </article>
+                                    <% }); %>
+                                        <% } else { %>
+                                            <div class="col-12">
+                                                <div class="alert alert-info" role="status">No hay productos disponibles
+                                                    en esta categoría actualmente.</div>
+                                            </div>
+                                            <% } %>
+                        </div>
+                        <div id="catalog-controls" class="text-center my-4">
+                            <button type="button" id="catalog-load-more" class="btn btn-outline-primary d-none">Cargar
+                                más productos</button>
+                        </div>
+                        <div id="catalog-sentinel" aria-hidden="true"></div>
+                    </section>
                 </div>
-                <div id="catalog-controls" class="text-center my-4">
-                    <button type="button" id="catalog-load-more" class="btn btn-outline-primary d-none">Cargar más productos</button>
-                </div>
-                <div id="catalog-sentinel" aria-hidden="true"></div>
-            </section>
-        </div>
-    </main>
+            </main>
 
-    <%- include('partials/footer') %>
+            <%- include('partials/footer') %>
 
-    <script type="application/json" id="product-data"><%- inlinePayload %></script>
-    <script type="module" src="/dist/js/script.min.js" crossorigin="anonymous"></script>
+                <script type="application/json" id="product-data"><%- inlinePayload %></script>
+                <script type="module" src="/dist/js/script.min.js" crossorigin="anonymous"></script>
 </body>
+
 </html>
