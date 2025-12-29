@@ -1,6 +1,19 @@
 // Lightweight toast/notification helpers, loaded on demand
 import { safeReload } from '../utils/safe-reload.mjs';
 
+const safeAppend = (parent, ...children) => {
+  if (!parent) return;
+  if (typeof parent.append === 'function') {
+    parent.append(...children);
+    return;
+  }
+  if (typeof parent.appendChild === 'function') {
+    children.forEach((child) => {
+      if (child) parent.appendChild(child);
+    });
+  }
+};
+
 function createNotificationElement(message, primaryButtonText, secondaryButtonText, primaryAction) {
   const notification = document.createElement('div');
   notification.className = 'notification-toast';
@@ -26,22 +39,26 @@ function createNotificationElement(message, primaryButtonText, secondaryButtonTe
   secondaryButton.type = 'button';
   secondaryButton.textContent = String(secondaryButtonText ?? '');
 
-  actions.append(primaryButton, secondaryButton);
-  content.append(messageElement, actions);
-  notification.append(content);
+  safeAppend(actions, primaryButton, secondaryButton);
+  safeAppend(content, messageElement, actions);
+  safeAppend(notification, content);
 
-  primaryButton.addEventListener('click', () => {
-    try {
-      primaryAction();
-    } catch (err) {
-      console.error('Primary action failed:', err);
-    }
-    notification.remove();
-  });
+  if (typeof primaryButton.addEventListener === 'function') {
+    primaryButton.addEventListener('click', () => {
+      try {
+        primaryAction();
+      } catch (err) {
+        console.error('Primary action failed:', err);
+      }
+      notification.remove();
+    });
+  }
 
-  secondaryButton.addEventListener('click', () => {
-    notification.remove();
-  });
+  if (typeof secondaryButton.addEventListener === 'function') {
+    secondaryButton.addEventListener('click', () => {
+      notification.remove();
+    });
+  }
 
   return notification;
 }
