@@ -8,38 +8,9 @@ import time
 import logging
 from models import Product
 from services import ProductService, ProductServiceError
+from .utils import PIL_AVAILABLE, PIL_WEBP, PIL_AVIF, Image, ImageTk
 
 logger = logging.getLogger(__name__)
-
-try:
-    from PIL import Image, ImageTk, features  # type: ignore
-    PIL_AVAILABLE = True
-    try:
-        PIL_WEBP = features.check('webp')
-    except Exception:
-        PIL_WEBP = False
-    try:
-        import pillow_heif  # type: ignore
-        pillow_heif.register_heif_opener()
-        try:
-            pillow_heif.register_avif_opener()
-        except Exception as exc:
-            logging.getLogger(__name__).debug("Failed to register AVIF opener: %s", exc)
-        PIL_AVIF = True
-    except Exception:
-        try:
-            import pillow_avif  # type: ignore  # pylint: disable=unused-import
-            PIL_AVIF = True
-        except Exception:
-            try:
-                PIL_AVIF = features.check('avif')
-            except Exception:
-                PIL_AVIF = False
-except Exception:
-    PIL_AVAILABLE = False
-    PIL_WEBP = False
-    PIL_AVIF = False
-
 
 class ProductFormDialog(tk.Toplevel):
     """Dialog for adding/editing products."""

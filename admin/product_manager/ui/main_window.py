@@ -48,10 +48,49 @@ class MainWindow(DragDropMixin):
         self.category_label_by_key: Dict[str, str] = {}
         self.category_value_by_label: Dict[str, str] = {}
 
+        self._configure_styles()
         self.setup_gui()
         self.bind_shortcuts()
         # Configure drag & drop after treeview has been created in setup_treeview()
         self.setup_drag_and_drop(self.tree)
+
+    def _configure_styles(self) -> None:
+        """Configure application styles."""
+        style = ttk.Style()
+        theme = "clam" if "clam" in style.theme_names() else "alt"
+        style.theme_use(theme)
+
+        # Colors
+        bg_color = "#f5f5f5"
+        fg_color = "#333333"
+        accent_color = "#007acc"
+        header_bg = "#e1e1e1"
+        
+        style.configure(".", background=bg_color, foreground=fg_color, font=("Segoe UI", 9))
+        style.configure("TFrame", background=bg_color)
+        style.configure("TLabel", background=bg_color, foreground=fg_color)
+        style.configure("TButton", padding=6, relief="flat", background="#e1e1e1")
+        style.map("TButton",
+                  background=[("active", "#d4d4d4"), ("disabled", "#f0f0f0")],
+                  foreground=[("disabled", "#a0a0a0")])
+
+        # Treeview Styles
+        style.configure("Treeview", 
+                        background="white",
+                        fieldbackground="white",
+                        foreground="#333333",
+                        rowheight=30,
+                        font=("Segoe UI", 9))
+        style.configure("Treeview.Heading", 
+                        font=("Segoe UI", 9, "bold"),
+                        background=header_bg,
+                        foreground="#333333",
+                        relief="flat")
+        style.map("Treeview", background=[("selected", accent_color)], foreground=[("selected", "white")])
+        
+        # Custom styles for specific widgets
+        style.configure("Accent.TButton", background=accent_color, foreground="white")
+        style.map("Accent.TButton", background=[("active", "#005f9e")])
 
     def _load_config(self) -> UIConfig:
         """Load UI configuration from file."""
