@@ -1,4 +1,18 @@
 // Lightweight toast/notification helpers, loaded on demand
+import { safeReload } from '../utils/safe-reload.mjs';
+
+const safeAppend = (parent, ...children) => {
+  if (!parent) return;
+  if (typeof parent.append === 'function') {
+    parent.append(...children);
+    return;
+  }
+  if (typeof parent.appendChild === 'function') {
+    children.forEach((child) => {
+      if (child) parent.appendChild(child);
+    });
+  }
+};
 
 function createNotificationElement(message, primaryButtonText, secondaryButtonText, primaryAction) {
   const notification = document.createElement('div');
@@ -6,28 +20,45 @@ function createNotificationElement(message, primaryButtonText, secondaryButtonTe
   notification.setAttribute('role', 'alert');
   notification.setAttribute('aria-live', 'polite');
 
-  notification.innerHTML = `
-        <div class="notification-content">
-            <p>${message}</p>
-            <div class="notification-actions">
-                <button class="primary-action">${primaryButtonText}</button>
-                <button class="secondary-action">${secondaryButtonText}</button>
-            </div>
-        </div>
-    `;
+  const content = document.createElement('div');
+  content.className = 'notification-content';
 
-  notification.querySelector('.primary-action').addEventListener('click', () => {
-    try {
-      primaryAction();
-    } catch (err) {
-      console.error('Primary action failed:', err);
-    }
-    notification.remove();
-  });
+  const messageElement = document.createElement('p');
+  messageElement.textContent = String(message ?? '');
 
-  notification.querySelector('.secondary-action').addEventListener('click', () => {
-    notification.remove();
-  });
+  const actions = document.createElement('div');
+  actions.className = 'notification-actions';
+
+  const primaryButton = document.createElement('button');
+  primaryButton.className = 'primary-action';
+  primaryButton.type = 'button';
+  primaryButton.textContent = String(primaryButtonText ?? '');
+
+  const secondaryButton = document.createElement('button');
+  secondaryButton.className = 'secondary-action';
+  secondaryButton.type = 'button';
+  secondaryButton.textContent = String(secondaryButtonText ?? '');
+
+  safeAppend(actions, primaryButton, secondaryButton);
+  safeAppend(content, messageElement, actions);
+  safeAppend(notification, content);
+
+  if (typeof primaryButton.addEventListener === 'function') {
+    primaryButton.addEventListener('click', () => {
+      try {
+        primaryAction();
+      } catch (err) {
+        console.error('Primary action failed:', err);
+      }
+      notification.remove();
+    });
+  }
+
+  if (typeof secondaryButton.addEventListener === 'function') {
+    secondaryButton.addEventListener('click', () => {
+      notification.remove();
+    });
+  }
 
   return notification;
 }
@@ -46,19 +77,6 @@ function showNotification(notificationElement) {
     },
     5 * 60 * 1000
   );
-}
-
-function safeReload() {
-  try {
-    if (typeof window === 'undefined') return;
-    const ua = (window.navigator && window.navigator.userAgent) || '';
-    // Avoid jsdom virtual console noise: jsdom advertises itself in UA
-    if (/jsdom/i.test(ua)) return;
-    const reloadFn = window.location && window.location.reload;
-    if (typeof reloadFn === 'function') {
-      reloadFn.call(window.location);
-    }
-  } catch {}
 }
 
 export function showUpdateNotification(serviceWorker, message = 'Una versión está disponible') {

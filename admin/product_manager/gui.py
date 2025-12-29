@@ -3,6 +3,7 @@ from tkinter import ttk, messagebox, filedialog
 from typing import List, Optional, Callable, Dict, Any, TypeVar, Tuple
 import os
 from pathlib import Path
+import webbrowser
 from models import Product
 from services import ProductService, ProductServiceError
 from category_service import CategoryService, CategoryServiceError
@@ -19,8 +20,9 @@ try:
         pillow_heif.register_heif_opener()
         try:
             pillow_heif.register_avif_opener()
-        except Exception:
-            pass
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).debug("Failed to register AVIF opener: %s", exc)
         PIL_AVIF = True
     except Exception:
         try:
@@ -264,6 +266,168 @@ class DragDropMixin:
                 "Error", f"Error al actualizar el estado de stock: {str(e)}")
 
 
+class GalleryFrame(ttk.Frame):
+    """Card-based gallery view for products."""
+
+    def __init__(self, master, on_edit_callback: Callable[[Product], None], image_cache: Dict[str, Any], project_root: Optional[Path] = None):
+        super().__init__(master)
+        self.on_edit = on_edit_callback
+        self.image_cache = image_cache
+        self.project_root = project_root
+        self.cards: List[Any] = []
+        self.products: List[Product] = []
+        self.card_width = 180
+        self.card_height = 240
+        self.grid_columns = 4
+        
+        self.canvas = tk.Canvas(self, bg="#f5f5f5", highlightthickness=0)
+        self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+        
+        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        
+        self.content_frame = tk.Frame(self.canvas, bg="#f5f5f5")
+        self.canvas_window = self.canvas.create_window((0, 0), window=self.content_frame, anchor="nw")
+        
+        self.content_frame.bind("<Configure>", self._on_frame_configure)
+        self.canvas.bind("<Configure>", self._on_canvas_configure)
+        self.bind_mouse_scroll()
+
+    def bind_mouse_scroll(self):
+        # Windows/MacOS scroll support
+        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+        self.canvas.bind_all("<Button-4>", self._on_mousewheel)
+        self.canvas.bind_all("<Button-5>", self._on_mousewheel)
+
+    def _on_mousewheel(self, event):
+        if self.winfo_ismapped():
+            if event.num == 5 or event.delta < 0:
+                self.canvas.yview_scroll(1, "units")
+            elif event.num == 4 or event.delta > 0:
+                self.canvas.yview_scroll(-1, "units")
+
+    def _on_frame_configure(self, event=None):
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+    def _on_canvas_configure(self, event):
+        width = event.width
+        self.canvas.itemconfig(self.canvas_window, width=width)
+        # Recalculate grid if width changed significantly
+        new_cols = max(1, width // (self.card_width + 20))
+        if new_cols != self.grid_columns:
+            self.grid_columns = new_cols
+            self.render_products()
+
+    def render_products(self, products: Optional[List[Product]] = None) -> None:
+        if products is not None:
+            self.products = products
+        
+        # Clear existing
+        for widget in self.content_frame.winfo_children():
+            widget.destroy()
+        
+        if not self.products:
+            ttk.Label(self.content_frame, text="No hay productos para mostrar", background="#f5f5f5").pack(pady=20)
+            return
+
+        for i, product in enumerate(self.products):
+            row = i // self.grid_columns
+            col = i % self.grid_columns
+            self._create_card(product, row, col)
+
+    def _create_card(self, product: Product, row: int, col: int):
+        card = tk.Frame(self.content_frame, bg="white", relief="raised", bd=1)
+        card.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
+        card.grid_propagate(False)
+        card.config(width=self.card_width, height=self.card_height)
+        
+        # Bind interactions
+        for widget in (card,):
+            widget.bind("<Double-Button-1>", lambda e, p=product: self.on_edit(p))
+            
+        # Image
+        img_container = tk.Label(card, bg="#eee", text="Sin imagen")
+        img_container.place(x=0, y=0, width=self.card_width, height=140)
+        
+        if PIL_AVAILABLE:
+            image = self._get_cached_image(product)
+            if image:
+                img_container.config(image=image, text="")
+                img_container.image = image # type: ignore
+        
+        # Details
+        lbl_name = tk.Label(card, text=product.name, bg="white", font=("Segoe UI", 9, "bold"), anchor="w")
+        lbl_name.place(x=5, y=145, width=self.card_width-10)
+        
+        price_txt = f"${product.price:,}"
+        if product.discount > 0:
+            price_txt += f" (-{product.discount:,})"
+        lbl_price = tk.Label(card, text=price_txt, bg="white", fg="#007acc")
+        lbl_price.place(x=5, y=165, width=self.card_width-10)
+        
+        stock_color = "green" if product.stock else "red"
+        stock_txt = "En Stock" if product.stock else "Sin Stock"
+        lbl_stock = tk.Label(card, text=stock_txt, bg="white", fg=stock_color, font=("Segoe UI", 8))
+        lbl_stock.place(x=5, y=185)
+
+        lbl_cat = tk.Label(card, text=product.category or "", bg="white", fg="#666", font=("Segoe UI", 8), anchor="e")
+        lbl_cat.place(x=60, y=185, width=self.card_width-70)
+
+        # Bind events to all children
+        for child in card.winfo_children():
+            child.bind("<Double-Button-1>", lambda e, p=product: self.on_edit(p))
+
+    def _get_cached_image(self, product: Product):
+        # Prefer AVIF, then Path, then placeholder
+        path = product.image_avif_path or product.image_path
+        if not path:
+            return None
+            
+        full_path = path
+        
+        # Helper to confirm if path exists
+        def check_path(p: str) -> Optional[str]:
+            if os.path.exists(p):
+                return p
+            return None
+
+        # 1. Try absolute path
+        if os.path.isabs(path):
+            if not check_path(path):
+                return None
+        else:
+            # 2. Try relative to Project Root (Best practice)
+            found = None
+            if self.project_root:
+                # Try Path object join
+                candidate = self.project_root / path
+                if candidate.exists():
+                    found = str(candidate)
+            
+            # 3. Try relative to CWD (Fallback)
+            if not found:
+                 candidate = os.path.abspath(path)
+                 if os.path.exists(candidate):
+                     found = candidate
+            
+            if not found:
+                return None
+            full_path = found
+
+        if full_path in self.image_cache:
+            return self.image_cache[full_path]
+            
+        try:
+            pil_img = Image.open(full_path)
+            pil_img.thumbnail((self.card_width, 140))
+            tk_img = ImageTk.PhotoImage(pil_img)
+            self.image_cache[full_path] = tk_img
+            return tk_img
+        except Exception:
+            return None
+
+
 class ProductGUI(DragDropMixin):
     """Main Product Manager GUI."""
 
@@ -271,14 +435,19 @@ class ProductGUI(DragDropMixin):
         self,
         master: tk.Tk,
         product_service: ProductService,
-        category_service: Optional[CategoryService] = None
+        category_service: Optional[CategoryService] = None,
+        project_root: Optional[Path] = None
     ):
         self.master = master
         self.product_service = product_service
         self.category_service = category_service
+        self.project_root = project_root
         self.logger = logging.getLogger(__name__)
         self.state = UIState()
         self.config = self._load_config()
+        self.view_mode = "list" # list | gallery
+        self.image_cache: Dict[str, Any] = {}
+        self.state.update("view_mode", "list")
         self._cell_editor: Optional[tk.Widget] = None
         self._cell_editor_info: Dict[str, Any] = {}
         # Undo/Redo stacks for bulk operations only
@@ -315,9 +484,18 @@ class ProductGUI(DragDropMixin):
             f"{self.config.window_size[0]}x{self.config.window_size[1]}")
 
         self.create_menu()
+        
+        # Packing Order (Outer to Inner)
+        self.setup_status_bar()     # 1. Bottom
+        self.setup_bottom_bar()     # 2. Bottom (Above Status)
+        self.setup_top_bar()        # 3. Top
+        
+        # 4. Center (Fill Remaining)
+        self.view_container = ttk.Frame(self.master)
+        self.view_container.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
         self.setup_treeview()
-        self.setup_controls()
-        self.setup_status_bar()
+        # setup_controls removed/replaced
 
         self.async_operation = AsyncOperation(self.master)
         self.async_operation.start(
@@ -354,8 +532,8 @@ class ProductGUI(DragDropMixin):
 
     def setup_treeview(self) -> None:
         """Set up the treeview component."""
-        tree_frame = ttk.Frame(self.master)
-        tree_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        tree_frame = ttk.Frame(self.view_container)
+        tree_frame.pack(fill=tk.BOTH, expand=True)
 
         self.columns = {
             "name": {"text": "Nombre", "width": 300},
@@ -379,25 +557,23 @@ class ProductGUI(DragDropMixin):
         self.tree.bind("<<TreeviewSelect>>", self.handle_selection)
         # Faster stock toggle: double-click the Stock column
         self.tree.bind("<Double-1>", self.handle_double_click)
+        
+        
+        # Initialize Gallery Frame (hidden by default)
+        self.gallery = GalleryFrame(self.view_container, self._on_gallery_edit, self.image_cache, project_root=self.project_root)
 
-    def setup_controls(self) -> None:
-        """Set up control buttons and search."""
-        controls_frame = ttk.Frame(self.master)
-        controls_frame.pack(fill=tk.X, padx=10, pady=5)
+    def setup_top_bar(self) -> None:
+        """Set up the top bar with browsing and filtering controls."""
+        top_frame = ttk.Frame(self.master)
+        top_frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
-        ttk.Button(controls_frame, text="Agregar",
-                   command=self.add_product).pack(side=tk.LEFT, padx=5)
+        # 1. View Switcher
+        self.btn_toggle_view = ttk.Button(top_frame, text="Vista: Galería", command=self.toggle_view)
+        self.btn_toggle_view.pack(side=tk.LEFT, padx=5)
 
-        self.edit_button = ttk.Button(
-            controls_frame, text="Editar", command=self.edit_product, state=tk.DISABLED)
-        self.edit_button.pack(side=tk.LEFT, padx=5)
-
-        self.delete_button = ttk.Button(
-            controls_frame, text="Eliminar", command=self.delete_product, state=tk.DISABLED)
-        self.delete_button.pack(side=tk.LEFT, padx=5)
-
-        search_frame = ttk.Frame(controls_frame)
-        search_frame.pack(side=tk.LEFT, padx=20, fill=tk.X, expand=True)
+        # 2. Search & Categories
+        search_frame = ttk.Frame(top_frame)
+        search_frame.pack(side=tk.LEFT, padx=10, fill=tk.X, expand=True)
 
         ttk.Label(search_frame, text="Buscar:").pack(side=tk.LEFT, padx=5)
         self.search_var = tk.StringVar()
@@ -413,8 +589,8 @@ class ProductGUI(DragDropMixin):
         self.update_categories()
         self.category_combobox.bind("<<ComboboxSelected>>", self.handle_search)
 
-        # Advanced filters
-        filters_frame = ttk.Frame(controls_frame)
+        # 3. Filters
+        filters_frame = ttk.Frame(top_frame)
         filters_frame.pack(side=tk.LEFT, padx=10)
 
         self.only_discount_var = tk.BooleanVar(value=False)
@@ -425,16 +601,14 @@ class ProductGUI(DragDropMixin):
         ttk.Checkbutton(filters_frame, text="Solo sin stock", variable=self.only_out_of_stock_var,
                         command=self.refresh_products).pack(side=tk.LEFT, padx=5)
 
-        # Price range filters
+        # Price range
         price_frame = ttk.Frame(filters_frame)
         price_frame.pack(side=tk.LEFT, padx=5)
         ttk.Label(price_frame, text="Precio:").pack(side=tk.LEFT)
         self.min_price_var = tk.StringVar()
         self.max_price_var = tk.StringVar()
-        min_entry = ttk.Entry(price_frame, width=8,
-                              textvariable=self.min_price_var)
-        max_entry = ttk.Entry(price_frame, width=8,
-                              textvariable=self.max_price_var)
+        min_entry = ttk.Entry(price_frame, width=8, textvariable=self.min_price_var)
+        max_entry = ttk.Entry(price_frame, width=8, textvariable=self.max_price_var)
         ttk.Label(price_frame, text="min").pack(side=tk.LEFT, padx=(4, 2))
         min_entry.pack(side=tk.LEFT)
         ttk.Label(price_frame, text="max").pack(side=tk.LEFT, padx=(6, 2))
@@ -445,10 +619,10 @@ class ProductGUI(DragDropMixin):
         self.min_price_var.trace("w", _on_price_change)
         self.max_price_var.trace("w", _on_price_change)
 
-        # Quick views
-        quick_frame = ttk.Frame(controls_frame)
+        # Quick View
+        quick_frame = ttk.Frame(top_frame)
         quick_frame.pack(side=tk.LEFT, padx=10)
-        ttk.Label(quick_frame, text="Vista:").pack(side=tk.LEFT)
+        ttk.Label(quick_frame, text="Vista Rápida:").pack(side=tk.LEFT)
         self.quick_view_var = tk.StringVar(value="Todos")
         self.quick_view_combobox = ttk.Combobox(quick_frame, textvariable=self.quick_view_var, state="readonly",
                                                 values=[
@@ -460,35 +634,50 @@ class ProductGUI(DragDropMixin):
                                                     "Precio <= 2000"
                                                 ], width=18)
         self.quick_view_combobox.pack(side=tk.LEFT, padx=5)
-        self.quick_view_combobox.bind(
-            "<<ComboboxSelected>>", self.apply_quick_view)
+        self.quick_view_combobox.bind("<<ComboboxSelected>>", self.apply_quick_view)
 
-        # Bulk actions for faster workflows
-        bulk_frame = ttk.Frame(controls_frame)
-        bulk_frame.pack(side=tk.RIGHT)
+    def setup_bottom_bar(self) -> None:
+        """Set up the bottom bar with CRUD and bulk actions."""
+        bottom_frame = ttk.Frame(self.master)
+        bottom_frame.pack(side=tk.BOTTOM, fill=tk.X, padx=10, pady=5)
+
+        # 1. CRUD Actions (Left)
+        crud_frame = ttk.Frame(bottom_frame)
+        crud_frame.pack(side=tk.LEFT)
+
+        ttk.Button(crud_frame, text="Agregar", command=self.add_product).pack(side=tk.LEFT, padx=2)
+        
+        self.edit_button = ttk.Button(crud_frame, text="Editar", command=self.edit_product, state=tk.DISABLED)
+        self.edit_button.pack(side=tk.LEFT, padx=2)
+
+        self.delete_button = ttk.Button(crud_frame, text="Eliminar", command=self.delete_product, state=tk.DISABLED)
+        self.delete_button.pack(side=tk.LEFT, padx=2)
+
+        # 2. Bulk Actions (Right - Inner)
+        bulk_frame = ttk.Frame(bottom_frame)
+        bulk_frame.pack(side=tk.RIGHT, padx=10)
 
         ttk.Button(bulk_frame, text="% Desc.", width=8,
-                   command=self.bulk_percentage_discount).pack(side=tk.LEFT, padx=3)
+                   command=self.bulk_percentage_discount).pack(side=tk.LEFT, padx=2)
         ttk.Button(bulk_frame, text="Desc. fijo", width=10,
-                   command=self.bulk_fixed_discount).pack(side=tk.LEFT, padx=3)
+                   command=self.bulk_fixed_discount).pack(side=tk.LEFT, padx=2)
         ttk.Button(bulk_frame, text="Stock ON", width=10,
-                   command=lambda: self.bulk_set_stock(True)).pack(side=tk.LEFT, padx=3)
+                   command=lambda: self.bulk_set_stock(True)).pack(side=tk.LEFT, padx=2)
         ttk.Button(bulk_frame, text="Stock OFF", width=10,
-                   command=lambda: self.bulk_set_stock(False)).pack(side=tk.LEFT, padx=3)
+                   command=lambda: self.bulk_set_stock(False)).pack(side=tk.LEFT, padx=2)
         ttk.Button(bulk_frame, text="Precio +%", width=10,
-                   command=lambda: self.bulk_adjust_price(True)).pack(side=tk.LEFT, padx=3)
+                   command=lambda: self.bulk_adjust_price(True)).pack(side=tk.LEFT, padx=2)
         ttk.Button(bulk_frame, text="Precio -%", width=10,
-                   command=lambda: self.bulk_adjust_price(False)).pack(side=tk.LEFT, padx=3)
+                   command=lambda: self.bulk_adjust_price(False)).pack(side=tk.LEFT, padx=2)
 
-        # Undo/Redo controls
-        history_frame = ttk.Frame(controls_frame)
-        history_frame.pack(side=tk.RIGHT, padx=6)
-        self.undo_btn = ttk.Button(
-            history_frame, text="Deshacer", width=10, command=self.undo_last, state=tk.DISABLED)
-        self.redo_btn = ttk.Button(
-            history_frame, text="Rehacer", width=10, command=self.redo_last, state=tk.DISABLED)
-        self.undo_btn.pack(side=tk.LEFT, padx=3)
-        self.redo_btn.pack(side=tk.LEFT, padx=3)
+        # 3. History (Right - Outer)
+        history_frame = ttk.Frame(bottom_frame)
+        history_frame.pack(side=tk.RIGHT, padx=5)
+        
+        self.undo_btn = ttk.Button(history_frame, text="Deshacer", width=10, command=self.undo_last, state=tk.DISABLED)
+        self.redo_btn = ttk.Button(history_frame, text="Rehacer", width=10, command=self.redo_last, state=tk.DISABLED)
+        self.undo_btn.pack(side=tk.LEFT, padx=2)
+        self.redo_btn.pack(side=tk.LEFT, padx=2)
 
     def setup_status_bar(self) -> None:
         """Set up the status bar with version info."""
@@ -747,23 +936,65 @@ class ProductGUI(DragDropMixin):
         self.refresh_products()
 
     def populate_tree(self, products: List[Product]) -> None:
-        """Populate treeview with products."""
-        self.tree.delete(*self.tree.get_children())
-        for product in products:
-            category_display = self._category_display_label(product.category)
-            self.tree.insert(
-                "",
-                "end",
-                values=(
-                    product.name,
-                    product.description,
-                    f"{product.price:,}",
-                    f"{product.discount:,}" if product.discount else "",
-                    "☑" if product.stock else "☐",
-                    category_display,
+        """Populate treeview or gallery with products."""
+        self._current_products = products # Store for switching views
+        
+        if self.view_mode == "list":
+            if self.gallery.winfo_ismapped():
+                self.gallery.pack_forget()
+            if not self.tree.master.winfo_ismapped():
+                self.tree.master.pack(fill=tk.BOTH, expand=True)
+                
+            self.tree.delete(*self.tree.get_children())
+            for product in products:
+                category_display = self._category_display_label(product.category)
+                self.tree.insert(
+                    "",
+                    "end",
+                    values=(
+                        product.name,
+                        product.description,
+                        f"{product.price:,}",
+                        f"{product.discount:,}" if product.discount else "",
+                        "☑" if product.stock else "☐",
+                        category_display,
+                    )
                 )
-            )
-        self.treeview_manager.update_sort_indicators()
+            self.treeview_manager.update_sort_indicators()
+            
+        else: # Gallery
+            if self.tree.master.winfo_ismapped():
+                self.tree.master.pack_forget()
+            if not self.gallery.winfo_ismapped():
+                self.gallery.pack(fill=tk.BOTH, expand=True)
+            
+            self.gallery.render_products(products)
+
+    def toggle_view(self) -> None:
+        if self.view_mode == "list":
+            self.view_mode = "gallery"
+            self.btn_toggle_view.config(text="Vista: Lista")
+        else:
+            self.view_mode = "list"
+            self.btn_toggle_view.config(text="Vista: Galería")
+        
+        # Refresh current view with last known products
+        if hasattr(self, '_current_products'):
+            self.populate_tree(self._current_products)
+        else:
+            self.refresh_products()
+
+    def _on_gallery_edit(self, product: Product):
+        # Select item in tree (hidden) to keep state consistent if possible, then open dialog
+        category_choices = self._get_category_choices_for_form()
+        ProductFormDialog(
+            self.master,
+            "Editar Producto",
+            self.product_service,
+            product,
+            on_save=self.refresh_products,
+            category_choices=category_choices,
+        )
 
     def _category_display_label(self, category_value: str) -> str:
         """Return human readable category label for the given product key."""
@@ -1328,14 +1559,14 @@ class ProductGUI(DragDropMixin):
             self._end_inline_edit()
 
     def _end_inline_edit(self) -> None:
-        if self._cell_editor:
-            try:
-                self._cell_editor.place_forget()
-                self._cell_editor.destroy()
-            except Exception:
-                pass
-        self._cell_editor = None
-        self._cell_editor_info = {}
+      if self._cell_editor:
+          try:
+              self._cell_editor.place_forget()
+              self._cell_editor.destroy()
+          except Exception as exc:
+              self.logger.debug("No se pudo limpiar el editor en línea: %s", exc)
+      self._cell_editor = None
+      self._cell_editor_info = {}
 
     def import_products(self) -> None:
         """Import products from JSON file."""
@@ -1491,8 +1722,8 @@ class ProductFormDialog(tk.Toplevel):
         # Let the input column expand when the window grows
         try:
             self.main_frame.columnconfigure(1, weight=1)
-        except Exception:
-            pass
+        except Exception as exc:
+            self.logger.debug("No se pudo configurar la columna principal: %s", exc)
         self.create_widgets()
         self.create_buttons()
 
@@ -1632,8 +1863,8 @@ class ProductFormDialog(tk.Toplevel):
             # Ensure image preview syncs with populated image_path
             try:
                 self._update_image_preview()
-            except Exception:
-                pass
+            except Exception as exc:
+                self.logger.debug("No se pudo actualizar la vista previa: %s", exc)
         else:
             self._prefill_category()
 
@@ -1679,8 +1910,8 @@ class ProductFormDialog(tk.Toplevel):
                     if img is not None:
                         try:
                             img.close()
-                        except Exception:
-                            pass
+                        except Exception as exc:
+                            self.logger.debug("No se pudo cerrar la imagen previa: %s", exc)
             else:
                 dest_path = dest_dir / filename
                 if src_path != dest_path:
@@ -1849,7 +2080,7 @@ class ProductFormDialog(tk.Toplevel):
             if key in cat_map:
                 data['category'] = cat_map[key]
         except Exception:
-            pass
+            self.logger.debug("No se pudo normalizar la categoría seleccionada.")
 
         if data["image_path"]:
             if not data["image_path"].startswith("assets/images/"):
@@ -1874,8 +2105,8 @@ class ProductFormDialog(tk.Toplevel):
                     # Ensure preview reflects inferred fallback
                     try:
                         self._update_image_preview()
-                    except Exception:
-                        pass
+                    except Exception as exc:
+                        self.logger.debug("No se pudo actualizar la vista previa: %s", exc)
             if not data.get("image_path"):
                 raise ValueError(
                     "Debes mantener una imagen de respaldo (PNG/JPG/GIF/WebP) al usar AVIF.")
@@ -2020,6 +2251,23 @@ class ProductFormDialog(tk.Toplevel):
             os.path.dirname(__file__), '..', '..'))
         return os.path.join(project_root, 'assets', 'images')
 
+    def _resolve_asset_image_path(self, base_dir: Path, rel_path: str) -> Optional[Path]:
+        cleaned = rel_path.strip().replace('\\', '/')
+        if not cleaned:
+            return None
+        if cleaned.startswith('assets/images/'):
+            cleaned = cleaned[len('assets/images/'):]
+        candidate = (base_dir / cleaned).resolve()
+        try:
+            candidate.relative_to(base_dir)
+        except ValueError:
+            return None
+        if candidate.suffix.lower() not in {'.png', '.jpg', '.jpeg', '.gif', '.webp', '.avif', '.bmp', '.svg'}:
+            return None
+        if not candidate.is_file():
+            return None
+        return candidate
+
     def _category_subdir(self, category: str) -> str:
         mapping = {
             'Limpiezayaseo': 'limpieza_y_aseo',
@@ -2077,8 +2325,8 @@ class ProductFormDialog(tk.Toplevel):
         if moved:
             try:
                 self._update_image_preview()
-            except Exception:
-                pass
+            except Exception as exc:
+                self.logger.debug("No se pudo actualizar la vista previa: %s", exc)
 
     def _relocate_media_to_category(self, field: str, target_subdir: str) -> bool:
         """Move media referenced by the given field into the category directory."""
@@ -2242,8 +2490,8 @@ class ProductFormDialog(tk.Toplevel):
                     if preview_img is not None:
                         try:
                             preview_img.close()
-                        except Exception:
-                            pass
+                        except Exception as exc:
+                            self.logger.debug("No se pudo cerrar la imagen previa: %s", exc)
 
             if unsupported_format == 'avif' and not getattr(self, '_preview_warning_shown_avif', False):
                 messagebox.showwarning(
@@ -2291,26 +2539,18 @@ class ProductFormDialog(tk.Toplevel):
             candidates = self._resolve_image_candidates()
             if not candidates:
                 return
-            abs_base_dir = self._assets_images_root()
-            target_path = None
+            base_dir = Path(self._assets_images_root()).resolve()
+            target_path: Optional[Path] = None
             for _, rel_path in candidates:
-                abs_path = os.path.join(abs_base_dir, rel_path.replace(
-                    'assets/images/', '').replace('/', os.sep))
-                if os.path.exists(abs_path):
-                    target_path = abs_path
+                resolved = self._resolve_asset_image_path(base_dir, rel_path)
+                if resolved:
+                    target_path = resolved
                     break
             if not target_path:
                 messagebox.showerror(
                     'Imagen', 'El archivo de imagen no existe en disco.')
                 return
-            if os.name == 'nt':
-                os.startfile(target_path)  # type: ignore[attr-defined]
-            elif sys.platform == 'darwin':
-                import subprocess
-                subprocess.Popen(['open', target_path])
-            else:
-                import subprocess
-                subprocess.Popen(['xdg-open', target_path])
+            webbrowser.open(target_path.as_uri())
         except Exception as e:
             messagebox.showerror('Imagen', f'No se pudo abrir la imagen: {e}')
 

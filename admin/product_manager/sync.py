@@ -115,15 +115,15 @@ class SyncEngine:
     timeout: int = 10,
     logger: Optional[logging.Logger] = None,
   ) -> None:
-    self.api_base = api_base.rstrip("/") if api_base else ""
     self.repository = repository
     self.service = service
     self.queue_file = queue_file
+    self.logger = logger or logging.getLogger(__name__)
+    self.api_base = self._normalize_api_base(api_base)
     self.enabled = enabled and bool(self.api_base)
     self.poll_interval = poll_interval
     self.pull_interval = pull_interval
     self.timeout = timeout
-    self.logger = logger or logging.getLogger(__name__)
     self._retry_initial_delay = max(30, poll_interval)
     self._retry_max_delay = 15 * 60
     self._max_backoff_exponent = 6
@@ -132,6 +132,18 @@ class SyncEngine:
     self._conflicts: List[Dict[str, Any]] = []
     self._last_pull_ts = 0.0
     self._load_queue()
+
+  def _normalize_api_base(self, api_base: str) -> str:
+    if not api_base:
+      return ""
+    trimmed = api_base.strip()
+    if not trimmed:
+      return ""
+    parsed = parse.urlparse(trimmed)
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+      self.logger.warning("Sync disabled: api_base must be http(s) with a host.")
+      return ""
+    return trimmed.rstrip("/")
 
   def _load_queue(self) -> None:
     if not os.path.exists(self.queue_file):
@@ -268,6 +280,12 @@ class SyncEngine:
   def _build_url(self, path: str) -> str:
     return f"{self.api_base}{path}"
 
+  def _assert_http_url(self, url: str) -> str:
+    parsed = parse.urlparse(url)
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+      raise ValueError("Sync URL inválida; solo se permiten esquemas http/https.")
+    return url
+
   def _send_patch(self, entry: SyncQueueEntry) -> Optional[Dict[str, Any]]:
     payload = json.dumps({
       "base_rev": entry.base_rev,
@@ -276,14 +294,16 @@ class SyncEngine:
       "fields": entry.fields,
     }).encode("utf-8")
     product_path = parse.quote(entry.product_id, safe="")
+    url = self._assert_http_url(self._build_url(f"/api/products/{product_path}"))
     req = request.Request(
-      self._build_url(f"/api/products/{product_path}"),
+      url,
       data=payload,
       method="PATCH",
       headers={"content-type": "application/json"},
     )
     try:
-      with request.urlopen(req, timeout=self.timeout) as resp:
+      # url validated by _assert_http_url (http/https only).
+      with request.urlopen(req, timeout=self.timeout) as resp:  # nosec B310
         response_body = resp.read().decode("utf-8")
         return json.loads(response_body)
     except error.HTTPError as exc:
@@ -298,10 +318,13 @@ class SyncEngine:
   def _pull_changes(self) -> None:
     catalog_meta = self.repository.get_catalog_meta()
     since_rev = catalog_meta.get("rev", 0)
-    url = self._build_url(f"/api/products/changes?since_rev={since_rev}")
+    url = self._assert_http_url(
+      self._build_url(f"/api/products/changes?since_rev={since_rev}")
+    )
     req = request.Request(url, method="GET")
     try:
-      with request.urlopen(req, timeout=self.timeout) as resp:
+      # url validated by _assert_http_url (http/https only).
+      with request.urlopen(req, timeout=self.timeout) as resp:  # nosec B310
         response = json.loads(resp.read().decode("utf-8"))
     except Exception as exc:
       self.logger.debug("No se pudo obtener cambios incrementales: %s", exc)
