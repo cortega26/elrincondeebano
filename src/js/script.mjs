@@ -1,29 +1,29 @@
-import { log, createCorrelationId } from './utils/logger.mts';
-import { resolveProductDataUrl } from './utils/data-endpoint.mjs';
+import { log } from './utils/logger.mts';
 import { safeReload } from './utils/safe-reload.mjs';
 import { memoize, debounce, scheduleIdle, cancelScheduledIdle } from './utils/async.mjs';
-import {
-  fetchWithRetry,
-  normalizeProductVersion,
-  getStoredProductVersion,
-  setStoredProductVersion,
-  ProductDataError,
-} from './utils/product-data.mjs';
-import {
-  normaliseAssetPath,
-  buildCfSrc,
-  buildCfSrcset,
-  buildStaticSrcset,
-  resolveAvifSrcset,
-} from './utils/image-srcset.mjs';
-import { showOffcanvas } from './modules/bootstrap.mjs';
 import { createCartManager } from './modules/cart.mjs';
+import { registerServiceWorker } from './modules/service-worker-manager.mjs';
+import {
+  getSharedProductData,
+  hydrateSharedProductDataFromInline,
+  fetchProducts,
+  normalizeString,
+} from './modules/product-data-manager.mjs';
+import {
+  createSafeElement,
+  setupImageSkeletons,
+  createProductPicture,
+  createCartThumbnail,
+  showErrorMessage,
+  renderPriceHtml,
+  renderQuantityControl,
+  setupActionArea,
+  toggleActionArea,
+} from './modules/ui-components.mjs';
+import { filterProducts } from './modules/product-filter.mjs';
 
-const PRODUCT_DATA_GLOBAL_KEY = '__PRODUCT_DATA__';
-let sharedProductData = null;
-let updateProductDisplay = null;
-
-const UTILITY_CLASSES = Object.freeze({
+// Exported for use in modules
+export const UTILITY_CLASSES = Object.freeze({
   hidden: 'is-hidden',
   flex: 'is-flex',
   block: 'is-block',
@@ -31,737 +31,17 @@ const UTILITY_CLASSES = Object.freeze({
   containIntrinsic: 'has-contain-intrinsic',
 });
 
-const PRODUCT_IMAGE_SIZES = '(max-width: 575px) 50vw, (max-width: 991px) 45vw, 280px';
-const CART_IMAGE_WIDTHS = Object.freeze([80, 120, 160]);
-function getSharedProductData() {
-  if (typeof window !== 'undefined') {
-    const payload = window[PRODUCT_DATA_GLOBAL_KEY];
-    if (payload && Array.isArray(payload.products)) {
-      return payload;
-    }
-  }
-  if (sharedProductData && Array.isArray(sharedProductData.products)) {
-    return sharedProductData;
-  }
-  return null;
-}
-
-function writeSharedProductData(products, metadata = {}, { force = false } = {}) {
-  if (!Array.isArray(products)) {
-    return null;
-  }
-  const payload = {
-    products,
-    version: metadata.version || null,
-    source: metadata.source || null,
-    updatedAt: metadata.updatedAt || Date.now(),
-    isPartial: Boolean(metadata.isPartial),
-    total: typeof metadata.total === 'number' ? metadata.total : null,
-  };
-  const existing = getSharedProductData();
-  if (existing && !force) {
-    const existingVersion = existing.version || null;
-    const payloadVersion = payload.version || null;
-    const shouldKeepExisting =
-      (!payloadVersion && existingVersion) ||
-      (!payloadVersion && !existingVersion) ||
-      (payloadVersion && existingVersion === payloadVersion);
-    if (shouldKeepExisting) {
-      return existing;
-    }
-  }
-  sharedProductData = payload;
-  if (typeof window !== 'undefined') {
-    window[PRODUCT_DATA_GLOBAL_KEY] = { ...payload };
-  }
-  return payload;
-}
-
-function ensureSharedProductData(products, metadata = {}) {
-  return writeSharedProductData(products, metadata, { force: false });
-}
-
-function overwriteSharedProductData(products, metadata = {}) {
-  return writeSharedProductData(products, metadata, { force: true });
-}
-
-// Service Worker Configuration and Initialization
-const SERVICE_WORKER_CONFIG = {
-  path: '/service-worker.js',
-  scope: '/',
-  updateCheckInterval: 5 * 60 * 1000, // 5 minutes
-};
-
-const LOCALHOST_HOSTNAMES = new Set(['localhost', '127.0.0.1', '::1', '[::1]']);
-
-function safeReadLocalStorage(key) {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-
-  try {
-    const storage = window.localStorage ?? globalThis.localStorage ?? null;
-    if (!storage) {
-      return null;
-    }
-    return storage.getItem(key);
-  } catch (error) {
-    console.warn('Unable to access localStorage for key', key, error);
-    return null;
-  }
-}
-
-function shouldRegisterServiceWorker() {
-  if (typeof window === 'undefined') {
-    return false;
-  }
-
-  const disabledFlag = safeReadLocalStorage('ebano-sw-disabled');
-  if (disabledFlag === 'true') {
-    console.info('Service worker registration skipped by kill-switch flag.');
-    return false;
-  }
-
-  const hostname = window.location?.hostname ?? '';
-  const isLocalhost = LOCALHOST_HOSTNAMES.has(hostname);
-  if (isLocalhost) {
-    const enableLocalFlag = safeReadLocalStorage('ebano-sw-enable-local');
-    const query = window.location?.search ?? '';
-    const queryEnables = typeof query === 'string' && /(?:^|[?&])sw=on(?:&|$)/i.test(query);
-    if (enableLocalFlag === 'true' || queryEnables) {
-      return true;
-    }
-    console.info(
-      'Service worker registration skipped on localhost. Set localStorage ebano-sw-enable-local=true to override.'
-    );
-    return false;
-  }
-
-  return true;
-}
-
-let serviceWorkerRegistrationSetup = false;
+let updateProductDisplay = null;
 let initAppHasRun = false;
-
-// Enhanced service worker registration with proper error handling and lifecycle management
-function registerServiceWorker() {
-  if (!('serviceWorker' in navigator)) {
-    console.warn('Service workers are not supported in this browser');
-    return;
-  }
-
-  if (!shouldRegisterServiceWorker()) {
-    return;
-  }
-
-  if (serviceWorkerRegistrationSetup) {
-    return;
-  }
-
-  serviceWorkerRegistrationSetup = true;
-
-  const startRegistration = async () => {
-    if (document.readyState !== 'complete') {
-      return;
-    }
-
-    window.removeEventListener('load', startRegistration);
-
-    try {
-      await initializeServiceWorker();
-    } catch (error) {
-      console.error('Service Worker initialization failed:', error);
-      showServiceWorkerError(
-        'Failed to initialize service worker. Some features may not work offline.'
-      );
-    }
-  };
-
-  window.addEventListener('load', startRegistration);
-  startRegistration();
-}
-
-function __resetServiceWorkerRegistrationForTest() {
-  serviceWorkerRegistrationSetup = false;
-}
-
-// Initialize the service worker and set up event handlers
-async function initializeServiceWorker() {
-  try {
-    const registration = await navigator.serviceWorker.register(SERVICE_WORKER_CONFIG.path, {
-      scope: SERVICE_WORKER_CONFIG.scope,
-    });
-
-    console.log('ServiceWorker registered successfully:', registration.scope);
-
-    // Set up update handling
-    setupUpdateHandling(registration);
-
-    // Set up periodic update checks
-    setupPeriodicUpdateCheck(registration);
-
-    // Handle controller changes
-    setupControllerChangeHandling();
-
-    // Set up offline/online detection
-    setupConnectivityHandling();
-  } catch (error) {
-    console.error('ServiceWorker registration failed:', error);
-    throw error;
-  }
-}
-
-// Set up handling for service worker updates
-function setupUpdateHandling(registration) {
-  registration.addEventListener('updatefound', () => {
-    const newWorker = registration.installing;
-    newWorker.addEventListener('statechange', () => {
-      if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-        // Immediately activate the new service worker without a prompt
-        newWorker.postMessage({ type: 'SKIP_WAITING' });
-      }
-    });
-  });
-}
-
-// Set up periodic checks for service worker updates
-function setupPeriodicUpdateCheck(registration) {
-  // Initial check
-  checkForUpdates(registration);
-
-  // Set up periodic checks
-  setInterval(() => {
-    checkForUpdates(registration);
-  }, SERVICE_WORKER_CONFIG.updateCheckInterval);
-}
-
-// Check for service worker updates
-async function checkForUpdates(registration) {
-  if (typeof window !== 'undefined' && window.__ENABLE_TEST_HOOKS__ === true) {
-    return;
-  }
-  try {
-    try {
-      await registration.update();
-    } catch (error) {
-      console.warn('Service worker update check failed:', error);
-    }
-
-    // Check if product data needs updating
-    const url = resolveProductDataUrl();
-    const response = await fetch(url, {
-      cache: 'no-store',
-      headers: { Accept: 'application/json' },
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      const currentVersion = normalizeProductVersion(data.version);
-      const storedVersion = getStoredProductVersion();
-
-      if (!currentVersion) {
-        return;
-      }
-
-      if (currentVersion !== storedVersion) {
-        registration.active?.postMessage({
-          type: 'INVALIDATE_PRODUCT_CACHE',
-        });
-
-        setStoredProductVersion(currentVersion);
-        if (typeof window !== 'undefined' && window.__ENABLE_TEST_HOOKS__ === true) {
-          window.__updateNotificationCount =
-            typeof window.__updateNotificationCount === 'number'
-              ? window.__updateNotificationCount + 1
-              : 1;
-          window.__lastUpdateVersion = currentVersion;
-        }
-        showUpdateNotification(null, 'New product data available');
-      }
-    }
-  } catch (error) {
-    console.warn('Update check failed:', error);
-  }
-}
-
-async function runUpdateCheckForTest() {
-  if (typeof navigator === 'undefined' || !navigator.serviceWorker) {
-    return null;
-  }
-  if (typeof window !== 'undefined' && window.__ENABLE_TEST_HOOKS__ === true) {
-    const overrideVersion = normalizeProductVersion(window.__TEST_UPDATE_VERSION__);
-    if (overrideVersion) {
-      const storedVersion = getStoredProductVersion();
-      const updated = overrideVersion !== storedVersion;
-      if (updated) {
-        setStoredProductVersion(overrideVersion);
-        window.__updateNotificationCount =
-          typeof window.__updateNotificationCount === 'number'
-            ? window.__updateNotificationCount + 1
-            : 1;
-        window.__lastUpdateVersion = overrideVersion;
-        showUpdateNotification(null, 'New product data available');
-      }
-      return { updated, currentVersion: overrideVersion, storedVersion };
-    }
-  }
-  let registration = null;
-  try {
-    registration = await navigator.serviceWorker.ready;
-  } catch {
-    registration = null;
-  }
-  if (!registration) {
-    try {
-      registration = await navigator.serviceWorker.getRegistration();
-    } catch {
-      registration = null;
-    }
-  }
-  if (!registration) {
-    return null;
-  }
-  return checkForUpdates(registration);
-}
-
-// Set up handling for service worker controller changes
-function setupControllerChangeHandling() {
-  let refreshing = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (!refreshing) {
-      if (typeof window !== 'undefined' && window.__DISABLE_SW_RELOAD__ === true) {
-        refreshing = true;
-        return;
-      }
-      refreshing = true;
-      window.location.reload();
-    }
-  });
-}
-
-// Set up handling for online/offline connectivity
-function setupConnectivityHandling() {
-  const offlineIndicator = document.getElementById('offline-indicator');
-  if (!offlineIndicator) {
-    return;
-  }
-  const updateOnlineStatus = () => {
-    const hidden = navigator.onLine;
-    offlineIndicator.classList.toggle(UTILITY_CLASSES.hidden, hidden);
-    offlineIndicator.classList.toggle(UTILITY_CLASSES.block, !hidden);
-
-    if (!hidden) {
-      showConnectivityNotification('You are currently offline. Some features may be limited.');
-    }
-  };
-
-  window.addEventListener('online', updateOnlineStatus);
-  window.addEventListener('offline', updateOnlineStatus);
-
-  if (!navigator.onLine) {
-    updateOnlineStatus();
-  }
-}
-
-// Notifications are lazy-loaded to reduce initial JS
-let __notificationsModulePromise = null;
-function __loadNotifications() {
-  if (!__notificationsModulePromise) {
-    __notificationsModulePromise = import('./modules/notifications.mjs');
-  }
-  return __notificationsModulePromise;
-}
-
-function showUpdateNotification(serviceWorker, message = 'Una versión está disponible') {
-  __loadNotifications().then((m) => m.showUpdateNotification(serviceWorker, message));
-}
-
-function showServiceWorkerError(message) {
-  __loadNotifications().then((m) => m.showServiceWorkerError(message));
-}
-
-function showConnectivityNotification(message) {
-  __loadNotifications().then((m) => m.showConnectivityNotification(message));
-}
 
 // Initialize the service worker when running in a browser environment
 if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
   registerServiceWorker();
 }
 
-// Utility functions are defined in ./utils/async.mjs
-
-// Normalize strings for robust comparisons (remove accents, spaces, punctuation, lowercased)
-const normalizeString = (str) => {
-  if (!str) return '';
-  try {
-    return String(str)
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-zA-Z0-9]/g, '')
-      .toLowerCase();
-  } catch {
-    return String(str).toLowerCase();
-  }
-};
-
-// Add this utility function for generating stable product IDs
-const DEFAULT_CATEGORY = 'General';
-const DEFAULT_PRODUCT_NAME_PREFIX = 'Producto';
-
-const generateStableId = (product, index = 0) => {
-  const hasValidShape = product && typeof product === 'object';
-  const rawName = hasValidShape && typeof product.name === 'string' ? product.name.trim() : '';
-  const rawCategory =
-    hasValidShape && typeof product.category === 'string' ? product.category.trim() : '';
-
-  const safeName = rawName.length > 0 ? rawName : `${DEFAULT_PRODUCT_NAME_PREFIX}-${index + 1}`;
-  const safeCategory = rawCategory.length > 0 ? rawCategory : DEFAULT_CATEGORY;
-
-  const baseString = `${safeName}-${safeCategory}`.toLowerCase();
-
-  let hash = 0;
-  for (let i = 0; i < baseString.length; i += 1) {
-    const charCode = baseString.charCodeAt(i);
-    hash = (hash << 5) - hash + charCode;
-    hash &= hash; // Convert to 32-bit integer
-  }
-
-  const needsFallbackSuffix = rawName.length === 0 || rawCategory.length === 0;
-  const suffix = needsFallbackSuffix ? `-${index}` : '';
-
-  return `pid-${Math.abs(hash)}${suffix}`;
-};
-
-const sanitizeHTML = (unsafe) => {
-  const element = document.createElement('div');
-  element.textContent = unsafe;
-  return element.innerHTML;
-};
-
-const INLINE_PRODUCT_SCRIPT_ID = 'product-data';
-
-const parseInlineProductData = () => {
-  if (typeof document === 'undefined') {
-    return null;
-  }
-  try {
-    const script = document.getElementById(INLINE_PRODUCT_SCRIPT_ID);
-    if (!script || !script.textContent) {
-      return null;
-    }
-    const payload = script.textContent.trim();
-    if (!payload) {
-      return null;
-    }
-    const parsed = JSON.parse(payload);
-    if (!parsed) {
-      return null;
-    }
-    if (Array.isArray(parsed.initialProducts)) {
-      return parsed;
-    }
-    if (Array.isArray(parsed.products)) {
-      return { ...parsed, initialProducts: parsed.products };
-    }
-    return null;
-  } catch (error) {
-    log('warn', 'inline_product_parse_failure', { error: error.message });
-    return null;
-  }
-};
-
-const transformProduct = (product, index) => {
-  if (!product || typeof product !== 'object') {
-    return null;
-  }
-
-  const id =
-    typeof product.id === 'string' && product.id.trim().length > 0
-      ? product.id.trim()
-      : generateStableId(product, index);
-
-  const originalIndex =
-    typeof product.originalIndex === 'number'
-      ? product.originalIndex
-      : typeof product.order === 'number'
-        ? product.order
-        : index;
-
-  const safeName =
-    typeof product.name === 'string' && product.name.trim().length > 0
-      ? product.name
-      : `${DEFAULT_PRODUCT_NAME_PREFIX} ${index + 1}`;
-
-  const safeDescription = typeof product.description === 'string' ? product.description : '';
-  const safeCategory =
-    typeof product.category === 'string' && product.category.trim().length > 0
-      ? product.category
-      : DEFAULT_CATEGORY;
-  const safeImagePath = typeof product.image_path === 'string' ? product.image_path : '';
-  const safeImageAvifPath =
-    typeof product.image_avif_path === 'string' ? product.image_avif_path : '';
-
-  return {
-    ...product,
-    id,
-    name: sanitizeHTML(safeName),
-    description: sanitizeHTML(safeDescription),
-    category: sanitizeHTML(safeCategory),
-    categoryKey: product.categoryKey || normalizeString(safeCategory),
-    image_path: safeImagePath,
-    image_avif_path: safeImageAvifPath,
-    originalIndex,
-  };
-};
-
-const transformProducts = (products = []) =>
-  products.map((product, index) => transformProduct(product, index)).filter(Boolean);
-
-function hydrateSharedProductDataFromInline() {
-  const existing = getSharedProductData();
-  if (existing) {
-    return existing;
-  }
-  const inlineData = parseInlineProductData();
-  if (!inlineData || !Array.isArray(inlineData.initialProducts)) {
-    return null;
-  }
-  const transformed = transformProducts(inlineData.initialProducts);
-  return ensureSharedProductData(transformed, {
-    version: inlineData.version || null,
-    source: 'inline',
-    isPartial: true,
-    total:
-      typeof inlineData.totalProducts === 'number' ? inlineData.totalProducts : transformed.length,
-  });
-}
-
 hydrateSharedProductDataFromInline();
 
-// Modify the fetchProducts function
-const fetchProducts = async () => {
-  const correlationId = createCorrelationId();
-  const inlineData = parseInlineProductData();
-  const inlineSource = inlineData?.initialProducts || null;
-  const inlineVersion = normalizeProductVersion(inlineData?.version);
-  const inlineTotal =
-    typeof inlineData?.totalProducts === 'number' ? inlineData.totalProducts : null;
-  const inlineProducts = Array.isArray(inlineSource) ? transformProducts(inlineSource) : null;
-  const hasInlineProducts = Array.isArray(inlineProducts);
-  const storedVersion = getStoredProductVersion();
-
-  if (hasInlineProducts) {
-    if (inlineVersion) {
-      if (typeof window === 'undefined' || window.__ENABLE_TEST_HOOKS__ !== true) {
-        setStoredProductVersion(inlineVersion);
-      }
-    }
-    ensureSharedProductData(inlineProducts, {
-      version: inlineVersion || null,
-      source: 'inline',
-      isPartial: true,
-      total: inlineTotal ?? inlineProducts.length,
-    });
-    log('info', 'fetch_products_inline_bootstrap', { correlationId, count: inlineProducts.length });
-  }
-
-  try {
-    const versionForUrl = storedVersion || inlineVersion || null;
-    const url = resolveProductDataUrl({ version: versionForUrl });
-    const response = await fetchWithRetry(
-      url,
-      { cache: 'no-store', headers: { Accept: 'application/json' } },
-      2,
-      300,
-      correlationId
-    );
-    const data = await response.json();
-    const transformed = transformProducts(data.products || []);
-    const networkVersion = normalizeProductVersion(data.version);
-    overwriteSharedProductData(transformed, {
-      version: networkVersion,
-      source: 'network',
-      isPartial: false,
-      total: transformed.length,
-    });
-    if (networkVersion) {
-      const latestStoredVersion = getStoredProductVersion();
-      const shouldPersistNetworkVersion =
-        !latestStoredVersion ||
-        latestStoredVersion === storedVersion ||
-        latestStoredVersion === networkVersion;
-      if (shouldPersistNetworkVersion) {
-        if (typeof window === 'undefined' || window.__ENABLE_TEST_HOOKS__ !== true) {
-          setStoredProductVersion(networkVersion);
-        }
-      }
-    }
-    log('info', 'fetch_products_success', {
-      correlationId,
-      count: transformed.length,
-      source: 'network',
-    });
-    return transformed;
-  } catch (error) {
-    if (hasInlineProducts) {
-      ensureSharedProductData(inlineProducts, {
-        version: inlineVersion || null,
-        source: 'inline-fallback',
-        isPartial: true,
-        total: inlineTotal ?? inlineProducts.length,
-      });
-      log('warn', 'fetch_products_network_fallback_inline', {
-        correlationId,
-        error: error.message,
-        runbook: 'docs/operations/RUNBOOK.md#product-data',
-      });
-      return inlineProducts;
-    }
-    log('error', 'fetch_products_failure', {
-      correlationId,
-      error: error.message,
-      runbook: 'docs/operations/RUNBOOK.md#product-data',
-    });
-    showErrorMessage(
-      `Error al cargar los productos. Por favor, verifique su conexión a internet e inténtelo de nuevo. (Error: ${error.message})`
-    );
-    if (error instanceof ProductDataError) {
-      throw error;
-    }
-    throw new ProductDataError(error.message, { cause: error, correlationId });
-  }
-};
-
-const createSafeElement = (tag, attributes = {}, children = []) => {
-  const element = document.createElement(tag);
-  Object.entries(attributes).forEach(([key, value]) => {
-    if (key === 'text') {
-      element.textContent = value;
-    } else {
-      element.setAttribute(key, value);
-    }
-  });
-  children.forEach((child) => {
-    if (typeof child === 'string') {
-      element.appendChild(document.createTextNode(child));
-    } else {
-      element.appendChild(child);
-    }
-  });
-  return element;
-};
-
-const markImageLoaded = (img) => {
-  if (!img) return;
-  img.classList.remove('is-loading');
-  img.classList.add('is-loaded');
-};
-
-const setupImageSkeleton = (img) => {
-  if (!img || !img.classList.contains('product-thumb')) {
-    return;
-  }
-  img.classList.add('is-loading');
-  if (img.complete && img.naturalWidth > 0) {
-    markImageLoaded(img);
-    return;
-  }
-  img.addEventListener('load', () => markImageLoaded(img), { once: true });
-  img.addEventListener('error', () => img.classList.remove('is-loading'), { once: true });
-};
-
-const setupImageSkeletons = (root = document) => {
-  if (!root || typeof root.querySelectorAll !== 'function') return;
-  root.querySelectorAll('img.product-thumb').forEach(setupImageSkeleton);
-};
-
-const createProductPicture = ({ imagePath, avifPath, alt, eager = false }) => {
-  const sizes = PRODUCT_IMAGE_SIZES;
-  const pictureChildren = [];
-  const avifSrcset = resolveAvifSrcset(avifPath);
-  if (avifSrcset) {
-    pictureChildren.push(
-      createSafeElement('source', {
-        type: 'image/avif',
-        srcset: avifSrcset,
-        sizes,
-      })
-    );
-  }
-  const fallbackSrc = buildCfSrc(imagePath, { width: 320 }) || normaliseAssetPath(imagePath);
-  const fallbackSrcset = buildCfSrcset(imagePath);
-  const imgAttrs = {
-    src: fallbackSrc || '',
-    alt: alt || '',
-    class: 'card-img-top product-thumb is-loading',
-    loading: eager ? 'eager' : 'lazy',
-    fetchpriority: eager ? 'high' : 'auto',
-    decoding: 'async',
-    width: '400',
-    height: '400',
-    sizes,
-  };
-  if (fallbackSrcset) {
-    imgAttrs.srcset = fallbackSrcset;
-  }
-  const imgElement = createSafeElement('img', imgAttrs);
-  setupImageSkeleton(imgElement);
-  pictureChildren.push(imgElement);
-  return createSafeElement('picture', {}, pictureChildren);
-};
-
-const createCartThumbnail = ({ imagePath, avifPath, alt }) => {
-  const sizes = '100px';
-  const sources = [];
-  const avifSrcset = resolveAvifSrcset(avifPath, CART_IMAGE_WIDTHS);
-  if (avifSrcset) {
-    sources.push(
-      createSafeElement('source', {
-        type: 'image/avif',
-        srcset: avifSrcset,
-        sizes,
-      })
-    );
-  }
-  const fallbackSrc =
-    buildCfSrc(imagePath, { width: CART_IMAGE_WIDTHS[1] }) || normaliseAssetPath(imagePath);
-  const fallbackSrcset = buildCfSrcset(imagePath, {}, CART_IMAGE_WIDTHS);
-  const imgAttrs = {
-    src: fallbackSrc || '',
-    alt: alt || '',
-    class: 'cart-item-thumb-img',
-    loading: 'lazy',
-    decoding: 'async',
-    width: '100',
-    height: '100',
-    sizes,
-  };
-  if (fallbackSrcset) {
-    imgAttrs.srcset = fallbackSrcset;
-  }
-  const imgElement = createSafeElement('img', imgAttrs);
-  return createSafeElement('picture', {}, [...sources, imgElement]);
-};
-
-const showErrorMessage = (message) => {
-  const errorMessage = createSafeElement('div', { class: 'error-message', role: 'alert' }, [
-    createSafeElement('p', {}, [message]),
-    createSafeElement('button', { class: 'retry-button' }, ['Intentar nuevamente']),
-  ]);
-  const productContainer = document.getElementById('product-container');
-  if (productContainer) {
-    productContainer.innerHTML = '';
-    productContainer.appendChild(errorMessage);
-    const retryButton = errorMessage.querySelector('.retry-button');
-    if (retryButton) {
-      retryButton.addEventListener('click', safeReload);
-    }
-  } else {
-    console.error('Contenedor de productos no encontrado');
-  }
-};
-
+// Performance Metrics
 const logPerformanceMetrics = (
   perf = typeof window !== 'undefined' ? window.performance : undefined
 ) => {
@@ -804,15 +84,6 @@ const logPerformanceMetrics = (
   }
 };
 
-const toggleActionArea = (btn, quantityControl, showQuantity) => {
-  if (!btn || !quantityControl) return;
-  const showButton = !showQuantity;
-  btn.classList.toggle(UTILITY_CLASSES.hidden, !showButton);
-  btn.classList.toggle(UTILITY_CLASSES.flex, showButton);
-
-  quantityControl.classList.toggle(UTILITY_CLASSES.hidden, !showQuantity);
-  quantityControl.classList.toggle(UTILITY_CLASSES.flex, showQuantity);
-};
 const cartManager = createCartManager({
   createSafeElement,
   createCartThumbnail,
@@ -823,14 +94,9 @@ const cartManager = createCartManager({
 
 const {
   addToCart,
-  removeFromCart,
-  updateQuantity,
-  updateCartIcon,
-  renderCart,
   getCartItemQuantity,
-  emptyCart,
   getCart,
-  resetCart,
+  updateQuantity,
 } = cartManager;
 
 // Global error handling: be conservative during initial render
@@ -973,169 +239,6 @@ const initApp = async () => {
     }
   }
 
-  const DEFAULT_CURRENCY_CODE = 'CLP';
-  let hasLoggedCurrencyFallback = false;
-
-  const normalizeCurrencyCode = (currencyCode) => {
-    if (typeof currencyCode !== 'string') {
-      return DEFAULT_CURRENCY_CODE;
-    }
-    const trimmed = currencyCode.trim().toUpperCase();
-    if (/^[A-Z]{3}$/.test(trimmed)) {
-      return trimmed;
-    }
-    return DEFAULT_CURRENCY_CODE;
-  };
-
-  const createCurrencyFormatter = (currencyCode) => {
-    const fallbackCode = normalizeCurrencyCode(currencyCode);
-    try {
-      return new Intl.NumberFormat('es-CL', {
-        style: 'currency',
-        currency: fallbackCode,
-        minimumFractionDigits: 0,
-      });
-    } catch (error) {
-      if (!hasLoggedCurrencyFallback) {
-        const message =
-          error && typeof error.message === 'string'
-            ? error.message
-            : 'Unknown currency formatter failure';
-        console.warn('Falling back to CLP currency formatter', {
-          currencyCode,
-          message,
-        });
-        hasLoggedCurrencyFallback = true;
-      }
-      return new Intl.NumberFormat('es-CL', {
-        style: 'currency',
-        currency: DEFAULT_CURRENCY_CODE,
-        minimumFractionDigits: 0,
-      });
-    }
-  };
-
-  const renderPriceHtml = (price, discount, currencyCode = DEFAULT_CURRENCY_CODE) => {
-    const numericPrice = Number(price) || 0;
-    const numericDiscount = Number(discount) || 0;
-    const formatter = createCurrencyFormatter(currencyCode);
-
-    const formattedPrice = formatter.format(numericPrice);
-
-    if (numericDiscount) {
-      const discountedPrice = Math.max(numericPrice - numericDiscount, 0);
-      const formattedDiscountedPrice = formatter.format(discountedPrice);
-
-      return createSafeElement('div', { class: 'precio-container' }, [
-        createSafeElement(
-          'span',
-          { class: 'precio-descuento', 'aria-label': 'Precio con descuento' },
-          [formattedDiscountedPrice]
-        ),
-        createSafeElement('span', { class: 'precio-original', 'aria-label': 'Precio original' }, [
-          createSafeElement('span', { class: 'tachado' }, [formattedPrice]),
-        ]),
-      ]);
-    }
-
-    return createSafeElement('div', { class: 'precio-container' }, [
-      createSafeElement('span', { class: 'precio', 'aria-label': 'Precio' }, [formattedPrice]),
-    ]);
-  };
-
-  const renderQuantityControl = (product) => {
-    const quantityControl = createSafeElement('div', {
-      class: `quantity-control ${UTILITY_CLASSES.hidden}`,
-      role: 'group',
-      'aria-label': 'Seleccionar cantidad',
-      'aria-live': 'polite',
-    });
-    const minusBtn = createSafeElement(
-      'button',
-      {
-        class: 'quantity-btn',
-        type: 'button',
-        'data-action': 'decrease',
-        'aria-label': 'Decrease quantity',
-      },
-      ['-']
-    );
-    const plusBtn = createSafeElement(
-      'button',
-      {
-        class: 'quantity-btn',
-        type: 'button',
-        'data-action': 'increase',
-        'aria-label': 'Increase quantity',
-      },
-      ['+']
-    );
-    const input = createSafeElement('input', {
-      type: 'number',
-      class: 'quantity-input',
-      value: Math.max(getCartItemQuantity(product.id), 1),
-      min: '1',
-      max: '50',
-      'aria-label': 'Quantity',
-      'data-id': product.id,
-    });
-
-    quantityControl.appendChild(minusBtn);
-    quantityControl.appendChild(input);
-    quantityControl.appendChild(plusBtn);
-
-    return quantityControl;
-  };
-
-  function setupActionArea(actionArea, product) {
-    if (!actionArea) {
-      return;
-    }
-    const addToCartBtn = actionArea.querySelector('.add-to-cart-btn');
-    const quantityControl = actionArea.querySelector('.quantity-control');
-    const quantityInput = quantityControl?.querySelector('.quantity-input');
-    const minusBtn =
-      quantityControl?.querySelector('.quantity-btn[data-action="decrease"]') ||
-      quantityControl?.querySelector('.quantity-btn');
-    const plusBtn =
-      quantityControl?.querySelector('.quantity-btn[data-action="increase"]') ||
-      quantityControl?.querySelectorAll('.quantity-btn')?.[1];
-
-    const bind = (element, event, handler) => {
-      if (!element) {
-        return;
-      }
-      if (element.dataset.listenerAttached === 'true') {
-        return;
-      }
-      element.addEventListener(event, handler);
-      element.dataset.listenerAttached = 'true';
-    };
-
-    bind(addToCartBtn, 'click', () => {
-      addToCart(product, 1);
-      toggleActionArea(addToCartBtn, quantityControl, true);
-    });
-
-    bind(minusBtn, 'click', () => updateQuantity(product, -1));
-    bind(plusBtn, 'click', () => updateQuantity(product, 1));
-    bind(quantityInput, 'change', (event) => {
-      const newQuantity = parseInt(event.target.value, 10);
-      if (!Number.isFinite(newQuantity)) {
-        event.target.value = Math.max(getCartItemQuantity(product.id), 1);
-        return;
-      }
-      const currentQuantity = getCartItemQuantity(product.id);
-      updateQuantity(product, newQuantity - currentQuantity);
-    });
-
-    const currentQuantity = getCartItemQuantity(product.id);
-    if (quantityInput) {
-      quantityInput.value = currentQuantity > 0 ? currentQuantity : 1;
-    }
-    toggleActionArea(addToCartBtn, quantityControl, currentQuantity > 0);
-  }
-
   const renderProducts = (productsToRender, { reset = false } = {}) => {
     if (!productContainer) {
       return 0;
@@ -1159,8 +262,6 @@ const initApp = async () => {
         'mb-4',
         'fade-in-up',
         !stock ? 'agotado' : '',
-        // UTILITY_CLASSES.contentVisible, // DISABLED to fix mobile layout
-        // UTILITY_CLASSES.containIntrinsic, // DISABLED to fix mobile layout
       ]
         .filter(Boolean)
         .join(' ');
@@ -1217,13 +318,13 @@ const initApp = async () => {
         },
         ['Agregar']
       );
-      const quantityControl = renderQuantityControl(product);
+      const quantityControl = renderQuantityControl(product, getCartItemQuantity);
 
       actionArea.appendChild(addToCartBtn);
       actionArea.appendChild(quantityControl);
       cardBody.appendChild(actionArea);
 
-      setupActionArea(actionArea, product);
+      setupActionArea(actionArea, product, { addToCart, updateQuantity, getCartItemQuantity });
 
       cardElement.appendChild(cardBody);
       productElement.appendChild(cardElement);
@@ -1251,9 +352,8 @@ const initApp = async () => {
         return;
       }
       const product = map.get(productId);
-      // card.classList.add(UTILITY_CLASSES.contentVisible, UTILITY_CLASSES.containIntrinsic); // DISABLED
       const actionArea = card.querySelector('.action-area');
-      setupActionArea(actionArea, product);
+      setupActionArea(actionArea, product, { addToCart, updateQuantity, getCartItemQuantity });
       hydrated += 1;
     });
     return hydrated;
@@ -1265,6 +365,8 @@ const initApp = async () => {
     }
     visibleCount = 0;
   };
+
+  const memoizedFilterProducts = memoize(filterProducts);
 
   const applyFilters = () => {
     const criterion = sortOptions?.value || 'original';
@@ -1369,141 +471,6 @@ const initApp = async () => {
     }
   };
 
-  // MUCH MORE CONSERVATIVE fuzzy matching - only for obvious typos
-  function simpleTypoFix(query, text) {
-    if (!query || !text || query.length < 3) return false;
-
-    const normalizeText = (str) =>
-      str
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '') // Remove accents only
-        .trim();
-
-    const normalizedQuery = normalizeText(query);
-    const normalizedText = normalizeText(text);
-
-    // First try exact match (same as original)
-    if (normalizedText.includes(normalizedQuery)) {
-      return true;
-    }
-
-    // ONLY try typo correction if query is 4+ characters
-    // and the difference is just 1-2 characters
-    if (normalizedQuery.length >= 4) {
-      // Check if it's a simple 1-character typo
-      // Like "choclate" vs "chocolate" or "galetas" vs "galletas"
-      return isSimpleTypo(normalizedQuery, normalizedText);
-    }
-
-    return false;
-  }
-
-  // Very strict typo detection - only catches obvious single-character mistakes
-  function isSimpleTypo(query, text) {
-    const words = text.split(/\s+/);
-
-    return words.some((word) => {
-      if (Math.abs(word.length - query.length) > 1) return false;
-
-      // Count character differences
-      let differences = 0;
-      const minLen = Math.min(word.length, query.length);
-
-      // Too short to safely compare
-      if (minLen < 4) return false;
-
-      // Check for single character insertion/deletion
-      if (word.length === query.length) {
-        // Same length - check for substitution
-        for (let i = 0; i < word.length; i++) {
-          if (word[i] !== query[i]) differences++;
-          if (differences > 1) return false; // More than 1 difference
-        }
-        return differences === 1;
-      } else {
-        // Different length - check for insertion/deletion
-        return isOneCharacterDifference(query, word);
-      }
-    });
-  }
-
-  // Check if two words differ by exactly one character (insertion/deletion)
-  function isOneCharacterDifference(str1, str2) {
-    const longer = str1.length > str2.length ? str1 : str2;
-    const shorter = str1.length > str2.length ? str2 : str1;
-
-    if (longer.length - shorter.length !== 1) return false;
-
-    let shifts = 0;
-    let i = 0,
-      j = 0;
-
-    while (i < shorter.length && j < longer.length) {
-      if (shorter[i] === longer[j]) {
-        i++;
-        j++;
-      } else {
-        shifts++;
-        if (shifts > 1) return false; // More than one shift needed
-        j++; // Skip the extra character in longer string
-      }
-    }
-
-    return true;
-  }
-
-  // REPLACE your filterProducts function with this CONSERVATIVE version:
-  const filterProducts = (products, keyword, sortCriterion, discountOnly = false) => {
-    const trimmedKeyword = keyword.trim();
-
-    return products
-      .filter((product) => {
-        if (!product.stock) return false;
-        if (discountOnly && !(product.discount && Number(product.discount) > 0)) return false;
-
-        // If no keyword, show all (same as original behavior)
-        if (!trimmedKeyword) return true;
-
-        // Try EXACT matching first (exactly like original)
-        const exactMatch =
-          product.name.toLowerCase().includes(trimmedKeyword.toLowerCase()) ||
-          product.description.toLowerCase().includes(trimmedKeyword.toLowerCase());
-
-        if (exactMatch) return true;
-
-        // ONLY try typo fix for longer queries and only for name field
-        if (trimmedKeyword.length >= 4) {
-          return simpleTypoFix(trimmedKeyword, product.name);
-        }
-
-        return false;
-      })
-      .sort((a, b) => sortProducts(a, b, sortCriterion));
-  };
-
-  const sortProducts = (a, b, criterion) => {
-    if (!criterion || criterion === 'original') {
-      return a.originalIndex - b.originalIndex;
-    }
-    const [property, order] = criterion.split('-');
-    const valueA = property === 'price' ? a.price - (a.discount || 0) : a.name.toLowerCase();
-    const valueB = property === 'price' ? b.price - (b.discount || 0) : b.name.toLowerCase();
-    return order === 'asc'
-      ? valueA < valueB
-        ? -1
-        : valueA > valueB
-          ? 1
-          : 0
-      : valueB < valueA
-        ? -1
-        : valueB > valueA
-          ? 1
-          : 0;
-  };
-
-  const memoizedFilterProducts = memoize(filterProducts);
-
   updateProductDisplay = () => {
     try {
       applyFilters();
@@ -1598,189 +565,110 @@ const initApp = async () => {
     if (hydratedCount > 0) {
       visibleCount = hydratedCount;
       initialBatchSize = hydratedCount;
-    } else {
-      visibleCount = 0;
+    } else if (products.length > 0) {
+      initialBatchSize = INITIAL_BATCH_FALLBACK;
     }
 
-    setupDeferredLoading();
     applyFilters();
-    updateLoadMoreVisibility();
-    if (visibleCount === 0 && filteredProducts.length) {
+    if (products.length > 0 && hydratedCount === 0) {
       appendInitialBatch();
     }
+    updateLoadMoreVisibility();
 
-    const fetchPromise = fetchProducts();
+    // Setup event listeners
+    if (sortOptions) {
+      sortOptions.addEventListener('change', () => {
+        log('info', 'sort_changed', { criterion: sortOptions.value });
+        userHasInteracted = true;
+        updateProductDisplay();
+      });
+    }
 
-    sortOptions.addEventListener('change', () => {
-      userHasInteracted = true;
-      debouncedUpdateProductDisplay();
-    });
-    filterKeyword.addEventListener('input', () => {
-      userHasInteracted = true;
-      debouncedUpdateProductDisplay();
-    });
+    if (filterKeyword) {
+      filterKeyword.addEventListener(
+        'input',
+        debounce(() => {
+          if (filterKeyword.value.length > 2) {
+            log('info', 'search_keyword', { keyword: filterKeyword.value });
+            userHasInteracted = true;
+          }
+          debouncedUpdateProductDisplay();
+        }, 300)
+      );
+    }
 
     const discountToggle = ensureDiscountToggle();
     if (discountToggle) {
       discountToggle.addEventListener('change', () => {
+        log('info', 'discount_toggle_changed', { checked: discountToggle.checked });
         userHasInteracted = true;
-        debouncedUpdateProductDisplay();
+        updateProductDisplay();
       });
     }
 
-    const networkProducts = await fetchPromise;
-
-    if (!Array.isArray(networkProducts) || networkProducts.length === 0) {
-      if (!products.length) {
-        showErrorMessage('No hay productos disponibles. Por favor, intenta más tarde.');
-        return;
-      }
-    } else {
-      products = networkProducts.map((product, index) => ({
-        ...product,
-        originalIndex: typeof product.originalIndex === 'number' ? product.originalIndex : index,
-        categoryKey: product.categoryKey || normalizeString(product.category),
-      }));
-      if (currentCategory) {
-        const normCurrent = normalizeString(currentCategory);
-        products = products
-          .filter(
-            (product) => (product.categoryKey || normalizeString(product.category)) === normCurrent
-          )
-          .map((product, index) => ({
-            ...product,
-            originalIndex:
-              typeof product.originalIndex === 'number' ? product.originalIndex : index,
-          }));
-      }
-    }
-
-    applyFilters();
-    if (userHasInteracted || visibleCount === 0) {
-      resetProductList();
-      if (filteredProducts.length) {
-        appendInitialBatch();
-      } else {
-        updateLoadMoreVisibility();
-      }
-    } else {
-      updateLoadMoreVisibility();
-    }
-
-    if (typeof window !== 'undefined') window.__APP_READY__ = true;
+    setupDeferredLoading();
+    updateOnlineStatus();
 
     window.addEventListener('online', updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
-    updateOnlineStatus();
 
-    const cartIcon = document.getElementById('cart-icon');
-    const emptyCartBtn = document.getElementById('empty-cart');
-    const submitCartBtn = document.getElementById('submit-cart');
+    document.getElementById('checkout-btn')?.addEventListener('click', () => {
+      log('info', 'checkout_initiated');
+      submitCart();
+    });
 
-    if (cartIcon) {
-      cartIcon.addEventListener('click', async () => {
-        renderCart();
-        const cartOffcanvasElement = document.getElementById('cartOffcanvas');
-        try {
-          await showOffcanvas('#cartOffcanvas');
-          if (cartOffcanvasElement) {
-            cartOffcanvasElement.dataset.bsFallback = '0';
+    window.__APP_READY__ = true;
+
+    // Defer fetching fresh data until main thread is idle
+    scheduleIdle(async () => {
+      try {
+        const freshProducts = await fetchProducts();
+        if (!freshProducts) return;
+
+        // If user hasn't interacted, we can safely update everything
+        if (!userHasInteracted && (!products || products.length === 0)) {
+          products = freshProducts.map((p, i) => ({
+            ...p,
+            originalIndex: i,
+            categoryKey: p.categoryKey || normalizeString(p.category),
+          }));
+
+          if (currentCategory) {
+            const normCurrent = normalizeString(currentCategory);
+            products = products
+              .filter(
+                (p) => (p.categoryKey || normalizeString(p.category)) === normCurrent
+              )
+              .map((p, i) => ({
+                ...p,
+                originalIndex: i,
+              }));
           }
-        } catch (error) {
-          console.error('Bootstrap Offcanvas no está disponible', error);
-          if (cartOffcanvasElement) {
-            cartOffcanvasElement.dataset.bsFallback = '1';
-            cartOffcanvasElement.classList.add('show');
-            cartOffcanvasElement.removeAttribute('aria-hidden');
-          }
+
+          updateProductDisplay();
+        } else {
+          // Silent background update logic could go here
+          // For now, we just log that we have fresh data
+          log('info', 'background_data_refresh_complete', { count: freshProducts.length });
         }
-      });
-    }
+      } catch (err) {
+        console.warn('Background fetch failed (non-fatal):', err);
+      }
 
-    if (emptyCartBtn) {
-      emptyCartBtn.addEventListener('click', emptyCart);
-    }
-    if (submitCartBtn) {
-      submitCartBtn.addEventListener('click', submitCart);
-    }
+      logPerformanceMetrics();
+    });
 
-    if (cartItemsElement) {
-      cartItemsElement.addEventListener('click', (e) => {
-        const target = e.target;
-        const productId = target.closest('[data-id]')?.dataset.id;
-
-        if (!productId) return;
-
-        if (target.classList.contains('decrease-quantity')) {
-          updateQuantity({ id: productId }, -1);
-        } else if (target.classList.contains('increase-quantity')) {
-          updateQuantity({ id: productId }, 1);
-        } else if (target.classList.contains('remove-item')) {
-          removeFromCart(productId);
-        }
-      });
-    }
-
-    updateCartIcon();
-
-    if ('performance' in window) {
-      window.addEventListener('load', () => {
-        logPerformanceMetrics();
-      });
-    }
   } catch (error) {
-    console.error('Error al inicializar productos:', error);
-    showErrorMessage('Error al cargar productos. Por favor, inténtelo más tarde.');
+    console.error('Fatal initialization error:', error);
+    showErrorMessage('Error crítico al iniciar la aplicación.');
   }
 };
 
-// Run the application when the DOM is ready
+// Start the application
 if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', function () {
-    // Register service worker first
-    registerServiceWorker();
-
-    if (typeof window !== 'undefined' && window.__ENABLE_TEST_HOOKS__ === true) {
-      window.__runUpdateCheck = runUpdateCheckForTest;
-    }
-
-    // Then initialize the app
-    initApp().catch((error) => {
-      console.error('Error al inicializar la aplicación:', error);
-      showErrorMessage('Error al inicializar la aplicación. Por favor, actualice la página.');
-    });
-  });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+  } else {
+    initApp();
+  }
 }
-function __getCart() {
-  return getCart();
-}
-
-function __resetCart() {
-  resetCart();
-}
-
-export {
-  generateStableId,
-  fetchProducts,
-  fetchWithRetry,
-  initApp,
-  addToCart,
-  removeFromCart,
-  updateQuantity,
-  updateCartIcon,
-  showUpdateNotification,
-  showServiceWorkerError,
-  showConnectivityNotification,
-  registerServiceWorker as __registerServiceWorkerForTest,
-  shouldRegisterServiceWorker as __shouldRegisterServiceWorkerForTest,
-  __resetServiceWorkerRegistrationForTest,
-  memoize as __memoizeForTest,
-  resolveAvifSrcset as __resolveAvifSrcsetForTest,
-  buildStaticSrcset as __buildStaticSrcsetForTest,
-  normalizeProductVersion as __normalizeProductVersionForTest,
-  getStoredProductVersion as __getStoredProductVersionForTest,
-  setStoredProductVersion as __setStoredProductVersionForTest,
-  __getCart,
-  __resetCart,
-  logPerformanceMetrics,
-};
