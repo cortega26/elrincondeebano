@@ -2041,7 +2041,6 @@ const initApp = async () => {
 
       // Count character differences
       let differences = 0;
-      const maxLen = Math.max(word.length, query.length);
       const minLen = Math.min(word.length, query.length);
 
       // Too short to safely compare
