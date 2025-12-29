@@ -7,8 +7,8 @@ let originalMeta = { version: null, last_updated: null };
 
 async function fetchProductJson() {
   const endpoints = [
-    `${window.location.origin}/data/product_data.json`,
-    `https://elrincondeebano.com/data/product_data.json`,
+    '${window.location.origin}/data/product_data.json',
+    'https://elrincondeebano.com/data/product_data.json',
   ];
   let lastErr;
   for (const url of endpoints) {
