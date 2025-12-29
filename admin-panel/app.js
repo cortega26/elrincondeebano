@@ -84,30 +84,106 @@ function renderGrid() {
     );
 
   const tbody = $('#grid-body');
-  tbody.innerHTML = '';
+  tbody.textContent = '';
   for (const p of rows) {
+    const id = pid(p);
     const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><input type="checkbox" data-id="${pid(p)}" /></td>
-      <td>${escapeHtml(p.name)}</td>
-      <td>${escapeHtml(p.description || '')}</td>
-      <td><input type="number" class="form-control form-control-sm" value="${p.price}" min="1" step="100" data-field="price" data-id="${pid(p)}"></td>
-      <td><input type="number" class="form-control form-control-sm" value="${p.discount || 0}" min="0" step="100" data-field="discount" data-id="${pid(p)}"></td>
-      <td><input type="checkbox" ${p.stock ? 'checked' : ''} data-field="stock" data-id="${pid(p)}"></td>
-      <td>${escapeHtml(p.category || '')}</td>
-      <td>
-        <div class="input-group input-group-sm">
-          <input type="text" class="form-control" value="${escapeHtml(p.image_path || '')}" data-field="image_path" data-id="${pid(p)}">
-          <button class="btn btn-outline-secondary btn-img-mgr" type="button" data-field="image_path" data-id="${pid(p)}" title="Gestionar imagen">📷</button>
-        </div>
-      </td>
-      <td>
-        <div class="input-group input-group-sm">
-          <input type="text" class="form-control" value="${escapeHtml(p.image_avif_path || '')}" placeholder="assets/images/... .avif" data-field="image_avif_path" data-id="${pid(p)}">
-          <button class="btn btn-outline-secondary btn-img-mgr" type="button" data-field="image_avif_path" data-id="${pid(p)}" title="Gestionar imagen">📷</button>
-        </div>
-      </td>
-    `;
+
+    const selectTd = document.createElement('td');
+    const selectInput = document.createElement('input');
+    selectInput.type = 'checkbox';
+    selectInput.dataset.id = id;
+    selectTd.appendChild(selectInput);
+
+    const nameTd = document.createElement('td');
+    nameTd.textContent = p.name || '';
+
+    const descTd = document.createElement('td');
+    descTd.textContent = p.description || '';
+
+    const priceTd = document.createElement('td');
+    const priceInput = document.createElement('input');
+    priceInput.type = 'number';
+    priceInput.className = 'form-control form-control-sm';
+    priceInput.value = String(p.price ?? '');
+    priceInput.min = '1';
+    priceInput.step = '100';
+    priceInput.dataset.field = 'price';
+    priceInput.dataset.id = id;
+    priceTd.appendChild(priceInput);
+
+    const discountTd = document.createElement('td');
+    const discountInput = document.createElement('input');
+    discountInput.type = 'number';
+    discountInput.className = 'form-control form-control-sm';
+    discountInput.value = String(p.discount || 0);
+    discountInput.min = '0';
+    discountInput.step = '100';
+    discountInput.dataset.field = 'discount';
+    discountInput.dataset.id = id;
+    discountTd.appendChild(discountInput);
+
+    const stockTd = document.createElement('td');
+    const stockInput = document.createElement('input');
+    stockInput.type = 'checkbox';
+    stockInput.checked = Boolean(p.stock);
+    stockInput.dataset.field = 'stock';
+    stockInput.dataset.id = id;
+    stockTd.appendChild(stockInput);
+
+    const categoryTd = document.createElement('td');
+    categoryTd.textContent = p.category || '';
+
+    const imageTd = document.createElement('td');
+    const imageGroup = document.createElement('div');
+    imageGroup.className = 'input-group input-group-sm';
+    const imageInput = document.createElement('input');
+    imageInput.type = 'text';
+    imageInput.className = 'form-control';
+    imageInput.value = p.image_path || '';
+    imageInput.dataset.field = 'image_path';
+    imageInput.dataset.id = id;
+    const imageBtn = document.createElement('button');
+    imageBtn.className = 'btn btn-outline-secondary btn-img-mgr';
+    imageBtn.type = 'button';
+    imageBtn.dataset.field = 'image_path';
+    imageBtn.dataset.id = id;
+    imageBtn.title = 'Gestionar imagen';
+    imageBtn.textContent = '📷';
+    imageGroup.append(imageInput, imageBtn);
+    imageTd.appendChild(imageGroup);
+
+    const avifTd = document.createElement('td');
+    const avifGroup = document.createElement('div');
+    avifGroup.className = 'input-group input-group-sm';
+    const avifInput = document.createElement('input');
+    avifInput.type = 'text';
+    avifInput.className = 'form-control';
+    avifInput.value = p.image_avif_path || '';
+    avifInput.placeholder = 'assets/images/... .avif';
+    avifInput.dataset.field = 'image_avif_path';
+    avifInput.dataset.id = id;
+    const avifBtn = document.createElement('button');
+    avifBtn.className = 'btn btn-outline-secondary btn-img-mgr';
+    avifBtn.type = 'button';
+    avifBtn.dataset.field = 'image_avif_path';
+    avifBtn.dataset.id = id;
+    avifBtn.title = 'Gestionar imagen';
+    avifBtn.textContent = '📷';
+    avifGroup.append(avifInput, avifBtn);
+    avifTd.appendChild(avifGroup);
+
+    tr.append(
+      selectTd,
+      nameTd,
+      descTd,
+      priceTd,
+      discountTd,
+      stockTd,
+      categoryTd,
+      imageTd,
+      avifTd
+    );
     tbody.appendChild(tr);
   }
 }

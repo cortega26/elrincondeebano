@@ -3,6 +3,7 @@ from tkinter import ttk, messagebox, filedialog
 from typing import List, Optional, Callable, Dict, Any, TypeVar, Tuple
 import os
 from pathlib import Path
+import webbrowser
 from models import Product
 from services import ProductService, ProductServiceError
 from category_service import CategoryService, CategoryServiceError
@@ -2260,6 +2261,8 @@ class ProductFormDialog(tk.Toplevel):
             candidate.relative_to(base_dir)
         except ValueError:
             return None
+        if candidate.suffix.lower() not in {'.png', '.jpg', '.jpeg', '.gif', '.webp', '.avif', '.bmp', '.svg'}:
+            return None
         if not candidate.is_file():
             return None
         return candidate
@@ -2546,14 +2549,7 @@ class ProductFormDialog(tk.Toplevel):
                 messagebox.showerror(
                     'Imagen', 'El archivo de imagen no existe en disco.')
                 return
-            if os.name == 'nt':
-                os.startfile(str(target_path))  # type: ignore[attr-defined]
-            elif sys.platform == 'darwin':
-                import subprocess
-                subprocess.Popen(['open', str(target_path)])
-            else:
-                import subprocess
-                subprocess.Popen(['xdg-open', str(target_path)])
+            webbrowser.open(target_path.as_uri())
         except Exception as e:
             messagebox.showerror('Imagen', f'No se pudo abrir la imagen: {e}')
 
