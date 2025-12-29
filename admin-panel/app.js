@@ -1,3 +1,4 @@
+/* global bootstrap */
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
@@ -320,11 +321,11 @@ function setupMediaManager() {
     dropZone.addEventListener(eventName, unhighlight, false);
   });
 
-  function highlight(e) {
+  function highlight() {
     dropZone.classList.add('dragover');
   }
 
-  function unhighlight(e) {
+  function unhighlight() {
     dropZone.classList.remove('dragover');
   }
 
@@ -360,7 +361,7 @@ function setupMediaManager() {
       dropZone.classList.add('d-none');
       previewContainer.classList.remove('d-none');
       btnApply.disabled = false;
-    }
+    };
   }
 
   btnApply.addEventListener('click', () => {
@@ -386,4 +387,3 @@ function setupMediaManager() {
     bsModal.hide();
   });
 }
-
