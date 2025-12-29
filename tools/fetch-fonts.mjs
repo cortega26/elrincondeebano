@@ -157,7 +157,8 @@ async function downloadRemote(rawUrl, dest) {
     throw new Error(`Remote font URL must be .woff2: "${rawUrl}"`);
   }
   const safeUrl = parsed.toString();
-  // nosemgrep: validated allowlist + https-only + woff2-only remote fetch
+  // URL validated against allowlist + https-only + woff2-only before fetch.
+  // nosemgrep
   const res = await fetch(safeUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${safeUrl}`);
   const buf = Buffer.from(await res.arrayBuffer());

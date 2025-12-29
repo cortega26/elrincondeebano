@@ -302,7 +302,8 @@ class SyncEngine:
       headers={"content-type": "application/json"},
     )
     try:
-      with request.urlopen(req, timeout=self.timeout) as resp:
+      # url validated by _assert_http_url (http/https only).
+      with request.urlopen(req, timeout=self.timeout) as resp:  # nosec B310
         response_body = resp.read().decode("utf-8")
         return json.loads(response_body)
     except error.HTTPError as exc:
@@ -322,7 +323,8 @@ class SyncEngine:
     )
     req = request.Request(url, method="GET")
     try:
-      with request.urlopen(req, timeout=self.timeout) as resp:
+      # url validated by _assert_http_url (http/https only).
+      with request.urlopen(req, timeout=self.timeout) as resp:  # nosec B310
         response = json.loads(resp.read().decode("utf-8"))
     except Exception as exc:
       self.logger.debug("No se pudo obtener cambios incrementales: %s", exc)
