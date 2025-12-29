@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('mobile navbar toggler', () => {
-  test(`opens and closes the navbar collapse`, async ({ page }, testInfo) => {
+  test('opens and closes the navbar collapse', async ({ page }, testInfo) => {
     if (testInfo.project.name !== 'chromium-mobile') {
-      test.skip(`Only relevant on the mobile viewport`);
+      test.skip('Only relevant on the mobile viewport');
     }
 
     await page.goto('/', { waitUntil: 'domcontentloaded' });
