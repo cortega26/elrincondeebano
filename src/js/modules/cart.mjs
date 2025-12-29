@@ -6,10 +6,31 @@ export function createCartManager({
   getUpdateProductDisplay,
 } = {}) {
   let cart = [];
+  const normalizeId = (value) => (value === null || value === undefined ? '' : String(value));
+  const clampQuantity = (value) => {
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed)) return 0;
+    return Math.min(Math.max(parsed, 0), 50);
+  };
+  const normalizeCartItem = (item) => {
+    if (!item || item.id === null || item.id === undefined) {
+      return null;
+    }
+    const id = normalizeId(item.id);
+    if (!id) {
+      return null;
+    }
+    const quantity = clampQuantity(item.quantity);
+    if (quantity <= 0) {
+      return null;
+    }
+    return { ...item, id, quantity };
+  };
 
   const loadCart = () => {
     try {
-      cart = JSON.parse(globalThis.localStorage?.getItem('cart')) || [];
+      const stored = JSON.parse(globalThis.localStorage?.getItem('cart')) || [];
+      cart = Array.isArray(stored) ? stored.map(normalizeCartItem).filter(Boolean) : [];
     } catch {
       cart = [];
     }
@@ -23,13 +44,15 @@ export function createCartManager({
   };
 
   const getCartItemQuantity = (productId) => {
-    const item = cart.find((item) => item.id === productId);
+    const id = normalizeId(productId);
+    if (!id) return 0;
+    const item = cart.find((item) => item.id === id);
     return item ? item.quantity : 0;
   };
 
   const updateCartIcon = () => {
     const cartCount = document.getElementById('cart-count');
-    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+    const totalItems = cart.reduce((total, item) => total + clampQuantity(item.quantity), 0);
     if (cartCount) {
       if (cartCount.dataset.initialized !== '1') {
         cartCount.dataset.initialized = '1';
@@ -60,8 +83,9 @@ export function createCartManager({
   };
 
   const pulseAddToCartButton = (productId) => {
-    if (!productId) return;
-    const actionArea = document.querySelector(`.action-area[data-pid="${productId}"]`);
+    const id = normalizeId(productId);
+    if (!id) return;
+    const actionArea = document.querySelector(`.action-area[data-pid="${id}"]`);
     const button = actionArea?.querySelector('.add-to-cart-btn');
     restartAnimationClass(button, 'is-added', 350);
   };
@@ -215,19 +239,24 @@ export function createCartManager({
 
   const addToCart = (product, quantity) => {
     try {
-      const existingItem = cart.find((item) => item.id === product.id);
+      const productId = normalizeId(product?.id);
+      if (!productId) {
+        throw new Error('Producto inválido');
+      }
+      const addQuantity = clampQuantity(quantity) || 1;
+      const existingItem = cart.find((item) => item.id === productId);
       if (existingItem) {
-        existingItem.quantity = Math.min(existingItem.quantity + quantity, 50);
+        existingItem.quantity = clampQuantity(existingItem.quantity + addQuantity);
       } else {
         cart.push({
-          id: product.id,
+          id: productId,
           name: product.name,
           description: product.description,
           price: product.price,
           discount: product.discount,
           image_path: product.image_path,
           image_avif_path: product.image_avif_path,
-          quantity: Math.min(quantity, 50),
+          quantity: clampQuantity(addQuantity) || 1,
           category: product.category,
           stock: product.stock,
         });
@@ -235,22 +264,22 @@ export function createCartManager({
       saveCart();
       updateCartIcon();
       bumpCartBadge();
-      pulseAddToCartButton(product.id);
+      pulseAddToCartButton(productId);
       renderCart();
       bumpCartTotal();
       try {
         if (typeof window !== 'undefined' && typeof window.__analyticsTrack === 'function')
           window.__analyticsTrack('add_to_cart', {
-            id: product.id,
-            q: quantity,
+            id: productId,
+            q: addQuantity,
             price: product.price,
           });
       } catch (error) {
         // Ignore analytics tracking failures.
       }
-      const quantityInput = document.querySelector(`[data-id="${product.id}"].quantity-input`);
+      const quantityInput = document.querySelector(`[data-id="${productId}"].quantity-input`);
       if (quantityInput) {
-        quantityInput.value = Math.max(getCartItemQuantity(product.id), 1);
+        quantityInput.value = Math.max(getCartItemQuantity(productId), 1);
       }
     } catch (error) {
       console.error('Error al agregar al carrito:', error);
@@ -264,18 +293,20 @@ export function createCartManager({
 
   const removeFromCart = (productId) => {
     try {
-      cart = cart.filter((item) => item.id !== productId);
+      const id = normalizeId(productId);
+      if (!id) return;
+      cart = cart.filter((item) => item.id !== id);
       saveCart();
       updateCartIcon();
       renderCart();
       bumpCartTotal();
       try {
         if (typeof window !== 'undefined' && typeof window.__analyticsTrack === 'function')
-          window.__analyticsTrack('remove_from_cart', { id: productId });
+          window.__analyticsTrack('remove_from_cart', { id });
       } catch (error) {
         // Ignore analytics tracking failures.
       }
-      const actionArea = document.querySelector(`.action-area[data-pid="${productId}"]`);
+      const actionArea = document.querySelector(`.action-area[data-pid="${id}"]`);
       if (actionArea && typeof toggleActionArea === 'function') {
         const btn = actionArea.querySelector('.add-to-cart-btn');
         const qc = actionArea.querySelector('.quantity-control');
@@ -293,15 +324,20 @@ export function createCartManager({
 
   const updateQuantity = (product, change) => {
     try {
-      const item = cart.find((item) => item.id === product.id);
-      const newQuantity = item ? item.quantity + change : 1;
-      const actionArea = document.querySelector(`.action-area[data-pid="${product.id}"]`);
+      const productId = normalizeId(product?.id);
+      if (!productId) {
+        throw new Error('Producto inválido');
+      }
+      const item = cart.find((item) => item.id === productId);
+      const currentQuantity = item ? clampQuantity(item.quantity) : 0;
+      const newQuantity = currentQuantity + change;
+      const actionArea = document.querySelector(`.action-area[data-pid="${productId}"]`);
       const btn = actionArea?.querySelector('.add-to-cart-btn');
       const qc = actionArea?.querySelector('.quantity-control');
       let usedAddToCart = false;
 
       if (newQuantity <= 0) {
-        removeFromCart(product.id);
+        removeFromCart(productId);
         if (typeof toggleActionArea === 'function') {
           toggleActionArea(btn, qc, false);
         }
@@ -309,7 +345,7 @@ export function createCartManager({
         if (item) {
           item.quantity = newQuantity;
         } else {
-          addToCart(product, 1);
+          addToCart({ ...product, id: productId }, 1);
           usedAddToCart = true;
           if (typeof toggleActionArea === 'function') {
             toggleActionArea(btn, qc, true);
@@ -323,7 +359,7 @@ export function createCartManager({
         renderCart();
         bumpCartTotal();
 
-        const quantityInput = document.querySelector(`[data-id="${product.id}"].quantity-input`);
+        const quantityInput = document.querySelector(`[data-id="${productId}"].quantity-input`);
         if (quantityInput) {
           quantityInput.value = newQuantity;
           quantityInput.classList.add('quantity-changed');
