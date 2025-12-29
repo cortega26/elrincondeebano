@@ -77,7 +77,7 @@
                 <div class="row" id="product-container" aria-live="polite" data-total-products="<%= totalProducts %>">
 <% if (Array.isArray(products) && products.length) { %>
 <% products.forEach((product, index) => { %>
-                    <article class="producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4 <%= product.stock ? '' : 'agotado' %> has-content-visibility has-contain-intrinsic" data-product-id="<%= product.id %>" aria-labelledby="product-title-<%= product.id %>">
+                    <article class="producto col-6 col-sm-6 col-md-4 col-lg-3 mb-4 <%= product.stock ? '' : 'agotado' %> has-content-visibility has-contain-intrinsic" data-product-id="<%= product.id %>" aria-labelledby="product-title-<%= product.id %>">
                         <div class="card h-100">
 <% if (product.isDiscounted) { %>
                             <span class="discount-badge badge bg-danger" aria-label="Producto en oferta">-<%= product.discountPercent %>%</span>
@@ -86,7 +86,7 @@
 <% if (product.image.avif) { %>
                                 <source type="image/avif" srcset="<%= product.image.avif.srcset %>" sizes="<%= product.image.sizes %>">
 <% } %>
-                                <img src="<%= product.image.src %>" srcset="<%= product.image.srcset %>" sizes="<%= product.image.sizes %>" alt="<%= product.name %>" class="card-img-top product-thumb" loading="<%= index === 0 ? 'eager' : 'lazy' %>" fetchpriority="<%= index === 0 ? 'high' : 'auto' %>" decoding="async" width="400" height="400">
+                                <img src="<%= product.image.src %>" srcset="<%= product.image.srcset %>" sizes="<%= product.image.sizes %>" alt="<%= product.name %>" class="card-img-top product-thumb is-loading" loading="<%= index === 0 ? 'eager' : 'lazy' %>" fetchpriority="<%= index === 0 ? 'high' : 'auto' %>" decoding="async" width="400" height="400">
                             </picture>
                             <div class="card-body d-flex flex-column">
                                 <h3 class="card-title mb-2" id="product-title-<%= product.id %>"><%= product.name %></h3>

@@ -1,44 +1,66 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const { JSDOM } = require('jsdom');
-const { File } = require('undici');
+const { createModuleLoader } = require('./helpers/module-loader');
+const {
+  ensureFileGlobal,
+  setupDom,
+  teardownDom,
+  wait,
+  waitImmediate,
+  dispatchPointerDown,
+  dispatchClick,
+} = require('./helpers/dom-test-utils');
 
-if (typeof global.File === 'undefined') {
-  global.File = File;
-}
-const fs = require('node:fs');
-const path = require('node:path');
+ensureFileGlobal();
 
-function loadModule(relPath) {
-  const filePath = path.join(__dirname, relPath);
-  let code = fs.readFileSync(filePath, 'utf8');
-  code = code.replace(
-    /import\s+\{([^}]+)\}\s+from\s+['"]\.\/menu-controller\.mjs['"];?/,
-    (_, names) => {
-      const identifiers = names
-        .split(',')
-        .map((name) => name.trim())
-        .filter(Boolean)
-        .join(', ');
-      return `const { ${identifiers} } = loadModule('../src/js/modules/menu-controller.mjs');`;
+const loadModule = createModuleLoader(__dirname, {
+  transform: (code) =>
+    code.replace(
+      /import\s+\{([^}]+)\}\s+from\s+['"]\.\/menu-controller\.mjs['"];?/,
+      (_match, names) => {
+        const identifiers = names
+          .split(',')
+          .map((name) => name.trim())
+          .filter(Boolean)
+          .join(', ');
+        return `const { ${identifiers} } = loadModule('../src/js/modules/menu-controller.mjs');`;
+      }
+    ),
+});
+
+function createBootstrapComponentStub(methodName, action) {
+  return class BootstrapStub {
+    constructor(element) {
+      this.element = element;
     }
-  );
-  code = code.replace(/export\s+(async\s+)?function\s+(\w+)/g, 'exports.$2 = $1function $2');
-  code = code.replace(/export\s+\{([^}]+)\};?/g, (_, names) => {
-    return names
-      .split(',')
-      .map((name) => name.trim())
-      .filter(Boolean)
-      .map((name) => `exports.${name} = ${name};`)
-      .join('\n');
-  });
-  const exports = {};
-  const wrapper = new Function('exports', 'loadModule', code + '\nreturn exports;');
-  return wrapper(exports, loadModule);
+    [methodName]() {
+      action(this.element);
+    }
+    static getOrCreateInstance(element) {
+      if (!this.instances) {
+        this.instances = new WeakMap();
+      }
+      if (!this.instances.has(element)) {
+        this.instances.set(element, new BootstrapStub(element));
+      }
+      return this.instances.get(element);
+    }
+  };
+}
+
+async function withBootstrapDom(markup, run) {
+  setupDom(markup, { url: 'http://localhost' });
+  const module = loadModule('../src/js/modules/bootstrap.mjs');
+  try {
+    await run(module);
+  } finally {
+    module.__resetBootstrapTestState();
+    teardownDom();
+  }
 }
 
 test('initializeBootstrapUI wires collapse toggles and menu controller', async () => {
-  const dom = new JSDOM(
+  await withBootstrapDom(
     `<!DOCTYPE html><body>
     <button id="navToggle" data-bs-toggle="collapse" data-bs-target="#navbarNav"></button>
     <div id="navbarNav" class="collapse navbar-collapse"></div>
@@ -49,161 +71,105 @@ test('initializeBootstrapUI wires collapse toggles and menu controller', async (
       </div>
     </div>
   </body>`,
-    { url: 'http://localhost' }
+    async (module) => {
+      const CollapseStub = createBootstrapComponentStub('toggle', (element) => {
+        element.classList.toggle('show');
+      });
+      let collapseLoaded = 0;
+      module.__setBootstrapLoaderOverride('collapse', async () => {
+        collapseLoaded += 1;
+        return { default: CollapseStub };
+      });
+
+      module.initializeBootstrapUI();
+
+      assert.strictEqual(collapseLoaded, 0);
+      const initialSnapshot = module.__getDropdownStateSnapshot();
+      assert.strictEqual(initialSnapshot.controllerCount, 1);
+      assert.strictEqual(initialSnapshot.controllers[0].toggleCount, 1);
+      assert.strictEqual(initialSnapshot.controllers[0].expandedId, null);
+
+      const toggleButton = document.getElementById('navToggle');
+      dispatchClick(toggleButton);
+      await waitImmediate();
+
+      assert.strictEqual(collapseLoaded, 1);
+      assert.ok(document.getElementById('navbarNav').classList.contains('show'));
+
+      const dropdownToggle = document.getElementById('menuDropdown');
+      dispatchPointerDown(dropdownToggle);
+      await wait(25);
+
+      assert.strictEqual(dropdownToggle.getAttribute('aria-expanded'), 'true');
+      assert.ok(document.getElementById('menuDropdownMenu').classList.contains('show'));
+      const afterOpen = module.__getDropdownStateSnapshot();
+      assert.strictEqual(afterOpen.controllers[0].expandedId, 'id:menuDropdown');
+
+      dispatchPointerDown(dropdownToggle);
+      await wait(25);
+      assert.strictEqual(dropdownToggle.getAttribute('aria-expanded'), 'false');
+      assert.ok(!document.getElementById('menuDropdownMenu').classList.contains('show'));
+    }
   );
-  global.window = dom.window;
-  global.document = dom.window.document;
-  global.HTMLElement = dom.window.HTMLElement;
-
-  const module = loadModule('../src/js/modules/bootstrap.mjs');
-
-  class CollapseStub {
-    constructor(element) {
-      this.element = element;
-    }
-    toggle() {
-      this.element.classList.toggle('show');
-    }
-    static getOrCreateInstance(element) {
-      if (!this.instances) {
-        this.instances = new WeakMap();
-      }
-      if (!this.instances.has(element)) {
-        this.instances.set(element, new CollapseStub(element));
-      }
-      return this.instances.get(element);
-    }
-  }
-
-  let collapseLoaded = 0;
-  module.__setBootstrapLoaderOverride('collapse', async () => {
-    collapseLoaded += 1;
-    return { default: CollapseStub };
-  });
-
-  module.initializeBootstrapUI();
-
-  assert.strictEqual(collapseLoaded, 0);
-  const initialSnapshot = module.__getDropdownStateSnapshot();
-  assert.strictEqual(initialSnapshot.controllerCount, 1);
-  assert.strictEqual(initialSnapshot.controllers[0].toggleCount, 1);
-  assert.strictEqual(initialSnapshot.controllers[0].expandedId, null);
-
-  const toggleButton = document.getElementById('navToggle');
-  toggleButton.dispatchEvent(new dom.window.Event('click', { bubbles: true }));
-  await new Promise((resolve) => setImmediate(resolve));
-
-  assert.strictEqual(collapseLoaded, 1);
-  assert.ok(document.getElementById('navbarNav').classList.contains('show'));
-
-  const dropdownToggle = document.getElementById('menuDropdown');
-  dropdownToggle.dispatchEvent(new dom.window.Event('pointerdown', { bubbles: true }));
-  await new Promise((resolve) => setTimeout(resolve, 25));
-
-  assert.strictEqual(dropdownToggle.getAttribute('aria-expanded'), 'true');
-  assert.ok(document.getElementById('menuDropdownMenu').classList.contains('show'));
-  const afterOpen = module.__getDropdownStateSnapshot();
-  assert.strictEqual(afterOpen.controllers[0].expandedId, 'id:menuDropdown');
-
-  dropdownToggle.dispatchEvent(new dom.window.Event('pointerdown', { bubbles: true }));
-  await new Promise((resolve) => setTimeout(resolve, 25));
-  assert.strictEqual(dropdownToggle.getAttribute('aria-expanded'), 'false');
-  assert.ok(!document.getElementById('menuDropdownMenu').classList.contains('show'));
-
-  module.__resetBootstrapTestState();
-  delete global.window;
-  delete global.document;
-  delete global.HTMLElement;
 });
 
 test('initializeBootstrapUI falls back when collapse module fails to load', async () => {
-  const dom = new JSDOM(
+  await withBootstrapDom(
     `<!DOCTYPE html><body>
     <button id="navToggle" data-bs-toggle="collapse" data-bs-target="#navbarNav" class="collapsed" aria-expanded="false"></button>
     <div id="navbarNav" class="collapse navbar-collapse"></div>
   </body>`,
-    { url: 'http://localhost' }
+    async (module) => {
+      module.__setBootstrapLoaderOverride('collapse', async () => {
+        throw new Error('Network error');
+      });
+
+      module.initializeBootstrapUI();
+
+      const toggleButton = document.getElementById('navToggle');
+      dispatchClick(toggleButton);
+      await waitImmediate();
+
+      assert.strictEqual(toggleButton.getAttribute('aria-expanded'), 'true');
+      assert.ok(toggleButton.classList.contains('collapsed') === false);
+      assert.ok(document.getElementById('navbarNav').classList.contains('show'));
+
+      dispatchClick(toggleButton);
+      await waitImmediate();
+
+      assert.strictEqual(toggleButton.getAttribute('aria-expanded'), 'false');
+      assert.ok(toggleButton.classList.contains('collapsed'));
+      assert.ok(!document.getElementById('navbarNav').classList.contains('show'));
+    }
   );
-  global.window = dom.window;
-  global.document = dom.window.document;
-  global.HTMLElement = dom.window.HTMLElement;
-
-  const module = loadModule('../src/js/modules/bootstrap.mjs');
-
-  module.__setBootstrapLoaderOverride('collapse', async () => {
-    throw new Error('Network error');
-  });
-
-  module.initializeBootstrapUI();
-
-  const toggleButton = document.getElementById('navToggle');
-  toggleButton.dispatchEvent(new dom.window.Event('click', { bubbles: true }));
-  await new Promise((resolve) => setImmediate(resolve));
-
-  assert.strictEqual(toggleButton.getAttribute('aria-expanded'), 'true');
-  assert.ok(toggleButton.classList.contains('collapsed') === false);
-  assert.ok(document.getElementById('navbarNav').classList.contains('show'));
-
-  toggleButton.dispatchEvent(new dom.window.Event('click', { bubbles: true }));
-  await new Promise((resolve) => setImmediate(resolve));
-
-  assert.strictEqual(toggleButton.getAttribute('aria-expanded'), 'false');
-  assert.ok(toggleButton.classList.contains('collapsed'));
-  assert.ok(!document.getElementById('navbarNav').classList.contains('show'));
-
-  module.__resetBootstrapTestState();
-  delete global.window;
-  delete global.document;
-  delete global.HTMLElement;
 });
 
 test('showOffcanvas loads module on demand and displays panel', async () => {
-  const dom = new JSDOM(
+  await withBootstrapDom(
     `<!DOCTYPE html><body>
     <div id="cartOffcanvas" class="offcanvas"></div>
   </body>`,
-    { url: 'http://localhost' }
+    async (module) => {
+      const OffcanvasStub = createBootstrapComponentStub('show', (element) => {
+        element.classList.add('show');
+      });
+      let offcanvasLoaded = 0;
+      module.__setBootstrapLoaderOverride('offcanvas', async () => {
+        offcanvasLoaded += 1;
+        return { default: OffcanvasStub };
+      });
+
+      const result = await module.showOffcanvas('#cartOffcanvas');
+      assert.strictEqual(offcanvasLoaded, 1);
+      assert.ok(document.getElementById('cartOffcanvas').classList.contains('show'));
+      assert.ok(result instanceof OffcanvasStub);
+
+      await module.showOffcanvas('#cartOffcanvas');
+      assert.strictEqual(
+        offcanvasLoaded,
+        1,
+        'offcanvas loader should be cached after first call'
+      );
+    }
   );
-  global.window = dom.window;
-  global.document = dom.window.document;
-  global.HTMLElement = dom.window.HTMLElement;
-
-  const module = loadModule('../src/js/modules/bootstrap.mjs');
-
-  class OffcanvasStub {
-    constructor(element) {
-      this.element = element;
-    }
-    show() {
-      this.element.classList.add('show');
-    }
-    static getOrCreateInstance(element) {
-      if (!this.instances) {
-        this.instances = new WeakMap();
-      }
-      if (!this.instances.has(element)) {
-        this.instances.set(element, new OffcanvasStub(element));
-      }
-      return this.instances.get(element);
-    }
-  }
-
-  let offcanvasLoaded = 0;
-  module.__setBootstrapLoaderOverride('offcanvas', async () => {
-    offcanvasLoaded += 1;
-    return { default: OffcanvasStub };
-  });
-
-  const result = await module.showOffcanvas('#cartOffcanvas');
-  assert.strictEqual(offcanvasLoaded, 1);
-  assert.ok(document.getElementById('cartOffcanvas').classList.contains('show'));
-  assert.ok(result instanceof OffcanvasStub);
-
-  await module.showOffcanvas('#cartOffcanvas');
-  assert.strictEqual(offcanvasLoaded, 1, 'offcanvas loader should be cached after first call');
-
-  module.__resetBootstrapTestState();
-  delete global.window;
-  delete global.document;
-  delete global.HTMLElement;
 });

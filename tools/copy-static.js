@@ -33,7 +33,8 @@ function main() {
   }
 
   // Root-level static files
-  ['404.html', 'app.webmanifest', 'robots.txt', 'service-worker.js'].forEach((file) =>
+  ['404.html', 'app.webmanifest', 'preview.html', 'robots.txt', 'service-worker.js'].forEach(
+    (file) =>
     copyFileRelative(file)
   );
 

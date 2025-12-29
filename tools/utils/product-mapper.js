@@ -7,7 +7,7 @@ const CFIMG_THUMB = { fit: 'cover', quality: 75, format: 'auto', dpr: 1 };
 const PRODUCT_IMAGE_WIDTHS = [200, 320, 400];
 const HERO_WIDTHS = [200, 320, 400];
 const HERO_BASE_WIDTH = 320;
-const PRODUCT_IMAGE_SIZES = '(max-width: 575px) 200px, (max-width: 991px) 45vw, 280px';
+const PRODUCT_IMAGE_SIZES = '(max-width: 575px) 50vw, (max-width: 991px) 45vw, 280px';
 
 function shouldDisableCfRewrite() {
   const disableFlag = process.env.CFIMG_DISABLE;
@@ -43,6 +43,14 @@ function cfimg(imgPath, opts = {}) {
     .map(([key, value]) => `${key}=${value}`)
     .join(',');
   return `/cdn-cgi/image/${params}${encoded}`;
+}
+
+function encodePath(pathValue) {
+  const normalized = pathValue.startsWith('/') ? pathValue : `/${pathValue}`;
+  return normalized
+    .split('/')
+    .map((segment) => encodeURIComponent(segment))
+    .join('/');
 }
 
 function readProductData() {
@@ -87,10 +95,19 @@ function buildImageMeta(imagePath, avifPath) {
   let avif = null;
   if (avifPath) {
     const normalizedAvif = avifPath.startsWith('/') ? avifPath : `/${avifPath}`;
-    avif = {
-      src: cfimg(normalizedAvif, { ...CFIMG_THUMB, width: HERO_BASE_WIDTH, format: 'avif' }),
-      srcset: buildSrcset(avifPath, PRODUCT_IMAGE_WIDTHS, { format: 'avif' }),
-    };
+    const canRewrite = !shouldDisableCfRewrite();
+    if (canRewrite) {
+      avif = {
+        src: cfimg(normalized, { ...CFIMG_THUMB, width: HERO_BASE_WIDTH, format: 'avif' }),
+        srcset: buildSrcset(imagePath, PRODUCT_IMAGE_WIDTHS, { format: 'avif' }),
+      };
+    } else {
+      const encodedAvif = encodePath(normalizedAvif);
+      avif = {
+        src: encodedAvif,
+        srcset: encodedAvif,
+      };
+    }
   }
   return { src, srcset, avif, sizes: PRODUCT_IMAGE_SIZES };
 }
