@@ -97,6 +97,7 @@ const {
   addToCart,
   getCartItemQuantity,
   getCart,
+  renderCart,
   updateQuantity,
   updateCartIcon,
 } = cartManager;
@@ -500,6 +501,12 @@ const initApp = async () => {
   }, 150);
 
   const submitCart = () => {
+    const cartItems = getCart();
+    if (!cartItems || cartItems.length === 0) {
+      showErrorMessage('Tu carrito está vacío. Agrega productos antes de realizar el pedido.');
+      return;
+    }
+
     const paymentError = document.getElementById('payment-error');
     const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
     if (!selectedPayment) {
@@ -625,6 +632,7 @@ const initApp = async () => {
 
     // Initialize Cart Icon State
     updateCartIcon();
+    renderCart();
 
     // Setup Cart Interaction Listeners (delegation)
     if (typeof cartManager.setupCartInteraction === 'function') {
