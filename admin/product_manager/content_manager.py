@@ -292,7 +292,7 @@ class ProductManager:
             ui_config = self._create_ui_config()
 
             # Create and run GUI
-            self.gui = ProductGUI(root, service, self.category_service)
+            self.gui = ProductGUI(root, service, self.category_service, project_root=PROJECT_ROOT)
 
             # Configure window using ui_config
             root.title("Gestor de Productos")
