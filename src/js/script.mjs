@@ -1,5 +1,5 @@
 import { log } from './utils/logger.mts';
-import { safeReload } from './utils/safe-reload.mjs';
+
 import { memoize, debounce, scheduleIdle, cancelScheduledIdle } from './utils/async.mjs';
 import { createCartManager } from './modules/cart.mjs';
 import { registerServiceWorker } from './modules/service-worker-manager.mjs';
