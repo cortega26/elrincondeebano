@@ -108,4 +108,27 @@ describe('Cart Manager', () => {
 
         assert.deepEqual(cartManager.getCart(), []);
     });
+
+    it('should normalize numeric ids loaded from storage', () => {
+        globalThis.localStorage.getItem = () =>
+            JSON.stringify([{ id: 101, name: 'Stored Product', price: 500, quantity: 2 }]);
+
+        cartManager = createCartManager({
+            createSafeElement: (tag) => ({ tag, appendChild: () => { }, classList: { add: () => { } } }),
+            createCartThumbnail: () => ({ q: 'img' }),
+            toggleActionArea: () => { },
+            showErrorMessage: mockShowErrorMessage,
+            getUpdateProductDisplay: () => mockUpdateProductDisplay,
+        });
+
+        const cart = cartManager.getCart();
+        assert.equal(cart[0].id, '101');
+        assert.equal(cart[0].quantity, 2);
+
+        cartManager.updateQuantity({ id: '101' }, -1);
+        assert.equal(cartManager.getCart()[0].quantity, 1);
+
+        cartManager.removeFromCart('101');
+        assert.deepEqual(cartManager.getCart(), []);
+    });
 });
