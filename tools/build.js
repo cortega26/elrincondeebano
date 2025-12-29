@@ -51,7 +51,7 @@ async function build() {
     addDirFiles(distJsDir);
   }
 
-  const staticJs = ['csp.js', 'sw-register.js'];
+  const staticJs = ['csp.js'];
   for (const file of staticJs) {
     fs.copyFileSync(path.join(rootDir, 'src/js', file), path.join(distJsDir, file));
     manifestFiles.add(`/dist/js/${file}`);

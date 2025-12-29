@@ -9,7 +9,7 @@ export default defineConfig({
       },
     },
     include: ['test/**/*.spec.{js,mjs,ts}'],
-    exclude: ['test/run-all.js', 'node_modules'],
+    exclude: ['test/e2e/**', 'test/run-all.js', 'node_modules'],
     globals: true,
     coverage: {
       provider: 'v8',
