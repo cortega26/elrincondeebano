@@ -1,6 +1,6 @@
 import pytest
 
-from admin.product_manager.tests.test_support import (
+from test_support import (
   bootstrap_tests,
   InMemoryRepository,
 )
