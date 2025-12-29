@@ -26,12 +26,6 @@ async function fetchProductJson() {
   throw lastErr || new Error('No se pudo obtener product_data.json');
 }
 
-function escapeHtml(s = '') {
-  const div = document.createElement('div');
-  div.textContent = s;
-  return div.innerHTML;
-}
-
 async function loadFromServer() {
   let data;
   try {
