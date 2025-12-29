@@ -836,12 +836,13 @@ const fetchWithRetry = async (url, opts, retries, backoffMs, correlationId) => {
   const sanitizedUrl = validateProductDataUrl(url);
   let attempt = 0;
   let lastError;
-  while (attempt <= retries) {
-    try {
-      const start = Date.now();
-      const response = await fetch(sanitizedUrl, opts);
-      const durationMs = Date.now() - start;
-      log('info', 'fetch_products_attempt', { correlationId, attempt: attempt + 1, durationMs });
+    while (attempt <= retries) {
+      try {
+        const start = Date.now();
+        // nosemgrep: URL is validated by validateProductDataUrl before fetch.
+        const response = await fetch(sanitizedUrl, opts);
+        const durationMs = Date.now() - start;
+        log('info', 'fetch_products_attempt', { correlationId, attempt: attempt + 1, durationMs });
       if (!response.ok) {
         throw new Error(`HTTP error. Status: ${response.status}`);
       }
