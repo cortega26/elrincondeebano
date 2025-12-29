@@ -1,5 +1,4 @@
-
-import { test, describe, it, beforeEach, mock } from 'node:test'; // Requires Node 20+ or polyfill for mock
+import { describe, it, beforeEach, mock } from 'node:test'; // Requires Node 20+ or polyfill for mock
 import assert from 'node:assert/strict';
 import { createCartManager } from '../src/js/modules/cart.mjs';
 

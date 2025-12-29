@@ -108,117 +108,134 @@ export function createCartManager({
 
     cartItems.innerHTML = '';
     let total = 0;
+    const isEmpty = cart.length === 0;
 
-    cart.forEach((item) => {
-      const discountedPrice = item.price - (item.discount || 0);
-
-      const itemElement = createSafeElement('div', {
-        class: 'cart-item mb-3 d-flex align-items-start',
-        'aria-label': `Cart item: ${item.name}`,
-      });
-
-      const contentContainer = createSafeElement('div', {
-        class: 'cart-item-content flex-grow-1',
-      });
-
-      contentContainer.appendChild(createSafeElement('div', { class: 'fw-bold mb-1' }, [item.name]));
-
-      const quantityContainer = createSafeElement('div', { class: 'mb-2' });
-      const decreaseBtn = createSafeElement(
-        'button',
-        {
-          class: 'btn btn-sm btn-secondary decrease-quantity',
-          'data-id': item.id,
-          'aria-label': `Disminuir cantidad de ${item.name}`,
-        },
-        ['-']
+    if (isEmpty) {
+      cartItems.appendChild(
+        createSafeElement(
+          'div',
+          {
+            class: 'alert alert-info mb-0 cart-empty-message',
+            role: 'status',
+            tabindex: '-1',
+          },
+          ['Tu carrito está vacío. Agrega productos antes de realizar el pedido.']
+        )
       );
-      const increaseBtn = createSafeElement(
-        'button',
-        {
-          class: 'btn btn-sm btn-secondary increase-quantity',
-          'data-id': item.id,
-          'aria-label': `Aumentar cantidad de ${item.name}`,
-        },
-        ['+']
-      );
-      const quantitySpan = createSafeElement(
-        'span',
-        {
-          class: 'mx-2 item-quantity',
-          'aria-label': `Cantidad de ${item.name}`,
-        },
-        [item.quantity.toString()]
-      );
-      quantityContainer.appendChild(decreaseBtn);
-      quantityContainer.appendChild(quantitySpan);
-      quantityContainer.appendChild(increaseBtn);
-      contentContainer.appendChild(quantityContainer);
+    } else {
+      cart.forEach((item) => {
+        const discountedPrice = item.price - (item.discount || 0);
 
-      contentContainer.appendChild(
-        createSafeElement('div', { class: 'text-muted small' }, [
-          `Precio: $${discountedPrice.toLocaleString('es-CL')}`,
-        ])
-      );
-      contentContainer.appendChild(
-        createSafeElement('div', { class: 'fw-bold' }, [
-          `Subtotal: $${(discountedPrice * item.quantity).toLocaleString('es-CL')}`,
-        ])
-      );
+        const itemElement = createSafeElement('div', {
+          class: 'cart-item mb-3 d-flex align-items-start',
+          'aria-label': `Cart item: ${item.name}`,
+        });
 
-      const removeBtn = createSafeElement(
-        'button',
-        {
-          class: 'btn btn-sm btn-danger remove-item mt-2',
-          'data-id': item.id,
-          'aria-label': `Eliminar ${item.name} del carrito`,
-        },
-        ['Eliminar']
-      );
-      contentContainer.appendChild(removeBtn);
+        const contentContainer = createSafeElement('div', {
+          class: 'cart-item-content flex-grow-1',
+        });
 
-      const isSubcategoryPage =
-        typeof window !== 'undefined' && window.location.pathname.includes('/pages/');
-      let adjustedImagePath;
-      if (isSubcategoryPage) {
-        adjustedImagePath = `../${(item.image_path || '').replace(/^\//, '')}`;
-      } else {
-        adjustedImagePath = item.image_path;
-      }
+        contentContainer.appendChild(
+          createSafeElement('div', { class: 'fw-bold mb-1' }, [item.name])
+        );
 
-      const thumbnailContainer = createSafeElement('div', {
-        class: 'cart-item-thumb ms-3 flex-shrink-0',
-      });
-      const thumbnailPicture = createCartThumbnail({
-        imagePath: item.thumbnail_path || adjustedImagePath,
-        avifPath: item.image_avif_path,
-        alt: item.name,
-      });
-      const fallbackImg = thumbnailPicture.querySelector('img');
-      if (fallbackImg) {
-        if (!fallbackImg.getAttribute('src') && adjustedImagePath) {
-          fallbackImg.setAttribute('src', adjustedImagePath);
+        const quantityContainer = createSafeElement('div', { class: 'mb-2' });
+        const decreaseBtn = createSafeElement(
+          'button',
+          {
+            class: 'btn btn-sm btn-secondary decrease-quantity',
+            'data-id': item.id,
+            'aria-label': `Disminuir cantidad de ${item.name}`,
+          },
+          ['-']
+        );
+        const increaseBtn = createSafeElement(
+          'button',
+          {
+            class: 'btn btn-sm btn-secondary increase-quantity',
+            'data-id': item.id,
+            'aria-label': `Aumentar cantidad de ${item.name}`,
+          },
+          ['+']
+        );
+        const quantitySpan = createSafeElement(
+          'span',
+          {
+            class: 'mx-2 item-quantity',
+            'aria-label': `Cantidad de ${item.name}`,
+          },
+          [item.quantity.toString()]
+        );
+        quantityContainer.appendChild(decreaseBtn);
+        quantityContainer.appendChild(quantitySpan);
+        quantityContainer.appendChild(increaseBtn);
+        contentContainer.appendChild(quantityContainer);
+
+        contentContainer.appendChild(
+          createSafeElement('div', { class: 'text-muted small' }, [
+            `Precio: $${discountedPrice.toLocaleString('es-CL')}`,
+          ])
+        );
+        contentContainer.appendChild(
+          createSafeElement('div', { class: 'fw-bold' }, [
+            `Subtotal: $${(discountedPrice * item.quantity).toLocaleString('es-CL')}`,
+          ])
+        );
+
+        const removeBtn = createSafeElement(
+          'button',
+          {
+            class: 'btn btn-sm btn-danger remove-item mt-2',
+            'data-id': item.id,
+            'aria-label': `Eliminar ${item.name} del carrito`,
+          },
+          ['Eliminar']
+        );
+        contentContainer.appendChild(removeBtn);
+
+        const isSubcategoryPage =
+          typeof window !== 'undefined' && window.location.pathname.includes('/pages/');
+        let adjustedImagePath;
+        if (isSubcategoryPage) {
+          adjustedImagePath = `../${(item.image_path || '').replace(/^\//, '')}`;
+        } else {
+          adjustedImagePath = item.image_path;
         }
-        if (Array.isArray(item.thumbnail_variants)) {
-          const parts = item.thumbnail_variants
-            .filter((v) => v && v.url && v.width)
-            .map((v) => `${v.url} ${v.width}w`);
-          if (parts.length) {
-            fallbackImg.setAttribute('srcset', parts.join(', '));
+
+        const thumbnailContainer = createSafeElement('div', {
+          class: 'cart-item-thumb ms-3 flex-shrink-0',
+        });
+        const thumbnailPicture = createCartThumbnail({
+          imagePath: item.thumbnail_path || adjustedImagePath,
+          avifPath: item.image_avif_path,
+          alt: item.name,
+        });
+        const fallbackImg = thumbnailPicture.querySelector('img');
+        if (fallbackImg) {
+          if (!fallbackImg.getAttribute('src') && adjustedImagePath) {
+            fallbackImg.setAttribute('src', adjustedImagePath);
+          }
+          if (Array.isArray(item.thumbnail_variants)) {
+            const parts = item.thumbnail_variants
+              .filter((v) => v && v.url && v.width)
+              .map((v) => `${v.url} ${v.width}w`);
+            if (parts.length) {
+              fallbackImg.setAttribute('srcset', parts.join(', '));
+              fallbackImg.setAttribute('sizes', '100px');
+            }
+          } else if (!fallbackImg.getAttribute('sizes')) {
             fallbackImg.setAttribute('sizes', '100px');
           }
-        } else if (!fallbackImg.getAttribute('sizes')) {
-          fallbackImg.setAttribute('sizes', '100px');
         }
-      }
-      thumbnailContainer.appendChild(thumbnailPicture);
+        thumbnailContainer.appendChild(thumbnailPicture);
 
-      itemElement.appendChild(contentContainer);
-      itemElement.appendChild(thumbnailContainer);
-      cartItems.appendChild(itemElement);
+        itemElement.appendChild(contentContainer);
+        itemElement.appendChild(thumbnailContainer);
+        cartItems.appendChild(itemElement);
 
-      total += discountedPrice * item.quantity;
-    });
+        total += discountedPrice * item.quantity;
+      });
+    }
 
     cartTotal.textContent = `Total: $${total.toLocaleString('es-CL')}`;
     cartTotal.setAttribute('aria-label', `Total: $${total.toLocaleString('es-CL')}`);
@@ -234,6 +251,33 @@ export function createCartManager({
           creditInput.checked = false;
         }
       }
+    }
+
+    const submitCartBtn = document.getElementById('submit-cart');
+    if (submitCartBtn) {
+      submitCartBtn.disabled = isEmpty;
+      submitCartBtn.setAttribute('aria-disabled', isEmpty ? 'true' : 'false');
+    }
+
+    const emptyCartBtn = document.getElementById('empty-cart');
+    if (emptyCartBtn) {
+      emptyCartBtn.disabled = isEmpty;
+      emptyCartBtn.setAttribute('aria-disabled', isEmpty ? 'true' : 'false');
+    }
+
+    const paymentInputs = document.querySelectorAll('input[name="paymentMethod"]');
+    if (paymentInputs.length) {
+      paymentInputs.forEach((input) => {
+        input.disabled = isEmpty;
+        if (isEmpty) {
+          input.checked = false;
+        }
+      });
+    }
+
+    const paymentError = document.getElementById('payment-error');
+    if (paymentError && isEmpty) {
+      paymentError.textContent = '';
     }
   };
 
