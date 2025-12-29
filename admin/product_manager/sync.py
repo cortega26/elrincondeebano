@@ -115,15 +115,15 @@ class SyncEngine:
     timeout: int = 10,
     logger: Optional[logging.Logger] = None,
   ) -> None:
-    self.api_base = api_base.rstrip("/") if api_base else ""
     self.repository = repository
     self.service = service
     self.queue_file = queue_file
+    self.logger = logger or logging.getLogger(__name__)
+    self.api_base = self._normalize_api_base(api_base)
     self.enabled = enabled and bool(self.api_base)
     self.poll_interval = poll_interval
     self.pull_interval = pull_interval
     self.timeout = timeout
-    self.logger = logger or logging.getLogger(__name__)
     self._retry_initial_delay = max(30, poll_interval)
     self._retry_max_delay = 15 * 60
     self._max_backoff_exponent = 6
@@ -132,6 +132,18 @@ class SyncEngine:
     self._conflicts: List[Dict[str, Any]] = []
     self._last_pull_ts = 0.0
     self._load_queue()
+
+  def _normalize_api_base(self, api_base: str) -> str:
+    if not api_base:
+      return ""
+    trimmed = api_base.strip()
+    if not trimmed:
+      return ""
+    parsed = parse.urlparse(trimmed)
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+      self.logger.warning("Sync disabled: api_base must be http(s) with a host.")
+      return ""
+    return trimmed.rstrip("/")
 
   def _load_queue(self) -> None:
     if not os.path.exists(self.queue_file):
