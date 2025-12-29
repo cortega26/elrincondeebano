@@ -17,8 +17,8 @@ function generateSitemap() {
   // Category pages (medium-high priority)
   const catalog = loadCategoryCatalog();
   const pages = buildCategoryPages(catalog);
-  const categoryPages = pages.map((page) => ({
-    url: '/pages/${page.slug}.html',
+  const categoryPages = pages.map((categoryPage) => ({
+    url: `/pages/${categoryPage.slug}.html`,
     priority: '0.8',
     changefreq: 'weekly',
   }));
@@ -57,7 +57,7 @@ function main() {
 
     // Also log some stats
     const urlCount = (sitemapContent.match(/<url>/g) || []).length;
-    console.log('📊 Generated sitemap with ${urlCount} URLs');
+    console.log(`📊 Generated sitemap with ${urlCount} URLs`);
   } catch (error) {
     console.error('❌ Error generating sitemap:', error.message);
     // Don't throw - we don't want to break the build if sitemap fails
