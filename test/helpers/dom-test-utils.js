@@ -16,11 +16,41 @@ function setupDom(markup, options = {}) {
   return dom;
 }
 
+function setupAppDom(markup, options = {}) {
+  const dom = setupDom(markup, options);
+  global.navigator = dom.window.navigator;
+  global.localStorage = dom.window.localStorage;
+  global.CustomEvent = dom.window.CustomEvent;
+  global.MutationObserver =
+    dom.window.MutationObserver ||
+    class {
+      observe() {}
+      disconnect() {}
+    };
+  global.IntersectionObserver =
+    dom.window.IntersectionObserver ||
+    class {
+      observe() {}
+      disconnect() {}
+      unobserve() {}
+    };
+  return dom;
+}
+
 function teardownDom() {
   delete global.window;
   delete global.document;
   delete global.HTMLElement;
   delete global.location;
+}
+
+function teardownAppDom() {
+  delete global.navigator;
+  delete global.localStorage;
+  delete global.CustomEvent;
+  delete global.MutationObserver;
+  delete global.IntersectionObserver;
+  teardownDom();
 }
 
 function wait(ms) {
@@ -42,7 +72,9 @@ function dispatchClick(target) {
 module.exports = {
   ensureFileGlobal,
   setupDom,
+  setupAppDom,
   teardownDom,
+  teardownAppDom,
   wait,
   waitImmediate,
   dispatchPointerDown,
