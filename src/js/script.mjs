@@ -839,7 +839,8 @@ const fetchWithRetry = async (url, opts, retries, backoffMs, correlationId) => {
     while (attempt <= retries) {
       try {
         const start = Date.now();
-        // nosemgrep: URL is validated by validateProductDataUrl before fetch.
+        // URL is validated by validateProductDataUrl before fetch.
+        // nosemgrep
         const response = await fetch(sanitizedUrl, opts);
         const durationMs = Date.now() - start;
         log('info', 'fetch_products_attempt', { correlationId, attempt: attempt + 1, durationMs });

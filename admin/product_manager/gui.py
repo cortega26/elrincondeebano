@@ -1863,8 +1863,8 @@ class ProductFormDialog(tk.Toplevel):
             # Ensure image preview syncs with populated image_path
             try:
                 self._update_image_preview()
-            except Exception:
-                pass
+            except Exception as exc:
+                self.logger.debug("No se pudo actualizar la vista previa: %s", exc)
         else:
             self._prefill_category()
 
