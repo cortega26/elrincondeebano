@@ -1,6 +1,7 @@
 import { cfimg, CFIMG_THUMB } from './utils/cfimg.mjs';
 import { log, createCorrelationId } from './utils/logger.mts';
 import { resolveProductDataUrl, validateProductDataUrl } from './utils/data-endpoint.mjs';
+import { safeReload } from './utils/safe-reload.mjs';
 import { showOffcanvas } from './modules/bootstrap.mjs';
 
 const PRODUCT_DATA_GLOBAL_KEY = '__PRODUCT_DATA__';
@@ -1061,20 +1062,6 @@ const createCartThumbnail = ({ imagePath, avifPath, alt }) => {
   return createSafeElement('picture', {}, [...sources, imgElement]);
 };
 
-const safeReload = () => {
-  try {
-    if (typeof window === 'undefined') return;
-    const ua = window.navigator?.userAgent || '';
-    if (/jsdom/i.test(ua)) return;
-      const reloadFn = window.location && window.location.reload;
-      if (typeof reloadFn === 'function') {
-        reloadFn.call(window.location);
-      }
-    } catch (error) {
-      // Ignore reload failures in restricted environments.
-    }
-  };
-
 const showErrorMessage = (message) => {
   const errorMessage = createSafeElement('div', { class: 'error-message', role: 'alert' }, [
     createSafeElement('p', {}, [message]),
@@ -1368,14 +1355,16 @@ const addToCart = (product, quantity) => {
     pulseAddToCartButton(product.id);
     renderCart(product.id);
     bumpCartTotal();
-    try {
-      if (typeof window !== 'undefined' && typeof window.__analyticsTrack === 'function')
-        window.__analyticsTrack('add_to_cart', {
-          id: product.id,
-          q: quantity,
-          price: product.price,
-        });
-    } catch {}
+      try {
+        if (typeof window !== 'undefined' && typeof window.__analyticsTrack === 'function')
+          window.__analyticsTrack('add_to_cart', {
+            id: product.id,
+            q: quantity,
+            price: product.price,
+          });
+      } catch (error) {
+        // Ignore analytics tracking failures.
+      }
     const quantityInput = document.querySelector(`[data-id="${product.id}"].quantity-input`);
     if (quantityInput) {
       quantityInput.value = Math.max(getCartItemQuantity(product.id), 1);
@@ -1393,10 +1382,12 @@ const removeFromCart = (productId) => {
     updateCartIcon();
     renderCart();
     bumpCartTotal();
-    try {
-      if (typeof window !== 'undefined' && typeof window.__analyticsTrack === 'function')
-        window.__analyticsTrack('remove_from_cart', { id: productId });
-    } catch {}
+      try {
+        if (typeof window !== 'undefined' && typeof window.__analyticsTrack === 'function')
+          window.__analyticsTrack('remove_from_cart', { id: productId });
+      } catch (error) {
+        // Ignore analytics tracking failures.
+      }
     const actionArea = document.querySelector(`.action-area[data-pid="${productId}"]`);
     if (actionArea) {
       const btn = actionArea.querySelector('.add-to-cart-btn');

@@ -65,6 +65,76 @@ function findByPid(id) {
   return products.find((p) => pid(p) === id);
 }
 
+function createTextCell(value) {
+  const td = document.createElement('td');
+  td.textContent = value || '';
+  return td;
+}
+
+function createCellWith(child) {
+  const td = document.createElement('td');
+  td.appendChild(child);
+  return td;
+}
+
+function createCheckboxCell({ id, field, checked = false }) {
+  const input = document.createElement('input');
+  input.type = 'checkbox';
+  if (typeof checked === 'boolean') {
+    input.checked = checked;
+  }
+  input.dataset.id = id;
+  if (field) {
+    input.dataset.field = field;
+  }
+  return createCellWith(input);
+}
+
+function createNumberInputCell({ id, field, value, min, step }) {
+  const input = document.createElement('input');
+  input.type = 'number';
+  input.className = 'form-control form-control-sm';
+  input.value = String(value ?? '');
+  input.min = String(min);
+  input.step = String(step);
+  input.dataset.field = field;
+  input.dataset.id = id;
+  return createCellWith(input);
+}
+
+function createTextInput({ id, field, value, placeholder }) {
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'form-control';
+  input.value = value || '';
+  if (placeholder) {
+    input.placeholder = placeholder;
+  }
+  input.dataset.field = field;
+  input.dataset.id = id;
+  return input;
+}
+
+function createImageButton({ id, field }) {
+  const button = document.createElement('button');
+  button.className = 'btn btn-outline-secondary btn-img-mgr';
+  button.type = 'button';
+  button.dataset.field = field;
+  button.dataset.id = id;
+  button.title = 'Gestionar imagen';
+  button.textContent = '📷';
+  return button;
+}
+
+function createImageInputCell({ id, field, value, placeholder }) {
+  const group = document.createElement('div');
+  group.className = 'input-group input-group-sm';
+  const input = createTextInput({ id, field, value, placeholder });
+  const button = createImageButton({ id, field });
+  group.append(input, button);
+  return createCellWith(group);
+}
+
 function renderGrid() {
   const filter = ($('#filter').value || '').toLowerCase();
   const cat = $('#category').value;
@@ -83,100 +153,21 @@ function renderGrid() {
     const id = pid(p);
     const tr = document.createElement('tr');
 
-    const selectTd = document.createElement('td');
-    const selectInput = document.createElement('input');
-    selectInput.type = 'checkbox';
-    selectInput.dataset.id = id;
-    selectTd.appendChild(selectInput);
-
-    const nameTd = document.createElement('td');
-    nameTd.textContent = p.name || '';
-
-    const descTd = document.createElement('td');
-    descTd.textContent = p.description || '';
-
-    const priceTd = document.createElement('td');
-    const priceInput = document.createElement('input');
-    priceInput.type = 'number';
-    priceInput.className = 'form-control form-control-sm';
-    priceInput.value = String(p.price ?? '');
-    priceInput.min = '1';
-    priceInput.step = '100';
-    priceInput.dataset.field = 'price';
-    priceInput.dataset.id = id;
-    priceTd.appendChild(priceInput);
-
-    const discountTd = document.createElement('td');
-    const discountInput = document.createElement('input');
-    discountInput.type = 'number';
-    discountInput.className = 'form-control form-control-sm';
-    discountInput.value = String(p.discount || 0);
-    discountInput.min = '0';
-    discountInput.step = '100';
-    discountInput.dataset.field = 'discount';
-    discountInput.dataset.id = id;
-    discountTd.appendChild(discountInput);
-
-    const stockTd = document.createElement('td');
-    const stockInput = document.createElement('input');
-    stockInput.type = 'checkbox';
-    stockInput.checked = Boolean(p.stock);
-    stockInput.dataset.field = 'stock';
-    stockInput.dataset.id = id;
-    stockTd.appendChild(stockInput);
-
-    const categoryTd = document.createElement('td');
-    categoryTd.textContent = p.category || '';
-
-    const imageTd = document.createElement('td');
-    const imageGroup = document.createElement('div');
-    imageGroup.className = 'input-group input-group-sm';
-    const imageInput = document.createElement('input');
-    imageInput.type = 'text';
-    imageInput.className = 'form-control';
-    imageInput.value = p.image_path || '';
-    imageInput.dataset.field = 'image_path';
-    imageInput.dataset.id = id;
-    const imageBtn = document.createElement('button');
-    imageBtn.className = 'btn btn-outline-secondary btn-img-mgr';
-    imageBtn.type = 'button';
-    imageBtn.dataset.field = 'image_path';
-    imageBtn.dataset.id = id;
-    imageBtn.title = 'Gestionar imagen';
-    imageBtn.textContent = '📷';
-    imageGroup.append(imageInput, imageBtn);
-    imageTd.appendChild(imageGroup);
-
-    const avifTd = document.createElement('td');
-    const avifGroup = document.createElement('div');
-    avifGroup.className = 'input-group input-group-sm';
-    const avifInput = document.createElement('input');
-    avifInput.type = 'text';
-    avifInput.className = 'form-control';
-    avifInput.value = p.image_avif_path || '';
-    avifInput.placeholder = 'assets/images/... .avif';
-    avifInput.dataset.field = 'image_avif_path';
-    avifInput.dataset.id = id;
-    const avifBtn = document.createElement('button');
-    avifBtn.className = 'btn btn-outline-secondary btn-img-mgr';
-    avifBtn.type = 'button';
-    avifBtn.dataset.field = 'image_avif_path';
-    avifBtn.dataset.id = id;
-    avifBtn.title = 'Gestionar imagen';
-    avifBtn.textContent = '📷';
-    avifGroup.append(avifInput, avifBtn);
-    avifTd.appendChild(avifGroup);
-
     tr.append(
-      selectTd,
-      nameTd,
-      descTd,
-      priceTd,
-      discountTd,
-      stockTd,
-      categoryTd,
-      imageTd,
-      avifTd
+      createCheckboxCell({ id }),
+      createTextCell(p.name || ''),
+      createTextCell(p.description || ''),
+      createNumberInputCell({ id, field: 'price', value: p.price ?? '', min: 1, step: 100 }),
+      createNumberInputCell({ id, field: 'discount', value: p.discount || 0, min: 0, step: 100 }),
+      createCheckboxCell({ id, field: 'stock', checked: Boolean(p.stock) }),
+      createTextCell(p.category || ''),
+      createImageInputCell({ id, field: 'image_path', value: p.image_path || '' }),
+      createImageInputCell({
+        id,
+        field: 'image_avif_path',
+        value: p.image_avif_path || '',
+        placeholder: 'assets/images/... .avif',
+      })
     );
     tbody.appendChild(tr);
   }

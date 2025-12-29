@@ -1,4 +1,5 @@
 // Lightweight toast/notification helpers, loaded on demand
+import { safeReload } from '../utils/safe-reload.mjs';
 
 function createNotificationElement(message, primaryButtonText, secondaryButtonText, primaryAction) {
   const notification = document.createElement('div');
@@ -59,21 +60,6 @@ function showNotification(notificationElement) {
     },
     5 * 60 * 1000
   );
-}
-
-function safeReload() {
-  try {
-    if (typeof window === 'undefined') return;
-    const ua = (window.navigator && window.navigator.userAgent) || '';
-    // Avoid jsdom virtual console noise: jsdom advertises itself in UA
-    if (/jsdom/i.test(ua)) return;
-    const reloadFn = window.location && window.location.reload;
-    if (typeof reloadFn === 'function') {
-      reloadFn.call(window.location);
-    }
-  } catch (error) {
-    // Ignore reload failures in restricted environments.
-  }
 }
 
 export function showUpdateNotification(serviceWorker, message = 'Una versión está disponible') {
