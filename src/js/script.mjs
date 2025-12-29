@@ -1159,8 +1159,8 @@ const initApp = async () => {
         'mb-4',
         'fade-in-up',
         !stock ? 'agotado' : '',
-        UTILITY_CLASSES.contentVisible,
-        UTILITY_CLASSES.containIntrinsic,
+        // UTILITY_CLASSES.contentVisible, // DISABLED to fix mobile layout
+        // UTILITY_CLASSES.containIntrinsic, // DISABLED to fix mobile layout
       ]
         .filter(Boolean)
         .join(' ');
@@ -1251,7 +1251,7 @@ const initApp = async () => {
         return;
       }
       const product = map.get(productId);
-      card.classList.add(UTILITY_CLASSES.contentVisible, UTILITY_CLASSES.containIntrinsic);
+      // card.classList.add(UTILITY_CLASSES.contentVisible, UTILITY_CLASSES.containIntrinsic); // DISABLED
       const actionArea = card.querySelector('.action-area');
       setupActionArea(actionArea, product);
       hydrated += 1;
