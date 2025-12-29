@@ -86,11 +86,57 @@ function renderGrid() {
       <td><input type="number" class="form-control form-control-sm" value="${p.discount || 0}" min="0" step="100" data-field="discount" data-id="${pid(p)}"></td>
       <td><input type="checkbox" ${p.stock ? 'checked' : ''} data-field="stock" data-id="${pid(p)}"></td>
       <td>${escapeHtml(p.category || '')}</td>
-      <td><input type="text" class="form-control form-control-sm" value="${escapeHtml(p.image_path || '')}" data-field="image_path" data-id="${pid(p)}"></td>
-      <td><input type="text" class="form-control form-control-sm" value="${escapeHtml(p.image_avif_path || '')}" placeholder="assets/images/... .avif" data-field="image_avif_path" data-id="${pid(p)}"></td>
+      <td>
+        <div class="input-group input-group-sm">
+          <input type="text" class="form-control" value="${escapeHtml(p.image_path || '')}" data-field="image_path" data-id="${pid(p)}">
+          <button class="btn btn-outline-secondary btn-img-mgr" type="button" data-field="image_path" data-id="${pid(p)}" title="Gestionar imagen">📷</button>
+        </div>
+      </td>
+      <td>
+        <div class="input-group input-group-sm">
+          <input type="text" class="form-control" value="${escapeHtml(p.image_avif_path || '')}" placeholder="assets/images/... .avif" data-field="image_avif_path" data-id="${pid(p)}">
+          <button class="btn btn-outline-secondary btn-img-mgr" type="button" data-field="image_avif_path" data-id="${pid(p)}" title="Gestionar imagen">📷</button>
+        </div>
+      </td>
     `;
     tbody.appendChild(tr);
   }
+}
+
+function renderMediaModal() {
+  if ($('#mediaModal')) return;
+  const modalHtml = `
+  <div class="modal fade" id="mediaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Gestor de Multimedia</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="drop-zone" class="drop-zone p-5 text-center mb-3 border rounded bg-light">
+              <p class="mb-2 fs-5">Arrastra y suelta una imagen aquí</p>
+              <p class="text-muted small">o</p>
+              <button class="btn btn-sm btn-primary" onclick="document.getElementById('media-input').click()">Seleccionar archivo</button>
+              <input type="file" id="media-input" class="d-none" accept="image/*,image/avif,image/webp">
+          </div>
+          <div id="media-preview-container" class="text-center d-none p-3 border rounded">
+              <h6 class="text-start mb-3">Vista Previa</h6>
+              <img id="media-preview-img" src="" class="img-fluid mb-2 shadow-sm" style="max-height: 300px; object-fit: contain;">
+              <div class="mt-2">
+                <span class="badge bg-secondary" id="media-filename"></span>
+                <span class="badge bg-info text-dark" id="media-filesize"></span>
+              </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="btn-apply-media" disabled>Usar esta imagen</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
 }
 
 function wireEvents() {
@@ -218,5 +264,126 @@ function exportJSON() {
 
 document.addEventListener('DOMContentLoaded', () => {
   wireEvents();
+  setupMediaManager();
   loadFromServer();
 });
+
+function setupMediaManager() {
+  renderMediaModal();
+
+  const modalEl = $('#mediaModal');
+  const dropZone = $('#drop-zone');
+  const fileInput = $('#media-input');
+  const previewContainer = $('#media-preview-container');
+  const previewImg = $('#media-preview-img');
+  const filenameBadge = $('#media-filename');
+  const filesizeBadge = $('#media-filesize');
+  const btnApply = $('#btn-apply-media');
+  let currentFile = null;
+  let currentMediaTarget = null; // { id, field }
+
+  // Delegate click for grid buttons
+  $('#grid-body').addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn-img-mgr');
+    if (!btn) return;
+    const id = btn.getAttribute('data-id');
+    const field = btn.getAttribute('data-field');
+    currentMediaTarget = { id, field };
+
+    // Reset modal state
+    currentFile = null;
+    previewContainer.classList.add('d-none');
+    dropZone.classList.remove('d-none');
+    btnApply.disabled = true;
+    fileInput.value = ''; // Reset file input
+
+    // Use bootstrap instance to show
+    const bsModal = new bootstrap.Modal(modalEl);
+    bsModal.show();
+  });
+
+  // Drag & Drop
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, preventDefaults, false);
+  });
+
+  function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, highlight, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, unhighlight, false);
+  });
+
+  function highlight(e) {
+    dropZone.classList.add('dragover');
+  }
+
+  function unhighlight(e) {
+    dropZone.classList.remove('dragover');
+  }
+
+  dropZone.addEventListener('drop', handleDrop, false);
+  fileInput.addEventListener('change', (e) => handleFiles(e.target.files), false);
+
+  function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    handleFiles(files);
+  }
+
+  function handleFiles(files) {
+    if (files.length > 0) {
+      const file = files[0];
+      if (!file.type.startsWith('image/')) {
+        alert('Por favor selecciona un archivo de imagen válido.');
+        return;
+      }
+      currentFile = file;
+      showPreview(file);
+    }
+  }
+
+  function showPreview(file) {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = function () {
+      previewImg.src = reader.result;
+      filenameBadge.textContent = file.name;
+      filesizeBadge.textContent = (file.size / 1024).toFixed(1) + ' KB';
+
+      dropZone.classList.add('d-none');
+      previewContainer.classList.remove('d-none');
+      btnApply.disabled = false;
+    }
+  }
+
+  btnApply.addEventListener('click', () => {
+    if (!currentMediaTarget || !currentFile) return;
+
+    // Construct path - assuming standard assets structure
+    const path = `assets/images/${currentFile.name}`;
+
+    // Update data model
+    const p = findByPid(currentMediaTarget.id);
+    if (p) {
+      p[currentMediaTarget.field] = path;
+    }
+
+    // Update UI input
+    const input = $(`input[data-id="${currentMediaTarget.id}"][data-field="${currentMediaTarget.field}"]`);
+    if (input) {
+      input.value = path;
+    }
+
+    // Close modal
+    const bsModal = bootstrap.Modal.getInstance(modalEl);
+    bsModal.hide();
+  });
+}
+
