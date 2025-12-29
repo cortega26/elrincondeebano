@@ -2,8 +2,19 @@ import { log } from './utils/logger.mts';
 import { initializeBootstrapUI, showOffcanvas } from './modules/bootstrap.mjs';
 
 import { memoize, debounce, scheduleIdle, cancelScheduledIdle } from './utils/async.mjs';
+import { resolveAvifSrcset, buildStaticSrcset } from './utils/image-srcset.mjs';
+import {
+  fetchWithRetry,
+  normalizeProductVersion,
+  getStoredProductVersion,
+  setStoredProductVersion,
+} from './utils/product-data.mjs';
 import { createCartManager } from './modules/cart.mjs';
-import { registerServiceWorker } from './modules/service-worker-manager.mjs';
+import {
+  registerServiceWorker,
+  shouldRegisterServiceWorker,
+  __resetServiceWorkerRegistrationForTest,
+} from './modules/service-worker-manager.mjs';
 import {
   getSharedProductData,
   hydrateSharedProductDataFromInline,
@@ -34,9 +45,21 @@ export const UTILITY_CLASSES = Object.freeze({
 });
 
 export { generateStableId };
+export const __registerServiceWorkerForTest = registerServiceWorker;
+export const __shouldRegisterServiceWorkerForTest = shouldRegisterServiceWorker;
+export { __resetServiceWorkerRegistrationForTest };
+export const __memoizeForTest = memoize;
+export const __resolveAvifSrcsetForTest = resolveAvifSrcset;
+export const __buildStaticSrcsetForTest = buildStaticSrcset;
+export { fetchWithRetry };
+export const __normalizeProductVersionForTest = normalizeProductVersion;
+export const __getStoredProductVersionForTest = getStoredProductVersion;
+export const __setStoredProductVersionForTest = setStoredProductVersion;
+export { fetchProducts };
 
 let updateProductDisplay = null;
 let initAppHasRun = false;
+let initAppPromise = null;
 
 // Initialize the service worker when running in a browser environment
 if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
@@ -88,6 +111,8 @@ const logPerformanceMetrics = (
   }
 };
 
+export { logPerformanceMetrics };
+
 const cartManager = createCartManager({
   createSafeElement,
   createCartThumbnail,
@@ -100,10 +125,16 @@ const {
   addToCart,
   getCartItemQuantity,
   getCart,
+  removeFromCart,
   renderCart,
+  resetCart,
   updateQuantity,
   updateCartIcon,
 } = cartManager;
+
+export { addToCart, removeFromCart, updateQuantity, updateCartIcon };
+export const __getCart = getCart;
+export const __resetCart = resetCart;
 
 // Global error handling: be conservative during initial render
 if (typeof window !== 'undefined') {
@@ -147,11 +178,16 @@ if (typeof window !== 'undefined') {
 
 // Main function to initialize the application
 const initApp = async () => {
-  if (initAppHasRun) {
-    return;
+  if (initAppPromise) {
+    return initAppPromise;
   }
-  initAppHasRun = true;
-  console.log('Initializing app...');
+
+  initAppPromise = (async () => {
+    if (initAppHasRun) {
+      return;
+    }
+    initAppHasRun = true;
+    console.log('Initializing app...');
 
   const productContainer = document.getElementById('product-container');
   const sortOptions = document.getElementById('sort-options');
@@ -658,49 +694,61 @@ const initApp = async () => {
     window.__APP_READY__ = true;
 
     // Defer fetching fresh data until main thread is idle
-    scheduleIdle(async () => {
-      try {
-        const freshProducts = await fetchProducts();
-        if (!freshProducts) return;
-
-        // If user hasn't interacted, we can safely update everything
-        if (!userHasInteracted && (!products || products.length === 0)) {
-          products = freshProducts.map((p, i) => ({
-            ...p,
-            originalIndex: i,
-            categoryKey: p.categoryKey || normalizeString(p.category),
-          }));
-
-          if (currentCategory) {
-            const normCurrent = normalizeString(currentCategory);
-            products = products
-              .filter(
-                (p) => (p.categoryKey || normalizeString(p.category)) === normCurrent
-              )
-              .map((p, i) => ({
-                ...p,
-                originalIndex: i,
-              }));
+    const idleCompletion = new Promise((resolve) => {
+      scheduleIdle(async () => {
+        try {
+          const freshProducts = await fetchProducts();
+          if (!freshProducts) {
+            return;
           }
 
-          updateProductDisplay();
-        } else {
-          // Silent background update logic could go here
-          // For now, we just log that we have fresh data
-          log('info', 'background_data_refresh_complete', { count: freshProducts.length });
-        }
-      } catch (err) {
-        console.warn('Background fetch failed (non-fatal):', err);
-      }
+          // If user hasn't interacted, we can safely update everything
+          if (!userHasInteracted && (!products || products.length === 0)) {
+            products = freshProducts.map((p, i) => ({
+              ...p,
+              originalIndex: i,
+              categoryKey: p.categoryKey || normalizeString(p.category),
+            }));
 
-      logPerformanceMetrics();
+            if (currentCategory) {
+              const normCurrent = normalizeString(currentCategory);
+              products = products
+                .filter(
+                  (p) => (p.categoryKey || normalizeString(p.category)) === normCurrent
+                )
+                .map((p, i) => ({
+                  ...p,
+                  originalIndex: i,
+                }));
+            }
+
+            updateProductDisplay();
+          } else {
+            // Silent background update logic could go here
+            // For now, we just log that we have fresh data
+            log('info', 'background_data_refresh_complete', { count: freshProducts.length });
+          }
+        } catch (err) {
+          console.warn('Background fetch failed (non-fatal):', err);
+        } finally {
+          logPerformanceMetrics();
+          resolve();
+        }
+      });
     });
+
+    return idleCompletion;
 
   } catch (error) {
     console.error('Fatal initialization error:', error);
     showErrorMessage('Error crítico al iniciar la aplicación.');
   }
+  })();
+
+  return initAppPromise;
 };
+
+export { initApp };
 
 // Start the application
 if (typeof document !== 'undefined') {
