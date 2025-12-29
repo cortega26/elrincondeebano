@@ -1559,14 +1559,14 @@ class ProductGUI(DragDropMixin):
             self._end_inline_edit()
 
     def _end_inline_edit(self) -> None:
-        if self._cell_editor:
-            try:
-                self._cell_editor.place_forget()
-                self._cell_editor.destroy()
-            except Exception:
-                pass
-        self._cell_editor = None
-        self._cell_editor_info = {}
+      if self._cell_editor:
+          try:
+              self._cell_editor.place_forget()
+              self._cell_editor.destroy()
+          except Exception as exc:
+              self.logger.debug("No se pudo limpiar el editor en línea: %s", exc)
+      self._cell_editor = None
+      self._cell_editor_info = {}
 
     def import_products(self) -> None:
         """Import products from JSON file."""

@@ -50,7 +50,6 @@ function injectIntoFile(filePath, scriptTag) {
 }
 
 async function main() {
-  const outputDir = resolveOutputDir();
   const dataPath = path.join(__dirname, '..', 'data', 'product_data.json');
   const raw = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
   const products = Array.isArray(raw.products) ? raw.products : Array.isArray(raw) ? raw : [];

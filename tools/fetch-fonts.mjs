@@ -138,8 +138,9 @@ function resolveLocalFontPath(rawUrl, cssPath) {
 }
 
 async function downloadRemote(url, dest) {
-  const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
-  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+  const safeUrl = assertAllowedRemoteUrl(normalizeRemoteUrl(url));
+  const res = await fetch(safeUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${safeUrl}`);
   const buf = Buffer.from(await res.arrayBuffer());
   await fs.promises.writeFile(dest, buf);
 }

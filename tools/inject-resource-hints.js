@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { resolveOutputDir, resolveFromOutput } = require('./utils/output-dir');
+const { resolveFromOutput } = require('./utils/output-dir');
 
 const LOGO_PRELOAD_PATH =
   '/cdn-cgi/image/fit=cover,quality=82,format=auto,width=64/assets/images/web/logo.webp';
