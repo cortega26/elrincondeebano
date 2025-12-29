@@ -1910,8 +1910,8 @@ class ProductFormDialog(tk.Toplevel):
                     if img is not None:
                         try:
                             img.close()
-                        except Exception:
-                            pass
+                        except Exception as exc:
+                            self.logger.debug("No se pudo cerrar la imagen previa: %s", exc)
             else:
                 dest_path = dest_dir / filename
                 if src_path != dest_path:
