@@ -2,6 +2,7 @@ let cachedDate = null;
 let warned = false;
 
 const FALLBACK_DATE = new Date(0);
+const EPOCH_SECONDS_CUTOFF_MS = 1_000_000_000_000;
 
 function warnOnce(message) {
   if (warned) return;
@@ -14,7 +15,7 @@ function parseEpochSeconds(raw) {
   if (!Number.isFinite(value)) {
     return null;
   }
-  const ms = value < 1e12 ? value * 1000 : value;
+  const ms = value < EPOCH_SECONDS_CUTOFF_MS ? value * 1000 : value;
   return new Date(ms);
 }
 

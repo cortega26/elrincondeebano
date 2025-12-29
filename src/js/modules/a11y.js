@@ -101,14 +101,14 @@ export function setupCartOffcanvasAccessibility() {
       }
     };
 
-    function handleHide() {
+    const handleHide = () => {
       detachKeydown();
       if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
         lastFocusedElement.focus();
       } else if (triggerButton && typeof triggerButton.focus === 'function') {
         triggerButton.focus();
       }
-    }
+    };
 
     cartOffcanvas.addEventListener('show.bs.offcanvas', () => {
       lastFocusedElement =

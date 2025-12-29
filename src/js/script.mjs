@@ -1090,7 +1090,8 @@ const showErrorMessage = (message) => {
 };
 
 // Basic cart helpers (exposed for tests)
-let cart = [];
+  let cart = [];
+  let updateProductDisplay = null;
 try {
   cart = JSON.parse(globalThis.localStorage?.getItem('cart')) || [];
 } catch {
@@ -2137,7 +2138,7 @@ const initApp = async () => {
 
   const memoizedFilterProducts = memoize(filterProducts);
 
-  const updateProductDisplay = () => {
+  updateProductDisplay = () => {
     try {
       applyFilters();
       resetProductList();
