@@ -280,6 +280,12 @@ class SyncEngine:
   def _build_url(self, path: str) -> str:
     return f"{self.api_base}{path}"
 
+  def _assert_http_url(self, url: str) -> str:
+    parsed = parse.urlparse(url)
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+      raise ValueError("Sync URL inválida; solo se permiten esquemas http/https.")
+    return url
+
   def _send_patch(self, entry: SyncQueueEntry) -> Optional[Dict[str, Any]]:
     payload = json.dumps({
       "base_rev": entry.base_rev,
@@ -288,8 +294,9 @@ class SyncEngine:
       "fields": entry.fields,
     }).encode("utf-8")
     product_path = parse.quote(entry.product_id, safe="")
+    url = self._assert_http_url(self._build_url(f"/api/products/{product_path}"))
     req = request.Request(
-      self._build_url(f"/api/products/{product_path}"),
+      url,
       data=payload,
       method="PATCH",
       headers={"content-type": "application/json"},
@@ -310,7 +317,9 @@ class SyncEngine:
   def _pull_changes(self) -> None:
     catalog_meta = self.repository.get_catalog_meta()
     since_rev = catalog_meta.get("rev", 0)
-    url = self._build_url(f"/api/products/changes?since_rev={since_rev}")
+    url = self._assert_http_url(
+      self._build_url(f"/api/products/changes?since_rev={since_rev}")
+    )
     req = request.Request(url, method="GET")
     try:
       with request.urlopen(req, timeout=self.timeout) as resp:
