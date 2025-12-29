@@ -1,14 +1,10 @@
 import json
-import sys
 from pathlib import Path
 
-ROOT_PATH = Path(__file__).resolve().parents[3]
-if str(ROOT_PATH) not in sys.path:
-    sys.path.insert(0, str(ROOT_PATH))
+from admin.product_manager.tests.test_support import bootstrap_tests
 
-MODULE_PATH = Path(__file__).resolve().parents[1]
-if str(MODULE_PATH) not in sys.path:
-    sys.path.insert(0, str(MODULE_PATH))
+
+bootstrap_tests()
 
 from admin.product_manager.models import Product
 from admin.product_manager.repositories import JsonProductRepository
