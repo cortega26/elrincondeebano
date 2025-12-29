@@ -20,8 +20,9 @@ try:
         pillow_heif.register_heif_opener()
         try:
             pillow_heif.register_avif_opener()
-        except Exception:
-            pass
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).debug("Failed to register AVIF opener: %s", exc)
         PIL_AVIF = True
     except Exception:
         try:
