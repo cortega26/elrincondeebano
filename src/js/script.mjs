@@ -626,6 +626,11 @@ const initApp = async () => {
     // Initialize Cart Icon State
     updateCartIcon();
 
+    // Setup Cart Interaction Listeners (delegation)
+    if (typeof cartManager.setupCartInteraction === 'function') {
+      cartManager.setupCartInteraction();
+    }
+
     setupDeferredLoading();
     updateOnlineStatus();
 
