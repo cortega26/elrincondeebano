@@ -71,7 +71,9 @@ function safeReload() {
     if (typeof reloadFn === 'function') {
       reloadFn.call(window.location);
     }
-  } catch {}
+  } catch (error) {
+    // Ignore reload failures in restricted environments.
+  }
 }
 
 export function showUpdateNotification(serviceWorker, message = 'Una versión está disponible') {

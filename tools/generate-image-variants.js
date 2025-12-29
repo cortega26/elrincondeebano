@@ -181,13 +181,17 @@ async function run() {
         const variantPath = path.join(OUT_ROOT, `w${w}`, relDir, baseName);
         try {
           if (fs.existsSync(variantPath)) fs.unlinkSync(variantPath);
-        } catch {}
+        } catch (error) {
+          // Ignore orphan cleanup failures.
+        }
       }
       for (const s of THUMB_SIZES) {
         const thumbPath = path.join(OUT_ROOT, 'thumbs', `w${s}`, relDir, baseName);
         try {
           if (fs.existsSync(thumbPath)) fs.unlinkSync(thumbPath);
-        } catch {}
+        } catch (error) {
+          // Ignore orphan cleanup failures.
+        }
       }
       delete manifest[key];
     }

@@ -3,7 +3,7 @@ const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
 let products = [];
-let originalMeta = { version: null, last_updated: null };
+const originalMeta = { version: null, last_updated: null };
 
 async function fetchProductJson() {
   const endpoints = [
