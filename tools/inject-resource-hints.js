@@ -100,7 +100,7 @@ function main() {
     }
 
     console.log('✅ Resource hints processed');
-    console.log('📊 Files checked: ${processedCount}, Modified: ${modifiedCount}');
+    console.log(`📊 Files checked: ${processedCount}, Modified: ${modifiedCount}`);
 
     if (modifiedCount > 0) {
       console.log('🚀 Performance hints added! Pages should load slightly faster now.');
