@@ -31,7 +31,7 @@ const UTILITY_CLASSES = Object.freeze({
   containIntrinsic: 'has-contain-intrinsic',
 });
 
-const PRODUCT_IMAGE_SIZES = '(max-width: 575px) 200px, (max-width: 991px) 45vw, 280px';
+const PRODUCT_IMAGE_SIZES = '(max-width: 575px) 50vw, (max-width: 991px) 45vw, 280px';
 const CART_IMAGE_WIDTHS = Object.freeze([80, 120, 160]);
 function getSharedProductData() {
   if (typeof window !== 'undefined') {
@@ -1138,7 +1138,7 @@ const initApp = async () => {
 
     const productClasses = [
       'producto',
-      'col-12',
+      'col-6',
       'col-sm-6',
       'col-md-4',
       'col-lg-3',
