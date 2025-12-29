@@ -356,6 +356,42 @@ export function createCartManager({
     }
   };
 
+  const setupCartInteraction = () => {
+    if (typeof document === 'undefined') return;
+    const cartItems = document.getElementById('cart-items');
+    if (cartItems) {
+      cartItems.addEventListener('click', (e) => {
+        const target = e.target;
+        const btn = target.closest('button');
+        if (!btn) return;
+
+        const id = btn.getAttribute('data-id');
+        if (!id) return;
+
+        if (btn.classList.contains('increase-quantity')) {
+          e.preventDefault();
+          updateQuantity({ id }, 1);
+        } else if (btn.classList.contains('decrease-quantity')) {
+          e.preventDefault();
+          updateQuantity({ id }, -1);
+        } else if (btn.classList.contains('remove-item')) {
+          e.preventDefault();
+          removeFromCart(id);
+        }
+      });
+    }
+
+    const emptyCartBtn = document.getElementById('empty-cart');
+    if (emptyCartBtn) {
+      emptyCartBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (confirm('¿Estás seguro de que quieres vaciar el carrito?')) {
+          emptyCart();
+        }
+      });
+    }
+  };
+
   return {
     getCart,
     resetCart,
@@ -366,5 +402,6 @@ export function createCartManager({
     removeFromCart,
     updateQuantity,
     emptyCart,
+    setupCartInteraction,
   };
 }
