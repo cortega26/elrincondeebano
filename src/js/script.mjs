@@ -553,7 +553,9 @@ const fetchProducts = async () => {
 
   if (hasInlineProducts) {
     if (inlineVersion) {
-      setStoredProductVersion(inlineVersion);
+      if (typeof window === 'undefined' || window.__ENABLE_TEST_HOOKS__ !== true) {
+        setStoredProductVersion(inlineVersion);
+      }
     }
     ensureSharedProductData(inlineProducts, {
       version: inlineVersion || null,
@@ -590,7 +592,9 @@ const fetchProducts = async () => {
         latestStoredVersion === storedVersion ||
         latestStoredVersion === networkVersion;
       if (shouldPersistNetworkVersion) {
-        setStoredProductVersion(networkVersion);
+        if (typeof window === 'undefined' || window.__ENABLE_TEST_HOOKS__ !== true) {
+          setStoredProductVersion(networkVersion);
+        }
       }
     }
     log('info', 'fetch_products_success', {
