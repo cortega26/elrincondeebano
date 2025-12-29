@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from admin.product_manager.tests.test_support import bootstrap_tests
+from test_support import bootstrap_tests
 
 
 bootstrap_tests()
