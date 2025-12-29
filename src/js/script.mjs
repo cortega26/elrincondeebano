@@ -1203,7 +1203,7 @@ const toggleActionArea = (btn, quantityControl, showQuantity) => {
   quantityControl.classList.toggle(UTILITY_CLASSES.flex, showQuantity);
 };
 
-const renderCart = (highlightId = null) => {
+const renderCart = () => {
   const cartItems = document.getElementById('cart-items');
   const cartTotal = document.getElementById('cart-total');
   if (!cartItems || !cartTotal) return;
