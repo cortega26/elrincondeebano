@@ -581,7 +581,14 @@ const fetchProducts = async () => {
       total: transformed.length,
     });
     if (networkVersion) {
-      setStoredProductVersion(networkVersion);
+      const latestStoredVersion = getStoredProductVersion();
+      const shouldPersistNetworkVersion =
+        !latestStoredVersion ||
+        latestStoredVersion === storedVersion ||
+        latestStoredVersion === networkVersion;
+      if (shouldPersistNetworkVersion) {
+        setStoredProductVersion(networkVersion);
+      }
     }
     log('info', 'fetch_products_success', {
       correlationId,
