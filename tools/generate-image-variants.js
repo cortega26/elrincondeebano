@@ -81,7 +81,7 @@ async function generateVariantsFor(srcRel, manifest, seenSet) {
   const srcAbs = path.resolve(REPO_ROOT, srcRel);
   if (!fs.existsSync(srcAbs)) return { variants: [], thumb: null };
 
-  const relDir = path.dirname(srcRel).replace(/^assets[\\\/](?:images[\\\/])?/, '');
+  const relDir = path.dirname(srcRel).replace(/^assets[\\/](?:images[\\\/])?/, '');
   const baseName = path.basename(srcRel);
   const key = srcRel.replace(/\\/g, '/');
   const hash = fileHash(srcAbs);
