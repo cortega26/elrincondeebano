@@ -523,7 +523,6 @@ const initApp = async () => {
       paymentError.textContent = '';
     }
 
-    const cartItems = getCart();
     let message = 'Mi pedido:\n\n';
     cartItems.forEach((item) => {
       const discountedPrice = item.price - (item.discount || 0);
