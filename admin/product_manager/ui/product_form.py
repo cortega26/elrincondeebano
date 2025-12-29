@@ -8,7 +8,7 @@ import time
 import logging
 from models import Product
 from services import ProductService, ProductServiceError
-from .utils import PIL_AVAILABLE, PIL_WEBP, PIL_AVIF, Image, ImageTk
+from .utils import PIL_AVAILABLE, PIL_WEBP, PIL_AVIF, Image, ImageTk, CategoryHelper
 
 logger = logging.getLogger(__name__)
 
@@ -42,11 +42,7 @@ class ProductFormDialog(tk.Toplevel):
                     for category in self.product_service.get_categories()
                 ]
 
-        self.category_display_to_key: Dict[str, str] = {}
-        self.category_key_to_display: Dict[str, str] = {}
-        self.category_labels_by_key: Dict[str, str] = {}
-        self.category_display_values: List[str] = []
-        self._prepare_category_mappings()
+        self.category_helper = CategoryHelper(self.category_choices)
         self.category_combobox: Optional[ttk.Combobox] = None
 
         temp_entry = ttk.Entry(self)
@@ -60,43 +56,9 @@ class ProductFormDialog(tk.Toplevel):
         self.populate_fields()
         self._center_on_parent()
 
-    def _prepare_category_mappings(self) -> None:
-        self.category_display_to_key.clear()
-        self.category_key_to_display.clear()
-        self.category_labels_by_key.clear()
-        self.category_display_values.clear()
-        for label, key in self.category_choices:
-            display = self._format_category_display(label, key)
-            self.category_display_values.append(display)
-            self.category_display_to_key[display] = key
-            self.category_key_to_display[key.strip().lower()] = display
-            self.category_labels_by_key[key.strip().lower()] = label
+    # Category helper methods moved to ui/utils.py
 
-    @staticmethod
-    def _format_category_display(label: str, key: str) -> str:
-        cleaned_label = (label or "").strip()
-        cleaned_key = (key or "").strip()
-        if not cleaned_label:
-            return cleaned_key
-        if cleaned_label == cleaned_key:
-            return cleaned_key
-        return f"{cleaned_label} ({cleaned_key})"
 
-    def _category_display_for_key(self, key: str) -> str:
-        normalized = (key or "").strip().lower()
-        if not normalized:
-            return ""
-        display = self.category_key_to_display.get(normalized)
-        if display:
-            return display
-        label = self.category_labels_by_key.get(normalized, key)
-        return self._format_category_display(label, key)
-
-    def _category_key_from_label(self, label: str) -> str:
-        cleaned = (label or "").strip()
-        if not cleaned:
-            return ""
-        return self.category_display_to_key.get(cleaned, cleaned)
 
     def setup_dialog(self) -> None:
         """Set up dialog window."""
@@ -147,7 +109,7 @@ class ProductFormDialog(tk.Toplevel):
                 self.entries[field] = var
                 widget.grid(row=i, column=1, sticky=tk.W, pady=5)
             elif widget_class == ttk.Combobox:
-                values = self.category_display_values
+                values = self.category_helper.display_values
                 state = "readonly" if values else "normal"
                 widget = widget_class(
                     self.main_frame,
@@ -249,7 +211,7 @@ class ProductFormDialog(tk.Toplevel):
                     widget.insert("1.0", str(value))
                 elif isinstance(widget, ttk.Combobox):
                     if field == "category":
-                        widget.set(self._category_display_for_key(str(value)))
+                        widget.set(self.category_helper.get_display_for_key(str(value)))
                     else:
                         widget.set(str(value))
                 else:
@@ -274,7 +236,7 @@ class ProductFormDialog(tk.Toplevel):
             src_path = Path(file_path).resolve()
             cat_widget = self.entries.get("category")
             if isinstance(cat_widget, ttk.Combobox):
-                current_category = self._category_key_from_label(cat_widget.get())
+                current_category = self.category_helper.get_key_from_display(cat_widget.get())
             else:
                 current_category = ""
             dest_dir, category_updated = self._resolve_destination_directory(
@@ -342,7 +304,7 @@ class ProductFormDialog(tk.Toplevel):
             base_dir = Path(self._assets_images_root()).resolve()
             cat_widget = self.entries.get("category")
             if isinstance(cat_widget, ttk.Combobox):
-                category = self._category_key_from_label(cat_widget.get())
+                category = self.category_helper.get_key_from_display(cat_widget.get())
             else:
                 category = ""
             src_path = Path(file_path).resolve()
@@ -416,7 +378,7 @@ class ProductFormDialog(tk.Toplevel):
             elif isinstance(widget, ttk.Combobox):
                 value = widget.get().strip()
                 if field == "category":
-                    data[field] = self._category_key_from_label(value)
+                    data[field] = self.category_helper.get_key_from_display(value)
                 else:
                     data[field] = value
             else:
@@ -514,9 +476,9 @@ class ProductFormDialog(tk.Toplevel):
             return
         desired_key = (self.default_category or "").strip()
         if desired_key:
-            display_value = self._category_display_for_key(desired_key)
-        elif self.category_display_values:
-            display_value = self.category_display_values[0]
+            display_value = self.category_helper.get_display_for_key(desired_key)
+        elif self.category_helper.display_values:
+            display_value = self.category_helper.display_values[0]
         else:
             display_value = ""
         if display_value:
@@ -717,7 +679,7 @@ class ProductFormDialog(tk.Toplevel):
         if not isinstance(cat_widget, ttk.Combobox):
             return
         category_label = cat_widget.get().strip()
-        category = self._category_key_from_label(category_label)
+        category = self.category_helper.get_key_from_display(category_label)
         if not category:
             return
         target_subdir = self._category_subdir(category)

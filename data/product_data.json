@@ -1,6 +1,6 @@
 {
-  "version": "20251228-223916",
-  "last_updated": "2025-12-28T22:39:16.631041",
+  "version": "20251229-175716",
+  "last_updated": "2025-12-29T17:57:16.389187",
   "rev": 0,
   "products": [
     {
@@ -638,7 +638,7 @@
       "description": "Botella de 750 de mL",
       "price": 8000,
       "discount": 1100,
-      "stock": false,
+      "stock": true,
       "category": "Piscos",
       "image_path": "assets/images/piscos/Pisco Alto del Carmen Especial 35° 750mL.webp",
       "image_avif_path": "",
@@ -646,7 +646,7 @@
       "rev": 0,
       "field_last_modified": {
         "stock": {
-          "ts": "2025-11-07T22:32:56.067Z",
+          "ts": "2025-12-29T20:57:16.386897Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
