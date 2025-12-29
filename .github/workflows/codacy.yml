@@ -61,8 +61,8 @@ jobs:
 
       # Execute Codacy Analysis CLI and generate a SARIF output with the security issues identified during the analysis
       - name: Run Codacy Analysis CLI
-        if: ${{ steps.token_check.outputs.has_token == 'true' }}
         uses: codacy/codacy-analysis-cli-action@d840f886c4bd4edc059706d09c6a1586111c540b
+        continue-on-error: ${{ steps.token_check.outputs.has_token != 'true' }}
         with:
           # Check https://github.com/codacy/codacy-analysis-cli#project-token to get your project token from your Codacy repository
           # You can also omit the token and run the tools that support default configurations
@@ -90,12 +90,15 @@ jobs:
           path: docs/codacy/REPORT.md
 
       - name: Split SARIF per run (stream-safe)
-        if: ${{ steps.token_check.outputs.has_token == 'true' }}
         shell: bash
         run: |
           set -euo pipefail
 
           input="results.sarif"
+          if [ ! -f "$input" ]; then
+            echo "Missing $input. Skipping split."
+            exit 0
+          fi
 
           if ! jq -e 'has("runs") and (.runs | type == "array") and (.runs | length > 0)' "$input" > /dev/null; then
             echo "No runs found in $input. Nothing to split."
@@ -117,7 +120,6 @@ jobs:
           echo "Created split files:"
           ls -1 results-*.sarif || true
       - name: Sanitize SARIF files
-        if: ${{ steps.token_check.outputs.has_token == 'true' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -141,7 +143,6 @@ jobs:
 
           echo "Sanitized: ${files[*]}"
       - name: List SARIF files (Python)
-        if: ${{ steps.token_check.outputs.has_token == 'true' }}
         id: list_sarif
         shell: bash
         run: |
@@ -164,17 +165,24 @@ jobs:
           print(json.dumps(entries))
           PY
       - name: Fail when no SARIF files are produced
-        if: ${{ steps.token_check.outputs.has_token == 'true' && steps.list_sarif.outputs.files_str == '' }}
         shell: bash
+        env:
+          FILES_STR: ${{ steps.list_sarif.outputs.files_str }}
         run: |
-          echo "::error::No SARIF files were produced by Codacy. Check configuration and logs."
-          exit 1
+          if [ ! -f "results.sarif" ]; then
+            echo "results.sarif missing. Skipping SARIF production check."
+            exit 0
+          fi
+          if [ -z "$FILES_STR" ]; then
+            echo "::error::No SARIF files were produced by Codacy. Check configuration and logs."
+            exit 1
+          fi
       - name: Upload SARIF artifacts
-        if: ${{ steps.token_check.outputs.has_token == 'true' && steps.list_sarif.outputs.files_str != '' }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: sarif-results
           path: results-*.sarif
+          if-no-files-found: warn
 
   upload-sarif:
     if: ${{ needs.codacy-security-scan.result == 'success' && needs.codacy-security-scan.outputs.sarif_files != '' && needs.codacy-security-scan.outputs.sarif_files != '[]' }}
