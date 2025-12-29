@@ -1208,10 +1208,7 @@ const initApp = async () => {
           'data-id': id,
           'aria-label': `Add ${name} to cart`,
         },
-        [
-          createSafeElement('span', { class: 'btn-text-full' }, ['Agregar al carrito']),
-          createSafeElement('span', { class: 'btn-text-short' }, ['Agregar']),
-        ]
+        ['Agregar']
       );
       const quantityControl = renderQuantityControl(product);
 
