@@ -175,7 +175,7 @@ async function run() {
   if (process.env.CLEAN_ORPHANS === '1') {
     for (const key of Object.keys(manifest)) {
       if (seen.has(key)) continue;
-      const relDir = path.dirname(key).replace(/^assets[\\\/](?:images[\\\/])?/, '');
+      const relDir = path.dirname(key).replace(/^assets[\\/](?:images[\\\/])?/, '');
       const baseName = path.basename(key);
       for (const w of CARD_WIDTHS) {
         const variantPath = path.join(OUT_ROOT, `w${w}`, relDir, baseName);
