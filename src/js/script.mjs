@@ -542,7 +542,16 @@ const initApp = async () => {
   const submitCart = () => {
     const cartItems = getCart();
     if (!cartItems || cartItems.length === 0) {
-      showErrorMessage('Tu carrito está vacío. Agrega productos antes de realizar el pedido.');
+      renderCart();
+      try {
+        showOffcanvas('#cartOffcanvas');
+      } catch (error) {
+        // Ignore failures opening the offcanvas.
+      }
+      const emptyMessage = document.querySelector('.cart-empty-message');
+      if (emptyMessage && typeof emptyMessage.focus === 'function') {
+        emptyMessage.focus();
+      }
       return;
     }
 
