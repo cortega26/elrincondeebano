@@ -1,30 +1,12 @@
-import sys
-import types
-from pathlib import Path
-from typing import List
-
 import pytest
 
+from admin.product_manager.tests.test_support import (
+  bootstrap_tests,
+  InMemoryRepository,
+)
 
-if 'portalocker' not in sys.modules:
-  portalocker_stub = types.ModuleType('portalocker')
-  portalocker_stub.LOCK_EX = 0
-  portalocker_stub.LOCK_SH = 0
 
-  def _noop(*_args, **_kwargs) -> None:
-    return None
-
-  portalocker_stub.lock = _noop
-  portalocker_stub.unlock = _noop
-  sys.modules['portalocker'] = portalocker_stub
-
-ROOT_PATH = Path(__file__).resolve().parents[3]
-if str(ROOT_PATH) not in sys.path:
-  sys.path.insert(0, str(ROOT_PATH))
-
-MODULE_PATH = Path(__file__).resolve().parents[1]
-if str(MODULE_PATH) not in sys.path:
-  sys.path.insert(0, str(MODULE_PATH))
+bootstrap_tests()
 
 from admin.product_manager.models import Product
 from admin.product_manager.services import (
@@ -32,20 +14,6 @@ from admin.product_manager.services import (
   ProductService,
   ProductServiceError,
 )
-from admin.product_manager.repositories import ProductRepositoryProtocol
-
-
-class InMemoryRepository(ProductRepositoryProtocol):
-  """Simple in-memory repository used for service tests."""
-
-  def __init__(self, products: List[Product]):
-    self._products = list(products)
-
-  def load_products(self) -> List[Product]:
-    return list(self._products)
-
-  def save_products(self, products: List[Product]) -> None:
-    self._products = list(products)
 
 
 def test_add_product_allows_duplicate_name_with_unique_description() -> None:
