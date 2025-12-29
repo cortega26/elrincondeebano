@@ -1,3 +1,4 @@
+/* global beforeEach, cy, describe, it */
 describe('Submenu on subpages', () => {
   beforeEach(() => {
     cy.viewport(1280, 800);

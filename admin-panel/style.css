@@ -39,3 +39,20 @@ body {
   top: 8px;
   outline: 2px solid #fff;
 }
+
+.drop-zone {
+  border: 2px dashed #dee2e6;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.drop-zone:hover,
+.drop-zone.dragover {
+  border-color: #0d6efd;
+  background-color: #f8f9fa;
+}
+
+.drop-zone.dragover {
+  background-color: #e9ecef;
+  transform: scale(1.01);
+}

@@ -6,9 +6,17 @@
   --text-color: #212529;
   --text-muted: #4a4f55;
   --background-color: #ffffff;
+  --surface-color: #ffffff;
+  --surface-muted: #f1ede6;
   --border-radius: 0.25rem;
   --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   --transition: all 0.3s ease;
+  --font-size-xs: 0.8125rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-md: 1.0625rem;
+  --font-size-lg: 1.25rem;
+  --font-size-price: 1.125rem;
 }
 
 /* Base Styles */
@@ -60,6 +68,15 @@ h1 {
   font-size: clamp(1.75rem, 4vw, 2.25rem);
   margin-bottom: 1.25rem;
   font-weight: bold;
+  font-family: 'Playfair Display', 'Playfair Fallback', Georgia, 'Times New Roman', serif;
+  letter-spacing: 0.01em;
+}
+
+.hero-section {
+  background: linear-gradient(135deg, rgba(0, 91, 79, 0.08), rgba(161, 92, 0, 0.06));
+  border-radius: 16px;
+  padding: 1.5rem 1.25rem;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.06);
 }
 
 /* Navbar Styles */
@@ -90,6 +107,8 @@ h1 {
 
 .navbar-toggler {
   padding: 0.25rem 0.4rem;
+  min-width: 44px;
+  min-height: 44px;
 }
 
 .dropdown-menu {
@@ -108,12 +127,22 @@ h1 {
   position: relative;
   display: flex;
   align-items: center;
-  padding: 0.25rem;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.5rem;
   margin-right: 0.5rem;
   color: #fff;
   background: none;
   border: none;
   cursor: pointer;
+  border-radius: 999px;
+  touch-action: manipulation;
+}
+
+#cart-icon svg {
+  width: 22px;
+  height: 22px;
 }
 
 #cart-count {
@@ -122,11 +151,16 @@ h1 {
   right: -5px;
   font-size: 0.65rem;
   padding: 0.15rem 0.3rem;
+  min-width: 18px;
+  min-height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Product Grid */
 #product-container {
-  row-gap: 1.25rem;
+  row-gap: 1.5rem;
 }
 
 #empty-cart,
@@ -149,8 +183,8 @@ h1 {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background-color: #fff; /* Force pure white card background */
-  border-radius: var(--border-radius);
+  background-color: var(--surface-color); /* Force pure white card background */
+  border-radius: 0.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   transition:
     box-shadow 0.25s ease,
@@ -168,7 +202,7 @@ h1 {
 .producto .card-body {
   display: flex;
   flex-direction: column;
-  padding: 1.25rem;
+  padding: 1.5rem;
   flex-grow: 1;
 }
 
@@ -211,6 +245,13 @@ h1 {
 .product-thumb {
   object-fit: cover;
   aspect-ratio: 1 / 1;
+  background-color: var(--surface-color);
+}
+
+.product-thumb.is-loading {
+  background: linear-gradient(90deg, #efeae3 25%, #f7f2ec 50%, #efeae3 75%);
+  background-size: 200% 100%;
+  animation: loading 1.3s infinite;
 }
 
 /* Discount badge */
@@ -224,11 +265,11 @@ h1 {
 }
 
 .producto .card-title {
-  font-size: 1rem;
+  font-size: var(--font-size-md);
   margin-bottom: 0.5rem;
   color: var(--text-color);
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1.3;
   min-height: 2.4em;
   overflow: hidden;
   display: -webkit-box;
@@ -238,11 +279,11 @@ h1 {
 }
 
 .producto .card-text {
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
   color: var(--secondary-color);
   margin-bottom: 1rem;
   flex-grow: 1;
-  line-height: 1.3;
+  line-height: 1.4;
   min-height: 2.6em;
   overflow: hidden;
   display: -webkit-box;
@@ -261,8 +302,11 @@ h1 {
 
 .precio,
 .precio-descuento {
-  font-size: 1rem;
+  font-size: var(--font-size-price);
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  line-height: 1.1;
 }
 
 .precio-descuento {
@@ -278,7 +322,7 @@ h1 {
   align-items: center;
   gap: 0.5rem;
   color: var(--secondary-color);
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
 }
 
 .tachado {
@@ -328,7 +372,7 @@ h1 {
   font-size: 16px;
   font-weight: 500;
   color: var(--text-color);
-  background-color: var(--background-color);
+  background-color: var(--surface-color);
   border: 1px solid #ced4da;
   border-radius: var(--border-radius);
   padding: 0.375rem;
@@ -361,13 +405,14 @@ h1 {
   color: white;
   border: none;
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  touch-action: manipulation;
   transition:
     background-color 0.2s ease,
     transform 0.1s ease;
@@ -406,6 +451,10 @@ h1 {
   border-color: var(--accent-color);
   padding: 12px 20px;
   color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  touch-action: manipulation;
 }
 
 /* Cart Offcanvas Styles */
@@ -444,6 +493,7 @@ h1 {
   flex-wrap: nowrap; /* never wrap to next line */
   padding: 10px 0;
   border-bottom: 1px solid #dee2e6;
+  transition: background-color 0.2s ease;
 }
 
 .cart-item:last-child {
@@ -473,9 +523,9 @@ h1 {
 
 /* Cart quantity controls */
 .cart-item .quantity-btn {
-  width: 24px;
-  height: 24px;
-  font-size: 16px;
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
   font-weight: 500;
   background-color: var(--primary-color);
   transition: background-color 0.2s ease;
@@ -486,8 +536,8 @@ h1 {
 }
 
 .cart-item .quantity-input {
-  width: 40px;
-  height: 24px;
+  width: 52px;
+  height: 36px;
   padding: 0.25rem;
   font-size: 14px;
 }
@@ -507,6 +557,54 @@ h1 {
 
 .quantity-changed {
   animation: quantityPulse 0.3s ease-in-out;
+}
+
+@keyframes cartBadgePop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes addToCartPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+#cart-count.cart-count-bump {
+  animation: cartBadgePop 0.35s ease;
+}
+
+.add-to-cart-btn.is-added {
+  animation: addToCartPulse 0.25s ease;
+}
+
+@keyframes cartTotalPop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+#cart-total.cart-total-bump {
+  animation: cartTotalPop 0.35s ease;
 }
 
 @keyframes fadeInUp {
@@ -557,27 +655,76 @@ h1 {
   }
 
   .navbar-nav .nav-link {
-    padding: 0.25rem 1rem;
+    padding: 0.5rem 1rem;
     line-height: 1.2;
     text-align: left;
     width: 100%;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
   }
 }
 
 @media (max-width: 767px) {
   .producto .card-title {
     font-size: 1rem;
+    line-height: 1.25;
+  }
+
+  .producto .card-text {
+    font-size: 0.875rem;
+    line-height: 1.35;
   }
 
   .precio-descuento,
   .precio {
-    font-size: 1.125rem;
+    font-size: 1.15rem;
+  }
+
+  .quantity-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+  }
+
+  .cart-item .quantity-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+
+  .cart-item .quantity-input {
+    width: 56px;
+    height: 40px;
+    font-size: 15px;
   }
 }
 
 @media (max-width: 576px) {
   .offcanvas {
     width: 100%;
+  }
+
+  .add-to-cart-btn {
+    font-size: 0.9rem;
+    padding: 0.6rem 0.5rem;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .dropdown-item {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #cart-count.cart-count-bump,
+  .add-to-cart-btn.is-added,
+  .quantity-changed,
+  #cart-total.cart-total-bump {
+    animation: none;
   }
 }
 
@@ -626,6 +773,36 @@ h1 {
     width: 100%;
     margin-bottom: 0.5rem;
   }
+}
+
+section[aria-label*='filtrado'],
+section[aria-label*='Filtrado'],
+section[aria-label*='Opciones de filtrado'] {
+  background-color: var(--surface-color);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+  margin-bottom: 1.5rem;
+}
+
+section[aria-label*='filtrado'] .row,
+section[aria-label*='Filtrado'] .row,
+section[aria-label*='Opciones de filtrado'] .row {
+  row-gap: 0.75rem;
+}
+
+section[aria-label*='filtrado'] .form-select,
+section[aria-label*='filtrado'] .form-control,
+section[aria-label*='Opciones de filtrado'] .form-select,
+section[aria-label*='Opciones de filtrado'] .form-control {
+  background-color: var(--surface-muted);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+main .container {
+  padding-top: 0.5rem;
+  padding-bottom: 1rem;
 }
 
 /* Layout Containers */

@@ -44,8 +44,9 @@ function httpGet(url) {
 }
 
 function httpRequest(url, method) {
+  const requestOptions = normalizeLocalUrl(url);
   return new Promise((resolve, reject) => {
-    const req = http.request(url, { method }, (res) => {
+    const req = http.request({ ...requestOptions, method }, (res) => {
       let chunks = '';
       res.setEncoding('utf8');
       res.on('data', (d) => (chunks += d));
@@ -56,4 +57,25 @@ function httpRequest(url, method) {
     req.on('error', reject);
     req.end();
   });
+}
+
+function normalizeLocalUrl(rawUrl) {
+  const url = rawUrl instanceof URL ? rawUrl : new URL(rawUrl);
+  if (url.protocol !== 'http:') {
+    throw new Error(`Unsupported protocol: ${url.protocol}`);
+  }
+  const allowedHosts = new Set(['127.0.0.1', 'localhost']);
+  if (!allowedHosts.has(url.hostname)) {
+    throw new Error(`Disallowed host: ${url.hostname}`);
+  }
+  const port = url.port ? Number(url.port) : 80;
+  if (!Number.isInteger(port) || port <= 0 || port > 65535) {
+    throw new Error(`Invalid port: ${url.port}`);
+  }
+  const path = `${url.pathname}${url.search}`;
+  return {
+    hostname: url.hostname,
+    port,
+    path,
+  };
 }

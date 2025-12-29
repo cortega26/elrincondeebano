@@ -15,7 +15,7 @@ const { addTimestamp, isCacheFresh, CACHE_CONFIG } = require('../service-worker.
   assert.strictEqual(isCacheFresh(oldResp, 'static'), false, 'stale response should be stale');
 
   const originalNow = Date.now;
-  const baseNow = 1_700_000_000_000;
+  const baseNow = 1.7e12;
   Date.now = () => baseNow;
   const productFresh = new Response('ok', {
     headers: {
