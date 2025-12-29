@@ -31,24 +31,37 @@ async function createTempStore(initialProducts = []) {
   return { store, dataPath, changeLogPath, tmpDir };
 }
 
+
+async function applyTestPatch(store, {
+  fields,
+  baseRev = 0,
+  source = 'offline',
+  changesetId = 'default-id',
+  timestamp = '2025-01-01T00:01:00.000Z'
+} = {}) {
+  return store.applyPatch({
+    productId: 'Widget',
+    baseRev,
+    fields,
+    source,
+    changesetId,
+    timestamp,
+  });
+}
+
 test('accepts updates on distinct fields without conflict', async () => {
   const { store } = await createTempStore([{ name: 'Widget', price: 1000 }]);
 
-  const first = await store.applyPatch({
-    productId: 'Widget',
-    baseRev: 0,
+  const first = await applyTestPatch(store, {
     fields: { price: 1200 },
-    source: 'offline',
     changesetId: 'offline-1',
-    timestamp: '2025-01-01T00:01:00.000Z',
   });
 
   assert.deepEqual(first.accepted_fields, ['price']);
   assert.equal(first.product.price, 1200);
   assert.equal(first.rev, 1);
 
-  const second = await store.applyPatch({
-    productId: 'Widget',
+  const second = await applyTestPatch(store, {
     baseRev: 1,
     fields: { description: 'Nuevo' },
     source: 'admin',
@@ -69,20 +82,14 @@ test('accepts updates on distinct fields without conflict', async () => {
 test('rejects outdated updates on same field with conflict details', async () => {
   const { store } = await createTempStore([{ name: 'Widget', price: 1000 }]);
 
-  await store.applyPatch({
-    productId: 'Widget',
-    baseRev: 0,
+  await applyTestPatch(store, {
     fields: { price: 1500 },
     source: 'admin',
     changesetId: 'admin-1',
-    timestamp: '2025-01-01T00:01:00.000Z',
   });
 
-  const outdated = await store.applyPatch({
-    productId: 'Widget',
-    baseRev: 0,
+  const outdated = await applyTestPatch(store, {
     fields: { price: 900 },
-    source: 'offline',
     changesetId: 'offline-1',
     timestamp: '2025-01-01T00:01:30.000Z',
   });
@@ -97,17 +104,12 @@ test('rejects outdated updates on same field with conflict details', async () =>
 test('uses timestamp tiebreaker when base revisions match', async () => {
   const { store } = await createTempStore([{ name: 'Widget', price: 1000 }]);
 
-  await store.applyPatch({
-    productId: 'Widget',
-    baseRev: 0,
+  await applyTestPatch(store, {
     fields: { price: 1300 },
-    source: 'offline',
     changesetId: 'offline-1',
-    timestamp: '2025-01-01T00:01:00.000Z',
   });
 
-  const second = await store.applyPatch({
-    productId: 'Widget',
+  const second = await applyTestPatch(store, {
     baseRev: 1,
     fields: { price: 1350 },
     source: 'admin',
@@ -122,23 +124,14 @@ test('uses timestamp tiebreaker when base revisions match', async () => {
 test('idempotent patches reuse prior response', async () => {
   const { store } = await createTempStore([{ name: 'Widget', price: 1000 }]);
 
-  const first = await store.applyPatch({
-    productId: 'Widget',
-    baseRev: 0,
+  const patchData = {
     fields: { stock: false },
-    source: 'offline',
     changesetId: 'offline-1',
     timestamp: '2025-01-01T00:01:30.000Z',
-  });
+  };
 
-  const second = await store.applyPatch({
-    productId: 'Widget',
-    baseRev: 0,
-    fields: { stock: false },
-    source: 'offline',
-    changesetId: 'offline-1',
-    timestamp: '2025-01-01T00:02:00.000Z',
-  });
+  const first = await applyTestPatch(store, patchData);
+  const second = await applyTestPatch(store, { ...patchData, timestamp: '2025-01-01T00:02:00.000Z' });
 
   assert.deepEqual(second, first);
 
@@ -149,20 +142,14 @@ test('idempotent patches reuse prior response', async () => {
 test('admin precedence resolves exact timestamp collision', async () => {
   const { store } = await createTempStore([{ name: 'Widget', price: 1000 }]);
 
-  await store.applyPatch({
-    productId: 'Widget',
-    baseRev: 0,
+  await applyTestPatch(store, {
     fields: { price: 1400 },
-    source: 'offline',
     changesetId: 'offline-1',
-    timestamp: '2025-01-01T00:01:00.000Z',
   });
 
-  const offline = await store.applyPatch({
-    productId: 'Widget',
+  const offline = await applyTestPatch(store, {
     baseRev: 1,
     fields: { price: 1100 },
-    source: 'offline',
     changesetId: 'offline-2',
     timestamp: '2025-01-01T00:02:00.000Z',
   });
@@ -170,8 +157,7 @@ test('admin precedence resolves exact timestamp collision', async () => {
   assert.equal(offline.product.price, 1100);
   assert.equal(offline.rev, 2);
 
-  const adminTie = await store.applyPatch({
-    productId: 'Widget',
+  const adminTie = await applyTestPatch(store, {
     baseRev: 2,
     fields: { price: 1250 },
     source: 'admin',
@@ -186,33 +172,25 @@ test('admin precedence resolves exact timestamp collision', async () => {
 test('stable hash fallback provides deterministic result for identical sources', async () => {
   const { store } = await createTempStore([{ name: 'Widget', price: 1000 }]);
 
-  const initial = await store.applyPatch({
-    productId: 'Widget',
-    baseRev: 0,
+  const initial = await applyTestPatch(store, {
     fields: { discount: 100 },
-    source: 'offline',
     changesetId: 'offline-1',
-    timestamp: '2025-01-01T00:01:00.000Z',
   });
 
   assert.equal(initial.product.discount, 100);
 
-  const conflictWinner = await store.applyPatch({
-    productId: 'Widget',
+  const conflictWinner = await applyTestPatch(store, {
     baseRev: 1,
     fields: { discount: 200 },
-    source: 'offline',
     changesetId: 'offline-za',
     timestamp: '2025-01-01T00:02:00.000Z',
   });
 
   assert.equal(conflictWinner.product.discount, 200);
 
-  const tieLoser = await store.applyPatch({
-    productId: 'Widget',
+  const tieLoser = await applyTestPatch(store, {
     baseRev: 1,
     fields: { discount: 50 },
-    source: 'offline',
     changesetId: 'offline-aa',
     timestamp: '2025-01-01T00:02:00.000Z',
   });
@@ -225,9 +203,7 @@ test('rejects invalid price updates that fail validation', async () => {
   const { store } = await createTempStore([{ name: 'Widget', price: 1000 }]);
 
   await assert.rejects(
-    store.applyPatch({
-      productId: 'Widget',
-      baseRev: 0,
+    applyTestPatch(store, {
       fields: { price: 'abc' },
       source: 'admin',
       changesetId: 'invalid-price',
@@ -245,11 +221,8 @@ test('rejects discounts that exceed the product price', async () => {
   const { store } = await createTempStore([{ name: 'Widget', price: 1000 }]);
 
   await assert.rejects(
-    store.applyPatch({
-      productId: 'Widget',
-      baseRev: 0,
+    applyTestPatch(store, {
       fields: { discount: 2000 },
-      source: 'offline',
       changesetId: 'invalid-discount',
       timestamp: '2025-01-01T00:03:30.000Z',
     }),
@@ -264,9 +237,7 @@ test('rejects discounts that exceed the product price', async () => {
 test('records conflicts for unsupported fields instead of mutating the product', async () => {
   const { store } = await createTempStore([{ name: 'Widget', price: 1000 }]);
 
-  const response = await store.applyPatch({
-    productId: 'Widget',
-    baseRev: 0,
+  const response = await applyTestPatch(store, {
     fields: { rev: 999 },
     source: 'admin',
     changesetId: 'unsupported-field',
