@@ -1,47 +1,14 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const { JSDOM } = require('jsdom');
-const fs = require('node:fs');
-const path = require('node:path');
+const { createModuleLoader } = require('./helpers/module-loader');
+const {
+  setupDom,
+  teardownDom,
+  wait,
+  dispatchPointerDown,
+} = require('./helpers/dom-test-utils');
 
-function loadModule(relPath) {
-  const filePath = path.join(__dirname, relPath);
-  let code = fs.readFileSync(filePath, 'utf8');
-  code = code.replace(/export\s+(async\s+)?function\s+(\w+)/g, 'exports.$2 = $1function $2');
-  code = code.replace(/export\s+\{([^}]+)\};?/g, (_, names) => {
-    return names
-      .split(',')
-      .map((name) => name.trim())
-      .filter(Boolean)
-      .map((name) => `exports.${name} = ${name};`)
-      .join('\n');
-  });
-  const exports = {};
-  const wrapper = new Function('exports', 'loadModule', code + '\nreturn exports;');
-  return wrapper(exports, loadModule);
-}
-
-function setupDom(markup) {
-  const dom = new JSDOM(markup, { url: 'http://localhost' });
-  global.window = dom.window;
-  global.document = dom.window.document;
-  global.HTMLElement = dom.window.HTMLElement;
-  return dom;
-}
-
-function teardownDom() {
-  delete global.window;
-  delete global.document;
-  delete global.HTMLElement;
-}
-
-function wait(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function pointerDown(target) {
-  target.dispatchEvent(new window.Event('pointerdown', { bubbles: true }));
-}
+const loadModule = createModuleLoader(__dirname);
 
 async function withMenuController(markup, run) {
   setupDom(markup);
@@ -67,13 +34,13 @@ test('menu controller opens on pointerdown and closes on outside interaction', a
   </body>`,
     async () => {
       const firstToggle = document.getElementById('firstToggle');
-      pointerDown(firstToggle);
+      dispatchPointerDown(firstToggle);
       await wait(25);
 
       assert.strictEqual(firstToggle.getAttribute('aria-expanded'), 'true');
       assert.ok(document.getElementById('firstMenu').classList.contains('show'));
 
-      pointerDown(document.body);
+      dispatchPointerDown(document.body);
       await wait(0);
 
       assert.strictEqual(firstToggle.getAttribute('aria-expanded'), 'false');
@@ -100,12 +67,12 @@ test('menu controller closes previous dropdown when opening a new one', async ()
       const firstToggle = document.getElementById('firstToggle');
       const secondToggle = document.getElementById('secondToggle');
 
-      pointerDown(firstToggle);
+      dispatchPointerDown(firstToggle);
       await wait(25);
       assert.strictEqual(firstToggle.getAttribute('aria-expanded'), 'true');
       assert.ok(document.getElementById('firstMenu').classList.contains('show'));
 
-      pointerDown(secondToggle);
+      dispatchPointerDown(secondToggle);
       await wait(25);
 
       assert.strictEqual(firstToggle.getAttribute('aria-expanded'), 'false');
