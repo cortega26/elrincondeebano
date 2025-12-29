@@ -1,0 +1,141 @@
+import tkinter as tk
+from tkinter import ttk, messagebox
+from typing import Optional, Callable
+from pathlib import Path
+import json
+import logging
+from .components import UIConfig
+
+logger = logging.getLogger(__name__)
+
+class PreferencesDialog(tk.Toplevel):
+    """Dialog for application preferences."""
+
+    def __init__(self, parent: tk.Tk, config: UIConfig, on_save: Optional[Callable] = None):
+        super().__init__(parent)
+        self.title("Preferencias")
+        self.config = config
+        self.on_save = on_save
+        self.setup_dialog()
+
+    def setup_dialog(self) -> None:
+        """Set up the preferences dialog."""
+        self.geometry("400x300")
+        self.resizable(False, False)
+        self.transient(self.master)
+        self.grab_set()
+        ttk.Label(self, text="Tamaño de Fuente:").grid(
+            row=1, column=0, padx=10, pady=5, sticky=tk.W)
+        self.font_var = tk.IntVar(value=self.config.font_size)
+        font_spin = ttk.Spinbox(self, from_=8, to=16,
+                                textvariable=self.font_var, width=5)
+        font_spin.grid(row=1, column=1, padx=10, pady=5, sticky=tk.W)
+        ttk.Label(self, text="Habilitar Animaciones:").grid(
+            row=2, column=0, padx=10, pady=5, sticky=tk.W)
+        self.anim_var = tk.BooleanVar(value=self.config.enable_animations)
+        ttk.Checkbutton(self, variable=self.anim_var).grid(
+            row=2, column=1, padx=10, pady=5, sticky=tk.W)
+        button_frame = ttk.Frame(self)
+        button_frame.grid(row=3, column=0, columnspan=2, pady=20)
+        ttk.Button(button_frame, text="Guardar",
+                   command=self.save_preferences).pack(side=tk.CENTER, padx=5)
+        ttk.Button(button_frame, text="Cancelar",
+                   command=self.destroy).pack(side=tk.CENTER, padx=5)
+
+    def save_preferences(self) -> None:
+        """Save preferences to configuration."""
+        try:
+            self.config.font_size = self.font_var.get()
+            self.config.enable_animations = self.anim_var.get()
+            config_path = Path.home() / ".product_manager" / "config.json"
+            config_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(config_path, 'w') as f:
+                json.dump({
+                    "font_size": self.config.font_size,
+                    "enable_animations": self.config.enable_animations,
+                    "window_size": self.config.window_size,
+                    "locale": self.config.locale
+                }, f, indent=2)
+            if self.on_save:
+                self.on_save()
+            self.destroy()
+            messagebox.showinfo("Éxito", "Preferencias guardadas y aplicadas.")
+        except Exception as e:
+            messagebox.showerror(
+                "Error", f"Error al guardar preferencias: {str(e)}")
+
+
+class HelpDialog(tk.Toplevel):
+    """Dialog for application help."""
+
+    def __init__(self, parent: tk.Tk):
+        super().__init__(parent)
+        self.title("Ayuda")
+        self.setup_dialog()
+
+    def setup_dialog(self) -> None:
+        """Set up the help dialog."""
+        self.geometry("600x400")
+        self.resizable(True, True)
+        help_text = tk.Text(self, wrap=tk.WORD, padx=10, pady=10)
+        help_text.pack(fill=tk.BOTH, expand=True)
+        scrollbar = ttk.Scrollbar(
+            help_text, orient="vertical", command=help_text.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        help_text.configure(yscrollcommand=scrollbar.set)
+        help_content = """
+Gestor de Productos - Ayuda
+
+Atajos de Teclado:
+• Ctrl+N: Agregar nuevo producto
+• Ctrl+E: Editar producto seleccionado
+• Supr: Eliminar producto(s) seleccionado(s)
+• Ctrl+F: Enfocar búsqueda
+
+Características:
+• Agregar, editar y eliminar productos
+• Ordenar por cualquier columna
+• Buscar productos por nombre o descripción
+• Filtrar por categoría
+• Arrastrar y soltar para reordenar productos
+• Importar/Exportar productos
+• Personalizar preferencias
+
+Para más información, consulte el manual de usuario o contacte con soporte.
+        """
+        help_text.insert("1.0", help_content)
+        help_text.configure(state="disabled")
+
+
+class AboutDialog(tk.Toplevel):
+    """Dialog for application information."""
+
+    def __init__(self, parent: tk.Tk):
+        super().__init__(parent)
+        self.title("Acerca de Gestor de Productos")
+        self.setup_dialog()
+
+    def setup_dialog(self) -> None:
+        """Set up the about dialog."""
+        self.geometry("400x300")
+        self.resizable(False, False)
+        about_text = """
+            Gestor de Productos
+            Versión 2.0.0
+
+            Una solución potente para la gestión 
+            de productos de su negocio.
+
+            Características:
+            • Gestión intuitiva de productos
+            • Organización por categorías
+            • Capacidades de búsqueda y filtrado
+            • Funcionalidad de Importación/Exportación
+            • Interfaz personalizable
+
+            © 2024 El Rincón de Ébano
+            Todos los derechos reservados.
+        """
+        label = ttk.Label(self, text=about_text, justify=tk.CENTER, padding=20)
+        label.pack(expand=True)
+        ttk.Button(self, text="Cerrar", command=self.destroy).pack(pady=10)
