@@ -2080,7 +2080,7 @@ class ProductFormDialog(tk.Toplevel):
             if key in cat_map:
                 data['category'] = cat_map[key]
         except Exception:
-            pass
+            self.logger.debug("No se pudo normalizar la categoría seleccionada.")
 
         if data["image_path"]:
             if not data["image_path"].startswith("assets/images/"):
@@ -2105,8 +2105,8 @@ class ProductFormDialog(tk.Toplevel):
                     # Ensure preview reflects inferred fallback
                     try:
                         self._update_image_preview()
-                    except Exception:
-                        pass
+                    except Exception as exc:
+                        self.logger.debug("No se pudo actualizar la vista previa: %s", exc)
             if not data.get("image_path"):
                 raise ValueError(
                     "Debes mantener una imagen de respaldo (PNG/JPG/GIF/WebP) al usar AVIF.")
@@ -2325,8 +2325,8 @@ class ProductFormDialog(tk.Toplevel):
         if moved:
             try:
                 self._update_image_preview()
-            except Exception:
-                pass
+            except Exception as exc:
+                self.logger.debug("No se pudo actualizar la vista previa: %s", exc)
 
     def _relocate_media_to_category(self, field: str, target_subdir: str) -> bool:
         """Move media referenced by the given field into the category directory."""
@@ -2490,8 +2490,8 @@ class ProductFormDialog(tk.Toplevel):
                     if preview_img is not None:
                         try:
                             preview_img.close()
-                        except Exception:
-                            pass
+                        except Exception as exc:
+                            self.logger.debug("No se pudo cerrar la imagen previa: %s", exc)
 
             if unsupported_format == 'avif' and not getattr(self, '_preview_warning_shown_avif', False):
                 messagebox.showwarning(
