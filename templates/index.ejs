@@ -44,7 +44,7 @@
        const preloadSrcset = lcpImage.avif ? lcpImage.avif.srcset : lcpImage.srcset;
        const preloadType = lcpImage.avif ? 'image/avif' : null;
   %>
-  <link rel="preload" href="<%= preloadHref %>" as="image" imagesrcset="<%= preloadSrcset %>" imagesizes="<%= lcpImage.sizes || '(max-width: 575px) 200px, (max-width: 991px) 45vw, 280px' %>" fetchpriority="high"<%= preloadType ? ` type=\"${preloadType}\"` : '' %>>
+  <link rel="preload" href="<%= preloadHref %>" as="image" imagesrcset="<%= preloadSrcset %>" imagesizes="<%= lcpImage.sizes || '(max-width: 575px) 50vw, (max-width: 991px) 45vw, 280px' %>" fetchpriority="high"<%= preloadType ? ` type=\"${preloadType}\"` : '' %>>
   <% } %>
   <!-- Critical CSS -->
   <link rel="stylesheet" href="/dist/css/critical.min.css">
@@ -105,7 +105,7 @@
         <h2 id="products-heading" class="visually-hidden">Productos disponibles</h2>
         <div class="row" id="product-container" aria-live="polite" data-total-products="<%= totalProducts %>">
 <% products.forEach((product, index) => { %>
-          <article class="producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4 <%= product.stock ? '' : 'agotado' %> has-content-visibility has-contain-intrinsic" data-product-id="<%= product.id %>" aria-labelledby="product-title-<%= product.id %>">
+          <article class="producto col-6 col-sm-6 col-md-4 col-lg-3 mb-4 <%= product.stock ? '' : 'agotado' %> has-content-visibility has-contain-intrinsic" data-product-id="<%= product.id %>" aria-labelledby="product-title-<%= product.id %>">
             <div class="card h-100">
 <% if (product.isDiscounted) { %>
               <span class="discount-badge badge bg-danger" aria-label="Producto en oferta">-<%= product.discountPercent %>%</span>

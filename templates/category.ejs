@@ -77,7 +77,7 @@
                 <div class="row" id="product-container" aria-live="polite" data-total-products="<%= totalProducts %>">
 <% if (Array.isArray(products) && products.length) { %>
 <% products.forEach((product, index) => { %>
-                    <article class="producto col-12 col-sm-6 col-md-4 col-lg-3 mb-4 <%= product.stock ? '' : 'agotado' %> has-content-visibility has-contain-intrinsic" data-product-id="<%= product.id %>" aria-labelledby="product-title-<%= product.id %>">
+                    <article class="producto col-6 col-sm-6 col-md-4 col-lg-3 mb-4 <%= product.stock ? '' : 'agotado' %> has-content-visibility has-contain-intrinsic" data-product-id="<%= product.id %>" aria-labelledby="product-title-<%= product.id %>">
                         <div class="card h-100">
 <% if (product.isDiscounted) { %>
                             <span class="discount-badge badge bg-danger" aria-label="Producto en oferta">-<%= product.discountPercent %>%</span>
