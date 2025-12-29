@@ -451,6 +451,9 @@ h1 {
   border-color: var(--accent-color);
   padding: 12px 20px;
   color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   touch-action: manipulation;
 }
 
@@ -700,6 +703,11 @@ h1 {
 @media (max-width: 576px) {
   .offcanvas {
     width: 100%;
+  }
+
+  .add-to-cart-btn {
+    font-size: 0.9rem;
+    padding: 0.6rem 0.5rem;
   }
 }
 
