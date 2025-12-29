@@ -4,37 +4,7 @@ from typing import List, Optional, Callable, Dict, Any
 import os
 from pathlib import Path
 from models import Product
-
-try:
-    from PIL import Image, ImageTk, features  # type: ignore
-    PIL_AVAILABLE = True
-    try:
-        PIL_WEBP = features.check('webp')
-    except Exception:
-        PIL_WEBP = False
-    try:
-        import pillow_heif  # type: ignore
-        pillow_heif.register_heif_opener()
-        try:
-            pillow_heif.register_avif_opener()
-        except Exception as exc:
-            import logging
-            logging.getLogger(__name__).debug("Failed to register AVIF opener: %s", exc)
-        PIL_AVIF = True
-    except Exception:
-        try:
-            import pillow_avif  # type: ignore  # pylint: disable=unused-import
-            PIL_AVIF = True
-        except Exception:
-            try:
-                PIL_AVIF = features.check('avif')
-            except Exception:
-                PIL_AVIF = False
-except Exception:
-    PIL_AVAILABLE = False
-    PIL_WEBP = False
-    PIL_AVIF = False
-
+from .utils import PIL_AVAILABLE, load_thumbnail
 
 class GalleryFrame(ttk.Frame):
     """Card-based gallery view for products."""
@@ -155,7 +125,7 @@ class GalleryFrame(ttk.Frame):
             return None
             
         full_path = path
-        
+
         # Helper to confirm if path exists
         def check_path(p: str) -> Optional[str]:
             if os.path.exists(p):
@@ -188,11 +158,8 @@ class GalleryFrame(ttk.Frame):
         if full_path in self.image_cache:
             return self.image_cache[full_path]
             
-        try:
-            pil_img = Image.open(full_path)
-            pil_img.thumbnail((self.card_width, 140))
-            tk_img = ImageTk.PhotoImage(pil_img)
+        tk_img = load_thumbnail(full_path, self.card_width, 140)
+        if tk_img:
             self.image_cache[full_path] = tk_img
             return tk_img
-        except Exception:
-            return None
+        return None
