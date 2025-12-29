@@ -69,7 +69,6 @@ function injectResourceHints(filePath) {
 }
 
 function main() {
-  const outputRoot = resolveOutputDir();
   let processedCount = 0;
   let modifiedCount = 0;
 
