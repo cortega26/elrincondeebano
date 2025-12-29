@@ -137,8 +137,26 @@ function resolveLocalFontPath(rawUrl, cssPath) {
   return path.resolve(path.dirname(cssPath), normalized);
 }
 
-async function downloadRemote(url, dest) {
-  const safeUrl = assertAllowedRemoteUrl(normalizeRemoteUrl(url));
+async function downloadRemote(rawUrl, dest) {
+  const normalized = normalizeRemoteUrl(rawUrl);
+  let parsed;
+  try {
+    parsed = new URL(normalized);
+  } catch (err) {
+    throw new Error(`Invalid remote URL "${rawUrl}"`);
+  }
+  if (parsed.protocol !== 'https:') {
+    throw new Error(`Remote URL must use https: "${rawUrl}"`);
+  }
+  const allowed = getAllowedRemoteHosts();
+  const host = parsed.hostname.toLowerCase();
+  if (!allowed.has(host)) {
+    throw new Error(`Remote host "${host}" not in allowlist.`);
+  }
+  if (!/\.woff2(?:[?#].*)?$/i.test(parsed.pathname)) {
+    throw new Error(`Remote font URL must be .woff2: "${rawUrl}"`);
+  }
+  const safeUrl = parsed.toString();
   const res = await fetch(safeUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${safeUrl}`);
   const buf = Buffer.from(await res.arrayBuffer());
