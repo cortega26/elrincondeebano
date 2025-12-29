@@ -38,9 +38,9 @@ class PreferencesDialog(tk.Toplevel):
         button_frame = ttk.Frame(self)
         button_frame.grid(row=3, column=0, columnspan=2, pady=20)
         ttk.Button(button_frame, text="Guardar",
-                   command=self.save_preferences).pack(side=tk.CENTER, padx=5)
+                   command=self.save_preferences).pack(side=tk.LEFT, padx=5)
         ttk.Button(button_frame, text="Cancelar",
-                   command=self.destroy).pack(side=tk.CENTER, padx=5)
+                   command=self.destroy).pack(side=tk.LEFT, padx=5)
 
     def save_preferences(self) -> None:
         """Save preferences to configuration."""
