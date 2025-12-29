@@ -1,6 +1,6 @@
 {
-  "version": "20251125-111816",
-  "last_updated": "2025-11-25T11:18:16.171488",
+  "version": "20251228-195050",
+  "last_updated": "2025-12-28T19:50:50.939254",
   "rev": 0,
   "products": [
     {
@@ -2957,7 +2957,7 @@
       "name": "Shweppes • Agua Tónica",
       "description": "Botella de 1,5L",
       "price": 2800,
-      "discount": 300,
+      "discount": 500,
       "stock": true,
       "category": "Aguas",
       "image_path": "assets/images/aguas/Shweppes - Agua Tonica 1,5L.webp",
@@ -2966,14 +2966,7 @@
       "rev": 0,
       "field_last_modified": {
         "discount": {
-          "ts": "2025-11-08T15:21:19.872Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-11-08T15:21:19.872Z",
+          "ts": "2025-12-28T22:50:50.936197Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
