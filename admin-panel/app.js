@@ -51,9 +51,17 @@ async function loadFromServer() {
 function renderFilters() {
   const categories = Array.from(new Set(products.map((p) => p.category).filter(Boolean))).sort();
   const select = $('#category');
-  select.innerHTML =
-    '<option value="">Todas las categorías</option>' +
-    categories.map((c) => `<option>${escapeHtml(c)}</option>`).join('');
+  select.textContent = '';
+  const defaultOption = document.createElement('option');
+  defaultOption.value = '';
+  defaultOption.textContent = 'Todas las categorías';
+  select.appendChild(defaultOption);
+  categories.forEach((category) => {
+    const option = document.createElement('option');
+    option.value = category;
+    option.textContent = category;
+    select.appendChild(option);
+  });
 }
 
 function pid(p) {
