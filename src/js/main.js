@@ -22,7 +22,9 @@ function initEnhancementsOnce() {
         link.media = 'all';
         link.removeAttribute('data-defer');
       });
-  } catch {}
+  } catch (error) {
+    // Ignore DOM access failures in non-browser or test environments.
+  }
 
   if (root.dataset.enhancementsInit === '1') return;
   root.dataset.enhancementsInit = '1';
@@ -64,6 +66,10 @@ try {
         };
         m.track('page_view', { path: location.pathname });
       })
-      .catch(() => {});
+      .catch(() => {
+        // Ignore analytics load failures.
+      });
   }
-} catch {}
+} catch (error) {
+  // Ignore analytics setup failures.
+}

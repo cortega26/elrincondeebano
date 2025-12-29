@@ -10,7 +10,7 @@ test('ensureDiscountToggle inserts a single toggle', () => {
   global.document = dom.window.document;
 
   function ensureDiscountToggle() {
-    let toggle = document.getElementById('filter-discount');
+    const toggle = document.getElementById('filter-discount');
     if (toggle) return toggle;
 
     const filterSection = document.querySelector(

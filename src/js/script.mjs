@@ -1066,12 +1066,14 @@ const safeReload = () => {
     if (typeof window === 'undefined') return;
     const ua = window.navigator?.userAgent || '';
     if (/jsdom/i.test(ua)) return;
-    const reloadFn = window.location && window.location.reload;
-    if (typeof reloadFn === 'function') {
-      reloadFn.call(window.location);
+      const reloadFn = window.location && window.location.reload;
+      if (typeof reloadFn === 'function') {
+        reloadFn.call(window.location);
+      }
+    } catch (error) {
+      // Ignore reload failures in restricted environments.
     }
-  } catch {}
-};
+  };
 
 const showErrorMessage = (message) => {
   const errorMessage = createSafeElement('div', { class: 'error-message', role: 'alert' }, [
@@ -1543,7 +1545,7 @@ const initApp = async () => {
 
   // Ensure discount-only toggle exists in the filter UI
   const ensureDiscountToggle = () => {
-    let toggle = document.getElementById('filter-discount');
+    const toggle = document.getElementById('filter-discount');
     if (toggle) return toggle;
 
     const filterSection = document.querySelector(
