@@ -1,8 +1,8 @@
 const assert = require('assert');
+const { setBaseGlobals } = require('./helpers/dom-globals');
 
 (async () => {
-  global.window = { addEventListener() {}, navigator: {} };
-  global.document = { addEventListener() {}, getElementById: () => null };
+  setBaseGlobals();
   const { generateStableId } = await import('../src/js/script.mjs');
 
   const prodA1 = { name: 'Milk', category: 'Dairy' };

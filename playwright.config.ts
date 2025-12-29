@@ -5,7 +5,7 @@ const baseURL = process.env.PLAYWRIGHT_BASE_URL || `http://127.0.0.1:${PORT}`;
 const webServerCommand = 'npm run build && node scripts/dev-server.mjs build';
 
 export default defineConfig({
-  testDir: 'tests',
+  testDir: 'test/e2e',
   fullyParallel: false,
   timeout: 60_000,
   use: {

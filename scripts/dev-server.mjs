@@ -65,7 +65,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    let fileStat = await stat(filePath).catch(() => null);
+    const fileStat = await stat(filePath).catch(() => null);
     if (!fileStat || fileStat.isDirectory()) {
       sendNotFound(res);
       return;
