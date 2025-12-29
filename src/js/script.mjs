@@ -1,4 +1,5 @@
 import { log } from './utils/logger.mts';
+import { initializeBootstrapUI, showOffcanvas } from './modules/bootstrap.mjs';
 
 import { memoize, debounce, scheduleIdle, cancelScheduledIdle } from './utils/async.mjs';
 import { createCartManager } from './modules/cart.mjs';
@@ -97,6 +98,7 @@ const {
   getCartItemQuantity,
   getCart,
   updateQuantity,
+  updateCartIcon,
 } = cartManager;
 
 // Global error handling: be conservative during initial render
@@ -537,6 +539,8 @@ const initApp = async () => {
 
   try {
     initFooter();
+    // Initialize Bootstrap UI components
+    initializeBootstrapUI();
 
     const bootstrapPayload = getSharedProductData();
     if (bootstrapPayload?.products?.length) {
@@ -605,6 +609,22 @@ const initApp = async () => {
         updateProductDisplay();
       });
     }
+
+    // Setup Cart Interactions
+    const cartIcon = document.getElementById('cart-icon');
+    if (cartIcon) {
+      cartIcon.addEventListener('click', (e) => {
+        e.preventDefault();
+        try {
+          showOffcanvas('#cartOffcanvas');
+        } catch (error) {
+          console.error('Failed to open cart offcanvas:', error);
+        }
+      });
+    }
+
+    // Initialize Cart Icon State
+    updateCartIcon();
 
     setupDeferredLoading();
     updateOnlineStatus();
