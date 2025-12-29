@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import Mock, MagicMock
 from services import ProductService, Product, DuplicateProductError, ProductNotFoundError
 from repositories import ProductRepositoryProtocol
+from test_support import require
 
 class FakeRepository:
     def __init__(self):
@@ -31,7 +32,7 @@ class TestProductService:
         p = Product(name="New", description="Desc", price=100)
         service.add_product(p)
         
-        assert len(service.get_all_products()) == 1
+        require(len(service.get_all_products()) == 1, 'Expected one product after add')
         mock_repo.save_products.assert_called_once()
 
     def test_add_duplicate_product(self, service):
@@ -52,15 +53,18 @@ class TestProductService:
         service.update_product(original.name, updated, original.description)
         
         stored = service.get_product_by_name("Orig")
-        assert stored.price == 150
+        require(stored.price == 150, 'Expected updated price to be persisted')
 
     def test_delete_product(self, service):
         """Test deletion."""
         p = Product(name="Del", description="Desc", price=100)
         service.add_product(p)
         
-        assert service.delete_product(p.name, p.description) is True
-        assert len(service.get_all_products()) == 0
+        require(
+            service.delete_product(p.name, p.description) is True,
+            'Expected delete to return True'
+        )
+        require(len(service.get_all_products()) == 0, 'Expected no products after delete')
 
     def test_search_products(self, service):
         """Test search functionality."""
@@ -70,8 +74,8 @@ class TestProductService:
         service.add_product(p2)
         
         results = service.search_products("Apple")
-        assert len(results) == 1
-        assert results[0].name == "Apple Pie"
+        require(len(results) == 1, 'Expected one search result for Apple')
+        require(results[0].name == "Apple Pie", 'Expected Apple Pie result')
         
         results = service.search_products("Sweet")
-        assert len(results) == 2
+        require(len(results) == 2, 'Expected two search results for Sweet')

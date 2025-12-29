@@ -1,5 +1,6 @@
 import pytest
 from models import Product, InvalidPriceError, InvalidDiscountError, InvalidImagePathError
+from test_support import require
 
 class TestProductModels:
     def test_product_creation_valid(self):
@@ -11,9 +12,9 @@ class TestProductModels:
             category="Test",
             image_path="assets/images/valid.jpg"
         )
-        assert p.name == "Test Product"
-        assert p.price == 1000
-        assert p.discounted_price == 1000
+        require(p.name == "Test Product", 'Expected name to be set')
+        require(p.price == 1000, 'Expected price to be set')
+        require(p.discounted_price == 1000, 'Expected discounted price to match')
 
     def test_price_validation(self):
         """Test price validation logic."""
@@ -29,8 +30,8 @@ class TestProductModels:
         
         # Valid discount
         p.apply_discount(10)
-        assert p.discount == 100
-        assert p.discounted_price == 900
+        require(p.discount == 100, 'Expected discount to be applied')
+        require(p.discounted_price == 900, 'Expected discounted price to reflect discount')
 
         # Invalid discount > price
         with pytest.raises(InvalidDiscountError):
@@ -54,4 +55,4 @@ class TestProductModels:
         p1 = Product(name="  My Product  ", description=" DESC ", price=1)
         p2 = Product(name="my product", description="desc", price=2)
         
-        assert p1.identity_key() == p2.identity_key()
+        require(p1.identity_key() == p2.identity_key(), 'Expected identity key to normalize')

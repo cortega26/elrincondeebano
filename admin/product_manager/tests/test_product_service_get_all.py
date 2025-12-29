@@ -1,6 +1,7 @@
 from test_support import (
   bootstrap_tests,
   InMemoryRepository,
+  require,
 )
 
 
@@ -21,5 +22,5 @@ def test_get_all_products_returns_defensive_copy() -> None:
 
   first_result.pop()
 
-  assert len(second_result) == 1
-  assert len(service.get_all_products()) == 1
+  require(len(second_result) == 1, 'Expected defensive copy to remain intact')
+  require(len(service.get_all_products()) == 1, 'Expected repository to remain intact')

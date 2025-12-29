@@ -3,6 +3,7 @@ import pytest
 from test_support import (
   bootstrap_tests,
   InMemoryRepository,
+  require,
 )
 
 
@@ -26,8 +27,11 @@ def test_add_product_allows_duplicate_name_with_unique_description() -> None:
   service.add_product(duplicate_name)
 
   products = service.get_all_products()
-  assert len(products) == 2
-  assert {p.description for p in products} == {'Original', 'Variante'}
+  require(len(products) == 2, 'Expected two products with same name')
+  require(
+    {p.description for p in products} == {'Original', 'Variante'},
+    'Expected distinct descriptions for duplicate names'
+  )
 
 
 def test_add_product_rejects_exact_identity_duplicate() -> None:
@@ -52,7 +56,7 @@ def test_get_product_by_name_requires_description_with_duplicates() -> None:
     service.get_product_by_name('Producto')
 
   selected = service.get_product_by_name('Producto', 'Variante')
-  assert selected.price == 900
+  require(selected.price == 900, 'Expected selected duplicate price')
 
 
 def test_update_product_with_duplicate_name_uses_description() -> None:
@@ -67,7 +71,7 @@ def test_update_product_with_duplicate_name_uses_description() -> None:
   service.update_product(base.name, updated, base.description)
 
   refreshed = service.get_product_by_name('Producto', 'Original')
-  assert refreshed.price == 1500
+  require(refreshed.price == 1500, 'Expected updated product price')
 
 
 def test_delete_product_with_duplicate_name_removes_exact_match() -> None:
@@ -78,7 +82,7 @@ def test_delete_product_with_duplicate_name_removes_exact_match() -> None:
   service = ProductService(repo)
 
   removed = service.delete_product('Producto', 'Variante')
-  assert removed is True
+  require(removed is True, 'Expected delete to return True')
   remaining = service.get_all_products()
-  assert len(remaining) == 1
-  assert remaining[0].description == 'Original'
+  require(len(remaining) == 1, 'Expected one product remaining after delete')
+  require(remaining[0].description == 'Original', 'Expected original product to remain')

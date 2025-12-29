@@ -102,7 +102,10 @@
 <% } %>
                                 </div>
                                 <div class="action-area mt-auto" data-pid="<%= product.id %>" role="group" aria-label="Acciones de compra para <%= product.name %>">
-                                    <button class="btn btn-primary add-to-cart-btn mt-2" type="button" data-id="<%= product.id %>" aria-label="Agregar <%= product.name %> al carrito">Agregar al carrito</button>
+                                    <button class="btn btn-primary add-to-cart-btn mt-2" type="button" data-id="<%= product.id %>" aria-label="Agregar <%= product.name %> al carrito">
+                                        <span class="btn-text-full">Agregar al carrito</span>
+                                        <span class="btn-text-short">Agregar</span>
+                                    </button>
                                     <div class="quantity-control is-hidden" aria-live="polite" role="group" aria-label="Seleccionar cantidad">
                                         <button class="quantity-btn" type="button" data-action="decrease" aria-label="Disminuir cantidad">-</button>
                                         <input type="number" class="quantity-input" value="1" min="1" max="50" aria-label="Cantidad" data-id="<%= product.id %>">

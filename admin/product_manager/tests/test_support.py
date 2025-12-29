@@ -38,3 +38,8 @@ class InMemoryRepository:
 
     def save_products(self, products: Iterable[Any]) -> None:
         self._products = list(products)
+
+
+def require(condition: bool, message: str = 'Expected condition to be true') -> None:
+    if not condition:
+        raise AssertionError(message)
