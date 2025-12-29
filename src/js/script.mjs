@@ -237,6 +237,9 @@ function setupPeriodicUpdateCheck(registration) {
 
 // Check for service worker updates
 async function checkForUpdates(registration) {
+  if (typeof window !== 'undefined' && window.__ENABLE_TEST_HOOKS__ === true) {
+    return;
+  }
   try {
     try {
       await registration.update();
