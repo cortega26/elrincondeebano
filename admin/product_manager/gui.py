@@ -1722,8 +1722,8 @@ class ProductFormDialog(tk.Toplevel):
         # Let the input column expand when the window grows
         try:
             self.main_frame.columnconfigure(1, weight=1)
-        except Exception:
-            pass
+        except Exception as exc:
+            self.logger.debug("No se pudo configurar la columna principal: %s", exc)
         self.create_widgets()
         self.create_buttons()
 
