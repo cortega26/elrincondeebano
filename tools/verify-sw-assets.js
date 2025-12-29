@@ -9,7 +9,7 @@ function main() {
   const manifestPath = path.join(outputRoot, 'asset-manifest.json');
   const manifest = readManifest(manifestPath);
 
-  // eslint-disable-next-line global-require, import/no-dynamic-require
+  // eslint-disable-next-line global-require
   const swModule = require(serviceWorkerPath);
   const assets = swModule?.CACHE_CONFIG?.staticAssets;
 
