@@ -6,17 +6,30 @@ function createNotificationElement(message, primaryButtonText, secondaryButtonTe
   notification.setAttribute('role', 'alert');
   notification.setAttribute('aria-live', 'polite');
 
-  notification.innerHTML = `
-        <div class="notification-content">
-            <p>${message}</p>
-            <div class="notification-actions">
-                <button class="primary-action">${primaryButtonText}</button>
-                <button class="secondary-action">${secondaryButtonText}</button>
-            </div>
-        </div>
-    `;
+  const content = document.createElement('div');
+  content.className = 'notification-content';
 
-  notification.querySelector('.primary-action').addEventListener('click', () => {
+  const messageElement = document.createElement('p');
+  messageElement.textContent = String(message ?? '');
+
+  const actions = document.createElement('div');
+  actions.className = 'notification-actions';
+
+  const primaryButton = document.createElement('button');
+  primaryButton.className = 'primary-action';
+  primaryButton.type = 'button';
+  primaryButton.textContent = String(primaryButtonText ?? '');
+
+  const secondaryButton = document.createElement('button');
+  secondaryButton.className = 'secondary-action';
+  secondaryButton.type = 'button';
+  secondaryButton.textContent = String(secondaryButtonText ?? '');
+
+  actions.append(primaryButton, secondaryButton);
+  content.append(messageElement, actions);
+  notification.append(content);
+
+  primaryButton.addEventListener('click', () => {
     try {
       primaryAction();
     } catch (err) {
@@ -25,7 +38,7 @@ function createNotificationElement(message, primaryButtonText, secondaryButtonTe
     notification.remove();
   });
 
-  notification.querySelector('.secondary-action').addEventListener('click', () => {
+  secondaryButton.addEventListener('click', () => {
     notification.remove();
   });
 

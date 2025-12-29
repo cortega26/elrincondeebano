@@ -2249,6 +2249,21 @@ class ProductFormDialog(tk.Toplevel):
             os.path.dirname(__file__), '..', '..'))
         return os.path.join(project_root, 'assets', 'images')
 
+    def _resolve_asset_image_path(self, base_dir: Path, rel_path: str) -> Optional[Path]:
+        cleaned = rel_path.strip().replace('\\', '/')
+        if not cleaned:
+            return None
+        if cleaned.startswith('assets/images/'):
+            cleaned = cleaned[len('assets/images/'):]
+        candidate = (base_dir / cleaned).resolve()
+        try:
+            candidate.relative_to(base_dir)
+        except ValueError:
+            return None
+        if not candidate.is_file():
+            return None
+        return candidate
+
     def _category_subdir(self, category: str) -> str:
         mapping = {
             'Limpiezayaseo': 'limpieza_y_aseo',
@@ -2520,26 +2535,25 @@ class ProductFormDialog(tk.Toplevel):
             candidates = self._resolve_image_candidates()
             if not candidates:
                 return
-            abs_base_dir = self._assets_images_root()
-            target_path = None
+            base_dir = Path(self._assets_images_root()).resolve()
+            target_path: Optional[Path] = None
             for _, rel_path in candidates:
-                abs_path = os.path.join(abs_base_dir, rel_path.replace(
-                    'assets/images/', '').replace('/', os.sep))
-                if os.path.exists(abs_path):
-                    target_path = abs_path
+                resolved = self._resolve_asset_image_path(base_dir, rel_path)
+                if resolved:
+                    target_path = resolved
                     break
             if not target_path:
                 messagebox.showerror(
                     'Imagen', 'El archivo de imagen no existe en disco.')
                 return
             if os.name == 'nt':
-                os.startfile(target_path)  # type: ignore[attr-defined]
+                os.startfile(str(target_path))  # type: ignore[attr-defined]
             elif sys.platform == 'darwin':
                 import subprocess
-                subprocess.Popen(['open', target_path])
+                subprocess.Popen(['open', str(target_path)])
             else:
                 import subprocess
-                subprocess.Popen(['xdg-open', target_path])
+                subprocess.Popen(['xdg-open', str(target_path)])
         except Exception as e:
             messagebox.showerror('Imagen', f'No se pudo abrir la imagen: {e}')
 

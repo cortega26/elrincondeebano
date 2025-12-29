@@ -11,12 +11,55 @@ const defaultCssPath = path.join(outDir, 'fonts.css');
 
 const GOOGLE_CSS =
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&display=swap';
+const DEFAULT_REMOTE_HOSTS = new Set(['fonts.googleapis.com', 'fonts.gstatic.com']);
 
 function shouldAllowRemoteFetch() {
   const raw = process.env.ALLOW_REMOTE_FONTS;
   if (!raw) return false;
   const normalized = String(raw).trim().toLowerCase();
   return ['1', 'true', 'yes'].includes(normalized);
+}
+
+function getAllowedRemoteHosts() {
+  const hosts = new Set(DEFAULT_REMOTE_HOSTS);
+  const raw = process.env.FONTS_REMOTE_HOSTS;
+  if (!raw) return hosts;
+  for (const part of raw.split(/[\s,]+/)) {
+    const host = part.trim().toLowerCase();
+    if (host) hosts.add(host);
+  }
+  return hosts;
+}
+
+function assertAllowedRemoteUrl(rawUrl) {
+  let parsed;
+  try {
+    parsed = new URL(rawUrl);
+  } catch (err) {
+    throw new Error(`Invalid remote URL "${rawUrl}"`);
+  }
+  if (parsed.protocol !== 'https:') {
+    throw new Error(`Remote URL must use https: "${rawUrl}"`);
+  }
+  const allowed = getAllowedRemoteHosts();
+  const host = parsed.hostname.toLowerCase();
+  if (!allowed.has(host)) {
+    throw new Error(
+      `Remote host "${host}" not in allowlist. Set FONTS_REMOTE_HOSTS to allow it.`
+    );
+  }
+  return parsed.toString();
+}
+
+function normalizeRemoteUrl(rawUrl) {
+  if (rawUrl.startsWith('//')) {
+    return `https:${rawUrl}`;
+  }
+  return rawUrl;
+}
+
+function isRemoteUrl(rawUrl) {
+  return /^https?:/i.test(rawUrl) || rawUrl.startsWith('//');
 }
 
 async function loadFontsCss() {
@@ -39,10 +82,11 @@ async function loadFontsCss() {
   }
 
   const url = process.env.FONTS_CSS_URL || GOOGLE_CSS;
-  const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+  const safeUrl = assertAllowedRemoteUrl(url);
+  const res = await fetch(safeUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
   if (!res.ok) throw new Error(`Failed to fetch Google Fonts CSS: ${res.status}`);
   const css = await res.text();
-  return { css, cssPath: null, source: url };
+  return { css, cssPath: null, source: safeUrl };
 }
 
 function escapeRegExp(value) {
@@ -111,13 +155,14 @@ async function copyLocal(source, dest) {
 
 async function fetchFontAsset(rawUrl, cssPath, dest) {
   const url = normalizeFontUrl(rawUrl);
-  if (/^https?:/i.test(url)) {
+  if (isRemoteUrl(url)) {
     if (!shouldAllowRemoteFetch()) {
       throw new Error(
         'Remote font download disabled. Set ALLOW_REMOTE_FONTS=1 to download remote assets.'
       );
     }
-    return downloadRemote(url, dest);
+    const safeUrl = assertAllowedRemoteUrl(normalizeRemoteUrl(url));
+    return downloadRemote(safeUrl, dest);
   }
 
   if (/^data:/i.test(url)) {
