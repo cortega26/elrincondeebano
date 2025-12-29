@@ -1,28 +1,29 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const { JSDOM } = require('jsdom');
-const fs = require('node:fs');
-const path = require('node:path');
+const { createModuleLoader } = require('./helpers/module-loader');
+const {
+  setupDom,
+  teardownDom,
+  wait,
+  dispatchPointerDown,
+} = require('./helpers/dom-test-utils');
 
-function loadModule(relPath) {
-  const filePath = path.join(__dirname, relPath);
-  let code = fs.readFileSync(filePath, 'utf8');
-  code = code.replace(/export\s+(async\s+)?function\s+(\w+)/g, 'exports.$2 = $1function $2');
-  code = code.replace(/export\s+\{([^}]+)\};?/g, (_, names) => {
-    return names
-      .split(',')
-      .map((name) => name.trim())
-      .filter(Boolean)
-      .map((name) => `exports.${name} = ${name};`)
-      .join('\n');
-  });
-  const exports = {};
-  const wrapper = new Function('exports', 'loadModule', code + '\nreturn exports;');
-  return wrapper(exports, loadModule);
+const loadModule = createModuleLoader(__dirname);
+
+async function withMenuController(markup, run) {
+  setupDom(markup);
+  const module = loadModule('../src/js/modules/menu-controller.mjs');
+  module.setupUnifiedMenuController();
+  try {
+    await run();
+  } finally {
+    module.__resetMenuControllerForTest();
+    teardownDom();
+  }
 }
 
 test('menu controller opens on pointerdown and closes on outside interaction', async () => {
-  const dom = new JSDOM(
+  await withMenuController(
     `<!DOCTYPE html><body>
     <div id="navbar-container">
       <div class="dropdown">
@@ -31,36 +32,25 @@ test('menu controller opens on pointerdown and closes on outside interaction', a
       </div>
     </div>
   </body>`,
-    { url: 'http://localhost' }
+    async () => {
+      const firstToggle = document.getElementById('firstToggle');
+      dispatchPointerDown(firstToggle);
+      await wait(25);
+
+      assert.strictEqual(firstToggle.getAttribute('aria-expanded'), 'true');
+      assert.ok(document.getElementById('firstMenu').classList.contains('show'));
+
+      dispatchPointerDown(document.body);
+      await wait(0);
+
+      assert.strictEqual(firstToggle.getAttribute('aria-expanded'), 'false');
+      assert.ok(!document.getElementById('firstMenu').classList.contains('show'));
+    }
   );
-  global.window = dom.window;
-  global.document = dom.window.document;
-  global.HTMLElement = dom.window.HTMLElement;
-
-  const module = loadModule('../src/js/modules/menu-controller.mjs');
-  module.setupUnifiedMenuController();
-
-  const firstToggle = document.getElementById('firstToggle');
-  firstToggle.dispatchEvent(new dom.window.Event('pointerdown', { bubbles: true }));
-  await new Promise((resolve) => setTimeout(resolve, 25));
-
-  assert.strictEqual(firstToggle.getAttribute('aria-expanded'), 'true');
-  assert.ok(document.getElementById('firstMenu').classList.contains('show'));
-
-  dom.window.document.body.dispatchEvent(new dom.window.Event('pointerdown', { bubbles: true }));
-  await new Promise((resolve) => setTimeout(resolve, 0));
-
-  assert.strictEqual(firstToggle.getAttribute('aria-expanded'), 'false');
-  assert.ok(!document.getElementById('firstMenu').classList.contains('show'));
-
-  module.__resetMenuControllerForTest();
-  delete global.window;
-  delete global.document;
-  delete global.HTMLElement;
 });
 
 test('menu controller closes previous dropdown when opening a new one', async () => {
-  const dom = new JSDOM(
+  await withMenuController(
     `<!DOCTYPE html><body>
     <div id="navbar-container">
       <div class="dropdown">
@@ -73,33 +63,22 @@ test('menu controller closes previous dropdown when opening a new one', async ()
       </div>
     </div>
   </body>`,
-    { url: 'http://localhost' }
+    async () => {
+      const firstToggle = document.getElementById('firstToggle');
+      const secondToggle = document.getElementById('secondToggle');
+
+      dispatchPointerDown(firstToggle);
+      await wait(25);
+      assert.strictEqual(firstToggle.getAttribute('aria-expanded'), 'true');
+      assert.ok(document.getElementById('firstMenu').classList.contains('show'));
+
+      dispatchPointerDown(secondToggle);
+      await wait(25);
+
+      assert.strictEqual(firstToggle.getAttribute('aria-expanded'), 'false');
+      assert.ok(!document.getElementById('firstMenu').classList.contains('show'));
+      assert.strictEqual(secondToggle.getAttribute('aria-expanded'), 'true');
+      assert.ok(document.getElementById('secondMenu').classList.contains('show'));
+    }
   );
-  global.window = dom.window;
-  global.document = dom.window.document;
-  global.HTMLElement = dom.window.HTMLElement;
-
-  const module = loadModule('../src/js/modules/menu-controller.mjs');
-  module.setupUnifiedMenuController();
-
-  const firstToggle = document.getElementById('firstToggle');
-  const secondToggle = document.getElementById('secondToggle');
-
-  firstToggle.dispatchEvent(new dom.window.Event('pointerdown', { bubbles: true }));
-  await new Promise((resolve) => setTimeout(resolve, 25));
-  assert.strictEqual(firstToggle.getAttribute('aria-expanded'), 'true');
-  assert.ok(document.getElementById('firstMenu').classList.contains('show'));
-
-  secondToggle.dispatchEvent(new dom.window.Event('pointerdown', { bubbles: true }));
-  await new Promise((resolve) => setTimeout(resolve, 25));
-
-  assert.strictEqual(firstToggle.getAttribute('aria-expanded'), 'false');
-  assert.ok(!document.getElementById('firstMenu').classList.contains('show'));
-  assert.strictEqual(secondToggle.getAttribute('aria-expanded'), 'true');
-  assert.ok(document.getElementById('secondMenu').classList.contains('show'));
-
-  module.__resetMenuControllerForTest();
-  delete global.window;
-  delete global.document;
-  delete global.HTMLElement;
 });

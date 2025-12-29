@@ -1,29 +1,13 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const { JSDOM } = require('jsdom');
+const { setupAppDom, teardownAppDom } = require('./helpers/dom-test-utils');
 
 const bootstrapDom = () => {
-  const dom = new JSDOM(
+  setupAppDom(
     '<!DOCTYPE html><html><body><div id="product-container"></div><script id="product-data" type="application/json">{"initialProducts":[]}</script></body></html>',
     { url: 'https://example.com' }
   );
-  global.window = dom.window;
-  global.document = dom.window.document;
-  global.navigator = dom.window.navigator;
-  global.localStorage = dom.window.localStorage;
-  global.IntersectionObserver = class {
-    observe() {}
-    disconnect() {}
-    unobserve() {}
-  };
-  global.MutationObserver = class {
-    observe() {}
-    disconnect() {}
-  };
-  return dom;
 };
-
-bootstrapDom();
 
 const withPatchedConsole = async (fn) => {
   const originalLog = console.log;
@@ -42,6 +26,7 @@ const withPatchedConsole = async (fn) => {
 };
 
 test('logPerformanceMetrics reports unavailable metrics when Performance API data is missing', async () => {
+  bootstrapDom();
   const { logPerformanceMetrics } = await import('../src/js/script.mjs');
 
   await withPatchedConsole(async (logs) => {
@@ -60,9 +45,12 @@ test('logPerformanceMetrics reports unavailable metrics when Performance API dat
 
     global.window.performance = originalPerformance;
   });
+
+  teardownAppDom();
 });
 
 test('logPerformanceMetrics uses available paint and navigation entries', async () => {
+  bootstrapDom();
   const { logPerformanceMetrics } = await import('../src/js/script.mjs');
 
   await withPatchedConsole(async (logs) => {
@@ -85,4 +73,6 @@ test('logPerformanceMetrics uses available paint and navigation entries', async 
     assert.deepStrictEqual(logs[1], ['DOM Content Loaded:', 456]);
     assert.deepStrictEqual(logs[2], ['Load Time:', 789]);
   });
+
+  teardownAppDom();
 });

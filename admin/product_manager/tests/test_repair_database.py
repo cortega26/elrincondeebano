@@ -1,28 +1,9 @@
 import json
-import sys
-import types
-from pathlib import Path
+
+from test_support import bootstrap_tests
 
 
-if 'portalocker' not in sys.modules:
-  portalocker_stub = types.ModuleType('portalocker')
-  portalocker_stub.LOCK_EX = 0
-  portalocker_stub.LOCK_SH = 0
-
-  def _noop(*_args, **_kwargs) -> None:
-    return None
-
-  portalocker_stub.lock = _noop
-  portalocker_stub.unlock = _noop
-  sys.modules['portalocker'] = portalocker_stub
-
-ROOT_PATH = Path(__file__).resolve().parents[3]
-if str(ROOT_PATH) not in sys.path:
-  sys.path.insert(0, str(ROOT_PATH))
-
-MODULE_PATH = Path(__file__).resolve().parents[1]
-if str(MODULE_PATH) not in sys.path:
-  sys.path.insert(0, str(MODULE_PATH))
+bootstrap_tests()
 
 from admin.product_manager.repositories import JsonProductRepository
 
