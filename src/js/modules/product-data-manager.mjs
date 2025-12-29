@@ -1,6 +1,6 @@
 import { log, createCorrelationId } from '../utils/logger.mts';
 import { resolveProductDataUrl } from '../utils/data-endpoint.mjs';
-import { safeReload } from '../utils/safe-reload.mjs';
+
 import {
     fetchWithRetry,
     normalizeProductVersion,
