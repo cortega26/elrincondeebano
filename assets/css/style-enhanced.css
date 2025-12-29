@@ -866,13 +866,13 @@ h1 {
   display: block !important;
 }
 
-/* Utility: hydrate content visibility without inline styles */
+/* Utility: hydrate content visibility without inline styles - DISABLED to fix mobile layout */
 .has-content-visibility {
-  content-visibility: auto;
+  /* content-visibility: auto; */
 }
 
 .has-contain-intrinsic {
-  contain-intrinsic-size: 400px 560px;
+  /* contain-intrinsic-size: 400px 560px; */
 }
 
 /* Skip link for accessibility */
