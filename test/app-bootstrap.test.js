@@ -291,3 +291,95 @@ test('runAppBootstrap refreshes even after user interaction when bootstrap is pa
   assert.strictEqual(setProductsArgs.length, 1);
   assert.strictEqual(updateCalled, true);
 });
+
+test('runAppBootstrap refreshes when fetched data is a superset', async () => {
+  const dom = new JSDOM(
+    `<!DOCTYPE html>
+     <html>
+       <body>
+         <main></main>
+         <div id="product-container"></div>
+         <select id="sort-options"></select>
+         <input id="filter-keyword" />
+         <span id="cart-count"></span>
+         <div id="cart-items"></div>
+         <div id="cart-total"></div>
+       </body>
+     </html>`
+  );
+  global.window = dom.window;
+  global.document = dom.window.document;
+
+  const { runAppBootstrap } = await import('../src/js/modules/app-bootstrap.mjs');
+
+  let setProductsArgs = null;
+  let updateCalled = false;
+
+  const catalogManager = {
+    initialize: () => {},
+    bindFilterEvents: ({ onUserInteraction } = {}) => {
+      if (typeof onUserInteraction === 'function') {
+        onUserInteraction();
+      }
+    },
+    setupDeferredLoading: () => {},
+    setProducts: (products) => {
+      setProductsArgs = products;
+    },
+    updateProductDisplay: () => {
+      updateCalled = true;
+    },
+  };
+
+  const fetchProducts = async () => [
+    {
+      id: 'p1',
+      name: 'Producto',
+      description: 'Desc',
+      price: 1000,
+      discount: 0,
+      stock: true,
+      category: 'Cat',
+    },
+    {
+      id: 'p2',
+      name: 'Producto 2',
+      description: 'Desc 2',
+      price: 1500,
+      discount: 0,
+      stock: true,
+      category: 'Cat',
+    },
+  ];
+
+  await runAppBootstrap({
+    catalogManager,
+    cartManager: {},
+    submitCart: () => {},
+    initializeBootstrapUI: () => {},
+    getSharedProductData: () => ({
+      products: [
+        {
+          id: 'inline-1',
+          name: 'Inline',
+          description: 'Desc',
+          price: 500,
+          discount: 0,
+          stock: true,
+          category: 'Cat',
+        },
+      ],
+    }),
+    normalizeString: (value) => String(value || '').toLowerCase(),
+    log: () => {},
+    setupOnlineStatus: () => {},
+    utilityClasses: { hidden: 'is-hidden', block: 'is-block' },
+    scheduleIdle: async (fn) => fn(),
+    fetchProducts,
+    logPerformanceMetrics: () => {},
+  });
+
+  assert.ok(Array.isArray(setProductsArgs));
+  assert.strictEqual(setProductsArgs.length, 2);
+  assert.strictEqual(updateCalled, true);
+});
