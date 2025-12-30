@@ -82,9 +82,22 @@ export function runAppBootstrap({
   const initialProducts = normalizeCatalogProducts(bootstrapPayload, normalizeString);
   const bootstrapTotal =
     typeof bootstrapPayload?.total === 'number' ? bootstrapPayload.total : null;
+  const domTotal = (() => {
+    if (typeof document === 'undefined') {
+      return null;
+    }
+    const container = document.getElementById('product-container');
+    const raw = container?.dataset?.totalProducts;
+    if (!raw) {
+      return null;
+    }
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) ? parsed : null;
+  })();
   const hasPartialBootstrap =
     Boolean(bootstrapPayload?.isPartial) ||
-    (typeof bootstrapTotal === 'number' && bootstrapTotal > initialProducts.length);
+    (typeof bootstrapTotal === 'number' && bootstrapTotal > initialProducts.length) ||
+    (typeof domTotal === 'number' && domTotal > initialProducts.length);
   const { products, currentCategory } = applyCategoryFilter(initialProducts, normalizeString);
 
   catalogManager.initialize(products);
@@ -137,27 +150,29 @@ export function runAppBootstrap({
           return;
         }
 
+        let nextProducts = freshProducts.map((p, i) => ({
+          ...p,
+          originalIndex: i,
+          categoryKey: p.categoryKey || normalizeString(p.category),
+        }));
+
+        if (currentCategory) {
+          const normCurrent = normalizeString(currentCategory);
+          nextProducts = nextProducts
+            .filter((p) => (p.categoryKey || normalizeString(p.category)) === normCurrent)
+            .map((p, i) => ({
+              ...p,
+              originalIndex: i,
+            }));
+        }
+
+        const isSuperset =
+          Array.isArray(nextProducts) && nextProducts.length > (products?.length || 0);
         const shouldRefresh =
-          (!userHasInteracted && (!products || products.length === 0)) || hasPartialBootstrap;
+          (!userHasInteracted && (!products || products.length === 0)) ||
+          hasPartialBootstrap ||
+          isSuperset;
         if (shouldRefresh) {
-          let nextProducts = freshProducts.map((p, i) => ({
-            ...p,
-            originalIndex: i,
-            categoryKey: p.categoryKey || normalizeString(p.category),
-          }));
-
-          if (currentCategory) {
-            const normCurrent = normalizeString(currentCategory);
-            nextProducts = nextProducts
-              .filter(
-                (p) => (p.categoryKey || normalizeString(p.category)) === normCurrent
-              )
-              .map((p, i) => ({
-                ...p,
-                originalIndex: i,
-              }));
-          }
-
           catalogManager.setProducts(nextProducts);
           catalogManager.updateProductDisplay();
         } else if (typeof log === 'function') {
