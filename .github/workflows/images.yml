@@ -21,6 +21,13 @@ jobs:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           fetch-depth: 0
+      - name: Prepare branch for image update
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin "${GITHUB_REF_NAME}"
+          git checkout -B "${GITHUB_REF_NAME}"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
       - name: Set deterministic build environment
         run: |
           echo "TZ=UTC" >> $GITHUB_ENV
@@ -35,13 +42,6 @@ jobs:
       - run: npm run images:generate
       - run: npm run images:rewrite
       - run: npm run lint:images
-      - name: Prepare branch for image update
-        shell: bash
-        run: |
-          set -euo pipefail
-          git fetch origin "${GITHUB_REF_NAME}"
-          git checkout -B "${GITHUB_REF_NAME}"
-          git pull --rebase origin "${GITHUB_REF_NAME}"
       - name: Commit changes
         shell: bash
         run: |
