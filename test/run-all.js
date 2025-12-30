@@ -13,6 +13,7 @@ const tests = [
   'updateProductDisplay.test.js',
   'ensureDiscountToggle.test.js',
   'catalog-manager.test.js',
+  'app-bootstrap.test.js',
   'memoize.test.js',
   'notifications.test.js',
   'avif.sources.test.js',
