@@ -52,12 +52,13 @@ prefixes live in `service-worker.js` under `CACHE_CONFIG.prefixes`.
 - Data changes (prices, stock, product list) → bump `ebano-products`.
 - CSS/JS changes (new styles, UI scripts) → bump `ebano-static`.
 
-## Tech Stack
+## Stack Used
 
+- **Languages & templates:** HTML, CSS, JavaScript (ES modules), and EJS templates.
 - **Runtime:** Node.js 22.x (Volta + `.nvmrc` guardrails). Admin Tools run on Python 3.12.
+- **UI framework:** Bootstrap 5 with vanilla JS modules and service worker orchestration.
 - **Build tooling:** Custom Node scripts with esbuild, Sharp, undici, and Lighthouse.
-- **Frontend:** Static HTML/CSS/Bootstrap 5, vanilla JS modules, service worker orchestration.
-- **Testing:** node:test, Playwright, Cypress, CSS order lint, Lighthouse audits in CI.
+- **Testing:** node:test, Vitest, Playwright, Cypress, CSS order lint, Lighthouse audits in CI.
 - **Automation:** GitHub Actions for CI, Pages deploy, image optimization, and Codacy SARIF upload.
 
 ## Architecture at a Glance

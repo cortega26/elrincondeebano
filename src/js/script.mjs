@@ -17,6 +17,7 @@ import {
   __resetServiceWorkerRegistrationForTest,
 } from './modules/service-worker-manager.mjs';
 import { createCheckoutSubmission } from './modules/checkout.mjs';
+import { runAppBootstrap } from './modules/app-bootstrap.mjs';
 import {
   getSharedProductData,
   hydrateSharedProductDataFromInline,
@@ -250,134 +251,26 @@ const initApp = async () => {
     showOffcanvas,
   });
 
-  let products = [];
-  let userHasInteracted = false;
-
-  function initFooter() {
-    const yearSpan = document.getElementById('current-year');
-    if (yearSpan) {
-      yearSpan.textContent = new Date().getFullYear();
-    }
-  }
-
   try {
-    initFooter();
-    // Initialize Bootstrap UI components
-    initializeBootstrapUI();
-
-    const bootstrapPayload = getSharedProductData();
-    if (bootstrapPayload?.products?.length) {
-      products = bootstrapPayload.products.map((product, index) => ({
-        ...product,
-        originalIndex: typeof product.originalIndex === 'number' ? product.originalIndex : index,
-        categoryKey: product.categoryKey || normalizeString(product.category),
-      }));
-    }
-
-    const mainElement = document.querySelector('main');
-    const currentCategory = mainElement?.dataset?.category || '';
-    if (currentCategory) {
-      const normCurrent = normalizeString(currentCategory);
-      products = products
-        .filter(
-          (product) => (product.categoryKey || normalizeString(product.category)) === normCurrent
-        )
-        .map((product, index) => ({
-          ...product,
-          originalIndex: typeof product.originalIndex === 'number' ? product.originalIndex : index,
-        }));
-    }
-
-    catalogManager.initialize(products);
-
-    catalogManager.bindFilterEvents({
-      log,
-      onUserInteraction: () => {
-        userHasInteracted = true;
+    return runAppBootstrap({
+      catalogManager,
+      cartManager: {
+        updateCartIcon,
+        renderCart,
+        setupCartInteraction: cartManager.setupCartInteraction,
       },
+      submitCart,
+      initializeBootstrapUI,
+      getSharedProductData,
+      normalizeString,
+      log,
+      setupOnlineStatus,
+      utilityClasses: UTILITY_CLASSES,
+      scheduleIdle,
+      fetchProducts,
+      logPerformanceMetrics,
+      showOffcanvas,
     });
-
-    // Setup Cart Interactions
-    const cartIcon = document.getElementById('cart-icon');
-    if (cartIcon) {
-      cartIcon.addEventListener('click', (e) => {
-        e.preventDefault();
-        try {
-          showOffcanvas('#cartOffcanvas');
-        } catch (error) {
-          console.error('Failed to open cart offcanvas:', error);
-        }
-      });
-    }
-
-    // Initialize Cart Icon State
-    updateCartIcon();
-    renderCart();
-
-    // Setup Cart Interaction Listeners (delegation)
-    if (typeof cartManager.setupCartInteraction === 'function') {
-      cartManager.setupCartInteraction();
-    }
-
-    catalogManager.setupDeferredLoading();
-    setupOnlineStatus({ indicatorId: 'offline-indicator', utilityClasses: UTILITY_CLASSES });
-
-    const submitButtons = ['checkout-btn', 'submit-cart'];
-    submitButtons.forEach((id) => {
-      document.getElementById(id)?.addEventListener('click', () => {
-        log('info', 'checkout_initiated');
-        submitCart();
-      });
-    });
-
-    window.__APP_READY__ = true;
-
-    // Defer fetching fresh data until main thread is idle
-    const idleCompletion = new Promise((resolve) => {
-      scheduleIdle(async () => {
-        try {
-          const freshProducts = await fetchProducts();
-          if (!freshProducts) {
-            return;
-          }
-
-          // If user hasn't interacted, we can safely update everything
-          if (!userHasInteracted && (!products || products.length === 0)) {
-            products = freshProducts.map((p, i) => ({
-              ...p,
-              originalIndex: i,
-              categoryKey: p.categoryKey || normalizeString(p.category),
-            }));
-
-            if (currentCategory) {
-              const normCurrent = normalizeString(currentCategory);
-              products = products
-                .filter(
-                  (p) => (p.categoryKey || normalizeString(p.category)) === normCurrent
-                )
-                .map((p, i) => ({
-                  ...p,
-                  originalIndex: i,
-                }));
-            }
-
-            catalogManager.setProducts(products);
-            updateProductDisplay();
-          } else {
-            // Silent background update logic could go here
-            // For now, we just log that we have fresh data
-            log('info', 'background_data_refresh_complete', { count: freshProducts.length });
-          }
-        } catch (err) {
-          console.warn('Background fetch failed (non-fatal):', err);
-        } finally {
-          logPerformanceMetrics();
-          resolve();
-        }
-      });
-    });
-
-    return idleCompletion;
 
   } catch (error) {
     console.error('Fatal initialization error:', error);
