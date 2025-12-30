@@ -80,6 +80,11 @@ export function runAppBootstrap({
   const bootstrapPayload =
     typeof getSharedProductData === 'function' ? getSharedProductData() : null;
   const initialProducts = normalizeCatalogProducts(bootstrapPayload, normalizeString);
+  const bootstrapTotal =
+    typeof bootstrapPayload?.total === 'number' ? bootstrapPayload.total : null;
+  const hasPartialBootstrap =
+    Boolean(bootstrapPayload?.isPartial) ||
+    (typeof bootstrapTotal === 'number' && bootstrapTotal > initialProducts.length);
   const { products, currentCategory } = applyCategoryFilter(initialProducts, normalizeString);
 
   catalogManager.initialize(products);
@@ -132,7 +137,7 @@ export function runAppBootstrap({
           return;
         }
 
-        if (!userHasInteracted && (!products || products.length === 0)) {
+        if (!userHasInteracted && (!products || products.length === 0 || hasPartialBootstrap)) {
           let nextProducts = freshProducts.map((p, i) => ({
             ...p,
             originalIndex: i,
