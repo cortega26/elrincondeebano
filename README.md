@@ -216,7 +216,8 @@ Operational recovery steps for this policy live in
 
 | Check                 | Command                    | Notes                                                         |
 | --------------------- | -------------------------- | ------------------------------------------------------------- |
-| Unit tests            | `npm test`                 | node:test suite passes (`# pass 7`, `# fail 0`).              |
+| Unit tests            | `npm test`                 | Runs node:test plus Vitest; includes service worker runtime coverage. |
+| Coverage              | `npm run test:coverage`    | Generates `coverage/` via c8 for local review.               |
 | Admin Tool tests      | `pytest`                   | 100% coverage for Admin logic (18 tests).                     |
 | CSS entrypoint order  | `npm run check:css-order`  | Guards against regressions in `<link>` ordering.              |
 | Playwright regression | `npm run test:e2e`         | Validates navbar/cart flicker budgets (CI installs Chromium). |
@@ -224,7 +225,7 @@ Operational recovery steps for this policy live in
 | Lint                  | `npx eslint .`             | Enforces repo-wide JS/TS standards.                           |
 | Lighthouse audit      | `npm run lighthouse:audit` | Reuses last build via `LH_SKIP_BUILD=1` in CI.                |
 
-_Coverage reporting is not yet instrumented — integrate `c8` and surface reports before claiming metrics._
+_Coverage reporting is instrumented via `c8`; publish thresholds or badges once you agree on targets._
 
 ## Performance & Accessibility
 
@@ -235,7 +236,7 @@ _Coverage reporting is not yet instrumented — integrate `c8` and surface repor
 ## Roadmap
 
 - Publish `LICENSE` file matching the ISC declaration for distribution clarity.
-- Add `c8` coverage instrumentation and surface results in CI badges.
+- Add coverage thresholds and surface results in CI badges.
 - Automate visual diffing from the existing Playwright suite to guard marketing-critical pages.
 - Document the Python → Node data sync between `admin/` scripts and `data/product_data.json` for future contributors.
 - Introduce scheduled build snapshots that archive `pages/` outputs for release notes.
