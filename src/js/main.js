@@ -5,7 +5,7 @@ import { setupNavigationAccessibility, setupCartOffcanvasAccessibility } from '.
 import { setupPerformanceOptimizations } from './modules/perf.js';
 import { injectSeoMetadata, injectStructuredData } from './modules/seo.js';
 import { injectPwaManifest } from './modules/pwa.js';
-import { setupCheckoutProgress } from './modules/checkout.js';
+import { setupCheckoutProgress } from './modules/checkout.mjs';
 import { initializeBootstrapUI } from './modules/bootstrap.mjs';
 
 // Import the core app for side effects when bundling.

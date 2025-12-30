@@ -82,6 +82,23 @@ export function createCartManager({
     restartAnimationClass(total, 'cart-total-bump', 500);
   };
 
+  const dispatchCartUpdate = ({ isEmpty, total, totalItems }) => {
+    if (typeof document === 'undefined') return;
+    const EventCtor = document.defaultView?.CustomEvent || globalThis.CustomEvent;
+    if (typeof EventCtor !== 'function') return;
+    let event;
+    try {
+      event = new EventCtor('cart:updated', {
+        detail: { isEmpty, total, totalItems },
+      });
+    } catch {
+      event = null;
+    }
+    if (event) {
+      document.dispatchEvent(event);
+    }
+  };
+
   const pulseAddToCartButton = (productId) => {
     const id = normalizeId(productId);
     if (!id) return;
@@ -108,6 +125,7 @@ export function createCartManager({
 
     cartItems.innerHTML = '';
     let total = 0;
+    let totalItems = 0;
     const isEmpty = cart.length === 0;
 
     if (isEmpty) {
@@ -234,6 +252,7 @@ export function createCartManager({
         cartItems.appendChild(itemElement);
 
         total += discountedPrice * item.quantity;
+        totalItems += clampQuantity(item.quantity);
       });
     }
 
@@ -279,6 +298,8 @@ export function createCartManager({
     if (paymentError && isEmpty) {
       paymentError.textContent = '';
     }
+
+    dispatchCartUpdate({ isEmpty, total, totalItems });
   };
 
   const addToCart = (product, quantity) => {

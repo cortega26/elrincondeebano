@@ -102,7 +102,11 @@
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
   </div>
   <div class="offcanvas-body">
-    <div id="cart-items"></div>
+    <div id="cart-items">
+      <div class="alert alert-info mb-0 cart-empty-message" role="status" tabindex="-1">
+        Tu carrito está vacío. Agrega productos antes de realizar el pedido.
+      </div>
+    </div>
     <div id="cart-total" class="mt-3"></div>
     <div class="mt-3" id="payment-method-container">
       <label class="form-label d-block" for="payment-cash">Método de Pago</label>
@@ -121,7 +125,7 @@
       <div id="payment-error" class="text-danger small mt-2" role="alert" aria-live="assertive"></div>
     </div>
     <button id="empty-cart" class="btn btn-warning mt-3">Vaciar Carrito</button>
-    <button id="submit-cart" class="btn btn-success mt-3">Realizar Pedido</button>
+    <button id="submit-cart" class="btn btn-success mt-3" disabled aria-disabled="true">Realizar Pedido</button>
     <button id="continue-shopping" class="btn btn-primary mt-3" data-bs-dismiss="offcanvas">Continuar Comprando</button>
   </div>
 </div>
