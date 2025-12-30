@@ -82,3 +82,60 @@ test('menu controller closes previous dropdown when opening a new one', async ()
     }
   );
 });
+
+test('menu controller supports keyboard toggle and escape', async () => {
+  await withMenuController(
+    `<!DOCTYPE html><body>
+    <div id="navbar-container">
+      <div class="dropdown">
+        <a id="firstToggle" class="dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Primero</a>
+        <ul class="dropdown-menu" id="firstMenu"></ul>
+      </div>
+    </div>
+  </body>`,
+    async () => {
+      const firstToggle = document.getElementById('firstToggle');
+      let focusCalled = false;
+      firstToggle.focus = () => {
+        focusCalled = true;
+      };
+
+      firstToggle.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      await wait(25);
+      assert.strictEqual(firstToggle.getAttribute('aria-expanded'), 'true');
+
+      firstToggle.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      await wait(0);
+      assert.strictEqual(firstToggle.getAttribute('aria-expanded'), 'false');
+      assert.strictEqual(focusCalled, true);
+    }
+  );
+});
+
+test('menu controller assigns ids when missing and ignores non-primary pointerdown', async () => {
+  await withMenuController(
+    `<!DOCTYPE html><body>
+    <div id="navbar-container">
+      <div class="dropdown">
+        <button class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Menu</button>
+        <div class="dropdown-menu"></div>
+      </div>
+    </div>
+  </body>`,
+    async () => {
+      const toggle = document.querySelector('.dropdown-toggle');
+      const menu = document.querySelector('.dropdown-menu');
+
+      assert.ok(toggle.dataset.dropdownId);
+      assert.ok(menu.id);
+      assert.strictEqual(toggle.getAttribute('aria-controls'), menu.id);
+
+      const pointerEvent = new window.Event('pointerdown', { bubbles: true });
+      Object.defineProperty(pointerEvent, 'button', { value: 2 });
+      toggle.dispatchEvent(pointerEvent);
+
+      await wait(0);
+      assert.strictEqual(toggle.getAttribute('aria-expanded'), 'false');
+    }
+  );
+});

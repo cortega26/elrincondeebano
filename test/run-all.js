@@ -25,6 +25,8 @@ const tests = [
   'productDataVersion.normalization.test.js',
   'bootstrap.module.test.js',
   'menu-controller.test.js',
+  'cart.render.test.js',
+  'product-filter.test.js',
   'initApp.idempotence.test.js',
   'initAppFallback.test.js',
   'buildIndex.lcp.test.js',
