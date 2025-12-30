@@ -271,6 +271,26 @@ export async function runUpdateCheckForTest() {
     return checkForUpdates(registration);
 }
 
+function exposeUpdateCheckForTests() {
+    if (typeof window === 'undefined') {
+        return;
+    }
+    if (window.__ENABLE_TEST_HOOKS__ !== true) {
+        return;
+    }
+    if (typeof window.__runUpdateCheck === 'function') {
+        return;
+    }
+    Object.defineProperty(window, '__runUpdateCheck', {
+        configurable: true,
+        enumerable: false,
+        writable: true,
+        value: runUpdateCheckForTest,
+    });
+}
+
+exposeUpdateCheckForTests();
+
 // Set up handling for service worker controller changes
 function setupControllerChangeHandling() {
     let refreshing = false;
