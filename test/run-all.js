@@ -19,6 +19,7 @@ const tests = [
   'generate-image-variants.config.test.js',
   'sitemap.categories.test.js',
   'swCache.test.js',
+  'service-worker.runtime.test.js',
   'modules.dom.test.js',
   'fetchWithRetry.test.js',
   'data-endpoint.resolver.test.js',

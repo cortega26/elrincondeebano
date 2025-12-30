@@ -1,5 +1,7 @@
 // Service Worker Configuration
-const TEST_MODE = typeof module !== 'undefined';
+const TEST_MODE =
+  typeof module !== 'undefined' &&
+  !(typeof globalThis !== 'undefined' && globalThis.__SW_RUNTIME_TEST__ === true);
 const CACHE_CONFIG = {
   prefixes: {
     static: 'ebano-static-v6',
