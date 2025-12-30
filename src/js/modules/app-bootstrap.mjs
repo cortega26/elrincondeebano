@@ -137,7 +137,9 @@ export function runAppBootstrap({
           return;
         }
 
-        if (!userHasInteracted && (!products || products.length === 0 || hasPartialBootstrap)) {
+        const shouldRefresh =
+          (!userHasInteracted && (!products || products.length === 0)) || hasPartialBootstrap;
+        if (shouldRefresh) {
           let nextProducts = freshProducts.map((p, i) => ({
             ...p,
             originalIndex: i,
