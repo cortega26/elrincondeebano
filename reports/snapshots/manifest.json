@@ -1,0 +1,10 @@
+{
+  "snapshots": [
+    {
+      "tag": "backup-20251230-0023",
+      "url": "http://127.0.0.1:8080/",
+      "file": "reports/snapshots/snapshot-backup-20251230-0023-2025-12-30T03-23-39-000Z.png",
+      "capturedAt": "2025-12-30T03:23:39.000Z"
+    }
+  ]
+}
