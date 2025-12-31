@@ -1,6 +1,6 @@
 {
-  "version": "20251229-175716",
-  "last_updated": "2025-12-29T17:57:16.389187",
+  "version": "20251231-141820",
+  "last_updated": "2025-12-31T14:18:20.606729",
   "rev": 0,
   "products": [
     {
@@ -867,7 +867,7 @@
       "description": "Lata de 350cc x 6 unidades",
       "price": 5900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Cervezas",
       "image_path": "assets/images/cervezas/Coors lata 350cc.webp",
       "image_avif_path": "",
@@ -875,7 +875,14 @@
       "rev": 0,
       "field_last_modified": {
         "stock": {
-          "ts": "2025-11-24T19:50:17.381Z",
+          "ts": "2025-12-31T17:18:20.604427Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-12-31T17:18:20.604427Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
