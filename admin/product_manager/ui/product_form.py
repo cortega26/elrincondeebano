@@ -773,9 +773,13 @@ class ProductFormDialog(tk.Toplevel):
             subdir = relative.parent.as_posix()
             guessed_category = self._guess_category_from_directory(subdir)
             if guessed_category and isinstance(cat_widget, ttk.Combobox):
-                current_value = self._category_key_from_label(cat_widget.get())
+                current_value = self.category_helper.get_key_from_display(
+                    cat_widget.get()
+                )
                 if current_value != guessed_category:
-                    cat_widget.set(self._category_display_for_key(guessed_category))
+                    cat_widget.set(
+                        self.category_helper.get_display_for_key(guessed_category)
+                    )
                     category_updated = True
                 effective_category = guessed_category
             dest_dir = base_dir / subdir

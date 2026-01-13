@@ -1,6 +1,6 @@
 {
-  "version": "20251231-141820",
-  "last_updated": "2025-12-31T14:18:20.606729",
+  "version": "20260113-192918",
+  "last_updated": "2026-01-13T19:29:18.794145",
   "rev": 0,
   "products": [
     {
@@ -2186,24 +2186,38 @@
     {
       "name": "Nescafé • Café Tradición",
       "description": "Lata 150g",
-      "price": 6000,
-      "discount": 500,
-      "stock": false,
+      "price": 7500,
+      "discount": 0,
+      "stock": true,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Cafe Nescafé Tradición 150g.webp",
       "image_avif_path": "",
       "order": 106,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-17T18:28:06.932Z",
+        "price": {
+          "ts": "2026-01-13T22:28:44.281916Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2026-01-13T22:28:44.281916Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2026-01-13T22:28:44.281916Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-17T18:28:06.932Z",
+          "ts": "2026-01-13T22:28:44.281916Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
