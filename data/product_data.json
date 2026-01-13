@@ -1,6 +1,6 @@
 {
-  "version": "20260113-192918",
-  "last_updated": "2026-01-13T19:29:18.794145",
+  "version": "20260113-193914",
+  "last_updated": "2026-01-13T19:39:14.294159",
   "rev": 0,
   "products": [
     {
@@ -601,7 +601,7 @@
     {
       "name": "Brut • Undurraga",
       "description": "Espumante • Botella de 750mL",
-      "price": 6800,
+      "price": 6900,
       "discount": 0,
       "stock": true,
       "category": "Espumantes",
@@ -611,21 +611,14 @@
       "rev": 0,
       "field_last_modified": {
         "price": {
-          "ts": "2025-10-15T19:39:49.167Z",
+          "ts": "2026-01-13T22:39:14.292702Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-15T19:39:49.167Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "stock": {
-          "ts": "2025-11-07T22:33:20.988Z",
+          "ts": "2026-01-13T22:39:14.292702Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -1163,7 +1156,7 @@
     {
       "name": "PF • Jamón de Pierna Acaramelado",
       "description": "Empaque al vacío de 200g",
-      "price": 2600,
+      "price": 2900,
       "discount": 0,
       "stock": true,
       "category": "Carnesyembutidos",
@@ -1172,22 +1165,15 @@
       "order": 52,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-17T17:47:04.030Z",
+        "price": {
+          "ts": "2026-01-13T22:38:07.708610Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-17T17:47:04.030Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "stock": {
-          "ts": "2025-11-07T22:33:21.032Z",
+          "ts": "2026-01-13T22:38:07.708610Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -1877,7 +1863,7 @@
       "description": "Bolsa de 140g",
       "price": 2000,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Doritos Queso 140gr.webp",
       "image_avif_path": "",
@@ -1885,7 +1871,7 @@
       "rev": 0,
       "field_last_modified": {
         "stock": {
-          "ts": "2025-10-27T14:19:10.874Z",
+          "ts": "2026-01-13T22:34:19.383391Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2290,7 +2276,7 @@
       "name": "Líder • Aceite de Maravilla",
       "description": "Botella de 1L",
       "price": 3600,
-      "discount": 200,
+      "discount": 0,
       "stock": true,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Aceite de Maravilla Líder 1L.webp",
@@ -2298,15 +2284,15 @@
       "order": 110,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-17T18:25:18.430Z",
+        "discount": {
+          "ts": "2026-01-13T22:37:22.130051Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-17T18:25:18.430Z",
+          "ts": "2026-01-13T22:37:22.130051Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2478,13 +2464,21 @@
       "description": "Ultraconcentrado para piel sensible",
       "price": 5500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Limpiezayaseo",
       "image_path": "assets/images/limpieza_y_aseo/OMO-piel-sensible-500mL.webp",
       "image_avif_path": "",
       "order": 117,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-01-13T22:36:45.362102Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Papas Corte Americano Marco Polo 170g",
@@ -3155,7 +3149,7 @@
       "description": "Bolsa de 200g",
       "price": 2500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Americano 200g.webp",
       "image_avif_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Americano 200g.avif",
@@ -3163,7 +3157,7 @@
       "rev": 0,
       "field_last_modified": {
         "stock": {
-          "ts": "2025-11-07T22:33:21.220Z",
+          "ts": "2026-01-13T22:36:02.245690Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3267,64 +3261,15 @@
       "description": "Barra de 100g",
       "price": 2800,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Chocolates",
       "image_path": "assets/images/chocolates/Great Value - Chocolate con Almendras.webp",
       "image_avif_path": "assets/images/chocolates/Great Value - Chocolate con Almendras.avif",
       "order": 152,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-17T17:59:56.477Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-17T17:59:56.477Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-17T17:59:56.477Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-17T17:59:56.477Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "stock": {
-          "ts": "2025-10-17T17:59:56.477Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-17T17:59:56.477Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-17T17:59:56.477Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-17T17:59:56.477Z",
+          "ts": "2026-01-13T22:35:33.565531Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3428,64 +3373,22 @@
       "description": "Barra de 82g",
       "price": 2200,
       "discount": 200,
-      "stock": true,
+      "stock": false,
       "category": "Chocolates",
       "image_path": "assets/images/chocolates/Hersheys - Chocolate Extra Cremoso 82g.webp",
       "image_avif_path": "",
       "order": 155,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-17T18:10:41.197Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-17T18:10:41.197Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-17T18:10:41.197Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-17T18:10:41.197Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "stock": {
-          "ts": "2025-10-17T18:10:41.197Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-17T18:10:41.197Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-17T18:10:41.197Z",
+          "ts": "2026-01-13T22:34:59.426870Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-17T18:10:41.197Z",
+          "ts": "2026-01-13T22:34:59.426870Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3890,22 +3793,15 @@
       "description": "Bolsa de 285g",
       "price": 3500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Doritos Queso 285gr.webp",
       "image_avif_path": "assets/images/snacks_salados/Doritos Queso 285gr.avif",
       "order": 165,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-19T19:24:03.702Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-19T19:24:03.702Z",
+        "stock": {
+          "ts": "2026-01-13T22:34:20.444748Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -4009,64 +3905,15 @@
       "description": "Bolsa de 140g",
       "price": 2000,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Marco Polo - Tortillas Vegetal Sal de Mar.webp",
       "image_avif_path": "assets/images/snacks_salados/Marco Polo - Tortillas Vegetal Sal de Mar.avif",
       "order": 168,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-19T23:27:50.568Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-19T23:27:50.568Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-19T23:27:50.568Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-19T23:27:50.568Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "stock": {
-          "ts": "2025-10-19T23:27:50.568Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-19T23:27:50.568Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-19T23:27:50.568Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-19T23:27:50.568Z",
+          "ts": "2026-01-13T22:34:03.543560Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
