@@ -46,7 +46,7 @@
     "sharp": "^0.34.5",
     "typescript": "^5.9.3",
     "undici": "^7.19.0",
-    "vitest": "^4.0.16"
+    "vitest": "^4.0.18"
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
