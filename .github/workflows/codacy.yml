@@ -44,7 +44,7 @@ jobs:
     steps:
       # Checkout the repository to the GitHub Actions runner
       - name: Checkout code
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v4
 
       - name: Check for Codacy token
         id: token_check
@@ -61,7 +61,7 @@ jobs:
 
       # Execute Codacy Analysis CLI and generate a SARIF output with the security issues identified during the analysis
       - name: Run Codacy Analysis CLI
-        uses: codacy/codacy-analysis-cli-action@d840f886c4bd4edc059706d09c6a1586111c540b
+        uses: codacy/codacy-analysis-cli-action@562ee3e92b8e92df8b67e0a5ff8aa8e261919c08
         continue-on-error: ${{ steps.token_check.outputs.has_token != 'true' }}
         with:
           # Check https://github.com/codacy/codacy-analysis-cli#project-token to get your project token from your Codacy repository
@@ -84,7 +84,7 @@ jobs:
           python3 scripts/sarif_to_md.py results.sarif docs/codacy/REPORT.md
 
       - name: Upload Codacy report artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v4
         with:
           name: codacy-report
           path: docs/codacy/REPORT.md
@@ -178,7 +178,7 @@ jobs:
             exit 1
           fi
       - name: Upload SARIF artifacts
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v4
         with:
           name: sarif-results
           path: results-*.sarif
@@ -198,11 +198,11 @@ jobs:
         include: ${{ fromJson(needs.codacy-security-scan.outputs.sarif_files) }}
     steps:
       - name: Download SARIF artifacts
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v4
         with:
           name: sarif-results
       - name: Upload SARIF results file
-        uses: github/codeql-action/upload-sarif@c37a8b7cd97e31de3fcbd9d84c401870edeb8d34 # v3
+        uses: github/codeql-action/upload-sarif@45c373516f557556c15d420e3f5e0aa3d64366bc # v3
         with:
           sarif_file: ${{ matrix.file }}
           category: codacy-${{ matrix.index }}
