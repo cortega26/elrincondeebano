@@ -36,6 +36,11 @@ ensureDir(outputDir);
 
 pages.forEach((page) => {
   const productKey = (page.productKey || page.slug || page.name || '').toLowerCase();
+  const ogImagePath = `/assets/images/og/categories/${page.slug}.jpg`;
+  const ogImageFile = path.join(rootDir, 'assets', 'images', 'og', 'categories', `${page.slug}.jpg`);
+  const ogImage = fs.existsSync(ogImageFile)
+    ? `https://elrincondeebano.com${ogImagePath}`
+    : 'https://elrincondeebano.com/assets/images/web/logo.webp';
   const categoryProducts = availableProducts.filter((product) => {
     const categoryValue = (product.category || '').toLowerCase();
     return categoryValue === productKey;
@@ -51,6 +56,7 @@ pages.forEach((page) => {
       categoryName: page.name,
       description: page.description,
       slug: page.slug,
+      ogImage,
       navGroups,
       products: categoryProducts,
       totalProducts: categoryProducts.length,
