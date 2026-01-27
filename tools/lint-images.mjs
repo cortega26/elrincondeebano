@@ -5,7 +5,7 @@ import { JSDOM } from 'jsdom';
 const repoRoot = process.cwd();
 const htmlDirs = [repoRoot, path.join(repoRoot, 'pages')];
 const cssDir = path.join(repoRoot, 'assets', 'css');
-const IGNORE_DIRS = new Set(['node_modules']);
+const IGNORE_DIRS = new Set(['node_modules', '_archive']);
 
 function findFiles(dir, exts) {
   if (!fs.existsSync(dir)) return [];

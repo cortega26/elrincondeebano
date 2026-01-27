@@ -1,6 +1,6 @@
 {
-  "version": "20260126-220947",
-  "last_updated": "2026-01-26T22:09:47.878276Z",
+  "version": "20251102-182500",
+  "last_updated": "2025-11-02T18:25:00.937208Z",
   "nav_groups": [
     {
       "id": "alimentos",
@@ -134,6 +134,17 @@
       "slug": "limpiezayaseo",
       "description": "Explora nuestra selección de productos de limpieza y aseo en El Rincón de Ébano.",
       "group_id": "otros",
+      "order": 20,
+      "enabled": true,
+      "subcategories": []
+    },
+    {
+      "id": "mayoraseolimpieza",
+      "title": "Aseo y Limpieza",
+      "product_key": "MayorAseoLimpieza",
+      "slug": "mayoraseolimpieza",
+      "description": "",
+      "group_id": "test",
       "order": 20,
       "enabled": true,
       "subcategories": []
