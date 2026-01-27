@@ -150,6 +150,12 @@ h1 {
   align-items: center;
 }
 
+.navbar-brand img {
+  margin-right: 0.25rem;
+  width: 40px;
+  height: 40px;
+}
+
 .brand-text {
   font-family: 'Playfair Display', 'Playfair Fallback', Georgia, 'Times New Roman', serif;
 }

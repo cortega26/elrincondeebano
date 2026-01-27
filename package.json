@@ -18,6 +18,8 @@
     "images:generate": "node tools/generate-images.mjs",
     "images:rewrite": "node tools/rewrite-images.mjs",
     "lint:images": "node tools/lint-images.mjs",
+    "guardrails": "node tools/guardrails/run.mjs",
+    "ci:guardrails": "npm run build && npm run lint:images && npm run guardrails",
     "prune:backups": "node tools/prune-backups.js",
     "test": "node test/run-all.js && vitest run",
     "test:coverage": "npx c8 npm test",

@@ -1,0 +1,37 @@
+name: CI Guardrails
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  guardrails:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Resolve Node version
+        shell: bash
+        run: |
+          if [ -f .node-version ]; then
+            echo "NODE_VERSION=$(cat .node-version)" >> $GITHUB_ENV
+          else
+            echo "NODE_VERSION=22" >> $GITHUB_ENV
+          fi
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Lint images
+        run: npm run lint:images
+      - name: Guardrails
+        run: npm run guardrails

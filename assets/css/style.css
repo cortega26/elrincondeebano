@@ -20,8 +20,7 @@
 }
 
 /* Base Styles */
-html,
-body {
+html {
   height: 100%;
 }
 
@@ -55,6 +54,7 @@ body {
   color: var(--text-color);
   background-color: var(--background-color);
   line-height: 1.6;
+  height: 100%;
   padding-top: 64px;
   display: flex;
   flex-direction: column;
@@ -83,6 +83,7 @@ h1 {
 /* Navbar Styles */
 .navbar {
   padding: 0.25rem 0.5rem;
+  min-height: 64px;
 }
 
 .navbar-brand {

@@ -1,6 +1,6 @@
 {
-  "version": "20260113-193914",
-  "last_updated": "2026-01-13T19:39:14.294159",
+  "version": "20260126-190457",
+  "last_updated": "2026-01-26T19:04:57.008418",
   "rev": 0,
   "products": [
     {
@@ -460,22 +460,22 @@
       "description": "Empaque de 150g",
       "price": 1300,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksDulces",
       "image_path": "assets/images/snacks_dulces/Galletas Niza McKay 150g.webp",
       "image_avif_path": "",
       "order": 21,
       "rev": 0,
       "field_last_modified": {
-        "description": {
-          "ts": "2025-10-23T14:16:12.454Z",
+        "stock": {
+          "ts": "2026-01-26T22:03:42.971203Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-23T14:16:12.454Z",
+          "ts": "2026-01-26T22:03:42.971203Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2980,7 +2980,7 @@
       "name": "Shweppes • Agua Tónica",
       "description": "Botella de 1,5L",
       "price": 2800,
-      "discount": 500,
+      "discount": 800,
       "stock": true,
       "category": "Aguas",
       "image_path": "assets/images/aguas/Shweppes - Agua Tonica 1,5L.webp",
@@ -2989,7 +2989,14 @@
       "rev": 0,
       "field_last_modified": {
         "discount": {
-          "ts": "2025-12-28T22:50:50.936197Z",
+          "ts": "2026-01-26T22:04:57.006558Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-01-26T22:04:57.006558Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,

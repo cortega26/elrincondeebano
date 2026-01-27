@@ -234,6 +234,11 @@ _Coverage reporting is instrumented via `c8`; publish thresholds or badges once 
 - Service worker caches HTML, assets, and product data with expiry metadata to keep INP budgets in check while avoiding stale catalog listings.
 - Image workflows generate AVIF/WebP plus fallbacks, reducing payloads before pages reach GitHub Pages.
 
+## CI Guardrails
+
+- Run `npm run ci:guardrails` before risky changes.
+- See `docs/RELEASE.md` and `docs/INCIDENTS.md` for release + incident flow.
+
 ## Roadmap
 
 - Publish `LICENSE` file matching the ISC declaration for distribution clarity.

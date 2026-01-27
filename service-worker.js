@@ -4,12 +4,14 @@ const TEST_MODE =
   !(typeof globalThis !== 'undefined' && globalThis.__SW_RUNTIME_TEST__ === true);
 const CACHE_CONFIG = {
   prefixes: {
-    static: 'ebano-static-v6',
-    dynamic: 'ebano-dynamic-v4',
-    products: 'ebano-products-v5',
+    static: 'ebano-static-v7',
+    dynamic: 'ebano-dynamic-v5',
+    products: 'ebano-products-v6',
+    html: 'ebano-html-v1',
   },
   duration: {
-    products: 5 * 60 * 1000, // 5 minutes for product data
+    html: 60 * 1000, // 1 minute for HTML navigations
+    products: 2 * 60 * 1000, // 2 minutes for product data
     static: 24 * 60 * 60 * 1000, // 24 hours for static assets
     dynamic: 12 * 60 * 60 * 1000, // 12 hours for dynamic content
   },
@@ -119,13 +121,30 @@ const isNoStoreResponse = (response) => {
   return cacheControl.toLowerCase().includes('no-store');
 };
 
-const shouldSkipCache = (request, url) => {
-  if (url.pathname.startsWith('/admin-panel/')) {
+const shouldSkipCache = (request, url, { ignoreAuth = false } = {}) => {
+  if (
+    url.pathname.startsWith('/admin') ||
+    url.pathname.startsWith('/admin-panel') ||
+    url.pathname.startsWith('/checkout') ||
+    url.pathname.startsWith('/order') ||
+    url.pathname.startsWith('/pedido') ||
+    url.pathname.startsWith('/carrito') ||
+    url.pathname.startsWith('/cart') ||
+    url.pathname.startsWith('/payment') ||
+    url.pathname.startsWith('/confirm') ||
+    url.pathname.startsWith('/cdn-cgi/image/') ||
+    url.pathname === '/service-worker.js'
+  ) {
     return true;
+  }
+  if (ignoreAuth) {
+    return false;
   }
   const authHeader = request.headers.get('authorization');
   return Boolean(authHeader);
 };
+
+const shouldBypass = (request, url) => shouldSkipCache(request, url, { ignoreAuth: true });
 
 // Install event - cache static assets
 if (!TEST_MODE) {
@@ -176,10 +195,10 @@ if (!TEST_MODE) {
     );
   });
 
-  const shouldBypass = (url) =>
-    url.pathname === '/service-worker.js' || url.pathname.startsWith('/cdn-cgi/image/');
-
   const getCacheKeyForRequest = (request, url) => {
+    if (url.pathname.endsWith('.html')) {
+      return { cacheName: CACHE_CONFIG.prefixes.html, type: 'html' };
+    }
     if (url.pathname.startsWith('/dist/js/')) {
       return { cacheName: CACHE_CONFIG.prefixes.static, type: 'static' };
     }
@@ -205,6 +224,8 @@ if (!TEST_MODE) {
     const accept = request.headers?.get('accept') || '';
     return accept.includes('image/');
   };
+
+  const isProductDataRequest = (url) => url.pathname.includes('product_data.json');
 
   const getFallbackResponse = async (request) => {
     if (!request) {
@@ -239,26 +260,42 @@ if (!TEST_MODE) {
     const req = event.request;
     const url = new URL(req.url);
 
-    if (req.method !== 'GET' || shouldBypass(url)) {
+    if (req.method !== 'GET' || shouldBypass(req, url)) {
       return;
     }
+
+    if (url.origin !== self.location.origin) {
+      return;
+    }
+
+    const skipCache = shouldSkipCache(req, url);
 
     if (req.mode === 'navigate') {
       event.respondWith(
         (async () => {
+          const htmlCache = await caches.open(CACHE_CONFIG.prefixes.html);
           try {
-            const networkResponse = await fetch(req);
+            const networkResponse = await fetch(req, { cache: 'no-store' });
             if (networkResponse) {
+              if (!skipCache && networkResponse.ok && !isNoStoreResponse(networkResponse)) {
+                const responseToCache = await addTimestamp(networkResponse.clone(), 'html');
+                await htmlCache.put(req, responseToCache);
+              }
               return networkResponse;
             }
           } catch (error) {
             console.warn('Navigation fetch failed, attempting cache fallback:', error);
           }
 
+          const cached = await htmlCache.match(req);
+          const canCheckFreshness =
+            cached && cached.type !== 'opaque' && cached.type !== 'opaqueredirect';
+          if (cached && canCheckFreshness && isCacheFresh(cached, 'html')) {
+            return cached;
+          }
+
           const fallback =
-            (await caches.match(req)) ||
-            (await caches.match('/index.html')) ||
-            (await caches.match('/pages/offline.html'));
+            (await caches.match('/index.html')) || (await caches.match('/pages/offline.html'));
 
           if (fallback) {
             return fallback;
@@ -273,17 +310,11 @@ if (!TEST_MODE) {
       return;
     }
 
-    if (url.origin !== self.location.origin) {
-      return;
-    }
-
-    const skipCache = shouldSkipCache(req, url);
-
     event.respondWith(
       (async () => {
         if (skipCache) {
           try {
-            const networkResponse = await fetch(req);
+            const networkResponse = await fetch(req, { cache: 'no-store' });
             if (networkResponse) {
               return networkResponse;
             }
@@ -302,11 +333,40 @@ if (!TEST_MODE) {
           });
         }
 
+        if (isProductDataRequest(url)) {
+          const cache = await caches.open(CACHE_CONFIG.prefixes.products);
+          const cached = await cache.match(req);
+          try {
+            const networkResponse = await fetch(req, { cache: 'no-store' });
+            if (networkResponse) {
+              if (networkResponse.ok && !isNoStoreResponse(networkResponse)) {
+                const responseToCache = await addTimestamp(networkResponse.clone(), 'products');
+                await cache.put(req, responseToCache);
+              }
+              return networkResponse;
+            }
+          } catch (error) {
+            console.warn('Product data fetch failed, attempting cache fallback:', error);
+          }
+
+          const canCheckFreshness =
+            cached && cached.type !== 'opaque' && cached.type !== 'opaqueredirect';
+          if (cached && canCheckFreshness && isCacheFresh(cached, 'products')) {
+            return cached;
+          }
+
+          return new Response('Servicio no disponible', {
+            status: 504,
+            headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+          });
+        }
+
         const { cacheName, type } = getCacheKeyForRequest(req, url);
         const cache = await caches.open(cacheName);
         const cached = await cache.match(req);
 
         let freshResponse;
+        let networkError = false;
         try {
           freshResponse = await fetch(req);
           if (freshResponse && freshResponse.ok) {
@@ -316,10 +376,11 @@ if (!TEST_MODE) {
             }
           }
         } catch (error) {
+          networkError = true;
           console.warn('Asset fetch failed, falling back to cache:', error);
         }
 
-        if (freshResponse && (freshResponse.ok || freshResponse.type === 'opaque')) {
+        if (freshResponse) {
           return freshResponse;
         }
 
@@ -331,19 +392,19 @@ if (!TEST_MODE) {
               console.warn('Failed to delete no-store cached response:', error);
             }
           } else {
-          const canCheckFreshness = cached.type !== 'opaque' && cached.type !== 'opaqueredirect';
-          if (canCheckFreshness && isCacheFresh(cached, type)) {
-            return cached;
-          }
-          if (!freshResponse) {
-            return cached;
-          }
+            const canCheckFreshness =
+              cached.type !== 'opaque' && cached.type !== 'opaqueredirect';
+            if (networkError && canCheckFreshness && isCacheFresh(cached, type)) {
+              return cached;
+            }
           }
         }
 
-        const fallback = await getFallbackResponse(req);
-        if (fallback) {
-          return fallback;
+        if (networkError) {
+          const fallback = await getFallbackResponse(req);
+          if (fallback) {
+            return fallback;
+          }
         }
 
         return new Response('Servicio no disponible', {
