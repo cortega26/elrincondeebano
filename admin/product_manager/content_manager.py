@@ -20,6 +20,11 @@ from contextlib import contextmanager
 import threading
 import signal
 import traceback
+
+if __package__ in (None, ""):
+    sys.path.append(str(Path(__file__).resolve().parents[2]))
+    __package__ = "admin.product_manager"
+
 from .repositories import JsonProductRepository
 from .category_repository import JsonCategoryRepository
 from .category_service import CategoryService
@@ -311,7 +316,7 @@ class ProductManager:
             try:
                 handler.close()
             except Exception:  # pylint: disable=broad-exception-caught
-                pass
+                self.logger.debug("Error al cerrar handler de log", exc_info=True)
 
         # Create log directory
         log_dir = Path(self.config["log_dir"])

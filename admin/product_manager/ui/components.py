@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 import threading
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import partial
 from queue import Empty, Queue
 from typing import Any, Callable, Dict, List, Optional, TypeVar, cast
@@ -27,6 +27,8 @@ class UIConfig:
     window_size: tuple[int, int] = (1000, 600)
     enable_animations: bool = True
     locale: str = "es"
+    view_mode: str = "list"
+    column_widths: Dict[str, int] = field(default_factory=dict)
 
 
 class UIState:

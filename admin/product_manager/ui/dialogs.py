@@ -65,17 +65,25 @@ class PreferencesDialog(tk.Toplevel):
             self.ui_config.enable_animations = self.anim_var.get()
             config_path = Path.home() / ".product_manager" / "config.json"
             config_path.parent.mkdir(parents=True, exist_ok=True)
+            existing: dict[str, object] = {}
+            if config_path.exists():
+                try:
+                    with open(config_path, encoding="utf-8") as f:
+                        existing = json.load(f)
+                    if not isinstance(existing, dict):
+                        existing = {}
+                except Exception:
+                    existing = {}
             with open(config_path, "w", encoding="utf-8") as f:
-                json.dump(
+                existing.update(
                     {
                         "font_size": self.ui_config.font_size,
                         "enable_animations": self.ui_config.enable_animations,
                         "window_size": self.ui_config.window_size,
                         "locale": self.ui_config.locale,
-                    },
-                    f,
-                    indent=2,
+                    }
                 )
+                json.dump(existing, f, indent=2, ensure_ascii=False)
             if self.on_save:
                 self.on_save()
             self.destroy()
