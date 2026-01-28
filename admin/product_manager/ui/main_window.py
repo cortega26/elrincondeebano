@@ -1,9 +1,15 @@
-import tkinter as tk
-from tkinter import ttk, messagebox, filedialog
-from typing import List, Optional, Dict, Any, Tuple
+"""Main window UI for product manager."""
+
+from __future__ import annotations
+
 import json
 import logging
+from dataclasses import fields
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+import tkinter as tk
+from tkinter import filedialog, messagebox, ttk
 
 from ..models import Product
 from ..services import ProductService, ProductServiceError, ProductFilterCriteria
@@ -24,9 +30,18 @@ from .product_form import ProductFormDialog
 
 logger = logging.getLogger(__name__)
 
+# pylint: disable=too-many-lines
+# UI event handlers are self-explanatory; docstrings would add noise.
+# pylint: disable=missing-function-docstring
+# UI handlers catch broad exceptions to keep the app responsive.
+# pylint: disable=broad-exception-caught
+
 
 class MainWindow(DragDropMixin):
     """Main Product Manager GUI Window."""
+    # Large UI controller with many widget references and handlers.
+    # pylint: disable=too-many-instance-attributes,too-many-public-methods
+    # pylint: disable=attribute-defined-outside-init
 
     def __init__(
         self,
@@ -112,8 +127,6 @@ class MainWindow(DragDropMixin):
 
     def _load_config(self) -> UIConfig:
         """Load UI configuration from file."""
-        from dataclasses import fields
-
         config_path = Path.home() / ".product_manager" / "config.json"
         try:
             if config_path.exists():
@@ -123,7 +136,7 @@ class MainWindow(DragDropMixin):
                     filtered_data = {k: v for k, v in data.items() if k in valid_fields}
                     return UIConfig(**filtered_data)
         except Exception as exc:
-            logger.warning(f"Error loading config: {exc}")
+            logger.warning("Error loading config: %s", exc)
         return UIConfig()
 
     def setup_gui(self) -> None:
@@ -436,11 +449,12 @@ class MainWindow(DragDropMixin):
         """Update version information display."""
         try:
             version_info = self.product_service.get_version_info()
+            timestamp = version_info.last_updated.strftime("%Y-%m-%d %H:%M")
             self.version_var.set(
-                f"v{version_info.version} | Actualizado: {version_info.last_updated.strftime('%Y-%m-%d %H:%M')}"
+                f"v{version_info.version} | Actualizado: {timestamp}"
             )
         except Exception as exc:
-            logger.error(f"Error updating version info: {exc}")
+            logger.error("Error updating version info: %s", exc)
             self.version_var.set("Versión: desconocida")
         self.master.after(60000, self.update_version_info)
 
@@ -655,7 +669,8 @@ class MainWindow(DragDropMixin):
         elif view == "Sin stock":
             self.only_out_of_stock_var.set(True)
         elif view == "En stock":
-            # No explicit flag; leaving both toggles off shows all, but we can emulate by clearing "Solo sin stock"
+            # No explicit flag; leaving both toggles off shows all. We emulate this
+            # by clearing "Solo sin stock".
             pass
         elif view == "Precio >= 10000":
             self.min_price_var.set("10000")
@@ -813,9 +828,9 @@ class MainWindow(DragDropMixin):
     def update_status(self, message: str) -> None:
         """Update status bar message."""
         self.status_var.set(message)
-        self.logger.debug(f"Status: {message}")
+        self.logger.debug("Status: %s", message)
 
-    def handle_selection(self, event: Optional[tk.Event] = None) -> None:
+    def handle_selection(self, _event: Optional[tk.Event] = None) -> None:
         """Handle selection in treeview."""
         selected = self.tree.selection()
         if selected:
@@ -825,7 +840,8 @@ class MainWindow(DragDropMixin):
                 product = self.get_product_by_tree_item(selected[0])
                 if product:
                     self.update_status(
-                        f"Seleccionado: {product.name} - Precio: ${product.price:,} - Categoría: {product.category}"
+                        f"Seleccionado: {product.name} - Precio: ${product.price:,} - "
+                        f"Categoría: {product.category}"
                     )
             else:
                 self.update_status(f"{len(selected)} productos seleccionados")
@@ -834,11 +850,11 @@ class MainWindow(DragDropMixin):
             self.delete_button.config(state=tk.DISABLED)
             self.update_status("No hay productos seleccionados")
 
-    def handle_search(self, *args) -> None:
+    def handle_search(self, *_args) -> None:
         """Handle search and category filter changes."""
         self.refresh_products()
 
-    def focus_search(self, event: Optional[tk.Event] = None) -> None:
+    def focus_search(self, _event: Optional[tk.Event] = None) -> None:
         """Focus the search entry."""
         search_entry = self.master.focus_get()
         if isinstance(search_entry, tk.Entry):
@@ -894,9 +910,12 @@ class MainWindow(DragDropMixin):
                 result["value"] = val
                 dialog.destroy()
             except ValueError:
+                range_msg = (
+                    f" entre {min_val} y {max_val}" if max_val is not None else ""
+                )
                 messagebox.showerror(
                     "Valor inválido",
-                    f"Ingrese un número válido{f' entre {min_val} y {max_val}' if max_val is not None else ''}.",
+                    f"Ingrese un número válido{range_msg}.",
                 )
 
         def on_cancel():
@@ -1175,8 +1194,9 @@ class MainWindow(DragDropMixin):
                     product.name, updated, product.description
                 )
                 self.tree.set(row, "stock", "☑" if updated.stock else "☐")
+                stock_label = "En stock" if updated.stock else "Sin stock"
                 self.update_status(
-                    f"Stock de '{product.name}' actualizado: {'En stock' if updated.stock else 'Sin stock'}"
+                    f"Stock de '{product.name}' actualizado: {stock_label}"
                 )
             except Exception as exc:
                 messagebox.showerror(
@@ -1273,17 +1293,17 @@ class MainWindow(DragDropMixin):
                 return
 
             # Build updated product with validated values
-            updated_kwargs = dict(
-                name=product.name,
-                description=product.description,
-                price=product.price,
-                discount=product.discount,
-                stock=product.stock,
-                category=product.category,
-                image_path=product.image_path,
-                image_avif_path=product.image_avif_path,
-                order=product.order,
-            )
+            updated_kwargs = {
+                "name": product.name,
+                "description": product.description,
+                "price": product.price,
+                "discount": product.discount,
+                "stock": product.stock,
+                "category": product.category,
+                "image_path": product.image_path,
+                "image_avif_path": product.image_avif_path,
+                "order": product.order,
+            }
             updated_kwargs[field] = new_val
 
             # Validate discount < price

@@ -1,14 +1,22 @@
-import tkinter as tk
-from tkinter import ttk
-from typing import List, Optional, Callable, Dict, Any
+"""Gallery view widgets for product browsing."""
+
+from __future__ import annotations
+
 import os
 from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional
+
+import tkinter as tk
+from tkinter import ttk
+
 from ..models import Product
 from .utils import PIL_AVAILABLE, load_thumbnail
 
 
 class GalleryFrame(ttk.Frame):
     """Card-based gallery view for products."""
+    # UI widget holds many references and mixes in Tk widgets.
+    # pylint: disable=too-many-ancestors,too-many-instance-attributes
 
     def __init__(
         self,
@@ -45,23 +53,27 @@ class GalleryFrame(ttk.Frame):
         self.canvas.bind("<Configure>", self._on_canvas_configure)
         self.bind_mouse_scroll()
 
-    def bind_mouse_scroll(self):
+    def bind_mouse_scroll(self) -> None:
+        """Bind cross-platform mouse wheel events."""
         # Windows/MacOS scroll support
         self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
         self.canvas.bind_all("<Button-4>", self._on_mousewheel)
         self.canvas.bind_all("<Button-5>", self._on_mousewheel)
 
-    def _on_mousewheel(self, event):
+    def _on_mousewheel(self, event) -> None:
+        """Handle mouse wheel scrolling."""
         if self.winfo_ismapped():
             if event.num == 5 or event.delta < 0:
                 self.canvas.yview_scroll(1, "units")
             elif event.num == 4 or event.delta > 0:
                 self.canvas.yview_scroll(-1, "units")
 
-    def _on_frame_configure(self, event=None):
+    def _on_frame_configure(self, _event=None) -> None:
+        """Update scroll region when inner frame changes."""
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
-    def _on_canvas_configure(self, event):
+    def _on_canvas_configure(self, event) -> None:
+        """Recalculate grid layout on canvas resize."""
         width = event.width
         self.canvas.itemconfig(self.canvas_window, width=width)
         # Recalculate grid if width changed significantly
@@ -71,6 +83,7 @@ class GalleryFrame(ttk.Frame):
             self.render_products()
 
     def render_products(self, products: Optional[List[Product]] = None) -> None:
+        """Render product cards in the gallery."""
         if products is not None:
             self.products = products
 
@@ -91,7 +104,9 @@ class GalleryFrame(ttk.Frame):
             col = i % self.grid_columns
             self._create_card(product, row, col)
 
-    def _create_card(self, product: Product, row: int, col: int):
+    def _create_card(self, product: Product, row: int, col: int) -> None:
+        """Create a single product card."""
+        # pylint: disable=too-many-locals
         card = tk.Frame(self.content_frame, bg="white", relief="raised", bd=1)
         card.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
         card.grid_propagate(False)
@@ -149,6 +164,7 @@ class GalleryFrame(ttk.Frame):
             child.bind("<Double-Button-1>", lambda e, p=product: self.on_edit(p))
 
     def _get_cached_image(self, product: Product):
+        """Return a cached thumbnail for the product, if available."""
         # Prefer AVIF, then Path, then placeholder
         path = product.image_avif_path or product.image_path
         if not path:
@@ -158,6 +174,7 @@ class GalleryFrame(ttk.Frame):
 
         # Helper to confirm if path exists
         def check_path(p: str) -> Optional[str]:
+            """Return path if it exists, otherwise None."""
             if os.path.exists(p):
                 return p
             return None

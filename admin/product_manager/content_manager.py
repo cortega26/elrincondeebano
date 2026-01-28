@@ -32,19 +32,16 @@ from .sync import SyncEngine
 class ApplicationError(Exception):
     """Base exception for application-level errors."""
 
-    pass
-
 
 class ConfigurationError(ApplicationError):
     """Raised when there's an error in configuration."""
-
-    pass
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
 def _resolve_config_path(path_value: str, label: str) -> str:
+    """Resolve config path and enforce repo boundary rules."""
     resolved = Path(path_value).expanduser().resolve()
     try:
         is_within = resolved.is_relative_to(PROJECT_ROOT.resolve())
@@ -107,10 +104,10 @@ class ProductManager:
         for sig in (signal.SIGTERM, signal.SIGINT):
             signal.signal(sig, self._handle_shutdown_signal)
 
-    def _handle_shutdown_signal(self, signum: int, frame) -> None:
+    def _handle_shutdown_signal(self, signum: int, _frame) -> None:
         """Handle shutdown signals gracefully."""
         if self.logger:
-            self.logger.info(f"Received signal {signum}, initiating shutdown...")
+            self.logger.info("Received signal %s, initiating shutdown...", signum)
         self.exit_event.set()
 
     def initialize(self, config_path: Optional[str] = None) -> None:
@@ -129,7 +126,9 @@ class ProductManager:
             self._setup_directories()
             self.logger.info("Application initialization started")
         except Exception as exc:
-            raise ConfigurationError(f"Failed to initialize application: {exc}")
+            raise ConfigurationError(
+                f"Failed to initialize application: {exc}"
+            ) from exc
 
     def _load_configuration(self, config_path: Optional[str] = None) -> Dict[str, Any]:
         """
@@ -155,7 +154,7 @@ class ProductManager:
             except Exception as exc:
                 raise ConfigurationError(
                     f"Failed to load configuration from {config_path}: {exc}"
-                )
+                ) from exc
 
         config["data_dir"] = _resolve_config_path(config["data_dir"], "data_dir")
         config["log_dir"] = _resolve_config_path(config["log_dir"], "log_dir")
@@ -205,9 +204,9 @@ class ProductManager:
         """Context manager for handling application errors."""
         try:
             yield
-        except Exception as exc:
+        except Exception as exc:  # pylint: disable=broad-exception-caught
             if self.logger:
-                self.logger.error(f"Unhandled error: {exc}")
+                self.logger.error("Unhandled error: %s", exc)
                 self.logger.debug(traceback.format_exc())
             message = (
                 f"Ha ocurrido un error inesperado: {str(exc)}\n\n"
@@ -349,8 +348,8 @@ class ProductManager:
         try:
             if self.gui and self.gui.master:
                 self.gui.master.destroy()
-        except Exception as exc:
-            self.logger.error(f"Error during cleanup: {exc}")
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            self.logger.error("Error during cleanup: %s", exc)
         finally:
             self.logger.info("Application shutdown complete")
             logging.shutdown()
@@ -376,7 +375,7 @@ def main():
     try:
         app.initialize(args.config)
         app.run()
-    except Exception as exc:
+    except Exception as exc:  # pylint: disable=broad-exception-caught
         print(f"Error fatal: {exc}", file=sys.stderr)
         sys.exit(1)
 

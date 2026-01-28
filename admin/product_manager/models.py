@@ -1,9 +1,13 @@
-from dataclasses import dataclass, field
-from typing import Dict, Any, List, Optional
+"""Product data models and validation helpers."""
+
+from __future__ import annotations
+
 import os
-from functools import cached_property
-from datetime import datetime
 from copy import deepcopy
+from dataclasses import dataclass, field
+from datetime import datetime
+from functools import cached_property
+from typing import Any, ClassVar, Dict, List, Optional
 
 DEFAULT_FIELD_TS = "1970-01-01T00:00:00.000Z"
 
@@ -11,29 +15,24 @@ DEFAULT_FIELD_TS = "1970-01-01T00:00:00.000Z"
 class ProductError(Exception):
     """Base exception for Product-related errors."""
 
-    pass
-
 
 class InvalidPriceError(ProductError):
     """Raised when price validation fails."""
-
-    pass
 
 
 class InvalidDiscountError(ProductError):
     """Raised when discount validation fails."""
 
-    pass
-
 
 class InvalidImagePathError(ProductError):
     """Raised when image path validation fails."""
 
-    pass
-
 
 @dataclass
 class Product:
+    """Represents a product with catalog metadata and validation helpers."""
+    # Data model stores multiple fields representing catalog metadata.
+    # pylint: disable=too-many-instance-attributes
     name: str
     description: str
     price: int
@@ -46,10 +45,18 @@ class Product:
     rev: int = 0
     field_last_modified: Dict[str, Dict[str, Any]] = field(default_factory=dict)
 
-    MAX_PRICE: int = 1_000_000  # 1 million
-    MAX_NAME_LENGTH: int = 200
-    MAX_DESCRIPTION_LENGTH: int = 1000
-    VALID_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
+    # pylint: disable=invalid-name
+    MAX_PRICE: ClassVar[int] = 1_000_000  # 1 million
+    MAX_NAME_LENGTH: ClassVar[int] = 200
+    MAX_DESCRIPTION_LENGTH: ClassVar[int] = 1000
+    VALID_IMAGE_EXTENSIONS: ClassVar[set[str]] = {
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".gif",
+        ".webp",
+    }
+    # pylint: enable=invalid-name
 
     def __post_init__(self) -> None:
         """Validate all fields after initialization."""
@@ -249,6 +256,8 @@ class Product:
         changeset_id: Optional[str] = None,
     ) -> None:
         """Update metadata for a field."""
+        # Multiple required fields are needed for change tracking.
+        # pylint: disable=too-many-arguments
         meta = self.ensure_field_metadata(field_name)
         meta["ts"] = ts
         meta["by"] = by

@@ -9,6 +9,7 @@ from typing import Any, Dict, Iterable, List, Optional
 
 
 def _sanitize_bool(value: Any, default: bool = True) -> bool:
+    """Normalize truthy/falsy inputs into a boolean."""
     if isinstance(value, bool):
         return value
     if value in ("true", "True", "1", 1):
@@ -19,6 +20,7 @@ def _sanitize_bool(value: Any, default: bool = True) -> bool:
 
 
 def _coerce_int(value: Any, default: int = 0) -> int:
+    """Coerce values to int with a fallback."""
     try:
         return int(value)
     except (TypeError, ValueError):
@@ -39,6 +41,7 @@ class Subcategory:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Subcategory":
+        """Build a subcategory from a dictionary payload."""
         return cls(
             id=data["id"],
             title=data.get("title") or data["id"],
@@ -50,6 +53,7 @@ class Subcategory:
         )
 
     def to_dict(self) -> Dict[str, Any]:
+        """Serialize the subcategory to a dictionary."""
         return {
             "id": self.id,
             "title": self.title,
@@ -64,6 +68,8 @@ class Subcategory:
 @dataclass
 class Category:
     """Represents a top-level storefront category."""
+    # Data model stores multiple fields representing catalog metadata.
+    # pylint: disable=too-many-instance-attributes
 
     id: str
     title: str
@@ -77,6 +83,7 @@ class Category:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Category":
+        """Build a category from a dictionary payload."""
         subcategories_data = data.get("subcategories", []) or []
         subcategories = [
             Subcategory.from_dict(entry)
@@ -97,6 +104,7 @@ class Category:
         )
 
     def to_dict(self) -> Dict[str, Any]:
+        """Serialize the category to a dictionary."""
         return {
             "id": self.id,
             "title": self.title,
@@ -110,12 +118,14 @@ class Category:
         }
 
     def get_subcategory(self, subcategory_id: str) -> Optional[Subcategory]:
+        """Return a subcategory by id when present."""
         for subcategory in self.subcategories:
             if subcategory.id == subcategory_id:
                 return subcategory
         return None
 
     def sorted_subcategories(self) -> Iterable[Subcategory]:
+        """Return subcategories sorted by order."""
         return sorted(self.subcategories, key=lambda sub: sub.order)
 
 
@@ -131,6 +141,7 @@ class NavGroup:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "NavGroup":
+        """Build a nav group from a dictionary payload."""
         return cls(
             id=data["id"],
             label=data.get("label") or data["id"],
@@ -140,6 +151,7 @@ class NavGroup:
         )
 
     def to_dict(self) -> Dict[str, Any]:
+        """Serialize the nav group to a dictionary."""
         return {
             "id": self.id,
             "label": self.label,
@@ -160,6 +172,7 @@ class CategoryCatalog:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "CategoryCatalog":
+        """Build a category catalog from a dictionary payload."""
         nav_groups_data = data.get("nav_groups", []) or []
         categories_data = data.get("categories", []) or []
         nav_groups = [
@@ -184,6 +197,7 @@ class CategoryCatalog:
         )
 
     def to_dict(self) -> Dict[str, Any]:
+        """Serialize the category catalog to a dictionary."""
         return {
             "version": self.version,
             "last_updated": self.last_updated,
@@ -192,18 +206,21 @@ class CategoryCatalog:
         }
 
     def get_nav_group(self, group_id: str) -> Optional[NavGroup]:
+        """Return a nav group by id when present."""
         for group in self.nav_groups:
             if group.id == group_id:
                 return group
         return None
 
     def get_category(self, category_id: str) -> Optional[Category]:
+        """Return a category by id when present."""
         for category in self.categories:
             if category.id == category_id:
                 return category
         return None
 
     def find_category_by_product_key(self, key: str) -> Optional[Category]:
+        """Find a category by product key."""
         normalized = (key or "").strip().lower()
         for category in self.categories:
             if category.product_key.lower() == normalized:

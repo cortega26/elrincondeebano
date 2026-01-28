@@ -2,6 +2,9 @@
 Repository for category catalog storage.
 """
 
+# Similar repository logic is intentionally duplicated for clarity.
+# pylint: disable=duplicate-code
+
 from __future__ import annotations
 
 import json
@@ -29,6 +32,9 @@ def with_file_lock(func):
     """Decorator ensuring exclusive access to repository operations."""
 
     def wrapper(self, *args, **kwargs):
+        """Wrap repository calls with a file lock."""
+        # Accessing protected lock is intentional for repository synchronization.
+        # pylint: disable=protected-access
         with self._file_lock:
             return func(self, *args, **kwargs)
 
@@ -65,6 +71,7 @@ class JsonCategoryRepository:
         self._ensure_directory_exists()
 
     def _ensure_directory_exists(self) -> None:
+        """Ensure the repository directory exists."""
         try:
             self._file_path.parent.mkdir(parents=True, exist_ok=True)
         except OSError as exc:
@@ -73,10 +80,12 @@ class JsonCategoryRepository:
             ) from exc
 
     def _backup_path(self) -> Path:
+        """Return a new backup path with timestamp suffix."""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         return self._file_path.with_suffix(f"{self.BACKUP_SUFFIX}_{timestamp}")
 
     def _cleanup_old_backups(self) -> None:
+        """Remove oldest backups beyond MAX_BACKUPS."""
         backups = sorted(
             self._file_path.parent.glob(f"*{self.BACKUP_SUFFIX}_*"),
             key=lambda path: path.stat().st_mtime,
@@ -90,6 +99,7 @@ class JsonCategoryRepository:
 
     @contextmanager
     def _open_file(self, mode: str):
+        """Open the catalog file with advisory locks."""
         temp_path: Optional[Path] = None
         file_obj = None
         try:
@@ -112,7 +122,7 @@ class JsonCategoryRepository:
             if file_obj:
                 try:
                     portalocker.unlock(file_obj)
-                except Exception as exc:  # noqa: BLE001
+                except Exception as exc:  # noqa: BLE001  # pylint: disable=broad-exception-caught
                     logger.debug("No se pudo liberar el bloqueo del archivo: %s", exc)
                 file_obj.close()
             if temp_path and temp_path.exists():
@@ -125,6 +135,7 @@ class JsonCategoryRepository:
 
     @with_file_lock
     def load_catalog(self) -> CategoryCatalog:
+        """Load the category catalog from disk."""
         if not self._file_path.exists():
             logger.info(
                 "Archivo de categorías no encontrado. Creando catálogo vacío en %s",
@@ -136,13 +147,14 @@ class JsonCategoryRepository:
             raw = json.load(handle)
         try:
             return CategoryCatalog.from_dict(raw)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:  # noqa: BLE001  # pylint: disable=broad-exception-caught
             raise CategoryRepositoryError(
                 f"Datos de categorías inválidos en {self._file_path}: {exc}"
             ) from exc
 
     @with_file_lock
     def save_catalog(self, catalog: CategoryCatalog) -> None:
+        """Persist the category catalog to disk."""
         try:
             if self._file_path.exists():
                 backup_path = self._backup_path()
@@ -156,4 +168,5 @@ class JsonCategoryRepository:
             json.dump(payload, handle, indent=2, ensure_ascii=False)
 
     def get_file_path(self) -> Path:
+        """Return the repository file path."""
         return self._file_path
