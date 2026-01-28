@@ -9,23 +9,26 @@ from pathlib import Path
 from contextlib import contextmanager
 import threading
 from functools import wraps
-from models import Product, ProductCatalog
+from .models import Product, ProductCatalog
 
 logger = logging.getLogger(__name__)
 
 
 class ProductRepositoryError(Exception):
     """Base exception for repository errors."""
+
     pass
 
 
 class ProductLoadError(ProductRepositoryError):
     """Exception raised when there's an error loading products."""
+
     pass
 
 
 class ProductSaveError(ProductRepositoryError):
     """Exception raised when there's an error saving products."""
+
     pass
 
 
@@ -43,19 +46,21 @@ class ProductRepositoryProtocol(Protocol):
 
 def with_file_lock(func):
     """Decorator to ensure file operations are thread-safe."""
+
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         with self._file_lock:
             return func(self, *args, **kwargs)
+
     return wrapper
 
 
 class JsonProductRepository(ProductRepositoryProtocol):
     """Repository for storing and retrieving products using JSON files."""
 
-    BACKUP_SUFFIX = '.backup'
+    BACKUP_SUFFIX = ".backup"
     MAX_BACKUPS = 5
-    ENCODING = 'utf-8'
+    ENCODING = "utf-8"
 
     def __init__(self, file_name: str, base_path: Optional[str] = None):
         """
@@ -74,120 +79,124 @@ class JsonProductRepository(ProductRepositoryProtocol):
             if base_path:
                 self._base_path = Path(base_path)
             else:
-                self._base_path = Path(__file__).resolve().parents[2] / 'data'
+                self._base_path = Path(__file__).resolve().parents[2] / "data"
             self._file_path = self._base_path / provided_path
         self._ensure_directory_exists()
         self._catalog_meta: Dict[str, Any] = {
             "version": "",
             "last_updated": "",
-            "rev": 0
+            "rev": 0,
         }
 
     def _ensure_directory_exists(self) -> None:
         """Ensure that the directory for the JSON file exists."""
         try:
             self._file_path.parent.mkdir(parents=True, exist_ok=True)
-        except OSError as e:
+        except OSError as exc:
             raise ProductRepositoryError(
-                f"Error al crear el directorio {self._file_path.parent}: {e}")
+                f"Error al crear el directorio {self._file_path.parent}: {exc}"
+            )
 
     def _create_backup(self) -> None:
         """Create a backup of the current data file."""
         if not self._file_path.exists():
             return
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        backup_path = self._file_path.with_suffix(
-            f'{self.BACKUP_SUFFIX}_{timestamp}')
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_path = self._file_path.with_suffix(f"{self.BACKUP_SUFFIX}_{timestamp}")
         try:
             shutil.copy2(self._file_path, backup_path)
             self._cleanup_old_backups()
-        except OSError as e:
-            logger.error(f"Error al crear copia de seguridad: {e}")
-            raise ProductSaveError(f"Error al crear copia de seguridad: {e}")
+        except OSError as exc:
+            logger.error(f"Error al crear copia de seguridad: {exc}")
+            raise ProductSaveError(f"Error al crear copia de seguridad: {exc}")
 
     def _cleanup_old_backups(self) -> None:
         """Remove old backup files keeping only the most recent ones."""
-        backup_pattern = f'*{self.BACKUP_SUFFIX}*'
+        backup_pattern = f"*{self.BACKUP_SUFFIX}*"
         backup_files = sorted(self._file_path.parent.glob(backup_pattern))
         while len(backup_files) > self.MAX_BACKUPS:
             try:
                 backup_files[0].unlink()
                 backup_files.pop(0)
-            except OSError as e:
-                logger.error(
-                    f"Error al eliminar copia de seguridad antigua: {e}")
+            except OSError as exc:
+                logger.error(f"Error al eliminar copia de seguridad antigua: {exc}")
 
     @contextmanager
-    def _open_file(self, mode: str = 'r'):
+    def _open_file(self, mode: str = "r"):
         """
         Context manager for safely opening and closing the JSON file with locking.
         """
         file_obj = None
         try:
-            if 'w' in mode:
-                temp_path = self._file_path.with_suffix('.tmp')
+            if "w" in mode:
+                temp_path = self._file_path.with_suffix(".tmp")
                 file_obj = open(temp_path, mode, encoding=self.ENCODING)
                 portalocker.lock(file_obj, portalocker.LOCK_EX)
             else:
                 file_obj = open(self._file_path, mode, encoding=self.ENCODING)
                 portalocker.lock(file_obj, portalocker.LOCK_SH)
             yield file_obj
-            if 'w' in mode and file_obj:
+            if "w" in mode and file_obj:
                 file_obj.flush()
                 os.fsync(file_obj.fileno())
                 portalocker.unlock(file_obj)
                 file_obj.close()
                 file_obj = None
                 os.replace(temp_path, self._file_path)
-        except OSError as e:
+        except OSError as exc:
             raise ProductRepositoryError(
-                f"Error al acceder al archivo {self._file_path}: {e}")
+                f"Error al acceder al archivo {self._file_path}: {exc}"
+            )
         finally:
             if file_obj:
                 try:
                     portalocker.unlock(file_obj)
                     file_obj.close()
-                except Exception as e:
-                    logger.debug(f"Error al cerrar archivo: {e}")
+                except Exception as exc:
+                    logger.debug(f"Error al cerrar archivo: {exc}")
 
     @with_file_lock
     def load_products(self) -> List[Product]:
         """Load products from the JSON file."""
         if not self._file_path.exists():
-            logger.warning(
-                f"Archivo de productos no encontrado: {self._file_path}")
+            logger.warning(f"Archivo de productos no encontrado: {self._file_path}")
             return []
         try:
-            with self._open_file('r') as file:
+            with self._open_file("r") as file:
                 data = json.load(file)
                 if isinstance(data, list):
                     catalog = ProductCatalog.create(
-                        [self._create_product(p) for p in data])
-                    max_rev = max((product.rev for product in catalog.products), default=0)
+                        [self._create_product(p) for p in data]
+                    )
+                    max_rev = max(
+                        (product.rev for product in catalog.products), default=0
+                    )
                     self._catalog_meta = {
                         "version": catalog.metadata.version,
                         "last_updated": catalog.metadata.last_updated,
-                        "rev": max_rev
+                        "rev": max_rev,
                     }
                 else:
                     catalog = ProductCatalog.from_dict(data)
                     self._catalog_meta = {
                         "version": catalog.metadata.version,
                         "last_updated": catalog.metadata.last_updated,
-                        "rev": data.get('rev', catalog.metadata.rev)
+                        "rev": data.get("rev", catalog.metadata.rev),
                     }
                 return catalog.products
-        except json.JSONDecodeError as e:
-            error_msg = f"Error al analizar JSON en {self._file_path}: {e}"
+        except json.JSONDecodeError as exc:
+            error_msg = f"Error al analizar JSON en {self._file_path}: {exc}"
             logger.error(error_msg)
             self._handle_corrupted_file()
             raise ProductLoadError(error_msg)
-        except Exception as e:
-            error_msg = f"Error inesperado al cargar productos: {e}"
+        except Exception as exc:
+            error_msg = f"Error inesperado al cargar productos: {exc}"
             logger.error(error_msg)
             raise ProductLoadError(error_msg)
 
-    def save_products(self, products: List[Product], metadata: Optional[Dict[str, Any]] = None) -> None:
+    def save_products(
+        self, products: List[Product], metadata: Optional[Dict[str, Any]] = None
+    ) -> None:
         """Save products to the JSON file."""
         try:
             self._create_backup()
@@ -198,18 +207,18 @@ class JsonProductRepository(ProductRepositoryProtocol):
                         self._catalog_meta[key] = metadata[key]
             else:
                 now = datetime.now()
-                self._catalog_meta["version"] = now.strftime('%Y%m%d-%H%M%S')
+                self._catalog_meta["version"] = now.strftime("%Y%m%d-%H%M%S")
                 self._catalog_meta["last_updated"] = now.isoformat()
             catalog = {
                 "version": self._catalog_meta.get("version"),
                 "last_updated": self._catalog_meta.get("last_updated"),
                 "rev": self._catalog_meta.get("rev", 0),
-                "products": [product.to_dict() for product in products]
+                "products": [product.to_dict() for product in products],
             }
-            with self._open_file('w') as file:
+            with self._open_file("w") as file:
                 json.dump(catalog, file, indent=2, ensure_ascii=False)
-        except Exception as e:
-            error_msg = f"Error al guardar productos: {e}"
+        except Exception as exc:
+            error_msg = f"Error al guardar productos: {exc}"
             logger.error(error_msg)
             raise ProductSaveError(error_msg)
 
@@ -219,17 +228,14 @@ class JsonProductRepository(ProductRepositoryProtocol):
         if latest_backup:
             try:
                 shutil.copy2(latest_backup, self._file_path)
-                logger.info(
-                    f"Restaurado desde copia de seguridad: {latest_backup}")
-            except OSError as e:
-                logger.error(
-                    f"Error al restaurar desde copia de seguridad: {e}")
+                logger.info(f"Restaurado desde copia de seguridad: {latest_backup}")
+            except OSError as exc:
+                logger.error(f"Error al restaurar desde copia de seguridad: {exc}")
 
     def _find_latest_backup(self) -> Optional[Path]:
         """Find the most recent backup file."""
-        backup_pattern = f'*{self.BACKUP_SUFFIX}*'
-        backup_files = sorted(self._file_path.parent.glob(
-            backup_pattern), reverse=True)
+        backup_pattern = f"*{self.BACKUP_SUFFIX}*"
+        backup_files = sorted(self._file_path.parent.glob(backup_pattern), reverse=True)
         return backup_files[0] if backup_files else None
 
     @staticmethod
@@ -238,13 +244,13 @@ class JsonProductRepository(ProductRepositoryProtocol):
         Create a Product object from dictionary data.
         """
         try:
-            required_fields = {'name', 'description', 'price'}
+            required_fields = {"name", "description", "price"}
             if not all(field in data for field in required_fields):
                 missing = required_fields - set(data.keys())
                 raise ValueError(f"Faltan campos requeridos: {missing}")
             return Product.from_dict(data)
-        except (ValueError, TypeError) as e:
-            raise ProductRepositoryError(f"Datos de producto inválidos: {e}")
+        except (ValueError, TypeError) as exc:
+            raise ProductRepositoryError(f"Datos de producto inválidos: {exc}")
 
     def get_catalog_meta(self) -> Dict[str, Any]:
         """Return current catalog metadata."""
@@ -275,17 +281,17 @@ class JsonProductRepository(ProductRepositoryProtocol):
         Attempt to repair the database if it's corrupted.
         """
         try:
-            with self._open_file('r') as file:
+            with self._open_file("r") as file:
                 raw_data = json.load(file)
             if isinstance(raw_data, dict):
-                products_data = raw_data.get('products', raw_data)
+                products_data = raw_data.get("products", raw_data)
             else:
                 products_data = raw_data
             if isinstance(products_data, dict) or not isinstance(products_data, list):
                 logger.error(
                     "Estructura inválida del catálogo en %s: se esperaba una lista de productos y se recibió %s",
                     self._file_path,
-                    type(products_data).__name__
+                    type(products_data).__name__,
                 )
                 return False
             valid_products = []
@@ -294,20 +300,20 @@ class JsonProductRepository(ProductRepositoryProtocol):
                     logger.warning(
                         "Omitiendo entrada %s de tipo %s: se esperaba un objeto con datos de producto.",
                         index,
-                        type(item).__name__
+                        type(item).__name__,
                     )
                     continue
                 try:
                     product = self._create_product(item)
                     valid_products.append(product)
-                except Exception as e:
+                except Exception as exc:
                     logger.warning(
                         "Omitiendo datos de producto inválidos en índice %s: %s",
                         index,
-                        e
+                        exc,
                     )
             self.save_products(valid_products)
             return True
-        except Exception as e:
-            logger.error(f"Error al reparar la base de datos: {e}")
+        except Exception as exc:
+            logger.error(f"Error al reparar la base de datos: {exc}")
             return False

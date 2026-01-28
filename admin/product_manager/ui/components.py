@@ -8,15 +8,17 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 @dataclass
 class UIConfig:
     """Configuration for UI elements."""
+
     font_size: int = 10
     window_size: tuple[int, int] = (1000, 600)
     enable_animations: bool = True
-    locale: str = 'es'
+    locale: str = "es"
 
 
 class UIState:
@@ -65,8 +67,8 @@ class AsyncOperation:
             try:
                 result = operation()
                 self.queue.put(("success", result))
-            except Exception as e:
-                self.queue.put(("error", str(e)))
+            except Exception as exc:
+                self.queue.put(("error", str(exc)))
 
         def check_queue():
             try:
@@ -90,8 +92,9 @@ class AsyncOperation:
         dialog.grab_set()
 
         ttk.Label(dialog, textvariable=self.status_var).pack(pady=10)
-        ttk.Progressbar(dialog, variable=self.progress_var,
-                        maximum=100).pack(pady=10, padx=20, fill=tk.X)
+        ttk.Progressbar(dialog, variable=self.progress_var, maximum=100).pack(
+            pady=10, padx=20, fill=tk.X
+        )
 
         return dialog
 
@@ -110,14 +113,10 @@ class TreeviewManager:
         self.tree["columns"] = tuple(self.columns.keys())
         for col, config in self.columns.items():
             self.tree.heading(
-                col,
-                text=config["text"],
-                command=lambda c=col: self.sort_by_column(c)
+                col, text=config["text"], command=lambda c=col: self.sort_by_column(c)
             )
             self.tree.column(
-                col,
-                width=config["width"],
-                anchor=config.get("anchor", tk.W)
+                col, width=config["width"], anchor=config.get("anchor", tk.W)
             )
 
     def sort_by_column(self, col: str) -> None:
@@ -127,8 +126,7 @@ class TreeviewManager:
                 del self.sort_order[column]
         self.sort_order[col] = not self.sort_order.get(col, False)
         reverse = self.sort_order[col]
-        items = [(self.tree.set(k, col), k)
-                 for k in self.tree.get_children("")]
+        items = [(self.tree.set(k, col), k) for k in self.tree.get_children("")]
         if col in ("price", "discount"):
             items.sort(key=lambda x: self._parse_number(x[0]), reverse=reverse)
         elif col == "stock":
@@ -161,7 +159,7 @@ class DragDropMixin:
     """Mixin to add drag & drop functionality to Treeview."""
 
     def setup_drag_and_drop(self, tree: ttk.Treeview):
-        self.tree = tree # Ensure tree is accessible
+        self.tree = tree  # Ensure tree is accessible
         self._drag_data = {"item": None, "start_index": -1}
         tree.bind("<ButtonPress-1>", self._on_drag_start)
         tree.bind("<B1-Motion>", self._on_drag_motion)
@@ -178,7 +176,7 @@ class DragDropMixin:
         if item:
             moved_to = self.tree.index(self.tree.identify_row(event.y))
             if moved_to != self.tree.index(item):
-                self.tree.move(item, '', moved_to)
+                self.tree.move(item, "", moved_to)
 
     def _on_drag_release(self, event: tk.Event) -> None:
         try:
@@ -187,23 +185,22 @@ class DragDropMixin:
                 end_index = self.tree.index(self.tree.identify_row(event.y))
                 if end_index != self._drag_data["start_index"]:
                     # Expecting implementer to have reorder_products
-                    if hasattr(self, 'reorder_products'):
+                    if hasattr(self, "reorder_products"):
                         self.reorder_products(end_index)
                 self._drag_data = {"item": None, "start_index": -1}
-            
+
             # Stock toggle logic check
             region = self.tree.identify("region", event.x, event.y)
             column = self.tree.identify_column(event.x)
             clicked_item = self.tree.identify_row(event.y)
-            
+
             # This part interacts with product_service which might not be present in the Mixin itself
             # Ideally this logic should be in the main class using the Mixin, or the Mixin should access it via self
             if region == "cell" and column == "#5" and clicked_item:
-                 if hasattr(self, 'toggle_stock_by_click'):
-                     self.toggle_stock_by_click(clicked_item)
+                if hasattr(self, "toggle_stock_by_click"):
+                    self.toggle_stock_by_click(clicked_item)
 
-        except Exception as e:
-            if hasattr(self, 'logger'):
-                self.logger.error(f"Error in drag & drop handling: {str(e)}")
-            messagebox.showerror(
-                "Error", f"Error al actualizar el estado: {str(e)}")
+        except Exception as exc:
+            if hasattr(self, "logger"):
+                self.logger.error(f"Error in drag & drop handling: {str(exc)}")
+            messagebox.showerror("Error", f"Error al actualizar el estado: {str(exc)}")

@@ -1,5 +1,10 @@
 import pytest
-from models import Product, InvalidPriceError, InvalidDiscountError, InvalidImagePathError
+from admin.product_manager.models import (
+    Product,
+    InvalidPriceError,
+    InvalidDiscountError,
+    InvalidImagePathError,
+)
 from test_support import require
 
 class TestProductModels:

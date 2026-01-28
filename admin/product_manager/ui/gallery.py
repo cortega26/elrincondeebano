@@ -3,13 +3,20 @@ from tkinter import ttk
 from typing import List, Optional, Callable, Dict, Any
 import os
 from pathlib import Path
-from models import Product
+from ..models import Product
 from .utils import PIL_AVAILABLE, load_thumbnail
+
 
 class GalleryFrame(ttk.Frame):
     """Card-based gallery view for products."""
 
-    def __init__(self, master, on_edit_callback: Callable[[Product], None], image_cache: Dict[str, Any], project_root: Optional[Path] = None):
+    def __init__(
+        self,
+        master,
+        on_edit_callback: Callable[[Product], None],
+        image_cache: Dict[str, Any],
+        project_root: Optional[Path] = None,
+    ):
         super().__init__(master)
         self.on_edit = on_edit_callback
         self.image_cache = image_cache
@@ -19,17 +26,21 @@ class GalleryFrame(ttk.Frame):
         self.card_width = 180
         self.card_height = 240
         self.grid_columns = 4
-        
+
         self.canvas = tk.Canvas(self, bg="#f5f5f5", highlightthickness=0)
-        self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.scrollbar = ttk.Scrollbar(
+            self, orient="vertical", command=self.canvas.yview
+        )
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
-        
+
         self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        
+
         self.content_frame = tk.Frame(self.canvas, bg="#f5f5f5")
-        self.canvas_window = self.canvas.create_window((0, 0), window=self.content_frame, anchor="nw")
-        
+        self.canvas_window = self.canvas.create_window(
+            (0, 0), window=self.content_frame, anchor="nw"
+        )
+
         self.content_frame.bind("<Configure>", self._on_frame_configure)
         self.canvas.bind("<Configure>", self._on_canvas_configure)
         self.bind_mouse_scroll()
@@ -62,13 +73,17 @@ class GalleryFrame(ttk.Frame):
     def render_products(self, products: Optional[List[Product]] = None) -> None:
         if products is not None:
             self.products = products
-        
+
         # Clear existing
         for widget in self.content_frame.winfo_children():
             widget.destroy()
-        
+
         if not self.products:
-            ttk.Label(self.content_frame, text="No hay productos para mostrar", background="#f5f5f5").pack(pady=20)
+            ttk.Label(
+                self.content_frame,
+                text="No hay productos para mostrar",
+                background="#f5f5f5",
+            ).pack(pady=20)
             return
 
         for i, product in enumerate(self.products):
@@ -81,38 +96,53 @@ class GalleryFrame(ttk.Frame):
         card.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
         card.grid_propagate(False)
         card.config(width=self.card_width, height=self.card_height)
-        
+
         # Bind interactions
         for widget in (card,):
             widget.bind("<Double-Button-1>", lambda e, p=product: self.on_edit(p))
-            
+
         # Image
         img_container = tk.Label(card, bg="#eee", text="Sin imagen")
         img_container.place(x=0, y=0, width=self.card_width, height=140)
-        
+
         if PIL_AVAILABLE:
             image = self._get_cached_image(product)
             if image:
                 img_container.config(image=image, text="")
-                img_container.image = image # type: ignore
-        
+                img_container.image = image  # type: ignore
+
         # Details
-        lbl_name = tk.Label(card, text=product.name, bg="white", font=("Segoe UI", 9, "bold"), anchor="w")
-        lbl_name.place(x=5, y=145, width=self.card_width-10)
-        
+        lbl_name = tk.Label(
+            card,
+            text=product.name,
+            bg="white",
+            font=("Segoe UI", 9, "bold"),
+            anchor="w",
+        )
+        lbl_name.place(x=5, y=145, width=self.card_width - 10)
+
         price_txt = f"${product.price:,}"
         if product.discount > 0:
             price_txt += f" (-{product.discount:,})"
         lbl_price = tk.Label(card, text=price_txt, bg="white", fg="#007acc")
-        lbl_price.place(x=5, y=165, width=self.card_width-10)
-        
+        lbl_price.place(x=5, y=165, width=self.card_width - 10)
+
         stock_color = "green" if product.stock else "red"
         stock_txt = "En Stock" if product.stock else "Sin Stock"
-        lbl_stock = tk.Label(card, text=stock_txt, bg="white", fg=stock_color, font=("Segoe UI", 8))
+        lbl_stock = tk.Label(
+            card, text=stock_txt, bg="white", fg=stock_color, font=("Segoe UI", 8)
+        )
         lbl_stock.place(x=5, y=185)
 
-        lbl_cat = tk.Label(card, text=product.category or "", bg="white", fg="#666", font=("Segoe UI", 8), anchor="e")
-        lbl_cat.place(x=60, y=185, width=self.card_width-70)
+        lbl_cat = tk.Label(
+            card,
+            text=product.category or "",
+            bg="white",
+            fg="#666",
+            font=("Segoe UI", 8),
+            anchor="e",
+        )
+        lbl_cat.place(x=60, y=185, width=self.card_width - 70)
 
         # Bind events to all children
         for child in card.winfo_children():
@@ -123,7 +153,7 @@ class GalleryFrame(ttk.Frame):
         path = product.image_avif_path or product.image_path
         if not path:
             return None
-            
+
         full_path = path
 
         # Helper to confirm if path exists
@@ -144,20 +174,20 @@ class GalleryFrame(ttk.Frame):
                 candidate = self.project_root / path
                 if candidate.exists():
                     found = str(candidate)
-            
+
             # 3. Try relative to CWD (Fallback)
             if not found:
-                 candidate = os.path.abspath(path)
-                 if os.path.exists(candidate):
-                     found = candidate
-            
+                candidate = os.path.abspath(path)
+                if os.path.exists(candidate):
+                    found = candidate
+
             if not found:
                 return None
             full_path = found
 
         if full_path in self.image_cache:
             return self.image_cache[full_path]
-            
+
         tk_img = load_thumbnail(full_path, self.card_width, 140)
         if tk_img:
             self.image_cache[full_path] = tk_img

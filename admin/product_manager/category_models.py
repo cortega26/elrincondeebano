@@ -81,8 +81,7 @@ class Category:
         subcategories = [
             Subcategory.from_dict(entry)
             for entry in sorted(
-                subcategories_data,
-                key=lambda entry: _coerce_int(entry.get("order"), 0)
+                subcategories_data, key=lambda entry: _coerce_int(entry.get("order"), 0)
             )
         ]
         return cls(
@@ -166,16 +165,14 @@ class CategoryCatalog:
         nav_groups = [
             NavGroup.from_dict(entry)
             for entry in sorted(
-                nav_groups_data,
-                key=lambda entry: _coerce_int(entry.get("order"), 0)
+                nav_groups_data, key=lambda entry: _coerce_int(entry.get("order"), 0)
             )
             if entry
         ]
         categories = [
             Category.from_dict(entry)
             for entry in sorted(
-                categories_data,
-                key=lambda entry: _coerce_int(entry.get("order"), 0)
+                categories_data, key=lambda entry: _coerce_int(entry.get("order"), 0)
             )
             if entry
         ]

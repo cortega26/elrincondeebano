@@ -1,7 +1,12 @@
 import pytest
 from unittest.mock import Mock, MagicMock
-from services import ProductService, Product, DuplicateProductError, ProductNotFoundError
-from repositories import ProductRepositoryProtocol
+from admin.product_manager.models import Product
+from admin.product_manager.repositories import ProductRepositoryProtocol
+from admin.product_manager.services import (
+    ProductService,
+    DuplicateProductError,
+    ProductNotFoundError,
+)
 from test_support import require
 
 class FakeRepository:

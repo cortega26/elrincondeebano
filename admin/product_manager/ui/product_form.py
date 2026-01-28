@@ -6,11 +6,12 @@ from pathlib import Path
 import shutil
 import time
 import logging
-from models import Product
-from services import ProductService, ProductServiceError
+from ..models import Product
+from ..services import ProductService, ProductServiceError
 from .utils import PIL_AVAILABLE, PIL_WEBP, PIL_AVIF, Image, ImageTk, CategoryHelper
 
 logger = logging.getLogger(__name__)
+
 
 class ProductFormDialog(tk.Toplevel):
     """Dialog for adding/editing products."""
@@ -46,7 +47,7 @@ class ProductFormDialog(tk.Toplevel):
         self.category_combobox: Optional[ttk.Combobox] = None
 
         temp_entry = ttk.Entry(self)
-        self.default_font = temp_entry.cget('font')
+        self.default_font = temp_entry.cget("font")
         temp_entry.destroy()
 
         self._preview_warning_shown = False
@@ -57,8 +58,6 @@ class ProductFormDialog(tk.Toplevel):
         self._center_on_parent()
 
     # Category helper methods moved to ui/utils.py
-
-
 
     def setup_dialog(self) -> None:
         """Set up dialog window."""
@@ -89,20 +88,22 @@ class ProductFormDialog(tk.Toplevel):
         self.entries: Dict[str, tk.Widget] = {}
         fields = [
             ("name", "Nombre:", ttk.Entry, {"width": 40}),
-            ("description", "Descripción:",
-             tk.Text, {"width": 40, "height": 3}),
+            ("description", "Descripción:", tk.Text, {"width": 40, "height": 3}),
             ("price", "Precio:", ttk.Entry, {"width": 40}),
             ("discount", "Descuento:", ttk.Entry, {"width": 40}),
             ("stock", "En Stock:", tk.Checkbutton, {}),
             ("category", "Categoría:", ttk.Combobox, {"width": 39}),
             ("image_path", "Ruta de Imagen:", ttk.Entry, {"width": 40}),
-            ("image_avif_path", "Ruta imagen AVIF (opcional):",
-             ttk.Entry, {"width": 40}),
+            (
+                "image_avif_path",
+                "Ruta imagen AVIF (opcional):",
+                ttk.Entry,
+                {"width": 40},
+            ),
         ]
         for i, (field, label, widget_class, widget_opts) in enumerate(fields):
             label_widget = ttk.Label(self.main_frame, text=label)
-            label_widget.grid(row=i, column=0, sticky=tk.W,
-                              padx=(0, 10), pady=5)
+            label_widget.grid(row=i, column=0, sticky=tk.W, padx=(0, 10), pady=5)
             if widget_class == tk.Checkbutton:
                 var = tk.BooleanVar(value=True)
                 widget = widget_class(self.main_frame, variable=var)
@@ -112,21 +113,18 @@ class ProductFormDialog(tk.Toplevel):
                 values = self.category_helper.display_values
                 state = "readonly" if values else "normal"
                 widget = widget_class(
-                    self.main_frame,
-                    values=values,
-                    state=state,
-                    **widget_opts
+                    self.main_frame, values=values, state=state, **widget_opts
                 )
                 self.entries[field] = widget
                 if field == "category":
                     self.category_combobox = widget
                 widget.grid(row=i, column=1, sticky=tk.EW, pady=5)
-                widget.bind("<<ComboboxSelected>>",
-                            self._on_category_change)
+                widget.bind("<<ComboboxSelected>>", self._on_category_change)
                 widget.bind("<FocusOut>", self._on_category_change)
             elif widget_class == tk.Text:
                 widget = widget_class(
-                    self.main_frame, font=self.default_font, **widget_opts)
+                    self.main_frame, font=self.default_font, **widget_opts
+                )
                 widget.grid(row=i, column=1, sticky=tk.EW, pady=5)
                 widget.bind("<Tab>", self._focus_next)  # Agrega este binding
                 self.entries[field] = widget
@@ -135,26 +133,42 @@ class ProductFormDialog(tk.Toplevel):
                 self.entries[field] = widget
                 widget.grid(row=i, column=1, sticky=tk.EW, pady=5)
             if field == "image_path":
-                ttk.Button(self.main_frame, text="Explorar...", command=self.browse_image, width=15).grid(
-                    row=i, column=2, padx=(5, 0), pady=5)
+                ttk.Button(
+                    self.main_frame,
+                    text="Explorar...",
+                    command=self.browse_image,
+                    width=15,
+                ).grid(row=i, column=2, padx=(5, 0), pady=5)
                 # Update preview when typing a path
-                widget.bind("<KeyRelease>",
-                            lambda _e: self._update_image_preview())
+                widget.bind("<KeyRelease>", lambda _e: self._update_image_preview())
             if field == "image_avif_path":
-                ttk.Button(self.main_frame, text="Explorar AVIF...", command=self.browse_avif_image, width=15).grid(
-                    row=i, column=2, padx=(5, 0), pady=5)
+                ttk.Button(
+                    self.main_frame,
+                    text="Explorar AVIF...",
+                    command=self.browse_avif_image,
+                    width=15,
+                ).grid(row=i, column=2, padx=(5, 0), pady=5)
 
         # Image processing options
         options_row = len(fields)
         self.convert_webp_var = tk.BooleanVar(value=False)
         self.resize_opt_var = tk.BooleanVar(value=True)
         opts_frame = ttk.Frame(self.main_frame)
-        opts_frame.grid(row=options_row, column=0,
-                        columnspan=3, sticky=tk.W, pady=(0, 6))
-        ttk.Checkbutton(opts_frame, text="Convertir a WebP", variable=self.convert_webp_var,
-                        state=(tk.NORMAL if PIL_AVAILABLE else tk.DISABLED)).pack(side=tk.LEFT, padx=(0, 10))
-        ttk.Checkbutton(opts_frame, text="Optimizar tamaño (máx 1000px)", variable=self.resize_opt_var,
-                        state=(tk.NORMAL if PIL_AVAILABLE else tk.DISABLED)).pack(side=tk.LEFT)
+        opts_frame.grid(
+            row=options_row, column=0, columnspan=3, sticky=tk.W, pady=(0, 6)
+        )
+        ttk.Checkbutton(
+            opts_frame,
+            text="Convertir a WebP",
+            variable=self.convert_webp_var,
+            state=(tk.NORMAL if PIL_AVAILABLE else tk.DISABLED),
+        ).pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Checkbutton(
+            opts_frame,
+            text="Optimizar tamaño (máx 1000px)",
+            variable=self.resize_opt_var,
+            state=(tk.NORMAL if PIL_AVAILABLE else tk.DISABLED),
+        ).pack(side=tk.LEFT)
 
         # Preview area (fixed-size canvas to avoid stretching on resize)
         self.preview_label = ttk.Label(self.main_frame, text="Vista previa")
@@ -170,12 +184,12 @@ class ProductFormDialog(tk.Toplevel):
             relief=tk.SOLID,
             bd=1,
         )
-        self.preview_canvas.grid(
-            row=preview_row, column=1, sticky=tk.W, pady=4)
+        self.preview_canvas.grid(row=preview_row, column=1, sticky=tk.W, pady=4)
         # Quick-open image in OS viewer
         open_btn = ttk.Button(
-            self.main_frame, text="Abrir imagen…", command=self._open_image_file)
-        open_btn.grid(row=options_row+1, column=2, sticky=tk.W)
+            self.main_frame, text="Abrir imagen…", command=self._open_image_file
+        )
+        open_btn.grid(row=options_row + 1, column=2, sticky=tk.W)
         self._preview_photo = None
         self._update_image_preview()
 
@@ -187,17 +201,15 @@ class ProductFormDialog(tk.Toplevel):
     def create_buttons(self) -> None:
         """Create dialog buttons."""
         button_frame = ttk.Frame(self, padding=(10, 5))
-        button_frame.grid(
-            row=1, column=0, sticky=tk.E, pady=(10, 15), padx=(10, 16)
-        )
+        button_frame.grid(row=1, column=0, sticky=tk.E, pady=(10, 15), padx=(10, 16))
         button_frame.grid_columnconfigure(0, weight=1)
         ttk.Frame(button_frame).grid(row=0, column=0, sticky="ew")
         ttk.Button(
             button_frame, text="Guardar", command=self.save_product, width=10
         ).grid(row=0, column=1, padx=5)
-        ttk.Button(
-            button_frame, text="Cancelar", command=self.destroy, width=10
-        ).grid(row=0, column=2, padx=5)
+        ttk.Button(button_frame, text="Cancelar", command=self.destroy, width=10).grid(
+            row=0, column=2, padx=5
+        )
 
     def populate_fields(self) -> None:
         """Populate form fields with product data."""
@@ -228,7 +240,8 @@ class ProductFormDialog(tk.Toplevel):
     def browse_image(self) -> None:
         """Open file dialog to select image."""
         file_path = filedialog.askopenfilename(
-            filetypes=[("Archivos de imagen", "*.png *.jpg *.jpeg *.gif *.webp")])
+            filetypes=[("Archivos de imagen", "*.png *.jpg *.jpeg *.gif *.webp")]
+        )
         if not file_path:
             return
         try:
@@ -236,18 +249,23 @@ class ProductFormDialog(tk.Toplevel):
             src_path = Path(file_path).resolve()
             cat_widget = self.entries.get("category")
             if isinstance(cat_widget, ttk.Combobox):
-                current_category = self.category_helper.get_key_from_display(cat_widget.get())
+                current_category = self.category_helper.get_key_from_display(
+                    cat_widget.get()
+                )
             else:
                 current_category = ""
             dest_dir, category_updated = self._resolve_destination_directory(
-                src_path, base_dir, current_category, cat_widget)
+                src_path, base_dir, current_category, cat_widget
+            )
             filename = src_path.name
             name_no_ext, ext = os.path.splitext(filename)
 
             dest_dir.mkdir(parents=True, exist_ok=True)
 
-            if PIL_AVAILABLE and (self.convert_webp_var.get() or self.resize_opt_var.get()):
-                target_ext = '.webp' if self.convert_webp_var.get() else ext
+            if PIL_AVAILABLE and (
+                self.convert_webp_var.get() or self.resize_opt_var.get()
+            ):
+                target_ext = ".webp" if self.convert_webp_var.get() else ext
                 dest_path = dest_dir / f"{name_no_ext}{target_ext}"
                 img = None
                 try:
@@ -256,7 +274,7 @@ class ProductFormDialog(tk.Toplevel):
                     if self.resize_opt_var.get():
                         img.thumbnail((1000, 1000))
                     save_params = {}
-                    if target_ext.lower() == '.webp':
+                    if target_ext.lower() == ".webp":
                         save_params = {"format": "WEBP", "quality": 85}
                     img.save(dest_path, **save_params)
                 except Exception:
@@ -268,14 +286,16 @@ class ProductFormDialog(tk.Toplevel):
                         try:
                             img.close()
                         except Exception as exc:
-                            self.logger.debug("No se pudo cerrar la imagen previa: %s", exc)
+                            self.logger.debug(
+                                "No se pudo cerrar la imagen previa: %s", exc
+                            )
             else:
                 dest_path = dest_dir / filename
                 if src_path != dest_path:
                     shutil.copy2(src_path, dest_path)
 
             rel_path = dest_path.relative_to(base_dir).as_posix()
-            rel_path = 'assets/images/' + rel_path
+            rel_path = "assets/images/" + rel_path
             self.entries["image_path"].delete(0, tk.END)
             self.entries["image_path"].insert(0, rel_path)
             self._update_image_preview()
@@ -287,17 +307,15 @@ class ProductFormDialog(tk.Toplevel):
                 if guessed_avif.exists():
                     avif_rel = guessed_avif.relative_to(base_dir).as_posix()
                     avif_entry.delete(0, tk.END)
-                    avif_entry.insert(0, f'assets/images/{avif_rel}')
+                    avif_entry.insert(0, f"assets/images/{avif_rel}")
             if category_updated:
                 self._on_category_change()
-        except Exception as e:
-            messagebox.showerror(
-                "Error", f"Error al copiar la imagen: {str(e)}")
+        except Exception as exc:
+            messagebox.showerror("Error", f"Error al copiar la imagen: {str(exc)}")
 
     def browse_avif_image(self) -> None:
         """Open file dialog to select an AVIF image."""
-        file_path = filedialog.askopenfilename(
-            filetypes=[("Imágenes AVIF", "*.avif")])
+        file_path = filedialog.askopenfilename(filetypes=[("Imágenes AVIF", "*.avif")])
         if not file_path:
             return
         try:
@@ -309,12 +327,13 @@ class ProductFormDialog(tk.Toplevel):
                 category = ""
             src_path = Path(file_path).resolve()
             dest_dir, category_updated = self._resolve_destination_directory(
-                src_path, base_dir, category, cat_widget)
+                src_path, base_dir, category, cat_widget
+            )
             dest_dir.mkdir(parents=True, exist_ok=True)
 
             filename = os.path.basename(file_path)
-            if not filename.lower().endswith('.avif'):
-                filename = os.path.splitext(filename)[0] + '.avif'
+            if not filename.lower().endswith(".avif"):
+                filename = os.path.splitext(filename)[0] + ".avif"
             dest_path = dest_dir / filename
 
             if src_path != dest_path:
@@ -335,7 +354,7 @@ class ProductFormDialog(tk.Toplevel):
                     ) from last_error
 
             rel_path = dest_path.relative_to(base_dir).as_posix()
-            rel_path = 'assets/images/' + rel_path
+            rel_path = "assets/images/" + rel_path
             entry = self.entries.get("image_avif_path")
             if isinstance(entry, ttk.Entry):
                 entry.delete(0, tk.END)
@@ -344,9 +363,8 @@ class ProductFormDialog(tk.Toplevel):
             if category_updated:
                 self._on_category_change()
             self._update_image_preview()
-        except Exception as e:
-            messagebox.showerror(
-                "Error", f"Error al copiar la imagen AVIF: {str(e)}")
+        except Exception as exc:
+            messagebox.showerror("Error", f"Error al copiar la imagen AVIF: {str(exc)}")
 
     def save_product(self) -> None:
         """Save product data."""
@@ -355,14 +373,15 @@ class ProductFormDialog(tk.Toplevel):
             product = Product(**data)
             if self.product:
                 self.product_service.update_product(
-                    self.product.name, product, self.product.description)
+                    self.product.name, product, self.product.description
+                )
             else:
                 self.product_service.add_product(product)
             if self.on_save:
                 self.on_save()
             self.destroy()
-        except (ValueError, ProductServiceError) as e:
-            messagebox.showerror("Error", str(e))
+        except (ValueError, ProductServiceError) as exc:
+            messagebox.showerror("Error", str(exc))
 
     def validate_and_get_data(self) -> Dict[str, Any]:
         """Validate and collect form data."""
@@ -390,68 +409,70 @@ class ProductFormDialog(tk.Toplevel):
             if data["price"] <= 0:
                 raise ValueError("El precio debe ser mayor que cero")
         except ValueError:
-            raise ValueError(
-                "El precio debe ser un número válido mayor que cero")
+            raise ValueError("El precio debe ser un número válido mayor que cero")
         try:
             data["discount"] = int(data["discount"] or "0")
             if data["discount"] < 0:
                 raise ValueError("El descuento no puede ser negativo")
             if data["discount"] >= data["price"]:
-                raise ValueError(
-                    "El descuento no puede ser mayor que el precio")
-        except ValueError as e:
-            if "invalid literal" in str(e):
+                raise ValueError("El descuento no puede ser mayor que el precio")
+        except ValueError as exc:
+            if "invalid literal" in str(exc):
                 raise ValueError("El descuento debe ser un número válido")
             raise
         # Canonicalize category names to avoid mismatches (spaces/accents)
         try:
+
             def _norm(s: str) -> str:
                 import unicodedata
                 import re
-                s = unicodedata.normalize('NFD', s)
+
+                s = unicodedata.normalize("NFD", s)
                 s = re.sub(r"[\u0300-\u036f]", "", s)
                 s = re.sub(r"[^A-Za-z0-9]", "", s).lower()
                 return s
+
             cat_map = {
-                'lacteos': 'Lacteos',
-                'carnesyembutidos': 'Carnesyembutidos',
-                'snacksdulces': 'SnacksDulces',
-                'snackssalados': 'SnacksSalados',
-                'energeticaseisotonicas': 'Energeticaseisotonicas',
-                'limpiezayaseo': 'Limpiezayaseo',
-                'aguas': 'Aguas',
-                'bebidas': 'Bebidas',
-                'jugos': 'Jugos',
-                'espumantes': 'Espumantes',
-                'cervezas': 'Cervezas',
-                'vinos': 'Vinos',
-                'piscos': 'Piscos',
-                'mascotas': 'Mascotas',
-                'llaveros': 'Llaveros',
-                'despensa': 'Despensa',
-                'chocolates': 'Chocolates',
-                'juegos': 'Juegos',
-                'software': 'Software',
+                "lacteos": "Lacteos",
+                "carnesyembutidos": "Carnesyembutidos",
+                "snacksdulces": "SnacksDulces",
+                "snackssalados": "SnacksSalados",
+                "energeticaseisotonicas": "Energeticaseisotonicas",
+                "limpiezayaseo": "Limpiezayaseo",
+                "aguas": "Aguas",
+                "bebidas": "Bebidas",
+                "jugos": "Jugos",
+                "espumantes": "Espumantes",
+                "cervezas": "Cervezas",
+                "vinos": "Vinos",
+                "piscos": "Piscos",
+                "mascotas": "Mascotas",
+                "llaveros": "Llaveros",
+                "despensa": "Despensa",
+                "chocolates": "Chocolates",
+                "juegos": "Juegos",
+                "software": "Software",
             }
-            key = _norm(data.get('category', ''))
+            key = _norm(data.get("category", ""))
             if key in cat_map:
-                data['category'] = cat_map[key]
+                data["category"] = cat_map[key]
         except Exception:
             self.logger.debug("No se pudo normalizar la categoría seleccionada.")
 
         if data["image_path"]:
             if not data["image_path"].startswith("assets/images/"):
                 raise ValueError(
-                    "La ruta de la imagen debe comenzar con 'assets/images/'")
+                    "La ruta de la imagen debe comenzar con 'assets/images/'"
+                )
         if data.get("image_avif_path"):
             if not data["image_avif_path"].startswith("assets/images/"):
-                raise ValueError(
-                    "La ruta AVIF debe comenzar con 'assets/images/'")
+                raise ValueError("La ruta AVIF debe comenzar con 'assets/images/'")
             if not data["image_avif_path"].lower().endswith(".avif"):
                 raise ValueError("La ruta AVIF debe terminar en '.avif'")
             if not data.get("image_path"):
                 guessed_fallback = self._guess_fallback_from_avif(
-                    data["image_avif_path"])
+                    data["image_avif_path"]
+                )
                 if guessed_fallback:
                     data["image_path"] = guessed_fallback
                     fallback_entry = self.entries.get("image_path")
@@ -463,10 +484,13 @@ class ProductFormDialog(tk.Toplevel):
                     try:
                         self._update_image_preview()
                     except Exception as exc:
-                        self.logger.debug("No se pudo actualizar la vista previa: %s", exc)
+                        self.logger.debug(
+                            "No se pudo actualizar la vista previa: %s", exc
+                        )
             if not data.get("image_path"):
                 raise ValueError(
-                    "Debes mantener una imagen de respaldo (PNG/JPG/GIF/WebP) al usar AVIF.")
+                    "Debes mantener una imagen de respaldo (PNG/JPG/GIF/WebP) al usar AVIF."
+                )
         return data
 
     def _prefill_category(self) -> None:
@@ -492,7 +516,9 @@ class ProductFormDialog(tk.Toplevel):
         """Populate fallback image entry when an AVIF is selected."""
         avif_entry = self.entries.get("image_avif_path")
         fallback_entry = self.entries.get("image_path")
-        if not isinstance(avif_entry, ttk.Entry) or not isinstance(fallback_entry, ttk.Entry):
+        if not isinstance(avif_entry, ttk.Entry) or not isinstance(
+            fallback_entry, ttk.Entry
+        ):
             return
         current_fallback = fallback_entry.get().strip()
         if current_fallback:
@@ -516,12 +542,12 @@ class ProductFormDialog(tk.Toplevel):
         if not avif_rel or not avif_rel.startswith("assets/images/"):
             return None
         base_dir = self._assets_images_root()
-        relative = avif_rel[len("assets/images/"):].replace('/', os.sep)
+        relative = avif_rel[len("assets/images/") :].replace("/", os.sep)
         base, _ = os.path.splitext(relative)
         for ext in (".webp", ".jpg", ".jpeg", ".png", ".gif"):
             candidate = os.path.join(base_dir, base + ext)
             if os.path.exists(candidate):
-                rel_path = os.path.relpath(candidate, base_dir).replace('\\', '/')
+                rel_path = os.path.relpath(candidate, base_dir).replace("\\", "/")
                 return f"assets/images/{rel_path}"
         return None
 
@@ -530,7 +556,7 @@ class ProductFormDialog(tk.Toplevel):
         if not PIL_AVAILABLE or not PIL_AVIF:
             return None
         base_dir = self._assets_images_root()
-        relative = avif_rel[len("assets/images/"):].replace('/', os.sep)
+        relative = avif_rel[len("assets/images/") :].replace("/", os.sep)
         avif_path = os.path.join(base_dir, relative)
         if not os.path.exists(avif_path):
             return None
@@ -545,22 +571,26 @@ class ProductFormDialog(tk.Toplevel):
             return None
 
         if os.path.exists(fallback_abs):
-            rel_path = os.path.relpath(fallback_abs, base_dir).replace('\\', '/')
+            rel_path = os.path.relpath(fallback_abs, base_dir).replace("\\", "/")
             return f"assets/images/{rel_path}"
 
         try:
             with Image.open(avif_path) as src_img:
-                img = src_img.convert("RGBA" if src_img.mode in ("P", "RGBA", "LA") else "RGB")
+                img = src_img.convert(
+                    "RGBA" if src_img.mode in ("P", "RGBA", "LA") else "RGB"
+                )
                 save_params: Dict[str, Any] = {}
                 if fallback_ext == ".webp":
                     save_params = {"format": "WEBP", "quality": 85}
                 img.save(fallback_abs, **save_params)
                 img.close()
         except Exception as exc:
-            logger.warning("No se pudo generar fallback desde AVIF %s: %s", avif_path, exc)
+            logger.warning(
+                "No se pudo generar fallback desde AVIF %s: %s", avif_path, exc
+            )
             return None
 
-        rel_path = os.path.relpath(fallback_abs, base_dir).replace('\\', '/')
+        rel_path = os.path.relpath(fallback_abs, base_dir).replace("\\", "/")
         return f"assets/images/{rel_path}"
 
     def _center_on_parent(self) -> None:
@@ -604,32 +634,44 @@ class ProductFormDialog(tk.Toplevel):
 
     # Helpers for image paths and preview
     def _assets_images_root(self) -> str:
-        project_root = os.path.abspath(os.path.join(
-            os.path.dirname(__file__), '..', '..', '..')) # Adjusted for deeper path: ui/ -> ProductManager/ -> Admin/ -> Root/
-            # wait, original was: os.path.dirname(__file__) -> admin/product_manager
-            # joined with '..', '..' -> admin -> root?
-            # Original: admin/product_manager/gui.py. dirname = admin/product_manager.
-            # .. -> admin
-            # .. -> Tienda Ebano (root)
-            # New: admin/product_manager/ui/product_form.py. dirname = admin/product_manager/ui
-            # .. -> admin/product_manager
-            # .. -> admin
-            # .. -> Tienda Ebano (root)
-            # So I need 3 '..'
-        return os.path.join(project_root, 'assets', 'images')
+        project_root = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..", "..")
+        )  # Adjusted for deeper path: ui/ -> ProductManager/ -> Admin/ -> Root/
+        # wait, original was: os.path.dirname(__file__) -> admin/product_manager
+        # joined with '..', '..' -> admin -> root?
+        # Original: admin/product_manager/gui.py. dirname = admin/product_manager.
+        # .. -> admin
+        # .. -> Tienda Ebano (root)
+        # New: admin/product_manager/ui/product_form.py. dirname = admin/product_manager/ui
+        # .. -> admin/product_manager
+        # .. -> admin
+        # .. -> Tienda Ebano (root)
+        # So I need 3 '..'
+        return os.path.join(project_root, "assets", "images")
 
-    def _resolve_asset_image_path(self, base_dir: Path, rel_path: str) -> Optional[Path]:
-        cleaned = rel_path.strip().replace('\\', '/')
+    def _resolve_asset_image_path(
+        self, base_dir: Path, rel_path: str
+    ) -> Optional[Path]:
+        cleaned = rel_path.strip().replace("\\", "/")
         if not cleaned:
             return None
-        if cleaned.startswith('assets/images/'):
-            cleaned = cleaned[len('assets/images/'):]
+        if cleaned.startswith("assets/images/"):
+            cleaned = cleaned[len("assets/images/") :]
         candidate = (base_dir / cleaned).resolve()
         try:
             candidate.relative_to(base_dir)
         except ValueError:
             return None
-        if candidate.suffix.lower() not in {'.png', '.jpg', '.jpeg', '.gif', '.webp', '.avif', '.bmp', '.svg'}:
+        if candidate.suffix.lower() not in {
+            ".png",
+            ".jpg",
+            ".jpeg",
+            ".gif",
+            ".webp",
+            ".avif",
+            ".bmp",
+            ".svg",
+        }:
             return None
         if not candidate.is_file():
             return None
@@ -637,40 +679,40 @@ class ProductFormDialog(tk.Toplevel):
 
     def _category_subdir(self, category: str) -> str:
         mapping = {
-            'Limpiezayaseo': 'limpieza_y_aseo',
-            'Despensa': 'despensa',
-            'Lacteos': 'lacteos',
-            'Cervezas': 'cervezas',
-            'Vinos': 'vinos',
-            'Espumantes': 'espumantes',
-            'Piscos': 'piscos',
-            'Aguas': 'bebidas',
-            'Bebidas': 'bebidas',
-            'Jugos': 'jugos',
-            'Mascotas': 'mascotas',
-            'Llaveros': 'llaveros',
-            'Chocolates': 'chocolates',
-            'SnacksDulces': 'snacks_dulces',
-            'SnacksSalados': 'snacks_salados',
-            'Energeticaseisotonicas': 'energeticaseisotonicas',
-            'Carnesyembutidos': 'carnes_y_embutidos',
-            'Juegos': 'juegos',
-            'Software': 'software',
+            "Limpiezayaseo": "limpieza_y_aseo",
+            "Despensa": "despensa",
+            "Lacteos": "lacteos",
+            "Cervezas": "cervezas",
+            "Vinos": "vinos",
+            "Espumantes": "espumantes",
+            "Piscos": "piscos",
+            "Aguas": "bebidas",
+            "Bebidas": "bebidas",
+            "Jugos": "jugos",
+            "Mascotas": "mascotas",
+            "Llaveros": "llaveros",
+            "Chocolates": "chocolates",
+            "SnacksDulces": "snacks_dulces",
+            "SnacksSalados": "snacks_salados",
+            "Energeticaseisotonicas": "energeticaseisotonicas",
+            "Carnesyembutidos": "carnes_y_embutidos",
+            "Juegos": "juegos",
+            "Software": "software",
         }
-        return mapping.get(category, category.strip().lower().replace(' ', '_'))
+        return mapping.get(category, category.strip().lower().replace(" ", "_"))
 
     def _resolve_image_candidates(self) -> list[tuple[str, str]]:
         candidates: list[tuple[str, str]] = []
-        fallback_entry = self.entries.get('image_path')
+        fallback_entry = self.entries.get("image_path")
         if isinstance(fallback_entry, ttk.Entry):
             rel = fallback_entry.get().strip()
             if rel:
-                candidates.append(('fallback', rel))
-        avif_entry = self.entries.get('image_avif_path')
+                candidates.append(("fallback", rel))
+        avif_entry = self.entries.get("image_avif_path")
         if isinstance(avif_entry, ttk.Entry):
             rel = avif_entry.get().strip()
             if rel:
-                candidates.append(('avif', rel))
+                candidates.append(("avif", rel))
         return candidates
 
     def _on_category_change(self, _event: tk.Event = None) -> None:
@@ -705,8 +747,8 @@ class ProductFormDialog(tk.Toplevel):
             return False
 
         base_dir = Path(self._assets_images_root())
-        current_relative = rel_path[len("assets/images/"):]
-        current_path = (base_dir / current_relative.replace('/', os.sep))
+        current_relative = rel_path[len("assets/images/") :]
+        current_path = base_dir / current_relative.replace("/", os.sep)
         if not current_path.exists():
             return False
 
@@ -715,7 +757,7 @@ class ProductFormDialog(tk.Toplevel):
         except ValueError:
             return False
 
-        desired_parent = Path(target_subdir.strip().replace('\\', '/'))
+        desired_parent = Path(target_subdir.strip().replace("\\", "/"))
         if not str(desired_parent):
             return False
 
@@ -735,7 +777,7 @@ class ProductFormDialog(tk.Toplevel):
                 "No se pudo mover el archivo %s a %s: %s",
                 current_path,
                 destination_path,
-                exc
+                exc,
             )
             return False
 
@@ -790,7 +832,7 @@ class ProductFormDialog(tk.Toplevel):
 
     def _guess_category_from_directory(self, subdir: str) -> Optional[str]:
         """Infer category name from an assets/images subdirectory."""
-        normalized = subdir.strip().replace('\\', '/').strip('/').lower()
+        normalized = subdir.strip().replace("\\", "/").strip("/").lower()
         if not normalized:
             return None
         try:
@@ -800,8 +842,12 @@ class ProductFormDialog(tk.Toplevel):
         except Exception:
             categories = [key for _, key in self.category_choices]
         for category in categories:
-            candidate_dir = self._category_subdir(str(category)).strip(
-                '/').replace('\\', '/').lower()
+            candidate_dir = (
+                self._category_subdir(str(category))
+                .strip("/")
+                .replace("\\", "/")
+                .lower()
+            )
             if candidate_dir == normalized:
                 return category
         return None
@@ -809,30 +855,31 @@ class ProductFormDialog(tk.Toplevel):
     def _update_image_preview(self) -> None:
         try:
             cv = self.preview_canvas
-            w, h = getattr(self, '_preview_w', 240), getattr(
-                self, '_preview_h', 240)
+            w, h = getattr(self, "_preview_w", 240), getattr(self, "_preview_h", 240)
             cv.delete("all")
             cv.create_rectangle(0, 0, w, h, fill="#fafafa", outline="#cccccc")
             abs_base_dir = self._assets_images_root()
             candidates = self._resolve_image_candidates()
             if not candidates:
-                cv.create_text(w//2, h//2, text='Sin imagen', fill='#666666')
+                cv.create_text(w // 2, h // 2, text="Sin imagen", fill="#666666")
                 self._preview_photo = None
                 return
 
             selected_path = None
             unsupported_format = None
             for _, rel_path in candidates:
-                abs_path = os.path.join(abs_base_dir, rel_path.replace(
-                    'assets/images/', '').replace('/', os.sep))
+                abs_path = os.path.join(
+                    abs_base_dir,
+                    rel_path.replace("assets/images/", "").replace("/", os.sep),
+                )
                 if not os.path.exists(abs_path):
                     continue
                 ext = os.path.splitext(abs_path)[1].lower()
-                if ext == '.webp' and not PIL_WEBP:
-                    unsupported_format = 'webp'
+                if ext == ".webp" and not PIL_WEBP:
+                    unsupported_format = "webp"
                     continue
-                if ext == '.avif' and not PIL_AVIF:
-                    unsupported_format = 'avif'
+                if ext == ".avif" and not PIL_AVIF:
+                    unsupported_format = "avif"
                     continue
                 selected_path = abs_path
                 break
@@ -842,19 +889,20 @@ class ProductFormDialog(tk.Toplevel):
                 try:
                     with Image.open(selected_path) as src_img:
                         preview_img = src_img.copy()
-                    if preview_img.mode not in ('RGB', 'RGBA'):
-                        preview_img = preview_img.convert('RGBA')
-                    preview_img.thumbnail((w-10, h-10))
+                    if preview_img.mode not in ("RGB", "RGBA"):
+                        preview_img = preview_img.convert("RGBA")
+                    preview_img.thumbnail((w - 10, h - 10))
                     self._preview_photo = ImageTk.PhotoImage(preview_img)
                     cv.create_image(
-                        w//2, h//2, image=self._preview_photo, anchor='center')
+                        w // 2, h // 2, image=self._preview_photo, anchor="center"
+                    )
                     return
                 except Exception as img_error:
-                    if not getattr(self, '_preview_warning_shown', False):
+                    if not getattr(self, "_preview_warning_shown", False):
                         messagebox.showwarning(
-                            'Vista previa',
-                            f'No se pudo renderizar la imagen seleccionada: {img_error}',
-                            parent=self
+                            "Vista previa",
+                            f"No se pudo renderizar la imagen seleccionada: {img_error}",
+                            parent=self,
                         )
                         self._preview_warning_shown = True
                 finally:
@@ -862,51 +910,63 @@ class ProductFormDialog(tk.Toplevel):
                         try:
                             preview_img.close()
                         except Exception as exc:
-                            self.logger.debug("No se pudo cerrar la imagen previa: %s", exc)
+                            self.logger.debug(
+                                "No se pudo cerrar la imagen previa: %s", exc
+                            )
 
-            if unsupported_format == 'avif' and not getattr(self, '_preview_warning_shown_avif', False):
+            if unsupported_format == "avif" and not getattr(
+                self, "_preview_warning_shown_avif", False
+            ):
                 messagebox.showwarning(
                     "Vista previa no disponible",
                     "La librería Pillow instalada no soporta AVIF. \n"
                     "Instala pillow-heif o pillow-avif-plugin para habilitar la vista previa.",
-                    parent=self
+                    parent=self,
                 )
                 self._preview_warning_shown_avif = True
-            elif unsupported_format == 'webp' and not getattr(self, '_preview_warning_shown', False):
+            elif unsupported_format == "webp" and not getattr(
+                self, "_preview_warning_shown", False
+            ):
                 messagebox.showwarning(
                     "Vista previa no disponible",
                     "El entorno actual de Pillow no soporta WebP. Instala pillow-heif o actualiza Pillow.",
-                    parent=self
+                    parent=self,
                 )
                 self._preview_warning_shown = True
 
             if not PIL_AVAILABLE:
                 cv.create_text(
-                    w//2, h//2, text='Instale Pillow para vista previa', fill='#666666')
-                if not getattr(self, '_preview_warning_shown', False):
+                    w // 2,
+                    h // 2,
+                    text="Instale Pillow para vista previa",
+                    fill="#666666",
+                )
+                if not getattr(self, "_preview_warning_shown", False):
                     messagebox.showwarning(
                         "Vista previa deshabilitada",
                         "Pillow no está disponible, por lo que la vista previa no puede renderizarse.\n"
                         "Instala Pillow (y pillow-heif si necesitas WebP/AVIF) para habilitarla.",
-                        parent=self
+                        parent=self,
                     )
                     self._preview_warning_shown = True
             else:
                 cv.create_text(
-                    w//2, h//2, text='(Vista previa no disponible)', fill='#666666')
+                    w // 2, h // 2, text="(Vista previa no disponible)", fill="#666666"
+                )
             self._preview_photo = None
         except Exception:
             cv = self.preview_canvas
-            w, h = getattr(self, '_preview_w', 240), getattr(
-                self, '_preview_h', 240)
+            w, h = getattr(self, "_preview_w", 240), getattr(self, "_preview_h", 240)
             cv.delete("all")
             cv.create_rectangle(0, 0, w, h, fill="#fafafa", outline="#cccccc")
             cv.create_text(
-                w//2, h//2, text='(Vista previa no disponible)', fill='#666666')
+                w // 2, h // 2, text="(Vista previa no disponible)", fill="#666666"
+            )
             self._preview_photo = None
 
     def _open_image_file(self) -> None:
         import webbrowser
+
         try:
             candidates = self._resolve_image_candidates()
             if not candidates:
@@ -920,8 +980,9 @@ class ProductFormDialog(tk.Toplevel):
                     break
             if not target_path:
                 messagebox.showerror(
-                    'Imagen', 'El archivo de imagen no existe en disco.')
+                    "Imagen", "El archivo de imagen no existe en disco."
+                )
                 return
             webbrowser.open(target_path.as_uri())
-        except Exception as e:
-            messagebox.showerror('Imagen', f'No se pudo abrir la imagen: {e}')
+        except Exception as exc:
+            messagebox.showerror("Imagen", f"No se pudo abrir la imagen: {exc}")

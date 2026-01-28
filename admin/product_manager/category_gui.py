@@ -6,9 +6,9 @@ from __future__ import annotations
 
 import tkinter as tk
 from tkinter import ttk, messagebox
-from typing import Callable, Dict, List, Optional, Sequence, Tuple
+from typing import Callable, Dict, Optional, Sequence, Tuple
 
-from category_service import (
+from .category_service import (
     CategoryService,
     CategoryServiceError,
     NavGroup,
@@ -121,9 +121,7 @@ class CategoryFormDialog(tk.Toplevel):
         ttk.Button(buttons, text="Cancelar", command=self._on_cancel).pack(
             side=tk.RIGHT, padx=(8, 0)
         )
-        ttk.Button(buttons, text="Guardar", command=self._on_accept).pack(
-            side=tk.RIGHT
-        )
+        ttk.Button(buttons, text="Guardar", command=self._on_accept).pack(side=tk.RIGHT)
 
     def _populate_initial(self) -> None:
         if not self._initial:
@@ -134,7 +132,11 @@ class CategoryFormDialog(tk.Toplevel):
         self.product_key_var.set(self._initial.product_key)
         self.slug_var.set(self._initial.slug)
         group = next(
-            (group.label for group in self._nav_groups if group.id == self._initial.group_id),
+            (
+                group.label
+                for group in self._nav_groups
+                if group.id == self._initial.group_id
+            ),
             "",
         )
         self.group_var.set(group)
@@ -188,7 +190,6 @@ class CategoryFormDialog(tk.Toplevel):
     def _on_cancel(self) -> None:
         self.result = None
         self.destroy()
-
 
 
 class FallbackDialog(tk.Toplevel):
@@ -331,18 +332,18 @@ class CategoryManagerDialog(tk.Toplevel):
         ttk.Button(
             button_frame, text="Agregar subcategoría", command=self._add_category
         ).pack(side=tk.LEFT, padx=(0, 8))
-        ttk.Button(
-            button_frame, text="Editar", command=self._edit_selected
-        ).pack(side=tk.LEFT, padx=(0, 8))
-        ttk.Button(
-            button_frame, text="Eliminar", command=self._delete_selected
-        ).pack(side=tk.LEFT, padx=(0, 8))
-        ttk.Button(
-            button_frame, text="Actualizar", command=self.refresh_tree
-        ).pack(side=tk.LEFT, padx=(0, 8))
-        ttk.Button(
-            button_frame, text="Cerrar", command=self._on_close
-        ).pack(side=tk.RIGHT)
+        ttk.Button(button_frame, text="Editar", command=self._edit_selected).pack(
+            side=tk.LEFT, padx=(0, 8)
+        )
+        ttk.Button(button_frame, text="Eliminar", command=self._delete_selected).pack(
+            side=tk.LEFT, padx=(0, 8)
+        )
+        ttk.Button(button_frame, text="Actualizar", command=self.refresh_tree).pack(
+            side=tk.LEFT, padx=(0, 8)
+        )
+        ttk.Button(button_frame, text="Cerrar", command=self._on_close).pack(
+            side=tk.RIGHT
+        )
 
     def refresh_tree(self) -> None:
         try:
@@ -365,15 +366,20 @@ class CategoryManagerDialog(tk.Toplevel):
                 "end",
                 iid=group_iid,
                 text=group.label,
-                values=(group.label, "", "", group.label, group.order, "Sí" if group.enabled else "No"),
+                values=(
+                    group.label,
+                    "",
+                    "",
+                    group.label,
+                    group.order,
+                    "Sí" if group.enabled else "No",
+                ),
                 open=True,
                 tags=("group",),
             )
             self._group_items[group_node] = group
             group_categories = [
-                category
-                for category in categories
-                if category.group_id == group.id
+                category for category in categories if category.group_id == group.id
             ]
             for category in sorted(group_categories, key=lambda c: c.order):
                 cat_iid = f"cat:{category.id}"
@@ -394,6 +400,7 @@ class CategoryManagerDialog(tk.Toplevel):
                     tags=("category",),
                 )
                 self._category_items[cat_node] = category
+
     def _selected_item(self) -> Tuple[Optional[str], Optional[object]]:
         selection = self.tree.selection()
         iid = selection[0] if selection else self.tree.focus()
@@ -422,9 +429,7 @@ class CategoryManagerDialog(tk.Toplevel):
             messagebox.showerror("Error", str(exc))
             return
         if not nav_groups:
-            messagebox.showwarning(
-                "Categorías", "No existen categorías disponibles."
-            )
+            messagebox.showwarning("Categorías", "No existen categorías disponibles.")
             return
 
         selected_type, selected_data = self._selected_item()
@@ -469,18 +474,24 @@ class CategoryManagerDialog(tk.Toplevel):
         if selected_type == "group" and isinstance(selected_data, str):
             nav_group = self._nav_group_cache.get(selected_data)
             if not nav_group:
-                messagebox.showwarning("Editar categoría", "Selecciona una categoría válida.")
+                messagebox.showwarning(
+                    "Editar categoría", "Selecciona una categoría válida."
+                )
                 return
             self._edit_nav_group(nav_group)
             return
         if selected_type == "category" and isinstance(selected_data, str):
             category = self._category_cache.get(selected_data)
             if not category:
-                messagebox.showwarning("Editar subcategoría", "Selecciona una subcategoría válida.")
+                messagebox.showwarning(
+                    "Editar subcategoría", "Selecciona una subcategoría válida."
+                )
                 return
             self._edit_category(category)
         else:
-            messagebox.showinfo("Editar", "Selecciona una categoría o subcategoría para editarla.")
+            messagebox.showinfo(
+                "Editar", "Selecciona una categoría o subcategoría para editarla."
+            )
 
     def _edit_category(self, category: Category) -> None:
         try:
@@ -560,13 +571,14 @@ class CategoryManagerDialog(tk.Toplevel):
         if selected_type == "category" and isinstance(selected_data, str):
             category = self._category_cache.get(selected_data)
             if not category:
-                messagebox.showwarning("Eliminar categoría", "Selecciona una categoría válida.")
+                messagebox.showwarning(
+                    "Eliminar categoría", "Selecciona una categoría válida."
+                )
                 return
             self._delete_category(category)
         else:
             messagebox.showinfo(
-                "Eliminar",
-                "Selecciona una categoría o subcategoría para eliminarla."
+                "Eliminar", "Selecciona una categoría o subcategoría para eliminarla."
             )
 
     def _delete_category(self, category: Category) -> None:
@@ -617,6 +629,8 @@ class CategoryManagerDialog(tk.Toplevel):
 
     def _on_close(self) -> None:
         self.destroy()
+
+
 class NavGroupFormDialog(tk.Toplevel):
     """Dialog to create or edit a categoría (top-level)."""
 
@@ -677,9 +691,7 @@ class NavGroupFormDialog(tk.Toplevel):
         ttk.Button(buttons, text="Cancelar", command=self._on_cancel).pack(
             side=tk.RIGHT, padx=(8, 0)
         )
-        ttk.Button(buttons, text="Guardar", command=self._on_accept).pack(
-            side=tk.RIGHT
-        )
+        ttk.Button(buttons, text="Guardar", command=self._on_accept).pack(side=tk.RIGHT)
 
     def _on_accept(self) -> None:
         label = self.label_var.get().strip()
@@ -691,7 +703,13 @@ class NavGroupFormDialog(tk.Toplevel):
             if order_raw:
                 order = int(order_raw)
             else:
-                order = None if self._mode == "create" else self._group.order if self._group else None
+                order = (
+                    None
+                    if self._mode == "create"
+                    else self._group.order
+                    if self._group
+                    else None
+                )
         except ValueError:
             messagebox.showwarning("Validación", "El orden debe ser un número entero.")
             return

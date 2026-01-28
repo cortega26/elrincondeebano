@@ -1,10 +1,19 @@
-from typing import List, Optional, Dict, Set, Protocol, Any, Tuple, Union, cast, TYPE_CHECKING
-from models import Product
-from repositories import ProductRepositoryProtocol, ProductRepositoryError
+from typing import (
+    List,
+    Optional,
+    Dict,
+    Set,
+    Protocol,
+    Any,
+    Tuple,
+    Union,
+    cast,
+    TYPE_CHECKING,
+)
+from .models import Product
+from .repositories import ProductRepositoryProtocol, ProductRepositoryError
 import logging
-from functools import lru_cache
 from dataclasses import dataclass, field
-from typing import Optional, List, Dict, Union
 from datetime import datetime, timezone
 import threading
 from collections import defaultdict
@@ -12,7 +21,7 @@ from enum import Enum, auto
 import json
 
 if TYPE_CHECKING:
-    from category_service import CategoryService
+    from .category_service import CategoryService
 
 logger = logging.getLogger(__name__)
 
@@ -21,11 +30,36 @@ ProductUpdateSpec = Union[Tuple[str, Product], Tuple[str, str, Product]]
 
 def _utc_now_iso() -> str:
     """Return current UTC timestamp with millisecond precision."""
-    return datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def _parse_iso_datetime(value: Optional[str]) -> datetime:
+    """Parse ISO-8601 datetime strings, falling back to local now."""
+    if not value:
+        return datetime.now()
+    normalized = value.replace("Z", "+00:00")
+    parser = getattr(datetime, "fromisoformat", None)
+    if parser is not None:
+        try:
+            return parser(normalized)
+        except ValueError:
+            pass
+    for fmt in (
+        "%Y-%m-%dT%H:%M:%S.%f%z",
+        "%Y-%m-%dT%H:%M:%S%z",
+        "%Y-%m-%dT%H:%M:%S.%f",
+        "%Y-%m-%dT%H:%M:%S",
+    ):
+        try:
+            return datetime.strptime(normalized, fmt)
+        except ValueError:
+            continue
+    return datetime.now()
 
 
 class ProductEventType(Enum):
     """Event types for product operations."""
+
     CREATED = auto()
     UPDATED = auto()
     DELETED = auto()
@@ -35,6 +69,7 @@ class ProductEventType(Enum):
 @dataclass
 class ProductEvent:
     """Event data for product operations."""
+
     event_type: ProductEventType
     product_name: str
     timestamp: datetime = field(default_factory=datetime.now)
@@ -44,6 +79,7 @@ class ProductEvent:
 @dataclass
 class ProductFilterCriteria:
     """Criteria for filtering products."""
+
     query: Optional[str] = None
     category: Optional[str] = None
     min_price: Optional[float] = None
@@ -55,6 +91,7 @@ class ProductFilterCriteria:
 @dataclass
 class VersionInfo:
     """Version information for product catalog."""
+
     version: str
     last_updated: datetime
     product_count: int
@@ -62,16 +99,19 @@ class VersionInfo:
 
 class ProductServiceError(Exception):
     """Base exception for ProductService errors."""
+
     pass
 
 
 class ProductNotFoundError(ProductServiceError):
     """Raised when a product is not found."""
+
     pass
 
 
 class DuplicateProductError(ProductServiceError):
     """Raised when attempting to create a duplicate product."""
+
     pass
 
 
@@ -97,8 +137,9 @@ class ProductService:
         self.repository = repository
         self._products: Optional[List[Product]] = None
         self._products_lock = threading.RLock()
-        self._event_handlers: Dict[ProductEventType,
-                                   Set[ProductEventHandler]] = defaultdict(set)
+        self._event_handlers: Dict[ProductEventType, Set[ProductEventHandler]] = (
+            defaultdict(set)
+        )
         self._product_index: Dict[str, Product] = {}
         self._category_index: Dict[str, Set[Product]] = defaultdict(set)
         self._indexes_populated = False
@@ -125,20 +166,26 @@ class ProductService:
         if not self._indexes_populated:
             self._rebuild_indexes()
 
-    def set_category_service(self, category_service: Optional["CategoryService"]) -> None:
+    def set_category_service(
+        self, category_service: Optional["CategoryService"]
+    ) -> None:
         """Attach or replace the category service reference."""
         with self._products_lock:
             self.category_service = category_service
             if self.category_service:
                 self.category_service.attach_product_service(self)
 
-    def register_event_handler(self, event_type: ProductEventType, handler: ProductEventHandler) -> None:
+    def register_event_handler(
+        self, event_type: ProductEventType, handler: ProductEventHandler
+    ) -> None:
         """
         Register an event handler for a specific event type.
         """
         self._event_handlers[event_type].add(handler)
 
-    def unregister_event_handler(self, event_type: ProductEventType, handler: ProductEventHandler) -> None:
+    def unregister_event_handler(
+        self, event_type: ProductEventType, handler: ProductEventHandler
+    ) -> None:
         """
         Unregister an event handler.
         """
@@ -151,8 +198,8 @@ class ProductService:
         for handler in self._event_handlers[event.event_type]:
             try:
                 handler.handle_event(event)
-            except Exception as e:
-                logger.error(f"Error en el manejador de eventos: {e}")
+            except Exception as exc:
+                logger.error(f"Error en el manejador de eventos: {exc}")
 
     def set_sync_engine(self, sync_engine) -> None:
         """Attach a sync engine for remote coordination."""
@@ -182,7 +229,9 @@ class ProductService:
             return []
         return self.sync_engine.clear_conflicts()
 
-    def _compute_changed_fields(self, original: Product, updated: Product) -> Dict[str, Any]:
+    def _compute_changed_fields(
+        self, original: Product, updated: Product
+    ) -> Dict[str, Any]:
         """Compute field-level differences between two products."""
         tracked_fields = [
             "name",
@@ -212,7 +261,9 @@ class ProductService:
                 "Actualiza el catálogo de categorías antes de asignarla."
             )
 
-    def _stamp_local_metadata(self, product: Product, fields: List[str], base_rev: int) -> str:
+    def _stamp_local_metadata(
+        self, product: Product, fields: List[str], base_rev: int
+    ) -> str:
         """Update metadata for locally modified fields and return timestamp."""
         timestamp = _utc_now_iso()
         product.rev = base_rev
@@ -223,18 +274,24 @@ class ProductService:
                 by="offline",
                 rev=base_rev,
                 base_rev=base_rev,
-                changeset_id=None
+                changeset_id=None,
             )
         return timestamp
 
-    def apply_server_snapshot(self, snapshot: Dict[str, Any], catalog_rev: int, metadata: Optional[Dict[str, Any]] = None) -> Product:
+    def apply_server_snapshot(
+        self,
+        snapshot: Dict[str, Any],
+        catalog_rev: int,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Product:
         """Apply server-provided product state locally."""
         with self._products_lock:
             products = self.get_all_products()
             target_name = snapshot.get("name")
             if not target_name:
                 raise ProductServiceError(
-                    "Instantánea de producto inválida: falta nombre")
+                    "Instantánea de producto inválida: falta nombre"
+                )
             new_product = Product.from_dict(snapshot)
             replaced = False
             for index, existing in enumerate(products):
@@ -265,11 +322,13 @@ class ProductService:
                 if self._products is None:
                     self._products = list(self.repository.load_products())
                 return list(self._products)
-        except ProductRepositoryError as e:
-            logger.error(f"Error al cargar productos: {e}")
-            raise ProductServiceError(f"Error al cargar productos: {e}")
+        except ProductRepositoryError as exc:
+            logger.error(f"Error al cargar productos: {exc}")
+            raise ProductServiceError(f"Error al cargar productos: {exc}")
 
-    def get_product_by_name(self, name: str, description: Optional[str] = None) -> Product:
+    def get_product_by_name(
+        self, name: str, description: Optional[str] = None
+    ) -> Product:
         """Get a product by its name, optionally disambiguated by description."""
 
         normalized_name = Product.normalized_name(name)
@@ -315,9 +374,17 @@ class ProductService:
                 product.order = len(products)
                 self._stamp_local_metadata(
                     product,
-                    ["name", "description", "price", "discount",
-                        "stock", "category", "image_path", "order"],
-                    0
+                    [
+                        "name",
+                        "description",
+                        "price",
+                        "discount",
+                        "stock",
+                        "category",
+                        "image_path",
+                        "order",
+                    ],
+                    0,
                 )
                 products.append(product)
                 self.repository.save_products(products)
@@ -325,20 +392,22 @@ class ProductService:
                 if product.category:
                     self._category_index[product.category.lower()].add(product)
                 self.clear_cache()
-                self._notify_event_handlers(ProductEvent(
-                    ProductEventType.CREATED,
-                    product.name,
-                    details={'category': product.category}
-                ))
-            except Exception as e:
-                logger.error(f"Error al agregar producto: {e}")
-                raise ProductServiceError(f"Error al agregar producto: {e}")
+                self._notify_event_handlers(
+                    ProductEvent(
+                        ProductEventType.CREATED,
+                        product.name,
+                        details={"category": product.category},
+                    )
+                )
+            except Exception as exc:
+                logger.error(f"Error al agregar producto: {exc}")
+                raise ProductServiceError(f"Error al agregar producto: {exc}")
 
     def update_product(
         self,
         original_name: str,
         updated_product: Product,
-        original_description: Optional[str] = None
+        original_description: Optional[str] = None,
     ) -> None:
         """Update an existing product, supporting duplicate names via description."""
         queue_payload: Optional[Dict[str, Any]] = None
@@ -356,39 +425,42 @@ class ProductService:
                     )
                 products = self.get_all_products()
                 changes = self._compute_changed_fields(
-                    original_product, updated_product)
+                    original_product, updated_product
+                )
                 if not changes:
                     return
                 self._ensure_category_known(updated_product.category)
                 base_rev = original_product.rev
                 timestamp = self._stamp_local_metadata(
-                    updated_product,
-                    list(changes.keys()),
-                    base_rev
+                    updated_product, list(changes.keys()), base_rev
                 )
                 if updated_key != original_key:
                     self._product_index.pop(original_key, None)
                 self._product_index[updated_key] = updated_product
                 if original_product.category:
                     self._category_index[original_product.category.lower()].discard(
-                        original_product)
+                        original_product
+                    )
                 if updated_product.category:
                     self._category_index[updated_product.category.lower()].add(
-                        updated_product)
+                        updated_product
+                    )
                 index = products.index(original_product)
                 updated_product.order = original_product.order
                 products[index] = updated_product
                 self.repository.save_products(products)
                 self.clear_cache()
-                self._notify_event_handlers(ProductEvent(
-                    ProductEventType.UPDATED,
-                    updated_product.name,
-                    details={
-                        'nombre_anterior': original_name,
-                        'categoria_anterior': original_product.category,
-                        'nueva_categoria': updated_product.category
-                    }
-                ))
+                self._notify_event_handlers(
+                    ProductEvent(
+                        ProductEventType.UPDATED,
+                        updated_product.name,
+                        details={
+                            "nombre_anterior": original_name,
+                            "categoria_anterior": original_product.category,
+                            "nueva_categoria": updated_product.category,
+                        },
+                    )
+                )
                 queue_payload = {
                     "product_id": original_product.name,
                     "base_rev": base_rev,
@@ -397,11 +469,10 @@ class ProductService:
                     "snapshot": updated_product.to_dict(),
                 }
             except ValueError:
-                raise ProductNotFoundError(
-                    f"Producto no encontrado: {original_name}")
-            except Exception as e:
-                logger.error(f"Error al actualizar producto: {e}")
-                raise ProductServiceError(f"Error al actualizar producto: {e}")
+                raise ProductNotFoundError(f"Producto no encontrado: {original_name}")
+            except Exception as exc:
+                logger.error(f"Error al actualizar producto: {exc}")
+                raise ProductServiceError(f"Error al actualizar producto: {exc}")
         if self.sync_engine and queue_payload:
             self.sync_engine.enqueue_update(**queue_payload)
 
@@ -414,21 +485,22 @@ class ProductService:
                 products.remove(product)
                 self._product_index.pop(product.identity_key(), None)
                 if product.category:
-                    self._category_index[product.category.lower()].discard(
-                        product)
+                    self._category_index[product.category.lower()].discard(product)
                 self.repository.save_products(products)
                 self.clear_cache()
-                self._notify_event_handlers(ProductEvent(
-                    ProductEventType.DELETED,
-                    name,
-                    details={'category': product.category}
-                ))
+                self._notify_event_handlers(
+                    ProductEvent(
+                        ProductEventType.DELETED,
+                        name,
+                        details={"category": product.category},
+                    )
+                )
                 return True
             except ProductNotFoundError:
                 return False
-            except Exception as e:
-                logger.error(f"Error al eliminar producto: {e}")
-                raise ProductServiceError(f"Error al eliminar producto: {e}")
+            except Exception as exc:
+                logger.error(f"Error al eliminar producto: {exc}")
+                raise ProductServiceError(f"Error al eliminar producto: {exc}")
 
     def get_categories(self) -> List[str]:
         """
@@ -440,9 +512,7 @@ class ProductService:
                 for _, product_key in self.category_service.list_category_choices()
             ]
         categories = {
-            product.category
-            for product in self.get_all_products()
-            if product.category
+            product.category for product in self.get_all_products() if product.category
         }
         return sorted(categories)
 
@@ -455,10 +525,7 @@ class ProductService:
         else:
             categories = self.get_categories()
             choices = [(category, category) for category in categories]
-        return sorted(
-            choices,
-            key=lambda entry: (entry[0] or "").casefold()
-        )
+        return sorted(choices, key=lambda entry: (entry[0] or "").casefold())
 
     def get_products_by_category(self, category: str) -> List[Product]:
         """
@@ -466,9 +533,12 @@ class ProductService:
         """
         category_lower = category.lower()
         return sorted(
-            [p for p in self.get_all_products() if p.category.lower()
-             == category_lower],
-            key=lambda p: p.order
+            [
+                p
+                for p in self.get_all_products()
+                if p.category.lower() == category_lower
+            ],
+            key=lambda p: p.order,
         )
 
     def count_products_by_category(self, category: str) -> int:
@@ -502,6 +572,7 @@ class ProductService:
                 self.clear_cache()
                 self._rebuild_indexes()
         return updated
+
     def search_products(self, query: str) -> List[Product]:
         """
         Search for products by name or description.
@@ -516,12 +587,13 @@ class ProductService:
             # Ideally this could be optimized with better indexing if dataset gets large,
             # but for <10k items linear scan with python is usually fine.
             products = self.get_all_products()
-            
+
             # 1. Category Filter
             if criteria.category:
                 normalized_cat = criteria.category.strip().lower()
                 products = [
-                    p for p in products 
+                    p
+                    for p in products
                     if (p.category or "").strip().lower() == normalized_cat
                 ]
 
@@ -529,20 +601,22 @@ class ProductService:
             if criteria.query:
                 q = criteria.query.lower()
                 products = [
-                    p for p in products 
-                    if q in p.name.lower() or (p.description and q in p.description.lower())
+                    p
+                    for p in products
+                    if q in p.name.lower()
+                    or (p.description and q in p.description.lower())
                 ]
 
             # 3. Attributes
             if criteria.only_discount:
                 products = [p for p in products if (p.discount or 0) > 0]
-            
+
             if criteria.only_out_of_stock:
                 products = [p for p in products if not p.stock]
-                
+
             if criteria.min_price is not None:
                 products = [p for p in products if p.price >= criteria.min_price]
-                
+
             if criteria.max_price is not None:
                 products = [p for p in products if p.price <= criteria.max_price]
 
@@ -560,14 +634,16 @@ class ProductService:
                 self.repository.save_products(new_order)
                 self._products = new_order
                 self.clear_cache()
-                self._notify_event_handlers(ProductEvent(
-                    ProductEventType.REORDERED,
-                    '',
-                    details={'cantidad_productos': len(new_order)}
-                ))
-            except Exception as e:
-                logger.error(f"Error al reordenar productos: {e}")
-                raise ProductServiceError(f"Error al reordenar productos: {e}")
+                self._notify_event_handlers(
+                    ProductEvent(
+                        ProductEventType.REORDERED,
+                        "",
+                        details={"cantidad_productos": len(new_order)},
+                    )
+                )
+            except Exception as exc:
+                logger.error(f"Error al reordenar productos: {exc}")
+                raise ProductServiceError(f"Error al reordenar productos: {exc}")
 
     def clear_cache(self) -> None:
         """Clear all cached data."""
@@ -593,7 +669,9 @@ class ProductService:
                 normalized_updates: List[Tuple[str, str, Product]] = []
                 for entry in updates:
                     if len(entry) == 2:
-                        original_name, updated_product = cast(Tuple[str, Product], entry)
+                        original_name, updated_product = cast(
+                            Tuple[str, Product], entry
+                        )
                         matches = name_groups.get(
                             Product.normalized_name(original_name), []
                         )
@@ -623,7 +701,11 @@ class ProductService:
 
                 projected_keys = set(identity_map.keys())
                 processed_updates: List[Tuple[str, str, Product]] = []
-                for original_name, original_description, updated_product in normalized_updates:
+                for (
+                    original_name,
+                    original_description,
+                    updated_product,
+                ) in normalized_updates:
                     original_key = Product.identity_key_from_values(
                         original_name, original_description
                     )
@@ -655,40 +737,38 @@ class ProductService:
                 self._notify_event_handlers(
                     ProductEvent(
                         ProductEventType.UPDATED,
-                        '',
-                        details={'actualizaciones_totales': len(updates)}
+                        "",
+                        details={"actualizaciones_totales": len(updates)},
                     )
                 )
-            except Exception as e:
-                logger.error(f"Error en actualización por lotes: {e}")
-                raise ProductServiceError(
-                    f"Error en actualización por lotes: {e}"
-                )
+            except Exception as exc:
+                logger.error(f"Error en actualización por lotes: {exc}")
+                raise ProductServiceError(f"Error en actualización por lotes: {exc}")
 
     def get_version_info(self) -> VersionInfo:
         """Get current version information."""
         try:
             with self._products_lock:
                 products = self.get_all_products()
-                with self.repository._open_file('r') as file:
+                with self.repository._open_file("r") as file:
                     data = json.load(file)
                     if isinstance(data, list):
                         return VersionInfo(
-                            version=datetime.now().strftime('%Y%m%d-%H%M%S'),
+                            version=datetime.now().strftime("%Y%m%d-%H%M%S"),
                             last_updated=datetime.now(),
-                            product_count=len(products)
+                            product_count=len(products),
                         )
                     return VersionInfo(
                         version=data.get(
-                            'version', datetime.now().strftime('%Y%m%d-%H%M%S')),
-                        last_updated=datetime.fromisoformat(
-                            data.get('last_updated', datetime.now().isoformat())),
-                        product_count=len(products)
+                            "version", datetime.now().strftime("%Y%m%d-%H%M%S")
+                        ),
+                        last_updated=_parse_iso_datetime(data.get("last_updated")),
+                        product_count=len(products),
                     )
-        except Exception as e:
-            logger.error(f"Error getting version info: {e}")
+        except Exception as exc:
+            logger.error(f"Error getting version info: {exc}")
             return VersionInfo(
-                version=datetime.now().strftime('%Y%m%d-%H%M%S'),
+                version=datetime.now().strftime("%Y%m%d-%H%M%S"),
                 last_updated=datetime.now(),
-                product_count=len(self.get_all_products())
+                product_count=len(self.get_all_products()),
             )
