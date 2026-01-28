@@ -42,8 +42,14 @@ class ProductRepositoryProtocol(Protocol):
         """Load products from the repository."""
         raise NotImplementedError
 
-    def save_products(self, products: List[Product]) -> None:
+    def save_products(
+        self, products: List[Product], metadata: Optional[Dict[str, Any]] = None
+    ) -> None:
         """Save products to the repository."""
+        raise NotImplementedError
+
+    def get_catalog_meta(self) -> Dict[str, Any]:
+        """Return the last known catalog metadata."""
         raise NotImplementedError
 
 

@@ -1,7 +1,7 @@
 import sys
 import types
 from pathlib import Path
-from typing import Iterable, List, Any
+from typing import Iterable, List, Any, Optional, cast
 
 
 def bootstrap_tests() -> None:
@@ -15,7 +15,7 @@ def bootstrap_tests() -> None:
         sys.path.insert(0, str(module_path))
 
     if 'portalocker' not in sys.modules:
-        portalocker_stub = types.ModuleType('portalocker')
+        portalocker_stub = cast(Any, types.ModuleType('portalocker'))
         portalocker_stub.LOCK_EX = 0
         portalocker_stub.LOCK_SH = 0
 
@@ -36,8 +36,13 @@ class InMemoryRepository:
     def load_products(self) -> List[Any]:
         return list(self._products)
 
-    def save_products(self, products: Iterable[Any]) -> None:
+    def save_products(
+        self, products: Iterable[Any], metadata: Optional[dict] = None
+    ) -> None:
         self._products = list(products)
+
+    def get_catalog_meta(self) -> dict:
+        return {}
 
 
 def require(condition: bool, message: str = 'Expected condition to be true') -> None:

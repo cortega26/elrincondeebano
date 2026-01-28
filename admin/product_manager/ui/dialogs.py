@@ -23,7 +23,8 @@ class PreferencesDialog(tk.Toplevel):
     ):
         super().__init__(parent)
         self.title("Preferencias")
-        self.config = config
+        self._parent = parent
+        self.ui_config = config
         self.on_save = on_save
         self.setup_dialog()
 
@@ -31,12 +32,12 @@ class PreferencesDialog(tk.Toplevel):
         """Set up the preferences dialog."""
         self.geometry("400x300")
         self.resizable(False, False)
-        self.transient(self.master)
+        self.transient(self._parent)
         self.grab_set()
         ttk.Label(self, text="Tamaño de Fuente:").grid(
             row=1, column=0, padx=10, pady=5, sticky=tk.W
         )
-        self.font_var = tk.IntVar(value=self.config.font_size)
+        self.font_var = tk.IntVar(value=self.ui_config.font_size)
         font_spin = ttk.Spinbox(
             self, from_=8, to=16, textvariable=self.font_var, width=5
         )
@@ -44,7 +45,7 @@ class PreferencesDialog(tk.Toplevel):
         ttk.Label(self, text="Habilitar Animaciones:").grid(
             row=2, column=0, padx=10, pady=5, sticky=tk.W
         )
-        self.anim_var = tk.BooleanVar(value=self.config.enable_animations)
+        self.anim_var = tk.BooleanVar(value=self.ui_config.enable_animations)
         ttk.Checkbutton(self, variable=self.anim_var).grid(
             row=2, column=1, padx=10, pady=5, sticky=tk.W
         )
@@ -60,17 +61,17 @@ class PreferencesDialog(tk.Toplevel):
     def save_preferences(self) -> None:
         """Save preferences to configuration."""
         try:
-            self.config.font_size = self.font_var.get()
-            self.config.enable_animations = self.anim_var.get()
+            self.ui_config.font_size = self.font_var.get()
+            self.ui_config.enable_animations = self.anim_var.get()
             config_path = Path.home() / ".product_manager" / "config.json"
             config_path.parent.mkdir(parents=True, exist_ok=True)
             with open(config_path, "w", encoding="utf-8") as f:
                 json.dump(
                     {
-                        "font_size": self.config.font_size,
-                        "enable_animations": self.config.enable_animations,
-                        "window_size": self.config.window_size,
-                        "locale": self.config.locale,
+                        "font_size": self.ui_config.font_size,
+                        "enable_animations": self.ui_config.enable_animations,
+                        "window_size": self.ui_config.window_size,
+                        "locale": self.ui_config.locale,
                     },
                     f,
                     indent=2,

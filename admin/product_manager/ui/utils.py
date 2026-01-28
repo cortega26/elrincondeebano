@@ -9,10 +9,15 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 logger = logging.getLogger(__name__)
 
 # --- Centralized PIL / Image Support Detection ---
+Image: Any = None  # pylint: disable=invalid-name
+ImageTk: Any = None  # pylint: disable=invalid-name
+
 try:
-    from PIL import Image, ImageTk, features  # type: ignore
+    from PIL import Image as PILImage, ImageTk as PILImageTk, features
 
     PIL_AVAILABLE = True
+    Image = PILImage  # pylint: disable=invalid-name
+    ImageTk = PILImageTk  # pylint: disable=invalid-name
     try:
         PIL_WEBP = features.check("webp")
     except Exception:  # pylint: disable=broad-exception-caught
@@ -20,7 +25,7 @@ try:
 
     # Try multiple strategies for AVIF support
     try:
-        import pillow_heif  # type: ignore
+        import pillow_heif
 
         pillow_heif.register_heif_opener()
         REGISTER_AVIF_OPENER = cast(
@@ -37,12 +42,12 @@ try:
         PIL_AVIF = True
     except ImportError:
         try:
-            import pillow_avif  # type: ignore
+            import pillow_avif
 
             PIL_AVIF = bool(getattr(pillow_avif, "__name__", ""))
         except ImportError:
             try:
-                PIL_AVIF = features.check("avif")
+                PIL_AVIF = bool(features.check("avif"))
             except Exception:  # pylint: disable=broad-exception-caught
                 PIL_AVIF = False
     except Exception:  # pylint: disable=broad-exception-caught
@@ -53,8 +58,8 @@ except ImportError:
     PIL_WEBP = False
     PIL_AVIF = False
     # Mocking for type hinting if needed, or just relying on checks
-    Image = None
-    ImageTk = None
+    Image = None  # pylint: disable=invalid-name
+    ImageTk = None  # pylint: disable=invalid-name
 
 
 def load_thumbnail(path: str, w: int, h: int) -> Optional[Any]:

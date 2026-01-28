@@ -13,7 +13,7 @@ import json
 import sys
 import os
 from copy import deepcopy
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, ClassVar, cast
 from pathlib import Path
 import argparse
 from contextlib import contextmanager
@@ -65,7 +65,7 @@ class ProductManager:
     """Main application class managing lifecycle and dependencies."""
 
     # Default configuration
-    DEFAULT_CONFIG = {
+    DEFAULT_CONFIG: ClassVar[Dict[str, Any]] = {
         "data_dir": str(PROJECT_ROOT / "data"),
         "product_file": "product_data.json",
         "category_file": "categories.json",
@@ -93,7 +93,7 @@ class ProductManager:
         """Initialize the application."""
         self.exit_event = threading.Event()
         self.config: Dict[str, Any] = {}
-        self.logger: Optional[logging.Logger] = None
+        self.logger: logging.Logger = logging.getLogger("ProductManager")
         self.gui: Optional[MainWindow] = None
         self.category_service: Optional[CategoryService] = None
         self.sync_engine = None
@@ -140,14 +140,18 @@ class ProductManager:
         Returns:
             Dict containing configuration
         """
-        config = deepcopy(self.DEFAULT_CONFIG)
+        config: Dict[str, Any] = deepcopy(self.DEFAULT_CONFIG)
 
         if config_path:
             try:
                 with open(config_path, "r", encoding="utf-8") as f:
                     user_config = json.load(f)
                 for key, value in user_config.items():
-                    if key in ("ui", "sync") and isinstance(value, dict):
+                    if (
+                        key in ("ui", "sync")
+                        and isinstance(value, dict)
+                        and isinstance(config.get(key), dict)
+                    ):
                         config[key].update(value)
                     else:
                         config[key] = value
@@ -156,15 +160,158 @@ class ProductManager:
                     f"Failed to load configuration from {config_path}: {exc}"
                 ) from exc
 
-        config["data_dir"] = _resolve_config_path(config["data_dir"], "data_dir")
-        config["log_dir"] = _resolve_config_path(config["log_dir"], "log_dir")
+        config = self._normalize_config(config)
+        config["data_dir"] = _resolve_config_path(str(config["data_dir"]), "data_dir")
+        config["log_dir"] = _resolve_config_path(str(config["log_dir"]), "log_dir")
 
         return config
+
+    def _normalize_config(self, config: Dict[str, Any]) -> Dict[str, Any]:
+        """Normalize and validate configuration values."""
+        defaults: Dict[str, Any] = dict(self.DEFAULT_CONFIG)
+        normalized = dict(config)
+
+        normalized["product_file"] = self._normalize_filename(
+            normalized.get("product_file"), str(defaults["product_file"])
+        )
+        normalized["category_file"] = self._normalize_filename(
+            normalized.get("category_file"), str(defaults["category_file"])
+        )
+        normalized["log_level"] = self._normalize_log_level(
+            normalized.get("log_level"), str(defaults["log_level"])
+        )
+        normalized["max_log_size"] = self._normalize_positive_int(
+            normalized.get("max_log_size"), int(defaults["max_log_size"])
+        )
+        normalized["backup_count"] = self._normalize_non_negative_int(
+            normalized.get("backup_count"), int(defaults["backup_count"])
+        )
+
+        ui_config_raw = normalized.get("ui")
+        if not isinstance(ui_config_raw, dict):
+            ui_config = deepcopy(cast(Dict[str, Any], defaults["ui"]))
+        else:
+            merged_ui = deepcopy(cast(Dict[str, Any], defaults["ui"]))
+            merged_ui.update(cast(Dict[str, Any], ui_config_raw))
+            ui_config = merged_ui
+        ui_config["font_size"] = self._normalize_positive_int(
+            ui_config.get("font_size"),
+            int(cast(Dict[str, Any], defaults["ui"])["font_size"]),
+        )
+        ui_config["window_size"] = self._normalize_window_size(
+            ui_config.get("window_size"),
+            tuple(cast(Dict[str, Any], defaults["ui"])["window_size"]),
+        )
+        ui_config["enable_animations"] = bool(
+            ui_config.get(
+                "enable_animations",
+                cast(Dict[str, Any], defaults["ui"])["enable_animations"],
+            )
+        )
+        ui_config["locale"] = str(
+            ui_config.get("locale", cast(Dict[str, Any], defaults["ui"])["locale"])
+        ).strip() or str(cast(Dict[str, Any], defaults["ui"])["locale"])
+        normalized["ui"] = ui_config
+
+        sync_config_raw = normalized.get("sync")
+        if not isinstance(sync_config_raw, dict):
+            sync_config = deepcopy(cast(Dict[str, Any], defaults["sync"]))
+        else:
+            merged_sync = deepcopy(cast(Dict[str, Any], defaults["sync"]))
+            merged_sync.update(cast(Dict[str, Any], sync_config_raw))
+            sync_config = merged_sync
+        sync_config["enabled"] = bool(
+            sync_config.get(
+                "enabled", cast(Dict[str, Any], defaults["sync"])["enabled"]
+            )
+        )
+        sync_config["api_base"] = str(
+            sync_config.get(
+                "api_base", cast(Dict[str, Any], defaults["sync"])["api_base"]
+            )
+        ).strip()
+        sync_config["queue_file"] = self._normalize_filename(
+            sync_config.get("queue_file"),
+            str(cast(Dict[str, Any], defaults["sync"])["queue_file"]),
+        )
+        sync_config["poll_interval"] = self._normalize_positive_int(
+            sync_config.get("poll_interval"),
+            int(cast(Dict[str, Any], defaults["sync"])["poll_interval"]),
+        )
+        sync_config["pull_interval"] = self._normalize_positive_int(
+            sync_config.get("pull_interval"),
+            int(cast(Dict[str, Any], defaults["sync"])["pull_interval"]),
+        )
+        sync_config["timeout"] = self._normalize_positive_int(
+            sync_config.get("timeout"),
+            int(cast(Dict[str, Any], defaults["sync"])["timeout"]),
+        )
+        normalized["sync"] = sync_config
+        return normalized
+
+    @staticmethod
+    def _normalize_log_level(value: Any, default: str) -> str:
+        """Return a valid log level name."""
+        if not isinstance(value, str):
+            return default
+        level = value.strip().upper()
+        if not isinstance(logging.getLevelName(level), int):
+            return default
+        return level
+
+    @staticmethod
+    def _normalize_filename(value: Any, default: str) -> str:
+        """Return a safe filename."""
+        if isinstance(value, str):
+            cleaned = value.strip()
+            if cleaned:
+                return cleaned
+        return default
+
+    @staticmethod
+    def _normalize_positive_int(value: Any, default: int) -> int:
+        """Normalize positive integers, fallback to default."""
+        try:
+            parsed = int(value)
+        except (TypeError, ValueError):
+            return default
+        return parsed if parsed > 0 else default
+
+    @staticmethod
+    def _normalize_non_negative_int(value: Any, default: int) -> int:
+        """Normalize non-negative integers, fallback to default."""
+        try:
+            parsed = int(value)
+        except (TypeError, ValueError):
+            return default
+        return parsed if parsed >= 0 else default
+
+    @staticmethod
+    def _normalize_window_size(
+        value: Any, default: tuple[int, int]
+    ) -> tuple[int, int]:
+        """Normalize window size to a valid (width, height)."""
+        if isinstance(value, (list, tuple)) and len(value) == 2:
+            try:
+                width = int(value[0])
+                height = int(value[1])
+            except (TypeError, ValueError):
+                return default
+            if width > 0 and height > 0:
+                return (width, height)
+        return default
 
     def _setup_logging(self) -> None:
         """Configure application logging."""
         self.logger = logging.getLogger("ProductManager")
         self.logger.setLevel(getattr(logging, self.config["log_level"]))
+        self.logger.propagate = False
+        for handler in list(self.logger.handlers):
+            self.logger.removeHandler(handler)
+            try:
+                handler.close()
+            except Exception:  # pylint: disable=broad-exception-caught
+                pass
 
         # Create log directory
         log_dir = Path(self.config["log_dir"])

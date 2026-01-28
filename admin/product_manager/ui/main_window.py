@@ -60,14 +60,14 @@ class MainWindow(DragDropMixin):
         self.view_mode = "list"  # list | gallery
         self.image_cache: Dict[str, Any] = {}
         self.state.update("view_mode", "list")
-        self._cell_editor: Optional[tk.Widget] = None
+        self._cell_editor: Optional[ttk.Entry] = None
         self._cell_editor_info: Dict[str, Any] = {}
         # Undo/Redo stacks for bulk operations only
         self._undo_stack: List[Dict[str, Any]] = []
         self._redo_stack: List[Dict[str, Any]] = []
         self._undo_max = 20
-        self._undo_max = 20
         self.category_helper: Optional[CategoryHelper] = None
+        self.tree_frame: Optional[ttk.Frame] = None
 
         self._configure_styles()
         self.setup_gui()
@@ -198,6 +198,7 @@ class MainWindow(DragDropMixin):
         """Set up the treeview component."""
         tree_frame = ttk.Frame(self.view_container)
         tree_frame.pack(fill=tk.BOTH, expand=True)
+        self.tree_frame = tree_frame
 
         self.columns = {
             "name": {"text": "Nombre", "width": 300},
@@ -581,11 +582,11 @@ class MainWindow(DragDropMixin):
             )
             return
 
-        products = [
-            self.get_product_by_tree_item(item)
-            for item in selected
-            if self.get_product_by_tree_item(item) is not None
-        ]
+        products: List[Product] = []
+        for item in selected:
+            product = self.get_product_by_tree_item(item)
+            if product is not None:
+                products.append(product)
 
         if not products:
             return
@@ -686,8 +687,8 @@ class MainWindow(DragDropMixin):
         if self.view_mode == "list":
             if self.gallery.winfo_ismapped():
                 self.gallery.pack_forget()
-            if not self.tree.master.winfo_ismapped():
-                self.tree.master.pack(fill=tk.BOTH, expand=True)
+            if self.tree_frame and not self.tree_frame.winfo_ismapped():
+                self.tree_frame.pack(fill=tk.BOTH, expand=True)
 
             self.tree.delete(*self.tree.get_children())
             for product in products:
@@ -707,8 +708,8 @@ class MainWindow(DragDropMixin):
             self.treeview_manager.update_sort_indicators()
 
         else:  # Gallery
-            if self.tree.master.winfo_ismapped():
-                self.tree.master.pack_forget()
+            if self.tree_frame and self.tree_frame.winfo_ismapped():
+                self.tree_frame.pack_forget()
             if not self.gallery.winfo_ismapped():
                 self.gallery.pack(fill=tk.BOTH, expand=True)
 
@@ -863,7 +864,10 @@ class MainWindow(DragDropMixin):
     def reorder_products(self, new_index: int) -> None:
         """Reorder products after drag and drop."""
         products = self.product_service.get_all_products()
-        item = products.pop(self._drag_data["start_index"])
+        start_index = self._drag_data.get("start_index")
+        if not isinstance(start_index, int) or start_index < 0:
+            return
+        item = products.pop(start_index)
         products.insert(new_index, item)
 
         try:
@@ -1219,10 +1223,10 @@ class MainWindow(DragDropMixin):
         self._end_inline_edit()
 
         # Get cell bbox
-        try:
-            x, y, w, h = self.tree.bbox(item, col_id)
-        except Exception:
+        bbox = self.tree.bbox(item, col_id)
+        if not bbox:
             return
+        x, y, w, h = bbox
 
         product = self.get_product_by_tree_item(item)
         if not product:
@@ -1257,6 +1261,8 @@ class MainWindow(DragDropMixin):
         entry.bind("<Escape>", cancel)
 
     def _commit_inline_edit(self) -> None:
+        # Multiple early returns keep validation and UI feedback readable.
+        # pylint: disable=too-many-return-statements
         if not self._cell_editor:
             return
         try:
@@ -1264,6 +1270,9 @@ class MainWindow(DragDropMixin):
             info = self._cell_editor_info
             item = info.get("item")
             field = info.get("field")
+            if not isinstance(item, str) or not isinstance(field, str):
+                self._end_inline_edit()
+                return
             product = self.get_product_by_tree_item(item)
             if not product:
                 self._end_inline_edit()
@@ -1293,29 +1302,28 @@ class MainWindow(DragDropMixin):
                 return
 
             # Build updated product with validated values
-            updated_kwargs = {
-                "name": product.name,
-                "description": product.description,
-                "price": product.price,
-                "discount": product.discount,
-                "stock": product.stock,
-                "category": product.category,
-                "image_path": product.image_path,
-                "image_avif_path": product.image_avif_path,
-                "order": product.order,
-            }
-            updated_kwargs[field] = new_val
+            price = new_val if field == "price" else product.price
+            discount = new_val if field == "discount" else product.discount
 
             # Validate discount < price
-            if updated_kwargs["discount"] >= updated_kwargs["price"]:
+            if discount >= price:
                 messagebox.showerror(
                     "Valor inválido",
                     "El descuento no puede ser mayor o igual al precio.",
                 )
                 self._cell_editor.focus_set()
                 return
-
-            updated = Product(**updated_kwargs)
+            updated = Product(
+                name=product.name,
+                description=product.description,
+                price=price,
+                discount=discount,
+                stock=product.stock,
+                category=product.category,
+                image_path=product.image_path,
+                image_avif_path=product.image_avif_path,
+                order=product.order,
+            )
 
             # Persist change
             self.product_service.update_product(

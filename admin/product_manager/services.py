@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import logging
 import threading
 from collections import defaultdict
@@ -16,10 +15,10 @@ from typing import (
     List,
     Optional,
     Protocol,
+    Sequence,
     Set,
     Tuple,
     Union,
-    cast,
 )
 
 from .models import Product
@@ -642,7 +641,7 @@ class ProductService:
         self._category_index.clear()
         self._indexes_populated = False
 
-    def batch_update(self, updates: List[ProductUpdateSpec]) -> None:
+    def batch_update(self, updates: Sequence[ProductUpdateSpec]) -> None:
         """Perform multiple updates in a single transaction."""
         # Complex transactional logic; keep localized for now.
         # pylint: disable=too-many-locals,too-many-branches
@@ -661,9 +660,7 @@ class ProductService:
                 normalized_updates: List[Tuple[str, str, Product]] = []
                 for entry in updates:
                     if len(entry) == 2:
-                        original_name, updated_product = cast(
-                            Tuple[str, Product], entry
-                        )
+                        original_name, updated_product = entry
                         matches = name_groups.get(
                             Product.normalized_name(original_name), []
                         )
@@ -680,9 +677,7 @@ class ProductService:
                             (original_name, matches[0].description, updated_product)
                         )
                     elif len(entry) == 3:
-                        original_name, original_description, updated_product = cast(
-                            Tuple[str, str, Product], entry
-                        )
+                        original_name, original_description, updated_product = entry
                         normalized_updates.append(
                             (original_name, original_description, updated_product)
                         )
@@ -745,25 +740,20 @@ class ProductService:
         try:
             with self._products_lock:
                 products = self.get_all_products()
-                # Repository exposes a protected helper for consistent locking.
-                # pylint: disable=protected-access
-                with self.repository._open_file("r") as file:
-                    data = json.load(file)
-                    if isinstance(data, list):
-                        return VersionInfo(
-                            version=datetime.now().strftime("%Y%m%d-%H%M%S"),
-                            last_updated=datetime.now(),
-                            product_count=len(products),
-                        )
-                    return VersionInfo(
-                        version=data.get(
-                            "version", datetime.now().strftime("%Y%m%d-%H%M%S")
-                        ),
-                        last_updated=parse_iso_datetime(
-                            data.get("last_updated"), default=datetime.now()
-                        ),
-                        product_count=len(products),
-                    )
+                catalog_meta = self.repository.get_catalog_meta()
+                version = catalog_meta.get("version") or datetime.now().strftime(
+                    "%Y%m%d-%H%M%S"
+                )
+                last_updated_raw = catalog_meta.get("last_updated")
+                last_updated = parse_iso_datetime(
+                    last_updated_raw if isinstance(last_updated_raw, str) else None,
+                    default=datetime.now(),
+                ) or datetime.now()
+                return VersionInfo(
+                    version=str(version),
+                    last_updated=last_updated,
+                    product_count=len(products),
+                )
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logger.error("Error getting version info: %s", exc)
             return VersionInfo(

@@ -10,7 +10,7 @@ import time
 import unicodedata
 import webbrowser
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
@@ -49,6 +49,7 @@ class ProductFormDialog(tk.Toplevel):
         # pylint: disable=too-many-arguments,too-many-positional-arguments
         super().__init__(parent)
         self.title(title)
+        self._parent = parent
         self.product_service = product_service
         self.product = product
         self.on_save = on_save
@@ -86,7 +87,7 @@ class ProductFormDialog(tk.Toplevel):
         self.geometry("700x700")
         self.minsize(700, 660)
         self.resizable(True, True)
-        self.transient(self.master)
+        self.transient(self._parent)
         self.grab_set()
 
         # Layout: main content frame plus persistent button bar
@@ -106,7 +107,7 @@ class ProductFormDialog(tk.Toplevel):
 
     def create_widgets(self) -> None:
         """Create form widgets."""
-        self.entries: Dict[str, tk.Widget] = {}
+        self.entries: Dict[str, tk.Widget | tk.Variable] = {}
         fields = [
             ("name", "Nombre:", ttk.Entry, {"width": 40}),
             ("description", "Descripción:", tk.Text, {"width": 40, "height": 3}),
@@ -161,7 +162,8 @@ class ProductFormDialog(tk.Toplevel):
                     width=15,
                 ).grid(row=i, column=2, padx=(5, 0), pady=5)
                 # Update preview when typing a path
-                widget.bind("<KeyRelease>", lambda _e: self._update_image_preview())
+                if isinstance(widget, ttk.Entry):
+                    widget.bind("<KeyRelease>", lambda _e: self._update_image_preview())
             if field == "image_avif_path":
                 ttk.Button(
                     self.main_frame,
@@ -211,7 +213,7 @@ class ProductFormDialog(tk.Toplevel):
             self.main_frame, text="Abrir imagen…", command=self._open_image_file
         )
         open_btn.grid(row=options_row + 1, column=2, sticky=tk.W)
-        self._preview_photo = None
+        self._preview_photo: Optional[Any] = None
         self._update_image_preview()
 
     def _focus_next(self, event):
@@ -248,8 +250,9 @@ class ProductFormDialog(tk.Toplevel):
                     else:
                         widget.set(str(value))
                 else:
-                    widget.delete(0, tk.END)
-                    widget.insert(0, str(value))
+                    entry = cast(ttk.Entry, widget)
+                    entry.delete(0, tk.END)
+                    entry.insert(0, str(value))
             # Ensure image preview syncs with populated image_path
             try:
                 self._update_image_preview()
@@ -273,10 +276,12 @@ class ProductFormDialog(tk.Toplevel):
                 current_category = self.category_helper.get_key_from_display(
                     cat_widget.get()
                 )
+                category_widget = cat_widget
             else:
                 current_category = ""
+                category_widget = None
             dest_dir, category_updated = self._resolve_destination_directory(
-                src_path, base_dir, current_category, cat_widget
+                src_path, base_dir, current_category, category_widget
             )
             filename = src_path.name
             name_no_ext, ext = os.path.splitext(filename)
@@ -294,7 +299,7 @@ class ProductFormDialog(tk.Toplevel):
                         img = src_img.copy()
                     if self.resize_opt_var.get():
                         img.thumbnail((1000, 1000))
-                    save_params = {}
+                    save_params: Dict[str, Any] = {}
                     if target_ext.lower() == ".webp":
                         save_params = {"format": "WEBP", "quality": 85}
                     img.save(dest_path, **save_params)
@@ -317,8 +322,10 @@ class ProductFormDialog(tk.Toplevel):
 
             rel_path = dest_path.relative_to(base_dir).as_posix()
             rel_path = "assets/images/" + rel_path
-            self.entries["image_path"].delete(0, tk.END)
-            self.entries["image_path"].insert(0, rel_path)
+            image_entry = self.entries.get("image_path")
+            if isinstance(image_entry, ttk.Entry):
+                image_entry.delete(0, tk.END)
+                image_entry.insert(0, rel_path)
             self._update_image_preview()
 
             # If there is an AVIF counterpart in the same directory, pre-fill the field
@@ -344,11 +351,13 @@ class ProductFormDialog(tk.Toplevel):
             cat_widget = self.entries.get("category")
             if isinstance(cat_widget, ttk.Combobox):
                 category = self.category_helper.get_key_from_display(cat_widget.get())
+                category_widget = cat_widget
             else:
                 category = ""
+                category_widget = None
             src_path = Path(file_path).resolve()
             dest_dir, category_updated = self._resolve_destination_directory(
-                src_path, base_dir, category, cat_widget
+                src_path, base_dir, category, category_widget
             )
             dest_dir.mkdir(parents=True, exist_ok=True)
 
@@ -409,7 +418,7 @@ class ProductFormDialog(tk.Toplevel):
         # Try to infer fallback image if the user only selected AVIF
         self._ensure_fallback_for_avif()
 
-        data = {}
+        data: Dict[str, Any] = {}
         for field, widget in self.entries.items():
             if isinstance(widget, tk.BooleanVar):
                 data[field] = widget.get()
@@ -422,23 +431,29 @@ class ProductFormDialog(tk.Toplevel):
                 else:
                     data[field] = value
             else:
-                data[field] = widget.get().strip()
-        if not data["name"]:
+                entry = cast(ttk.Entry, widget)
+                data[field] = entry.get().strip()
+
+        name = str(data.get("name", "")).strip()
+        if not name:
             raise ValueError("El nombre es obligatorio")
+        data["name"] = name
         try:
-            data["price"] = int(data["price"])
-            if data["price"] <= 0:
+            price_value = int(str(data.get("price", "")).strip())
+            if price_value <= 0:
                 raise ValueError("El precio debe ser mayor que cero")
+            data["price"] = price_value
         except ValueError as exc:
             raise ValueError(
                 "El precio debe ser un número válido mayor que cero"
             ) from exc
         try:
-            data["discount"] = int(data["discount"] or "0")
-            if data["discount"] < 0:
+            discount_value = int(str(data.get("discount", "")).strip() or "0")
+            if discount_value < 0:
                 raise ValueError("El descuento no puede ser negativo")
-            if data["discount"] >= data["price"]:
+            if discount_value >= data["price"]:
                 raise ValueError("El descuento no puede ser mayor que el precio")
+            data["discount"] = discount_value
         except ValueError as exc:
             if "invalid literal" in str(exc):
                 raise ValueError("El descuento debe ser un número válido") from exc
@@ -473,25 +488,29 @@ class ProductFormDialog(tk.Toplevel):
                 "juegos": "Juegos",
                 "software": "Software",
             }
-            key = _norm(data.get("category", ""))
+            key = _norm(str(data.get("category", "")))
             if key in cat_map:
                 data["category"] = cat_map[key]
         except Exception:
             self.logger.debug("No se pudo normalizar la categoría seleccionada.")
 
-        if data["image_path"]:
-            if not data["image_path"].startswith("assets/images/"):
+        image_path = str(data.get("image_path", "")).strip()
+        data["image_path"] = image_path
+        if image_path:
+            if not image_path.startswith("assets/images/"):
                 raise ValueError(
                     "La ruta de la imagen debe comenzar con 'assets/images/'"
                 )
-        if data.get("image_avif_path"):
-            if not data["image_avif_path"].startswith("assets/images/"):
+        image_avif_path = str(data.get("image_avif_path", "")).strip()
+        if image_avif_path:
+            if not image_avif_path.startswith("assets/images/"):
                 raise ValueError("La ruta AVIF debe comenzar con 'assets/images/'")
-            if not data["image_avif_path"].lower().endswith(".avif"):
+            if not image_avif_path.lower().endswith(".avif"):
                 raise ValueError("La ruta AVIF debe terminar en '.avif'")
+            data["image_avif_path"] = image_avif_path
             if not data.get("image_path"):
                 guessed_fallback = self._guess_fallback_from_avif(
-                    data["image_avif_path"]
+                    image_avif_path
                 )
                 if guessed_fallback:
                     data["image_path"] = guessed_fallback
@@ -511,6 +530,8 @@ class ProductFormDialog(tk.Toplevel):
                 raise ValueError(
                     "Debes mantener una imagen de respaldo (PNG/JPG/GIF/WebP) al usar AVIF."
                 )
+        else:
+            data["image_avif_path"] = ""
         return data
 
     def _prefill_category(self) -> None:
@@ -727,7 +748,7 @@ class ProductFormDialog(tk.Toplevel):
                 candidates.append(("avif", rel))
         return candidates
 
-    def _on_category_change(self, _event: tk.Event = None) -> None:
+    def _on_category_change(self, _event: Optional[tk.Event] = None) -> None:
         """Ensure media files follow the selected category."""
         cat_widget = self.entries.get("category")
         if not isinstance(cat_widget, ttk.Combobox):

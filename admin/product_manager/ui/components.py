@@ -5,8 +5,9 @@ from __future__ import annotations
 import logging
 import threading
 from dataclasses import dataclass
+from functools import partial
 from queue import Empty, Queue
-from typing import Any, Callable, Dict, List, Optional, TypeVar
+from typing import Any, Callable, Dict, List, Optional, TypeVar, cast
 
 import tkinter as tk
 from tkinter import messagebox, ttk
@@ -41,7 +42,7 @@ class UIState:
         for callback in self._observers.get(key, []):
             callback(value)
 
-    def get(self, key: str, default: T = None) -> T:
+    def get(self, key: str, default: Optional[T] = None) -> Optional[T]:
         """Get state value with default."""
         return self._state.get(key, default)
 
@@ -62,13 +63,17 @@ class AsyncOperation:
     # Utility helper exposes a small public surface by design.
     # pylint: disable=too-few-public-methods
 
-    def __init__(self, parent: tk.Widget):
+    def __init__(self, parent: tk.Misc):
         self.parent = parent
         self.queue: Queue = Queue()
         self.progress_var = tk.DoubleVar(value=0)
         self.status_var = tk.StringVar(value="")
 
-    def start(self, operation: Callable, on_complete: Optional[Callable] = None):
+    def start(
+        self,
+        operation: Callable[[], Any],
+        on_complete: Optional[Callable[[Any], None]] = None,
+    ) -> None:
         """Start async operation with progress dialog."""
         dialog = self._create_progress_dialog()
 
@@ -99,7 +104,7 @@ class AsyncOperation:
         """Create progress dialog window."""
         dialog = tk.Toplevel(self.parent)
         dialog.title("Procesando...")
-        dialog.transient(self.parent)
+        dialog.transient(cast(tk.Wm, self.parent))
         dialog.grab_set()
 
         ttk.Label(dialog, textvariable=self.status_var).pack(pady=10)
@@ -124,7 +129,7 @@ class TreeviewManager:
         self.tree["columns"] = tuple(self.columns.keys())
         for col, config in self.columns.items():
             self.tree.heading(
-                col, text=config["text"], command=lambda c=col: self.sort_by_column(c)
+                col, text=config["text"], command=partial(self.sort_by_column, col)
             )
             self.tree.column(
                 col, width=config["width"], anchor=config.get("anchor", tk.W)
@@ -174,7 +179,10 @@ class DragDropMixin:
     def setup_drag_and_drop(self, tree: ttk.Treeview):
         """Bind drag-and-drop handlers to a Treeview widget."""
         self.tree = tree  # Ensure tree is accessible
-        self._drag_data = {"item": None, "start_index": -1}
+        self._drag_data: Dict[str, int | str | None] = {
+            "item": None,
+            "start_index": -1,
+        }
         tree.bind("<ButtonPress-1>", self._on_drag_start)
         tree.bind("<B1-Motion>", self._on_drag_motion)
         tree.bind("<ButtonRelease-1>", self._on_drag_release)
