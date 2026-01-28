@@ -3,6 +3,20 @@ const assert = require('node:assert');
 const path = require('node:path');
 
 const SERVICE_WORKER_PATH = path.join(__dirname, '..', 'service-worker.js');
+const { CACHE_CONFIG } = require(SERVICE_WORKER_PATH);
+
+const createTimestampedResponse = (
+  body,
+  { status = 200, type = 'static', headers = {} } = {}
+) =>
+  new Response(body, {
+    status,
+    headers: {
+      ...headers,
+      'sw-timestamp': Date.now().toString(),
+      'cache-type': type,
+    },
+  });
 
 const normalizeCacheKey = (req) => {
   if (!req) return '';
@@ -116,15 +130,15 @@ test('service worker install caches static assets and manifest files', async () 
   await installPromise;
   cleanup();
 
-  assert.ok(caches.stores.has('ebano-static-v6'));
-  const staticCache = caches.stores.get('ebano-static-v6');
+  assert.ok(caches.stores.has(CACHE_CONFIG.prefixes.static));
+  const staticCache = caches.stores.get(CACHE_CONFIG.prefixes.static);
   assert.ok(staticCache.size > 0);
   assert.ok(fetchCalls.includes('/asset-manifest.json'));
 });
 
 test('service worker activation removes stale caches', async () => {
   const caches = createCachesMock();
-  await caches.open('ebano-static-v6');
+  await caches.open(CACHE_CONFIG.prefixes.static);
   await caches.open('legacy-cache');
 
   const { events, self, cleanup } = loadServiceWorkerRuntime({
@@ -141,7 +155,7 @@ test('service worker activation removes stale caches', async () => {
   });
 
   await activatePromise;
-  assert.ok(caches.stores.has('ebano-static-v6'));
+  assert.ok(caches.stores.has(CACHE_CONFIG.prefixes.static));
   assert.ok(!caches.stores.has('legacy-cache'));
   assert.strictEqual(self.__claimed, true);
   cleanup();
@@ -149,7 +163,7 @@ test('service worker activation removes stale caches', async () => {
 
 test('service worker fetch handles navigation fallback from cache', async () => {
   const caches = createCachesMock();
-  const staticCache = await caches.open('ebano-static-v6');
+  const staticCache = await caches.open(CACHE_CONFIG.prefixes.static);
   await staticCache.put('/index.html', new Response('cached-home', { status: 200 }));
 
   const { events, cleanup } = loadServiceWorkerRuntime({
@@ -180,7 +194,7 @@ test('service worker fetch handles navigation fallback from cache', async () => 
 
 test('service worker fetch bypasses cache and serves image fallback', async () => {
   const caches = createCachesMock();
-  const staticCache = await caches.open('ebano-static-v6');
+  const staticCache = await caches.open(CACHE_CONFIG.prefixes.static);
   await staticCache.put(
     '/assets/images/web/placeholder.svg',
     new Response('placeholder', { status: 200 })
@@ -215,9 +229,12 @@ test('service worker fetch bypasses cache and serves image fallback', async () =
 
 test('service worker returns cached response when network fails', async () => {
   const caches = createCachesMock();
-  const staticCache = await caches.open('ebano-static-v6');
+  const staticCache = await caches.open(CACHE_CONFIG.prefixes.static);
   const requestUrl = 'https://example.com/dist/css/style.min.css';
-  await staticCache.put(requestUrl, new Response('cached-css', { status: 200 }));
+  await staticCache.put(
+    requestUrl,
+    createTimestampedResponse('cached-css', { type: 'static' })
+  );
 
   const { events, cleanup } = loadServiceWorkerRuntime({
     fetchImpl: async () => {
@@ -247,8 +264,11 @@ test('service worker returns cached response when network fails', async () => {
 
 test('service worker message handler supports skip waiting and cache invalidation', async () => {
   const caches = createCachesMock();
-  const productsCache = await caches.open('ebano-products-v5');
-  await productsCache.put('/data/product_data.json', new Response('data', { status: 200 }));
+  const productsCache = await caches.open(CACHE_CONFIG.prefixes.products);
+  await productsCache.put(
+    '/data/product_data.json',
+    createTimestampedResponse('data', { type: 'products' })
+  );
 
   const { events, self, cleanup } = loadServiceWorkerRuntime({
     fetchImpl: async () => new Response('ok', { status: 200 }),
