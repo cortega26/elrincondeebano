@@ -10,21 +10,25 @@ DEFAULT_FIELD_TS = "1970-01-01T00:00:00.000Z"
 
 class ProductError(Exception):
     """Base exception for Product-related errors."""
+
     pass
 
 
 class InvalidPriceError(ProductError):
     """Raised when price validation fails."""
+
     pass
 
 
 class InvalidDiscountError(ProductError):
     """Raised when discount validation fails."""
+
     pass
 
 
 class InvalidImagePathError(ProductError):
     """Raised when image path validation fails."""
+
     pass
 
 
@@ -45,7 +49,7 @@ class Product:
     MAX_PRICE: int = 1_000_000  # 1 million
     MAX_NAME_LENGTH: int = 200
     MAX_DESCRIPTION_LENGTH: int = 1000
-    VALID_IMAGE_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.gif', '.webp'}
+    VALID_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 
     def __post_init__(self) -> None:
         """Validate all fields after initialization."""
@@ -98,14 +102,18 @@ class Product:
         if not self.name.strip():
             raise ValueError("El nombre no puede estar vacío.")
         if len(self.name) > self.MAX_NAME_LENGTH:
-            raise ValueError(f"El nombre no puede tener más de {self.MAX_NAME_LENGTH} caracteres.")
+            raise ValueError(
+                f"El nombre no puede tener más de {self.MAX_NAME_LENGTH} caracteres."
+            )
 
     def _validate_description(self) -> None:
         """Validate product description."""
         if not isinstance(self.description, str):
             raise TypeError("La descripción debe ser texto.")
         if len(self.description) > self.MAX_DESCRIPTION_LENGTH:
-            raise ValueError(f"La descripción no puede tener más de {self.MAX_DESCRIPTION_LENGTH} caracteres.")
+            raise ValueError(
+                f"La descripción no puede tener más de {self.MAX_DESCRIPTION_LENGTH} caracteres."
+            )
 
     def _validate_price(self) -> None:
         """Validate product price."""
@@ -136,19 +144,23 @@ class Product:
         """Validate image path format and extension."""
         if not self.image_path:
             return
-        
+
         if not isinstance(self.image_path, str):
             raise InvalidImagePathError("La ruta de la imagen debe ser texto.")
-        
-        normalized_path = os.path.normpath(self.image_path).replace('\\', '/')
-        
-        if not normalized_path.startswith('assets/images/'):
-            raise InvalidImagePathError("La ruta de la imagen debe comenzar con 'assets/images/'")
-        
+
+        normalized_path = os.path.normpath(self.image_path).replace("\\", "/")
+
+        if not normalized_path.startswith("assets/images/"):
+            raise InvalidImagePathError(
+                "La ruta de la imagen debe comenzar con 'assets/images/'"
+            )
+
         _, ext = os.path.splitext(normalized_path)
         if ext.lower() not in self.VALID_IMAGE_EXTENSIONS:
-            allowed = ', '.join(self.VALID_IMAGE_EXTENSIONS)
-            raise InvalidImagePathError(f"Extensión de imagen inválida. Permitidas: {allowed}")
+            allowed = ", ".join(self.VALID_IMAGE_EXTENSIONS)
+            raise InvalidImagePathError(
+                f"Extensión de imagen inválida. Permitidas: {allowed}"
+            )
 
     def _validate_image_avif_path(self) -> None:
         """Validate optional AVIF image path and ensure fallback exists."""
@@ -158,12 +170,14 @@ class Product:
         if not isinstance(self.image_avif_path, str):
             raise InvalidImagePathError("La ruta AVIF debe ser texto.")
 
-        normalized_path = os.path.normpath(self.image_avif_path).replace('\\', '/')
-        if not normalized_path.startswith('assets/images/'):
-            raise InvalidImagePathError("La ruta AVIF debe comenzar con 'assets/images/'")
+        normalized_path = os.path.normpath(self.image_avif_path).replace("\\", "/")
+        if not normalized_path.startswith("assets/images/"):
+            raise InvalidImagePathError(
+                "La ruta AVIF debe comenzar con 'assets/images/'"
+            )
 
         _, ext = os.path.splitext(normalized_path)
-        if ext.lower() != '.avif':
+        if ext.lower() != ".avif":
             raise InvalidImagePathError("La ruta AVIF debe terminar en '.avif'")
 
         if not self.image_path:
@@ -171,10 +185,10 @@ class Product:
                 "Para utilizar AVIF debes mantener una imagen de respaldo (PNG, JPG, GIF o WebP)."
             )
 
-        fallback_normalized = os.path.normpath(self.image_path).replace('\\', '/')
+        fallback_normalized = os.path.normpath(self.image_path).replace("\\", "/")
         _, fallback_ext = os.path.splitext(fallback_normalized)
         if fallback_ext.lower() not in self.VALID_IMAGE_EXTENSIONS:
-            allowed = ', '.join(self.VALID_IMAGE_EXTENSIONS)
+            allowed = ", ".join(self.VALID_IMAGE_EXTENSIONS)
             raise InvalidImagePathError(
                 f"La imagen de respaldo debe tener una extensión válida ({allowed})."
             )
@@ -197,22 +211,24 @@ class Product:
             raise TypeError("El porcentaje de descuento debe ser un número")
         if not 0 <= percentage <= 100:
             raise ValueError("El porcentaje de descuento debe estar entre 0 y 100")
-        
+
         self.discount = int(self.price * (percentage / 100))
         self._validate_discount()
-        
-        if 'discounted_price' in self.__dict__:
-            del self.__dict__['discounted_price']
+
+        if "discounted_price" in self.__dict__:
+            del self.__dict__["discounted_price"]
 
     def ensure_field_metadata(self, field_name: str) -> Dict[str, Any]:
         """Ensure metadata exists for a given field."""
-        if field_name not in self.field_last_modified or not isinstance(self.field_last_modified[field_name], dict):
+        if field_name not in self.field_last_modified or not isinstance(
+            self.field_last_modified[field_name], dict
+        ):
             self.field_last_modified[field_name] = {
                 "ts": DEFAULT_FIELD_TS,
                 "by": "admin",
                 "rev": self.rev,
                 "base_rev": 0,
-                "changeset_id": None
+                "changeset_id": None,
             }
         meta = self.field_last_modified[field_name]
         meta.setdefault("ts", DEFAULT_FIELD_TS)
@@ -222,7 +238,16 @@ class Product:
         meta.setdefault("changeset_id", None)
         return meta
 
-    def update_field_metadata(self, field_name: str, *, ts: str, by: str, rev: int, base_rev: int, changeset_id: Optional[str] = None) -> None:
+    def update_field_metadata(
+        self,
+        field_name: str,
+        *,
+        ts: str,
+        by: str,
+        rev: int,
+        base_rev: int,
+        changeset_id: Optional[str] = None,
+    ) -> None:
         """Update metadata for a field."""
         meta = self.ensure_field_metadata(field_name)
         meta["ts"] = ts
@@ -233,9 +258,9 @@ class Product:
             meta["changeset_id"] = changeset_id
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'Product':
+    def from_dict(cls, data: Dict[str, Any]) -> "Product":
         """Create a Product instance from a dictionary."""
-        required_fields = {'name', 'description', 'price'}
+        required_fields = {"name", "description", "price"}
         missing_fields = required_fields - set(data.keys())
         if missing_fields:
             raise ValueError(f"Faltan campos requeridos: {', '.join(missing_fields)}")
@@ -254,7 +279,7 @@ class Product:
                     "by": value.get("by", "admin"),
                     "rev": value.get("rev", payload["rev"]),
                     "base_rev": value.get("base_rev", 0),
-                    "changeset_id": value.get("changeset_id")
+                    "changeset_id": value.get("changeset_id"),
                 }
             else:
                 normalised_meta[key] = {
@@ -262,7 +287,7 @@ class Product:
                     "by": "admin",
                     "rev": payload["rev"],
                     "base_rev": 0,
-                    "changeset_id": None
+                    "changeset_id": None,
                 }
         payload["field_last_modified"] = normalised_meta
         return cls(**payload)
@@ -280,7 +305,7 @@ class Product:
             "image_avif_path": self.image_avif_path,
             "order": self.order,
             "rev": self.rev,
-            "field_last_modified": deepcopy(self.field_last_modified)
+            "field_last_modified": deepcopy(self.field_last_modified),
         }
 
     def __eq__(self, other: object) -> bool:
@@ -293,26 +318,30 @@ class Product:
         """Hash based on the canonical product identity."""
         return hash(self.identity_key())
 
+
 @dataclass
 class ProductMetadata:
     """Metadata for the product catalog."""
+
     version: str
     last_updated: str
     rev: int = 0
 
+
 @dataclass
 class ProductCatalog:
     """Complete product catalog with metadata."""
+
     metadata: ProductMetadata
     products: List[Product]
 
     @classmethod
-    def create(cls, products: List[Product]) -> 'ProductCatalog':
+    def create(cls, products: List[Product]) -> "ProductCatalog":
         """Create a new catalog with current metadata."""
         metadata = ProductMetadata(
-            version=datetime.now().strftime('%Y%m%d-%H%M%S'),
+            version=datetime.now().strftime("%Y%m%d-%H%M%S"),
             last_updated=datetime.now().isoformat(),
-            rev=0
+            rev=0,
         )
         return cls(metadata=metadata, products=products)
 
@@ -322,16 +351,16 @@ class ProductCatalog:
             "version": self.metadata.version,
             "last_updated": self.metadata.last_updated,
             "rev": self.metadata.rev,
-            "products": [p.to_dict() for p in self.products]
+            "products": [p.to_dict() for p in self.products],
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'ProductCatalog':
+    def from_dict(cls, data: Dict[str, Any]) -> "ProductCatalog":
         """Create catalog from dictionary data."""
         metadata = ProductMetadata(
-            version=data.get('version', ''),
-            last_updated=data.get('last_updated', ''),
-            rev=data.get('rev', 0)
+            version=data.get("version", ""),
+            last_updated=data.get("last_updated", ""),
+            rev=data.get("rev", 0),
         )
-        products = [Product.from_dict(p) for p in data.get('products', [])]
+        products = [Product.from_dict(p) for p in data.get("products", [])]
         return cls(metadata=metadata, products=products)

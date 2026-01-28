@@ -7,15 +7,17 @@ logger = logging.getLogger(__name__)
 # --- Centralized PIL / Image Support Detection ---
 try:
     from PIL import Image, ImageTk, features  # type: ignore
+
     PIL_AVAILABLE = True
     try:
-        PIL_WEBP = features.check('webp')
+        PIL_WEBP = features.check("webp")
     except Exception:
         PIL_WEBP = False
-    
+
     # Try multiple strategies for AVIF support
     try:
         import pillow_heif  # type: ignore
+
         pillow_heif.register_heif_opener()
         try:
             pillow_heif.register_avif_opener()
@@ -24,11 +26,12 @@ try:
         PIL_AVIF = True
     except ImportError:
         try:
-            import pillow_avif  # type: ignore  # pylint: disable=unused-import
-            PIL_AVIF = True
+            import pillow_avif  # type: ignore
+
+            PIL_AVIF = bool(getattr(pillow_avif, "__name__", ""))
         except ImportError:
             try:
-                PIL_AVIF = features.check('avif')
+                PIL_AVIF = features.check("avif")
             except Exception:
                 PIL_AVIF = False
     except Exception:
@@ -42,6 +45,7 @@ except ImportError:
     Image = None
     ImageTk = None
 
+
 def load_thumbnail(path: str, w: int, h: int) -> Optional[Any]:
     """
     Load and resize an image from path.
@@ -50,28 +54,29 @@ def load_thumbnail(path: str, w: int, h: int) -> Optional[Any]:
     """
     if not PIL_AVAILABLE:
         return None
-    
+
     if not os.path.exists(path):
         return None
 
     try:
         with Image.open(path) as img:
             # Handle mode
-            if img.mode not in ('RGB', 'RGBA'):
-                img = img.convert('RGBA')
+            if img.mode not in ("RGB", "RGBA"):
+                img = img.convert("RGBA")
             img.thumbnail((w, h))
             return ImageTk.PhotoImage(img)
-    except Exception as e:
-        logger.warning(f"Failed to load thumbnail {path}: {e}")
+    except Exception as exc:
+        logger.warning(f"Failed to load thumbnail {path}: {exc}")
         return None
+
 
 class CategoryHelper:
     """Helper for managing category display names and keys."""
-    
+
     def __init__(self, choices: List[Tuple[str, str]]):
         self.choices = choices
         self._prepare_mappings()
-    
+
     def update_choices(self, choices: List[Tuple[str, str]]) -> None:
         self.choices = choices
         self._prepare_mappings()

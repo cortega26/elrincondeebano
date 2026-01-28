@@ -16,7 +16,7 @@ from typing import Optional
 
 import portalocker
 
-from category_models import CategoryCatalog
+from .category_models import CategoryCatalog
 
 logger = logging.getLogger(__name__)
 
@@ -50,9 +50,13 @@ class JsonCategoryRepository:
             self._file_path = provided_path
             self._base_path = provided_path.parent
         else:
-            self._base_path = Path(base_path) if base_path else Path(
-                os.path.abspath(
-                    os.path.join(os.path.dirname(__file__), "..", "data")
+            self._base_path = (
+                Path(base_path)
+                if base_path
+                else Path(
+                    os.path.abspath(
+                        os.path.join(os.path.dirname(__file__), "..", "data")
+                    )
                 )
             )
             self._file_path = self._base_path / provided_path

@@ -10,13 +10,13 @@ from dataclasses import replace
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Sequence, Tuple
 
-from category_models import (
+from .category_models import (
     Category,
     CategoryCatalog,
     NavGroup,
     Subcategory,
 )
-from category_repository import JsonCategoryRepository
+from .category_repository import JsonCategoryRepository
 
 CategoryChoice = Tuple[str, str]
 
@@ -117,7 +117,9 @@ class CategoryService:
         catalog = self._load_catalog()
         group = catalog.get_nav_group(group_id)
         if not group:
-            raise NavGroupNotFoundError(f"Grupo de navegación no encontrado: {group_id}")
+            raise NavGroupNotFoundError(
+                f"Grupo de navegación no encontrado: {group_id}"
+            )
         if not group.enabled:
             raise NavGroupNotFoundError(
                 f"Grupo de navegación deshabilitado: {group_id}"
@@ -378,10 +380,7 @@ class CategoryService:
             candidate_product_key = (
                 product_key.strip() if product_key else title.replace(" ", "")
             )
-            existing_ids = {
-                _canonical_key(sub.id)
-                for sub in category.subcategories
-            }
+            existing_ids = {_canonical_key(sub.id) for sub in category.subcategories}
             if _canonical_key(candidate_slug) in existing_ids:
                 raise CategoryServiceError(
                     f"Ya existe una subcategoría con el identificador '{candidate_slug}'."

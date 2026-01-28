@@ -178,9 +178,7 @@ def main():
     data = load_sarif(args.sarif_path)
     status_note = None
     if data is None:
-        status_note = (
-            "SARIF file missing or unreadable; analysis was skipped or no SARIF was produced."
-        )
+        status_note = "SARIF file missing or unreadable; analysis was skipped or no SARIF was produced."
         data = {}
 
     grouped, help_by_rule, counts, total = build_report(data)

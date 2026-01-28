@@ -12,7 +12,7 @@ Description:
 Usage:
     - Command-Line Interface:
         python image_to_webp_converter.py [folder_path] [options]
-    
+
     - Graphical User Interface:
         Run the script without arguments:
         python image_to_webp_converter.py
@@ -27,7 +27,7 @@ Options:
     --lossless: Use lossless compression for WebP conversion. Default is False.
     --workers WORKERS: Number of worker processes for parallel conversion. Default is 1.
     --recursive: Recursively process subfolders. Default is False.
-    --output-dir OUTPUT_DIR: Specify an output directory for converted files. 
+    --output-dir OUTPUT_DIR: Specify an output directory for converted files.
                              Default is same as input.
 
 Requirements:
@@ -70,29 +70,42 @@ except ImportError:
 
 # Supported image extensions
 SUPPORTED_EXTENSIONS = {
-    ".jpg", ".jpeg", ".jfif", ".pjpeg", ".pjp",  # JPEG formats
+    ".jpg",
+    ".jpeg",
+    ".jfif",
+    ".pjpeg",
+    ".pjp",  # JPEG formats
     ".png",  # PNG
     ".gif",  # GIF
-    ".tiff", ".tif",  # TIFF
+    ".tiff",
+    ".tif",  # TIFF
     ".bmp",  # BMP
     ".cur",  # CUR
     ".dib",  # DIB
     ".eps",  # EPS (requires Ghostscript)
     ".pcx",  # PCX
-    ".ppm", ".pgm", ".pbm", ".pnm",  # Netpbm
+    ".ppm",
+    ".pgm",
+    ".pbm",
+    ".pnm",  # Netpbm
     ".sgi",  # SGI
     ".tga",  # TGA
-    ".jp2", ".j2k", ".jpf", ".jpx", ".jpm",  # JPEG 2000
+    ".jp2",
+    ".j2k",
+    ".jpf",
+    ".jpx",
+    ".jpm",  # JPEG 2000
     ".xbm",  # XBM
 }
 
 # Configure logging
 logging.basicConfig(
-    filename='conversion.log',
-    filemode='a',
+    filename="conversion.log",
+    filemode="a",
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
+
 
 def is_supported_image(file_path: Path, include_webp: bool) -> bool:
     """
@@ -102,10 +115,14 @@ def is_supported_image(file_path: Path, include_webp: bool) -> bool:
     :param include_webp: Whether to include existing WebP files for re-encoding
     :return: True if the file is supported, False otherwise
     """
-    return file_path.suffix.lower() in SUPPORTED_EXTENSIONS or (include_webp and file_path.suffix.lower() == '.webp')
+    return file_path.suffix.lower() in SUPPORTED_EXTENSIONS or (
+        include_webp and file_path.suffix.lower() == ".webp"
+    )
 
 
-def convert_to_webp(image_path: Path, output_dir: Path, quality: int, lossless: bool) -> bool:
+def convert_to_webp(
+    image_path: Path, output_dir: Path, quality: int, lossless: bool
+) -> bool:
     """
     Convert a single image to WebP format.
 
@@ -121,8 +138,8 @@ def convert_to_webp(image_path: Path, output_dir: Path, quality: int, lossless: 
             webp_path = output_dir / f"{image_path.stem}.webp"
             img.save(webp_path, "webp", quality=quality, lossless=lossless)
         return True
-    except Exception as e:
-        logging.error(f"Error converting {image_path.name}: {str(e)}")
+    except Exception as exc:
+        logging.error(f"Error converting {image_path.name}: {str(exc)}")
         return False
 
 
@@ -137,7 +154,16 @@ def process_image_task(args):
     return image_path, convert_to_webp(image_path, output_dir, quality, lossless)
 
 
-def convert_images_to_webp(folder_path: Path, output_dir: Path, include_webp: bool, quality: int, lossless: bool, workers: int, recursive: bool, progress_callback=None) -> int:
+def convert_images_to_webp(
+    folder_path: Path,
+    output_dir: Path,
+    include_webp: bool,
+    quality: int,
+    lossless: bool,
+    workers: int,
+    recursive: bool,
+    progress_callback=None,
+) -> int:
     """
     Convert all supported images in the given folder to WebP format.
 
@@ -153,10 +179,18 @@ def convert_images_to_webp(folder_path: Path, output_dir: Path, include_webp: bo
     """
     # Gather image files
     if recursive:
-        image_files = [f for f in folder_path.rglob("*") if f.is_file() and is_supported_image(f, include_webp)]
+        image_files = [
+            f
+            for f in folder_path.rglob("*")
+            if f.is_file() and is_supported_image(f, include_webp)
+        ]
     else:
-        image_files = [f for f in folder_path.iterdir() if f.is_file() and is_supported_image(f, include_webp)]
-    
+        image_files = [
+            f
+            for f in folder_path.iterdir()
+            if f.is_file() and is_supported_image(f, include_webp)
+        ]
+
     if not image_files:
         logging.info("No files were found to convert to WebP format.")
         return 0
@@ -167,9 +201,14 @@ def convert_images_to_webp(folder_path: Path, output_dir: Path, include_webp: bo
     failures = 0
 
     with ProcessPoolExecutor(max_workers=workers) as executor:
-        futures = [executor.submit(process_image_task, (image, output_dir, quality, lossless)) for image in image_files]
-        
-        with tqdm(total=len(image_files), desc="Converting images", unit="image") as pbar:
+        futures = [
+            executor.submit(process_image_task, (image, output_dir, quality, lossless))
+            for image in image_files
+        ]
+
+        with tqdm(
+            total=len(image_files), desc="Converting images", unit="image"
+        ) as pbar:
             for future in as_completed(futures):
                 image_path, success = future.result()
                 if success:
@@ -179,7 +218,7 @@ def convert_images_to_webp(folder_path: Path, output_dir: Path, include_webp: bo
                 pbar.update(1)
                 if progress_callback:
                     progress_callback()
-    
+
     # Summary log
     total_processed = len(image_files)
     successful = total_processed - failures
@@ -196,20 +235,45 @@ def parse_arguments():
     :return: Parsed arguments
     """
     parser = argparse.ArgumentParser(description="Convert images to WebP format.")
-    parser.add_argument("folder_path", nargs="?", default=str(DEFAULT_INPUT_DIR),
-                        help="Path to the folder containing images to convert.")
-    parser.add_argument("--include-webp", action="store_true", default=False, 
-                        help="Include existing WebP files for re-encoding.")
-    parser.add_argument("--quality", type=int, default=80, choices=range(1, 101), metavar="[1-100]", 
-                        help="Set the quality for WebP conversion (1-100).")
-    parser.add_argument("--lossless", action="store_true", 
-                        help="Use lossless compression for WebP conversion.")
-    parser.add_argument("--workers", type=int, default=1, 
-                        help="Number of worker processes for parallel conversion.")
-    parser.add_argument("--recursive", action="store_true", 
-                        help="Recursively process subfolders.")
-    parser.add_argument("--output-dir", type=Path, 
-                        help="Specify an output directory for converted files.")
+    parser.add_argument(
+        "folder_path",
+        nargs="?",
+        default=str(DEFAULT_INPUT_DIR),
+        help="Path to the folder containing images to convert.",
+    )
+    parser.add_argument(
+        "--include-webp",
+        action="store_true",
+        default=False,
+        help="Include existing WebP files for re-encoding.",
+    )
+    parser.add_argument(
+        "--quality",
+        type=int,
+        default=80,
+        choices=range(1, 101),
+        metavar="[1-100]",
+        help="Set the quality for WebP conversion (1-100).",
+    )
+    parser.add_argument(
+        "--lossless",
+        action="store_true",
+        help="Use lossless compression for WebP conversion.",
+    )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=1,
+        help="Number of worker processes for parallel conversion.",
+    )
+    parser.add_argument(
+        "--recursive", action="store_true", help="Recursively process subfolders."
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        help="Specify an output directory for converted files.",
+    )
 
     return parser.parse_args()
 
@@ -222,7 +286,7 @@ def run_conversion(args):
     """
     folder_path = Path(args.folder_path)
     output_dir = args.output_dir if args.output_dir else folder_path
-    
+
     if not folder_path.is_dir():
         logging.error(f"Error: {folder_path} is not a valid directory.")
         sys.exit(1)
@@ -236,23 +300,26 @@ def run_conversion(args):
     logging.info(f"Recursive: {'Yes' if args.recursive else 'No'}")
 
     failures = convert_images_to_webp(
-        folder_path, 
-        output_dir, 
-        args.include_webp, 
-        args.quality, 
-        args.lossless, 
-        args.workers, 
-        args.recursive
+        folder_path,
+        output_dir,
+        args.include_webp,
+        args.quality,
+        args.lossless,
+        args.workers,
+        args.recursive,
     )
 
     if failures > 0:
-        logging.warning(f"Conversion completed with {failures} failure(s). Check the log for details.")
+        logging.warning(
+            f"Conversion completed with {failures} failure(s). Check the log for details."
+        )
     else:
         logging.info("All images converted successfully.")
 
 
 # GUI Implementation
 if tk:
+
     class ImageToWebPGUI:
         def __init__(self, master):
             self.master = master
@@ -260,55 +327,77 @@ if tk:
 
             # Folder Path
             self.folder_label = tk.Label(master, text="Input Folder:")
-            self.folder_label.grid(row=0, column=0, padx=10, pady=5, sticky='e')
+            self.folder_label.grid(row=0, column=0, padx=10, pady=5, sticky="e")
             self.folder_path = tk.Entry(master, width=50)
             self.folder_path.grid(row=0, column=1, padx=10, pady=5)
-            self.browse_button = tk.Button(master, text="Browse", command=self.browse_folder)
+            self.browse_button = tk.Button(
+                master, text="Browse", command=self.browse_folder
+            )
             self.browse_button.grid(row=0, column=2, padx=10, pady=5)
 
             # Output Directory
             self.output_label = tk.Label(master, text="Output Directory:")
-            self.output_label.grid(row=1, column=0, padx=10, pady=5, sticky='e')
+            self.output_label.grid(row=1, column=0, padx=10, pady=5, sticky="e")
             self.output_path = tk.Entry(master, width=50)
             self.output_path.grid(row=1, column=1, padx=10, pady=5)
-            self.browse_output_button = tk.Button(master, text="Browse", command=self.browse_output_folder)
+            self.browse_output_button = tk.Button(
+                master, text="Browse", command=self.browse_output_folder
+            )
             self.browse_output_button.grid(row=1, column=2, padx=10, pady=5)
 
             # Quality
             self.quality_label = tk.Label(master, text="Quality (1-100):")
-            self.quality_label.grid(row=2, column=0, padx=10, pady=5, sticky='e')
+            self.quality_label.grid(row=2, column=0, padx=10, pady=5, sticky="e")
             self.quality_var = tk.IntVar(value=80)
-            self.quality_scale = tk.Scale(master, from_=1, to=100, orient='horizontal', variable=self.quality_var)
-            self.quality_scale.grid(row=2, column=1, padx=10, pady=5, sticky='w')
+            self.quality_scale = tk.Scale(
+                master, from_=1, to=100, orient="horizontal", variable=self.quality_var
+            )
+            self.quality_scale.grid(row=2, column=1, padx=10, pady=5, sticky="w")
 
             # Lossless
             self.lossless_var = tk.BooleanVar()
-            self.lossless_check = tk.Checkbutton(master, text="Lossless Compression", variable=self.lossless_var)
-            self.lossless_check.grid(row=3, column=1, padx=10, pady=5, sticky='w')
+            self.lossless_check = tk.Checkbutton(
+                master, text="Lossless Compression", variable=self.lossless_var
+            )
+            self.lossless_check.grid(row=3, column=1, padx=10, pady=5, sticky="w")
 
             # Include WebP
             self.include_webp_var = tk.BooleanVar()
-            self.include_webp_check = tk.Checkbutton(master, text="Include Existing WebP Files", variable=self.include_webp_var)
-            self.include_webp_check.grid(row=4, column=1, padx=10, pady=5, sticky='w')
+            self.include_webp_check = tk.Checkbutton(
+                master,
+                text="Include Existing WebP Files",
+                variable=self.include_webp_var,
+            )
+            self.include_webp_check.grid(row=4, column=1, padx=10, pady=5, sticky="w")
 
             # Workers
             self.workers_label = tk.Label(master, text="Worker Processes:")
-            self.workers_label.grid(row=5, column=0, padx=10, pady=5, sticky='e')
+            self.workers_label.grid(row=5, column=0, padx=10, pady=5, sticky="e")
             self.workers_var = tk.IntVar(value=1)
-            self.workers_spinbox = tk.Spinbox(master, from_=1, to=32, textvariable=self.workers_var, width=5)
-            self.workers_spinbox.grid(row=5, column=1, padx=10, pady=5, sticky='w')
+            self.workers_spinbox = tk.Spinbox(
+                master, from_=1, to=32, textvariable=self.workers_var, width=5
+            )
+            self.workers_spinbox.grid(row=5, column=1, padx=10, pady=5, sticky="w")
 
             # Recursive
             self.recursive_var = tk.BooleanVar()
-            self.recursive_check = tk.Checkbutton(master, text="Process Subfolders Recursively", variable=self.recursive_var)
-            self.recursive_check.grid(row=6, column=1, padx=10, pady=5, sticky='w')
+            self.recursive_check = tk.Checkbutton(
+                master,
+                text="Process Subfolders Recursively",
+                variable=self.recursive_var,
+            )
+            self.recursive_check.grid(row=6, column=1, padx=10, pady=5, sticky="w")
 
             # Convert Button
-            self.convert_button = tk.Button(master, text="Convert", command=self.start_conversion)
+            self.convert_button = tk.Button(
+                master, text="Convert", command=self.start_conversion
+            )
             self.convert_button.grid(row=7, column=1, padx=10, pady=20)
 
             # Progress Bar
-            self.progress = ttk.Progressbar(master, orient='horizontal', length=400, mode='determinate')
+            self.progress = ttk.Progressbar(
+                master, orient="horizontal", length=400, mode="determinate"
+            )
             self.progress.grid(row=8, column=0, columnspan=3, padx=10, pady=10)
 
             # Status Label
@@ -345,68 +434,109 @@ if tk:
             if output and not Path(output).exists():
                 try:
                     Path(output).mkdir(parents=True, exist_ok=True)
-                except Exception as e:
-                    messagebox.showerror("Error", f"Cannot create output directory: {e}")
+                except Exception as exc:
+                    messagebox.showerror(
+                        "Error", f"Cannot create output directory: {exc}"
+                    )
                     return
 
             # Disable the Convert button to prevent multiple clicks
-            self.convert_button.config(state='disabled')
+            self.convert_button.config(state="disabled")
             self.status_var.set("Starting conversion...")
 
             # Start the conversion in a separate thread
-            threading.Thread(target=self.run_conversion_thread, args=(folder, output, include_webp, quality, lossless, workers, recursive)).start()
+            threading.Thread(
+                target=self.run_conversion_thread,
+                args=(
+                    folder,
+                    output,
+                    include_webp,
+                    quality,
+                    lossless,
+                    workers,
+                    recursive,
+                ),
+            ).start()
 
-        def run_conversion_thread(self, folder, output, include_webp, quality, lossless, workers, recursive):
+        def run_conversion_thread(
+            self, folder, output, include_webp, quality, lossless, workers, recursive
+        ):
             try:
                 folder_path = Path(folder)
                 output_dir = Path(output)
 
                 # Gather image files
                 if recursive:
-                    image_files = [f for f in folder_path.rglob("*") if f.is_file() and is_supported_image(f, include_webp)]
+                    image_files = [
+                        f
+                        for f in folder_path.rglob("*")
+                        if f.is_file() and is_supported_image(f, include_webp)
+                    ]
                 else:
-                    image_files = [f for f in folder_path.iterdir() if f.is_file() and is_supported_image(f, include_webp)]
-                
+                    image_files = [
+                        f
+                        for f in folder_path.iterdir()
+                        if f.is_file() and is_supported_image(f, include_webp)
+                    ]
+
                 if not image_files:
                     logging.info("No files were found to convert to WebP format.")
                     self.update_status("No files found for conversion.")
                     self.enable_convert_button()
                     return
 
-                self.progress['maximum'] = len(image_files)
-                self.progress['value'] = 0
+                self.progress["maximum"] = len(image_files)
+                self.progress["value"] = 0
 
                 failures = 0
 
                 with ProcessPoolExecutor(max_workers=workers) as executor:
-                    futures = [executor.submit(process_image_task, (image, output_dir, quality, lossless)) for image in image_files]
-                    
+                    futures = [
+                        executor.submit(
+                            process_image_task, (image, output_dir, quality, lossless)
+                        )
+                        for image in image_files
+                    ]
+
                     for future in as_completed(futures):
                         image_path, success = future.result()
                         if success:
                             logging.info(f"Converted {image_path.name} to WebP")
                         else:
                             failures += 1
-                        self.progress['value'] += 1
-                        self.update_status(f"Converting: {self.progress['value']}/{len(image_files)}")
-                
+                        self.progress["value"] += 1
+                        self.update_status(
+                            f"Converting: {self.progress['value']}/{len(image_files)}"
+                        )
+
                 # Summary
                 total_processed = len(image_files)
                 successful = total_processed - failures
-                logging.info(f"Image conversion completed. {total_processed} file(s) processed.")
-                logging.info(f"Successful conversions: {successful}, Failures: {failures}")
+                logging.info(
+                    f"Image conversion completed. {total_processed} file(s) processed."
+                )
+                logging.info(
+                    f"Successful conversions: {successful}, Failures: {failures}"
+                )
 
                 if failures > 0:
-                    self.update_status(f"Completed with {failures} failure(s). Check log for details.")
-                    messagebox.showwarning("Conversion Completed", f"Conversion completed with {failures} failure(s). Check 'conversion.log' for details.")
+                    self.update_status(
+                        f"Completed with {failures} failure(s). Check log for details."
+                    )
+                    messagebox.showwarning(
+                        "Conversion Completed",
+                        f"Conversion completed with {failures} failure(s). Check 'conversion.log' for details.",
+                    )
                 else:
                     self.update_status("All images converted successfully.")
-                    messagebox.showinfo("Conversion Completed", "All images converted successfully.")
+                    messagebox.showinfo(
+                        "Conversion Completed", "All images converted successfully."
+                    )
 
-            except Exception as e:
-                logging.error(f"Unexpected error during conversion: {str(e)}")
+            except Exception as exc:
+                logging.error(f"Unexpected error during conversion: {str(exc)}")
                 self.update_status("An error occurred. Check log for details.")
-                messagebox.showerror("Error", f"An unexpected error occurred: {e}")
+                messagebox.showerror("Error", f"An unexpected error occurred: {exc}")
             finally:
                 self.enable_convert_button()
 
@@ -414,7 +544,7 @@ if tk:
             self.status_var.set(message)
 
         def enable_convert_button(self):
-            self.convert_button.config(state='normal')
+            self.convert_button.config(state="normal")
 
 
 def launch_gui():
@@ -422,7 +552,7 @@ def launch_gui():
     Launch the graphical user interface.
     """
     root = tk.Tk()
-    gui = ImageToWebPGUI(root)
+    ImageToWebPGUI(root)
     root.mainloop()
 
 
@@ -439,7 +569,9 @@ def main():
         if tk:
             launch_gui()
         else:
-            print("Tkinter is not available. Please run the script with command-line arguments.")
+            print(
+                "Tkinter is not available. Please run the script with command-line arguments."
+            )
             sys.exit(1)
 
 
