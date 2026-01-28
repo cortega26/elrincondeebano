@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import csv
 from dataclasses import fields
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -58,8 +59,12 @@ class MainWindow(DragDropMixin):
         self.state = UIState()
         self.config = self._load_config()
         self.view_mode = "list"  # list | gallery
+        configured_mode = getattr(self.config, "view_mode", "list")
+        if configured_mode in ("list", "gallery"):
+            self.view_mode = configured_mode
+        self.config.view_mode = self.view_mode
         self.image_cache: Dict[str, Any] = {}
-        self.state.update("view_mode", "list")
+        self.state.update("view_mode", self.view_mode)
         self._cell_editor: Optional[ttk.Entry] = None
         self._cell_editor_info: Dict[str, Any] = {}
         # Undo/Redo stacks for bulk operations only
@@ -68,6 +73,9 @@ class MainWindow(DragDropMixin):
         self._undo_max = 20
         self.category_helper: Optional[CategoryHelper] = None
         self.tree_frame: Optional[ttk.Frame] = None
+        self._config_save_job: Optional[str] = None
+        self._config_save_delay_ms = 500
+        self._last_window_size: Optional[tuple[int, int]] = None
 
         self._configure_styles()
         self.setup_gui()
@@ -105,7 +113,7 @@ class MainWindow(DragDropMixin):
             background="white",
             fieldbackground="white",
             foreground="#333333",
-            rowheight=30,
+            rowheight=20,
             font=("Segoe UI", 9),
         )
         style.configure(
@@ -134,10 +142,109 @@ class MainWindow(DragDropMixin):
                     data = json.load(f)
                     valid_fields = {field.name for field in fields(UIConfig)}
                     filtered_data = {k: v for k, v in data.items() if k in valid_fields}
+                    window_size = filtered_data.get("window_size")
+                    if not (
+                        isinstance(window_size, (list, tuple))
+                        and len(window_size) == 2
+                    ):
+                        filtered_data.pop("window_size", None)
                     return UIConfig(**filtered_data)
         except Exception as exc:
             logger.warning("Error loading config: %s", exc)
         return UIConfig()
+
+    @staticmethod
+    def _get_config_path() -> Path:
+        return Path.home() / ".product_manager" / "config.json"
+
+    def _sync_view_toggle_label(self) -> None:
+        if hasattr(self, "btn_toggle_view"):
+            if self.view_mode == "list":
+                self.btn_toggle_view.config(text="Vista: Galería")
+            else:
+                self.btn_toggle_view.config(text="Vista: Lista")
+
+    def _schedule_config_save(self) -> None:
+        if self._config_save_job:
+            try:
+                self.master.after_cancel(self._config_save_job)
+            except Exception:
+                pass
+        self._config_save_job = self.master.after(
+            self._config_save_delay_ms, self._save_config
+        )
+
+    def _save_config(self) -> None:
+        self._config_save_job = None
+        self._capture_column_widths()
+        payload = {
+            "font_size": self.config.font_size,
+            "enable_animations": self.config.enable_animations,
+            "window_size": self.config.window_size,
+            "locale": self.config.locale,
+            "view_mode": self.view_mode,
+            "column_widths": self.config.column_widths,
+        }
+        config_path = self._get_config_path()
+        existing: Dict[str, Any] = {}
+        if config_path.exists():
+            try:
+                with open(config_path, encoding="utf-8") as f:
+                    existing = json.load(f)
+                if not isinstance(existing, dict):
+                    existing = {}
+            except Exception:
+                existing = {}
+        existing.update(payload)
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(config_path, "w", encoding="utf-8") as f:
+            json.dump(existing, f, indent=2, ensure_ascii=False)
+
+    def _capture_column_widths(self) -> None:
+        if not hasattr(self, "tree"):
+            return
+        widths: Dict[str, int] = {}
+        for col in self.tree["columns"]:
+            try:
+                width = int(self.tree.column(col, "width"))
+            except Exception:
+                continue
+            if width > 0:
+                widths[col] = width
+        self.config.column_widths = widths
+
+    def _apply_column_widths(self) -> None:
+        if not hasattr(self, "tree"):
+            return
+        widths = getattr(self.config, "column_widths", {})
+        if not isinstance(widths, dict):
+            return
+        for col, width in widths.items():
+            if col not in self.columns:
+                continue
+            try:
+                parsed = int(width)
+            except Exception:
+                continue
+            if parsed > 0:
+                self.tree.column(col, width=parsed)
+
+    def _on_window_configure(self, event: tk.Event) -> None:
+        if event.widget is not self.master:
+            return
+        width = int(getattr(event, "width", 0) or 0)
+        height = int(getattr(event, "height", 0) or 0)
+        if width <= 0 or height <= 0:
+            return
+        current = (width, height)
+        if self._last_window_size == current:
+            return
+        self._last_window_size = current
+        self.config.window_size = current
+        self._schedule_config_save()
+
+    def _on_tree_mouse_release(self, _event: Optional[tk.Event] = None) -> None:
+        self._schedule_config_save()
 
     def setup_gui(self) -> None:
         """Set up the main GUI components."""
@@ -145,6 +252,14 @@ class MainWindow(DragDropMixin):
         self.master.geometry(
             f"{self.config.window_size[0]}x{self.config.window_size[1]}"
         )
+        try:
+            self._last_window_size = (
+                int(self.config.window_size[0]),
+                int(self.config.window_size[1]),
+            )
+        except Exception:
+            self._last_window_size = None
+        self.master.bind("<Configure>", self._on_window_configure)
 
         self.create_menu()
 
@@ -152,12 +267,14 @@ class MainWindow(DragDropMixin):
         self.setup_status_bar()  # 1. Bottom
         self.setup_bottom_bar()  # 2. Bottom (Above Status)
         self.setup_top_bar()  # 3. Top
+        self._sync_view_toggle_label()
 
         # 4. Center (Fill Remaining)
         self.view_container = ttk.Frame(self.master)
         self.view_container.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
         self.setup_treeview()
+        self._apply_column_widths()
 
         self.async_operation = AsyncOperation(self.master)
         self.async_operation.start(
@@ -174,6 +291,12 @@ class MainWindow(DragDropMixin):
         )
         file_menu.add_command(
             label="Exportar Productos...", command=self.export_products
+        )
+        file_menu.add_command(
+            label="Exportar CSV...", command=self.export_filtered_csv
+        )
+        file_menu.add_command(
+            label="Chequeo de integridad...", command=self.run_integrity_check
         )
         file_menu.add_separator()
         file_menu.add_command(label="Salir", command=self.master.quit)
@@ -223,6 +346,7 @@ class MainWindow(DragDropMixin):
         self.tree.bind("<<TreeviewSelect>>", self.handle_selection)
         # Faster stock toggle: double-click the Stock column
         self.tree.bind("<Double-1>", self.handle_double_click)
+        self.tree.bind("<ButtonRelease-1>", self._on_tree_mouse_release, add="+")
 
         # Initialize Gallery Frame (hidden by default)
         self.gallery = GalleryFrame(
@@ -324,6 +448,18 @@ class MainWindow(DragDropMixin):
         self.quick_view_combobox.pack(side=tk.LEFT, padx=5)
         self.quick_view_combobox.bind("<<ComboboxSelected>>", self.apply_quick_view)
 
+        # 4. Filter Actions + Indicator
+        actions_frame = ttk.Frame(top_frame)
+        actions_frame.pack(side=tk.RIGHT, padx=5)
+        ttk.Button(actions_frame, text="Limpiar filtros", command=self.clear_filters).pack(
+            side=tk.RIGHT, padx=5
+        )
+        self.filter_status_var = tk.StringVar(value="Sin filtros")
+        ttk.Label(actions_frame, textvariable=self.filter_status_var).pack(
+            side=tk.RIGHT, padx=5
+        )
+        self.update_filter_indicator()
+
     def setup_bottom_bar(self) -> None:
         """Set up the bottom bar with CRUD and bulk actions."""
         bottom_frame = ttk.Frame(self.master)
@@ -380,6 +516,12 @@ class MainWindow(DragDropMixin):
             text="Precio -%",
             width=10,
             command=lambda: self.bulk_adjust_price(False),
+        ).pack(side=tk.LEFT, padx=2)
+        ttk.Button(
+            bulk_frame,
+            text="Cambiar categoría",
+            width=14,
+            command=self.bulk_change_category,
         ).pack(side=tk.LEFT, padx=2)
 
         # 3. History (Right - Outer)
@@ -649,6 +791,7 @@ class MainWindow(DragDropMixin):
 
             self.populate_tree(products)
             self.update_status(f"Mostrando {len(products)} productos")
+            self.update_filter_indicator()
         except ProductServiceError as exc:
             messagebox.showerror("Error", f"Error al cargar productos: {str(exc)}")
 
@@ -718,10 +861,11 @@ class MainWindow(DragDropMixin):
     def toggle_view(self) -> None:
         if self.view_mode == "list":
             self.view_mode = "gallery"
-            self.btn_toggle_view.config(text="Vista: Lista")
         else:
             self.view_mode = "list"
-            self.btn_toggle_view.config(text="Vista: Galería")
+        self.config.view_mode = self.view_mode
+        self._sync_view_toggle_label()
+        self._schedule_config_save()
 
         # Refresh current view with last known products
         if hasattr(self, "_current_products"):
@@ -877,6 +1021,47 @@ class MainWindow(DragDropMixin):
             messagebox.showerror("Error", f"Error al reordenar productos: {str(exc)}")
             self.refresh_products()
 
+    def clear_filters(self) -> None:
+        """Reset all filters to their default values."""
+        if hasattr(self, "search_var"):
+            self.search_var.set("")
+        if hasattr(self, "category_var"):
+            self.category_var.set("Todas")
+        if hasattr(self, "only_discount_var"):
+            self.only_discount_var.set(False)
+        if hasattr(self, "only_out_of_stock_var"):
+            self.only_out_of_stock_var.set(False)
+        if hasattr(self, "min_price_var"):
+            self.min_price_var.set("")
+        if hasattr(self, "max_price_var"):
+            self.max_price_var.set("")
+        if hasattr(self, "quick_view_var"):
+            self.quick_view_var.set("Todos")
+        self.refresh_products()
+
+    def update_filter_indicator(self) -> None:
+        """Update indicator showing whether filters are active."""
+        active = False
+        if hasattr(self, "search_var") and self.search_var.get().strip():
+            active = True
+        if hasattr(self, "category_var"):
+            category_label = self.category_var.get().strip()
+            if category_label and category_label != "Todas":
+                active = True
+        if hasattr(self, "only_discount_var") and self.only_discount_var.get():
+            active = True
+        if hasattr(self, "only_out_of_stock_var") and self.only_out_of_stock_var.get():
+            active = True
+        if hasattr(self, "min_price_var") and self.min_price_var.get().strip():
+            active = True
+        if hasattr(self, "max_price_var") and self.max_price_var.get().strip():
+            active = True
+        if hasattr(self, "quick_view_var"):
+            if self.quick_view_var.get().strip() and self.quick_view_var.get() != "Todos":
+                active = True
+        if hasattr(self, "filter_status_var"):
+            self.filter_status_var.set("Filtros activos" if active else "Sin filtros")
+
     def _get_selected_products(self) -> List[Product]:
         selected = self.tree.selection()
         products: List[Product] = []
@@ -933,6 +1118,118 @@ class MainWindow(DragDropMixin):
         )
         dialog.wait_window()
         return result["value"]
+
+    def _ask_category(self, title: str, prompt: str) -> Optional[str]:
+        """Prompt the user to select a destination category."""
+        dialog = tk.Toplevel(self.master)
+        dialog.title(title)
+        dialog.transient(self.master)
+        dialog.grab_set()
+        ttk.Label(dialog, text=prompt).pack(padx=10, pady=10)
+
+        choices = self.product_service.get_category_choices()
+        category_helper = CategoryHelper(choices)
+        values = category_helper.display_values
+        if not values:
+            dialog.destroy()
+            messagebox.showwarning(
+                "Categoría", "No hay categorías disponibles para seleccionar."
+            )
+            return None
+
+        var = tk.StringVar(value=values[0])
+        combo = ttk.Combobox(dialog, textvariable=var, values=values, state="readonly")
+        combo.pack(padx=10, pady=5)
+        combo.focus_set()
+
+        result: Dict[str, Optional[str]] = {"value": None}
+
+        def on_ok():
+            display_value = var.get().strip()
+            key = category_helper.get_key_from_display(display_value)
+            result["value"] = key
+            dialog.destroy()
+
+        def on_cancel():
+            dialog.destroy()
+
+        btn_frame = ttk.Frame(dialog)
+        btn_frame.pack(pady=10)
+        ttk.Button(btn_frame, text="Aceptar", command=on_ok).pack(
+            side=tk.LEFT, padx=5
+        )
+        ttk.Button(btn_frame, text="Cancelar", command=on_cancel).pack(
+            side=tk.LEFT, padx=5
+        )
+        dialog.wait_window()
+        return result["value"]
+
+    def bulk_change_category(self) -> None:
+        """Bulk change category for selected products."""
+        products = self._get_selected_products()
+        if not products:
+            messagebox.showwarning(
+                "Acción masiva", "Seleccione uno o más productos."
+            )
+            return
+
+        try:
+            destination_key = self._ask_category(
+                "Cambiar categoría", "Seleccione la nueva categoría:"
+            )
+        except Exception as exc:
+            messagebox.showerror(
+                "Categoría", f"No se pudieron cargar las categorías: {exc}"
+            )
+            return
+
+        if not destination_key:
+            return
+
+        try:
+            valid_choices = {
+                key for _, key in self.product_service.get_category_choices()
+            }
+            if destination_key not in valid_choices:
+                messagebox.showerror(
+                    "Categoría",
+                    f"La categoría seleccionada no existe: {destination_key}",
+                )
+                return
+            if self.category_service:
+                match = self.category_service.find_category_by_product_key(
+                    destination_key
+                )
+                if not match:
+                    messagebox.showerror(
+                        "Categoría",
+                        f"La categoría seleccionada no existe: {destination_key}",
+                    )
+                    return
+        except Exception as exc:
+            messagebox.showerror(
+                "Categoría", f"No se pudo validar la categoría: {exc}"
+            )
+            return
+
+        pairs: List[tuple[Product, Product]] = []
+        for p in products:
+            new_p = Product(
+                name=p.name,
+                description=p.description,
+                price=p.price,
+                discount=p.discount,
+                stock=p.stock,
+                category=destination_key,
+                image_path=p.image_path,
+                image_avif_path=p.image_avif_path,
+                order=p.order,
+            )
+            pairs.append((p, new_p))
+        self._preview_and_apply_operation(
+            f"Cambiar categoría a '{destination_key}' para {len(products)} producto(s)",
+            pairs,
+        )
 
     def bulk_percentage_discount(self) -> None:
         products = self._get_selected_products()
@@ -1389,6 +1686,175 @@ class MainWindow(DragDropMixin):
             self.update_status(f"Se exportaron {len(products)} productos")
         except Exception as exc:
             messagebox.showerror("Error de Exportación", str(exc))
+
+    def export_filtered_csv(self) -> None:
+        """Export filtered products to CSV."""
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".csv", filetypes=[("Archivos CSV", "*.csv")]
+        )
+        if not file_path:
+            return
+
+        try:
+            criteria = ProductFilterCriteria()
+            query = self.search_var.get().strip()
+            category_label = self.category_var.get()
+
+            if category_label != "Todas" and self.category_helper:
+                key = self.category_helper.get_key_from_display(category_label)
+                if key:
+                    criteria.category = key
+
+            if query:
+                criteria.query = query
+
+            if hasattr(self, "only_discount_var") and self.only_discount_var.get():
+                criteria.only_discount = True
+
+            if (
+                hasattr(self, "only_out_of_stock_var")
+                and self.only_out_of_stock_var.get()
+            ):
+                criteria.only_out_of_stock = True
+
+            def _parse_float(val: str) -> Optional[float]:
+                try:
+                    return float(val)
+                except ValueError:
+                    return None
+
+            if hasattr(self, "min_price_var"):
+                criteria.min_price = _parse_float(self.min_price_var.get())
+            if hasattr(self, "max_price_var"):
+                criteria.max_price = _parse_float(self.max_price_var.get())
+
+            products = self.product_service.filter_products(criteria)
+
+            with open(file_path, "w", encoding="utf-8", newline="") as f:
+                writer = csv.writer(f)
+                writer.writerow(
+                    [
+                        "name",
+                        "description",
+                        "price",
+                        "discount",
+                        "stock",
+                        "category",
+                        "image_path",
+                        "image_avif_path",
+                        "order",
+                    ]
+                )
+                for product in products:
+                    writer.writerow(
+                        [
+                            product.name,
+                            product.description,
+                            int(product.price),
+                            int(product.discount),
+                            bool(product.stock),
+                            product.category,
+                            product.image_path,
+                            product.image_avif_path,
+                            int(product.order),
+                        ]
+                    )
+            self.update_status(f"Se exportaron {len(products)} productos a CSV")
+        except Exception as exc:
+            messagebox.showerror("Error de Exportación", str(exc))
+
+    def run_integrity_check(self) -> None:
+        """Run a read-only integrity check on product data."""
+        try:
+            products = self.product_service.get_all_products()
+        except Exception as exc:
+            messagebox.showerror("Chequeo de integridad", str(exc))
+            return
+
+        assets_root = None
+        if self.project_root:
+            assets_root = Path(self.project_root) / "assets" / "images"
+        else:
+            assets_root = Path(__file__).resolve().parents[3] / "assets" / "images"
+        assets_root = assets_root.resolve()
+
+        missing_images: list[str] = []
+        invalid_categories: list[str] = []
+        invalid_numbers: list[str] = []
+
+        for product in products:
+            for label, rel_path in (
+                ("imagen", product.image_path),
+                ("avif", product.image_avif_path),
+            ):
+                if not rel_path:
+                    continue
+                cleaned = str(rel_path).strip().replace("\\", "/")
+                if not cleaned.startswith("assets/images/"):
+                    missing_images.append(
+                        f"{product.name}: {label} fuera de assets/images ({cleaned})"
+                    )
+                    continue
+                relative = cleaned[len("assets/images/") :]
+                abs_path = (assets_root / relative).resolve()
+                try:
+                    abs_path.relative_to(assets_root)
+                except ValueError:
+                    missing_images.append(
+                        f"{product.name}: {label} fuera de assets/images ({cleaned})"
+                    )
+                    continue
+                if not abs_path.exists():
+                    missing_images.append(
+                        f"{product.name}: {label} no encontrada ({cleaned})"
+                    )
+
+            if self.category_service and product.category:
+                try:
+                    match = self.category_service.find_category_by_product_key(
+                        product.category
+                    )
+                except Exception:
+                    match = None
+                if not match:
+                    invalid_categories.append(
+                        f"{product.name}: categoría inválida ({product.category})"
+                    )
+
+            if product.price <= 0 or product.discount >= product.price:
+                invalid_numbers.append(
+                    f"{product.name}: precio={product.price}, descuento={product.discount}"
+                )
+
+        max_examples = 5
+        sections = []
+        if missing_images:
+            sections.append(
+                "Imágenes faltantes: "
+                f"{len(missing_images)}\n"
+                + "\n".join(f"- {item}" for item in missing_images[:max_examples])
+            )
+        if invalid_categories:
+            sections.append(
+                "Categorías inválidas: "
+                f"{len(invalid_categories)}\n"
+                + "\n".join(f"- {item}" for item in invalid_categories[:max_examples])
+            )
+        if invalid_numbers:
+            sections.append(
+                "Valores numéricos inválidos: "
+                f"{len(invalid_numbers)}\n"
+                + "\n".join(f"- {item}" for item in invalid_numbers[:max_examples])
+            )
+
+        if not sections:
+            messagebox.showinfo(
+                "Chequeo de integridad", "sin problemas encontrados"
+            )
+            return
+
+        report = "\n\n".join(sections)
+        messagebox.showwarning("Chequeo de integridad", report)
 
     def show_preferences(self) -> None:
         """Show preferences dialog."""
