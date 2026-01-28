@@ -10,7 +10,7 @@ from __future__ import annotations
 import re
 import tkinter as tk
 from tkinter import ttk, messagebox
-from typing import Callable, Dict, Optional, Sequence, Tuple
+from typing import Callable, Dict, Optional, Sequence, Tuple, TypedDict, cast, Literal
 
 from .category_service import (
     CategoryService,
@@ -20,6 +20,25 @@ from .category_service import (
 )
 
 FallbackChoice = Tuple[str, str]
+
+
+class CategoryFormResult(TypedDict):
+    """Typed payload from CategoryFormDialog."""
+    title: str
+    product_key: str
+    slug: str
+    group_id: str
+    description: str
+    order: int
+    enabled: bool
+
+
+class NavGroupFormResult(TypedDict):
+    """Typed payload from NavGroupFormDialog."""
+    label: str
+    order: Optional[int]
+    description: str
+    enabled: bool
 
 
 def _slugify(value: str) -> str:
@@ -44,13 +63,13 @@ class CategoryFormDialog(tk.Toplevel):
         super().__init__(parent)
         self.title(title)
         self.resizable(False, False)
-        self.transient(parent)
+        self.transient(cast(tk.Wm, parent))
         self.grab_set()
 
         self._nav_groups = list(nav_groups)
         self._group_label_map = {group.label: group.id for group in self._nav_groups}
         self._initial = initial
-        self.result: Optional[Dict[str, object]] = None
+        self.result: Optional[CategoryFormResult] = None
 
         self._build_form()
         self._populate_initial()
@@ -180,15 +199,18 @@ class CategoryFormDialog(tk.Toplevel):
             messagebox.showwarning("Validación", "El orden debe ser un número entero.")
             return
 
-        self.result = {
-            "title": title,
-            "product_key": product_key,
-            "slug": slug,
-            "group_id": self._group_label_map[group_label],
-            "description": self.description_text.get("1.0", tk.END).strip(),
-            "order": order,
-            "enabled": self.enabled_var.get(),
-        }
+        self.result = cast(
+            CategoryFormResult,
+            {
+                "title": title,
+                "product_key": product_key,
+                "slug": slug,
+                "group_id": self._group_label_map[group_label],
+                "description": self.description_text.get("1.0", tk.END).strip(),
+                "order": order,
+                "enabled": self.enabled_var.get(),
+            },
+        )
         self.destroy()
 
     def _on_cancel(self) -> None:
@@ -209,7 +231,7 @@ class FallbackDialog(tk.Toplevel):
         super().__init__(parent)
         self.title(title)
         self.resizable(False, False)
-        self.transient(parent)
+        self.transient(cast(tk.Wm, parent))
         self.grab_set()
 
         self._choices = list(choices)
@@ -276,7 +298,7 @@ class CategoryManagerDialog(tk.Toplevel):
         super().__init__(parent)
         self.title("Gestionar categorías")
         self.geometry("780x520")
-        self.transient(parent)
+        self.transient(cast(tk.Wm, parent))
         self.grab_set()
         self.category_service = category_service
         self.on_catalog_updated = on_catalog_updated
@@ -313,7 +335,9 @@ class CategoryManagerDialog(tk.Toplevel):
         }
         for column, heading in headings.items():
             self.tree.heading(column, text=heading)
-            anchor = tk.W if column not in ("order", "enabled") else tk.CENTER
+            anchor: Literal["w", "center"] = (
+                "w" if column not in ("order", "enabled") else "center"
+            )
             width = 200 if column == "title" else 120
             if column == "order":
                 width = 70
@@ -408,7 +432,7 @@ class CategoryManagerDialog(tk.Toplevel):
                 )
                 self._category_items[cat_node] = category
 
-    def _selected_item(self) -> Tuple[Optional[str], Optional[object]]:
+    def _selected_item(self) -> Tuple[Optional[str], Optional[str]]:
         selection = self.tree.selection()
         iid = selection[0] if selection else self.tree.focus()
         if not iid:
@@ -441,9 +465,13 @@ class CategoryManagerDialog(tk.Toplevel):
 
         selected_type, selected_data = self._selected_item()
         default_group_id = nav_groups[0].id
-        if selected_type == "group":
-            default_group_id = selected_data  # type: ignore[assignment]
-        elif selected_type == "category" and selected_data in self._category_cache:
+        if selected_type == "group" and selected_data:
+            default_group_id = selected_data
+        elif (
+            selected_type == "category"
+            and selected_data
+            and selected_data in self._category_cache
+        ):
             default_group_id = self._category_cache[selected_data].group_id
 
         initial_group = next(
@@ -651,12 +679,12 @@ class NavGroupFormDialog(tk.Toplevel):
         super().__init__(parent)
         self.title("Editar categoría" if nav_group else "Nueva categoría")
         self.resizable(False, False)
-        self.transient(parent)
+        self.transient(cast(tk.Wm, parent))
         self.grab_set()
 
         self._mode = mode if nav_group else "create"
         self._group = nav_group
-        self.result: Optional[Dict[str, object]] = None
+        self.result: Optional[NavGroupFormResult] = None
 
         frame = ttk.Frame(self, padding=12)
         frame.grid(row=0, column=0, sticky="nsew")
@@ -707,6 +735,7 @@ class NavGroupFormDialog(tk.Toplevel):
             return
         order_raw = self.order_var.get().strip()
         try:
+            order: Optional[int]
             if order_raw:
                 order = int(order_raw)
             else:
@@ -721,13 +750,15 @@ class NavGroupFormDialog(tk.Toplevel):
             messagebox.showwarning("Validación", "El orden debe ser un número entero.")
             return
 
-        self.result = {
-            "mode": self._mode,
-            "label": label,
-            "order": order,
-            "description": self.description_text.get("1.0", tk.END).strip(),
-            "enabled": self.enabled_var.get(),
-        }
+        self.result = cast(
+            NavGroupFormResult,
+            {
+                "label": label,
+                "order": order,
+                "description": self.description_text.get("1.0", tk.END).strip(),
+                "enabled": self.enabled_var.get(),
+            },
+        )
         self.destroy()
 
     def _on_cancel(self) -> None:

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+from functools import partial
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
@@ -114,7 +115,10 @@ class GalleryFrame(ttk.Frame):
 
         # Bind interactions
         for widget in (card,):
-            widget.bind("<Double-Button-1>", lambda e, p=product: self.on_edit(p))
+            widget.bind(
+                "<Double-Button-1>",
+                partial(self._handle_edit, product=product),
+            )
 
         # Image
         img_container = tk.Label(card, bg="#eee", text="Sin imagen")
@@ -161,7 +165,14 @@ class GalleryFrame(ttk.Frame):
 
         # Bind events to all children
         for child in card.winfo_children():
-            child.bind("<Double-Button-1>", lambda e, p=product: self.on_edit(p))
+            child.bind(
+                "<Double-Button-1>",
+                partial(self._handle_edit, product=product),
+            )
+
+    def _handle_edit(self, _event: tk.Event, *, product: Product) -> None:
+        """Forward double-click edits to the callback."""
+        self.on_edit(product)
 
     def _get_cached_image(self, product: Product):
         """Return a cached thumbnail for the product, if available."""
@@ -185,18 +196,18 @@ class GalleryFrame(ttk.Frame):
                 return None
         else:
             # 2. Try relative to Project Root (Best practice)
-            found = None
+            found: Optional[str] = None
             if self.project_root:
                 # Try Path object join
-                candidate = self.project_root / path
-                if candidate.exists():
-                    found = str(candidate)
+                candidate_path = self.project_root / path
+                if candidate_path.exists():
+                    found = str(candidate_path)
 
             # 3. Try relative to CWD (Fallback)
             if not found:
-                candidate = os.path.abspath(path)
-                if os.path.exists(candidate):
-                    found = candidate
+                candidate_str = os.path.abspath(path)
+                if os.path.exists(candidate_str):
+                    found = candidate_str
 
             if not found:
                 return None
