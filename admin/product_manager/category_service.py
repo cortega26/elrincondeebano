@@ -22,20 +22,24 @@ CategoryChoice = Tuple[str, str]
 
 
 def _slugify(source: str) -> str:
+    """Return a URL-friendly slug from a label."""
     slug = re.sub(r"[^A-Za-z0-9]+", "-", source.strip())
     slug = re.sub(r"-{2,}", "-", slug).strip("-")
     return slug.lower() or "categoria"
 
 
 def _canonical_key(value: str) -> str:
+    """Normalize identifiers for comparisons."""
     return (value or "").strip().lower()
 
 
 def _timestamp() -> str:
+    """Return an ISO-8601 UTC timestamp string."""
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
 
 def _version_stamp() -> str:
+    """Return a compact timestamp for catalog versions."""
     return datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
 
 
@@ -59,30 +63,36 @@ class CategoryService:
     """Provide CRUD operations for categories and navigation metadata."""
 
     def __init__(self, repository: JsonCategoryRepository):
+        """Initialize the category service."""
         self.repository = repository
         self._catalog: Optional[CategoryCatalog] = None
         self._lock = threading.RLock()
         self._product_service = None
 
     def attach_product_service(self, product_service) -> None:
+        """Attach a product service for validation hooks."""
         self._product_service = product_service
 
     def _load_catalog(self) -> CategoryCatalog:
+        """Load the category catalog into memory."""
         if self._catalog is None:
             self._catalog = self.repository.load_catalog()
         return self._catalog
 
     def reload(self) -> None:
+        """Reload the catalog from disk."""
         with self._lock:
             self._catalog = self.repository.load_catalog()
 
     def _persist(self) -> None:
+        """Persist the catalog with refreshed metadata."""
         catalog = self._load_catalog()
         catalog.version = _version_stamp()
         catalog.last_updated = _timestamp()
         self.repository.save_catalog(catalog)
 
     def list_nav_groups(self, include_disabled: bool = False) -> List[NavGroup]:
+        """Return navigation groups, optionally including disabled ones."""
         catalog = self._load_catalog()
         groups = catalog.nav_groups
         if include_disabled:
@@ -90,6 +100,7 @@ class CategoryService:
         return [replace(group) for group in groups if group.enabled]
 
     def list_categories(self, include_disabled: bool = False) -> List[Category]:
+        """Return categories, optionally including disabled ones."""
         catalog = self._load_catalog()
         categories = catalog.categories
         if include_disabled:
@@ -97,12 +108,14 @@ class CategoryService:
         return [replace(category) for category in categories if category.enabled]
 
     def list_category_choices(self) -> List[CategoryChoice]:
+        """Return (label, product_key) pairs for selection UI."""
         return [
             (category.title, category.product_key)
             for category in self.list_categories(include_disabled=False)
         ]
 
     def find_category(self, category_id: str) -> Category:
+        """Return a category by id or raise."""
         catalog = self._load_catalog()
         match = catalog.get_category(category_id)
         if not match:
@@ -110,10 +123,12 @@ class CategoryService:
         return match
 
     def find_category_by_product_key(self, product_key: str) -> Optional[Category]:
+        """Find a category by product key."""
         catalog = self._load_catalog()
         return catalog.find_category_by_product_key(product_key)
 
     def ensure_group_exists(self, group_id: str) -> NavGroup:
+        """Ensure a navigation group exists or raise."""
         catalog = self._load_catalog()
         group = catalog.get_nav_group(group_id)
         if not group:
@@ -134,6 +149,9 @@ class CategoryService:
         order: Optional[int] = None,
         description: str = "",
     ) -> NavGroup:
+        """Create a new navigation group."""
+        # Multiple optional fields are required for the UI workflow.
+        # pylint: disable=too-many-arguments
         with self._lock:
             catalog = self._load_catalog()
             normalized_id = group_id or _slugify(label)
@@ -167,6 +185,9 @@ class CategoryService:
         description: Optional[str] = None,
         enabled: Optional[bool] = None,
     ) -> NavGroup:
+        """Update an existing navigation group."""
+        # Multiple optional fields are required for the UI workflow.
+        # pylint: disable=too-many-arguments
         with self._lock:
             catalog = self._load_catalog()
             group = catalog.get_nav_group(group_id)
@@ -185,6 +206,7 @@ class CategoryService:
             return group
 
     def delete_nav_group(self, group_id: str) -> None:
+        """Remove a navigation group if unused."""
         with self._lock:
             catalog = self._load_catalog()
             group = catalog.get_nav_group(group_id)
@@ -210,6 +232,7 @@ class CategoryService:
         product_key: str,
         exclude_category: Optional[str] = None,
     ) -> None:
+        """Validate that slug and product_key are unique."""
         catalog = self._load_catalog()
         slug_key = _canonical_key(slug)
         product_key_normalized = _canonical_key(product_key)
@@ -240,6 +263,9 @@ class CategoryService:
         order: Optional[int] = None,
         enabled: bool = True,
     ) -> Category:
+        """Create a new top-level category."""
+        # Multiple optional fields are required for the UI workflow.
+        # pylint: disable=too-many-arguments
         with self._lock:
             catalog = self._load_catalog()
             self.ensure_group_exists(group_id)
@@ -285,6 +311,9 @@ class CategoryService:
         order: Optional[int] = None,
         enabled: Optional[bool] = None,
     ) -> Category:
+        """Update an existing category."""
+        # Multiple optional fields are required for the UI workflow.
+        # pylint: disable=too-many-arguments
         with self._lock:
             catalog = self._load_catalog()
             category = catalog.get_category(category_id)
@@ -328,6 +357,7 @@ class CategoryService:
         *,
         fallback_product_key: Optional[str] = None,
     ) -> None:
+        """Delete a category, optionally reassigning products."""
         with self._lock:
             catalog = self._load_catalog()
             category = catalog.get_category(category_id)
@@ -340,7 +370,8 @@ class CategoryService:
                 )
                 if in_use > 0 and not fallback_product_key:
                     raise CategoryServiceError(
-                        "La categoría se encuentra en uso. Debes seleccionar otra categoría para reasignar los productos."
+                        "La categoría se encuentra en uso. Debes seleccionar otra "
+                        "categoría para reasignar los productos."
                     )
                 if in_use > 0 and fallback_product_key:
                     self._product_service.reassign_category(
@@ -352,6 +383,7 @@ class CategoryService:
             self._persist()
 
     def reorder_categories(self, ordered_ids: Sequence[str]) -> None:
+        """Apply a new display order to categories."""
         with self._lock:
             catalog = self._load_catalog()
             order_map: Dict[str, int] = {
@@ -374,6 +406,9 @@ class CategoryService:
         order: Optional[int] = None,
         enabled: bool = True,
     ) -> Subcategory:
+        """Create a new subcategory."""
+        # Multiple optional fields are required for the UI workflow.
+        # pylint: disable=too-many-arguments
         with self._lock:
             category = self.find_category(category_id)
             candidate_slug = slug.strip() if slug else _slugify(title)
@@ -416,6 +451,9 @@ class CategoryService:
         order: Optional[int] = None,
         enabled: Optional[bool] = None,
     ) -> Subcategory:
+        """Update an existing subcategory."""
+        # Multiple optional fields are required for the UI workflow.
+        # pylint: disable=too-many-arguments
         with self._lock:
             category = self.find_category(category_id)
             subcategory = category.get_subcategory(subcategory_id)
@@ -439,6 +477,7 @@ class CategoryService:
             return subcategory
 
     def delete_subcategory(self, category_id: str, subcategory_id: str) -> None:
+        """Delete a subcategory from a category."""
         with self._lock:
             category = self.find_category(category_id)
             before = len(category.subcategories)
@@ -454,6 +493,7 @@ class CategoryService:
         category_id: str,
         ordered_ids: Sequence[str],
     ) -> None:
+        """Apply a new display order to subcategories."""
         with self._lock:
             category = self.find_category(category_id)
             order_map: Dict[str, int] = {

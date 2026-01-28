@@ -1,9 +1,15 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
-from typing import Optional, Callable
-from pathlib import Path
+"""Dialog windows for the product manager UI."""
+
+from __future__ import annotations
+
 import json
 import logging
+from pathlib import Path
+from typing import Callable, Optional
+
+import tkinter as tk
+from tkinter import messagebox, ttk
+
 from .components import UIConfig
 
 logger = logging.getLogger(__name__)
@@ -73,7 +79,7 @@ class PreferencesDialog(tk.Toplevel):
                 self.on_save()
             self.destroy()
             messagebox.showinfo("Éxito", "Preferencias guardadas y aplicadas.")
-        except Exception as exc:
+        except Exception as exc:  # pylint: disable=broad-exception-caught
             messagebox.showerror("Error", f"Error al guardar preferencias: {str(exc)}")
 
 

@@ -1,10 +1,15 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
-from typing import List, Optional, Callable, Dict, Any, TypeVar
-import threading
-from queue import Queue, Empty
-from dataclasses import dataclass
+"""Shared UI components for the product manager."""
+
+from __future__ import annotations
+
 import logging
+import threading
+from dataclasses import dataclass
+from queue import Empty, Queue
+from typing import Any, Callable, Dict, List, Optional, TypeVar
+
+import tkinter as tk
+from tkinter import messagebox, ttk
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +19,8 @@ T = TypeVar("T")
 @dataclass
 class UIConfig:
     """Configuration for UI elements."""
+    # Simple data container; public methods are not required.
+    # pylint: disable=too-few-public-methods
 
     font_size: int = 10
     window_size: tuple[int, int] = (1000, 600)
@@ -52,6 +59,8 @@ class UIState:
 
 class AsyncOperation:
     """Handles asynchronous operations with UI feedback."""
+    # Utility helper exposes a small public surface by design.
+    # pylint: disable=too-few-public-methods
 
     def __init__(self, parent: tk.Widget):
         self.parent = parent
@@ -64,13 +73,15 @@ class AsyncOperation:
         dialog = self._create_progress_dialog()
 
         def worker():
+            """Run the operation and push results to the queue."""
             try:
                 result = operation()
                 self.queue.put(("success", result))
-            except Exception as exc:
+            except Exception as exc:  # pylint: disable=broad-exception-caught
                 self.queue.put(("error", str(exc)))
 
         def check_queue():
+            """Poll the queue and update the dialog."""
             try:
                 status, result = self.queue.get_nowait()
                 dialog.destroy()
@@ -157,8 +168,11 @@ class TreeviewManager:
 
 class DragDropMixin:
     """Mixin to add drag & drop functionality to Treeview."""
+    # UI mixin exposes a small surface by design.
+    # pylint: disable=too-few-public-methods
 
     def setup_drag_and_drop(self, tree: ttk.Treeview):
+        """Bind drag-and-drop handlers to a Treeview widget."""
         self.tree = tree  # Ensure tree is accessible
         self._drag_data = {"item": None, "start_index": -1}
         tree.bind("<ButtonPress-1>", self._on_drag_start)
@@ -166,12 +180,14 @@ class DragDropMixin:
         tree.bind("<ButtonRelease-1>", self._on_drag_release)
 
     def _on_drag_start(self, event: tk.Event) -> None:
+        """Capture the starting row for drag operations."""
         item = self.tree.identify_row(event.y)
         if item:
             self._drag_data["item"] = item
             self._drag_data["start_index"] = self.tree.index(item)
 
     def _on_drag_motion(self, event: tk.Event) -> None:
+        """Move the row while dragging."""
         item = self._drag_data.get("item")
         if item:
             moved_to = self.tree.index(self.tree.identify_row(event.y))
@@ -179,6 +195,7 @@ class DragDropMixin:
                 self.tree.move(item, "", moved_to)
 
     def _on_drag_release(self, event: tk.Event) -> None:
+        """Finalize drag operations and apply changes."""
         try:
             item = self._drag_data.get("item")
             if item:
@@ -194,13 +211,14 @@ class DragDropMixin:
             column = self.tree.identify_column(event.x)
             clicked_item = self.tree.identify_row(event.y)
 
-            # This part interacts with product_service which might not be present in the Mixin itself
-            # Ideally this logic should be in the main class using the Mixin, or the Mixin should access it via self
+            # This part interacts with product_service which might not be present
+            # in the Mixin itself. Ideally this logic should be in the main class
+            # using the mixin, or the mixin should access it via self.
             if region == "cell" and column == "#5" and clicked_item:
                 if hasattr(self, "toggle_stock_by_click"):
                     self.toggle_stock_by_click(clicked_item)
 
-        except Exception as exc:
+        except Exception as exc:  # pylint: disable=broad-exception-caught
             if hasattr(self, "logger"):
-                self.logger.error(f"Error in drag & drop handling: {str(exc)}")
-            messagebox.showerror("Error", f"Error al actualizar el estado: {str(exc)}")
+                self.logger.error("Error in drag & drop handling: %s", exc)
+            messagebox.showerror("Error", f"Error al actualizar el estado: {exc}")

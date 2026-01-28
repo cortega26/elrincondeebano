@@ -1,3 +1,7 @@
+"""Synchronization engine for product updates."""
+
+from __future__ import annotations
+
 import json
 import logging
 import os
@@ -6,9 +10,11 @@ import threading
 import time
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 from urllib import error, parse, request
+
+from .time_utils import parse_iso_datetime
 
 
 def _utc_now_iso() -> str:
@@ -20,32 +26,11 @@ def _utc_now_iso() -> str:
     )
 
 
-def _parse_iso_datetime(value: Optional[str]) -> Optional[datetime]:
-    """Parse ISO-8601 datetime strings, returning None when invalid."""
-    if not value:
-        return None
-    normalized = value.replace("Z", "+00:00")
-    parser = getattr(datetime, "fromisoformat", None)
-    if parser is not None:
-        try:
-            return parser(normalized)
-        except ValueError:
-            pass
-    for fmt in (
-        "%Y-%m-%dT%H:%M:%S.%f%z",
-        "%Y-%m-%dT%H:%M:%S%z",
-        "%Y-%m-%dT%H:%M:%S.%f",
-        "%Y-%m-%dT%H:%M:%S",
-    ):
-        try:
-            return datetime.strptime(normalized, fmt)
-        except ValueError:
-            continue
-    return None
-
-
 @dataclass
 class SyncQueueEntry:
+    """Queue entry representing a pending sync mutation."""
+    # Data model stores multiple fields representing sync metadata.
+    # pylint: disable=too-many-instance-attributes
     product_id: str
     base_rev: int
     fields: Dict[str, Any]
@@ -60,6 +45,7 @@ class SyncQueueEntry:
     next_retry_at: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
+        """Serialize entry to a dictionary."""
         return {
             "product_id": self.product_id,
             "base_rev": self.base_rev,
@@ -77,6 +63,7 @@ class SyncQueueEntry:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "SyncQueueEntry":
+        """Build a queue entry from a dictionary payload."""
         return cls(
             product_id=data["product_id"],
             base_rev=data["base_rev"],
@@ -107,7 +94,7 @@ class SyncQueueEntry:
         """Return the next retry timestamp as epoch seconds."""
         if not self.next_retry_at:
             return None
-        retry_dt = _parse_iso_datetime(self.next_retry_at)
+        retry_dt = parse_iso_datetime(self.next_retry_at)
         if not retry_dt:
             return None
         return retry_dt.timestamp()
@@ -131,6 +118,9 @@ _NETWORK_ERROR_MARKERS: tuple[str, ...] = (
 
 
 class SyncEngine:
+    """Coordinate local changes with the remote sync API."""
+    # Service class stores multiple runtime flags and state.
+    # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
         *,
@@ -144,6 +134,8 @@ class SyncEngine:
         timeout: int = 10,
         logger: Optional[logging.Logger] = None,
     ) -> None:
+        # Constructor accepts several optional tuning parameters.
+        # pylint: disable=too-many-arguments
         self.repository = repository
         self.service = service
         self.queue_file = queue_file
@@ -163,6 +155,7 @@ class SyncEngine:
         self._load_queue()
 
     def _normalize_api_base(self, api_base: str) -> str:
+        """Normalize and validate the API base URL."""
         if not api_base:
             return ""
         trimmed = api_base.strip()
@@ -175,6 +168,7 @@ class SyncEngine:
         return trimmed.rstrip("/")
 
     def _load_queue(self) -> None:
+        """Load queued sync entries from disk."""
         if not os.path.exists(self.queue_file):
             return
         try:
@@ -188,7 +182,7 @@ class SyncEngine:
                 self._conflicts = conflicts
                 if dirty:
                     self._save_queue()
-        except Exception as exc:
+        except Exception as exc:  # pylint: disable=broad-exception-caught
             self.logger.error("No se pudo cargar la cola de sincronización: %s", exc)
 
     def _normalise_loaded_entries(self, entries: List[SyncQueueEntry]) -> bool:
@@ -211,6 +205,7 @@ class SyncEngine:
         return dirty
 
     def _save_queue(self) -> None:
+        """Persist the sync queue to disk."""
         payload = {
             "queue": [entry.to_dict() for entry in self._queue],
             "conflicts": list(self._conflicts),
@@ -222,17 +217,20 @@ class SyncEngine:
         os.replace(tmp_path, self.queue_file)
 
     def _compute_retry_delay(self, attempts: int) -> float:
+        """Compute exponential backoff delay for retries."""
         exponent = max(0, min(attempts - 1, self._max_backoff_exponent))
         delay = self._retry_initial_delay * (2**exponent)
         return float(min(delay, self._retry_max_delay))
 
     def _is_network_error_message(self, message: Optional[str]) -> bool:
+        """Return True when the message matches network error patterns."""
         if not message:
             return False
         msg = str(message).lower()
         return any(marker in msg for marker in _NETWORK_ERROR_MARKERS)
 
     def _is_network_error(self, exc: Exception) -> bool:
+        """Return True when the exception represents a network failure."""
         if isinstance(
             exc,
             (
@@ -252,6 +250,7 @@ class SyncEngine:
         return self._is_network_error_message(str(exc))
 
     def _should_count_as_pending(self, entry: SyncQueueEntry, now: float) -> bool:
+        """Return True when the entry should count as pending."""
         if entry.status == "pending":
             retry_ts = entry.next_retry_timestamp()
             if retry_ts and retry_ts > now:
@@ -262,6 +261,7 @@ class SyncEngine:
         return False
 
     def status_summary(self) -> Dict[str, int]:
+        """Return counts for pending, waiting, and error entries."""
         with self._lock:
             now = time.time()
             pending = 0
@@ -293,6 +293,9 @@ class SyncEngine:
         snapshot: Dict[str, Any],
         timestamp: Optional[str] = None,
     ) -> None:
+        """Queue a local update for background synchronization."""
+        # Multiple required fields are needed to describe the update.
+        # pylint: disable=too-many-arguments
         if not self.enabled:
             return
         entry = SyncQueueEntry(
@@ -307,10 +310,12 @@ class SyncEngine:
             self._save_queue()
 
     def get_conflicts(self) -> List[Dict[str, Any]]:
+        """Return a copy of stored conflict entries."""
         with self._lock:
             return list(self._conflicts)
 
     def clear_conflicts(self) -> List[Dict[str, Any]]:
+        """Return and clear conflicts from memory."""
         with self._lock:
             conflicts = list(self._conflicts)
             self._conflicts.clear()
@@ -318,6 +323,7 @@ class SyncEngine:
             return conflicts
 
     def pending_count(self) -> int:
+        """Return the number of entries ready for sync."""
         with self._lock:
             now = time.time()
             return sum(
@@ -325,15 +331,18 @@ class SyncEngine:
             )
 
     def _build_url(self, path: str) -> str:
+        """Build a full API URL from a path."""
         return f"{self.api_base}{path}"
 
     def _assert_http_url(self, url: str) -> str:
+        """Validate that the URL is http(s) with a host."""
         parsed = parse.urlparse(url)
         if parsed.scheme not in ("http", "https") or not parsed.netloc:
             raise ValueError("Sync URL inválida; solo se permiten esquemas http/https.")
         return url
 
     def _send_patch(self, entry: SyncQueueEntry) -> Optional[Dict[str, Any]]:
+        """Send a patch request for a queued update."""
         payload = json.dumps(
             {
                 "base_rev": entry.base_rev,
@@ -358,13 +367,11 @@ class SyncEngine:
         except error.HTTPError as exc:
             if exc.code in (409, 412):
                 response_body = exc.read().decode("utf-8")
-                try:
-                    return json.loads(response_body)
-                except json.JSONDecodeError:
-                    raise
+                return json.loads(response_body)
             raise
 
     def _pull_changes(self) -> None:
+        """Pull incremental changes from the remote API."""
         catalog_meta = self.repository.get_catalog_meta()
         since_rev = catalog_meta.get("rev", 0)
         url = self._assert_http_url(
@@ -375,7 +382,7 @@ class SyncEngine:
             # url validated by _assert_http_url (http/https only).
             with request.urlopen(req, timeout=self.timeout) as resp:  # nosec B310
                 response = json.loads(resp.read().decode("utf-8"))
-        except Exception as exc:
+        except Exception as exc:  # pylint: disable=broad-exception-caught
             self.logger.debug("No se pudo obtener cambios incrementales: %s", exc)
             return
         changes = response.get("changes") or []
@@ -396,6 +403,9 @@ class SyncEngine:
                 self.logger.error("Error aplicando snapshot remoto: %s", exc)
 
     def process_once(self) -> None:
+        """Process the queue once, pushing pending updates."""
+        # Complex workflow with multiple branches.
+        # pylint: disable=too-many-branches
         if not self.enabled:
             return
         with self._lock:
@@ -471,10 +481,12 @@ class SyncEngine:
             self._last_pull_ts = now
 
     def start_background(self, stop_event: threading.Event) -> None:
+        """Start a background thread that processes the queue."""
         if not self.enabled:
             return
 
         def _runner():
+            """Background loop for processing sync queue."""
             while not stop_event.is_set():
                 try:
                     self.process_once()

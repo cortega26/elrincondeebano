@@ -1,14 +1,23 @@
+"""Repositories for product catalog persistence."""
+
+# Similar repository logic is intentionally duplicated for clarity.
+# pylint: disable=duplicate-code
+
+from __future__ import annotations
+
 import json
-import os
 import logging
+import os
 import shutil
-import portalocker
-from typing import List, Dict, Any, Optional, Protocol
-from datetime import datetime
-from pathlib import Path
-from contextlib import contextmanager
 import threading
+from contextlib import contextmanager
+from datetime import datetime
 from functools import wraps
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Protocol
+
+import portalocker
+
 from .models import Product, ProductCatalog
 
 logger = logging.getLogger(__name__)
@@ -17,19 +26,13 @@ logger = logging.getLogger(__name__)
 class ProductRepositoryError(Exception):
     """Base exception for repository errors."""
 
-    pass
-
 
 class ProductLoadError(ProductRepositoryError):
     """Exception raised when there's an error loading products."""
 
-    pass
-
 
 class ProductSaveError(ProductRepositoryError):
     """Exception raised when there's an error saving products."""
-
-    pass
 
 
 class ProductRepositoryProtocol(Protocol):
@@ -37,11 +40,11 @@ class ProductRepositoryProtocol(Protocol):
 
     def load_products(self) -> List[Product]:
         """Load products from the repository."""
-        ...
+        raise NotImplementedError
 
     def save_products(self, products: List[Product]) -> None:
         """Save products to the repository."""
-        ...
+        raise NotImplementedError
 
 
 def with_file_lock(func):
@@ -49,6 +52,9 @@ def with_file_lock(func):
 
     @wraps(func)
     def wrapper(self, *args, **kwargs):
+        """Wrap repository calls with a file lock."""
+        # Accessing protected lock is intentional for repository synchronization.
+        # pylint: disable=protected-access
         with self._file_lock:
             return func(self, *args, **kwargs)
 
@@ -95,7 +101,7 @@ class JsonProductRepository(ProductRepositoryProtocol):
         except OSError as exc:
             raise ProductRepositoryError(
                 f"Error al crear el directorio {self._file_path.parent}: {exc}"
-            )
+            ) from exc
 
     def _create_backup(self) -> None:
         """Create a backup of the current data file."""
@@ -107,8 +113,10 @@ class JsonProductRepository(ProductRepositoryProtocol):
             shutil.copy2(self._file_path, backup_path)
             self._cleanup_old_backups()
         except OSError as exc:
-            logger.error(f"Error al crear copia de seguridad: {exc}")
-            raise ProductSaveError(f"Error al crear copia de seguridad: {exc}")
+            logger.error("Error al crear copia de seguridad: %s", exc)
+            raise ProductSaveError(
+                f"Error al crear copia de seguridad: {exc}"
+            ) from exc
 
     def _cleanup_old_backups(self) -> None:
         """Remove old backup files keeping only the most recent ones."""
@@ -119,7 +127,7 @@ class JsonProductRepository(ProductRepositoryProtocol):
                 backup_files[0].unlink()
                 backup_files.pop(0)
             except OSError as exc:
-                logger.error(f"Error al eliminar copia de seguridad antigua: {exc}")
+                logger.error("Error al eliminar copia de seguridad antigua: %s", exc)
 
     @contextmanager
     def _open_file(self, mode: str = "r"):
@@ -146,20 +154,20 @@ class JsonProductRepository(ProductRepositoryProtocol):
         except OSError as exc:
             raise ProductRepositoryError(
                 f"Error al acceder al archivo {self._file_path}: {exc}"
-            )
+            ) from exc
         finally:
             if file_obj:
                 try:
                     portalocker.unlock(file_obj)
                     file_obj.close()
-                except Exception as exc:
-                    logger.debug(f"Error al cerrar archivo: {exc}")
+                except Exception as exc:  # pylint: disable=broad-exception-caught
+                    logger.debug("Error al cerrar archivo: %s", exc)
 
     @with_file_lock
     def load_products(self) -> List[Product]:
         """Load products from the JSON file."""
         if not self._file_path.exists():
-            logger.warning(f"Archivo de productos no encontrado: {self._file_path}")
+            logger.warning("Archivo de productos no encontrado: %s", self._file_path)
             return []
         try:
             with self._open_file("r") as file:
@@ -188,11 +196,11 @@ class JsonProductRepository(ProductRepositoryProtocol):
             error_msg = f"Error al analizar JSON en {self._file_path}: {exc}"
             logger.error(error_msg)
             self._handle_corrupted_file()
-            raise ProductLoadError(error_msg)
-        except Exception as exc:
+            raise ProductLoadError(error_msg) from exc
+        except Exception as exc:  # pylint: disable=broad-exception-caught
             error_msg = f"Error inesperado al cargar productos: {exc}"
             logger.error(error_msg)
-            raise ProductLoadError(error_msg)
+            raise ProductLoadError(error_msg) from exc
 
     def save_products(
         self, products: List[Product], metadata: Optional[Dict[str, Any]] = None
@@ -217,10 +225,10 @@ class JsonProductRepository(ProductRepositoryProtocol):
             }
             with self._open_file("w") as file:
                 json.dump(catalog, file, indent=2, ensure_ascii=False)
-        except Exception as exc:
+        except Exception as exc:  # pylint: disable=broad-exception-caught
             error_msg = f"Error al guardar productos: {exc}"
             logger.error(error_msg)
-            raise ProductSaveError(error_msg)
+            raise ProductSaveError(error_msg) from exc
 
     def _handle_corrupted_file(self) -> None:
         """Handle corrupted data file by attempting to restore from backup."""
@@ -228,9 +236,9 @@ class JsonProductRepository(ProductRepositoryProtocol):
         if latest_backup:
             try:
                 shutil.copy2(latest_backup, self._file_path)
-                logger.info(f"Restaurado desde copia de seguridad: {latest_backup}")
+                logger.info("Restaurado desde copia de seguridad: %s", latest_backup)
             except OSError as exc:
-                logger.error(f"Error al restaurar desde copia de seguridad: {exc}")
+                logger.error("Error al restaurar desde copia de seguridad: %s", exc)
 
     def _find_latest_backup(self) -> Optional[Path]:
         """Find the most recent backup file."""
@@ -250,7 +258,9 @@ class JsonProductRepository(ProductRepositoryProtocol):
                 raise ValueError(f"Faltan campos requeridos: {missing}")
             return Product.from_dict(data)
         except (ValueError, TypeError) as exc:
-            raise ProductRepositoryError(f"Datos de producto inválidos: {exc}")
+            raise ProductRepositoryError(
+                f"Datos de producto inválidos: {exc}"
+            ) from exc
 
     def get_catalog_meta(self) -> Dict[str, Any]:
         """Return current catalog metadata."""
@@ -289,7 +299,8 @@ class JsonProductRepository(ProductRepositoryProtocol):
                 products_data = raw_data
             if isinstance(products_data, dict) or not isinstance(products_data, list):
                 logger.error(
-                    "Estructura inválida del catálogo en %s: se esperaba una lista de productos y se recibió %s",
+                    "Estructura inválida del catálogo en %s: se esperaba una lista "
+                    "de productos y se recibió %s",
                     self._file_path,
                     type(products_data).__name__,
                 )
@@ -298,7 +309,8 @@ class JsonProductRepository(ProductRepositoryProtocol):
             for index, item in enumerate(products_data):
                 if not isinstance(item, dict):
                     logger.warning(
-                        "Omitiendo entrada %s de tipo %s: se esperaba un objeto con datos de producto.",
+                        "Omitiendo entrada %s de tipo %s: se esperaba un objeto con "
+                        "datos de producto.",
                         index,
                         type(item).__name__,
                     )
@@ -306,7 +318,7 @@ class JsonProductRepository(ProductRepositoryProtocol):
                 try:
                     product = self._create_product(item)
                     valid_products.append(product)
-                except Exception as exc:
+                except Exception as exc:  # pylint: disable=broad-exception-caught
                     logger.warning(
                         "Omitiendo datos de producto inválidos en índice %s: %s",
                         index,
@@ -314,6 +326,6 @@ class JsonProductRepository(ProductRepositoryProtocol):
                     )
             self.save_products(valid_products)
             return True
-        except Exception as exc:
-            logger.error(f"Error al reparar la base de datos: {exc}")
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            logger.error("Error al reparar la base de datos: %s", exc)
             return False

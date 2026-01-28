@@ -1,6 +1,10 @@
+"""Utility helpers for UI image handling and category labels."""
+
+from __future__ import annotations
+
 import logging
 import os
-from typing import Optional, Tuple, Dict, Any, List
+from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 
 logger = logging.getLogger(__name__)
 
@@ -11,7 +15,7 @@ try:
     PIL_AVAILABLE = True
     try:
         PIL_WEBP = features.check("webp")
-    except Exception:
+    except Exception:  # pylint: disable=broad-exception-caught
         PIL_WEBP = False
 
     # Try multiple strategies for AVIF support
@@ -19,10 +23,17 @@ try:
         import pillow_heif  # type: ignore
 
         pillow_heif.register_heif_opener()
-        try:
-            pillow_heif.register_avif_opener()
-        except Exception as exc:
-            logger.debug("Failed to register AVIF opener via pillow_heif: %s", exc)
+        REGISTER_AVIF_OPENER = cast(
+            Optional[Callable[[], None]],
+            getattr(pillow_heif, "register_avif_opener", None),
+        )
+        if REGISTER_AVIF_OPENER is not None:
+            try:
+                REGISTER_AVIF_OPENER()
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                logger.debug(
+                    "Failed to register AVIF opener via pillow_heif: %s", exc
+                )
         PIL_AVIF = True
     except ImportError:
         try:
@@ -32,9 +43,9 @@ try:
         except ImportError:
             try:
                 PIL_AVIF = features.check("avif")
-            except Exception:
+            except Exception:  # pylint: disable=broad-exception-caught
                 PIL_AVIF = False
-    except Exception:
+    except Exception:  # pylint: disable=broad-exception-caught
         PIL_AVIF = False
 
 except ImportError:
@@ -65,8 +76,8 @@ def load_thumbnail(path: str, w: int, h: int) -> Optional[Any]:
                 img = img.convert("RGBA")
             img.thumbnail((w, h))
             return ImageTk.PhotoImage(img)
-    except Exception as exc:
-        logger.warning(f"Failed to load thumbnail {path}: {exc}")
+    except Exception as exc:  # pylint: disable=broad-exception-caught
+        logger.warning("Failed to load thumbnail %s: %s", path, exc)
         return None
 
 
@@ -74,14 +85,17 @@ class CategoryHelper:
     """Helper for managing category display names and keys."""
 
     def __init__(self, choices: List[Tuple[str, str]]):
+        """Initialize helper with category choices."""
         self.choices = choices
         self._prepare_mappings()
 
     def update_choices(self, choices: List[Tuple[str, str]]) -> None:
+        """Update category choices and rebuild mappings."""
         self.choices = choices
         self._prepare_mappings()
 
     def _prepare_mappings(self) -> None:
+        """Build lookup tables for labels and keys."""
         self.display_to_key: Dict[str, str] = {}
         self.key_to_display: Dict[str, str] = {}
         self.labels_by_key: Dict[str, str] = {}
@@ -96,6 +110,7 @@ class CategoryHelper:
 
     @staticmethod
     def _format_display(label: str, key: str) -> str:
+        """Format a display label for a category choice."""
         cleaned_label = (label or "").strip()
         cleaned_key = (key or "").strip()
         if not cleaned_label:
@@ -105,6 +120,7 @@ class CategoryHelper:
         return f"{cleaned_label} ({cleaned_key})"
 
     def get_display_for_key(self, key: str) -> str:
+        """Return the display label for a stored key."""
         normalized = (key or "").strip().lower()
         if not normalized:
             return ""
@@ -115,6 +131,7 @@ class CategoryHelper:
         return self._format_display(label, key)
 
     def get_key_from_display(self, display_value: str) -> str:
+        """Return the key for a display label."""
         cleaned = (display_value or "").strip()
         if not cleaned:
             return ""

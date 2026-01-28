@@ -2,8 +2,12 @@
 Tkinter dialogs for managing storefront categories and subcategories.
 """
 
+# UI event handlers are self-explanatory; docstrings would add noise.
+# pylint: disable=missing-function-docstring
+
 from __future__ import annotations
 
+import re
 import tkinter as tk
 from tkinter import ttk, messagebox
 from typing import Callable, Dict, Optional, Sequence, Tuple
@@ -19,8 +23,6 @@ FallbackChoice = Tuple[str, str]
 
 
 def _slugify(value: str) -> str:
-    import re
-
     slug = re.sub(r"[^A-Za-z0-9]+", "-", value.strip())
     slug = re.sub(r"-{2,}", "-", slug).strip("-")
     return slug.lower() or "categoria"
@@ -28,6 +30,8 @@ def _slugify(value: str) -> str:
 
 class CategoryFormDialog(tk.Toplevel):
     """Dialog to create or edit a subcategoría."""
+    # UI dialog stores several widget references by design.
+    # pylint: disable=too-many-instance-attributes
 
     def __init__(
         self,
@@ -259,6 +263,8 @@ class FallbackDialog(tk.Toplevel):
 
 class CategoryManagerDialog(tk.Toplevel):
     """Main dialog for managing categories and subcategories."""
+    # UI dialog stores several widget references by design.
+    # pylint: disable=too-many-instance-attributes
 
     def __init__(
         self,
@@ -346,6 +352,7 @@ class CategoryManagerDialog(tk.Toplevel):
         )
 
     def refresh_tree(self) -> None:
+        """Reload the tree contents from the category service."""
         try:
             nav_groups = self.category_service.list_nav_groups(include_disabled=True)
             categories = self.category_service.list_categories(include_disabled=True)
@@ -437,7 +444,7 @@ class CategoryManagerDialog(tk.Toplevel):
         if selected_type == "group":
             default_group_id = selected_data  # type: ignore[assignment]
         elif selected_type == "category" and selected_data in self._category_cache:
-            default_group_id = self._category_cache[selected_data].group_id  # type: ignore[assignment]
+            default_group_id = self._category_cache[selected_data].group_id
 
         initial_group = next(
             (group for group in nav_groups if group.id == default_group_id),

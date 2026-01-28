@@ -1,24 +1,30 @@
+"""Service layer for product management."""
+
+from __future__ import annotations
+
+import json
+import logging
+import threading
+from collections import defaultdict
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from enum import Enum, auto
 from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
     List,
     Optional,
-    Dict,
-    Set,
     Protocol,
-    Any,
+    Set,
     Tuple,
     Union,
     cast,
-    TYPE_CHECKING,
 )
+
 from .models import Product
-from .repositories import ProductRepositoryProtocol, ProductRepositoryError
-import logging
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
-import threading
-from collections import defaultdict
-from enum import Enum, auto
-import json
+from .repositories import ProductRepositoryError, ProductRepositoryProtocol
+from .time_utils import parse_iso_datetime
 
 if TYPE_CHECKING:
     from .category_service import CategoryService
@@ -31,30 +37,6 @@ ProductUpdateSpec = Union[Tuple[str, Product], Tuple[str, str, Product]]
 def _utc_now_iso() -> str:
     """Return current UTC timestamp with millisecond precision."""
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
-
-
-def _parse_iso_datetime(value: Optional[str]) -> datetime:
-    """Parse ISO-8601 datetime strings, falling back to local now."""
-    if not value:
-        return datetime.now()
-    normalized = value.replace("Z", "+00:00")
-    parser = getattr(datetime, "fromisoformat", None)
-    if parser is not None:
-        try:
-            return parser(normalized)
-        except ValueError:
-            pass
-    for fmt in (
-        "%Y-%m-%dT%H:%M:%S.%f%z",
-        "%Y-%m-%dT%H:%M:%S%z",
-        "%Y-%m-%dT%H:%M:%S.%f",
-        "%Y-%m-%dT%H:%M:%S",
-    ):
-        try:
-            return datetime.strptime(normalized, fmt)
-        except ValueError:
-            continue
-    return datetime.now()
 
 
 class ProductEventType(Enum):
@@ -100,31 +82,29 @@ class VersionInfo:
 class ProductServiceError(Exception):
     """Base exception for ProductService errors."""
 
-    pass
-
 
 class ProductNotFoundError(ProductServiceError):
     """Raised when a product is not found."""
-
-    pass
 
 
 class DuplicateProductError(ProductServiceError):
     """Raised when attempting to create a duplicate product."""
 
-    pass
-
 
 class ProductEventHandler(Protocol):
     """Protocol for product event handlers."""
+    # Protocol defines a single method by design.
+    # pylint: disable=too-few-public-methods
 
     def handle_event(self, event: ProductEvent) -> None:
         """Handle a product event."""
-        ...
+        raise NotImplementedError
 
 
 class ProductService:
     """Service class for managing product operations."""
+    # Service exposes many operations and keeps runtime state.
+    # pylint: disable=too-many-instance-attributes,too-many-public-methods
 
     def __init__(
         self,
@@ -198,8 +178,8 @@ class ProductService:
         for handler in self._event_handlers[event.event_type]:
             try:
                 handler.handle_event(event)
-            except Exception as exc:
-                logger.error(f"Error en el manejador de eventos: {exc}")
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                logger.error("Error en el manejador de eventos: %s", exc)
 
     def set_sync_engine(self, sync_engine) -> None:
         """Attach a sync engine for remote coordination."""
@@ -323,8 +303,8 @@ class ProductService:
                     self._products = list(self.repository.load_products())
                 return list(self._products)
         except ProductRepositoryError as exc:
-            logger.error(f"Error al cargar productos: {exc}")
-            raise ProductServiceError(f"Error al cargar productos: {exc}")
+            logger.error("Error al cargar productos: %s", exc)
+            raise ProductServiceError(f"Error al cargar productos: {exc}") from exc
 
     def get_product_by_name(
         self, name: str, description: Optional[str] = None
@@ -399,9 +379,11 @@ class ProductService:
                         details={"category": product.category},
                     )
                 )
-            except Exception as exc:
-                logger.error(f"Error al agregar producto: {exc}")
-                raise ProductServiceError(f"Error al agregar producto: {exc}")
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                logger.error("Error al agregar producto: %s", exc)
+                raise ProductServiceError(
+                    f"Error al agregar producto: {exc}"
+                ) from exc
 
     def update_product(
         self,
@@ -468,11 +450,15 @@ class ProductService:
                     "timestamp": timestamp,
                     "snapshot": updated_product.to_dict(),
                 }
-            except ValueError:
-                raise ProductNotFoundError(f"Producto no encontrado: {original_name}")
-            except Exception as exc:
-                logger.error(f"Error al actualizar producto: {exc}")
-                raise ProductServiceError(f"Error al actualizar producto: {exc}")
+            except ValueError as exc:
+                raise ProductNotFoundError(
+                    f"Producto no encontrado: {original_name}"
+                ) from exc
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                logger.error("Error al actualizar producto: %s", exc)
+                raise ProductServiceError(
+                    f"Error al actualizar producto: {exc}"
+                ) from exc
         if self.sync_engine and queue_payload:
             self.sync_engine.enqueue_update(**queue_payload)
 
@@ -498,9 +484,11 @@ class ProductService:
                 return True
             except ProductNotFoundError:
                 return False
-            except Exception as exc:
-                logger.error(f"Error al eliminar producto: {exc}")
-                raise ProductServiceError(f"Error al eliminar producto: {exc}")
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                logger.error("Error al eliminar producto: %s", exc)
+                raise ProductServiceError(
+                    f"Error al eliminar producto: {exc}"
+                ) from exc
 
     def get_categories(self) -> List[str]:
         """
@@ -641,9 +629,11 @@ class ProductService:
                         details={"cantidad_productos": len(new_order)},
                     )
                 )
-            except Exception as exc:
-                logger.error(f"Error al reordenar productos: {exc}")
-                raise ProductServiceError(f"Error al reordenar productos: {exc}")
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                logger.error("Error al reordenar productos: %s", exc)
+                raise ProductServiceError(
+                    f"Error al reordenar productos: {exc}"
+                ) from exc
 
     def clear_cache(self) -> None:
         """Clear all cached data."""
@@ -654,6 +644,8 @@ class ProductService:
 
     def batch_update(self, updates: List[ProductUpdateSpec]) -> None:
         """Perform multiple updates in a single transaction."""
+        # Complex transactional logic; keep localized for now.
+        # pylint: disable=too-many-locals,too-many-branches
 
         if not updates:
             return
@@ -717,7 +709,8 @@ class ProductService:
                     projected_keys.remove(original_key)
                     if new_key in projected_keys:
                         raise DuplicateProductError(
-                            "La actualización crearía productos duplicados con el mismo nombre y descripción."
+                            "La actualización crearía productos duplicados con el mismo "
+                            "nombre y descripción."
                         )
                     projected_keys.add(new_key)
                     processed_updates.append((original_key, new_key, updated_product))
@@ -741,15 +734,19 @@ class ProductService:
                         details={"actualizaciones_totales": len(updates)},
                     )
                 )
-            except Exception as exc:
-                logger.error(f"Error en actualización por lotes: {exc}")
-                raise ProductServiceError(f"Error en actualización por lotes: {exc}")
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                logger.error("Error en actualización por lotes: %s", exc)
+                raise ProductServiceError(
+                    f"Error en actualización por lotes: {exc}"
+                ) from exc
 
     def get_version_info(self) -> VersionInfo:
         """Get current version information."""
         try:
             with self._products_lock:
                 products = self.get_all_products()
+                # Repository exposes a protected helper for consistent locking.
+                # pylint: disable=protected-access
                 with self.repository._open_file("r") as file:
                     data = json.load(file)
                     if isinstance(data, list):
@@ -762,11 +759,13 @@ class ProductService:
                         version=data.get(
                             "version", datetime.now().strftime("%Y%m%d-%H%M%S")
                         ),
-                        last_updated=_parse_iso_datetime(data.get("last_updated")),
+                        last_updated=parse_iso_datetime(
+                            data.get("last_updated"), default=datetime.now()
+                        ),
                         product_count=len(products),
                     )
-        except Exception as exc:
-            logger.error(f"Error getting version info: {exc}")
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            logger.error("Error getting version info: %s", exc)
             return VersionInfo(
                 version=datetime.now().strftime("%Y%m%d-%H%M%S"),
                 last_updated=datetime.now(),
