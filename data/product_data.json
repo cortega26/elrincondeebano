@@ -1,6 +1,6 @@
 {
-  "version": "20260126-190457",
-  "last_updated": "2026-01-26T19:04:57.008418",
+  "version": "20260128-215219",
+  "last_updated": "2026-01-28T21:52:19.264190",
   "rev": 0,
   "products": [
     {
@@ -13,6 +13,7 @@
       "image_path": "assets/images/limpieza_y_aseo/Nova Clásica 2x14m.webp",
       "image_avif_path": "",
       "order": 0,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -34,6 +35,7 @@
       "image_path": "assets/images/despensa/Harina Mont Blanc 1Kg.webp",
       "image_avif_path": "",
       "order": 1,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -62,31 +64,11 @@
       "image_path": "assets/images/bebidas/Coca Cola 3L.webp",
       "image_avif_path": "",
       "order": 2,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
           "ts": "2025-11-24T19:48:43.501Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        }
-      }
-    },
-    {
-      "name": "McKay • Galletas de Limón",
-      "description": "Empaque de 120g",
-      "price": 1300,
-      "discount": 0,
-      "stock": false,
-      "category": "SnacksDulces",
-      "image_path": "assets/images/snacks_dulces/Galletas Limón McKay 120g.webp",
-      "image_avif_path": "",
-      "order": 3,
-      "rev": 0,
-      "field_last_modified": {
-        "order": {
-          "ts": "2025-11-08T14:37:06.178Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -104,6 +86,7 @@
       "image_path": "assets/images/vinos/Carmenere Reserva Chivilingo Cousiño-Macul botella 750mL.webp",
       "image_avif_path": "",
       "order": 4,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -125,6 +108,7 @@
       "image_path": "assets/images/bebidas/Agua 2L con gas Benedictino.webp",
       "image_avif_path": "",
       "order": 5,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -153,6 +137,7 @@
       "image_path": "assets/images/vinos/Misiones de Rengo Sauvignon Blanc botella 750mL.webp",
       "image_avif_path": "",
       "order": 7,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -166,6 +151,7 @@
       "image_path": "assets/images/despensa/Tortilla grande mexicana Líder 350g.webp",
       "image_avif_path": "",
       "order": 8,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -194,6 +180,7 @@
       "image_path": "assets/images/despensa/Mostaza Great Value 397g.webp",
       "image_avif_path": "",
       "order": 9,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -229,6 +216,7 @@
       "image_path": "assets/images/bebidas/Sprite 3L desechable.webp",
       "image_avif_path": "",
       "order": 10,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -250,16 +238,9 @@
       "image_path": "assets/images/carnes_y_embutidos/Salame Italiano Líder 100g.webp",
       "image_avif_path": "",
       "order": 12,
+      "is_archived": false,
       "rev": 0,
-      "field_last_modified": {
-        "stock": {
-          "ts": "2025-11-24T19:47:58.846Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        }
-      }
+      "field_last_modified": {}
     },
     {
       "name": "Queso Llanero 1Kg",
@@ -271,6 +252,7 @@
       "image_path": "assets/images/lacteos/Queso-Llanero2.webp",
       "image_avif_path": "",
       "order": 13,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -284,6 +266,7 @@
       "image_path": "assets/images/despensa/Azúcar blanca Iansa 900g.webp",
       "image_avif_path": "",
       "order": 14,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -312,6 +295,7 @@
       "image_path": "assets/images/bebidas/Coca Cola Zero 3L.webp",
       "image_avif_path": "",
       "order": 15,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -333,6 +317,7 @@
       "image_path": "assets/images/vinos/Merlot Misiones de Rengo 750mL.webp",
       "image_avif_path": "",
       "order": 16,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -354,6 +339,7 @@
       "image_path": "assets/images/cervezas/Kross lata 470mL.webp",
       "image_avif_path": "",
       "order": 17,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -396,6 +382,7 @@
       "image_path": "assets/images/snacks_salados/Crunchis Queso 160g.webp",
       "image_avif_path": "",
       "order": 18,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -409,6 +396,7 @@
       "image_path": "assets/images/snacks_dulces/Galletas Coco McKay 120g.webp",
       "image_avif_path": "",
       "order": 19,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "description": {
@@ -437,6 +425,7 @@
       "image_path": "assets/images/despensa/Salsa de Tomate Ketchup Lider 680g.webp",
       "image_avif_path": "",
       "order": 20,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -465,6 +454,7 @@
       "image_path": "assets/images/snacks_dulces/Galletas Niza McKay 150g.webp",
       "image_avif_path": "",
       "order": 21,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -493,6 +483,7 @@
       "image_path": "assets/images/snacks_dulces/Galletas Mantequilla McKay 140g.webp",
       "image_avif_path": "",
       "order": 22,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -514,6 +505,7 @@
       "image_path": "assets/images/lacteos/Mantequilla Kumey.webp",
       "image_avif_path": "",
       "order": 23,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -527,6 +519,7 @@
       "image_path": "assets/images/mascotas/easy-clean-lavanda4474.webp",
       "image_avif_path": "",
       "order": 24,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -548,6 +541,7 @@
       "image_path": "assets/images/vinos/Red Blend Reserva Chivilingo botella 750mL.webp",
       "image_avif_path": "",
       "order": 25,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -561,6 +555,7 @@
       "image_path": "assets/images/espumantes/Espumante Misiones de Rengo Rosé.webp",
       "image_avif_path": "",
       "order": 26,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -574,6 +569,7 @@
       "image_path": "assets/images/espumantes/Espumante Misiones de Rengo Demi Sec.webp",
       "image_avif_path": "",
       "order": 27,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -587,6 +583,7 @@
       "image_path": "assets/images/espumantes/Espumante Misiones de Rengo Brut.webp",
       "image_avif_path": "",
       "order": 28,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -608,6 +605,7 @@
       "image_path": "assets/images/espumantes/Undurraga Sweet Moscato 750mL.webp",
       "image_avif_path": "",
       "order": 29,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -636,6 +634,7 @@
       "image_path": "assets/images/piscos/Pisco Alto del Carmen Especial 35° 750mL.webp",
       "image_avif_path": "",
       "order": 30,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -657,6 +656,7 @@
       "image_path": "assets/images/piscos/Pisco Alto del Carmen Especial 35° 1L.webp",
       "image_avif_path": "",
       "order": 31,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -670,6 +670,7 @@
       "image_path": "assets/images/cervezas/Corona Extra lata 473cc.webp",
       "image_avif_path": "",
       "order": 32,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -705,6 +706,7 @@
       "image_path": "assets/images/carnes_y_embutidos/Tocino Ahumado La Preferida 500g.webp",
       "image_avif_path": "",
       "order": 33,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -718,6 +720,7 @@
       "image_path": "assets/images/lacteos/Leche semidescremada deslactosada Surlat 1L.webp",
       "image_avif_path": "",
       "order": 34,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -739,6 +742,7 @@
       "image_path": "assets/images/despensa/Aceite de Oliva Pepita de Oro 1L.webp",
       "image_avif_path": "",
       "order": 35,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -767,6 +771,7 @@
       "image_path": "assets/images/despensa/Cafe-El-Peñon-Gourmet-500g.webp",
       "image_avif_path": "",
       "order": 36,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -795,6 +800,7 @@
       "image_path": "assets/images/cervezas/Becker lata 350cc.webp",
       "image_avif_path": "",
       "order": 37,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -830,6 +836,7 @@
       "image_path": "assets/images/cervezas/Coors botella 355cc.webp",
       "image_avif_path": "",
       "order": 38,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -865,6 +872,7 @@
       "image_path": "assets/images/cervezas/Coors lata 350cc.webp",
       "image_avif_path": "",
       "order": 39,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -893,6 +901,7 @@
       "image_path": "assets/images/cervezas/Cristal lata b350cc.webp",
       "image_avif_path": "",
       "order": 40,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -928,6 +937,7 @@
       "image_path": "assets/images/cervezas/Heineken lata 350cc.webp",
       "image_avif_path": "",
       "order": 41,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -963,6 +973,7 @@
       "image_path": "assets/images/cervezas/Royal Guard lata 350cc.webp",
       "image_avif_path": "",
       "order": 42,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -998,6 +1009,7 @@
       "image_path": "assets/images/cervezas/Stella Artois lata 350cc.webp",
       "image_avif_path": "",
       "order": 43,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -1019,6 +1031,7 @@
       "image_path": "assets/images/cervezas/Stones Limón lata 350cc.webp",
       "image_avif_path": "assets/images/cervezas/Stones - Lemon lata 350cc.avif",
       "order": 44,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -1040,6 +1053,7 @@
       "image_path": "assets/images/lacteos/Crema de leche Surlat 200mL.webp",
       "image_avif_path": "",
       "order": 45,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -1061,6 +1075,7 @@
       "image_path": "assets/images/despensa/Harina-de-Maiz-blanca-PAN-1-kg.webp",
       "image_avif_path": "",
       "order": 46,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -1089,6 +1104,7 @@
       "image_path": "assets/images/despensa/Cafe-Nescafe-Fina-Seleccion-200-g.webp",
       "image_avif_path": "",
       "order": 47,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -1124,6 +1140,7 @@
       "image_path": "assets/images/lacteos/Queso Crema Rafulco 190g.webp",
       "image_avif_path": "",
       "order": 48,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1137,6 +1154,7 @@
       "image_path": "assets/images/lacteos/Queso Gauda La Vaquita 400g.webp",
       "image_avif_path": "",
       "order": 49,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1150,6 +1168,7 @@
       "image_path": "assets/images/carnes_y_embutidos/Chuleta Ahumada con hueso.webp",
       "image_avif_path": "",
       "order": 51,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1163,6 +1182,7 @@
       "image_path": "assets/images/carnes_y_embutidos/Jamón PF acaramelado 200g.webp",
       "image_avif_path": "",
       "order": 52,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -1191,6 +1211,7 @@
       "image_path": "assets/images/carnes_y_embutidos/Salame La Preferida 500g.webp",
       "image_avif_path": "",
       "order": 53,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1204,6 +1225,7 @@
       "image_path": "assets/images/bebidas/Sprite 2L zero.webp",
       "image_avif_path": "",
       "order": 54,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -1225,6 +1247,7 @@
       "image_path": "assets/images/bebidas/Fanta Naranja 3L retornable.webp",
       "image_avif_path": "",
       "order": 55,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -1246,6 +1269,7 @@
       "image_path": "assets/images/bebidas/Fanta 2L zero.webp",
       "image_avif_path": "",
       "order": 56,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -1267,6 +1291,7 @@
       "image_path": "assets/images/vinos/Vino Diablo Deep Carmenere.webp",
       "image_avif_path": "",
       "order": 57,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -1288,6 +1313,7 @@
       "image_path": "assets/images/vinos/Vino Cabernet Sauvignon Misiones de Rengo 750 cc.webp",
       "image_avif_path": "",
       "order": 58,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1301,6 +1327,7 @@
       "image_path": "assets/images/vinos/Vino Carmenere Misiones de Rengo 750 cc.webp",
       "image_avif_path": "",
       "order": 59,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1314,6 +1341,7 @@
       "image_path": "assets/images/vinos/Gran 120 Cabernet Sauvignon 700mL.webp",
       "image_avif_path": "",
       "order": 60,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1327,6 +1355,7 @@
       "image_path": "assets/images/vinos/Gato Merlot 700mL.webp",
       "image_avif_path": "",
       "order": 61,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1340,6 +1369,7 @@
       "image_path": "assets/images/vinos/Gato Cabernet Sauvignon 700mL.webp",
       "image_avif_path": "",
       "order": 62,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1353,6 +1383,7 @@
       "image_path": "assets/images/vinos/Casillero del Diablo Devil's Collection 750mL.webp",
       "image_avif_path": "",
       "order": 63,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1366,6 +1397,7 @@
       "image_path": "assets/images/vinos/Casillero del Diablo Carmenere Reserva Privada 750mL.webp",
       "image_avif_path": "",
       "order": 64,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1379,6 +1411,7 @@
       "image_path": "assets/images/vinos/Casillero del Diablo Cabernet Sauvignon Reserva Privada 750mL.webp",
       "image_avif_path": "",
       "order": 65,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -1400,6 +1433,7 @@
       "image_path": "assets/images/cervezas/Kunstmann Torobayo lata 470cc.webp",
       "image_avif_path": "",
       "order": 66,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -1435,6 +1469,7 @@
       "image_path": "assets/images/cervezas/budweiser lata 350cc.webp",
       "image_avif_path": "",
       "order": 67,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -1470,6 +1505,7 @@
       "image_path": "assets/images/limpieza_y_aseo/Wypall-X50.png",
       "image_avif_path": "",
       "order": 68,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1483,6 +1519,7 @@
       "image_path": "assets/images/limpieza_y_aseo/Wypall-X75.webp",
       "image_avif_path": "",
       "order": 69,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1496,6 +1533,7 @@
       "image_path": "assets/images/piscos/Pisco Alto del Carmen Reservado 750mL.webp",
       "image_avif_path": "",
       "order": 70,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -1524,6 +1562,7 @@
       "image_path": "assets/images/piscos/Pisco Alto del Carmen Envejecido 40°.webp",
       "image_avif_path": "",
       "order": 71,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1537,6 +1576,7 @@
       "image_path": "assets/images/piscos/Pisco Artesanos del Cochiguaz.webp",
       "image_avif_path": "",
       "order": 72,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1550,6 +1590,7 @@
       "image_path": "assets/images/vinos/Castillo de Molina Carmenere Gran Reserva 2019 San Pedro.webp",
       "image_avif_path": "",
       "order": 73,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1563,6 +1604,7 @@
       "image_path": "assets/images/vinos/Secret Reserve Carmenere Santa Rita.webp",
       "image_avif_path": "",
       "order": 74,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1576,6 +1618,7 @@
       "image_path": "assets/images/vinos/Rosé Misiones de Rengo.webp",
       "image_avif_path": "",
       "order": 75,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1589,6 +1632,7 @@
       "image_path": "assets/images/piscos/Pisco Malpaso Reservado 40°.webp",
       "image_avif_path": "",
       "order": 76,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1602,6 +1646,7 @@
       "image_path": "assets/images/piscos/Pisco Añejado en Roble 46° Mistral.webp",
       "image_avif_path": "",
       "order": 77,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -1623,6 +1668,7 @@
       "image_path": "assets/images/cervezas/Austral Calafate Ale lata 350cc.webp",
       "image_avif_path": "",
       "order": 78,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -1658,6 +1704,7 @@
       "image_path": "assets/images/cervezas/Miller lata 350cc.webp",
       "image_avif_path": "",
       "order": 79,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -1679,6 +1726,7 @@
       "image_path": "assets/images/vinos/Misiones de Rengo Cabernet Sauvignon botella 750mL.webp",
       "image_avif_path": "",
       "order": 80,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1692,6 +1740,7 @@
       "image_path": "assets/images/vinos/Misiones de Rengo Carmenere Reserva botella 750mL.webp",
       "image_avif_path": "",
       "order": 81,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1705,6 +1754,7 @@
       "image_path": "assets/images/vinos/Cabernet Reserva Especial Casillero del Diablo botella de 750mL.webp",
       "image_avif_path": "",
       "order": 82,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1718,6 +1768,7 @@
       "image_path": "assets/images/vinos/Merlot Casillero del Diablo Concha y Toro botella 750mL.webp",
       "image_avif_path": "",
       "order": 83,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1731,6 +1782,7 @@
       "image_path": "assets/images/vinos/Cabernet Sauvignon Gran Reserva Misiones de Rengo botella 750mL.webp",
       "image_avif_path": "",
       "order": 84,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1744,6 +1796,7 @@
       "image_path": "assets/images/vinos/Carmenere Gran Reserva Misiones de Rengo botella 750mL.webp",
       "image_avif_path": "",
       "order": 85,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -1765,6 +1818,7 @@
       "image_path": "assets/images/vinos/Cabernet Sauvignon Reserva Chivilingo Cousiño-Macul botella 750mL.webp",
       "image_avif_path": "",
       "order": 86,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1778,6 +1832,7 @@
       "image_path": "assets/images/piscos/Pisco Sour Limón Zero Secreto Peruano 700mL.webp",
       "image_avif_path": "",
       "order": 87,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1791,6 +1846,7 @@
       "image_path": "assets/images/jugos/jugo-soprole-1-lt.webp",
       "image_avif_path": "",
       "order": 88,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -1819,6 +1875,7 @@
       "image_path": "assets/images/jugos/Jugo-Durazno-Soprole-1L.webp",
       "image_avif_path": "",
       "order": 89,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -1847,6 +1904,7 @@
       "image_path": "assets/images/chocolates/Chocolate amargo Our Finest 90_ cacao.webp",
       "image_avif_path": "",
       "order": 90,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -1868,6 +1926,7 @@
       "image_path": "assets/images/snacks_salados/Doritos Queso 140gr.webp",
       "image_avif_path": "",
       "order": 91,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -1889,6 +1948,7 @@
       "image_path": "assets/images/snacks_salados/Papas-Marco-Polo-Caseras-200g.webp",
       "image_avif_path": "",
       "order": 92,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1902,6 +1962,7 @@
       "image_path": "assets/images/snacks_salados/Papas Rústicas Sal de Mar Marco Polo 150g.webp",
       "image_avif_path": "",
       "order": 93,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -1915,6 +1976,7 @@
       "image_path": "assets/images/snacks_dulces/Pirulin 300g.webp",
       "image_avif_path": "",
       "order": 94,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -1943,6 +2005,7 @@
       "image_path": "assets/images/snacks_dulces/Nestlé - Super 8 - 4 unidades.webp",
       "image_avif_path": "",
       "order": 95,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -1964,6 +2027,7 @@
       "image_path": "assets/images/llaveros/Mario.webp",
       "image_avif_path": "",
       "order": 96,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -1985,6 +2049,7 @@
       "image_path": "assets/images/llaveros/Luigi.webp",
       "image_avif_path": "",
       "order": 97,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -2006,6 +2071,7 @@
       "image_path": "assets/images/llaveros/Yoshi.webp",
       "image_avif_path": "",
       "order": 98,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -2027,6 +2093,7 @@
       "image_path": "assets/images/llaveros/Peach.webp",
       "image_avif_path": "",
       "order": 99,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -2048,6 +2115,7 @@
       "image_path": "assets/images/llaveros/Bowser.webp",
       "image_avif_path": "",
       "order": 100,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -2076,6 +2144,7 @@
       "image_path": "assets/images/llaveros/Donkey Kong.webp",
       "image_avif_path": "",
       "order": 101,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -2104,6 +2173,7 @@
       "image_path": "assets/images/lacteos/Parmalat-Leche-Condensada-395-gr.png",
       "image_avif_path": "",
       "order": 102,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -2117,6 +2187,7 @@
       "image_path": "assets/images/limpieza_y_aseo/Nova Clásica XL 45m.webp",
       "image_avif_path": "",
       "order": 103,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -2130,6 +2201,7 @@
       "image_path": "assets/images/limpieza_y_aseo/Favorita Estilo 2x 52m.webp",
       "image_avif_path": "",
       "order": 104,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -2158,6 +2230,7 @@
       "image_path": "assets/images/juegos/UNO.webp",
       "image_avif_path": "",
       "order": 105,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -2179,6 +2252,7 @@
       "image_path": "assets/images/despensa/Cafe Nescafé Tradición 150g.webp",
       "image_avif_path": "",
       "order": 106,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -2221,6 +2295,7 @@
       "image_path": "assets/images/lacteos/Queso-Llanero2.webp",
       "image_avif_path": "",
       "order": 107,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -2234,6 +2309,7 @@
       "image_path": "assets/images/lacteos/Leche entera Líder 1L.webp",
       "image_avif_path": "",
       "order": 108,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -2247,6 +2323,7 @@
       "image_path": "assets/images/despensa/Líder - Atún en agua 140g.webp",
       "image_avif_path": "assets/images/despensa/Líder - Atún en agua 140g.avif",
       "order": 109,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "image_path": {
@@ -2282,6 +2359,7 @@
       "image_path": "assets/images/despensa/Aceite de Maravilla Líder 1L.webp",
       "image_avif_path": "",
       "order": 110,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "discount": {
@@ -2310,6 +2388,7 @@
       "image_path": "assets/images/snacks_salados/Terra Mix Papas 120g.webp",
       "image_avif_path": "",
       "order": 111,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -2323,6 +2402,7 @@
       "image_path": "assets/images/mascotas/Bolsa biodegradable caca perro.webp",
       "image_avif_path": "",
       "order": 112,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -2336,6 +2416,7 @@
       "image_path": "assets/images/despensa/maiz-removebg-preview.webp",
       "image_avif_path": "",
       "order": 113,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -2364,6 +2445,7 @@
       "image_path": "assets/images/chocolates/Chocolate con Avellanas Great Value 100g.webp",
       "image_avif_path": "assets/images/chocolates/Great Value - Chocolate con Avellanas.avif",
       "order": 114,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "image_avif_path": {
@@ -2392,6 +2474,7 @@
       "image_path": "assets/images/cervezas/Corona sin alcohol botella 330mL.webp",
       "image_avif_path": "",
       "order": 115,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -2434,6 +2517,7 @@
       "image_path": "assets/images/cervezas/Royal Guard botella 355cc.webp",
       "image_avif_path": "",
       "order": 116,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -2469,6 +2553,7 @@
       "image_path": "assets/images/limpieza_y_aseo/OMO-piel-sensible-500mL.webp",
       "image_avif_path": "",
       "order": 117,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -2490,6 +2575,7 @@
       "image_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Americano 170g.webp",
       "image_avif_path": "",
       "order": 118,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -2503,6 +2589,7 @@
       "image_path": "assets/images/bebidas/Sprite 2L.webp",
       "image_avif_path": "",
       "order": 119,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -2524,6 +2611,7 @@
       "image_path": "assets/images/bebidas/Sprite Zero 3L desechable.webp",
       "image_avif_path": "",
       "order": 120,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -2545,6 +2633,7 @@
       "image_path": "assets/images/bebidas/Agua 1,6L con gas Vital.webp",
       "image_avif_path": "",
       "order": 121,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -2566,6 +2655,7 @@
       "image_path": "assets/images/bebidas/Agua 2,5L con gas Vital.webp",
       "image_avif_path": "",
       "order": 122,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -2587,6 +2677,7 @@
       "image_path": "assets/images/chocolates/Chocolate con Almendras Milka 100g.webp",
       "image_avif_path": "",
       "order": 123,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -2600,6 +2691,7 @@
       "image_path": "assets/images/snacks_dulces/Galletas Oreo Original 108g.webp",
       "image_avif_path": "",
       "order": 124,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "description": {
@@ -2628,6 +2720,7 @@
       "image_path": "assets/images/snacks_dulces/Choco Chips  Costa 125g.webp",
       "image_avif_path": "",
       "order": 125,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -2649,6 +2742,7 @@
       "image_path": "assets/images/snacks_salados/Lays Orégano 140g.webp",
       "image_avif_path": "",
       "order": 126,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -2662,6 +2756,7 @@
       "image_path": "assets/images/snacks_salados/Lays-Jamón-Serrano-140gr.webp",
       "image_avif_path": "",
       "order": 127,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -2675,6 +2770,7 @@
       "image_path": "assets/images/carnes_y_embutidos/Tocino PF 150g.webp",
       "image_avif_path": "",
       "order": 128,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -2696,6 +2792,7 @@
       "image_path": "assets/images/bebidas/Coca-Cola-2L.webp",
       "image_avif_path": "",
       "order": 129,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -2717,6 +2814,7 @@
       "image_path": "assets/images/bebidas/Coca-Cola-2L sin azucar.webp",
       "image_avif_path": "",
       "order": 130,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -2738,6 +2836,7 @@
       "image_path": "assets/images/bebidas/Fanta 2L.webp",
       "image_avif_path": "",
       "order": 131,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -2759,6 +2858,7 @@
       "image_path": "assets/images/carnes_y_embutidos/Pechuga pollo deshuesada 800g Seara.webp",
       "image_avif_path": "",
       "order": 132,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -2780,6 +2880,7 @@
       "image_path": "assets/images/vinos/Concha y Toro, Carmenere, Casillero del Diablo.webp",
       "image_avif_path": "",
       "order": 133,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -2801,6 +2902,7 @@
       "image_path": "assets/images/vinos/Concha y Toro, Cabernet Sauvignon, Casillero del Diablo.webp",
       "image_avif_path": "",
       "order": 134,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -2814,6 +2916,7 @@
       "image_path": "assets/images/vinos/Concha y Toro, Merlot, Casillero del Diablo.webp",
       "image_avif_path": "",
       "order": 135,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -2835,6 +2938,7 @@
       "image_path": "assets/images/vinos/Vino Diablo Cabernet Sauvignon.webp",
       "image_avif_path": "",
       "order": 136,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -2848,6 +2952,7 @@
       "image_path": "assets/images/vinos/Vino Diablo Malbec.webp",
       "image_avif_path": "",
       "order": 137,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -2861,6 +2966,7 @@
       "image_path": "assets/images/energeticaseisotonicas/Powerade Rojo 1.1L.webp",
       "image_avif_path": "",
       "order": 138,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {}
     },
@@ -2874,6 +2980,7 @@
       "image_path": "assets/images/snacks_dulces/Galletas Chocolate Costa 140g.webp",
       "image_avif_path": "",
       "order": 139,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "description": {
@@ -2909,6 +3016,7 @@
       "image_path": "assets/images/bebidas/Canada Dry - Agua Tónica 1,5L.webp",
       "image_avif_path": "",
       "order": 140,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "order": {
@@ -2930,6 +3038,7 @@
       "image_path": "assets/images/bebidas/Agua 2L sin gas Benedictino.webp",
       "image_avif_path": "",
       "order": 141,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -2958,6 +3067,7 @@
       "image_path": "assets/images/energeticaseisotonicas/Gatorade 1L Cool Blue.webp",
       "image_avif_path": "assets/images/energeticaseisotonicas/Gatorade 1L Cool Blue.avif",
       "order": 141,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -2986,6 +3096,7 @@
       "image_path": "assets/images/aguas/Shweppes - Agua Tonica 1,5L.webp",
       "image_avif_path": "assets/images/aguas/Shweppes - Agua Tonica 1,5L.avif",
       "order": 143,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "discount": {
@@ -3014,6 +3125,7 @@
       "image_path": "assets/images/energeticaseisotonicas/Gatorade 1L Frutas Tropicales.webp",
       "image_avif_path": "assets/images/energeticaseisotonicas/Gatorade 1L Frutas Tropicales.avif",
       "order": 143,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -3042,6 +3154,7 @@
       "image_path": "assets/images/energeticaseisotonicas/Gatorade 1L Limón.webp",
       "image_avif_path": "assets/images/energeticaseisotonicas/Gatorade 1L Limón.avif",
       "order": 144,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -3070,6 +3183,7 @@
       "image_path": "assets/images/snacks_salados/Lays - Papas Crema y Cebolla 134g.webp",
       "image_avif_path": "assets/images/snacks_salados/Lays - Papas Crema y Cebolla 134g.avif",
       "order": 145,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -3098,6 +3212,7 @@
       "image_path": "assets/images/snacks_salados/Lays - Papas Originales 134g.webp",
       "image_avif_path": "assets/images/snacks_salados/Lays - Papas Originales 134g.avif",
       "order": 146,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -3126,6 +3241,7 @@
       "image_path": "assets/images/snacks_salados/Lays - Papas Queso 134g.webp",
       "image_avif_path": "assets/images/snacks_salados/Lays - Papas Queso 134g.avif",
       "order": 147,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -3161,6 +3277,7 @@
       "image_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Americano 200g.webp",
       "image_avif_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Americano 200g.avif",
       "order": 148,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -3182,6 +3299,7 @@
       "image_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Liso 200g.webp",
       "image_avif_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Liso 200g.avif",
       "order": 149,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -3217,6 +3335,7 @@
       "image_path": "assets/images/snacks_salados/Marco Polo - Maní Salado 150g.webp",
       "image_avif_path": "assets/images/snacks_salados/Marco Polo - Maní Salado 150g.avif",
       "order": 150,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -3245,6 +3364,7 @@
       "image_path": "assets/images/snacks_salados/Marco Polo - Maní sin sal 150g.webp",
       "image_avif_path": "assets/images/snacks_salados/Marco Polo - Maní sin sal 150g.avif",
       "order": 151,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -3273,6 +3393,7 @@
       "image_path": "assets/images/chocolates/Great Value - Chocolate con Almendras.webp",
       "image_avif_path": "assets/images/chocolates/Great Value - Chocolate con Almendras.avif",
       "order": 152,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -3294,6 +3415,7 @@
       "image_path": "assets/images/chocolates/Hersheys - Chocolate Cookies n Creme 77g.webp",
       "image_avif_path": "",
       "order": 153,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -3364,6 +3486,7 @@
       "image_path": "assets/images/chocolates/Chocolate con leche Hershey's 82g.jpg",
       "image_avif_path": "",
       "order": 154,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -3385,6 +3508,7 @@
       "image_path": "assets/images/chocolates/Hersheys - Chocolate Extra Cremoso 82g.webp",
       "image_avif_path": "",
       "order": 155,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -3413,6 +3537,7 @@
       "image_path": "assets/images/despensa/Robinson Crusoe - Atún en agua 140g.webp",
       "image_avif_path": "assets/images/despensa/Robinson Crusoe - Atún en agua 140g.avif",
       "order": 156,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -3448,6 +3573,7 @@
       "image_path": "assets/images/despensa/Líder - Cacao Natural en polvo amargo 150g.webp",
       "image_avif_path": "assets/images/despensa/Líder - Cacao Natural en polvo amargo 150g.avif",
       "order": 157,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -3518,6 +3644,7 @@
       "image_path": "assets/images/despensa/Malloa - Salsa Italiana para pastas 200g.webp",
       "image_avif_path": "assets/images/despensa/Malloa - Salsa Italiana para pastas 200g.avif",
       "order": 158,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -3588,6 +3715,7 @@
       "image_path": "assets/images/energeticaseisotonicas/Mr Big lata 473mL.webp",
       "image_avif_path": "assets/images/energeticaseisotonicas/Mr Big lata 473mL.avif",
       "order": 159,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -3616,6 +3744,7 @@
       "image_path": "assets/images/energeticaseisotonicas/Score Mango lata 473mL.webp",
       "image_avif_path": "assets/images/energeticaseisotonicas/Score Mango lata 473mL.avif",
       "order": 160,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -3651,6 +3780,7 @@
       "image_path": "assets/images/energeticaseisotonicas/Score Guaraná lata 473mL.webp",
       "image_avif_path": "assets/images/energeticaseisotonicas/Score Guaraná lata 473mL.avif",
       "order": 161,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -3679,6 +3809,7 @@
       "image_path": "assets/images/cervezas/Austral Calafate Ale lata 470cc.webp",
       "image_avif_path": "assets/images/cervezas/Austral Calafate Ale lata 470cc.avif",
       "order": 162,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -3749,6 +3880,7 @@
       "image_path": "assets/images/cervezas/Stones - Berry lata 350cc.webp",
       "image_avif_path": "assets/images/cervezas/Stones - Berry lata 350cc.avif",
       "order": 163,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -3770,6 +3902,7 @@
       "image_path": "assets/images/cervezas/Stones - Mango lata 350cc.webp",
       "image_avif_path": "assets/images/cervezas/Stones - Mango lata 350cc.avif",
       "order": 164,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "price": {
@@ -3805,6 +3938,7 @@
       "image_path": "assets/images/snacks_salados/Doritos Queso 285gr.webp",
       "image_avif_path": "assets/images/snacks_salados/Doritos Queso 285gr.avif",
       "order": 165,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -3826,6 +3960,7 @@
       "image_path": "assets/images/snacks_salados/Selección - Plátano Frito 240g.webp",
       "image_avif_path": "assets/images/snacks_salados/Selección - Plátano Frito 240g.avif",
       "order": 166,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -3847,6 +3982,7 @@
       "image_path": "assets/images/snacks_salados/Marco Polo - Papas Sal de Mar.webp",
       "image_avif_path": "assets/images/snacks_salados/Marco Polo - Papas Sal de Mar.avif",
       "order": 167,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -3917,6 +4053,7 @@
       "image_path": "assets/images/snacks_salados/Marco Polo - Tortillas Vegetal Sal de Mar.webp",
       "image_avif_path": "assets/images/snacks_salados/Marco Polo - Tortillas Vegetal Sal de Mar.avif",
       "order": 168,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -3938,6 +4075,7 @@
       "image_path": "assets/images/snacks_dulces/Costa - Galletas de Mantequilla 140g.webp",
       "image_avif_path": "assets/images/snacks_dulces/Costa - Galletas de Mantequilla 140g.avif",
       "order": 169,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -3959,6 +4097,7 @@
       "image_path": "assets/images/despensa/Nescafé - Café instantáneo 170g.webp",
       "image_avif_path": "assets/images/despensa/Nescafé - Café instantáneo 170g.avif",
       "order": 170,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -4029,6 +4168,7 @@
       "image_path": "assets/images/despensa/Lobos - Sal 1Kg.webp",
       "image_avif_path": "assets/images/despensa/Lobos - Sal 1Kg.avif",
       "order": 171,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -4099,6 +4239,7 @@
       "image_path": "assets/images/despensa/La Romana - Arroz 800g.webp",
       "image_avif_path": "assets/images/despensa/La Romana - Arroz 800g.avif",
       "order": 172,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -4169,6 +4310,7 @@
       "image_path": "assets/images/snacks_dulces/Costa - Galletas Brownie Chips 120g.webp",
       "image_avif_path": "assets/images/snacks_dulces/Costa - Galletas Brownie Chips 120g.avif",
       "order": 173,
+      "is_archived": false,
       "rev": 0,
       "field_last_modified": {
         "stock": {

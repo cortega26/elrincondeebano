@@ -42,6 +42,7 @@ class Product:
     image_path: str = ""
     image_avif_path: str = ""
     order: int = 0
+    is_archived: bool = False
     rev: int = 0
     field_last_modified: Dict[str, Dict[str, Any]] = field(default_factory=dict)
 
@@ -277,6 +278,11 @@ class Product:
         payload = data.copy()
         payload.setdefault("rev", data.get("rev", 0))
         payload.setdefault("image_avif_path", data.get("image_avif_path", ""))
+        is_archived = data.get("is_archived", False)
+        payload.setdefault(
+            "is_archived",
+            is_archived if isinstance(is_archived, bool) else False,
+        )
         field_meta = payload.get("field_last_modified")
         if not isinstance(field_meta, dict):
             field_meta = {}
@@ -313,6 +319,7 @@ class Product:
             "image_path": self.image_path,
             "image_avif_path": self.image_avif_path,
             "order": self.order,
+            "is_archived": self.is_archived,
             "rev": self.rev,
             "field_last_modified": deepcopy(self.field_last_modified),
         }

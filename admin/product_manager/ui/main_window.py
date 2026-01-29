@@ -76,6 +76,8 @@ class MainWindow(DragDropMixin):
         self._config_save_job: Optional[str] = None
         self._config_save_delay_ms = 500
         self._last_window_size: Optional[tuple[int, int]] = None
+        self._pending_import_plan: Optional[Dict[str, Any]] = None
+        self._pending_import_merge: Optional[Dict[str, bool]] = None
 
         self._configure_styles()
         self.setup_gui()
@@ -290,6 +292,9 @@ class MainWindow(DragDropMixin):
             label="Importar Productos...", command=self.import_products
         )
         file_menu.add_command(
+            label="Aplicar importación aprobada...", command=self.apply_pending_import
+        )
+        file_menu.add_command(
             label="Exportar Productos...", command=self.export_products
         )
         file_menu.add_command(
@@ -460,6 +465,15 @@ class MainWindow(DragDropMixin):
         )
         self.update_filter_indicator()
 
+        # 5. Archive toggle
+        self.show_archived_var = tk.BooleanVar(value=False)
+        ttk.Checkbutton(
+            filters_frame,
+            text="Mostrar archivados",
+            variable=self.show_archived_var,
+            command=self.refresh_products,
+        ).pack(side=tk.LEFT, padx=5)
+
     def setup_bottom_bar(self) -> None:
         """Set up the bottom bar with CRUD and bulk actions."""
         bottom_frame = ttk.Frame(self.master)
@@ -482,6 +496,9 @@ class MainWindow(DragDropMixin):
             crud_frame, text="Eliminar", command=self.delete_product, state=tk.DISABLED
         )
         self.delete_button.pack(side=tk.LEFT, padx=2)
+        self.restore_button = ttk.Button(
+            crud_frame, text="Restaurar", command=self.restore_archived, state=tk.DISABLED
+        )
 
         # 2. Bulk Actions (Right - Inner)
         bulk_frame = ttk.Frame(bottom_frame)
@@ -544,6 +561,7 @@ class MainWindow(DragDropMixin):
         )
         self.undo_btn.pack(side=tk.LEFT, padx=2)
         self.redo_btn.pack(side=tk.LEFT, padx=2)
+        self._update_archive_controls()
 
     def setup_status_bar(self) -> None:
         """Set up the status bar with version info."""
@@ -747,6 +765,43 @@ class MainWindow(DragDropMixin):
         except ProductServiceError as exc:
             messagebox.showerror("Error", str(exc))
 
+    def restore_archived(self) -> None:
+        """Restore selected archived products."""
+        if not getattr(self, "show_archived_var", tk.BooleanVar(value=False)).get():
+            messagebox.showinfo(
+                "Restaurar", "La restauración solo está disponible en archivados."
+            )
+            return
+        products = self._get_selected_products()
+        if not products:
+            messagebox.showwarning(
+                "Restaurar", "Seleccione uno o más productos archivados."
+            )
+            return
+        pairs: List[tuple[Product, Product]] = []
+        for product in products:
+            if not getattr(product, "is_archived", False):
+                continue
+            updated = Product(
+                name=product.name,
+                description=product.description,
+                price=product.price,
+                discount=product.discount,
+                stock=product.stock,
+                category=product.category,
+                image_path=product.image_path,
+                image_avif_path=product.image_avif_path,
+                order=product.order,
+                is_archived=False,
+            )
+            pairs.append((product, updated))
+        if not pairs:
+            messagebox.showinfo("Restaurar", "No hay productos archivados seleccionados.")
+            return
+        self._preview_and_apply_operation(
+            f"Restaurar {len(pairs)} producto(s) archivado(s)", pairs
+        )
+
     def refresh_products(self) -> None:
         """Refresh the product list."""
         query = self.search_var.get().strip()
@@ -785,6 +840,8 @@ class MainWindow(DragDropMixin):
                 criteria.min_price = _parse_float(self.min_price_var.get())
             if hasattr(self, "max_price_var"):
                 criteria.max_price = _parse_float(self.max_price_var.get())
+            if hasattr(self, "show_archived_var"):
+                criteria.show_archived_only = bool(self.show_archived_var.get())
 
             # Fetch Filtered Results
             products = self.product_service.filter_products(criteria)
@@ -792,6 +849,7 @@ class MainWindow(DragDropMixin):
             self.populate_tree(products)
             self.update_status(f"Mostrando {len(products)} productos")
             self.update_filter_indicator()
+            self._update_archive_controls()
         except ProductServiceError as exc:
             messagebox.showerror("Error", f"Error al cargar productos: {str(exc)}")
 
@@ -975,6 +1033,28 @@ class MainWindow(DragDropMixin):
         self.status_var.set(message)
         self.logger.debug("Status: %s", message)
 
+    def _update_archive_controls(self) -> None:
+        show_archived = bool(
+            getattr(self, "show_archived_var", tk.BooleanVar(value=False)).get()
+        )
+        selected = bool(self.tree.selection()) if hasattr(self, "tree") else False
+        if show_archived:
+            if hasattr(self, "restore_button"):
+                if not self.restore_button.winfo_ismapped():
+                    self.restore_button.pack(side=tk.LEFT, padx=2)
+                self.restore_button.config(
+                    state=tk.NORMAL if selected else tk.DISABLED
+                )
+            if hasattr(self, "delete_button"):
+                self.delete_button.config(state=tk.DISABLED)
+        else:
+            if hasattr(self, "restore_button") and self.restore_button.winfo_ismapped():
+                self.restore_button.pack_forget()
+            if hasattr(self, "delete_button"):
+                self.delete_button.config(
+                    state=tk.NORMAL if selected else tk.DISABLED
+                )
+
     def handle_selection(self, _event: Optional[tk.Event] = None) -> None:
         """Handle selection in treeview."""
         selected = self.tree.selection()
@@ -994,6 +1074,7 @@ class MainWindow(DragDropMixin):
             self.edit_button.config(state=tk.DISABLED)
             self.delete_button.config(state=tk.DISABLED)
             self.update_status("No hay productos seleccionados")
+        self._update_archive_controls()
 
     def handle_search(self, *_args) -> None:
         """Handle search and category filter changes."""
@@ -1660,15 +1741,227 @@ class MainWindow(DragDropMixin):
             return
 
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            products = [Product.from_dict(item) for item in data]
-            for product in products:
-                self.product_service.add_product(product)
-            self.refresh_products()
-            self.update_status(f"Se importaron {len(products)} productos")
+            plan = self.product_service.build_import_plan(file_path)
         except Exception as exc:
             messagebox.showerror("Error de Importación", str(exc))
+            return
+
+        approval = self._show_import_preview_dialog(plan)
+        if not approval:
+            return
+        self._pending_import_plan = approval["plan"]
+        self._pending_import_merge = approval["merge"]
+        self.update_status("Importación aprobada (pendiente de aplicar)")
+
+    def _show_import_preview_dialog(
+        self, plan: Dict[str, Any]
+    ) -> Optional[Dict[str, Any]]:
+        dialog = tk.Toplevel(self.master)
+        dialog.title("Previsualización de importación")
+        dialog.transient(self.master)
+        dialog.grab_set()
+        dialog.geometry("860x520")
+
+        summary = plan.get("summary", {})
+        summary_text = (
+            "Resumen:\n"
+            f"Nuevos: {summary.get('new', 0)}  "
+            f"Duplicados: {summary.get('duplicate', 0)}  "
+            f"Inválidos: {summary.get('invalid', 0)}\n"
+            f"Acciones: agregar {summary.get('add', 0)}, "
+            f"actualizar {summary.get('update', 0)}, "
+            f"omitir {summary.get('skip', 0)}"
+        )
+        ttk.Label(dialog, text=summary_text, justify=tk.LEFT).pack(
+            padx=12, pady=(12, 6), anchor=tk.W
+        )
+
+        table_frame = ttk.Frame(dialog)
+        table_frame.pack(fill=tk.BOTH, expand=True, padx=12, pady=(0, 8))
+        columns = ("index", "status", "action", "name", "error")
+        tree = ttk.Treeview(
+            table_frame, columns=columns, show="headings", height=10
+        )
+        headings = {
+            "index": "Índice",
+            "status": "Estado",
+            "action": "Acción",
+            "name": "Nombre",
+            "error": "Error",
+        }
+        widths = {"index": 70, "status": 100, "action": 100, "name": 220, "error": 320}
+        for col in columns:
+            tree.heading(col, text=headings[col])
+            tree.column(col, width=widths[col], anchor=tk.W, stretch=True)
+        tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=tree.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        tree.configure(yscrollcommand=scrollbar.set)
+
+        rows = plan.get("rows", [])
+        for row in rows[:30]:
+            incoming = row.get("incoming")
+            name = getattr(incoming, "name", "") if incoming else ""
+            tree.insert(
+                "",
+                "end",
+                values=(
+                    row.get("index"),
+                    row.get("status"),
+                    row.get("action"),
+                    name,
+                    row.get("error") or "",
+                ),
+            )
+
+        merge_frame = ttk.LabelFrame(dialog, text="Reglas de merge (duplicados)")
+        merge_frame.pack(fill=tk.X, padx=12, pady=(0, 8))
+
+        merge_vars = {
+            "price": tk.BooleanVar(value=True),
+            "discount": tk.BooleanVar(value=True),
+            "stock": tk.BooleanVar(value=True),
+            "category": tk.BooleanVar(value=False),
+            "image_path": tk.BooleanVar(value=False),
+            "image_avif_path": tk.BooleanVar(value=False),
+        }
+
+        ttk.Checkbutton(
+            merge_frame, text="Sobrescribir precio", variable=merge_vars["price"]
+        ).pack(anchor=tk.W, padx=8, pady=2)
+        ttk.Checkbutton(
+            merge_frame, text="Sobrescribir descuento", variable=merge_vars["discount"]
+        ).pack(anchor=tk.W, padx=8, pady=2)
+        ttk.Checkbutton(
+            merge_frame, text="Sobrescribir stock", variable=merge_vars["stock"]
+        ).pack(anchor=tk.W, padx=8, pady=2)
+        ttk.Checkbutton(
+            merge_frame, text="Sobrescribir categoría", variable=merge_vars["category"]
+        ).pack(anchor=tk.W, padx=8, pady=2)
+        ttk.Checkbutton(
+            merge_frame,
+            text="Sobrescribir image_path",
+            variable=merge_vars["image_path"],
+        ).pack(anchor=tk.W, padx=8, pady=2)
+        ttk.Checkbutton(
+            merge_frame,
+            text="Sobrescribir image_avif_path",
+            variable=merge_vars["image_avif_path"],
+        ).pack(anchor=tk.W, padx=8, pady=2)
+
+        btn_frame = ttk.Frame(dialog)
+        btn_frame.pack(pady=10)
+        result: Dict[str, Any] = {"approved": False, "plan": None, "merge": {}}
+
+        def on_apply():
+            result["approved"] = True
+            result["plan"] = plan
+            result["merge"] = {key: var.get() for key, var in merge_vars.items()}
+            dialog.destroy()
+
+        def on_cancel():
+            dialog.destroy()
+
+        actionable = int(summary.get("add", 0)) + int(summary.get("update", 0))
+        apply_state = tk.NORMAL if actionable > 0 else tk.DISABLED
+        ttk.Button(btn_frame, text="Cancelar", command=on_cancel).pack(
+            side=tk.LEFT, padx=6
+        )
+        ttk.Button(
+            btn_frame, text="Aprobar importación", command=on_apply, state=apply_state
+        ).pack(side=tk.LEFT, padx=6)
+
+        dialog.wait_window()
+        if not result["approved"]:
+            return None
+        return {"plan": result["plan"], "merge": result["merge"]}
+
+    def _merge_import_product(
+        self, existing: Product, incoming: Product, merge: Dict[str, bool]
+    ) -> Product:
+        data = existing.to_dict()
+        if merge.get("price", False):
+            data["price"] = incoming.price
+        if merge.get("discount", False):
+            data["discount"] = incoming.discount
+        if merge.get("stock", False):
+            data["stock"] = incoming.stock
+        if merge.get("category", False):
+            data["category"] = incoming.category
+        if merge.get("image_path", False):
+            data["image_path"] = incoming.image_path
+        if merge.get("image_avif_path", False):
+            data["image_avif_path"] = incoming.image_avif_path
+        data["is_archived"] = existing.is_archived
+        data["order"] = existing.order
+        return Product.from_dict(data)
+
+    def apply_pending_import(self) -> None:
+        """Apply the approved import plan with a single atomic write."""
+        if not self._pending_import_plan:
+            messagebox.showinfo(
+                "Importación", "No hay una importación aprobada pendiente."
+            )
+            return
+
+        plan = self._pending_import_plan
+        merge = self._pending_import_merge or {}
+
+        try:
+            current = self.product_service.get_all_products()
+            identity_map: Dict[str, tuple[int, Product]] = {
+                product.identity_key(): (index, product)
+                for index, product in enumerate(current)
+            }
+            replacements: Dict[str, Product] = {}
+            additions: List[Product] = []
+
+            for row in plan.get("rows", []):
+                status = row.get("status")
+                action = row.get("action")
+                if status == "invalid" or action == "skip":
+                    continue
+                incoming = row.get("incoming")
+                if not isinstance(incoming, Product):
+                    raise ProductServiceError(
+                        "Fila de importación inválida: falta producto."
+                    )
+                key = incoming.identity_key()
+                if status == "duplicate" and action == "update":
+                    if key not in identity_map:
+                        raise ProductServiceError(
+                            "El catálogo cambió desde la previsualización. "
+                            "Vuelve a ejecutar la importación."
+                        )
+                    existing = identity_map[key][1]
+                    replacements[key] = self._merge_import_product(
+                        existing, incoming, merge
+                    )
+                elif status == "new" and action == "add":
+                    data = incoming.to_dict()
+                    additions.append(Product.from_dict(data))
+
+            final_products: List[Product] = []
+            for product in current:
+                key = product.identity_key()
+                final_products.append(replacements.get(key, product))
+
+            for new_product in additions:
+                data = new_product.to_dict()
+                data["order"] = len(final_products)
+                final_products.append(Product.from_dict(data))
+
+            self.product_service.save_all_products(final_products)
+        except Exception as exc:
+            messagebox.showerror(
+                "Importación", f"No se pudo aplicar la importación: {exc}"
+            )
+            return
+
+        self._pending_import_plan = None
+        self._pending_import_merge = None
+        self.refresh_products()
+        self.update_status("Importación aplicada correctamente")
 
     def export_products(self) -> None:
         """Export products to JSON file."""
@@ -1727,6 +2020,7 @@ class MainWindow(DragDropMixin):
                 criteria.min_price = _parse_float(self.min_price_var.get())
             if hasattr(self, "max_price_var"):
                 criteria.max_price = _parse_float(self.max_price_var.get())
+            criteria.show_archived_only = False
 
             products = self.product_service.filter_products(criteria)
 
