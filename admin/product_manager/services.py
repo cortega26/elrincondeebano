@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import threading
 from collections import defaultdict
@@ -24,6 +25,7 @@ from typing import (
 from .models import Product
 from .repositories import ProductRepositoryError, ProductRepositoryProtocol
 from .time_utils import parse_iso_datetime
+from .history_store import HistoryStore
 
 if TYPE_CHECKING:
     from .category_service import CategoryService
@@ -67,6 +69,7 @@ class ProductFilterCriteria:
     max_price: Optional[float] = None
     only_discount: bool = False
     only_out_of_stock: bool = False
+    show_archived_only: bool = False
 
 
 @dataclass
@@ -124,9 +127,34 @@ class ProductService:
         self._indexes_populated = False
         self.sync_engine = None
         self.category_service = category_service
+        self._history_store = HistoryStore()
         if self.category_service:
             self.category_service.attach_product_service(self)
         self._rebuild_indexes()
+
+    def _cap_history_entries(
+        self, entries: List[Dict[str, Any]], cap: int = 20
+    ) -> List[Dict[str, Any]]:
+        return entries[-cap:] if len(entries) > cap else entries
+
+    def _record_history_entries(
+        self, entries: List[Tuple[str, str, Dict[str, Any]]], cap: int = 20
+    ) -> None:
+        if not entries:
+            return
+        try:
+            history = self._history_store.load_history()
+            for old_key, new_key, entry in entries:
+                if old_key != new_key and old_key in history:
+                    merged = history.get(old_key, []) + history.get(new_key, [])
+                    history[new_key] = self._cap_history_entries(merged, cap)
+                    history.pop(old_key, None)
+                history[new_key] = self._cap_history_entries(
+                    history.get(new_key, []) + [entry], cap
+                )
+            self._history_store.save_history(history)
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            logger.error("Error al guardar historial: %s", exc)
 
     def _rebuild_indexes(self) -> None:
         """Rebuild the internal indexes for faster lookups."""
@@ -398,6 +426,7 @@ class ProductService:
                 original_product = self.get_product_by_name(
                     original_name, original_description
                 )
+                before_snapshot = original_product.to_dict()
                 original_key = original_product.identity_key()
                 updated_key = updated_product.identity_key()
                 if updated_key != original_key and updated_key in self._product_index:
@@ -442,6 +471,13 @@ class ProductService:
                         },
                     )
                 )
+                entry = {
+                    "ts": _utc_now_iso(),
+                    "operation": "editar",
+                    "before": before_snapshot,
+                    "after": updated_product.to_dict(),
+                }
+                history_entries = [(original_key, updated_key, entry)]
                 queue_payload = {
                     "product_id": original_product.name,
                     "base_rev": base_rev,
@@ -458,27 +494,38 @@ class ProductService:
                 raise ProductServiceError(
                     f"Error al actualizar producto: {exc}"
                 ) from exc
+        if "history_entries" in locals():
+            self._record_history_entries(history_entries)
         if self.sync_engine and queue_payload:
             self.sync_engine.enqueue_update(**queue_payload)
 
     def delete_product(self, name: str, description: Optional[str] = None) -> bool:
-        """Delete a product by its name and optional description."""
+        """Archive a product by its name and optional description."""
         with self._products_lock:
             try:
                 product = self.get_product_by_name(name, description)
+                if product.is_archived:
+                    return False
                 products = self.get_all_products()
-                products.remove(product)
-                self._product_index.pop(product.identity_key(), None)
-                if product.category:
-                    self._category_index[product.category.lower()].discard(product)
+                before_snapshot = product.to_dict()
+                product.is_archived = True
                 self.repository.save_products(products)
                 self.clear_cache()
                 self._notify_event_handlers(
                     ProductEvent(
                         ProductEventType.DELETED,
                         name,
-                        details={"category": product.category},
+                        details={"category": product.category, "archived": True},
                     )
+                )
+                entry = {
+                    "ts": _utc_now_iso(),
+                    "operation": "archivar",
+                    "before": before_snapshot,
+                    "after": product.to_dict(),
+                }
+                self._record_history_entries(
+                    [(product.identity_key(), product.identity_key(), entry)]
                 )
                 return True
             except ProductNotFoundError:
@@ -574,6 +621,10 @@ class ProductService:
             # Ideally this could be optimized with better indexing if dataset gets large,
             # but for <10k items linear scan with python is usually fine.
             products = self.get_all_products()
+            if getattr(criteria, "show_archived_only", False):
+                products = [p for p in products if getattr(p, "is_archived", False)]
+            else:
+                products = [p for p in products if not getattr(p, "is_archived", False)]
 
             # 1. Category Filter
             if criteria.category:
@@ -654,6 +705,7 @@ class ProductService:
                 products = self.get_all_products()
                 identity_map = {p.identity_key(): p for p in products}
                 name_groups: Dict[str, List[Product]] = defaultdict(list)
+                history_entries: List[Tuple[str, str, Dict[str, Any]]] = []
                 for product in products:
                     name_groups[Product.normalized_name(product.name)].append(product)
 
@@ -712,12 +764,25 @@ class ProductService:
 
                 for original_key, new_key, updated_product in processed_updates:
                     original_product = identity_map[original_key]
+                    before_snapshot = original_product.to_dict()
                     index = products.index(original_product)
                     self._ensure_category_known(updated_product.category)
                     updated_product.order = products[index].order
                     products[index] = updated_product
                     identity_map.pop(original_key, None)
                     identity_map[new_key] = updated_product
+                    history_entries.append(
+                        (
+                            original_key,
+                            new_key,
+                            {
+                                "ts": _utc_now_iso(),
+                                "operation": "bulk",
+                                "before": before_snapshot,
+                                "after": updated_product.to_dict(),
+                            },
+                        )
+                    )
 
                 self.repository.save_products(products)
                 self.clear_cache()
@@ -729,11 +794,110 @@ class ProductService:
                         details={"actualizaciones_totales": len(updates)},
                     )
                 )
+                self._record_history_entries(history_entries)
             except Exception as exc:  # pylint: disable=broad-exception-caught
                 logger.error("Error en actualización por lotes: %s", exc)
                 raise ProductServiceError(
                     f"Error en actualización por lotes: {exc}"
                 ) from exc
+
+    def save_all_products(self, products: Sequence[Product]) -> None:
+        """Persist a full product list with a single atomic write."""
+        try:
+            self.repository.save_products(list(products))
+            self.clear_cache()
+            self._rebuild_indexes()
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            logger.error("Error al guardar catálogo completo: %s", exc)
+            raise ProductServiceError(
+                f"Error al guardar catálogo completo: {exc}"
+            ) from exc
+
+    def build_import_plan(self, file_path: str) -> Dict[str, Any]:
+        """Build a dry-run import plan from a JSON file."""
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                payload = json.load(f)
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            raise ProductServiceError(
+                f"No se pudo leer el archivo de importación: {exc}"
+            ) from exc
+
+        if not isinstance(payload, list):
+            raise ProductServiceError(
+                "El archivo de importación debe contener una lista de productos."
+            )
+
+        existing = self.get_all_products()
+        identity_map = {product.identity_key(): product for product in existing}
+
+        rows: List[Dict[str, Any]] = []
+        summary = {
+            "new": 0,
+            "duplicate": 0,
+            "invalid": 0,
+            "add": 0,
+            "update": 0,
+            "skip": 0,
+        }
+
+        for index, item in enumerate(payload):
+            row: Dict[str, Any] = {
+                "index": index,
+                "identity_key": "",
+                "status": "invalid",
+                "action": "skip",
+                "error": None,
+                "incoming": None,
+                "existing": None,
+            }
+            try:
+                product = Product.from_dict(item)
+                row["incoming"] = product
+                row["identity_key"] = product.identity_key()
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                row["error"] = str(exc)
+                rows.append(row)
+                summary["invalid"] += 1
+                summary["skip"] += 1
+                continue
+
+            if self.category_service and product.category:
+                try:
+                    match = self.category_service.find_category_by_product_key(
+                        product.category
+                    )
+                except Exception:
+                    match = None
+                if not match:
+                    row["error"] = (
+                        f"Categoría inválida: {product.category}"
+                    )
+                    rows.append(row)
+                    summary["invalid"] += 1
+                    summary["skip"] += 1
+                    continue
+
+            existing_product = identity_map.get(row["identity_key"])
+            if existing_product:
+                row["status"] = "duplicate"
+                row["action"] = "update"
+                row["existing"] = existing_product
+                summary["duplicate"] += 1
+                summary["update"] += 1
+            else:
+                row["status"] = "new"
+                row["action"] = "add"
+                summary["new"] += 1
+                summary["add"] += 1
+
+            rows.append(row)
+
+        return {
+            "source_path": file_path,
+            "rows": rows,
+            "summary": summary,
+        }
 
     def get_version_info(self) -> VersionInfo:
         """Get current version information."""
