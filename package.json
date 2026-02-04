@@ -35,7 +35,7 @@
   "type": "commonjs",
   "devDependencies": {
     "@playwright/test": "^1.58.1",
-    "@stryker-mutator/core": "^9.4.0",
+    "@stryker-mutator/core": "^9.5.1",
     "@stryker-mutator/vitest-runner": "^9.4.0",
     "@vitest/coverage-v8": "^4.0.18",
     "cypress": "^15.9.0",
