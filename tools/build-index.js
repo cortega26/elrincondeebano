@@ -15,9 +15,6 @@ const { appendToManifest, readManifestFonts } = require('./utils/manifest');
 const TEMPLATE_PATH = path.join(rootDir, 'templates', 'index.ejs');
 const OUTPUT_PATH = resolveFromOutput('index.html');
 
-const INITIAL_RENDER_COUNT = 12;
-
-
 function build() {
   const template = fs.readFileSync(TEMPLATE_PATH, 'utf8');
   const productData = readProductData();
@@ -28,7 +25,7 @@ function build() {
 
   const availableProducts = sortedProducts.filter((product) => product.stock);
 
-  const initialProducts = availableProducts.slice(0, INITIAL_RENDER_COUNT);
+  const initialProducts = availableProducts;
 
   const inlinePayload = safeJsonStringify({
     version: productData.version || null,

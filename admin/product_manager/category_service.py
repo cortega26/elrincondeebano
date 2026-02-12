@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import re
 import threading
+import unicodedata
 from dataclasses import replace
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Sequence, Tuple
@@ -31,6 +32,17 @@ def _slugify(source: str) -> str:
 def _canonical_key(value: str) -> str:
     """Normalize identifiers for comparisons."""
     return (value or "").strip().lower()
+
+
+def _canonical_lookup(value: str) -> str:
+    """Normalize free-form user/category text for tolerant matching."""
+    if not value:
+        return ""
+    normalized = unicodedata.normalize("NFD", value)
+    normalized = "".join(
+        ch for ch in normalized if unicodedata.category(ch) != "Mn"
+    )
+    return re.sub(r"[^a-z0-9]+", "", normalized.lower())
 
 
 def _timestamp() -> str:
@@ -126,6 +138,48 @@ class CategoryService:
         """Find a category by product key."""
         catalog = self._load_catalog()
         return catalog.find_category_by_product_key(product_key)
+
+    def resolve_category(self, value: str) -> Optional[Category]:
+        """Resolve a category from product key, id, slug, or legacy title."""
+        cleaned = (value or "").strip()
+        if not cleaned:
+            return None
+
+        catalog = self._load_catalog()
+        canonical = _canonical_key(cleaned)
+        lookup = _canonical_lookup(cleaned)
+
+        # Contract-first: prefer product_key direct match.
+        direct = catalog.find_category_by_product_key(cleaned)
+        if direct:
+            return direct
+
+        for category in catalog.categories:
+            if _canonical_key(category.id) == canonical:
+                return category
+            if _canonical_key(category.slug) == canonical:
+                return category
+
+        if not lookup:
+            return None
+
+        for category in catalog.categories:
+            if _canonical_lookup(category.product_key) == lookup:
+                return category
+            if _canonical_lookup(category.id) == lookup:
+                return category
+            if _canonical_lookup(category.slug) == lookup:
+                return category
+            if _canonical_lookup(category.title) == lookup:
+                return category
+        return None
+
+    def resolve_category_key(self, value: str) -> Optional[str]:
+        """Resolve a category input into canonical product_key."""
+        category = self.resolve_category(value)
+        if not category:
+            return None
+        return category.product_key
 
     def ensure_group_exists(self, group_id: str) -> NavGroup:
         """Ensure a navigation group exists or raise."""

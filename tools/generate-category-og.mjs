@@ -1,9 +1,12 @@
 import fs from 'fs';
 import path from 'path';
+import { createRequire } from 'node:module';
 import sharp from 'sharp';
 
+const require = createRequire(import.meta.url);
+const { loadCategoryCatalog } = require('./utils/category-catalog.js');
+
 const repoRoot = process.cwd();
-const catalogPath = path.join(repoRoot, 'data', 'categories.json');
 const outputDir = path.join(repoRoot, 'assets', 'images', 'og', 'categories');
 const width = 1200;
 const height = 630;
@@ -217,8 +220,7 @@ function buildSvg({ title, iconMarkup, accent, accent2 }) {
 }
 
 function loadCategories() {
-  const raw = fs.readFileSync(catalogPath, 'utf8');
-  const data = JSON.parse(raw);
+  const data = loadCategoryCatalog();
   return Array.isArray(data.categories)
     ? data.categories.filter((category) => category && category.enabled !== false)
     : [];

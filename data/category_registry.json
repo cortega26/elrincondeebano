@@ -1,0 +1,347 @@
+{
+  "schema_version": "1.0",
+  "source": "categories.json",
+  "version": "20260126-220947",
+  "last_updated": "2026-01-26T22:09:47.878276Z",
+  "nav_groups": [
+    {
+      "id": "alimentos",
+      "display_name": {
+        "default": "Alimentos",
+        "cl": "Alimentos",
+        "ve": "Alimentos"
+      },
+      "active": true,
+      "sort_order": 10,
+      "description": ""
+    },
+    {
+      "id": "bebidas",
+      "display_name": {
+        "default": "Bebidas",
+        "cl": "Bebestibles",
+        "ve": "Bebidas"
+      },
+      "active": true,
+      "sort_order": 20,
+      "description": ""
+    },
+    {
+      "id": "alcohol",
+      "display_name": {
+        "default": "Alcohol",
+        "cl": "Alcohol",
+        "ve": "Licores"
+      },
+      "active": true,
+      "sort_order": 30,
+      "description": ""
+    },
+    {
+      "id": "snacks",
+      "display_name": {
+        "default": "Snacks y Confites",
+        "cl": "Snacks y Confites",
+        "ve": "Snacks y Dulces"
+      },
+      "active": true,
+      "sort_order": 40,
+      "description": ""
+    },
+    {
+      "id": "hogar_mascotas",
+      "display_name": {
+        "default": "Hogar y Mascotas",
+        "cl": "Hogar y Mascotas",
+        "ve": "Hogar y Mascotas"
+      },
+      "active": true,
+      "sort_order": 50,
+      "description": ""
+    },
+    {
+      "id": "varios",
+      "display_name": {
+        "default": "Varios",
+        "cl": "Varios",
+        "ve": "Varios"
+      },
+      "active": true,
+      "sort_order": 60,
+      "description": ""
+    },
+    {
+      "id": "test",
+      "display_name": {
+        "default": "Al Mayor",
+        "cl": "Al Mayor",
+        "ve": "Al Mayor"
+      },
+      "active": false,
+      "sort_order": 90,
+      "description": "Test Categoría"
+    }
+  ],
+  "categories": [
+    {
+      "id": "carnesyembutidos",
+      "key": "Carnesyembutidos",
+      "slug": "carnesyembutidos",
+      "display_name": {
+        "default": "Carnes y Embutidos"
+      },
+      "nav_group": "alimentos",
+      "active": true,
+      "sort_order": 10,
+      "description": "Descubre nuestra selección premium de embutidos y afines en El Rincón de Ébano. Encuentra opciones frescas y de alta calidad.",
+      "subcategories": []
+    },
+    {
+      "id": "aguas",
+      "key": "Aguas",
+      "slug": "aguas",
+      "display_name": {
+        "default": "Aguas"
+      },
+      "nav_group": "bebidas",
+      "active": true,
+      "sort_order": 10,
+      "description": "Explora nuestra selección de aguas en El Rincón de Ébano.",
+      "subcategories": []
+    },
+    {
+      "id": "chocolates",
+      "key": "Chocolates",
+      "slug": "chocolates",
+      "display_name": {
+        "default": "Chocolates"
+      },
+      "nav_group": "snacks",
+      "active": true,
+      "sort_order": 10,
+      "description": "Explora nuestra selección de chocolates en El Rincón de Ébano.",
+      "subcategories": []
+    },
+    {
+      "id": "juegos",
+      "key": "Juegos",
+      "slug": "juegos",
+      "display_name": {
+        "default": "Juegos"
+      },
+      "nav_group": "varios",
+      "active": true,
+      "sort_order": 10,
+      "description": "Explora nuestra selección de juegos de mesa en El Rincón de Ébano.",
+      "subcategories": []
+    },
+    {
+      "id": "Comestibles",
+      "key": "Comestibles",
+      "slug": "Comestibles",
+      "display_name": {
+        "default": "Comestibles"
+      },
+      "nav_group": "test",
+      "active": false,
+      "sort_order": 10,
+      "description": "",
+      "subcategories": []
+    },
+    {
+      "id": "despensa",
+      "key": "Despensa",
+      "slug": "despensa",
+      "display_name": {
+        "default": "Despensa"
+      },
+      "nav_group": "alimentos",
+      "active": true,
+      "sort_order": 20,
+      "description": "Explora nuestra selección de productos de despensa en El Rincón de Ébano.",
+      "subcategories": []
+    },
+    {
+      "id": "bebidas",
+      "key": "Bebidas",
+      "slug": "bebidas",
+      "display_name": {
+        "default": "Bebidas"
+      },
+      "nav_group": "bebidas",
+      "active": true,
+      "sort_order": 20,
+      "description": "Explora nuestra selección de bebidas en El Rincón de Ébano.",
+      "subcategories": []
+    },
+    {
+      "id": "snacksdulces",
+      "key": "SnacksDulces",
+      "slug": "snacksdulces",
+      "display_name": {
+        "default": "Snacks Dulces"
+      },
+      "nav_group": "snacks",
+      "active": true,
+      "sort_order": 20,
+      "description": "Explora nuestra selección de Snacks Dulces en El Rincón de Ébano.",
+      "subcategories": []
+    },
+    {
+      "id": "limpiezayaseo",
+      "key": "Limpiezayaseo",
+      "slug": "limpiezayaseo",
+      "display_name": {
+        "default": "Limpieza y Aseo"
+      },
+      "nav_group": "hogar_mascotas",
+      "active": true,
+      "sort_order": 20,
+      "description": "Explora nuestra selección de productos de limpieza y aseo en El Rincón de Ébano.",
+      "subcategories": []
+    },
+    {
+      "id": "lacteos",
+      "key": "Lacteos",
+      "slug": "lacteos",
+      "display_name": {
+        "default": "Lácteos"
+      },
+      "nav_group": "alimentos",
+      "active": true,
+      "sort_order": 30,
+      "description": "Explora nuestra selección de productos lácteos en El Rincón de Ébano.",
+      "subcategories": []
+    },
+    {
+      "id": "energeticaseisotonicas",
+      "key": "Energeticaseisotonicas",
+      "slug": "energeticaseisotonicas",
+      "display_name": {
+        "default": "Energéticas e Isotónicas"
+      },
+      "nav_group": "bebidas",
+      "active": true,
+      "sort_order": 30,
+      "description": "Explora nuestra selección de bebidas energéticas y isotónicas en El Rincón de Ébano.",
+      "subcategories": []
+    },
+    {
+      "id": "snackssalados",
+      "key": "SnacksSalados",
+      "slug": "snackssalados",
+      "display_name": {
+        "default": "Snacks Salados"
+      },
+      "nav_group": "snacks",
+      "active": true,
+      "sort_order": 30,
+      "description": "Explora nuestra selección de Snacks Salados en El Rincón de Ébano.",
+      "subcategories": []
+    },
+    {
+      "id": "llaveros",
+      "key": "Llaveros",
+      "slug": "llaveros",
+      "display_name": {
+        "default": "Llaveros"
+      },
+      "nav_group": "varios",
+      "active": true,
+      "sort_order": 30,
+      "description": "Explora nuestra selección de llaveros en El Rincón de Ébano.",
+      "subcategories": []
+    },
+    {
+      "id": "jugos",
+      "key": "Jugos",
+      "slug": "jugos",
+      "display_name": {
+        "default": "Jugos"
+      },
+      "nav_group": "bebidas",
+      "active": true,
+      "sort_order": 40,
+      "description": "Explora nuestra selección de jugos en El Rincón de Ébano.",
+      "subcategories": []
+    },
+    {
+      "id": "mascotas",
+      "key": "Mascotas",
+      "slug": "mascotas",
+      "display_name": {
+        "default": "Mascotas"
+      },
+      "nav_group": "hogar_mascotas",
+      "active": true,
+      "sort_order": 40,
+      "description": "Explora nuestra sección de mascotas en El Rincón de Ébano.",
+      "subcategories": []
+    },
+    {
+      "id": "cervezas",
+      "key": "Cervezas",
+      "slug": "cervezas",
+      "display_name": {
+        "default": "Cervezas"
+      },
+      "nav_group": "alcohol",
+      "active": true,
+      "sort_order": 50,
+      "description": "Explora nuestra selección de cervezas en El Rincón de Ébano. Encuentra refrescantes opciones para todos los gustos.",
+      "subcategories": []
+    },
+    {
+      "id": "software",
+      "key": "Software",
+      "slug": "software",
+      "display_name": {
+        "default": "Software"
+      },
+      "nav_group": "varios",
+      "active": false,
+      "sort_order": 50,
+      "description": "Explora nuestra sección de software en El Rincón de Ébano.",
+      "subcategories": []
+    },
+    {
+      "id": "vinos",
+      "key": "Vinos",
+      "slug": "vinos",
+      "display_name": {
+        "default": "Vinos"
+      },
+      "nav_group": "alcohol",
+      "active": true,
+      "sort_order": 60,
+      "description": "Explora nuestra amplia selección de vinos en El Rincón de Ébano y encuentra la vid que satisfaga tu paladar.",
+      "subcategories": []
+    },
+    {
+      "id": "espumantes",
+      "key": "Espumantes",
+      "slug": "espumantes",
+      "display_name": {
+        "default": "Espumantes"
+      },
+      "nav_group": "alcohol",
+      "active": true,
+      "sort_order": 70,
+      "description": "Explora nuestra selección de espumantes en El Rincón de Ébano.",
+      "subcategories": []
+    },
+    {
+      "id": "piscos",
+      "key": "Piscos",
+      "slug": "piscos",
+      "display_name": {
+        "default": "Piscos"
+      },
+      "nav_group": "alcohol",
+      "active": true,
+      "sort_order": 80,
+      "description": "Explora nuestra selección de piscos en El Rincón de Ébano.",
+      "subcategories": []
+    }
+  ]
+}

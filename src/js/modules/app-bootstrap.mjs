@@ -18,18 +18,20 @@ const normalizeCatalogProducts = (payload, normalizeString) => {
 
 const applyCategoryFilter = (products, normalizeString) => {
   const mainElement = document.querySelector('main');
+  const currentCategoryKey = mainElement?.dataset?.categoryKey || '';
   const currentCategory = mainElement?.dataset?.category || '';
-  if (!currentCategory) {
-    return { products, currentCategory: '' };
+  const rawFilterKey = currentCategoryKey || currentCategory;
+  if (!rawFilterKey) {
+    return { products, currentCategory: '', currentCategoryKey: '' };
   }
-  const normCurrent = normalizeString(currentCategory);
+  const normCurrent = normalizeString(rawFilterKey);
   const filtered = products
     .filter((product) => (product.categoryKey || normalizeString(product.category)) === normCurrent)
     .map((product, index) => ({
       ...product,
       originalIndex: typeof product.originalIndex === 'number' ? product.originalIndex : index,
     }));
-  return { products: filtered, currentCategory };
+  return { products: filtered, currentCategory, currentCategoryKey: normCurrent };
 };
 
 const registerCartIcon = (showOffcanvas) => {
@@ -98,7 +100,10 @@ export function runAppBootstrap({
     Boolean(bootstrapPayload?.isPartial) ||
     (typeof bootstrapTotal === 'number' && bootstrapTotal > initialProducts.length) ||
     (typeof domTotal === 'number' && domTotal > initialProducts.length);
-  const { products, currentCategory } = applyCategoryFilter(initialProducts, normalizeString);
+  const { products, currentCategory, currentCategoryKey } = applyCategoryFilter(
+    initialProducts,
+    normalizeString
+  );
 
   catalogManager.initialize(products);
 
@@ -156,10 +161,10 @@ export function runAppBootstrap({
           categoryKey: p.categoryKey || normalizeString(p.category),
         }));
 
-        if (currentCategory) {
-          const normCurrent = normalizeString(currentCategory);
+        const activeCategoryKey = currentCategoryKey || normalizeString(currentCategory);
+        if (activeCategoryKey) {
           nextProducts = nextProducts
-            .filter((p) => (p.categoryKey || normalizeString(p.category)) === normCurrent)
+            .filter((p) => (p.categoryKey || normalizeString(p.category)) === activeCategoryKey)
             .map((p, i) => ({
               ...p,
               originalIndex: i,

@@ -6,6 +6,7 @@ from admin.product_manager.services import (
     ProductService,
     DuplicateProductError,
     ProductNotFoundError,
+    ProductFilterCriteria,
 )
 from test_support import require
 
@@ -61,7 +62,7 @@ class TestProductService:
         require(stored.price == 150, 'Expected updated price to be persisted')
 
     def test_delete_product(self, service):
-        """Test deletion."""
+        """Test archive flow triggered by delete."""
         p = Product(name="Del", description="Desc", price=100)
         service.add_product(p)
         
@@ -69,7 +70,17 @@ class TestProductService:
             service.delete_product(p.name, p.description) is True,
             'Expected delete to return True'
         )
-        require(len(service.get_all_products()) == 0, 'Expected no products after delete')
+        all_products = service.get_all_products()
+        require(len(all_products) == 1, 'Expected archived product to remain in catalog')
+        require(
+            all_products[0].is_archived is True,
+            'Expected deleted product to be archived'
+        )
+        active_products = service.filter_products(ProductFilterCriteria())
+        require(
+            len(active_products) == 0,
+            'Expected archived product to be hidden from active view'
+        )
 
     def test_search_products(self, service):
         """Test search functionality."""

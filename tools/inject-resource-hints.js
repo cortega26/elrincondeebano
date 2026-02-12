@@ -3,7 +3,7 @@ const path = require('path');
 const { resolveFromOutput } = require('./utils/output-dir');
 
 const LOGO_PRELOAD_PATH =
-  '/cdn-cgi/image/fit=cover,quality=82,format=auto,width=64/assets/images/web/logo.webp';
+  '/assets/images/web/logo.webp';
 const SCRIPT_PRELOAD_PATH = '/dist/js/script.min.js';
 
 function generateResourceHints() {

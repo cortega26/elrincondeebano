@@ -23,7 +23,7 @@ function loadDocument(relPath) {
 }
 
 const SCRIPT_BUNDLE_PATH = '/dist/js/script.min.js';
-const LOGO_CDN_PREFIX = '/cdn-cgi/image/';
+const LOGO_PATH = '/assets/images/web/logo.webp';
 
 test('index.html preloads the module bundle and logo consistently', () => {
   const document = loadDocument('index.html');
@@ -63,11 +63,11 @@ test('index.html preloads the module bundle and logo consistently', () => {
   assert.ok(logoPreloads.length > 0, 'logo preload hint should be present');
   logoPreloads.forEach((link) => {
     const href = link.getAttribute('href');
-    assert.ok(href.startsWith(LOGO_CDN_PREFIX), `logo preload must use CDN path, received ${href}`);
+    assert.strictEqual(href, LOGO_PATH, `logo preload must use static path, received ${href}`);
   });
 });
 
-test('category pages reuse modulepreload and CDN logo hints', () => {
+test('category pages reuse modulepreload and static logo hints', () => {
   const document = loadDocument('pages/despensa.html');
 
   const modulePreloads = Array.from(document.querySelectorAll('link[rel="modulepreload"]'));
@@ -103,8 +103,9 @@ test('category pages reuse modulepreload and CDN logo hints', () => {
   ).filter((link) => link.getAttribute('href')?.includes('logo.webp'));
 
   assert.strictEqual(logoPreloads.length, 1, 'category should preload the logo once');
-  assert.ok(
-    logoPreloads[0].getAttribute('href').startsWith(LOGO_CDN_PREFIX),
-    'category logo preload must use CDN path'
+  assert.strictEqual(
+    logoPreloads[0].getAttribute('href'),
+    LOGO_PATH,
+    'category logo preload must use static path'
   );
 });
