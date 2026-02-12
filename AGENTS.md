@@ -52,7 +52,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 | Repo Cartographer             | `npm pkg get scripts`                                   | Al actualizar documentación o scripts.                                                  | JSON con scripts de `package.json`.                                                       | Tabla de scripts actualizada en docs.     |
 | Docs Steward                  | `npm run build`                                         | Tras cambios en plantillas (`templates/`), datos o herramientas.                        | Build completo sin errores ni warnings críticos; genera `dist/`, `pages/`, `sitemap.xml`. | Artifacts regenerados listos para commit. |
 | Docs Steward                  | `npm run lighthouse:audit`                              | Auditorías de rendimiento previas a release.                                            | Reportes en `reports/lighthouse/`.                                                        | Archivos HTML de Lighthouse.              |
-| Type & Lint Guardian          | `npx eslint .`                                          | En cada PR y antes de merges; ejecutado también localmente.                             | Salida limpia sin errores ESLint usando `.eslintrc.json`.                                 | Logs de lint.                             |
+| Type & Lint Guardian          | `npm run lint`                                          | En cada PR y antes de merges; ejecutado también localmente.                             | Salida limpia sin errores ESLint usando `eslint.config.cjs`.                              | Logs de lint.                             |
 | Type & Lint Guardian          | `npm run format`                                        | En cada PR.                                                                             | Código formateado según `.prettierrc`.                                                    | Archivos modificados.                     |
 | Security / Supply Chain Agent | `npm audit --production`                                | Mensual o ante cambios de dependencias.                                                 | Sin vulnerabilidades altas/crit.; documentar hallazgos.                                   | Reporte de auditoría.                     |
 | Security / Supply Chain Agent | `npx codacy-analysis-cli` (a través de workflow)        | En CI (`codacy.yml`).                                                                   | SARIF sanitizado y subido.                                                                | `results-*.sarif`.                        |
@@ -77,7 +77,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - Baseline objetivo: 80%.
   - **Mutation Testing**: Verificar reportes de Stryker en cambios críticos. No reintroducir survivors en lógica Core (Cart, Analytics, Logger).
 - **Linter/formatter**
-  - [ ] `npx eslint .` debe terminar en verde. Auto-fixes solo locales; los commits deben incluir diff resultante.
+  - [ ] `npm run lint` debe terminar en verde. Auto-fixes solo locales; los commits deben incluir diff resultante.
   - [ ] `npm run format` debe asegurar estilo consistente.
 - **SARIF estable**
   - Reutilizar el sanitizador existente en `.github/workflows/codacy.yml` (`jq` con `with_entries`). Si se generan SARIF manualmente, aplicar:
@@ -154,12 +154,20 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 3. Si falla Codacy SARIF, ejecutar localmente el sanitizador con `jq` y verificar esquema `2.1.0`.
 4. Documentar hallazgos en el PR con pasos reproducibles y solución propuesta.
 
+### Cómo ejecutar smoke manual guiado
+
+1. Ejecutar `npm run build`.
+2. Levantar preview local (`npx serve build -l 4173` o equivalente).
+3. Imprimir checklist: `npm run smoke:manual`.
+4. Completar validación manual usando `docs/operations/SMOKE_TEST.md`.
+5. Adjuntar evidencia en el PR.
+
 ## Anexos
 
 - `package.json` (scripts y dependencias). [`package.json`](package.json)
 - Lockfile para instalaciones deterministas. [`package-lock.json`](package-lock.json)
-- Configuración de ESLint. [`.eslintrc.json`](.eslintrc.json)
+- Configuración de ESLint. [`eslint.config.cjs`](eslint.config.cjs)
 - Workflows de GitHub Actions. [`static.yml`](.github/workflows/static.yml), [`images.yml`](.github/workflows/images.yml), [`codacy.yml`](.github/workflows/codacy.yml)
 - Scripts de build y utilidades. [`tools/`](tools/)
 - Suite de pruebas Node. [`test/`](test/)
-- Documentación operativa existente. [`README.md`](README.md), [`RUNBOOK`](docs/operations/RUNBOOK.md), [`BACKUP`](docs/operations/BACKUP.md)
+- Documentación operativa existente. [`README.md`](README.md), [`RUNBOOK`](docs/operations/RUNBOOK.md), [`BACKUP`](docs/operations/BACKUP.md), [`QUALITY_GUARDRAILS`](docs/operations/QUALITY_GUARDRAILS.md), [`SMOKE_TEST`](docs/operations/SMOKE_TEST.md)
