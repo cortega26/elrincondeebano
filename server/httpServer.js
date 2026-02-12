@@ -124,7 +124,6 @@ if (require.main === module) {
     changeLogPath,
   });
   server.listen(port, () => {
-    // eslint-disable-next-line no-console
     console.log(`Product sync API listening on http://127.0.0.1:${port}`);
   });
 }

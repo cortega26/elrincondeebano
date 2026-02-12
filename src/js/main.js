@@ -7,6 +7,7 @@ import { injectSeoMetadata, injectStructuredData } from './modules/seo.js';
 import { injectPwaManifest } from './modules/pwa.js';
 import { setupCheckoutProgress } from './modules/checkout.mjs';
 import { initializeBootstrapUI } from './modules/bootstrap.mjs';
+import { applyDeferredStyles } from './modules/deferred-css.mjs';
 
 // Import the core app for side effects when bundling.
 // Note: When bundling via esbuild, this pulls in the main application logic.
@@ -16,12 +17,7 @@ function initEnhancementsOnce() {
   const root = document.documentElement;
   // Always enable deferred styles first (idempotent)
   try {
-    document
-      .querySelectorAll('link[rel="stylesheet"][media="print"][data-defer]')
-      .forEach((link) => {
-        link.media = 'all';
-        link.removeAttribute('data-defer');
-      });
+    applyDeferredStyles(document);
   } catch (error) {
     // Ignore DOM access failures in non-browser or test environments.
   }

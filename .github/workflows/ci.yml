@@ -51,6 +51,9 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Run lint
+        run: npm run lint
+
       - name: Deterministic build check
         run: |
           rm -rf build-determinism-a build-determinism-b
