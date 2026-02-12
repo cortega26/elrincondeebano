@@ -54,6 +54,7 @@ pages.forEach((page) => {
     template,
     {
       categoryName: page.name,
+      categoryKey: page.productKey,
       description: page.description,
       slug: page.slug,
       ogImage,

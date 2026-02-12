@@ -258,16 +258,31 @@ class ProductService:
                 diffs[field_name] = getattr(updated, field_name)
         return diffs
 
-    def _ensure_category_known(self, category_value: str) -> None:
-        """Validate that the provided category exists in the catalog when configured."""
-        if not category_value or not self.category_service:
-            return
-        match = self.category_service.find_category_by_product_key(category_value)
-        if not match:
-            raise ProductServiceError(
-                f"La categoría '{category_value}' no existe en el catálogo. "
-                "Actualiza el catálogo de categorías antes de asignarla."
-            )
+    def _normalize_category_value(self, category_value: str) -> str:
+        """Return canonical category key and validate catalog membership."""
+        cleaned = (category_value or "").strip()
+        if not cleaned or not self.category_service:
+            return cleaned
+
+        resolved_key = None
+        resolver = getattr(self.category_service, "resolve_category_key", None)
+        if callable(resolver):
+            try:
+                resolved_key = resolver(cleaned)
+            except Exception:  # pylint: disable=broad-exception-caught
+                resolved_key = None
+
+        if resolved_key:
+            return str(resolved_key).strip()
+
+        match = self.category_service.find_category_by_product_key(cleaned)
+        if match:
+            return (match.product_key or "").strip()
+
+        raise ProductServiceError(
+            f"La categoría '{category_value}' no existe en el catálogo. "
+            "Actualiza el catálogo de categorías antes de asignarla."
+        )
 
     def _stamp_local_metadata(
         self, product: Product, fields: List[str], base_rev: int
@@ -378,7 +393,7 @@ class ProductService:
                 )
             try:
                 products = self.get_all_products()
-                self._ensure_category_known(product.category)
+                product.category = self._normalize_category_value(product.category)
                 product.order = len(products)
                 self._stamp_local_metadata(
                     product,
@@ -441,7 +456,9 @@ class ProductService:
                 )
                 if not changes:
                     return
-                self._ensure_category_known(updated_product.category)
+                updated_product.category = self._normalize_category_value(
+                    updated_product.category
+                )
                 base_rev = original_product.rev
                 timestamp = self._stamp_local_metadata(
                     updated_product, list(changes.keys()), base_rev
@@ -599,13 +616,18 @@ class ProductService:
         old_normalized = (old_category or "").strip().lower()
         if not old_normalized:
             return 0
-        self._ensure_category_known(new_category)
+        old_category_key = self._normalize_category_value(old_category)
+        if old_category_key:
+            old_normalized = old_category_key.lower()
+        new_category_key = self._normalize_category_value(new_category)
+        if not new_category_key:
+            return 0
         updated = 0
         with self._products_lock:
             products = self.get_all_products()
             for product in products:
                 if (product.category or "").strip().lower() == old_normalized:
-                    product.category = new_category
+                    product.category = new_category_key
                     self._stamp_local_metadata(product, ["category"], product.rev)
                     updated += 1
             if updated:
@@ -778,7 +800,9 @@ class ProductService:
                     original_product = identity_map[original_key]
                     before_snapshot = original_product.to_dict()
                     index = products.index(original_product)
-                    self._ensure_category_known(updated_product.category)
+                    updated_product.category = self._normalize_category_value(
+                        updated_product.category
+                    )
                     updated_product.order = products[index].order
                     products[index] = updated_product
                     identity_map.pop(original_key, None)
@@ -829,7 +853,10 @@ class ProductService:
             except TypeError:
                 entries_list = None
         try:
-            self.repository.save_products(list(products))
+            normalized_products = list(products)
+            for product in normalized_products:
+                product.category = self._normalize_category_value(product.category)
+            self.repository.save_products(normalized_products)
             self.clear_cache()
             self._rebuild_indexes()
             if entries_list:
@@ -944,30 +971,21 @@ class ProductService:
             }
             try:
                 product = Product.from_dict(item)
+                product.category = self._normalize_category_value(product.category)
                 row["incoming"] = product
                 row["identity_key"] = product.identity_key()
+            except ProductServiceError as exc:
+                row["error"] = str(exc)
+                rows.append(row)
+                summary["invalid"] += 1
+                summary["skip"] += 1
+                continue
             except Exception as exc:  # pylint: disable=broad-exception-caught
                 row["error"] = str(exc)
                 rows.append(row)
                 summary["invalid"] += 1
                 summary["skip"] += 1
                 continue
-
-            if self.category_service and product.category:
-                try:
-                    match = self.category_service.find_category_by_product_key(
-                        product.category
-                    )
-                except Exception:
-                    match = None
-                if not match:
-                    row["error"] = (
-                        f"Categoría inválida: {product.category}"
-                    )
-                    rows.append(row)
-                    summary["invalid"] += 1
-                    summary["skip"] += 1
-                    continue
 
             existing_product = identity_map.get(row["identity_key"])
             if existing_product:

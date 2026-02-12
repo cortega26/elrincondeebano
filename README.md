@@ -99,7 +99,13 @@ _No environment variables are required for the default build. The admin panel is
 
 ## Category Taxonomy
 
-Canonical product categories (authoritative list: `data/product_data.json`):
+Canonical taxonomy contract:
+
+- Registry source: `data/category_registry.json` (identity + presentation metadata).
+- Legacy compatibility catalog: `data/categories.json` (used by existing tooling and CM views).
+- Product assignments: `data/product_data.json` uses category `key` values (legacy `product_key`).
+
+Current category keys in product data:
 
 - Aguas
 - Bebidas
@@ -122,8 +128,10 @@ Canonical product categories (authoritative list: `data/product_data.json`):
 
 **Rules**
 
-- Keep the exact casing and spacing from `data/product_data.json` (no spaces; TitleCase tokens).
-- New categories must be added to `data/product_data.json` and may require corresponding asset paths plus navigation/template updates if the UI exposes category menus.
+- Keep category identity stable (`id`, `key`, `slug`) unless a migration plan exists.
+- `display_name` and `nav_group` can change safely after contract checks.
+- Validate contract changes with `npm run validate:categories`.
+- New categories must be reflected in `data/category_registry.json` and validated before build/release.
 
 ## Pricing & Discounts
 

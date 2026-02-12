@@ -14,6 +14,7 @@
     "check:css-order": "node scripts/check-css-order.mjs",
     "format": "prettier --write .",
     "icons": "node tools/generate-icons.js",
+    "validate:categories": "node tools/validate-category-registry.js",
     "images:variants": "node tools/generate-image-variants.js",
     "images:generate": "node tools/generate-images.mjs",
     "images:rewrite": "node tools/rewrite-images.mjs",

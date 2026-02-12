@@ -1,14 +1,13 @@
-const fs = require('fs');
-const path = require('path');
+const {
+  categoryRegistryPath,
+  loadCategoryCatalogFromRegistry,
+} = require('./category-registry');
 
-const { rootDir } = require('./output-dir');
-
-const catalogPath = path.join(rootDir, 'data', 'categories.json');
+const catalogPath = categoryRegistryPath;
 
 function loadCategoryCatalog() {
   try {
-    const raw = fs.readFileSync(catalogPath, 'utf8');
-    return JSON.parse(raw);
+    return loadCategoryCatalogFromRegistry();
   } catch (err) {
     console.error(`No se pudo leer el catálogo de categorías en ${catalogPath}:`, err);
     return { categories: [], nav_groups: [] };

@@ -12,6 +12,7 @@ bootstrap_tests()
 from admin.product_manager.models import Product
 from admin.product_manager.services import (
   DuplicateProductError,
+  ProductFilterCriteria,
   ProductService,
   ProductServiceError,
 )
@@ -83,6 +84,16 @@ def test_delete_product_with_duplicate_name_removes_exact_match() -> None:
 
   removed = service.delete_product('Producto', 'Variante')
   require(removed is True, 'Expected delete to return True')
-  remaining = service.get_all_products()
-  require(len(remaining) == 1, 'Expected one product remaining after delete')
-  require(remaining[0].description == 'Original', 'Expected original product to remain')
+  all_products = service.get_all_products()
+  require(len(all_products) == 2, 'Expected archived product to remain in catalog')
+  archived_variants = [
+      p for p in all_products if p.description == 'Variante' and p.is_archived
+  ]
+  require(len(archived_variants) == 1, 'Expected matching duplicate to be archived')
+
+  remaining_active = service.filter_products(ProductFilterCriteria())
+  require(len(remaining_active) == 1, 'Expected one active product after archive')
+  require(
+      remaining_active[0].description == 'Original',
+      'Expected original product to remain active'
+  )

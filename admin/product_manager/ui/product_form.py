@@ -4,10 +4,8 @@ from __future__ import annotations
 
 import logging
 import os
-import re
 import shutil
 import time
-import unicodedata
 import webbrowser
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple, cast
@@ -17,7 +15,16 @@ from tkinter import filedialog, messagebox, ttk
 
 from ..models import Product
 from ..services import ProductService, ProductServiceError
-from .utils import CategoryHelper, Image, ImageTk, PIL_AVAILABLE, PIL_AVIF, PIL_WEBP
+from .utils import (
+    CategoryHelper,
+    Image,
+    ImageTk,
+    PIL_AVAILABLE,
+    PIL_AVIF,
+    PIL_WEBP,
+    default_category_subdir,
+    derive_category_media_subdirs,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +74,10 @@ class ProductFormDialog(tk.Toplevel):
 
         self.category_helper = CategoryHelper(self.category_choices)
         self.category_combobox: Optional[ttk.Combobox] = None
+        (
+            self._category_subdir_map,
+            self._category_subdir_aliases,
+        ) = self._build_category_media_mappings()
 
         temp_entry = ttk.Entry(self)
         self.default_font = temp_entry.cget("font")
@@ -458,42 +469,6 @@ class ProductFormDialog(tk.Toplevel):
             if "invalid literal" in str(exc):
                 raise ValueError("El descuento debe ser un número válido") from exc
             raise
-        # Canonicalize category names to avoid mismatches (spaces/accents)
-        try:
-
-            def _norm(s: str) -> str:
-                s = unicodedata.normalize("NFD", s)
-                s = re.sub(r"[\u0300-\u036f]", "", s)
-                s = re.sub(r"[^A-Za-z0-9]", "", s).lower()
-                return s
-
-            cat_map = {
-                "lacteos": "Lacteos",
-                "carnesyembutidos": "Carnesyembutidos",
-                "snacksdulces": "SnacksDulces",
-                "snackssalados": "SnacksSalados",
-                "energeticaseisotonicas": "Energeticaseisotonicas",
-                "limpiezayaseo": "Limpiezayaseo",
-                "aguas": "Aguas",
-                "bebidas": "Bebidas",
-                "jugos": "Jugos",
-                "espumantes": "Espumantes",
-                "cervezas": "Cervezas",
-                "vinos": "Vinos",
-                "piscos": "Piscos",
-                "mascotas": "Mascotas",
-                "llaveros": "Llaveros",
-                "despensa": "Despensa",
-                "chocolates": "Chocolates",
-                "juegos": "Juegos",
-                "software": "Software",
-            }
-            key = _norm(str(data.get("category", "")))
-            if key in cat_map:
-                data["category"] = cat_map[key]
-        except Exception:
-            self.logger.debug("No se pudo normalizar la categoría seleccionada.")
-
         image_path = str(data.get("image_path", "")).strip()
         data["image_path"] = image_path
         if image_path:
@@ -690,6 +665,19 @@ class ProductFormDialog(tk.Toplevel):
         # So I need 3 '..'
         return os.path.join(project_root, "assets", "images")
 
+    def _build_category_media_mappings(self) -> tuple[Dict[str, str], Dict[str, set[str]]]:
+        """Build category -> media directory mappings from existing catalog data."""
+        category_keys = [str(key).strip() for _, key in self.category_choices if str(key).strip()]
+        products: List[Product] = []
+        try:
+            products = self.product_service.get_all_products()
+        except Exception as exc:
+            self.logger.debug(
+                "No se pudieron cargar productos para inferir directorios de medios: %s",
+                exc,
+            )
+        return derive_category_media_subdirs(products, category_keys)
+
     def _resolve_asset_image_path(
         self, base_dir: Path, rel_path: str
     ) -> Optional[Path]:
@@ -711,28 +699,15 @@ class ProductFormDialog(tk.Toplevel):
         return candidate
 
     def _category_subdir(self, category: str) -> str:
-        mapping = {
-            "Limpiezayaseo": "limpieza_y_aseo",
-            "Despensa": "despensa",
-            "Lacteos": "lacteos",
-            "Cervezas": "cervezas",
-            "Vinos": "vinos",
-            "Espumantes": "espumantes",
-            "Piscos": "piscos",
-            "Aguas": "bebidas",
-            "Bebidas": "bebidas",
-            "Jugos": "jugos",
-            "Mascotas": "mascotas",
-            "Llaveros": "llaveros",
-            "Chocolates": "chocolates",
-            "SnacksDulces": "snacks_dulces",
-            "SnacksSalados": "snacks_salados",
-            "Energeticaseisotonicas": "energeticaseisotonicas",
-            "Carnesyembutidos": "carnes_y_embutidos",
-            "Juegos": "juegos",
-            "Software": "software",
-        }
-        return mapping.get(category, category.strip().lower().replace(" ", "_"))
+        key = (category or "").strip()
+        if not key:
+            return ""
+        canonical_key = self.category_helper.get_key_from_display(key)
+        canonical_key = (canonical_key or key).strip()
+        return self._category_subdir_map.get(
+            canonical_key,
+            default_category_subdir(canonical_key),
+        )
 
     def _resolve_image_candidates(self) -> list[tuple[str, str]]:
         candidates: list[tuple[str, str]] = []
@@ -875,13 +850,19 @@ class ProductFormDialog(tk.Toplevel):
         except Exception:
             categories = [key for _, key in self.category_choices]
         for category in categories:
-            candidate_dir = (
-                self._category_subdir(str(category))
-                .strip("/")
-                .replace("\\", "/")
-                .lower()
+            key = str(category).strip()
+            if not key:
+                continue
+            aliases = self._category_subdir_aliases.get(
+                key,
+                {self._category_subdir(key)},
             )
-            if candidate_dir == normalized:
+            normalized_aliases = {
+                alias.strip("/").replace("\\", "/").lower()
+                for alias in aliases
+                if alias
+            }
+            if normalized in normalized_aliases:
                 return category
         return None
 

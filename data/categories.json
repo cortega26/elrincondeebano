@@ -10,30 +10,44 @@
       "enabled": true
     },
     {
-      "id": "bebestibles",
-      "label": "Bebestibles",
+      "id": "bebidas",
+      "label": "Bebidas",
       "order": 20,
+      "description": "",
+      "enabled": true
+    },
+    {
+      "id": "alcohol",
+      "label": "Alcohol",
+      "order": 30,
       "description": "",
       "enabled": true
     },
     {
       "id": "snacks",
       "label": "Snacks y Confites",
-      "order": 30,
+      "order": 40,
       "description": "",
       "enabled": true
     },
     {
-      "id": "otros",
-      "label": "Otros",
-      "order": 40,
+      "id": "hogar_mascotas",
+      "label": "Hogar y Mascotas",
+      "order": 50,
+      "description": "",
+      "enabled": true
+    },
+    {
+      "id": "varios",
+      "label": "Varios",
+      "order": 60,
       "description": "",
       "enabled": true
     },
     {
       "id": "test",
       "label": "Al Mayor",
-      "order": 50,
+      "order": 90,
       "description": "Test Categoría",
       "enabled": false
     }
@@ -56,7 +70,7 @@
       "product_key": "Aguas",
       "slug": "aguas",
       "description": "Explora nuestra selección de aguas en El Rincón de Ébano.",
-      "group_id": "bebestibles",
+      "group_id": "bebidas",
       "order": 10,
       "enabled": true,
       "subcategories": []
@@ -78,7 +92,7 @@
       "product_key": "Juegos",
       "slug": "juegos",
       "description": "Explora nuestra selección de juegos de mesa en El Rincón de Ébano.",
-      "group_id": "otros",
+      "group_id": "varios",
       "order": 10,
       "enabled": true,
       "subcategories": []
@@ -111,7 +125,7 @@
       "product_key": "Bebidas",
       "slug": "bebidas",
       "description": "Explora nuestra selección de bebidas en El Rincón de Ébano.",
-      "group_id": "bebestibles",
+      "group_id": "bebidas",
       "order": 20,
       "enabled": true,
       "subcategories": []
@@ -133,7 +147,7 @@
       "product_key": "Limpiezayaseo",
       "slug": "limpiezayaseo",
       "description": "Explora nuestra selección de productos de limpieza y aseo en El Rincón de Ébano.",
-      "group_id": "otros",
+      "group_id": "hogar_mascotas",
       "order": 20,
       "enabled": true,
       "subcategories": []
@@ -155,7 +169,7 @@
       "product_key": "Energeticaseisotonicas",
       "slug": "energeticaseisotonicas",
       "description": "Explora nuestra selección de bebidas energéticas y isotónicas en El Rincón de Ébano.",
-      "group_id": "bebestibles",
+      "group_id": "bebidas",
       "order": 30,
       "enabled": true,
       "subcategories": []
@@ -177,7 +191,7 @@
       "product_key": "Llaveros",
       "slug": "llaveros",
       "description": "Explora nuestra selección de llaveros en El Rincón de Ébano.",
-      "group_id": "otros",
+      "group_id": "varios",
       "order": 30,
       "enabled": true,
       "subcategories": []
@@ -188,7 +202,7 @@
       "product_key": "Jugos",
       "slug": "jugos",
       "description": "Explora nuestra selección de jugos en El Rincón de Ébano.",
-      "group_id": "bebestibles",
+      "group_id": "bebidas",
       "order": 40,
       "enabled": true,
       "subcategories": []
@@ -199,7 +213,7 @@
       "product_key": "Mascotas",
       "slug": "mascotas",
       "description": "Explora nuestra sección de mascotas en El Rincón de Ébano.",
-      "group_id": "otros",
+      "group_id": "hogar_mascotas",
       "order": 40,
       "enabled": true,
       "subcategories": []
@@ -210,7 +224,7 @@
       "product_key": "Cervezas",
       "slug": "cervezas",
       "description": "Explora nuestra selección de cervezas en El Rincón de Ébano. Encuentra refrescantes opciones para todos los gustos.",
-      "group_id": "bebestibles",
+      "group_id": "alcohol",
       "order": 50,
       "enabled": true,
       "subcategories": []
@@ -221,7 +235,7 @@
       "product_key": "Software",
       "slug": "software",
       "description": "Explora nuestra sección de software en El Rincón de Ébano.",
-      "group_id": "otros",
+      "group_id": "varios",
       "order": 50,
       "enabled": false,
       "subcategories": []
@@ -232,7 +246,7 @@
       "product_key": "Vinos",
       "slug": "vinos",
       "description": "Explora nuestra amplia selección de vinos en El Rincón de Ébano y encuentra la vid que satisfaga tu paladar.",
-      "group_id": "bebestibles",
+      "group_id": "alcohol",
       "order": 60,
       "enabled": true,
       "subcategories": []
@@ -243,7 +257,7 @@
       "product_key": "Espumantes",
       "slug": "espumantes",
       "description": "Explora nuestra selección de espumantes en El Rincón de Ébano.",
-      "group_id": "bebestibles",
+      "group_id": "alcohol",
       "order": 70,
       "enabled": true,
       "subcategories": []
@@ -254,7 +268,7 @@
       "product_key": "Piscos",
       "slug": "piscos",
       "description": "Explora nuestra selección de piscos en El Rincón de Ébano.",
-      "group_id": "bebestibles",
+      "group_id": "alcohol",
       "order": 80,
       "enabled": true,
       "subcategories": []
