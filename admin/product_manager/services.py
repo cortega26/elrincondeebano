@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import logging
 import threading
+from copy import deepcopy
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -420,6 +421,7 @@ class ProductService:
     ) -> None:
         """Update an existing product, supporting duplicate names via description."""
         queue_payload: Optional[Dict[str, Any]] = None
+        history_entries: Optional[List[Tuple[str, str, Dict[str, Any]]]] = None
         with self._products_lock:
             self._ensure_indexes_ready()
             try:
@@ -471,13 +473,18 @@ class ProductService:
                         },
                     )
                 )
-                entry = {
-                    "ts": _utc_now_iso(),
-                    "operation": "editar",
-                    "before": before_snapshot,
-                    "after": updated_product.to_dict(),
-                }
-                history_entries = [(original_key, updated_key, entry)]
+                history_entries = [
+                    (
+                        original_key,
+                        updated_key,
+                        {
+                            "ts": _utc_now_iso(),
+                            "operation": "editar",
+                            "before": before_snapshot,
+                            "after": updated_product.to_dict(),
+                        },
+                    )
+                ]
                 queue_payload = {
                     "product_id": original_product.name,
                     "base_rev": base_rev,
@@ -494,7 +501,7 @@ class ProductService:
                 raise ProductServiceError(
                     f"Error al actualizar producto: {exc}"
                 ) from exc
-        if "history_entries" in locals():
+        if history_entries is not None:
             self._record_history_entries(history_entries)
         if self.sync_engine and queue_payload:
             self.sync_engine.enqueue_update(**queue_payload)
@@ -692,7 +699,12 @@ class ProductService:
         self._category_index.clear()
         self._indexes_populated = False
 
-    def batch_update(self, updates: Sequence[ProductUpdateSpec]) -> None:
+    def batch_update(
+        self,
+        updates: Sequence[ProductUpdateSpec],
+        *,
+        operation: str = "bulk",
+    ) -> None:
         """Perform multiple updates in a single transaction."""
         # Complex transactional logic; keep localized for now.
         # pylint: disable=too-many-locals,too-many-branches
@@ -777,7 +789,7 @@ class ProductService:
                             new_key,
                             {
                                 "ts": _utc_now_iso(),
-                                "operation": "bulk",
+                                "operation": operation,
                                 "before": before_snapshot,
                                 "after": updated_product.to_dict(),
                             },
@@ -801,17 +813,96 @@ class ProductService:
                     f"Error en actualización por lotes: {exc}"
                 ) from exc
 
-    def save_all_products(self, products: Sequence[Product]) -> None:
-        """Persist a full product list with a single atomic write."""
+    def save_all_products(
+        self,
+        products: Sequence[Product],
+        history_entries: Optional[Sequence[Tuple[str, str, Dict[str, Any]]]] = None,
+    ) -> None:
+        """Persist a full product list with a single atomic write.
+
+        History recording happens only after the catalog save succeeds.
+        """
+        entries_list: Optional[List[Tuple[str, str, Dict[str, Any]]]] = None
+        if history_entries is not None:
+            try:
+                entries_list = list(history_entries)
+            except TypeError:
+                entries_list = None
         try:
             self.repository.save_products(list(products))
             self.clear_cache()
             self._rebuild_indexes()
+            if entries_list:
+                self._record_history_entries(entries_list)
         except Exception as exc:  # pylint: disable=broad-exception-caught
             logger.error("Error al guardar catálogo completo: %s", exc)
             raise ProductServiceError(
                 f"Error al guardar catálogo completo: {exc}"
             ) from exc
+
+    def get_product_history(self, product: Product) -> List[Dict[str, Any]]:
+        """Return history entries for a product, newest first."""
+        history = self._history_store.load_history()
+        entries = history.get(product.identity_key(), [])
+        if not isinstance(entries, list):
+            return []
+        return list(reversed(entries))
+
+    def get_history_entry(
+        self, product: Product, index: int
+    ) -> Optional[Dict[str, Any]]:
+        """Return a single history entry by index (newest first)."""
+        entries = self.get_product_history(product)
+        if index < 0 or index >= len(entries):
+            return None
+        return entries[index]
+
+    def revert_product_to_snapshot(
+        self,
+        current: Product,
+        snapshot: Product,
+        operation: str = "revertir",
+    ) -> None:
+        """Revert a product to a historical snapshot with one atomic write."""
+        with self._products_lock:
+            products = self.get_all_products()
+            identity_map = {product.identity_key(): product for product in products}
+            current_key = current.identity_key()
+            snapshot_key = snapshot.identity_key()
+            if current_key not in identity_map:
+                raise ProductNotFoundError(
+                    f"Producto no encontrado: {current.name} / {current.description}"
+                )
+            current_product = identity_map[current_key]
+            other = identity_map.get(snapshot_key)
+            if other is not None and other is not current_product:
+                raise DuplicateProductError(
+                    "La reversión generaría un producto duplicado con el mismo "
+                    "nombre y descripción."
+                )
+            try:
+                candidate = Product.from_dict(snapshot.to_dict())
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                raise ProductServiceError(
+                    f"Snapshot inválido para revertir: {exc}"
+                ) from exc
+            index = products.index(current_product)
+            candidate.order = current_product.order
+            candidate.rev = current_product.rev
+            candidate.field_last_modified = deepcopy(
+                current_product.field_last_modified
+            )
+            products[index] = candidate
+            before_snapshot = current_product.to_dict()
+            entry = {
+                "ts": _utc_now_iso(),
+                "operation": operation,
+                "before": before_snapshot,
+                "after": candidate.to_dict(),
+            }
+            self.save_all_products(
+                products, history_entries=[(current_key, snapshot_key, entry)]
+            )
 
     def build_import_plan(self, file_path: str) -> Dict[str, Any]:
         """Build a dry-run import plan from a JSON file."""

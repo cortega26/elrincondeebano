@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import logging
 import csv
+from datetime import datetime, timezone
 from dataclasses import fields
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -13,7 +14,12 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
 from ..models import Product
-from ..services import ProductService, ProductServiceError, ProductFilterCriteria
+from ..services import (
+    ProductService,
+    ProductServiceError,
+    ProductFilterCriteria,
+    DuplicateProductError,
+)
 from ..category_service import CategoryService, CategoryServiceError
 from ..category_gui import CategoryManagerDialog
 
@@ -496,6 +502,10 @@ class MainWindow(DragDropMixin):
             crud_frame, text="Eliminar", command=self.delete_product, state=tk.DISABLED
         )
         self.delete_button.pack(side=tk.LEFT, padx=2)
+        self.history_button = ttk.Button(
+            crud_frame, text="Historial...", command=self.show_history, state=tk.DISABLED
+        )
+        self.history_button.pack(side=tk.LEFT, padx=2)
         self.restore_button = ttk.Button(
             crud_frame, text="Restaurar", command=self.restore_archived, state=tk.DISABLED
         )
@@ -782,25 +792,153 @@ class MainWindow(DragDropMixin):
         for product in products:
             if not getattr(product, "is_archived", False):
                 continue
-            updated = Product(
-                name=product.name,
-                description=product.description,
-                price=product.price,
-                discount=product.discount,
-                stock=product.stock,
-                category=product.category,
-                image_path=product.image_path,
-                image_avif_path=product.image_avif_path,
-                order=product.order,
-                is_archived=False,
-            )
+            data = product.to_dict()
+            data["is_archived"] = False
+            updated = Product.from_dict(data)
             pairs.append((product, updated))
         if not pairs:
             messagebox.showinfo("Restaurar", "No hay productos archivados seleccionados.")
             return
         self._preview_and_apply_operation(
-            f"Restaurar {len(pairs)} producto(s) archivado(s)", pairs
+            f"Restaurar {len(pairs)} producto(s) archivado(s)",
+            pairs,
+            operation="restaurar",
         )
+
+    def show_history(self) -> None:
+        selected = self.tree.selection()
+        if len(selected) != 1:
+            messagebox.showinfo(
+                "Historial", "Seleccione un solo producto para ver el historial."
+            )
+            return
+        product = self.get_product_by_tree_item(selected[0])
+        if not product:
+            return
+        entries = self.product_service.get_product_history(product)
+
+        dialog = tk.Toplevel(self.master)
+        dialog.title(f"Historial: {product.name}")
+        dialog.transient(self.master)
+        dialog.grab_set()
+        dialog.geometry("720x520")
+
+        list_frame = ttk.Frame(dialog)
+        list_frame.pack(fill=tk.BOTH, expand=True, padx=12, pady=(12, 6))
+        columns = ("ts", "operation")
+        tree = ttk.Treeview(
+            list_frame, columns=columns, show="headings", height=10, selectmode="browse"
+        )
+        tree.heading("ts", text="Fecha")
+        tree.heading("operation", text="Operación")
+        tree.column("ts", width=240, anchor=tk.W)
+        tree.column("operation", width=160, anchor=tk.W)
+        tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar = ttk.Scrollbar(list_frame, orient="vertical", command=tree.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        tree.configure(yscrollcommand=scrollbar.set)
+
+        if not entries:
+            ttk.Label(dialog, text="Sin historial disponible.").pack(
+                padx=12, pady=(0, 8), anchor=tk.W
+            )
+        else:
+            for index, entry in enumerate(entries):
+                tree.insert(
+                    "",
+                    "end",
+                    iid=str(index),
+                    values=(entry.get("ts", ""), entry.get("operation", "")),
+                )
+
+        diff_text = tk.Text(dialog, height=10, wrap=tk.WORD)
+        diff_text.pack(fill=tk.BOTH, expand=False, padx=12, pady=(0, 8))
+        diff_text.configure(state=tk.DISABLED)
+
+        button_frame = ttk.Frame(dialog)
+        button_frame.pack(pady=10)
+        revert_btn = ttk.Button(
+            button_frame, text="Revertir a este estado", state=tk.DISABLED
+        )
+        revert_btn.pack(side=tk.LEFT, padx=6)
+        ttk.Button(button_frame, text="Cerrar", command=dialog.destroy).pack(
+            side=tk.LEFT, padx=6
+        )
+
+        def _diff_summary(before: Dict[str, Any], after: Dict[str, Any]) -> str:
+            ignored = {"field_last_modified", "rev", "order", "ts", "operation"}
+            changes = []
+            for key in sorted(set(before.keys()) | set(after.keys())):
+                if key in ignored:
+                    continue
+                if before.get(key) != after.get(key):
+                    changes.append(
+                        f"{key}: {before.get(key)} → {after.get(key)}"
+                    )
+            if not changes:
+                return "Sin cambios detectados."
+            return "\n".join(changes)
+
+        def on_select(_event=None):
+            selection = tree.selection()
+            if not selection:
+                revert_btn.config(state=tk.DISABLED)
+                return
+            try:
+                idx = int(selection[0])
+            except (TypeError, ValueError):
+                revert_btn.config(state=tk.DISABLED)
+                return
+            entry = entries[idx]
+            before = entry.get("before")
+            after = entry.get("after")
+            if not isinstance(before, dict) or not isinstance(after, dict):
+                diff_text.configure(state=tk.NORMAL)
+                diff_text.delete("1.0", tk.END)
+                diff_text.insert("1.0", "Entrada de historial inválida.")
+                diff_text.configure(state=tk.DISABLED)
+                revert_btn.config(state=tk.DISABLED)
+                return
+            diff_text.configure(state=tk.NORMAL)
+            diff_text.delete("1.0", tk.END)
+            diff_text.insert("1.0", _diff_summary(before, after))
+            diff_text.configure(state=tk.DISABLED)
+            revert_btn.config(state=tk.NORMAL)
+
+        def on_revert():
+            selection = tree.selection()
+            if not selection:
+                return
+            idx = int(selection[0])
+            entry = entries[idx]
+            snapshot = entry.get("before")
+            if not isinstance(snapshot, dict):
+                messagebox.showerror("Historial", "Snapshot inválido.")
+                return
+            preview = (
+                f"Revertir el producto al estado anterior a este cambio.\n"
+                f"Fecha: {entry.get('ts', '')} | Operación: {entry.get('operation', '')}\n"
+                "Esto sobrescribirá el producto actual."
+            )
+            if not messagebox.askyesno("Confirmar reversión", preview):
+                return
+            try:
+                snapshot_product = Product.from_dict(snapshot)
+                self.product_service.revert_product_to_snapshot(
+                    product, snapshot_product
+                )
+            except DuplicateProductError as exc:
+                messagebox.showerror("Historial", str(exc))
+                return
+            except ProductServiceError as exc:
+                messagebox.showerror("Historial", str(exc))
+                return
+            self.refresh_products()
+            self.update_status("Producto revertido")
+            dialog.destroy()
+
+        tree.bind("<<TreeviewSelect>>", on_select)
+        revert_btn.config(command=on_revert)
 
     def refresh_products(self) -> None:
         """Refresh the product list."""
@@ -1061,6 +1199,10 @@ class MainWindow(DragDropMixin):
         if selected:
             self.edit_button.config(state=tk.NORMAL)
             self.delete_button.config(state=tk.NORMAL)
+            if hasattr(self, "history_button"):
+                self.history_button.config(
+                    state=tk.NORMAL if len(selected) == 1 else tk.DISABLED
+                )
             if len(selected) == 1:
                 product = self.get_product_by_tree_item(selected[0])
                 if product:
@@ -1073,6 +1215,8 @@ class MainWindow(DragDropMixin):
         else:
             self.edit_button.config(state=tk.DISABLED)
             self.delete_button.config(state=tk.DISABLED)
+            if hasattr(self, "history_button"):
+                self.history_button.config(state=tk.DISABLED)
             self.update_status("No hay productos seleccionados")
         self._update_archive_controls()
 
@@ -1310,6 +1454,7 @@ class MainWindow(DragDropMixin):
         self._preview_and_apply_operation(
             f"Cambiar categoría a '{destination_key}' para {len(products)} producto(s)",
             pairs,
+            operation="cambiar_categoria",
         )
 
     def bulk_percentage_discount(self) -> None:
@@ -1336,7 +1481,9 @@ class MainWindow(DragDropMixin):
             )
             pairs.append((p, new_p))
         self._preview_and_apply_operation(
-            f"Descuento {pct}% a {len(products)} producto(s)", pairs
+            f"Descuento {pct}% a {len(products)} producto(s)",
+            pairs,
+            operation="descuento_porcentaje",
         )
 
     def bulk_fixed_discount(self) -> None:
@@ -1362,7 +1509,9 @@ class MainWindow(DragDropMixin):
             )
             pairs.append((p, new_p))
         self._preview_and_apply_operation(
-            f"Descuento fijo ${int(amount):,} a {len(products)} producto(s)", pairs
+            f"Descuento fijo ${int(amount):,} a {len(products)} producto(s)",
+            pairs,
+            operation="descuento_fijo",
         )
 
     def bulk_set_stock(self, value: bool) -> None:
@@ -1384,7 +1533,9 @@ class MainWindow(DragDropMixin):
             )
             pairs.append((p, new_p))
         self._preview_and_apply_operation(
-            f"Stock {'ON' if value else 'OFF'} para {len(products)} producto(s)", pairs
+            f"Stock {'ON' if value else 'OFF'} para {len(products)} producto(s)",
+            pairs,
+            operation="stock",
         )
 
     def bulk_adjust_price(self, increase: bool) -> None:
@@ -1416,10 +1567,15 @@ class MainWindow(DragDropMixin):
         self._preview_and_apply_operation(
             f"Precio {'+' if increase else '-'}{pct}% a {len(products)} producto(s)",
             pairs,
+            operation="ajustar_precio",
         )
 
     def _preview_and_apply_operation(
-        self, description: str, pairs: List[tuple[Product, Product]]
+        self,
+        description: str,
+        pairs: List[tuple[Product, Product]],
+        *,
+        operation: str = "bulk",
     ) -> None:
         """Show a preview for bulk updates and apply with undo support if confirmed."""
         if not pairs:
@@ -1456,7 +1612,7 @@ class MainWindow(DragDropMixin):
             (new.name, new.description, old) for old, new in pairs
         ]
         try:
-            self.product_service.batch_update(do_updates)
+            self.product_service.batch_update(do_updates, operation=operation)
             # Push to undo history
             op = {"description": description, "do": do_updates, "undo": undo_updates}
             self._undo_stack.append(op)
@@ -1915,6 +2071,7 @@ class MainWindow(DragDropMixin):
             }
             replacements: Dict[str, Product] = {}
             additions: List[Product] = []
+            history_entries: List[tuple[str, str, Dict[str, Any]]] = []
 
             for row in plan.get("rows", []):
                 status = row.get("status")
@@ -1934,8 +2091,19 @@ class MainWindow(DragDropMixin):
                             "Vuelve a ejecutar la importación."
                         )
                     existing = identity_map[key][1]
-                    replacements[key] = self._merge_import_product(
-                        existing, incoming, merge
+                    merged = self._merge_import_product(existing, incoming, merge)
+                    replacements[key] = merged
+                    history_entries.append(
+                        (
+                            existing.identity_key(),
+                            merged.identity_key(),
+                            {
+                                "ts": datetime.now(timezone.utc).isoformat(),
+                                "operation": "import",
+                                "before": existing.to_dict(),
+                                "after": merged.to_dict(),
+                            },
+                        )
                     )
                 elif status == "new" and action == "add":
                     data = incoming.to_dict()
@@ -1949,9 +2117,24 @@ class MainWindow(DragDropMixin):
             for new_product in additions:
                 data = new_product.to_dict()
                 data["order"] = len(final_products)
-                final_products.append(Product.from_dict(data))
+                created = Product.from_dict(data)
+                final_products.append(created)
+                history_entries.append(
+                    (
+                        created.identity_key(),
+                        created.identity_key(),
+                        {
+                            "ts": datetime.now(timezone.utc).isoformat(),
+                            "operation": "import_add",
+                            "before": {},
+                            "after": created.to_dict(),
+                        },
+                    )
+                )
 
-            self.product_service.save_all_products(final_products)
+            self.product_service.save_all_products(
+                final_products, history_entries=history_entries or None
+            )
         except Exception as exc:
             messagebox.showerror(
                 "Importación", f"No se pudo aplicar la importación: {exc}"
