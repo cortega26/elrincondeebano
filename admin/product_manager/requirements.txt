@@ -3,7 +3,9 @@
 #   pip install -r requirements.txt -c requirements.lock.txt
 pytest
 pytest-mock
-pylint
+pylint>=4.0.4,<4.1
+# Keep astroid aligned with pylint 4.0.x to avoid resolver conflicts in CI.
+astroid>=4.0.2,<4.1
 ruff
 portalocker
 mypy
