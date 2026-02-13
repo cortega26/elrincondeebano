@@ -52,9 +52,9 @@ No se aplicaron en este prompt para evitar regresión de tooling y pipeline.
 
 ### Python outdated (entorno aislado temporal)
 
-1. `astroid` `4.0.4 -> 4.1.0` (patch)
+1. `astroid` `4.0.4 -> 4.1.0` (minor, no patch)
 
-No se aplicó en este prompt porque `requirements.txt` no está pinneado y requiere PR dedicado para lock/constraints o estrategia de pinning.
+No se aplicó en este prompt porque `pylint 4.0.x` depende de `astroid < 4.1` y forzar `4.1.0` rompe la resolución en CI.
 
 ## Evidencia de verificación
 
