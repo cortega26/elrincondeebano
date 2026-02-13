@@ -2,8 +2,10 @@
 name: Deploy static content to Pages
 
 on:
-  # Runs on pushes targeting the default branch
-  push:
+  # Runs only after CI completes successfully on main
+  workflow_run:
+    workflows: ['Continuous Integration']
+    types: [completed]
     branches: ['main']
 
   # Allows you to run this workflow manually from the Actions tab
@@ -24,6 +26,7 @@ concurrency:
 jobs:
   # Single deploy job since we're just deploying
   deploy:
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -31,6 +34,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - name: Resolve deploy metadata
+        shell: bash
+        run: |
+          echo "DEPLOY_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
       - name: Set deterministic build environment
         run: |
           echo "TZ=UTC" >> $GITHUB_ENV
@@ -50,10 +59,10 @@ jobs:
       - name: Generate smoke evidence template (post-deploy checklist)
         run: |
           npm run smoke:evidence -- \
-            --output reports/smoke/deploy-${{ github.sha }}.md \
+            --output reports/smoke/deploy-${{ env.DEPLOY_SHA }}.md \
             --status pending \
             --base-url https://elrincondeebano.com \
-            --commit ${{ github.sha }} \
+            --commit ${{ env.DEPLOY_SHA }} \
             --run-id ${{ github.run_id }} \
             --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
       - name: Upload smoke evidence artifact

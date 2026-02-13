@@ -51,6 +51,15 @@ jobs:
           pip install -r requirements.txt -c requirements.lock.txt
           python -m pip check
 
+      - name: Run static analysis (ruff)
+        run: |
+          python -m ruff check .
+
+      - name: Run security scan (bandit)
+        run: |
+          # Focus on application code; test fixtures intentionally include non-production patterns.
+          python -m bandit -q -r . -x tests
+
       - name: Run tests
         run: |
           # Run pytest with the configuration in tests/conftest.py

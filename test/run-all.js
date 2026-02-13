@@ -58,6 +58,7 @@ const tests = [
   'tools.staticServer.security.test.js',
   'product-sync.server.test.js',
   'httpServer.securityHeaders.test.js',
+  'preflight.node-version.test.js',
 ];
 
 for (const testFile of tests) {
