@@ -1,3 +1,5 @@
+import { log } from '../utils/logger.mts';
+
 export function createCatalogManager({
   productContainer,
   sortOptions,
@@ -318,7 +320,7 @@ export function createCatalogManager({
       }
       appendInitialBatch();
     } catch (error) {
-      console.error('Error al actualizar visualización de productos:', error);
+      log('error', 'catalog_update_display_failed', { error });
       if (typeof showErrorMessage === 'function') {
         showErrorMessage(
           'Error al actualizar la visualización de productos. Por favor, intenta más tarde.'

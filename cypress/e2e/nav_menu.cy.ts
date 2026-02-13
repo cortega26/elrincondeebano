@@ -4,6 +4,8 @@ const enableServiceWorker = (win: Window) => {
 };
 
 describe('Nav menu regressions', () => {
+  const beveragesGroupPattern = /Bebidas|Bebestibles/i;
+
   beforeEach(() => {
     cy.clearAllCookies();
     cy.clearAllLocalStorage();
@@ -23,13 +25,13 @@ describe('Nav menu regressions', () => {
     });
 
     openNavbar();
-    cy.contains('button', /Bebestibles/i).trigger('pointerdown', { pointerType: 'mouse' });
+    cy.contains('button', beveragesGroupPattern).trigger('pointerdown', { pointerType: 'mouse' });
     cy.contains('a', /Aguas/i).should('be.visible');
 
     cy.contains('button', /Alimentos/i).trigger('pointerdown', { pointerType: 'mouse' });
     cy.contains('a', /Despensa/i).should('be.visible');
 
-    cy.contains('button', /Bebestibles/i).trigger('pointerdown', { pointerType: 'mouse' });
+    cy.contains('button', beveragesGroupPattern).trigger('pointerdown', { pointerType: 'mouse' });
     cy.contains('a', /Aguas/i).should('be.visible');
   });
 
@@ -39,7 +41,7 @@ describe('Nav menu regressions', () => {
     });
 
     openNavbar();
-    cy.contains('button', /Bebestibles/i).trigger('pointerdown', { pointerType: 'mouse' });
+    cy.contains('button', beveragesGroupPattern).trigger('pointerdown', { pointerType: 'mouse' });
     cy.contains('a', /Aguas/i).should('be.visible');
   });
 });

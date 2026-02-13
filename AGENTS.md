@@ -55,6 +55,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 | Type & Lint Guardian          | `npm run lint`                                          | En cada PR y antes de merges; ejecutado también localmente.                             | Salida limpia sin errores ESLint usando `eslint.config.cjs`.                              | Logs de lint.                             |
 | Type & Lint Guardian          | `npm run format`                                        | En cada PR.                                                                             | Código formateado según `.prettierrc`.                                                    | Archivos modificados.                     |
 | Security / Supply Chain Agent | `npm audit --production`                                | Mensual o ante cambios de dependencias.                                                 | Sin vulnerabilidades altas/crit.; documentar hallazgos.                                   | Reporte de auditoría.                     |
+| Security / Supply Chain Agent | `npm run security:secret-scan`                          | En cada PR/push (`secret-scan.yml`) y antes de releases.                                | Sin hallazgos de credenciales de alta confianza en archivos versionados.                   | Logs de escaneo de secretos.              |
 | Security / Supply Chain Agent | `npx codacy-analysis-cli` (a través de workflow)        | En CI (`codacy.yml`).                                                                   | SARIF sanitizado y subido.                                                                | `results-*.sarif`.                        |
 | Test Sentinel                 | `npm ci && npm test`                                    | Ejecuta suite híbrida: `node:test` (legacy) + `Vitest`.                                 | Todas las pruebas pasan (Legacy + Vitest).                                                | Logs de pruebas.                          |
 | Test Sentinel                 | `npx stryker run`                                       | Regresión de calidad en lógica crítica (Cart, Fetch).                                   | Mutation Score estable/incremental.                                                       | Reporte HTML en `reports/mutation/`.      |
@@ -90,6 +91,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - Major requieren RFC documentado (impacto, plan de migración, pruebas extra).
 - **Seguridad/secretos**
   - Nunca registrar valores sensibles en logs ni en `git diff`.
+  - En despliegues productivos del Sync API, configurar `SYNC_API_REQUIRE_AUTH=true` y `SYNC_API_TOKEN`; activar `SYNC_API_STRICT_STARTUP=true` para fail-fast ante misconfiguración.
   - Mantener permisos mínimos en workflows (`contents: read`, `pages: write`, etc.).
 - **Presupuesto de cambio**
   - Objetivo ≤400 líneas netas por PR. Refactors grandes requieren desglose.
@@ -120,6 +122,10 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - Permisos mínimos (`security-events: write` solo para subir SARIF).
   - Pasos clave: ejecutar Codacy CLI, dividir SARIF, sanitizar con `jq`, subir a Code Scanning.
   - _Missing:_ caché de dependencias; evaluar usar `actions/setup-node` con caché `npm` si se añade instalación de paquetes.
+- **`Secret Scan` (`.github/workflows/secret-scan.yml`)**
+  - Trigger: push/PR, cron semanal y ejecución manual.
+  - Stack: Node.js 22.x.
+  - Tarea: ejecutar `npm run security:secret-scan` sobre archivos versionados para detectar credenciales de alta confianza.
 - **`Continuous Integration` (`.github/workflows/ci.yml`)**
   - Trigger: push/PR a `main` (excluyendo `admin/**`).
   - Stack: Node.js 22.x.
@@ -167,7 +173,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 - `package.json` (scripts y dependencias). [`package.json`](package.json)
 - Lockfile para instalaciones deterministas. [`package-lock.json`](package-lock.json)
 - Configuración de ESLint. [`eslint.config.cjs`](eslint.config.cjs)
-- Workflows de GitHub Actions. [`static.yml`](.github/workflows/static.yml), [`images.yml`](.github/workflows/images.yml), [`codacy.yml`](.github/workflows/codacy.yml)
+- Workflows de GitHub Actions. [`static.yml`](.github/workflows/static.yml), [`images.yml`](.github/workflows/images.yml), [`codacy.yml`](.github/workflows/codacy.yml), [`secret-scan.yml`](.github/workflows/secret-scan.yml)
 - Scripts de build y utilidades. [`tools/`](tools/)
 - Suite de pruebas Node. [`test/`](test/)
-- Documentación operativa existente. [`README.md`](README.md), [`RUNBOOK`](docs/operations/RUNBOOK.md), [`BACKUP`](docs/operations/BACKUP.md), [`QUALITY_GUARDRAILS`](docs/operations/QUALITY_GUARDRAILS.md), [`SMOKE_TEST`](docs/operations/SMOKE_TEST.md)
+- Documentación operativa existente. [`README.md`](README.md), [`RUNBOOK`](docs/operations/RUNBOOK.md), [`BACKUP`](docs/operations/BACKUP.md), [`QUALITY_GUARDRAILS`](docs/operations/QUALITY_GUARDRAILS.md), [`SMOKE_TEST`](docs/operations/SMOKE_TEST.md), [`OBSERVABILITY`](docs/operations/OBSERVABILITY.md)

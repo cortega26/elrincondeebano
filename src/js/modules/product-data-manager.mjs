@@ -276,6 +276,15 @@ export const fetchProducts = async () => {
         });
         return transformed;
     } catch (error) {
+        const normalizedError =
+            error instanceof ProductDataError
+                ? error
+                : new ProductDataError(error?.message || String(error), {
+                      cause: error,
+                      correlationId,
+                      code: 'PRODUCT_DATA_FETCH_UNEXPECTED',
+                  });
+
         if (hasInlineProducts) {
             ensureSharedProductData(inlineProducts, {
                 version: inlineVersion || null,
@@ -285,22 +294,25 @@ export const fetchProducts = async () => {
             });
             log('warn', 'fetch_products_network_fallback_inline', {
                 correlationId,
-                error: error.message,
+                error: normalizedError.message,
+                errorCode: normalizedError.code,
+                errorContext: normalizedError.context,
                 runbook: 'docs/operations/RUNBOOK.md#product-data',
             });
             return inlineProducts;
         }
         log('error', 'fetch_products_failure', {
             correlationId,
-            error: error.message,
+            error: normalizedError.message,
+            errorCode: normalizedError.code,
+            errorContext: normalizedError.context,
             runbook: 'docs/operations/RUNBOOK.md#product-data',
         });
+        const ref = normalizedError.correlationId || correlationId;
+        const safeCode = normalizedError.code || 'PRODUCT_DATA_ERROR';
         showErrorMessage(
-            `Error al cargar los productos. Por favor, verifique su conexión a internet e inténtelo de nuevo. (Error: ${error.message})`
+            `Error al cargar los productos. Inténtelo nuevamente. (Código: ${safeCode}, Ref: ${ref})`
         );
-        if (error instanceof ProductDataError) {
-            throw error;
-        }
-        throw new ProductDataError(error.message, { cause: error, correlationId });
+        throw normalizedError;
     }
 };

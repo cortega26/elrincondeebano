@@ -1,3 +1,5 @@
+import { log } from '../utils/logger.mts';
+
 export function createCartManager({
   createSafeElement,
   createCartThumbnail,
@@ -111,7 +113,7 @@ export function createCartManager({
     try {
       globalThis.localStorage?.setItem('cart', JSON.stringify(cart));
     } catch (error) {
-      console.error('Error al guardar el carrito:', error);
+      log('error', 'cart_save_failed', { error });
       if (typeof showErrorMessage === 'function') {
         showErrorMessage('Error al guardar el carrito. Tus cambios podrían no persistir.');
       }
@@ -347,7 +349,7 @@ export function createCartManager({
         quantityInput.value = Math.max(getCartItemQuantity(productId), 1);
       }
     } catch (error) {
-      console.error('Error al agregar al carrito:', error);
+      log('error', 'cart_add_failed', { error });
       if (typeof showErrorMessage === 'function') {
         showErrorMessage(
           'Error al agregar el artículo al carrito. Por favor, intenta nuevamente.'
@@ -378,7 +380,7 @@ export function createCartManager({
         toggleActionArea(btn, qc, false);
       }
     } catch (error) {
-      console.error('Error al eliminar del carrito:', error);
+      log('error', 'cart_remove_failed', { error });
       if (typeof showErrorMessage === 'function') {
         showErrorMessage(
           'Error al eliminar el artículo del carrito. Por favor, intenta nuevamente.'
@@ -432,7 +434,7 @@ export function createCartManager({
         }
       }
     } catch (error) {
-      console.error('Error al actualizar cantidad:', error);
+      log('error', 'cart_update_quantity_failed', { error });
       if (typeof showErrorMessage === 'function') {
         showErrorMessage('Error al actualizar la cantidad. Por favor, intenta nuevamente.');
       }
@@ -450,7 +452,7 @@ export function createCartManager({
         updater();
       }
     } catch (error) {
-      console.error('Error al vaciar el carrito:', error);
+      log('error', 'cart_empty_failed', { error });
       if (typeof showErrorMessage === 'function') {
         showErrorMessage('Error al vaciar el carrito. Por favor, inténtelo de nuevo.');
       }

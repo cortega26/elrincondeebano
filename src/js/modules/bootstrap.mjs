@@ -3,6 +3,7 @@ import {
   __getMenuControllerSnapshot,
   __resetMenuControllerForTest,
 } from './menu-controller.mjs';
+import { log } from '../utils/logger.mts';
 
 let bootstrapInitialized = false;
 const loaderOverrides = new Map();
@@ -107,7 +108,7 @@ async function activateCollapse(toggle, event) {
     }
     instance.toggle(event);
   } catch (error) {
-    console.error('No se pudo inicializar el Collapse de Bootstrap', error);
+    log('error', 'bootstrap_collapse_init_failed', { error });
     fallbackToggleCollapse(toggle, target);
   }
 }

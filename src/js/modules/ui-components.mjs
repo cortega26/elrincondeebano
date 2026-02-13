@@ -4,6 +4,7 @@ import {
     buildCfSrcset,
     resolveAvifSrcset,
 } from '../utils/image-srcset.mjs';
+import { log } from '../utils/logger.mts';
 import { safeReload } from '../utils/safe-reload.mjs';
 import { UTILITY_CLASSES } from '../script.mjs';
 
@@ -136,7 +137,7 @@ export const showErrorMessage = (message) => {
             retryButton.addEventListener('click', safeReload);
         }
     } else {
-        console.error('Contenedor de productos no encontrado');
+        log('error', 'ui_product_container_missing');
     }
 };
 
@@ -167,7 +168,7 @@ const createCurrencyFormatter = (currencyCode) => {
                 error && typeof error.message === 'string'
                     ? error.message
                     : 'Unknown currency formatter failure';
-            console.warn('Falling back to CLP currency formatter', {
+            log('warn', 'currency_formatter_fallback_clp', {
                 currencyCode,
                 message,
             });

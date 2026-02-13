@@ -87,6 +87,7 @@ class ProductManager:
         "sync": {
             "enabled": False,
             "api_base": "",
+            "api_token": "",
             "queue_file": "sync_queue.json",
             "poll_interval": 60,
             "pull_interval": 300,
@@ -233,6 +234,11 @@ class ProductManager:
         sync_config["api_base"] = str(
             sync_config.get(
                 "api_base", cast(Dict[str, Any], defaults["sync"])["api_base"]
+            )
+        ).strip()
+        sync_config["api_token"] = str(
+            sync_config.get(
+                "api_token", cast(Dict[str, Any], defaults["sync"])["api_token"]
             )
         ).strip()
         sync_config["queue_file"] = self._normalize_filename(
@@ -417,6 +423,7 @@ class ProductManager:
             return None
         engine = SyncEngine(
             api_base=api_base,
+            api_token=sync_cfg.get("api_token", ""),
             repository=repository,
             service=service,
             queue_file=queue_path,

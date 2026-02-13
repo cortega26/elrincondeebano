@@ -176,8 +176,10 @@ class MainWindow(DragDropMixin):
         if self._config_save_job:
             try:
                 self.master.after_cancel(self._config_save_job)
-            except Exception:
-                pass
+            except tk.TclError as exc:
+                self.logger.debug(
+                    "No se pudo cancelar guardado de configuración pendiente: %s", exc
+                )
         self._config_save_job = self.master.after(
             self._config_save_delay_ms, self._save_config
         )
@@ -215,7 +217,7 @@ class MainWindow(DragDropMixin):
         for col in self.tree["columns"]:
             try:
                 width = int(self.tree.column(col, "width"))
-            except Exception:
+            except (tk.TclError, TypeError, ValueError):
                 continue
             if width > 0:
                 widths[col] = width
@@ -232,7 +234,7 @@ class MainWindow(DragDropMixin):
                 continue
             try:
                 parsed = int(width)
-            except Exception:
+            except (TypeError, ValueError):
                 continue
             if parsed > 0:
                 self.tree.column(col, width=parsed)

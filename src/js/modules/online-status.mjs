@@ -1,3 +1,5 @@
+import { log } from '../utils/logger.mts';
+
 export function setupOnlineStatus({
   indicatorId = 'offline-indicator',
   utilityClasses = { hidden: 'is-hidden', block: 'is-block' },
@@ -10,7 +12,7 @@ export function setupOnlineStatus({
       offlineIndicator.classList.toggle(utilityClasses.block, !isOnline);
     }
     if (!isOnline) {
-      console.log('App is offline. Using cached data if available.');
+      log('info', 'app_offline_cache_mode');
     }
   };
 

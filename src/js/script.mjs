@@ -154,7 +154,7 @@ if (typeof window !== 'undefined') {
 
     // Ignore resource errors and non-runtime errors
     if (isResourceError || !hasRuntimeError) {
-      console.warn('Ignored non-fatal error:', {
+      log('warn', 'ignored_non_fatal_error', {
         tag: target && target.tagName,
         src: target && (target.src || target.href || target.currentSrc),
       });
@@ -163,16 +163,20 @@ if (typeof window !== 'undefined') {
 
     // Only show banner after the app is ready; otherwise just log
     if (!window.__APP_READY__) {
-      console.error('Runtime error before app ready:', event.error);
+      log('error', 'runtime_error_before_app_ready', {
+        error: event.error,
+      });
       return;
     }
-    console.error('Unhandled JS error:', event.error);
+    log('error', 'unhandled_js_error', {
+      error: event.error,
+    });
     showErrorMessage('Ocurrió un error inesperado. Por favor, recarga la página.');
   });
 
   // Avoid noisy CSP warnings breaking UX
   window.addEventListener('securitypolicyviolation', (e) => {
-    console.warn('CSP violation (logged only):', {
+    log('warn', 'csp_violation_logged', {
       blockedURI: e.blockedURI,
       violatedDirective: e.violatedDirective,
       sourceFile: e.sourceFile,
@@ -191,7 +195,7 @@ const initApp = async () => {
       return;
     }
     initAppHasRun = true;
-    console.log('Initializing app...');
+    log('info', 'init_app_start');
 
   const productContainer = document.getElementById('product-container');
   const sortOptions = document.getElementById('sort-options');
@@ -273,7 +277,7 @@ const initApp = async () => {
     });
 
   } catch (error) {
-    console.error('Fatal initialization error:', error);
+    log('error', 'fatal_initialization_error', { error });
     showErrorMessage('Error crítico al iniciar la aplicación.');
   }
   })();
