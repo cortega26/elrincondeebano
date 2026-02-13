@@ -17,7 +17,9 @@ export function setupCheckoutProgress() {
       !!document.querySelector('input[name="paymentMethod"]:checked');
 
     const syncSubmitState = () => {
-      const submitButton = document.getElementById('submit-cart');
+      const submitButton = /** @type {HTMLButtonElement | null} */ (
+        document.getElementById('submit-cart')
+      );
       if (!submitButton) return;
 
       const hasItems =
@@ -72,7 +74,9 @@ export function setupCheckoutProgress() {
   }
 }
 
-export function createCheckoutSubmission({ getCart, renderCart, showOffcanvas } = {}) {
+export function createCheckoutSubmission(
+  { getCart, renderCart, showOffcanvas } = /** @type {Record<string, any>} */ ({})
+) {
   const submitCart = () => {
     if (typeof document === 'undefined' || typeof getCart !== 'function') return;
     const cartItems = getCart();
@@ -87,7 +91,9 @@ export function createCheckoutSubmission({ getCart, renderCart, showOffcanvas } 
       } catch (error) {
         // Ignore failures opening the offcanvas.
       }
-      const emptyMessage = document.querySelector('.cart-empty-message');
+      const emptyMessage = /** @type {HTMLElement | null} */ (
+        document.querySelector('.cart-empty-message')
+      );
       if (emptyMessage && typeof emptyMessage.focus === 'function') {
         emptyMessage.focus();
       }
@@ -100,7 +106,9 @@ export function createCheckoutSubmission({ getCart, renderCart, showOffcanvas } 
       if (paymentError) {
         paymentError.textContent = 'Por favor seleccione un método de pago';
       }
-      const firstPayment = document.querySelector('input[name="paymentMethod"]');
+      const firstPayment = /** @type {HTMLInputElement | null} */ (
+        document.querySelector('input[name="paymentMethod"]')
+      );
       if (firstPayment && typeof firstPayment.focus === 'function') {
         firstPayment.focus();
       }
@@ -124,7 +132,7 @@ export function createCheckoutSubmission({ getCart, renderCart, showOffcanvas } 
       0
     );
     message += `Total: $${total.toLocaleString('es-CL')}\n`;
-    message += `Método de pago: ${selectedPayment.value}`;
+    message += `Método de pago: ${/** @type {HTMLInputElement} */ (selectedPayment).value}`;
 
     const encodedMessage = encodeURIComponent(message);
     window.open(`https://wa.me/56951118901?text=${encodedMessage}`, '_blank');

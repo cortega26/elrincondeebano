@@ -25,6 +25,7 @@
 - `docs/audit/prompt-9-organization-20260213.md`: repo organization findings and actions.
 - `docs/audit/prompt-11-dependencies-20260213.md`: dependency inventory, upgrade policy, and risk triage.
 - `docs/audit/prompt-12-agents-operations-20260213.md`: final AGENTS/runbooks closure and re-audit guide.
+- `docs/audit/prompt-13-typecheck-remediation-20260213.md`: typecheck debt remediation and regression evidence.
 - `docs/audit/executive-summary-20260213.md`: executive summary and prioritized post-audit backlog.
 
 ## Release and Incidents

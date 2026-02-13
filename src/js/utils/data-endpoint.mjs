@@ -129,7 +129,9 @@ export const validateProductDataUrl = (url) => {
   return parsed.toString();
 };
 
-export const resolveProductDataUrl = ({ version, baseUrl } = {}) => {
+export const resolveProductDataUrl = (
+  { version, baseUrl } = /** @type {Record<string, any>} */ ({})
+) => {
   const origin = getWindowOrigin();
   const override =
     baseUrl ||

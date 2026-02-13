@@ -255,7 +255,9 @@ function destroyController(state) {
   activeControllers.delete(state);
 }
 
-export function setupUnifiedMenuController({ container } = {}) {
+export function setupUnifiedMenuController(
+  { container } = /** @type {Record<string, any>} */ ({})
+) {
   if (typeof document === 'undefined') {
     return;
   }

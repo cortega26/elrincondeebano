@@ -7,15 +7,13 @@ La auditoría quedó en estado **operable** para producción con guardrails, con
 Semáforo general:
 
 1. **Verde**
-   - `lint`, `test`, `build`, `e2e` en Node 22.
+   - `lint`, `typecheck`, `test`, `build`, `e2e` en Node 22.
    - Contratos de categorías y productos validados.
    - Seguridad de dependencias productivas sin vulnerabilidades abiertas (`npm audit --omit=dev`).
    - Runbooks de debugging, triage y rollback documentados.
 2. **Amarillo**
    - Dependencias major pendientes (`eslint@10`, `purgecss@8`) planificadas en PRs separados.
    - Dependencias Python admin sin pinning estricto.
-3. **Rojo (deuda histórica)**
-   - `typecheck` global (`tsc -p tsconfig.typecheck.json`) con múltiples errores preexistentes.
 
 ## Entregables clave por bloque
 
@@ -35,10 +33,6 @@ Semáforo general:
 
 ## Riesgos restantes (priorizados)
 
-### P0
-
-1. Resolver deuda de `typecheck` para eliminar punto rojo estructural.
-
 ### P1
 
 1. Migración controlada a `eslint@10`.
@@ -52,11 +46,10 @@ Semáforo general:
 
 ## Plan recomendado de ejecución (PRs pequeños)
 
-1. **PR-A (P0):** `typecheck` cleanup por módulos críticos, sin cambios funcionales.
-2. **PR-B (P1):** `eslint@10` + ajuste de config/reglas + baseline verde.
-3. **PR-C (P1):** `purgecss@8` + comparación antes/después de CSS generado.
-4. **PR-D (P1):** pinning Python (`requirements` con constraints/lock) + `pip-audit`.
-5. **PR-E (P2):** guardrail de assets huérfanos + reporte automatizado.
+1. **PR-B (P1):** `eslint@10` + ajuste de config/reglas + baseline verde.
+2. **PR-C (P1):** `purgecss@8` + comparación antes/después de CSS generado.
+3. **PR-D (P1):** pinning Python (`requirements` con constraints/lock) + `pip-audit`.
+4. **PR-E (P2):** guardrail de assets huérfanos + reporte automatizado.
 
 ## Criterio de éxito post-auditoría
 
