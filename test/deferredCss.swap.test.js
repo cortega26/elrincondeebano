@@ -12,9 +12,8 @@ const { JSDOM } = require('jsdom');
   global.window = dom.window;
   global.document = dom.window.document;
 
-  const mod = await import('../src/js/main.js');
-  // Directly invoke the test hook to avoid relying on DOMContentLoaded.
-  mod.__initEnhancementsOnceForTest();
+  const { applyDeferredStyles } = await import('../src/js/modules/deferred-css.mjs');
+  applyDeferredStyles(document);
 
   const links = [...document.querySelectorAll('link[rel="stylesheet"]')];
   assert.strictEqual(links.length, 2, 'two stylesheet links should exist');

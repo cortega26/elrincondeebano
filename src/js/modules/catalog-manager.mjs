@@ -1,3 +1,5 @@
+import { log } from '../utils/logger.mts';
+
 export function createCatalogManager({
   productContainer,
   sortOptions,
@@ -16,7 +18,7 @@ export function createCatalogManager({
   scheduleIdle,
   cancelScheduledIdle,
   showErrorMessage,
-} = {}) {
+} = /** @type {Record<string, any>} */ ({})) {
   const INITIAL_BATCH_FALLBACK = 12;
   const SUBSEQUENT_BATCH_SIZE = 12;
 
@@ -36,7 +38,9 @@ export function createCatalogManager({
   const memoizedFilterProducts = typeof memoize === 'function' ? memoize(filterFn) : filterFn;
 
   const ensureDiscountToggle = () => {
-    const toggle = document.getElementById('filter-discount');
+    const toggle = /** @type {HTMLInputElement | null} */ (
+      document.getElementById('filter-discount')
+    );
     if (toggle) return toggle;
     if (typeof createSafeElement !== 'function') return null;
 
@@ -72,7 +76,7 @@ export function createCatalogManager({
         (entries, observer) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
-              const img = entry.target;
+              const img = /** @type {HTMLImageElement} */ (entry.target);
               img.src = img.dataset.src;
               if (img.dataset.srcset) img.srcset = img.dataset.srcset;
               if (img.dataset.sizes) img.sizes = img.dataset.sizes;
@@ -84,9 +88,11 @@ export function createCatalogManager({
         { rootMargin: '100px' }
       );
 
-      document.querySelectorAll('img.lazyload').forEach((img) => imageObserver.observe(img));
+      /** @type {NodeListOf<HTMLImageElement>} */ (document.querySelectorAll('img.lazyload')).forEach((img) =>
+        imageObserver.observe(img)
+      );
     } else {
-      document.querySelectorAll('img.lazyload').forEach((img) => {
+      /** @type {NodeListOf<HTMLImageElement>} */ (document.querySelectorAll('img.lazyload')).forEach((img) => {
         if (img.dataset.src) img.src = img.dataset.src;
         if (img.dataset.srcset) img.srcset = img.dataset.srcset;
         if (img.dataset.sizes) img.sizes = img.dataset.sizes;
@@ -177,7 +183,7 @@ export function createCatalogManager({
           class: 'btn btn-primary add-to-cart-btn mt-2',
           type: 'button',
           'data-id': id,
-          'aria-label': `Add ${name} to cart`,
+          'aria-label': `Agregar ${name} al carrito`,
         },
         ['Agregar']
       );
@@ -239,7 +245,9 @@ export function createCatalogManager({
   const applyFilters = () => {
     const criterion = sortOptions?.value || 'original';
     const keyword = filterKeyword?.value?.trim?.() || '';
-    const discountOnly = document.getElementById('filter-discount')?.checked || false;
+    const discountOnly =
+      /** @type {HTMLInputElement | null} */ (document.getElementById('filter-discount'))
+        ?.checked || false;
     filteredProducts = memoizedFilterProducts(products, keyword, criterion, discountOnly);
   };
 
@@ -318,7 +326,7 @@ export function createCatalogManager({
       }
       appendInitialBatch();
     } catch (error) {
-      console.error('Error al actualizar visualización de productos:', error);
+      log('error', 'catalog_update_display_failed', { error });
       if (typeof showErrorMessage === 'function') {
         showErrorMessage(
           'Error al actualizar la visualización de productos. Por favor, intenta más tarde.'
@@ -344,7 +352,7 @@ export function createCatalogManager({
     }, 150);
   };
 
-  const bindFilterEvents = ({ log, onUserInteraction } = {}) => {
+  const bindFilterEvents = ({ log, onUserInteraction } = /** @type {Record<string, any>} */ ({})) => {
     const debouncedUpdateProductDisplay = createDebouncedUpdate();
 
     if (sortOptions) {

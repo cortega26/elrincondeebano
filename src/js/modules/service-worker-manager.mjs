@@ -4,6 +4,7 @@ import {
     getStoredProductVersion,
     setStoredProductVersion,
 } from '../utils/product-data.mjs';
+import { log } from '../utils/logger.mts';
 import { UTILITY_CLASSES } from '../script.mjs';
 
 // Service Worker Configuration and Initialization
@@ -50,7 +51,7 @@ function safeReadLocalStorage(key) {
         }
         return storage.getItem(key);
     } catch (error) {
-        console.warn('Unable to access localStorage for key', key, error);
+        log('warn', 'sw_local_storage_unavailable', { key, error });
         return null;
     }
 }
@@ -62,7 +63,7 @@ export function shouldRegisterServiceWorker() {
 
     const disabledFlag = safeReadLocalStorage('ebano-sw-disabled');
     if (disabledFlag === 'true') {
-        console.info('Service worker registration skipped by kill-switch flag.');
+        log('info', 'sw_registration_skipped_kill_switch');
         return false;
     }
 
@@ -75,9 +76,9 @@ export function shouldRegisterServiceWorker() {
         if (enableLocalFlag === 'true' || queryEnables) {
             return true;
         }
-        console.info(
-            'Service worker registration skipped on localhost. Set localStorage ebano-sw-enable-local=true to override.'
-        );
+        log('info', 'sw_registration_skipped_localhost', {
+            hint: 'Set localStorage ebano-sw-enable-local=true or use ?sw=on',
+        });
         return false;
     }
 
@@ -87,7 +88,7 @@ export function shouldRegisterServiceWorker() {
 // Enhanced service worker registration with proper error handling and lifecycle management
 export function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) {
-        console.warn('Service workers are not supported in this browser');
+        log('warn', 'sw_not_supported');
         return;
     }
 
@@ -115,7 +116,7 @@ export function registerServiceWorker() {
         try {
             await initializeServiceWorker();
         } catch (error) {
-            console.error('Service Worker initialization failed:', error);
+            log('error', 'sw_initialization_failed', { error });
             showServiceWorkerError(
                 'Failed to initialize service worker. Some features may not work offline.'
             );
@@ -139,7 +140,7 @@ async function initializeServiceWorker() {
             scope: SERVICE_WORKER_CONFIG.scope,
         });
 
-        console.log('ServiceWorker registered successfully:', registration.scope);
+        log('info', 'sw_registered', { scope: registration.scope });
 
         // Set up update handling
         setupUpdateHandling(registration);
@@ -153,7 +154,7 @@ async function initializeServiceWorker() {
         // Set up offline/online detection
         setupConnectivityHandling();
     } catch (error) {
-        console.error('ServiceWorker registration failed:', error);
+        log('error', 'sw_registration_failed', { error });
         throw error;
     }
 }
@@ -191,7 +192,7 @@ async function checkForUpdates(registration) {
         try {
             await registration.update();
         } catch (error) {
-            console.warn('Service worker update check failed:', error);
+            log('warn', 'sw_update_check_failed', { error });
         }
 
         // Check if product data needs updating
@@ -227,7 +228,7 @@ async function checkForUpdates(registration) {
             }
         }
     } catch (error) {
-        console.warn('Update check failed:', error);
+        log('warn', 'sw_background_check_failed', { error });
     }
 }
 
@@ -252,17 +253,17 @@ export async function runUpdateCheckForTest() {
             return { updated, currentVersion: overrideVersion, storedVersion };
         }
     }
-    let registration = null;
+    let registration;
     try {
         registration = await navigator.serviceWorker.ready;
     } catch {
-        registration = null;
+        // Ignore and fallback to getRegistration().
     }
     if (!registration) {
         try {
             registration = await navigator.serviceWorker.getRegistration();
         } catch {
-            registration = null;
+            // Ignore and return null below.
         }
     }
     if (!registration) {

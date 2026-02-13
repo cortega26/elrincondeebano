@@ -15,17 +15,29 @@ ensureFileGlobal();
 
 const loadModule = createModuleLoader(__dirname, {
   transform: (code) =>
-    code.replace(
-      /import\s+\{([^}]+)\}\s+from\s+['"]\.\/menu-controller\.mjs['"];?/,
-      (_match, names) => {
-        const identifiers = names
-          .split(',')
-          .map((name) => name.trim())
-          .filter(Boolean)
-          .join(', ');
-        return `const { ${identifiers} } = loadModule('../src/js/modules/menu-controller.mjs');`;
-      }
-    ),
+    code
+      .replace(
+        /import\s+\{([^}]+)\}\s+from\s+['"]\.\/menu-controller\.mjs['"];?/,
+        (_match, names) => {
+          const identifiers = names
+            .split(',')
+            .map((name) => name.trim())
+            .filter(Boolean)
+            .join(', ');
+          return `const { ${identifiers} } = loadModule('../src/js/modules/menu-controller.mjs');`;
+        }
+      )
+      .replace(
+        /import\s+\{([^}]+)\}\s+from\s+['"]\.\.\/utils\/logger\.mts['"];?/,
+        (_match, names) => {
+          const identifiers = names
+            .split(',')
+            .map((name) => name.trim())
+            .filter(Boolean)
+            .join(', ');
+          return `const { ${identifiers} } = { log: () => {} };`;
+        }
+      ),
 });
 
 function createBootstrapComponentStub(methodName, action) {

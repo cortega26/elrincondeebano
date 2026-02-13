@@ -110,6 +110,11 @@ test('injectStructuredData and injectSeoMetadata insert expected elements', asyn
     document.querySelector('script[type="application/ld+json"]'),
     'structured data script inserted'
   );
+  const structuredDataText = document.querySelector('script[type="application/ld+json"]')?.textContent;
+  assert.ok(
+    structuredDataText && structuredDataText.includes('"url":"https://www.elrincondeebano.com/"'),
+    'structured data Store URL should use HTTPS'
+  );
   assert.ok(
     window.__PRODUCT_DATA__.structuredDataInjected,
     'shared data should record structured data injection'

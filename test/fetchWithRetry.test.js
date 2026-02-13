@@ -97,5 +97,20 @@ let fetchWithRetry, lastUrl, fetchCalls;
       assert.strictEqual(fetchCalls, 1);
       delete global.window.__ALLOW_LOCALHOST_HTTP__;
     });
+
+    await t.test('returns structured ProductDataError details on HTTP failure', async () => {
+      setLocation({ origin: 'https://example.com', hostname: 'example.com' });
+      resetFetch(() => Promise.resolve({ ok: false, status: 503 }));
+      await assert.rejects(
+        fetchWithRetry('/data', {}, 0, 0, 'cid'),
+        (error) => {
+          assert.strictEqual(error.name, 'ProductDataError');
+          assert.strictEqual(error.code, 'PRODUCT_DATA_HTTP_ERROR');
+          assert.strictEqual(error.correlationId, 'cid');
+          assert.strictEqual(error.context.status, 503);
+          return true;
+        }
+      );
+    });
   });
 })();

@@ -4,6 +4,8 @@
 
 Este documento coordina a los agentes automatizados y humanos que mantienen **El Rincón de Ébano**, una web estática construida con scripts de Node.js, plantillas EJS y activos precompilados. Establece responsabilidades, comandos verificados y guardrails para preservar la estabilidad de builds, pruebas, seguridad de la cadena de suministro y los flujos de CI/CD actuales.
 
+Última actualización operativa: 2026-02-13 (Prompt 18).
+
 ## Arquitectura de agentes
 
 ```
@@ -52,9 +54,14 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 | Repo Cartographer             | `npm pkg get scripts`                                   | Al actualizar documentación o scripts.                                                  | JSON con scripts de `package.json`.                                                       | Tabla de scripts actualizada en docs.     |
 | Docs Steward                  | `npm run build`                                         | Tras cambios en plantillas (`templates/`), datos o herramientas.                        | Build completo sin errores ni warnings críticos; genera `dist/`, `pages/`, `sitemap.xml`. | Artifacts regenerados listos para commit. |
 | Docs Steward                  | `npm run lighthouse:audit`                              | Auditorías de rendimiento previas a release.                                            | Reportes en `reports/lighthouse/`.                                                        | Archivos HTML de Lighthouse.              |
-| Type & Lint Guardian          | `npx eslint .`                                          | En cada PR y antes de merges; ejecutado también localmente.                             | Salida limpia sin errores ESLint usando `.eslintrc.json`.                                 | Logs de lint.                             |
+| Docs Steward                  | `npm run smoke:evidence`                                | Antes de release y al cerrar smoke manual.                                              | Plantilla persistente de evidencia en `reports/smoke/*.md`.                               | Artefacto smoke por commit/release.       |
+| Type & Lint Guardian          | `npm run lint`                                          | En cada PR y antes de merges; ejecutado también localmente.                             | Salida limpia sin errores ESLint usando `eslint.config.cjs`.                              | Logs de lint.                             |
+| Type & Lint Guardian          | `npm run typecheck`                                     | En PRs que toquen `src/js/**` y antes de releases.                                       | Sin errores de `tsc -p tsconfig.typecheck.json` sobre módulos/utilidades críticas.         | Logs de typecheck.                        |
 | Type & Lint Guardian          | `npm run format`                                        | En cada PR.                                                                             | Código formateado según `.prettierrc`.                                                    | Archivos modificados.                     |
+| Type & Lint Guardian          | `npm run guardrails:assets`                             | En PRs con cambios en `assets/images/**`, `data/product_data.json`, `templates/**`, `tools/**`. | Sin assets huérfanos nuevos respecto al baseline (`orphan-assets.allowlist.json`).        | `reports/orphan-assets/latest.json`.      |
 | Security / Supply Chain Agent | `npm audit --production`                                | Mensual o ante cambios de dependencias.                                                 | Sin vulnerabilidades altas/crit.; documentar hallazgos.                                   | Reporte de auditoría.                     |
+| Security / Supply Chain Agent | `pip-audit -r admin/product_manager/requirements.lock.txt` | Mensual o ante cambios en tooling Python admin.                                          | Sin vulnerabilidades altas/crit. en el lock Python de admin.                              | Reporte de auditoría Python.              |
+| Security / Supply Chain Agent | `npm run security:secret-scan`                          | En cada PR/push (`secret-scan.yml`) y antes de releases.                                | Sin hallazgos de credenciales de alta confianza en archivos versionados.                   | Logs de escaneo de secretos.              |
 | Security / Supply Chain Agent | `npx codacy-analysis-cli` (a través de workflow)        | En CI (`codacy.yml`).                                                                   | SARIF sanitizado y subido.                                                                | `results-*.sarif`.                        |
 | Test Sentinel                 | `npm ci && npm test`                                    | Ejecuta suite híbrida: `node:test` (legacy) + `Vitest`.                                 | Todas las pruebas pasan (Legacy + Vitest).                                                | Logs de pruebas.                          |
 | Test Sentinel                 | `npx stryker run`                                       | Regresión de calidad en lógica crítica (Cart, Fetch).                                   | Mutation Score estable/incremental.                                                       | Reporte HTML en `reports/mutation/`.      |
@@ -70,6 +77,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - [ ] `npm ci` es obligatorio en CI; queda prohibido `npm install` cuando exista `package-lock.json`.
 - **Compilación estricta**
   - [ ] `npm run build` finaliza sin warnings críticos ni errores y deja artefactos en `build/`. Atender cualquier fallo en scripts de `tools/` y revisar que el staging contenga todos los archivos esperados.
+  - [ ] `npm run guardrails:assets` debe terminar en verde para evitar introducir assets huérfanos nuevos.
 - **Tests obligatorios**
   - [ ] `npm ci && npm test` deben ejecutarse completos tras modificaciones; repetir suite si algún caso es flaky.
   - [ ] Prohibido introducir `test.skip`, `--forceExit`, `--passWithNoTests` o eliminar asserts sin reemplazo.
@@ -77,7 +85,8 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - Baseline objetivo: 80%.
   - **Mutation Testing**: Verificar reportes de Stryker en cambios críticos. No reintroducir survivors en lógica Core (Cart, Analytics, Logger).
 - **Linter/formatter**
-  - [ ] `npx eslint .` debe terminar en verde. Auto-fixes solo locales; los commits deben incluir diff resultante.
+  - [ ] `npm run lint` debe terminar en verde. Auto-fixes solo locales; los commits deben incluir diff resultante.
+  - [ ] `npm run typecheck` debe terminar en verde para cambios de JS en `src/js/**`.
   - [ ] `npm run format` debe asegurar estilo consistente.
 - **SARIF estable**
   - Reutilizar el sanitizador existente en `.github/workflows/codacy.yml` (`jq` con `with_entries`). Si se generan SARIF manualmente, aplicar:
@@ -90,6 +99,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - Major requieren RFC documentado (impacto, plan de migración, pruebas extra).
 - **Seguridad/secretos**
   - Nunca registrar valores sensibles en logs ni en `git diff`.
+  - En despliegues productivos del Sync API, configurar `SYNC_API_REQUIRE_AUTH=true` y `SYNC_API_TOKEN`; activar `SYNC_API_STRICT_STARTUP=true` para fail-fast ante misconfiguración.
   - Mantener permisos mínimos en workflows (`contents: read`, `pages: write`, etc.).
 - **Presupuesto de cambio**
   - Objetivo ≤400 líneas netas por PR. Refactors grandes requieren desglose.
@@ -103,6 +113,35 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 - PRs deben incluir evidencia de pruebas (`npm test`, `npm run build`, auditorías relevantes) y la checklist de guardrails marcada.
 - Actualizar documentación relacionada (`README.md`, `docs/operations/RUNBOOK.md`, `docs/operations/BACKUP.md`, `docs/`) en el mismo PR cuando cambian comportamientos.
 - Adjuntar resultados de `npm audit --production` cuando se toquen dependencias.
+
+## Comandos canónicos (Prompt 12)
+
+- Runtime objetivo local/CI: Node 22.x.
+- Instalación determinista: `npm ci`.
+- Validación base:
+  - `npm run lint`
+  - `npm run typecheck`
+  - `npm test`
+  - `npm run build`
+  - `npm run guardrails:assets`
+  - `npm run test:e2e`
+  - `npm run smoke:evidence`
+- Smoke manual guiado: `npm run smoke:manual`.
+- Auditoría de producción dependencias: `npm audit --omit=dev`.
+- Fallback cuando `node` no esté en `PATH`:
+  - `npx -y node@22 "C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js" run <script>`
+
+## Checklist PR mínimo
+
+- [ ] Alcance acotado y sin cambios públicos breaking no planificados.
+- [ ] `npm run lint` en verde.
+- [ ] `npm run typecheck` en verde (si hay cambios en `src/js/**`).
+- [ ] `npm test` en verde.
+- [ ] `npm run build` en verde.
+- [ ] `npm run test:e2e` en verde o justificado si no aplica.
+- [ ] `npm audit --omit=dev` sin vulnerabilidades altas/críticas.
+- [ ] Rollback documentado (`git revert <sha>` + pasos de verificación).
+- [ ] Documentación operativa actualizada si cambió comportamiento.
 
 ## Flujos de trabajo (CI)
 
@@ -120,14 +159,18 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - Permisos mínimos (`security-events: write` solo para subir SARIF).
   - Pasos clave: ejecutar Codacy CLI, dividir SARIF, sanitizar con `jq`, subir a Code Scanning.
   - _Missing:_ caché de dependencias; evaluar usar `actions/setup-node` con caché `npm` si se añade instalación de paquetes.
+- **`Secret Scan` (`.github/workflows/secret-scan.yml`)**
+  - Trigger: push/PR, cron semanal y ejecución manual.
+  - Stack: Node.js 22.x.
+  - Tarea: ejecutar `npm run security:secret-scan` sobre archivos versionados para detectar credenciales de alta confianza.
 - **`Continuous Integration` (`.github/workflows/ci.yml`)**
   - Trigger: push/PR a `main` (excluyendo `admin/**`).
   - Stack: Node.js 22.x.
-  - Tareas: `npm ci`, build, unit tests, estilo CSS, tests E2E (Playwright) y auditoría Lighthouse.
+  - Tareas: `npm ci`, build, guardrail de assets huérfanos, unit tests, estilo CSS, tests E2E (Playwright), evidencia smoke en artefacto y auditoría Lighthouse.
 - **`Admin Tools CI` (`.github/workflows/admin.yml`)**
   - Trigger: cambios en `admin/**`.
   - Stack: Python 3.12 (pytest).
-  - Tareas: Instalación de dependencias y ejecución de suite de pruebas para el gestor de contenido.
+  - Tareas: instalación reproducible con `requirements.txt` + `requirements.lock.txt`, `pip check` y ejecución de `pytest`.
 
 ## Playbooks
 
@@ -154,12 +197,43 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 3. Si falla Codacy SARIF, ejecutar localmente el sanitizador con `jq` y verificar esquema `2.1.0`.
 4. Documentar hallazgos en el PR con pasos reproducibles y solución propuesta.
 
+### Cómo ejecutar smoke manual guiado
+
+1. Ejecutar `npm run build`.
+2. Levantar preview local (`npx serve build -l 4173` o equivalente).
+3. Imprimir checklist: `npm run smoke:manual`.
+4. Completar validación manual usando `docs/operations/SMOKE_TEST.md`.
+5. Adjuntar evidencia en el PR.
+
+### Cómo hacer triage y rollback de incidentes
+
+1. Seguir `docs/operations/INCIDENT_TRIAGE.md` para clasificación, impacto y mitigación.
+2. Aplicar rollback con `git revert <sha>` según `docs/operations/ROLLBACK.md`.
+3. Cerrar con verificación base (`lint`, `test`, `build`, `test:e2e`) y evidencia en PR.
+
+## How to audit again (mini guía)
+
+1. Crear rama de auditoría: `audit/mega-YYYYMMDD`.
+2. Levantar baseline:
+  - `npm run lint`
+  - `npm test`
+  - `npm run build`
+  - `npm run test:e2e`
+3. Si hay rojo, priorizar volver a verde antes de mejoras incrementales.
+4. Ejecutar auditoría por etapas con checkpoints y evidencia por etapa en `docs/audit/`.
+5. Mantener PRs pequeños (objetivo <=400 líneas netas sin lockfile), con rollback explícito.
+6. Cerrar cada etapa con:
+  - cambios aplicados
+  - comandos ejecutados y resultado
+  - riesgos restantes
+  - siguiente paso propuesto
+
 ## Anexos
 
 - `package.json` (scripts y dependencias). [`package.json`](package.json)
 - Lockfile para instalaciones deterministas. [`package-lock.json`](package-lock.json)
-- Configuración de ESLint. [`.eslintrc.json`](.eslintrc.json)
-- Workflows de GitHub Actions. [`static.yml`](.github/workflows/static.yml), [`images.yml`](.github/workflows/images.yml), [`codacy.yml`](.github/workflows/codacy.yml)
+- Configuración de ESLint. [`eslint.config.cjs`](eslint.config.cjs)
+- Workflows de GitHub Actions. [`static.yml`](.github/workflows/static.yml), [`images.yml`](.github/workflows/images.yml), [`codacy.yml`](.github/workflows/codacy.yml), [`secret-scan.yml`](.github/workflows/secret-scan.yml)
 - Scripts de build y utilidades. [`tools/`](tools/)
 - Suite de pruebas Node. [`test/`](test/)
-- Documentación operativa existente. [`README.md`](README.md), [`RUNBOOK`](docs/operations/RUNBOOK.md), [`BACKUP`](docs/operations/BACKUP.md)
+- Documentación operativa existente. [`README.md`](README.md), [`RUNBOOK`](docs/operations/RUNBOOK.md), [`BACKUP`](docs/operations/BACKUP.md), [`QUALITY_GUARDRAILS`](docs/operations/QUALITY_GUARDRAILS.md), [`SMOKE_TEST`](docs/operations/SMOKE_TEST.md), [`OBSERVABILITY`](docs/operations/OBSERVABILITY.md), [`DEPENDENCY_POLICY`](docs/operations/DEPENDENCY_POLICY.md), [`DEBUGGING`](docs/operations/DEBUGGING.md), [`INCIDENT_TRIAGE`](docs/operations/INCIDENT_TRIAGE.md), [`ROLLBACK`](docs/operations/ROLLBACK.md)

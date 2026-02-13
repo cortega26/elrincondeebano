@@ -76,8 +76,11 @@ hydrateSharedProductDataFromInline();
 const logPerformanceMetrics = (
   perf = typeof window !== 'undefined' ? window.performance : undefined
 ) => {
+  /** @type {number | string} */
   let fcpValue = 'unavailable';
+  /** @type {number | string} */
   let domContentLoadedValue = 'unavailable';
+  /** @type {number | string} */
   let loadTimeValue = 'unavailable';
 
   try {
@@ -94,7 +97,9 @@ const logPerformanceMetrics = (
       fcpValue = fcpEntry.startTime;
     }
 
-    const navigationEntry = navigationEntries[0];
+    const navigationEntry = /** @type {PerformanceNavigationTiming | undefined} */ (
+      navigationEntries[0]
+    );
     if (navigationEntry && typeof navigationEntry.domContentLoadedEventEnd === 'number') {
       domContentLoadedValue = navigationEntry.domContentLoadedEventEnd;
     } else if (perf.timing && typeof perf.timing.domContentLoadedEventEnd === 'number') {
@@ -145,34 +150,47 @@ if (typeof window !== 'undefined') {
   window.__APP_READY__ = false;
 
   window.addEventListener('error', (event) => {
-    const target = event.target || event.srcElement;
+    const target = event.target instanceof Element ? event.target : null;
+    const targetTagName = target instanceof HTMLElement ? target.tagName : '';
+    const targetSrc =
+      target instanceof HTMLImageElement
+        ? target.currentSrc || target.src
+        : target instanceof HTMLScriptElement
+          ? target.src
+          : target instanceof HTMLLinkElement
+            ? target.href
+            : undefined;
     const isResourceError = !!(
       target &&
-      (target.tagName === 'IMG' || target.tagName === 'SCRIPT' || target.tagName === 'LINK')
+      (targetTagName === 'IMG' || targetTagName === 'SCRIPT' || targetTagName === 'LINK')
     );
     const hasRuntimeError = !!event.error;
 
     // Ignore resource errors and non-runtime errors
     if (isResourceError || !hasRuntimeError) {
-      console.warn('Ignored non-fatal error:', {
-        tag: target && target.tagName,
-        src: target && (target.src || target.href || target.currentSrc),
+      log('warn', 'ignored_non_fatal_error', {
+        tag: targetTagName || undefined,
+        src: targetSrc,
       });
       return;
     }
 
     // Only show banner after the app is ready; otherwise just log
     if (!window.__APP_READY__) {
-      console.error('Runtime error before app ready:', event.error);
+      log('error', 'runtime_error_before_app_ready', {
+        error: event.error,
+      });
       return;
     }
-    console.error('Unhandled JS error:', event.error);
+    log('error', 'unhandled_js_error', {
+      error: event.error,
+    });
     showErrorMessage('Ocurrió un error inesperado. Por favor, recarga la página.');
   });
 
   // Avoid noisy CSP warnings breaking UX
   window.addEventListener('securitypolicyviolation', (e) => {
-    console.warn('CSP violation (logged only):', {
+    log('warn', 'csp_violation_logged', {
       blockedURI: e.blockedURI,
       violatedDirective: e.violatedDirective,
       sourceFile: e.sourceFile,
@@ -191,7 +209,7 @@ const initApp = async () => {
       return;
     }
     initAppHasRun = true;
-    console.log('Initializing app...');
+    log('info', 'init_app_start');
 
   const productContainer = document.getElementById('product-container');
   const sortOptions = document.getElementById('sort-options');
@@ -273,7 +291,7 @@ const initApp = async () => {
     });
 
   } catch (error) {
-    console.error('Fatal initialization error:', error);
+    log('error', 'fatal_initialization_error', { error });
     showErrorMessage('Error crítico al iniciar la aplicación.');
   }
   })();

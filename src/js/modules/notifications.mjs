@@ -1,4 +1,5 @@
 // Lightweight toast/notification helpers, loaded on demand
+import { log } from '../utils/logger.mts';
 import { safeReload } from '../utils/safe-reload.mjs';
 
 const safeAppend = (parent, ...children) => {
@@ -48,7 +49,7 @@ function createNotificationElement(message, primaryButtonText, secondaryButtonTe
       try {
         primaryAction();
       } catch (err) {
-        console.error('Primary action failed:', err);
+        log('error', 'notification_primary_action_failed', { error: err });
       }
       notification.remove();
     });

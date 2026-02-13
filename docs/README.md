@@ -1,0 +1,41 @@
+# Documentation Index
+
+## Operations
+
+- `docs/operations/RUNBOOK.md`: production incident handling and recovery steps.
+- `docs/operations/BACKUP.md`: backup and restore procedures.
+- `docs/operations/QUALITY_GUARDRAILS.md`: non-regression checklist and release gates.
+- `docs/operations/OBSERVABILITY.md`: telemetry and monitoring baseline.
+- `docs/operations/SMOKE_TEST.md`: manual smoke checklist.
+- `docs/operations/DEPENDENCY_POLICY.md`: upgrade cadence, risk tiers, and rollback rules.
+- `docs/operations/DEBUGGING.md`: standard local/CI debugging workflow.
+- `docs/operations/INCIDENT_TRIAGE.md`: incident severity and triage sequence.
+- `docs/operations/ROLLBACK.md`: rollback procedures and validation gates.
+
+## Architecture
+
+- `docs/architecture/CATEGORY_REGISTRY.md`: category taxonomy contract.
+- `docs/adr/`: architecture decision records.
+- `docs/adr/0002-audit-ops-guardrails.md`: operational guardrails and contract gates decision.
+- `docs/repo/STRUCTURE.md`: repo map, naming conventions, and script ownership.
+
+## Audit History
+
+- `docs/audit/`: phased audit notes and prompt checkpoints.
+- `docs/audit/prompt-9-organization-20260213.md`: repo organization findings and actions.
+- `docs/audit/prompt-11-dependencies-20260213.md`: dependency inventory, upgrade policy, and risk triage.
+- `docs/audit/prompt-12-agents-operations-20260213.md`: final AGENTS/runbooks closure and re-audit guide.
+- `docs/audit/prompt-13-typecheck-remediation-20260213.md`: typecheck debt remediation and regression evidence.
+- `docs/audit/prompt-14-eslint10-migration-20260213.md`: ESLint 10 migration and compatibility fixes.
+- `docs/audit/prompt-15-purgecss8-migration-20260213.md`: PurgeCSS 8 migration and CSS build compatibility.
+- `docs/audit/prompt-16-python-locking-20260213.md`: Python admin dependency locking and CI reproducibility.
+- `docs/audit/prompt-17-orphan-assets-guardrail-20260213.md`: orphan assets guardrail and CI reporting baseline.
+- `docs/audit/prompt-18-smoke-evidence-persistence-20260213.md`: persistent smoke evidence template/artifact in CI and release flow.
+- `docs/audit/prompt-19-orphan-assets-pruning-20260213.md`: first orphan-assets pruning batch (`software/`) and baseline reduction.
+- `docs/audit/prompt-20-orphan-assets-pruning-batch2-20260213.md`: second orphan-assets pruning batch (`snacks_salados`) and baseline reduction.
+- `docs/audit/executive-summary-20260213.md`: executive summary and prioritized post-audit backlog.
+
+## Release and Incidents
+
+- `docs/RELEASE.md`: release workflow.
+- `docs/INCIDENTS.md`: incident log and known failure modes.

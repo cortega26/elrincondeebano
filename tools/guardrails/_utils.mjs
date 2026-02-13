@@ -13,7 +13,7 @@ export function sh(cmd) {
     const stdout = error?.stdout?.toString()?.trim();
     const details = [stderr, stdout].filter(Boolean).join('\n');
     const message = `Command failed: ${cmd}${details ? `\n${details}` : ''}`;
-    throw new Error(message);
+    throw new Error(message, { cause: error });
   }
 }
 
