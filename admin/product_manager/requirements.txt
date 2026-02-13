@@ -5,7 +5,7 @@ pytest
 pytest-mock
 pylint>=4.0.4,<4.1
 # Keep astroid aligned with pylint 4.0.x to avoid resolver conflicts in CI.
-astroid>=4.0.2,<4.1
+astroid>=4.0.2,<4.2
 ruff
 portalocker
 mypy

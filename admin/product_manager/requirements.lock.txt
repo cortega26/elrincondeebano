@@ -1,8 +1,8 @@
-﻿# Locked dependency constraints for admin/product_manager.
+# Locked dependency constraints for admin/product_manager.
 # Generated with Python 3.12:
 #   python -m pip install -r requirements.txt
 #   python -m pip freeze > requirements.lock.txt
-astroid==4.0.4
+astroid==4.1.0
 bandit==1.9.3
 boolean.py==5.0
 CacheControl==0.14.4
