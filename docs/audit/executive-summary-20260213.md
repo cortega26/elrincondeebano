@@ -12,7 +12,6 @@ Semáforo general:
    - Seguridad de dependencias productivas sin vulnerabilidades abiertas (`npm audit --omit=dev`).
    - Runbooks de debugging, triage y rollback documentados.
 2. **Amarillo**
-   - Dependencias major pendientes (`eslint@10`, `purgecss@8`) planificadas en PRs separados.
    - Dependencias Python admin sin pinning estricto.
 
 ## Entregables clave por bloque
@@ -35,8 +34,7 @@ Semáforo general:
 
 ### P1
 
-1. Migración controlada a `purgecss@8` con validación visual.
-2. Pinning reproducible de dependencias Python admin.
+1. Pinning reproducible de dependencias Python admin.
 
 ### P2
 
@@ -45,9 +43,8 @@ Semáforo general:
 
 ## Plan recomendado de ejecución (PRs pequeños)
 
-1. **PR-C (P1):** `purgecss@8` + comparación antes/después de CSS generado.
-2. **PR-D (P1):** pinning Python (`requirements` con constraints/lock) + `pip-audit`.
-3. **PR-E (P2):** guardrail de assets huérfanos + reporte automatizado.
+1. **PR-D (P1):** pinning Python (`requirements` con constraints/lock) + `pip-audit`.
+2. **PR-E (P2):** guardrail de assets huérfanos + reporte automatizado.
 
 ## Criterio de éxito post-auditoría
 

@@ -55,6 +55,16 @@ function uniqueFiles(files) {
   return Array.from(new Set(files.filter((filePath) => fs.existsSync(filePath))));
 }
 
+function toRawContentEntries(files) {
+  return uniqueFiles(files).map((filePath) => {
+    const extension = path.extname(filePath).replace('.', '').toLowerCase() || 'html';
+    return {
+      extension,
+      raw: fs.readFileSync(filePath, 'utf8'),
+    };
+  });
+}
+
 async function writePurgedCssBundle({
   intermediateStylePath,
   contentFiles,
@@ -62,9 +72,10 @@ async function writePurgedCssBundle({
   outputMapPath,
   bundleLabel,
 }) {
+  const cssRaw = fs.readFileSync(intermediateStylePath, 'utf8');
   const purgeResult = await new PurgeCSS().purge({
-    content: uniqueFiles(contentFiles),
-    css: [intermediateStylePath],
+    content: toRawContentEntries(contentFiles),
+    css: [{ raw: cssRaw, name: `${bundleLabel}.bundle.css` }],
     safelist: DYNAMIC_CLASS_SAFELIST,
     fontFace: false,
     keyframes: false,
