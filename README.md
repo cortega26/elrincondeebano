@@ -232,6 +232,7 @@ Operational recovery steps for this policy live in
 | Playwright regression | `npm run test:e2e`         | Validates navbar/cart flicker budgets (CI installs Chromium). |
 | Cypress smoke         | `npm run test:cypress`     | Ensures navigation menu parity with production templates.     |
 | Lint                  | `npx eslint .`             | Enforces repo-wide JS/TS standards.                           |
+| Typecheck             | `npm run typecheck`        | Runs `tsc -p tsconfig.typecheck.json` for JS/TS contract drift. |
 | Lighthouse audit      | `npm run lighthouse:audit` | Reuses last build via `LH_SKIP_BUILD=1` in CI.                |
 
 _Coverage reporting is instrumented via `c8`; publish thresholds or badges once you agree on targets._
@@ -265,7 +266,7 @@ _Coverage reporting is instrumented via `c8`; publish thresholds or badges once 
 
 ## Contributing & License
 
-Contributions via pull request are welcome — please run the CI suite (`npm run build`, `npm test`, `npm run check:css-order`, `npm run test:e2e`) before submitting. The project is licensed under ISC as declared in `package.json`; add a root `LICENSE` file before publishing externally.
+Contributions via pull request are welcome — please run the CI suite (`npm run build`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run check:css-order`, `npm run test:e2e`) before submitting. The project is licensed under ISC as declared in `package.json`; add a root `LICENSE` file before publishing externally.
 
 ## Operational Runbooks
 

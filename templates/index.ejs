@@ -2,19 +2,28 @@
 <html lang="es">
 
 <head>
+  <% const homeSeo = {
+    title: 'El Rincón de Ébano',
+    description: 'Un minimarket en la puerta de tu departamento',
+    canonicalUrl: 'https://elrincondeebano.com/',
+    ogImage: 'https://elrincondeebano.com/assets/images/web/logo.webp',
+    ogImageAlt: 'Logotipo de El Rincón de Ébano',
+    ogImageWidth: '1200',
+    ogImageHeight: '1200'
+  }; %>
   <!-- Essential Meta Tags -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
-  <meta name="description" content="El Rincón de Ébano">
+  <meta name="description" content="<%= homeSeo.description %>">
 
-  <link rel="canonical" href="https://elrincondeebano.com/">
+  <link rel="canonical" href="<%= homeSeo.canonicalUrl %>">
   <link rel="manifest" href="/app.webmanifest">
 
   <!-- Security -->
   <script src="dist/js/csp.js?v=2"></script>
 
   <!-- Title and Favicon -->
-  <title>El Rincón de Ébano</title>
+  <title><%= homeSeo.title %></title>
   <link rel="icon" href="assets/images/web/favicon.ico" type="image/x-icon">
 
   <!-- Preconnect to External Domains -->
@@ -67,16 +76,19 @@
                     </noscript>
 
                     <!-- Open Graph Tags -->
-                    <meta property="og:title" content="El Rincón de Ébano">
-                    <meta property="og:description" content="Un minimarket en la puerta de tu departamento">
-                    <meta property="og:image" content="https://elrincondeebano.com/assets/images/web/logo.webp">
-                    <meta property="og:url" content="https://elrincondeebano.com/">
+                    <meta property="og:title" content="<%= homeSeo.title %>">
+                    <meta property="og:description" content="<%= homeSeo.description %>">
+                    <meta property="og:image" content="<%= homeSeo.ogImage %>">
+                    <meta property="og:image:alt" content="<%= homeSeo.ogImageAlt %>">
+                    <meta property="og:image:width" content="<%= homeSeo.ogImageWidth %>">
+                    <meta property="og:image:height" content="<%= homeSeo.ogImageHeight %>">
+                    <meta property="og:url" content="<%= homeSeo.canonicalUrl %>">
                     <meta property="og:site_name" content="El Rincón de Ébano">
                     <meta property="og:type" content="website">
                     <meta name="twitter:card" content="summary_large_image">
-                    <meta name="twitter:title" content="El Rincón de Ébano">
-                    <meta name="twitter:description" content="Un minimarket en la puerta de tu departamento">
-                    <meta name="twitter:image" content="https://elrincondeebano.com/assets/images/web/logo.webp">
+                    <meta name="twitter:title" content="<%= homeSeo.title %>">
+                    <meta name="twitter:description" content="<%= homeSeo.description %>">
+                    <meta name="twitter:image" content="<%= homeSeo.ogImage %>">
 </head>
 
 <body>
