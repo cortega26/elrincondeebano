@@ -42,11 +42,13 @@ jobs:
           python-version: '3.12'
       - name: Install pip-audit
         run: python -m pip install --upgrade pip pip-audit
-      - name: Run pip-audit (if requirements.txt exists)
+      - name: Run pip-audit (if requirements files exist)
         shell: bash
         run: |
-          if [ -f admin/product_manager/requirements.txt ]; then
+          if [ -f admin/product_manager/requirements.lock.txt ]; then
+            pip-audit -r admin/product_manager/requirements.lock.txt
+          elif [ -f admin/product_manager/requirements.txt ]; then
             pip-audit -r admin/product_manager/requirements.txt
           else
-            echo "No requirements.txt found; skipping pip-audit."
+            echo "No Python requirements file found; skipping pip-audit."
           fi

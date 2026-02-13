@@ -5,7 +5,7 @@
 This policy covers:
 
 1. Node.js dependencies (`package.json` and `package-lock.json`)
-2. Python admin tooling dependencies (`admin/product_manager/requirements.txt`)
+2. Python admin tooling dependencies (`admin/product_manager/requirements.txt` + `admin/product_manager/requirements.lock.txt`)
 3. GitHub Actions dependencies (`.github/workflows/*.yml`)
 
 ## Update cadence
@@ -33,8 +33,10 @@ For Node changes:
 
 For Python admin changes:
 
-1. `python -m pytest` in `admin/product_manager`
-2. `pip-audit` result attached when dependency graph changes
+1. `python -m pip install -r requirements.txt -c requirements.lock.txt` in `admin/product_manager`
+2. `python -m pip check` in `admin/product_manager`
+3. `python -m pytest` in `admin/product_manager`
+4. `pip-audit` result attached when dependency graph changes
 
 For workflow changes:
 
@@ -52,6 +54,7 @@ For workflow changes:
 1. Keep `package-lock.json` in sync for every Node dependency change.
 2. Use `npm ci` in CI and local reproducibility checks.
 3. Keep Dependabot PRs small and grouped by severity/risk level.
+4. Keep `requirements.lock.txt` in sync with `requirements.txt` for admin Python tooling changes.
 
 ## PR structure
 
