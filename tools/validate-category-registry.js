@@ -1,30 +1,22 @@
-const fs = require('fs');
-const path = require('path');
-
-const { rootDir } = require('./utils/output-dir');
 const {
   categoryRegistryPath,
   loadCategoryRegistry,
   validateCategoryRegistry,
 } = require('./utils/category-registry');
+const {
+  loadProductData,
+  normalizeCategoryKey,
+  validateProductDataContract,
+} = require('./utils/product-contract');
 
-const productDataPath = path.join(rootDir, 'data', 'product_data.json');
-
-function loadProductData() {
-  const raw = fs.readFileSync(productDataPath, 'utf8');
-  const parsed = JSON.parse(raw);
-  const products = Array.isArray(parsed?.products) ? parsed.products : [];
-  return products;
+function getKnownCategoryKeys(registry) {
+  const categories = Array.isArray(registry?.categories) ? registry.categories : [];
+  return new Set(categories.map((category) => normalizeCategoryKey(category?.key)).filter(Boolean));
 }
 
 function validateProductCategoryReferences(registry, products) {
   const errors = [];
-  const categories = Array.isArray(registry?.categories) ? registry.categories : [];
-  const knownKeys = new Set(
-    categories
-      .map((category) => String(category?.key || '').trim().toLowerCase())
-      .filter(Boolean)
-  );
+  const knownKeys = getKnownCategoryKeys(registry);
 
   products.forEach((product, index) => {
     const rawCategory = String(product?.category || '').trim();
@@ -45,11 +37,18 @@ function validateProductCategoryReferences(registry, products) {
 function main() {
   const registry = loadCategoryRegistry({ preferRegistry: true });
   const contractValidation = validateCategoryRegistry(registry);
+  const knownCategoryKeys = getKnownCategoryKeys(registry);
 
-  const products = loadProductData();
+  const productData = loadProductData();
+  const products = Array.isArray(productData?.products) ? productData.products : [];
+  const productContractValidation = validateProductDataContract(productData, { knownCategoryKeys });
   const productValidationErrors = validateProductCategoryReferences(registry, products);
 
-  const allErrors = [...contractValidation.errors, ...productValidationErrors];
+  const allErrors = [
+    ...contractValidation.errors,
+    ...productContractValidation.errors,
+    ...productValidationErrors,
+  ];
 
   if (allErrors.length) {
     console.error(`Category registry validation failed (${allErrors.length} issues):`);
@@ -67,5 +66,6 @@ if (require.main === module) {
 }
 
 module.exports = {
+  getKnownCategoryKeys,
   validateProductCategoryReferences,
 };

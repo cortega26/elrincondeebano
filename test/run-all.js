@@ -20,6 +20,7 @@ const tests = [
   'image-pipeline.paths.test.js',
   'generate-image-variants.config.test.js',
   'category-registry.contract.test.js',
+  'product-data.contract.test.js',
   'inject-structured-data.test.js',
   'sitemap.categories.test.js',
   'swCache.test.js',
