@@ -179,7 +179,7 @@ export function createCatalogManager({
           class: 'btn btn-primary add-to-cart-btn mt-2',
           type: 'button',
           'data-id': id,
-          'aria-label': `Add ${name} to cart`,
+          'aria-label': `Agregar ${name} al carrito`,
         },
         ['Agregar']
       );

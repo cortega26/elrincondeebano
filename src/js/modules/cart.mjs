@@ -60,7 +60,8 @@ export function createCartManager({
         cartCount.dataset.initialized = '1';
       }
       cartCount.textContent = String(totalItems);
-      cartCount.setAttribute('aria-label', `${totalItems} items in cart`);
+      const productLabel = totalItems === 1 ? 'producto' : 'productos';
+      cartCount.setAttribute('aria-label', `${totalItems} ${productLabel} en el carrito`);
     }
   };
 
@@ -148,7 +149,7 @@ export function createCartManager({
 
         const itemElement = createSafeElement('div', {
           class: 'cart-item mb-3 d-flex align-items-start',
-          'aria-label': `Cart item: ${item.name}`,
+          'aria-label': `Producto en carrito: ${item.name}`,
         });
 
         const contentContainer = createSafeElement('div', {

@@ -223,7 +223,7 @@ export const renderQuantityControl = (product, getCartItemQuantity) => {
             class: 'quantity-btn',
             type: 'button',
             'data-action': 'decrease',
-            'aria-label': 'Decrease quantity',
+            'aria-label': 'Disminuir cantidad',
         },
         ['-']
     );
@@ -233,7 +233,7 @@ export const renderQuantityControl = (product, getCartItemQuantity) => {
             class: 'quantity-btn',
             type: 'button',
             'data-action': 'increase',
-            'aria-label': 'Increase quantity',
+            'aria-label': 'Aumentar cantidad',
         },
         ['+']
     );
@@ -245,7 +245,7 @@ export const renderQuantityControl = (product, getCartItemQuantity) => {
         value: Math.max(currentQty, 1),
         min: '1',
         max: '50',
-        'aria-label': 'Quantity',
+        'aria-label': 'Cantidad',
         'data-id': product.id,
     });
 
