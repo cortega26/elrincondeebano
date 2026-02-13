@@ -36,7 +36,7 @@ function assertAllowedRemoteUrl(rawUrl) {
   try {
     parsed = new URL(rawUrl);
   } catch (err) {
-    throw new Error(`Invalid remote URL "${rawUrl}"`);
+    throw new Error(`Invalid remote URL "${rawUrl}"`, { cause: err });
   }
   if (parsed.protocol !== 'https:') {
     throw new Error(`Remote URL must use https: "${rawUrl}"`);
@@ -143,7 +143,7 @@ async function downloadRemote(rawUrl, dest) {
   try {
     parsed = new URL(normalized);
   } catch (err) {
-    throw new Error(`Invalid remote URL "${rawUrl}"`);
+    throw new Error(`Invalid remote URL "${rawUrl}"`, { cause: err });
   }
   if (parsed.protocol !== 'https:') {
     throw new Error(`Remote URL must use https: "${rawUrl}"`);
