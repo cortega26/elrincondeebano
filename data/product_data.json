@@ -1,6 +1,6 @@
 {
-  "version": "20260128-215219",
-  "last_updated": "2026-01-28T21:52:19.264190",
+  "version": "20260213-110906",
+  "last_updated": "2026-02-13T11:09:06.492016",
   "rev": 0,
   "products": [
     {
@@ -145,7 +145,7 @@
       "name": "Líder • Tortilla Grande Mexicana",
       "description": "Empaque de 350g",
       "price": 2400,
-      "discount": 400,
+      "discount": 500,
       "stock": true,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Tortilla grande mexicana Líder 350g.webp",
@@ -154,15 +154,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-17T18:27:04.469Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-17T18:27:04.469Z",
+        "discount": {
+          "ts": "2026-02-13T14:00:56.838788Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -514,7 +507,7 @@
       "description": "Arena Sanitaria - Bolsa de 8Kg/10L",
       "price": 9500,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Mascotas",
       "image_path": "assets/images/mascotas/easy-clean-lavanda4474.webp",
       "image_avif_path": "",
@@ -523,7 +516,7 @@
       "rev": 0,
       "field_last_modified": {
         "stock": {
-          "ts": "2025-11-07T22:32:56.557Z",
+          "ts": "2026-02-13T14:07:25.090559Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -550,28 +543,44 @@
       "description": "Espumante • Botella de 750mL",
       "price": 6900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Espumantes",
       "image_path": "assets/images/espumantes/Espumante Misiones de Rengo Rosé.webp",
       "image_avif_path": "",
       "order": 26,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T14:04:02.674043Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Demi Sec • Misiones de Rengo",
       "description": "Espumante • Botella de 750mL",
       "price": 6900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Espumantes",
       "image_path": "assets/images/espumantes/Espumante Misiones de Rengo Demi Sec.webp",
       "image_avif_path": "",
       "order": 27,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T14:04:16.770129Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Brut • Misiones de Rengo",
@@ -715,7 +724,7 @@
       "description": "Envase Tetrabrik de 1L",
       "price": 1800,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Lacteos",
       "image_path": "assets/images/lacteos/Leche semidescremada deslactosada Surlat 1L.webp",
       "image_avif_path": "",
@@ -724,7 +733,7 @@
       "rev": 0,
       "field_last_modified": {
         "stock": {
-          "ts": "2025-11-07T22:33:20.462Z",
+          "ts": "2026-02-13T14:06:34.562485Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -800,7 +809,7 @@
       "image_path": "assets/images/cervezas/Becker lata 350cc.webp",
       "image_avif_path": "",
       "order": 37,
-      "is_archived": false,
+      "is_archived": true,
       "rev": 0,
       "field_last_modified": {
         "name": {
@@ -1048,7 +1057,7 @@
       "description": "Presentación de 200mL",
       "price": 1500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Lacteos",
       "image_path": "assets/images/lacteos/Crema de leche Surlat 200mL.webp",
       "image_avif_path": "",
@@ -1057,7 +1066,7 @@
       "rev": 0,
       "field_last_modified": {
         "stock": {
-          "ts": "2025-10-14T15:29:32.572Z",
+          "ts": "2026-02-13T14:06:27.002094Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -1242,7 +1251,7 @@
       "description": "Envase retornable",
       "price": 3800,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Bebidas",
       "image_path": "assets/images/bebidas/Fanta Naranja 3L retornable.webp",
       "image_avif_path": "",
@@ -1251,7 +1260,7 @@
       "rev": 0,
       "field_last_modified": {
         "stock": {
-          "ts": "2025-11-24T19:49:03.638Z",
+          "ts": "2026-02-13T13:53:44.905940Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -1571,14 +1580,22 @@
       "description": "Botella de 750mL",
       "price": 5500,
       "discount": 600,
-      "stock": true,
+      "stock": false,
       "category": "Piscos",
       "image_path": "assets/images/piscos/Pisco Artesanos del Cochiguaz.webp",
       "image_avif_path": "",
       "order": 72,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T14:08:10.834123Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "San Pedro • Carmenere Gran Reserva 2023, Castillo de Molina",
@@ -1899,7 +1916,7 @@
       "description": "Barra de 100g",
       "price": 3800,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Chocolates",
       "image_path": "assets/images/chocolates/Chocolate amargo Our Finest 90_ cacao.webp",
       "image_avif_path": "",
@@ -1908,7 +1925,7 @@
       "rev": 0,
       "field_last_modified": {
         "stock": {
-          "ts": "2025-11-24T19:51:35.102Z",
+          "ts": "2026-02-13T13:58:01.922008Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2110,7 +2127,7 @@
       "description": "Llavero PVC alta calidad",
       "price": 3900,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Llaveros",
       "image_path": "assets/images/llaveros/Bowser.webp",
       "image_avif_path": "",
@@ -2118,15 +2135,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "price": {
-          "ts": "2025-10-14T15:31:05.093Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "stock": {
-          "ts": "2025-11-07T22:32:56.666Z",
+          "ts": "2026-02-13T14:05:16.874219Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2139,7 +2149,7 @@
       "description": "Llavero PVC alta calidad",
       "price": 3900,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Llaveros",
       "image_path": "assets/images/llaveros/Donkey Kong.webp",
       "image_avif_path": "",
@@ -2147,15 +2157,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "price": {
-          "ts": "2025-10-14T15:31:07.764Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "stock": {
-          "ts": "2025-11-07T22:33:20.775Z",
+          "ts": "2026-02-13T14:05:18.178438Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2166,16 +2169,24 @@
     {
       "name": "Leche Condensada Parmalat",
       "description": "Envase Tetra Brik® de 395g",
-      "price": 1700,
+      "price": 2900,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Lacteos",
       "image_path": "assets/images/lacteos/Parmalat-Leche-Condensada-395-gr.png",
       "image_avif_path": "",
       "order": 102,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T14:06:58.658465Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Toalla Papel Nova Clásica XL",
@@ -2247,7 +2258,7 @@
       "description": "Lata 150g",
       "price": 7500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Cafe Nescafé Tradición 150g.webp",
       "image_avif_path": "",
@@ -2255,29 +2266,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "price": {
-          "ts": "2026-01-13T22:28:44.281916Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2026-01-13T22:28:44.281916Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "stock": {
-          "ts": "2026-01-13T22:28:44.281916Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2026-01-13T22:28:44.281916Z",
+          "ts": "2026-02-13T14:01:15.706037Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2302,7 +2292,7 @@
     {
       "name": "Leche Entera",
       "description": "Envase Tetrabrik de 1L",
-      "price": 1700,
+      "price": 1800,
       "discount": 0,
       "stock": true,
       "category": "Lacteos",
@@ -2311,7 +2301,15 @@
       "order": 108,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "price": {
+          "ts": "2026-02-13T14:05:54.258267Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Líder • Atún Lomitos en Agua",
@@ -2438,7 +2436,7 @@
     {
       "name": "Great Value • Chocolate con Avellanas",
       "description": "Barra de 100g",
-      "price": 2800,
+      "price": 2900,
       "discount": 0,
       "stock": true,
       "category": "Chocolates",
@@ -2448,15 +2446,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "image_avif_path": {
-          "ts": "2025-10-17T18:00:24.918Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-17T18:00:24.918Z",
+        "price": {
+          "ts": "2026-02-13T13:58:23.834259Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2611,7 +2602,7 @@
       "image_path": "assets/images/bebidas/Sprite Zero 3L desechable.webp",
       "image_avif_path": "",
       "order": 120,
-      "is_archived": false,
+      "is_archived": true,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -2633,7 +2624,7 @@
       "image_path": "assets/images/bebidas/Agua 1,6L con gas Vital.webp",
       "image_avif_path": "",
       "order": 121,
-      "is_archived": false,
+      "is_archived": true,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -2655,7 +2646,7 @@
       "image_path": "assets/images/bebidas/Agua 2,5L con gas Vital.webp",
       "image_avif_path": "",
       "order": 122,
-      "is_archived": false,
+      "is_archived": true,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -2686,7 +2677,7 @@
       "description": "Empaque de 108g",
       "price": 1300,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksDulces",
       "image_path": "assets/images/snacks_dulces/Galletas Oreo Original 108g.webp",
       "image_avif_path": "",
@@ -2694,15 +2685,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "description": {
-          "ts": "2025-10-23T14:16:19.134Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-23T14:16:19.134Z",
+        "stock": {
+          "ts": "2026-02-13T14:08:35.994589Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3120,7 +3104,7 @@
       "description": "Botella de 1L",
       "price": 2200,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Energeticaseisotonicas",
       "image_path": "assets/images/energeticaseisotonicas/Gatorade 1L Frutas Tropicales.webp",
       "image_avif_path": "assets/images/energeticaseisotonicas/Gatorade 1L Frutas Tropicales.avif",
@@ -3128,15 +3112,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-17T22:52:03.730Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-17T22:52:03.730Z",
+        "stock": {
+          "ts": "2026-02-13T14:02:44.906159Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3178,7 +3155,7 @@
       "description": "Tarro de 134g",
       "price": 2500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Lays - Papas Crema y Cebolla 134g.webp",
       "image_avif_path": "assets/images/snacks_salados/Lays - Papas Crema y Cebolla 134g.avif",
@@ -3186,15 +3163,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-18T15:17:56.285Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-18T15:17:56.285Z",
+        "stock": {
+          "ts": "2026-02-13T14:09:06.490628Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3207,7 +3177,7 @@
       "description": "Tarro de 134g",
       "price": 2500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Lays - Papas Originales 134g.webp",
       "image_avif_path": "assets/images/snacks_salados/Lays - Papas Originales 134g.avif",
@@ -3215,15 +3185,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-18T15:18:00.773Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-18T15:18:00.773Z",
+        "stock": {
+          "ts": "2026-02-13T14:09:05.706708Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3330,7 +3293,7 @@
       "description": "Bolsa de 150g",
       "price": 1900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Marco Polo - Maní Salado 150g.webp",
       "image_avif_path": "assets/images/snacks_salados/Marco Polo - Maní Salado 150g.avif",
@@ -3338,15 +3301,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-18T15:18:19.757Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-18T15:18:19.757Z",
+        "stock": {
+          "ts": "2026-02-13T13:51:20.938140Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3359,7 +3315,7 @@
       "description": "Bolsa de 150g",
       "price": 1900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Marco Polo - Maní sin sal 150g.webp",
       "image_avif_path": "assets/images/snacks_salados/Marco Polo - Maní sin sal 150g.avif",
@@ -3367,15 +3323,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-18T15:18:25.685Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-18T15:18:25.685Z",
+        "stock": {
+          "ts": "2026-02-13T13:51:22.122302Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3386,7 +3335,7 @@
     {
       "name": "Great Value • Chocolate con Almendras",
       "description": "Barra de 100g",
-      "price": 2800,
+      "price": 2900,
       "discount": 0,
       "stock": false,
       "category": "Chocolates",
@@ -3396,8 +3345,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "stock": {
-          "ts": "2026-01-13T22:35:33.565531Z",
+        "price": {
+          "ts": "2026-02-13T13:58:20.059315Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3410,7 +3359,7 @@
       "description": "Barra de 77g",
       "price": 2200,
       "discount": 200,
-      "stock": true,
+      "stock": false,
       "category": "Chocolates",
       "image_path": "assets/images/chocolates/Hersheys - Chocolate Cookies n Creme 77g.webp",
       "image_avif_path": "",
@@ -3418,57 +3367,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-17T18:06:44.174Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-17T18:06:44.174Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-17T18:06:44.174Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-17T18:06:44.174Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "stock": {
-          "ts": "2025-10-17T18:06:44.174Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-17T18:06:44.174Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-17T18:06:44.174Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-17T18:06:44.174Z",
+          "ts": "2026-02-13T13:58:36.370310Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3480,7 +3380,7 @@
       "name": "Hershey's • Chocolate con Leche",
       "description": "Barra de 82g",
       "price": 2200,
-      "discount": 200,
+      "discount": 400,
       "stock": true,
       "category": "Chocolates",
       "image_path": "assets/images/chocolates/Chocolate con leche Hershey's 82g.jpg",
@@ -3489,8 +3389,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "stock": {
-          "ts": "2025-11-24T19:51:53.741Z",
+        "discount": {
+          "ts": "2026-02-13T13:59:29.699281Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3977,7 +3877,7 @@
       "description": "Bolsa de 130g",
       "price": 2000,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Marco Polo - Papas Sal de Mar.webp",
       "image_avif_path": "assets/images/snacks_salados/Marco Polo - Papas Sal de Mar.avif",
@@ -3985,57 +3885,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-19T23:25:39.009Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-19T23:25:39.009Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-19T23:25:39.009Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-19T23:25:39.009Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "stock": {
-          "ts": "2025-10-19T23:25:39.009Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-19T23:25:39.009Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-19T23:25:39.009Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-19T23:25:39.009Z",
+          "ts": "2026-02-13T14:09:03.234179Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
