@@ -54,6 +54,10 @@ updates:
       - "python"
     commit-message:
       prefix: "chore(py-deps)"
+    ignore:
+      - dependency-name: "astroid"
+        update-types:
+          - "version-update:semver-minor"
     groups:
       pip-patch-minor:
         patterns:
