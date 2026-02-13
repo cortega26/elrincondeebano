@@ -126,6 +126,7 @@ function setupAppRuntimeBootTriggers() {
 
   let detached = false;
   let clickReplayInProgress = false;
+  let keyReplayInProgress = false;
   let catalogObserver = null;
 
   const detachListeners = () => {
@@ -167,14 +168,41 @@ function setupAppRuntimeBootTriggers() {
   };
 
   const onKeyIntent = (event) => {
+    if (appRuntimeReady || keyReplayInProgress) {
+      return;
+    }
     const key = event?.key;
-    if (key !== 'Enter' && key !== ' ') {
+    if (key !== 'Enter' && key !== ' ' && key !== 'Spacebar') {
       return;
     }
-    if (!getIntentTarget(event.target)) {
+    const intentTarget = getIntentTarget(event.target);
+    if (!intentTarget) {
       return;
     }
-    void triggerRuntimeLoad();
+
+    event.preventDefault();
+    if (typeof event.stopImmediatePropagation === 'function') {
+      event.stopImmediatePropagation();
+    }
+    event.stopPropagation();
+
+    keyReplayInProgress = true;
+    void triggerRuntimeLoad()
+      .then(() => {
+        if (!appRuntimeReady || typeof MouseEvent === 'undefined') {
+          return;
+        }
+        intentTarget.dispatchEvent(
+          new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            composed: true,
+          })
+        );
+      })
+      .finally(() => {
+        keyReplayInProgress = false;
+      });
   };
 
   const onClickCapture = (event) => {

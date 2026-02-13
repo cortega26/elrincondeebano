@@ -269,6 +269,8 @@ Contributions via pull request are welcome — please run the CI suite (`npm run
 
 ## Operational Runbooks
 
+- [Documentation index](docs/README.md) — entry point for operations, architecture, and audit docs.
+- [Repository structure and conventions](docs/repo/STRUCTURE.md) — canonical folder map, naming, and import rules.
 - [Service worker + data recovery runbook](docs/operations/RUNBOOK.md) — canonical operational procedures for cache busting, incident response, and data refreshes.
 - [Backup management checklist](docs/operations/BACKUP.md) — retention policies and restoration steps for catalog data snapshots.
 

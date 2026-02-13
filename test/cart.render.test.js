@@ -131,6 +131,12 @@ const { JSDOM } = require('jsdom');
       1
     );
 
+    assert.strictEqual(document.getElementById('cart-count').textContent, '1');
+    assert.strictEqual(
+      document.getElementById('cart-count').getAttribute('aria-label'),
+      '1 producto en el carrito'
+    );
+
     const emptyMessage = document.querySelector('.cart-empty-message');
     assert.strictEqual(emptyMessage, null);
 
