@@ -4,7 +4,7 @@
 
 Este documento coordina a los agentes automatizados y humanos que mantienen **El Rincón de Ébano**, una web estática construida con scripts de Node.js, plantillas EJS y activos precompilados. Establece responsabilidades, comandos verificados y guardrails para preservar la estabilidad de builds, pruebas, seguridad de la cadena de suministro y los flujos de CI/CD actuales.
 
-Última actualización operativa: 2026-02-13 (Prompt 12).
+Última actualización operativa: 2026-02-13 (Prompt 13).
 
 ## Arquitectura de agentes
 
@@ -55,6 +55,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 | Docs Steward                  | `npm run build`                                         | Tras cambios en plantillas (`templates/`), datos o herramientas.                        | Build completo sin errores ni warnings críticos; genera `dist/`, `pages/`, `sitemap.xml`. | Artifacts regenerados listos para commit. |
 | Docs Steward                  | `npm run lighthouse:audit`                              | Auditorías de rendimiento previas a release.                                            | Reportes en `reports/lighthouse/`.                                                        | Archivos HTML de Lighthouse.              |
 | Type & Lint Guardian          | `npm run lint`                                          | En cada PR y antes de merges; ejecutado también localmente.                             | Salida limpia sin errores ESLint usando `eslint.config.cjs`.                              | Logs de lint.                             |
+| Type & Lint Guardian          | `npm run typecheck`                                     | En PRs que toquen `src/js/**` y antes de releases.                                       | Sin errores de `tsc -p tsconfig.typecheck.json` sobre módulos/utilidades críticas.         | Logs de typecheck.                        |
 | Type & Lint Guardian          | `npm run format`                                        | En cada PR.                                                                             | Código formateado según `.prettierrc`.                                                    | Archivos modificados.                     |
 | Security / Supply Chain Agent | `npm audit --production`                                | Mensual o ante cambios de dependencias.                                                 | Sin vulnerabilidades altas/crit.; documentar hallazgos.                                   | Reporte de auditoría.                     |
 | Security / Supply Chain Agent | `npm run security:secret-scan`                          | En cada PR/push (`secret-scan.yml`) y antes de releases.                                | Sin hallazgos de credenciales de alta confianza en archivos versionados.                   | Logs de escaneo de secretos.              |
@@ -81,6 +82,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - **Mutation Testing**: Verificar reportes de Stryker en cambios críticos. No reintroducir survivors en lógica Core (Cart, Analytics, Logger).
 - **Linter/formatter**
   - [ ] `npm run lint` debe terminar en verde. Auto-fixes solo locales; los commits deben incluir diff resultante.
+  - [ ] `npm run typecheck` debe terminar en verde para cambios de JS en `src/js/**`.
   - [ ] `npm run format` debe asegurar estilo consistente.
 - **SARIF estable**
   - Reutilizar el sanitizador existente en `.github/workflows/codacy.yml` (`jq` con `with_entries`). Si se generan SARIF manualmente, aplicar:
@@ -114,6 +116,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 - Instalación determinista: `npm ci`.
 - Validación base:
   - `npm run lint`
+  - `npm run typecheck`
   - `npm test`
   - `npm run build`
   - `npm run test:e2e`
@@ -126,6 +129,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 
 - [ ] Alcance acotado y sin cambios públicos breaking no planificados.
 - [ ] `npm run lint` en verde.
+- [ ] `npm run typecheck` en verde (si hay cambios en `src/js/**`).
 - [ ] `npm test` en verde.
 - [ ] `npm run build` en verde.
 - [ ] `npm run test:e2e` en verde o justificado si no aplica.

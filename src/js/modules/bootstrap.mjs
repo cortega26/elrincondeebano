@@ -54,6 +54,7 @@ async function loadCollapse() {
   if (!collapseModulePromise) {
     collapseModulePromise = loadWithOverride(
       'collapse',
+      // @ts-ignore Bootstrap distributes runtime JS without module type declarations.
       () => import('bootstrap/js/dist/collapse')
     );
   }
@@ -65,6 +66,7 @@ async function loadOffcanvas() {
   if (!offcanvasModulePromise) {
     offcanvasModulePromise = loadWithOverride(
       'offcanvas',
+      // @ts-ignore Bootstrap distributes runtime JS without module type declarations.
       () => import('bootstrap/js/dist/offcanvas')
     );
   }

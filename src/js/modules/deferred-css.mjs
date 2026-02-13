@@ -6,7 +6,7 @@ export function applyDeferredStyles(doc = typeof document !== 'undefined' ? docu
   doc
     .querySelectorAll('link[rel="stylesheet"][media="print"][data-defer]')
     .forEach((link) => {
-      link.media = 'all';
+      /** @type {HTMLLinkElement} */ (link).media = 'all';
       link.removeAttribute('data-defer');
     });
 }

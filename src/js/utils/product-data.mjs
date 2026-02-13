@@ -49,10 +49,29 @@ export const setStoredProductVersion = (version) => {
   }
 };
 
+/**
+ * @typedef {Object} ProductDataErrorOptions
+ * @property {unknown} [cause]
+ * @property {string} [correlationId]
+ * @property {string} [code]
+ * @property {Record<string, unknown>} [context]
+ * @property {string | null} [userMessage]
+ */
+
 export class ProductDataError extends Error {
+  /**
+   * @param {string} message
+   * @param {ProductDataErrorOptions} [options]
+   */
   constructor(
     message,
-    { cause, correlationId, code = 'PRODUCT_DATA_ERROR', context = {}, userMessage = null } = {}
+    {
+      cause,
+      correlationId,
+      code = 'PRODUCT_DATA_ERROR',
+      context = {},
+      userMessage = null,
+    } = /** @type {ProductDataErrorOptions} */ ({})
   ) {
     super(message);
     this.name = 'ProductDataError';

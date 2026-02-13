@@ -1,7 +1,7 @@
 const initFooter = () => {
   const yearSpan = document.getElementById('current-year');
   if (yearSpan) {
-    yearSpan.textContent = new Date().getFullYear();
+    yearSpan.textContent = String(new Date().getFullYear());
   }
 };
 
@@ -75,7 +75,7 @@ export function runAppBootstrap({
   fetchProducts,
   logPerformanceMetrics,
   showOffcanvas,
-} = {}) {
+} = /** @type {Record<string, any>} */ ({})) {
   initFooter();
   if (typeof initializeBootstrapUI === 'function') {
     initializeBootstrapUI();
