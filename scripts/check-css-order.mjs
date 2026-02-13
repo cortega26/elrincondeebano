@@ -30,10 +30,9 @@ async function main() {
     }
   }
 
-  const expectedOrder = [
-    /\/dist\/css\/critical\.min\.css(?:\?|$)/,
-    /\/dist\/css\/style\.min\.css(?:\?|$)/,
-  ];
+  const criticalPattern = /\/dist\/css\/critical\.min\.css(?:\?|$)/;
+  const homeSharedPattern = /\/dist\/css\/style\.min\.css(?:\?|$)/;
+  const categorySharedPattern = /\/dist\/css\/style\.category\.min\.css(?:\?|$)/;
 
   let failures = 0;
 
@@ -52,17 +51,26 @@ async function main() {
       throw error;
     }
     const dom = new JSDOM(html);
-    const links = [...dom.window.document.querySelectorAll('head link[rel="stylesheet"]')];
+    const links = [...dom.window.document.querySelectorAll('head link[rel="stylesheet"]')].filter(
+      (link) => !link.closest('noscript')
+    );
     const hrefs = links.map((link) => ({
       href: link.getAttribute('href') || '',
       media: link.getAttribute('media'),
       element: link,
     }));
 
+    const relativePath = path.relative(outputRoot, filePath).split(path.sep).join('/');
+    const sharedPattern = relativePath === 'index.html' ? homeSharedPattern : categorySharedPattern;
+    const expectedOrder = [criticalPattern, sharedPattern];
+
     const matches = expectedOrder.map((pattern) => {
       const index = hrefs.findIndex(({ href }) => pattern.test(href));
       return { pattern: pattern.toString(), index, link: index >= 0 ? hrefs[index] : null };
     });
+    const duplicateCritical =
+      hrefs.filter(({ href }) => criticalPattern.test(href)).length > 1;
+    const duplicateShared = hrefs.filter(({ href }) => sharedPattern.test(href)).length > 1;
     const missing = matches.some(({ index }) => index === -1);
     const outOfOrder = matches.some(
       ({ index }, i) =>
@@ -70,7 +78,7 @@ async function main() {
     );
     const hasDeferredMedia = matches.some(({ link }) => link && link.media && link.media !== 'all');
 
-    if (missing || outOfOrder || hasDeferredMedia) {
+    if (missing || outOfOrder || hasDeferredMedia || duplicateCritical || duplicateShared) {
       failures += 1;
       const messages = [];
       if (missing) {
@@ -81,6 +89,9 @@ async function main() {
       }
       if (hasDeferredMedia) {
         messages.push('found non-default media attribute on critical styles');
+      }
+      if (duplicateCritical || duplicateShared) {
+        messages.push('duplicate critical/shared stylesheet references');
       }
       console.error(`❌ ${path.relative(projectRoot, filePath)}: ${messages.join(', ')}`);
       console.error('  Found order:', hrefs.map(({ href }) => href).join(' -> '));
