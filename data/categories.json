@@ -1,6 +1,6 @@
 {
-  "version": "20260126-220947",
-  "last_updated": "2026-01-26T22:09:47.878276Z",
+  "version": "20260213-145517",
+  "last_updated": "2026-02-13T14:55:17.989112Z",
   "nav_groups": [
     {
       "id": "alimentos",
@@ -54,6 +54,17 @@
   ],
   "categories": [
     {
+      "id": "e",
+      "title": "Electrónicos",
+      "product_key": "E",
+      "slug": "e",
+      "description": "",
+      "group_id": "varios",
+      "order": 10,
+      "enabled": true,
+      "subcategories": []
+    },
+    {
       "id": "carnesyembutidos",
       "title": "Carnes y Embutidos",
       "product_key": "Carnesyembutidos",
@@ -94,7 +105,7 @@
       "description": "Explora nuestra selección de juegos de mesa en El Rincón de Ébano.",
       "group_id": "varios",
       "order": 10,
-      "enabled": true,
+      "enabled": false,
       "subcategories": []
     },
     {

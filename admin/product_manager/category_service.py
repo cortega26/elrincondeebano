@@ -18,15 +18,17 @@ from .category_models import (
     Subcategory,
 )
 from .category_repository import JsonCategoryRepository
+from tools.category_og.slug import SlugError, slugify_category
 
 CategoryChoice = Tuple[str, str]
 
 
 def _slugify(source: str) -> str:
-    """Return a URL-friendly slug from a label."""
-    slug = re.sub(r"[^A-Za-z0-9]+", "-", source.strip())
-    slug = re.sub(r"-{2,}", "-", slug).strip("-")
-    return slug.lower() or "categoria"
+    """Return a deterministic snake_case slug from a label."""
+    try:
+        return slugify_category(source)
+    except SlugError as exc:
+        raise CategoryServiceError(str(exc)) from exc
 
 
 def _canonical_key(value: str) -> str:
@@ -324,7 +326,7 @@ class CategoryService:
             catalog = self._load_catalog()
             self.ensure_group_exists(group_id)
             title_clean = title.strip()
-            slug_value = slug.strip() if slug else _slugify(title_clean)
+            slug_value = _slugify(slug.strip()) if slug else _slugify(title_clean)
             product_key_value = (
                 product_key.strip() if product_key else title_clean.replace(" ", "")
             )
@@ -374,7 +376,7 @@ class CategoryService:
             if not category:
                 raise CategoryNotFoundError(category_id)
 
-            new_slug = slug.strip() if slug else category.slug
+            new_slug = _slugify(slug.strip()) if slug else category.slug
             new_product_key = (
                 product_key.strip() if product_key else category.product_key
             )
@@ -465,7 +467,7 @@ class CategoryService:
         # pylint: disable=too-many-arguments
         with self._lock:
             category = self.find_category(category_id)
-            candidate_slug = slug.strip() if slug else _slugify(title)
+            candidate_slug = _slugify(slug.strip()) if slug else _slugify(title)
             candidate_product_key = (
                 product_key.strip() if product_key else title.replace(" ", "")
             )
@@ -516,8 +518,9 @@ class CategoryService:
             if title is not None:
                 subcategory.title = title.strip()
             if slug is not None:
-                subcategory.id = slug.strip()
-                subcategory.slug = slug.strip()
+                normalized_slug = _slugify(slug.strip())
+                subcategory.id = normalized_slug
+                subcategory.slug = normalized_slug
             if product_key is not None:
                 subcategory.product_key = product_key.strip()
             if description is not None:

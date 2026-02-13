@@ -41,6 +41,7 @@ const tests = [
   'resourceHints.integrity.test.js',
   'robots.test.js',
   'template.seo-accessibility.test.js',
+  'category-og.build-metadata.test.js',
   'csp.connect.test.js',
   'csp.policy.hardening.test.js',
   'noFlicker.stylesheetLoading.test.js',

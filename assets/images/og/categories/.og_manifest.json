@@ -1,0 +1,388 @@
+{
+  "icon_map_version": "v1",
+  "items": {
+    "aguas": {
+      "jpg": {
+        "exists": true,
+        "file": "aguas.og_v1.jpg",
+        "height": 1200,
+        "sha256": "196ea2eee7cbd3af284397646a234f7d05b8d308877dcd6b1c1c2aab1ab0b42f",
+        "size": 70911,
+        "width": 1200
+      },
+      "svg": {
+        "exists": true,
+        "height": 1200,
+        "sha256": "65b11e8e9215d91a5fc2935732f327c2d58e7cd7fca1ad52ecc66b532082c563",
+        "size": 1778,
+        "width": 1200
+      }
+    },
+    "bebidas": {
+      "jpg": {
+        "exists": true,
+        "file": "bebidas.og_v1.jpg",
+        "height": 1200,
+        "sha256": "7e06d2cf6cf8fb7714ca75e59982edec584372eff36c0695c71cad68b1f2fba0",
+        "size": 65959,
+        "width": 1200
+      },
+      "svg": {
+        "exists": true,
+        "height": 1200,
+        "sha256": "3cc5e075dcc62b33fadf450f9a0c9bb4aa8ae240a0d99581934580c376e16601",
+        "size": 1794,
+        "width": 1200
+      }
+    },
+    "carnesyembutidos": {
+      "jpg": {
+        "exists": true,
+        "file": "carnesyembutidos.og_v1.jpg",
+        "height": 1200,
+        "sha256": "dc086adf2f2f97145365c2974042ee11235a1942d380ec65fd7989bd0cf00bbb",
+        "size": 76388,
+        "width": 1200
+      },
+      "svg": {
+        "exists": true,
+        "height": 1200,
+        "sha256": "1882198538a3de4d13d05ae8494cec1c8fcae775645bd967f2cfd92445740049",
+        "size": 1781,
+        "width": 1200
+      }
+    },
+    "cervezas": {
+      "jpg": {
+        "exists": true,
+        "file": "cervezas.og_v1.jpg",
+        "height": 1200,
+        "sha256": "6c5cb725211b33f94e859615e514304bc9201e01cefece509b88578e8a9e73c9",
+        "size": 78231,
+        "width": 1200
+      },
+      "svg": {
+        "exists": true,
+        "height": 1200,
+        "sha256": "73f171f26ad8ab1b07ccb82dc285169bde0b8b41e6d76fb754bfd46365bdb2dd",
+        "size": 1930,
+        "width": 1200
+      }
+    },
+    "chocolates": {
+      "jpg": {
+        "exists": true,
+        "file": "chocolates.og_v1.jpg",
+        "height": 1200,
+        "sha256": "6ae33a1e616ab5d44aa2bea7990597e61dc52526a0e62568d3962c73fc2cdc76",
+        "size": 79253,
+        "width": 1200
+      },
+      "svg": {
+        "exists": true,
+        "height": 1200,
+        "sha256": "d74751a164e63c9fdd2771f9f0451098b6d8383b3ad4d84ed90db80c5d89a60a",
+        "size": 2037,
+        "width": 1200
+      }
+    },
+    "comestibles": {
+      "jpg": {
+        "exists": true,
+        "file": "comestibles.og_v1.jpg",
+        "height": 1200,
+        "sha256": "f4f75c1f62122459c6e6f1e0fe5b8b2e04f3cec46b2fe8113ff5c4669b52adde",
+        "size": 62524,
+        "width": 1200
+      },
+      "svg": {
+        "exists": true,
+        "height": 1200,
+        "sha256": "aaf5011b30a6ecea1bf1b834b22fa1806c60cf4855ab4ba2caa420de65dc59df",
+        "size": 1810,
+        "width": 1200
+      }
+    },
+    "despensa": {
+      "jpg": {
+        "exists": true,
+        "file": "despensa.og_v1.jpg",
+        "height": 1200,
+        "sha256": "2327b1aff9819bfae7c1371f3252376f6bd536e4c13e97721042def73afd83f6",
+        "size": 66926,
+        "width": 1200
+      },
+      "svg": {
+        "exists": true,
+        "height": 1200,
+        "sha256": "0afcff3b4b2b5555dbfd06698816e0986e9c3e69ac1dc7ee593a5c87cf75c577",
+        "size": 1849,
+        "width": 1200
+      }
+    },
+    "e": {
+      "jpg": {
+        "exists": true,
+        "file": "e.og_v1.jpg",
+        "height": 1200,
+        "sha256": "1b2bb0bed559cc7fec2847761198de8895bd637679e5b6b95fbcc3dd8357c7bb",
+        "size": 69764,
+        "width": 1200
+      },
+      "svg": {
+        "exists": true,
+        "height": 1200,
+        "sha256": "0b906476d28f40cea1be6247717a32c717d14ab44b5d347149384b1a00d9b1b2",
+        "size": 1811,
+        "width": 1200
+      }
+    },
+    "energeticaseisotonicas": {
+      "jpg": {
+        "exists": true,
+        "file": "energeticaseisotonicas.og_v1.jpg",
+        "height": 1200,
+        "sha256": "64aa49aa877296b92ca568938872652d831c1ce4c9088a29704ad7e6a5da7114",
+        "size": 72166,
+        "width": 1200
+      },
+      "svg": {
+        "exists": true,
+        "height": 1200,
+        "sha256": "784e1d012db6c7f4bb2f0d2006d0d41e0ec8ff37d2c6ae31c862287a9943f7fd",
+        "size": 1785,
+        "width": 1200
+      }
+    },
+    "espumantes": {
+      "jpg": {
+        "exists": true,
+        "file": "espumantes.og_v1.jpg",
+        "height": 1200,
+        "sha256": "55b3fa903dfa65953354196cddf13de92a14065f0bcf6706749f638f56a9078a",
+        "size": 69783,
+        "width": 1200
+      },
+      "svg": {
+        "exists": true,
+        "height": 1200,
+        "sha256": "b62b49d6822144da26ef5356a48015bf91fd9c316c573ed2a2faf1659de5b598",
+        "size": 1973,
+        "width": 1200
+      }
+    },
+    "juegos": {
+      "jpg": {
+        "exists": true,
+        "file": "juegos.og_v1.jpg",
+        "height": 1200,
+        "sha256": "f47bf1518f38bf7a6cf69337627637ff6bb0b3d09b1f31e6d1662d5ca533a0b8",
+        "size": 63587,
+        "width": 1200
+      },
+      "svg": {
+        "exists": true,
+        "height": 1200,
+        "sha256": "ff9be364a85bd26ab48c96f708f5c2a52de40de9ab9fdaf3f8f113a95f45bf77",
+        "size": 2080,
+        "width": 1200
+      }
+    },
+    "jugos": {
+      "jpg": {
+        "exists": true,
+        "file": "jugos.og_v1.jpg",
+        "height": 1200,
+        "sha256": "f217a2bcad4709896b877ac003fbd5d27f78e3f5cb997bd4edadeb08370be8c2",
+        "size": 63977,
+        "width": 1200
+      },
+      "svg": {
+        "exists": true,
+        "height": 1200,
+        "sha256": "14afe6cef9c69c587156036734a5a5dcc2f9fcf571deff66f510e1f8e5fdaf41",
+        "size": 1790,
+        "width": 1200
+      }
+    },
+    "lacteos": {
+      "jpg": {
+        "exists": true,
+        "file": "lacteos.og_v1.jpg",
+        "height": 1200,
+        "sha256": "201e5b5e36afd4398f9b25148cab4cd9ceccc0258d3ca831053161d540c2029f",
+        "size": 57499,
+        "width": 1200
+      },
+      "svg": {
+        "exists": true,
+        "height": 1200,
+        "sha256": "3c6b5311da4fe4fc9f8f8f06d0bfc4253342adb43b2524632c86e47edbd198d0",
+        "size": 1859,
+        "width": 1200
+      }
+    },
+    "limpiezayaseo": {
+      "jpg": {
+        "exists": true,
+        "file": "limpiezayaseo.og_v1.jpg",
+        "height": 1200,
+        "sha256": "ecdafc14e8a14afdfef3f4d08748b925371df29ebc1fa3a348e60b39bbc82c03",
+        "size": 64923,
+        "width": 1200
+      },
+      "svg": {
+        "exists": true,
+        "height": 1200,
+        "sha256": "d20f822ec84fd2297b589a91c8ca7b289420dc473a0cfc7f6279c55d51eab5c0",
+        "size": 1931,
+        "width": 1200
+      }
+    },
+    "llaveros": {
+      "jpg": {
+        "exists": true,
+        "file": "llaveros.og_v1.jpg",
+        "height": 1200,
+        "sha256": "590b93353186a9f232c315f88ebc9f5362f200ab3ff13088f44fc8d13ecd74e0",
+        "size": 64870,
+        "width": 1200
+      },
+      "svg": {
+        "exists": true,
+        "height": 1200,
+        "sha256": "0768fbc76c869ab8eeb00c6cc488e4ae37b3e7cca2e5e25b0748137d62d92953",
+        "size": 1854,
+        "width": 1200
+      }
+    },
+    "mascotas": {
+      "jpg": {
+        "exists": true,
+        "file": "mascotas.og_v1.jpg",
+        "height": 1200,
+        "sha256": "3098de5d981d6b2d4ab59ed2d1244e119935868fd22541862a2c9e4aa3329954",
+        "size": 73086,
+        "width": 1200
+      },
+      "svg": {
+        "exists": true,
+        "height": 1200,
+        "sha256": "3d1f7e3fab542c980cc8669a14767ab2cfe0c84a9e0bd6fb681aa4839c329222",
+        "size": 1822,
+        "width": 1200
+      }
+    },
+    "piscos": {
+      "jpg": {
+        "exists": true,
+        "file": "piscos.og_v1.jpg",
+        "height": 1200,
+        "sha256": "1a403c06128968abecffc431257eab575e538e58e12a1daca7ab38bf28507d60",
+        "size": 69430,
+        "width": 1200
+      },
+      "svg": {
+        "exists": true,
+        "height": 1200,
+        "sha256": "72f59b46b7374cc50dd1f165b31e2d729d6973e484fd6b70158a6935a3135125",
+        "size": 1754,
+        "width": 1200
+      }
+    },
+    "snacksdulces": {
+      "jpg": {
+        "exists": true,
+        "file": "snacksdulces.og_v1.jpg",
+        "height": 1200,
+        "sha256": "52b82b55d356a250e455f71c87dc1bded68b7b94a7266102a286cacaf339ed19",
+        "size": 69775,
+        "width": 1200
+      },
+      "svg": {
+        "exists": true,
+        "height": 1200,
+        "sha256": "869cf93f9271376e1f25c26a4f0cfdb5b65c1aacfdcdc3bfd170288b8fde7c3f",
+        "size": 2043,
+        "width": 1200
+      }
+    },
+    "snackssalados": {
+      "jpg": {
+        "exists": true,
+        "file": "snackssalados.og_v1.jpg",
+        "height": 1200,
+        "sha256": "5eab7f6362c2c1660e4d75378cc625a4954216932206d61a87d4b78279b5fcf1",
+        "size": 78714,
+        "width": 1200
+      },
+      "svg": {
+        "exists": true,
+        "height": 1200,
+        "sha256": "b520d5c7023c68ed098d32fc6d5634d245836c5f81d1c1e315be431638daf25c",
+        "size": 1869,
+        "width": 1200
+      }
+    },
+    "software": {
+      "jpg": {
+        "exists": true,
+        "file": "software.og_v1.jpg",
+        "height": 1200,
+        "sha256": "a07b0b24c4339e852e23009629e37487c51d74105d137de6e105dc301421c663",
+        "size": 65441,
+        "width": 1200
+      },
+      "svg": {
+        "exists": true,
+        "height": 1200,
+        "sha256": "c7fe41df89bd09b08e329a299cd570bb4cc61847beca05f9a502c541dd1d58a2",
+        "size": 1804,
+        "width": 1200
+      }
+    },
+    "vinos": {
+      "jpg": {
+        "exists": true,
+        "file": "vinos.og_v1.jpg",
+        "height": 1200,
+        "sha256": "c577324e47e7d2d114c756b96b58565232a848125d058934136ce3d2eee65e59",
+        "size": 56975,
+        "width": 1200
+      },
+      "svg": {
+        "exists": true,
+        "height": 1200,
+        "sha256": "a5a7d7746f05dff85ec010c3eea3aed0ac104eb1d4f751e0fec29e9a0ff248e0",
+        "size": 1752,
+        "width": 1200
+      }
+    }
+  },
+  "jpg_version_token": "og_v1",
+  "managed_slug_pattern": "[a-z0-9_]+",
+  "slugs": [
+    "aguas",
+    "bebidas",
+    "carnesyembutidos",
+    "cervezas",
+    "chocolates",
+    "comestibles",
+    "despensa",
+    "e",
+    "energeticaseisotonicas",
+    "espumantes",
+    "juegos",
+    "jugos",
+    "lacteos",
+    "limpiezayaseo",
+    "llaveros",
+    "mascotas",
+    "piscos",
+    "snacksdulces",
+    "snackssalados",
+    "software",
+    "vinos"
+  ],
+  "template_version": "v1"
+}
