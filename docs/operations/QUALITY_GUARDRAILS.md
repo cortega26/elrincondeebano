@@ -12,11 +12,13 @@ A change is done only when all items below are true:
 1. `npm run lint` passes with no errors.
 2. `npm test` passes.
 3. `npm run build` passes and generates a valid `build/` snapshot.
-4. `npm run test:e2e` passes when routes, navigation, cart, rendering,
+4. `npm run guardrails:assets` passes when images, catalog references, templates,
+   or build tooling are touched.
+5. `npm run test:e2e` passes when routes, navigation, cart, rendering,
    service worker, or checkout-related UX are affected.
-5. Manual smoke checklist is executed for user-facing changes:
+6. Manual smoke checklist is executed for user-facing changes:
    `npm run smoke:manual` and `docs/operations/SMOKE_TEST.md`.
-6. Evidence (commands and outcomes) is attached to the PR.
+7. Evidence (commands and outcomes) is attached to the PR.
 
 ## Sensitive Production Areas
 
@@ -64,4 +66,3 @@ Use this process in PR descriptions for risky changes:
    - `npm run test:e2e` (if affected area had e2e coverage)
 4. Validate smoke checklist before redeploy.
 5. Document incident summary and root cause in the PR thread.
-

@@ -4,7 +4,7 @@
 
 Este documento coordina a los agentes automatizados y humanos que mantienen **El Rincón de Ébano**, una web estática construida con scripts de Node.js, plantillas EJS y activos precompilados. Establece responsabilidades, comandos verificados y guardrails para preservar la estabilidad de builds, pruebas, seguridad de la cadena de suministro y los flujos de CI/CD actuales.
 
-Última actualización operativa: 2026-02-13 (Prompt 16).
+Última actualización operativa: 2026-02-13 (Prompt 18).
 
 ## Arquitectura de agentes
 
@@ -54,9 +54,11 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 | Repo Cartographer             | `npm pkg get scripts`                                   | Al actualizar documentación o scripts.                                                  | JSON con scripts de `package.json`.                                                       | Tabla de scripts actualizada en docs.     |
 | Docs Steward                  | `npm run build`                                         | Tras cambios en plantillas (`templates/`), datos o herramientas.                        | Build completo sin errores ni warnings críticos; genera `dist/`, `pages/`, `sitemap.xml`. | Artifacts regenerados listos para commit. |
 | Docs Steward                  | `npm run lighthouse:audit`                              | Auditorías de rendimiento previas a release.                                            | Reportes en `reports/lighthouse/`.                                                        | Archivos HTML de Lighthouse.              |
+| Docs Steward                  | `npm run smoke:evidence`                                | Antes de release y al cerrar smoke manual.                                              | Plantilla persistente de evidencia en `reports/smoke/*.md`.                               | Artefacto smoke por commit/release.       |
 | Type & Lint Guardian          | `npm run lint`                                          | En cada PR y antes de merges; ejecutado también localmente.                             | Salida limpia sin errores ESLint usando `eslint.config.cjs`.                              | Logs de lint.                             |
 | Type & Lint Guardian          | `npm run typecheck`                                     | En PRs que toquen `src/js/**` y antes de releases.                                       | Sin errores de `tsc -p tsconfig.typecheck.json` sobre módulos/utilidades críticas.         | Logs de typecheck.                        |
 | Type & Lint Guardian          | `npm run format`                                        | En cada PR.                                                                             | Código formateado según `.prettierrc`.                                                    | Archivos modificados.                     |
+| Type & Lint Guardian          | `npm run guardrails:assets`                             | En PRs con cambios en `assets/images/**`, `data/product_data.json`, `templates/**`, `tools/**`. | Sin assets huérfanos nuevos respecto al baseline (`orphan-assets.allowlist.json`).        | `reports/orphan-assets/latest.json`.      |
 | Security / Supply Chain Agent | `npm audit --production`                                | Mensual o ante cambios de dependencias.                                                 | Sin vulnerabilidades altas/crit.; documentar hallazgos.                                   | Reporte de auditoría.                     |
 | Security / Supply Chain Agent | `pip-audit -r admin/product_manager/requirements.lock.txt` | Mensual o ante cambios en tooling Python admin.                                          | Sin vulnerabilidades altas/crit. en el lock Python de admin.                              | Reporte de auditoría Python.              |
 | Security / Supply Chain Agent | `npm run security:secret-scan`                          | En cada PR/push (`secret-scan.yml`) y antes de releases.                                | Sin hallazgos de credenciales de alta confianza en archivos versionados.                   | Logs de escaneo de secretos.              |
@@ -75,6 +77,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - [ ] `npm ci` es obligatorio en CI; queda prohibido `npm install` cuando exista `package-lock.json`.
 - **Compilación estricta**
   - [ ] `npm run build` finaliza sin warnings críticos ni errores y deja artefactos en `build/`. Atender cualquier fallo en scripts de `tools/` y revisar que el staging contenga todos los archivos esperados.
+  - [ ] `npm run guardrails:assets` debe terminar en verde para evitar introducir assets huérfanos nuevos.
 - **Tests obligatorios**
   - [ ] `npm ci && npm test` deben ejecutarse completos tras modificaciones; repetir suite si algún caso es flaky.
   - [ ] Prohibido introducir `test.skip`, `--forceExit`, `--passWithNoTests` o eliminar asserts sin reemplazo.
@@ -120,7 +123,9 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - `npm run typecheck`
   - `npm test`
   - `npm run build`
+  - `npm run guardrails:assets`
   - `npm run test:e2e`
+  - `npm run smoke:evidence`
 - Smoke manual guiado: `npm run smoke:manual`.
 - Auditoría de producción dependencias: `npm audit --omit=dev`.
 - Fallback cuando `node` no esté en `PATH`:
@@ -161,7 +166,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 - **`Continuous Integration` (`.github/workflows/ci.yml`)**
   - Trigger: push/PR a `main` (excluyendo `admin/**`).
   - Stack: Node.js 22.x.
-  - Tareas: `npm ci`, build, unit tests, estilo CSS, tests E2E (Playwright) y auditoría Lighthouse.
+  - Tareas: `npm ci`, build, guardrail de assets huérfanos, unit tests, estilo CSS, tests E2E (Playwright), evidencia smoke en artefacto y auditoría Lighthouse.
 - **`Admin Tools CI` (`.github/workflows/admin.yml`)**
   - Trigger: cambios en `admin/**`.
   - Stack: Python 3.12 (pytest).

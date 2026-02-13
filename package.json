@@ -22,8 +22,9 @@
     "images:rewrite": "node tools/rewrite-images.mjs",
     "lint:images": "node tools/lint-images.mjs",
     "guardrails": "node tools/guardrails/run.mjs",
+    "guardrails:assets": "node tools/guardrails/orphan-assets.js --report reports/orphan-assets/latest.json",
     "security:secret-scan": "node tools/guardrails/secret-scan.mjs",
-    "ci:guardrails": "npm run build && npm run lint:images && npm run guardrails",
+    "ci:guardrails": "npm run build && npm run lint:images && npm run guardrails && npm run guardrails:assets",
     "prune:backups": "node tools/prune-backups.js",
     "test": "node test/run-all.js && vitest run",
     "test:coverage": "npx c8 npm test",
@@ -31,6 +32,7 @@
     "test:cypress": "node scripts/run-cypress.mjs --spec cypress/e2e/nav_menu.cy.ts",
     "test:e2e": "playwright test --trace on",
     "smoke:manual": "node scripts/smoke-checklist.mjs",
+    "smoke:evidence": "node scripts/smoke-evidence.mjs",
     "lighthouse:audit": "node tools/lighthouse-audit.mjs",
     "snapshot": "node tools/snapshot-site.mjs --tag dev"
   },

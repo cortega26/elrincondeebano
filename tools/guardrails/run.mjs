@@ -11,6 +11,7 @@ const checks = [
   'sw-forbidden.mjs',
   'checkout-guard.mjs',
   'critical-css.mjs',
+  'orphan-assets.js',
 ];
 
 for (const check of checks) {
