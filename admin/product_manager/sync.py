@@ -125,6 +125,7 @@ class SyncEngine:
         self,
         *,
         api_base: str,
+        api_token: str = "",
         repository,
         service,
         queue_file: str,
@@ -141,6 +142,7 @@ class SyncEngine:
         self.queue_file = queue_file
         self.logger = logger or logging.getLogger(__name__)
         self.api_base = self._normalize_api_base(api_base)
+        self.api_token = self._normalize_api_token(api_token)
         self.enabled = enabled and bool(self.api_base)
         self.poll_interval = poll_interval
         self.pull_interval = pull_interval
@@ -166,6 +168,24 @@ class SyncEngine:
             self.logger.warning("Sync disabled: api_base must be http(s) with a host.")
             return ""
         return trimmed.rstrip("/")
+
+    @staticmethod
+    def _normalize_api_token(api_token: str) -> str:
+        """Normalize optional API bearer token."""
+        if not api_token:
+            return ""
+        return str(api_token).strip()
+
+    def _build_request_headers(
+        self, *, changeset_id: Optional[str] = None
+    ) -> Dict[str, str]:
+        """Build safe request headers for sync HTTP calls."""
+        headers: Dict[str, str] = {}
+        if self.api_token:
+            headers["Authorization"] = f"Bearer {self.api_token}"
+        if changeset_id:
+            headers["X-Correlation-Id"] = changeset_id
+        return headers
 
     def _load_queue(self) -> None:
         """Load queued sync entries from disk."""
@@ -357,7 +377,10 @@ class SyncEngine:
             url,
             data=payload,
             method="PATCH",
-            headers={"content-type": "application/json"},
+            headers={
+                "content-type": "application/json",
+                **self._build_request_headers(changeset_id=entry.changeset_id),
+            },
         )
         try:
             # url validated by _assert_http_url (http/https only).
@@ -377,7 +400,11 @@ class SyncEngine:
         url = self._assert_http_url(
             self._build_url(f"/api/products/changes?since_rev={since_rev}")
         )
-        req = request.Request(url, method="GET")
+        req = request.Request(
+            url,
+            method="GET",
+            headers=self._build_request_headers(changeset_id=f"pull-{int(time.time())}"),
+        )
         try:
             # url validated by _assert_http_url (http/https only).
             with request.urlopen(req, timeout=self.timeout) as resp:  # nosec B310

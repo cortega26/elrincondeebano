@@ -47,6 +47,21 @@ jobs:
         run: npm ci
       - name: Build static site
         run: npm run build
+      - name: Generate smoke evidence template (post-deploy checklist)
+        run: |
+          npm run smoke:evidence -- \
+            --output reports/smoke/deploy-${{ github.sha }}.md \
+            --status pending \
+            --base-url https://elrincondeebano.com \
+            --commit ${{ github.sha }} \
+            --run-id ${{ github.run_id }} \
+            --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+      - name: Upload smoke evidence artifact
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v4
+        with:
+          name: smoke-evidence-deploy
+          path: reports/smoke
+          if-no-files-found: error
       - name: Setup Pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
       - name: Upload artifact

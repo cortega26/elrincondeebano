@@ -3,6 +3,7 @@ import {
   __getMenuControllerSnapshot,
   __resetMenuControllerForTest,
 } from './menu-controller.mjs';
+import { log } from '../utils/logger.mts';
 
 let bootstrapInitialized = false;
 const loaderOverrides = new Map();
@@ -53,6 +54,7 @@ async function loadCollapse() {
   if (!collapseModulePromise) {
     collapseModulePromise = loadWithOverride(
       'collapse',
+      // @ts-ignore Bootstrap distributes runtime JS without module type declarations.
       () => import('bootstrap/js/dist/collapse')
     );
   }
@@ -64,6 +66,7 @@ async function loadOffcanvas() {
   if (!offcanvasModulePromise) {
     offcanvasModulePromise = loadWithOverride(
       'offcanvas',
+      // @ts-ignore Bootstrap distributes runtime JS without module type declarations.
       () => import('bootstrap/js/dist/offcanvas')
     );
   }
@@ -107,7 +110,7 @@ async function activateCollapse(toggle, event) {
     }
     instance.toggle(event);
   } catch (error) {
-    console.error('No se pudo inicializar el Collapse de Bootstrap', error);
+    log('error', 'bootstrap_collapse_init_failed', { error });
     fallbackToggleCollapse(toggle, target);
   }
 }

@@ -1,10 +1,12 @@
+import { log } from '../utils/logger.mts';
+
 export function createCartManager({
   createSafeElement,
   createCartThumbnail,
   toggleActionArea,
   showErrorMessage,
   getUpdateProductDisplay,
-} = {}) {
+} = /** @type {Record<string, any>} */ ({})) {
   let cart = [];
   const normalizeId = (value) => (value === null || value === undefined ? '' : String(value));
   const clampQuantity = (value) => {
@@ -58,7 +60,8 @@ export function createCartManager({
         cartCount.dataset.initialized = '1';
       }
       cartCount.textContent = String(totalItems);
-      cartCount.setAttribute('aria-label', `${totalItems} items in cart`);
+      const productLabel = totalItems === 1 ? 'producto' : 'productos';
+      cartCount.setAttribute('aria-label', `${totalItems} ${productLabel} en el carrito`);
     }
   };
 
@@ -111,7 +114,7 @@ export function createCartManager({
     try {
       globalThis.localStorage?.setItem('cart', JSON.stringify(cart));
     } catch (error) {
-      console.error('Error al guardar el carrito:', error);
+      log('error', 'cart_save_failed', { error });
       if (typeof showErrorMessage === 'function') {
         showErrorMessage('Error al guardar el carrito. Tus cambios podrían no persistir.');
       }
@@ -146,7 +149,7 @@ export function createCartManager({
 
         const itemElement = createSafeElement('div', {
           class: 'cart-item mb-3 d-flex align-items-start',
-          'aria-label': `Cart item: ${item.name}`,
+          'aria-label': `Producto en carrito: ${item.name}`,
         });
 
         const contentContainer = createSafeElement('div', {
@@ -265,26 +268,34 @@ export function createCartManager({
         creditOption.classList.remove('d-none');
       } else {
         creditOption.classList.add('d-none');
-        const creditInput = creditOption.querySelector('input');
+        const creditInput = /** @type {HTMLInputElement | null} */ (
+          creditOption.querySelector('input')
+        );
         if (creditInput) {
           creditInput.checked = false;
         }
       }
     }
 
-    const submitCartBtn = document.getElementById('submit-cart');
+    const submitCartBtn = /** @type {HTMLButtonElement | null} */ (
+      document.getElementById('submit-cart')
+    );
     if (submitCartBtn) {
       submitCartBtn.disabled = isEmpty;
       submitCartBtn.setAttribute('aria-disabled', isEmpty ? 'true' : 'false');
     }
 
-    const emptyCartBtn = document.getElementById('empty-cart');
+    const emptyCartBtn = /** @type {HTMLButtonElement | null} */ (
+      document.getElementById('empty-cart')
+    );
     if (emptyCartBtn) {
       emptyCartBtn.disabled = isEmpty;
       emptyCartBtn.setAttribute('aria-disabled', isEmpty ? 'true' : 'false');
     }
 
-    const paymentInputs = document.querySelectorAll('input[name="paymentMethod"]');
+    const paymentInputs = /** @type {NodeListOf<HTMLInputElement>} */ (
+      document.querySelectorAll('input[name="paymentMethod"]')
+    );
     if (paymentInputs.length) {
       paymentInputs.forEach((input) => {
         input.disabled = isEmpty;
@@ -342,12 +353,14 @@ export function createCartManager({
       } catch (error) {
         // Ignore analytics tracking failures.
       }
-      const quantityInput = document.querySelector(`[data-id="${productId}"].quantity-input`);
+      const quantityInput = /** @type {HTMLInputElement | null} */ (
+        document.querySelector(`[data-id="${productId}"].quantity-input`)
+      );
       if (quantityInput) {
-        quantityInput.value = Math.max(getCartItemQuantity(productId), 1);
+        quantityInput.value = String(Math.max(getCartItemQuantity(productId), 1));
       }
     } catch (error) {
-      console.error('Error al agregar al carrito:', error);
+      log('error', 'cart_add_failed', { error });
       if (typeof showErrorMessage === 'function') {
         showErrorMessage(
           'Error al agregar el artículo al carrito. Por favor, intenta nuevamente.'
@@ -378,7 +391,7 @@ export function createCartManager({
         toggleActionArea(btn, qc, false);
       }
     } catch (error) {
-      console.error('Error al eliminar del carrito:', error);
+      log('error', 'cart_remove_failed', { error });
       if (typeof showErrorMessage === 'function') {
         showErrorMessage(
           'Error al eliminar el artículo del carrito. Por favor, intenta nuevamente.'
@@ -424,15 +437,17 @@ export function createCartManager({
         renderCart();
         bumpCartTotal();
 
-        const quantityInput = document.querySelector(`[data-id="${productId}"].quantity-input`);
+        const quantityInput = /** @type {HTMLInputElement | null} */ (
+          document.querySelector(`[data-id="${productId}"].quantity-input`)
+        );
         if (quantityInput) {
-          quantityInput.value = newQuantity;
+          quantityInput.value = String(newQuantity);
           quantityInput.classList.add('quantity-changed');
           setTimeout(() => quantityInput.classList.remove('quantity-changed'), 300);
         }
       }
     } catch (error) {
-      console.error('Error al actualizar cantidad:', error);
+      log('error', 'cart_update_quantity_failed', { error });
       if (typeof showErrorMessage === 'function') {
         showErrorMessage('Error al actualizar la cantidad. Por favor, intenta nuevamente.');
       }
@@ -450,7 +465,7 @@ export function createCartManager({
         updater();
       }
     } catch (error) {
-      console.error('Error al vaciar el carrito:', error);
+      log('error', 'cart_empty_failed', { error });
       if (typeof showErrorMessage === 'function') {
         showErrorMessage('Error al vaciar el carrito. Por favor, inténtelo de nuevo.');
       }
@@ -462,8 +477,16 @@ export function createCartManager({
     const cartItems = document.getElementById('cart-items');
     if (cartItems) {
       cartItems.addEventListener('click', (e) => {
-        const target = e.target;
-        const btn = target.closest('button');
+        const target = /** @type {EventTarget & { closest?: (selector: string) => Element | null }} */ (
+          e.target
+        );
+        const hasClosest = !!target && typeof target.closest === 'function';
+        if (!hasClosest) return;
+        const elementTarget = /** @type {{ closest: (selector: string) => Element | null }} */ (
+          target
+        );
+        const btn = elementTarget.closest('button');
+        if (!target) return;
         if (!btn) return;
 
         const id = btn.getAttribute('data-id');

@@ -56,15 +56,21 @@ export function getMimeType(filePath) {
 }
 
 function sanitizePath(pathname) {
-  // Normalize and strip leading slashes to avoid absolute path resets on Windows
-  const normalized = path.normalize(pathname).replace(/^([/\\])+/, '');
-  return normalized;
+  const normalizedSeparators = String(pathname || '').replace(/\\/g, '/');
+  const parts = normalizedSeparators.split('/').filter(Boolean);
+  if (parts.includes('..')) {
+    return null;
+  }
+  // Normalize and strip leading slashes to avoid absolute path resets on Windows.
+  return path.normalize(normalizedSeparators).replace(/^([/\\])+/, '');
 }
 
 export function createStaticServer(root) {
   return http.createServer(async (req, res) => {
     try {
-      const url = new URL(req.url, `http://${req.headers.host}`);
+      const rawUrl = typeof req.url === 'string' ? req.url : '/';
+      const queryIndex = rawUrl.indexOf('?');
+      const rawPathname = queryIndex >= 0 ? rawUrl.slice(0, queryIndex) : rawUrl;
       // Allow only GET/HEAD
       if (req.method !== 'GET' && req.method !== 'HEAD') {
         res.statusCode = 405;
@@ -73,7 +79,7 @@ export function createStaticServer(root) {
         return;
       }
 
-      let pathname = decodeURIComponent(url.pathname);
+      let pathname = decodeURIComponent(rawPathname);
       if (pathname.endsWith('/')) {
         pathname = `${pathname}index.html`;
       }
@@ -83,6 +89,11 @@ export function createStaticServer(root) {
 
       // Sanitize to avoid absolute join behavior on Windows and path traversal
       const safeRel = sanitizePath(pathname);
+      if (!safeRel) {
+        res.statusCode = 403;
+        res.end('Forbidden');
+        return;
+      }
       const filePath = path.join(root, safeRel);
       if (!filePath.startsWith(root)) {
         res.statusCode = 403;
@@ -191,7 +202,16 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error('Fallo en la auditoría Lighthouse:', error);
-  process.exit(1);
-});
+function isDirectExecution() {
+  if (!process.argv[1]) {
+    return false;
+  }
+  return path.resolve(process.argv[1]) === __filename;
+}
+
+if (isDirectExecution()) {
+  main().catch((error) => {
+    console.error('Fallo en la auditoría Lighthouse:', error);
+    process.exit(1);
+  });
+}

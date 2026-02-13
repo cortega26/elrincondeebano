@@ -1,7 +1,7 @@
 const initFooter = () => {
   const yearSpan = document.getElementById('current-year');
   if (yearSpan) {
-    yearSpan.textContent = new Date().getFullYear();
+    yearSpan.textContent = String(new Date().getFullYear());
   }
 };
 
@@ -34,7 +34,7 @@ const applyCategoryFilter = (products, normalizeString) => {
   return { products: filtered, currentCategory, currentCategoryKey: normCurrent };
 };
 
-const registerCartIcon = (showOffcanvas) => {
+const registerCartIcon = (showOffcanvas, log) => {
   const cartIcon = document.getElementById('cart-icon');
   if (!cartIcon) return;
   cartIcon.addEventListener('click', (e) => {
@@ -42,7 +42,9 @@ const registerCartIcon = (showOffcanvas) => {
     try {
       showOffcanvas('#cartOffcanvas');
     } catch (error) {
-      console.error('Failed to open cart offcanvas:', error);
+      if (typeof log === 'function') {
+        log('error', 'cart_offcanvas_open_failed', { error });
+      }
     }
   });
 };
@@ -73,7 +75,7 @@ export function runAppBootstrap({
   fetchProducts,
   logPerformanceMetrics,
   showOffcanvas,
-} = {}) {
+} = /** @type {Record<string, any>} */ ({})) {
   initFooter();
   if (typeof initializeBootstrapUI === 'function') {
     initializeBootstrapUI();
@@ -116,7 +118,7 @@ export function runAppBootstrap({
   });
 
   if (typeof showOffcanvas === 'function') {
-    registerCartIcon(showOffcanvas);
+    registerCartIcon(showOffcanvas, log);
   }
 
   if (typeof cartManager?.updateCartIcon === 'function') {
@@ -184,7 +186,9 @@ export function runAppBootstrap({
           log('info', 'background_data_refresh_complete', { count: freshProducts.length });
         }
       } catch (err) {
-        console.warn('Background fetch failed (non-fatal):', err);
+        if (typeof log === 'function') {
+          log('warn', 'background_fetch_non_fatal_failure', { error: err });
+        }
       } finally {
         if (typeof logPerformanceMetrics === 'function') {
           logPerformanceMetrics();

@@ -41,6 +41,24 @@ html {
   outline: 2px solid #fff;
 }
 
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role='button']:focus-visible {
+  outline: 3px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.dropdown-item:focus-visible {
+  background-color: rgba(0, 91, 79, 0.12);
+}
+
+#cart-icon:focus-visible {
+  background-color: rgba(255, 255, 255, 0.18);
+}
+
 body {
   font-family:
     'Inter',

@@ -1,15 +1,17 @@
 {
   "name": "elrincondeebano",
   "version": "1.0.0",
-  "description": "",
+  "description": "Providing a bilingual-friendly grocery catalog that ships as a static site, pre-caches critical assets, and keeps operations reproducible through scripted builds.",
   "main": "service-worker.js",
   "directories": {
+    "doc": "docs",
     "test": "test"
   },
   "scripts": {
     "fonts": "node tools/fetch-fonts.mjs",
     "preflight": "node tools/preflight.js",
     "build": "npm run preflight && node tools/build.js && node tools/build-index.js && node tools/build-pages.js && node tools/build-components.js && node tools/copy-static.js && node tools/inject-structured-data.js && node tools/inject-resource-hints.js && node tools/generate-sitemap.js && node tools/verify-sw-assets.js",
+    "lint": "eslint .",
     "check:determinism": "node tools/check-determinism-paths.mjs",
     "check:css-order": "node scripts/check-css-order.mjs",
     "format": "prettier --write .",
@@ -20,13 +22,17 @@
     "images:rewrite": "node tools/rewrite-images.mjs",
     "lint:images": "node tools/lint-images.mjs",
     "guardrails": "node tools/guardrails/run.mjs",
-    "ci:guardrails": "npm run build && npm run lint:images && npm run guardrails",
+    "guardrails:assets": "node tools/guardrails/orphan-assets.js --report reports/orphan-assets/latest.json",
+    "security:secret-scan": "node tools/guardrails/secret-scan.mjs",
+    "ci:guardrails": "npm run build && npm run lint:images && npm run guardrails && npm run guardrails:assets",
     "prune:backups": "node tools/prune-backups.js",
     "test": "node test/run-all.js && vitest run",
     "test:coverage": "npx c8 npm test",
     "typecheck": "tsc -p tsconfig.typecheck.json",
-    "test:cypress": "cypress run --spec cypress/e2e/nav_menu.cy.ts",
+    "test:cypress": "node scripts/run-cypress.mjs --spec cypress/e2e/nav_menu.cy.ts",
     "test:e2e": "playwright test --trace on",
+    "smoke:manual": "node scripts/smoke-checklist.mjs",
+    "smoke:evidence": "node scripts/smoke-evidence.mjs",
     "lighthouse:audit": "node tools/lighthouse-audit.mjs",
     "snapshot": "node tools/snapshot-site.mjs --tag dev"
   },
@@ -35,6 +41,7 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.58.2",
     "@stryker-mutator/core": "^9.4.0",
     "@stryker-mutator/vitest-runner": "^9.5.1",
@@ -42,9 +49,11 @@
     "cypress": "^15.10.0",
     "esbuild": "^0.27.3",
     "eslint": "^10.0.0",
+    "globals": "^17.3.0",
     "jsdom": "^28.0.0",
-    "lighthouse": "13.0.2",
+    "lighthouse": "^13.0.3",
     "prettier": "^3.8.1",
+    "purgecss": "^8.0.0",
     "serve": "^14.2.5",
     "sharp": "^0.34.5",
     "typescript": "^5.9.3",
@@ -62,5 +71,13 @@
   "volta": {
     "node": "22.20.0",
     "npm": "10.9.3"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cortega26/elrincondeebano.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cortega26/elrincondeebano/issues"
+  },
+  "homepage": "https://github.com/cortega26/elrincondeebano#readme"
 }

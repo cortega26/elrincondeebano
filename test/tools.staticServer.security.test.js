@@ -26,7 +26,7 @@ const http = require('http');
   assert.match(okRes.headers['content-type'], /text\/html/);
 
   // 2) Path traversal should be blocked
-  const trav = await httpGet(`http://127.0.0.1:${port}/../package.json`);
+  const trav = await httpGet(`http://127.0.0.1:${port}/%2e%2e%2fpackage.json`);
   assert.strictEqual(trav.statusCode, 403);
 
   // 3) Method restriction

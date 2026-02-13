@@ -3,9 +3,10 @@
   "compilerOptions": {
     "allowJs": true,
     "checkJs": true,
+    "allowImportingTsExtensions": true,
     "noEmit": true,
     "types": [],
     "lib": ["ES2018", "DOM"]
   },
-  "include": ["src/js/utils/**/*.mjs", "src/js/modules/**/*.mjs"]
+  "include": ["src/js/utils/**/*.mjs", "src/js/modules/**/*.mjs", "src/js/**/*.d.ts"]
 }

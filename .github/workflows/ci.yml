@@ -51,6 +51,12 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Guard orphan assets
+        run: npm run guardrails:assets
+
+      - name: Run lint
+        run: npm run lint
+
       - name: Deterministic build check
         run: |
           rm -rf build-determinism-a build-determinism-b
@@ -94,6 +100,25 @@ jobs:
       - name: Run anti-flicker Playwright suite
         run: npm run test:e2e
 
+      - name: Generate smoke evidence template
+        if: always()
+        run: |
+          npm run smoke:evidence -- \
+            --output reports/smoke/ci-${{ github.sha }}.md \
+            --status pending \
+            --base-url https://elrincondeebano.com \
+            --commit ${{ github.sha }} \
+            --run-id ${{ github.run_id }} \
+            --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      - name: Upload smoke evidence artifact
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v4
+        with:
+          name: smoke-evidence
+          path: reports/smoke
+          if-no-files-found: error
+
       - name: Upload Playwright artifacts on failure
         if: failure()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v4
@@ -115,6 +140,14 @@ jobs:
         with:
           name: lighthouse-reports
           path: reports/lighthouse
+          if-no-files-found: ignore
+
+      - name: Upload orphan-assets report on failure
+        if: failure()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v4
+        with:
+          name: orphan-assets-report
+          path: reports/orphan-assets
           if-no-files-found: ignore
 
       - name: Write CI summary

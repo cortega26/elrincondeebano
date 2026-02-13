@@ -16,19 +16,6 @@
     }
   }
 
-  function enableDeferredStyles() {
-    try {
-      document
-        .querySelectorAll('link[rel="stylesheet"][media="print"][data-defer]')
-        .forEach((link) => {
-          link.media = 'all';
-          link.removeAttribute('data-defer');
-        });
-    } catch (e) {
-      console.warn('[csp] enableDeferredStyles error:', e);
-    }
-  }
-
   const cspNonce = generateNonce();
   try {
     window.__CSP_NONCE__ = cspNonce;
@@ -38,7 +25,7 @@
 
   const cspPolicy = `
         default-src 'self';
-        script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://static.cloudflareinsights.com 'unsafe-inline' 'nonce-${cspNonce}';
+        script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://static.cloudflareinsights.com 'nonce-${cspNonce}';
         style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com 'nonce-${cspNonce}';
         img-src 'self' data: https:;
         font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net;
@@ -57,9 +44,4 @@
   meta.content = cspPolicy;
   document.head.appendChild(meta);
 
-  try {
-    Promise.resolve().then(enableDeferredStyles);
-  } catch (error) {
-    enableDeferredStyles();
-  }
 })();
