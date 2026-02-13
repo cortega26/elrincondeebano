@@ -4,362 +4,362 @@
     "aguas": {
       "jpg": {
         "exists": true,
-        "file": "aguas.og_v1.jpg",
+        "file": "aguas.og_v3.jpg",
         "height": 1200,
-        "sha256": "196ea2eee7cbd3af284397646a234f7d05b8d308877dcd6b1c1c2aab1ab0b42f",
-        "size": 70911,
+        "sha256": "9bcddf39897ba60474529747a06d3274ab41239c5b611c42eb468e25bd76b43b",
+        "size": 72885,
         "width": 1200
       },
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "65b11e8e9215d91a5fc2935732f327c2d58e7cd7fca1ad52ecc66b532082c563",
-        "size": 1778,
+        "sha256": "8ee552ce4bd5c5cb271831b408827917ced49a5f5c778abf459871695116e9e0",
+        "size": 1910,
         "width": 1200
       }
     },
     "bebidas": {
       "jpg": {
         "exists": true,
-        "file": "bebidas.og_v1.jpg",
+        "file": "bebidas.og_v3.jpg",
         "height": 1200,
-        "sha256": "7e06d2cf6cf8fb7714ca75e59982edec584372eff36c0695c71cad68b1f2fba0",
-        "size": 65959,
+        "sha256": "0c6afc9e6c309403e171a42a7c640bdd7bba7546caef21c4c567fca9d7cec057",
+        "size": 71512,
         "width": 1200
       },
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "3cc5e075dcc62b33fadf450f9a0c9bb4aa8ae240a0d99581934580c376e16601",
-        "size": 1794,
+        "sha256": "20cd02b1305121e8b0162e99f4c4596908a77ea00c8fa1ba9d1eda8e21277eac",
+        "size": 1926,
         "width": 1200
       }
     },
     "carnesyembutidos": {
       "jpg": {
         "exists": true,
-        "file": "carnesyembutidos.og_v1.jpg",
+        "file": "carnesyembutidos.og_v3.jpg",
         "height": 1200,
-        "sha256": "dc086adf2f2f97145365c2974042ee11235a1942d380ec65fd7989bd0cf00bbb",
-        "size": 76388,
+        "sha256": "6c8911826d9007bbca01ba7f9fd9802d4bef047341b7b272c1e58c31d18e1f43",
+        "size": 76950,
         "width": 1200
       },
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "1882198538a3de4d13d05ae8494cec1c8fcae775645bd967f2cfd92445740049",
-        "size": 1781,
+        "sha256": "d92c430001892c5ec976726057cc3ce31df7084fba3fea71de9d9a15c555e3c7",
+        "size": 1965,
         "width": 1200
       }
     },
     "cervezas": {
       "jpg": {
         "exists": true,
-        "file": "cervezas.og_v1.jpg",
+        "file": "cervezas.og_v3.jpg",
         "height": 1200,
-        "sha256": "6c5cb725211b33f94e859615e514304bc9201e01cefece509b88578e8a9e73c9",
-        "size": 78231,
+        "sha256": "54ca45811581c737fe9826dd0bb241ee1d861b690712d774aa8d76a428fc323b",
+        "size": 79784,
         "width": 1200
       },
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "73f171f26ad8ab1b07ccb82dc285169bde0b8b41e6d76fb754bfd46365bdb2dd",
-        "size": 1930,
+        "sha256": "a2dec37e7a76b4376b40adae5cd98cc2d571c67297a442caa100cf90804bc7f6",
+        "size": 2062,
         "width": 1200
       }
     },
     "chocolates": {
       "jpg": {
         "exists": true,
-        "file": "chocolates.og_v1.jpg",
+        "file": "chocolates.og_v3.jpg",
         "height": 1200,
-        "sha256": "6ae33a1e616ab5d44aa2bea7990597e61dc52526a0e62568d3962c73fc2cdc76",
-        "size": 79253,
+        "sha256": "d00d69e8166575e39ca0f6d23cfe44247eac777f89765b8500e7077ea5bfbcb5",
+        "size": 66527,
         "width": 1200
       },
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "d74751a164e63c9fdd2771f9f0451098b6d8383b3ad4d84ed90db80c5d89a60a",
-        "size": 2037,
+        "sha256": "364a4f13c4ef78678565a8f738cf928d55d476695c95c137b164e038bbcf23d8",
+        "size": 2169,
         "width": 1200
       }
     },
     "comestibles": {
       "jpg": {
         "exists": true,
-        "file": "comestibles.og_v1.jpg",
+        "file": "comestibles.og_v3.jpg",
         "height": 1200,
-        "sha256": "f4f75c1f62122459c6e6f1e0fe5b8b2e04f3cec46b2fe8113ff5c4669b52adde",
-        "size": 62524,
+        "sha256": "0dd99975caa3965f888d19f9a43d74a0c7413543ab28e1c1cdd9c3e8fd443e58",
+        "size": 69794,
         "width": 1200
       },
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "aaf5011b30a6ecea1bf1b834b22fa1806c60cf4855ab4ba2caa420de65dc59df",
-        "size": 1810,
+        "sha256": "b88f8a92c30f4370b7cf2292ca57628bfcc76eb131c1f7825efcc337f9471510",
+        "size": 1942,
         "width": 1200
       }
     },
     "despensa": {
       "jpg": {
         "exists": true,
-        "file": "despensa.og_v1.jpg",
+        "file": "despensa.og_v3.jpg",
         "height": 1200,
-        "sha256": "2327b1aff9819bfae7c1371f3252376f6bd536e4c13e97721042def73afd83f6",
-        "size": 66926,
+        "sha256": "0ff089f954fe7eb07182fd68a23e5abce929bd81964afdd7a7b5454fb3e4b5b9",
+        "size": 67164,
         "width": 1200
       },
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "0afcff3b4b2b5555dbfd06698816e0986e9c3e69ac1dc7ee593a5c87cf75c577",
-        "size": 1849,
+        "sha256": "066725b700e31038a6b50878d3af36044594e5c33ac23fdf1a629c3e18cd4a67",
+        "size": 1981,
         "width": 1200
       }
     },
     "e": {
       "jpg": {
         "exists": true,
-        "file": "e.og_v1.jpg",
+        "file": "e.og_v3.jpg",
         "height": 1200,
-        "sha256": "1b2bb0bed559cc7fec2847761198de8895bd637679e5b6b95fbcc3dd8357c7bb",
-        "size": 69764,
+        "sha256": "67c75e8dca7b8bc24126569b1ed406e55b75fce1b209fec87d06b8a2e33a7ec4",
+        "size": 70064,
         "width": 1200
       },
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "0b906476d28f40cea1be6247717a32c717d14ab44b5d347149384b1a00d9b1b2",
-        "size": 1811,
+        "sha256": "e2fe68308db0f8e3ca3932ddab62ce4bd525f383b350571385b8d6ced931b03b",
+        "size": 1943,
         "width": 1200
       }
     },
     "energeticaseisotonicas": {
       "jpg": {
         "exists": true,
-        "file": "energeticaseisotonicas.og_v1.jpg",
+        "file": "energeticaseisotonicas.og_v3.jpg",
         "height": 1200,
-        "sha256": "64aa49aa877296b92ca568938872652d831c1ce4c9088a29704ad7e6a5da7114",
-        "size": 72166,
+        "sha256": "92470e3405f8c9d022f7298480837a35bda4d8e307fbdc4eac1741588347f105",
+        "size": 84442,
         "width": 1200
       },
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "784e1d012db6c7f4bb2f0d2006d0d41e0ec8ff37d2c6ae31c862287a9943f7fd",
-        "size": 1785,
+        "sha256": "90f0cf187a5860bff2d39cb52de802529bb15fc7153f3b4213c361ec65c2bd26",
+        "size": 1973,
         "width": 1200
       }
     },
     "espumantes": {
       "jpg": {
         "exists": true,
-        "file": "espumantes.og_v1.jpg",
+        "file": "espumantes.og_v3.jpg",
         "height": 1200,
-        "sha256": "55b3fa903dfa65953354196cddf13de92a14065f0bcf6706749f638f56a9078a",
-        "size": 69783,
+        "sha256": "505d7f69575e0ae323ff3338ff363c476bab6ae55f6c135d153032cb7d195c1e",
+        "size": 72872,
         "width": 1200
       },
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "b62b49d6822144da26ef5356a48015bf91fd9c316c573ed2a2faf1659de5b598",
-        "size": 1973,
+        "sha256": "ea42cee1843c34e420bde3bff47baa15c4e5c53f7cff791fc5e679e319710a58",
+        "size": 2105,
         "width": 1200
       }
     },
     "juegos": {
       "jpg": {
         "exists": true,
-        "file": "juegos.og_v1.jpg",
+        "file": "juegos.og_v3.jpg",
         "height": 1200,
-        "sha256": "f47bf1518f38bf7a6cf69337627637ff6bb0b3d09b1f31e6d1662d5ca533a0b8",
-        "size": 63587,
+        "sha256": "738b37bc7f7a3ce8aab0a9787749a4513f301bd5ef7d374fc2fee2a35880bc75",
+        "size": 67159,
         "width": 1200
       },
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "ff9be364a85bd26ab48c96f708f5c2a52de40de9ab9fdaf3f8f113a95f45bf77",
-        "size": 2080,
+        "sha256": "e539970ee496d5909e13f22e73898ca371380b726a65cf47dc8c4bc8f9edf2d7",
+        "size": 2212,
         "width": 1200
       }
     },
     "jugos": {
       "jpg": {
         "exists": true,
-        "file": "jugos.og_v1.jpg",
+        "file": "jugos.og_v3.jpg",
         "height": 1200,
-        "sha256": "f217a2bcad4709896b877ac003fbd5d27f78e3f5cb997bd4edadeb08370be8c2",
-        "size": 63977,
+        "sha256": "6738d8c92d4db14820ad170da74874a780c216228d09d346745cd691aa37c251",
+        "size": 73866,
         "width": 1200
       },
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "14afe6cef9c69c587156036734a5a5dcc2f9fcf571deff66f510e1f8e5fdaf41",
-        "size": 1790,
+        "sha256": "67f9505d53faf7ac5d531d078f2332ae627247e50d2f2907f3f599543ba468a1",
+        "size": 1922,
         "width": 1200
       }
     },
     "lacteos": {
       "jpg": {
         "exists": true,
-        "file": "lacteos.og_v1.jpg",
+        "file": "lacteos.og_v3.jpg",
         "height": 1200,
-        "sha256": "201e5b5e36afd4398f9b25148cab4cd9ceccc0258d3ca831053161d540c2029f",
-        "size": 57499,
+        "sha256": "557e0175f7d47bd7b9b8fb1ea6cdb06e07f3ac9b37af6c5d64ac87f22c2f1741",
+        "size": 62559,
         "width": 1200
       },
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "3c6b5311da4fe4fc9f8f8f06d0bfc4253342adb43b2524632c86e47edbd198d0",
-        "size": 1859,
+        "sha256": "2699c3f92307acf0643c964e9bd1a396b5235a29d9a198c203ad87cdb18ab831",
+        "size": 1991,
         "width": 1200
       }
     },
     "limpiezayaseo": {
       "jpg": {
         "exists": true,
-        "file": "limpiezayaseo.og_v1.jpg",
+        "file": "limpiezayaseo.og_v3.jpg",
         "height": 1200,
-        "sha256": "ecdafc14e8a14afdfef3f4d08748b925371df29ebc1fa3a348e60b39bbc82c03",
-        "size": 64923,
+        "sha256": "26e883d24b05187922f7a796be9bacf920a2da8ee017680d8f81f3fe18e65e15",
+        "size": 76497,
         "width": 1200
       },
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "d20f822ec84fd2297b589a91c8ca7b289420dc473a0cfc7f6279c55d51eab5c0",
-        "size": 1931,
+        "sha256": "08952a386c9724c416d94a3737198a418f2419c58297cf7bdd471a36b89394d8",
+        "size": 2073,
         "width": 1200
       }
     },
     "llaveros": {
       "jpg": {
         "exists": true,
-        "file": "llaveros.og_v1.jpg",
+        "file": "llaveros.og_v3.jpg",
         "height": 1200,
-        "sha256": "590b93353186a9f232c315f88ebc9f5362f200ab3ff13088f44fc8d13ecd74e0",
-        "size": 64870,
+        "sha256": "3732190a465ef955c2502324ba56d2f698ea1db1164ebe7081d56440bec242e3",
+        "size": 70694,
         "width": 1200
       },
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "0768fbc76c869ab8eeb00c6cc488e4ae37b3e7cca2e5e25b0748137d62d92953",
-        "size": 1854,
+        "sha256": "4fba0dfea1b03689d3b5ff027bb3e270ec25d6a600d6b0645059dbcf6c5e54bf",
+        "size": 1986,
         "width": 1200
       }
     },
     "mascotas": {
       "jpg": {
         "exists": true,
-        "file": "mascotas.og_v1.jpg",
+        "file": "mascotas.og_v3.jpg",
         "height": 1200,
-        "sha256": "3098de5d981d6b2d4ab59ed2d1244e119935868fd22541862a2c9e4aa3329954",
-        "size": 73086,
+        "sha256": "c6f86c6d4f0e47928fc46ca40b02a326d28d3fbb282d01a8f83a4f4a754d59f3",
+        "size": 77249,
         "width": 1200
       },
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "3d1f7e3fab542c980cc8669a14767ab2cfe0c84a9e0bd6fb681aa4839c329222",
-        "size": 1822,
+        "sha256": "8c39784a0adc083be2815573786bfbc2e1d3c92cc5eb7a21702dbc2b85ab1573",
+        "size": 1954,
         "width": 1200
       }
     },
     "piscos": {
       "jpg": {
         "exists": true,
-        "file": "piscos.og_v1.jpg",
+        "file": "piscos.og_v3.jpg",
         "height": 1200,
-        "sha256": "1a403c06128968abecffc431257eab575e538e58e12a1daca7ab38bf28507d60",
-        "size": 69430,
+        "sha256": "ea9119578bd8c5e79e5467372350494c24996cfe85bb8013924c254d0c0b1ee8",
+        "size": 69187,
         "width": 1200
       },
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "72f59b46b7374cc50dd1f165b31e2d729d6973e484fd6b70158a6935a3135125",
-        "size": 1754,
+        "sha256": "7f695aa1df74582bbc1a3c80338cc63e0de7b61d04a70bb81a44542fd5a4fd1c",
+        "size": 1886,
         "width": 1200
       }
     },
     "snacksdulces": {
       "jpg": {
         "exists": true,
-        "file": "snacksdulces.og_v1.jpg",
+        "file": "snacksdulces.og_v3.jpg",
         "height": 1200,
-        "sha256": "52b82b55d356a250e455f71c87dc1bded68b7b94a7266102a286cacaf339ed19",
-        "size": 69775,
+        "sha256": "7ccb91acf3e41302627bb81f7cd739a187889c164aadf2923e127fad65bc8a65",
+        "size": 73945,
         "width": 1200
       },
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "869cf93f9271376e1f25c26a4f0cfdb5b65c1aacfdcdc3bfd170288b8fde7c3f",
-        "size": 2043,
+        "sha256": "b21df65e1e3aa03dbbc6c96b2b0a825948a559618e10dcd354b553321fbe47b4",
+        "size": 2175,
         "width": 1200
       }
     },
     "snackssalados": {
       "jpg": {
         "exists": true,
-        "file": "snackssalados.og_v1.jpg",
+        "file": "snackssalados.og_v3.jpg",
         "height": 1200,
-        "sha256": "5eab7f6362c2c1660e4d75378cc625a4954216932206d61a87d4b78279b5fcf1",
-        "size": 78714,
+        "sha256": "084e4a92afa342975d8c81daae3dd0e815a7bbcc050564a6712705672df2ec4f",
+        "size": 82957,
         "width": 1200
       },
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "b520d5c7023c68ed098d32fc6d5634d245836c5f81d1c1e315be431638daf25c",
-        "size": 1869,
+        "sha256": "bb4971c7f90d52f90a0a9fe3dd5503b00abfc22c988653813326def410eeb1ed",
+        "size": 2001,
         "width": 1200
       }
     },
     "software": {
       "jpg": {
         "exists": true,
-        "file": "software.og_v1.jpg",
+        "file": "software.og_v3.jpg",
         "height": 1200,
-        "sha256": "a07b0b24c4339e852e23009629e37487c51d74105d137de6e105dc301421c663",
-        "size": 65441,
+        "sha256": "62772053fe8e1002dd5005d7edcedfd529f8b454f7ed0166727ce55e856351aa",
+        "size": 75527,
         "width": 1200
       },
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "c7fe41df89bd09b08e329a299cd570bb4cc61847beca05f9a502c541dd1d58a2",
-        "size": 1804,
+        "sha256": "51351405dfd35c1b13556d50cdb655d02e37248180d96ba4853397b99e16610f",
+        "size": 1936,
         "width": 1200
       }
     },
     "vinos": {
       "jpg": {
         "exists": true,
-        "file": "vinos.og_v1.jpg",
+        "file": "vinos.og_v3.jpg",
         "height": 1200,
-        "sha256": "c577324e47e7d2d114c756b96b58565232a848125d058934136ce3d2eee65e59",
-        "size": 56975,
+        "sha256": "b95556fe760a66410d3dec477ba13cc0646658392f5f4fbb1f4ba2efba03b59f",
+        "size": 58057,
         "width": 1200
       },
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "a5a7d7746f05dff85ec010c3eea3aed0ac104eb1d4f751e0fec29e9a0ff248e0",
-        "size": 1752,
+        "sha256": "59dae373457475908a1acfbfcaf2b6924aa4618d756881994b2b185c87a570c3",
+        "size": 1884,
         "width": 1200
       }
     }
   },
-  "jpg_version_token": "og_v1",
+  "jpg_version_token": "og_v3",
   "managed_slug_pattern": "[a-z0-9_]+",
   "slugs": [
     "aguas",
@@ -384,5 +384,5 @@
     "software",
     "vinos"
   ],
-  "template_version": "v1"
+  "template_version": "v3"
 }
