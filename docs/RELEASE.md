@@ -13,6 +13,7 @@
   - `/index.html` loads, no console errors.
   - One category page (e.g., `/pages/bebidas.html`) loads.
   - Add to cart works, cart opens.
+  - Smoke evidence artifact generated (`reports/smoke/*.md`) and attached to release context.
 - Stop-the-line criteria:
   - Stale pricing/availability on reload.
   - Checkout blocked with no fallback.
@@ -22,6 +23,7 @@
 1. Ensure main is green (tests/build).
 2. Merge PR and trigger deploy.
 3. Confirm deploy completed successfully.
+4. Complete smoke evidence checklist file (from artifact/template) and record sign-off.
 
 ## Immediate Post-Deploy Validation (30-60 min)
 Pages to test: `/index.html`, `/pages/bebidas.html`

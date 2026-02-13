@@ -52,6 +52,8 @@ const tests = [
   'copyStatic.adminPanel.test.js',
   'intersectionObserver.fallback.test.js',
   'swCachePolicy.test.js',
+  'orphan-assets.guardrail.test.js',
+  'smoke-evidence.script.test.js',
   'tools.staticServer.security.test.js',
   'product-sync.server.test.js',
   'httpServer.securityHeaders.test.js',

@@ -29,6 +29,10 @@
 - `docs/audit/prompt-14-eslint10-migration-20260213.md`: ESLint 10 migration and compatibility fixes.
 - `docs/audit/prompt-15-purgecss8-migration-20260213.md`: PurgeCSS 8 migration and CSS build compatibility.
 - `docs/audit/prompt-16-python-locking-20260213.md`: Python admin dependency locking and CI reproducibility.
+- `docs/audit/prompt-17-orphan-assets-guardrail-20260213.md`: orphan assets guardrail and CI reporting baseline.
+- `docs/audit/prompt-18-smoke-evidence-persistence-20260213.md`: persistent smoke evidence template/artifact in CI and release flow.
+- `docs/audit/prompt-19-orphan-assets-pruning-20260213.md`: first orphan-assets pruning batch (`software/`) and baseline reduction.
+- `docs/audit/prompt-20-orphan-assets-pruning-batch2-20260213.md`: second orphan-assets pruning batch (`snacks_salados`) and baseline reduction.
 - `docs/audit/executive-summary-20260213.md`: executive summary and prioritized post-audit backlog.
 
 ## Release and Incidents

@@ -54,6 +54,23 @@ npm run smoke:manual
 - Confirm URL/protocol is valid (`https://`) and payload is well formed.
 - Confirm failure fallback does not break UI if popup is blocked.
 
+## Persistent Evidence (PR-F)
+
+Generate a smoke evidence template file:
+
+```bash
+npm run smoke:evidence
+```
+
+Or with explicit metadata:
+
+```bash
+npm run smoke:evidence -- --output reports/smoke/manual-<commit>.md --status pending --base-url http://127.0.0.1:4173 --commit <sha>
+```
+
+Then complete checklist boxes (`[x]`) and notes in the generated file and attach it to the PR or release evidence.
+CI also generates and uploads `reports/smoke/*.md` artifacts for traceability.
+
 ## Evidence Template (paste in PR)
 
 ```text
@@ -70,4 +87,3 @@ Commit:
 
 Notes:
 ```
-

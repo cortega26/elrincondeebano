@@ -11,9 +11,11 @@ Semáforo general:
    - Contratos de categorías y productos validados.
    - Seguridad de dependencias productivas sin vulnerabilidades abiertas (`npm audit --omit=dev`).
    - Tooling admin Python con lock reproducible (`requirements.lock.txt`) y `pip-audit` en verde.
+   - Guardrail automático de assets huérfanos en CI (`guardrails:assets`) con baseline controlado.
+   - Evidencia de smoke persistente por release/CI (`reports/smoke/*.md` como artefacto).
    - Runbooks de debugging, triage y rollback documentados.
 2. **Amarillo**
-   - Oportunidades de automatización operativa no críticas (assets huérfanos y evidencia smoke persistente).
+   - Reducción progresiva del baseline de assets huérfanos para limpiar allowlist (avance: `120 -> 96`).
 
 ## Entregables clave por bloque
 
@@ -35,13 +37,13 @@ Semáforo general:
 
 ### P2
 
-1. Detección automática de assets huérfanos en guardrails.
-2. Mejora de cobertura de smoke manual con evidencia persistente por release.
+1. Reducción progresiva de assets huérfanos históricos (pendientes: `96` entradas en allowlist).
 
 ## Plan recomendado de ejecución (PRs pequeños)
 
-1. **PR-E (P2):** guardrail de assets huérfanos + reporte automatizado.
-2. **PR-F (P2):** evidencia de smoke persistente por release (plantilla/artefacto en CI o checklist firmado).
+1. **PR-G (P2, completado):** primera poda incremental de assets huérfanos.
+2. **PR-H (P2, completado):** segundo lote de poda (snacks salados legacy) con verificación completa.
+3. **PR-I (P2):** tercer lote de poda (duplicados restantes en bebidas/cervezas/chocolates) + verificación por categoría.
 
 ## Criterio de éxito post-auditoría
 
