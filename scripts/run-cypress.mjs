@@ -70,18 +70,19 @@ async function main() {
     });
   }
 
-  let exitCode = 1;
-  try {
-    if (!serverAlreadyRunning) {
-      await waitForServer(baseUrl);
+  const exitCode = await (async () => {
+    try {
+      if (!serverAlreadyRunning) {
+        await waitForServer(baseUrl);
+      }
+      const extraArgs = process.argv.slice(2);
+      return await runCypress(env, extraArgs);
+    } finally {
+      if (server && !server.killed) {
+        server.kill('SIGTERM');
+      }
     }
-    const extraArgs = process.argv.slice(2);
-    exitCode = await runCypress(env, extraArgs);
-  } finally {
-    if (server && !server.killed) {
-      server.kill('SIGTERM');
-    }
-  }
+  })();
 
   process.exit(exitCode);
 }

@@ -35,9 +35,8 @@ Semáforo general:
 
 ### P1
 
-1. Migración controlada a `eslint@10`.
-2. Migración controlada a `purgecss@8` con validación visual.
-3. Pinning reproducible de dependencias Python admin.
+1. Migración controlada a `purgecss@8` con validación visual.
+2. Pinning reproducible de dependencias Python admin.
 
 ### P2
 
@@ -46,10 +45,9 @@ Semáforo general:
 
 ## Plan recomendado de ejecución (PRs pequeños)
 
-1. **PR-B (P1):** `eslint@10` + ajuste de config/reglas + baseline verde.
-2. **PR-C (P1):** `purgecss@8` + comparación antes/después de CSS generado.
-3. **PR-D (P1):** pinning Python (`requirements` con constraints/lock) + `pip-audit`.
-4. **PR-E (P2):** guardrail de assets huérfanos + reporte automatizado.
+1. **PR-C (P1):** `purgecss@8` + comparación antes/después de CSS generado.
+2. **PR-D (P1):** pinning Python (`requirements` con constraints/lock) + `pip-audit`.
+3. **PR-E (P2):** guardrail de assets huérfanos + reporte automatizado.
 
 ## Criterio de éxito post-auditoría
 

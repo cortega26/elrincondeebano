@@ -253,17 +253,17 @@ export async function runUpdateCheckForTest() {
             return { updated, currentVersion: overrideVersion, storedVersion };
         }
     }
-    let registration = null;
+    let registration;
     try {
         registration = await navigator.serviceWorker.ready;
     } catch {
-        registration = null;
+        // Ignore and fallback to getRegistration().
     }
     if (!registration) {
         try {
             registration = await navigator.serviceWorker.getRegistration();
         } catch {
-            registration = null;
+            // Ignore and return null below.
         }
     }
     if (!registration) {

@@ -451,8 +451,8 @@ class ProductStore {
           continue;
         }
 
-        let accept = false;
-        let resolutionReason = 'client_base_rev_higher';
+        let accept;
+        let resolutionReason;
 
         if (baseRev > meta.rev) {
           accept = true;
