@@ -7,6 +7,7 @@
 - `docs/operations/QUALITY_GUARDRAILS.md`: non-regression checklist and release gates.
 - `docs/operations/OBSERVABILITY.md`: telemetry and monitoring baseline.
 - `docs/operations/SMOKE_TEST.md`: manual smoke checklist.
+- `docs/operations/DEPENDENCY_POLICY.md`: upgrade cadence, risk tiers, and rollback rules.
 
 ## Architecture
 
@@ -18,6 +19,7 @@
 
 - `docs/audit/`: phased audit notes and prompt checkpoints.
 - `docs/audit/prompt-9-organization-20260213.md`: repo organization findings and actions.
+- `docs/audit/prompt-11-dependencies-20260213.md`: dependency inventory, upgrade policy, and risk triage.
 
 ## Release and Incidents
 

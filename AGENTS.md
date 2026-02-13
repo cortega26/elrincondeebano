@@ -106,6 +106,31 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 - Actualizar documentación relacionada (`README.md`, `docs/operations/RUNBOOK.md`, `docs/operations/BACKUP.md`, `docs/`) en el mismo PR cuando cambian comportamientos.
 - Adjuntar resultados de `npm audit --production` cuando se toquen dependencias.
 
+## Comandos canónicos (Prompt 12)
+
+- Runtime objetivo local/CI: Node 22.x.
+- Instalación determinista: `npm ci`.
+- Validación base:
+  - `npm run lint`
+  - `npm test`
+  - `npm run build`
+  - `npm run test:e2e`
+- Smoke manual guiado: `npm run smoke:manual`.
+- Auditoría de producción dependencias: `npm audit --omit=dev`.
+- Fallback cuando `node` no esté en `PATH`:
+  - `npx -y node@22 "C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js" run <script>`
+
+## Checklist PR mínimo
+
+- [ ] Alcance acotado y sin cambios públicos breaking no planificados.
+- [ ] `npm run lint` en verde.
+- [ ] `npm test` en verde.
+- [ ] `npm run build` en verde.
+- [ ] `npm run test:e2e` en verde o justificado si no aplica.
+- [ ] `npm audit --omit=dev` sin vulnerabilidades altas/críticas.
+- [ ] Rollback documentado (`git revert <sha>` + pasos de verificación).
+- [ ] Documentación operativa actualizada si cambió comportamiento.
+
 ## Flujos de trabajo (CI)
 
 - **`Deploy static content to Pages` (`.github/workflows/static.yml`)**
@@ -168,6 +193,23 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 4. Completar validación manual usando `docs/operations/SMOKE_TEST.md`.
 5. Adjuntar evidencia en el PR.
 
+## How to audit again (mini guía)
+
+1. Crear rama de auditoría: `audit/mega-YYYYMMDD`.
+2. Levantar baseline:
+  - `npm run lint`
+  - `npm test`
+  - `npm run build`
+  - `npm run test:e2e`
+3. Si hay rojo, priorizar volver a verde antes de mejoras incrementales.
+4. Ejecutar auditoría por etapas con checkpoints y evidencia por etapa en `docs/audit/`.
+5. Mantener PRs pequeños (objetivo <=400 líneas netas sin lockfile), con rollback explícito.
+6. Cerrar cada etapa con:
+  - cambios aplicados
+  - comandos ejecutados y resultado
+  - riesgos restantes
+  - siguiente paso propuesto
+
 ## Anexos
 
 - `package.json` (scripts y dependencias). [`package.json`](package.json)
@@ -176,4 +218,4 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 - Workflows de GitHub Actions. [`static.yml`](.github/workflows/static.yml), [`images.yml`](.github/workflows/images.yml), [`codacy.yml`](.github/workflows/codacy.yml), [`secret-scan.yml`](.github/workflows/secret-scan.yml)
 - Scripts de build y utilidades. [`tools/`](tools/)
 - Suite de pruebas Node. [`test/`](test/)
-- Documentación operativa existente. [`README.md`](README.md), [`RUNBOOK`](docs/operations/RUNBOOK.md), [`BACKUP`](docs/operations/BACKUP.md), [`QUALITY_GUARDRAILS`](docs/operations/QUALITY_GUARDRAILS.md), [`SMOKE_TEST`](docs/operations/SMOKE_TEST.md), [`OBSERVABILITY`](docs/operations/OBSERVABILITY.md)
+- Documentación operativa existente. [`README.md`](README.md), [`RUNBOOK`](docs/operations/RUNBOOK.md), [`BACKUP`](docs/operations/BACKUP.md), [`QUALITY_GUARDRAILS`](docs/operations/QUALITY_GUARDRAILS.md), [`SMOKE_TEST`](docs/operations/SMOKE_TEST.md), [`OBSERVABILITY`](docs/operations/OBSERVABILITY.md), [`DEPENDENCY_POLICY`](docs/operations/DEPENDENCY_POLICY.md), [`DEBUGGING`](docs/operations/DEBUGGING.md), [`INCIDENT_TRIAGE`](docs/operations/INCIDENT_TRIAGE.md), [`ROLLBACK`](docs/operations/ROLLBACK.md)
