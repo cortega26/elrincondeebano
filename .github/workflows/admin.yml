@@ -4,9 +4,17 @@ on:
   push:
     paths:
       - 'admin/**'
+      - 'tools/category_og/**'
+      - 'config/category_og_icon_map.json'
+      - 'assets/images/og/icons/**'
+      - 'assets/images/og/categories/**'
   pull_request:
     paths:
       - 'admin/**'
+      - 'tools/category_og/**'
+      - 'config/category_og_icon_map.json'
+      - 'assets/images/og/icons/**'
+      - 'assets/images/og/categories/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

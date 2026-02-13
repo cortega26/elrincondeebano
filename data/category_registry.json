@@ -1,15 +1,13 @@
 {
   "schema_version": "1.0",
   "source": "categories.json",
-  "version": "20260126-220947",
-  "last_updated": "2026-01-26T22:09:47.878276Z",
+  "version": "20260213-145517",
+  "last_updated": "2026-02-13T14:55:17.989112Z",
   "nav_groups": [
     {
       "id": "alimentos",
       "display_name": {
-        "default": "Alimentos",
-        "cl": "Alimentos",
-        "ve": "Alimentos"
+        "default": "Alimentos"
       },
       "active": true,
       "sort_order": 10,
@@ -18,9 +16,7 @@
     {
       "id": "bebidas",
       "display_name": {
-        "default": "Bebidas",
-        "cl": "Bebestibles",
-        "ve": "Bebidas"
+        "default": "Bebidas"
       },
       "active": true,
       "sort_order": 20,
@@ -29,9 +25,7 @@
     {
       "id": "alcohol",
       "display_name": {
-        "default": "Alcohol",
-        "cl": "Alcohol",
-        "ve": "Licores"
+        "default": "Alcohol"
       },
       "active": true,
       "sort_order": 30,
@@ -40,9 +34,7 @@
     {
       "id": "snacks",
       "display_name": {
-        "default": "Snacks y Confites",
-        "cl": "Snacks y Confites",
-        "ve": "Snacks y Dulces"
+        "default": "Snacks y Confites"
       },
       "active": true,
       "sort_order": 40,
@@ -51,9 +43,7 @@
     {
       "id": "hogar_mascotas",
       "display_name": {
-        "default": "Hogar y Mascotas",
-        "cl": "Hogar y Mascotas",
-        "ve": "Hogar y Mascotas"
+        "default": "Hogar y Mascotas"
       },
       "active": true,
       "sort_order": 50,
@@ -62,9 +52,7 @@
     {
       "id": "varios",
       "display_name": {
-        "default": "Varios",
-        "cl": "Varios",
-        "ve": "Varios"
+        "default": "Varios"
       },
       "active": true,
       "sort_order": 60,
@@ -73,9 +61,7 @@
     {
       "id": "test",
       "display_name": {
-        "default": "Al Mayor",
-        "cl": "Al Mayor",
-        "ve": "Al Mayor"
+        "default": "Al Mayor"
       },
       "active": false,
       "sort_order": 90,
@@ -83,6 +69,19 @@
     }
   ],
   "categories": [
+    {
+      "id": "e",
+      "key": "E",
+      "slug": "e",
+      "display_name": {
+        "default": "Electrónicos"
+      },
+      "nav_group": "varios",
+      "active": true,
+      "sort_order": 10,
+      "description": "",
+      "subcategories": []
+    },
     {
       "id": "carnesyembutidos",
       "key": "Carnesyembutidos",
@@ -130,7 +129,7 @@
         "default": "Juegos"
       },
       "nav_group": "varios",
-      "active": true,
+      "active": false,
       "sort_order": 10,
       "description": "Explora nuestra selección de juegos de mesa en El Rincón de Ébano.",
       "subcategories": []

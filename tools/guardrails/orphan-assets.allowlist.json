@@ -1,7 +1,8 @@
 {
   "ignoredDirectories": [
     "originals",
-    "variants"
+    "variants",
+    "og/icons"
   ],
   "allowedOrphans": [
     "assets/images/bebidas/Agua 1,6L con gas Cachantun.webp",
@@ -60,25 +61,6 @@
     "assets/images/mascotas/Easy-Clean-4Kg.webp",
     "assets/images/mascotas/Master Cat carne 85g.webp",
     "assets/images/mascotas/Purina Felix 85g.webp",
-    "assets/images/og/categories/aguas.jpg",
-    "assets/images/og/categories/bebidas.jpg",
-    "assets/images/og/categories/carnesyembutidos.jpg",
-    "assets/images/og/categories/cervezas.jpg",
-    "assets/images/og/categories/chocolates.jpg",
-    "assets/images/og/categories/despensa.jpg",
-    "assets/images/og/categories/energeticaseisotonicas.jpg",
-    "assets/images/og/categories/espumantes.jpg",
-    "assets/images/og/categories/juegos.jpg",
-    "assets/images/og/categories/jugos.jpg",
-    "assets/images/og/categories/lacteos.jpg",
-    "assets/images/og/categories/limpiezayaseo.jpg",
-    "assets/images/og/categories/llaveros.jpg",
-    "assets/images/og/categories/mascotas.jpg",
-    "assets/images/og/categories/mayoraseolimpieza.jpg",
-    "assets/images/og/categories/piscos.jpg",
-    "assets/images/og/categories/snacksdulces.jpg",
-    "assets/images/og/categories/snackssalados.jpg",
-    "assets/images/og/categories/vinos.jpg",
     "assets/images/piscos/Pisco Sour Limón Campanario 1L.webp",
     "assets/images/snacks_dulces/Galletas Broniw Chips  Costa 120g.webp",
     "assets/images/snacks_dulces/Galletas Gretel Chocolate 85g Costa.webp",

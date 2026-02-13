@@ -19,6 +19,7 @@
     "validate:categories": "node tools/validate-category-registry.js",
     "images:variants": "node tools/generate-image-variants.js",
     "images:generate": "node tools/generate-images.mjs",
+    "images:og:categories": "node tools/generate-category-og.mjs",
     "images:rewrite": "node tools/rewrite-images.mjs",
     "lint:images": "node tools/lint-images.mjs",
     "guardrails": "node tools/guardrails/run.mjs",

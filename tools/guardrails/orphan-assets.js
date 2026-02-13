@@ -169,6 +169,11 @@ function collectCandidateAssets(repoRoot, ignoredDirectories) {
     .map((filePath) => normalizePath(path.relative(repoRoot, filePath)))
     .filter(Boolean)
     .filter((relativePath) => {
+      // Category OG assets are managed by the OG pipeline and consumed dynamically via manifest.
+      // They are intentionally excluded from static orphan scanning.
+      return !relativePath.startsWith('assets/images/og/categories/');
+    })
+    .filter((relativePath) => {
       const fromImagesRoot = relativePath.replace(/^assets\/images\//, '');
       return !ignoredDirectories.some((dir) => {
         const prefix = normalizePath(dir);

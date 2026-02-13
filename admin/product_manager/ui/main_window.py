@@ -1142,6 +1142,7 @@ class MainWindow(DragDropMixin):
             self.master,
             self.category_service,
             on_catalog_updated=self._on_categories_updated,
+            project_root=self.project_root,
         )
         self.master.wait_window(dialog)
 

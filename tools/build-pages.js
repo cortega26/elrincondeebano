@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const ejs = require('ejs');
 
 const { resolveFromOutput, ensureDir, rootDir } = require('./utils/output-dir');
@@ -33,13 +34,52 @@ const preloadFonts = readManifestFonts(manifestPath, 'build-pages');
 
 const outputDir = resolveFromOutput('pages');
 ensureDir(outputDir);
+const ogVersionCache = new Map();
+const ogManifestPath = path.join(rootDir, 'assets', 'images', 'og', 'categories', '.og_manifest.json');
+let ogManifest = null;
+
+if (fs.existsSync(ogManifestPath)) {
+  try {
+    ogManifest = JSON.parse(fs.readFileSync(ogManifestPath, 'utf8'));
+  } catch (error) {
+    console.warn(`OG manifest parse failed (${ogManifestPath}): ${error.message}`);
+  }
+}
+
+function getOgImageFileName(slug) {
+  const candidate = ogManifest?.items?.[slug]?.jpg?.file;
+  if (typeof candidate === 'string' && /^[a-z0-9_]+\.[a-z0-9_-]+\.jpg$/i.test(candidate)) {
+    return candidate;
+  }
+  return `${slug}.jpg`;
+}
+
+function getOgImageVersion(ogImageFile, fallbackVersion) {
+  if (!fs.existsSync(ogImageFile)) {
+    return fallbackVersion;
+  }
+  if (ogVersionCache.has(ogImageFile)) {
+    return ogVersionCache.get(ogImageFile);
+  }
+  const digest = crypto
+    .createHash('sha1')
+    .update(fs.readFileSync(ogImageFile))
+    .digest('hex')
+    .slice(0, 12);
+  const version = fallbackVersion ? `${fallbackVersion}-${digest}` : digest;
+  ogVersionCache.set(ogImageFile, version);
+  return version;
+}
 
 pages.forEach((page) => {
   const productKey = (page.productKey || page.slug || page.name || '').toLowerCase();
-  const ogImagePath = `/assets/images/og/categories/${page.slug}.jpg`;
-  const ogImageFile = path.join(rootDir, 'assets', 'images', 'og', 'categories', `${page.slug}.jpg`);
+  const ogImageFileName = getOgImageFileName(page.slug);
+  const ogImagePath = `/assets/images/og/categories/${ogImageFileName}`;
+  const fallbackOgVersion = String(catalog.version || productData.version || '').trim();
+  const ogImageFile = path.join(rootDir, 'assets', 'images', 'og', 'categories', ogImageFileName);
+  const ogImageVersion = encodeURIComponent(getOgImageVersion(ogImageFile, fallbackOgVersion));
   const ogImage = fs.existsSync(ogImageFile)
-    ? `https://elrincondeebano.com${ogImagePath}`
+    ? `https://elrincondeebano.com${ogImagePath}${ogImageVersion ? `?v=${ogImageVersion}` : ''}`
     : 'https://elrincondeebano.com/assets/images/web/logo.webp';
   const categoryProducts = availableProducts.filter((product) => {
     const categoryValue = (product.category || '').toLowerCase();
