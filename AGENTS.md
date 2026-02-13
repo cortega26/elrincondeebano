@@ -4,6 +4,8 @@
 
 Este documento coordina a los agentes automatizados y humanos que mantienen **El Rincón de Ébano**, una web estática construida con scripts de Node.js, plantillas EJS y activos precompilados. Establece responsabilidades, comandos verificados y guardrails para preservar la estabilidad de builds, pruebas, seguridad de la cadena de suministro y los flujos de CI/CD actuales.
 
+Última actualización operativa: 2026-02-13 (Prompt 12).
+
 ## Arquitectura de agentes
 
 ```
@@ -192,6 +194,12 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 3. Imprimir checklist: `npm run smoke:manual`.
 4. Completar validación manual usando `docs/operations/SMOKE_TEST.md`.
 5. Adjuntar evidencia en el PR.
+
+### Cómo hacer triage y rollback de incidentes
+
+1. Seguir `docs/operations/INCIDENT_TRIAGE.md` para clasificación, impacto y mitigación.
+2. Aplicar rollback con `git revert <sha>` según `docs/operations/ROLLBACK.md`.
+3. Cerrar con verificación base (`lint`, `test`, `build`, `test:e2e`) y evidencia en PR.
 
 ## How to audit again (mini guía)
 
