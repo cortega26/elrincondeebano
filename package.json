@@ -51,7 +51,7 @@
     "jsdom": "^28.0.0",
     "lighthouse": "^13.0.3",
     "prettier": "^3.8.1",
-    "purgecss": "^7.0.2",
+    "purgecss": "^8.0.0",
     "serve": "^14.2.5",
     "sharp": "^0.34.5",
     "typescript": "^5.9.3",

@@ -27,6 +27,7 @@
 - `docs/audit/prompt-12-agents-operations-20260213.md`: final AGENTS/runbooks closure and re-audit guide.
 - `docs/audit/prompt-13-typecheck-remediation-20260213.md`: typecheck debt remediation and regression evidence.
 - `docs/audit/prompt-14-eslint10-migration-20260213.md`: ESLint 10 migration and compatibility fixes.
+- `docs/audit/prompt-15-purgecss8-migration-20260213.md`: PurgeCSS 8 migration and CSS build compatibility.
 - `docs/audit/executive-summary-20260213.md`: executive summary and prioritized post-audit backlog.
 
 ## Release and Incidents
