@@ -39,7 +39,11 @@ const tests = [
   'buildIndex.lcp.test.js',
   'resourceHints.integrity.test.js',
   'robots.test.js',
+  'template.seo-accessibility.test.js',
   'csp.connect.test.js',
+  'csp.policy.hardening.test.js',
+  'noFlicker.stylesheetLoading.test.js',
+  'observability.metrics.test.js',
   'performance.metrics.test.js',
   'deferredCss.swap.test.js',
   'snapshot.utils.test.mjs',
@@ -49,6 +53,7 @@ const tests = [
   'swCachePolicy.test.js',
   'tools.staticServer.security.test.js',
   'product-sync.server.test.js',
+  'httpServer.securityHeaders.test.js',
 ];
 
 for (const testFile of tests) {

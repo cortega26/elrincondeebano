@@ -11,7 +11,7 @@
   <link rel="manifest" href="/app.webmanifest">
 
   <!-- Security -->
-  <script src="dist/js/csp.js?v=2" async></script>
+  <script src="dist/js/csp.js?v=2"></script>
 
   <!-- Title and Favicon -->
   <title>El Rincón de Ébano</title>
@@ -57,7 +57,8 @@
                     <!-- Preload Critical Assets -->
                     <link rel="modulepreload" href="/dist/js/script.min.js">
 
-                    <!-- Load shared styles in a consistent order to avoid first-paint flicker -->
+                    <!-- Shared styles -->
+                    <link rel="preload" href="/dist/css/style.min.css?v=100" as="style">
                     <link rel="stylesheet" href="/dist/css/style.min.css?v=100">
 
                     <!-- Fallback for No JavaScript -->
@@ -71,6 +72,10 @@
                     <meta property="og:image" content="https://elrincondeebano.com/assets/images/web/logo.webp">
                     <meta property="og:url" content="https://elrincondeebano.com/">
                     <meta property="og:type" content="website">
+                    <meta name="twitter:card" content="summary_large_image">
+                    <meta name="twitter:title" content="El Rincón de Ébano">
+                    <meta name="twitter:description" content="Un minimarket en la puerta de tu departamento">
+                    <meta name="twitter:image" content="https://elrincondeebano.com/assets/images/web/logo.webp">
 </head>
 
 <body>

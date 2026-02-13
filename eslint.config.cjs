@@ -5,6 +5,7 @@ module.exports = [
   {
     ignores: [
       '.backup/**',
+      '.tmp/**',
       '.pytest_cache/**',
       '.ruff_cache/**',
       '.stryker-tmp/**',

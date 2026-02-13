@@ -21,6 +21,7 @@ const CACHE_CONFIG = {
     '/404.html',
     '/asset-manifest.json',
     '/dist/css/style.min.css',
+    '/dist/css/style.category.min.css',
     '/dist/css/critical.min.css',
     '/dist/js/script.min.js',
     '/assets/images/web/logo.webp',

@@ -1,9 +1,10 @@
 {
   "name": "elrincondeebano",
   "version": "1.0.0",
-  "description": "",
+  "description": "Providing a bilingual-friendly grocery catalog that ships as a static site, pre-caches critical assets, and keeps operations reproducible through scripted builds.",
   "main": "service-worker.js",
   "directories": {
+    "doc": "docs",
     "test": "test"
   },
   "scripts": {
@@ -21,12 +22,13 @@
     "images:rewrite": "node tools/rewrite-images.mjs",
     "lint:images": "node tools/lint-images.mjs",
     "guardrails": "node tools/guardrails/run.mjs",
+    "security:secret-scan": "node tools/guardrails/secret-scan.mjs",
     "ci:guardrails": "npm run build && npm run lint:images && npm run guardrails",
     "prune:backups": "node tools/prune-backups.js",
     "test": "node test/run-all.js && vitest run",
     "test:coverage": "npx c8 npm test",
     "typecheck": "tsc -p tsconfig.typecheck.json",
-    "test:cypress": "cypress run --spec cypress/e2e/nav_menu.cy.ts",
+    "test:cypress": "node scripts/run-cypress.mjs --spec cypress/e2e/nav_menu.cy.ts",
     "test:e2e": "playwright test --trace on",
     "smoke:manual": "node scripts/smoke-checklist.mjs",
     "lighthouse:audit": "node tools/lighthouse-audit.mjs",
@@ -47,6 +49,7 @@
     "jsdom": "^28.0.0",
     "lighthouse": "13.0.2",
     "prettier": "^3.8.1",
+    "purgecss": "^7.0.2",
     "serve": "^14.2.5",
     "sharp": "^0.34.5",
     "typescript": "^5.9.3",
@@ -64,5 +67,13 @@
   "volta": {
     "node": "22.20.0",
     "npm": "10.9.3"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cortega26/elrincondeebano.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cortega26/elrincondeebano/issues"
+  },
+  "homepage": "https://github.com/cortega26/elrincondeebano#readme"
 }

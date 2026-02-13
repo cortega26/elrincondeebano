@@ -1,5 +1,6 @@
 // SEO metadata + structured data (migrated/adapted from csp.js)
 import { resolveProductDataUrl } from '../utils/data-endpoint.mjs';
+import { log } from '../utils/logger.mts';
 
 const PRODUCT_DATA_GLOBAL_KEY = '__PRODUCT_DATA__';
 const INLINE_PRODUCT_DATA_ID = 'product-data';
@@ -12,7 +13,7 @@ function getSharedProducts() {
       return payload.products;
     }
   } catch (e) {
-    console.warn('[modules/seo] Unable to read shared product data:', e);
+    log('warn', 'seo_shared_product_data_read_failed', { error: e });
   }
   return null;
 }
@@ -61,7 +62,7 @@ function readInlineProductPayload() {
     if (Array.isArray(parsed.products)) return parsed.products;
     if (Array.isArray(parsed.initialProducts)) return parsed.initialProducts;
   } catch (error) {
-    console.warn('[modules/seo] Unable to parse inline product payload:', error);
+    log('warn', 'seo_inline_product_payload_parse_failed', { error });
   }
   return null;
 }
@@ -93,7 +94,7 @@ async function loadProductData() {
     });
     return createProductMap(arr);
   } catch (e) {
-    console.error('[modules/seo] Error loading product data:', e);
+    log('error', 'seo_product_data_load_failed', { error: e });
     return null;
   }
 }
@@ -135,7 +136,7 @@ export async function injectStructuredData() {
           description: 'Un minimarket en la puerta de tu departamento',
           address: { '@type': 'PostalAddress', addressCountry: 'CL' },
           telephone: '+56951118901',
-          url: 'http://www.elrincondeebano.com/',
+          url: 'https://www.elrincondeebano.com/',
           contactPoint: {
             '@type': 'ContactPoint',
             telephone: '+56-951118901',
@@ -155,7 +156,7 @@ export async function injectStructuredData() {
     document.head.appendChild(scriptEl);
     markStructuredDataInjected();
   } catch (e) {
-    console.error('[modules/seo] Error generating structured data:', e);
+    log('error', 'seo_structured_data_generation_failed', { error: e });
   }
 }
 
@@ -174,6 +175,6 @@ export function injectSeoMetadata() {
       document.head.appendChild(meta);
     }
   } catch (e) {
-    console.warn('[modules/seo] injectSeoMetadata error:', e);
+    log('warn', 'seo_metadata_injection_failed', { error: e });
   }
 }
