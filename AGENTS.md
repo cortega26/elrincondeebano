@@ -4,7 +4,7 @@
 
 Este documento coordina a los agentes automatizados y humanos que mantienen **El Rincón de Ébano**, una web estática construida con scripts de Node.js, plantillas EJS y activos precompilados. Establece responsabilidades, comandos verificados y guardrails para preservar la estabilidad de builds, pruebas, seguridad de la cadena de suministro y los flujos de CI/CD actuales.
 
-Última actualización operativa: 2026-02-13 (Prompt 13).
+Última actualización operativa: 2026-02-13 (Prompt 16).
 
 ## Arquitectura de agentes
 
@@ -58,6 +58,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 | Type & Lint Guardian          | `npm run typecheck`                                     | En PRs que toquen `src/js/**` y antes de releases.                                       | Sin errores de `tsc -p tsconfig.typecheck.json` sobre módulos/utilidades críticas.         | Logs de typecheck.                        |
 | Type & Lint Guardian          | `npm run format`                                        | En cada PR.                                                                             | Código formateado según `.prettierrc`.                                                    | Archivos modificados.                     |
 | Security / Supply Chain Agent | `npm audit --production`                                | Mensual o ante cambios de dependencias.                                                 | Sin vulnerabilidades altas/crit.; documentar hallazgos.                                   | Reporte de auditoría.                     |
+| Security / Supply Chain Agent | `pip-audit -r admin/product_manager/requirements.lock.txt` | Mensual o ante cambios en tooling Python admin.                                          | Sin vulnerabilidades altas/crit. en el lock Python de admin.                              | Reporte de auditoría Python.              |
 | Security / Supply Chain Agent | `npm run security:secret-scan`                          | En cada PR/push (`secret-scan.yml`) y antes de releases.                                | Sin hallazgos de credenciales de alta confianza en archivos versionados.                   | Logs de escaneo de secretos.              |
 | Security / Supply Chain Agent | `npx codacy-analysis-cli` (a través de workflow)        | En CI (`codacy.yml`).                                                                   | SARIF sanitizado y subido.                                                                | `results-*.sarif`.                        |
 | Test Sentinel                 | `npm ci && npm test`                                    | Ejecuta suite híbrida: `node:test` (legacy) + `Vitest`.                                 | Todas las pruebas pasan (Legacy + Vitest).                                                | Logs de pruebas.                          |
@@ -164,7 +165,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 - **`Admin Tools CI` (`.github/workflows/admin.yml`)**
   - Trigger: cambios en `admin/**`.
   - Stack: Python 3.12 (pytest).
-  - Tareas: Instalación de dependencias y ejecución de suite de pruebas para el gestor de contenido.
+  - Tareas: instalación reproducible con `requirements.txt` + `requirements.lock.txt`, `pip check` y ejecución de `pytest`.
 
 ## Playbooks
 

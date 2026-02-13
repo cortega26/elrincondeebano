@@ -10,9 +10,10 @@ Semáforo general:
    - `lint`, `typecheck`, `test`, `build`, `e2e` en Node 22.
    - Contratos de categorías y productos validados.
    - Seguridad de dependencias productivas sin vulnerabilidades abiertas (`npm audit --omit=dev`).
+   - Tooling admin Python con lock reproducible (`requirements.lock.txt`) y `pip-audit` en verde.
    - Runbooks de debugging, triage y rollback documentados.
 2. **Amarillo**
-   - Dependencias Python admin sin pinning estricto.
+   - Oportunidades de automatización operativa no críticas (assets huérfanos y evidencia smoke persistente).
 
 ## Entregables clave por bloque
 
@@ -32,10 +33,6 @@ Semáforo general:
 
 ## Riesgos restantes (priorizados)
 
-### P1
-
-1. Pinning reproducible de dependencias Python admin.
-
 ### P2
 
 1. Detección automática de assets huérfanos en guardrails.
@@ -43,8 +40,8 @@ Semáforo general:
 
 ## Plan recomendado de ejecución (PRs pequeños)
 
-1. **PR-D (P1):** pinning Python (`requirements` con constraints/lock) + `pip-audit`.
-2. **PR-E (P2):** guardrail de assets huérfanos + reporte automatizado.
+1. **PR-E (P2):** guardrail de assets huérfanos + reporte automatizado.
+2. **PR-F (P2):** evidencia de smoke persistente por release (plantilla/artefacto en CI o checklist firmado).
 
 ## Criterio de éxito post-auditoría
 

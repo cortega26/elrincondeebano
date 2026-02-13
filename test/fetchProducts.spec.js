@@ -26,14 +26,21 @@ describe('fetchProducts', () => {
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    // Mock localStorage
+    // Mock localStorage explicitly to avoid runtime-dependent Storage implementations
     const store = new Map();
-    vi.spyOn(Storage.prototype, 'getItem').mockImplementation((key) => store.get(key) || null);
-    vi.spyOn(Storage.prototype, 'setItem').mockImplementation((key, val) =>
-      store.set(key, String(val))
-    );
-    vi.spyOn(Storage.prototype, 'removeItem').mockImplementation((key) => store.delete(key));
-    vi.spyOn(Storage.prototype, 'clear').mockImplementation(() => store.clear());
+    const localStorageMock = {
+      getItem: vi.fn((key) => store.get(key) || null),
+      setItem: vi.fn((key, val) => {
+        store.set(key, String(val));
+      }),
+      removeItem: vi.fn((key) => {
+        store.delete(key);
+      }),
+      clear: vi.fn(() => {
+        store.clear();
+      }),
+    };
+    vi.stubGlobal('localStorage', localStorageMock);
 
     // Mock global fetch
     // Mock global fetch
@@ -43,6 +50,7 @@ describe('fetchProducts', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
     delete global.window.__PRODUCT_DATA__;
   });
 
