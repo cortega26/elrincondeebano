@@ -67,11 +67,36 @@ async function fetchWithTimeout(url, timeoutMs) {
   }
 }
 
-async function checkUrl(url, timeoutMs) {
+function resolveProbeUrl(baseUrl, routeOrPath) {
+  if (typeof routeOrPath !== 'string' || !routeOrPath.trim()) {
+    throw new Error('Probe path must be a non-empty string.');
+  }
+
+  const normalized = routeOrPath.trim();
+  if (/^https?:\/\//i.test(normalized)) {
+    throw new Error(`Absolute URLs are not allowed in probes: ${normalized}`);
+  }
+  if (normalized.split('/').some((segment) => segment === '..')) {
+    throw new Error(`Path traversal is not allowed in probes: ${normalized}`);
+  }
+
+  const base = new URL(`${baseUrl}/`);
+  const candidate = new URL(normalized.startsWith('/') ? normalized : `/${normalized}`, base);
+  if (candidate.origin !== base.origin) {
+    throw new Error(`Cross-origin probe blocked: ${candidate.toString()}`);
+  }
+
+  return candidate;
+}
+
+async function checkUrl(baseUrl, routeOrPath, timeoutMs) {
+  const target = resolveProbeUrl(baseUrl, routeOrPath);
+  const targetUrl = target.toString();
+
   try {
-    const response = await fetchWithTimeout(url, timeoutMs);
+    const response = await fetchWithTimeout(target, timeoutMs);
     return {
-      url,
+      url: targetUrl,
       status: response.status,
       ok: response.status === 200,
       finalUrl: response.url,
@@ -81,7 +106,7 @@ async function checkUrl(url, timeoutMs) {
     };
   } catch (error) {
     return {
-      url,
+      url: targetUrl,
       status: 0,
       ok: false,
       finalUrl: '',
@@ -107,8 +132,7 @@ async function runMonitor({ baseUrl, timeoutMs, sampleSize, reportPath }) {
   const routeResults = [];
 
   for (const route of KEY_ROUTES) {
-    const url = `${baseUrl}${route}`;
-    routeResults.push(await checkUrl(url, timeoutMs));
+    routeResults.push(await checkUrl(baseUrl, route, timeoutMs));
   }
 
   const productDataResult = routeResults.find((result) => result.url.endsWith('/data/product_data.json'));
@@ -116,7 +140,8 @@ async function runMonitor({ baseUrl, timeoutMs, sampleSize, reportPath }) {
   let sampledAssets = [];
 
   if (productDataResult?.ok) {
-    const productPayload = await (await fetchWithTimeout(`${baseUrl}/data/product_data.json`, timeoutMs)).json();
+    const productDataUrl = resolveProbeUrl(baseUrl, '/data/product_data.json');
+    const productPayload = await (await fetchWithTimeout(productDataUrl, timeoutMs)).json();
     const products = Array.isArray(productPayload?.products) ? productPayload.products : [];
     const assetSet = new Set();
 
@@ -131,8 +156,7 @@ async function runMonitor({ baseUrl, timeoutMs, sampleSize, reportPath }) {
 
     sampledAssets = Array.from(assetSet).sort().slice(0, sampleSize);
     for (const relativePath of sampledAssets) {
-      const url = `${baseUrl}/${relativePath}`;
-      assetResults.push(await checkUrl(url, timeoutMs));
+      assetResults.push(await checkUrl(baseUrl, `/${relativePath}`, timeoutMs));
     }
   }
 
