@@ -25,23 +25,23 @@ function normalizeAssetRef(raw) {
     return null;
   }
 
-  let candidate = trimmed;
+  let candidatePath;
 
   try {
     const parsed = new URL(trimmed, 'https://elrincondeebano.com');
     if (parsed.origin !== 'https://elrincondeebano.com') {
       return null;
     }
-    candidate = parsed.pathname;
+    candidatePath = parsed.pathname;
   } catch {
     return null;
   }
 
-  if (!candidate.startsWith('/assets/') && !candidate.startsWith('assets/')) {
+  if (!candidatePath.startsWith('/assets/') && !candidatePath.startsWith('assets/')) {
     return null;
   }
 
-  const decoded = decodeURIComponent(candidate).replace(/\\/g, '/');
+  const decoded = decodeURIComponent(candidatePath).replace(/\\/g, '/');
   const relative = decoded.replace(/^\/+/, '');
   if (!relative.startsWith('assets/')) return null;
   if (relative.split('/').some((part) => part === '..')) {
