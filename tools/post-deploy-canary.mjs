@@ -105,7 +105,20 @@ async function fetchWithTimeout(url, timeoutMs) {
 async function assertHttpOk(url, label, timeoutMs) {
   const response = await fetchWithTimeout(url, timeoutMs);
   if (!response.ok) {
-    fail(`${label} returned ${response.status} for ${url}`);
+    let snippet;
+    try {
+      const body = await response.clone().text();
+      snippet = body.slice(0, 220).replace(/\s+/g, ' ').trim();
+    } catch {
+      snippet = '<unavailable>';
+    }
+    const server = response.headers.get('server') || '<none>';
+    const cfRay = response.headers.get('cf-ray') || '<none>';
+    const contentType = response.headers.get('content-type') || '<none>';
+    fail(
+      `${label} returned ${response.status} for ${url} ` +
+        `(server=${server}, cf-ray=${cfRay}, content-type=${contentType}, body="${snippet}")`
+    );
   }
   return response;
 }
