@@ -1,0 +1,99 @@
+---
+import '../styles/global.css';
+import Navbar from '../components/Navbar.astro';
+import { getNavigationGroups } from '../lib/catalog';
+import storefrontScriptUrl from '../scripts/storefront.js?url';
+import { absoluteUrl, DEFAULT_OG_IMAGE, SITE_NAME } from '../lib/seo';
+
+export interface Props {
+  title: string;
+  description?: string;
+  canonicalPath?: string;
+  canonicalUrl?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  ogImageAlt?: string;
+  ogType?: string;
+}
+
+const {
+  title,
+  description = 'El Rincón de Ébano.',
+  canonicalPath = Astro.url.pathname || '/',
+  canonicalUrl,
+  ogTitle = title,
+  ogDescription = description,
+  ogImage = DEFAULT_OG_IMAGE,
+  ogImageAlt = 'Logotipo de El Rincón de Ébano',
+  ogType = 'website',
+} = Astro.props;
+
+const navGroups = getNavigationGroups();
+const resolvedCanonicalUrl = canonicalUrl || absoluteUrl(canonicalPath);
+const resolvedOgImage = absoluteUrl(ogImage);
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={resolvedCanonicalUrl} />
+    <link rel="manifest" href="/app.webmanifest" />
+
+    <meta property="og:title" content={ogTitle} />
+    <meta property="og:description" content={ogDescription} />
+    <meta property="og:image" content={resolvedOgImage} />
+    <meta property="og:image:alt" content={ogImageAlt} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="1200" />
+    <meta property="og:url" content={resolvedCanonicalUrl} />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:type" content={ogType} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={ogTitle} />
+    <meta name="twitter:description" content={ogDescription} />
+    <meta name="twitter:image" content={resolvedOgImage} />
+    <title>{title}</title>
+
+    <link rel="icon" href="https://elrincondeebano.com/assets/images/web/favicon.ico" type="image/x-icon" />
+
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous" />
+    <link rel="preconnect" href="https://elrincondeebano.com" crossorigin="anonymous" />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+    <Navbar navGroups={navGroups} />
+
+    <main id="main-content" role="main" tabindex="-1">
+      <div class="container mt-3 mb-4">
+        <slot />
+      </div>
+    </main>
+    <div id="offline-indicator" aria-live="assertive" class="alert alert-warning is-hidden" role="alert">
+      Actualmente estás sin conexión
+    </div>
+
+    <footer id="footer-container" role="contentinfo" class="bg-dark text-light text-center py-3">
+      <p class="mb-0">© El Rincón de Ébano</p>
+      <a class="visually-hidden" href="https://wa.me/56951118901">WhatsApp</a>
+    </footer>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+      defer
+    ></script>
+    <script type="module" src={storefrontScriptUrl}></script>
+  </body>
+</html>

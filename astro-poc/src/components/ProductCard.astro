@@ -1,0 +1,80 @@
+---
+import type { ProductWithSku } from '../lib/catalog';
+import { formatPrice, resolveImageUrl } from '../lib/catalog';
+
+export interface Props {
+  item: ProductWithSku;
+  index?: number;
+}
+
+const { item } = Astro.props;
+const { product, sku } = item;
+const { index = 0 } = Astro.props;
+const price = typeof product.price === 'number' ? product.price : 0;
+const discount = typeof product.discount === 'number' ? product.discount : 0;
+const finalPrice = Math.max(price - discount, 0);
+const hasDiscount = discount > 0 && price > 0 && finalPrice < price;
+const discountPercent = hasDiscount ? Math.round((discount / price) * 100) : 0;
+const imageUrl = resolveImageUrl(product.image_path);
+const avifUrl = resolveImageUrl(product.image_avif_path);
+const hasAvif = typeof product.image_avif_path === 'string' && product.image_avif_path.trim().length > 0;
+---
+
+<article
+  class={`producto col-6 col-sm-6 col-md-4 col-lg-3 mb-4 ${product.stock ? '' : 'agotado'}`}
+  data-product-id={sku}
+  data-product-name={product.name}
+  data-product-price={price}
+  data-product-discount={discount}
+  data-product-final-price={finalPrice}
+  data-product-order={index}
+>
+  <div class="card h-100">
+    {hasDiscount ? <span class="discount-badge badge bg-danger" aria-label="Producto en oferta">-{discountPercent}%</span> : null}
+
+    <picture>
+      {hasAvif ? <source srcset={avifUrl} type="image/avif" /> : null}
+      <img
+        src={imageUrl}
+        alt={product.name}
+        class="card-img-top product-thumb"
+        loading="lazy"
+        decoding="async"
+        width="400"
+        height="400"
+      />
+    </picture>
+
+    <div class="card-body d-flex flex-column">
+      <h3 class="card-title mb-2">{product.name}</h3>
+      {product.description ? <p class="card-text mb-2">{product.description}</p> : null}
+
+      <div class="precio-container mb-2">
+        {
+          hasDiscount ? (
+            <>
+              <span class="precio-descuento" aria-label="Precio con descuento">{formatPrice(finalPrice)}</span>
+              <span class="precio-original" aria-label="Precio original">
+                <span class="tachado">{formatPrice(price)}</span>
+              </span>
+            </>
+          ) : (
+            <span class="precio" aria-label="Precio">{formatPrice(price)}</span>
+          )
+        }
+      </div>
+
+      <div class="action-area mt-auto" data-pid={sku} role="group" aria-label={`Acciones para ${product.name}`}>
+        <button class="btn btn-primary add-to-cart-btn mt-2" type="button" data-id={sku} aria-label={`Agregar ${product.name} al carrito`}>
+          Agregar
+        </button>
+
+        <div class="quantity-control is-hidden" aria-live="polite" role="group" aria-label="Seleccionar cantidad">
+          <button class="quantity-btn" type="button" data-action="decrease" data-id={sku} aria-label="Disminuir cantidad">-</button>
+          <input type="number" class="quantity-input" value="1" min="1" max="50" aria-label="Cantidad" data-id={sku} />
+          <button class="quantity-btn" type="button" data-action="increase" data-id={sku} aria-label="Aumentar cantidad">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>

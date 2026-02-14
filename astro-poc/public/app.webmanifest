@@ -1,0 +1,24 @@
+{
+  "name": "El Rincón de Ébano",
+  "short_name": "Ébano",
+  "description": "Tienda online con bebestibles, snacks, alimentos y más. Entrega inmediata en edificio Ébano.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2c3e50",
+  "icons": [
+    {
+      "src": "/assets/images/web/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/images/web/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

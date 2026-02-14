@@ -1,0 +1,72 @@
+---
+import type { ProductWithSku } from '../lib/catalog';
+import { formatPrice, resolveImageUrl, getCategoryLabel, getLegacyCategoryPath } from '../lib/catalog';
+
+export interface Props {
+  item: ProductWithSku;
+}
+
+const { item } = Astro.props;
+const { product, sku } = item;
+const categoryLabel = getCategoryLabel(product.category);
+const categoryPath = getLegacyCategoryPath(product.category);
+const imageUrl = resolveImageUrl(product.image_path);
+const avifUrl = resolveImageUrl(product.image_avif_path);
+const hasAvif = typeof product.image_avif_path === 'string' && product.image_avif_path.trim().length > 0;
+---
+
+<article class="card product-detail">
+  <div class="row g-0">
+    <div class="col-12 col-md-5">
+      <picture>
+        {hasAvif ? <source srcset={avifUrl} type="image/avif" /> : null}
+        <img
+          src={imageUrl}
+          alt={product.name}
+          class="img-fluid rounded-start product-detail-image"
+          width="800"
+          height="800"
+          loading="eager"
+          decoding="async"
+        />
+      </picture>
+    </div>
+
+    <div class="col-12 col-md-7">
+      <div class="card-body">
+        <h1 class="card-title mb-3">{product.name}</h1>
+        {product.description ? <p class="card-text mb-3">{product.description}</p> : null}
+
+        <dl class="product-meta mb-4">
+          <div>
+            <dt>SKU</dt>
+            <dd>{sku}</dd>
+          </div>
+          <div>
+            <dt>Precio</dt>
+            <dd>{formatPrice(product.price)}</dd>
+          </div>
+          <div>
+            <dt>Categoria</dt>
+            <dd>{categoryLabel}</dd>
+          </div>
+          <div>
+            <dt>Stock</dt>
+            <dd>
+              {product.stock ? (
+                <span class="stock-pill stock-pill-on">Disponible</span>
+              ) : (
+                <span class="stock-pill stock-pill-off">Agotado</span>
+              )}
+            </dd>
+          </div>
+        </dl>
+
+        <div class="d-flex gap-2 flex-wrap">
+          <a class="btn btn-outline-primary" href={categoryPath}>Volver a categoria</a>
+          <a class="btn btn-primary" href="/">Ir al inicio</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
