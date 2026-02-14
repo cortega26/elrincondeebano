@@ -10,9 +10,9 @@ on:
   workflow_dispatch:
     inputs:
       base_url:
-        description: 'HTTPS URL to validate'
+        description: 'HTTPS URL for live probe (manual, allowed network only)'
         required: true
-        default: 'https://elrincondeebano.com'
+        default: 'https://www.elrincondeebano.com'
       category_path:
         description: 'Optional category page path (e.g. /pages/cervezas.html)'
         required: false
@@ -25,8 +25,13 @@ on:
         description: 'Commit SHA containing canary scripts (optional)'
         required: false
         default: ''
+      run_live_probe:
+        description: 'Run live production probe from an allowed self-hosted runner'
+        required: true
+        type: boolean
+        default: false
       rollback_on_failure:
-        description: 'If true, deploy rollback_ref when canary fails (manual dispatch only)'
+        description: 'If true, deploy rollback_ref when live probe fails (manual dispatch only)'
         required: true
         type: boolean
         default: false
@@ -68,12 +73,15 @@ jobs:
       - name: Verify canary contract tests
         run: node --test test/post-deploy-canary.test.js
 
-  canary:
+  artifact-canary:
     if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 20
     outputs:
+      deploy_sha: ${{ steps.meta.outputs.deploy_sha }}
       base_url: ${{ steps.meta.outputs.base_url }}
+      category_path: ${{ steps.meta.outputs.category_path }}
+      timeout_ms: ${{ steps.meta.outputs.timeout_ms }}
     steps:
       - name: Resolve canary metadata
         id: meta
@@ -85,12 +93,12 @@ jobs:
             TIMEOUT_MS="${{ inputs.timeout_ms }}"
             DEPLOY_SHA="${{ inputs.deploy_sha }}"
           elif [ "${{ github.event_name }}" = "workflow_run" ]; then
-            BASE_URL="https://elrincondeebano.com"
+            BASE_URL="https://www.elrincondeebano.com"
             CATEGORY_PATH=""
             TIMEOUT_MS="15000"
             DEPLOY_SHA="${{ github.event.workflow_run.head_sha }}"
           else
-            BASE_URL="https://elrincondeebano.com"
+            BASE_URL="https://www.elrincondeebano.com"
             CATEGORY_PATH=""
             TIMEOUT_MS="15000"
             DEPLOY_SHA="${{ github.sha }}"
@@ -121,23 +129,42 @@ jobs:
             astro-poc/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci
+          npm ci --prefix astro-poc
 
-      - name: Run synthetic canary probes
+      - name: Build Astro storefront (artifact contract scope)
+        run: npm --prefix astro-poc run build
+
+      - name: Validate asset contract
+        run: npm --prefix astro-poc run assets:validate
+
+      - name: Validate artifact contract
+        run: npm --prefix astro-poc run contract:artifacts
+
+      - name: Write artifact canary report
         shell: bash
         run: |
           mkdir -p reports/canary
-          node tools/post-deploy-canary.mjs \
-            --base-url "${{ steps.meta.outputs.base_url }}" \
-            --timeout-ms "${{ steps.meta.outputs.timeout_ms }}" \
-            --category-path "${{ steps.meta.outputs.category_path }}" \
-            --report reports/canary/latest.json
+          cat > reports/canary/artifact-canary.json <<JSON
+          {
+            "mode": "artifact-contract",
+            "baseUrl": "${{ steps.meta.outputs.base_url }}",
+            "deploySha": "${{ steps.meta.outputs.deploy_sha }}",
+            "generatedAt": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+            "checks": [
+              "astro build",
+              "assets:validate",
+              "contract:artifacts"
+            ]
+          }
+          JSON
 
-      - name: Upload canary report
+      - name: Upload artifact canary report
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v4
         with:
-          name: post-deploy-canary
+          name: post-deploy-artifact-canary
           path: reports/canary
           if-no-files-found: error
 
@@ -146,27 +173,85 @@ jobs:
         shell: bash
         run: |
           {
-            echo "## Post-Deploy Canary"
+            echo "## Post-Deploy Canary (Artifact Mode)"
             echo ""
-            echo "- Base URL: ${{ steps.meta.outputs.base_url }}"
-            echo "- Category path: ${{ steps.meta.outputs.category_path || '(auto from sitemap)' }}"
-            echo "- Timeout (ms): ${{ steps.meta.outputs.timeout_ms }}"
             echo "- Deploy SHA: ${{ steps.meta.outputs.deploy_sha }}"
+            echo "- Base URL metadata: ${{ steps.meta.outputs.base_url }}"
+            echo "- Mode: artifact-contract (no live network probe on GitHub-hosted runners)"
             echo ""
             if [ "${{ job.status }}" = "success" ]; then
-              echo "Result: ✅ Canary checks passed."
+              echo "Result: ✅ Artifact contract checks passed."
             else
-              echo "Result: ❌ Canary checks failed."
-              echo "Rollback trigger is available via manual dispatch using:"
-              echo "- rollback_on_failure=true"
-              echo "- rollback_ref=<safe-known-ref>"
-              echo "- confirm_rollback=ROLLBACK"
+              echo "Result: ❌ Artifact contract checks failed."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  live-probe:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_live_probe == true }}
+    needs: artifact-canary
+    runs-on:
+      - self-hosted
+      - linux
+      - x64
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
+        with:
+          ref: ${{ needs.artifact-canary.outputs.deploy_sha }}
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v4
+        with:
+          node-version: '22.x'
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run live canary probes (allowed network)
+        shell: bash
+        run: |
+          mkdir -p reports/canary
+          node tools/post-deploy-canary.mjs \
+            --base-url "${{ needs.artifact-canary.outputs.base_url }}" \
+            --timeout-ms "${{ needs.artifact-canary.outputs.timeout_ms }}" \
+            --category-path "${{ needs.artifact-canary.outputs.category_path }}" \
+            --report reports/canary/live-probe.json
+
+      - name: Upload live probe report
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v4
+        with:
+          name: post-deploy-live-probe
+          path: reports/canary
+          if-no-files-found: error
+
+      - name: Write live probe summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Post-Deploy Canary (Live Probe)"
+            echo ""
+            echo "- Base URL: ${{ needs.artifact-canary.outputs.base_url }}"
+            echo "- Category path: ${{ needs.artifact-canary.outputs.category_path || '(auto from sitemap)' }}"
+            echo "- Timeout (ms): ${{ needs.artifact-canary.outputs.timeout_ms }}"
+            echo "- Deploy SHA: ${{ needs.artifact-canary.outputs.deploy_sha }}"
+            echo "- Runner: self-hosted (allowed network)"
+            echo ""
+            if [ "${{ job.status }}" = "success" ]; then
+              echo "Result: ✅ Live probes passed."
+            else
+              echo "Result: ❌ Live probes failed."
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
   rollback:
-    needs: canary
-    if: ${{ always() && github.event_name == 'workflow_dispatch' && inputs.rollback_on_failure == true && needs.canary.result == 'failure' && inputs.rollback_ref != '' && inputs.confirm_rollback == 'ROLLBACK' }}
+    needs: [artifact-canary, live-probe]
+    if: ${{ always() && github.event_name == 'workflow_dispatch' && inputs.rollback_on_failure == true && needs.live-probe.result == 'failure' && inputs.rollback_ref != '' && inputs.confirm_rollback == 'ROLLBACK' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 25
     permissions:
