@@ -23,7 +23,7 @@ jobs:
   ensure-build-in-sync:
     name: Ensure build artifacts remain reproducible
     runs-on: ubuntu-22.04
-    timeout-minutes: 20
+    timeout-minutes: 45
 
     steps:
       - name: Checkout repository
@@ -53,11 +53,11 @@ jobs:
           npm ci
           npm ci --prefix astro-poc
 
-      - name: Rebuild Astro catalog
-        run: npm --prefix astro-poc run build
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
 
-      - name: Validate asset contract
-        run: npm --prefix astro-poc run assets:validate
+      - name: Run migration certification gate
+        run: npm run certify:migration
 
       - name: Inspect staged output
         run: |
