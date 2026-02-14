@@ -2,7 +2,7 @@
 
 Date: 2026-02-14
 PR Evidence: https://github.com/cortega26/elrincondeebano/pull/216
-Verification SHA: `pending-offline-b1-closeout`
+Verification SHA: `0dc904bac32e548518a983b945535aac491e480a`
 
 ## 5.1 GO / NO-GO
 
@@ -24,10 +24,10 @@ Verification SHA: `pending-offline-b1-closeout`
 
 2. ✅ Hosted CI continuity is proven on PR for the required workflows.
 - Evidence:
-  - `Continuous Integration`: https://github.com/cortega26/elrincondeebano/actions/runs/22019902823
-  - `Verify catalog build artifacts`: https://github.com/cortega26/elrincondeebano/actions/runs/22019902849
-  - `Post-Deploy Canary` (PR contract path): https://github.com/cortega26/elrincondeebano/actions/runs/22019902830
-  - `Deploy static content to Pages` (workflow_dispatch verification path): https://github.com/cortega26/elrincondeebano/actions/runs/22019931534
+  - `Continuous Integration`: https://github.com/cortega26/elrincondeebano/actions/runs/22020173619
+  - `Verify catalog build artifacts`: https://github.com/cortega26/elrincondeebano/actions/runs/22020173623
+  - `Post-Deploy Canary` (PR contract path): https://github.com/cortega26/elrincondeebano/actions/runs/22020173614
+  - `Deploy static content to Pages` (workflow_dispatch verification path): https://github.com/cortega26/elrincondeebano/actions/runs/22020204057
 
 3. ✅ Content Manager compatibility is preserved without CM migration.
 - Evidence:
