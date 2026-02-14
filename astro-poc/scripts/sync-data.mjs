@@ -9,9 +9,11 @@ const repoRoot = path.resolve(projectRoot, '..');
 
 const sourceProductsPath = path.join(repoRoot, 'data', 'product_data.json');
 const sourceCategoriesPath = path.join(repoRoot, 'data', 'category_registry.json');
+const sourceAssetsPath = path.join(repoRoot, 'assets');
 const targetProductsPath = path.join(projectRoot, 'src', 'data', 'products.json');
 const targetCategoriesPath = path.join(projectRoot, 'src', 'data', 'categories.json');
 const targetPublicProductDataPath = path.join(projectRoot, 'public', 'data', 'product_data.json');
+const targetPublicAssetsPath = path.join(projectRoot, 'public', 'assets');
 const sourceRobotsPath = path.join(repoRoot, 'robots.txt');
 const sourceManifestPath = path.join(repoRoot, 'app.webmanifest');
 const sourceServiceWorkerPath = path.join(repoRoot, 'service-worker.js');
@@ -40,6 +42,19 @@ function copyFile(sourcePath, targetPath) {
   }
   ensureDirFor(targetPath);
   fs.copyFileSync(sourcePath, targetPath);
+}
+
+function syncDirectory(sourceDir, targetDir) {
+  if (!fs.existsSync(sourceDir)) {
+    throw new Error(`Missing source directory: ${sourceDir}`);
+  }
+
+  fs.rmSync(targetDir, { recursive: true, force: true });
+  fs.cpSync(sourceDir, targetDir, {
+    recursive: true,
+    force: true,
+    errorOnExist: false,
+  });
 }
 
 function validateProductsPayload(payload) {
@@ -127,6 +142,7 @@ validateProductsPayload(products);
 validateCategoryPayload(categories);
 validateProductCategoryMapping(products, categories);
 copyJson(sourceProductsPath, targetPublicProductDataPath);
+syncDirectory(sourceAssetsPath, targetPublicAssetsPath);
 copyFile(sourceRobotsPath, targetRobotsPath);
 copyFile(sourceManifestPath, targetManifestPath);
 copyFile(sourceServiceWorkerPath, targetServiceWorkerPath);
