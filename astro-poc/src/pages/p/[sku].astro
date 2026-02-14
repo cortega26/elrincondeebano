@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductDetail from '../../components/ProductDetail.astro';
+import { getProductsWithSku, type ProductWithSku } from '../../lib/catalog';
+import { getProductOgImageUrl } from '../../lib/seo';
+
+export function getStaticPaths() {
+  return getProductsWithSku().map((item) => ({
+    params: { sku: item.sku },
+    props: { item },
+  }));
+}
+
+const { item } = Astro.props as { item: ProductWithSku };
+const canonicalPath = `/p/${item.sku}/`;
+const productDescription = item.product.description
+  ? `${item.product.description} - El Rincón de Ébano`
+  : `Detalle de producto para ${item.product.name}.`;
+---
+
+<BaseLayout
+  title={`${item.product.name} | El Rincón de Ébano`}
+  description={productDescription}
+  canonicalPath={canonicalPath}
+  ogTitle={`${item.product.name} | El Rincón de Ébano`}
+  ogDescription={productDescription}
+  ogImage={getProductOgImageUrl(item.product.image_path)}
+  ogImageAlt={item.product.name}
+>
+  <ProductDetail item={item} />
+</BaseLayout>

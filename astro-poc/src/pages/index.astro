@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProductGrid from '../components/ProductGrid.astro';
+import CatalogControls from '../components/CatalogControls.astro';
+import { getProductsWithSku } from '../lib/catalog';
+import { DEFAULT_OG_IMAGE } from '../lib/seo';
+
+const products = getProductsWithSku();
+---
+
+<BaseLayout
+  title="El Rincón de Ébano"
+  description="Un minimarket en la puerta de tu departamento"
+  canonicalPath="/"
+  ogImage={DEFAULT_OG_IMAGE}
+  ogImageAlt="Logotipo de El Rincón de Ébano"
+>
+  <section class="hero-section text-center mb-4" aria-labelledby="main-heading">
+    <h1 id="main-heading">Productos frescos directo a tu puerta</h1>
+    <p class="lead text-muted mb-0">Compra en línea y recibe en minutos</p>
+  </section>
+
+  <section aria-label="Productos disponibles">
+    <h2 id="products-heading" class="visually-hidden">Productos disponibles</h2>
+    <CatalogControls />
+    <ProductGrid items={products} />
+    <div id="catalog-empty-state" class="alert alert-info d-none mt-3" role="status">
+      No se encontraron productos con los filtros seleccionados.
+    </div>
+    <div id="catalog-controls" class="text-center my-4">
+      <button type="button" id="catalog-load-more" class="btn btn-outline-primary d-none">Cargar más productos</button>
+    </div>
+    <div id="catalog-sentinel" aria-hidden="true"></div>
+  </section>
+</BaseLayout>
