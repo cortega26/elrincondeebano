@@ -1,0 +1,16 @@
+{
+  "name": "astro-poc-elrincondeebano",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Side-by-side Astro migration proof of concept for ElRinconDeEbano.com",
+  "scripts": {
+    "data:sync": "node scripts/sync-data.mjs",
+    "dev": "npx astro dev",
+    "build": "npm run data:sync && npx astro build && node scripts/postbuild-legacy-pages.mjs && node scripts/postbuild-sitemap.mjs",
+    "preview": "npx astro preview"
+  },
+  "dependencies": {
+    "astro": "5.17.2"
+  }
+}

@@ -1,0 +1,14 @@
+---
+import ProductCard from './ProductCard.astro';
+import type { ProductWithSku } from '../lib/catalog';
+
+export interface Props {
+  items: ProductWithSku[];
+}
+
+const { items } = Astro.props;
+---
+
+<div class="row" id="product-container" aria-live="polite" data-total-products={items.length}>
+  {items.map((item, index) => <ProductCard item={item} index={index} />)}
+</div>

@@ -1,0 +1,72 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductGrid from '../../components/ProductGrid.astro';
+import CatalogControls from '../../components/CatalogControls.astro';
+import {
+  getActiveCategories,
+  getCategoryDescription,
+  getCategoryLabel,
+  getCategorySlug,
+  getProductsByCategory,
+  resolveCategoryParamToKey,
+} from '../../lib/catalog';
+import { getCategoryOgImageUrl } from '../../lib/seo';
+
+export function getStaticPaths() {
+  return getActiveCategories()
+    .map((category) => {
+      const rawSlug = String(category.slug || category.key || '').trim();
+      if (!rawSlug) {
+        return null;
+      }
+      return {
+        params: { slug: rawSlug.toLowerCase() },
+        props: { categoryKey: category.key },
+      };
+    })
+    .filter(Boolean);
+}
+
+const { slug } = Astro.params;
+const routeProps = Astro.props as { categoryKey?: string };
+const categoryKey = routeProps.categoryKey || resolveCategoryParamToKey(slug || '') || '';
+const products = getProductsByCategory(categoryKey);
+const categoryLabel = getCategoryLabel(categoryKey);
+const categoryDescription = getCategoryDescription(categoryKey);
+const categorySlug = getCategorySlug(categoryKey).toLowerCase();
+const legacyCategoryPath = `/pages/${categorySlug}.html`;
+---
+
+<BaseLayout
+  title={`El Rincón de Ébano - ${categoryLabel}`}
+  description={categoryDescription}
+  canonicalPath={legacyCategoryPath}
+  ogTitle={`El Rincón de Ébano - ${categoryLabel}`}
+  ogDescription={categoryDescription}
+  ogImage={getCategoryOgImageUrl(categorySlug)}
+  ogImageAlt={`Imagen de ${categoryLabel}`}
+>
+  <section aria-labelledby="category-heading" class="mb-4">
+    <h1 id="category-heading" class="mb-2">{categoryLabel}</h1>
+  </section>
+
+  {
+    products.length > 0 ? (
+      <>
+        <CatalogControls />
+        <ProductGrid items={products} />
+        <div id="catalog-empty-state" class="alert alert-info d-none mt-3" role="status">
+          No se encontraron productos con los filtros seleccionados.
+        </div>
+        <div id="catalog-controls" class="text-center my-4">
+          <button type="button" id="catalog-load-more" class="btn btn-outline-primary d-none">Cargar más productos</button>
+        </div>
+        <div id="catalog-sentinel" aria-hidden="true"></div>
+      </>
+    ) : (
+      <div class="alert alert-info" role="status">
+        No hay productos disponibles en esta categoría.
+      </div>
+    )
+  }
+</BaseLayout>

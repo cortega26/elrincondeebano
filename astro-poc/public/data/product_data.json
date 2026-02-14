@@ -1,0 +1,4177 @@
+{
+  "version": "20260213-110906",
+  "last_updated": "2026-02-13T11:09:06.492016",
+  "rev": 0,
+  "products": [
+    {
+      "name": "Toalla Papel Nova Clásica",
+      "description": "Dos Rollos de 14m c/u",
+      "price": 2000,
+      "discount": 0,
+      "stock": true,
+      "category": "Limpiezayaseo",
+      "image_path": "assets/images/limpieza_y_aseo/Nova Clásica 2x14m.webp",
+      "image_avif_path": "",
+      "order": 0,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-24T19:47:04.614Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Mont Blanc • Harina sin polvos",
+      "description": "Empaque de 1Kg",
+      "price": 1800,
+      "discount": 0,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Harina Mont Blanc 1Kg.webp",
+      "image_avif_path": "",
+      "order": 1,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T18:27:19.701Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T18:27:19.701Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Coca-Cola 3L",
+      "description": "Envase retornable",
+      "price": 3800,
+      "discount": 0,
+      "stock": true,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Coca Cola 3L.webp",
+      "image_avif_path": "",
+      "order": 2,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-24T19:48:43.501Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Cousiño-Macul • Carmenere Reserva, Chivilingo",
+      "description": "Vino tinto • Botella 750mL • 13,5° G.L.",
+      "price": 5900,
+      "discount": 0,
+      "stock": true,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Carmenere Reserva Chivilingo Cousiño-Macul botella 750mL.webp",
+      "image_avif_path": "",
+      "order": 4,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-10-14T15:11:28.299Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Benedictino • Agua gasificada 2L",
+      "description": "Envase desechable",
+      "price": 2000,
+      "discount": 0,
+      "stock": true,
+      "category": "Aguas",
+      "image_path": "assets/images/bebidas/Agua 2L con gas Benedictino.webp",
+      "image_avif_path": "",
+      "order": 5,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-11-08T15:21:42.878Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-11-08T15:21:42.878Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Misiones de Rengo • Sauvignon Blanc",
+      "description": "Vino blanco • Botella de 750mL • 12° G.L.",
+      "price": 4900,
+      "discount": 0,
+      "stock": false,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Misiones de Rengo Sauvignon Blanc botella 750mL.webp",
+      "image_avif_path": "",
+      "order": 7,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Líder • Tortilla Grande Mexicana",
+      "description": "Empaque de 350g",
+      "price": 2400,
+      "discount": 500,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Tortilla grande mexicana Líder 350g.webp",
+      "image_avif_path": "",
+      "order": 8,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "discount": {
+          "ts": "2026-02-13T14:00:56.838788Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Great Value • Mostaza Clásica",
+      "description": "Botella de 397g",
+      "price": 3500,
+      "discount": 0,
+      "stock": false,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Mostaza Great Value 397g.webp",
+      "image_avif_path": "",
+      "order": 9,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T18:26:54.534Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T18:26:54.534Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-11-07T22:33:20.825Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Sprite 3L",
+      "description": "Envase desechable",
+      "price": 3800,
+      "discount": 0,
+      "stock": true,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Sprite 3L desechable.webp",
+      "image_avif_path": "",
+      "order": 10,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-10-14T15:25:14.308Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Líder • Salame Italiano",
+      "description": "Empaque de 100g",
+      "price": 1900,
+      "discount": 0,
+      "stock": false,
+      "category": "Carnesyembutidos",
+      "image_path": "assets/images/carnes_y_embutidos/Salame Italiano Líder 100g.webp",
+      "image_avif_path": "",
+      "order": 12,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Queso Llanero 1Kg",
+      "description": "A granel, trozo",
+      "price": 10000,
+      "discount": 0,
+      "stock": true,
+      "category": "Lacteos",
+      "image_path": "assets/images/lacteos/Queso-Llanero2.webp",
+      "image_avif_path": "",
+      "order": 13,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Iansa • Azúcar Blanca",
+      "description": "Empaque de 900g",
+      "price": 1500,
+      "discount": 0,
+      "stock": false,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Azúcar blanca Iansa 900g.webp",
+      "image_avif_path": "",
+      "order": 14,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T18:26:43.781Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T18:26:43.781Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Coca-Cola Zero 3L",
+      "description": "Envase retornable",
+      "price": 3800,
+      "discount": 0,
+      "stock": true,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Coca Cola Zero 3L.webp",
+      "image_avif_path": "",
+      "order": 15,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-24T19:48:48.013Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Misiones de Rengo • Merlot",
+      "description": "Vino tinto • Botella de 750mL • 13° G.L.",
+      "price": 4500,
+      "discount": 0,
+      "stock": true,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Merlot Misiones de Rengo 750mL.webp",
+      "image_avif_path": "",
+      "order": 16,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-07T22:33:21.137Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Kross • Cerveza Golden Pale Ale",
+      "description": "Lata de 470cc x 6 unidades",
+      "price": 12000,
+      "discount": 0,
+      "stock": true,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/Kross lata 470mL.webp",
+      "image_avif_path": "",
+      "order": 17,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:14:10.617Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:14:10.617Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-18T00:14:10.617Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:14:10.617Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Crunchis Queso Marco Polo 160g",
+      "description": "Bolsa de plástico",
+      "price": 2000,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Crunchis Queso 160g.webp",
+      "image_avif_path": "",
+      "order": 18,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "McKay • Galletas de Coco",
+      "description": "Empaque de 120g",
+      "price": 1300,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksDulces",
+      "image_path": "assets/images/snacks_dulces/Galletas Coco McKay 120g.webp",
+      "image_avif_path": "",
+      "order": 19,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "description": {
+          "ts": "2025-10-23T14:16:08.383Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-23T14:16:08.383Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Líder • Salsa de tomate",
+      "description": "Botella de 680g",
+      "price": 3500,
+      "discount": 0,
+      "stock": false,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Salsa de Tomate Ketchup Lider 680g.webp",
+      "image_avif_path": "",
+      "order": 20,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T18:25:32.501Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T18:25:32.501Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "McKay • Galletas Niza",
+      "description": "Empaque de 150g",
+      "price": 1300,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksDulces",
+      "image_path": "assets/images/snacks_dulces/Galletas Niza McKay 150g.webp",
+      "image_avif_path": "",
+      "order": 21,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-01-26T22:03:42.971203Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-01-26T22:03:42.971203Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "McKay • Galletas de Mantequilla",
+      "description": "Empaque de 140g",
+      "price": 1300,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksDulces",
+      "image_path": "assets/images/snacks_dulces/Galletas Mantequilla McKay 140g.webp",
+      "image_avif_path": "",
+      "order": 22,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-08T14:36:54.918Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Mantequilla Kumey 250g",
+      "description": "Artesanal",
+      "price": 3200,
+      "discount": 0,
+      "stock": true,
+      "category": "Lacteos",
+      "image_path": "assets/images/lacteos/Mantequilla Kumey.webp",
+      "image_avif_path": "",
+      "order": 23,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Easy Clean Lavanda L",
+      "description": "Arena Sanitaria - Bolsa de 8Kg/10L",
+      "price": 9500,
+      "discount": 0,
+      "stock": true,
+      "category": "Mascotas",
+      "image_path": "assets/images/mascotas/easy-clean-lavanda4474.webp",
+      "image_avif_path": "",
+      "order": 24,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T14:07:25.090559Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Cousiño-Macul • Red Blend Reserva, Chivilingo",
+      "description": "Vino tinto • Botella 750mL • 13,5° G.L.",
+      "price": 5500,
+      "discount": 0,
+      "stock": false,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Red Blend Reserva Chivilingo botella 750mL.webp",
+      "image_avif_path": "",
+      "order": 25,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Rosé E • Misiones de Rengo",
+      "description": "Espumante • Botella de 750mL",
+      "price": 6900,
+      "discount": 0,
+      "stock": false,
+      "category": "Espumantes",
+      "image_path": "assets/images/espumantes/Espumante Misiones de Rengo Rosé.webp",
+      "image_avif_path": "",
+      "order": 26,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T14:04:02.674043Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Demi Sec • Misiones de Rengo",
+      "description": "Espumante • Botella de 750mL",
+      "price": 6900,
+      "discount": 0,
+      "stock": false,
+      "category": "Espumantes",
+      "image_path": "assets/images/espumantes/Espumante Misiones de Rengo Demi Sec.webp",
+      "image_avif_path": "",
+      "order": 27,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T14:04:16.770129Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Brut • Misiones de Rengo",
+      "description": "Espumante • Botella de 750mL",
+      "price": 6900,
+      "discount": 0,
+      "stock": false,
+      "category": "Espumantes",
+      "image_path": "assets/images/espumantes/Espumante Misiones de Rengo Brut.webp",
+      "image_avif_path": "",
+      "order": 28,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-12-29T01:39:16.628081Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Brut • Undurraga",
+      "description": "Espumante • Botella de 750mL",
+      "price": 6900,
+      "discount": 0,
+      "stock": true,
+      "category": "Espumantes",
+      "image_path": "assets/images/espumantes/Undurraga Sweet Moscato 750mL.webp",
+      "image_avif_path": "",
+      "order": 29,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2026-01-13T22:39:14.292702Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-01-13T22:39:14.292702Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Pisco Especial 35° m • Alto del Carmen",
+      "description": "Botella de 750 de mL",
+      "price": 8000,
+      "discount": 1100,
+      "stock": true,
+      "category": "Piscos",
+      "image_path": "assets/images/piscos/Pisco Alto del Carmen Especial 35° 750mL.webp",
+      "image_avif_path": "",
+      "order": 30,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-12-29T20:57:16.386897Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Pisco Especial 35° g • Alto del Carmen",
+      "description": "Botella de 1L",
+      "price": 9900,
+      "discount": 0,
+      "stock": false,
+      "category": "Piscos",
+      "image_path": "assets/images/piscos/Pisco Alto del Carmen Especial 35° 1L.webp",
+      "image_avif_path": "",
+      "order": 31,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Corona • Cerveza Lager",
+      "description": "Lata de 473cc x 6 unidades",
+      "price": 6900,
+      "discount": 0,
+      "stock": false,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/Corona Extra lata 473cc.webp",
+      "image_avif_path": "",
+      "order": 32,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:25:32.081Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:25:32.081Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:25:32.081Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Tocino Ahumado La Preferida",
+      "description": "Empaque de 500g",
+      "price": 7500,
+      "discount": 0,
+      "stock": false,
+      "category": "Carnesyembutidos",
+      "image_path": "assets/images/carnes_y_embutidos/Tocino Ahumado La Preferida 500g.webp",
+      "image_avif_path": "",
+      "order": 33,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Leche Semidescremada Deslactosada",
+      "description": "Envase Tetrabrik de 1L",
+      "price": 1800,
+      "discount": 0,
+      "stock": true,
+      "category": "Lacteos",
+      "image_path": "assets/images/lacteos/Leche semidescremada deslactosada Surlat 1L.webp",
+      "image_avif_path": "",
+      "order": 34,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T14:06:34.562485Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Pepita de Oro • Aceite de Oliva Extra Virgen",
+      "description": "Botella de 1L",
+      "price": 12900,
+      "discount": 1000,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Aceite de Oliva Pepita de Oro 1L.webp",
+      "image_avif_path": "",
+      "order": 35,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T18:27:32.813Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T18:27:32.813Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "El Peñón • Café Gourmet",
+      "description": "Empaque de 500g",
+      "price": 6900,
+      "discount": 1000,
+      "stock": false,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Cafe-El-Peñon-Gourmet-500g.webp",
+      "image_avif_path": "",
+      "order": 36,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T18:28:27.253Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T18:28:27.253Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Becker • Cerveza Lager",
+      "description": "Lata de 354cc x 6 unidades",
+      "price": 3500,
+      "discount": 0,
+      "stock": false,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/Becker lata 350cc.webp",
+      "image_avif_path": "",
+      "order": 37,
+      "is_archived": true,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:25:07.152Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:25:07.152Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:25:07.152Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Coors • Cerveza Lager",
+      "description": "Botella de 355cc x 6 unidades",
+      "price": 6900,
+      "discount": 0,
+      "stock": true,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/Coors botella 355cc.webp",
+      "image_avif_path": "",
+      "order": 38,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:14:54.153Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:14:54.153Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:14:54.153Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Coors • Cerveza Lager",
+      "description": "Lata de 350cc x 6 unidades",
+      "price": 5900,
+      "discount": 0,
+      "stock": false,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/Coors lata 350cc.webp",
+      "image_avif_path": "",
+      "order": 39,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-12-31T17:18:20.604427Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-12-31T17:18:20.604427Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Cristal • Cerveza Lager",
+      "description": "Lata de 350cc x 6 unidades",
+      "price": 4500,
+      "discount": 0,
+      "stock": true,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/Cristal lata b350cc.webp",
+      "image_avif_path": "",
+      "order": 40,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:16:32.369Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:16:32.369Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:16:32.369Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Heineken • Cerveza Lager",
+      "description": "Lata de 350cc x 6 unidades",
+      "price": 5500,
+      "discount": 0,
+      "stock": true,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/Heineken lata 350cc.webp",
+      "image_avif_path": "",
+      "order": 41,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:16:56.577Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:16:56.577Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:16:56.577Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Royal Guard • Cerveza Lager",
+      "description": "Lata de 350cc x 6 unidades",
+      "price": 5500,
+      "discount": 0,
+      "stock": true,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/Royal Guard lata 350cc.webp",
+      "image_avif_path": "",
+      "order": 42,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:17:19.161Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:17:19.161Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:17:19.161Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Stella Artois • Cerveza Lager",
+      "description": "Lata de 354cc x 6 unidades",
+      "price": 5500,
+      "discount": 0,
+      "stock": true,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/Stella Artois lata 350cc.webp",
+      "image_avif_path": "",
+      "order": 43,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-22T15:58:28.000Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Stones • Cerveza Lemon",
+      "description": "Lata de 350cc x 6 unidades",
+      "price": 6900,
+      "discount": 0,
+      "stock": true,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/Stones Limón lata 350cc.webp",
+      "image_avif_path": "assets/images/cervezas/Stones - Lemon lata 350cc.avif",
+      "order": 44,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-11-22T15:58:43.848Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Crema de Leche Surlat",
+      "description": "Presentación de 200mL",
+      "price": 1500,
+      "discount": 0,
+      "stock": false,
+      "category": "Lacteos",
+      "image_path": "assets/images/lacteos/Crema de leche Surlat 200mL.webp",
+      "image_avif_path": "",
+      "order": 45,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T14:06:27.002094Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "PAN • Harina de Maiz",
+      "description": "Empaque de 1Kg",
+      "price": 2200,
+      "discount": 0,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Harina-de-Maiz-blanca-PAN-1-kg.webp",
+      "image_avif_path": "",
+      "order": 46,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T18:26:30.589Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T18:26:30.589Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Nescafé • Café Fina Selección",
+      "description": "Frasco de 200g",
+      "price": 11900,
+      "discount": 1000,
+      "stock": false,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Cafe-Nescafe-Fina-Seleccion-200-g.webp",
+      "image_avif_path": "",
+      "order": 47,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T18:28:01.085Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T18:28:01.085Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-11-07T22:32:55.895Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Queso Crema Rafulco",
+      "description": "Presentación de 190g",
+      "price": 1900,
+      "discount": 0,
+      "stock": false,
+      "category": "Lacteos",
+      "image_path": "assets/images/lacteos/Queso Crema Rafulco 190g.webp",
+      "image_avif_path": "",
+      "order": 48,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Queso Gauda La Vaquita",
+      "description": "Laminado 400g",
+      "price": 4900,
+      "discount": 0,
+      "stock": true,
+      "category": "Lacteos",
+      "image_path": "assets/images/lacteos/Queso Gauda La Vaquita 400g.webp",
+      "image_avif_path": "",
+      "order": 49,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Chuleta Ahumada con hueso x Kg",
+      "description": "Empaque congelado y al vacío (peso aprox. 600g)",
+      "price": 8900,
+      "discount": 0,
+      "stock": true,
+      "category": "Carnesyembutidos",
+      "image_path": "assets/images/carnes_y_embutidos/Chuleta Ahumada con hueso.webp",
+      "image_avif_path": "",
+      "order": 51,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "PF • Jamón de Pierna Acaramelado",
+      "description": "Empaque al vacío de 200g",
+      "price": 2900,
+      "discount": 0,
+      "stock": true,
+      "category": "Carnesyembutidos",
+      "image_path": "assets/images/carnes_y_embutidos/Jamón PF acaramelado 200g.webp",
+      "image_avif_path": "",
+      "order": 52,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2026-01-13T22:38:07.708610Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-01-13T22:38:07.708610Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Salame La Preferida",
+      "description": "Empaque al vacío de 500g",
+      "price": 7500,
+      "discount": 600,
+      "stock": false,
+      "category": "Carnesyembutidos",
+      "image_path": "assets/images/carnes_y_embutidos/Salame La Preferida 500g.webp",
+      "image_avif_path": "",
+      "order": 53,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Sprite Zero 2L",
+      "description": "Envase retornable",
+      "price": 3000,
+      "discount": 0,
+      "stock": true,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Sprite 2L zero.webp",
+      "image_avif_path": "",
+      "order": 54,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-10-14T15:25:21.119Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Fanta 3L",
+      "description": "Envase retornable",
+      "price": 3800,
+      "discount": 0,
+      "stock": true,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Fanta Naranja 3L retornable.webp",
+      "image_avif_path": "",
+      "order": 55,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T13:53:44.905940Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Fanta Zero 2L",
+      "description": "Envase retornable",
+      "price": 3000,
+      "discount": 0,
+      "stock": true,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Fanta 2L zero.webp",
+      "image_avif_path": "",
+      "order": 56,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-10-14T15:25:27.856Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Concha y Toro • Deep Carmenere, Diablo",
+      "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
+      "price": 8900,
+      "discount": 0,
+      "stock": false,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Vino Diablo Deep Carmenere.webp",
+      "image_avif_path": "",
+      "order": 57,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-07T22:32:55.954Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Misiones de Rengo • Cabernet Sauvignon",
+      "description": "Vino tinto • Botella de 750mL • 13° G.L.",
+      "price": 4500,
+      "discount": 0,
+      "stock": false,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Vino Cabernet Sauvignon Misiones de Rengo 750 cc.webp",
+      "image_avif_path": "",
+      "order": 58,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Misiones de Rengo • Carmenere",
+      "description": "Vino tinto • Botella de 750mL • 13° G.L.",
+      "price": 4500,
+      "discount": 0,
+      "stock": false,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Vino Carmenere Misiones de Rengo 750 cc.webp",
+      "image_avif_path": "",
+      "order": 59,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Santa Rita • Cabernet Sauvignon, Gran 120",
+      "description": "Vino tinto • Botella de 700mL • 12° G.L.",
+      "price": 5000,
+      "discount": 600,
+      "stock": true,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Gran 120 Cabernet Sauvignon 700mL.webp",
+      "image_avif_path": "",
+      "order": 60,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "San Pedro • Merlot, Gato",
+      "description": "Vino tinto • Botella de 700mL • 12° G.L.",
+      "price": 4000,
+      "discount": 0,
+      "stock": true,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Gato Merlot 700mL.webp",
+      "image_avif_path": "",
+      "order": 61,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "San Pedro • Cabernet Sauvignon, Gato",
+      "description": "Vino tinto • Botella de 700mL • 12° G.L.",
+      "price": 4000,
+      "discount": 0,
+      "stock": true,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Gato Cabernet Sauvignon 700mL.webp",
+      "image_avif_path": "",
+      "order": 62,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Concha y Toro • Ensamblaje Devil's Collection, Casillero del Diablo",
+      "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
+      "price": 10000,
+      "discount": 1100,
+      "stock": false,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Casillero del Diablo Devil's Collection 750mL.webp",
+      "image_avif_path": "",
+      "order": 63,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Concha y Toro • Carmenere Reserva Privada, Casillero del Diablo",
+      "description": "Vino tinto • Botella 750mL • 13,5° G.L.",
+      "price": 11500,
+      "discount": 1600,
+      "stock": false,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Casillero del Diablo Carmenere Reserva Privada 750mL.webp",
+      "image_avif_path": "",
+      "order": 64,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Concha y Toro • Cabernet Sauvignon Reserva Privada, Casillero del Diablo",
+      "description": "Vino tinto • Botella 750mL • 13,5° G.L.",
+      "price": 11500,
+      "discount": 1600,
+      "stock": false,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Casillero del Diablo Cabernet Sauvignon Reserva Privada 750mL.webp",
+      "image_avif_path": "",
+      "order": 65,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-07T22:32:56.014Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Kunstmann • Cerveza Torobayo",
+      "description": "Lata de 470cc",
+      "price": 2000,
+      "discount": 0,
+      "stock": true,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/Kunstmann Torobayo lata 470cc.webp",
+      "image_avif_path": "",
+      "order": 66,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:23:54.025Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:23:54.025Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:23:54.025Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Budweiser • Cerveza Lager",
+      "description": "Lata de 354cc x 6 unidades",
+      "price": 5500,
+      "discount": 0,
+      "stock": true,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/budweiser lata 350cc.webp",
+      "image_avif_path": "",
+      "order": 67,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:24:48.785Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:24:48.785Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:24:48.785Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Paños Wypall X50",
+      "description": "34cm x 28,8cm • 50 paños reusables",
+      "price": 3900,
+      "discount": 400,
+      "stock": true,
+      "category": "Limpiezayaseo",
+      "image_path": "assets/images/limpieza_y_aseo/Wypall-X50.png",
+      "image_avif_path": "",
+      "order": 68,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Paños Wypall X75",
+      "description": "42,3cm x 27,6cm • 60 paños reusables",
+      "price": 8500,
+      "discount": 0,
+      "stock": true,
+      "category": "Limpiezayaseo",
+      "image_path": "assets/images/limpieza_y_aseo/Wypall-X75.webp",
+      "image_avif_path": "",
+      "order": 69,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Pisco Reservado 40° • Alto del Carmen",
+      "description": "Botella de 750mL",
+      "price": 10900,
+      "discount": 1000,
+      "stock": true,
+      "category": "Piscos",
+      "image_path": "assets/images/piscos/Pisco Alto del Carmen Reservado 750mL.webp",
+      "image_avif_path": "",
+      "order": 70,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-11-02T21:43:30.791Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-11-02T21:43:30.791Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Pisco Envejecido Barricas de Selección 40° • Alto del Carmen",
+      "description": "Botella de 750mL",
+      "price": 9900,
+      "discount": 1000,
+      "stock": false,
+      "category": "Piscos",
+      "image_path": "assets/images/piscos/Pisco Alto del Carmen Envejecido 40°.webp",
+      "image_avif_path": "",
+      "order": 71,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Pisco Especial 35° • Artesanos del Cochiguaz",
+      "description": "Botella de 750mL",
+      "price": 5500,
+      "discount": 600,
+      "stock": false,
+      "category": "Piscos",
+      "image_path": "assets/images/piscos/Pisco Artesanos del Cochiguaz.webp",
+      "image_avif_path": "",
+      "order": 72,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T14:08:10.834123Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "San Pedro • Carmenere Gran Reserva 2023, Castillo de Molina",
+      "description": "Vino tinto • Botella de 750mL • 14,5° G.L.",
+      "price": 11000,
+      "discount": 1200,
+      "stock": true,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Castillo de Molina Carmenere Gran Reserva 2019 San Pedro.webp",
+      "image_avif_path": "",
+      "order": 73,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Santa Rita • Carmere Secret Reserve",
+      "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
+      "price": 6000,
+      "discount": 0,
+      "stock": false,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Secret Reserve Carmenere Santa Rita.webp",
+      "image_avif_path": "",
+      "order": 74,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Misiones de Rengo • Rosé",
+      "description": "Vino rosado • Botella de 750mL • 13,5° G.L.",
+      "price": 4900,
+      "discount": 0,
+      "stock": true,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Rosé Misiones de Rengo.webp",
+      "image_avif_path": "",
+      "order": 75,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Pisco Reservado 40° • Malpaso",
+      "description": "Botella de 750mL • D.O. Valle del Limarí",
+      "price": 10500,
+      "discount": 0,
+      "stock": false,
+      "category": "Piscos",
+      "image_path": "assets/images/piscos/Pisco Malpaso Reservado 40°.webp",
+      "image_avif_path": "",
+      "order": 76,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Pisco Añejado en Roble 46° • Mistral",
+      "description": "Botella de 750mL",
+      "price": 11000,
+      "discount": 0,
+      "stock": false,
+      "category": "Piscos",
+      "image_path": "assets/images/piscos/Pisco Añejado en Roble 46° Mistral.webp",
+      "image_avif_path": "",
+      "order": 77,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-07T22:32:56.369Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Austral • Cerveza Calafate Ale",
+      "description": "Lata de 350cc x 6 unidades",
+      "price": 9000,
+      "discount": 0,
+      "stock": false,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/Austral Calafate Ale lata 350cc.webp",
+      "image_avif_path": "",
+      "order": 78,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:22:59.625Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:22:59.625Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:22:59.625Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Miller • Cerveza Lager",
+      "description": "Lata de 355cc x 6 unidades",
+      "price": 7900,
+      "discount": 0,
+      "stock": true,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/Miller lata 350cc.webp",
+      "image_avif_path": "",
+      "order": 79,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-24T19:50:49.461Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Misiones de Rengo • Cabernet Sauvignon Reserva",
+      "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
+      "price": 7000,
+      "discount": 500,
+      "stock": false,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Misiones de Rengo Cabernet Sauvignon botella 750mL.webp",
+      "image_avif_path": "",
+      "order": 80,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Misiones de Rengo • Carmenere Reserva",
+      "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
+      "price": 7000,
+      "discount": 500,
+      "stock": true,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Misiones de Rengo Carmenere Reserva botella 750mL.webp",
+      "image_avif_path": "",
+      "order": 81,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Concha y Toro • Cabernet Sauvignon Reserva Especial, Casillero del Diablo",
+      "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
+      "price": 7500,
+      "discount": 0,
+      "stock": false,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Cabernet Reserva Especial Casillero del Diablo botella de 750mL.webp",
+      "image_avif_path": "",
+      "order": 82,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Concha y Toro • Merlot Reserva Especial, Casillero del Diablo",
+      "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
+      "price": 7500,
+      "discount": 0,
+      "stock": false,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Merlot Casillero del Diablo Concha y Toro botella 750mL.webp",
+      "image_avif_path": "",
+      "order": 83,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Misiones de Rengo • Cabernet Sauvignon Gran Reserva Black 2022",
+      "description": "Vino tinto • Botella de 750mL • 14° G.L.",
+      "price": 12000,
+      "discount": 2100,
+      "stock": true,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Cabernet Sauvignon Gran Reserva Misiones de Rengo botella 750mL.webp",
+      "image_avif_path": "",
+      "order": 84,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Misiones de Rengo • Carmenere Gran Reserva Black 2022",
+      "description": "Vino tinto • Botella de 750mL • 14° G.L.",
+      "price": 12000,
+      "discount": 2100,
+      "stock": false,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Carmenere Gran Reserva Misiones de Rengo botella 750mL.webp",
+      "image_avif_path": "",
+      "order": 85,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-07T22:33:20.914Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Cousiño-Macul • Cabernet Sauvignon Reserva, Chivilingo",
+      "description": "Vino tinto • Botella 750mL • 13,5° G.L.",
+      "price": 5500,
+      "discount": 0,
+      "stock": true,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Cabernet Sauvignon Reserva Chivilingo Cousiño-Macul botella 750mL.webp",
+      "image_avif_path": "",
+      "order": 86,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Pisco Sour Limón Zero 14° • Secreto Peruano",
+      "description": "Pisco Sour • Botella de 700mL",
+      "price": 4500,
+      "discount": 0,
+      "stock": false,
+      "category": "Piscos",
+      "image_path": "assets/images/piscos/Pisco Sour Limón Zero Secreto Peruano 700mL.webp",
+      "image_avif_path": "",
+      "order": 87,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Soprole • Jugo de Naranja",
+      "description": "Envase de 1L • Sin azúcar añadida",
+      "price": 1500,
+      "discount": 0,
+      "stock": true,
+      "category": "Jugos",
+      "image_path": "assets/images/jugos/jugo-soprole-1-lt.webp",
+      "image_avif_path": "",
+      "order": 88,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T15:17:46.620Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T15:17:46.620Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Soprole • Jugo de Durazno",
+      "description": "Envase de 1L • Sin azúcar añadida",
+      "price": 1500,
+      "discount": 0,
+      "stock": true,
+      "category": "Jugos",
+      "image_path": "assets/images/jugos/Jugo-Durazno-Soprole-1L.webp",
+      "image_avif_path": "",
+      "order": 89,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T15:17:33.010Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T15:17:33.010Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Our Finest • Chocolate amargo 90% cacao",
+      "description": "Barra de 100g",
+      "price": 3800,
+      "discount": 0,
+      "stock": true,
+      "category": "Chocolates",
+      "image_path": "assets/images/chocolates/Chocolate amargo Our Finest 90_ cacao.webp",
+      "image_avif_path": "",
+      "order": 90,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T13:58:01.922008Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Doritos • Tortillas Maíz Queso",
+      "description": "Bolsa de 140g",
+      "price": 2000,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Doritos Queso 140gr.webp",
+      "image_avif_path": "",
+      "order": 91,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-01-13T22:34:19.383391Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Papas Caseras Marco Polo 200g",
+      "description": "Bolsa de plástico",
+      "price": 2200,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Papas-Marco-Polo-Caseras-200g.webp",
+      "image_avif_path": "",
+      "order": 92,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Papas Rústicas Sal de Mar Marco Polo 150g",
+      "description": "Bolsa de plástico",
+      "price": 1900,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Papas Rústicas Sal de Mar Marco Polo 150g.webp",
+      "image_avif_path": "",
+      "order": 93,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Pirulín grande",
+      "description": "Lata de 300g",
+      "price": 7900,
+      "discount": 0,
+      "stock": true,
+      "category": "SnacksDulces",
+      "image_path": "assets/images/snacks_dulces/Pirulin 300g.webp",
+      "image_avif_path": "",
+      "order": 94,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-11-07T22:17:27.439Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-11-07T22:17:27.439Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Nestlé • Súper 8, pack de 4 unidades",
+      "description": "Barras de 29g c/u",
+      "price": 2000,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksDulces",
+      "image_path": "assets/images/snacks_dulces/Nestlé - Super 8 - 4 unidades.webp",
+      "image_avif_path": "",
+      "order": 95,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-07T22:18:38.528Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Mario Bros",
+      "description": "Llavero PVC alta calidad",
+      "price": 3900,
+      "discount": 0,
+      "stock": true,
+      "category": "Llaveros",
+      "image_path": "assets/images/llaveros/Mario.webp",
+      "image_avif_path": "",
+      "order": 96,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-10-14T15:30:54.687Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Luigi",
+      "description": "Llavero PVC alta calidad",
+      "price": 3900,
+      "discount": 0,
+      "stock": true,
+      "category": "Llaveros",
+      "image_path": "assets/images/llaveros/Luigi.webp",
+      "image_avif_path": "",
+      "order": 97,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-10-14T15:30:57.608Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Yoshi",
+      "description": "Llavero PVC alta calidad",
+      "price": 3900,
+      "discount": 0,
+      "stock": true,
+      "category": "Llaveros",
+      "image_path": "assets/images/llaveros/Yoshi.webp",
+      "image_avif_path": "",
+      "order": 98,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-10-14T15:31:00.347Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Peach",
+      "description": "Llavero PVC alta calidad",
+      "price": 3900,
+      "discount": 0,
+      "stock": true,
+      "category": "Llaveros",
+      "image_path": "assets/images/llaveros/Peach.webp",
+      "image_avif_path": "",
+      "order": 99,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-10-14T15:31:02.685Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Bowser",
+      "description": "Llavero PVC alta calidad",
+      "price": 3900,
+      "discount": 0,
+      "stock": true,
+      "category": "Llaveros",
+      "image_path": "assets/images/llaveros/Bowser.webp",
+      "image_avif_path": "",
+      "order": 100,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T14:05:16.874219Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Donkey Kong",
+      "description": "Llavero PVC alta calidad",
+      "price": 3900,
+      "discount": 0,
+      "stock": true,
+      "category": "Llaveros",
+      "image_path": "assets/images/llaveros/Donkey Kong.webp",
+      "image_avif_path": "",
+      "order": 101,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T14:05:18.178438Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Leche Condensada Parmalat",
+      "description": "Envase Tetra Brik® de 395g",
+      "price": 2900,
+      "discount": 0,
+      "stock": true,
+      "category": "Lacteos",
+      "image_path": "assets/images/lacteos/Parmalat-Leche-Condensada-395-gr.png",
+      "image_avif_path": "",
+      "order": 102,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T14:06:58.658465Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Toalla Papel Nova Clásica XL",
+      "description": "Rollo de 45m",
+      "price": 2600,
+      "discount": 0,
+      "stock": false,
+      "category": "Limpiezayaseo",
+      "image_path": "assets/images/limpieza_y_aseo/Nova Clásica XL 45m.webp",
+      "image_avif_path": "",
+      "order": 103,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Toalla Papel Favorita Estilo",
+      "description": "Dos rollos de 26m c/u",
+      "price": 3900,
+      "discount": 0,
+      "stock": false,
+      "category": "Limpiezayaseo",
+      "image_path": "assets/images/limpieza_y_aseo/Favorita Estilo 2x 52m.webp",
+      "image_avif_path": "",
+      "order": 104,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-10-14T15:30:10.196Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-11-07T22:32:56.425Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "UNO",
+      "description": "Juego de Cartas",
+      "price": 4000,
+      "discount": 0,
+      "stock": false,
+      "category": "Juegos",
+      "image_path": "assets/images/juegos/UNO.webp",
+      "image_avif_path": "",
+      "order": 105,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-07T22:32:56.613Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Nescafé • Café Tradición",
+      "description": "Lata 150g",
+      "price": 7500,
+      "discount": 0,
+      "stock": false,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Cafe Nescafé Tradición 150g.webp",
+      "image_avif_path": "",
+      "order": 106,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T14:01:15.706037Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Queso Llanero 1/4Kg",
+      "description": "A granel, trozo",
+      "price": 3000,
+      "discount": 0,
+      "stock": true,
+      "category": "Lacteos",
+      "image_path": "assets/images/lacteos/Queso-Llanero2.webp",
+      "image_avif_path": "",
+      "order": 107,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Leche Entera",
+      "description": "Envase Tetrabrik de 1L",
+      "price": 1800,
+      "discount": 0,
+      "stock": true,
+      "category": "Lacteos",
+      "image_path": "assets/images/lacteos/Leche entera Líder 1L.webp",
+      "image_avif_path": "",
+      "order": 108,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2026-02-13T14:05:54.258267Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Líder • Atún Lomitos en Agua",
+      "description": "Lata. Peso neto: 140g",
+      "price": 1900,
+      "discount": 0,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Líder - Atún en agua 140g.webp",
+      "image_avif_path": "assets/images/despensa/Líder - Atún en agua 140g.avif",
+      "order": 109,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "image_path": {
+          "ts": "2025-10-21T19:55:52.575Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_avif_path": {
+          "ts": "2025-10-21T19:55:52.575Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-21T19:55:52.575Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Líder • Aceite de Maravilla",
+      "description": "Botella de 1L",
+      "price": 3600,
+      "discount": 0,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Aceite de Maravilla Líder 1L.webp",
+      "image_avif_path": "",
+      "order": 110,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "discount": {
+          "ts": "2026-01-13T22:37:22.130051Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-01-13T22:37:22.130051Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Mix de Papas Terra 120g",
+      "description": "Bolsa de plástico",
+      "price": 2000,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Terra Mix Papas 120g.webp",
+      "image_avif_path": "",
+      "order": 111,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Bolsas biodegradables para mascotas",
+      "description": "3 rollos de 15 bolsas cada una",
+      "price": 2000,
+      "discount": 0,
+      "stock": true,
+      "category": "Mascotas",
+      "image_path": "assets/images/mascotas/Bolsa biodegradable caca perro.webp",
+      "image_avif_path": "",
+      "order": 112,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Líder • Maíz Curagua (cabritas/cotufas)",
+      "description": "Bolsa de 500g",
+      "price": 2200,
+      "discount": 0,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/maiz-removebg-preview.webp",
+      "image_avif_path": "",
+      "order": 113,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T18:25:55.541Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T18:25:55.541Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Great Value • Chocolate con Avellanas",
+      "description": "Barra de 100g",
+      "price": 2900,
+      "discount": 0,
+      "stock": true,
+      "category": "Chocolates",
+      "image_path": "assets/images/chocolates/Chocolate con Avellanas Great Value 100g.webp",
+      "image_avif_path": "assets/images/chocolates/Great Value - Chocolate con Avellanas.avif",
+      "order": 114,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2026-02-13T13:58:23.834259Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Corona • Cerveza sin Alcohol",
+      "description": "Botella de 330cc x 6 unidades",
+      "price": 7500,
+      "discount": 0,
+      "stock": false,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/Corona sin alcohol botella 330mL.webp",
+      "image_avif_path": "",
+      "order": 115,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:26:13.177Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:26:13.177Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-18T00:26:13.177Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:26:13.177Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Royal Guard • Cerveza sin Alcohol",
+      "description": "Botella de 355cc x 6 unidades",
+      "price": 6700,
+      "discount": 0,
+      "stock": false,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/Royal Guard botella 355cc.webp",
+      "image_avif_path": "",
+      "order": 116,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:26:43.552Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:26:43.552Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:26:43.552Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "OMO Ultraconcentrado 500mL",
+      "description": "Ultraconcentrado para piel sensible",
+      "price": 5500,
+      "discount": 0,
+      "stock": false,
+      "category": "Limpiezayaseo",
+      "image_path": "assets/images/limpieza_y_aseo/OMO-piel-sensible-500mL.webp",
+      "image_avif_path": "",
+      "order": 117,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-01-13T22:36:45.362102Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Papas Corte Americano Marco Polo 170g",
+      "description": "Bolsa de plástico",
+      "price": 2000,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Americano 170g.webp",
+      "image_avif_path": "",
+      "order": 118,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Sprite 2L",
+      "description": "Envase retornable",
+      "price": 3000,
+      "discount": 0,
+      "stock": true,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Sprite 2L.webp",
+      "image_avif_path": "",
+      "order": 119,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-10-14T15:25:30.632Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Sprite Zero 3L",
+      "description": "Envase desechable",
+      "price": 4000,
+      "discount": 0,
+      "stock": false,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Sprite Zero 3L desechable.webp",
+      "image_avif_path": "",
+      "order": 120,
+      "is_archived": true,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-24T19:49:14.797Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Vital • Agua sin gas 1,6L",
+      "description": "Envase desechable",
+      "price": 1500,
+      "discount": 0,
+      "stock": false,
+      "category": "Aguas",
+      "image_path": "assets/images/bebidas/Agua 1,6L con gas Vital.webp",
+      "image_avif_path": "",
+      "order": 121,
+      "is_archived": true,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-24T19:45:33.101Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Vital • Agua sin gas 2,5L",
+      "description": "Envase desechable",
+      "price": 2000,
+      "discount": 0,
+      "stock": false,
+      "category": "Aguas",
+      "image_path": "assets/images/bebidas/Agua 2,5L con gas Vital.webp",
+      "image_avif_path": "",
+      "order": 122,
+      "is_archived": true,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-24T19:45:41.845Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Chocolate con Avellanas Milka",
+      "description": "Barra de 100g",
+      "price": 3200,
+      "discount": 0,
+      "stock": false,
+      "category": "Chocolates",
+      "image_path": "assets/images/chocolates/Chocolate con Almendras Milka 100g.webp",
+      "image_avif_path": "",
+      "order": 123,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Nabisco • Galletas Oreo Original",
+      "description": "Empaque de 108g",
+      "price": 1300,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksDulces",
+      "image_path": "assets/images/snacks_dulces/Galletas Oreo Original 108g.webp",
+      "image_avif_path": "",
+      "order": 124,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T14:08:35.994589Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Costa • Galletas Choco Chips",
+      "description": "Empaque de 125g",
+      "price": 1300,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksDulces",
+      "image_path": "assets/images/snacks_dulces/Choco Chips  Costa 125g.webp",
+      "image_avif_path": "",
+      "order": 125,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-08T14:36:46.445Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Papas Orégano Lay's 140g",
+      "description": "Bolsa de plástico",
+      "price": 1900,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Lays Orégano 140g.webp",
+      "image_avif_path": "",
+      "order": 126,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Papas Jamón Serrano 140g",
+      "description": "Bolsa de plástico",
+      "price": 1900,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Lays-Jamón-Serrano-140gr.webp",
+      "image_avif_path": "",
+      "order": 127,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Tocino Ahumado PF",
+      "description": "Empaque al vacío de 150g",
+      "price": 3500,
+      "discount": 0,
+      "stock": false,
+      "category": "Carnesyembutidos",
+      "image_path": "assets/images/carnes_y_embutidos/Tocino PF 150g.webp",
+      "image_avif_path": "",
+      "order": 128,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-25T14:18:16.167Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Coca-Cola 2L",
+      "description": "Envare retornable",
+      "price": 3000,
+      "discount": 0,
+      "stock": true,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Coca-Cola-2L.webp",
+      "image_avif_path": "",
+      "order": 129,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-24T19:49:18.206Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Coca-Cola Zero 2L",
+      "description": "Envase retornable",
+      "price": 3000,
+      "discount": 0,
+      "stock": true,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Coca-Cola-2L sin azucar.webp",
+      "image_avif_path": "",
+      "order": 130,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-10-14T15:25:52.795Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Fanta 2L",
+      "description": "Envase retornable",
+      "price": 3000,
+      "discount": 0,
+      "stock": true,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Fanta 2L.webp",
+      "image_avif_path": "",
+      "order": 131,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-10-14T15:25:55.403Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Pollo Pechuga deshuesada Congelada Seara",
+      "description": "Empaque de 800g",
+      "price": 5900,
+      "discount": 0,
+      "stock": true,
+      "category": "Carnesyembutidos",
+      "image_path": "assets/images/carnes_y_embutidos/Pechuga pollo deshuesada 800g Seara.webp",
+      "image_avif_path": "",
+      "order": 132,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-11-24T19:50:00.154Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Concha y Toro • Carmenere Reserva, Casillero del Diablo",
+      "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
+      "price": 6900,
+      "discount": 1000,
+      "stock": false,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Concha y Toro, Carmenere, Casillero del Diablo.webp",
+      "image_avif_path": "",
+      "order": 133,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-07T22:33:20.872Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Concha y Toro • Cabernet Sauvignon Reserva, Casillero del Diablo",
+      "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
+      "price": 6900,
+      "discount": 1000,
+      "stock": true,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Concha y Toro, Cabernet Sauvignon, Casillero del Diablo.webp",
+      "image_avif_path": "",
+      "order": 134,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Concha y Toro • Merlot Reserva, Casillero del Diablo",
+      "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
+      "price": 6900,
+      "discount": 1000,
+      "stock": false,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Concha y Toro, Merlot, Casillero del Diablo.webp",
+      "image_avif_path": "",
+      "order": 135,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-07T22:30:17.439Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Concha y Toro • Cabernet Sauvignon, Diablo",
+      "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
+      "price": 8900,
+      "discount": 0,
+      "stock": true,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Vino Diablo Cabernet Sauvignon.webp",
+      "image_avif_path": "",
+      "order": 136,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Concha y Toro • Purple Malbec, Diablo",
+      "description": "Vino tinto • Botella de 750mL • 13,5° G.L.",
+      "price": 8900,
+      "discount": 0,
+      "stock": true,
+      "category": "Vinos",
+      "image_path": "assets/images/vinos/Vino Diablo Malbec.webp",
+      "image_avif_path": "",
+      "order": 137,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Powerade Rojo",
+      "description": "Botella de 1.1L",
+      "price": 1900,
+      "discount": 0,
+      "stock": false,
+      "category": "Energeticaseisotonicas",
+      "image_path": "assets/images/energeticaseisotonicas/Powerade Rojo 1.1L.webp",
+      "image_avif_path": "",
+      "order": 138,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {}
+    },
+    {
+      "name": "Costa • Galletas de Chocolate",
+      "description": "Empaque de 140g",
+      "price": 1300,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksDulces",
+      "image_path": "assets/images/snacks_dulces/Galletas Chocolate Costa 140g.webp",
+      "image_avif_path": "",
+      "order": 139,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "description": {
+          "ts": "2025-10-23T14:16:27.077Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-23T14:16:27.077Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-11-07T22:32:56.764Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Canada Dry • Agua Tónica 1,5L",
+      "description": "Envase desechable",
+      "price": 2900,
+      "discount": 0,
+      "stock": false,
+      "category": "Aguas",
+      "image_path": "assets/images/bebidas/Canada Dry - Agua Tónica 1,5L.webp",
+      "image_avif_path": "",
+      "order": 140,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "order": {
+          "ts": "2025-10-15T22:35:18.285Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Benedictino • Agua sin gas 2L",
+      "description": "Envase desechable",
+      "price": 2000,
+      "discount": 0,
+      "stock": true,
+      "category": "Aguas",
+      "image_path": "assets/images/bebidas/Agua 2L sin gas Benedictino.webp",
+      "image_avif_path": "",
+      "order": 141,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-11-08T15:21:33.246Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-11-08T15:21:33.246Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Gatorade • Bebida Isotónica Cool Blue",
+      "description": "Botella de 1L",
+      "price": 2200,
+      "discount": 0,
+      "stock": true,
+      "category": "Energeticaseisotonicas",
+      "image_path": "assets/images/energeticaseisotonicas/Gatorade 1L Cool Blue.webp",
+      "image_avif_path": "assets/images/energeticaseisotonicas/Gatorade 1L Cool Blue.avif",
+      "order": 141,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T22:51:54.378Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T22:51:54.378Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Shweppes • Agua Tónica",
+      "description": "Botella de 1,5L",
+      "price": 2800,
+      "discount": 800,
+      "stock": true,
+      "category": "Aguas",
+      "image_path": "assets/images/aguas/Shweppes - Agua Tonica 1,5L.webp",
+      "image_avif_path": "assets/images/aguas/Shweppes - Agua Tonica 1,5L.avif",
+      "order": 143,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "discount": {
+          "ts": "2026-01-26T22:04:57.006558Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-01-26T22:04:57.006558Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Gatorade • Bebida Isotónica Frutas Tropicales",
+      "description": "Botella de 1L",
+      "price": 2200,
+      "discount": 0,
+      "stock": false,
+      "category": "Energeticaseisotonicas",
+      "image_path": "assets/images/energeticaseisotonicas/Gatorade 1L Frutas Tropicales.webp",
+      "image_avif_path": "assets/images/energeticaseisotonicas/Gatorade 1L Frutas Tropicales.avif",
+      "order": 143,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T14:02:44.906159Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Gatorade • Bebida Isotónica Limón",
+      "description": "Botella de 1L",
+      "price": 2200,
+      "discount": 0,
+      "stock": true,
+      "category": "Energeticaseisotonicas",
+      "image_path": "assets/images/energeticaseisotonicas/Gatorade 1L Limón.webp",
+      "image_avif_path": "assets/images/energeticaseisotonicas/Gatorade 1L Limón.avif",
+      "order": 144,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T22:52:15.123Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T22:52:15.123Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Lay's • Papas Sabor Crema y Cebolla",
+      "description": "Tarro de 134g",
+      "price": 2500,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Lays - Papas Crema y Cebolla 134g.webp",
+      "image_avif_path": "assets/images/snacks_salados/Lays - Papas Crema y Cebolla 134g.avif",
+      "order": 145,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T14:09:06.490628Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Lay's • Papas sabor Original",
+      "description": "Tarro de 134g",
+      "price": 2500,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Lays - Papas Originales 134g.webp",
+      "image_avif_path": "assets/images/snacks_salados/Lays - Papas Originales 134g.avif",
+      "order": 146,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T14:09:05.706708Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Lay's • Papas sabor Queso",
+      "description": "Tarro de 134g",
+      "price": 2500,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Lays - Papas Queso 134g.webp",
+      "image_avif_path": "assets/images/snacks_salados/Lays - Papas Queso 134g.avif",
+      "order": 147,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T15:18:05.597Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T15:18:05.597Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-11-07T22:32:55.845Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Marco Polo • Papas Onduladas",
+      "description": "Bolsa de 200g",
+      "price": 2500,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Americano 200g.webp",
+      "image_avif_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Americano 200g.avif",
+      "order": 148,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-01-13T22:36:02.245690Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Marco Polo • Papas Lisas",
+      "description": "Bolsa de 200g",
+      "price": 2500,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Liso 200g.webp",
+      "image_avif_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Liso 200g.avif",
+      "order": 149,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T15:18:15.077Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T15:18:15.077Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-11-07T22:32:56.812Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Marco Polo • Maní Salado",
+      "description": "Bolsa de 150g",
+      "price": 1900,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Marco Polo - Maní Salado 150g.webp",
+      "image_avif_path": "assets/images/snacks_salados/Marco Polo - Maní Salado 150g.avif",
+      "order": 150,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T13:51:20.938140Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Marco Polo • Maní sin Sal",
+      "description": "Bolsa de 150g",
+      "price": 1900,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Marco Polo - Maní sin sal 150g.webp",
+      "image_avif_path": "assets/images/snacks_salados/Marco Polo - Maní sin sal 150g.avif",
+      "order": 151,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T13:51:22.122302Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Great Value • Chocolate con Almendras",
+      "description": "Barra de 100g",
+      "price": 2900,
+      "discount": 0,
+      "stock": false,
+      "category": "Chocolates",
+      "image_path": "assets/images/chocolates/Great Value - Chocolate con Almendras.webp",
+      "image_avif_path": "assets/images/chocolates/Great Value - Chocolate con Almendras.avif",
+      "order": 152,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2026-02-13T13:58:20.059315Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Hershey's • Chocolate Cookies and Creme",
+      "description": "Barra de 77g",
+      "price": 2200,
+      "discount": 200,
+      "stock": false,
+      "category": "Chocolates",
+      "image_path": "assets/images/chocolates/Hersheys - Chocolate Cookies n Creme 77g.webp",
+      "image_avif_path": "",
+      "order": 153,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T13:58:36.370310Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Hershey's • Chocolate con Leche",
+      "description": "Barra de 82g",
+      "price": 2200,
+      "discount": 400,
+      "stock": true,
+      "category": "Chocolates",
+      "image_path": "assets/images/chocolates/Chocolate con leche Hershey's 82g.jpg",
+      "image_avif_path": "",
+      "order": 154,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "discount": {
+          "ts": "2026-02-13T13:59:29.699281Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Heyshey's • Chocolate Extra Cremoso",
+      "description": "Barra de 82g",
+      "price": 2200,
+      "discount": 200,
+      "stock": false,
+      "category": "Chocolates",
+      "image_path": "assets/images/chocolates/Hersheys - Chocolate Extra Cremoso 82g.webp",
+      "image_avif_path": "",
+      "order": 155,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-01-13T22:34:59.426870Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-01-13T22:34:59.426870Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Robinson Crusoe • Atún Lomitos en Agua",
+      "description": "Lata. Peso neto: 140g - Peso drenado: 91g",
+      "price": 2200,
+      "discount": 0,
+      "stock": false,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Robinson Crusoe - Atún en agua 140g.webp",
+      "image_avif_path": "assets/images/despensa/Robinson Crusoe - Atún en agua 140g.avif",
+      "order": 156,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T18:25:03.277Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T18:25:03.277Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-11-07T22:33:21.087Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Líder • Cacao Amargo",
+      "description": "Bolsa de 150g",
+      "price": 2400,
+      "discount": 0,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Líder - Cacao Natural en polvo amargo 150g.webp",
+      "image_avif_path": "assets/images/despensa/Líder - Cacao Natural en polvo amargo 150g.avif",
+      "order": 157,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T19:00:02.932Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-17T19:00:02.932Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-17T19:00:02.932Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-17T19:00:02.932Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-17T19:00:02.932Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-17T19:00:02.932Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-17T19:00:02.932Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T19:00:02.932Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Malloa • Salsa Italiana",
+      "description": "Sobre de 200g",
+      "price": 1200,
+      "discount": 0,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Malloa - Salsa Italiana para pastas 200g.webp",
+      "image_avif_path": "assets/images/despensa/Malloa - Salsa Italiana para pastas 200g.avif",
+      "order": 158,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T19:45:26.741Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-17T19:45:26.741Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-17T19:45:26.741Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-17T19:45:26.741Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-17T19:45:26.741Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-17T19:45:26.741Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-17T19:45:26.741Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T19:45:26.741Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Mr. Big • Bebida Energética",
+      "description": "Lata de 473mL",
+      "price": 2000,
+      "discount": 0,
+      "stock": true,
+      "category": "Energeticaseisotonicas",
+      "image_path": "assets/images/energeticaseisotonicas/Mr Big lata 473mL.webp",
+      "image_avif_path": "assets/images/energeticaseisotonicas/Mr Big lata 473mL.avif",
+      "order": 159,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T22:52:48.410Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T22:52:48.410Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Score • Bebida Energética Mango",
+      "description": "Lata de 473mL",
+      "price": 2000,
+      "discount": 0,
+      "stock": false,
+      "category": "Energeticaseisotonicas",
+      "image_path": "assets/images/energeticaseisotonicas/Score Mango lata 473mL.webp",
+      "image_avif_path": "assets/images/energeticaseisotonicas/Score Mango lata 473mL.avif",
+      "order": 160,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T22:51:23.866Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T22:51:23.866Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-11-07T22:32:56.508Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Score • Bebida Energética Guaraná",
+      "description": "Lata de 473mL",
+      "price": 2000,
+      "discount": 0,
+      "stock": true,
+      "category": "Energeticaseisotonicas",
+      "image_path": "assets/images/energeticaseisotonicas/Score Guaraná lata 473mL.webp",
+      "image_avif_path": "assets/images/energeticaseisotonicas/Score Guaraná lata 473mL.avif",
+      "order": 161,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-17T22:51:29.706Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-17T22:51:29.706Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Austral • Cerveza Calafate Ale",
+      "description": "Lata de 470cc x 6 unidades",
+      "price": 12000,
+      "discount": 0,
+      "stock": true,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/Austral Calafate Ale lata 470cc.webp",
+      "image_avif_path": "assets/images/cervezas/Austral Calafate Ale lata 470cc.avif",
+      "order": 162,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-18T00:12:51.546Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-18T00:12:51.546Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-18T00:12:51.546Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-18T00:12:51.546Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-18T00:12:51.546Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-18T00:12:51.546Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-18T00:12:51.546Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-18T00:12:51.546Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Stones • Cerveza Berry",
+      "description": "Lata de 350cc x 6 unidades",
+      "price": 6900,
+      "discount": 0,
+      "stock": true,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/Stones - Berry lata 350cc.webp",
+      "image_avif_path": "assets/images/cervezas/Stones - Berry lata 350cc.avif",
+      "order": 163,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-24T19:50:33.198Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Stones • Cerveza Mango",
+      "description": "Lata de 350cc x 6 unidades",
+      "price": 6900,
+      "discount": 0,
+      "stock": false,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/Stones - Mango lata 350cc.webp",
+      "image_avif_path": "assets/images/cervezas/Stones - Mango lata 350cc.avif",
+      "order": 164,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "price": {
+          "ts": "2025-11-22T15:57:55.420Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-11-22T15:57:55.420Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-11-22T15:57:55.420Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Doritos • Tortillas Maíz Queso",
+      "description": "Bolsa de 285g",
+      "price": 3500,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Doritos Queso 285gr.webp",
+      "image_avif_path": "assets/images/snacks_salados/Doritos Queso 285gr.avif",
+      "order": 165,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-01-13T22:34:20.444748Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Selección • Chips de Plátano Frito",
+      "description": "Bola de 240g",
+      "price": 3500,
+      "discount": 0,
+      "stock": true,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Selección - Plátano Frito 240g.webp",
+      "image_avif_path": "assets/images/snacks_salados/Selección - Plátano Frito 240g.avif",
+      "order": 166,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-07T22:33:20.951Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Marco Polo • Papas Rústicas Sal de Mar",
+      "description": "Bolsa de 130g",
+      "price": 2000,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Marco Polo - Papas Sal de Mar.webp",
+      "image_avif_path": "assets/images/snacks_salados/Marco Polo - Papas Sal de Mar.avif",
+      "order": 167,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-02-13T14:09:03.234179Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Marco Polo • Tortilla Vegetal Kraks Sal de Mar",
+      "description": "Bolsa de 140g",
+      "price": 2000,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksSalados",
+      "image_path": "assets/images/snacks_salados/Marco Polo - Tortillas Vegetal Sal de Mar.webp",
+      "image_avif_path": "assets/images/snacks_salados/Marco Polo - Tortillas Vegetal Sal de Mar.avif",
+      "order": 168,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-01-13T22:34:03.543560Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Costa • Galletas de Mantequilla",
+      "description": "Empaque de 140g",
+      "price": 1300,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksDulces",
+      "image_path": "assets/images/snacks_dulces/Costa - Galletas de Mantequilla 140g.webp",
+      "image_avif_path": "assets/images/snacks_dulces/Costa - Galletas de Mantequilla 140g.avif",
+      "order": 169,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-08T14:36:29.926Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Nescafé • Café Dolca",
+      "description": "Lata de 170g",
+      "price": 6500,
+      "discount": 600,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Nescafé - Café instantáneo 170g.webp",
+      "image_avif_path": "assets/images/despensa/Nescafé - Café instantáneo 170g.avif",
+      "order": 170,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-21T19:59:41.753Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-21T19:59:41.753Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-21T19:59:41.753Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-21T19:59:41.753Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-21T19:59:41.753Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-21T19:59:41.753Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-21T19:59:41.753Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-21T19:59:41.753Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Lobos • Sal Fina",
+      "description": "Empaque de 1Kg",
+      "price": 1200,
+      "discount": 0,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Lobos - Sal 1Kg.webp",
+      "image_avif_path": "assets/images/despensa/Lobos - Sal 1Kg.avif",
+      "order": 171,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-21T20:01:35.329Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-21T20:01:35.329Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-21T20:01:35.329Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-21T20:01:35.329Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-21T20:01:35.329Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-21T20:01:35.329Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-21T20:01:35.329Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-21T20:01:35.329Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "La Romana • Arroz",
+      "description": "Empaque de 800g",
+      "price": 2000,
+      "discount": 0,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/La Romana - Arroz 800g.webp",
+      "image_avif_path": "assets/images/despensa/La Romana - Arroz 800g.avif",
+      "order": 172,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2025-10-21T20:04:09.745Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2025-10-21T20:04:09.745Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2025-10-21T20:04:09.745Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2025-10-21T20:04:09.745Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2025-10-21T20:04:09.745Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2025-10-21T20:04:09.745Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2025-10-21T20:04:09.745Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2025-10-21T20:04:09.745Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Costa • Galletas Brownie Chips",
+      "description": "Empaque de 120g",
+      "price": 1300,
+      "discount": 0,
+      "stock": false,
+      "category": "SnacksDulces",
+      "image_path": "assets/images/snacks_dulces/Costa - Galletas Brownie Chips 120g.webp",
+      "image_avif_path": "assets/images/snacks_dulces/Costa - Galletas Brownie Chips 120g.avif",
+      "order": 173,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2025-11-08T14:36:29.294Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    }
+  ]
+}
