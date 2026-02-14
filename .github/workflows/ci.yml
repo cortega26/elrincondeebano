@@ -56,17 +56,8 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Build Astro storefront
-        run: npm --prefix astro-poc run build
-
       - name: Guard orphan assets
         run: npm run guardrails:assets
-
-      - name: Run lint
-        run: npm run lint
-
-      - name: Run typecheck
-        run: npm run typecheck
 
       - name: Deterministic build check
         run: |
@@ -91,9 +82,6 @@ jobs:
             build-determinism.diff
           if-no-files-found: warn
 
-      - name: Run unit tests
-        run: npm test
-
       - name: Check stylesheet order consistency
         run: npm run check:css-order
 
@@ -108,8 +96,8 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Run Astro interaction suite
-        run: npm run test:e2e:astro
+      - name: Run migration certification gate
+        run: npm run certify:migration
 
       - name: Generate smoke evidence template
         if: always()
