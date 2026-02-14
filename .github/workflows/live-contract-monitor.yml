@@ -1,0 +1,95 @@
+name: Live Contract Monitor
+
+on:
+  schedule:
+    - cron: '23 8 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v4
+        with:
+          node-version: '22.x'
+
+      - name: Run live contract monitor
+        id: monitor
+        continue-on-error: true
+        run: |
+          mkdir -p reports/live-contract
+          node tools/live-contract-monitor.mjs \
+            --timeout-ms "15000" \
+            --sample-size "20" \
+            --report reports/live-contract/latest.json
+
+      - name: Upload live monitor artifact
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v4
+        with:
+          name: live-contract-monitor
+          path: reports/live-contract
+          if-no-files-found: error
+
+      - name: Write monitor summary
+        if: always()
+        shell: bash
+        run: |
+          if [ -f reports/live-contract/latest.json ]; then
+            node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync('reports/live-contract/latest.json','utf8')); console.log('## Live Contract Monitor'); console.log(''); console.log('- Base URL: ' + r.baseUrl); console.log('- Key routes checked: ' + r.keyRouteCount); console.log('- Assets sampled: ' + r.sampledAssetCount); console.log('- Failures: ' + r.failures.length); console.log('- Result: ' + (r.success ? '✅ PASS' : '❌ FAIL'));" >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo "## Live Contract Monitor"
+              echo ""
+              echo "No JSON report was generated."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Open or update failure issue
+        if: ${{ steps.monitor.outcome == 'failure' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          ISSUE_NUMBER="$(gh issue list --state open --label live-contract-monitor --json number --jq '.[0].number')"
+          FAILURE_BODY="$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync('reports/live-contract/latest.json','utf8')); const lines=r.failures.slice(0,20).map(f=>'- ' + f.status + ' ' + f.url + (f.error ? ' (' + f.error + ')' : '')); console.log(['Live contract monitor detected failures.','','Run: ' + process.env.GITHUB_SERVER_URL + '/' + process.env.GITHUB_REPOSITORY + '/actions/runs/' + process.env.GITHUB_RUN_ID,'Generated at: ' + r.generatedAt,'Failures: ' + r.failures.length,'',...lines].join('\n'));")"
+
+          if [ -n "$ISSUE_NUMBER" ]; then
+            gh issue comment "$ISSUE_NUMBER" --body "$FAILURE_BODY"
+          else
+            gh issue create \
+              --title "Live Contract Monitor failure" \
+              --body "$FAILURE_BODY" \
+              --label live-contract-monitor
+          fi
+
+      - name: Close existing monitor issue when healthy
+        if: ${{ steps.monitor.outcome == 'success' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          ISSUE_NUMBER="$(gh issue list --state open --label live-contract-monitor --json number --jq '.[0].number')"
+          if [ -n "$ISSUE_NUMBER" ]; then
+            gh issue comment "$ISSUE_NUMBER" --body "Monitor recovered in run $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID. Closing issue."
+            gh issue close "$ISSUE_NUMBER"
+          fi
+
+      - name: Fail job when monitor fails
+        if: ${{ steps.monitor.outcome == 'failure' }}
+        run: exit 1
