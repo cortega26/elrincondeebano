@@ -4,13 +4,13 @@ on:
   push:
     paths:
       - data/product_data.json
-      - templates/**/*
-      - tools/**/*
+      - data/category_registry.json
+      - astro-poc/**/*
   pull_request:
     paths:
       - data/product_data.json
-      - templates/**/*
-      - tools/**/*
+      - data/category_registry.json
+      - astro-poc/**/*
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -44,21 +44,26 @@ jobs:
         with:
           node-version: 22.x
           cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            astro-poc/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci
+          npm ci --prefix astro-poc
 
-      - name: Rebuild catalog
-        run: npm run build
+      - name: Rebuild Astro catalog
+        run: npm --prefix astro-poc run build
 
       - name: Inspect staged output
         run: |
-          ls -R build | head -n 100
+          ls -R astro-poc/dist | head -n 120
 
       - name: Verify working tree is clean
         run: |
           if [[ -n "$(git status --porcelain)" ]]; then
-            echo "::error::Detected tracked changes after running npm run build. Generated artifacts must live only in the staged build/ directory."
+            echo "::error::Detected tracked changes after running Astro build. Synced data/public files must be committed."
             git status --short
             exit 1
           fi
@@ -75,7 +80,7 @@ jobs:
         with:
           name: product-data-guard-artifacts
           path: |
-            build/asset-manifest.json
+            astro-poc/dist/sitemap.xml
             git-status.txt
           if-no-files-found: warn
 
@@ -86,10 +91,10 @@ jobs:
           {
             echo "## Product Data Guard Summary"
             echo ""
-            echo "- Build output root: build"
-            if [ -f build/asset-manifest.json ]; then
-              echo "- Asset manifest: build/asset-manifest.json"
+            echo "- Build output root: astro-poc/dist"
+            if [ -f astro-poc/dist/sitemap.xml ]; then
+              echo "- Sitemap: astro-poc/dist/sitemap.xml"
             else
-              echo "- Asset manifest: missing"
+              echo "- Sitemap: missing"
             fi
           } >> "$GITHUB_STEP_SUMMARY"

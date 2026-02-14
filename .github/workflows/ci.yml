@@ -33,6 +33,9 @@ jobs:
         with:
           node-version: '22.x'
           cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            astro-poc/package-lock.json
 
       - name: Set deterministic build environment
         run: |
@@ -43,13 +46,18 @@ jobs:
           echo "SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)" >> $GITHUB_ENV
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci
+          npm ci --prefix astro-poc
 
       - name: Determinism path scan
         run: npm run check:determinism
 
       - name: Build project
         run: npm run build
+
+      - name: Build Astro storefront
+        run: npm --prefix astro-poc run build
 
       - name: Guard orphan assets
         run: npm run guardrails:assets
@@ -100,8 +108,8 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Run anti-flicker Playwright suite
-        run: npm run test:e2e
+      - name: Run Astro interaction suite
+        run: npm run test:e2e:astro
 
       - name: Generate smoke evidence template
         if: always()
