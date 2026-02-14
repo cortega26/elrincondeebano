@@ -33,6 +33,17 @@ function normalizeBaseUrl(raw) {
   return parsed.toString().replace(/\/$/, '');
 }
 
+function resolveBaseUrl(raw) {
+  const normalized = normalizeBaseUrl(raw);
+  const lockedDefault = normalizeBaseUrl(DEFAULT_BASE_URL);
+
+  if (normalized !== lockedDefault) {
+    throw new Error(`Unsupported base URL: ${normalized}. Allowed: ${lockedDefault}`);
+  }
+
+  return lockedDefault;
+}
+
 function normalizeAssetPath(raw) {
   if (typeof raw !== 'string') {
     return null;
@@ -171,7 +182,7 @@ async function runCli() {
     allowPositionals: false,
   });
 
-  const baseUrl = normalizeBaseUrl(values['base-url']);
+  const baseUrl = resolveBaseUrl(values['base-url']);
   const timeoutRaw = Number(values['timeout-ms']);
   const sampleRaw = Number(values['sample-size']);
   const timeoutMs = Number.isFinite(timeoutRaw) && timeoutRaw > 0 ? timeoutRaw : DEFAULT_TIMEOUT_MS;
