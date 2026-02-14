@@ -34,7 +34,6 @@ jobs:
         run: |
           mkdir -p reports/live-contract
           node tools/live-contract-monitor.mjs \
-            --base-url "https://www.elrincondeebano.com" \
             --timeout-ms "15000" \
             --sample-size "20" \
             --report reports/live-contract/latest.json
