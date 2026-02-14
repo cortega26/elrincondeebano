@@ -21,27 +21,15 @@ const KEY_ROUTES = [
 
 const PRODUCT_ASSET_FIELDS = ['image_path', 'image_avif_path', 'thumbnail_path'];
 
-function normalizeBaseUrl(raw) {
-  const value = typeof raw === 'string' && raw.trim() ? raw.trim() : DEFAULT_BASE_URL;
-  const parsed = new URL(value);
+function normalizeBaseUrl() {
+  const parsed = new URL(DEFAULT_BASE_URL);
   if (parsed.protocol !== 'https:') {
-    throw new Error(`Base URL must use HTTPS: ${value}`);
+    throw new Error(`Base URL must use HTTPS: ${DEFAULT_BASE_URL}`);
   }
   parsed.pathname = '';
   parsed.search = '';
   parsed.hash = '';
   return parsed.toString().replace(/\/$/, '');
-}
-
-function resolveBaseUrl(raw) {
-  const normalized = normalizeBaseUrl(raw);
-  const lockedDefault = normalizeBaseUrl(DEFAULT_BASE_URL);
-
-  if (normalized !== lockedDefault) {
-    throw new Error(`Unsupported base URL: ${normalized}. Allowed: ${lockedDefault}`);
-  }
-
-  return lockedDefault;
 }
 
 function normalizeAssetPath(raw) {
@@ -174,7 +162,6 @@ async function runMonitor({ baseUrl, timeoutMs, sampleSize, reportPath }) {
 async function runCli() {
   const { values } = parseArgs({
     options: {
-      'base-url': { type: 'string' },
       'timeout-ms': { type: 'string' },
       'sample-size': { type: 'string' },
       report: { type: 'string' },
@@ -182,7 +169,7 @@ async function runCli() {
     allowPositionals: false,
   });
 
-  const baseUrl = resolveBaseUrl(values['base-url']);
+  const baseUrl = normalizeBaseUrl();
   const timeoutRaw = Number(values['timeout-ms']);
   const sampleRaw = Number(values['sample-size']);
   const timeoutMs = Number.isFinite(timeoutRaw) && timeoutRaw > 0 ? timeoutRaw : DEFAULT_TIMEOUT_MS;
