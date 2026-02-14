@@ -25,6 +25,15 @@ function ensureDirFor(filePath) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
 }
 
+function writeFileIfChanged(targetPath, nextContent) {
+  const currentContent = fs.existsSync(targetPath) ? fs.readFileSync(targetPath, 'utf8') : null;
+  if (currentContent === nextContent) {
+    return false;
+  }
+  fs.writeFileSync(targetPath, nextContent, 'utf8');
+  return true;
+}
+
 function copyJson(sourcePath, targetPath) {
   if (!fs.existsSync(sourcePath)) {
     throw new Error(`Missing source JSON: ${sourcePath}`);
@@ -32,7 +41,7 @@ function copyJson(sourcePath, targetPath) {
 
   ensureDirFor(targetPath);
   const payload = JSON.parse(fs.readFileSync(sourcePath, 'utf8'));
-  fs.writeFileSync(targetPath, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
+  writeFileIfChanged(targetPath, `${JSON.stringify(payload, null, 2)}\n`);
   return payload;
 }
 
@@ -41,6 +50,13 @@ function copyFile(sourcePath, targetPath) {
     throw new Error(`Missing source file: ${sourcePath}`);
   }
   ensureDirFor(targetPath);
+  if (fs.existsSync(targetPath)) {
+    const sourceBuffer = fs.readFileSync(sourcePath);
+    const targetBuffer = fs.readFileSync(targetPath);
+    if (sourceBuffer.equals(targetBuffer)) {
+      return;
+    }
+  }
   fs.copyFileSync(sourcePath, targetPath);
 }
 
