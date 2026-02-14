@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Página No Encontrada - El Rincón de Ébano"
+  description="Página no encontrada - El Rincón de Ébano"
+  canonicalPath="/"
+>
+  <section class="text-center py-4" aria-labelledby="not-found-title">
+    <img
+      src="https://elrincondeebano.com/assets/images/web/404.webp"
+      alt="Personaje triste"
+      width="400"
+      height="300"
+      loading="eager"
+      decoding="async"
+      class="img-fluid mb-3"
+    />
+    <h1 id="not-found-title">Awww... No llores.</h1>
+    <p>Es solo un error 404.</p>
+    <p>Lo que buscas puede haberse extraviado en la Memoria a Largo Plazo.</p>
+    <p>
+      Mientras nuestros técnicos neuronales buscan tu página perdida, ¿por qué no
+      <a href="/">regresas a la página de inicio</a>?
+    </p>
+  </section>
+</BaseLayout>
