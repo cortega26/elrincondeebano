@@ -56,6 +56,9 @@ jobs:
       - name: Rebuild Astro catalog
         run: npm --prefix astro-poc run build
 
+      - name: Validate asset contract
+        run: npm --prefix astro-poc run assets:validate
+
       - name: Inspect staged output
         run: |
           ls -R astro-poc/dist | head -n 120
