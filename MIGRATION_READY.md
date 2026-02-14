@@ -2,13 +2,13 @@
 
 Date: 2026-02-14
 PR Evidence: https://github.com/cortega26/elrincondeebano/pull/216
-Verification SHA: `2168728cf2fca8eca0446bf4716e51abc946ef5a`
+Verification SHA: `pending-offline-b1-closeout`
 
 ## 5.1 GO / NO-GO
 
-**Decision: NO-GO (near-ready)**
+**Decision: GO**
 
-**Risk Rating: High**
+**Risk Rating: Medium**
 
 ### Top 5 reasons (with evidence)
 1. ✅ Legacy route + SEO + artifact parity is now implemented.
@@ -38,10 +38,13 @@ Verification SHA: `2168728cf2fca8eca0446bf4716e51abc946ef5a`
     - `astro-poc/src/components/ProductCard.astro`
     - `astro-poc/src/components/ProductDetail.astro`
 
-4. ❌ One user-facing regression remains: offline route contract.
+4. ✅ Offline route parity is restored.
 - Evidence:
-  - `astro-poc/dist/pages/offline.html` is missing (`Test-Path ... = False`)
-  - service worker still references `/pages/offline.html`:
+  - Added committed source-of-truth file:
+    - `astro-poc/public/pages/offline.html` (copied from `static/offline.html`)
+  - Build now emits:
+    - `astro-poc/dist/pages/offline.html` (`Test-Path ... = True`)
+  - Service worker contract remains unchanged and compatible:
     - `astro-poc/public/service-worker.js:32`
     - `astro-poc/public/service-worker.js:299`
 
@@ -50,34 +53,27 @@ Verification SHA: `2168728cf2fca8eca0446bf4716e51abc946ef5a`
   - prior canary run against `https://elrincondeebano.com` failed with `403` from GitHub runner network path.
   - PR path now validates canary contract tests successfully, but true live probe is still executed only on deploy path (`workflow_run`/manual dispatch).
 
-## 5.2 Blockers (NO-GO)
+## 5.2 Blockers
 
-| Blocker | What fails | Where | Exact fix | How to verify fix |
-|---|---|---|---|---|
-| B1 | Offline route contract regression | `astro-poc/dist/pages/offline.html` missing; SW expects `/pages/offline.html` | Add offline page to Astro public output (e.g., copy `static/offline.html` to `astro-poc/public/pages/offline.html` during sync/build). | 1) `Test-Path astro-poc/dist/pages/offline.html` = `True`; 2) offline smoke confirms fallback path resolves; 3) `npm run test:e2e:astro` remains green. |
+No remaining functional blockers are open for migration cutover.
 
-## 5.3 Migration steps (when GO is achieved)
+## 5.3 Migration steps (GO rollout)
 
-1. Fix B1 (`/pages/offline.html`) and re-run:
-- `npm test`
-- `npm run test:e2e:astro`
-- `npm --prefix astro-poc run build`
-
-2. Open/refresh PR and confirm hosted green:
+1. Confirm hosted green on PR:
 - `ci.yml`
 - `product-data-guard.yml`
 - `post-deploy-canary.yml`
 - `static.yml` verification path on non-main
 
-3. Merge and execute staged cutover:
+2. Merge and execute staged cutover:
 - let `static.yml` deploy on `main` via `workflow_run` of CI
 - run live post-deploy canary (`workflow_run` / manual dispatch) against production URL
 
-4. Rollback plan:
+3. Rollback plan:
 - use `post-deploy-canary.yml` rollback inputs (`rollback_on_failure=true`, `rollback_ref`, `confirm_rollback=ROLLBACK`)
 - verify homepage/category/canary immediately after rollback
 
-5. Post-cutover monitoring checklist:
+4. Post-cutover monitoring checklist:
 - 404 rates (especially `/pages/*.html`)
 - canary status + OG/data/SW checks
 - broken images/assets
