@@ -107,6 +107,7 @@ reports/
 # Build output and temporary files
 temp/
 temp_patch.txt
+astro-poc/public/assets/
 
 # Stryker
 .stryker-tmp/
