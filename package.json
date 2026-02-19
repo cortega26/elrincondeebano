@@ -42,7 +42,7 @@
     "smoke:evidence": "node scripts/smoke-evidence.mjs",
     "monitor:live-contract": "node tools/live-contract-monitor.mjs --timeout-ms 15000 --sample-size 20 --report reports/live-contract/latest.json",
     "certify:migration:prepare": "node -e \"const fs=require('fs'); ['build-determinism-a','build-determinism-b'].forEach((p)=>fs.rmSync(p,{recursive:true,force:true}));\"",
-    "certify:migration": "npm run certify:migration:prepare && npm run lint && npm run typecheck && npm run build && npm test && npm run test:e2e:astro && npm --prefix astro-poc run build && npm --prefix astro-poc run assets:validate && npm --prefix astro-poc run contract:artifacts",
+    "certify:migration": "npm run certify:migration:prepare && npm run lint && npm run typecheck && npm run build && npm test && npm run test:e2e:astro && npm --prefix astro-poc run build && npm --prefix astro-poc run assets:validate && npm --prefix astro-poc run contract:http && npm --prefix astro-poc run contract:artifacts",
     "lighthouse:audit": "node tools/lighthouse-audit.mjs",
     "snapshot": "node tools/snapshot-site.mjs --tag dev"
   },

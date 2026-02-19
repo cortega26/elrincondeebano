@@ -21,10 +21,11 @@ const KEY_ROUTES = [
 
 const PRODUCT_ASSET_FIELDS = ['image_path', 'image_avif_path', 'thumbnail_path'];
 
-function normalizeBaseUrl() {
-  const parsed = new URL(DEFAULT_BASE_URL);
+function normalizeBaseUrl(rawBaseUrl = DEFAULT_BASE_URL) {
+  const candidate = typeof rawBaseUrl === 'string' && rawBaseUrl.trim() ? rawBaseUrl.trim() : DEFAULT_BASE_URL;
+  const parsed = new URL(candidate);
   if (parsed.protocol !== 'https:') {
-    throw new Error(`Base URL must use HTTPS: ${DEFAULT_BASE_URL}`);
+    throw new Error(`Base URL must use HTTPS: ${candidate}`);
   }
   parsed.pathname = '';
   parsed.search = '';
@@ -186,6 +187,7 @@ async function runMonitor({ baseUrl, timeoutMs, sampleSize, reportPath }) {
 async function runCli() {
   const { values } = parseArgs({
     options: {
+      'base-url': { type: 'string' },
       'timeout-ms': { type: 'string' },
       'sample-size': { type: 'string' },
       report: { type: 'string' },
@@ -193,7 +195,7 @@ async function runCli() {
     allowPositionals: false,
   });
 
-  const baseUrl = normalizeBaseUrl();
+  const baseUrl = normalizeBaseUrl(values['base-url']);
   const timeoutRaw = Number(values['timeout-ms']);
   const sampleRaw = Number(values['sample-size']);
   const timeoutMs = Number.isFinite(timeoutRaw) && timeoutRaw > 0 ? timeoutRaw : DEFAULT_TIMEOUT_MS;

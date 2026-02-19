@@ -85,6 +85,11 @@ jobs:
       - name: Check stylesheet order consistency
         run: npm run check:css-order
 
+      - name: Validate Astro HTTP contract
+        run: |
+          npm --prefix astro-poc run build
+          npm --prefix astro-poc run contract:http
+
       - name: Cache Playwright browsers
         uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v4
         with:
