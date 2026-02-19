@@ -24,6 +24,12 @@ Scope: Astro migration closeout after legacy root-route regression recovery and 
    - `static.yml` now accepts `workflow_dispatch` input `deploy_ref` (manual SHA deploy support).
    - New workflow `.github/workflows/rollback.yml` deploys arbitrary SHA with deterministic build + explicit confirmation gate.
 
+## Canonical Closeout Record
+
+Full audit-grade closeout report:
+
+`docs/migration/ASTRO_MIGRATION_CLOSEOUT_2026-02-19.md`
+
 ## What Changed
 
 1. Added migration operations runbook:
