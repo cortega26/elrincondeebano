@@ -1,7 +1,28 @@
 # MIGRATION_DONE
 
-Date: 2026-02-14  
-Scope: Post-cutover stabilization after Astro migration and asset-contract hotfix.
+Date: 2026-02-19  
+Scope: Astro migration closeout after legacy root-route regression recovery and rollback hardening.
+
+## Final Recovery Snapshot (2026-02-19)
+
+- Incident: production HTTP contract regression on legacy root routes (`/bebidas.html`, `/vinos.html`, `/e.html`, `/offline.html`) after Astro cutover.
+- Root cause: Astro postbuild flattened `/pages/*.html` but did not generate required legacy root compatibility pages in `astro-poc/dist/`.
+- Fix PR: https://github.com/cortega26/elrincondeebano/pull/224
+  - Fix commit: `e60f494c338677ba18ddd4e8802483487f53a073`
+  - Main merge SHA: `90ccf2aa65f14ce8c768f6fdced4085350340451`
+- Recovery deploy (aligned to merge SHA): https://github.com/cortega26/elrincondeebano/actions/runs/22196521633
+- Post-deploy canary evidence: https://github.com/cortega26/elrincondeebano/actions/runs/22196555559
+
+## Prevention Measures Added (Permanent)
+
+1. Legacy root compatibility pages generated explicitly during Astro postbuild.
+2. Dedicated HTTP contract validation added (`astro-poc/scripts/validate-http-contract.mjs`).
+3. Astro build chain now enforces HTTP contract:
+   - `npm --prefix astro-poc run contract:http`
+4. CI now includes an explicit Astro HTTP contract validation step.
+5. Rollback hardening:
+   - `static.yml` now accepts `workflow_dispatch` input `deploy_ref` (manual SHA deploy support).
+   - New workflow `.github/workflows/rollback.yml` deploys arbitrary SHA with deterministic build + explicit confirmation gate.
 
 ## What Changed
 
@@ -57,10 +78,12 @@ Primary fast rollback target:
 
 - `c83441cff38fd700157138fac700e4e35c4c8bb2`
 
-Use manual dispatch in `post-deploy-canary.yml`:
+Supported rollback paths:
 
-- `rollback_on_failure=true`
-- `rollback_ref=c83441cff38fd700157138fac700e4e35c4c8bb2`
-- `confirm_rollback=ROLLBACK`
+1. `Rollback Pages Deploy` workflow (`rollback.yml`) with:
+   - `rollback_ref=<sha_or_ref>`
+   - `confirm_rollback=ROLLBACK`
+2. `Deploy static content to Pages` (`static.yml`) manual dispatch with:
+   - `deploy_ref=<sha_or_ref>`
 
 See full procedure in `RUNBOOK_MIGRATION_ASTRO.md`.

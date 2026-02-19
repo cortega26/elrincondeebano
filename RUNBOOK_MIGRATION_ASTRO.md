@@ -1,6 +1,6 @@
 # RUNBOOK_MIGRATION_ASTRO
 
-Last updated: 2026-02-14  
+Last updated: 2026-02-19  
 Scope: Post-cutover Astro production operations for `elrincondeebano.com`
 
 ## 1) Production Freeze State
@@ -17,6 +17,7 @@ Production deployment is GitHub Pages only:
 - Trigger source: `Continuous Integration` success on `main`
 - Deploy workflow: `Deploy static content to Pages` (`static.yml`)
 - Output deployed: `astro-poc/dist`
+- Manual deploy override for rollback/replay: `workflow_dispatch` input `deploy_ref`
 
 Verification commands:
 
@@ -35,6 +36,10 @@ Expected:
 These URLs/artifacts must remain valid:
 
 - `/`
+- `/bebidas.html`
+- `/vinos.html`
+- `/e.html`
+- `/offline.html`
 - `/pages/*.html` (including `/pages/offline.html`)
 - `/robots.txt`
 - `/sitemap.xml`
@@ -46,6 +51,7 @@ These URLs/artifacts must remain valid:
 
 Automated enforcement:
 
+- `npm --prefix astro-poc run contract:http`
 - `npm --prefix astro-poc run assets:validate`
 - `npm --prefix astro-poc run contract:artifacts`
 - `npm run certify:migration`
@@ -58,29 +64,34 @@ Use the latest certified stable SHA:
 
 - `c83441cff38fd700157138fac700e4e35c4c8bb2`
 
-## Rollback procedure (manual dispatch)
+## Rollback procedure (manual dispatch, recommended)
 
-1. Open Actions -> `Post-Deploy Canary`.
+1. Open Actions -> `Rollback Pages Deploy`.
 2. Run workflow with:
-   - `rollback_on_failure=true`
    - `rollback_ref=c83441cff38fd700157138fac700e4e35c4c8bb2`
    - `confirm_rollback=ROLLBACK`
-3. Wait for rollback job success.
+3. Wait for deploy job success.
 4. Verify critical paths:
    - `/`
+   - `/bebidas.html`
+   - `/offline.html`
    - `/pages/bebidas.html`
-   - `/pages/offline.html`
    - `/service-worker.js`
    - `/data/product_data.json`
 
 CLI equivalent:
 
 ```powershell
-gh workflow run ".github/workflows/post-deploy-canary.yml" `
-  -f rollback_on_failure=true `
+gh workflow run ".github/workflows/rollback.yml" `
   -f rollback_ref=c83441cff38fd700157138fac700e4e35c4c8bb2 `
   -f confirm_rollback=ROLLBACK
 ```
+
+## Alternate rollback path
+
+Use `Deploy static content to Pages` (`static.yml`) manual dispatch with:
+
+- `deploy_ref=<sha_or_ref_to_restore>`
 
 ## Historical fallback (legacy storefront)
 
@@ -133,3 +144,4 @@ Do not rollback for:
 
 - Current known runner limitation: GitHub-hosted probes can receive `403` from edge protection.  
   This does not by itself indicate production regression; use artifact contract checks and live probes from allowed networks.
+- Queued or stale canary workflow dispatches can block fresh canary runs under concurrency. Cancel stale queued runs before re-dispatching.

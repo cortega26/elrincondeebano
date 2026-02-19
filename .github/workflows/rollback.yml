@@ -1,0 +1,104 @@
+name: Rollback Pages Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      rollback_ref:
+        description: 'Git ref or SHA to deploy to production'
+        required: true
+        default: ''
+      confirm_rollback:
+        description: 'Safety confirmation phrase (must be ROLLBACK)'
+        required: true
+        default: ''
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
+
+jobs:
+  reject-unconfirmed:
+    if: ${{ inputs.confirm_rollback != 'ROLLBACK' }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Require explicit confirmation
+        run: |
+          echo "confirm_rollback must equal ROLLBACK"
+          exit 1
+
+  deploy-rollback:
+    if: ${{ inputs.confirm_rollback == 'ROLLBACK' }}
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout rollback ref
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
+        with:
+          ref: ${{ inputs.rollback_ref }}
+          persist-credentials: false
+
+      - name: Resolve rollback metadata
+        shell: bash
+        run: |
+          echo "ROLLBACK_REF=${{ inputs.rollback_ref }}" >> "$GITHUB_ENV"
+          echo "ROLLBACK_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Set deterministic build environment
+        run: |
+          echo "TZ=UTC" >> $GITHUB_ENV
+          echo "LC_ALL=C.UTF-8" >> $GITHUB_ENV
+          echo "LANG=C.UTF-8" >> $GITHUB_ENV
+          echo "CFIMG_ENABLE=1" >> $GITHUB_ENV
+          echo "SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)" >> $GITHUB_ENV
+
+      - name: Set up Node.js
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v4
+        with:
+          node-version: 22.x
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            astro-poc/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm ci --prefix astro-poc
+
+      - name: Build Astro storefront
+        run: npm --prefix astro-poc run build
+
+      - name: Validate HTTP contract
+        run: npm --prefix astro-poc run contract:http
+
+      - name: Validate artifact contract
+        run: npm --prefix astro-poc run contract:artifacts
+
+      - name: Setup Pages
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+
+      - name: Upload rollback artifact
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v3
+        with:
+          path: astro-poc/dist
+
+      - name: Deploy rollback to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+
+      - name: Write rollback summary
+        shell: bash
+        run: |
+          {
+            echo "## Rollback Deploy"
+            echo ""
+            echo "- Requested ref: ${ROLLBACK_REF}"
+            echo "- Deployed SHA: ${ROLLBACK_SHA}"
+          } >> "$GITHUB_STEP_SUMMARY"
