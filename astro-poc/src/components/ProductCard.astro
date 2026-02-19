@@ -10,6 +10,7 @@ export interface Props {
 const { item } = Astro.props;
 const { product, sku } = item;
 const { index = 0 } = Astro.props;
+const isLikelyLcp = index === 0;
 const price = typeof product.price === 'number' ? product.price : 0;
 const discount = typeof product.discount === 'number' ? product.discount : 0;
 const finalPrice = Math.max(price - discount, 0);
@@ -38,7 +39,8 @@ const hasAvif = typeof product.image_avif_path === 'string' && product.image_avi
         src={imageUrl}
         alt={product.name}
         class="card-img-top product-thumb"
-        loading="lazy"
+        loading={isLikelyLcp ? 'eager' : 'lazy'}
+        fetchpriority={isLikelyLcp ? 'high' : 'auto'}
         decoding="async"
         width="400"
         height="400"
