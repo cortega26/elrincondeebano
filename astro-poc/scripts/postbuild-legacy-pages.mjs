@@ -7,6 +7,7 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '..');
 const pagesRoot = path.join(projectRoot, 'dist', 'pages');
 const distRoot = path.join(projectRoot, 'dist');
+const ROOT_COMPAT_FILES = ['bebidas.html', 'vinos.html', 'e.html', 'offline.html'];
 
 if (!fs.existsSync(pagesRoot)) {
   console.log('No legacy pages output found; skipping flattening.');
@@ -36,6 +37,18 @@ for (const entry of entries) {
 }
 
 console.log(`Flattened ${rewrittenCount} legacy /pages/*.html routes.`);
+
+let rootCompatCount = 0;
+for (const filename of ROOT_COMPAT_FILES) {
+  const sourceFile = path.join(pagesRoot, filename);
+  const targetFile = path.join(distRoot, filename);
+  if (!fs.existsSync(sourceFile)) {
+    throw new Error(`Missing required legacy page for root compatibility: ${path.relative(projectRoot, sourceFile)}`);
+  }
+  fs.copyFileSync(sourceFile, targetFile);
+  rootCompatCount += 1;
+}
+console.log(`Generated ${rootCompatCount} legacy root compatibility pages.`);
 
 const nested404 = path.join(distRoot, '404', 'index.html');
 const flat404 = path.join(distRoot, '404.html');
