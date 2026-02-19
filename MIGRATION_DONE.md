@@ -3,6 +3,12 @@
 Date: 2026-02-14  
 Scope: Post-cutover stabilization after Astro migration and asset-contract hotfix.
 
+## Canonical Closeout Record
+
+Full audit-grade closeout report:
+
+`docs/migration/ASTRO_MIGRATION_CLOSEOUT_2026-02-19.md`
+
 ## What Changed
 
 1. Added migration operations runbook:

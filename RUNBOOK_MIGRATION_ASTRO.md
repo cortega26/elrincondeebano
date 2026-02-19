@@ -3,6 +3,9 @@
 Last updated: 2026-02-14  
 Scope: Post-cutover Astro production operations for `elrincondeebano.com`
 
+See full closeout report:  
+`docs/migration/ASTRO_MIGRATION_CLOSEOUT_2026-02-19.md`
+
 ## 1) Production Freeze State
 
 - Current production commit SHA (GitHub Pages deploy baseline): `c83441cff38fd700157138fac700e4e35c4c8bb2`
