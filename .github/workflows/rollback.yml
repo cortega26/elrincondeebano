@@ -75,11 +75,20 @@ jobs:
       - name: Build Astro storefront
         run: npm --prefix astro-poc run build
 
-      - name: Validate HTTP contract
-        run: npm --prefix astro-poc run contract:http
+      - name: Validate rollback contracts when available
+        shell: bash
+        run: |
+          if node -e "const s=require('./astro-poc/package.json').scripts||{}; process.exit(s['contract:http'] ? 0 : 1)"; then
+            npm --prefix astro-poc run contract:http
+          else
+            echo "contract:http not available on rollback ref; skipping."
+          fi
 
-      - name: Validate artifact contract
-        run: npm --prefix astro-poc run contract:artifacts
+          if node -e "const s=require('./astro-poc/package.json').scripts||{}; process.exit(s['contract:artifacts'] ? 0 : 1)"; then
+            npm --prefix astro-poc run contract:artifacts
+          else
+            echo "contract:artifacts not available on rollback ref; skipping."
+          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
