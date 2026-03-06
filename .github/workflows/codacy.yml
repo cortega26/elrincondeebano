@@ -84,7 +84,7 @@ jobs:
           python3 scripts/sarif_to_md.py results.sarif docs/codacy/REPORT.md
 
       - name: Upload Codacy report artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v4
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4
         with:
           name: codacy-report
           path: docs/codacy/REPORT.md
@@ -178,7 +178,7 @@ jobs:
             exit 1
           fi
       - name: Upload SARIF artifacts
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v4
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4
         with:
           name: sarif-results
           path: results-*.sarif
