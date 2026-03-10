@@ -62,7 +62,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 | Security / Supply Chain Agent | `npm audit --production`                                | Mensual o ante cambios de dependencias.                                                 | Sin vulnerabilidades altas/crit.; documentar hallazgos.                                   | Reporte de auditoría.                     |
 | Security / Supply Chain Agent | `pip-audit -r admin/product_manager/requirements.lock.txt` | Mensual o ante cambios en tooling Python admin.                                          | Sin vulnerabilidades altas/crit. en el lock Python de admin.                              | Reporte de auditoría Python.              |
 | Security / Supply Chain Agent | `npm run security:secret-scan`                          | En cada PR/push (`secret-scan.yml`) y antes de releases.                                | Sin hallazgos de credenciales de alta confianza en archivos versionados.                   | Logs de escaneo de secretos.              |
-| Security / Supply Chain Agent | `npx codacy-analysis-cli` (a través de workflow)        | En CI (`codacy.yml`).                                                                   | SARIF sanitizado y subido.                                                                | `results-*.sarif`.                        |
+| Security / Supply Chain Agent | `semgrep scan --config p/default --config p/secrets --metrics=off --sarif --output reports/semgrep/results.sarif .` | En CI (`semgrep.yml`) y cuando se quiera reproducir localmente el escaneo principal.    | SARIF generado y subido a Code Scanning; reporte Markdown en `reports/semgrep/REPORT.md`. | `reports/semgrep/*`.                      |
 | Test Sentinel                 | `npm ci && npm test`                                    | Ejecuta suite híbrida: `node:test` (legacy) + `Vitest`.                                 | Todas las pruebas pasan (Legacy + Vitest).                                                | Logs de pruebas.                          |
 | Test Sentinel                 | `npx stryker run`                                       | Regresión de calidad en lógica crítica (Cart, Fetch).                                   | Mutation Score estable/incremental.                                                       | Reporte HTML en `reports/mutation/`.      |
 | Test Sentinel                 | `npx vitest run <file>`                                 | Ejecución rápida de tests modernos (`.spec.js`).                                        | Test pasa aisladamente.                                                                   | Output de Vitest.                         |
@@ -89,7 +89,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - [ ] `npm run typecheck` debe terminar en verde para cambios de JS en `src/js/**`.
   - [ ] `npm run format` debe asegurar estilo consistente.
 - **SARIF estable**
-  - Reutilizar el sanitizador existente en `.github/workflows/codacy.yml` (`jq` con `with_entries`). Si se generan SARIF manualmente, aplicar:
+  - Si se generan SARIF manualmente, aplicar:
     ```bash
     jq 'with_entries(select(.key != "")) | if has("$schema") then . else . + {"$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"} end | .version = "2.1.0"' input.sarif > sanitized.sarif
     ```
@@ -154,11 +154,10 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - Trigger: cambios en `assets/images/originals/**` o manual.
   - Node fijado con `actions/setup-node@v4` (`node-version: 22.x`). Usa `npm ci` + scripts `images:generate`, `images:rewrite`, `lint:images`. Auto-commitea resultados.
   - Permisos: `contents: write` para subir optimizaciones.
-- **`Codacy Security Scan` (`.github/workflows/codacy.yml`)**
-  - Trigger: push/PR a `main` y cron semanal.
+- **`Semgrep Security Scan` (`.github/workflows/semgrep.yml`)**
+  - Trigger: push/PR a `main`, cron semanal y ejecución manual.
   - Permisos mínimos (`security-events: write` solo para subir SARIF).
-  - Pasos clave: ejecutar Codacy CLI, dividir SARIF, sanitizar con `jq`, subir a Code Scanning.
-  - _Missing:_ caché de dependencias; evaluar usar `actions/setup-node` con caché `npm` si se añade instalación de paquetes.
+  - Pasos clave: instalar Semgrep desde `tools/requirements-semgrep.txt`, escanear con `p/default` + `p/secrets`, subir SARIF a Code Scanning y adjuntar `reports/semgrep/`.
 - **`Secret Scan` (`.github/workflows/secret-scan.yml`)**
   - Trigger: push/PR, cron semanal y ejecución manual.
   - Stack: Node.js 22.x.
@@ -233,7 +232,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 - `package.json` (scripts y dependencias). [`package.json`](package.json)
 - Lockfile para instalaciones deterministas. [`package-lock.json`](package-lock.json)
 - Configuración de ESLint. [`eslint.config.cjs`](eslint.config.cjs)
-- Workflows de GitHub Actions. [`static.yml`](.github/workflows/static.yml), [`images.yml`](.github/workflows/images.yml), [`codacy.yml`](.github/workflows/codacy.yml), [`secret-scan.yml`](.github/workflows/secret-scan.yml)
+- Workflows de GitHub Actions. [`static.yml`](.github/workflows/static.yml), [`images.yml`](.github/workflows/images.yml), [`semgrep.yml`](.github/workflows/semgrep.yml), [`secret-scan.yml`](.github/workflows/secret-scan.yml)
 - Scripts de build y utilidades. [`tools/`](tools/)
 - Suite de pruebas Node. [`test/`](test/)
 - Documentación operativa existente. [`README.md`](README.md), [`RUNBOOK`](docs/operations/RUNBOOK.md), [`BACKUP`](docs/operations/BACKUP.md), [`QUALITY_GUARDRAILS`](docs/operations/QUALITY_GUARDRAILS.md), [`SMOKE_TEST`](docs/operations/SMOKE_TEST.md), [`OBSERVABILITY`](docs/operations/OBSERVABILITY.md), [`DEPENDENCY_POLICY`](docs/operations/DEPENDENCY_POLICY.md), [`DEBUGGING`](docs/operations/DEBUGGING.md), [`INCIDENT_TRIAGE`](docs/operations/INCIDENT_TRIAGE.md), [`ROLLBACK`](docs/operations/ROLLBACK.md)

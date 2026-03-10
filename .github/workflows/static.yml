@@ -3,10 +3,8 @@ name: Deploy static content to Pages
 # Authoritative production deploy path for elrincondeebano.com
 
 on:
-  # Runs only after CI completes successfully on main
-  workflow_run:
-    workflows: ['Continuous Integration']
-    types: [completed]
+  # Pushes to main are the authoritative production deploy path.
+  push:
     branches: ['main']
 
   # Allows you to run this workflow manually from the Actions tab
@@ -67,7 +65,7 @@ jobs:
           if-no-files-found: error
 
   deploy:
-    if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -76,7 +74,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
         with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy_ref != '' && inputs.deploy_ref || github.event.workflow_run.head_sha || github.sha }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy_ref != '' && inputs.deploy_ref || github.sha }}
       - name: Resolve deploy metadata
         shell: bash
         run: |
@@ -86,7 +84,7 @@ jobs:
           elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "DEPLOY_REQUESTED_REF=${{ github.ref_name }}" >> "$GITHUB_ENV"
           else
-            echo "DEPLOY_REQUESTED_REF=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_ENV"
+            echo "DEPLOY_REQUESTED_REF=${{ github.sha }}" >> "$GITHUB_ENV"
           fi
       - name: Set deterministic build environment
         run: |

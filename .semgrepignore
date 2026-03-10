@@ -1,0 +1,12 @@
+node_modules/
+astro-poc/node_modules/
+build/
+dist/
+astro-poc/dist/
+build-determinism-a/
+build-determinism-b/
+reports/
+playwright-report/
+test-results/
+admin/product_manager/.venv*/
+coverage/
