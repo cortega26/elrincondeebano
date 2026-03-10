@@ -30,10 +30,26 @@ function createFixtureRepo() {
     path.join(repoRoot, 'templates', 'index.ejs'),
     '<img src="/assets/images/web/logo.webp" alt="logo">'
   );
+  writeFile(
+    path.join(repoRoot, 'app.webmanifest'),
+    JSON.stringify(
+      {
+        icons: [{ src: '/assets/images/web/icon-192.png' }],
+      },
+      null,
+      2
+    )
+  );
+  writeFile(
+    path.join(repoRoot, 'service-worker.js'),
+    "const PRECACHE = ['/assets/images/web/placeholder.svg'];\n"
+  );
 
   writeFile(path.join(repoRoot, 'assets', 'images', 'chocolates', 'used.webp'), 'used');
   writeFile(path.join(repoRoot, 'assets', 'images', 'chocolates', 'orphan.webp'), 'orphan');
   writeFile(path.join(repoRoot, 'assets', 'images', 'web', 'logo.webp'), 'logo');
+  writeFile(path.join(repoRoot, 'assets', 'images', 'web', 'icon-192.png'), 'icon');
+  writeFile(path.join(repoRoot, 'assets', 'images', 'web', 'placeholder.svg'), 'placeholder');
   writeFile(path.join(repoRoot, 'assets', 'images', 'originals', 'raw.webp'), 'raw');
 
   return repoRoot;
@@ -59,6 +75,8 @@ test('orphan-assets guard flags unexpected orphan files and ignores configured d
 
   assert.deepStrictEqual(result.unexpectedOrphans, ['assets/images/chocolates/orphan.webp']);
   assert.ok(!result.unexpectedOrphans.includes('assets/images/originals/raw.webp'));
+  assert.ok(!result.orphanAssets.includes('assets/images/web/icon-192.png'));
+  assert.ok(!result.orphanAssets.includes('assets/images/web/placeholder.svg'));
 
   fs.rmSync(repoRoot, { recursive: true, force: true });
 });

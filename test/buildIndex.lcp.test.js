@@ -80,8 +80,8 @@ const preloadType = lcpLink.getAttribute('type');
 assert.strictEqual(preloadType && preloadType.replace(/"/g, ''), 'image/avif');
 assert.strictEqual(lcpLink.getAttribute('imagesizes'), sampleProducts[0].image.sizes);
 
-const productPictures = document.querySelectorAll('picture');
-assert.strictEqual(productPictures.length, 2, 'Expected two picture wrappers');
+const productPictures = document.querySelectorAll('.producto picture');
+assert.strictEqual(productPictures.length, 2, 'Expected two product picture wrappers');
 const firstPicture = productPictures[0];
 const firstAvifSource = firstPicture.querySelector('source[type="image/avif"]');
 assert(firstAvifSource, 'Expected AVIF source element for first product');

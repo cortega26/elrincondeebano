@@ -2,7 +2,10 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const { loadCategoryRegistry } = require('../tools/utils/category-registry');
-const { loadProductData, validateProductDataContract } = require('../tools/utils/product-contract');
+const {
+  loadProductData,
+  validateProductDataContract,
+} = require('../tools/utils/product-contract');
 const { getKnownCategoryKeys } = require('../tools/validate-category-registry');
 
 test('product_data.json satisfies product contract', () => {
@@ -80,6 +83,39 @@ test('product contract rejects invalid product fields and unknown categories', (
   );
   assert.equal(
     result.errors.some((error) => error.includes('field_last_modified.stock.ts must be an ISO date string')),
+    true
+  );
+});
+
+test('product contract requires image_avif_path for raster product images', () => {
+  const knownCategoryKeys = new Set(['abarrotes']);
+  const result = validateProductDataContract(
+    {
+      version: 'v1',
+      last_updated: '2026-02-13T00:00:00.000Z',
+      rev: 0,
+      products: [
+        {
+          name: 'Producto sin AVIF',
+          description: 'Sin companion AVIF',
+          price: 1000,
+          discount: 0,
+          stock: true,
+          category: 'abarrotes',
+          image_path: 'assets/images/demo/producto.webp',
+          image_avif_path: '',
+          order: 0,
+          is_archived: false,
+          rev: 0,
+        },
+      ],
+    },
+    { knownCategoryKeys }
+  );
+
+  assert.equal(result.isValid, false);
+  assert.equal(
+    result.errors.some((error) => error.includes('image_avif_path is required for raster product images')),
     true
   );
 });
