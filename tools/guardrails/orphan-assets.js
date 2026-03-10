@@ -14,6 +14,7 @@ const SCANNED_TEXT_EXTENSIONS = new Set([
   '.ejs',
   '.html',
   '.css',
+  '.webmanifest',
   '.md',
   '.yml',
   '.yaml',
@@ -29,6 +30,8 @@ const DEFAULT_SCAN_TARGETS = [
   '404.html',
   'preview.html',
   'app.webmanifest',
+  'service-worker.js',
+  'static',
 ];
 
 const DEFAULT_ALLOWLIST = {

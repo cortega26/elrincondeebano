@@ -4,6 +4,7 @@ const path = require('path');
 const { rootDir } = require('./output-dir');
 
 const productDataPath = path.join(rootDir, 'data', 'product_data.json');
+const RASTER_IMAGE_EXTENSIONS = new Set(['.webp', '.png', '.jpg', '.jpeg']);
 
 function isPlainObject(value) {
   return value && typeof value === 'object' && !Array.isArray(value);
@@ -41,6 +42,13 @@ function isSafeLocalAssetPath(value) {
     return false;
   }
   return true;
+}
+
+function requiresAvifCompanion(value) {
+  if (!hasText(value) || !isSafeLocalAssetPath(value)) {
+    return false;
+  }
+  return RASTER_IMAGE_EXTENSIONS.has(path.extname(String(value).trim()).toLowerCase());
 }
 
 function getProductLabel(product, index) {
@@ -155,6 +163,13 @@ function validateProduct(product, index, { knownCategoryKeys } = {}) {
     }
   }
 
+  if (
+    requiresAvifCompanion(product.image_path) &&
+    !hasText(typeof product.image_avif_path === 'string' ? product.image_avif_path : '')
+  ) {
+    errors.push(`${prefix} image_avif_path is required for raster product images`);
+  }
+
   validateFieldLastModified(product.field_last_modified, index, errors);
 
   return errors;
@@ -205,6 +220,7 @@ module.exports = {
   productDataPath,
   loadProductData,
   normalizeCategoryKey,
+  requiresAvifCompanion,
   validateProductDataContract,
   validateProduct,
 };

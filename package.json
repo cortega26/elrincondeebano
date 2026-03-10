@@ -10,7 +10,7 @@
   "scripts": {
     "fonts": "node tools/fetch-fonts.mjs",
     "categories:sync": "node tools/sync-category-catalog.js",
-    "preflight": "npm run categories:sync && node tools/preflight.js",
+    "preflight": "npm run categories:sync && npm run images:avif && node tools/preflight.js",
     "build": "npm run preflight && node tools/build.js && node tools/build-index.js && node tools/build-pages.js && node tools/build-components.js && node tools/copy-static.js && node tools/inject-structured-data.js && node tools/inject-resource-hints.js && node tools/generate-sitemap.js && node tools/verify-sw-assets.js",
     "lint": "eslint .",
     "check:determinism": "node tools/check-determinism-paths.mjs",
@@ -19,6 +19,7 @@
     "icons": "node tools/generate-icons.js",
     "validate:categories": "npm run categories:sync && node tools/validate-category-registry.js",
     "images:variants": "node tools/generate-image-variants.js",
+    "images:avif": "node tools/sync-avif-assets.js",
     "images:generate": "node tools/generate-images.mjs",
     "images:og:categories": "node tools/generate-category-og.mjs",
     "canary:post-deploy": "node tools/post-deploy-canary.mjs --base-url https://elrincondeebano.com",

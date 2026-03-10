@@ -12,15 +12,22 @@ const { navGroups } = Astro.props;
   <nav class="navbar navbar-expand-xl navbar-dark bg-dark fixed-top" aria-label="Navegación principal">
     <div class="container-fluid">
       <a class="navbar-brand d-flex align-items-center" href="/">
-        <img
-          src="https://elrincondeebano.com/assets/images/web/logo.webp"
-          alt="Logo de El Rincón de Ébano"
-          width="30"
-          height="30"
-          class="d-inline-block align-top me-1"
-          loading="eager"
-          decoding="async"
-        />
+        <picture>
+          <source
+            type="image/avif"
+            srcset="https://elrincondeebano.com/assets/images/web/logo.avif 32w, https://elrincondeebano.com/assets/images/web/logo.avif 64w, https://elrincondeebano.com/assets/images/web/logo.avif 96w"
+            sizes="40px"
+          />
+          <img
+            src="https://elrincondeebano.com/assets/images/web/logo.webp"
+            alt="Logo de El Rincón de Ébano"
+            width="30"
+            height="30"
+            class="d-inline-block align-top me-1"
+            loading="eager"
+            decoding="async"
+          />
+        </picture>
         <span class="brand-text">El Rincón de Ébano</span>
       </a>
 

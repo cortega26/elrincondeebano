@@ -8,15 +8,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   canonicalPath="/"
 >
   <section class="text-center py-4" aria-labelledby="not-found-title">
-    <img
-      src="https://elrincondeebano.com/assets/images/web/404.webp"
-      alt="Personaje triste"
-      width="400"
-      height="300"
-      loading="eager"
-      decoding="async"
-      class="img-fluid mb-3"
-    />
+    <picture>
+      <source
+        type="image/avif"
+        srcset="https://elrincondeebano.com/assets/images/web/404.avif"
+      />
+      <img
+        src="https://elrincondeebano.com/assets/images/web/404.webp"
+        alt="Personaje triste"
+        width="400"
+        height="300"
+        loading="eager"
+        decoding="async"
+        class="img-fluid mb-3"
+      />
+    </picture>
     <h1 id="not-found-title">Awww... No llores.</h1>
     <p>Es solo un error 404.</p>
     <p>Lo que buscas puede haberse extraviado en la Memoria a Largo Plazo.</p>

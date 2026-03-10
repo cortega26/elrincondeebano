@@ -2,14 +2,20 @@
   <nav class="navbar navbar-expand-xl navbar-dark bg-dark fixed-top" aria-label="Navegación principal">
     <div class="container-fluid">
       <a class="navbar-brand d-flex align-items-center" href="/index.html">
-        <img
-          src="/assets/images/web/logo.webp"
-          srcset="/assets/images/web/logo.webp 32w, /assets/images/web/logo.webp 64w, /assets/images/web/logo.webp 96w"
-          sizes="40px"
-          alt="Logo de El Rincón de Ébano"
-          width="30"
-          height="30"
-          class="d-inline-block align-top me-1">
+        <picture>
+          <source
+            type="image/avif"
+            srcset="/assets/images/web/logo.avif 32w, /assets/images/web/logo.avif 64w, /assets/images/web/logo.avif 96w"
+            sizes="40px">
+          <img
+            src="/assets/images/web/logo.webp"
+            srcset="/assets/images/web/logo.webp 32w, /assets/images/web/logo.webp 64w, /assets/images/web/logo.webp 96w"
+            sizes="40px"
+            alt="Logo de El Rincón de Ébano"
+            width="30"
+            height="30"
+            class="d-inline-block align-top me-1">
+        </picture>
         <span class="brand-text">El Rincón de Ébano</span>
       </a>
       <div class="d-flex align-items-center order-lg-last">
