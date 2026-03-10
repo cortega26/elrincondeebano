@@ -1,3 +1,5 @@
+import { log } from '../utils/logger.mts';
+
 // UI enhancement styles (migrated from csp.js)
 export function injectEnhancementStyles() {
   try {
@@ -21,7 +23,7 @@ export function injectEnhancementStyles() {
       #cartOffcanvas .offcanvas-body > .btn + .btn { margin-top: 0.5rem !important; }
     `;
     document.head.appendChild(styleEl);
-  } catch (e) {
-    console.warn('[modules/enhancements] injectEnhancementStyles error:', e);
+  } catch (error) {
+    log('warn', 'enhancement_styles_injection_failed', { error });
   }
 }

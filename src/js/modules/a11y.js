@@ -1,3 +1,5 @@
+import { log } from '../utils/logger.mts';
+
 // Basic navigation accessibility hooks (migrated from csp.js)
 export function setupNavigationAccessibility() {
   try {
@@ -14,8 +16,8 @@ export function setupNavigationAccessibility() {
     }
     style.textContent = '.keyboard-navigation *:focus { outline: 2px solid var(--primary-color); outline-offset: 2px; }';
     document.head.appendChild(style);
-  } catch (e) {
-    console.warn('[modules/a11y] setupNavigationAccessibility error:', e);
+  } catch (error) {
+    log('warn', 'navigation_accessibility_setup_failed', { error });
   }
 }
 
@@ -136,7 +138,7 @@ export function setupCartOffcanvasAccessibility() {
         handleHide();
       }
     });
-  } catch (e) {
-    console.warn('[modules/a11y] setupCartOffcanvasAccessibility error:', e);
+  } catch (error) {
+    log('warn', 'cart_offcanvas_accessibility_setup_failed', { error });
   }
 }

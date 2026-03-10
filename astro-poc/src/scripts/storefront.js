@@ -1,3 +1,5 @@
+import { log } from '../lib/logger.js';
+
 const CART_STORAGE_KEY = 'astro-poc-cart';
 const MAX_QTY = 50;
 const WHATSAPP_NUMBER = '56951118901';
@@ -615,7 +617,7 @@ async function registerServiceWorker() {
   try {
     await navigator.serviceWorker.register('/service-worker.js', { scope: '/' });
   } catch (error) {
-    console.warn('Service Worker registration failed:', error);
+    log('warn', 'service_worker_registration_failed', { error });
   }
 }
 

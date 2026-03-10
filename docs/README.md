@@ -34,6 +34,7 @@
 - `docs/audit/prompt-19-orphan-assets-pruning-20260213.md`: first orphan-assets pruning batch (`software/`) and baseline reduction.
 - `docs/audit/prompt-20-orphan-assets-pruning-batch2-20260213.md`: second orphan-assets pruning batch (`snacks_salados`) and baseline reduction.
 - `docs/audit/executive-summary-20260213.md`: executive summary and prioritized post-audit backlog.
+- `docs/audit/backlog-triage-20260310.md`: current backlog triage separating vigente vs resuelto.
 
 ## Release and Incidents
 
