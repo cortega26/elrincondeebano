@@ -1,3 +1,5 @@
+import { log } from '../utils/logger.mts';
+
 // PWA manifest injection (migrated from csp.js)
 export function injectPwaManifest() {
   try {
@@ -7,7 +9,7 @@ export function injectPwaManifest() {
       link.href = '/app.webmanifest';
       document.head.appendChild(link);
     }
-  } catch (e) {
-    console.warn('[modules/pwa] injectPwaManifest error:', e);
+  } catch (error) {
+    log('warn', 'pwa_manifest_injection_failed', { error });
   }
 }

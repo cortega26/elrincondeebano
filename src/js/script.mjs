@@ -74,7 +74,8 @@ hydrateSharedProductDataFromInline();
 
 // Performance Metrics
 const logPerformanceMetrics = (
-  perf = typeof window !== 'undefined' ? window.performance : undefined
+  perf = typeof window !== 'undefined' ? window.performance : undefined,
+  logger = log
 ) => {
   /** @type {number | string} */
   let fcpValue = 'unavailable';
@@ -112,11 +113,13 @@ const logPerformanceMetrics = (
       loadTimeValue = perf.timing.loadEventEnd;
     }
   } catch (error) {
-    console.warn('Performance metrics unavailable:', error);
+    logger('warn', 'performance_metrics_snapshot_failed', { error });
   } finally {
-    console.log('First Contentful Paint:', fcpValue);
-    console.log('DOM Content Loaded:', domContentLoadedValue);
-    console.log('Load Time:', loadTimeValue);
+    logger('info', 'performance_metrics_snapshot', {
+      firstContentfulPaint: fcpValue,
+      domContentLoaded: domContentLoadedValue,
+      loadTime: loadTimeValue,
+    });
   }
 };
 

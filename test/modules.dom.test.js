@@ -14,6 +14,9 @@ const loadModule = createModuleLoader(__dirname, {
     '../utils/data-endpoint.mjs': {
       resolveProductDataUrl: () => '/data/product_data.json',
     },
+    '../utils/logger.mts': {
+      log: () => {},
+    },
   },
   transform: (code) =>
     code.replace(

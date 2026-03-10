@@ -1,3 +1,5 @@
+import { log } from '../utils/logger.mts';
+
 // Lightweight performance hooks (migrated from csp.js)
 export function setupPerformanceOptimizations() {
   try {
@@ -7,7 +9,7 @@ export function setupPerformanceOptimizations() {
         img.loading = 'lazy';
       });
     }
-  } catch (e) {
-    console.warn('[modules/perf] setupPerformanceOptimizations error:', e);
+  } catch (error) {
+    log('warn', 'performance_optimizations_setup_failed', { error });
   }
 }
