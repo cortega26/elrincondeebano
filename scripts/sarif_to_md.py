@@ -118,10 +118,10 @@ def build_report(data):
     return grouped, help_by_rule, counts, total
 
 
-def format_report(grouped, help_by_rule, counts, total, repo, sha, status_note):
+def format_report(grouped, help_by_rule, counts, total, repo, sha, status_note, title):
     generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     lines = [
-        "# Codacy Report",
+        f"# {title}",
         "",
         f"Repository: {repo}",
         f"Commit: {sha}",
@@ -174,6 +174,7 @@ def main():
 
     repo = os.environ.get("GITHUB_REPOSITORY", "unknown-repo")
     sha = os.environ.get("GITHUB_SHA", "unknown-sha")
+    title = os.environ.get("SARIF_REPORT_TITLE", "Security Scan Report")
 
     data = load_sarif(args.sarif_path)
     status_note = None
@@ -182,7 +183,7 @@ def main():
         data = {}
 
     grouped, help_by_rule, counts, total = build_report(data)
-    report = format_report(grouped, help_by_rule, counts, total, repo, sha, status_note)
+    report = format_report(grouped, help_by_rule, counts, total, repo, sha, status_note, title)
 
     output_dir = os.path.dirname(os.path.abspath(args.output_path))
     if output_dir:
