@@ -87,7 +87,8 @@ class ProductManager:
         "sync": {
             "enabled": False,
             "api_base": "",
-            "api_token": "",
+            # Optional placeholder; the real bearer token comes from runtime config.
+            "api_token": None,  # nosec B105
             "queue_file": "sync_queue.json",
             "poll_interval": 60,
             "pull_interval": 300,
@@ -236,11 +237,10 @@ class ProductManager:
                 "api_base", cast(Dict[str, Any], defaults["sync"])["api_base"]
             )
         ).strip()
-        sync_config["api_token"] = str(
-            sync_config.get(
-                "api_token", cast(Dict[str, Any], defaults["sync"])["api_token"]
-            )
-        ).strip()
+        sync_token = sync_config.get(
+            "api_token", cast(Dict[str, Any], defaults["sync"])["api_token"]
+        )
+        sync_config["api_token"] = "" if sync_token is None else str(sync_token).strip()
         sync_config["queue_file"] = self._normalize_filename(
             sync_config.get("queue_file"),
             str(cast(Dict[str, Any], defaults["sync"])["queue_file"]),

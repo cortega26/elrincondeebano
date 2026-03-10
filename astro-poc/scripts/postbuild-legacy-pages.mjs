@@ -7,7 +7,7 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '..');
 const pagesRoot = path.join(projectRoot, 'dist', 'pages');
 const distRoot = path.join(projectRoot, 'dist');
-const ROOT_COMPAT_FILES = ['bebidas.html', 'vinos.html', 'e.html', 'offline.html'];
+const ROOT_COMPAT_FILES = ['bebidas.html', 'vinos.html', 'offline.html'];
 
 if (!fs.existsSync(pagesRoot)) {
   console.log('No legacy pages output found; skipping flattening.');

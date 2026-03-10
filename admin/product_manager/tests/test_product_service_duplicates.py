@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 import pytest
 
 from test_support import (

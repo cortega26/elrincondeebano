@@ -1,7 +1,7 @@
 {
   "name": "El Rincón de Ébano",
   "short_name": "Ébano",
-  "description": "Tienda online con bebestibles, snacks, alimentos y más. Entrega inmediata en edificio Ébano.",
+  "description": "Minimarket privado para residentes del edificio Ébano. Pedidos por WhatsApp y entrega dentro del edificio.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

@@ -46,8 +46,17 @@ const legacyCategoryPath = `/pages/${categorySlug}.html`;
   ogImage={getCategoryOgImageUrl(categorySlug)}
   ogImageAlt={`Imagen de ${categoryLabel}`}
 >
-  <section aria-labelledby="category-heading" class="mb-4">
-    <h1 id="category-heading" class="mb-2">{categoryLabel}</h1>
+  <section class="category-intro mb-4" aria-labelledby="category-heading">
+    <div class="category-intro-copy">
+      <p class="category-kicker mb-2">Servicio privado para residentes</p>
+      <h1 id="category-heading" class="mb-2">{categoryLabel}</h1>
+      <p class="category-summary mb-0">
+        El pedido se arma aquí y se envía por WhatsApp para coordinar la entrega dentro del edificio.
+      </p>
+    </div>
+    <div class="category-intro-note" role="note">
+      <strong>Importante:</strong> catálogo pensado para vecinos del edificio Ébano.
+    </div>
   </section>
 
   {

@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 from test_support import (
   bootstrap_tests,
   InMemoryRepository,

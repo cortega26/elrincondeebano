@@ -17,12 +17,10 @@ const REQUIRED_FILES = [
   path.join('data', 'product_data.json'),
   'bebidas.html',
   'vinos.html',
-  'e.html',
   'offline.html',
   path.join('pages', 'offline.html'),
   path.join('pages', 'bebidas.html'),
   path.join('pages', 'vinos.html'),
-  path.join('pages', 'e.html'),
 ];
 
 function ensureFile(relativePath) {
