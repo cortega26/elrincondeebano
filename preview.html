@@ -64,6 +64,7 @@
     .preview .hero h1 {
       font-family: "Playfair Display", "Playfair Fallback", Georgia, "Times New Roman", serif;
       font-size: 1.8rem;
+      text-align: left;
       margin-bottom: 8px;
     }
 
@@ -73,18 +74,28 @@
     }
 
     .preview .trust-row {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
       gap: 8px;
+      margin-top: 18px;
     }
 
     .preview .trust-chip {
-      background: rgba(31, 90, 61, 0.12);
-      color: var(--brand-strong);
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 0.85rem;
-      font-weight: 600;
+      background: #fff;
+      border: 1px solid rgba(31, 90, 61, 0.12);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+
+    .preview .trust-chip strong {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--ink);
+      font-size: 0.95rem;
+    }
+
+    .preview .trust-chip span {
+      color: var(--ink-soft);
+      font-size: 0.9rem;
     }
 
     .preview .btn-primary {
@@ -96,6 +107,79 @@
     .preview .btn-outline-primary {
       color: var(--brand);
       border-color: var(--brand);
+    }
+
+    .preview dialog {
+      width: min(calc(100% - 24px), 620px);
+      border: none;
+      border-radius: 16px;
+      padding: 0;
+      background: transparent;
+    }
+
+    .preview dialog::backdrop {
+      background: rgba(20, 27, 22, 0.5);
+    }
+
+    .preview .dialog-surface {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 24px 50px rgba(31, 42, 30, 0.18);
+    }
+
+    .preview .dialog-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .preview .dialog-head h2 {
+      margin: 0;
+      font-size: 1.35rem;
+    }
+
+    .preview .dialog-close {
+      border: none;
+      background: transparent;
+      color: var(--ink-soft);
+      font-weight: 700;
+    }
+
+    .preview .dialog-copy {
+      color: var(--ink-soft);
+      margin-bottom: 14px;
+    }
+
+    .preview .dialog-steps {
+      display: grid;
+      gap: 12px;
+      padding-left: 20px;
+      margin-bottom: 0;
+    }
+
+    .preview .dialog-steps strong {
+      display: block;
+      color: var(--ink);
+      margin-bottom: 2px;
+    }
+
+    .preview .dialog-note {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: #f8f3ea;
+      color: var(--ink-soft);
+    }
+
+    .preview .dialog-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
     }
 
     .preview .quick-search {
@@ -249,10 +333,11 @@
 
     @media (min-width: 992px) {
       .preview .hero {
-        display: flex;
-        justify-content: space-between;
-        gap: 24px;
-        align-items: center;
+        display: block;
+      }
+
+      .preview .trust-row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
     }
   </style>
@@ -277,20 +362,58 @@
   <main class="container">
     <section class="hero">
       <div>
-        <h1>Pide por WhatsApp y recibe dentro del edificio</h1>
-        <p>Snacks, bebestibles, despensa y básicos de hogar para vecinos. Pedido rápido por WhatsApp, solo residentes.</p>
+        <h1>Haz tu pedido dentro de Ébano</h1>
+        <p>Explora el catálogo, confirma el medio de pago y cierra por WhatsApp para coordinar la entrega dentro del edificio.</p>
         <div class="d-flex gap-2 flex-wrap">
-          <button class="btn btn-primary">Ver catálogo</button>
-          <button class="btn btn-outline-primary">Cómo funciona</button>
+          <button class="btn btn-primary">Ir al catálogo</button>
+          <button class="btn btn-outline-primary" type="button" data-preview-dialog-trigger>Cómo funciona</button>
         </div>
       </div>
-      <div class="trust-row mt-3 mt-lg-0">
-        <span class="trust-chip">Solo residentes</span>
-        <span class="trust-chip">Entrega dentro del edificio</span>
-        <span class="trust-chip">Pago efectivo o transferencia</span>
-        <span class="trust-chip">Pedido por WhatsApp</span>
+      <div class="trust-row" aria-label="Condiciones del servicio">
+        <div class="trust-chip">
+          <strong>Acceso</strong>
+          <span>Solo residentes del edificio Ébano.</span>
+        </div>
+        <div class="trust-chip">
+          <strong>Entrega</strong>
+          <span>Coordinada dentro del edificio.</span>
+        </div>
+        <div class="trust-chip">
+          <strong>Cierre</strong>
+          <span>Pedido final por WhatsApp con resumen automático.</span>
+        </div>
       </div>
     </section>
+
+    <dialog id="preview-service-dialog" aria-labelledby="preview-service-title" aria-describedby="preview-service-copy">
+      <div class="dialog-surface">
+        <div class="dialog-head">
+          <h2 id="preview-service-title">Cómo pedir</h2>
+          <button class="dialog-close" type="button" data-preview-dialog-close>Cerrar</button>
+        </div>
+        <p id="preview-service-copy" class="dialog-copy">
+          La web te ayuda a elegir rápido y el cierre del pedido se hace por WhatsApp.
+        </p>
+        <ol class="dialog-steps">
+          <li>
+            <strong>Explora el catálogo.</strong>
+            Usa categorías, búsqueda y ofertas para encontrar lo que necesitas.
+          </li>
+          <li>
+            <strong>Ajusta tu pedido.</strong>
+            Agrega productos, cambia cantidades y revisa el total antes de enviar.
+          </li>
+          <li>
+            <strong>Confirma por WhatsApp.</strong>
+            El resumen sale listo para coordinar pago y entrega dentro del edificio.
+          </li>
+        </ol>
+        <div class="dialog-note">Servicio exclusivo para residentes de Ébano. La entrega se coordina dentro del edificio.</div>
+        <div class="dialog-actions">
+          <button class="btn btn-outline-primary" type="button" data-preview-dialog-close>Entendido</button>
+        </div>
+      </div>
+    </dialog>
 
     <section class="quick-search">
       <input class="form-control" type="text" placeholder="Buscar por nombre o marca">
@@ -424,5 +547,37 @@
     </div>
   </div>
 
+  <script>
+    (() => {
+      const storageKey = 'ebano-preview-service-guide-seen';
+      const dialog = document.getElementById('preview-service-dialog');
+      const trigger = document.querySelector('[data-preview-dialog-trigger]');
+      const closeControls = document.querySelectorAll('[data-preview-dialog-close]');
+      if (!dialog || !trigger) return;
+
+      const openDialog = () => {
+        if (!dialog.open) dialog.showModal();
+        try { localStorage.setItem(storageKey, 'true'); } catch {}
+      };
+
+      const closeDialog = () => {
+        if (dialog.open) dialog.close();
+      };
+
+      trigger.addEventListener('click', openDialog);
+      closeControls.forEach((control) => control.addEventListener('click', closeDialog));
+      dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) closeDialog();
+      });
+
+      try {
+        if (localStorage.getItem(storageKey) !== 'true') {
+          window.setTimeout(openDialog, 450);
+        }
+      } catch {
+        window.setTimeout(openDialog, 450);
+      }
+    })();
+  </script>
 
 </body></html>
