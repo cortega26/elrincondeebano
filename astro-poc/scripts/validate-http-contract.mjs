@@ -18,7 +18,6 @@ const REQUIRED_HTTP_FILES = [
 ];
 
 const FORBIDDEN_HTTP_FILES = ['e.html', path.join('pages', 'e.html'), path.join('c', 'e', 'index.html')];
-
 function main() {
   if (!fs.existsSync(distRoot)) {
     throw new Error(`Missing dist directory: ${distRoot}`);

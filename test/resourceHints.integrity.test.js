@@ -2,18 +2,71 @@ const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('node:fs');
 const path = require('node:path');
+const { spawnSync } = require('node:child_process');
 const { JSDOM } = require('jsdom');
 
+const REPO_ROOT = path.resolve(__dirname, '..');
 const BUILD_ROOT = process.env.BUILD_OUTPUT_DIR
-  ? path.resolve(__dirname, '..', process.env.BUILD_OUTPUT_DIR)
-  : path.resolve(__dirname, '..', 'build');
+  ? path.resolve(REPO_ROOT, process.env.BUILD_OUTPUT_DIR)
+  : path.join(REPO_ROOT, '.tmp', 'resource-hints-fixtures');
+const REQUIRED_FIXTURES = ['index.html', path.join('pages', 'despensa.html')];
+const PREPARE_STEPS = [
+  'tools/build.js',
+  'tools/build-index.js',
+  'tools/build-pages.js',
+  'tools/build-components.js',
+  'tools/copy-static.js',
+  'tools/inject-structured-data.js',
+  'tools/inject-resource-hints.js',
+];
+
+function hasRequiredFixtures() {
+  return REQUIRED_FIXTURES.every((relPath) => fs.existsSync(path.join(BUILD_ROOT, relPath)));
+}
+
+function prepareFixtureBuild() {
+  if (process.env.BUILD_OUTPUT_DIR) {
+    return;
+  }
+
+  fs.rmSync(BUILD_ROOT, { recursive: true, force: true });
+  fs.mkdirSync(BUILD_ROOT, { recursive: true });
+
+  for (const step of PREPARE_STEPS) {
+    const scriptPath = path.join(REPO_ROOT, step);
+    const result = spawnSync(process.execPath, [scriptPath], {
+      cwd: REPO_ROOT,
+      env: {
+        ...process.env,
+        BUILD_OUTPUT_DIR: BUILD_ROOT,
+      },
+      encoding: 'utf8',
+    });
+
+    if (result.status !== 0) {
+      const stderr = result.stderr?.trim();
+      const stdout = result.stdout?.trim();
+      const detail = stderr || stdout || 'No output captured';
+      throw new Error(`Failed to prepare HTML fixtures via ${step}: ${detail}`);
+    }
+  }
+}
+
+test.before(() => {
+  prepareFixtureBuild();
+  if (!hasRequiredFixtures()) {
+    throw new Error(
+      `Fixture preparation failed. Missing expected HTML files under ${BUILD_ROOT}`
+    );
+  }
+});
 
 function resolveDocumentPath(relPath) {
   const candidate = path.join(BUILD_ROOT, relPath);
   if (fs.existsSync(candidate)) {
     return candidate;
   }
-  throw new Error(`Unable to locate HTML fixture in staged build: ${relPath}`);
+  throw new Error(`Unable to locate HTML fixture in staged build (${BUILD_ROOT}): ${relPath}`);
 }
 
 function loadDocument(relPath) {

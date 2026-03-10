@@ -198,11 +198,11 @@ jobs:
         include: ${{ fromJson(needs.codacy-security-scan.outputs.sarif_files) }}
     steps:
       - name: Download SARIF artifacts
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v4
+        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v4
         with:
           name: sarif-results
       - name: Upload SARIF results file
-        uses: github/codeql-action/upload-sarif@45cbd0c69e560cd9e7cd7f8c32362050c9b7ded2 # v3
+        uses: github/codeql-action/upload-sarif@89a39a4e59826350b863aa6b6252a07ad50cf83e # v3
         with:
           sarif_file: ${{ matrix.file }}
           category: codacy-${{ matrix.index }}
