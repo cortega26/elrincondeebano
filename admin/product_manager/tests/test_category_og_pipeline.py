@@ -1,4 +1,3 @@
-# ruff: noqa: E402
 ﻿import json
 from pathlib import Path
 
@@ -6,8 +5,8 @@ from test_support import bootstrap_tests
 
 bootstrap_tests()
 
-from tools.category_og import pipeline
-from tools.category_og.template import TEMPLATE_VERSION
+from tools.category_og import pipeline  # noqa: E402
+from tools.category_og.template import TEMPLATE_VERSION  # noqa: E402
 
 
 def _write(path: Path, content: str) -> None:
