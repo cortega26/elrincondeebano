@@ -118,6 +118,14 @@ h3 {
   gap: 0.85rem;
 }
 
+.hero-heading-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+}
+
 .hero-copy h1,
 .category-intro-copy h1 {
   text-align: left;
@@ -147,10 +155,13 @@ h3 {
   padding: 1rem;
 }
 
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
+.hero-secondary {
+  width: auto;
+  min-width: 0;
+  white-space: nowrap;
+  align-self: flex-start;
+  border-color: rgba(0, 0, 0, 0.16);
+  color: var(--text-color);
 }
 
 .service-summary {

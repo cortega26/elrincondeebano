@@ -108,10 +108,8 @@
         <section class="hero-section mb-3 mb-md-4" aria-labelledby="main-heading">
           <div class="hero-content">
             <div class="hero-copy">
-              <h1 id="main-heading">Haz tu pedido dentro de Ébano</h1>
-              <p class="lead hero-lead mb-0">Explora el catálogo, confirma el medio de pago y cierra por WhatsApp para coordinar la entrega dentro del edificio.</p>
-              <div class="hero-actions">
-                <a class="btn btn-primary hero-cta" href="#products-heading">Ir al catálogo</a>
+              <div class="hero-heading-row">
+                <h1 id="main-heading">Haz tu pedido dentro de Ébano</h1>
                 <button
                   type="button"
                   class="btn btn-outline-secondary hero-secondary"
@@ -121,6 +119,7 @@
                   Cómo funciona
                 </button>
               </div>
+              <p class="lead hero-lead mb-0">Explora el catálogo, confirma el medio de pago y cierra por WhatsApp para coordinar la entrega dentro del edificio.</p>
             </div>
           </div>
           <div class="service-summary" aria-label="Condiciones del servicio">
@@ -139,15 +138,8 @@
           </div>
         </section>
 
-        <section class="catalog-shell" aria-labelledby="products-heading">
-          <div class="catalog-shell-header">
-            <div>
-              <h2 id="products-heading" class="catalog-title">Catálogo completo</h2>
-              <p class="catalog-intro mb-0">Explora todo el surtido disponible y arma tu pedido sin salir de la página.</p>
-            </div>
-          </div>
-        </section>
-        <section aria-label="Opciones de filtrado y ordenación">
+        <section aria-labelledby="products-heading">
+          <h2 id="products-heading" class="visually-hidden">Catálogo</h2>
           <div class="row mb-3">
             <div class="col-md-6">
               <select id="sort-options" class="form-select" aria-label="Ordenar productos">
@@ -171,7 +163,7 @@
             </div>
           </div>
         </section>
-        <section aria-labelledby="products-heading">
+        <section aria-label="Productos disponibles">
           <div class="row" id="product-container" aria-live="polite" data-total-products="<%= totalProducts %>">
             <% products.forEach((product, index)=> { %>
               <article
