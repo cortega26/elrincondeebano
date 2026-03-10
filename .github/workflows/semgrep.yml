@@ -1,0 +1,75 @@
+name: Semgrep Security Scan
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    branches: ['main']
+  schedule:
+    - cron: '23 3 * * 6'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  semgrep-security-scan:
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    name: Semgrep Security Scan
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: tools/requirements-semgrep.txt
+
+      - name: Install Semgrep
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r tools/requirements-semgrep.txt
+
+      - name: Run Semgrep scan
+        run: |
+          mkdir -p reports/semgrep
+          semgrep scan \
+            --config p/default \
+            --config p/secrets \
+            --metrics=off \
+            --sarif \
+            --output reports/semgrep/results.sarif \
+            --exclude admin/product_manager/.venv-ci-admin \
+            .
+
+      - name: Generate Markdown report
+        env:
+          SARIF_REPORT_TITLE: Semgrep Security Report
+        run: python3 scripts/sarif_to_md.py reports/semgrep/results.sarif reports/semgrep/REPORT.md
+
+      - name: Upload SARIF results
+        if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
+        uses: github/codeql-action/upload-sarif@89a39a4e59826350b863aa6b6252a07ad50cf83e # v3
+        with:
+          sarif_file: reports/semgrep/results.sarif
+          category: semgrep
+
+      - name: Upload Semgrep report artifact
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v4
+        with:
+          name: semgrep-report
+          path: reports/semgrep
+          if-no-files-found: error
