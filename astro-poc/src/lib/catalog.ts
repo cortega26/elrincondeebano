@@ -70,6 +70,8 @@ const HOME_CATEGORY_PRIORITY = [
   'SnacksSalados',
   'Limpiezayaseo',
 ];
+const SITE_ORIGIN = 'https://elrincondeebano.com';
+const PLACEHOLDER_IMAGE_URL = `${SITE_ORIGIN}/assets/images/web/placeholder.svg`;
 
 const catalog = rawProducts as ProductCatalog;
 const categoryRegistry = rawCategories as CategoryRegistry;
@@ -152,17 +154,39 @@ export function formatPrice(value: unknown): string {
   }).format(amount);
 }
 
+function encodePathSegment(segment: string): string {
+  if (!segment) {
+    return segment;
+  }
+
+  try {
+    return encodeURIComponent(decodeURIComponent(segment));
+  } catch {
+    return encodeURIComponent(segment);
+  }
+}
+
+function encodePathname(pathname: string): string {
+  return pathname.split('/').map(encodePathSegment).join('/');
+}
+
 export function resolveImageUrl(imagePath: unknown): string {
   if (typeof imagePath !== 'string' || !imagePath.trim()) {
-    return 'https://elrincondeebano.com/assets/images/web/placeholder.svg';
+    return PLACEHOLDER_IMAGE_URL;
   }
 
-  if (/^https?:\/\//i.test(imagePath)) {
-    return imagePath;
-  }
+  const trimmed = imagePath.trim();
 
-  const normalized = imagePath.replace(/^\/+/, '');
-  return `https://elrincondeebano.com/${normalized}`;
+  try {
+    const url = /^https?:\/\//i.test(trimmed)
+      ? new URL(trimmed)
+      : new URL(trimmed.replace(/^\/+/, ''), `${SITE_ORIGIN}/`);
+    url.pathname = encodePathname(url.pathname);
+    return url.toString();
+  } catch {
+    const normalized = trimmed.replace(/^\/+/, '');
+    return `${SITE_ORIGIN}/${encodePathname(normalized)}`;
+  }
 }
 
 export function getProducts(): ProductRecord[] {

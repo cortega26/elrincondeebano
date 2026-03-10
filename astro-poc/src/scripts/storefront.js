@@ -154,15 +154,8 @@ function initServiceOnboarding() {
 
   const triggerSelector = '[data-service-dialog-trigger]';
   const closeSelector = '[data-service-dialog-close]';
-  const storageKey = 'ebano-service-guide-seen';
-  let autoShowTimer = null;
 
   const openDialog = () => {
-    if (autoShowTimer !== null) {
-      globalThis.clearTimeout(autoShowTimer);
-      autoShowTimer = null;
-    }
-
     if (typeof dialog.showModal === 'function') {
       if (!dialog.hasAttribute('open')) {
         dialog.showModal();
@@ -173,12 +166,6 @@ function initServiceOnboarding() {
 
     dialog.setAttribute('aria-hidden', 'false');
     document.body.classList.add('service-dialog-open');
-
-    try {
-      globalThis.localStorage.setItem(storageKey, 'true');
-    } catch {
-      // Ignore persistence failures.
-    }
   };
 
   const closeDialog = () => {
@@ -220,14 +207,6 @@ function initServiceOnboarding() {
       closeDialog();
     }
   });
-
-  try {
-    if (globalThis.localStorage.getItem(storageKey) !== 'true') {
-      autoShowTimer = globalThis.setTimeout(openDialog, 450);
-    }
-  } catch {
-    autoShowTimer = globalThis.setTimeout(openDialog, 450);
-  }
 }
 
 function getProductCardById(id) {
