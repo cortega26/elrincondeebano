@@ -1,4 +1,3 @@
-# ruff: noqa: E402
 ﻿from pathlib import Path
 
 import pytest
@@ -7,9 +6,9 @@ from test_support import bootstrap_tests
 
 bootstrap_tests()
 
-from admin.product_manager.category_repository import JsonCategoryRepository
-from admin.product_manager.category_service import CategoryService, CategoryServiceError
-from tools.category_og.slug import SlugError, slugify_category
+from admin.product_manager.category_repository import JsonCategoryRepository  # noqa: E402
+from admin.product_manager.category_service import CategoryService, CategoryServiceError  # noqa: E402
+from tools.category_og.slug import SlugError, slugify_category  # noqa: E402
 
 
 def test_slugify_category_normalizes_accents_and_spacing() -> None:
