@@ -18,6 +18,9 @@ function renderIndexTemplate() {
       totalProducts: 0,
       inlinePayload: '{"version":null,"totalProducts":0,"initialProducts":[]}',
       navGroups: [],
+      highlightedCategories: [],
+      featuredDeals: [],
+      quickPicks: [],
       preloadFonts: [],
     },
     { filename: templatePath }
@@ -77,7 +80,10 @@ test('homepage template enforces a single canonical SEO metadata contract', () =
   assert.equal(canonicalMatch?.[1], 'https://elrincondeebano.com/');
 
   const descriptionMatch = html.match(/<meta name="description" content="([^"]+)">/);
-  assert.equal(descriptionMatch?.[1], 'Un minimarket en la puerta de tu departamento');
+  assert.equal(
+    descriptionMatch?.[1],
+    'Minimarket privado para residentes del edificio Ébano. Haz tu pedido por WhatsApp y recibe dentro del edificio.'
+  );
 
   assert.equal(
     (html.match(/<link rel="canonical" /g) || []).length,

@@ -19,7 +19,7 @@ export interface Props {
 
 const {
   title,
-  description = 'El Rincón de Ébano.',
+  description = 'Minimarket privado para residentes del edificio Ébano. Pedidos por WhatsApp y entrega dentro del edificio.',
   canonicalPath = Astro.url.pathname || '/',
   canonicalUrl,
   ogTitle = title,
@@ -83,9 +83,12 @@ const resolvedOgImage = absoluteUrl(ogImage);
       Actualmente estás sin conexión
     </div>
 
-    <footer id="footer-container" role="contentinfo" class="bg-dark text-light text-center py-3">
-      <p class="mb-0">© El Rincón de Ébano</p>
-      <a class="visually-hidden" href="https://wa.me/56951118901">WhatsApp</a>
+    <footer id="footer-container" role="contentinfo" class="bg-dark text-light py-3">
+      <div class="container footer-content">
+        <p class="mb-1">© El Rincón de Ébano</p>
+        <p class="footer-meta mb-1">Minimarket privado para residentes del edificio. Pedidos coordinados por WhatsApp.</p>
+        <a class="footer-link" href="https://wa.me/56951118901">WhatsApp</a>
+      </div>
     </footer>
 
     <script
