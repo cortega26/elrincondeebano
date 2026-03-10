@@ -2,13 +2,10 @@ name: Continuous Integration
 
 on:
   push:
+    # Always validate main pushes so the Pages deploy chain cannot be skipped by path filters.
     branches: ['main']
-    paths-ignore:
-      - 'admin/**'
   pull_request:
     branches: ['main']
-    paths-ignore:
-      - 'admin/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
