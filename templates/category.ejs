@@ -72,6 +72,18 @@
                 role="main"
                 tabindex="-1">
                 <div class="container mt-2 mb-4">
+                    <section class="category-intro mb-4" aria-labelledby="category-heading">
+                        <div class="category-intro-copy">
+                            <p class="category-kicker mb-2">Servicio privado para residentes</p>
+                            <h1 id="category-heading">
+                                <%= categoryName %>
+                            </h1>
+                            <p class="category-summary mb-0">El pedido se arma aquí y se envía por WhatsApp para coordinar la entrega dentro del edificio.</p>
+                        </div>
+                        <div class="category-intro-note" role="note">
+                            <strong>Importante:</strong> catálogo pensado para vecinos del edificio Ébano.
+                        </div>
+                    </section>
                     <section aria-label="Opciones de filtrado y ordenación">
                         <div class="row mb-3">
                             <div class="col-md-6">
@@ -102,9 +114,6 @@
                         </div>
                     </section>
                     <section aria-labelledby="category-heading">
-                        <h1 id="category-heading">
-                            <%= categoryName %>
-                        </h1>
                         <div class="row" id="product-container" aria-live="polite"
                             data-total-products="<%= totalProducts %>">
                             <% if (Array.isArray(products) && products.length) { %>

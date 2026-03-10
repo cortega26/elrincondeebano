@@ -96,6 +96,84 @@ h1 {
   letter-spacing: 0.01em;
 }
 
+h2,
+h3 {
+  color: var(--text-color);
+}
+
+.hero-section {
+  background-color: var(--surface-muted);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.hero-content {
+  display: grid;
+  gap: 1rem;
+}
+
+.hero-kicker,
+.category-kicker {
+  color: var(--primary-color);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  margin: 0;
+}
+
+.hero-lead,
+.category-summary {
+  color: var(--text-muted, #4a4f55);
+  max-width: 44rem;
+}
+
+.service-panel,
+.category-intro-note,
+.info-card,
+.highlight-panel {
+  background-color: var(--surface-color);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.service-strip {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.service-strip-item {
+  background-color: var(--surface-color);
+  border-left: 3px solid var(--accent-color);
+  padding: 0.875rem 1rem;
+}
+
+.category-intro {
+  display: grid;
+  gap: 1rem;
+  align-items: start;
+}
+
+.catalog-shell {
+  margin-bottom: 1rem;
+}
+
+.catalog-shell-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: end;
+}
+
+.catalog-title {
+  margin-bottom: 0.35rem;
+}
+
+.catalog-note {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
 /* Product card specific typography */
 .producto .card-title {
   font-size: var(--font-size-md);
@@ -224,6 +302,23 @@ h1 {
   line-height: 1.4;
 }
 
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.footer-meta,
+.footer-link {
+  font-size: var(--font-size-sm);
+}
+
+.footer-link {
+  color: #f4d6a0;
+  text-decoration: none;
+}
+
 @media (max-width: 600px) {
   #footer-container {
     min-height: 96px;
@@ -261,6 +356,17 @@ h1 {
   color: rgba(255, 255, 255, 0.75);
   text-decoration: none;
   transition: color 0.2s ease-in-out;
+}
+
+@media (min-width: 992px) {
+  .hero-content,
+  .category-intro {
+    grid-template-columns: minmax(0, 1.8fr) minmax(280px, 0.9fr);
+  }
+
+  .service-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .navbar-nav .nav-link:hover,

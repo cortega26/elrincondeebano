@@ -5,11 +5,12 @@
   "type": "module",
   "description": "Side-by-side Astro migration proof of concept for ElRinconDeEbano.com",
   "scripts": {
+    "clean": "node -e \"const fs=require('fs'); ['dist','.astro'].forEach((p)=>fs.rmSync(p,{recursive:true,force:true}));\"",
     "data:sync": "node scripts/sync-data.mjs",
     "assets:validate": "node scripts/validate-asset-contract.mjs",
     "contract:artifacts": "node scripts/validate-artifact-contract.mjs",
     "dev": "npx astro dev",
-    "build": "npm run data:sync && npx astro build && node scripts/postbuild-legacy-pages.mjs && node scripts/postbuild-sitemap.mjs && npm run assets:validate && npm run contract:artifacts",
+    "build": "npm run clean && npm run data:sync && npx astro build && node scripts/postbuild-legacy-pages.mjs && node scripts/postbuild-sitemap.mjs && npm run assets:validate && npm run contract:artifacts",
     "preview": "npx astro preview"
   },
   "dependencies": {

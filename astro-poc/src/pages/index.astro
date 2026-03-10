@@ -2,26 +2,144 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProductGrid from '../components/ProductGrid.astro';
 import CatalogControls from '../components/CatalogControls.astro';
-import { getProductsWithSku } from '../lib/catalog';
+import {
+  formatPrice,
+  getHomeFeaturedDeals,
+  getHomeHighlightedCategories,
+  getHomeQuickPicks,
+  getProductsWithSku,
+} from '../lib/catalog';
 import { DEFAULT_OG_IMAGE } from '../lib/seo';
 
 const products = getProductsWithSku();
+const highlightedCategories = getHomeHighlightedCategories();
+const featuredDeals = getHomeFeaturedDeals();
+const quickPicks = getHomeQuickPicks();
 ---
 
 <BaseLayout
   title="El Rincón de Ébano"
-  description="Un minimarket en la puerta de tu departamento"
+  description="Minimarket privado para residentes del edificio Ébano. Haz tu pedido por WhatsApp y recibe dentro del edificio."
   canonicalPath="/"
   ogImage={DEFAULT_OG_IMAGE}
   ogImageAlt="Logotipo de El Rincón de Ébano"
 >
-  <section class="hero-section text-center mb-4" aria-labelledby="main-heading">
-    <h1 id="main-heading">Productos frescos directo a tu puerta</h1>
-    <p class="lead text-muted mb-0">Compra en línea y recibe en minutos</p>
+  <section class="hero-section mb-4" aria-labelledby="main-heading">
+    <div class="hero-content">
+      <div class="hero-copy">
+        <p class="hero-kicker mb-2">Solo para residentes del edificio</p>
+        <h1 id="main-heading">Pide por WhatsApp y recibe dentro del edificio</h1>
+        <p class="lead hero-lead mb-3">
+          Minimarket privado con bebestibles, snacks, despensa y básicos de hogar para vecinos de Ébano.
+        </p>
+        <div class="hero-actions" aria-label="Acciones principales">
+          <a class="btn btn-primary hero-cta" href="#products-heading">Ver productos</a>
+          <a class="btn btn-outline-secondary hero-secondary" href="#how-it-works">Cómo funciona</a>
+        </div>
+      </div>
+      <aside class="service-panel" aria-label="Información del servicio">
+        <h2 class="service-panel-title">Cómo funciona</h2>
+        <ul class="service-points list-unstyled mb-0">
+          <li>Explora el catálogo y arma tu pedido.</li>
+          <li>Confirma el medio de pago en el carrito.</li>
+          <li>Envía el resumen por WhatsApp y coordinamos la entrega dentro del edificio.</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="service-strip mb-4" aria-label="Condiciones del servicio">
+    <div class="service-strip-item"><strong>Alcance:</strong> solo residentes del edificio Ébano.</div>
+    <div class="service-strip-item"><strong>Entrega:</strong> coordinada dentro del edificio.</div>
+    <div class="service-strip-item"><strong>Pedido:</strong> cierre por WhatsApp con resumen automático.</div>
+  </section>
+
+  <section id="how-it-works" class="info-section mb-4" aria-labelledby="how-it-works-heading">
+    <div class="section-heading">
+      <h2 id="how-it-works-heading">Compra simple, sin pasos de más</h2>
+      <p>La web te ayuda a elegir rápido. El pedido final se envía por WhatsApp para confirmar y coordinar la entrega.</p>
+    </div>
+    <div class="info-grid">
+      <article class="info-card">
+        <h3>1. Revisa el catálogo</h3>
+        <p>Usa categorías, búsqueda y ofertas para encontrar lo que necesitas.</p>
+      </article>
+      <article class="info-card">
+        <h3>2. Ajusta tu pedido</h3>
+        <p>Agrega productos, cambia cantidades y revisa el total antes de enviar.</p>
+      </article>
+      <article class="info-card">
+        <h3>3. Envía por WhatsApp</h3>
+        <p>El pedido sale con tu resumen y medio de pago para cerrar la coordinación.</p>
+      </article>
+    </div>
+  </section>
+
+  {highlightedCategories.length > 0 && (
+    <section class="info-section mb-4" aria-labelledby="categories-heading">
+      <div class="section-heading">
+        <h2 id="categories-heading">Entradas rápidas al catálogo</h2>
+        <p>Atajos a las categorías más útiles para resolver una compra rápida desde el celular.</p>
+      </div>
+      <div class="category-shortcuts" role="list">
+        {highlightedCategories.map((category) => (
+          <a class="category-shortcut" href={category.legacyPath} role="listitem">
+            <span class="category-shortcut-title">{category.label}</span>
+            <span class="category-shortcut-meta">Ir a categoría</span>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {(featuredDeals.length > 0 || quickPicks.length > 0) && (
+    <section class="info-section mb-4" aria-labelledby="picks-heading">
+      <div class="section-heading">
+        <h2 id="picks-heading">Atajos para decidir más rápido</h2>
+        <p>Una selección breve para evitar que la home se sienta como una pared de productos.</p>
+      </div>
+      <div class="product-highlights">
+        {featuredDeals.length > 0 && (
+          <article class="highlight-panel">
+            <h3>Ofertas activas</h3>
+            <ul class="highlight-list list-unstyled mb-0">
+              {featuredDeals.map(({ sku, product }) => (
+                <li>
+                  <span>{product.name}</span>
+                  <strong>{formatPrice((Number(product.price) || 0) - (Number(product.discount) || 0))}</strong>
+                </li>
+              ))}
+            </ul>
+          </article>
+        )}
+        {quickPicks.length > 0 && (
+          <article class="highlight-panel">
+            <h3>Compra rápida</h3>
+            <ul class="highlight-list list-unstyled mb-0">
+              {quickPicks.map(({ sku, product }) => (
+                <li>
+                  <span>{product.name}</span>
+                  <strong>{formatPrice(product.price)}</strong>
+                </li>
+              ))}
+            </ul>
+          </article>
+        )}
+      </div>
+    </section>
+  )}
+
+  <section class="catalog-shell" aria-labelledby="products-heading">
+    <div class="catalog-shell-header">
+      <div>
+        <h2 id="products-heading" class="catalog-title">Catálogo completo</h2>
+        <p class="catalog-intro mb-0">Explora todo el surtido disponible y arma tu pedido sin salir de la página.</p>
+      </div>
+      <p class="catalog-note mb-0">Pedido final por WhatsApp.</p>
+    </div>
   </section>
 
   <section aria-label="Productos disponibles">
-    <h2 id="products-heading" class="visually-hidden">Productos disponibles</h2>
     <CatalogControls />
     <ProductGrid items={products} />
     <div id="catalog-empty-state" class="alert alert-info d-none mt-3" role="status">

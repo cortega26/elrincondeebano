@@ -92,10 +92,183 @@ h1 {
 }
 
 .hero-section {
-  background: linear-gradient(135deg, rgba(0, 91, 79, 0.08), rgba(161, 92, 0, 0.06));
-  border-radius: 16px;
+  background: var(--surface-muted);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
   padding: 1.5rem 1.25rem;
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.06);
+  box-shadow: none;
+}
+
+h2,
+h3 {
+  color: var(--text-color);
+}
+
+.hero-content {
+  display: grid;
+  gap: 1rem;
+  align-items: start;
+}
+
+.hero-copy {
+  min-width: 0;
+}
+
+.hero-kicker,
+.category-kicker {
+  color: var(--primary-color);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+}
+
+.hero-lead,
+.category-summary,
+.section-heading p,
+.catalog-intro,
+.catalog-note,
+.checkout-note,
+.footer-meta {
+  color: var(--text-muted);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.hero-cta,
+.hero-secondary {
+  width: auto;
+  min-width: 180px;
+}
+
+.hero-secondary {
+  border-color: rgba(0, 0, 0, 0.16);
+  color: var(--text-color);
+}
+
+.service-panel,
+.category-intro-note,
+.info-card,
+.highlight-panel {
+  background-color: var(--surface-color);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.service-panel-title,
+.highlight-panel h3,
+.info-card h3 {
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+.service-points,
+.highlight-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.service-strip {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.service-strip-item {
+  background-color: var(--surface-color);
+  border-left: 3px solid var(--accent-color);
+  border-radius: 6px;
+  padding: 0.875rem 1rem;
+}
+
+.info-section {
+  margin-top: 0.5rem;
+}
+
+.section-heading {
+  display: grid;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.section-heading h2,
+.catalog-title {
+  margin-bottom: 0;
+  font-size: clamp(1.25rem, 2vw, 1.6rem);
+}
+
+.info-grid,
+.product-highlights,
+.category-shortcuts {
+  display: grid;
+  gap: 1rem;
+}
+
+.category-shortcut {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  justify-content: center;
+  min-height: 88px;
+  padding: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  color: inherit;
+  text-decoration: none;
+  background-color: var(--surface-color);
+}
+
+.category-shortcut:hover,
+.category-shortcut:focus-visible {
+  border-color: rgba(0, 91, 79, 0.4);
+  background-color: #fbfaf7;
+}
+
+.category-shortcut-title {
+  font-weight: 600;
+}
+
+.category-shortcut-meta {
+  color: var(--secondary-color);
+  font-size: var(--font-size-sm);
+}
+
+.highlight-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  padding-top: 0.75rem;
+}
+
+.highlight-list li:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.catalog-shell {
+  margin-bottom: 1rem;
+}
+
+.catalog-shell-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: end;
+}
+
+.catalog-note {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.category-intro {
+  display: grid;
+  gap: 1rem;
+  align-items: start;
 }
 
 /* Navbar Styles */
@@ -918,15 +1091,25 @@ main .container {
   min-height: 60px;
   display: flex;
   align-items: center;
-  /* Vertically center footer text */
   justify-content: center;
   text-align: center;
+}
+
+#footer-container .footer-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: center;
 }
 
 #footer-container p {
   margin: 0;
   line-height: 1.4;
-  /* Ensure multiple lines keep comfortable spacing */
+}
+
+.footer-link {
+  color: #f4d6a0;
+  text-decoration: none;
 }
 
 #cartOffcanvas .cart-footer-actions > .btn {
@@ -936,9 +1119,31 @@ main .container {
 @media (max-width: 600px) {
   #footer-container {
     min-height: 96px;
-    /* Account for two-line copyright text */
     padding-top: 1.5rem;
     padding-bottom: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .info-grid,
+  .product-highlights {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .category-shortcuts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 992px) {
+  .hero-content,
+  .category-intro {
+    grid-template-columns: minmax(0, 1.8fr) minmax(280px, 0.9fr);
+  }
+
+  .service-strip,
+  .info-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

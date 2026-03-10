@@ -18,7 +18,6 @@ const REQUIRED_FILES = [
   path.join('pages', 'offline.html'),
   path.join('pages', 'bebidas.html'),
   path.join('pages', 'vinos.html'),
-  path.join('pages', 'e.html'),
 ];
 
 function ensureFile(relativePath) {

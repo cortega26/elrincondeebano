@@ -133,7 +133,7 @@ export async function injectStructuredData() {
           '@type': 'Store',
           name: 'El Rincón de Ébano',
           image: 'https://elrincondeebano.com/assets/images/web/logo.webp',
-          description: 'Un minimarket en la puerta de tu departamento',
+          description: 'Minimarket privado para residentes del edificio Ébano con pedidos por WhatsApp y entrega dentro del edificio.',
           address: { '@type': 'PostalAddress', addressCountry: 'CL' },
           telephone: '+56951118901',
           url: 'https://www.elrincondeebano.com/',
@@ -171,7 +171,8 @@ export function injectSeoMetadata() {
     if (!document.querySelector('meta[name="description"]')) {
       const meta = document.createElement('meta');
       meta.name = 'description';
-      meta.content = 'El Rincón de Ébano - Minimarket con delivery instantáneo.';
+      meta.content =
+        'El Rincón de Ébano - Minimarket privado para residentes del edificio con pedidos por WhatsApp.';
       document.head.appendChild(meta);
     }
   } catch (e) {

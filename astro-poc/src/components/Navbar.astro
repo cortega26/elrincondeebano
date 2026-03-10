@@ -81,7 +81,7 @@ const { navGroups } = Astro.props;
 
 <div class="offcanvas offcanvas-end" tabindex="-1" id="cartOffcanvas" aria-labelledby="cartOffcanvasLabel" role="dialog" aria-modal="true">
   <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="cartOffcanvasLabel" tabindex="-1">Carrito de Compras</h5>
+    <h5 class="offcanvas-title" id="cartOffcanvasLabel" tabindex="-1">Tu pedido</h5>
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
   </div>
   <div class="offcanvas-body">
@@ -92,6 +92,7 @@ const { navGroups } = Astro.props;
     </div>
     <div class="cart-footer">
       <div id="cart-total">Total: $0</div>
+      <p class="checkout-note mb-0">El pedido final se envía por WhatsApp con el resumen y el medio de pago seleccionado.</p>
       <div id="payment-method-container">
         <label class="form-label d-block" for="payment-cash">Método de Pago</label>
         <div class="form-check">
@@ -110,7 +111,7 @@ const { navGroups } = Astro.props;
       </div>
       <div class="cart-footer-actions">
         <button id="empty-cart" class="btn btn-warning">Vaciar Carrito</button>
-        <button id="submit-cart" class="btn btn-success" disabled aria-disabled="true">Realizar Pedido</button>
+        <button id="submit-cart" class="btn btn-success" disabled aria-disabled="true">Enviar pedido por WhatsApp</button>
         <button id="continue-shopping" class="btn btn-primary" data-bs-dismiss="offcanvas">Continuar Comprando</button>
       </div>
     </div>
