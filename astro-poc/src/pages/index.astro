@@ -2,19 +2,10 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProductGrid from '../components/ProductGrid.astro';
 import CatalogControls from '../components/CatalogControls.astro';
-import {
-  formatPrice,
-  getHomeFeaturedDeals,
-  getHomeHighlightedCategories,
-  getHomeQuickPicks,
-  getProductsWithSku,
-} from '../lib/catalog';
+import { getProductsWithSku } from '../lib/catalog';
 import { DEFAULT_OG_IMAGE } from '../lib/seo';
 
 const products = getProductsWithSku();
-const highlightedCategories = getHomeHighlightedCategories();
-const featuredDeals = getHomeFeaturedDeals();
-const quickPicks = getHomeQuickPicks();
 ---
 
 <BaseLayout
@@ -32,10 +23,6 @@ const quickPicks = getHomeQuickPicks();
         <p class="lead hero-lead mb-3">
           Minimarket privado con bebestibles, snacks, despensa y básicos de hogar para vecinos de Ébano.
         </p>
-        <div class="hero-actions" aria-label="Acciones principales">
-          <a class="btn btn-primary hero-cta" href="#products-heading">Ver productos</a>
-          <a class="btn btn-outline-secondary hero-secondary" href="#how-it-works">Cómo funciona</a>
-        </div>
       </div>
       <aside class="service-panel" aria-label="Información del servicio">
         <h2 class="service-panel-title">Cómo funciona</h2>
@@ -74,60 +61,6 @@ const quickPicks = getHomeQuickPicks();
       </article>
     </div>
   </section>
-
-  {highlightedCategories.length > 0 && (
-    <section class="info-section mb-4" aria-labelledby="categories-heading">
-      <div class="section-heading">
-        <h2 id="categories-heading">Entradas rápidas al catálogo</h2>
-        <p>Atajos a las categorías más útiles para resolver una compra rápida desde el celular.</p>
-      </div>
-      <div class="category-shortcuts" role="list">
-        {highlightedCategories.map((category) => (
-          <a class="category-shortcut" href={category.legacyPath} role="listitem">
-            <span class="category-shortcut-title">{category.label}</span>
-            <span class="category-shortcut-meta">Ir a categoría</span>
-          </a>
-        ))}
-      </div>
-    </section>
-  )}
-
-  {(featuredDeals.length > 0 || quickPicks.length > 0) && (
-    <section class="info-section mb-4" aria-labelledby="picks-heading">
-      <div class="section-heading">
-        <h2 id="picks-heading">Atajos para decidir más rápido</h2>
-        <p>Una selección breve para evitar que la home se sienta como una pared de productos.</p>
-      </div>
-      <div class="product-highlights">
-        {featuredDeals.length > 0 && (
-          <article class="highlight-panel">
-            <h3>Ofertas activas</h3>
-            <ul class="highlight-list list-unstyled mb-0">
-              {featuredDeals.map(({ sku, product }) => (
-                <li>
-                  <span>{product.name}</span>
-                  <strong>{formatPrice((Number(product.price) || 0) - (Number(product.discount) || 0))}</strong>
-                </li>
-              ))}
-            </ul>
-          </article>
-        )}
-        {quickPicks.length > 0 && (
-          <article class="highlight-panel">
-            <h3>Compra rápida</h3>
-            <ul class="highlight-list list-unstyled mb-0">
-              {quickPicks.map(({ sku, product }) => (
-                <li>
-                  <span>{product.name}</span>
-                  <strong>{formatPrice(product.price)}</strong>
-                </li>
-              ))}
-            </ul>
-          </article>
-        )}
-      </div>
-    </section>
-  )}
 
   <section class="catalog-shell" aria-labelledby="products-heading">
     <div class="catalog-shell-header">
