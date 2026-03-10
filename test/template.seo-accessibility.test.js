@@ -31,7 +31,9 @@ test('category template keeps skip link and category-specific OG URL', () => {
   const categoryTemplate = readTemplate('templates/category.ejs');
 
   assert.ok(
-    categoryTemplate.includes('<a href="#main-content" class="skip-link">Saltar al contenido principal</a>'),
+    categoryTemplate.includes(
+      '<a href="#main-content" class="skip-link">Saltar al contenido principal</a>'
+    ),
     'category template should include skip link for keyboard users'
   );
 
@@ -65,7 +67,9 @@ test('templates include social card metadata and consistent select styling', () 
   );
 
   assert.ok(
-    categoryTemplate.includes('<select id="sort-options" class="form-select" aria-label="Ordenar productos">'),
+    categoryTemplate.includes(
+      '<select id="sort-options" class="form-select" aria-label="Ordenar productos">'
+    ),
     'category sort select should use form-select class for UI consistency'
   );
 });
@@ -122,6 +126,27 @@ test('homepage template enforces a single canonical SEO metadata contract', () =
 
   const twitterImageMatch = html.match(/<meta name="twitter:image" content="([^"]+)">/);
   assert.equal(twitterImageMatch?.[1], ogImageMatch?.[1]);
+});
+
+test('homepage template keeps concise service summary and reusable onboarding dialog', () => {
+  const html = renderIndexTemplate();
+
+  assert.ok(
+    html.includes('class="service-summary"'),
+    'homepage should keep a concise persistent service summary'
+  );
+  assert.ok(
+    html.includes('data-service-dialog-trigger'),
+    'homepage should expose a manual trigger for the service dialog'
+  );
+  assert.ok(
+    html.includes('id="service-guide-dialog"'),
+    'homepage should include the onboarding dialog markup'
+  );
+  assert.ok(
+    !html.includes('Compra simple, sin pasos de más'),
+    'homepage should remove the redundant repeated instructions section'
+  );
 });
 
 test('navbar template exposes cart badge live region for assistive tech', () => {
