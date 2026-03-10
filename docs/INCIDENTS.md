@@ -52,3 +52,16 @@
 
 ## Mandatory SW Note
 - For SW incidents: always bump cache prefixes to invalidate old caches.
+
+## Incident Log
+
+### 2026-02-19 - Legacy Root Route 404 After Astro Cutover
+- Impact: production 404s on legacy root routes (`/bebidas.html`, `/vinos.html`, `/e.html`, `/offline.html`).
+- Detection: production HTTP contract sweep failed while `/pages/*.html` remained available.
+- Root cause: postbuild only flattened `/pages/*.html` and did not copy required legacy pages to `astro-poc/dist/` root.
+- Fix: PR #224 (`e60f494c338677ba18ddd4e8802483487f53a073`) generated root compatibility pages and enforced contract validation.
+- Recovery SHA: `90ccf2aa65f14ce8c768f6fdced4085350340451` (deployed via `static.yml`).
+- Preventive controls:
+  - Build-time HTTP contract script (`astro-poc/scripts/validate-http-contract.mjs`).
+  - CI step to validate Astro HTTP contract explicitly.
+  - Dedicated rollback workflow for arbitrary SHA deploy (`.github/workflows/rollback.yml`).
