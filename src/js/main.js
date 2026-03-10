@@ -4,6 +4,7 @@ import { setupNavigationAccessibility, setupCartOffcanvasAccessibility } from '.
 import { setupCheckoutProgress } from './modules/checkout.mjs';
 import { initializeBootstrapUI } from './modules/bootstrap.mjs';
 import { applyDeferredStyles } from './modules/deferred-css.mjs';
+import { initServiceOnboarding } from './modules/service-onboarding.mjs';
 
 const APP_RUNTIME_INTENT_SELECTOR = [
   '.add-to-cart-btn',
@@ -288,6 +289,7 @@ function initEnhancementsOnce() {
   setupNavigationAccessibility();
   setupCartOffcanvasAccessibility();
   initializeBootstrapUI();
+  initServiceOnboarding();
   setupAppRuntimeBootTriggers();
   initNonCriticalEnhancements();
 }

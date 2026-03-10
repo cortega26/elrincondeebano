@@ -105,6 +105,90 @@ function saveCart(cart) {
   }
 }
 
+function initServiceOnboarding() {
+  const dialog = document.getElementById('service-guide-dialog');
+  if (!(dialog instanceof HTMLElement)) {
+    return;
+  }
+
+  const triggerSelector = '[data-service-dialog-trigger]';
+  const closeSelector = '[data-service-dialog-close]';
+  const storageKey = 'ebano-service-guide-seen';
+  let autoShowTimer = null;
+
+  const openDialog = () => {
+    if (autoShowTimer !== null) {
+      globalThis.clearTimeout(autoShowTimer);
+      autoShowTimer = null;
+    }
+
+    if (typeof dialog.showModal === 'function') {
+      if (!dialog.hasAttribute('open')) {
+        dialog.showModal();
+      }
+    } else {
+      dialog.setAttribute('open', '');
+    }
+
+    dialog.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('service-dialog-open');
+
+    try {
+      globalThis.localStorage.setItem(storageKey, 'true');
+    } catch {
+      // Ignore persistence failures.
+    }
+  };
+
+  const closeDialog = () => {
+    if (typeof dialog.close === 'function' && dialog.hasAttribute('open')) {
+      dialog.close();
+    } else {
+      dialog.removeAttribute('open');
+    }
+
+    dialog.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('service-dialog-open');
+  };
+
+  document.querySelectorAll(triggerSelector).forEach((trigger) => {
+    trigger.addEventListener('click', (event) => {
+      event.preventDefault();
+      openDialog();
+    });
+  });
+
+  dialog.querySelectorAll(closeSelector).forEach((control) => {
+    control.addEventListener('click', () => {
+      closeDialog();
+    });
+  });
+
+  dialog.addEventListener('close', () => {
+    dialog.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('service-dialog-open');
+  });
+
+  dialog.addEventListener('cancel', () => {
+    dialog.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('service-dialog-open');
+  });
+
+  dialog.addEventListener('click', (event) => {
+    if (event.target === dialog) {
+      closeDialog();
+    }
+  });
+
+  try {
+    if (globalThis.localStorage.getItem(storageKey) !== 'true') {
+      autoShowTimer = globalThis.setTimeout(openDialog, 450);
+    }
+  } catch {
+    autoShowTimer = globalThis.setTimeout(openDialog, 450);
+  }
+}
+
 function getProductCardById(id) {
   return Array.from(document.querySelectorAll('.producto')).find(
     (card) => card instanceof HTMLElement && normalizeId(card.dataset.productId) === id
@@ -699,6 +783,7 @@ function initStorefront() {
   updateBadge(cart);
   renderCart(cart);
   syncAllActionAreas(cart);
+  initServiceOnboarding();
   resetCatalogVisibleLimit();
   updateCatalogView();
   setupCatalogPagination();
