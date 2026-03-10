@@ -55,6 +55,77 @@ function ensureAtLeastOneProductDetail() {
   }
 }
 
+function collectFiles(root, predicate) {
+  const collected = [];
+  const stack = [root];
+
+  while (stack.length > 0) {
+    const current = stack.pop();
+    const entries = fs.readdirSync(current, { withFileTypes: true });
+
+    for (const entry of entries) {
+      const absolutePath = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        stack.push(absolutePath);
+        continue;
+      }
+      if (predicate(absolutePath)) {
+        collected.push(absolutePath);
+      }
+    }
+  }
+
+  return collected;
+}
+
+function resolveImportCandidate(fromFile, specifier) {
+  const basePath = specifier.startsWith('/')
+    ? path.join(distRoot, specifier.replace(/^\/+/, ''))
+    : path.resolve(path.dirname(fromFile), specifier);
+
+  const candidates = [
+    basePath,
+    `${basePath}.js`,
+    `${basePath}.mjs`,
+    path.join(basePath, 'index.js'),
+    path.join(basePath, 'index.mjs'),
+  ];
+
+  return candidates.find((candidate) => fs.existsSync(candidate)) || null;
+}
+
+function ensureCompiledJsImportsResolve() {
+  const jsFiles = collectFiles(distRoot, (absolutePath) => absolutePath.endsWith('.js'));
+  const importPattern =
+    /(?:import\s+(?:[^'"]+?\s+from\s+)?|import\s*\()\s*['"]([^'"]+)['"]/g;
+
+  for (const absolutePath of jsFiles) {
+    const content = fs.readFileSync(absolutePath, 'utf8');
+    const missingSpecifiers = [];
+
+    for (const match of content.matchAll(importPattern)) {
+      const specifier = match[1];
+      if (!specifier || /^https?:\/\//.test(specifier) || specifier.startsWith('data:')) {
+        continue;
+      }
+      if (!specifier.startsWith('.') && !specifier.startsWith('/')) {
+        continue;
+      }
+
+      const resolved = resolveImportCandidate(absolutePath, specifier);
+      if (!resolved) {
+        missingSpecifiers.push(specifier);
+      }
+    }
+
+    if (missingSpecifiers.length > 0) {
+      throw new Error(
+        `Compiled JS artifact has unresolved import(s) in ${path.relative(distRoot, absolutePath)}: ${missingSpecifiers.join(', ')}`
+      );
+    }
+  }
+}
+
 function main() {
   if (!fs.existsSync(distRoot)) {
     throw new Error(`Missing dist directory: ${distRoot}`);
@@ -65,6 +136,7 @@ function main() {
   }
 
   ensureAtLeastOneProductDetail();
+  ensureCompiledJsImportsResolve();
 
   console.log(`Artifact contract validation passed: ${REQUIRED_FILES.length} required files verified.`);
 }
