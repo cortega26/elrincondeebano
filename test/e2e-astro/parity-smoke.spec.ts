@@ -22,10 +22,11 @@ test('legacy category route /pages/*.html stays available', async ({ page }) => 
   await expect(canonical).toHaveAttribute('href', 'https://elrincondeebano.com/pages/bebidas.html');
 });
 
-test('active empty category route is generated', async ({ page }) => {
-  await page.goto('/pages/e.html', { waitUntil: 'networkidle' });
-  await expect(page.locator('#category-heading')).toHaveText(/Electrónicos/i);
-  await expect(page.locator('main .alert.alert-info').last()).toContainText('No hay productos disponibles');
+test('disabled category route is not generated', async ({ page }) => {
+  const response = await page.goto('/pages/e.html', { waitUntil: 'networkidle' });
+  expect(response, 'disabled legacy category route should return a response').not.toBeNull();
+  expect(response?.status()).toBe(404);
+  await expect(page.locator('#category-heading')).toHaveCount(0);
 });
 
 test('service worker and compatibility artifacts are served', async ({ page }) => {

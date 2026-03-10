@@ -41,9 +41,12 @@
     <% const currencyFormatter=new Intl.NumberFormat('es-CL', { style: 'currency' , currency: 'CLP' ,
       minimumFractionDigits: 0 }); %>
       <% const homeNavGroups = typeof navGroups !== 'undefined' && Array.isArray(navGroups) ? navGroups : []; %>
-      <% const homeHighlightedCategories = Array.isArray(highlightedCategories) ? highlightedCategories : []; %>
-      <% const homeFeaturedDeals = Array.isArray(featuredDeals) ? featuredDeals : []; %>
-      <% const homeQuickPicks = Array.isArray(quickPicks) ? quickPicks : []; %>
+      <% const homeHighlightedCategories = typeof highlightedCategories !== 'undefined' &&
+        Array.isArray(highlightedCategories) ? highlightedCategories : []; %>
+      <% const homeFeaturedDeals = typeof featuredDeals !== 'undefined' && Array.isArray(featuredDeals) ?
+        featuredDeals : []; %>
+      <% const homeQuickPicks = typeof quickPicks !== 'undefined' && Array.isArray(quickPicks) ? quickPicks :
+        []; %>
       <!-- Preload critical assets -->
       <link rel="preload" href="/dist/css/critical.min.css" as="style" fetchpriority="high">
       <link rel="preload" href="/assets/images/web/logo.webp"
