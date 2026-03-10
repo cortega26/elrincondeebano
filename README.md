@@ -4,6 +4,14 @@ Providing a bilingual-friendly grocery catalog that ships as a static site, pre-
 
 ![Node 22.x](https://img.shields.io/badge/node-22.x-339933?logo=node.js) ![CI GitHub Actions](https://img.shields.io/badge/ci-GitHub%20Actions-2088FF?logo=githubactions) ![Tests](https://img.shields.io/badge/tests-node%3Atest%20%2B%20Playwright%20%2B%20Cypress-6A5ACD?logo=github) ![License ISC](https://img.shields.io/badge/license-ISC-blue)
 
+## Current Project State
+
+- The public website at `https://www.elrincondeebano.com/` is currently served from the Astro storefront in [`astro-poc/`](astro-poc/).
+- The legacy Node + EJS static build at the repo root remains in place as the historical pipeline and rollback surface, but it is not the current public entrypoint.
+- [`preview.html`](preview.html) is a local/demo artifact only. It is not part of the production deployment contract.
+- Product data and most static assets are still shared from the root-level [`data/`](data/) and [`assets/`](assets/) directories.
+- For user-facing storefront fixes, validate Astro first (`npm --prefix astro-poc run build`) and then validate the legacy build only if the touched asset is shared by both surfaces.
+
 ## Features
 
 - Generate static category, product, and offline pages from EJS templates plus structured JSON data (`tools/build*.js`).
@@ -79,8 +87,10 @@ flowchart TD
 
 1. `nvm use 22` – align with the Volta/CI runtime (`>=22 <25`).
 2. `npm ci` – install dependencies deterministically.
-3. `npm run build` – generate a full static snapshot under `build/` (contains `dist/`, `pages/`, sitemap, etc.).
-4. `npx serve build -l 4173` – preview the staged site locally (swap with your preferred static server).
+3. `npm --prefix astro-poc run build` – build the Astro storefront that matches the current public website.
+4. `npx serve astro-poc/dist -l 4174` – preview the Astro storefront locally.
+5. `npm run build` – build the legacy Node + EJS snapshot under `build/` when you need parity or rollback validation.
+6. `npx serve build -l 4173` – preview the legacy snapshot locally.
 
 See `docs/onboarding/LOCAL_DEV.md` for local flags, admin tooling, and preview options.
 
