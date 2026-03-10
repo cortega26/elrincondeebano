@@ -125,7 +125,7 @@ class SyncEngine:
         self,
         *,
         api_base: str,
-        api_token: str = "",
+        api_token: Optional[str] = None,
         repository,
         service,
         queue_file: str,
@@ -170,7 +170,7 @@ class SyncEngine:
         return trimmed.rstrip("/")
 
     @staticmethod
-    def _normalize_api_token(api_token: str) -> str:
+    def _normalize_api_token(api_token: Optional[str]) -> str:
         """Normalize optional API bearer token."""
         if not api_token:
             return ""

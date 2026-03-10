@@ -61,7 +61,7 @@
       "description": "",
       "group_id": "varios",
       "order": 10,
-      "enabled": true,
+      "enabled": false,
       "subcategories": []
     },
     {

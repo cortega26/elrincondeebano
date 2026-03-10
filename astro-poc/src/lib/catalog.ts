@@ -62,6 +62,15 @@ export type NavGroup = {
   }>;
 };
 
+const HOME_CATEGORY_PRIORITY = [
+  'Despensa',
+  'Bebidas',
+  'Aguas',
+  'Lacteos',
+  'SnacksSalados',
+  'Limpiezayaseo',
+];
+
 const catalog = rawProducts as ProductCatalog;
 const categoryRegistry = rawCategories as CategoryRegistry;
 let cachedProductsWithSku: ProductWithSku[] | null = null;
@@ -178,6 +187,73 @@ export function getProductsWithSku(): ProductWithSku[] {
   });
 
   return cachedProductsWithSku;
+}
+
+export function getHomeHighlightedCategories(): NavGroup['categories'] {
+  const categories = getNavigationGroups().flatMap((group) => group.categories || []);
+  const bySlug = new Map(categories.map((category) => [String(category.slug || '').toLowerCase(), category]));
+  const selected: NavGroup['categories'] = [];
+  const seen = new Set<string>();
+
+  HOME_CATEGORY_PRIORITY.forEach((slug) => {
+    const match = bySlug.get(String(slug).toLowerCase());
+    if (match && !seen.has(match.legacyPath)) {
+      selected.push(match);
+      seen.add(match.legacyPath);
+    }
+  });
+
+  categories.forEach((category) => {
+    if (selected.length >= 6 || seen.has(category.legacyPath)) return;
+    selected.push(category);
+    seen.add(category.legacyPath);
+  });
+
+  return selected.slice(0, 6);
+}
+
+export function getHomeFeaturedDeals(): ProductWithSku[] {
+  return [...getProductsWithSku()]
+    .filter(({ product }) => Number(product.discount) > 0)
+    .sort((a, b) => {
+      const priceA = Number(a.product.price) || 0;
+      const priceB = Number(b.product.price) || 0;
+      const discountA = Number(a.product.discount) || 0;
+      const discountB = Number(b.product.discount) || 0;
+      const percentA = priceA > 0 ? discountA / priceA : 0;
+      const percentB = priceB > 0 ? discountB / priceB : 0;
+      if (percentB !== percentA) {
+        return percentB - percentA;
+      }
+      return priceA - priceB;
+    })
+    .slice(0, 4);
+}
+
+export function getHomeQuickPicks(): ProductWithSku[] {
+  const products = getProductsWithSku();
+  const selected: ProductWithSku[] = [];
+  const seenCategories = new Set<string>();
+
+  HOME_CATEGORY_PRIORITY.forEach((categoryKey) => {
+    const match = products.find(
+      ({ product }) => product.category === categoryKey && Number(product.discount || 0) <= 0
+    );
+    if (match && !seenCategories.has(match.product.category)) {
+      selected.push(match);
+      seenCategories.add(match.product.category);
+    }
+  });
+
+  products.forEach((item) => {
+    if (selected.length >= 4) return;
+    if (Number(item.product.discount || 0) > 0) return;
+    if (seenCategories.has(item.product.category)) return;
+    selected.push(item);
+    seenCategories.add(item.product.category);
+  });
+
+  return selected.slice(0, 4);
 }
 
 export function getCategoryKeys(): string[] {

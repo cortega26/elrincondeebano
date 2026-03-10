@@ -77,7 +77,7 @@
         "default": "Electrónicos"
       },
       "nav_group": "varios",
-      "active": true,
+      "active": false,
       "sort_order": 10,
       "description": "",
       "subcategories": []

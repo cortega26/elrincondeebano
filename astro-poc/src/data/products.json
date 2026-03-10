@@ -634,8 +634,8 @@
       }
     },
     {
-      "name": "Pisco Especial 35° m • Alto del Carmen",
-      "description": "Botella de 750 de mL",
+      "name": "Pisco Especial 35° • Alto del Carmen",
+      "description": "Botella de 750 mL",
       "price": 8000,
       "discount": 1100,
       "stock": true,
@@ -2768,7 +2768,7 @@
     },
     {
       "name": "Coca-Cola 2L",
-      "description": "Envare retornable",
+      "description": "Envase retornable",
       "price": 3000,
       "discount": 0,
       "stock": true,

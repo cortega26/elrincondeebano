@@ -6,7 +6,7 @@ from test_support import bootstrap_tests
 
 bootstrap_tests()
 
-from tools.category_og.paths import UnsafePathError, safe_slug_path, safe_versioned_jpg_path
+from tools.category_og.paths import UnsafePathError, safe_slug_path, safe_versioned_jpg_path  # noqa: E402
 
 
 def test_safe_slug_path_accepts_managed_targets(tmp_path: Path) -> None:

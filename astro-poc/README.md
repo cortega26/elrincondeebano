@@ -37,8 +37,9 @@ Before every deployment to `poc.elrincondeebano.com`, run:
 
 Manual acceptance checklist:
 
+- Home deja explícito que el servicio es solo para residentes y que el cierre del pedido ocurre por WhatsApp.
 - Home renders product cards and "Agregar" updates cart badge.
-- Cart offcanvas opens and allows `+`, `-`, `Eliminar`, `Vaciar Carrito`, and `Realizar Pedido`.
+- Cart offcanvas opens and allows `+`, `-`, `Eliminar`, `Vaciar Carrito`, and `Enviar pedido por WhatsApp`.
 - WhatsApp order opens with selected payment method in message.
 - Category routes `/c/<category>/` filter correctly by key.
 - Out-of-stock products are not listed.
