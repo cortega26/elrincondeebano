@@ -1,6 +1,6 @@
 {
-  "version": "20260310-142637",
-  "last_updated": "2026-03-10T14:26:37.881392",
+  "version": "20260310-150515",
+  "last_updated": "2026-03-10T15:05:15.621370",
   "rev": 0,
   "products": [
     {
@@ -139,7 +139,7 @@
       "description": "Empaque de 350g",
       "price": 2400,
       "discount": 500,
-      "stock": true,
+      "stock": false,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Tortilla grande mexicana Líder 350g.webp",
       "image_avif_path": "",
@@ -147,8 +147,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "discount": {
-          "ts": "2026-02-13T14:00:56.838788Z",
+        "stock": {
+          "ts": "2026-03-10T18:05:15.619868Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
