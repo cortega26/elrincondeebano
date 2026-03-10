@@ -111,10 +111,6 @@
               <p class="hero-kicker mb-2">Solo para residentes del edificio</p>
               <h1 id="main-heading">Pide por WhatsApp y recibe dentro del edificio</h1>
               <p class="lead hero-lead mb-3">Minimarket privado con bebestibles, snacks, despensa y básicos de hogar para vecinos de Ébano.</p>
-              <div class="hero-actions" aria-label="Acciones principales">
-                <a class="btn btn-primary hero-cta" href="#products-heading">Ver productos</a>
-                <a class="btn btn-outline-secondary hero-secondary" href="#how-it-works">Cómo funciona</a>
-              </div>
             </div>
             <aside class="service-panel" aria-label="Información del servicio">
               <h2 class="service-panel-title">Cómo funciona</h2>
@@ -159,60 +155,6 @@
             </article>
           </div>
         </section>
-
-        <% if (homeHighlightedCategories.length) { %>
-          <section class="info-section mb-4" aria-labelledby="categories-heading">
-            <div class="section-heading">
-              <h2 id="categories-heading">Entradas rápidas al catálogo</h2>
-              <p>Atajos a las categorías más útiles para resolver una compra rápida desde el celular.</p>
-            </div>
-            <div class="category-shortcuts" role="list">
-              <% homeHighlightedCategories.forEach((category) => { %>
-                <a class="category-shortcut" href="<%= category.url %>" role="listitem">
-                  <span class="category-shortcut-title"><%= category.title %></span>
-                  <span class="category-shortcut-meta">Ir a categoría</span>
-                </a>
-              <% }) %>
-            </div>
-          </section>
-        <% } %>
-
-        <% if (homeFeaturedDeals.length || homeQuickPicks.length) { %>
-          <section class="info-section mb-4" aria-labelledby="picks-heading">
-            <div class="section-heading">
-              <h2 id="picks-heading">Atajos para decidir más rápido</h2>
-              <p>Una selección breve para evitar que la home se sienta como una pared de productos.</p>
-            </div>
-            <div class="product-highlights">
-              <% if (homeFeaturedDeals.length) { %>
-                <article class="highlight-panel">
-                  <h3>Ofertas activas</h3>
-                  <ul class="highlight-list list-unstyled mb-0">
-                    <% homeFeaturedDeals.forEach((product) => { %>
-                      <li>
-                        <span><%= product.name %></span>
-                        <strong><%= currencyFormatter.format(product.discountedPrice) %></strong>
-                      </li>
-                    <% }) %>
-                  </ul>
-                </article>
-              <% } %>
-              <% if (homeQuickPicks.length) { %>
-                <article class="highlight-panel">
-                  <h3>Compra rápida</h3>
-                  <ul class="highlight-list list-unstyled mb-0">
-                    <% homeQuickPicks.forEach((product) => { %>
-                      <li>
-                        <span><%= product.name %></span>
-                        <strong><%= currencyFormatter.format(product.price) %></strong>
-                      </li>
-                    <% }) %>
-                  </ul>
-                </article>
-              <% } %>
-            </div>
-          </section>
-        <% } %>
 
         <section class="catalog-shell" aria-labelledby="products-heading">
           <div class="catalog-shell-header">
