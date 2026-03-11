@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "description": "Side-by-side Astro migration proof of concept for ElRinconDeEbano.com",
+  "description": "Active Astro storefront for ElRinconDeEbano.com",
   "scripts": {
-    "clean": "node -e \"const fs=require('fs'); ['dist','.astro'].forEach((p)=>fs.rmSync(p,{recursive:true,force:true}));\"",
+    "clean": "node -e \"const fs=require('fs'); ['dist','.astro'].forEach((p)=>fs.rmSync(p,{recursive:true,force:true,maxRetries:10,retryDelay:100}));\"",
     "data:sync": "node scripts/sync-data.mjs",
     "assets:validate": "node scripts/validate-asset-contract.mjs",
     "contract:http": "node scripts/validate-http-contract.mjs",

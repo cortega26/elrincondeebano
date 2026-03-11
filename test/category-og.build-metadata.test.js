@@ -6,9 +6,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 test('built category page emits JPG og:image with explicit 1200x1200 metadata', (t) => {
-  const pagePath = path.resolve(__dirname, '..', 'build', 'pages', 'bebidas.html');
+  const pagePath = path.resolve(__dirname, '..', 'astro-poc', 'dist', 'pages', 'bebidas.html');
   if (!fs.existsSync(pagePath)) {
-    t.skip('build/pages/bebidas.html not found; run npm run build first');
+    t.skip('astro-poc/dist/pages/bebidas.html not found; run npm run build first');
     return;
   }
 

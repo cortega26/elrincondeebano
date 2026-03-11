@@ -90,7 +90,7 @@ flowchart TD
 3. `npm run build` – build the active Astro storefront plus shared asset preflight.
 4. `npx serve astro-poc/dist -l 4174` – preview the Astro storefront locally.
 5. `npm run test:e2e` – run the active Astro Playwright suite.
-6. `npm run build:legacy` – archived legacy build, only for historical investigation.
+6. There is no second storefront build path in active use; `npm run build` is the canonical production build.
 
 See `docs/onboarding/LOCAL_DEV.md` for local flags, admin tooling, and preview options.
 

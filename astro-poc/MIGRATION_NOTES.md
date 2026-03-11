@@ -1,10 +1,10 @@
-# Astro Migration Notes (POC -> Production)
+# Astro Migration Notes (Historical)
 
 ## Objective
 
 Migrate from the current EJS/HTML/Vanilla stack to Astro incrementally, with no production regressions and no impact on the Python Content Manager.
 
-## Current POC Baseline
+## Historical migration baseline
 
 - Isolated app: `astro-poc/`
 - Static routes implemented:
@@ -14,16 +14,13 @@ Migrate from the current EJS/HTML/Vanilla stack to Astro incrementally, with no 
 - Data source: full catalog copied read-only from `data/product_data.json` to `astro-poc/src/data/products.json`
 - Category filtering uses identity key (`category`)
 - Product detail uses stable identity route param (`sku` derived deterministically when missing in source)
-- Deploy pipeline prepared:
-  - CI: `.github/workflows/astro-poc.yml`
-  - Manual deploy: `.github/workflows/astro-poc-deploy.yml`
+- Production deploy path now uses `.github/workflows/static.yml`.
 
 ## Migration Strategy (Recommended: Incremental Side-by-Side)
 
-### Phase 0 - Stabilize POC
+### Phase 0 - Stabilize Astro candidate
 
-- Keep POC isolated under `astro-poc/`
-- Add independent CI for Astro POC only
+- Keep Astro isolated under `astro-poc/`
 - Lock Node and dependencies for deterministic builds
 - Define acceptance gates:
   - `npm run build` green
@@ -47,13 +44,11 @@ Migrate from the current EJS/HTML/Vanilla stack to Astro incrementally, with no 
   - Home browse
   - Category drill-down
   - Product detail discovery
-- Validate parity with visual snapshots (POC scope first, then broader)
+- Validate parity with visual snapshots before broader rollout
 
 ### Phase 3 - Controlled Exposure
 
-- Deploy Astro under non-production surface:
-  - `poc.elrincondeebano.com` or `/elrincondeebano-astro/`
-- Keep production routes untouched
+- Deploy Astro under controlled exposure before cutover
 - Collect metrics:
   - Build time
   - Transfer size
@@ -85,7 +80,7 @@ Migrate from the current EJS/HTML/Vanilla stack to Astro incrementally, with no 
 
 ## Rollback Plan
 
-- Keep legacy production build as source of truth until final cutover.
+- This rollback section is historical; production now serves the Astro storefront.
 - For any Astro rollout issue:
   1. Revert route exposure commit.
   2. Verify legacy `npm run build` and smoke checks.
@@ -101,6 +96,5 @@ Migrate from the current EJS/HTML/Vanilla stack to Astro incrementally, with no 
 
 ## Suggested Next Iteration
 
-1. Add contract tests in `astro-poc` for identity and required keys.
-2. Add visual parity snapshots between legacy shell and Astro shell for home/category/product.
-3. Prepare deployment workflow targeting preview host only.
+1. Preserve this document only as migration history.
+2. Use the root `README.md` and operational docs for the current production workflow.
