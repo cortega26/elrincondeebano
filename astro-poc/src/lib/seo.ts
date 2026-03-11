@@ -5,6 +5,7 @@ import path from 'node:path';
 export const SITE_ORIGIN = 'https://elrincondeebano.com';
 export const SITE_NAME = 'El Rincón de Ébano';
 const HOME_OG_IMAGE_PATH = '/assets/images/og/home.og.jpg';
+const DEFAULT_REPO_ROOT = path.resolve(process.cwd(), '..');
 
 type OgManifestItem = {
   jpg?: {
@@ -13,7 +14,11 @@ type OgManifestItem = {
   };
 };
 
-let categoryOgManifest: Record<string, OgManifestItem> | null = null;
+type SeoFileOptions = {
+  repoRoot?: string;
+};
+
+const categoryOgManifestCache = new Map<string, Record<string, OgManifestItem>>();
 
 function normalizePath(value: string): string {
   if (!value) {
@@ -32,12 +37,16 @@ export function absoluteUrl(pathOrUrl: string): string {
   return `${SITE_ORIGIN}${normalizePath(pathOrUrl)}`;
 }
 
-function repoAssetPath(assetPath: string): string {
-  return path.resolve(process.cwd(), '..', assetPath.replace(/^\/+/, ''));
+function resolveRepoRoot(options?: SeoFileOptions): string {
+  return path.resolve(options?.repoRoot || DEFAULT_REPO_ROOT);
 }
 
-function versionTokenFromFile(assetPath: string): string | null {
-  const filePath = repoAssetPath(assetPath);
+function repoAssetPath(assetPath: string, options?: SeoFileOptions): string {
+  return path.resolve(resolveRepoRoot(options), assetPath.replace(/^\/+/, ''));
+}
+
+function versionTokenFromFile(assetPath: string, options?: SeoFileOptions): string | null {
+  const filePath = repoAssetPath(assetPath, options);
   if (!fs.existsSync(filePath)) {
     return null;
   }
@@ -60,43 +69,51 @@ function getHomeOgImageUrl(): string {
 
 export const DEFAULT_OG_IMAGE = getHomeOgImageUrl();
 
-export function getCategoryOgImageUrl(categorySlug: string): string {
+function loadCategoryOgManifest(options?: SeoFileOptions): Record<string, OgManifestItem> {
+  const manifestPath = path.resolve(
+    resolveRepoRoot(options),
+    'assets',
+    'images',
+    'og',
+    'categories',
+    '.og_manifest.json'
+  );
+  if (categoryOgManifestCache.has(manifestPath)) {
+    return categoryOgManifestCache.get(manifestPath) || {};
+  }
+
+  let parsedItems: Record<string, OgManifestItem> = {};
+  if (fs.existsSync(manifestPath)) {
+    try {
+      const parsed = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+      parsedItems = parsed?.items || {};
+    } catch {
+      parsedItems = {};
+    }
+  }
+
+  categoryOgManifestCache.set(manifestPath, parsedItems);
+  return parsedItems;
+}
+
+export function getCategoryOgImageUrl(categorySlug: string, options?: SeoFileOptions): string {
   const slug = String(categorySlug || '').trim().toLowerCase();
   if (!slug) {
     return DEFAULT_OG_IMAGE;
   }
 
-  if (!categoryOgManifest) {
-    const manifestPath = path.resolve(
-      process.cwd(),
-      '..',
-      'assets',
-      'images',
-      'og',
-      'categories',
-      '.og_manifest.json'
-    );
-    if (fs.existsSync(manifestPath)) {
-      try {
-        const parsed = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-        categoryOgManifest = parsed?.items || {};
-      } catch {
-        categoryOgManifest = {};
-      }
-    } else {
-      categoryOgManifest = {};
+  const categoryOgManifest = loadCategoryOgManifest(options);
+  const candidateFile = categoryOgManifest?.[slug]?.jpg?.file;
+  if (typeof candidateFile === 'string' && candidateFile.trim()) {
+    const candidatePath = `/assets/images/og/categories/${candidateFile}`;
+    const liveVersionToken = versionTokenFromFile(candidatePath, options);
+    if (liveVersionToken) {
+      return withVersionQuery(candidatePath, liveVersionToken);
     }
   }
 
-  const candidateFile = categoryOgManifest?.[slug]?.jpg?.file;
-  const candidateHash = categoryOgManifest?.[slug]?.jpg?.sha256?.slice(0, 12) || null;
-  if (typeof candidateFile === 'string' && candidateFile.trim()) {
-    return withVersionQuery(`/assets/images/og/categories/${candidateFile}`, candidateHash);
-  }
-
   const fallbackPath = path.resolve(
-    process.cwd(),
-    '..',
+    resolveRepoRoot(options),
     'assets',
     'images',
     'og',
@@ -104,7 +121,10 @@ export function getCategoryOgImageUrl(categorySlug: string): string {
     `${slug}.jpg`
   );
   if (fs.existsSync(fallbackPath)) {
-    return withVersionQuery(`/assets/images/og/categories/${slug}.jpg`, versionTokenFromFile(`/assets/images/og/categories/${slug}.jpg`));
+    return withVersionQuery(
+      `/assets/images/og/categories/${slug}.jpg`,
+      versionTokenFromFile(`/assets/images/og/categories/${slug}.jpg`, options)
+    );
   }
 
   return DEFAULT_OG_IMAGE;

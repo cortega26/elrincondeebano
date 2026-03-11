@@ -43,6 +43,8 @@ const tests = [
   'robots.test.js',
   'template.seo-accessibility.test.js',
   'category-og.build-metadata.test.js',
+  'seo.og-image-version.test.js',
+  'seo.category-og.contract.test.js',
   'csp.connect.test.js',
   'csp.policy.hardening.test.js',
   'noFlicker.stylesheetLoading.test.js',
