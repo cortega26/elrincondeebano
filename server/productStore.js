@@ -198,8 +198,30 @@ function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
+function normalizeProductIdentityPart(value) {
+  if (typeof value !== 'string') {
+    return '';
+  }
+  return value.trim().split(/\s+/).join(' ').toLowerCase();
+}
+
 function getProductId(product) {
-  return product.id || product.slug || product.name;
+  const explicitId = typeof product?.id === 'string' ? product.id.trim() : '';
+  if (explicitId) {
+    return explicitId;
+  }
+  const explicitSlug = typeof product?.slug === 'string' ? product.slug.trim() : '';
+  if (explicitSlug) {
+    return explicitSlug;
+  }
+  return `${normalizeProductIdentityPart(product?.name)}::${normalizeProductIdentityPart(product?.description)}`;
+}
+
+function matchesProductId(product, productId) {
+  if (getProductId(product) === productId) {
+    return true;
+  }
+  return typeof product?.name === 'string' && product.name === productId;
 }
 
 function nowIso(override) {
@@ -308,7 +330,7 @@ class ProductStore {
   async getProduct(productId) {
     return this.lock.runExclusive(async () => {
       await this._loadState();
-      const product = this._state.products.find((item) => getProductId(item) === productId);
+      const product = this._state.products.find((item) => matchesProductId(item, productId));
       return product ? clone(product) : null;
     });
   }
@@ -381,7 +403,7 @@ class ProductStore {
         return clone(cached.response);
       }
 
-      const idx = this._state.products.findIndex((item) => getProductId(item) === productId);
+      const idx = this._state.products.findIndex((item) => matchesProductId(item, productId));
       if (idx === -1) {
         const error = new Error('Product not found');
         error.statusCode = 404;
