@@ -8,9 +8,15 @@ test('home renders with navbar, catalog, and SEO tags', async ({ page }) => {
   await expect(page.locator('#product-container .producto').first()).toBeVisible();
 
   const canonical = page.locator('link[rel="canonical"]');
-  await expect(canonical).toHaveAttribute('href', 'https://elrincondeebano.com/');
-  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /https:\/\/elrincondeebano\.com\//);
-  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
+  await expect(canonical).toHaveAttribute('href', 'https://www.elrincondeebano.com/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    'content',
+    /https:\/\/www\.elrincondeebano\.com\//
+  );
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+    'content',
+    'summary_large_image'
+  );
 });
 
 test('legacy category route /pages/*.html stays available', async ({ page }) => {
@@ -19,7 +25,7 @@ test('legacy category route /pages/*.html stays available', async ({ page }) => 
   await expect(page.locator('#product-container .producto').first()).toBeVisible();
 
   const canonical = page.locator('link[rel="canonical"]');
-  await expect(canonical).toHaveAttribute('href', 'https://elrincondeebano.com/pages/bebidas.html');
+  await expect(canonical).toHaveAttribute('href', 'https://www.elrincondeebano.com/c/bebidas/');
 });
 
 test('disabled category route is not generated', async ({ page }) => {
@@ -36,7 +42,13 @@ test('service worker and compatibility artifacts are served', async ({ page }) =
     await navigator.serviceWorker.ready;
   });
 
-  for (const path of ['/robots.txt', '/sitemap.xml', '/404.html', '/service-worker.js', '/data/product_data.json']) {
+  for (const path of [
+    '/robots.txt',
+    '/sitemap.xml',
+    '/404.html',
+    '/service-worker.js',
+    '/data/product_data.json',
+  ]) {
     const response = await page.request.get(path);
     expect(response.status(), `${path} should be available`).toBe(200);
   }

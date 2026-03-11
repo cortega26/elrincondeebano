@@ -7,11 +7,18 @@ const { pathToFileURL } = require('node:url');
 
 test('all category og:image URLs use the live JPG hash for the current asset', async () => {
   const repoRoot = process.cwd();
-  const manifestPath = path.join(repoRoot, 'assets', 'images', 'og', 'categories', '.og_manifest.json');
+  const manifestPath = path.join(
+    repoRoot,
+    'assets',
+    'images',
+    'og',
+    'categories',
+    '.og_manifest.json'
+  );
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-  const seoModuleUrl = `${pathToFileURL(
-    path.join(repoRoot, 'astro-poc', 'src', 'lib', 'seo.ts')
-  ).href}?t=${Date.now()}`;
+  const seoModuleUrl = `${
+    pathToFileURL(path.join(repoRoot, 'astro-poc', 'src', 'lib', 'seo.ts')).href
+  }?t=${Date.now()}`;
   const { getCategoryOgImageUrl } = await import(seoModuleUrl);
 
   for (const [slug, item] of Object.entries(manifest.items || {})) {
@@ -33,7 +40,7 @@ test('all category og:image URLs use the live JPG hash for the current asset', a
 
     assert.equal(
       getCategoryOgImageUrl(slug, { repoRoot }),
-      `https://elrincondeebano.com/assets/images/og/categories/${fileName}?v=${expectedVersion}`,
+      `https://www.elrincondeebano.com/assets/images/og/categories/${fileName}?v=${expectedVersion}`,
       `Expected ${slug} to use the live file hash`
     );
   }

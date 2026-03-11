@@ -11,6 +11,7 @@ const checks = [
   'sw-forbidden.mjs',
   'checkout-guard.mjs',
   'critical-css.mjs',
+  'legacy-storefront-surface.mjs',
   'orphan-assets.js',
 ];
 

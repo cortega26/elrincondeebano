@@ -3,13 +3,14 @@ import '../styles/global.css';
 import Navbar from '../components/Navbar.astro';
 import { getNavigationGroups } from '../lib/catalog';
 import storefrontScriptUrl from '../scripts/storefront.js?url';
-import { absoluteUrl, DEFAULT_OG_IMAGE, SITE_NAME } from '../lib/seo';
+import { absoluteUrl, DEFAULT_OG_IMAGE, SITE_NAME, SITE_ORIGIN } from '../lib/seo';
 
 export interface Props {
   title: string;
   description?: string;
   canonicalPath?: string;
   canonicalUrl?: string;
+  robots?: string;
   ogTitle?: string;
   ogDescription?: string;
   ogImage?: string;
@@ -22,6 +23,7 @@ const {
   description = 'Minimarket privado para residentes del edificio Ébano. Pedidos por WhatsApp y entrega dentro del edificio.',
   canonicalPath = Astro.url.pathname || '/',
   canonicalUrl,
+  robots,
   ogTitle = title,
   ogDescription = description,
   ogImage = DEFAULT_OG_IMAGE,
@@ -41,6 +43,7 @@ const resolvedOgImage = absoluteUrl(ogImage);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <link rel="canonical" href={resolvedCanonicalUrl} />
+    {robots ? <meta name="robots" content={robots} /> : null}
     <link rel="manifest" href="/app.webmanifest" />
 
     <meta property="og:title" content={ogTitle} />
@@ -58,10 +61,10 @@ const resolvedOgImage = absoluteUrl(ogImage);
     <meta name="twitter:image" content={resolvedOgImage} />
     <title>{title}</title>
 
-    <link rel="icon" href="https://elrincondeebano.com/assets/images/web/favicon.ico" type="image/x-icon" />
+    <link rel="icon" href={absoluteUrl('/assets/images/web/favicon.ico')} type="image/x-icon" />
 
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous" />
-    <link rel="preconnect" href="https://elrincondeebano.com" crossorigin="anonymous" />
+    <link rel="preconnect" href={SITE_ORIGIN} crossorigin="anonymous" />
 
     <link
       rel="stylesheet"

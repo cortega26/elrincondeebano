@@ -5,10 +5,7 @@ const path = require('node:path');
 const SERVICE_WORKER_PATH = path.join(__dirname, '..', 'service-worker.js');
 const { CACHE_CONFIG } = require(SERVICE_WORKER_PATH);
 
-const createTimestampedResponse = (
-  body,
-  { status = 200, type = 'static', headers = {} } = {}
-) =>
+const createTimestampedResponse = (body, { status = 200, type = 'static', headers = {} } = {}) =>
   new Response(body, {
     status,
     headers: {
@@ -109,12 +106,6 @@ test('service worker install caches static assets and manifest files', async () 
   const fetchImpl = async (input) => {
     const url = typeof input === 'string' ? input : input.url;
     fetchCalls.push(url);
-    if (url === '/asset-manifest.json') {
-      return new Response(JSON.stringify({ files: ['/dist/js/script.min.js'] }), {
-        status: 200,
-        headers: { 'content-type': 'application/json' },
-      });
-    }
     return new Response('ok', { status: 200 });
   };
 
@@ -133,7 +124,7 @@ test('service worker install caches static assets and manifest files', async () 
   assert.ok(caches.stores.has(CACHE_CONFIG.prefixes.static));
   const staticCache = caches.stores.get(CACHE_CONFIG.prefixes.static);
   assert.ok(staticCache.size > 0);
-  assert.ok(fetchCalls.includes('/asset-manifest.json'));
+  assert.ok(!fetchCalls.includes('/asset-manifest.json'));
 });
 
 test('service worker activation removes stale caches', async () => {
@@ -230,11 +221,8 @@ test('service worker fetch bypasses cache and serves image fallback', async () =
 test('service worker returns cached response when network fails', async () => {
   const caches = createCachesMock();
   const staticCache = await caches.open(CACHE_CONFIG.prefixes.static);
-  const requestUrl = 'https://example.com/dist/css/style.min.css';
-  await staticCache.put(
-    requestUrl,
-    createTimestampedResponse('cached-css', { type: 'static' })
-  );
+  const requestUrl = 'https://example.com/assets/images/web/logo.webp';
+  await staticCache.put(requestUrl, createTimestampedResponse('cached-css', { type: 'static' }));
 
   const { events, cleanup } = loadServiceWorkerRuntime({
     fetchImpl: async () => {

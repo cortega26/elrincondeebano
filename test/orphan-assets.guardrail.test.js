@@ -27,7 +27,7 @@ function createFixtureRepo() {
     )
   );
   writeFile(
-    path.join(repoRoot, 'templates', 'index.ejs'),
+    path.join(repoRoot, 'astro-poc', 'src', 'components', 'FixtureLogo.astro'),
     '<img src="/assets/images/web/logo.webp" alt="logo">'
   );
   writeFile(

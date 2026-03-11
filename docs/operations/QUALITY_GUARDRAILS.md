@@ -24,10 +24,10 @@ A change is done only when all items below are true:
 
 The following areas require extra caution and explicit rollback notes:
 
-1. Routing and category URLs (`templates/`, `tools/build-pages.js`,
-   `data/category_registry.json`).
-2. SEO metadata, sitemap, robots, structured data (`tools/generate-sitemap.js`,
-   `tools/inject-structured-data.js`, `robots.txt`).
+1. Routing and category URLs (`astro-poc/src/lib/catalog.ts`,
+   `astro-poc/src/pages/c/[category].astro`, `data/category_registry.json`).
+2. SEO metadata, sitemap, robots, structured data (`astro-poc/src/lib/seo.ts`,
+   `astro-poc/scripts/postbuild-sitemap.mjs`, `robots.txt`).
 3. Cart and checkout-related flows (`src/js/modules/cart.mjs`,
    `src/js/modules/checkout.mjs`).
 4. Product catalog and inventory contracts (`data/product_data.json`,

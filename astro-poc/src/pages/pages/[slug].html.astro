@@ -6,6 +6,7 @@ import {
   getActiveCategories,
   getCategoryDescription,
   getCategoryLabel,
+  getModernCategoryPath,
   getCategorySlug,
   getProductsByCategory,
   resolveCategoryParamToKey,
@@ -34,13 +35,14 @@ const products = getProductsByCategory(categoryKey);
 const categoryLabel = getCategoryLabel(categoryKey);
 const categoryDescription = getCategoryDescription(categoryKey);
 const categorySlug = getCategorySlug(categoryKey).toLowerCase();
-const legacyCategoryPath = `/pages/${categorySlug}.html`;
+const canonicalPath = getModernCategoryPath(categoryKey);
 ---
 
 <BaseLayout
   title={`El Rincón de Ébano - ${categoryLabel}`}
   description={categoryDescription}
-  canonicalPath={legacyCategoryPath}
+  canonicalPath={canonicalPath}
+  robots="noindex, follow"
   ogTitle={`El Rincón de Ébano - ${categoryLabel}`}
   ogDescription={categoryDescription}
   ogImage={getCategoryOgImageUrl(categorySlug)}

@@ -64,7 +64,7 @@ export function assertOgContract(html, pageLabel) {
 }
 
 export function extractCategoryPathFromSitemap(xml) {
-  const regex = /<loc>\s*https:\/\/[^<]+(\/pages\/[a-z0-9_-]+\.html)\s*<\/loc>/gi;
+  const regex = /<loc>\s*https:\/\/[^<]+(\/c\/[a-z0-9_-]+\/)\s*<\/loc>/gi;
   const matches = [];
   let match = regex.exec(xml);
   while (match) {
@@ -132,20 +132,13 @@ async function assertHttpOk(url, label, timeoutMs) {
 
 function ensureWhatsAppPresence(html, pageLabel) {
   const hasWhatsapp =
-    /wa\.me\//i.test(html) ||
-    /api\.whatsapp\.com\/send/i.test(html) ||
-    /whatsapp/i.test(html);
+    /wa\.me\//i.test(html) || /api\.whatsapp\.com\/send/i.test(html) || /whatsapp/i.test(html);
   if (!hasWhatsapp) {
     fail(`${pageLabel} does not appear to include WhatsApp flow references.`);
   }
 }
 
-async function verifyPage({
-  url,
-  label,
-  timeoutMs,
-  ensureWhatsapp = false,
-}) {
+async function verifyPage({ url, label, timeoutMs, ensureWhatsapp = false }) {
   const response = await assertHttpOk(url, label, timeoutMs);
   const html = await response.text();
   assertOgContract(html, label);
@@ -164,11 +157,7 @@ async function verifyPage({
     ensureWhatsAppPresence(html, label);
   }
 
-  const imageResponse = await assertHttpOk(
-    absoluteOgImage,
-    `${label} og:image`,
-    timeoutMs
-  );
+  const imageResponse = await assertHttpOk(absoluteOgImage, `${label} og:image`, timeoutMs);
   const contentType = imageResponse.headers.get('content-type') || '';
   if (!/^image\/(?:jpeg|png)\b/i.test(contentType)) {
     fail(`${label} og:image returned unsupported content type for WhatsApp: ${contentType}`);
@@ -191,11 +180,7 @@ function summarizeCheck(name, status, details = {}) {
   };
 }
 
-export async function runCanary({
-  baseUrl,
-  timeoutMs = 15000,
-  categoryPath = '',
-} = {}) {
+export async function runCanary({ baseUrl, timeoutMs = 15000, categoryPath = '' } = {}) {
   const normalizedBase = normalizeBaseUrl(baseUrl);
   const checks = [];
 
@@ -209,11 +194,7 @@ export async function runCanary({
   checks.push(summarizeCheck('homepage', 'pass', homepage));
 
   const productDataUrl = `${normalizedBase}/data/product_data.json`;
-  const productDataResponse = await assertHttpOk(
-    productDataUrl,
-    'Product data',
-    timeoutMs
-  );
+  const productDataResponse = await assertHttpOk(productDataUrl, 'Product data', timeoutMs);
   const productPayload = await productDataResponse.json();
   if (!Array.isArray(productPayload?.products) || productPayload.products.length === 0) {
     fail('Product data endpoint returned empty or invalid products payload.');
@@ -238,7 +219,7 @@ export async function runCanary({
     const sitemapUrl = `${normalizedBase}/sitemap.xml`;
     const sitemapResponse = await assertHttpOk(sitemapUrl, 'Sitemap', timeoutMs);
     const sitemap = await sitemapResponse.text();
-    categoryPagePath = extractCategoryPathFromSitemap(sitemap) || '/pages/cervezas.html';
+    categoryPagePath = extractCategoryPathFromSitemap(sitemap) || '/c/cervezas/';
   }
   const categoryUrl = `${normalizedBase}${categoryPagePath}`;
   const category = await verifyPage({

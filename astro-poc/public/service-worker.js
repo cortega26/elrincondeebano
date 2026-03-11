@@ -19,11 +19,6 @@ const CACHE_CONFIG = {
     '/',
     '/index.html',
     '/404.html',
-    '/asset-manifest.json',
-    '/dist/css/style.min.css',
-    '/dist/css/style.category.min.css',
-    '/dist/css/critical.min.css',
-    '/dist/js/script.min.js',
     '/assets/images/web/logo.webp',
     '/assets/images/web/icon-192.png',
     '/assets/images/web/icon-512.png',
@@ -168,7 +163,6 @@ if (!TEST_MODE) {
               }
             })
           );
-          await cacheManifestAssets(cache);
         } catch (error) {
           console.error('Service Worker: Installation caching failed:', error);
         }
@@ -199,12 +193,6 @@ if (!TEST_MODE) {
   const getCacheKeyForRequest = (request, url) => {
     if (url.pathname.endsWith('.html')) {
       return { cacheName: CACHE_CONFIG.prefixes.html, type: 'html' };
-    }
-    if (url.pathname.startsWith('/dist/js/')) {
-      return { cacheName: CACHE_CONFIG.prefixes.static, type: 'static' };
-    }
-    if (url.pathname.startsWith('/dist/css/')) {
-      return { cacheName: CACHE_CONFIG.prefixes.static, type: 'static' };
     }
     if (url.pathname.includes('product_data.json')) {
       return { cacheName: CACHE_CONFIG.prefixes.products, type: 'products' };
@@ -393,8 +381,7 @@ if (!TEST_MODE) {
               console.warn('Failed to delete no-store cached response:', error);
             }
           } else {
-            const canCheckFreshness =
-              cached.type !== 'opaque' && cached.type !== 'opaqueredirect';
+            const canCheckFreshness = cached.type !== 'opaque' && cached.type !== 'opaqueredirect';
             if (networkError && canCheckFreshness && isCacheFresh(cached, type)) {
               return cached;
             }
@@ -432,32 +419,6 @@ if (!TEST_MODE) {
       });
     }
   });
-}
-
-async function cacheManifestAssets(cache) {
-  try {
-    const response = await fetch('/asset-manifest.json', { cache: 'no-store' });
-    if (!response || !response.ok) return;
-    const manifest = await response.json();
-    const files = Array.isArray(manifest?.files) ? manifest.files : [];
-    await Promise.all(
-      files.map(async (asset) => {
-        if (typeof asset !== 'string') return;
-        const url = asset.startsWith('/') ? asset : `/${asset}`;
-        try {
-          const res = await fetch(url);
-          if (res && res.ok) {
-            const timestamped = await addTimestamp(res.clone(), 'static');
-            await cache.put(url, timestamped);
-          }
-        } catch (error) {
-          console.warn(`Service Worker: Failed to precache ${url}:`, error);
-        }
-      })
-    );
-  } catch (error) {
-    console.warn('Service Worker: Failed to precache manifest assets:', error);
-  }
 }
 
 // Helper function to invalidate specific cache

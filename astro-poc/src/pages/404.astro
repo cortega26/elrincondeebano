@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { absoluteUrl } from '../lib/seo';
 ---
 
 <BaseLayout
@@ -11,10 +12,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <picture>
       <source
         type="image/avif"
-        srcset="https://elrincondeebano.com/assets/images/web/404.avif"
+        srcset={absoluteUrl('/assets/images/web/404.avif')}
       />
       <img
-        src="https://elrincondeebano.com/assets/images/web/404.webp"
+        src={absoluteUrl('/assets/images/web/404.webp')}
         alt="Personaje triste"
         width="400"
         height="300"

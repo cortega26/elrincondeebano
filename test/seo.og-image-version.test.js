@@ -31,9 +31,9 @@ test('getCategoryOgImageUrl uses the live JPG hash instead of a stale manifest h
     )}\n`
   );
 
-  const seoModuleUrl = `${pathToFileURL(
-    path.join(process.cwd(), 'astro-poc', 'src', 'lib', 'seo.ts')
-  ).href}?t=${Date.now()}`;
+  const seoModuleUrl = `${
+    pathToFileURL(path.join(process.cwd(), 'astro-poc', 'src', 'lib', 'seo.ts')).href
+  }?t=${Date.now()}`;
   const { getCategoryOgImageUrl } = await import(seoModuleUrl);
 
   const expectedVersion = crypto.createHash('sha1').update(imageBytes).digest('hex').slice(0, 12);
@@ -41,7 +41,7 @@ test('getCategoryOgImageUrl uses the live JPG hash instead of a stale manifest h
 
   assert.equal(
     imageUrl,
-    `https://elrincondeebano.com/assets/images/og/categories/cervezas.og_v3.jpg?v=${expectedVersion}`
+    `https://www.elrincondeebano.com/assets/images/og/categories/cervezas.og_v3.jpg?v=${expectedVersion}`
   );
   assert.doesNotMatch(imageUrl, /stale-manifest-hash/i);
 });

@@ -14,7 +14,7 @@ on:
         required: true
         default: 'https://www.elrincondeebano.com'
       category_path:
-        description: 'Optional category page path (e.g. /pages/cervezas.html)'
+        description: 'Optional category page path (e.g. /c/cervezas/)'
         required: false
         default: ''
       timeout_ms:

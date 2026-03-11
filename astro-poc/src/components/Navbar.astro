@@ -1,5 +1,6 @@
 ---
 import type { NavGroup } from '../lib/catalog';
+import { absoluteUrl } from '../lib/seo';
 
 export interface Props {
   navGroups: NavGroup[];
@@ -15,11 +16,11 @@ const { navGroups } = Astro.props;
         <picture>
           <source
             type="image/avif"
-            srcset="https://elrincondeebano.com/assets/images/web/logo.avif 32w, https://elrincondeebano.com/assets/images/web/logo.avif 64w, https://elrincondeebano.com/assets/images/web/logo.avif 96w"
+            srcset={`${absoluteUrl('/assets/images/web/logo.avif')} 32w, ${absoluteUrl('/assets/images/web/logo.avif')} 64w, ${absoluteUrl('/assets/images/web/logo.avif')} 96w`}
             sizes="40px"
           />
           <img
-            src="https://elrincondeebano.com/assets/images/web/logo.webp"
+            src={absoluteUrl('/assets/images/web/logo.webp')}
             alt="Logo de El Rincón de Ébano"
             width="30"
             height="30"
@@ -74,7 +75,7 @@ const { navGroups } = Astro.props;
                 </button>
                 <ul class="dropdown-menu">
                   {group.categories.map((category) => (
-                    <li><a class="dropdown-item" href={category.legacyPath}>{category.label}</a></li>
+                    <li><a class="dropdown-item" href={category.modernPath}>{category.label}</a></li>
                   ))}
                 </ul>
               </li>
