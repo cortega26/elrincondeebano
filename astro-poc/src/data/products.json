@@ -1,6 +1,6 @@
 {
-  "version": "20260310-150515",
-  "last_updated": "2026-03-10T15:05:15.621370",
+  "version": "20260310-205806",
+  "last_updated": "2026-03-10T20:58:06.175084",
   "rev": 0,
   "products": [
     {
@@ -898,7 +898,7 @@
       "description": "Lata de 350cc x 6 unidades",
       "price": 4500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Cervezas",
       "image_path": "assets/images/cervezas/Cristal lata b350cc.webp",
       "image_avif_path": "assets/images/cervezas/Cristal lata b350cc.avif",
@@ -906,22 +906,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-18T00:16:32.369Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-18T00:16:32.369Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-18T00:16:32.369Z",
+        "stock": {
+          "ts": "2026-03-10T23:58:06.171186Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
