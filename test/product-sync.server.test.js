@@ -49,6 +49,11 @@ async function applyTestPatch(store, {
   });
 }
 
+function buildSyncProductId(name, description = '') {
+  const normalize = (value) => String(value || '').trim().split(/\s+/).join(' ').toLowerCase();
+  return `${normalize(name)}::${normalize(description)}`;
+}
+
 test('accepts updates on distinct fields without conflict', async () => {
   const { store } = await createTempStore([{ name: 'Widget', price: 1000 }]);
 
@@ -250,4 +255,55 @@ test('records conflicts for unsupported fields instead of mutating the product',
   assert.equal(response.conflicts[0].field, 'rev');
   assert.equal(response.conflicts[0].reason, 'field_not_supported');
   assert.equal(response.product.rev, 0);
+});
+
+test('disambiguates duplicate product names using description in sync identity', async () => {
+  const { store } = await createTempStore([
+    { name: 'Widget', description: 'Original', price: 1000 },
+    { name: 'Widget', description: 'Variante', price: 900 },
+  ]);
+
+  const response = await store.applyPatch({
+    productId: buildSyncProductId('Widget', 'Variante'),
+    baseRev: 0,
+    fields: { price: 950 },
+    source: 'offline',
+    changesetId: 'duplicate-name-1',
+    timestamp: '2025-01-01T00:05:00.000Z',
+  });
+
+  assert.equal(response.product.description, 'Variante');
+  assert.equal(response.product.price, 950);
+
+  const unchanged = await store.getProduct(buildSyncProductId('Widget', 'Original'));
+  assert.equal(unchanged.price, 1000);
+});
+
+test('keeps sync continuity when a product rename changes its fallback identity', async () => {
+  const { store } = await createTempStore([
+    { name: 'Widget', description: 'Original', price: 1000 },
+  ]);
+
+  const renamed = await store.applyPatch({
+    productId: buildSyncProductId('Widget', 'Original'),
+    baseRev: 0,
+    fields: { name: 'Widget Renamed' },
+    source: 'offline',
+    changesetId: 'rename-1',
+    timestamp: '2025-01-01T00:06:00.000Z',
+  });
+
+  assert.equal(renamed.product.name, 'Widget Renamed');
+
+  const nextUpdate = await store.applyPatch({
+    productId: buildSyncProductId('Widget Renamed', 'Original'),
+    baseRev: 1,
+    fields: { price: 1100 },
+    source: 'offline',
+    changesetId: 'rename-2',
+    timestamp: '2025-01-01T00:07:00.000Z',
+  });
+
+  assert.equal(nextUpdate.product.name, 'Widget Renamed');
+  assert.equal(nextUpdate.product.price, 1100);
 });

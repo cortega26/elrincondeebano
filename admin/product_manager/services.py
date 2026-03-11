@@ -41,6 +41,28 @@ def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
+def build_product_sync_id(product_or_snapshot: Any) -> str:
+    """Build a stable sync identifier for a product or snapshot payload."""
+    if isinstance(product_or_snapshot, Product):
+        return Product.identity_key_from_values(
+            product_or_snapshot.name, product_or_snapshot.description
+        )
+
+    if isinstance(product_or_snapshot, dict):
+        explicit_id = str(product_or_snapshot.get("id") or "").strip()
+        if explicit_id:
+            return explicit_id
+        explicit_slug = str(product_or_snapshot.get("slug") or "").strip()
+        if explicit_slug:
+            return explicit_slug
+        return Product.identity_key_from_values(
+            str(product_or_snapshot.get("name") or ""),
+            str(product_or_snapshot.get("description") or ""),
+        )
+
+    raise TypeError("product_or_snapshot must be a Product or dict")
+
+
 class ProductEventType(Enum):
     """Event types for product operations."""
 
@@ -306,6 +328,7 @@ class ProductService:
         snapshot: Dict[str, Any],
         catalog_rev: int,
         metadata: Optional[Dict[str, Any]] = None,
+        lookup_product_id: Optional[str] = None,
     ) -> Product:
         """Apply server-provided product state locally."""
         with self._products_lock:
@@ -316,13 +339,33 @@ class ProductService:
                     "Instantánea de producto inválida: falta nombre"
                 )
             new_product = Product.from_dict(snapshot)
+            snapshot_sync_id = build_product_sync_id(snapshot)
+            normalized_lookup_id = str(lookup_product_id or "").strip()
             replaced = False
             for index, existing in enumerate(products):
-                if existing.name.lower() == target_name.lower():
+                existing_sync_id = build_product_sync_id(existing)
+                if normalized_lookup_id and existing_sync_id == normalized_lookup_id:
                     new_product.order = snapshot.get("order", existing.order)
                     products[index] = new_product
                     replaced = True
                     break
+                if existing_sync_id == snapshot_sync_id:
+                    new_product.order = snapshot.get("order", existing.order)
+                    products[index] = new_product
+                    replaced = True
+                    break
+            if not replaced:
+                name_matches = [
+                    (index, existing)
+                    for index, existing in enumerate(products)
+                    if Product.normalized_name(existing.name)
+                    == Product.normalized_name(target_name)
+                ]
+                if len(name_matches) == 1:
+                    match_index, existing = name_matches[0]
+                    new_product.order = snapshot.get("order", existing.order)
+                    products[match_index] = new_product
+                    replaced = True
             if not replaced:
                 new_product.order = snapshot.get("order", len(products))
                 products.append(new_product)
@@ -503,7 +546,7 @@ class ProductService:
                     )
                 ]
                 queue_payload = {
-                    "product_id": original_product.name,
+                    "product_id": build_product_sync_id(original_product),
                     "base_rev": base_rev,
                     "fields": changes,
                     "timestamp": timestamp,

@@ -14,6 +14,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 from urllib import error, parse, request
 
+from .services import build_product_sync_id
 from .time_utils import parse_iso_datetime
 
 
@@ -210,6 +211,17 @@ class SyncEngine:
         dirty = False
         now = time.time()
         for entry in entries:
+            if (
+                isinstance(entry.product_id, str)
+                and "::" not in entry.product_id
+                and isinstance(entry.snapshot, dict)
+                and "name" not in entry.fields
+                and "description" not in entry.fields
+            ):
+                next_product_id = build_product_sync_id(entry.snapshot)
+                if next_product_id and next_product_id != entry.product_id:
+                    entry.product_id = next_product_id
+                    dirty = True
             if entry.status == "error" and self._is_network_error_message(
                 entry.last_error
             ):
@@ -424,7 +436,10 @@ class SyncEngine:
             }
             try:
                 self.service.apply_server_snapshot(
-                    snapshot, change.get("rev", to_rev), metadata
+                    snapshot,
+                    change.get("rev", to_rev),
+                    metadata,
+                    lookup_product_id=change.get("product_id"),
                 )
             except Exception as exc:  # pylint: disable=broad-except
                 self.logger.error("Error aplicando snapshot remoto: %s", exc)
@@ -459,7 +474,10 @@ class SyncEngine:
                     product = response.get("product")
                     if product:
                         self.service.apply_server_snapshot(
-                            product, response.get("rev", entry.base_rev), metadata
+                            product,
+                            response.get("rev", entry.base_rev),
+                            metadata,
+                            lookup_product_id=entry.product_id,
                         )
                     conflicts = response.get("conflicts") or []
                     if conflicts:
