@@ -18,7 +18,7 @@ This guide provides a short, repeatable setup for contributors.
 Option A: built-in server
 
 ```
-node scripts/dev-server.mjs build
+node scripts/dev-server.mjs astro-poc/dist
 ```
 
 Open `http://127.0.0.1:8080/`.
@@ -26,7 +26,7 @@ Open `http://127.0.0.1:8080/`.
 Option B: `serve`
 
 ```
-npx serve build -l 4173
+npx serve astro-poc/dist -l 4174
 ```
 
 ## Local runtime flags
@@ -55,4 +55,5 @@ npx serve build -l 4173
 ## Notes
 
 - `npm test` runs node:test, then Vitest.
-- Some tests read from `build/`; run `npm run build` after template or data changes.
+- Active storefront checks read from `astro-poc/dist/`; run `npm run build` after Astro, data, or shared asset changes.
+- Use `npm run build:legacy` only when investigating archived root storefront behavior.

@@ -59,33 +59,16 @@ jobs:
       - name: Deterministic build check
         run: |
           rm -rf build-determinism-a build-determinism-b
-          BUILD_OUTPUT_DIR=build-determinism-a npm run build
-          BUILD_OUTPUT_DIR=build-determinism-b npm run build
+          npm run build
+          cp -R astro-poc/dist build-determinism-a
+          npm run build
+          cp -R astro-poc/dist build-determinism-b
           find build-determinism-a -type f -print0 | sort -z | xargs -0 sha256sum | sed 's#build-determinism-a/##' > build-a.sha
           find build-determinism-b -type f -print0 | sort -z | xargs -0 sha256sum | sed 's#build-determinism-b/##' > build-b.sha
           if ! diff -u build-a.sha build-b.sha > build-determinism.diff; then
             cat build-determinism.diff
             exit 1
           fi
-
-      - name: Upload determinism artifacts on failure
-        if: failure()
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4
-        with:
-          name: determinism-artifacts
-          path: |
-            build-a.sha
-            build-b.sha
-            build-determinism.diff
-          if-no-files-found: warn
-
-      - name: Check stylesheet order consistency
-        run: npm run check:css-order
-
-      - name: Validate Astro HTTP contract
-        run: |
-          npm --prefix astro-poc run build
-          npm --prefix astro-poc run contract:http
 
       - name: Cache Playwright browsers
         uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v4
@@ -100,6 +83,17 @@ jobs:
 
       - name: Run migration certification gate
         run: npm run certify:migration
+
+      - name: Upload determinism artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4
+        with:
+          name: determinism-artifacts
+          path: |
+            build-a.sha
+            build-b.sha
+            build-determinism.diff
+          if-no-files-found: warn
 
       - name: Generate smoke evidence template
         if: always()

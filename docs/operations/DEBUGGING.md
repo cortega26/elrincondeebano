@@ -25,7 +25,7 @@ Estandarizar depuración local para fallos de build, test y runtime sin introduc
 
 1. `node` fuera de `PATH`:
    - usar: `npx -y node@22 "C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js" run <script>`
-2. Fallos por condiciones de carrera en Windows (`ENOTEMPTY` en `build/`):
+2. Fallos por condiciones de carrera en Windows (`ENOTEMPTY` en `astro-poc/dist/` o `.astro/`):
    - ejecutar `build` y `e2e` en secuencia, no en paralelo.
 3. Falla solo en CI:
    - comparar versión de runtime y comandos exactos de workflow.

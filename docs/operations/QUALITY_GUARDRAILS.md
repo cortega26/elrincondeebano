@@ -11,7 +11,7 @@ A change is done only when all items below are true:
 
 1. `npm run lint` passes with no errors.
 2. `npm test` passes.
-3. `npm run build` passes and generates a valid `build/` snapshot.
+3. `npm run build` passes and generates a valid `astro-poc/dist/` deployment snapshot.
 4. `npm run guardrails:assets` passes when images, catalog references, templates,
    or build tooling are touched.
 5. `npm run test:e2e` passes when routes, navigation, cart, rendering,

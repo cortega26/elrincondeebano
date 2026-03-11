@@ -98,7 +98,7 @@ Use `Deploy static content to Pages` (`static.yml`) manual dispatch with:
 
 ## Historical fallback (legacy storefront)
 
-`20e771af04ad51043875b1b131cb9e5eae657c82` is pre-cutover legacy code. Treat this as disaster recovery only; it is not the fast rollback path.
+`20e771af04ad51043875b1b131cb9e5eae657c82` is pre-cutover legacy code. Treat this as disaster recovery only; it is not the fast rollback path, not part of active CI, and not the recommended recovery mechanism for production incidents.
 
 ## 5) When to Rollback
 

@@ -60,7 +60,7 @@
 - **Paso a paso: bump y verificación**
   1. Edita `service-worker.js` y actualiza el prefijo correspondiente en
      `CACHE_CONFIG.prefixes` (incremento de versión).
-  2. Ejecuta `npm run build` para regenerar el snapshot estático.
+  2. Ejecuta `npm run build` para regenerar `astro-poc/dist`.
   3. Publica los cambios (commit + deploy).
   4. En un navegador limpio o incógnito, visita el sitio y abre DevTools →
      Application → Service Workers.
