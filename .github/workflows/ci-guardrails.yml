@@ -30,8 +30,13 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            astro-poc/package-lock.json
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci
+          npm ci --prefix astro-poc
       - name: Build
         run: npm run build
       - name: Lint images
