@@ -2,7 +2,7 @@
 
 ## Resumen
 
-Este documento coordina a los agentes automatizados y humanos que mantienen **El Rincón de Ébano**, una web estática construida con scripts de Node.js, plantillas EJS y activos precompilados. Establece responsabilidades, comandos verificados y guardrails para preservar la estabilidad de builds, pruebas, seguridad de la cadena de suministro y los flujos de CI/CD actuales.
+Este documento coordina a los agentes automatizados y humanos que mantienen **El Rincón de Ébano**, una web estática servida en producción desde Astro con activos compartidos y tooling Node.js. Establece responsabilidades, comandos verificados y guardrails para preservar la estabilidad de builds, pruebas, seguridad de la cadena de suministro y los flujos de CI/CD actuales.
 
 Última actualización operativa: 2026-02-13 (Prompt 18).
 
@@ -52,7 +52,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 | ----------------------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------- |
 | Repo Cartographer             | `node -v`                                               | Antes de cualquier trabajo para verificar Node ≥ 22 tal como consume CI (`images.yml`). | Versión fija compatible con scripts (`22.x`).                                             | Registro en informe de descubrimiento.    |
 | Repo Cartographer             | `npm pkg get scripts`                                   | Al actualizar documentación o scripts.                                                  | JSON con scripts de `package.json`.                                                       | Tabla de scripts actualizada en docs.     |
-| Docs Steward                  | `npm run build`                                         | Tras cambios en plantillas (`templates/`), datos o herramientas.                        | Build completo sin errores ni warnings críticos; genera `dist/`, `pages/`, `sitemap.xml`. | Artifacts regenerados listos para commit. |
+| Docs Steward                  | `npm run build`                                         | Tras cambios en storefront, datos o tooling compartido.                                 | Build Astro completo sin errores ni warnings críticos; genera `astro-poc/dist/`.          | Artefactos listos para commit/deploy.     |
 | Docs Steward                  | `npm run lighthouse:audit`                              | Auditorías de rendimiento previas a release.                                            | Reportes en `reports/lighthouse/`.                                                        | Archivos HTML de Lighthouse.              |
 | Docs Steward                  | `npm run smoke:evidence`                                | Antes de release y al cerrar smoke manual.                                              | Plantilla persistente de evidencia en `reports/smoke/*.md`.                               | Artefacto smoke por commit/release.       |
 | Type & Lint Guardian          | `npm run lint`                                          | En cada PR y antes de merges; ejecutado también localmente.                             | Salida limpia sin errores ESLint usando `eslint.config.cjs`.                              | Logs de lint.                             |
@@ -76,7 +76,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - [ ] `node -v` coincide con la versión fijada en workflows (`22.x`).
   - [ ] `npm ci` es obligatorio en CI; queda prohibido `npm install` cuando exista `package-lock.json`.
 - **Compilación estricta**
-  - [ ] `npm run build` finaliza sin warnings críticos ni errores y deja artefactos en `build/`. Atender cualquier fallo en scripts de `tools/` y revisar que el staging contenga todos los archivos esperados.
+  - [ ] `npm run build` finaliza sin warnings críticos ni errores y deja artefactos en `astro-poc/dist/`. Atender cualquier fallo en scripts compartidos y revisar que el staging contenga todos los archivos esperados.
   - [ ] `npm run guardrails:assets` debe terminar en verde para evitar introducir assets huérfanos nuevos.
 - **Tests obligatorios**
   - [ ] `npm ci && npm test` deben ejecutarse completos tras modificaciones; repetir suite si algún caso es flaky.
@@ -110,7 +110,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 
 - Usar ramas `tipo/slug`, p. ej. `docs/agents-refresh-YYYYMMDD`.
 - Commits en formato Conventional Commits (`docs(agents): ...`).
-- PRs deben incluir evidencia de pruebas (`npm test`, `npm run build`, auditorías relevantes) y la checklist de guardrails marcada.
+- PRs deben incluir evidencia de pruebas (`npm test`, `npm run build`, `npm run test:e2e`, auditorías relevantes) y la checklist de guardrails marcada.
 - Actualizar documentación relacionada (`README.md`, `docs/operations/RUNBOOK.md`, `docs/operations/BACKUP.md`, `docs/`) en el mismo PR cuando cambian comportamientos.
 - Adjuntar resultados de `npm audit --production` cuando se toquen dependencias.
 
@@ -126,6 +126,9 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - `npm run guardrails:assets`
   - `npm run test:e2e`
   - `npm run smoke:evidence`
+- Comandos archivados:
+  - `npm run build:legacy`
+  - `npm run test:e2e:legacy`
 - Smoke manual guiado: `npm run smoke:manual`.
 - Auditoría de producción dependencias: `npm audit --omit=dev`.
 - Fallback cuando `node` no esté en `PATH`:
@@ -149,7 +152,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - Trigger: push a `main` y `workflow_dispatch`.
   - Permisos: `contents: read`, `pages: write`, `id-token: write`.
   - Concurrency: `group: "pages"`, `cancel-in-progress: false`.
-  - Artefacto: repo completo desplegado con `actions/deploy-pages@v4`.
+  - Artefacto: `astro-poc/dist` desplegado con `actions/deploy-pages@v4`.
 - **`Optimize images` (`.github/workflows/images.yml`)**
   - Trigger: cambios en `assets/images/originals/**` o manual.
   - Node fijado con `actions/setup-node@v4` (`node-version: 22.x`). Usa `npm ci` + scripts `images:generate`, `images:rewrite`, `lint:images`. Auto-commitea resultados.
@@ -165,7 +168,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 - **`Continuous Integration` (`.github/workflows/ci.yml`)**
   - Trigger: push/PR a `main` (excluyendo `admin/**`).
   - Stack: Node.js 22.x.
-  - Tareas: `npm ci`, build, guardrail de assets huérfanos, unit tests, estilo CSS, tests E2E (Playwright), evidencia smoke en artefacto y auditoría Lighthouse.
+  - Tareas: `npm ci`, build Astro, guardrail de assets huérfanos, unit tests, tests E2E (Playwright Astro), evidencia smoke en artefacto y auditoría Lighthouse.
 - **`Admin Tools CI` (`.github/workflows/admin.yml`)**
   - Trigger: cambios en `admin/**`.
   - Stack: Python 3.12 (pytest).
@@ -192,14 +195,14 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 ### Cómo depurar fallos de CI
 
 1. Identificar workflow fallido (`gh workflow run list` o interfaz web) y revisar logs.
-2. Reproducir localmente con `npm ci`, `npm test`, `npm run build` o scripts específicos del job (p.ej. `npm run images:generate`).
+2. Reproducir localmente con `npm ci`, `npm test`, `npm run build`, `npm run test:e2e` o scripts específicos del job (p.ej. `npm run images:generate`).
 3. Si falla Codacy SARIF, ejecutar localmente el sanitizador con `jq` y verificar esquema `2.1.0`.
 4. Documentar hallazgos en el PR con pasos reproducibles y solución propuesta.
 
 ### Cómo ejecutar smoke manual guiado
 
 1. Ejecutar `npm run build`.
-2. Levantar preview local (`npx serve build -l 4173` o equivalente).
+2. Levantar preview local (`npx serve astro-poc/dist -l 4174` o equivalente).
 3. Imprimir checklist: `npm run smoke:manual`.
 4. Completar validación manual usando `docs/operations/SMOKE_TEST.md`.
 5. Adjuntar evidencia en el PR.
@@ -231,6 +234,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 
 - `package.json` (scripts y dependencias). [`package.json`](package.json)
 - Lockfile para instalaciones deterministas. [`package-lock.json`](package-lock.json)
+- Archivo histórico de la storefront legacy. [`LEGACY_STOREFRONT`](docs/archive/LEGACY_STOREFRONT.md)
 - Configuración de ESLint. [`eslint.config.cjs`](eslint.config.cjs)
 - Workflows de GitHub Actions. [`static.yml`](.github/workflows/static.yml), [`images.yml`](.github/workflows/images.yml), [`semgrep.yml`](.github/workflows/semgrep.yml), [`secret-scan.yml`](.github/workflows/secret-scan.yml)
 - Scripts de build y utilidades. [`tools/`](tools/)

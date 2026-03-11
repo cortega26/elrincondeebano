@@ -6,9 +6,9 @@ Fast guided checks to detect regressions in critical user flows after changes.
 
 ## Preconditions
 
-1. Build generated: `npm run build`
-2. Local preview server running (example): `npx serve build -l 4173`
-3. Base URL available (default): `http://127.0.0.1:4173`
+1. Build generated: `npm run build` (`astro-poc/dist`)
+2. Local preview server running (example): `npx serve astro-poc/dist -l 4174`
+3. Base URL available (default): `http://127.0.0.1:4174`
 
 ## Guided Checklist
 
@@ -65,7 +65,7 @@ npm run smoke:evidence
 Or with explicit metadata:
 
 ```bash
-npm run smoke:evidence -- --output reports/smoke/manual-<commit>.md --status pending --base-url http://127.0.0.1:4173 --commit <sha>
+npm run smoke:evidence -- --output reports/smoke/manual-<commit>.md --status pending --base-url http://127.0.0.1:4174 --commit <sha>
 ```
 
 Then complete checklist boxes (`[x]`) and notes in the generated file and attach it to the PR or release evidence.

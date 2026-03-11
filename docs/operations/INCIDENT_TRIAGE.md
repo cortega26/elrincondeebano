@@ -24,7 +24,7 @@
 
 ## Checklist de diagnóstico
 
-1. Build vigente en `build/` consistente.
+1. Build vigente en `astro-poc/dist/` consistente.
 2. `npm run build` reproduce localmente el estado esperado.
 3. Cachés del service worker no están sirviendo assets obsoletos.
 4. `data/product_data.json` mantiene contrato válido.

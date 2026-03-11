@@ -175,7 +175,8 @@ async function main() {
     console.log('Omitiendo build (LH_SKIP_BUILD=1).');
   }
 
-  const server = createStaticServer(rootDir);
+  const astroDistRoot = path.join(rootDir, 'astro-poc', 'dist');
+  const server = createStaticServer(astroDistRoot);
   const port = 4173;
   await new Promise((resolve, reject) => {
     server.once('error', reject);

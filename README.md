@@ -7,18 +7,18 @@ Providing a bilingual-friendly grocery catalog that ships as a static site, pre-
 ## Current Project State
 
 - The public website at `https://www.elrincondeebano.com/` is currently served from the Astro storefront in [`astro-poc/`](astro-poc/).
-- The legacy Node + EJS static build at the repo root remains in place as the historical pipeline and rollback surface, but it is not the current public entrypoint.
+- The legacy Node + EJS static build at the repo root is archived as a historical reference only; it is no longer part of the active build, CI, or deploy path. See [`docs/archive/LEGACY_STOREFRONT.md`](docs/archive/LEGACY_STOREFRONT.md).
 - [`preview.html`](preview.html) is a local/demo artifact only. It is not part of the production deployment contract.
 - Product data and most static assets are still shared from the root-level [`data/`](data/) and [`assets/`](assets/) directories.
-- For user-facing storefront fixes, validate Astro first (`npm --prefix astro-poc run build`) and then validate the legacy build only if the touched asset is shared by both surfaces.
+- For user-facing storefront fixes, validate Astro through the root commands (`npm run build`, `npm run test:e2e`).
 
 ## Features
 
-- Generate static category, product, and offline pages from EJS templates plus structured JSON data (`tools/build*.js`).
+- Build the active Astro storefront from shared product data, category metadata, and public assets.
 - Ship an offline-first service worker with cache expiry controls and message channels for deterministic hydration fallbacks.
 - Orchestrate responsive AVIF/WebP asset pipelines with Sharp and automated GitHub Actions image rewrites.
 - Inject schema.org structured data, preload hints, and robots metadata as part of the deterministic build chain.
-- Exercise multiple layers of verification: node:test suites, Playwright anti-flicker checks, Cypress menu regression, and stylesheet order linting.
+- Exercise multiple layers of verification: node:test suites, Playwright Astro regression checks, Cypress menu regression, and Lighthouse audits.
 - Maintain reproducible operations with Volta-pinned runtime, npm lockfile, and backup pruning scripts for catalog data.
 - Ship an optional desktop “Content Manager” (`admin/product_manager/`) that edits `data/product_data.json` locally; remote API sync is disabled by default so changes are committed through Git.
 
@@ -73,13 +73,13 @@ prefixes live in `service-worker.js` under `CACHE_CONFIG.prefixes`.
 
 ```mermaid
 flowchart TD
-  Data[data/product_data.json] --> BuildScripts[Node build scripts]
-  Templates[EJS templates] --> BuildScripts
-  Assets[assets/, src/] --> BuildScripts
-  BuildScripts --> Staging[build/ staged site snapshot]
+  Data[data/product_data.json] --> SharedPrep[Root asset preflight]
+  Assets[assets/] --> SharedPrep
+  SharedPrep --> AstroBuild[Astro storefront build]
+  AstroBuild --> Staging[astro-poc/dist deploy snapshot]
   Staging --> ServiceWorker
   ServiceWorker --> Browser[Browser cache & offline UX]
-  BuildScripts --> CI[GitHub Actions CI]
+  AstroBuild --> CI[GitHub Actions CI]
   CI --> Staging
 ```
 
@@ -87,10 +87,10 @@ flowchart TD
 
 1. `nvm use 22` – align with the Volta/CI runtime (`>=22 <25`).
 2. `npm ci` – install dependencies deterministically.
-3. `npm --prefix astro-poc run build` – build the Astro storefront that matches the current public website.
+3. `npm run build` – build the active Astro storefront plus shared asset preflight.
 4. `npx serve astro-poc/dist -l 4174` – preview the Astro storefront locally.
-5. `npm run build` – build the legacy Node + EJS snapshot under `build/` when you need parity or rollback validation.
-6. `npx serve build -l 4173` – preview the legacy snapshot locally.
+5. `npm run test:e2e` – run the active Astro Playwright suite.
+6. `npm run build:legacy` – archived legacy build, only for historical investigation.
 
 See `docs/onboarding/LOCAL_DEV.md` for local flags, admin tooling, and preview options.
 
@@ -227,9 +227,9 @@ Operational recovery steps for this policy live in
 - AVIF assets are now optional but supported through a new `image_avif_path` field stored alongside products in `data/product_data.json`.
 - Image variants are generated from `assets/images/originals/` into `assets/images/variants/` by the image pipeline.
 - `tools/generate-image-variants.js` reads `data/product_data.json` by default; override with `PRODUCTS_JSON=/path/to/product_data.json` when needed.
-- The Node build emits `<picture>` tags and serves AVIF when browsers advertise support, while preserving the WebP/JPEG fallback for Safari/legacy clients.
+- The active storefront emits `<picture>` tags and serves AVIF when browsers advertise support, while preserving the WebP/JPEG fallback for Safari/legacy clients.
 - Offline Product Manager and the admin panel expose new fields so you can paste the AVIF relative path (e.g. `assets/images/bebidas/Coca.webp` + `assets/images/bebidas/Coca.avif`). The dialog also offers a helper button to copy AVIF files into the canonical assets directory.
-- Keep both files committed and run `npm run build` after changes; the guard workflow simply rebuilds from source and fails if the staged output diverges.
+- Keep both files committed and run `npm run build` after changes; the active guard workflow rebuilds the Astro storefront from source and validates the artifact contract.
 
 ## Quality & Tests
 
@@ -238,7 +238,6 @@ Operational recovery steps for this policy live in
 | Unit tests            | `npm test`                 | Runs node:test plus Vitest; includes service worker runtime coverage. |
 | Coverage              | `npm run test:coverage`    | Generates `coverage/` via c8 for local review.               |
 | Admin Tool tests      | `pytest`                   | 100% coverage for Admin logic (18 tests).                     |
-| CSS entrypoint order  | `npm run check:css-order`  | Guards against regressions in `<link>` ordering.              |
 | Playwright regression | `npm run test:e2e`         | Validates navbar/cart flicker budgets (CI installs Chromium). |
 | Cypress smoke         | `npm run test:cypress`     | Ensures navigation menu parity with production templates.     |
 | Lint                  | `npx eslint .`             | Enforces repo-wide JS/TS standards.                           |
@@ -276,7 +275,7 @@ _Coverage reporting is instrumented via `c8`; publish thresholds or badges once 
 
 ## Contributing & License
 
-Contributions via pull request are welcome — please run the CI suite (`npm run build`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run check:css-order`, `npm run test:e2e`) before submitting. The project is licensed under ISC as declared in `package.json`; add a root `LICENSE` file before publishing externally.
+Contributions via pull request are welcome — please run the CI suite (`npm run build`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:e2e`) before submitting. The project is licensed under ISC as declared in `package.json`; add a root `LICENSE` file before publishing externally.
 
 ## Operational Runbooks
 

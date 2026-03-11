@@ -133,14 +133,8 @@ jobs:
           npm ci
           npm ci --prefix astro-poc
 
-      - name: Build Astro storefront (artifact contract scope)
-        run: npm --prefix astro-poc run build
-
-      - name: Validate asset contract
-        run: npm --prefix astro-poc run assets:validate
-
-      - name: Validate artifact contract
-        run: npm --prefix astro-poc run contract:artifacts
+      - name: Build storefront (artifact contract scope)
+        run: npm run build
 
       - name: Write artifact canary report
         shell: bash
@@ -153,9 +147,7 @@ jobs:
             "deploySha": "${{ steps.meta.outputs.deploy_sha }}",
             "generatedAt": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
             "checks": [
-              "astro build",
-              "assets:validate",
-              "contract:artifacts"
+              "npm run build"
             ]
           }
           JSON
@@ -290,8 +282,8 @@ jobs:
           npm ci
           npm ci --prefix astro-poc
 
-      - name: Build Astro storefront for rollback ref
-        run: npm --prefix astro-poc run build
+      - name: Build storefront for rollback ref
+        run: npm run build
 
       - name: Setup Pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
