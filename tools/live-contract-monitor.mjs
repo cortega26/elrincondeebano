@@ -1,6 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
+import { fileURLToPath } from 'node:url';
+import {
+  inspectSecurityHeaders,
+  SECURITY_HEADER_BASELINE_ROUTES,
+  summarizeSecurityHeaderFailure,
+} from './security-header-policy.mjs';
 
 const DEFAULT_BASE_URL = 'https://www.elrincondeebano.com';
 const DEFAULT_TIMEOUT_MS = 15000;
@@ -10,7 +16,6 @@ const KEY_ROUTES = [
   '/',
   '/pages/bebidas.html',
   '/pages/vinos.html',
-  '/pages/e.html',
   '/pages/offline.html',
   '/robots.txt',
   '/sitemap.xml',
@@ -21,7 +26,7 @@ const KEY_ROUTES = [
 
 const PRODUCT_ASSET_FIELDS = ['image_path', 'image_avif_path', 'thumbnail_path'];
 
-function normalizeBaseUrl(rawBaseUrl = DEFAULT_BASE_URL) {
+export function normalizeBaseUrl(rawBaseUrl = DEFAULT_BASE_URL) {
   const candidate = typeof rawBaseUrl === 'string' && rawBaseUrl.trim() ? rawBaseUrl.trim() : DEFAULT_BASE_URL;
   const parsed = new URL(candidate);
   if (parsed.protocol !== 'https:') {
@@ -33,7 +38,7 @@ function normalizeBaseUrl(rawBaseUrl = DEFAULT_BASE_URL) {
   return parsed.toString().replace(/\/$/, '');
 }
 
-function normalizeAssetPath(raw) {
+export function normalizeAssetPath(raw) {
   if (typeof raw !== 'string') {
     return null;
   }
@@ -68,7 +73,7 @@ async function fetchWithTimeout(url, timeoutMs) {
   }
 }
 
-function resolveProbeUrl(baseUrl, routeOrPath) {
+export function resolveProbeUrl(baseUrl, routeOrPath) {
   if (typeof routeOrPath !== 'string' || !routeOrPath.trim()) {
     throw new Error('Probe path must be a non-empty string.');
   }
@@ -90,9 +95,10 @@ function resolveProbeUrl(baseUrl, routeOrPath) {
   return candidate;
 }
 
-async function checkUrl(baseUrl, routeOrPath, timeoutMs) {
+export async function checkUrl(baseUrl, routeOrPath, timeoutMs) {
   const target = resolveProbeUrl(baseUrl, routeOrPath);
   const targetUrl = target.toString();
+  const shouldInspectSecurityHeaders = SECURITY_HEADER_BASELINE_ROUTES.includes(target.pathname);
 
   try {
     const response = await fetchWithTimeout(target, timeoutMs);
@@ -104,6 +110,7 @@ async function checkUrl(baseUrl, routeOrPath, timeoutMs) {
       server: response.headers.get('server') || '',
       cfRay: response.headers.get('cf-ray') || '',
       contentType: response.headers.get('content-type') || '',
+      securityHeaders: shouldInspectSecurityHeaders ? inspectSecurityHeaders(response.headers) : null,
     };
   } catch (error) {
     return {
@@ -114,6 +121,7 @@ async function checkUrl(baseUrl, routeOrPath, timeoutMs) {
       server: '',
       cfRay: '',
       contentType: '',
+      securityHeaders: null,
       error: error?.message || String(error),
     };
   }
@@ -128,7 +136,13 @@ function writeReport(reportPath, payload) {
   fs.writeFileSync(resolvedPath, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
 }
 
-async function runMonitor({ baseUrl, timeoutMs, sampleSize, reportPath }) {
+export async function runMonitor({
+  baseUrl,
+  timeoutMs,
+  sampleSize,
+  reportPath,
+  requireSecurityHeaders = false,
+}) {
   const startedAt = new Date().toISOString();
   const routeResults = [];
 
@@ -161,26 +175,43 @@ async function runMonitor({ baseUrl, timeoutMs, sampleSize, reportPath }) {
     }
   }
 
-  const failures = [...routeResults, ...assetResults].filter((result) => !result.ok);
+  const availabilityFailures = [...routeResults, ...assetResults].filter((result) => !result.ok);
+  const securityHeaderFailures = routeResults
+    .filter((result) => result.securityHeaders && !result.securityHeaders.ok)
+    .map(summarizeSecurityHeaderFailure);
+  const success =
+    availabilityFailures.length === 0 &&
+    (!requireSecurityHeaders || securityHeaderFailures.length === 0);
   const report = {
     generatedAt: new Date().toISOString(),
     startedAt,
     baseUrl,
     timeoutMs,
     sampleSize,
+    requireSecurityHeaders,
     keyRouteCount: routeResults.length,
     sampledAssetCount: sampledAssets.length,
     routeResults,
     assetResults,
-    failures,
-    success: failures.length === 0,
+    failures: availabilityFailures,
+    securityHeaderBaselineRoutes: SECURITY_HEADER_BASELINE_ROUTES,
+    securityHeaderFailures,
+    availabilityOk: availabilityFailures.length === 0,
+    securityHeadersOk: securityHeaderFailures.length === 0,
+    success,
   };
 
   writeReport(reportPath, report);
   console.log(JSON.stringify(report, null, 2));
 
-  if (failures.length > 0) {
-    throw new Error(`Live contract monitor found ${failures.length} failing probe(s).`);
+  if (availabilityFailures.length > 0) {
+    throw new Error(`Live contract monitor found ${availabilityFailures.length} failing probe(s).`);
+  }
+
+  if (requireSecurityHeaders && securityHeaderFailures.length > 0) {
+    throw new Error(
+      `Live contract monitor found ${securityHeaderFailures.length} security header contract failure(s).`
+    );
   }
 }
 
@@ -191,6 +222,7 @@ async function runCli() {
       'timeout-ms': { type: 'string' },
       'sample-size': { type: 'string' },
       report: { type: 'string' },
+      'require-security-headers': { type: 'boolean' },
     },
     allowPositionals: false,
   });
@@ -206,10 +238,14 @@ async function runCli() {
     timeoutMs,
     sampleSize,
     reportPath: values.report || '',
+    requireSecurityHeaders: values['require-security-headers'] === true,
   });
 }
 
-runCli().catch((error) => {
-  console.error(error?.message || String(error));
-  process.exitCode = 1;
-});
+const isDirectRun = process.argv[1] === fileURLToPath(import.meta.url);
+if (isDirectRun) {
+  runCli().catch((error) => {
+    console.error(error?.message || String(error));
+    process.exitCode = 1;
+  });
+}

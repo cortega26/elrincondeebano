@@ -18,6 +18,7 @@ Providing a bilingual-friendly grocery catalog that ships as a static site, pre-
 - Ship an offline-first service worker with cache expiry controls and message channels for deterministic hydration fallbacks.
 - Orchestrate responsive AVIF/WebP asset pipelines with Sharp and automated GitHub Actions image rewrites.
 - Inject schema.org structured data, preload hints, and robots metadata as part of the deterministic build chain.
+- Promote category-specific WhatsApp/Open Graph JPGs from manual source images in `imagenes/` into the tracked OG pipeline under `assets/images/og/categories/`.
 - Exercise multiple layers of verification: node:test suites, Playwright Astro regression checks, Cypress menu regression, and Lighthouse audits.
 - Maintain reproducible operations with Volta-pinned runtime, npm lockfile, and backup pruning scripts for catalog data.
 - Ship an optional desktop “Content Manager” (`admin/product_manager/`) that edits `data/product_data.json` locally; remote API sync is disabled by default so changes are committed through Git.
@@ -68,6 +69,7 @@ prefixes live in `service-worker.js` under `CACHE_CONFIG.prefixes`.
 - **Build tooling:** Custom Node scripts with esbuild, Sharp, undici, and Lighthouse.
 - **Testing:** node:test, Vitest, Playwright, Cypress, CSS order lint, Lighthouse audits in CI.
 - **Automation:** GitHub Actions for CI, Pages deploy, image optimization, and Codacy SARIF upload.
+- **Edge hardening contract:** the expected production security-header baseline is documented in [`docs/operations/EDGE_SECURITY_HEADERS.md`](docs/operations/EDGE_SECURITY_HEADERS.md) and probed by the live contract monitor/canary workflows.
 
 ## Architecture at a Glance
 

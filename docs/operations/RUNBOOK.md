@@ -1,5 +1,25 @@
 # Runbook
 
+## Missing edge security headers
+
+- **Severity:** medium
+- **Detection:** `npm run monitor:live-contract:strict` or the `Live Contract Monitor` workflow.
+- **Expected behavior:** the public HTML routes at `https://www.elrincondeebano.com/` and `/pages/bebidas.html` must emit the hardening baseline documented in [`EDGE_SECURITY_HEADERS`](./EDGE_SECURITY_HEADERS.md).
+- **Important constraint:** the content deploy path is GitHub Pages; fixing the issue requires Cloudflare or equivalent edge configuration, not a rebuild of `astro-poc/dist`.
+- **Steps:**
+  1. Confirm the failure with:
+     ```bash
+     npm run monitor:live-contract:strict
+     ```
+  2. Verify live headers directly:
+     ```bash
+     curl -sSI https://www.elrincondeebano.com/
+     curl -sSI https://www.elrincondeebano.com/pages/bebidas.html
+     ```
+  3. Compare the response against [`EDGE_SECURITY_HEADERS`](./EDGE_SECURITY_HEADERS.md).
+  4. Apply or repair the Cloudflare edge rule/Worker.
+  5. Re-run `npm run monitor:live-contract:strict` and, if doing a manual post-deploy probe, run `Post-Deploy Canary` with `require_security_headers=true`.
+
 ## Product data fetch failures
 
 - **Severity:** warning
