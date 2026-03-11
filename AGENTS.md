@@ -166,6 +166,14 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - Trigger: push/PR a `main` (excluyendo `admin/**`).
   - Stack: Node.js 22.x.
   - Tareas: `npm ci`, build Astro, guardrail de assets huérfanos, unit tests, tests E2E (Playwright Astro), evidencia smoke en artefacto y auditoría Lighthouse.
+- **`Post-Deploy Canary` (`.github/workflows/post-deploy-canary.yml`)**
+  - Trigger: PR a `main`, `workflow_run` tras deploy Pages y ejecución manual.
+  - Stack: Node.js 22.x; live probe sólo en runner self-hosted.
+  - Tareas: tests deterministas del contrato canary en PR, verificación de artefacto post-build y live probe opcional con modo estricto `require_security_headers` para exigir headers en `/` y `/pages/bebidas.html`.
+- **`Live Contract Monitor` (`.github/workflows/live-contract-monitor.yml`)**
+  - Trigger: cron diario y ejecución manual.
+  - Stack: Node.js 22.x.
+  - Tareas: sondeo live de rutas clave/assets y enforcement del baseline de headers de hardening (`Content-Security-Policy`, frame protection, `Referrer-Policy`, `X-Content-Type-Options`, `Permissions-Policy`) sobre `/` y `/pages/bebidas.html`; abre/actualiza issue si falla.
 - **`Admin Tools CI` (`.github/workflows/admin.yml`)**
   - Trigger: cambios en `admin/**`.
   - Stack: Python 3.12 (pytest).

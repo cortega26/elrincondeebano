@@ -1,0 +1,10 @@
+name = "elrincondeebano-edge-security-headers"
+main = "worker.mjs"
+compatibility_date = "2026-03-11"
+
+routes = [
+  { pattern = "www.elrincondeebano.com/*", zone_name = "elrincondeebano.com" }
+]
+
+[observability]
+enabled = true

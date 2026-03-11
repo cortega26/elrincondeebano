@@ -21,15 +21,19 @@ Primer corte implementado en repo:
 - `RTB-09` completado en código: el sitemap postbuild dejó de indexar páginas con `noindex`, por lo que excluye compat pages/offline y publica sólo rutas primarias.
 - `RTB-13` completado en código: `astro-poc/scripts/sync-data.mjs` ahora sincroniza `static/offline.html` hacia `astro-poc/public/pages/offline.html` y endurece `image_path` / `image_avif_path` a `assets/images/**`.
 - `RTB-02` completado parcialmente en tests: `test/csp.policy.hardening.test.js` dejó de usar `templates/*.ejs` como superficie principal y ahora valida el output generado en `astro-poc/dist` para script surface, canonical y policy `noindex` en rutas legacy.
+- `RTB-02` avanzó en live/CI: `tools/post-deploy-canary.mjs` ahora inspecciona headers de hardening en `/` y `/pages/bebidas.html`, y el workflow manual `post-deploy-canary.yml` expone `require_security_headers` para volver ese probe estricto cuando la capa edge quede lista.
+- `RTB-01` avanzó en definición operativa: `tools/security-header-policy.mjs` ahora versiona el baseline exacto de headers/CSP y `docs/operations/EDGE_SECURITY_HEADERS.md` documenta el contrato edge requerido para Cloudflare delante de GitHub Pages.
+- `RTB-01` avanzó en implementación repo-side: `infra/cloudflare/edge-security-headers/worker.mjs` y `wrangler.toml.example` dejan un Worker listo para aplicar el baseline en Cloudflare sin traducir la policy manualmente.
 - `RTB-10` completado en documentación: `docs/audit/legacy-storefront-inventory-20260311.md` clasifica `templates/**`, `tools/build*.js`, tests EJS y `ejs` como deuda legacy con decisión explícita.
 - `RTB-11` completado en repo: `templates/**`, `tools/build*.js`, `tools/copy-static.js` y los tests EJS legacy salieron de raíz y fueron archivados bajo `_archive/legacy-storefront/`; `ejs` fue retirado del package surface activo.
 - `RTB-12` completado en repo: `docs/repo/STRUCTURE.md`, `docs/operations/QUALITY_GUARDRAILS.md`, `docs/INCIDENTS.md` y `AGENTS.md` ya no describen `templates/*.ejs` como superficie productiva; además el guardrail `legacy-storefront-surface.mjs` evita reintroducir esas referencias o paths en raíz.
 - `RTB-14` completado en código: `astro-poc/scripts/sync-data.mjs` ahora publica `/data/product_data.json` con contrato reducido para frontend y preserva `rev` / `field_last_modified` sólo en la copia interna `astro-poc/src/data/products.json`.
+- SEO social de categorías reforzado en build: `tools/sync-category-og-overrides.mjs` correlaciona imágenes manuales de `imagenes/` con `data/category_registry.json`, las publica como overrides rastreados en `assets/images/og/categories/` y `preflight` regenera los JPG usados por `og:image`/WhatsApp.
 
 Pendiente fuera de este corte:
 
-- `RTB-01` sigue pendiente porque los headers de hardening observados el 2026-03-11 no se controlan desde este repo de forma evidente; requieren acción en la capa de serving/edge.
-- `RTB-02` sigue parcial: se retiró la dependencia práctica de artefactos EJS para la autoridad pública, pero aún falta un check live/preview específico de headers si se quiere cerrar el riesgo de hardening end-to-end.
+- `RTB-01` sigue pendiente porque los headers de hardening observados el 2026-03-11 siguen ausentes en producción; este repo ahora los monitorea y puede exigirlos en probes live, pero la corrección real requiere acción en la capa de serving/edge.
+- `RTB-02` sigue parcial: la assurance repo-side ya cubre output Astro y probes live/manual, pero el cierre end-to-end depende de que preview/producción emitan efectivamente esos headers.
 
 ## Veredicto operativo
 

@@ -1,6 +1,10 @@
 import { writeFile } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
+import {
+  formatSecurityHeaderFailure,
+  inspectSecurityHeaders,
+} from './security-header-policy.mjs';
 
 function fail(message) {
   throw new Error(message);
@@ -130,6 +134,21 @@ async function assertHttpOk(url, label, timeoutMs) {
   return response;
 }
 
+async function probeSecurityHeaders({ url, label, timeoutMs, requireSecurityHeaders = false }) {
+  const response = await assertHttpOk(url, label, timeoutMs);
+  const securityHeaders = inspectSecurityHeaders(response.headers);
+  if (requireSecurityHeaders && !securityHeaders.ok) {
+    fail(formatSecurityHeaderFailure(label, securityHeaders));
+  }
+
+  return {
+    url,
+    finalUrl: response.url,
+    status: securityHeaders.ok ? 'pass' : 'warn',
+    securityHeaders,
+  };
+}
+
 function ensureWhatsAppPresence(html, pageLabel) {
   const hasWhatsapp =
     /wa\.me\//i.test(html) || /api\.whatsapp\.com\/send/i.test(html) || /whatsapp/i.test(html);
@@ -180,7 +199,12 @@ function summarizeCheck(name, status, details = {}) {
   };
 }
 
-export async function runCanary({ baseUrl, timeoutMs = 15000, categoryPath = '' } = {}) {
+export async function runCanary({
+  baseUrl,
+  timeoutMs = 15000,
+  categoryPath = '',
+  requireSecurityHeaders = false,
+} = {}) {
   const normalizedBase = normalizeBaseUrl(baseUrl);
   const checks = [];
 
@@ -192,6 +216,34 @@ export async function runCanary({ baseUrl, timeoutMs = 15000, categoryPath = '' 
     ensureWhatsapp: true,
   });
   checks.push(summarizeCheck('homepage', 'pass', homepage));
+
+  const securityHeaderTargets = [];
+  securityHeaderTargets.push(
+    await probeSecurityHeaders({
+      url: homepageUrl,
+      label: 'Homepage security headers',
+      timeoutMs,
+      requireSecurityHeaders,
+    })
+  );
+  securityHeaderTargets.push(
+    await probeSecurityHeaders({
+      url: `${normalizedBase}/pages/bebidas.html`,
+      label: 'Legacy category security headers',
+      timeoutMs,
+      requireSecurityHeaders,
+    })
+  );
+  checks.push(
+    summarizeCheck(
+      'security-headers-baseline',
+      securityHeaderTargets.every((target) => target.securityHeaders.ok) ? 'pass' : 'warn',
+      {
+        requireSecurityHeaders,
+        targets: securityHeaderTargets,
+      }
+    )
+  );
 
   const productDataUrl = `${normalizedBase}/data/product_data.json`;
   const productDataResponse = await assertHttpOk(productDataUrl, 'Product data', timeoutMs);
@@ -248,6 +300,7 @@ async function runCli() {
       'timeout-ms': { type: 'string' },
       'category-path': { type: 'string' },
       report: { type: 'string' },
+      'require-security-headers': { type: 'boolean' },
     },
     allowPositionals: false,
   });
@@ -259,6 +312,7 @@ async function runCli() {
     baseUrl: values['base-url'] || '',
     timeoutMs,
     categoryPath: values['category-path'] || '',
+    requireSecurityHeaders: values['require-security-headers'] === true,
   });
 
   if (values.report) {

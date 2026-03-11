@@ -36,6 +36,7 @@ jobs:
           node tools/live-contract-monitor.mjs \
             --timeout-ms "15000" \
             --sample-size "20" \
+            --require-security-headers \
             --report reports/live-contract/latest.json
 
       - name: Upload live monitor artifact
@@ -51,7 +52,7 @@ jobs:
         shell: bash
         run: |
           if [ -f reports/live-contract/latest.json ]; then
-            node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync('reports/live-contract/latest.json','utf8')); console.log('## Live Contract Monitor'); console.log(''); console.log('- Base URL: ' + r.baseUrl); console.log('- Key routes checked: ' + r.keyRouteCount); console.log('- Assets sampled: ' + r.sampledAssetCount); console.log('- Failures: ' + r.failures.length); console.log('- Result: ' + (r.success ? '✅ PASS' : '❌ FAIL'));" >> "$GITHUB_STEP_SUMMARY"
+            node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync('reports/live-contract/latest.json','utf8')); console.log('## Live Contract Monitor'); console.log(''); console.log('- Base URL: ' + r.baseUrl); console.log('- Key routes checked: ' + r.keyRouteCount); console.log('- Assets sampled: ' + r.sampledAssetCount); console.log('- Availability failures: ' + r.failures.length); console.log('- Security header failures: ' + r.securityHeaderFailures.length); console.log('- Strict security mode: ' + (r.requireSecurityHeaders ? 'enabled' : 'disabled')); console.log('- Result: ' + (r.success ? '✅ PASS' : '❌ FAIL'));" >> "$GITHUB_STEP_SUMMARY"
           else
             {
               echo "## Live Contract Monitor"
@@ -67,7 +68,7 @@ jobs:
         shell: bash
         run: |
           ISSUE_NUMBER="$(gh issue list --state open --label live-contract-monitor --json number --jq '.[0].number')"
-          FAILURE_BODY="$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync('reports/live-contract/latest.json','utf8')); const lines=r.failures.slice(0,20).map(f=>'- ' + f.status + ' ' + f.url + (f.error ? ' (' + f.error + ')' : '')); console.log(['Live contract monitor detected failures.','','Run: ' + process.env.GITHUB_SERVER_URL + '/' + process.env.GITHUB_REPOSITORY + '/actions/runs/' + process.env.GITHUB_RUN_ID,'Generated at: ' + r.generatedAt,'Failures: ' + r.failures.length,'',...lines].join('\n'));")"
+          FAILURE_BODY="$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync('reports/live-contract/latest.json','utf8')); const availability=r.failures.slice(0,20).map(f=>'- availability: ' + f.status + ' ' + f.url + (f.error ? ' (' + f.error + ')' : '')); const headers=r.securityHeaderFailures.slice(0,20).map(f=>'- headers: ' + f.url + ' missing=[' + f.missing.join(', ') + '] invalid=[' + f.invalid.join(', ') + ']'); console.log(['Live contract monitor detected failures.','','Run: ' + process.env.GITHUB_SERVER_URL + '/' + process.env.GITHUB_REPOSITORY + '/actions/runs/' + process.env.GITHUB_RUN_ID,'Generated at: ' + r.generatedAt,'Availability failures: ' + r.failures.length,'Security header failures: ' + r.securityHeaderFailures.length,'Strict security mode: ' + (r.requireSecurityHeaders ? 'enabled' : 'disabled'),'','Failure summary:',...availability,...headers].join('\n'));")"
 
           if [ -n "$ISSUE_NUMBER" ]; then
             gh issue comment "$ISSUE_NUMBER" --body "$FAILURE_BODY"
