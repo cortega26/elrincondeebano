@@ -10,9 +10,9 @@
     "assets:validate": "node scripts/validate-asset-contract.mjs",
     "contract:http": "node scripts/validate-http-contract.mjs",
     "contract:artifacts": "node scripts/validate-artifact-contract.mjs",
-    "dev": "npx astro dev",
-    "build": "npm run clean && npm run data:sync && npx astro build && node scripts/postbuild-legacy-pages.mjs && node scripts/postbuild-sitemap.mjs && npm run assets:validate && npm run contract:http && npm run contract:artifacts",
-    "preview": "npx astro preview"
+    "dev": "astro dev",
+    "build": "npm run clean && npm run data:sync && astro build && node scripts/postbuild-legacy-pages.mjs && node scripts/postbuild-sitemap.mjs && npm run assets:validate && npm run contract:http && npm run contract:artifacts",
+    "preview": "astro preview"
   },
   "dependencies": {
     "astro": "5.17.2"
