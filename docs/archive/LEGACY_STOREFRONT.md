@@ -1,25 +1,25 @@
 # Legacy Storefront Archive
 
-Status: archived operational surface as of 2026-03-11.
+Status: retired build path as of 2026-03-11.
 
 ## What this means
 
 - The active storefront in `main` is Astro under [`astro-poc/`](/home/carlos/VS_Code_Projects/Tienda%20Ebano/astro-poc).
 - Root `npm run build` now builds the Astro storefront through the shared asset preflight.
-- The historical Node + EJS pipeline remains in the repo only as a reference and disaster-recovery artifact generator.
+- The historical Node + EJS pipeline no longer has supported package scripts or CI entrypoints.
 
-## Archived commands
+## Retired commands
 
 - `npm run build:legacy`
 - `npm run test:e2e:legacy`
 
-These commands are no longer part of required CI, release, or deploy flows.
+These commands were removed from the active package surface and are no longer part of CI, release, or deploy flows.
 
 ## Why it was archived
 
 - Production already deploys `astro-poc/dist`.
 - Keeping two active storefront build paths in `main` created operational drift in SEO, previews, and verification.
-- The archive preserves historical scripts without allowing them to silently diverge from production behavior.
+- Production now has a single supported storefront build path.
 
 ## Guardrail
 
@@ -30,4 +30,4 @@ npm run build
 npm run test:e2e
 ```
 
-Only use the legacy commands when investigating historical behavior or recovering archived assets.
+Use `npm run build` and `npm run test:e2e` for any current storefront verification.

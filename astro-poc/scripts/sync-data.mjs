@@ -167,5 +167,5 @@ const productCount = Array.isArray(products.products) ? products.products.length
 const categoryCount = Array.isArray(categories.categories) ? categories.categories.length : 0;
 
 console.log(
-  `Synced Astro POC assets: ${productCount} products, ${categoryCount} categories, plus legacy public contract files.`
+  `Synced Astro storefront assets: ${productCount} products, ${categoryCount} categories, plus legacy public contract files.`
 );

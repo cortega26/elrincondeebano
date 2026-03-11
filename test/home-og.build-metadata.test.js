@@ -6,9 +6,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 test('built homepage emits JPG og:image with explicit 1200x1200 metadata', (t) => {
-  const pagePath = path.resolve(__dirname, '..', 'build', 'index.html');
+  const pagePath = path.resolve(__dirname, '..', 'astro-poc', 'dist', 'index.html');
   if (!fs.existsSync(pagePath)) {
-    t.skip('build/index.html not found; run npm run build first');
+    t.skip('astro-poc/dist/index.html not found; run npm run build first');
     return;
   }
 

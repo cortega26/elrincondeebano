@@ -126,9 +126,6 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - `npm run guardrails:assets`
   - `npm run test:e2e`
   - `npm run smoke:evidence`
-- Comandos archivados:
-  - `npm run build:legacy`
-  - `npm run test:e2e:legacy`
 - Smoke manual guiado: `npm run smoke:manual`.
 - Auditoría de producción dependencias: `npm audit --omit=dev`.
 - Fallback cuando `node` no esté en `PATH`:

@@ -11,14 +11,11 @@
 - `docs/`: operational, architecture, and audit documentation.
 - `admin/`: Python content manager tooling.
 - `astro-poc/`: active Astro storefront source and generated deploy output in `astro-poc/dist/`.
-- `build/`: archived legacy generated output, only produced by `npm run build:legacy`.
 
 ## Script ownership
 
 ### Canonical build scripts (`tools/`)
 
-- Build pipeline: `build.js`, `build-index.js`, `build-pages.js`, `build-components.js`.
-- Static and metadata: `copy-static.js`, `inject-structured-data.js`, `inject-resource-hints.js`, `generate-sitemap.js`, `verify-sw-assets.js`.
 - Image pipeline: `generate-images.mjs`, `rewrite-images.mjs`, `lint-images.mjs`, `generate-image-variants.js`.
 - Guardrails and checks: `preflight.js`, `check-determinism-paths.mjs`, `validate-category-registry.js`, `prune-backups.js`.
 
@@ -38,7 +35,6 @@ Manual/specialized scripts are kept for targeted maintenance tasks and should no
 - Tests:
   - Unit/integration: `test/*.test.js` or `test/*.spec.js`.
   - E2E Playwright (active): `test/e2e-astro/*.spec.ts`.
-  - E2E Playwright (archived legacy): `test/e2e/*.spec.ts` via `playwright.legacy.config.ts`.
   - Cypress: `cypress/e2e/*.cy.ts`.
 - Documentation:
   - Prompt checkpoints: `docs/audit/prompt-<N>-<topic>-YYYYMMDD.md`.
@@ -48,13 +44,13 @@ Manual/specialized scripts are kept for targeted maintenance tasks and should no
 
 - Prefer relative imports within `src/js/` modules.
 - Avoid deep cross-layer imports from runtime modules into `tools/` or `scripts/`.
-- Do not import generated artifacts from `astro-poc/dist/` or `build/` in source code.
+- Do not import generated artifacts from `astro-poc/dist/` in source code.
 - Keep category and product data contracts rooted in `data/` only.
 
 ## Repo hygiene rules
 
 - Do not commit temporary logs in repo root.
-- Keep generated outputs and caches out of git (`astro-poc/dist/`, `build/`, `reports/`, `coverage/`, test artifacts).
+- Keep generated outputs and caches out of git (`astro-poc/dist/`, `reports/`, `coverage/`, test artifacts).
 - Before opening PRs, validate:
   - `npm run lint`
   - `npm test`

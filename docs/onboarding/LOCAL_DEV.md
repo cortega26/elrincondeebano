@@ -56,4 +56,4 @@ npx serve astro-poc/dist -l 4174
 
 - `npm test` runs node:test, then Vitest.
 - Active storefront checks read from `astro-poc/dist/`; run `npm run build` after Astro, data, or shared asset changes.
-- Use `npm run build:legacy` only when investigating archived root storefront behavior.
+- `npm run build` is the only supported storefront build path for local verification.
