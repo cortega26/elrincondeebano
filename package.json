@@ -23,7 +23,7 @@
     "images:og:home": "node tools/generate-home-og.mjs",
     "images:generate": "node tools/generate-images.mjs",
     "images:og:categories": "node tools/generate-category-og.mjs",
-    "canary:post-deploy": "node tools/post-deploy-canary.mjs --base-url https://elrincondeebano.com",
+    "canary:post-deploy": "node tools/post-deploy-canary.mjs --base-url https://www.elrincondeebano.com",
     "taxonomy:release": "node tools/taxonomy-release.mjs release",
     "taxonomy:rollback": "node tools/taxonomy-release.mjs rollback",
     "images:rewrite": "node tools/rewrite-images.mjs",
@@ -53,6 +53,10 @@
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "dependencies": {
+    "@popperjs/core": "^2.11.8",
+    "bootstrap": "^5.3.3"
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.58.2",
@@ -72,11 +76,6 @@
     "typescript": "^5.9.3",
     "undici": "^7.22.0",
     "vitest": "^4.0.16"
-  },
-  "dependencies": {
-    "@popperjs/core": "^2.11.8",
-    "bootstrap": "^5.3.3",
-    "ejs": "^5.0.1"
   },
   "engines": {
     "node": ">=22 <25"

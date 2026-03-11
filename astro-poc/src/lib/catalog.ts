@@ -70,18 +70,16 @@ const HOME_CATEGORY_PRIORITY = [
   'SnacksSalados',
   'Limpiezayaseo',
 ];
-const SITE_ORIGIN = 'https://elrincondeebano.com';
+const SITE_ORIGIN = 'https://www.elrincondeebano.com';
 const PLACEHOLDER_IMAGE_URL = `${SITE_ORIGIN}/assets/images/web/placeholder.svg`;
 
 const catalog = rawProducts as ProductCatalog;
 const categoryRegistry = rawCategories as CategoryRegistry;
 let cachedProductsWithSku: ProductWithSku[] | null = null;
-let cachedCategoryIndexes:
-  | {
-      byKey: Map<string, CategoryRecord>;
-      bySlug: Map<string, CategoryRecord>;
-    }
-  | null = null;
+let cachedCategoryIndexes: {
+  byKey: Map<string, CategoryRecord>;
+  bySlug: Map<string, CategoryRecord>;
+} | null = null;
 
 function generateStableSku(product: ProductRecord): string {
   const base = `${product.name}-${product.category}`.toLowerCase();
@@ -215,7 +213,9 @@ export function getProductsWithSku(): ProductWithSku[] {
 
 export function getHomeHighlightedCategories(): NavGroup['categories'] {
   const categories = getNavigationGroups().flatMap((group) => group.categories || []);
-  const bySlug = new Map(categories.map((category) => [String(category.slug || '').toLowerCase(), category]));
+  const bySlug = new Map(
+    categories.map((category) => [String(category.slug || '').toLowerCase(), category])
+  );
   const selected: NavGroup['categories'] = [];
   const seen = new Set<string>();
 
@@ -368,12 +368,6 @@ export function getCategoryRouteParams(): Array<{ param: string; categoryKey: st
         routes.push({ param: slugRoute, categoryKey: category.key });
         seen.add(slugRoute);
       }
-    }
-
-    const key = normalizeIdentity(category.key);
-    if (key && !seen.has(key)) {
-      routes.push({ param: key, categoryKey: category.key });
-      seen.add(key);
     }
   }
 

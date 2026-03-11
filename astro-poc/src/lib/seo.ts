@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
-export const SITE_ORIGIN = 'https://elrincondeebano.com';
+export const SITE_ORIGIN = 'https://www.elrincondeebano.com';
 export const SITE_NAME = 'El Rincón de Ébano';
 const HOME_OG_IMAGE_PATH = '/assets/images/og/home.og.jpg';
 const DEFAULT_REPO_ROOT = path.resolve(process.cwd(), '..');
@@ -97,7 +97,9 @@ function loadCategoryOgManifest(options?: SeoFileOptions): Record<string, OgMani
 }
 
 export function getCategoryOgImageUrl(categorySlug: string, options?: SeoFileOptions): string {
-  const slug = String(categorySlug || '').trim().toLowerCase();
+  const slug = String(categorySlug || '')
+    .trim()
+    .toLowerCase();
   if (!slug) {
     return DEFAULT_OG_IMAGE;
   }

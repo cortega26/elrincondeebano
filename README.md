@@ -101,11 +101,12 @@ _No environment variables are required for the default build. The admin panel is
 - **Supported languages today:** Spanish-only content is shipped. Any bilingual support is
   **aspirational** and should not be treated as a guaranteed feature yet.
 - **Default language:** Spanish (`es`) is the default for rendered pages (see `lang="es"` in
-  `templates/index.ejs` and `templates/category.ejs`).
+  the Astro output under `astro-poc/src/pages/**`).
 - **Fallback rules:** there is no runtime language negotiation. If future translations are
   added, the expected fallback remains Spanish.
-- **Where strings live:** localized copy currently lives directly in EJS templates
-  (`templates/`) and product/category labels in `data/product_data.json`.
+- **Where strings live:** localized copy for the active storefront lives in Astro
+  components/pages under `astro-poc/src/**`, while product/category labels live in
+  `data/product_data.json`.
 
 ## Category Taxonomy
 

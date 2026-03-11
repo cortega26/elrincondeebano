@@ -7,7 +7,11 @@ async function loadModule() {
   return import('../tools/post-deploy-canary.mjs');
 }
 
-function makeHtml({ title = 'Page', ogImage = 'https://example.com/og.jpg', withWhatsapp = false } = {}) {
+function makeHtml({
+  title = 'Page',
+  ogImage = 'https://example.com/og.jpg',
+  withWhatsapp = false,
+} = {}) {
   return `<!doctype html>
 <html>
   <head>
@@ -35,7 +39,10 @@ function withMockedFetch(mockImpl, fn) {
 
 test('normalizeBaseUrl requires https and strips trailing slash', async () => {
   const { normalizeBaseUrl } = await loadModule();
-  assert.equal(normalizeBaseUrl('https://elrincondeebano.com/'), 'https://elrincondeebano.com');
+  assert.equal(
+    normalizeBaseUrl('https://www.elrincondeebano.com/'),
+    'https://www.elrincondeebano.com'
+  );
   assert.throws(() => normalizeBaseUrl('http://elrincondeebano.com'), /must use HTTPS/);
 });
 
@@ -58,101 +65,126 @@ test('extractCategoryPathFromSitemap returns first category path', async () => {
   const { extractCategoryPathFromSitemap } = await loadModule();
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset>
-  <url><loc>https://elrincondeebano.com/pages/vinos.html</loc></url>
-  <url><loc>https://elrincondeebano.com/pages/aguas.html</loc></url>
+  <url><loc>https://www.elrincondeebano.com/c/vinos/</loc></url>
+  <url><loc>https://www.elrincondeebano.com/c/aguas/</loc></url>
 </urlset>`;
-  assert.equal(extractCategoryPathFromSitemap(xml), '/pages/aguas.html');
+  assert.equal(extractCategoryPathFromSitemap(xml), '/c/aguas/');
 });
 
 test('runCanary validates homepage/category/og/data/service-worker paths', async () => {
   const { runCanary } = await loadModule();
-  await withMockedFetch(async (url) => {
-    const target = String(url);
-    if (target.endsWith('/')) {
-      return new Response(makeHtml({ title: 'Home', ogImage: 'https://elrincondeebano.com/assets/images/og/home.jpg', withWhatsapp: true }), {
-        status: 200,
-        headers: { 'content-type': 'text/html; charset=utf-8' },
-      });
-    }
-    if (target.endsWith('/sitemap.xml')) {
-      return new Response(
-        `<?xml version="1.0" encoding="UTF-8"?><urlset><url><loc>https://elrincondeebano.com/pages/bebidas.html</loc></url></urlset>`,
-        { status: 200, headers: { 'content-type': 'application/xml' } }
+  await withMockedFetch(
+    async (url) => {
+      const target = String(url);
+      if (target.endsWith('/')) {
+        return new Response(
+          makeHtml({
+            title: 'Home',
+            ogImage: 'https://www.elrincondeebano.com/assets/images/og/home.jpg',
+            withWhatsapp: true,
+          }),
+          {
+            status: 200,
+            headers: { 'content-type': 'text/html; charset=utf-8' },
+          }
+        );
+      }
+      if (target.endsWith('/sitemap.xml')) {
+        return new Response(
+          `<?xml version="1.0" encoding="UTF-8"?><urlset><url><loc>https://www.elrincondeebano.com/c/bebidas/</loc></url></urlset>`,
+          { status: 200, headers: { 'content-type': 'application/xml' } }
+        );
+      }
+      if (target.endsWith('/c/bebidas/')) {
+        return new Response(
+          makeHtml({
+            title: 'Bebidas',
+            ogImage: 'https://www.elrincondeebano.com/assets/images/og/bebidas.jpg',
+          }),
+          {
+            status: 200,
+            headers: { 'content-type': 'text/html; charset=utf-8' },
+          }
+        );
+      }
+      if (
+        target.endsWith('/assets/images/og/home.jpg') ||
+        target.endsWith('/assets/images/og/bebidas.jpg')
+      ) {
+        return new Response('img', { status: 200, headers: { 'content-type': 'image/jpeg' } });
+      }
+      if (target.endsWith('/data/product_data.json')) {
+        return new Response(JSON.stringify({ products: [{ id: 1 }] }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        });
+      }
+      if (target.endsWith('/service-worker.js')) {
+        return new Response('sw', {
+          status: 200,
+          headers: { 'content-type': 'application/javascript' },
+        });
+      }
+      return new Response('not found', { status: 404 });
+    },
+    async () => {
+      const report = await runCanary({ baseUrl: 'https://www.elrincondeebano.com' });
+      assert.equal(report.checks.length, 4);
+      assert.deepEqual(
+        report.checks.map((item) => item.name),
+        ['homepage', 'product-data-endpoint', 'service-worker', 'category-page']
       );
     }
-    if (target.endsWith('/pages/bebidas.html')) {
-      return new Response(makeHtml({ title: 'Bebidas', ogImage: 'https://elrincondeebano.com/assets/images/og/bebidas.jpg' }), {
-        status: 200,
-        headers: { 'content-type': 'text/html; charset=utf-8' },
-      });
-    }
-    if (target.endsWith('/assets/images/og/home.jpg') || target.endsWith('/assets/images/og/bebidas.jpg')) {
-      return new Response('img', { status: 200, headers: { 'content-type': 'image/jpeg' } });
-    }
-    if (target.endsWith('/data/product_data.json')) {
-      return new Response(JSON.stringify({ products: [{ id: 1 }] }), {
-        status: 200,
-        headers: { 'content-type': 'application/json' },
-      });
-    }
-    if (target.endsWith('/service-worker.js')) {
-      return new Response('sw', {
-        status: 200,
-        headers: { 'content-type': 'application/javascript' },
-      });
-    }
-    return new Response('not found', { status: 404 });
-  }, async () => {
-    const report = await runCanary({ baseUrl: 'https://elrincondeebano.com' });
-    assert.equal(report.checks.length, 4);
-    assert.deepEqual(
-      report.checks.map((item) => item.name),
-      ['homepage', 'product-data-endpoint', 'service-worker', 'category-page']
-    );
-  });
+  );
 });
 
 test('runCanary fails when homepage does not expose WhatsApp flow', async () => {
   const { runCanary } = await loadModule();
-  await withMockedFetch(async (url) => {
-    const target = String(url);
-    if (target.endsWith('/')) {
-      return new Response(makeHtml({ withWhatsapp: false }), {
-        status: 200,
-        headers: { 'content-type': 'text/html; charset=utf-8' },
-      });
+  await withMockedFetch(
+    async (url) => {
+      const target = String(url);
+      if (target.endsWith('/')) {
+        return new Response(makeHtml({ withWhatsapp: false }), {
+          status: 200,
+          headers: { 'content-type': 'text/html; charset=utf-8' },
+        });
+      }
+      return new Response('not found', { status: 404 });
+    },
+    async () => {
+      await assert.rejects(
+        () => runCanary({ baseUrl: 'https://www.elrincondeebano.com' }),
+        /WhatsApp flow references/
+      );
     }
-    return new Response('not found', { status: 404 });
-  }, async () => {
-    await assert.rejects(
-      () => runCanary({ baseUrl: 'https://elrincondeebano.com' }),
-      /WhatsApp flow references/
-    );
-  });
+  );
 });
 
 test('runCanary fails when og:image uses an unsupported WebP asset', async () => {
   const { runCanary } = await loadModule();
-  await withMockedFetch(async (url) => {
-    const target = String(url);
-    if (target.endsWith('/')) {
-      return new Response(
-        makeHtml({
-          title: 'Home',
-          ogImage: 'https://elrincondeebano.com/assets/images/og/home.webp',
-          withWhatsapp: true,
-        }),
-        {
-          status: 200,
-          headers: { 'content-type': 'text/html; charset=utf-8' },
-        }
+  await withMockedFetch(
+    async (url) => {
+      const target = String(url);
+      if (target.endsWith('/')) {
+        return new Response(
+          makeHtml({
+            title: 'Home',
+            ogImage: 'https://www.elrincondeebano.com/assets/images/og/home.webp',
+            withWhatsapp: true,
+          }),
+          {
+            status: 200,
+            headers: { 'content-type': 'text/html; charset=utf-8' },
+          }
+        );
+      }
+      return new Response('not found', { status: 404 });
+    },
+    async () => {
+      await assert.rejects(
+        () => runCanary({ baseUrl: 'https://www.elrincondeebano.com' }),
+        /must use JPG or PNG/
       );
     }
-    return new Response('not found', { status: 404 });
-  }, async () => {
-    await assert.rejects(
-      () => runCanary({ baseUrl: 'https://elrincondeebano.com' }),
-      /must use JPG or PNG/
-    );
-  });
+  );
 });

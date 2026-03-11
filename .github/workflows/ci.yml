@@ -101,7 +101,7 @@ jobs:
           npm run smoke:evidence -- \
             --output reports/smoke/ci-${{ github.sha }}.md \
             --status pending \
-            --base-url https://elrincondeebano.com \
+            --base-url https://www.elrincondeebano.com \
             --commit ${{ github.sha }} \
             --run-id ${{ github.run_id }} \
             --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

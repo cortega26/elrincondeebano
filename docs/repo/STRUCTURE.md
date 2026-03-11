@@ -3,7 +3,6 @@
 ## Top-level layout
 
 - `src/`: browser runtime code (ES modules).
-- `templates/`: EJS templates for landing, category pages, and partials.
 - `assets/`: source static assets (images, fonts, CSS).
 - `tools/`: build and generation pipeline scripts.
 - `scripts/`: operator helpers (local servers, smoke runs, CI helpers).
@@ -11,6 +10,7 @@
 - `docs/`: operational, architecture, and audit documentation.
 - `admin/`: Python content manager tooling.
 - `astro-poc/`: active Astro storefront source and generated deploy output in `astro-poc/dist/`.
+- `_archive/legacy-storefront/`: retired EJS templates, builders, and tests kept only as historical reference.
 
 ## Script ownership
 
@@ -36,6 +36,7 @@ Manual/specialized scripts are kept for targeted maintenance tasks and should no
   - Unit/integration: `test/*.test.js` or `test/*.spec.js`.
   - E2E Playwright (active): `test/e2e-astro/*.spec.ts`.
   - Cypress: `cypress/e2e/*.cy.ts`.
+  - Archived legacy storefront checks live under `_archive/legacy-storefront/tests/` and are outside the active assurance path.
 - Documentation:
   - Prompt checkpoints: `docs/audit/prompt-<N>-<topic>-YYYYMMDD.md`.
   - ADR files: `docs/adr/NNNN-topic.md`.

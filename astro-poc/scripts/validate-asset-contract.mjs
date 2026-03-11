@@ -28,8 +28,8 @@ function normalizeAssetRef(raw) {
   let candidatePath;
 
   try {
-    const parsed = new URL(trimmed, 'https://elrincondeebano.com');
-    if (parsed.origin !== 'https://elrincondeebano.com') {
+    const parsed = new URL(trimmed, 'https://www.elrincondeebano.com');
+    if (parsed.origin !== 'https://www.elrincondeebano.com') {
       return null;
     }
     candidatePath = parsed.pathname;
@@ -129,7 +129,10 @@ function main() {
   }
 
   if (missingAssets.length > 0) {
-    const preview = missingAssets.slice(0, 50).map((item) => ` - ${item}`).join('\n');
+    const preview = missingAssets
+      .slice(0, 50)
+      .map((item) => ` - ${item}`)
+      .join('\n');
     throw new Error(
       `Asset contract validation failed: ${missingAssets.length} missing asset(s).\n${preview}`
     );

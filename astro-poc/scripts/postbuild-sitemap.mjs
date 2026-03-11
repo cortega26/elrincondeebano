@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const SITE_ORIGIN = 'https://elrincondeebano.com';
+const SITE_ORIGIN = 'https://www.elrincondeebano.com';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '..');
@@ -35,17 +35,24 @@ function toPathname(htmlFile) {
   return `/${relative}`;
 }
 
+function isIndexableHtml(htmlFile) {
+  const html = fs.readFileSync(htmlFile, 'utf8');
+  return !/<meta\s+name=["']robots["'][^>]*content=["'][^"']*noindex/i.test(html);
+}
+
 const htmlFiles = walkHtmlFiles(distRoot);
-const routes = [...new Set(htmlFiles.map(toPathname))]
-  .filter((pathname) => pathname !== '/404.html')
-  .sort((a, b) => a.localeCompare(b, 'en'));
+const routes = htmlFiles
+  .filter((htmlFile) => isIndexableHtml(htmlFile))
+  .map(toPathname)
+  .filter((pathname) => pathname !== '/404.html');
+const uniqueRoutes = [...new Set(routes)].sort((a, b) => a.localeCompare(b, 'en'));
 
 const xmlLines = [
   '<?xml version="1.0" encoding="UTF-8"?>',
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-  ...routes.map((pathname) => `  <url><loc>${SITE_ORIGIN}${pathname}</loc></url>`),
+  ...uniqueRoutes.map((pathname) => `  <url><loc>${SITE_ORIGIN}${pathname}</loc></url>`),
   '</urlset>',
 ];
 
 fs.writeFileSync(sitemapPath, `${xmlLines.join('\n')}\n`, 'utf8');
-console.log(`Generated sitemap with ${routes.length} URLs at ${sitemapPath}`);
+console.log(`Generated sitemap with ${uniqueRoutes.length} URLs at ${sitemapPath}`);

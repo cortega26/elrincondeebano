@@ -10,6 +10,7 @@ const SCANNED_TEXT_EXTENSIONS = new Set([
   '.cjs',
   '.ts',
   '.mts',
+  '.astro',
   '.json',
   '.ejs',
   '.html',
@@ -22,8 +23,8 @@ const SCANNED_TEXT_EXTENSIONS = new Set([
 ]);
 
 const DEFAULT_SCAN_TARGETS = [
-  'templates',
   'src',
+  'astro-poc',
   'tools',
   'data',
   'index.html',

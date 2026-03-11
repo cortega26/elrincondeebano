@@ -22,7 +22,7 @@
 2) Checkout / WhatsApp failures
 - Symptoms: button does nothing, popup blocked with no fallback, orders not sent.
 - Verify (2-5 min): try checkout with popups allowed/blocked.
-- Suspected areas/files: `src/js/modules/checkout.mjs`, `templates/partials/navbar.ejs`.
+- Suspected areas/files: `src/js/modules/checkout.mjs`, `astro-poc/src/components/Navbar.astro`.
 - Immediate mitigation:
   - Enable fallback UI if hidden.
   - Add temporary user guidance text.

@@ -5,6 +5,7 @@ import CatalogControls from '../../components/CatalogControls.astro';
 import {
   getCategoryDescription,
   getCategoryLabel,
+  getModernCategoryPath,
   getCategoryRouteParams,
   getCategorySlug,
   getProductsByCategory,
@@ -26,13 +27,13 @@ const products = getProductsByCategory(categoryKey);
 const categoryLabel = getCategoryLabel(categoryKey);
 const categoryDescription = getCategoryDescription(categoryKey);
 const categorySlug = getCategorySlug(categoryKey).toLowerCase();
-const legacyCategoryPath = `/pages/${categorySlug}.html`;
+const canonicalPath = getModernCategoryPath(categoryKey);
 ---
 
 <BaseLayout
   title={`El Rincón de Ébano - ${categoryLabel}`}
   description={categoryDescription}
-  canonicalPath={legacyCategoryPath}
+  canonicalPath={canonicalPath}
   ogTitle={`El Rincón de Ébano - ${categoryLabel}`}
   ogDescription={categoryDescription}
   ogImage={getCategoryOgImageUrl(categorySlug)}

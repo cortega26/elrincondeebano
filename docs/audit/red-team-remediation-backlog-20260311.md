@@ -7,6 +7,30 @@ Fuente: `docs/audit/red-team-astro-migration-audit-20260311.md`
 
 Convertir el audit de seguridad y cierre de migración en un plan ejecutable, con orden claro, dependencias explícitas y criterios de cierre verificables.
 
+## Estado de ejecución
+
+Actualizado: 2026-03-11
+
+Primer corte implementado en repo:
+
+- `RTB-03` completado en código: el `service-worker` activo dejó de precachear `/dist/*` y ya no depende de `asset-manifest.json`.
+- `RTB-04` completado en código: `offline.html` y `/pages/offline.html` se simplificaron, quedaron sin assets legacy, sin JSON-LD stale y con `noindex`.
+- `RTB-05` completado en build gate: `astro-poc/scripts/validate-artifact-contract.mjs` ahora falla si el SW vuelve a referenciar contratos legacy, si offline vuelve a publicar refs prohibidas o si el sitemap reintroduce rutas de compatibilidad.
+- `RTB-06` completado parcialmente en repo: `SITE_ORIGIN`, `robots`, smoke/canary y expectations Astro quedaron alineados a `https://www.elrincondeebano.com`, que es el host que en producción redirige y sirve `200` al 2026-03-11.
+- `RTB-07` completado en código: `getCategoryRouteParams()` ya no emite duplicados por `slug` y `Key`.
+- `RTB-09` completado en código: el sitemap postbuild dejó de indexar páginas con `noindex`, por lo que excluye compat pages/offline y publica sólo rutas primarias.
+- `RTB-13` completado en código: `astro-poc/scripts/sync-data.mjs` ahora sincroniza `static/offline.html` hacia `astro-poc/public/pages/offline.html` y endurece `image_path` / `image_avif_path` a `assets/images/**`.
+- `RTB-02` completado parcialmente en tests: `test/csp.policy.hardening.test.js` dejó de usar `templates/*.ejs` como superficie principal y ahora valida el output generado en `astro-poc/dist` para script surface, canonical y policy `noindex` en rutas legacy.
+- `RTB-10` completado en documentación: `docs/audit/legacy-storefront-inventory-20260311.md` clasifica `templates/**`, `tools/build*.js`, tests EJS y `ejs` como deuda legacy con decisión explícita.
+- `RTB-11` completado en repo: `templates/**`, `tools/build*.js`, `tools/copy-static.js` y los tests EJS legacy salieron de raíz y fueron archivados bajo `_archive/legacy-storefront/`; `ejs` fue retirado del package surface activo.
+- `RTB-12` completado en repo: `docs/repo/STRUCTURE.md`, `docs/operations/QUALITY_GUARDRAILS.md`, `docs/INCIDENTS.md` y `AGENTS.md` ya no describen `templates/*.ejs` como superficie productiva; además el guardrail `legacy-storefront-surface.mjs` evita reintroducir esas referencias o paths en raíz.
+- `RTB-14` completado en código: `astro-poc/scripts/sync-data.mjs` ahora publica `/data/product_data.json` con contrato reducido para frontend y preserva `rev` / `field_last_modified` sólo en la copia interna `astro-poc/src/data/products.json`.
+
+Pendiente fuera de este corte:
+
+- `RTB-01` sigue pendiente porque los headers de hardening observados el 2026-03-11 no se controlan desde este repo de forma evidente; requieren acción en la capa de serving/edge.
+- `RTB-02` sigue parcial: se retiró la dependencia práctica de artefactos EJS para la autoridad pública, pero aún falta un check live/preview específico de headers si se quiere cerrar el riesgo de hardening end-to-end.
+
 ## Veredicto operativo
 
 Estado actual:

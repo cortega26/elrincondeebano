@@ -7,11 +7,13 @@ Status: retired build path as of 2026-03-11.
 - The active storefront in `main` is Astro under [`astro-poc/`](/home/carlos/VS_Code_Projects/Tienda%20Ebano/astro-poc).
 - Root `npm run build` now builds the Astro storefront through the shared asset preflight.
 - The historical Node + EJS pipeline no longer has supported package scripts or CI entrypoints.
+- The retired source was moved to [`_archive/legacy-storefront/`](/home/carlos/VS_Code_Projects/Tienda%20Ebano/_archive/legacy-storefront).
 
-## Retired commands
+## Archived contents
 
-- `npm run build:legacy`
-- `npm run test:e2e:legacy`
+- Templates: [`_archive/legacy-storefront/templates/`](/home/carlos/VS_Code_Projects/Tienda%20Ebano/_archive/legacy-storefront/templates)
+- Builders: [`_archive/legacy-storefront/tools/`](/home/carlos/VS_Code_Projects/Tienda%20Ebano/_archive/legacy-storefront/tools)
+- Historical tests: [`_archive/legacy-storefront/tests/`](/home/carlos/VS_Code_Projects/Tienda%20Ebano/_archive/legacy-storefront/tests)
 
 These commands were removed from the active package surface and are no longer part of CI, release, or deploy flows.
 

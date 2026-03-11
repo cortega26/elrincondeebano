@@ -112,7 +112,7 @@ jobs:
           npm run smoke:evidence -- \
             --output reports/smoke/deploy-${{ env.DEPLOY_SHA }}.md \
             --status pending \
-            --base-url https://elrincondeebano.com \
+            --base-url https://www.elrincondeebano.com \
             --commit ${{ env.DEPLOY_SHA }} \
             --run-id ${{ github.run_id }} \
             --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
