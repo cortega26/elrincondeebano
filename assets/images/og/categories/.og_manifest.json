@@ -13,8 +13,8 @@
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "8ee552ce4bd5c5cb271831b408827917ced49a5f5c778abf459871695116e9e0",
-        "size": 1910,
+        "sha256": "92a39f8730c26ff5edc3a4475697a8ca71200405d97818e80a813b5e0d912ecd",
+        "size": 1909,
         "width": 1200
       }
     },
@@ -30,8 +30,8 @@
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "20cd02b1305121e8b0162e99f4c4596908a77ea00c8fa1ba9d1eda8e21277eac",
-        "size": 1926,
+        "sha256": "8b63713d225aa9e7c1e7f1024f7ca0db0b3fb4ed09638cddfea925714e11056f",
+        "size": 1923,
         "width": 1200
       }
     },
@@ -47,8 +47,8 @@
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "d92c430001892c5ec976726057cc3ce31df7084fba3fea71de9d9a15c555e3c7",
-        "size": 1965,
+        "sha256": "dc2df1cd540919b4f596b83207731461c72d71c2724a726ff2cecd848114ea86",
+        "size": 1964,
         "width": 1200
       }
     },
@@ -57,15 +57,15 @@
         "exists": true,
         "file": "cervezas.og_v3.jpg",
         "height": 1200,
-        "sha256": "54ca45811581c737fe9826dd0bb241ee1d861b690712d774aa8d76a428fc323b",
-        "size": 79784,
+        "sha256": "c8f78aeb8f981e2b5ec26e3b4bfec7f0bcc82a57699376e10ac78f479110e67e",
+        "size": 177718,
         "width": 1200
       },
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "a2dec37e7a76b4376b40adae5cd98cc2d571c67297a442caa100cf90804bc7f6",
-        "size": 2062,
+        "sha256": "02f324d78a9852ecdd7d3d3e0fd63f6c2cd659426770a56bcaa787bd2f04d9ed",
+        "size": 2058,
         "width": 1200
       }
     },
@@ -81,8 +81,8 @@
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "364a4f13c4ef78678565a8f738cf928d55d476695c95c137b164e038bbcf23d8",
-        "size": 2169,
+        "sha256": "73ffc99bc2b31ba99179be267ac1b605723cca9ec794f557de64843b525e33f4",
+        "size": 2165,
         "width": 1200
       }
     },
@@ -98,8 +98,8 @@
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "b88f8a92c30f4370b7cf2292ca57628bfcc76eb131c1f7825efcc337f9471510",
-        "size": 1942,
+        "sha256": "62f92ee689cbbae6df1b8a6609cf729e6f94f9028f02c29a3c7c7dfdbd98f8df",
+        "size": 1940,
         "width": 1200
       }
     },
@@ -115,8 +115,8 @@
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "066725b700e31038a6b50878d3af36044594e5c33ac23fdf1a629c3e18cd4a67",
-        "size": 1981,
+        "sha256": "be5f9b5582a04183e51b15bff2042bc8921056959ffdc4573d48836a72c8bdf6",
+        "size": 1975,
         "width": 1200
       }
     },
@@ -132,8 +132,8 @@
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "e2fe68308db0f8e3ca3932ddab62ce4bd525f383b350571385b8d6ced931b03b",
-        "size": 1943,
+        "sha256": "73e7ea8a425544ad4d6945560d807978998bd3a2da3bbc57c9cb8366aa10404c",
+        "size": 1940,
         "width": 1200
       }
     },
@@ -166,8 +166,8 @@
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "ea42cee1843c34e420bde3bff47baa15c4e5c53f7cff791fc5e679e319710a58",
-        "size": 2105,
+        "sha256": "152d53eaf43273795eb2f60f7544ae7fa6e3ed856e3bf0344a0bb7efd40a6b11",
+        "size": 2102,
         "width": 1200
       }
     },
@@ -183,8 +183,8 @@
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "e539970ee496d5909e13f22e73898ca371380b726a65cf47dc8c4bc8f9edf2d7",
-        "size": 2212,
+        "sha256": "e8b1ef50fe6bec9c6439b632d4c1e2381adcb531503a991455052290c0a9ee1c",
+        "size": 2208,
         "width": 1200
       }
     },
@@ -200,8 +200,8 @@
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "67f9505d53faf7ac5d531d078f2332ae627247e50d2f2907f3f599543ba468a1",
-        "size": 1922,
+        "sha256": "676693c9831337f0b6eef4a592ccba3dc24f7642e2d15ff9c2ee6f586572f304",
+        "size": 1919,
         "width": 1200
       }
     },
@@ -217,8 +217,8 @@
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "2699c3f92307acf0643c964e9bd1a396b5235a29d9a198c203ad87cdb18ab831",
-        "size": 1991,
+        "sha256": "29e2d67dda70ad13112b3eb1659dfa562ad02835a3f6eb7cf1c909c3832f2a6c",
+        "size": 1989,
         "width": 1200
       }
     },
@@ -234,8 +234,8 @@
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "08952a386c9724c416d94a3737198a418f2419c58297cf7bdd471a36b89394d8",
-        "size": 2073,
+        "sha256": "be2c2daf1ca538efcfffd1f94b23bf91374e0382dcd7580c767f19f3b2bb242f",
+        "size": 2064,
         "width": 1200
       }
     },
@@ -251,8 +251,8 @@
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "4fba0dfea1b03689d3b5ff027bb3e270ec25d6a600d6b0645059dbcf6c5e54bf",
-        "size": 1986,
+        "sha256": "73992bb7ddde9b4993f06d00e58fada859b9f392c8dfbfc784592a5690f7954e",
+        "size": 1985,
         "width": 1200
       }
     },
@@ -268,8 +268,8 @@
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "8c39784a0adc083be2815573786bfbc2e1d3c92cc5eb7a21702dbc2b85ab1573",
-        "size": 1954,
+        "sha256": "32022d2ec807493d3374505a65cb2734f38ae5fd6c1e5e187897bce45d00acef",
+        "size": 1951,
         "width": 1200
       }
     },
@@ -285,8 +285,8 @@
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "7f695aa1df74582bbc1a3c80338cc63e0de7b61d04a70bb81a44542fd5a4fd1c",
-        "size": 1886,
+        "sha256": "f275dc5c16d6a5308fb45f9951abd319db964ffe5f6be293d421f6654a3ff4cc",
+        "size": 1883,
         "width": 1200
       }
     },
@@ -302,8 +302,8 @@
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "b21df65e1e3aa03dbbc6c96b2b0a825948a559618e10dcd354b553321fbe47b4",
-        "size": 2175,
+        "sha256": "3c36eacca3bacae046542c89147c58de3744f49c6f12c56b2b266e786f97878c",
+        "size": 2171,
         "width": 1200
       }
     },
@@ -319,8 +319,8 @@
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "bb4971c7f90d52f90a0a9fe3dd5503b00abfc22c988653813326def410eeb1ed",
-        "size": 2001,
+        "sha256": "e12052cd5d6bc3c0435b7a59d9f7a1adf92372238cc2df49e5820da5efb36618",
+        "size": 1998,
         "width": 1200
       }
     },
@@ -336,8 +336,8 @@
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "51351405dfd35c1b13556d50cdb655d02e37248180d96ba4853397b99e16610f",
-        "size": 1936,
+        "sha256": "2f316df1a482702a88a080d630932d660e70fc671a535733181c7906deddaafd",
+        "size": 1934,
         "width": 1200
       }
     },
@@ -353,8 +353,8 @@
       "svg": {
         "exists": true,
         "height": 1200,
-        "sha256": "59dae373457475908a1acfbfcaf2b6924aa4618d756881994b2b185c87a570c3",
-        "size": 1884,
+        "sha256": "06c7489377d1748537d5e50554e968b438e22d23409d59bb0aca63773327df06",
+        "size": 1881,
         "width": 1200
       }
     }

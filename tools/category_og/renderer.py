@@ -60,3 +60,43 @@ def render_svg_to_jpg(
             f"\nstdout: {process.stdout.strip()}"
             f"\nstderr: {process.stderr.strip()}"
         )
+
+
+def render_raster_to_jpg(
+    *,
+    repo_root: Path,
+    raster_path: Path,
+    jpg_path: Path,
+    width: int = 1200,
+    height: int = 1200,
+    quality: int = 88,
+) -> None:
+    """Render a raster asset into a JPG using sharp through a Node helper."""
+    node_bin = _resolve_node_binary()
+    script_path = (repo_root / "tools" / "category_og" / "render_raster_jpg.mjs").resolve()
+    if not script_path.exists():
+        raise RenderError(f"Renderer script missing: {script_path}")
+
+    command = [
+        node_bin,
+        str(script_path),
+        str(raster_path),
+        str(jpg_path),
+        str(width),
+        str(height),
+        str(quality),
+    ]
+    process = subprocess.run(  # noqa: S603
+        command,
+        cwd=str(repo_root),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if process.returncode != 0:
+        raise RenderError(
+            "sharp raster rendering failed"
+            f"\ncommand: {' '.join(command)}"
+            f"\nstdout: {process.stdout.strip()}"
+            f"\nstderr: {process.stderr.strip()}"
+        )

@@ -87,6 +87,13 @@ function ensureAbsoluteHttpsUrl(value, label) {
   return parsed.toString();
 }
 
+export function assertSupportedOgImageUrl(value, label) {
+  const parsed = new URL(value);
+  if (!/\.(?:jpe?g|png)$/i.test(parsed.pathname)) {
+    fail(`${label} must use JPG or PNG for WhatsApp compatibility: ${value}`);
+  }
+}
+
 async function fetchWithTimeout(url, timeoutMs) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -144,6 +151,7 @@ async function verifyPage({
   assertOgContract(html, label);
   const ogImage = extractMetaContent(html, 'property', 'og:image');
   const absoluteOgImage = ensureAbsoluteHttpsUrl(ogImage, `${label} og:image`);
+  assertSupportedOgImageUrl(absoluteOgImage, `${label} og:image`);
   const width = extractMetaContent(html, 'property', 'og:image:width');
   const height = extractMetaContent(html, 'property', 'og:image:height');
   if (!/^\d+$/.test(width || '')) {
@@ -162,8 +170,8 @@ async function verifyPage({
     timeoutMs
   );
   const contentType = imageResponse.headers.get('content-type') || '';
-  if (!contentType.toLowerCase().startsWith('image/')) {
-    fail(`${label} og:image returned non-image content type: ${contentType}`);
+  if (!/^image\/(?:jpeg|png)\b/i.test(contentType)) {
+    fail(`${label} og:image returned unsupported content type for WhatsApp: ${contentType}`);
   }
 
   return {

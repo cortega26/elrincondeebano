@@ -111,7 +111,7 @@ test('homepage template enforces a single canonical SEO metadata contract', () =
   );
 
   const ogImageMatch = html.match(/<meta property="og:image" content="([^"]+)">/);
-  assert.equal(ogImageMatch?.[1], 'https://elrincondeebano.com/assets/images/web/logo.webp');
+  assert.equal(ogImageMatch?.[1], 'https://elrincondeebano.com/assets/images/og/home.og.jpg');
   assert.ok(
     html.includes('<meta property="og:image:width" content="1200">'),
     'homepage should expose og:image:width=1200'

@@ -80,7 +80,7 @@ pages.forEach((page) => {
   const ogImageVersion = encodeURIComponent(getOgImageVersion(ogImageFile, fallbackOgVersion));
   const ogImage = fs.existsSync(ogImageFile)
     ? `https://elrincondeebano.com${ogImagePath}${ogImageVersion ? `?v=${ogImageVersion}` : ''}`
-    : 'https://elrincondeebano.com/assets/images/web/logo.webp';
+    : 'https://elrincondeebano.com/assets/images/og/home.og.jpg';
   const categoryProducts = availableProducts.filter((product) => {
     const categoryValue = (product.category || '').toLowerCase();
     return categoryValue === productKey;

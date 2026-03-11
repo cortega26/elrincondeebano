@@ -13,6 +13,7 @@ from typing import Dict, Iterable, List, Optional
 from .icons import load_icon_inner_svg, load_icon_mapping, resolve_icon_name
 from .paths import (
     category_assets_dir,
+    find_override_raster_path,
     icon_assets_dir,
     icon_map_path,
     manifest_path,
@@ -20,7 +21,7 @@ from .paths import (
     safe_slug_path,
     safe_versioned_jpg_path,
 )
-from .renderer import RenderError, render_svg_to_jpg
+from .renderer import RenderError, render_raster_to_jpg, render_svg_to_jpg
 from .slug import SlugError, is_slug_safe, slugify_category
 from .template import HEIGHT, TEMPLATE_VERSION, WIDTH, render_svg
 
@@ -92,6 +93,25 @@ def _render_jpg_if_changed(repo_root: Path, svg_file: Path, jpg_file: Path) -> b
         render_svg_to_jpg(
             repo_root=repo_root,
             svg_path=svg_file,
+            jpg_path=tmp_path,
+            width=WIDTH,
+            height=HEIGHT,
+            quality=88,
+        )
+        rendered = tmp_path.read_bytes()
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink(missing_ok=True)
+    return _write_bytes_if_changed(jpg_file, rendered)
+
+
+def _render_raster_jpg_if_changed(repo_root: Path, raster_file: Path, jpg_file: Path) -> bool:
+    with tempfile.NamedTemporaryFile(suffix=".jpg", dir=str(jpg_file.parent), delete=False) as tmp:
+        tmp_path = Path(tmp.name)
+    try:
+        render_raster_to_jpg(
+            repo_root=repo_root,
+            raster_path=raster_file,
             jpg_path=tmp_path,
             width=WIDTH,
             height=HEIGHT,
@@ -284,17 +304,20 @@ def ensure_category_assets(
 
     svg_file = safe_slug_path(categories_dir, managed_slug, ".svg")
     jpg_file = safe_versioned_jpg_path(categories_dir, managed_slug, _jpg_version_token())
+    override_raster = find_override_raster_path(categories_dir, managed_slug)
     svg_changed = False
     jpg_changed = False
     removed_jpg_variants: List[str] = []
 
     if not dry_run:
         svg_changed = _write_text_if_changed(svg_file, svg_payload)
-        if force or svg_changed or not jpg_file.exists():
-            try:
+        try:
+            if override_raster is not None:
+                jpg_changed = _render_raster_jpg_if_changed(base, override_raster, jpg_file)
+            elif force or svg_changed or not jpg_file.exists():
                 jpg_changed = _render_jpg_if_changed(base, svg_file, jpg_file)
-            except RenderError as exc:
-                raise CategoryOgPipelineError(str(exc)) from exc
+        except RenderError as exc:
+            raise CategoryOgPipelineError(str(exc)) from exc
         for stale in _jpg_variants_for_slug(categories_dir, managed_slug):
             if stale.resolve() == jpg_file.resolve():
                 continue
@@ -303,7 +326,7 @@ def ensure_category_assets(
             jpg_changed = True
     else:
         svg_changed = force or (not svg_file.exists()) or (svg_file.read_text(encoding="utf-8") != svg_payload)
-        jpg_changed = force or (not jpg_file.exists())
+        jpg_changed = force or (not jpg_file.exists()) or (override_raster is not None)
         removed_jpg_variants = [
             str(stale)
             for stale in _jpg_variants_for_slug(categories_dir, managed_slug)
@@ -318,6 +341,7 @@ def ensure_category_assets(
         "svg": str(svg_file),
         "jpg": str(jpg_file),
         "jpg_file": jpg_file.name,
+        "override_raster": str(override_raster) if override_raster is not None else None,
         "removed_jpg_variants": removed_jpg_variants,
         "svg_changed": bool(svg_changed),
         "jpg_changed": bool(jpg_changed),
