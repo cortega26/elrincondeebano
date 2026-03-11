@@ -1,11 +1,19 @@
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
 export const SITE_ORIGIN = 'https://elrincondeebano.com';
 export const SITE_NAME = 'El Rincón de Ébano';
-export const DEFAULT_OG_IMAGE = `${SITE_ORIGIN}/assets/images/og/home.og.jpg`;
+const HOME_OG_IMAGE_PATH = '/assets/images/og/home.og.jpg';
 
-let categoryOgManifest: Record<string, { jpg?: { file?: string } }> | null = null;
+type OgManifestItem = {
+  jpg?: {
+    file?: string;
+    sha256?: string;
+  };
+};
+
+let categoryOgManifest: Record<string, OgManifestItem> | null = null;
 
 function normalizePath(value: string): string {
   if (!value) {
@@ -23,6 +31,34 @@ export function absoluteUrl(pathOrUrl: string): string {
   }
   return `${SITE_ORIGIN}${normalizePath(pathOrUrl)}`;
 }
+
+function repoAssetPath(assetPath: string): string {
+  return path.resolve(process.cwd(), '..', assetPath.replace(/^\/+/, ''));
+}
+
+function versionTokenFromFile(assetPath: string): string | null {
+  const filePath = repoAssetPath(assetPath);
+  if (!fs.existsSync(filePath)) {
+    return null;
+  }
+  return crypto.createHash('sha1').update(fs.readFileSync(filePath)).digest('hex').slice(0, 12);
+}
+
+function withVersionQuery(assetPath: string, versionToken: string | null): string {
+  const absolute = absoluteUrl(assetPath);
+  if (!versionToken) {
+    return absolute;
+  }
+  const url = new URL(absolute);
+  url.searchParams.set('v', versionToken);
+  return url.toString();
+}
+
+function getHomeOgImageUrl(): string {
+  return withVersionQuery(HOME_OG_IMAGE_PATH, versionTokenFromFile(HOME_OG_IMAGE_PATH));
+}
+
+export const DEFAULT_OG_IMAGE = getHomeOgImageUrl();
 
 export function getCategoryOgImageUrl(categorySlug: string): string {
   const slug = String(categorySlug || '').trim().toLowerCase();
@@ -53,8 +89,9 @@ export function getCategoryOgImageUrl(categorySlug: string): string {
   }
 
   const candidateFile = categoryOgManifest?.[slug]?.jpg?.file;
+  const candidateHash = categoryOgManifest?.[slug]?.jpg?.sha256?.slice(0, 12) || null;
   if (typeof candidateFile === 'string' && candidateFile.trim()) {
-    return `${SITE_ORIGIN}/assets/images/og/categories/${candidateFile}`;
+    return withVersionQuery(`/assets/images/og/categories/${candidateFile}`, candidateHash);
   }
 
   const fallbackPath = path.resolve(
@@ -67,7 +104,7 @@ export function getCategoryOgImageUrl(categorySlug: string): string {
     `${slug}.jpg`
   );
   if (fs.existsSync(fallbackPath)) {
-    return `${SITE_ORIGIN}/assets/images/og/categories/${slug}.jpg`;
+    return withVersionQuery(`/assets/images/og/categories/${slug}.jpg`, versionTokenFromFile(`/assets/images/og/categories/${slug}.jpg`));
   }
 
   return DEFAULT_OG_IMAGE;
