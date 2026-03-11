@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { resolveFromOutput } = require('./utils/output-dir');
 
-const DEFAULT_IMAGE = 'https://elrincondeebano.com/assets/images/web/logo.webp';
+const DEFAULT_IMAGE = 'https://elrincondeebano.com/assets/images/og/home.og.jpg';
 
 function resolveProductImage(product) {
   if (typeof product?.image_path === 'string' && product.image_path.trim()) {
@@ -100,7 +100,7 @@ function generateStructuredData(products) {
       {
         '@type': 'Store',
         name: 'El Rincón de Ébano',
-        image: 'https://elrincondeebano.com/assets/images/web/logo.webp',
+        image: 'https://elrincondeebano.com/assets/images/og/home.og.jpg',
         description: 'Un minimarket en la puerta de tu departamento',
         address: { '@type': 'PostalAddress', addressCountry: 'CL' },
         telephone: '+56951118901',

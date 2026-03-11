@@ -40,10 +40,17 @@ test('normalizeBaseUrl requires https and strips trailing slash', async () => {
 });
 
 test('extractMetaContent and assertOgContract validate required OG tags', async () => {
-  const { extractMetaContent, assertOgContract } = await loadModule();
+  const { extractMetaContent, assertOgContract, assertSupportedOgImageUrl } = await loadModule();
   const html = makeHtml({ ogImage: 'https://cdn.example.com/cat.jpg' });
   assert.equal(extractMetaContent(html, 'property', 'og:image'), 'https://cdn.example.com/cat.jpg');
   assert.doesNotThrow(() => assertOgContract(html, 'sample page'));
+  assert.doesNotThrow(() =>
+    assertSupportedOgImageUrl('https://cdn.example.com/cat.jpg?v=123', 'sample page og:image')
+  );
+  assert.throws(
+    () => assertSupportedOgImageUrl('https://cdn.example.com/cat.webp', 'sample page og:image'),
+    /must use JPG or PNG/
+  );
   assert.throws(() => assertOgContract('<html></html>', 'broken page'), /missing meta tag/);
 });
 
@@ -120,6 +127,32 @@ test('runCanary fails when homepage does not expose WhatsApp flow', async () => 
     await assert.rejects(
       () => runCanary({ baseUrl: 'https://elrincondeebano.com' }),
       /WhatsApp flow references/
+    );
+  });
+});
+
+test('runCanary fails when og:image uses an unsupported WebP asset', async () => {
+  const { runCanary } = await loadModule();
+  await withMockedFetch(async (url) => {
+    const target = String(url);
+    if (target.endsWith('/')) {
+      return new Response(
+        makeHtml({
+          title: 'Home',
+          ogImage: 'https://elrincondeebano.com/assets/images/og/home.webp',
+          withWhatsapp: true,
+        }),
+        {
+          status: 200,
+          headers: { 'content-type': 'text/html; charset=utf-8' },
+        }
+      );
+    }
+    return new Response('not found', { status: 404 });
+  }, async () => {
+    await assert.rejects(
+      () => runCanary({ baseUrl: 'https://elrincondeebano.com' }),
+      /must use JPG or PNG/
     );
   });
 });

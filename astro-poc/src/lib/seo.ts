@@ -3,7 +3,7 @@ import path from 'node:path';
 
 export const SITE_ORIGIN = 'https://elrincondeebano.com';
 export const SITE_NAME = 'El Rincón de Ébano';
-export const DEFAULT_OG_IMAGE = `${SITE_ORIGIN}/assets/images/web/logo.webp`;
+export const DEFAULT_OG_IMAGE = `${SITE_ORIGIN}/assets/images/og/home.og.jpg`;
 
 let categoryOgManifest: Record<string, { jpg?: { file?: string } }> | null = null;
 

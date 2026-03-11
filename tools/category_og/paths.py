@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import re
+from typing import Optional
 
 from .slug import is_slug_safe
 
@@ -34,6 +35,7 @@ def icon_map_path(repo_root: Path) -> Path:
 
 
 VERSION_TOKEN_RE = re.compile(r"^[a-z0-9_-]+$")
+OVERRIDE_SUFFIXES = (".png", ".jpg", ".jpeg", ".webp")
 
 
 def safe_slug_path(base_dir: Path, slug: str, suffix: str) -> Path:
@@ -60,3 +62,17 @@ def safe_versioned_jpg_path(base_dir: Path, slug: str, version_token: str) -> Pa
     if not str(target).startswith(str(base)):
         raise UnsafePathError(f"Refusing to operate outside {base}")
     return target
+
+
+def find_override_raster_path(base_dir: Path, slug: str) -> Optional[Path]:
+    """Return the managed per-category raster override if present."""
+    if not is_slug_safe(slug):
+        raise UnsafePathError(f"Invalid managed slug: {slug!r}")
+    base = base_dir.resolve()
+    for suffix in OVERRIDE_SUFFIXES:
+        target = (base_dir / f"{slug}.override{suffix}").resolve()
+        if not str(target).startswith(str(base)):
+            raise UnsafePathError(f"Refusing to operate outside {base}")
+        if target.exists():
+            return target
+    return None

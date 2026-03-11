@@ -102,7 +102,17 @@ def _patch_renderer(monkeypatch) -> None:
         jpg_file.write_bytes(payload)
         return True
 
+    def fake_render_raster(_repo_root: Path, raster_file: Path, jpg_file: Path) -> bool:
+        payload = b"FAKERASTER:" + raster_file.read_bytes()
+        previous = jpg_file.read_bytes() if jpg_file.exists() else None
+        if previous == payload:
+            return False
+        jpg_file.parent.mkdir(parents=True, exist_ok=True)
+        jpg_file.write_bytes(payload)
+        return True
+
     monkeypatch.setattr(pipeline, "_render_jpg_if_changed", fake_render)
+    monkeypatch.setattr(pipeline, "_render_raster_jpg_if_changed", fake_render_raster)
 
 
 def test_ensure_category_assets_is_idempotent(tmp_path: Path, monkeypatch) -> None:
@@ -143,3 +153,19 @@ def test_sync_creates_missing_and_deletes_orphans(tmp_path: Path, monkeypatch) -
 
     second = pipeline.sync_category_assets(repo_root=repo_root)
     assert second["changed"] is False
+
+
+def test_ensure_category_assets_prefers_override_raster_for_jpg_output(
+    tmp_path: Path, monkeypatch
+) -> None:
+    repo_root = _setup_repo(tmp_path)
+    _patch_renderer(monkeypatch)
+    category_dir = repo_root / "assets" / "images" / "og" / "categories"
+    category_dir.mkdir(parents=True, exist_ok=True)
+    (category_dir / "bebidas.override.png").write_bytes(b"OVERRIDEPNG")
+
+    result = pipeline.ensure_category_assets("bebidas", title="Bebidas", repo_root=repo_root)
+
+    jpg_path = Path(result["jpg"])
+    assert jpg_path.read_bytes() == b"FAKERASTER:OVERRIDEPNG"
+    assert result["override_raster"] == str((category_dir / "bebidas.override.png"))
