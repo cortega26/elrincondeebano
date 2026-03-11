@@ -9,6 +9,8 @@ Estado al 2026-03-11:
 - El deploy de contenido sigue saliendo desde GitHub Pages.
 - Los headers de seguridad no pueden imponerse desde GitHub Pages.
 - La corrección real de `RTB-01` depende de Cloudflare u otra capa edge equivalente.
+- `RTB-01` quedó resuelto operativamente el 2026-03-11 con el Worker `elrincondeebano-edge-security-headers` desplegado en Cloudflare sobre `www.elrincondeebano.com/*`.
+- Verificación live del 2026-03-11: `/` y `/pages/bebidas.html` ya responden con `Content-Security-Policy`, `Referrer-Policy`, `X-Content-Type-Options`, `X-Frame-Options` y `Permissions-Policy`.
 
 ## Scope
 
@@ -117,3 +119,9 @@ Chequeos repo-side ya disponibles:
 1. producción emite el baseline anterior en `/` y `/pages/bebidas.html`
 2. `npm run monitor:live-contract:strict` deja de fallar por headers
 3. el canary manual puede correr con `require_security_headers=true` sin fallback
+
+Estado de cierre al 2026-03-11:
+
+1. cumplido
+2. cumplido
+3. listo para uso operativo
