@@ -36,7 +36,7 @@ class GalleryFrame(ttk.Frame):
         self.card_height = 240
         self.grid_columns = 4
 
-        self.canvas = tk.Canvas(self, bg="#f5f5f5", highlightthickness=0)
+        self.canvas = tk.Canvas(self, bg="#f6f5f4", highlightthickness=0)
         self.scrollbar = ttk.Scrollbar(
             self, orient="vertical", command=self.canvas.yview
         )
@@ -45,7 +45,7 @@ class GalleryFrame(ttk.Frame):
         self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.content_frame = tk.Frame(self.canvas, bg="#f5f5f5")
+        self.content_frame = tk.Frame(self.canvas, bg="#f6f5f4")
         self.canvas_window = self.canvas.create_window(
             (0, 0), window=self.content_frame, anchor="nw"
         )
@@ -96,7 +96,7 @@ class GalleryFrame(ttk.Frame):
             ttk.Label(
                 self.content_frame,
                 text="No hay productos para mostrar",
-                background="#f5f5f5",
+                background="#f6f5f4",
             ).pack(pady=20)
             return
 
@@ -135,7 +135,7 @@ class GalleryFrame(ttk.Frame):
             card,
             text=product.name,
             bg="white",
-            font=("Segoe UI", 9, "bold"),
+            font=("sans-serif", 10, "bold"),
             anchor="w",
         )
         lbl_name.place(x=5, y=145, width=self.card_width - 10)
@@ -143,13 +143,13 @@ class GalleryFrame(ttk.Frame):
         price_txt = f"${product.price:,}"
         if product.discount > 0:
             price_txt += f" (-{product.discount:,})"
-        lbl_price = tk.Label(card, text=price_txt, bg="white", fg="#007acc")
+        lbl_price = tk.Label(card, text=price_txt, bg="white", fg="#3584e4")
         lbl_price.place(x=5, y=165, width=self.card_width - 10)
 
-        stock_color = "green" if product.stock else "red"
+        stock_color = "#41855a" if product.stock else "#c0392b"
         stock_txt = "En Stock" if product.stock else "Sin Stock"
         lbl_stock = tk.Label(
-            card, text=stock_txt, bg="white", fg=stock_color, font=("Segoe UI", 8)
+            card, text=stock_txt, bg="white", fg=stock_color, font=("sans-serif", 9)
         )
         lbl_stock.place(x=5, y=185)
 
@@ -157,8 +157,8 @@ class GalleryFrame(ttk.Frame):
             card,
             text=product.category or "",
             bg="white",
-            fg="#666",
-            font=("Segoe UI", 8),
+            fg="#777",
+            font=("sans-serif", 9),
             anchor="e",
         )
         lbl_cat.place(x=60, y=185, width=self.card_width - 70)

@@ -30,32 +30,40 @@ class PreferencesDialog(tk.Toplevel):
 
     def setup_dialog(self) -> None:
         """Set up the preferences dialog."""
-        self.geometry("400x300")
+        self.geometry("450x350")
         self.resizable(False, False)
         self.transient(self._parent)
+        self.wait_visibility()
         self.grab_set()
-        ttk.Label(self, text="Tamaño de Fuente:").grid(
-            row=1, column=0, padx=10, pady=5, sticky=tk.W
+        
+        main_frame = ttk.Frame(self, padding="20")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        ttk.Label(main_frame, text="Tamaño de Fuente:").grid(
+            row=0, column=0, padx=10, pady=10, sticky=tk.W
         )
         self.font_var = tk.IntVar(value=self.ui_config.font_size)
         font_spin = ttk.Spinbox(
-            self, from_=8, to=16, textvariable=self.font_var, width=5
+            main_frame, from_=8, to=16, textvariable=self.font_var, width=5
         )
-        font_spin.grid(row=1, column=1, padx=10, pady=5, sticky=tk.W)
-        ttk.Label(self, text="Habilitar Animaciones:").grid(
-            row=2, column=0, padx=10, pady=5, sticky=tk.W
+        font_spin.grid(row=0, column=1, padx=10, pady=10, sticky=tk.W)
+        
+        ttk.Label(main_frame, text="Habilitar Animaciones:").grid(
+            row=1, column=0, padx=10, pady=10, sticky=tk.W
         )
         self.anim_var = tk.BooleanVar(value=self.ui_config.enable_animations)
-        ttk.Checkbutton(self, variable=self.anim_var).grid(
-            row=2, column=1, padx=10, pady=5, sticky=tk.W
+        ttk.Checkbutton(main_frame, variable=self.anim_var).grid(
+            row=1, column=1, padx=10, pady=10, sticky=tk.W
         )
-        button_frame = ttk.Frame(self)
-        button_frame.grid(row=3, column=0, columnspan=2, pady=20)
-        ttk.Button(button_frame, text="Guardar", command=self.save_preferences).pack(
-            side=tk.LEFT, padx=5
+        
+        button_frame = ttk.Frame(main_frame)
+        button_frame.grid(row=2, column=0, columnspan=2, pady=30)
+        
+        ttk.Button(button_frame, text="Guardar", command=self.save_preferences, style="Accent.TButton").pack(
+            side=tk.LEFT, padx=10
         )
         ttk.Button(button_frame, text="Cancelar", command=self.destroy).pack(
-            side=tk.LEFT, padx=5
+            side=tk.LEFT, padx=10
         )
 
     def save_preferences(self) -> None:
@@ -143,25 +151,22 @@ class AboutDialog(tk.Toplevel):
 
     def setup_dialog(self) -> None:
         """Set up the about dialog."""
-        self.geometry("400x300")
+        self.geometry("450x350")
         self.resizable(False, False)
+        
+        main_frame = ttk.Frame(self, padding="25")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
         about_text = """
             Gestor de Productos
             Versión 2.0.0
-
-            Una solución potente para la gestión 
-            de productos de su negocio.
-
-            Características:
-            • Gestión intuitiva de productos
-            • Organización por categorías
-            • Capacidades de búsqueda y filtrado
-            • Funcionalidad de Importación/Exportación
-            • Interfaz personalizable
-
+            
+            Una solución moderna para la gestión 
+            de inventario y catálogo.
+            
             © 2024 El Rincón de Ébano
             Todos los derechos reservados.
         """
-        label = ttk.Label(self, text=about_text, justify=tk.CENTER, padding=20)
-        label.pack(expand=True)
-        ttk.Button(self, text="Cerrar", command=self.destroy).pack(pady=10)
+        label = ttk.Label(main_frame, text=about_text, justify=tk.CENTER, font=("sans-serif", 10))
+        label.pack(expand=True, pady=(0, 20))
+        ttk.Button(main_frame, text="Cerrar", command=self.destroy).pack()

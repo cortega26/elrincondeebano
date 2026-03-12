@@ -87,6 +87,7 @@ class CategoryFormDialog(tk.Toplevel):
         self.title(title)
         self.resizable(False, False)
         self.transient(cast(tk.Wm, parent))
+        self.wait_visibility()
         self.grab_set()
 
         self._nav_groups = list(nav_groups)
@@ -143,8 +144,13 @@ class CategoryFormDialog(tk.Toplevel):
         ttk.Label(frame, text="Descripción:").grid(
             row=4, column=0, sticky="nw", pady=4, padx=(0, 8)
         )
-        self.description_text = tk.Text(frame, width=40, height=4)
-        self.description_text.grid(row=4, column=1, sticky="ew", pady=4)
+        # Wrap tk.Text for consistency across Linux Mint themes
+        wrapper = ttk.Frame(frame, style="InputWrapper.TFrame")
+        wrapper.grid(row=4, column=1, sticky="ew", pady=4)
+        self.description_text = tk.Text(wrapper, width=40, height=4, highlightthickness=0, borderwidth=0)
+        self.description_text.pack(fill=tk.BOTH, expand=True, padx=1, pady=1)
+        self.description_text = tk.Text(wrapper, width=40, height=4, highlightthickness=0, borderwidth=0)
+        self.description_text.pack(fill=tk.BOTH, expand=True, padx=1, pady=1)
 
         self.show_advanced_var = tk.BooleanVar(value=False)
         ttk.Checkbutton(
@@ -282,6 +288,7 @@ class FallbackDialog(tk.Toplevel):
         self.title(title)
         self.resizable(False, False)
         self.transient(cast(tk.Wm, parent))
+        self.wait_visibility()
         self.grab_set()
 
         self._choices = list(choices)
@@ -350,6 +357,7 @@ class CategoryManagerDialog(tk.Toplevel):
         self.title("Gestionar grupos y categorías")
         self.geometry("1060x620")
         self.transient(cast(tk.Wm, parent))
+        self.wait_visibility()
         self.grab_set()
         self.category_service = category_service
         self.on_catalog_updated = on_catalog_updated
@@ -365,11 +373,11 @@ class CategoryManagerDialog(tk.Toplevel):
         self.protocol("WM_DELETE_WINDOW", self._on_close)
 
     def _build_ui(self) -> None:
-        root = ttk.Frame(self, padding=12)
+        root = ttk.Frame(self, padding=20)
         root.pack(fill=tk.BOTH, expand=True)
 
-        toolbar = ttk.Frame(root)
-        toolbar.pack(fill=tk.X, pady=(0, 8))
+        toolbar = ttk.Frame(root, style="Toolbar.TFrame", padding=10)
+        toolbar.pack(fill=tk.X, pady=(0, 15))
 
         ttk.Label(toolbar, text="Buscar:").pack(side=tk.LEFT)
         self.search_var = tk.StringVar()
@@ -545,12 +553,15 @@ class CategoryManagerDialog(tk.Toplevel):
         )
         self.context_delete_button.grid(row=0, column=2, sticky="ew", padx=(6, 0))
 
-        bottom = ttk.Frame(root, padding=(0, 8, 0, 0))
+        # Visual separator
+        ttk.Separator(root, orient=tk.HORIZONTAL).pack(fill=tk.X, pady=(15, 0))
+        
+        bottom = ttk.Frame(root, padding=(0, 15, 0, 0))
         bottom.pack(fill=tk.X)
         ttk.Button(bottom, text="Actualizar", command=self.refresh_tree).pack(
             side=tk.LEFT
         )
-        ttk.Button(bottom, text="Cerrar", command=self._on_close).pack(side=tk.RIGHT)
+        ttk.Button(bottom, text="Cerrar", command=self._on_close, width=12).pack(side=tk.RIGHT)
 
         self._toggle_advanced_view()
 
@@ -1093,13 +1104,15 @@ class NavGroupFormDialog(tk.Toplevel):
         self.title("Editar categoría" if nav_group else "Nueva categoría")
         self.resizable(False, False)
         self.transient(cast(tk.Wm, parent))
+        self.wait_visibility()
         self.grab_set()
+        # self.configure(background="#f6f5f4") # Removed this line
 
         self._mode = mode if nav_group else "create"
         self._group = nav_group
         self.result: Optional[NavGroupFormResult] = None
 
-        frame = ttk.Frame(self, padding=12)
+        frame = ttk.Frame(self, padding=(12, 12, 12, 0)) # Changed padding
         frame.grid(row=0, column=0, sticky="nsew")
 
         ttk.Label(frame, text="Etiqueta visible:").grid(
@@ -1122,8 +1135,11 @@ class NavGroupFormDialog(tk.Toplevel):
         ttk.Label(frame, text="Descripción:").grid(
             row=2, column=0, sticky=tk.NW, padx=(0, 8), pady=4
         )
-        self.description_text = tk.Text(frame, width=38, height=3)
-        self.description_text.grid(row=2, column=1, sticky="ew", pady=4)
+        # Wrap tk.Text for consistency
+        wrapper = ttk.Frame(frame, style="InputWrapper.TFrame")
+        wrapper.grid(row=2, column=1, sticky="ew", pady=4)
+        self.description_text = tk.Text(wrapper, width=38, height=3, highlightthickness=0, borderwidth=0)
+        self.description_text.pack(fill=tk.BOTH, expand=True, padx=1, pady=1)
         if nav_group:
             self.description_text.insert("1.0", nav_group.description or "")
 
