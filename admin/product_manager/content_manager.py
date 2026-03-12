@@ -471,6 +471,7 @@ class ProductManager:
             # Configure window using ui_config
             root.title("Gestor de Productos")
             root.geometry(f"{ui_config.window_size[0]}x{ui_config.window_size[1]}")
+            root.configure(background="#f6f5f4")
 
             # Start update checker in background
             self._start_update_checker()

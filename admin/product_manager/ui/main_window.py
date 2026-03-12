@@ -97,39 +97,79 @@ class MainWindow(DragDropMixin):
         theme = "clam" if "clam" in style.theme_names() else "alt"
         style.theme_use(theme)
 
-        # Colors
-        bg_color = "#f5f5f5"
-        fg_color = "#333333"
-        accent_color = "#007acc"
-        header_bg = "#e1e1e1"
+        # Colors - Modern Linux Palette (Mint-Y/Adwaita inspired)
+        bg_color = "#f6f5f4"  # Very light gray
+        fg_color = "#2e3436"  # Dark charcoal
+        accent_color = "#3584e4"  # Adwaita Blue (classic)
+        secondary_accent = "#41855a"  # Mint Green
+        header_bg = "#ebebeb"
+        border_color = "#c0c0c0"  # Slightly darker for better contours
+
+        # Font Stack
+        font_stack = ("Inter", "Roboto", "Ubuntu", "DejaVu Sans", "Segoe UI", "sans-serif")
+        base_font = (font_stack, 10)
+        bold_font = (font_stack, 10, "bold")
 
         style.configure(
-            ".", background=bg_color, foreground=fg_color, font=("Segoe UI", 9)
+            ".", background=bg_color, foreground=fg_color, font=base_font
         )
         style.configure("TFrame", background=bg_color)
         style.configure("TLabel", background=bg_color, foreground=fg_color)
-        style.configure("TButton", padding=6, relief="flat", background="#e1e1e1")
+        
+        # Modern Button Style with clearer contours
+        style.configure(
+            "TButton", 
+            padding=8, 
+            relief="flat", 
+            background="#e8e8e7",
+            borderwidth=1,
+            bordercolor=border_color,
+            lightcolor="#ffffff",
+            darkcolor=border_color
+        )
         style.map(
             "TButton",
-            background=[("active", "#d4d4d4"), ("disabled", "#f0f0f0")],
-            foreground=[("disabled", "#a0a0a0")],
+            background=[("active", "#dfdfde"), ("disabled", "#f0f0f0")],
+            foreground=[("disabled", "#909090")],
+            bordercolor=[("active", "#a0a0a0")]
         )
 
-        # Treeview Styles
+        # Entry and Combobox styles with defined contours
+        style.configure(
+            "TEntry",
+            fieldbackground="white",
+            bordercolor=border_color,
+            lightcolor=border_color,
+            darkcolor=border_color,
+            padding=5
+        )
+        style.configure(
+            "TCombobox",
+            fieldbackground="white",
+            bordercolor=border_color,
+            lightcolor=border_color,
+            darkcolor=border_color,
+            padding=5
+        )
+
+        # Treeview Styles - Increased legibility
         style.configure(
             "Treeview",
             background="white",
             fieldbackground="white",
-            foreground="#333333",
-            rowheight=20,
-            font=("Segoe UI", 9),
+            foreground=fg_color,
+            rowheight=32,
+            font=base_font,
+            borderwidth=1,
+            relief="flat"
         )
         style.configure(
             "Treeview.Heading",
-            font=("Segoe UI", 9, "bold"),
+            font=bold_font,
             background=header_bg,
-            foreground="#333333",
+            foreground=fg_color,
             relief="flat",
+            padding=5
         )
         style.map(
             "Treeview",
@@ -138,8 +178,13 @@ class MainWindow(DragDropMixin):
         )
 
         # Custom styles for specific widgets
-        style.configure("Accent.TButton", background=accent_color, foreground="white")
-        style.map("Accent.TButton", background=[("active", "#005f9e")])
+        style.configure("Accent.TButton", background=secondary_accent, foreground="white", bordercolor="#36704b")
+        style.map("Accent.TButton", background=[("active", "#36704b")])
+
+        # Toolbars and Wrappers
+        style.configure("Toolbar.TFrame", background=bg_color, borderwidth=1, relief="flat")
+        style.configure("Status.TFrame", background="#eeeeee")
+        style.configure("InputWrapper.TFrame", background="white", borderwidth=1, relief="solid")
 
     def _load_config(self) -> UIConfig:
         """Load UI configuration from file."""
@@ -281,7 +326,7 @@ class MainWindow(DragDropMixin):
 
         # 4. Center (Fill Remaining)
         self.view_container = ttk.Frame(self.master)
-        self.view_container.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        self.view_container.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
 
         self.setup_treeview()
         self._apply_column_widths()
@@ -371,8 +416,8 @@ class MainWindow(DragDropMixin):
 
     def setup_top_bar(self) -> None:
         """Set up the top bar with browsing and filtering controls."""
-        top_frame = ttk.Frame(self.master)
-        top_frame.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
+        top_frame = ttk.Frame(self.master, style="Toolbar.TFrame")
+        top_frame.pack(side=tk.TOP, fill=tk.X, padx=15, pady=(15, 5))
 
         # 1. View Switcher
         self.btn_toggle_view = ttk.Button(
@@ -484,8 +529,11 @@ class MainWindow(DragDropMixin):
 
     def setup_bottom_bar(self) -> None:
         """Set up the bottom bar with CRUD and bulk actions."""
-        bottom_frame = ttk.Frame(self.master)
-        bottom_frame.pack(side=tk.BOTTOM, fill=tk.X, padx=10, pady=5)
+        # Visual separator
+        ttk.Separator(self.master, orient=tk.HORIZONTAL).pack(side=tk.BOTTOM, fill=tk.X)
+        
+        bottom_frame = ttk.Frame(self.master, style="Toolbar.TFrame")
+        bottom_frame.pack(side=tk.BOTTOM, fill=tk.X, padx=15, pady=(5, 15))
 
         # 1. CRUD Actions (Left)
         crud_frame = ttk.Frame(bottom_frame)
@@ -822,6 +870,7 @@ class MainWindow(DragDropMixin):
         dialog = tk.Toplevel(self.master)
         dialog.title(f"Historial: {product.name}")
         dialog.transient(self.master)
+        dialog.wait_visibility()
         dialog.grab_set()
         dialog.geometry("720x520")
 
@@ -1309,6 +1358,7 @@ class MainWindow(DragDropMixin):
         dialog = tk.Toplevel(self.master)
         dialog.title(title)
         dialog.transient(self.master)
+        dialog.wait_visibility()
         dialog.grab_set()
         ttk.Label(dialog, text=prompt).pack(padx=10, pady=10)
         var = tk.StringVar()

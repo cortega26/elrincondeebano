@@ -95,17 +95,19 @@ class ProductFormDialog(tk.Toplevel):
     def setup_dialog(self) -> None:
         """Set up dialog window."""
         # Make the dialog large enough and resizable so all content fits
-        self.geometry("700x700")
-        self.minsize(700, 660)
+        self.geometry("750x850")
+        self.minsize(700, 750)
         self.resizable(True, True)
         self.transient(self._parent)
+        self.wait_visibility()
         self.grab_set()
+        self.configure(background="#f6f5f4")
 
         # Layout: main content frame plus persistent button bar
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
 
-        self.main_frame = ttk.Frame(self, padding="10")
+        self.main_frame = ttk.Frame(self, padding="20")
         self.main_frame.grid(row=0, column=0, sticky="nsew")
 
         # Let the input column expand when the window grows
@@ -136,12 +138,12 @@ class ProductFormDialog(tk.Toplevel):
         ]
         for i, (field, label, widget_class, widget_opts) in enumerate(fields):
             label_widget = ttk.Label(self.main_frame, text=label)
-            label_widget.grid(row=i, column=0, sticky=tk.W, padx=(0, 10), pady=5)
-            if widget_class == tk.Checkbutton:
+            label_widget.grid(row=i, column=0, sticky=tk.W, padx=(0, 15), pady=8)
+            if widget_class == tk.Checkbutton or widget_class == ttk.Checkbutton:
                 var = tk.BooleanVar(value=True)
-                widget = widget_class(self.main_frame, variable=var)
+                widget = ttk.Checkbutton(self.main_frame, variable=var)
                 self.entries[field] = var
-                widget.grid(row=i, column=1, sticky=tk.W, pady=5)
+                widget.grid(row=i, column=1, sticky=tk.W, pady=8)
             elif widget_class == ttk.Combobox:
                 values = self.category_helper.display_values
                 state = "readonly" if values else "normal"
@@ -155,11 +157,14 @@ class ProductFormDialog(tk.Toplevel):
                 widget.bind("<<ComboboxSelected>>", self._on_category_change)
                 widget.bind("<FocusOut>", self._on_category_change)
             elif widget_class == tk.Text:
+                # Wrap tk.Text in a ttk.Frame to provide a consistent border
+                wrapper = ttk.Frame(self.main_frame, style="InputWrapper.TFrame")
+                wrapper.grid(row=i, column=1, sticky=tk.EW, pady=5)
                 widget = widget_class(
-                    self.main_frame, font=self.default_font, **widget_opts
+                    wrapper, font=self.default_font, highlightthickness=0, borderwidth=0, **widget_opts
                 )
-                widget.grid(row=i, column=1, sticky=tk.EW, pady=5)
-                widget.bind("<Tab>", self._focus_next)  # Agrega este binding
+                widget.pack(fill=tk.BOTH, expand=True, padx=1, pady=1)
+                widget.bind("<Tab>", self._focus_next)
                 self.entries[field] = widget
             else:
                 widget = widget_class(self.main_frame, **widget_opts)
@@ -215,10 +220,11 @@ class ProductFormDialog(tk.Toplevel):
             height=self._preview_h,
             bg="#fafafa",
             highlightthickness=1,
-            relief=tk.SOLID,
-            bd=1,
+            highlightbackground="#c0c0c0",
+            relief=tk.FLAT,
+            bd=0,
         )
-        self.preview_canvas.grid(row=preview_row, column=1, sticky=tk.W, pady=4)
+        self.preview_canvas.grid(row=preview_row, column=1, sticky=tk.W, pady=8)
         # Quick-open image in OS viewer
         open_btn = ttk.Button(
             self.main_frame, text="Abrir imagen…", command=self._open_image_file
@@ -234,14 +240,18 @@ class ProductFormDialog(tk.Toplevel):
 
     def create_buttons(self) -> None:
         """Create dialog buttons."""
-        button_frame = ttk.Frame(self, padding=(10, 5))
-        button_frame.grid(row=1, column=0, sticky=tk.E, pady=(10, 15), padx=(10, 16))
+        # Visual separator to eliminate seams
+        ttk.Separator(self, orient=tk.HORIZONTAL).grid(row=1, column=0, sticky="ew")
+        
+        button_frame = ttk.Frame(self, padding=(15, 12), style="Toolbar.TFrame")
+        button_frame.grid(row=2, column=0, sticky="ew")
         button_frame.grid_columnconfigure(0, weight=1)
-        ttk.Frame(button_frame).grid(row=0, column=0, sticky="ew")
+        
+        ttk.Frame(button_frame, style="Toolbar.TFrame").grid(row=0, column=0, sticky="ew")
         ttk.Button(
-            button_frame, text="Guardar", command=self.save_product, width=10
+            button_frame, text="Guardar", command=self.save_product, width=12, style="Accent.TButton"
         ).grid(row=0, column=1, padx=5)
-        ttk.Button(button_frame, text="Cancelar", command=self.destroy, width=10).grid(
+        ttk.Button(button_frame, text="Cancelar", command=self.destroy, width=12).grid(
             row=0, column=2, padx=5
         )
 

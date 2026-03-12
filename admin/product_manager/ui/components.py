@@ -107,6 +107,7 @@ class AsyncOperation:
         dialog = tk.Toplevel(self.parent)
         dialog.title("Procesando...")
         dialog.transient(cast(tk.Wm, self.parent))
+        dialog.wait_visibility()
         dialog.grab_set()
 
         ttk.Label(dialog, textvariable=self.status_var).pack(pady=10)

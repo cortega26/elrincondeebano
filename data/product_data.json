@@ -1,6 +1,6 @@
 {
-  "version": "20260311-213911",
-  "last_updated": "2026-03-11T21:39:11.408858",
+  "version": "20260311-214912",
+  "last_updated": "2026-03-11T21:49:12.629515",
   "rev": 0,
   "products": [
     {
@@ -1086,7 +1086,7 @@
       "name": "Nescafé • Café Fina Selección",
       "description": "Frasco de 200g",
       "price": 11900,
-      "discount": 1000,
+      "discount": 0,
       "stock": true,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Cafe-Nescafe-Fina-Seleccion-200-g.webp",
@@ -1096,7 +1096,7 @@
       "rev": 0,
       "field_last_modified": {
         "stock": {
-          "ts": "2026-03-12T00:39:11.407997Z",
+          "ts": "2026-03-12T00:49:12.627528Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
