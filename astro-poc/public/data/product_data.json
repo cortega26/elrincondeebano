@@ -1,6 +1,6 @@
 {
-  "version": "20260311-214912",
-  "last_updated": "2026-03-11T21:49:12.629515",
+  "version": "20260312-141559",
+  "last_updated": "2026-03-12T14:15:59.035365",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -1447,7 +1447,7 @@
       "description": "Empaque de 108g",
       "price": 1300,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "SnacksDulces",
       "image_path": "assets/images/snacks_dulces/Galletas Oreo Original 108g.webp",
       "image_avif_path": "assets/images/snacks_dulces/Galletas Oreo Original 108g.avif",

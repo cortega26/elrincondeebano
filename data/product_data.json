@@ -1,6 +1,6 @@
 {
-  "version": "20260311-214912",
-  "last_updated": "2026-03-11T21:49:12.629515",
+  "version": "20260312-141559",
+  "last_updated": "2026-03-12T14:15:59.035365",
   "rev": 0,
   "products": [
     {
@@ -2642,7 +2642,7 @@
       "description": "Empaque de 108g",
       "price": 1300,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "SnacksDulces",
       "image_path": "assets/images/snacks_dulces/Galletas Oreo Original 108g.webp",
       "image_avif_path": "assets/images/snacks_dulces/Galletas Oreo Original 108g.avif",
@@ -2651,7 +2651,7 @@
       "rev": 0,
       "field_last_modified": {
         "stock": {
-          "ts": "2026-02-13T14:08:35.994589Z",
+          "ts": "2026-03-12T17:15:59.012372Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
