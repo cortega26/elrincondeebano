@@ -27,7 +27,7 @@ export function applySecurityHeaders(response, securityHeaders = buildSecurityHe
 }
 
 export default {
-  async fetch(request, env, ctx) {
+  async fetch(request, _env, _ctx) {
     const response = await fetch(request);
     if (!shouldApplySecurityHeaders({ request, response })) {
       return response;
