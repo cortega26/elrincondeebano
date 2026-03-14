@@ -1,7 +1,7 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import ProductGrid from '../../components/ProductGrid.astro';
-import CatalogControls from '../../components/CatalogControls.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProductGrid from '../components/ProductGrid.astro';
+import CatalogControls from '../components/CatalogControls.astro';
 import {
   getCategoryDescription,
   getCategoryLabel,
@@ -10,8 +10,8 @@ import {
   getCategorySlug,
   getProductsByCategory,
   resolveCategoryParamToKey,
-} from '../../lib/catalog';
-import { getCategoryOgImageUrl } from '../../lib/seo';
+} from '../lib/catalog';
+import { getCategoryOgImageUrl } from '../lib/seo';
 
 export function getStaticPaths() {
   return getCategoryRouteParams().map(({ param, categoryKey }) => ({
@@ -34,7 +34,6 @@ const canonicalPath = getModernCategoryPath(categoryKey);
   title={`El Rincón de Ébano - ${categoryLabel}`}
   description={categoryDescription}
   canonicalPath={canonicalPath}
-  robots="noindex, follow"
   ogTitle={`El Rincón de Ébano - ${categoryLabel}`}
   ogDescription={categoryDescription}
   ogImage={getCategoryOgImageUrl(categorySlug)}

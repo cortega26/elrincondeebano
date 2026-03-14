@@ -25,7 +25,7 @@ test('legacy category route /pages/*.html stays available', async ({ page }) => 
   await expect(page.locator('#product-container .producto').first()).toBeVisible();
 
   const canonical = page.locator('link[rel="canonical"]');
-  await expect(canonical).toHaveAttribute('href', 'https://www.elrincondeebano.com/c/bebidas/');
+  await expect(canonical).toHaveAttribute('href', 'https://www.elrincondeebano.com/bebidas/');
 });
 
 test('disabled category route is not generated', async ({ page }) => {

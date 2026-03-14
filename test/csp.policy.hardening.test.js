@@ -14,15 +14,21 @@ const DIST_CASES = [
     robots: null,
   },
   {
-    relPath: path.join('astro-poc', 'dist', 'c', 'bebidas', 'index.html'),
+    relPath: path.join('astro-poc', 'dist', 'bebidas', 'index.html'),
     label: 'modern category page',
-    canonical: 'https://www.elrincondeebano.com/c/bebidas/',
+    canonical: 'https://www.elrincondeebano.com/bebidas/',
     robots: null,
   },
   {
     relPath: path.join('astro-poc', 'dist', 'pages', 'bebidas.html'),
     label: 'legacy compatibility category page',
-    canonical: 'https://www.elrincondeebano.com/c/bebidas/',
+    canonical: 'https://www.elrincondeebano.com/bebidas/',
+    robots: 'noindex, follow',
+  },
+  {
+    relPath: path.join('astro-poc', 'dist', 'c', 'bebidas', 'index.html'),
+    label: 'compatibility category page',
+    canonical: 'https://www.elrincondeebano.com/bebidas/',
     robots: 'noindex, follow',
   },
 ];
