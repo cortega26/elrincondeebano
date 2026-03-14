@@ -105,7 +105,7 @@ h3 {
   background-color: var(--surface-muted);
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 12px;
-  padding: 1.25rem;
+  padding: 0.625rem 1.25rem 1.25rem;
 }
 
 .hero-content {
