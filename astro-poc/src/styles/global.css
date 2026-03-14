@@ -95,7 +95,7 @@ h1 {
   background: var(--surface-muted);
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 12px;
-  padding: 1.5rem 1.25rem;
+  padding: 0.75rem 1.25rem 1.5rem;
   box-shadow: none;
 }
 
@@ -1022,7 +1022,7 @@ body.service-dialog-open {
   }
 
   .hero-section {
-    padding: 1rem 1rem;
+    padding: 0.5rem 1rem 1rem;
     border-radius: 12px;
   }
 
