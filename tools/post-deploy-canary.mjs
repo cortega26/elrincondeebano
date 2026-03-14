@@ -68,7 +68,7 @@ export function assertOgContract(html, pageLabel) {
 }
 
 export function extractCategoryPathFromSitemap(xml) {
-  const regex = /<loc>\s*https:\/\/[^<]+(\/c\/[a-z0-9_-]+\/)\s*<\/loc>/gi;
+  const regex = /<loc>\s*https:\/\/[^<]+(\/[a-z0-9_-]+\/)\s*<\/loc>/gi;
   const matches = [];
   let match = regex.exec(xml);
   while (match) {
@@ -271,7 +271,7 @@ export async function runCanary({
     const sitemapUrl = `${normalizedBase}/sitemap.xml`;
     const sitemapResponse = await assertHttpOk(sitemapUrl, 'Sitemap', timeoutMs);
     const sitemap = await sitemapResponse.text();
-    categoryPagePath = extractCategoryPathFromSitemap(sitemap) || '/c/cervezas/';
+    categoryPagePath = extractCategoryPathFromSitemap(sitemap) || '/cervezas/';
   }
   const categoryUrl = `${normalizedBase}${categoryPagePath}`;
   const category = await verifyPage({

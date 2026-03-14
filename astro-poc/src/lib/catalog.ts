@@ -347,7 +347,7 @@ export function getLegacyCategoryPath(categoryKey: string): string {
 
 export function getModernCategoryPath(categoryKey: string): string {
   const slug = getCategorySlug(categoryKey);
-  return `/c/${slug}/`;
+  return `/${slug}/`;
 }
 
 export function getActiveCategories(): CategoryRecord[] {
