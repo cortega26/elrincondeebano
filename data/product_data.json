@@ -1,6 +1,6 @@
 {
-  "version": "20260312-141559",
-  "last_updated": "2026-03-12T14:15:59.035365",
+  "version": "20260315-193646",
+  "last_updated": "2026-03-15T19:36:46.079840",
   "rev": 0,
   "products": [
     {
@@ -245,9 +245,9 @@
     {
       "name": "Iansa • Azúcar Blanca",
       "description": "Empaque de 900g",
-      "price": 1500,
+      "price": 2000,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Azúcar blanca Iansa 900g.webp",
       "image_avif_path": "assets/images/despensa/Azúcar blanca Iansa 900g.avif",
@@ -255,15 +255,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-17T18:26:43.781Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-17T18:26:43.781Z",
+        "price": {
+          "ts": "2026-03-15T22:22:22.684502Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -580,7 +573,7 @@
       "description": "Espumante • Botella de 750mL",
       "price": 6900,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Espumantes",
       "image_path": "assets/images/espumantes/Espumante Misiones de Rengo Brut.webp",
       "image_avif_path": "assets/images/espumantes/Espumante Misiones de Rengo Brut.avif",
@@ -589,7 +582,7 @@
       "rev": 0,
       "field_last_modified": {
         "stock": {
-          "ts": "2025-12-29T01:39:16.628081Z",
+          "ts": "2026-03-15T22:35:50.098090Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -653,14 +646,22 @@
       "description": "Botella de 1L",
       "price": 9900,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Piscos",
       "image_path": "assets/images/piscos/Pisco Alto del Carmen Especial 35° 1L.webp",
       "image_avif_path": "assets/images/piscos/Pisco Alto del Carmen Especial 35° 1L.avif",
       "order": 31,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-03-15T22:36:04.232243Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Corona • Cerveza Lager",
@@ -1550,7 +1551,7 @@
       "image_path": "assets/images/piscos/Pisco Artesanos del Cochiguaz.webp",
       "image_avif_path": "assets/images/piscos/Pisco Artesanos del Cochiguaz.avif",
       "order": 72,
-      "is_archived": false,
+      "is_archived": true,
       "rev": 0,
       "field_last_modified": {
         "stock": {
@@ -3604,7 +3605,7 @@
       "description": "Lata de 473mL",
       "price": 2000,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Energeticaseisotonicas",
       "image_path": "assets/images/energeticaseisotonicas/Score Mango lata 473mL.webp",
       "image_avif_path": "assets/images/energeticaseisotonicas/Score Mango lata 473mL.avif",
@@ -3612,22 +3613,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-17T22:51:23.866Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-17T22:51:23.866Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "stock": {
-          "ts": "2025-11-07T22:32:56.508Z",
+          "ts": "2026-03-15T22:36:46.079057Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
