@@ -1,6 +1,6 @@
 {
-  "version": "20260315-193646",
-  "last_updated": "2026-03-15T19:36:46.079840",
+  "version": "20260320-142038",
+  "last_updated": "2026-03-20T14:20:38.759307",
   "rev": 0,
   "products": [
     {
@@ -311,7 +311,7 @@
     {
       "name": "Kross • Cerveza Golden Pale Ale",
       "description": "Lata de 470cc x 6 unidades",
-      "price": 12000,
+      "price": 13000,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -321,29 +321,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-18T00:14:10.617Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-18T00:14:10.617Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "price": {
-          "ts": "2025-10-18T00:14:10.617Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-18T00:14:10.617Z",
+          "ts": "2026-03-20T17:17:18.069191Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -832,7 +811,7 @@
     {
       "name": "Coors • Cerveza Lager",
       "description": "Botella de 355cc x 6 unidades",
-      "price": 6900,
+      "price": 7900,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -842,22 +821,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-18T00:14:54.153Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-18T00:14:54.153Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-18T00:14:54.153Z",
+        "price": {
+          "ts": "2026-03-20T17:14:41.409071Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -868,7 +833,7 @@
     {
       "name": "Coors • Cerveza Lager",
       "description": "Lata de 350cc x 6 unidades",
-      "price": 5900,
+      "price": 6900,
       "discount": 0,
       "stock": false,
       "category": "Cervezas",
@@ -878,15 +843,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "stock": {
-          "ts": "2025-12-31T17:18:20.604427Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-12-31T17:18:20.604427Z",
+        "price": {
+          "ts": "2026-03-20T17:14:49.400345Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -919,7 +877,7 @@
     {
       "name": "Heineken • Cerveza Lager",
       "description": "Lata de 350cc x 6 unidades",
-      "price": 5500,
+      "price": 6800,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -929,22 +887,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-18T00:16:56.577Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-18T00:16:56.577Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-18T00:16:56.577Z",
+        "price": {
+          "ts": "2026-03-20T17:12:57.682649Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -955,7 +899,7 @@
     {
       "name": "Royal Guard • Cerveza Lager",
       "description": "Lata de 350cc x 6 unidades",
-      "price": 5500,
+      "price": 5900,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -965,22 +909,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-18T00:17:19.161Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-18T00:17:19.161Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-18T00:17:19.161Z",
+        "price": {
+          "ts": "2026-03-20T17:12:13.542135Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -1401,7 +1331,7 @@
     {
       "name": "Kunstmann • Cerveza Torobayo",
       "description": "Lata de 470cc",
-      "price": 2000,
+      "price": 2200,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -1411,22 +1341,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-18T00:23:54.025Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-18T00:23:54.025Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-18T00:23:54.025Z",
+        "price": {
+          "ts": "2026-03-20T17:12:39.818750Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -1437,7 +1353,7 @@
     {
       "name": "Budweiser • Cerveza Lager",
       "description": "Lata de 354cc x 6 unidades",
-      "price": 5500,
+      "price": 5900,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -1447,22 +1363,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-18T00:24:48.785Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-18T00:24:48.785Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-18T00:24:48.785Z",
+        "price": {
+          "ts": "2026-03-20T17:15:00.440953Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -1680,7 +1582,7 @@
     {
       "name": "Miller • Cerveza Lager",
       "description": "Lata de 355cc x 6 unidades",
-      "price": 7900,
+      "price": 9900,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -1690,8 +1592,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "stock": {
-          "ts": "2025-11-24T19:50:49.461Z",
+        "price": {
+          "ts": "2026-03-20T17:12:21.822190Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3119,7 +3021,7 @@
     {
       "name": "Lay's • Papas Sabor Crema y Cebolla",
       "description": "Tarro de 134g",
-      "price": 2500,
+      "price": 2600,
       "discount": 0,
       "stock": false,
       "category": "SnacksSalados",
@@ -3129,8 +3031,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "stock": {
-          "ts": "2026-02-13T14:09:06.490628Z",
+        "price": {
+          "ts": "2026-03-20T17:20:32.996339Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3141,7 +3043,7 @@
     {
       "name": "Lay's • Papas sabor Original",
       "description": "Tarro de 134g",
-      "price": 2500,
+      "price": 2600,
       "discount": 0,
       "stock": false,
       "category": "SnacksSalados",
@@ -3151,8 +3053,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "stock": {
-          "ts": "2026-02-13T14:09:05.706708Z",
+        "price": {
+          "ts": "2026-03-20T17:20:35.812822Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3163,7 +3065,7 @@
     {
       "name": "Lay's • Papas sabor Queso",
       "description": "Tarro de 134g",
-      "price": 2500,
+      "price": 2600,
       "discount": 0,
       "stock": false,
       "category": "SnacksSalados",
@@ -3173,22 +3075,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-18T15:18:05.597Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-18T15:18:05.597Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "stock": {
-          "ts": "2025-11-07T22:32:55.845Z",
+        "price": {
+          "ts": "2026-03-20T17:20:38.755867Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
