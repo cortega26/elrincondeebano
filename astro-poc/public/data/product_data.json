@@ -1,6 +1,6 @@
 {
-  "version": "20260312-141559",
-  "last_updated": "2026-03-12T14:15:59.035365",
+  "version": "20260320-142038",
+  "last_updated": "2026-03-20T14:20:38.759307",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -137,9 +137,9 @@
     {
       "name": "Iansa • Azúcar Blanca",
       "description": "Empaque de 900g",
-      "price": 1500,
+      "price": 2000,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Azúcar blanca Iansa 900g.webp",
       "image_avif_path": "assets/images/despensa/Azúcar blanca Iansa 900g.avif",
@@ -173,7 +173,7 @@
     {
       "name": "Kross • Cerveza Golden Pale Ale",
       "description": "Lata de 470cc x 6 unidades",
-      "price": 12000,
+      "price": 13000,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -307,7 +307,7 @@
       "description": "Espumante • Botella de 750mL",
       "price": 6900,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Espumantes",
       "image_path": "assets/images/espumantes/Espumante Misiones de Rengo Brut.webp",
       "image_avif_path": "assets/images/espumantes/Espumante Misiones de Rengo Brut.avif",
@@ -343,7 +343,7 @@
       "description": "Botella de 1L",
       "price": 9900,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Piscos",
       "image_path": "assets/images/piscos/Pisco Alto del Carmen Especial 35° 1L.webp",
       "image_avif_path": "assets/images/piscos/Pisco Alto del Carmen Especial 35° 1L.avif",
@@ -425,7 +425,7 @@
     {
       "name": "Coors • Cerveza Lager",
       "description": "Botella de 355cc x 6 unidades",
-      "price": 6900,
+      "price": 7900,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -437,7 +437,7 @@
     {
       "name": "Coors • Cerveza Lager",
       "description": "Lata de 350cc x 6 unidades",
-      "price": 5900,
+      "price": 6900,
       "discount": 0,
       "stock": false,
       "category": "Cervezas",
@@ -461,7 +461,7 @@
     {
       "name": "Heineken • Cerveza Lager",
       "description": "Lata de 350cc x 6 unidades",
-      "price": 5500,
+      "price": 6800,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -473,7 +473,7 @@
     {
       "name": "Royal Guard • Cerveza Lager",
       "description": "Lata de 350cc x 6 unidades",
-      "price": 5500,
+      "price": 5900,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -749,7 +749,7 @@
     {
       "name": "Kunstmann • Cerveza Torobayo",
       "description": "Lata de 470cc",
-      "price": 2000,
+      "price": 2200,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -761,7 +761,7 @@
     {
       "name": "Budweiser • Cerveza Lager",
       "description": "Lata de 354cc x 6 unidades",
-      "price": 5500,
+      "price": 5900,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -828,7 +828,7 @@
       "image_path": "assets/images/piscos/Pisco Artesanos del Cochiguaz.webp",
       "image_avif_path": "assets/images/piscos/Pisco Artesanos del Cochiguaz.avif",
       "order": 72,
-      "is_archived": false
+      "is_archived": true
     },
     {
       "name": "San Pedro • Carmenere Gran Reserva 2023, Castillo de Molina",
@@ -905,7 +905,7 @@
     {
       "name": "Miller • Cerveza Lager",
       "description": "Lata de 355cc x 6 unidades",
-      "price": 7900,
+      "price": 9900,
       "discount": 0,
       "stock": true,
       "category": "Cervezas",
@@ -1709,7 +1709,7 @@
     {
       "name": "Lay's • Papas Sabor Crema y Cebolla",
       "description": "Tarro de 134g",
-      "price": 2500,
+      "price": 2600,
       "discount": 0,
       "stock": false,
       "category": "SnacksSalados",
@@ -1721,7 +1721,7 @@
     {
       "name": "Lay's • Papas sabor Original",
       "description": "Tarro de 134g",
-      "price": 2500,
+      "price": 2600,
       "discount": 0,
       "stock": false,
       "category": "SnacksSalados",
@@ -1733,7 +1733,7 @@
     {
       "name": "Lay's • Papas sabor Queso",
       "description": "Tarro de 134g",
-      "price": 2500,
+      "price": 2600,
       "discount": 0,
       "stock": false,
       "category": "SnacksSalados",
@@ -1891,7 +1891,7 @@
       "description": "Lata de 473mL",
       "price": 2000,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Energeticaseisotonicas",
       "image_path": "assets/images/energeticaseisotonicas/Score Mango lata 473mL.webp",
       "image_avif_path": "assets/images/energeticaseisotonicas/Score Mango lata 473mL.avif",
