@@ -24,6 +24,8 @@ jobs:
     name: Ensure build artifacts remain reproducible
     runs-on: ubuntu-22.04
     timeout-minutes: 45
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -71,6 +73,16 @@ jobs:
             exit 1
           fi
 
+      - name: Auto-commit synced files for Dependabot
+        if: failure() && github.actor == 'dependabot[bot]'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Re-authenticate since persist-credentials is false
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git add data/product_data.json robots.txt astro-poc/public/robots.txt || true
+          git commit -m "chore(ci): auto-sync generated files for dependabot PR [skip ci]"
+          git push
       - name: Capture failure diagnostics
         if: failure()
         shell: bash
