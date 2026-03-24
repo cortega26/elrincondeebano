@@ -61,6 +61,17 @@ jobs:
             } >> "$GITHUB_STEP_SUMMARY"
           fi
 
+      - name: Ensure live-contract-monitor label exists
+        if: ${{ steps.monitor.outcome == 'failure' || steps.monitor.outcome == 'success' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh label create live-contract-monitor \
+            --description "Opened by the Live Contract Monitor workflow" \
+            --color "e11d48" \
+            --force
+
       - name: Open or update failure issue
         if: ${{ steps.monitor.outcome == 'failure' }}
         env:
