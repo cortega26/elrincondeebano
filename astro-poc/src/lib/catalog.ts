@@ -1,5 +1,6 @@
 import rawProducts from '../data/products.json';
 import rawCategories from '../data/categories.json';
+import rawStorefrontExperience from '../data/storefront-experience.json';
 
 export type ProductRecord = {
   name: string;
@@ -62,19 +63,54 @@ export type NavGroup = {
   }>;
 };
 
-const HOME_CATEGORY_PRIORITY = [
-  'Despensa',
-  'Bebidas',
-  'Aguas',
-  'Lacteos',
-  'SnacksSalados',
-  'Limpiezayaseo',
-];
+export type ProductReference = {
+  category: string;
+  name: string;
+};
+
+export type StorefrontTrustItem = {
+  label: string;
+  value: string;
+};
+
+export type StorefrontBundleRecord = {
+  id: string;
+  title: string;
+  description: string;
+  items: ProductReference[];
+};
+
+export type StorefrontCompanionRule = {
+  sourceCategories: string[];
+  targets: ProductReference[];
+};
+
+export type StorefrontExperience = {
+  trustBar: {
+    highlights: StorefrontTrustItem[];
+    statusItems: StorefrontTrustItem[];
+  };
+  home: {
+    primaryCategories: string[];
+    secondaryCategories: string[];
+    fallbackQuickPicks: ProductReference[];
+    featuredStaples: ProductReference[];
+  };
+  bundles: StorefrontBundleRecord[];
+  companionRules: StorefrontCompanionRule[];
+};
+
+export type StorefrontBundle = StorefrontBundleRecord & {
+  itemsResolved: ProductWithSku[];
+  totalPrice: number;
+};
+
 const SITE_ORIGIN = 'https://www.elrincondeebano.com';
 const PLACEHOLDER_IMAGE_URL = `${SITE_ORIGIN}/assets/images/web/placeholder.svg`;
 
 const catalog = rawProducts as ProductCatalog;
 const categoryRegistry = rawCategories as CategoryRegistry;
+const storefrontExperience = rawStorefrontExperience as StorefrontExperience;
 let cachedProductsWithSku: ProductWithSku[] | null = null;
 let cachedCategoryIndexes: {
   byKey: Map<string, CategoryRecord>;
@@ -211,29 +247,96 @@ export function getProductsWithSku(): ProductWithSku[] {
   return cachedProductsWithSku;
 }
 
-export function getHomeHighlightedCategories(): NavGroup['categories'] {
-  const categories = getNavigationGroups().flatMap((group) => group.categories || []);
-  const bySlug = new Map(
-    categories.map((category) => [String(category.slug || '').toLowerCase(), category])
+function productReferenceKey(reference: ProductReference): string {
+  return `${normalizeCategoryToken(reference.category)}::${normalizeSearchToken(reference.name)}`;
+}
+
+function normalizeSearchToken(value: unknown): string {
+  if (typeof value !== 'string') {
+    return '';
+  }
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase();
+}
+
+function getProductReferenceMap() {
+  return new Map(
+    getProductsWithSku().map((item) => [
+      productReferenceKey({ category: item.product.category, name: item.product.name }),
+      item,
+    ])
   );
-  const selected: NavGroup['categories'] = [];
+}
+
+export function getStorefrontExperience(): StorefrontExperience {
+  return storefrontExperience;
+}
+
+export function getStorefrontTrustItems(): StorefrontTrustItem[] {
+  return storefrontExperience.trustBar.highlights || [];
+}
+
+export function getStorefrontStatusItems(): StorefrontTrustItem[] {
+  return storefrontExperience.trustBar.statusItems || [];
+}
+
+export function getProductByReference(reference: ProductReference): ProductWithSku | undefined {
+  return getProductReferenceMap().get(productReferenceKey(reference));
+}
+
+export function getProductsByReferences(references: ProductReference[]): ProductWithSku[] {
   const seen = new Set<string>();
-
-  HOME_CATEGORY_PRIORITY.forEach((slug) => {
-    const match = bySlug.get(String(slug).toLowerCase());
-    if (match && !seen.has(match.legacyPath)) {
-      selected.push(match);
-      seen.add(match.legacyPath);
+  const resolved: ProductWithSku[] = [];
+  references.forEach((reference) => {
+    const product = getProductByReference(reference);
+    if (!product || seen.has(product.sku)) {
+      return;
     }
+    seen.add(product.sku);
+    resolved.push(product);
   });
+  return resolved;
+}
 
-  categories.forEach((category) => {
-    if (selected.length >= 6 || seen.has(category.legacyPath)) return;
-    selected.push(category);
-    seen.add(category.legacyPath);
-  });
+export function getHomePrimaryCategories(): NavGroup['categories'] {
+  const categories = getNavigationGroups().flatMap((group) => group.categories || []);
+  const byKey = new Map(
+    categories.map((category) => [normalizeCategoryToken(category.key), category])
+  );
 
-  return selected.slice(0, 6);
+  return storefrontExperience.home.primaryCategories
+    .map((categoryKey) => byKey.get(normalizeCategoryToken(categoryKey)))
+    .filter(Boolean) as NavGroup['categories'];
+}
+
+export function getHomeSecondaryCategories(): NavGroup['categories'] {
+  const categories = getNavigationGroups().flatMap((group) => group.categories || []);
+  const byKey = new Map(
+    categories.map((category) => [normalizeCategoryToken(category.key), category])
+  );
+
+  return storefrontExperience.home.secondaryCategories
+    .map((categoryKey) => byKey.get(normalizeCategoryToken(categoryKey)))
+    .filter(Boolean) as NavGroup['categories'];
+}
+
+export function getHomepageCatalogProducts(): ProductWithSku[] {
+  const secondary = new Set(
+    storefrontExperience.home.secondaryCategories.map((categoryKey) =>
+      normalizeCategoryToken(categoryKey)
+    )
+  );
+
+  return getProductsWithSku().filter(
+    ({ product }) => !secondary.has(normalizeCategoryToken(product.category))
+  );
+}
+
+export function getHomeHighlightedCategories(): NavGroup['categories'] {
+  return getHomePrimaryCategories();
 }
 
 export function getHomeFeaturedDeals(): ProductWithSku[] {
@@ -255,29 +358,35 @@ export function getHomeFeaturedDeals(): ProductWithSku[] {
 }
 
 export function getHomeQuickPicks(): ProductWithSku[] {
-  const products = getProductsWithSku();
-  const selected: ProductWithSku[] = [];
-  const seenCategories = new Set<string>();
+  return getProductsByReferences(storefrontExperience.home.fallbackQuickPicks);
+}
 
-  HOME_CATEGORY_PRIORITY.forEach((categoryKey) => {
-    const match = products.find(
-      ({ product }) => product.category === categoryKey && Number(product.discount || 0) <= 0
-    );
-    if (match && !seenCategories.has(match.product.category)) {
-      selected.push(match);
-      seenCategories.add(match.product.category);
-    }
+export function getHomeFeaturedStaples(): ProductWithSku[] {
+  return getProductsByReferences(storefrontExperience.home.featuredStaples);
+}
+
+export function getStorefrontBundles(): StorefrontBundle[] {
+  return (storefrontExperience.bundles || []).map((bundle) => {
+    const itemsResolved = getProductsByReferences(bundle.items);
+    return {
+      ...bundle,
+      itemsResolved,
+      totalPrice: itemsResolved.reduce(
+        (sum, item) =>
+          sum +
+          Math.max(
+            (typeof item.product.price === 'number' ? item.product.price : 0) -
+              (typeof item.product.discount === 'number' ? item.product.discount : 0),
+            0
+          ),
+        0
+      ),
+    };
   });
+}
 
-  products.forEach((item) => {
-    if (selected.length >= 4) return;
-    if (Number(item.product.discount || 0) > 0) return;
-    if (seenCategories.has(item.product.category)) return;
-    selected.push(item);
-    seenCategories.add(item.product.category);
-  });
-
-  return selected.slice(0, 4);
+export function getStorefrontCompanionRules(): StorefrontCompanionRule[] {
+  return storefrontExperience.companionRules || [];
 }
 
 export function getCategoryKeys(): string[] {

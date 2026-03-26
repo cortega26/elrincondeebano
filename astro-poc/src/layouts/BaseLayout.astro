@@ -1,7 +1,8 @@
 ---
 import '../styles/global.css';
 import Navbar from '../components/Navbar.astro';
-import { getNavigationGroups } from '../lib/catalog';
+import TrustStrip from '../components/TrustStrip.astro';
+import { getNavigationGroups, getStorefrontExperience } from '../lib/catalog';
 import storefrontScriptUrl from '../scripts/storefront.js?url';
 import { absoluteUrl, DEFAULT_OG_IMAGE, SITE_NAME, SITE_ORIGIN } from '../lib/seo';
 
@@ -32,6 +33,7 @@ const {
 } = Astro.props;
 
 const navGroups = getNavigationGroups();
+const storefrontExperience = getStorefrontExperience();
 const resolvedCanonicalUrl = canonicalUrl || absoluteUrl(canonicalPath);
 const resolvedOgImage = absoluteUrl(ogImage);
 ---
@@ -79,6 +81,7 @@ const resolvedOgImage = absoluteUrl(ogImage);
 
     <main id="main-content" role="main" tabindex="-1">
       <div class="container mt-3 mb-4">
+        <TrustStrip />
         <slot />
       </div>
     </main>
@@ -92,6 +95,7 @@ const resolvedOgImage = absoluteUrl(ogImage);
       </div>
     </footer>
 
+    <script id="storefront-experience-data" type="application/json" set:html={JSON.stringify(storefrontExperience)}></script>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"

@@ -1,0 +1,199 @@
+{
+  "trustBar": {
+    "highlights": [
+      {
+        "label": "Acceso",
+        "value": "Solo residentes del edificio"
+      },
+      {
+        "label": "Entrega",
+        "value": "Coordinada dentro de Ébano"
+      },
+      {
+        "label": "Pago",
+        "value": "Efectivo o transferencia"
+      },
+      {
+        "label": "Cierre",
+        "value": "Pedido final por WhatsApp"
+      }
+    ],
+    "statusItems": [
+      {
+        "label": "Pedidos hoy",
+        "value": "Abierto para vecinos de Ébano"
+      },
+      {
+        "label": "Respuesta",
+        "value": "Aprox. 10 minutos"
+      }
+    ]
+  },
+  "home": {
+    "primaryCategories": [
+      "Despensa",
+      "Bebidas",
+      "Lacteos",
+      "Aguas",
+      "Carnesyembutidos",
+      "Limpiezayaseo"
+    ],
+    "secondaryCategories": ["Llaveros"],
+    "fallbackQuickPicks": [
+      {
+        "category": "Bebidas",
+        "name": "Coca-Cola 2L"
+      },
+      {
+        "category": "Aguas",
+        "name": "Benedictino • Agua sin gas 2L"
+      },
+      {
+        "category": "Lacteos",
+        "name": "Leche Entera"
+      },
+      {
+        "category": "Carnesyembutidos",
+        "name": "PF • Jamón de Pierna Acaramelado"
+      }
+    ],
+    "featuredStaples": [
+      {
+        "category": "Limpiezayaseo",
+        "name": "Toalla Papel Nova Clásica"
+      },
+      {
+        "category": "Despensa",
+        "name": "Mont Blanc • Harina sin polvos"
+      },
+      {
+        "category": "Bebidas",
+        "name": "Coca-Cola 2L"
+      },
+      {
+        "category": "Lacteos",
+        "name": "Leche Entera"
+      },
+      {
+        "category": "Despensa",
+        "name": "Líder • Atún Lomitos en Agua"
+      },
+      {
+        "category": "Carnesyembutidos",
+        "name": "PF • Jamón de Pierna Acaramelado"
+      }
+    ]
+  },
+  "bundles": [
+    {
+      "id": "basicos-del-dia",
+      "title": "Básicos del día",
+      "description": "Un combo rápido para resolver despensa, bebida y limpieza en una sola pasada.",
+      "items": [
+        {
+          "category": "Despensa",
+          "name": "Mont Blanc • Harina sin polvos"
+        },
+        {
+          "category": "Bebidas",
+          "name": "Coca-Cola 2L"
+        },
+        {
+          "category": "Lacteos",
+          "name": "Leche Entera"
+        },
+        {
+          "category": "Limpiezayaseo",
+          "name": "Toalla Papel Nova Clásica"
+        }
+      ]
+    },
+    {
+      "id": "desayuno-rapido",
+      "title": "Desayuno rápido",
+      "description": "Lo justo para partir la mañana sin armar el pedido pieza por pieza.",
+      "items": [
+        {
+          "category": "Lacteos",
+          "name": "Leche Entera"
+        },
+        {
+          "category": "Despensa",
+          "name": "Nescafé • Café Dolca"
+        },
+        {
+          "category": "Despensa",
+          "name": "Iansa • Azúcar Blanca"
+        },
+        {
+          "category": "Lacteos",
+          "name": "Queso Gauda La Vaquita"
+        }
+      ]
+    },
+    {
+      "id": "noche-de-pelis",
+      "title": "Noche de pelis",
+      "description": "Bebida y picoteo listos para pedir en pocos toques.",
+      "items": [
+        {
+          "category": "Bebidas",
+          "name": "Coca-Cola 2L"
+        },
+        {
+          "category": "SnacksDulces",
+          "name": "Nabisco • Galletas Oreo Original"
+        },
+        {
+          "category": "Chocolates",
+          "name": "Hershey's • Chocolate con Leche"
+        },
+        {
+          "category": "SnacksSalados",
+          "name": "Selección • Chips de Plátano Frito"
+        }
+      ]
+    }
+  ],
+  "companionRules": [
+    {
+      "sourceCategories": ["Bebidas", "Aguas", "Energeticaseisotonicas"],
+      "targets": [
+        {
+          "category": "SnacksDulces",
+          "name": "Nabisco • Galletas Oreo Original"
+        },
+        {
+          "category": "SnacksSalados",
+          "name": "Selección • Chips de Plátano Frito"
+        }
+      ]
+    },
+    {
+      "sourceCategories": ["Lacteos"],
+      "targets": [
+        {
+          "category": "Despensa",
+          "name": "Nescafé • Café Dolca"
+        },
+        {
+          "category": "SnacksDulces",
+          "name": "Nabisco • Galletas Oreo Original"
+        }
+      ]
+    },
+    {
+      "sourceCategories": ["Limpiezayaseo"],
+      "targets": [
+        {
+          "category": "Despensa",
+          "name": "Líder • Atún Lomitos en Agua"
+        },
+        {
+          "category": "Bebidas",
+          "name": "Coca-Cola 2L"
+        }
+      ]
+    }
+  ]
+}
