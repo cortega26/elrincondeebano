@@ -25,6 +25,7 @@ const hasAvif = typeof product.image_avif_path === 'string' && product.image_avi
   class={`producto col-6 col-sm-6 col-md-4 col-lg-3 mb-4 ${product.stock ? '' : 'agotado'}`}
   data-product-id={sku}
   data-product-name={product.name}
+  data-product-category={product.category}
   data-product-price={price}
   data-product-discount={discount}
   data-product-final-price={finalPrice}
@@ -68,12 +69,13 @@ const hasAvif = typeof product.image_avif_path === 'string' && product.image_avi
 
       <div class="action-area mt-auto" data-pid={sku} role="group" aria-label={`Acciones para ${product.name}`}>
         <button class="btn btn-primary add-to-cart-btn mt-2" type="button" data-id={sku} aria-label={`Agregar ${product.name} al carrito`}>
-          Agregar
+          <span class="add-to-cart-btn__label">Agregar</span>
+          <span class="add-to-cart-btn__hint">al pedido</span>
         </button>
 
         <div class="quantity-control is-hidden" aria-live="polite" role="group" aria-label="Seleccionar cantidad">
           <button class="quantity-btn" type="button" data-action="decrease" data-id={sku} aria-label="Disminuir cantidad">-</button>
-          <input type="number" class="quantity-input" value="1" min="1" max="50" aria-label="Cantidad" data-id={sku} />
+          <span class="quantity-value" data-id={sku} aria-live="polite" aria-atomic="true">1</span>
           <button class="quantity-btn" type="button" data-action="increase" data-id={sku} aria-label="Aumentar cantidad">+</button>
         </div>
       </div>

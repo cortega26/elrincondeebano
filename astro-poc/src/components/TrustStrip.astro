@@ -1,0 +1,42 @@
+---
+import { catalogMeta, getStorefrontStatusItems, getStorefrontTrustItems } from '../lib/catalog';
+
+const trustItems = getStorefrontTrustItems();
+const statusItems = getStorefrontStatusItems();
+
+let updatedLabel = 'Catálogo disponible';
+if (catalogMeta.lastUpdated) {
+  try {
+    updatedLabel = `Actualizado ${new Intl.DateTimeFormat('es-CL', {
+      day: 'numeric',
+      month: 'short',
+    }).format(new Date(catalogMeta.lastUpdated))}`;
+  } catch {
+    updatedLabel = 'Catálogo actualizado';
+  }
+}
+---
+
+<section class="trust-strip" aria-label="Condiciones del servicio">
+  <div class="trust-strip__status">
+    {statusItems.map((item) => (
+      <div class="trust-strip__status-item">
+        <strong>{item.label}</strong>
+        <span>{item.value}</span>
+      </div>
+    ))}
+    <div class="trust-strip__status-item">
+      <strong>Catálogo</strong>
+      <span>{updatedLabel}</span>
+    </div>
+  </div>
+
+  <div class="trust-strip__highlights">
+    {trustItems.map((item) => (
+      <div class="trust-strip__pill">
+        <strong>{item.label}</strong>
+        <span>{item.value}</span>
+      </div>
+    ))}
+  </div>
+</section>

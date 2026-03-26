@@ -2,10 +2,23 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProductGrid from '../components/ProductGrid.astro';
 import CatalogControls from '../components/CatalogControls.astro';
-import { getProductsWithSku } from '../lib/catalog';
+import {
+  formatPrice,
+  getHomeFeaturedStaples,
+  getHomePrimaryCategories,
+  getHomeQuickPicks,
+  getHomeSecondaryCategories,
+  getHomepageCatalogProducts,
+  getStorefrontBundles,
+} from '../lib/catalog';
 import { DEFAULT_OG_IMAGE } from '../lib/seo';
 
-const products = getProductsWithSku();
+const homepageCatalogProducts = getHomepageCatalogProducts();
+const primaryCategories = getHomePrimaryCategories();
+const secondaryCategories = getHomeSecondaryCategories();
+const fallbackQuickPicks = getHomeQuickPicks();
+const featuredStaples = getHomeFeaturedStaples();
+const bundles = getStorefrontBundles();
 ---
 
 <BaseLayout
@@ -15,39 +28,131 @@ const products = getProductsWithSku();
   ogImage={DEFAULT_OG_IMAGE}
   ogImageAlt="Logotipo de El Rincón de Ébano"
 >
-  <section class="hero-section mb-4" aria-labelledby="main-heading">
-    <div class="hero-content">
-      <div class="hero-copy">
-        <div class="hero-heading-row">
-          <h1 id="main-heading">Haz tu pedido dentro de Ébano</h1>
-          <button
-            type="button"
-            class="btn btn-outline-secondary hero-secondary"
-            data-service-dialog-trigger
-            aria-haspopup="dialog"
-            aria-controls="service-guide-dialog"
-          >
-            Cómo funciona
-          </button>
-        </div>
-        <p class="lead hero-lead mb-0">
-          Explora el catálogo, confirma el medio de pago y cierra por WhatsApp para coordinar la entrega dentro del edificio.
-        </p>
-      </div>
+  <section class="home-overview" aria-labelledby="main-heading">
+    <div class="home-overview__copy">
+      <h1 id="main-heading">Pide más rápido dentro de Ébano</h1>
+      <p class="home-overview__lead mb-0">
+        Arma tu pedido en la web, revisa el total y deja el WhatsApp solo para confirmar. Así compras más rápido y con menos mensajes de ida y vuelta.
+      </p>
     </div>
-    <div class="service-summary" aria-label="Condiciones del servicio">
-      <div class="service-summary-item">
-        <strong>Acceso</strong>
-        <span>Solo residentes del edificio Ébano.</span>
+    <div class="home-overview__actions">
+      <button
+        type="button"
+        class="btn btn-outline-secondary hero-secondary"
+        data-service-dialog-trigger
+        aria-haspopup="dialog"
+        aria-controls="service-guide-dialog"
+      >
+        Cómo funciona
+      </button>
+      <a href="#catalog-main" class="btn btn-primary home-overview__cta">Armar pedido ahora</a>
+      <button
+        type="button"
+        class="btn btn-outline-dark home-overview__repeat"
+        data-repeat-last-order
+        disabled
+        aria-disabled="true"
+      >
+        Repetir último pedido
+      </button>
+    </div>
+  </section>
+
+  <section class="home-section" aria-labelledby="home-fast-track-heading">
+    <div class="home-section__header">
+      <h2 id="home-fast-track-heading">Entradas rápidas</h2>
+      <p>Empieza por las secciones que más resuelven un pedido del día a día.</p>
+    </div>
+
+    <div class="category-shortcuts">
+      {
+        primaryCategories.map((category) => (
+          <a class="category-shortcut" href={category.modernPath}>
+            <span class="category-shortcut-title">{category.label}</span>
+            <span class="category-shortcut-meta">Entrar directo</span>
+          </a>
+        ))
+      }
+    </div>
+
+    {secondaryCategories.length > 0 ? (
+      <div class="home-secondary-links" aria-label="Secciones secundarias">
+        <span class="home-secondary-links__label">Otras secciones:</span>
+        <div class="home-secondary-links__items">
+          {secondaryCategories.map((category) => <a href={category.modernPath}>{category.label}</a>)}
+        </div>
       </div>
-      <div class="service-summary-item">
-        <strong>Entrega</strong>
-        <span>Coordinada dentro del edificio.</span>
+    ) : null}
+  </section>
+
+  <section class="home-section" aria-labelledby="home-quick-order-heading">
+    <div class="home-section__header">
+      <h2 id="home-quick-order-heading">Compra rápida</h2>
+      <p id="home-personalized-note">Tus frecuentes aparecerán aquí. Mientras tanto, dejamos una selección útil para resolver rápido.</p>
+    </div>
+
+    <div class="home-profile-strip" id="home-profile-strip" aria-live="polite">
+      <div>
+        <strong>Tu próxima compra puede salir en menos tiempo.</strong>
+        <span>Completa tu nombre, depto y preferencia de pago en el carrito para dejarlo listo.</span>
       </div>
-      <div class="service-summary-item">
-        <strong>Cierre</strong>
-        <span>Pedido final por WhatsApp con resumen automático.</span>
-      </div>
+      <button
+        type="button"
+        class="btn btn-outline-dark home-profile-strip__repeat"
+        data-repeat-last-order
+        disabled
+        aria-disabled="true"
+      >
+        Repetir último pedido
+      </button>
+    </div>
+
+    <ProductGrid items={fallbackQuickPicks} id="home-personalized-grid" className="home-collection-grid" />
+  </section>
+
+  <section class="home-section" aria-labelledby="home-staples-heading">
+    <div class="home-section__header">
+      <h2 id="home-staples-heading">Favoritos para resolver hoy</h2>
+      <p>Productos que hacen más simple un pedido corto: básicos, bebida, lácteos y limpieza.</p>
+    </div>
+
+    <ProductGrid items={featuredStaples} className="home-collection-grid" />
+  </section>
+
+  <section class="home-section" aria-labelledby="home-bundles-heading">
+    <div class="home-section__header">
+      <h2 id="home-bundles-heading">Combos listos</h2>
+      <p>Una forma rápida de subir el pedido sin tener que buscar producto por producto.</p>
+    </div>
+
+    <div class="bundle-grid">
+      {
+        bundles.map((bundle) => (
+          <article class="bundle-card">
+            <div class="bundle-card__content">
+              <h3>{bundle.title}</h3>
+              <p>{bundle.description}</p>
+              <ul class="bundle-card__items">
+                {bundle.itemsResolved.map((item) => <li>{item.product.name}</li>)}
+              </ul>
+            </div>
+            <div class="bundle-card__footer">
+              <div class="bundle-card__meta">
+                <strong>{formatPrice(bundle.totalPrice)}</strong>
+                <span>{bundle.itemsResolved.length} productos</span>
+              </div>
+              <button
+                type="button"
+                class="btn btn-outline-dark bundle-card__action"
+                data-bundle-id={bundle.id}
+                data-bundle-items={bundle.itemsResolved.map((item) => item.sku).join(',')}
+              >
+                Agregar combo
+              </button>
+            </div>
+          </article>
+        ))
+      }
     </div>
   </section>
 
@@ -92,10 +197,15 @@ const products = getProductsWithSku();
     </div>
   </dialog>
 
-  <section aria-labelledby="products-heading">
-    <h2 id="products-heading" class="visually-hidden">Catálogo</h2>
+  <section class="home-section" aria-labelledby="products-heading">
+    <div class="home-section__header">
+      <h2 id="products-heading">Catálogo principal</h2>
+      <p id="catalog-main">
+        Aquí empieza el pedido completo. Dejamos fuera de esta vista las secciones secundarias para que comprar sea más rápido.
+      </p>
+    </div>
     <CatalogControls />
-    <ProductGrid items={products} />
+    <ProductGrid items={homepageCatalogProducts} id="product-container" announce={true} />
     <div id="catalog-empty-state" class="alert alert-info d-none mt-3" role="status">
       No se encontraron productos con los filtros seleccionados.
     </div>
