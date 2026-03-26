@@ -70,7 +70,7 @@
     "eslint": "^10.0.3",
     "globals": "^17.4.0",
     "jsdom": "^29.0.0",
-    "lighthouse": "^13.0.3",
+    "lighthouse": "^12.6.1",
     "prettier": "^3.8.1",
     "purgecss": "^8.0.0",
     "serve": "^14.2.6",
