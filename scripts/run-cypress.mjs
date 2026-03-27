@@ -18,11 +18,24 @@ function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function waitForServer(url, timeoutMs = 45000) {
+function resolveLocalProbeUrl(baseUrl) {
+  const parsed = new URL(String(baseUrl));
+  const localHosts = new Set(['127.0.0.1', 'localhost', '::1']);
+  if (!['http:', 'https:'].includes(parsed.protocol)) {
+    throw new Error(`Unsupported Cypress baseUrl protocol: ${parsed.toString()}`);
+  }
+  if (!localHosts.has(parsed.hostname)) {
+    throw new Error(`Cypress baseUrl must point to a loopback host: ${parsed.toString()}`);
+  }
+  return new URL('/index.html', parsed);
+}
+
+async function waitForServer(baseUrl, timeoutMs = 45000) {
+  const probeUrl = resolveLocalProbeUrl(baseUrl);
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
     try {
-      const response = await fetch(`${url}/index.html`, { method: 'GET' });
+      const response = await fetch(probeUrl, { method: 'GET' });
       if (response.ok) {
         return;
       }
@@ -31,12 +44,13 @@ async function waitForServer(url, timeoutMs = 45000) {
     }
     await wait(500);
   }
-  throw new Error(`Timed out waiting for Cypress baseUrl: ${url}`);
+  throw new Error(`Timed out waiting for Cypress baseUrl: ${baseUrl}`);
 }
 
-async function isServerReachable(url) {
+async function isServerReachable(baseUrl) {
+  const probeUrl = resolveLocalProbeUrl(baseUrl);
   try {
-    const response = await fetch(`${url}/index.html`, { method: 'GET' });
+    const response = await fetch(probeUrl, { method: 'GET' });
     return response.ok;
   } catch {
     return false;

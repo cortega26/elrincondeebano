@@ -51,7 +51,7 @@ def _palette_for_slug(slug: str) -> Tuple[str, str]:
     normalized = (slug or "").strip().lower()
     if normalized in _PALETTE_OVERRIDES:
         return _PALETTE_OVERRIDES[normalized]
-    digest = hashlib.sha1(slug.encode("utf-8")).hexdigest()
+    digest = hashlib.sha256(slug.encode("utf-8")).hexdigest()
     idx = int(digest[:8], 16) % len(_PALETTE)
     return _PALETTE[idx]
 

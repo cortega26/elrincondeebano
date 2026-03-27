@@ -98,11 +98,25 @@ export function assertSupportedOgImageUrl(value, label) {
   }
 }
 
-async function fetchWithTimeout(url, timeoutMs) {
+function normalizeFetchTarget(rawUrl) {
+  let parsed;
+  try {
+    parsed = rawUrl instanceof URL ? new URL(rawUrl.toString()) : new URL(String(rawUrl));
+  } catch {
+    fail(`Fetch target must be an absolute URL: ${String(rawUrl)}`);
+  }
+  if (parsed.protocol !== 'https:') {
+    fail(`Fetch target must use HTTPS: ${parsed.toString()}`);
+  }
+  return parsed;
+}
+
+async function fetchWithTimeout(rawUrl, timeoutMs) {
+  const targetUrl = normalizeFetchTarget(rawUrl);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    return await fetch(url, {
+    return await fetch(targetUrl, {
       signal: controller.signal,
       headers: {
         'cache-control': 'no-cache',

@@ -31,7 +31,8 @@ test('inspectSecurityHeaders accepts the documented edge baseline', async () => 
 test('inspectSecurityHeaders rejects drifted CSP and frame policy values', async () => {
   const { inspectSecurityHeaders } = await loadModule();
   const headers = new Headers({
-    'content-security-policy': "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; form-action 'self'; upgrade-insecure-requests",
+    'content-security-policy':
+      'default-src \'self\'; base-uri \'self\'; object-src \'none\'; frame-ancestors \'self\'; script-src \'self\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' data: https:; font-src \'self\' data:; connect-src \'self\'; manifest-src \'self\'; worker-src \'self\'; form-action \'self\'; upgrade-insecure-requests',
     'referrer-policy': 'no-referrer',
     'x-content-type-options': 'nosniff',
     'x-frame-options': 'SAMEORIGIN',

@@ -10,7 +10,6 @@ const MAX_RECENT_ORDERS = 6;
 const MAX_PERSONALIZED_ITEMS = 4;
 const WHATSAPP_NUMBER = '56951118901';
 const CATALOG_PAGE_SIZE = 24;
-const storefrontExperience = readStorefrontExperience();
 
 if (typeof window !== 'undefined') {
   globalThis.__APP_READY__ = false;
@@ -117,19 +116,6 @@ function createElement(tagName, { className = '', text = '', attrs = {} } = {}) 
     }
   });
   return element;
-}
-
-function readStorefrontExperience() {
-  const element = document.getElementById('storefront-experience-data');
-  if (!(element instanceof HTMLScriptElement)) {
-    return {};
-  }
-
-  try {
-    return JSON.parse(element.textContent || '{}');
-  } catch {
-    return {};
-  }
 }
 
 function loadStoredJson(key, fallback) {
@@ -344,22 +330,6 @@ function getProductByIdFromSource(id) {
   return getProductFromCard(
     getSourceProductCards().find((card) => normalizeId(card.dataset.productId) === id)
   );
-}
-
-function findProductIdByReference(reference) {
-  if (!reference || typeof reference !== 'object') {
-    return '';
-  }
-  const targetCategory = normalizeSearchText(reference.category);
-  const targetName = normalizeSearchText(reference.name);
-
-  const match = getSourceProductCards().find((card) => {
-    const category = normalizeSearchText(card.dataset.productCategory || '');
-    const name = normalizeSearchText(card.dataset.productName || '');
-    return category === targetCategory && name === targetName;
-  });
-
-  return match ? normalizeId(match.dataset.productId) : '';
 }
 
 function getCartState(cart) {

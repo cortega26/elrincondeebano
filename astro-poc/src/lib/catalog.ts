@@ -305,26 +305,23 @@ export function getProductsByReferences(references: ProductReference[]): Product
   return resolved;
 }
 
-export function getHomePrimaryCategories(): NavGroup['categories'] {
+function resolveHomeCategories(categoryKeys: string[]): NavGroup['categories'] {
   const categories = getNavigationGroups().flatMap((group) => group.categories || []);
   const byKey = new Map(
     categories.map((category) => [normalizeCategoryToken(category.key), category])
   );
 
-  return storefrontExperience.home.primaryCategories
+  return categoryKeys
     .map((categoryKey) => byKey.get(normalizeCategoryToken(categoryKey)))
     .filter(Boolean) as NavGroup['categories'];
 }
 
-export function getHomeSecondaryCategories(): NavGroup['categories'] {
-  const categories = getNavigationGroups().flatMap((group) => group.categories || []);
-  const byKey = new Map(
-    categories.map((category) => [normalizeCategoryToken(category.key), category])
-  );
+export function getHomePrimaryCategories(): NavGroup['categories'] {
+  return resolveHomeCategories(storefrontExperience.home.primaryCategories);
+}
 
-  return storefrontExperience.home.secondaryCategories
-    .map((categoryKey) => byKey.get(normalizeCategoryToken(categoryKey)))
-    .filter(Boolean) as NavGroup['categories'];
+export function getHomeSecondaryCategories(): NavGroup['categories'] {
+  return resolveHomeCategories(storefrontExperience.home.secondaryCategories);
 }
 
 export function getHomepageCatalogProducts(): ProductWithSku[] {

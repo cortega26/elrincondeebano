@@ -15,7 +15,7 @@ const API_SECURITY_HEADERS = Object.freeze({
   'cache-control': 'no-store',
   pragma: 'no-cache',
   'content-security-policy':
-    "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
+    'default-src \'none\'; frame-ancestors \'none\'; base-uri \'none\'; form-action \'none\'',
 });
 const SENSITIVE_KEY_PATTERN =
   /(authorization|cookie|token|secret|password|api[-_]?key|session|credential)/i;
