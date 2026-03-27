@@ -57,10 +57,14 @@ export function normalizeAssetPath(raw) {
 }
 
 async function fetchWithTimeout(url, timeoutMs) {
+  const targetUrl = url instanceof URL ? new URL(url.toString()) : new URL(String(url));
+  if (targetUrl.protocol !== 'https:') {
+    throw new Error(`Probe target must use HTTPS: ${targetUrl.toString()}`);
+  }
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const response = await fetch(url, {
+    const response = await fetch(targetUrl, {
       signal: controller.signal,
       redirect: 'follow',
       headers: {

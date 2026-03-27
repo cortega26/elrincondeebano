@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import shutil
-import subprocess
+import subprocess  # nosec B404 - controlled local helper invocation for image rendering
 from pathlib import Path
 
 
@@ -46,12 +46,13 @@ def render_svg_to_jpg(
         str(height),
         str(quality),
     ]
-    process = subprocess.run(  # noqa: S603
+    process = subprocess.run(  # noqa: S603 # nosec B603 - fixed argv list, shell disabled
         command,
         cwd=str(repo_root),
         capture_output=True,
         text=True,
         check=False,
+        shell=False,
     )
     if process.returncode != 0:
         raise RenderError(
@@ -86,12 +87,13 @@ def render_raster_to_jpg(
         str(height),
         str(quality),
     ]
-    process = subprocess.run(  # noqa: S603
+    process = subprocess.run(  # noqa: S603 # nosec B603 - fixed argv list, shell disabled
         command,
         cwd=str(repo_root),
         capture_output=True,
         text=True,
         check=False,
+        shell=False,
     )
     if process.returncode != 0:
         raise RenderError(

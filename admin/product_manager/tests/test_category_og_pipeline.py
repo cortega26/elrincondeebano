@@ -122,10 +122,10 @@ def test_ensure_category_assets_is_idempotent(tmp_path: Path, monkeypatch) -> No
     first = pipeline.ensure_category_assets("bebidas", title="Bebidas", repo_root=repo_root)
     second = pipeline.ensure_category_assets("bebidas", title="Bebidas", repo_root=repo_root)
 
-    assert first["svg_changed"] is True
-    assert first["jpg_changed"] is True
-    assert second["svg_changed"] is False
-    assert second["jpg_changed"] is False
+    assert first["svg_changed"] is True  # nosec B101 - pytest assertion
+    assert first["jpg_changed"] is True  # nosec B101 - pytest assertion
+    assert second["svg_changed"] is False  # nosec B101 - pytest assertion
+    assert second["jpg_changed"] is False  # nosec B101 - pytest assertion
 
 
 def test_sync_creates_missing_and_deletes_orphans(tmp_path: Path, monkeypatch) -> None:
@@ -139,20 +139,20 @@ def test_sync_creates_missing_and_deletes_orphans(tmp_path: Path, monkeypatch) -
     (category_dir / "bebidas.jpg").write_bytes(b"legacy")
 
     first = pipeline.sync_category_assets(repo_root=repo_root)
-    assert first["changed"] is True
+    assert first["changed"] is True  # nosec B101 - pytest assertion
     removed_paths = "\n".join(first["removed"])
-    assert "orphan.svg" in removed_paths
-    assert "orphan.jpg" in removed_paths
+    assert "orphan.svg" in removed_paths  # nosec B101 - pytest assertion
+    assert "orphan.jpg" in removed_paths  # nosec B101 - pytest assertion
 
-    assert (category_dir / "bebidas.svg").exists()
-    assert (category_dir / f"bebidas.og_{TEMPLATE_VERSION}.jpg").exists()
-    assert not (category_dir / "bebidas.jpg").exists()
-    assert (category_dir / "vinos.svg").exists()
-    assert (category_dir / f"vinos.og_{TEMPLATE_VERSION}.jpg").exists()
-    assert (category_dir / ".og_manifest.json").exists()
+    assert (category_dir / "bebidas.svg").exists()  # nosec B101 - pytest assertion
+    assert (category_dir / f"bebidas.og_{TEMPLATE_VERSION}.jpg").exists()  # nosec B101
+    assert not (category_dir / "bebidas.jpg").exists()  # nosec B101 - pytest assertion
+    assert (category_dir / "vinos.svg").exists()  # nosec B101 - pytest assertion
+    assert (category_dir / f"vinos.og_{TEMPLATE_VERSION}.jpg").exists()  # nosec B101
+    assert (category_dir / ".og_manifest.json").exists()  # nosec B101 - pytest assertion
 
     second = pipeline.sync_category_assets(repo_root=repo_root)
-    assert second["changed"] is False
+    assert second["changed"] is False  # nosec B101 - pytest assertion
 
 
 def test_ensure_category_assets_prefers_override_raster_for_jpg_output(
@@ -167,5 +167,5 @@ def test_ensure_category_assets_prefers_override_raster_for_jpg_output(
     result = pipeline.ensure_category_assets("bebidas", title="Bebidas", repo_root=repo_root)
 
     jpg_path = Path(result["jpg"])
-    assert jpg_path.read_bytes() == b"FAKERASTER:OVERRIDEPNG"
-    assert result["override_raster"] == str((category_dir / "bebidas.override.png"))
+    assert jpg_path.read_bytes() == b"FAKERASTER:OVERRIDEPNG"  # nosec B101 - pytest assertion
+    assert result["override_raster"] == str((category_dir / "bebidas.override.png"))  # nosec B101

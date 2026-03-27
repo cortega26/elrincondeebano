@@ -1,4 +1,7 @@
 export const SECURITY_HEADER_BASELINE_ROUTES = Object.freeze(['/', '/pages/bebidas.html']);
+const CSP_SELF = "'self'";
+const CSP_NONE = "'none'";
+const CSP_UNSAFE_INLINE = "'unsafe-inline'";
 
 export const SECURITY_HEADER_POLICY = Object.freeze({
   'referrer-policy': 'strict-origin-when-cross-origin',
@@ -9,18 +12,18 @@ export const SECURITY_HEADER_POLICY = Object.freeze({
 });
 
 export const CONTENT_SECURITY_POLICY_DIRECTIVES = Object.freeze([
-  ['default-src', ["'self'"]],
-  ['base-uri', ["'self'"]],
-  ['object-src', ["'none'"]],
-  ['frame-ancestors', ["'none'"]],
-  ['script-src', ["'self'", 'https://cdn.jsdelivr.net']],
-  ['style-src', ["'self'", "'unsafe-inline'", 'https://cdn.jsdelivr.net']],
-  ['img-src', ["'self'", 'data:', 'https:']],
-  ['font-src', ["'self'", 'data:', 'https://cdn.jsdelivr.net']],
-  ['connect-src', ["'self'"]],
-  ['manifest-src', ["'self'"]],
-  ['worker-src', ["'self'"]],
-  ['form-action', ["'self'"]],
+  ['default-src', [CSP_SELF]],
+  ['base-uri', [CSP_SELF]],
+  ['object-src', [CSP_NONE]],
+  ['frame-ancestors', [CSP_NONE]],
+  ['script-src', [CSP_SELF, 'https://cdn.jsdelivr.net']],
+  ['style-src', [CSP_SELF, CSP_UNSAFE_INLINE, 'https://cdn.jsdelivr.net']],
+  ['img-src', [CSP_SELF, 'data:', 'https:']],
+  ['font-src', [CSP_SELF, 'data:', 'https://cdn.jsdelivr.net']],
+  ['connect-src', [CSP_SELF]],
+  ['manifest-src', [CSP_SELF]],
+  ['worker-src', [CSP_SELF]],
+  ['form-action', [CSP_SELF]],
   ['upgrade-insecure-requests', []],
 ]);
 

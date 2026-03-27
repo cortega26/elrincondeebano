@@ -103,7 +103,7 @@ test('runCanary validates homepage/category/og/data/service-worker paths', async
       }
       if (target.endsWith('/sitemap.xml')) {
         return new Response(
-          `<?xml version="1.0" encoding="UTF-8"?><urlset><url><loc>https://www.elrincondeebano.com/bebidas/</loc></url></urlset>`,
+          '<?xml version="1.0" encoding="UTF-8"?><urlset><url><loc>https://www.elrincondeebano.com/bebidas/</loc></url></urlset>',
           { status: 200, headers: { 'content-type': 'application/xml' } }
         );
       }

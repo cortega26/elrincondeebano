@@ -13,6 +13,7 @@ from enum import Enum, auto
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     Dict,
     List,
     Optional,
@@ -288,9 +289,12 @@ class ProductService:
 
         resolved_key = None
         resolver = getattr(self.category_service, "resolve_category_key", None)
-        if callable(resolver):
+        typed_resolver: Optional[Callable[[str], Optional[str]]] = (
+            resolver if callable(resolver) else None
+        )
+        if typed_resolver is not None:
             try:
-                resolved_key = resolver(cleaned)
+                resolved_key = typed_resolver(cleaned)
             except Exception:  # pylint: disable=broad-exception-caught
                 resolved_key = None
 
