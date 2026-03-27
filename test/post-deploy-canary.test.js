@@ -44,6 +44,10 @@ test('normalizeBaseUrl requires https and strips trailing slash', async () => {
     'https://www.elrincondeebano.com'
   );
   assert.throws(() => normalizeBaseUrl('http://elrincondeebano.com'), /must use HTTPS/);
+  assert.throws(
+    () => normalizeBaseUrl('https://example.com'),
+    /must target an allowlisted host/
+  );
 });
 
 test('extractMetaContent and assertOgContract validate required OG tags', async () => {
@@ -158,10 +162,19 @@ test('runCanary fails when homepage does not expose WhatsApp flow', async () => 
     async (url) => {
       const target = String(url);
       if (target.endsWith('/')) {
-        return new Response(makeHtml({ withWhatsapp: false }), {
-          status: 200,
-          headers: { 'content-type': 'text/html; charset=utf-8' },
-        });
+        return new Response(
+          makeHtml({
+            ogImage: 'https://www.elrincondeebano.com/assets/images/og/home.jpg',
+            withWhatsapp: false,
+          }),
+          {
+            status: 200,
+            headers: { 'content-type': 'text/html; charset=utf-8' },
+          }
+        );
+      }
+      if (target.endsWith('/assets/images/og/home.jpg')) {
+        return new Response('img', { status: 200, headers: { 'content-type': 'image/jpeg' } });
       }
       return new Response('not found', { status: 404 });
     },
@@ -198,6 +211,35 @@ test('runCanary fails when og:image uses an unsupported WebP asset', async () =>
       await assert.rejects(
         () => runCanary({ baseUrl: 'https://www.elrincondeebano.com' }),
         /must use JPG or PNG/
+      );
+    }
+  );
+});
+
+test('runCanary fails when og:image points to a foreign origin', async () => {
+  const { runCanary } = await loadModule();
+  await withMockedFetch(
+    async (url) => {
+      const target = String(url);
+      if (target.endsWith('/')) {
+        return new Response(
+          makeHtml({
+            title: 'Home',
+            ogImage: 'https://elrincondeebano.com/assets/images/og/home.jpg',
+            withWhatsapp: true,
+          }),
+          {
+            status: 200,
+            headers: { 'content-type': 'text/html; charset=utf-8' },
+          }
+        );
+      }
+      return new Response('not found', { status: 404 });
+    },
+    async () => {
+      await assert.rejects(
+        () => runCanary({ baseUrl: 'https://www.elrincondeebano.com' }),
+        /must stay on the canary origin/
       );
     }
   );

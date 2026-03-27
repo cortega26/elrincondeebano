@@ -6,7 +6,8 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
-const baseUrl = 'http://127.0.0.1:4173';
+const DEFAULT_BASE_URL = 'http://127.0.0.1:4173';
+const LOCAL_HOSTS = new Set(['127.0.0.1', 'localhost', '::1']);
 
 function sanitizeEnv() {
   const env = { ...process.env, PORT: '4173' };
@@ -18,24 +19,44 @@ function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function resolveLocalProbeUrl(baseUrl) {
+export function resolveLocalProbeTarget(baseUrl, pathname = '/index.html') {
   const parsed = new URL(String(baseUrl));
-  const localHosts = new Set(['127.0.0.1', 'localhost', '::1']);
   if (!['http:', 'https:'].includes(parsed.protocol)) {
     throw new Error(`Unsupported Cypress baseUrl protocol: ${parsed.toString()}`);
   }
-  if (!localHosts.has(parsed.hostname)) {
+  if (!LOCAL_HOSTS.has(parsed.hostname)) {
     throw new Error(`Cypress baseUrl must point to a loopback host: ${parsed.toString()}`);
   }
-  return new URL('/index.html', parsed);
+  if (parsed.username || parsed.password) {
+    throw new Error(`Cypress baseUrl must not include credentials: ${parsed.toString()}`);
+  }
+
+  const normalizedPath = String(pathname || '').trim() || '/';
+  return {
+    protocol: parsed.protocol,
+    hostname: parsed.hostname,
+    port: parsed.port,
+    pathname: normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`,
+  };
+}
+
+function buildLocalProbeUrl(target) {
+  const hostname = target.hostname.includes(':') ? `[${target.hostname}]` : target.hostname;
+  const port = target.port ? `:${target.port}` : '';
+  return new URL(`${target.protocol}//${hostname}${port}${target.pathname}`);
+}
+
+async function fetchLocalProbe(baseUrl, pathname = '/index.html') {
+  const target = resolveLocalProbeTarget(baseUrl, pathname);
+  const probeUrl = buildLocalProbeUrl(target);
+  return fetch(probeUrl, { method: 'GET' });
 }
 
 async function waitForServer(baseUrl, timeoutMs = 45000) {
-  const probeUrl = resolveLocalProbeUrl(baseUrl);
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
     try {
-      const response = await fetch(probeUrl, { method: 'GET' });
+      const response = await fetchLocalProbe(baseUrl);
       if (response.ok) {
         return;
       }
@@ -48,9 +69,8 @@ async function waitForServer(baseUrl, timeoutMs = 45000) {
 }
 
 async function isServerReachable(baseUrl) {
-  const probeUrl = resolveLocalProbeUrl(baseUrl);
   try {
-    const response = await fetch(probeUrl, { method: 'GET' });
+    const response = await fetchLocalProbe(baseUrl);
     return response.ok;
   } catch {
     return false;
@@ -74,7 +94,7 @@ function runCypress(env, extraArgs = []) {
 async function main() {
   const env = sanitizeEnv();
   let server = null;
-  const serverAlreadyRunning = await isServerReachable(baseUrl);
+  const serverAlreadyRunning = await isServerReachable(DEFAULT_BASE_URL);
 
   if (!serverAlreadyRunning) {
     server = spawn(process.execPath, [path.join(rootDir, 'scripts', 'dev-server.mjs'), 'build'], {
@@ -87,7 +107,7 @@ async function main() {
   const exitCode = await (async () => {
     try {
       if (!serverAlreadyRunning) {
-        await waitForServer(baseUrl);
+        await waitForServer(DEFAULT_BASE_URL);
       }
       const extraArgs = process.argv.slice(2);
       return await runCypress(env, extraArgs);
@@ -101,7 +121,10 @@ async function main() {
   process.exit(exitCode);
 }
 
-main().catch((error) => {
-  console.error(error?.message || error);
-  process.exit(1);
-});
+const isDirectRun = process.argv[1] === fileURLToPath(import.meta.url);
+if (isDirectRun) {
+  main().catch((error) => {
+    console.error(error?.message || error);
+    process.exit(1);
+  });
+}

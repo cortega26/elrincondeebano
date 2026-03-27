@@ -6,8 +6,25 @@ import {
   inspectSecurityHeaders,
 } from './security-header-policy.mjs';
 
+const ALLOWED_CANARY_HOSTS = new Set(['www.elrincondeebano.com', 'elrincondeebano.com']);
+
 function fail(message) {
   throw new Error(message);
+}
+
+function assertAllowedCanaryUrl(parsed, label) {
+  if (!(parsed instanceof URL)) {
+    fail(`${label} must be a URL instance.`);
+  }
+  if (parsed.protocol !== 'https:') {
+    fail(`${label} must use HTTPS: ${parsed.toString()}`);
+  }
+  if (parsed.username || parsed.password) {
+    fail(`${label} must not include credentials: ${parsed.toString()}`);
+  }
+  if (!ALLOWED_CANARY_HOSTS.has(parsed.hostname)) {
+    fail(`${label} must target an allowlisted host: ${parsed.toString()}`);
+  }
 }
 
 export function normalizeBaseUrl(raw) {
@@ -20,9 +37,7 @@ export function normalizeBaseUrl(raw) {
   } catch {
     fail(`Invalid base URL: ${raw}`);
   }
-  if (parsed.protocol !== 'https:') {
-    fail(`Base URL must use HTTPS: ${parsed.toString()}`);
-  }
+  assertAllowedCanaryUrl(parsed, 'Base URL');
   parsed.pathname = '';
   parsed.search = '';
   parsed.hash = '';
@@ -78,15 +93,18 @@ export function extractCategoryPathFromSitemap(xml) {
   return matches.sort()[0] || null;
 }
 
-function ensureAbsoluteHttpsUrl(value, label) {
+function ensureAbsoluteSameOriginHttpsUrl(value, label, baseUrl) {
   let parsed;
   try {
     parsed = new URL(value);
   } catch {
     fail(`${label} must be an absolute URL: ${value}`);
   }
-  if (parsed.protocol !== 'https:') {
-    fail(`${label} must use HTTPS: ${value}`);
+  assertAllowedCanaryUrl(parsed, label);
+
+  const normalizedBaseUrl = normalizeBaseUrl(baseUrl);
+  if (parsed.origin !== normalizedBaseUrl) {
+    fail(`${label} must stay on the canary origin: ${parsed.toString()}`);
   }
   return parsed.toString();
 }
@@ -98,21 +116,24 @@ export function assertSupportedOgImageUrl(value, label) {
   }
 }
 
-function normalizeFetchTarget(rawUrl) {
+function normalizeFetchTarget(rawUrl, baseUrl, label = 'Fetch target') {
   let parsed;
   try {
     parsed = rawUrl instanceof URL ? new URL(rawUrl.toString()) : new URL(String(rawUrl));
   } catch {
     fail(`Fetch target must be an absolute URL: ${String(rawUrl)}`);
   }
-  if (parsed.protocol !== 'https:') {
-    fail(`Fetch target must use HTTPS: ${parsed.toString()}`);
+  assertAllowedCanaryUrl(parsed, label);
+
+  const normalizedBaseUrl = normalizeBaseUrl(baseUrl);
+  if (parsed.origin !== normalizedBaseUrl) {
+    fail(`${label} must stay on the canary origin: ${parsed.toString()}`);
   }
   return parsed;
 }
 
-async function fetchWithTimeout(rawUrl, timeoutMs) {
-  const targetUrl = normalizeFetchTarget(rawUrl);
+async function fetchWithTimeout(rawUrl, baseUrl, timeoutMs, label) {
+  const targetUrl = normalizeFetchTarget(rawUrl, baseUrl, label);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -127,8 +148,8 @@ async function fetchWithTimeout(rawUrl, timeoutMs) {
   }
 }
 
-async function assertHttpOk(url, label, timeoutMs) {
-  const response = await fetchWithTimeout(url, timeoutMs);
+async function assertHttpOk(baseUrl, url, label, timeoutMs) {
+  const response = await fetchWithTimeout(url, baseUrl, timeoutMs, label);
   if (!response.ok) {
     let snippet;
     try {
@@ -148,8 +169,8 @@ async function assertHttpOk(url, label, timeoutMs) {
   return response;
 }
 
-async function probeSecurityHeaders({ url, label, timeoutMs, requireSecurityHeaders = false }) {
-  const response = await assertHttpOk(url, label, timeoutMs);
+async function probeSecurityHeaders({ baseUrl, url, label, timeoutMs, requireSecurityHeaders = false }) {
+  const response = await assertHttpOk(baseUrl, url, label, timeoutMs);
   const securityHeaders = inspectSecurityHeaders(response.headers);
   if (requireSecurityHeaders && !securityHeaders.ok) {
     fail(formatSecurityHeaderFailure(label, securityHeaders));
@@ -171,12 +192,12 @@ function ensureWhatsAppPresence(html, pageLabel) {
   }
 }
 
-async function verifyPage({ url, label, timeoutMs, ensureWhatsapp = false }) {
-  const response = await assertHttpOk(url, label, timeoutMs);
+async function verifyPage({ baseUrl, url, label, timeoutMs, ensureWhatsapp = false }) {
+  const response = await assertHttpOk(baseUrl, url, label, timeoutMs);
   const html = await response.text();
   assertOgContract(html, label);
   const ogImage = extractMetaContent(html, 'property', 'og:image');
-  const absoluteOgImage = ensureAbsoluteHttpsUrl(ogImage, `${label} og:image`);
+  const absoluteOgImage = ensureAbsoluteSameOriginHttpsUrl(ogImage, `${label} og:image`, baseUrl);
   assertSupportedOgImageUrl(absoluteOgImage, `${label} og:image`);
   const width = extractMetaContent(html, 'property', 'og:image:width');
   const height = extractMetaContent(html, 'property', 'og:image:height');
@@ -190,7 +211,7 @@ async function verifyPage({ url, label, timeoutMs, ensureWhatsapp = false }) {
     ensureWhatsAppPresence(html, label);
   }
 
-  const imageResponse = await assertHttpOk(absoluteOgImage, `${label} og:image`, timeoutMs);
+  const imageResponse = await assertHttpOk(baseUrl, absoluteOgImage, `${label} og:image`, timeoutMs);
   const contentType = imageResponse.headers.get('content-type') || '';
   if (!/^image\/(?:jpeg|png)\b/i.test(contentType)) {
     fail(`${label} og:image returned unsupported content type for WhatsApp: ${contentType}`);
@@ -224,6 +245,7 @@ export async function runCanary({
 
   const homepageUrl = `${normalizedBase}/`;
   const homepage = await verifyPage({
+    baseUrl: normalizedBase,
     url: homepageUrl,
     label: 'Homepage',
     timeoutMs,
@@ -234,6 +256,7 @@ export async function runCanary({
   const securityHeaderTargets = [];
   securityHeaderTargets.push(
     await probeSecurityHeaders({
+      baseUrl: normalizedBase,
       url: homepageUrl,
       label: 'Homepage security headers',
       timeoutMs,
@@ -242,6 +265,7 @@ export async function runCanary({
   );
   securityHeaderTargets.push(
     await probeSecurityHeaders({
+      baseUrl: normalizedBase,
       url: `${normalizedBase}/pages/bebidas.html`,
       label: 'Legacy category security headers',
       timeoutMs,
@@ -260,7 +284,12 @@ export async function runCanary({
   );
 
   const productDataUrl = `${normalizedBase}/data/product_data.json`;
-  const productDataResponse = await assertHttpOk(productDataUrl, 'Product data', timeoutMs);
+  const productDataResponse = await assertHttpOk(
+    normalizedBase,
+    productDataUrl,
+    'Product data',
+    timeoutMs
+  );
   const productPayload = await productDataResponse.json();
   if (!Array.isArray(productPayload?.products) || productPayload.products.length === 0) {
     fail('Product data endpoint returned empty or invalid products payload.');
@@ -273,7 +302,7 @@ export async function runCanary({
   );
 
   const serviceWorkerUrl = `${normalizedBase}/service-worker.js`;
-  await assertHttpOk(serviceWorkerUrl, 'Service worker', timeoutMs);
+  await assertHttpOk(normalizedBase, serviceWorkerUrl, 'Service worker', timeoutMs);
   checks.push(
     summarizeCheck('service-worker', 'pass', {
       url: serviceWorkerUrl,
@@ -283,12 +312,13 @@ export async function runCanary({
   let categoryPagePath = categoryPath ? normalizePathname(categoryPath) : '';
   if (!categoryPagePath) {
     const sitemapUrl = `${normalizedBase}/sitemap.xml`;
-    const sitemapResponse = await assertHttpOk(sitemapUrl, 'Sitemap', timeoutMs);
+    const sitemapResponse = await assertHttpOk(normalizedBase, sitemapUrl, 'Sitemap', timeoutMs);
     const sitemap = await sitemapResponse.text();
     categoryPagePath = extractCategoryPathFromSitemap(sitemap) || '/cervezas/';
   }
   const categoryUrl = `${normalizedBase}${categoryPagePath}`;
   const category = await verifyPage({
+    baseUrl: normalizedBase,
     url: categoryUrl,
     label: 'Category page',
     timeoutMs,
