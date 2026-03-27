@@ -57,6 +57,7 @@ const tests = [
   'cloudflare-edge-security-worker.test.js',
   'post-deploy-canary.test.js',
   'live-contract-monitor.test.js',
+  'run-cypress.test.js',
   'tools.staticServer.security.test.js',
   'product-sync.server.test.js',
   'httpServer.securityHeaders.test.js',

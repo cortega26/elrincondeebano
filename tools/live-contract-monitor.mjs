@@ -11,6 +11,7 @@ import {
 const DEFAULT_BASE_URL = 'https://www.elrincondeebano.com';
 const DEFAULT_TIMEOUT_MS = 15000;
 const DEFAULT_SAMPLE_SIZE = 20;
+const ALLOWED_PROBE_HOSTS = new Set(['www.elrincondeebano.com', 'elrincondeebano.com']);
 
 const KEY_ROUTES = [
   '/',
@@ -26,12 +27,25 @@ const KEY_ROUTES = [
 
 const PRODUCT_ASSET_FIELDS = ['image_path', 'image_avif_path', 'thumbnail_path'];
 
+function assertAllowedProbeUrl(parsed, label) {
+  if (!(parsed instanceof URL)) {
+    throw new Error(`${label} must be a URL instance.`);
+  }
+  if (parsed.protocol !== 'https:') {
+    throw new Error(`${label} must use HTTPS: ${parsed.toString()}`);
+  }
+  if (parsed.username || parsed.password) {
+    throw new Error(`${label} must not include credentials: ${parsed.toString()}`);
+  }
+  if (!ALLOWED_PROBE_HOSTS.has(parsed.hostname)) {
+    throw new Error(`${label} must target an allowlisted host: ${parsed.toString()}`);
+  }
+}
+
 export function normalizeBaseUrl(rawBaseUrl = DEFAULT_BASE_URL) {
   const candidate = typeof rawBaseUrl === 'string' && rawBaseUrl.trim() ? rawBaseUrl.trim() : DEFAULT_BASE_URL;
   const parsed = new URL(candidate);
-  if (parsed.protocol !== 'https:') {
-    throw new Error(`Base URL must use HTTPS: ${candidate}`);
-  }
+  assertAllowedProbeUrl(parsed, 'Base URL');
   parsed.pathname = '';
   parsed.search = '';
   parsed.hash = '';
@@ -58,9 +72,7 @@ export function normalizeAssetPath(raw) {
 
 async function fetchWithTimeout(url, timeoutMs) {
   const targetUrl = url instanceof URL ? new URL(url.toString()) : new URL(String(url));
-  if (targetUrl.protocol !== 'https:') {
-    throw new Error(`Probe target must use HTTPS: ${targetUrl.toString()}`);
-  }
+  assertAllowedProbeUrl(targetUrl, 'Probe target');
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -91,6 +103,7 @@ export function resolveProbeUrl(baseUrl, routeOrPath) {
   }
 
   const base = new URL(`${baseUrl}/`);
+  assertAllowedProbeUrl(base, 'Base URL');
   const candidate = new URL(normalized.startsWith('/') ? normalized : `/${normalized}`, base);
   if (candidate.origin !== base.origin) {
     throw new Error(`Cross-origin probe blocked: ${candidate.toString()}`);

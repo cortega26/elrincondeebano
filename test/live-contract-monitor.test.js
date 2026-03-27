@@ -17,6 +17,31 @@ function withMockedFetch(mockImpl, fn) {
     });
 }
 
+test('normalizeBaseUrl rejects non-allowlisted hosts', async () => {
+  const { normalizeBaseUrl } = await loadModule();
+  assert.equal(
+    normalizeBaseUrl('https://www.elrincondeebano.com/'),
+    'https://www.elrincondeebano.com'
+  );
+  assert.throws(() => normalizeBaseUrl('https://example.com'), /allowlisted host/);
+});
+
+test('resolveProbeUrl blocks absolute and traversal probe targets', async () => {
+  const { resolveProbeUrl } = await loadModule();
+  assert.equal(
+    resolveProbeUrl('https://www.elrincondeebano.com', '/pages/bebidas.html').toString(),
+    'https://www.elrincondeebano.com/pages/bebidas.html'
+  );
+  assert.throws(
+    () => resolveProbeUrl('https://www.elrincondeebano.com', 'https://example.com/evil'),
+    /Absolute URLs are not allowed/
+  );
+  assert.throws(
+    () => resolveProbeUrl('https://www.elrincondeebano.com', '/../secrets'),
+    /Path traversal is not allowed/
+  );
+});
+
 test('runMonitor records security header failures without failing when strict mode is disabled', async () => {
   const { runMonitor } = await loadModule();
 
