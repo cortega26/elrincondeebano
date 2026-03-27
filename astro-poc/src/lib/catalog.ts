@@ -1,6 +1,7 @@
 import rawProducts from '../data/products.json';
 import rawCategories from '../data/categories.json';
 import rawStorefrontExperience from '../data/storefront-experience.json';
+import rawStorefrontBundles from '../data/storefront-bundles.json';
 
 export type ProductRecord = {
   name: string;
@@ -110,7 +111,10 @@ const PLACEHOLDER_IMAGE_URL = `${SITE_ORIGIN}/assets/images/web/placeholder.svg`
 
 const catalog = rawProducts as ProductCatalog;
 const categoryRegistry = rawCategories as CategoryRegistry;
-const storefrontExperience = rawStorefrontExperience as StorefrontExperience;
+const storefrontExperience = {
+  ...(rawStorefrontExperience as Omit<StorefrontExperience, 'bundles'>),
+  bundles: rawStorefrontBundles as StorefrontBundleRecord[],
+} as StorefrontExperience;
 let cachedProductsWithSku: ProductWithSku[] | null = null;
 let cachedCategoryIndexes: {
   byKey: Map<string, CategoryRecord>;

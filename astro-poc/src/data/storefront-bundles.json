@@ -1,0 +1,71 @@
+[
+  {
+    "id": "basicos-del-dia",
+    "title": "Básicos del día",
+    "description": "Un combo rápido para resolver despensa, bebida y limpieza en una sola pasada.",
+    "items": [
+      {
+        "category": "Despensa",
+        "name": "Mont Blanc • Harina sin polvos"
+      },
+      {
+        "category": "Bebidas",
+        "name": "Coca-Cola 2L"
+      },
+      {
+        "category": "Lacteos",
+        "name": "Leche Entera"
+      },
+      {
+        "category": "Limpiezayaseo",
+        "name": "Toalla Papel Nova Clásica"
+      }
+    ]
+  },
+  {
+    "id": "desayuno-rapido",
+    "title": "Desayuno rápido",
+    "description": "Lo justo para partir la mañana sin armar el pedido pieza por pieza.",
+    "items": [
+      {
+        "category": "Lacteos",
+        "name": "Leche Entera"
+      },
+      {
+        "category": "Despensa",
+        "name": "Nescafé • Café Dolca"
+      },
+      {
+        "category": "Despensa",
+        "name": "Iansa • Azúcar Blanca"
+      },
+      {
+        "category": "Lacteos",
+        "name": "Queso Gauda La Vaquita"
+      }
+    ]
+  },
+  {
+    "id": "noche-de-pelis",
+    "title": "Noche de pelis",
+    "description": "Bebida y picoteo listos para pedir en pocos toques.",
+    "items": [
+      {
+        "category": "Bebidas",
+        "name": "Coca-Cola 2L"
+      },
+      {
+        "category": "SnacksDulces",
+        "name": "Nabisco • Galletas Oreo Original"
+      },
+      {
+        "category": "Chocolates",
+        "name": "Hershey's • Chocolate con Leche"
+      },
+      {
+        "category": "SnacksSalados",
+        "name": "Selección • Chips de Plátano Frito"
+      }
+    ]
+  }
+]

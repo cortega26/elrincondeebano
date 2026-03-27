@@ -22,6 +22,7 @@ from ..services import (
 )
 from ..category_service import CategoryService, CategoryServiceError
 from ..category_gui import CategoryManagerDialog
+from ..storefront_service import StorefrontBundleError, StorefrontBundleService
 
 from .components import (
     UIConfig,
@@ -34,6 +35,7 @@ from .utils import CategoryHelper
 from .gallery import GalleryFrame
 from .dialogs import PreferencesDialog, HelpDialog, AboutDialog
 from .product_form import ProductFormDialog
+from .storefront_dialogs import StorefrontBundlesDialog
 
 logger = logging.getLogger(__name__)
 
@@ -84,12 +86,20 @@ class MainWindow(DragDropMixin):
         self._last_window_size: Optional[tuple[int, int]] = None
         self._pending_import_plan: Optional[Dict[str, Any]] = None
         self._pending_import_merge: Optional[Dict[str, bool]] = None
+        self.storefront_bundle_service = self._create_storefront_bundle_service()
 
         self._configure_styles()
         self.setup_gui()
         self.bind_shortcuts()
         # Configure drag & drop after treeview has been created in setup_treeview()
         self.setup_drag_and_drop(self.tree)
+
+    def _create_storefront_bundle_service(self) -> Optional[StorefrontBundleService]:
+        project_root = self.project_root or Path(__file__).resolve().parents[3]
+        bundles_path = (
+            project_root / "astro-poc" / "src" / "data" / "storefront-bundles.json"
+        )
+        return StorefrontBundleService(bundles_path)
 
     def _configure_styles(self) -> None:
         """Configure application styles."""
@@ -365,6 +375,9 @@ class MainWindow(DragDropMixin):
         edit_menu.add_separator()
         edit_menu.add_command(
             label="Gestionar Categorías...", command=self.manage_categories
+        )
+        edit_menu.add_command(
+            label="Gestionar Combos Listos...", command=self.manage_storefront_bundles
         )
         menubar.add_cascade(label="Editar", menu=edit_menu)
 
@@ -1203,6 +1216,27 @@ class MainWindow(DragDropMixin):
             self.refresh_products()
         except CategoryServiceError as exc:
             messagebox.showerror("Error", str(exc))
+
+    def manage_storefront_bundles(self) -> None:
+        """Open the storefront bundles management dialog."""
+        if not self.storefront_bundle_service:
+            messagebox.showinfo(
+                "Combos listos",
+                "La gestión de combos no está disponible en esta instalación.",
+            )
+            return
+        try:
+            products = self.product_service.get_all_products()
+            dialog = StorefrontBundlesDialog(
+                self.master,
+                self.storefront_bundle_service,
+                products,
+                on_saved=lambda: self.update_status("Combos listos actualizados."),
+            )
+        except (ProductServiceError, StorefrontBundleError) as exc:
+            messagebox.showerror("Combos listos", str(exc))
+            return
+        self.master.wait_window(dialog)
 
     def get_product_by_tree_item(self, item: str) -> Optional[Product]:
         """Get Product object from treeview item."""

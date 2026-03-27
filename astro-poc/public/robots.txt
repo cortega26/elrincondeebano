@@ -1,5 +1,4 @@
 User-agent: *
 Disallow: /admin/
 Disallow: /admin-panel/
-Sitemap: https://www.elrincondeebano.com/sitemap.xml
-# Nota: Las cabeceras HTTP como Content-Signals deben configurarse en el servidor; no deben declararse en este archivo.
+Sitemap: https://elrincondeebano.com/sitemap.xml

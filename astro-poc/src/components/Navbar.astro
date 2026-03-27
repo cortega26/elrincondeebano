@@ -105,25 +105,17 @@ const { navGroups } = Astro.props;
       </p>
       <div class="cart-customer-panel">
         <div class="cart-customer-panel__header">
-          <h6>Datos para agilizar la entrega</h6>
-          <p class="mb-0">Se guardan solo en este dispositivo para que tus próximos pedidos salgan más rápido.</p>
+          <h6>Nota opcional para tu pedido</h6>
+          <p class="mb-0">Si necesitas algo puntual, déjalo aquí. Se guarda solo en este dispositivo.</p>
         </div>
         <div class="cart-customer-fields">
           <div>
-            <label class="form-label" for="customer-name">Nombre</label>
-            <input class="form-control" type="text" id="customer-name" autocomplete="name" placeholder="Tu nombre" />
-          </div>
-          <div>
-            <label class="form-label" for="customer-apartment">Depto</label>
-            <input class="form-control" type="text" id="customer-apartment" autocomplete="address-line1" placeholder="Ej. 1204" />
-          </div>
-          <div>
-            <label class="form-label" for="delivery-note">Nota de entrega</label>
+            <label class="form-label" for="delivery-note">Dejar una nota</label>
             <textarea
               class="form-control"
               id="delivery-note"
-              rows="2"
-              placeholder="Ej. tocar timbre, dejar en conserjería, etc."
+              rows="3"
+              placeholder="Ej. si no hay Coca-Cola Zero, cambiar por normal; dejar en conserjería; sumar bolsa, etc."
             ></textarea>
           </div>
         </div>
@@ -151,13 +143,6 @@ const { navGroups } = Astro.props;
           <option value="Reemplazar por algo similar">Reemplazar por algo similar</option>
           <option value="Quitar del pedido">Quitar del pedido</option>
         </select>
-      </div>
-      <div id="cart-suggestions" class="cart-suggestions is-hidden" aria-live="polite">
-        <div class="cart-suggestions__header">
-          <h6>Te puede servir sumar</h6>
-          <p class="mb-0">Sugerencias rápidas para subir el pedido sin complicarlo.</p>
-        </div>
-        <div id="cart-suggestion-items" class="cart-suggestions__items"></div>
       </div>
       <div class="cart-footer-actions">
         <button id="submit-cart" class="btn btn-success cart-submit-btn" disabled aria-disabled="true">Enviar pedido por WhatsApp</button>
