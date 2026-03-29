@@ -14,7 +14,14 @@ test('buildSecurityHeadersPolicy returns the versioned edge baseline', async () 
   assert.equal(policy['referrer-policy'], 'strict-origin-when-cross-origin');
   assert.equal(policy['x-content-type-options'], 'nosniff');
   assert.equal(policy['x-frame-options'], 'DENY');
-  assert.match(policy['content-security-policy'], /script-src 'self' https:\/\/cdn\.jsdelivr\.net/);
+  assert.match(
+    policy['content-security-policy'],
+    /script-src 'self' https:\/\/static\.cloudflareinsights\.com/
+  );
+  assert.match(
+    policy['content-security-policy'],
+    /connect-src 'self' https:\/\/cloudflareinsights\.com https:\/\/static\.cloudflareinsights\.com/
+  );
   assert.match(policy['content-security-policy'], /frame-ancestors 'none'/);
 });
 
@@ -42,7 +49,10 @@ test('inspectSecurityHeaders rejects drifted CSP and frame policy values', async
   const inspection = inspectSecurityHeaders(headers);
   assert.equal(inspection.ok, false);
   assert.match(inspection.invalid.join('\n'), /content-security-policy \(frame-ancestors expected "'none'"\)/);
-  assert.match(inspection.invalid.join('\n'), /content-security-policy \(script-src expected "'self' https:\/\/cdn\.jsdelivr\.net"\)/);
+  assert.match(
+    inspection.invalid.join('\n'),
+    /content-security-policy \(script-src expected "'self' https:\/\/static\.cloudflareinsights\.com"\)/
+  );
   assert.match(inspection.invalid.join('\n'), /referrer-policy/);
   assert.match(inspection.invalid.join('\n'), /x-frame-options/);
   assert.match(inspection.invalid.join('\n'), /permissions-policy/);

@@ -1,3 +1,5 @@
+import * as bootstrap from 'bootstrap';
+
 const CART_STORAGE_KEY = 'astro-poc-cart';
 const PROFILE_STORAGE_KEY = 'astro-poc-profile';
 const LAST_ORDER_STORAGE_KEY = 'astro-poc-last-order';
@@ -12,6 +14,7 @@ const WHATSAPP_NUMBER = '56951118901';
 const CATALOG_PAGE_SIZE = 24;
 
 if (typeof window !== 'undefined') {
+  globalThis.bootstrap = bootstrap;
   globalThis.__APP_READY__ = false;
 }
 
