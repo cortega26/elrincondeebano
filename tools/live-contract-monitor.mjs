@@ -11,6 +11,9 @@ import {
 const DEFAULT_BASE_URL = 'https://www.elrincondeebano.com';
 const DEFAULT_TIMEOUT_MS = 15000;
 const DEFAULT_SAMPLE_SIZE = 20;
+const DEFAULT_MAX_ATTEMPTS = 3;
+const DEFAULT_RETRY_DELAY_MS = 750;
+const FAILURE_SNIPPET_MAX_LENGTH = 220;
 const ALLOWED_PROBE_HOSTS = new Set(['www.elrincondeebano.com', 'elrincondeebano.com']);
 const PROBE_REQUEST_HEADERS = Object.freeze({
   accept:
@@ -18,6 +21,10 @@ const PROBE_REQUEST_HEADERS = Object.freeze({
   'accept-language': 'en-US,en;q=0.9',
   'cache-control': 'no-cache',
   pragma: 'no-cache',
+  'sec-fetch-dest': 'document',
+  'sec-fetch-mode': 'navigate',
+  'sec-fetch-site': 'none',
+  'sec-fetch-user': '?1',
   'upgrade-insecure-requests': '1',
   'user-agent':
     'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36',
@@ -97,6 +104,103 @@ async function fetchWithTimeout(url, timeoutMs) {
   }
 }
 
+function sleep(ms) {
+  if (!Number.isFinite(ms) || ms <= 0) {
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function normalizeBodySnippet(value) {
+  return String(value || '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, FAILURE_SNIPPET_MAX_LENGTH);
+}
+
+async function readFailureBodySnippet(response) {
+  if (!(response instanceof Response)) {
+    return '';
+  }
+
+  try {
+    return normalizeBodySnippet(await response.clone().text());
+  } catch {
+    return '';
+  }
+}
+
+function looksLikeCloudflareChallenge(bodySnippet) {
+  return /attention required|just a moment|cf-browser-verification|cdn-cgi\/challenge-platform|enable javascript and cookies/i.test(
+    String(bodySnippet || '')
+  );
+}
+
+function classifyRetryableFailure(result) {
+  if (!result || result.ok) {
+    return '';
+  }
+
+  if (result.status === 0 && result.error) {
+    return 'network or timeout error';
+  }
+
+  if (result.status === 429) {
+    return 'rate limited by edge or origin';
+  }
+
+  if ([500, 502, 503, 504].includes(result.status)) {
+    return 'transient upstream or edge error';
+  }
+
+  const server = String(result.server || '').toLowerCase();
+  const cloudflareManaged =
+    server.includes('cloudflare') ||
+    Boolean(result.cfRay) ||
+    looksLikeCloudflareChallenge(result.bodySnippet);
+
+  if (result.status === 403 && cloudflareManaged) {
+    return 'possible Cloudflare-managed challenge';
+  }
+
+  return '';
+}
+
+async function executeProbe(target, timeoutMs, shouldInspectSecurityHeaders) {
+  try {
+    const response = await fetchWithTimeout(target, timeoutMs);
+    const result = {
+      status: response.status,
+      ok: response.status === 200,
+      finalUrl: response.url,
+      server: response.headers.get('server') || '',
+      cfRay: response.headers.get('cf-ray') || '',
+      contentType: response.headers.get('content-type') || '',
+      bodySnippet: '',
+      securityHeaders: shouldInspectSecurityHeaders ? inspectSecurityHeaders(response.headers) : null,
+      error: '',
+    };
+
+    if (!result.ok) {
+      result.bodySnippet = await readFailureBodySnippet(response);
+    }
+
+    return result;
+  } catch (error) {
+    return {
+      status: 0,
+      ok: false,
+      finalUrl: '',
+      server: '',
+      cfRay: '',
+      contentType: '',
+      bodySnippet: '',
+      securityHeaders: null,
+      error: error?.message || String(error),
+    };
+  }
+}
+
 export function resolveProbeUrl(baseUrl, routeOrPath) {
   if (typeof routeOrPath !== 'string' || !routeOrPath.trim()) {
     throw new Error('Probe path must be a non-empty string.');
@@ -120,35 +224,47 @@ export function resolveProbeUrl(baseUrl, routeOrPath) {
   return candidate;
 }
 
-export async function checkUrl(baseUrl, routeOrPath, timeoutMs) {
+export async function checkUrl(baseUrl, routeOrPath, timeoutMs, options = {}) {
   const target = resolveProbeUrl(baseUrl, routeOrPath);
   const targetUrl = target.toString();
   const shouldInspectSecurityHeaders = SECURITY_HEADER_BASELINE_ROUTES.includes(target.pathname);
+  const maxAttempts =
+    Number.isFinite(options.maxAttempts) && options.maxAttempts > 0
+      ? Math.floor(options.maxAttempts)
+      : DEFAULT_MAX_ATTEMPTS;
+  const retryDelayMs =
+    Number.isFinite(options.retryDelayMs) && options.retryDelayMs >= 0
+      ? Math.floor(options.retryDelayMs)
+      : DEFAULT_RETRY_DELAY_MS;
+  const attempts = [];
 
-  try {
-    const response = await fetchWithTimeout(target, timeoutMs);
-    return {
-      url: targetUrl,
-      status: response.status,
-      ok: response.status === 200,
-      finalUrl: response.url,
-      server: response.headers.get('server') || '',
-      cfRay: response.headers.get('cf-ray') || '',
-      contentType: response.headers.get('content-type') || '',
-      securityHeaders: shouldInspectSecurityHeaders ? inspectSecurityHeaders(response.headers) : null,
-    };
-  } catch (error) {
-    return {
-      url: targetUrl,
-      status: 0,
-      ok: false,
-      finalUrl: '',
-      server: '',
-      cfRay: '',
-      contentType: '',
-      securityHeaders: null,
-      error: error?.message || String(error),
-    };
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    const probeResult = await executeProbe(target, timeoutMs, shouldInspectSecurityHeaders);
+    const retryReason = classifyRetryableFailure(probeResult);
+    attempts.push({
+      attempt,
+      status: probeResult.status,
+      ok: probeResult.ok,
+      server: probeResult.server,
+      cfRay: probeResult.cfRay,
+      contentType: probeResult.contentType,
+      error: probeResult.error,
+      bodySnippet: probeResult.bodySnippet,
+      retryReason,
+    });
+
+    if (probeResult.ok || !retryReason || attempt === maxAttempts) {
+      return {
+        url: targetUrl,
+        ...probeResult,
+        attemptCount: attempts.length,
+        retried: attempts.length > 1,
+        retryReason,
+        retryHistory: attempts,
+      };
+    }
+
+    await sleep(retryDelayMs * attempt);
   }
 }
 
@@ -167,12 +283,14 @@ export async function runMonitor({
   sampleSize,
   reportPath,
   requireSecurityHeaders = false,
+  maxAttempts = DEFAULT_MAX_ATTEMPTS,
+  retryDelayMs = DEFAULT_RETRY_DELAY_MS,
 }) {
   const startedAt = new Date().toISOString();
   const routeResults = [];
 
   for (const route of KEY_ROUTES) {
-    routeResults.push(await checkUrl(baseUrl, route, timeoutMs));
+    routeResults.push(await checkUrl(baseUrl, route, timeoutMs, { maxAttempts, retryDelayMs }));
   }
 
   const productDataResult = routeResults.find((result) => result.url.endsWith('/data/product_data.json'));
@@ -196,7 +314,9 @@ export async function runMonitor({
 
     sampledAssets = Array.from(assetSet).sort().slice(0, sampleSize);
     for (const relativePath of sampledAssets) {
-      assetResults.push(await checkUrl(baseUrl, `/${relativePath}`, timeoutMs));
+      assetResults.push(
+        await checkUrl(baseUrl, `/${relativePath}`, timeoutMs, { maxAttempts, retryDelayMs })
+      );
     }
   }
 
@@ -214,6 +334,8 @@ export async function runMonitor({
     timeoutMs,
     sampleSize,
     requireSecurityHeaders,
+    maxAttempts,
+    retryDelayMs,
     keyRouteCount: routeResults.length,
     sampledAssetCount: sampledAssets.length,
     routeResults,
@@ -246,6 +368,8 @@ async function runCli() {
       'base-url': { type: 'string' },
       'timeout-ms': { type: 'string' },
       'sample-size': { type: 'string' },
+      'max-attempts': { type: 'string' },
+      'retry-delay-ms': { type: 'string' },
       report: { type: 'string' },
       'require-security-headers': { type: 'boolean' },
     },
@@ -255,13 +379,25 @@ async function runCli() {
   const baseUrl = normalizeBaseUrl(values['base-url']);
   const timeoutRaw = Number(values['timeout-ms']);
   const sampleRaw = Number(values['sample-size']);
+  const maxAttemptsRaw = Number(values['max-attempts']);
+  const retryDelayRaw = Number(values['retry-delay-ms']);
   const timeoutMs = Number.isFinite(timeoutRaw) && timeoutRaw > 0 ? timeoutRaw : DEFAULT_TIMEOUT_MS;
   const sampleSize = Number.isFinite(sampleRaw) && sampleRaw > 0 ? sampleRaw : DEFAULT_SAMPLE_SIZE;
+  const maxAttempts =
+    Number.isFinite(maxAttemptsRaw) && maxAttemptsRaw > 0
+      ? Math.floor(maxAttemptsRaw)
+      : DEFAULT_MAX_ATTEMPTS;
+  const retryDelayMs =
+    Number.isFinite(retryDelayRaw) && retryDelayRaw >= 0
+      ? Math.floor(retryDelayRaw)
+      : DEFAULT_RETRY_DELAY_MS;
 
   await runMonitor({
     baseUrl,
     timeoutMs,
     sampleSize,
+    maxAttempts,
+    retryDelayMs,
     reportPath: values.report || '',
     requireSecurityHeaders: values['require-security-headers'] === true,
   });

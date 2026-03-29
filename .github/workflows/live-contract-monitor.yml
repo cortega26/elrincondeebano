@@ -39,6 +39,8 @@ jobs:
           node tools/live-contract-monitor.mjs \
             --timeout-ms "15000" \
             --sample-size "20" \
+            --max-attempts "3" \
+            --retry-delay-ms "1000" \
             --require-security-headers \
             --report reports/live-contract/latest.json
 
@@ -83,7 +85,7 @@ jobs:
         shell: bash
         run: |
           ISSUE_NUMBER="$(gh issue list --state open --label live-contract-monitor --json number --jq '.[0].number')"
-          FAILURE_BODY="$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync('reports/live-contract/latest.json','utf8')); const availability=r.failures.slice(0,20).map(f=>'- availability: ' + f.status + ' ' + f.url + (f.error ? ' (' + f.error + ')' : '')); const headers=r.securityHeaderFailures.slice(0,20).map(f=>'- headers: ' + f.url + ' missing=[' + f.missing.join(', ') + '] invalid=[' + f.invalid.join(', ') + ']'); console.log(['Live contract monitor detected failures.','','Run: ' + process.env.GITHUB_SERVER_URL + '/' + process.env.GITHUB_REPOSITORY + '/actions/runs/' + process.env.GITHUB_RUN_ID,'Generated at: ' + r.generatedAt,'Availability failures: ' + r.failures.length,'Security header failures: ' + r.securityHeaderFailures.length,'Strict security mode: ' + (r.requireSecurityHeaders ? 'enabled' : 'disabled'),'','Failure summary:',...availability,...headers].join('\n'));")"
+          FAILURE_BODY="$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync('reports/live-contract/latest.json','utf8')); const availability=r.failures.slice(0,20).map(f=>{ const details=[f.error ? 'error=' + f.error : '', f.server ? 'server=' + f.server : '', f.cfRay ? 'cf-ray=' + f.cfRay : '', Number.isFinite(f.attemptCount) ? 'attempts=' + f.attemptCount : '', f.retryReason ? 'retry=' + f.retryReason : ''].filter(Boolean).join(', '); return '- availability: ' + f.status + ' ' + f.url + (details ? ' (' + details + ')' : ''); }); const headers=r.securityHeaderFailures.slice(0,20).map(f=>'- headers: ' + f.url + ' missing=[' + f.missing.join(', ') + '] invalid=[' + f.invalid.join(', ') + ']'); console.log(['Live contract monitor detected failures.','','Run: ' + process.env.GITHUB_SERVER_URL + '/' + process.env.GITHUB_REPOSITORY + '/actions/runs/' + process.env.GITHUB_RUN_ID,'Generated at: ' + r.generatedAt,'Availability failures: ' + r.failures.length,'Security header failures: ' + r.securityHeaderFailures.length,'Strict security mode: ' + (r.requireSecurityHeaders ? 'enabled' : 'disabled'),'','Failure summary:',...availability,...headers].join('\n'));")"
 
           if [ -n "$ISSUE_NUMBER" ]; then
             gh issue comment "$ISSUE_NUMBER" --body "$FAILURE_BODY"
