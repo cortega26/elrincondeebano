@@ -3,8 +3,10 @@ import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import {
+  inspectPublicHtmlEdgeSurface,
   inspectSecurityHeaders,
   SECURITY_HEADER_BASELINE_ROUTES,
+  summarizePublicHtmlFailure,
   summarizeSecurityHeaderFailure,
 } from './security-header-policy.mjs';
 
@@ -166,20 +168,36 @@ function classifyRetryableFailure(result) {
   return '';
 }
 
-async function executeProbe(target, timeoutMs, shouldInspectSecurityHeaders) {
+async function executeProbe(
+  target,
+  timeoutMs,
+  shouldInspectSecurityHeaders,
+  shouldInspectHtmlSurface
+) {
   try {
     const response = await fetchWithTimeout(target, timeoutMs);
+    const contentType = response.headers.get('content-type') || '';
     const result = {
       status: response.status,
       ok: response.status === 200,
       finalUrl: response.url,
       server: response.headers.get('server') || '',
       cfRay: response.headers.get('cf-ray') || '',
-      contentType: response.headers.get('content-type') || '',
+      contentType,
       bodySnippet: '',
       securityHeaders: shouldInspectSecurityHeaders ? inspectSecurityHeaders(response.headers) : null,
+      htmlSurface: null,
       error: '',
     };
+
+    if (
+      result.ok &&
+      shouldInspectHtmlSurface &&
+      /^\s*text\/html\b/i.test(contentType)
+    ) {
+      const html = await response.clone().text();
+      result.htmlSurface = inspectPublicHtmlEdgeSurface(html);
+    }
 
     if (!result.ok) {
       result.bodySnippet = await readFailureBodySnippet(response);
@@ -228,6 +246,7 @@ export async function checkUrl(baseUrl, routeOrPath, timeoutMs, options = {}) {
   const target = resolveProbeUrl(baseUrl, routeOrPath);
   const targetUrl = target.toString();
   const shouldInspectSecurityHeaders = SECURITY_HEADER_BASELINE_ROUTES.includes(target.pathname);
+  const shouldInspectHtmlSurface = SECURITY_HEADER_BASELINE_ROUTES.includes(target.pathname);
   const maxAttempts =
     Number.isFinite(options.maxAttempts) && options.maxAttempts > 0
       ? Math.floor(options.maxAttempts)
@@ -239,7 +258,12 @@ export async function checkUrl(baseUrl, routeOrPath, timeoutMs, options = {}) {
   const attempts = [];
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-    const probeResult = await executeProbe(target, timeoutMs, shouldInspectSecurityHeaders);
+    const probeResult = await executeProbe(
+      target,
+      timeoutMs,
+      shouldInspectSecurityHeaders,
+      shouldInspectHtmlSurface
+    );
     const retryReason = classifyRetryableFailure(probeResult);
     attempts.push({
       attempt,
@@ -324,8 +348,12 @@ export async function runMonitor({
   const securityHeaderFailures = routeResults
     .filter((result) => result.securityHeaders && !result.securityHeaders.ok)
     .map(summarizeSecurityHeaderFailure);
+  const htmlSurfaceFailures = routeResults
+    .filter((result) => result.htmlSurface && !result.htmlSurface.ok)
+    .map(summarizePublicHtmlFailure);
   const success =
     availabilityFailures.length === 0 &&
+    htmlSurfaceFailures.length === 0 &&
     (!requireSecurityHeaders || securityHeaderFailures.length === 0);
   const report = {
     generatedAt: new Date().toISOString(),
@@ -343,8 +371,11 @@ export async function runMonitor({
     failures: availabilityFailures,
     securityHeaderBaselineRoutes: SECURITY_HEADER_BASELINE_ROUTES,
     securityHeaderFailures,
+    htmlSurfaceBaselineRoutes: SECURITY_HEADER_BASELINE_ROUTES,
+    htmlSurfaceFailures,
     availabilityOk: availabilityFailures.length === 0,
     securityHeadersOk: securityHeaderFailures.length === 0,
+    htmlSurfaceOk: htmlSurfaceFailures.length === 0,
     success,
   };
 
@@ -358,6 +389,12 @@ export async function runMonitor({
   if (requireSecurityHeaders && securityHeaderFailures.length > 0) {
     throw new Error(
       `Live contract monitor found ${securityHeaderFailures.length} security header contract failure(s).`
+    );
+  }
+
+  if (htmlSurfaceFailures.length > 0) {
+    throw new Error(
+      `Live contract monitor found ${htmlSurfaceFailures.length} disallowed HTML surface failure(s).`
     );
   }
 }

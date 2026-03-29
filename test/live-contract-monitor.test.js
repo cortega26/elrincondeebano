@@ -134,6 +134,66 @@ test('runMonitor fails in strict mode when security headers are missing', async 
   );
 });
 
+test('runMonitor fails when public HTML contains disallowed injected scripts', async () => {
+  const { runMonitor } = await loadModule();
+  const compliantHeaders = {
+    'content-type': 'text/html; charset=utf-8',
+    'content-security-policy':
+      "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://cloudflareinsights.com https://static.cloudflareinsights.com; manifest-src 'self'; worker-src 'self'; form-action 'self'; upgrade-insecure-requests",
+    'referrer-policy': 'strict-origin-when-cross-origin',
+    'x-content-type-options': 'nosniff',
+    'x-frame-options': 'DENY',
+    'permissions-policy':
+      'accelerometer=(), autoplay=(), camera=(), display-capture=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), browsing-topics=()',
+  };
+
+  await withMockedFetch(
+    async (url) => {
+      const target = String(url);
+      if (target.endsWith('/data/product_data.json')) {
+        return new Response(JSON.stringify({ products: [] }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        });
+      }
+
+      if (target.endsWith('/pages/bebidas.html')) {
+        return new Response(
+          '<!doctype html><script src="/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js"></script>',
+          {
+            status: 200,
+            headers: compliantHeaders,
+          }
+        );
+      }
+
+      return new Response('<!doctype html><html><body>ok</body></html>', {
+        status: 200,
+        headers: compliantHeaders,
+      });
+    },
+    async () => {
+      const originalLog = console.log;
+      console.log = () => {};
+      try {
+        await assert.rejects(
+          () =>
+            runMonitor({
+              baseUrl: 'https://www.elrincondeebano.com',
+              timeoutMs: 5000,
+              sampleSize: 5,
+              reportPath: '',
+              requireSecurityHeaders: false,
+            }),
+          /disallowed HTML surface failure/
+        );
+      } finally {
+        console.log = originalLog;
+      }
+    }
+  );
+});
+
 test('checkUrl sends browser-like probe headers to reduce Cloudflare false positives', async () => {
   const { checkUrl } = await loadModule();
   let capturedHeaders;

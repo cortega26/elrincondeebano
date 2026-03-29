@@ -27,6 +27,24 @@ export const CONTENT_SECURITY_POLICY_DIRECTIVES = Object.freeze([
   ['upgrade-insecure-requests', []],
 ]);
 
+export const HTML_EDGE_SURFACE_RULES = Object.freeze([
+  {
+    id: 'third-party-jsdelivr-script',
+    label: 'jsDelivr script reference',
+    pattern: /<script\b[^>]*\bsrc=["'][^"']*cdn\.jsdelivr\.net/i,
+  },
+  {
+    id: 'cloudflare-rocket-loader',
+    label: 'Cloudflare Rocket Loader',
+    pattern: /rocket-loader\.min\.js/i,
+  },
+  {
+    id: 'cloudflare-challenge-platform',
+    label: 'Cloudflare challenge platform',
+    pattern: /\/cdn-cgi\/challenge-platform\//i,
+  },
+]);
+
 function readHeader(headers, name) {
   if (!headers || typeof headers.get !== 'function') {
     return '';
@@ -172,4 +190,31 @@ export function summarizeSecurityHeaderFailure(routeResult) {
 export function formatSecurityHeaderFailure(label, inspection) {
   const details = [...inspection.missing, ...inspection.invalid].join(', ');
   return `${label} is missing required security headers: ${details}`;
+}
+
+export function inspectPublicHtmlEdgeSurface(html) {
+  const findings = [];
+
+  for (const rule of HTML_EDGE_SURFACE_RULES) {
+    if (rule.pattern.test(String(html || ''))) {
+      findings.push(rule.label);
+    }
+  }
+
+  return {
+    ok: findings.length === 0,
+    findings,
+  };
+}
+
+export function summarizePublicHtmlFailure(routeResult) {
+  return {
+    url: routeResult.url,
+    finalUrl: routeResult.finalUrl || '',
+    findings: routeResult.htmlSurface?.findings || [],
+  };
+}
+
+export function formatPublicHtmlFailure(label, inspection) {
+  return `${label} includes disallowed HTML script surface: ${(inspection.findings || []).join(', ')}`;
 }

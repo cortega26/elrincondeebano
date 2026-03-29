@@ -4,10 +4,10 @@
 
 - **Severity:** medium
 - **Detection:** `npm run monitor:live-contract:strict` or the `Live Contract Monitor` workflow.
-- **Expected behavior:** the public HTML routes at `https://www.elrincondeebano.com/` and `/pages/bebidas.html` must emit the hardening baseline documented in [`EDGE_SECURITY_HEADERS`](./EDGE_SECURITY_HEADERS.md).
+- **Expected behavior:** the public HTML routes at `https://www.elrincondeebano.com/` and `/pages/bebidas.html` must emit the hardening baseline documented in [`EDGE_SECURITY_HEADERS`](./EDGE_SECURITY_HEADERS.md) and must not include `rocket-loader.min.js`, `/cdn-cgi/challenge-platform/`, or script references to `cdn.jsdelivr.net`.
 - **Important constraint:** the content deploy path is GitHub Pages; fixing the issue requires Cloudflare or equivalent edge configuration, not a rebuild of `astro-poc/dist`.
 - **Runner constraint:** since the 2026-03-29 incident, the scheduled `Live Contract Monitor` runs only from the allowed self-hosted runner. GitHub-hosted probes may receive Cloudflare-managed `403` challenge pages that do not reflect the public contract.
-- **Probe behavior:** the live monitor retries transient edge-style failures (`403` challenge pages, `429`, `5xx`, timeout/network) before opening an incident, and the JSON report records `cf-ray`, attempt count and retry reason for triage.
+- **Probe behavior:** the live monitor retries transient edge-style failures (`403` challenge pages, `429`, `5xx`, timeout/network) before opening an incident, and the JSON report records `cf-ray`, attempt count, retry reason, and any disallowed HTML surface findings for triage.
 - **Steps:**
   1. Confirm the failure with:
      ```bash
@@ -18,9 +18,22 @@
      curl -sSI https://www.elrincondeebano.com/
      curl -sSI https://www.elrincondeebano.com/pages/bebidas.html
      ```
-  3. Compare the response against [`EDGE_SECURITY_HEADERS`](./EDGE_SECURITY_HEADERS.md).
-  4. Apply or repair the Cloudflare edge rule/Worker.
-  5. Re-run `npm run monitor:live-contract:strict` and, if doing a manual post-deploy probe, run `Post-Deploy Canary` with `require_security_headers=true`.
+  3. Verify that the HTML is clean:
+     ```bash
+     curl -s https://www.elrincondeebano.com/ | rg -n "cdn\\.jsdelivr\\.net|rocket-loader\\.min\\.js|/cdn-cgi/challenge-platform/"
+     curl -s https://www.elrincondeebano.com/pages/bebidas.html | rg -n "cdn\\.jsdelivr\\.net|rocket-loader\\.min\\.js|/cdn-cgi/challenge-platform/"
+     ```
+  4. Compare the response against [`EDGE_SECURITY_HEADERS`](./EDGE_SECURITY_HEADERS.md).
+  5. Re-deploy the Worker if the repo baseline changed:
+     ```bash
+     npm run cloudflare:whoami
+     npm run cloudflare:deploy:edge-security-headers
+     ```
+  6. If headers are correct but the HTML still contains injected scripts, treat it as a Cloudflare edge-injection issue, not an app-code issue:
+     - disable Rocket Loader on `www.elrincondeebano.com/*`
+     - exclude public storefront HTML routes from any challenge/JS-detection behavior that injects `/cdn-cgi/challenge-platform/`
+     - do not weaken the CSP to accommodate those scripts
+  7. Re-run `npm run monitor:live-contract:strict` and, if doing a manual post-deploy probe, run `Post-Deploy Canary` with `require_security_headers=true`.
 
 ## Product data fetch failures
 

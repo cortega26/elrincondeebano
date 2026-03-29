@@ -319,3 +319,55 @@ test('runCanary fails in strict mode when security headers are missing', async (
     }
   );
 });
+
+test('runCanary fails when Cloudflare injects disallowed scripts into baseline HTML routes', async () => {
+  const { runCanary } = await loadModule();
+  const compliantHeaders = {
+    'content-type': 'text/html; charset=utf-8',
+    'content-security-policy':
+      "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://cloudflareinsights.com https://static.cloudflareinsights.com; manifest-src 'self'; worker-src 'self'; form-action 'self'; upgrade-insecure-requests",
+    'referrer-policy': 'strict-origin-when-cross-origin',
+    'x-content-type-options': 'nosniff',
+    'x-frame-options': 'DENY',
+    'permissions-policy':
+      'accelerometer=(), autoplay=(), camera=(), display-capture=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), browsing-topics=()',
+  };
+
+  await withMockedFetch(
+    async (url) => {
+      const target = String(url);
+      if (target.endsWith('/')) {
+        return new Response(
+          makeHtml({
+            title: 'Home',
+            ogImage: 'https://www.elrincondeebano.com/assets/images/og/home.jpg',
+            withWhatsapp: true,
+          }),
+          {
+            status: 200,
+            headers: compliantHeaders,
+          }
+        );
+      }
+      if (target.endsWith('/pages/bebidas.html')) {
+        return new Response(
+          '<!doctype html><script src="/cdn-cgi/challenge-platform/scripts/jsd/main.js"></script>',
+          {
+            status: 200,
+            headers: compliantHeaders,
+          }
+        );
+      }
+      if (target.endsWith('/assets/images/og/home.jpg')) {
+        return new Response('img', { status: 200, headers: { 'content-type': 'image/jpeg' } });
+      }
+      return new Response('not found', { status: 404 });
+    },
+    async () => {
+      await assert.rejects(
+        () => runCanary({ baseUrl: 'https://www.elrincondeebano.com' }),
+        /disallowed HTML script surface/
+      );
+    }
+  );
+});
