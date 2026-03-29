@@ -1,6 +1,6 @@
 ---
 import type { NavGroup } from '../lib/catalog';
-import { absoluteUrl } from '../lib/seo';
+import { publicAssetUrl } from '../lib/seo';
 
 export interface Props {
   navGroups: NavGroup[];
@@ -16,14 +16,16 @@ const { navGroups } = Astro.props;
         <picture>
           <source
             type="image/avif"
-            srcset={`${absoluteUrl('/assets/images/web/logo.avif')} 32w, ${absoluteUrl('/assets/images/web/logo.avif')} 64w, ${absoluteUrl('/assets/images/web/logo.avif')} 96w`}
+            srcset={`${publicAssetUrl('/assets/images/web/logo-40.avif')} 40w, ${publicAssetUrl('/assets/images/web/logo-80.avif')} 80w, ${publicAssetUrl('/assets/images/web/logo-120.avif')} 120w`}
             sizes="40px"
           />
           <img
-            src={absoluteUrl('/assets/images/web/logo.webp')}
+            src={publicAssetUrl('/assets/images/web/logo-40.webp')}
+            srcset={`${publicAssetUrl('/assets/images/web/logo-40.webp')} 40w, ${publicAssetUrl('/assets/images/web/logo-80.webp')} 80w, ${publicAssetUrl('/assets/images/web/logo-120.webp')} 120w`}
+            sizes="40px"
             alt="Logo de El Rincón de Ébano"
-            width="30"
-            height="30"
+            width="40"
+            height="40"
             class="d-inline-block align-top me-1"
             loading="eager"
             decoding="async"

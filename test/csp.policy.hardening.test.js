@@ -46,6 +46,12 @@ function getScriptTags(html) {
   return [...html.matchAll(/<script\b[^>]*>/gi)].map((match) => match[0]);
 }
 
+function getExecutableScriptTags(html) {
+  return getScriptTags(html).filter(
+    (tag) => !/\btype=["']application\/json["']/i.test(tag)
+  );
+}
+
 function getCanonicalUrl(html) {
   return html.match(/<link rel="canonical" href="([^"]+)"/i)?.[1] || null;
 }
@@ -57,7 +63,7 @@ function getRobotsMeta(html) {
 function getInlineExecutableScripts(html) {
   return [
     ...html.matchAll(
-      /<script\b(?![^>]*\bsrc=)(?![^>]*type=["']application\/ld\+json["'])[^>]*>/gi
+      /<script\b(?![^>]*\bsrc=)(?![^>]*type=["']application\/(?:ld\+json|json)["'])[^>]*>/gi
     ),
   ];
 }
@@ -69,8 +75,12 @@ test('Astro storefront output keeps the executable script surface minimal', (t) 
       return;
     }
 
-    const scriptTags = getScriptTags(html);
-    assert.equal(scriptTags.length, 2, `${distCase.label} should emit exactly two script tags`);
+    const scriptTags = getExecutableScriptTags(html);
+    assert.equal(
+      scriptTags.length,
+      2,
+      `${distCase.label} should emit exactly two executable script tags`
+    );
     assert.ok(
       scriptTags.some((tag) => /bootstrap\.bundle\.min\.js/i.test(tag) && /\bdefer\b/i.test(tag)),
       `${distCase.label} should keep the deferred Bootstrap bundle`

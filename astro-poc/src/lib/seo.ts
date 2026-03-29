@@ -37,6 +37,16 @@ export function absoluteUrl(pathOrUrl: string): string {
   return `${SITE_ORIGIN}${normalizePath(pathOrUrl)}`;
 }
 
+export function publicAssetUrl(pathOrUrl: string): string {
+  if (!pathOrUrl) {
+    return '/';
+  }
+  if (/^https?:\/\//i.test(pathOrUrl)) {
+    return pathOrUrl;
+  }
+  return normalizePath(pathOrUrl);
+}
+
 function resolveRepoRoot(options?: SeoFileOptions): string {
   return path.resolve(options?.repoRoot || DEFAULT_REPO_ROOT);
 }

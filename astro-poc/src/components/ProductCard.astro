@@ -1,6 +1,6 @@
 ---
 import type { ProductWithSku } from '../lib/catalog';
-import { formatPrice, resolveImageUrl } from '../lib/catalog';
+import { formatPrice, getProductCardImageSource } from '../lib/catalog';
 
 export interface Props {
   item: ProductWithSku;
@@ -16,9 +16,9 @@ const discount = typeof product.discount === 'number' ? product.discount : 0;
 const finalPrice = Math.max(price - discount, 0);
 const hasDiscount = discount > 0 && price > 0 && finalPrice < price;
 const discountPercent = hasDiscount ? Math.round((discount / price) * 100) : 0;
-const imageUrl = resolveImageUrl(product.image_path);
-const avifUrl = resolveImageUrl(product.image_avif_path);
-const hasAvif = typeof product.image_avif_path === 'string' && product.image_avif_path.trim().length > 0;
+const image = getProductCardImageSource(product.image_path);
+const avifImage = getProductCardImageSource(product.image_avif_path);
+const hasAvifSource = typeof avifImage.srcset === 'string' && avifImage.srcset.length > 0;
 ---
 
 <article
@@ -35,16 +35,22 @@ const hasAvif = typeof product.image_avif_path === 'string' && product.image_avi
     {hasDiscount ? <span class="discount-badge badge bg-danger" aria-label="Producto en oferta">-{discountPercent}%</span> : null}
 
     <picture>
-      {hasAvif ? <source srcset={avifUrl} type="image/avif" /> : null}
+      {
+        hasAvifSource ? (
+          <source srcset={avifImage.srcset} sizes={avifImage.sizes} type="image/avif" />
+        ) : null
+      }
       <img
-        src={imageUrl}
+        src={image.src}
+        srcset={image.srcset}
+        sizes={image.sizes}
         alt={product.name}
         class="card-img-top product-thumb"
         loading={isLikelyLcp ? 'eager' : 'lazy'}
         fetchpriority={isLikelyLcp ? 'high' : 'auto'}
         decoding="async"
-        width="400"
-        height="400"
+        width="200"
+        height="200"
       />
     </picture>
 

@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { absoluteUrl } from '../lib/seo';
+import { publicAssetUrl } from '../lib/seo';
 ---
 
 <BaseLayout
@@ -12,10 +12,10 @@ import { absoluteUrl } from '../lib/seo';
     <picture>
       <source
         type="image/avif"
-        srcset={absoluteUrl('/assets/images/web/404.avif')}
+        srcset={publicAssetUrl('/assets/images/web/404.avif')}
       />
       <img
-        src={absoluteUrl('/assets/images/web/404.webp')}
+        src={publicAssetUrl('/assets/images/web/404.webp')}
         alt="Personaje triste"
         width="400"
         height="300"
