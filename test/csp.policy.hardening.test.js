@@ -78,21 +78,21 @@ test('Astro storefront output keeps the executable script surface minimal', (t) 
     const scriptTags = getExecutableScriptTags(html);
     assert.equal(
       scriptTags.length,
-      2,
-      `${distCase.label} should emit exactly two executable script tags`
-    );
-    assert.ok(
-      scriptTags.some((tag) => /bootstrap\.bundle\.min\.js/i.test(tag) && /\bdefer\b/i.test(tag)),
-      `${distCase.label} should keep the deferred Bootstrap bundle`
+      1,
+      `${distCase.label} should emit exactly one executable script tag`
     );
     assert.ok(
       scriptTags.some((tag) => /type="module"/i.test(tag) && /\/_astro\/.+\.js/i.test(tag)),
-      `${distCase.label} should keep a single Astro module entrypoint`
+      `${distCase.label} should keep a single self-hosted Astro module entrypoint`
     );
     assert.equal(
       getInlineExecutableScripts(html).length,
       0,
       `${distCase.label} should not emit inline executable scripts`
+    );
+    assert.ok(
+      !/cdn\.jsdelivr\.net/i.test(html),
+      `${distCase.label} should not depend on jsDelivr for executable assets`
     );
     assert.ok(!/csp\.js/i.test(html), `${distCase.label} must not depend on legacy csp.js`);
   }

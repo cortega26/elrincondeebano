@@ -42,7 +42,7 @@ Implementación lista para aplicar:
 
 | Header | Valor esperado |
 | ---- | ---- |
-| `Content-Security-Policy` | `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; font-src 'self' data: https://cdn.jsdelivr.net; connect-src 'self'; manifest-src 'self'; worker-src 'self'; form-action 'self'; upgrade-insecure-requests` |
+| `Content-Security-Policy` | `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://cloudflareinsights.com https://static.cloudflareinsights.com; manifest-src 'self'; worker-src 'self'; form-action 'self'; upgrade-insecure-requests` |
 | `Referrer-Policy` | `strict-origin-when-cross-origin` |
 | `X-Content-Type-Options` | `nosniff` |
 | `X-Frame-Options` | `DENY` |
@@ -51,7 +51,8 @@ Implementación lista para aplicar:
 Notas:
 
 - `style-src` conserva `'unsafe-inline'` por compatibilidad operativa con la superficie actual y Bootstrap.
-- `script-src` y `style-src` permiten `https://cdn.jsdelivr.net` porque el layout activo carga Bootstrap desde ese CDN.
+- Bootstrap CSS/JS ya sale self-hosted desde el build Astro, así que `cdn.jsdelivr.net` deja de formar parte del baseline del storefront.
+- `script-src` y `connect-src` permiten los endpoints de Cloudflare Web Analytics para evitar bloqueos cuando esa integración está habilitada en el edge.
 - `frame-ancestors 'none'` y `X-Frame-Options: DENY` se mantienen en conjunto para compatibilidad de navegadores.
 
 ## Implementación recomendada en Cloudflare
@@ -70,7 +71,7 @@ Si se implementa con Worker/edge middleware, la lógica esperada es:
 
 ```js
 const SECURITY_HEADERS = {
-  "Content-Security-Policy": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; font-src 'self' data: https://cdn.jsdelivr.net; connect-src 'self'; manifest-src 'self'; worker-src 'self'; form-action 'self'; upgrade-insecure-requests",
+  "Content-Security-Policy": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://cloudflareinsights.com https://static.cloudflareinsights.com; manifest-src 'self'; worker-src 'self'; form-action 'self'; upgrade-insecure-requests",
   "Referrer-Policy": "strict-origin-when-cross-origin",
   "X-Content-Type-Options": "nosniff",
   "X-Frame-Options": "DENY",
