@@ -15,7 +15,10 @@ concurrency:
 
 jobs:
   monitor:
-    runs-on: ubuntu-22.04
+    runs-on:
+      - self-hosted
+      - linux
+      - x64
     timeout-minutes: 20
     steps:
       - name: Checkout repository
@@ -52,11 +55,12 @@ jobs:
         shell: bash
         run: |
           if [ -f reports/live-contract/latest.json ]; then
-            node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync('reports/live-contract/latest.json','utf8')); console.log('## Live Contract Monitor'); console.log(''); console.log('- Base URL: ' + r.baseUrl); console.log('- Key routes checked: ' + r.keyRouteCount); console.log('- Assets sampled: ' + r.sampledAssetCount); console.log('- Availability failures: ' + r.failures.length); console.log('- Security header failures: ' + r.securityHeaderFailures.length); console.log('- Strict security mode: ' + (r.requireSecurityHeaders ? 'enabled' : 'disabled')); console.log('- Result: ' + (r.success ? '✅ PASS' : '❌ FAIL'));" >> "$GITHUB_STEP_SUMMARY"
+            node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync('reports/live-contract/latest.json','utf8')); console.log('## Live Contract Monitor'); console.log(''); console.log('- Base URL: ' + r.baseUrl); console.log('- Runner: self-hosted (allowed network)'); console.log('- Key routes checked: ' + r.keyRouteCount); console.log('- Assets sampled: ' + r.sampledAssetCount); console.log('- Availability failures: ' + r.failures.length); console.log('- Security header failures: ' + r.securityHeaderFailures.length); console.log('- Strict security mode: ' + (r.requireSecurityHeaders ? 'enabled' : 'disabled')); console.log('- Result: ' + (r.success ? '✅ PASS' : '❌ FAIL'));" >> "$GITHUB_STEP_SUMMARY"
           else
             {
               echo "## Live Contract Monitor"
               echo ""
+              echo "- Runner: self-hosted (allowed network)"
               echo "No JSON report was generated."
             } >> "$GITHUB_STEP_SUMMARY"
           fi

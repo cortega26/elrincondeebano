@@ -12,6 +12,16 @@ const DEFAULT_BASE_URL = 'https://www.elrincondeebano.com';
 const DEFAULT_TIMEOUT_MS = 15000;
 const DEFAULT_SAMPLE_SIZE = 20;
 const ALLOWED_PROBE_HOSTS = new Set(['www.elrincondeebano.com', 'elrincondeebano.com']);
+const PROBE_REQUEST_HEADERS = Object.freeze({
+  accept:
+    'text/html,application/xhtml+xml,application/xml;q=0.9,application/json;q=0.8,text/plain;q=0.7,*/*;q=0.5',
+  'accept-language': 'en-US,en;q=0.9',
+  'cache-control': 'no-cache',
+  pragma: 'no-cache',
+  'upgrade-insecure-requests': '1',
+  'user-agent':
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36',
+});
 
 const KEY_ROUTES = [
   '/',
@@ -79,9 +89,7 @@ async function fetchWithTimeout(url, timeoutMs) {
     const response = await fetch(targetUrl, {
       signal: controller.signal,
       redirect: 'follow',
-      headers: {
-        'cache-control': 'no-cache',
-      },
+      headers: PROBE_REQUEST_HEADERS,
     });
     return response;
   } finally {

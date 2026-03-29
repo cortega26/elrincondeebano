@@ -133,3 +133,28 @@ test('runMonitor fails in strict mode when security headers are missing', async 
     }
   );
 });
+
+test('checkUrl sends browser-like probe headers to reduce Cloudflare false positives', async () => {
+  const { checkUrl } = await loadModule();
+  let capturedHeaders;
+
+  await withMockedFetch(
+    async (_url, init = {}) => {
+      capturedHeaders = new Headers(init.headers || {});
+      return new Response('ok', {
+        status: 200,
+        headers: { 'content-type': 'text/html; charset=utf-8' },
+      });
+    },
+    async () => {
+      const result = await checkUrl('https://www.elrincondeebano.com', '/', 5000);
+      assert.equal(result.status, 200);
+    }
+  );
+
+  assert.equal(capturedHeaders.get('cache-control'), 'no-cache');
+  assert.equal(capturedHeaders.get('pragma'), 'no-cache');
+  assert.equal(capturedHeaders.get('upgrade-insecure-requests'), '1');
+  assert.match(capturedHeaders.get('accept') || '', /application\/json/);
+  assert.match(capturedHeaders.get('user-agent') || '', /Mozilla\/5\.0/);
+});

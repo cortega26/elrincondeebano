@@ -172,7 +172,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - Tareas: tests deterministas del contrato canary en PR, verificación de artefacto post-build y live probe opcional con modo estricto `require_security_headers` para exigir headers en `/` y `/pages/bebidas.html`.
 - **`Live Contract Monitor` (`.github/workflows/live-contract-monitor.yml`)**
   - Trigger: cron diario y ejecución manual.
-  - Stack: Node.js 22.x.
+  - Stack: Node.js 22.x sobre runner self-hosted Linux x64 (red permitida), porque Cloudflare puede challengear tráfico desde runners GitHub-hosted y producir falsos `403`.
   - Tareas: sondeo live de rutas clave/assets y enforcement del baseline de headers de hardening (`Content-Security-Policy`, frame protection, `Referrer-Policy`, `X-Content-Type-Options`, `Permissions-Policy`) sobre `/` y `/pages/bebidas.html`; abre/actualiza issue si falla.
 - **`Admin Tools CI` (`.github/workflows/admin.yml`)**
   - Trigger: cambios en `admin/**`.
