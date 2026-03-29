@@ -1,7 +1,16 @@
+import { existsSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import rawProducts from '../data/products.json';
 import rawCategories from '../data/categories.json';
 import rawStorefrontExperience from '../data/storefront-experience.json';
 import rawStorefrontBundles from '../data/storefront-bundles.json';
+
+export type ProductImageVariant = {
+  src?: string;
+  url?: string;
+  width?: number;
+};
 
 export type ProductRecord = {
   name: string;
@@ -12,6 +21,9 @@ export type ProductRecord = {
   category: string;
   image_path?: string;
   image_avif_path?: string;
+  image_variants?: ProductImageVariant[];
+  thumbnail_path?: string;
+  thumbnail_variants?: ProductImageVariant[];
   order?: number;
   is_archived?: boolean;
   [key: string]: unknown;
@@ -106,8 +118,27 @@ export type StorefrontBundle = StorefrontBundleRecord & {
   totalPrice: number;
 };
 
-const SITE_ORIGIN = 'https://www.elrincondeebano.com';
-const PLACEHOLDER_IMAGE_URL = `${SITE_ORIGIN}/assets/images/web/placeholder.svg`;
+export type ResponsiveImageSource = {
+  src: string;
+  srcset?: string;
+  sizes?: string;
+};
+
+const PLACEHOLDER_IMAGE_URL = '/assets/images/web/placeholder.svg';
+const DEFAULT_PRODUCT_CARD_WIDTHS = Object.freeze([200, 320, 400]);
+const DEFAULT_PRODUCT_DETAIL_WIDTHS = Object.freeze([320, 400, 640]);
+const PRODUCT_ASSET_PREFIX = 'assets/images/';
+const PRODUCT_VARIANT_PREFIX = 'assets/images/variants';
+const VARIANT_EXISTS_CACHE = new Map<string, boolean>();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const PROJECT_ROOT = path.resolve(__dirname, '../..');
+const PUBLIC_ROOT = path.join(PROJECT_ROOT, 'public');
+
+export const PRODUCT_CARD_IMAGE_SIZES =
+  '(max-width: 575px) calc(50vw - 1.25rem), (max-width: 991px) calc(33vw - 1.5rem), (max-width: 1399px) calc(25vw - 1.75rem), 280px';
+export const PRODUCT_DETAIL_IMAGE_SIZES =
+  '(max-width: 767px) calc(100vw - 2rem), (max-width: 991px) 44vw, 38vw';
 
 const catalog = rawProducts as ProductCatalog;
 const categoryRegistry = rawCategories as CategoryRegistry;
@@ -208,23 +239,132 @@ function encodePathname(pathname: string): string {
   return pathname.split('/').map(encodePathSegment).join('/');
 }
 
+function normalizeAssetPath(assetPath: unknown): string {
+  if (typeof assetPath !== 'string') {
+    return '';
+  }
+
+  return assetPath.trim().replace(/^\/+/, '');
+}
+
 export function resolveImageUrl(imagePath: unknown): string {
-  if (typeof imagePath !== 'string' || !imagePath.trim()) {
+  const trimmed = normalizeAssetPath(imagePath);
+  if (!trimmed) {
     return PLACEHOLDER_IMAGE_URL;
   }
 
-  const trimmed = imagePath.trim();
+  if (/^https?:\/\//i.test(trimmed)) {
+    try {
+      const url = new URL(trimmed);
+      url.pathname = encodePathname(url.pathname);
+      return url.toString();
+    } catch {
+      return trimmed;
+    }
+  }
 
   try {
-    const url = /^https?:\/\//i.test(trimmed)
-      ? new URL(trimmed)
-      : new URL(trimmed.replace(/^\/+/, ''), `${SITE_ORIGIN}/`);
-    url.pathname = encodePathname(url.pathname);
-    return url.toString();
+    return encodePathname(`/${trimmed.replace(/^\/+/, '')}`);
   } catch {
     const normalized = trimmed.replace(/^\/+/, '');
-    return `${SITE_ORIGIN}/${encodePathname(normalized)}`;
+    return `/${encodePathname(normalized).replace(/^\/+/, '')}`;
   }
+}
+
+function buildVariantAssetPath(imagePath: unknown, width: number): string {
+  const normalized = normalizeAssetPath(imagePath);
+  if (!normalized || !normalized.startsWith(PRODUCT_ASSET_PREFIX)) {
+    return '';
+  }
+
+  const relativePath = normalized.slice(PRODUCT_ASSET_PREFIX.length);
+  return `${PRODUCT_VARIANT_PREFIX}/w${width}/images/${relativePath}`;
+}
+
+function publicAssetExists(assetPath: string): boolean {
+  const normalized = normalizeAssetPath(assetPath);
+  if (!normalized) {
+    return false;
+  }
+
+  if (VARIANT_EXISTS_CACHE.has(normalized)) {
+    return VARIANT_EXISTS_CACHE.get(normalized) || false;
+  }
+
+  const exists = existsSync(path.join(PUBLIC_ROOT, normalized));
+  VARIANT_EXISTS_CACHE.set(normalized, exists);
+  return exists;
+}
+
+function getResponsiveVariantSet(
+  imagePath: unknown,
+  widths: readonly number[]
+): ProductImageVariant[] {
+  const normalized = normalizeAssetPath(imagePath);
+  if (!normalized) {
+    return [];
+  }
+
+  return widths
+    .map((width) => {
+      const variantPath = buildVariantAssetPath(normalized, width);
+      if (!variantPath || !publicAssetExists(variantPath)) {
+        return null;
+      }
+      return { src: resolveImageUrl(variantPath), width };
+    })
+    .filter(Boolean) as ProductImageVariant[];
+}
+
+function buildSrcset(variants: ProductImageVariant[]): string | undefined {
+  const srcset = variants
+    .map((variant) => {
+      const src = typeof variant.src === 'string' ? variant.src : variant.url;
+      const width = variant.width;
+      if (!src || typeof width !== 'number') {
+        return '';
+      }
+      return `${src} ${width}w`;
+    })
+    .filter(Boolean)
+    .join(', ');
+
+  return srcset || undefined;
+}
+
+export function getResponsiveImageSource(
+  imagePath: unknown,
+  {
+    widths = DEFAULT_PRODUCT_CARD_WIDTHS,
+    sizes = PRODUCT_CARD_IMAGE_SIZES,
+  }: {
+    widths?: readonly number[];
+    sizes?: string;
+  } = {}
+): ResponsiveImageSource {
+  const variants = getResponsiveVariantSet(imagePath, widths);
+  const srcset = buildSrcset(variants);
+  const src = variants[0]?.src || resolveImageUrl(imagePath);
+
+  return {
+    src,
+    srcset,
+    sizes: srcset ? sizes : undefined,
+  };
+}
+
+export function getProductCardImageSource(imagePath: unknown): ResponsiveImageSource {
+  return getResponsiveImageSource(imagePath, {
+    widths: DEFAULT_PRODUCT_CARD_WIDTHS,
+    sizes: PRODUCT_CARD_IMAGE_SIZES,
+  });
+}
+
+export function getProductDetailImageSource(imagePath: unknown): ResponsiveImageSource {
+  return getResponsiveImageSource(imagePath, {
+    widths: DEFAULT_PRODUCT_DETAIL_WIDTHS,
+    sizes: PRODUCT_DETAIL_IMAGE_SIZES,
+  });
 }
 
 export function getProducts(): ProductRecord[] {

@@ -1,6 +1,6 @@
 {
-  "version": "20260320-142038",
-  "last_updated": "2026-03-20T14:20:38.759307",
+  "version": "20260326-224736",
+  "last_updated": "2026-03-26T22:47:36.252288",
   "rev": 0,
   "products": [
     {
@@ -2705,7 +2705,7 @@
       "description": "Empaque de 800g",
       "price": 5900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Carnesyembutidos",
       "image_path": "assets/images/carnes_y_embutidos/Pechuga pollo deshuesada 800g Seara.webp",
       "image_avif_path": "assets/images/carnes_y_embutidos/Pechuga pollo deshuesada 800g Seara.avif",
@@ -2713,8 +2713,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "price": {
-          "ts": "2025-11-24T19:50:00.154Z",
+        "stock": {
+          "ts": "2026-03-27T01:47:36.251165Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
