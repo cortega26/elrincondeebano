@@ -154,7 +154,52 @@ test('checkUrl sends browser-like probe headers to reduce Cloudflare false posit
 
   assert.equal(capturedHeaders.get('cache-control'), 'no-cache');
   assert.equal(capturedHeaders.get('pragma'), 'no-cache');
+  assert.equal(capturedHeaders.get('sec-fetch-dest'), 'document');
+  assert.equal(capturedHeaders.get('sec-fetch-mode'), 'navigate');
+  assert.equal(capturedHeaders.get('sec-fetch-site'), 'none');
+  assert.equal(capturedHeaders.get('sec-fetch-user'), '?1');
   assert.equal(capturedHeaders.get('upgrade-insecure-requests'), '1');
   assert.match(capturedHeaders.get('accept') || '', /application\/json/);
   assert.match(capturedHeaders.get('user-agent') || '', /Mozilla\/5\.0/);
+});
+
+test('checkUrl retries Cloudflare-like 403 responses before failing', async () => {
+  const { checkUrl } = await loadModule();
+  let attempt = 0;
+
+  await withMockedFetch(
+    async () => {
+      attempt += 1;
+
+      if (attempt === 1) {
+        return new Response('<html><title>Just a moment...</title></html>', {
+          status: 403,
+          headers: {
+            server: 'cloudflare',
+            'cf-ray': 'retry-me',
+            'content-type': 'text/html; charset=utf-8',
+          },
+        });
+      }
+
+      return new Response('ok', {
+        status: 200,
+        headers: { 'content-type': 'text/html; charset=utf-8' },
+      });
+    },
+    async () => {
+      const result = await checkUrl('https://www.elrincondeebano.com', '/', 5000, {
+        maxAttempts: 3,
+        retryDelayMs: 0,
+      });
+
+      assert.equal(result.status, 200);
+      assert.equal(result.ok, true);
+      assert.equal(result.attemptCount, 2);
+      assert.equal(result.retried, true);
+      assert.equal(result.retryHistory.length, 2);
+      assert.equal(result.retryHistory[0].status, 403);
+      assert.match(result.retryHistory[0].retryReason, /Cloudflare-managed challenge/);
+    }
+  );
 });
