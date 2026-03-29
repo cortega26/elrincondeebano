@@ -1060,8 +1060,8 @@ function initStorefront() {
     saveCart(cart);
     updateBadge(cart, { animate: previousState.totalItems !== nextState.totalItems });
     renderCart(cart, { animateTotal: previousState.totalAmount !== nextState.totalAmount });
+    // Keep quick-order cards stable while the shopper is actively editing quantities.
     syncAllActionAreas(cart);
-    renderPersonalizedProducts();
 
     if (quantity > previousQuantity) {
       trackProductSignal(id, 'addedCount');
