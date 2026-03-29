@@ -57,3 +57,24 @@ test('inspectSecurityHeaders rejects drifted CSP and frame policy values', async
   assert.match(inspection.invalid.join('\n'), /x-frame-options/);
   assert.match(inspection.invalid.join('\n'), /permissions-policy/);
 });
+
+test('inspectPublicHtmlEdgeSurface flags disallowed public HTML script markers', async () => {
+  const { inspectPublicHtmlEdgeSurface } = await loadModule();
+  const inspection = inspectPublicHtmlEdgeSurface(`
+    <!doctype html>
+    <html>
+      <body>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js"></script>
+        <script src="/cdn-cgi/challenge-platform/scripts/jsd/main.js"></script>
+      </body>
+    </html>
+  `);
+
+  assert.equal(inspection.ok, false);
+  assert.deepEqual(inspection.findings, [
+    'jsDelivr script reference',
+    'Cloudflare Rocket Loader',
+    'Cloudflare challenge platform',
+  ]);
+});

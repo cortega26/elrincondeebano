@@ -1,7 +1,10 @@
-import { writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
+import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import {
+  formatPublicHtmlFailure,
+  inspectPublicHtmlEdgeSurface,
   formatSecurityHeaderFailure,
   inspectSecurityHeaders,
 } from './security-header-policy.mjs';
@@ -172,8 +175,12 @@ async function assertHttpOk(baseUrl, url, label, timeoutMs) {
 async function probeSecurityHeaders({ baseUrl, url, label, timeoutMs, requireSecurityHeaders = false }) {
   const response = await assertHttpOk(baseUrl, url, label, timeoutMs);
   const securityHeaders = inspectSecurityHeaders(response.headers);
+  const htmlSurface = inspectPublicHtmlEdgeSurface(await response.clone().text());
   if (requireSecurityHeaders && !securityHeaders.ok) {
     fail(formatSecurityHeaderFailure(label, securityHeaders));
+  }
+  if (!htmlSurface.ok) {
+    fail(formatPublicHtmlFailure(label, htmlSurface));
   }
 
   return {
@@ -181,6 +188,7 @@ async function probeSecurityHeaders({ baseUrl, url, label, timeoutMs, requireSec
     finalUrl: response.url,
     status: securityHeaders.ok ? 'pass' : 'warn',
     securityHeaders,
+    htmlSurface,
   };
 }
 
@@ -195,6 +203,10 @@ function ensureWhatsAppPresence(html, pageLabel) {
 async function verifyPage({ baseUrl, url, label, timeoutMs, ensureWhatsapp = false }) {
   const response = await assertHttpOk(baseUrl, url, label, timeoutMs);
   const html = await response.text();
+  const htmlSurface = inspectPublicHtmlEdgeSurface(html);
+  if (!htmlSurface.ok) {
+    fail(formatPublicHtmlFailure(label, htmlSurface));
+  }
   assertOgContract(html, label);
   const ogImage = extractMetaContent(html, 'property', 'og:image');
   const absoluteOgImage = ensureAbsoluteSameOriginHttpsUrl(ogImage, `${label} og:image`, baseUrl);
@@ -219,6 +231,7 @@ async function verifyPage({ baseUrl, url, label, timeoutMs, ensureWhatsapp = fal
 
   return {
     url,
+    htmlSurface,
     ogImage: absoluteOgImage,
     width: Number(width),
     height: Number(height),
@@ -351,18 +364,34 @@ async function runCli() {
 
   const timeoutMsRaw = Number(values['timeout-ms'] || 15000);
   const timeoutMs = Number.isFinite(timeoutMsRaw) && timeoutMsRaw > 0 ? timeoutMsRaw : 15000;
+  const baseUrl = values['base-url'] || '';
 
-  const report = await runCanary({
-    baseUrl: values['base-url'] || '',
-    timeoutMs,
-    categoryPath: values['category-path'] || '',
-    requireSecurityHeaders: values['require-security-headers'] === true,
-  });
+  try {
+    const report = await runCanary({
+      baseUrl,
+      timeoutMs,
+      categoryPath: values['category-path'] || '',
+      requireSecurityHeaders: values['require-security-headers'] === true,
+    });
 
-  if (values.report) {
-    await writeFile(values.report, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+    if (values.report) {
+      await mkdir(path.dirname(values.report), { recursive: true });
+      await writeFile(values.report, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+    }
+    console.log(JSON.stringify(report, null, 2));
+  } catch (error) {
+    if (values.report) {
+      await mkdir(path.dirname(values.report), { recursive: true });
+      const failureReport = {
+        baseUrl,
+        generatedAt: new Date().toISOString(),
+        error: error?.message || String(error),
+        checks: [],
+      };
+      await writeFile(values.report, `${JSON.stringify(failureReport, null, 2)}\n`, 'utf8');
+    }
+    throw error;
   }
-  console.log(JSON.stringify(report, null, 2));
 }
 
 const isDirectRun = process.argv[1] === fileURLToPath(import.meta.url);
