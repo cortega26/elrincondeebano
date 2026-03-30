@@ -24,6 +24,7 @@ from .utils import (
     PIL_WEBP,
     default_category_subdir,
     derive_category_media_subdirs,
+    guess_category_key_from_subdir,
 )
 
 logger = logging.getLogger(__name__)
@@ -850,31 +851,17 @@ class ProductFormDialog(tk.Toplevel):
 
     def _guess_category_from_directory(self, subdir: str) -> Optional[str]:
         """Infer category name from an assets/images subdirectory."""
-        normalized = subdir.strip().replace("\\", "/").strip("/").lower()
-        if not normalized:
-            return None
         try:
             categories = [key for _, key in self.category_choices]
             if not categories:
                 categories = self.product_service.get_categories()
         except Exception:
             categories = [key for _, key in self.category_choices]
-        for category in categories:
-            key = str(category).strip()
-            if not key:
-                continue
-            aliases = self._category_subdir_aliases.get(
-                key,
-                {self._category_subdir(key)},
-            )
-            normalized_aliases = {
-                alias.strip("/").replace("\\", "/").lower()
-                for alias in aliases
-                if alias
-            }
-            if normalized in normalized_aliases:
-                return category
-        return None
+        return guess_category_key_from_subdir(
+            subdir,
+            categories,
+            self._category_subdir_aliases,
+        )
 
     def _update_image_preview(self) -> None:
         try:

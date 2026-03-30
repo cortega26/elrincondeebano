@@ -8,6 +8,7 @@ from admin.product_manager.ui.utils import (
     default_category_subdir,
     derive_category_media_subdirs,
     extract_media_subdir,
+    guess_category_key_from_subdir,
 )
 
 
@@ -62,4 +63,31 @@ def test_derive_category_media_subdirs_uses_deterministic_fallback() -> None:
     require(
         fallback in aliases.get("NuevaCategoria", set()),
         "Expected fallback directory to be present in aliases",
+    )
+
+
+def test_guess_category_key_from_subdir_prefers_exact_default_over_ambiguous_alias() -> None:
+    products = [
+        {"category": "Aguas", "image_path": "assets/images/bebidas/a.webp"},
+        {"category": "Aguas", "image_path": "assets/images/bebidas/b.webp"},
+        {"category": "Bebidas", "image_path": "assets/images/bebidas/c.webp"},
+    ]
+    _, aliases = derive_category_media_subdirs(products, ["Aguas", "Bebidas"])
+
+    require(
+        guess_category_key_from_subdir("bebidas", ["Aguas", "Bebidas"], aliases)
+        == "Bebidas",
+        "Expected canonical Bebidas directory to win over ambiguous learned aliases",
+    )
+
+
+def test_guess_category_key_from_subdir_returns_none_for_ambiguous_noncanonical_alias() -> None:
+    aliases = {
+        "Aguas": {"aguas", "shared"},
+        "Bebidas": {"bebidas", "shared"},
+    }
+
+    require(
+        guess_category_key_from_subdir("shared", ["Aguas", "Bebidas"], aliases) is None,
+        "Expected ambiguous noncanonical alias to be ignored",
     )

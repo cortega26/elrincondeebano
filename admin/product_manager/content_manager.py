@@ -25,13 +25,47 @@ if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parents[2]))
     __package__ = "admin.product_manager"
 
-from .repositories import JsonProductRepository
-from .category_repository import JsonCategoryRepository
-from .category_service import CategoryService
-from .services import ProductService
-from .ui.main_window import MainWindow
-from .ui.components import UIConfig
-from .sync import SyncEngine
+try:
+    from .repositories import JsonProductRepository
+    from .category_repository import JsonCategoryRepository
+    from .category_service import CategoryService
+    from .services import ProductService
+    from .ui.main_window import MainWindow
+    from .ui.components import UIConfig
+    from .sync import SyncEngine
+except ModuleNotFoundError as exc:
+    if __name__ != "__main__":
+        raise
+
+    package_dir = Path(__file__).resolve().parent
+    venv_python = package_dir / ".venv" / "bin" / "python"
+    direct_command = f'"{venv_python}" "{Path(__file__).resolve()}"'
+    module_command = (
+        'cd "{root}" && source admin/product_manager/.venv/bin/activate && '
+        "python -m admin.product_manager.content_manager"
+    ).format(root=Path(__file__).resolve().parents[2])
+
+    guidance = [
+        f"Missing dependency '{exc.name}' in interpreter: {sys.executable}",
+        "This admin tool must run with the project virtual environment.",
+    ]
+    if venv_python.exists():
+        guidance.extend(
+            [
+                "Use one of these commands:",
+                f"  {direct_command}",
+                f"  {module_command}",
+            ]
+        )
+    else:
+        guidance.extend(
+            [
+                "Create the environment first:",
+                f'  "{sys.executable}" -m venv "{package_dir / ".venv"}"',
+            ]
+        )
+
+    raise SystemExit("\n".join(guidance)) from exc
 
 
 class ApplicationError(Exception):

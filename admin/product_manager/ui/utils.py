@@ -109,6 +109,41 @@ def derive_category_media_subdirs(
 
     return primary, aliases
 
+
+def guess_category_key_from_subdir(
+    subdir: str,
+    category_keys: Iterable[str],
+    aliases_by_key: Dict[str, Set[str]],
+) -> Optional[str]:
+    """Resolve a media subdirectory to a category key without ambiguous fallbacks."""
+    normalized = subdir.strip().replace("\\", "/").strip("/").lower()
+    if not normalized:
+        return None
+
+    matches: List[str] = []
+    exact_default_matches: List[str] = []
+    for category in category_keys:
+        key = str(category or "").strip()
+        if not key:
+            continue
+        aliases = aliases_by_key.get(key, {default_category_subdir(key)})
+        normalized_aliases = {
+            alias.strip("/").replace("\\", "/").lower()
+            for alias in aliases
+            if alias
+        }
+        if normalized not in normalized_aliases:
+            continue
+        matches.append(key)
+        if default_category_subdir(key).lower() == normalized:
+            exact_default_matches.append(key)
+
+    if len(exact_default_matches) == 1:
+        return exact_default_matches[0]
+    if len(matches) == 1:
+        return matches[0]
+    return None
+
 # --- Centralized PIL / Image Support Detection ---
 Image: Any = None  # pylint: disable=invalid-name
 ImageTk: Any = None  # pylint: disable=invalid-name
