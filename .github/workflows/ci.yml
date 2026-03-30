@@ -103,7 +103,7 @@ jobs:
             build-a.sha
             build-b.sha
             build-determinism.diff
-          if-no-files-found: warn
+          if-no-files-found: ignore
 
       - name: Generate smoke evidence template
         if: always()
