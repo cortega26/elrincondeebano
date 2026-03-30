@@ -3,8 +3,9 @@
 ## Missing edge security headers
 
 - **Severity:** medium
-- **Detection:** `npm run monitor:live-contract:strict` or the `Live Contract Monitor` workflow.
+- **Detection:** `npm run monitor:live-contract:strict`, `npm run monitor:live-browser-contract`, or the `Live Contract Monitor` / `Post-Deploy Canary` workflows.
 - **Expected behavior:** the public HTML routes at `https://www.elrincondeebano.com/` and `/pages/bebidas.html` must emit the hardening baseline documented in [`EDGE_SECURITY_HEADERS`](./EDGE_SECURITY_HEADERS.md) and must not include `rocket-loader.min.js`, `/cdn-cgi/challenge-platform/`, or script references to `cdn.jsdelivr.net`.
+- **Cloudflare Insights constraint:** the only acceptable analytics surface is the external `https://static.cloudflareinsights.com/beacon.min.js` beacon. Inline Cloudflare Insights bootstrap snippets are treated as edge drift and should be removed rather than whitelisted in CSP.
 - **Important constraint:** the content deploy path is GitHub Pages; fixing the issue requires Cloudflare or equivalent edge configuration, not a rebuild of `astro-poc/dist`.
 - **Runner constraint:** since the 2026-03-29 incident, the scheduled `Live Contract Monitor` runs only from the allowed self-hosted runner. GitHub-hosted probes may receive Cloudflare-managed `403` challenge pages that do not reflect the public contract.
 - **Probe behavior:** the live monitor retries transient edge-style failures (`403` challenge pages, `429`, `5xx`, timeout/network) before opening an incident, and the JSON report records `cf-ray`, attempt count, retry reason, and any disallowed HTML surface findings for triage.
@@ -12,6 +13,7 @@
   1. Confirm the failure with:
      ```bash
      npm run monitor:live-contract:strict
+     npm run monitor:live-browser-contract
      ```
   2. Verify live headers directly:
      ```bash
@@ -33,7 +35,7 @@
      - disable Rocket Loader on `www.elrincondeebano.com/*`
      - exclude public storefront HTML routes from any challenge/JS-detection behavior that injects `/cdn-cgi/challenge-platform/`
      - do not weaken the CSP to accommodate those scripts
-  7. Re-run `npm run monitor:live-contract:strict` and, if doing a manual post-deploy probe, run `Post-Deploy Canary` with `require_security_headers=true`.
+  7. Re-run `npm run monitor:live-contract:strict` and `npm run monitor:live-browser-contract`, and if doing a manual post-deploy probe, run `Post-Deploy Canary` with `require_security_headers=true`.
 
 ## Product data fetch failures
 

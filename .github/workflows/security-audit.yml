@@ -16,6 +16,16 @@ jobs:
   npm-audit:
     runs-on: ubuntu-22.04
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: root
+            working_directory: .
+            lockfile: package-lock.json
+          - label: astro-poc
+            working_directory: astro-poc
+            lockfile: astro-poc/package-lock.json
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
@@ -25,8 +35,11 @@ jobs:
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v4
         with:
           node-version: '22.x'
-      - name: Run npm audit (production only)
-        run: npm audit --production --audit-level=high
+          cache: npm
+          cache-dependency-path: ${{ matrix.lockfile }}
+      - name: Run npm audit (${{ matrix.label }}, production only)
+        working-directory: ${{ matrix.working_directory }}
+        run: npm audit --package-lock-only --omit=dev --audit-level=high
 
   pip-audit:
     runs-on: ubuntu-22.04

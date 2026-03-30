@@ -22,6 +22,29 @@ updates:
           - "*"
         update-types:
           - "major"
+  - package-ecosystem: "npm"
+    directory: "/astro-poc"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 6
+    labels:
+      - "dependencies"
+      - "npm"
+      - "astro-poc"
+    commit-message:
+      prefix: "chore(astro-deps)"
+    groups:
+      astro-npm-patch-minor:
+        patterns:
+          - "*"
+        update-types:
+          - "patch"
+          - "minor"
+      astro-npm-major:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

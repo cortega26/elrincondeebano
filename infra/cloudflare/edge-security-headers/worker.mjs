@@ -1,4 +1,7 @@
-import { buildSecurityHeadersPolicy } from '../../../tools/security-header-policy.mjs';
+import {
+  buildSecurityHeadersPolicy,
+  sanitizePublicHtmlEdgeSurface,
+} from '../../../tools/security-header-policy.mjs';
 
 const CANONICAL_HOST = 'www.elrincondeebano.com';
 const HTML_CONTENT_TYPE_RE = /^\s*text\/html\b/i;
@@ -26,6 +29,22 @@ export function applySecurityHeaders(response, securityHeaders = buildSecurityHe
   });
 }
 
+export async function sanitizeHtmlResponse(response) {
+  const body = await response.text();
+  const sanitized = sanitizePublicHtmlEdgeSurface(body);
+  const headers = new Headers(response.headers);
+
+  if (sanitized.changed) {
+    headers.delete('content-length');
+  }
+
+  return new Response(sanitized.html, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 export default {
   async fetch(request) {
     const response = await fetch(request);
@@ -33,6 +52,6 @@ export default {
       return response;
     }
 
-    return applySecurityHeaders(response);
+    return applySecurityHeaders(await sanitizeHtmlResponse(response));
   },
 };

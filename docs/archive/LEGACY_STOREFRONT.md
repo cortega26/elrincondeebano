@@ -28,8 +28,9 @@ These commands were removed from the active package surface and are no longer pa
 If a change is intended for the public website, validate Astro first:
 
 ```bash
+npm run typecheck
 npm run build
 npm run test:e2e
 ```
 
-Use `npm run build` and `npm run test:e2e` for any current storefront verification.
+Use `npm run typecheck`, `npm run build`, and `npm run test:e2e` for current storefront verification.

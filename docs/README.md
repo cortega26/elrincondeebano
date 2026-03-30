@@ -36,6 +36,12 @@
 - `docs/audit/executive-summary-20260213.md`: executive summary and prioritized post-audit backlog.
 - `docs/audit/backlog-triage-20260310.md`: current backlog triage separating vigente vs resuelto.
 
+## Implementation
+
+- `docs/implementation/README.md`: index for current remediation execution artifacts.
+- `docs/implementation/ELRINCONDEEBANO_REMEDIATION_PLAN.md`: ordered remediation plan derived from the latest storefront audit.
+- `docs/implementation/ELRINCONDEEBANO_REMEDIATION_BACKLOG.md`: assignable remediation backlog with stable IDs, dependencies, and validation criteria.
+
 ## Release and Incidents
 
 - `docs/RELEASE.md`: release workflow.

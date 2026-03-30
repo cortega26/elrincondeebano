@@ -13,7 +13,6 @@ concurrency:
 
 permissions:
   contents: read
-  actions: read
 
 jobs:
   verify:
@@ -50,6 +49,15 @@ jobs:
       - name: Determinism path scan
         run: npm run check:determinism
 
+      - name: Lint repository
+        run: npm run lint
+
+      - name: Typecheck active storefront and legacy modules
+        run: npm run typecheck
+
+      - name: Run unit and integration tests
+        run: npm test
+
       - name: Build project
         run: npm run build
 
@@ -81,8 +89,10 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Run migration certification gate
-        run: npm run certify:migration
+      - name: Run canonical Playwright suite against the validated artifact
+        env:
+          PLAYWRIGHT_SKIP_BUILD: '1'
+        run: npm run test:e2e
 
       - name: Upload determinism artifacts on failure
         if: failure()

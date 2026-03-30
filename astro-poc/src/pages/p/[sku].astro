@@ -24,7 +24,7 @@ const productDescription = item.product.description
   canonicalPath={canonicalPath}
   ogTitle={`${item.product.name} | El Rincón de Ébano`}
   ogDescription={productDescription}
-  ogImage={getProductOgImageUrl(item.product.image_path)}
+  ogImage={getProductOgImageUrl(item.product.image_path, item.product.category)}
   ogImageAlt={item.product.name}
 >
   <ProductDetail item={item} />

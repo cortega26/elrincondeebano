@@ -78,3 +78,59 @@ test('inspectPublicHtmlEdgeSurface flags disallowed public HTML script markers',
     'Cloudflare challenge platform',
   ]);
 });
+
+test('inspectPublicHtmlEdgeSurface flags inline Cloudflare insights bootstrap but allows the external beacon script', async () => {
+  const { inspectPublicHtmlEdgeSurface, sanitizePublicHtmlEdgeSurface } = await loadModule();
+
+  const inlineInspection = inspectPublicHtmlEdgeSurface(`
+    <!doctype html>
+    <html>
+      <body>
+        <script>
+          window.__cfBeacon = "https://static.cloudflareinsights.com/beacon.min.js";
+        </script>
+      </body>
+    </html>
+  `);
+  assert.equal(inlineInspection.ok, false);
+  assert.deepEqual(inlineInspection.findings, ['Cloudflare inline insights bootstrap']);
+
+  const externalInspection = inspectPublicHtmlEdgeSurface(`
+    <!doctype html>
+    <html>
+      <body>
+        <script
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon='{"token":"example"}'
+        ></script>
+      </body>
+    </html>
+  `);
+  assert.equal(externalInspection.ok, true);
+  assert.deepEqual(externalInspection.findings, []);
+
+  const sanitized = sanitizePublicHtmlEdgeSurface(`
+    <!doctype html>
+    <html>
+      <body>
+        <script
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon='{"token":"example"}'
+        ></script>
+        <script>
+          window.__CF$cv$params = { r: 'abc123' };
+          var a = document.createElement('script');
+          a.src = '/cdn-cgi/challenge-platform/scripts/jsd/main.js';
+          document.head.appendChild(a);
+        </script>
+      </body>
+    </html>
+  `);
+  assert.equal(sanitized.changed, true);
+  assert.deepEqual(sanitized.findings, ['Cloudflare inline insights bootstrap']);
+  assert.match(sanitized.html, /static\.cloudflareinsights\.com\/beacon\.min\.js/);
+  assert.doesNotMatch(sanitized.html, /challenge-platform/);
+  assert.doesNotMatch(sanitized.html, /__CF\$cv\$params/);
+});

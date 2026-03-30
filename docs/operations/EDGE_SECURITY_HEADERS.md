@@ -56,6 +56,7 @@ Notas:
 - `style-src` conserva `'unsafe-inline'` por compatibilidad operativa con la superficie actual y Bootstrap.
 - Bootstrap CSS/JS ya sale self-hosted desde el build Astro, así que `cdn.jsdelivr.net` deja de formar parte del baseline del storefront.
 - `script-src` y `connect-src` permiten los endpoints de Cloudflare Web Analytics para evitar bloqueos cuando esa integración está habilitada en el edge.
+- Si Cloudflare Web Analytics está habilitado, la forma aceptable es el script externo `https://static.cloudflareinsights.com/beacon.min.js`; cualquier bootstrap inline equivalente debe tratarse como drift de edge y corregirse fuera del repo.
 - No se debe ampliar `script-src` para acomodar scripts inline dinámicos inyectados por Cloudflare; si aparecen, el remediation path correcto es desactivar esa inyección en edge.
 - `frame-ancestors 'none'` y `X-Frame-Options: DENY` se mantienen en conjunto para compatibilidad de navegadores.
 
@@ -121,6 +122,7 @@ Hardening adicional esperado en Cloudflare sobre HTML público (`www.elrincondee
 - `Rocket Loader`: deshabilitado.
 - Cualquier challenge o JS-detection que inyecte `/cdn-cgi/challenge-platform/` en respuestas `200` de páginas públicas: deshabilitado o excluido de `/`, `/c/*`, `/p/*`, `/pages/*.html`, `/404.html`, `/offline.html`.
 - Cloudflare Web Analytics puede seguir habilitado mientras no introduzca scripts inline no permitidos por el baseline.
+- El monitor repo-side considera aceptable el beacon externo de Cloudflare Insights, pero falla si detecta un bootstrap inline de Insights, `rocket-loader.min.js`, `cdn.jsdelivr.net` o `/cdn-cgi/challenge-platform/` en HTML público.
 
 ## Verificación
 
@@ -136,8 +138,10 @@ curl -s https://www.elrincondeebano.com/pages/bebidas.html | rg -n "cdn\\.jsdeli
 Chequeos repo-side ya disponibles:
 
 - `npm run monitor:live-contract:strict`
+- `npm run monitor:live-browser-contract`
 - workflow `Live Contract Monitor`
-- workflow `Post-Deploy Canary` con `require_security_headers=true`
+- workflow `Deploy static content to Pages`; ahora ejecuta un browser canary bloqueante contra `astro-poc/dist` antes de publicar a Pages para validar `__APP_READY__`, service worker y cart boot path del bundle shipped
+- workflow `Post-Deploy Canary` con `require_security_headers=true`; ahora también ejecuta `tools/live-browser-contract.mjs` en el runner self-hosted para capturar errores de consola/CSP sobre la zona live antes del probe fetch-only
 - ambos probes live también fallan si detectan HTML público contaminado por scripts inyectados desde edge
 
 ## Cierre de backlog
@@ -151,5 +155,5 @@ Chequeos repo-side ya disponibles:
 Estado de cierre al 2026-03-11:
 
 1. cumplido
-2. cumplido
-3. listo para uso operativo
+2. pendiente de un run verde contra la zona live actual
+3. en curso; el repo ya expone monitor estricto y probe browser live, pero la zona actual sigue inyectando `/cdn-cgi/challenge-platform/` y bootstrap inline

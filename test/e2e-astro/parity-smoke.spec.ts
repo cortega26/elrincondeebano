@@ -21,11 +21,52 @@ test('home renders with navbar, catalog, and SEO tags', async ({ page }) => {
 
 test('legacy category route /pages/*.html stays available', async ({ page }) => {
   await page.goto('/pages/bebidas.html', { waitUntil: 'networkidle' });
+  await page.waitForFunction(() => window.__APP_READY__ === true);
   await expect(page.locator('#category-heading')).toHaveText(/Bebidas/i);
   await expect(page.locator('#product-container .producto').first()).toBeVisible();
 
   const canonical = page.locator('link[rel="canonical"]');
   await expect(canonical).toHaveAttribute('href', 'https://www.elrincondeebano.com/bebidas/');
+});
+
+test('category route variants share catalog output while keeping route-specific SEO policy', async ({
+  page,
+}) => {
+  const variants = [
+    { path: '/bebidas/', robots: null },
+    { path: '/c/bebidas/', robots: 'noindex, follow' },
+    { path: '/pages/bebidas.html', robots: 'noindex, follow' },
+  ];
+  const snapshots = [];
+
+  for (const variant of variants) {
+    await page.goto(variant.path, { waitUntil: 'networkidle' });
+    await page.waitForFunction(() => window.__APP_READY__ === true);
+
+    const products = await page.locator('#product-container .producto .card-title').evaluateAll(
+      (elements) => elements.slice(0, 4).map((element) => element.textContent?.trim() || '')
+    );
+    const robotsLocator = page.locator('meta[name="robots"]');
+    const robots =
+      (await robotsLocator.count()) > 0 ? await robotsLocator.getAttribute('content') : null;
+
+    snapshots.push({
+      heading: await page.locator('#category-heading').textContent(),
+      canonical: await page.locator('link[rel="canonical"]').getAttribute('href'),
+      robots,
+      products,
+    });
+  }
+
+  expect(snapshots[0].heading).toMatch(/Bebidas/i);
+  expect(snapshots[0].canonical).toBe('https://www.elrincondeebano.com/bebidas/');
+  expect(snapshots[1].canonical).toBe('https://www.elrincondeebano.com/bebidas/');
+  expect(snapshots[2].canonical).toBe('https://www.elrincondeebano.com/bebidas/');
+  expect(snapshots[0].robots).toBeNull();
+  expect(snapshots[1].robots).toBe('noindex, follow');
+  expect(snapshots[2].robots).toBe('noindex, follow');
+  expect(snapshots[1].products).toEqual(snapshots[0].products);
+  expect(snapshots[2].products).toEqual(snapshots[0].products);
 });
 
 test('disabled category route is not generated', async ({ page }) => {

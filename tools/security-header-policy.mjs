@@ -32,16 +32,30 @@ export const HTML_EDGE_SURFACE_RULES = Object.freeze([
     id: 'third-party-jsdelivr-script',
     label: 'jsDelivr script reference',
     pattern: /<script\b[^>]*\bsrc=["'][^"']*cdn\.jsdelivr\.net/i,
+    sanitizePattern:
+      /<script\b[^>]*\bsrc=["'][^"']*cdn\.jsdelivr\.net[^"']*["'][^>]*>\s*<\/script>\s*/gi,
   },
   {
     id: 'cloudflare-rocket-loader',
     label: 'Cloudflare Rocket Loader',
     pattern: /rocket-loader\.min\.js/i,
+    sanitizePattern:
+      /<script\b[^>]*\bsrc=["'][^"']*rocket-loader\.min\.js[^"']*["'][^>]*>\s*<\/script>\s*/gi,
   },
   {
     id: 'cloudflare-challenge-platform',
     label: 'Cloudflare challenge platform',
     pattern: /\/cdn-cgi\/challenge-platform\//i,
+    sanitizePattern:
+      /<script\b[^>]*\bsrc=["'][^"']*\/cdn-cgi\/challenge-platform\/[^"']*["'][^>]*>\s*<\/script>\s*/gi,
+  },
+  {
+    id: 'cloudflare-inline-insights-bootstrap',
+    label: 'Cloudflare inline insights bootstrap',
+    pattern:
+      /<script\b(?![^>]*\bsrc=)[^>]*>[\s\S]*?(?:cloudflareinsights\.com|static\.cloudflareinsights\.com|data-cf-beacon)[\s\S]*?<\/script>/i,
+    sanitizePattern:
+      /<script\b(?![^>]*\bsrc=)(?![^>]*\btype=["']application\/(?:ld\+)?json["'])[^>]*>[\s\S]*?(?:__CF\$cv\$params|cloudflareinsights\.com|static\.cloudflareinsights\.com|data-cf-beacon|\/cdn-cgi\/challenge-platform\/)[\s\S]*?<\/script>\s*/gi,
   },
 ]);
 
@@ -204,6 +218,33 @@ export function inspectPublicHtmlEdgeSurface(html) {
   return {
     ok: findings.length === 0,
     findings,
+  };
+}
+
+export function sanitizePublicHtmlEdgeSurface(html) {
+  const originalHtml = String(html || '');
+  let sanitizedHtml = originalHtml;
+  const findings = [];
+
+  for (const rule of HTML_EDGE_SURFACE_RULES) {
+    if (!(rule.sanitizePattern instanceof RegExp)) {
+      continue;
+    }
+
+    const sanitizePattern = new RegExp(rule.sanitizePattern.source, rule.sanitizePattern.flags);
+    if (!sanitizePattern.test(sanitizedHtml)) {
+      continue;
+    }
+
+    findings.push(rule.label);
+    sanitizedHtml = sanitizedHtml.replace(sanitizePattern, '');
+  }
+
+  return {
+    ok: findings.length === 0,
+    findings,
+    changed: sanitizedHtml !== originalHtml,
+    html: sanitizedHtml,
   };
 }
 
