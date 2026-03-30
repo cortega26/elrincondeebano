@@ -1,6 +1,6 @@
 {
-  "version": "20260330-175615",
-  "last_updated": "2026-03-30T17:56:15.709973",
+  "version": "20260330-184332",
+  "last_updated": "2026-03-30T18:43:32.678625",
   "rev": 0,
   "products": [
     {
@@ -4767,6 +4767,148 @@
         },
         "order": {
           "ts": "2026-03-30T20:56:15.709273Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "OMO • Detergente Líquido Piel Sensible",
+      "description": "Doypack de 400mL",
+      "price": 2000,
+      "discount": 0,
+      "stock": true,
+      "category": "Limpiezayaseo",
+      "image_path": "assets/images/limpieza_y_aseo/OMO - Detergente líquido piel sensible 400mL.webp",
+      "image_avif_path": "assets/images/limpieza_y_aseo/OMO - Detergente líquido piel sensible 400mL.avif",
+      "order": 182,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2026-03-30T21:16:12.487296Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2026-03-30T21:16:12.487296Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2026-03-30T21:16:12.487296Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2026-03-30T21:16:12.487296Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2026-03-30T21:16:12.487296Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2026-03-30T21:16:12.487296Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2026-03-30T21:16:12.487296Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-03-30T21:16:12.487296Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Darmax  • Lomo Ahumado sin hueso",
+      "description": "Empaque al vacío (Precio x Kg)",
+      "price": 9900,
+      "discount": 0,
+      "stock": true,
+      "category": "Carnesyembutidos",
+      "image_path": "assets/images/carnes_y_embutidos/Lomo-Ahumado-Darmax-500g.webp",
+      "image_avif_path": "assets/images/carnes_y_embutidos/Lomo-Ahumado-Darmax-500g.avif",
+      "order": 183,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2026-03-30T21:43:32.677600Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2026-03-30T21:43:32.677600Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2026-03-30T21:43:32.677600Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2026-03-30T21:43:32.677600Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2026-03-30T21:43:32.677600Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2026-03-30T21:43:32.677600Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2026-03-30T21:43:32.677600Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-03-30T21:43:32.677600Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,

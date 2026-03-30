@@ -13,6 +13,10 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
+from ..image_fallbacks import (
+    generate_fallback_from_avif,
+    guess_fallback_from_avif,
+)
 from ..models import Product
 from ..services import ProductService, ProductServiceError
 from .utils import (
@@ -286,9 +290,12 @@ class ProductFormDialog(tk.Toplevel):
     def browse_image(self) -> None:
         """Open file dialog to select image."""
         file_path = filedialog.askopenfilename(
-            filetypes=[("Archivos de imagen", "*.png *.jpg *.jpeg *.gif *.webp")]
+            filetypes=[("Archivos de imagen", "*.png *.jpg *.jpeg *.gif *.webp *.avif")]
         )
         if not file_path:
+            return
+        if Path(file_path).suffix.lower() == ".avif":
+            self._import_avif_image_file(file_path)
             return
         try:
             base_dir = Path(self._assets_images_root()).resolve()
@@ -368,6 +375,10 @@ class ProductFormDialog(tk.Toplevel):
         file_path = filedialog.askopenfilename(filetypes=[("Imágenes AVIF", "*.avif")])
         if not file_path:
             return
+        self._import_avif_image_file(file_path)
+
+    def _import_avif_image_file(self, file_path: str) -> None:
+        """Copy an AVIF file into the catalog and populate its fallback when possible."""
         try:
             base_dir = Path(self._assets_images_root()).resolve()
             cat_widget = self.entries.get("category")
@@ -565,60 +576,23 @@ class ProductFormDialog(tk.Toplevel):
 
     def _guess_fallback_from_avif(self, avif_rel: str) -> Optional[str]:
         """Infer a non-AVIF fallback path located alongside the AVIF."""
-        avif_rel = avif_rel.strip()
-        if not avif_rel or not avif_rel.startswith("assets/images/"):
-            return None
-        base_dir = self._assets_images_root()
-        relative = avif_rel[len("assets/images/") :].replace("/", os.sep)
-        base, _ = os.path.splitext(relative)
-        for ext in (".webp", ".jpg", ".jpeg", ".png", ".gif"):
-            candidate = os.path.join(base_dir, base + ext)
-            if os.path.exists(candidate):
-                rel_path = os.path.relpath(candidate, base_dir).replace("\\", "/")
-                return f"assets/images/{rel_path}"
-        return None
+        return guess_fallback_from_avif(self._assets_images_root(), avif_rel)
 
     def _generate_fallback_from_avif(self, avif_rel: str) -> Optional[str]:
         """Generate a fallback image from the AVIF source if missing."""
-        if not PIL_AVAILABLE or not PIL_AVIF:
-            return None
-        base_dir = self._assets_images_root()
-        relative = avif_rel[len("assets/images/") :].replace("/", os.sep)
-        avif_path = os.path.join(base_dir, relative)
-        if not os.path.exists(avif_path):
-            return None
-
-        base, _ = os.path.splitext(relative)
-        fallback_ext = ".webp" if PIL_WEBP else ".png"
-        fallback_abs = os.path.join(base_dir, base + fallback_ext)
-
-        try:
-            os.makedirs(os.path.dirname(fallback_abs), exist_ok=True)
-        except Exception:
-            return None
-
-        if os.path.exists(fallback_abs):
-            rel_path = os.path.relpath(fallback_abs, base_dir).replace("\\", "/")
-            return f"assets/images/{rel_path}"
-
-        try:
-            with Image.open(avif_path) as src_img:
-                img = src_img.convert(
-                    "RGBA" if src_img.mode in ("P", "RGBA", "LA") else "RGB"
-                )
-                save_params: Dict[str, Any] = {}
-                if fallback_ext == ".webp":
-                    save_params = {"format": "WEBP", "quality": 85}
-                img.save(fallback_abs, **save_params)
-                img.close()
-        except Exception as exc:
-            logger.warning(
-                "No se pudo generar fallback desde AVIF %s: %s", avif_path, exc
-            )
-            return None
-
-        rel_path = os.path.relpath(fallback_abs, base_dir).replace("\\", "/")
-        return f"assets/images/{rel_path}"
+        resize_max = 1000 if self.resize_opt_var.get() else None
+        preferred_extension = ".webp" if self.convert_webp_var.get() else None
+        return generate_fallback_from_avif(
+            self._assets_images_root(),
+            avif_rel,
+            pil_available=PIL_AVAILABLE,
+            pil_avif=PIL_AVIF,
+            pil_webp=PIL_WEBP,
+            image_module=Image,
+            resize_max=resize_max,
+            preferred_extension=preferred_extension,
+            command_logger=self.logger,
+        )
 
     def _center_on_parent(self) -> None:
         """Center the dialog relative to its parent or screen."""
