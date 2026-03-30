@@ -1,6 +1,6 @@
 {
-  "version": "20260330-152925",
-  "last_updated": "2026-03-30T15:29:25.496022",
+  "version": "20260330-175615",
+  "last_updated": "2026-03-30T17:56:15.709973",
   "rev": 0,
   "products": [
     {
@@ -68,7 +68,14 @@
       "rev": 0,
       "field_last_modified": {
         "stock": {
-          "ts": "2025-11-24T19:48:43.501Z",
+          "ts": "2026-03-30T20:22:38.928121Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-03-30T20:22:38.928121Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -269,7 +276,7 @@
       "description": "Envase retornable",
       "price": 3800,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Bebidas",
       "image_path": "assets/images/bebidas/Coca Cola Zero 3L.webp",
       "image_avif_path": "assets/images/bebidas/Coca Cola Zero 3L.avif",
@@ -278,7 +285,14 @@
       "rev": 0,
       "field_last_modified": {
         "stock": {
-          "ts": "2025-11-24T19:48:48.013Z",
+          "ts": "2026-03-30T20:22:25.551651Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-03-30T20:22:25.551651Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -504,8 +518,8 @@
       "field_last_modified": {}
     },
     {
-      "name": "Rosé E • Misiones de Rengo",
-      "description": "Espumante • Botella de 750mL",
+      "name": "Espumante Rosé • Misiones de Rengo",
+      "description": "Botella de 750mL",
       "price": 6900,
       "discount": 0,
       "stock": false,
@@ -516,8 +530,22 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "stock": {
-          "ts": "2026-02-13T14:04:02.674043Z",
+        "name": {
+          "ts": "2026-03-30T20:48:22.446684Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2026-03-30T20:48:22.446684Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-03-30T20:48:22.446684Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -526,8 +554,8 @@
       }
     },
     {
-      "name": "Demi Sec • Misiones de Rengo",
-      "description": "Espumante • Botella de 750mL",
+      "name": "Espumante Demisec • Misiones de Rengo",
+      "description": "Botella de 750mL",
       "price": 6900,
       "discount": 0,
       "stock": false,
@@ -538,8 +566,22 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "stock": {
-          "ts": "2026-02-13T14:04:16.770129Z",
+        "name": {
+          "ts": "2026-03-30T20:48:06.198633Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2026-03-30T20:48:06.198633Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-03-30T20:48:06.198633Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -548,11 +590,11 @@
       }
     },
     {
-      "name": "Brut • Misiones de Rengo",
-      "description": "Espumante • Botella de 750mL",
+      "name": "Espumante Brut • Misiones de Rengo",
+      "description": "Botella de 750mL",
       "price": 6900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Espumantes",
       "image_path": "assets/images/espumantes/Espumante Misiones de Rengo Brut.webp",
       "image_avif_path": "assets/images/espumantes/Espumante Misiones de Rengo Brut.avif",
@@ -560,8 +602,29 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
+        "name": {
+          "ts": "2026-03-30T20:47:44.862187Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2026-03-30T20:47:44.862187Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
         "stock": {
-          "ts": "2026-03-15T22:35:50.098090Z",
+          "ts": "2026-03-30T20:47:44.862187Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-03-30T20:47:44.862187Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -570,27 +633,48 @@
       }
     },
     {
-      "name": "Brut • Undurraga",
-      "description": "Espumante • Botella de 750mL",
+      "name": "Espumante Brut • Undurraga",
+      "description": "Botella de 750mL",
       "price": 6900,
       "discount": 0,
       "stock": true,
       "category": "Espumantes",
-      "image_path": "assets/images/espumantes/Undurraga Sweet Moscato 750mL.webp",
-      "image_avif_path": "assets/images/espumantes/Undurraga Sweet Moscato 750mL.avif",
+      "image_path": "assets/images/espumantes/Undurraga - Espumante Brut 750mL.webp",
+      "image_avif_path": "assets/images/espumantes/Undurraga - Espumante Brut 750mL.avif",
       "order": 29,
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "price": {
-          "ts": "2026-01-13T22:39:14.292702Z",
+        "name": {
+          "ts": "2026-03-30T20:47:20.911948Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2026-03-30T20:47:20.911948Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2026-03-30T20:47:20.911948Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_avif_path": {
+          "ts": "2026-03-30T20:47:20.911948Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2026-01-13T22:39:14.292702Z",
+          "ts": "2026-03-30T20:47:20.911948Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -1066,7 +1150,7 @@
     {
       "name": "Chuleta Ahumada con hueso x Kg",
       "description": "Empaque congelado y al vacío (peso aprox. 600g)",
-      "price": 8900,
+      "price": 9900,
       "discount": 0,
       "stock": true,
       "category": "Carnesyembutidos",
@@ -1075,7 +1159,22 @@
       "order": 51,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "price": {
+          "ts": "2026-03-30T20:34:33.411430Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-03-30T20:34:33.411430Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "PF • Jamón de Pierna Acaramelado",
@@ -1782,7 +1881,7 @@
     {
       "name": "Our Finest • Chocolate amargo 90% cacao",
       "description": "Barra de 100g",
-      "price": 3800,
+      "price": 3900,
       "discount": 0,
       "stock": true,
       "category": "Chocolates",
@@ -1792,8 +1891,15 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "stock": {
-          "ts": "2026-02-13T13:58:01.922008Z",
+        "price": {
+          "ts": "2026-03-30T20:37:46.791703Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-03-30T20:37:46.791703Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2220,7 +2326,7 @@
       "description": "Botella de 1L",
       "price": 3600,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Aceite de Maravilla Líder 1L.webp",
       "image_avif_path": "assets/images/despensa/Aceite de Maravilla Líder 1L.avif",
@@ -2228,15 +2334,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "discount": {
-          "ts": "2026-01-13T22:37:22.130051Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2026-01-13T22:37:22.130051Z",
+        "stock": {
+          "ts": "2026-03-30T20:41:36.106002Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2639,7 +2738,7 @@
       "description": "Envase retornable",
       "price": 3000,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Bebidas",
       "image_path": "assets/images/bebidas/Coca-Cola-2L.webp",
       "image_avif_path": "assets/images/bebidas/Coca-Cola-2L.avif",
@@ -2648,7 +2747,7 @@
       "rev": 0,
       "field_last_modified": {
         "stock": {
-          "ts": "2025-11-24T19:49:18.206Z",
+          "ts": "2026-03-30T19:51:52.432119Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2661,7 +2760,7 @@
       "description": "Envase retornable",
       "price": 3000,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Bebidas",
       "image_path": "assets/images/bebidas/Coca-Cola-2L sin azucar.webp",
       "image_avif_path": "assets/images/bebidas/Coca-Cola-2L sin azucar.avif",
@@ -2669,8 +2768,15 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "price": {
-          "ts": "2025-10-14T15:25:52.795Z",
+        "stock": {
+          "ts": "2026-03-30T20:23:08.233722Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-03-30T20:23:08.233722Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -3783,7 +3889,7 @@
       "description": "Lata de 170g",
       "price": 6500,
       "discount": 600,
-      "stock": true,
+      "stock": false,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Nescafé - Café instantáneo 170g.webp",
       "image_avif_path": "assets/images/despensa/Nescafé - Café instantáneo 170g.avif",
@@ -3791,57 +3897,15 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-21T19:59:41.753Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2025-10-21T19:59:41.753Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2025-10-21T19:59:41.753Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "discount": {
-          "ts": "2025-10-21T19:59:41.753Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "stock": {
-          "ts": "2025-10-21T19:59:41.753Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2025-10-21T19:59:41.753Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2025-10-21T19:59:41.753Z",
+          "ts": "2026-03-30T20:38:24.690065Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-21T19:59:41.753Z",
+          "ts": "2026-03-30T20:38:24.690065Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -4148,6 +4212,561 @@
         },
         "order": {
           "ts": "2026-03-30T18:29:11.533842Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Cola-Cola 2L",
+      "description": "Envase desechable",
+      "price": 3000,
+      "discount": 0,
+      "stock": true,
+      "category": "Aguas",
+      "image_path": "assets/images/bebidas/Coca Cola 2L desechable.webp",
+      "image_avif_path": "assets/images/bebidas/Coca Cola 2L desechable.avif",
+      "order": 173,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2026-03-30T19:51:40.849101Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2026-03-30T19:51:40.849101Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2026-03-30T19:51:40.849101Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2026-03-30T19:51:40.849101Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2026-03-30T19:51:40.849101Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2026-03-30T19:51:40.849101Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2026-03-30T19:51:40.849101Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-03-30T19:51:40.849101Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Coca-Cola 2L",
+      "description": "Envase desechable",
+      "price": 3000,
+      "discount": 0,
+      "stock": true,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Coca Cola 2L desechable.webp",
+      "image_avif_path": "assets/images/bebidas/Coca Cola 2L desechable.avif",
+      "order": 174,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "category": {
+          "ts": "2026-03-30T19:53:34.996345Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-03-30T19:53:34.996345Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Coca-Cola Zero 2L",
+      "description": "Envase desechable",
+      "price": 3000,
+      "discount": 0,
+      "stock": true,
+      "category": "Bebidas",
+      "image_path": "assets/images/bebidas/Coca Cola Zero 2L desechable.webp",
+      "image_avif_path": "assets/images/bebidas/Coca Cola Zero 2L desechable.avif",
+      "order": 175,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "category": {
+          "ts": "2026-03-30T19:54:48.258627Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-03-30T19:54:48.258627Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Miraflores • Aceite de Maravilla",
+      "description": "Botella de 900mL",
+      "price": 3400,
+      "discount": 0,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Aceite de Maravilla 900mL Miraflores.webp",
+      "image_avif_path": "assets/images/despensa/Aceite de Maravilla 900mL Miraflores.avif",
+      "order": 176,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2026-03-30T20:41:18.450360Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2026-03-30T20:41:18.450360Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2026-03-30T20:41:18.450360Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2026-03-30T20:41:18.450360Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2026-03-30T20:41:18.450360Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2026-03-30T20:41:18.450360Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2026-03-30T20:41:18.450360Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-03-30T20:41:18.450360Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Nescafé • Café Dolca",
+      "description": "Lata de 110g",
+      "price": 4500,
+      "discount": 0,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/Nescafé - Café Instantáneo Dolca 110g.webp",
+      "image_avif_path": "assets/images/despensa/Nescafé - Café Instantáneo Dolca 110g.avif",
+      "order": 177,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2026-03-30T20:43:32.587544Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2026-03-30T20:43:32.587544Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2026-03-30T20:43:32.587544Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2026-03-30T20:43:32.587544Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2026-03-30T20:43:32.587544Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2026-03-30T20:43:32.587544Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2026-03-30T20:43:32.587544Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-03-30T20:43:32.587544Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Espumante Demisec • Undurraga",
+      "description": "Botella de 750mL",
+      "price": 6900,
+      "discount": 0,
+      "stock": true,
+      "category": "Espumantes",
+      "image_path": "assets/images/espumantes/Undurraga - Espumante Demisec 750mL.webp",
+      "image_avif_path": "assets/images/espumantes/Undurraga - Espumante Demisec 750mL.avif",
+      "order": 178,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2026-03-30T20:49:23.112002Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2026-03-30T20:49:23.112002Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2026-03-30T20:49:23.112002Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2026-03-30T20:49:23.112002Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2026-03-30T20:49:23.112002Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2026-03-30T20:49:23.112002Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2026-03-30T20:49:23.112002Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-03-30T20:49:23.112002Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Espumante Sweet • Undurraga",
+      "description": "Botella de 750mL",
+      "price": 6900,
+      "discount": 0,
+      "stock": true,
+      "category": "Espumantes",
+      "image_path": "assets/images/espumantes/Undurraga - Espumante Sweet 750mL.webp",
+      "image_avif_path": "assets/images/espumantes/Undurraga - Espumante Sweet 750mL.avif",
+      "order": 179,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2026-03-30T20:50:38.577539Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2026-03-30T20:50:38.577539Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2026-03-30T20:50:38.577539Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2026-03-30T20:50:38.577539Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2026-03-30T20:50:38.577539Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2026-03-30T20:50:38.577539Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2026-03-30T20:50:38.577539Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-03-30T20:50:38.577539Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Espumante Brut Bri Sparkling • Undurraga",
+      "description": "Botella de 750mL",
+      "price": 6900,
+      "discount": 0,
+      "stock": true,
+      "category": "Espumantes",
+      "image_path": "assets/images/espumantes/Undurraga - Espumante Brut Bri Sparkling 750mL.webp",
+      "image_avif_path": "assets/images/espumantes/Undurraga - Espumante Brut Bri Sparkling 750mL.avif",
+      "order": 180,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2026-03-30T20:53:15.891147Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2026-03-30T20:53:15.891147Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2026-03-30T20:53:15.891147Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2026-03-30T20:53:15.891147Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2026-03-30T20:53:15.891147Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2026-03-30T20:53:15.891147Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2026-03-30T20:53:15.891147Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-03-30T20:53:15.891147Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Valdivieso • Espumante Brut Limited",
+      "description": "Botella de 750mL",
+      "price": 11900,
+      "discount": 1000,
+      "stock": true,
+      "category": "Espumantes",
+      "image_path": "assets/images/espumantes/Valdivieso - Espumante Brut Limited 750mL.webp",
+      "image_avif_path": "assets/images/espumantes/Valdivieso - Espumante Brut Limited 750mL.avif",
+      "order": 181,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2026-03-30T20:56:15.709273Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2026-03-30T20:56:15.709273Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2026-03-30T20:56:15.709273Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2026-03-30T20:56:15.709273Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2026-03-30T20:56:15.709273Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2026-03-30T20:56:15.709273Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2026-03-30T20:56:15.709273Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-03-30T20:56:15.709273Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
