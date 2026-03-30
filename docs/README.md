@@ -41,6 +41,8 @@
 - `docs/implementation/README.md`: index for current remediation execution artifacts.
 - `docs/implementation/ELRINCONDEEBANO_REMEDIATION_PLAN.md`: ordered remediation plan derived from the latest storefront audit.
 - `docs/implementation/ELRINCONDEEBANO_REMEDIATION_BACKLOG.md`: assignable remediation backlog with stable IDs, dependencies, and validation criteria.
+- `docs/implementation/ELRINCONDEEBANO_WORKSPACE_MIGRATION_PLAN.md`: ordered roadmap for formalizing the repo as an npm workspace without changing the current storefront contract.
+- `docs/implementation/ELRINCONDEEBANO_WORKSPACE_MIGRATION_BACKLOG.md`: assignable `WM-*` backlog for the workspace migration, including sequencing, validation, and future-conversation targeting.
 
 ## Release and Incidents
 
