@@ -58,7 +58,7 @@ Objetivo: empezar mañana sin ambigüedad.
   - `audit/rt-remediation-20260311`
 - Confirmar baseline local:
   - `npm ci`
-  - `npm ci --prefix astro-poc`
+  - `(cd astro-poc && npm ci)`
   - `npm run build`
   - `npm test`
   - `npm run typecheck`

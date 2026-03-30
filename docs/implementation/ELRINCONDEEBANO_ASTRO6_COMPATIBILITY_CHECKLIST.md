@@ -42,7 +42,7 @@ Prepared for Phase 4 / `EB-017` of the remediation plan.
 ## Blocking Validation for Phase 4
 
 - `npm ci`
-- `npm ci --prefix astro-poc`
+- `(cd astro-poc && npm ci)`
 - `npm run typecheck`
 - `npm run build`
 - `npm test`

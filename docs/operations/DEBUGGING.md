@@ -10,7 +10,7 @@ Estandarizar depuración local para fallos de build, test y runtime sin introduc
    - `node -v` (objetivo 22.x)
 2. Instalar limpio:
    - `npm ci`
-   - `npm ci --prefix astro-poc`
+   - `(cd astro-poc && npm ci)`
 3. Reproducir fallo en el menor scope posible:
    - lint: `npm run lint`
    - typecheck canónico: `npm run typecheck`
@@ -31,7 +31,7 @@ Estandarizar depuración local para fallos de build, test y runtime sin introduc
    - ejecutar `build` y `e2e` en secuencia, no en paralelo.
 3. Falla solo en CI:
    - comparar versión de runtime y comandos exactos de workflow.
-   - replicar local con `npm ci` y `npm ci --prefix astro-poc`.
+   - replicar local con `npm ci` y `(cd astro-poc && npm ci)`.
 
 ## Evidencia mínima en PR
 
