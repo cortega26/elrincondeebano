@@ -132,8 +132,9 @@ const PRODUCT_VARIANT_PREFIX = 'assets/images/variants';
 const VARIANT_EXISTS_CACHE = new Map<string, boolean>();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const PROJECT_ROOT = path.resolve(__dirname, '../..');
-const PUBLIC_ROOT = path.join(PROJECT_ROOT, 'public');
+const ASTRO_ROOT = path.resolve(__dirname, '../..');
+const REPO_ROOT = path.resolve(ASTRO_ROOT, '..');
+const STATIC_ASSET_ROOTS = [path.join(ASTRO_ROOT, 'public'), REPO_ROOT];
 
 export const PRODUCT_CARD_IMAGE_SIZES =
   '(max-width: 575px) calc(50vw - 1.25rem), (max-width: 991px) calc(33vw - 1.5rem), (max-width: 1399px) calc(25vw - 1.75rem), 280px';
@@ -291,7 +292,7 @@ function publicAssetExists(assetPath: string): boolean {
     return VARIANT_EXISTS_CACHE.get(normalized) || false;
   }
 
-  const exists = existsSync(path.join(PUBLIC_ROOT, normalized));
+  const exists = STATIC_ASSET_ROOTS.some((rootPath) => existsSync(path.join(rootPath, normalized)));
   VARIANT_EXISTS_CACHE.set(normalized, exists);
   return exists;
 }
