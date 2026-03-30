@@ -4,7 +4,6 @@ import '../styles/global.css';
 import Navbar from '../components/Navbar.astro';
 import TrustStrip from '../components/TrustStrip.astro';
 import { getNavigationGroups, getStorefrontExperience } from '../lib/catalog';
-import storefrontScriptUrl from '../scripts/storefront.js?url';
 import { absoluteUrl, DEFAULT_OG_IMAGE, SITE_NAME } from '../lib/seo';
 
 export interface Props {
@@ -86,7 +85,14 @@ const resolvedOgImage = absoluteUrl(ogImage);
       </div>
     </footer>
 
-    <script id="storefront-experience-data" type="application/json" set:html={JSON.stringify(storefrontExperience)}></script>
-    <script type="module" src={storefrontScriptUrl} data-cfasync="false"></script>
+    <script
+      is:inline
+      id="storefront-experience-data"
+      type="application/json"
+      set:html={JSON.stringify(storefrontExperience)}
+    ></script>
+    <script>
+      import '../scripts/storefront.js';
+    </script>
   </body>
 </html>

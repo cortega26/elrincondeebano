@@ -2,7 +2,10 @@ import { defineConfig, devices } from '@playwright/test';
 
 const PORT = Number(process.env.PORT || 8081);
 const baseURL = process.env.PLAYWRIGHT_BASE_URL || `http://127.0.0.1:${PORT}`;
-const webServerCommand = 'npm run build && node scripts/dev-server.mjs astro-poc/dist';
+const webServerCommand =
+  process.env.PLAYWRIGHT_SKIP_BUILD === '1'
+    ? 'node scripts/dev-server.mjs astro-poc/dist'
+    : 'npm run build && node scripts/dev-server.mjs astro-poc/dist';
 
 export default defineConfig({
   testDir: 'test/e2e-astro',

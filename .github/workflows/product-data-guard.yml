@@ -58,8 +58,22 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Run migration certification gate
-        run: npm run certify:migration
+      - name: Lint repository
+        run: npm run lint
+
+      - name: Typecheck active storefront and legacy modules
+        run: npm run typecheck
+
+      - name: Build storefront
+        run: npm run build
+
+      - name: Run unit and integration tests
+        run: npm test
+
+      - name: Run canonical Playwright suite against the validated artifact
+        env:
+          PLAYWRIGHT_SKIP_BUILD: '1'
+        run: npm run test:e2e
 
       - name: Inspect staged output
         run: |

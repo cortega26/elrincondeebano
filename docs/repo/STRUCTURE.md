@@ -21,8 +21,8 @@
 
 ### Operator scripts (`scripts/`)
 
-- Canonical: `dev-server.mjs`, `smoke-checklist.mjs`, `run-cypress.mjs`, `check-css-order.mjs`.
-- Specialized/manual: `python_quality.ps1`, `fix_python_lint.ps1`, `sarif_to_md.py`, `image_to_webp_converter3.py`.
+- Canonical: `dev-server.mjs`, `smoke-checklist.mjs`, `check-css-order.mjs`.
+- Specialized/manual: `run-cypress.mjs`, `python_quality.ps1`, `fix_python_lint.ps1`, `sarif_to_md.py`, `image_to_webp_converter3.py`.
 
 Manual/specialized scripts are kept for targeted maintenance tasks and should not be added to CI gates without explicit RFC/ADR.
 
@@ -35,7 +35,8 @@ Manual/specialized scripts are kept for targeted maintenance tasks and should no
 - Tests:
   - Unit/integration: `test/*.test.js` or `test/*.spec.js`.
   - E2E Playwright (active): `test/e2e-astro/*.spec.ts`.
-  - Cypress: `cypress/e2e/*.cy.ts`.
+  - Supplemental/manual Playwright: `test/e2e/*.spec.ts`.
+  - Supplemental/manual Cypress: `cypress/e2e/*.cy.ts`.
   - Archived legacy storefront checks live under `_archive/legacy-storefront/tests/` and are outside the active assurance path.
 - Documentation:
   - Prompt checkpoints: `docs/audit/prompt-<N>-<topic>-YYYYMMDD.md`.

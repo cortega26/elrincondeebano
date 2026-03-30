@@ -1,26 +1,34 @@
 import * as bootstrap from 'bootstrap';
+import { createCatalogViewController } from './storefront/catalog-view.js';
+import { createPersonalizationEngine } from './storefront/personalization.js';
+import {
+  createStorefrontStorage,
+  STOREFRONT_RUNTIME_CONTRACT,
+} from './storefront/storage-contract.js';
+import {
+  clampQty,
+  createCartItemFromProduct,
+  getCartState,
+  hydrateCartFromOrder,
+  normalizeId,
+  parseNumber,
+  sanitizeCart,
+} from './storefront/storefront-state.js';
 
-const CART_STORAGE_KEY = 'astro-poc-cart';
-const PROFILE_STORAGE_KEY = 'astro-poc-profile';
-const LAST_ORDER_STORAGE_KEY = 'astro-poc-last-order';
-const RECENT_ORDERS_STORAGE_KEY = 'astro-poc-recent-orders';
-const PRODUCT_SIGNALS_STORAGE_KEY = 'astro-poc-product-signals';
-const PREFERRED_PAYMENT_STORAGE_KEY = 'astro-poc-preferred-payment';
-const SUBSTITUTION_PREFERENCE_STORAGE_KEY = 'astro-poc-substitution-preference';
-const MAX_QTY = 50;
 const MAX_RECENT_ORDERS = 6;
 const MAX_PERSONALIZED_ITEMS = 4;
 const WHATSAPP_NUMBER = '56951118901';
-const CATALOG_PAGE_SIZE = 24;
 
 if (typeof window !== 'undefined') {
   globalThis.bootstrap = bootstrap;
   globalThis.__APP_READY__ = false;
+  globalThis.__STOREFRONT_RUNTIME_CONTRACT__ = STOREFRONT_RUNTIME_CONTRACT;
+  window.__STOREFRONT_RUNTIME_CONTRACT__ = STOREFRONT_RUNTIME_CONTRACT;
+  document.documentElement.dataset.storefrontRuntime = STOREFRONT_RUNTIME_CONTRACT.runtimeId;
+  document.documentElement.dataset.storefrontStorageVersion = String(
+    STOREFRONT_RUNTIME_CONTRACT.storageVersion
+  );
 }
-
-let catalogVisibleLimit = CATALOG_PAGE_SIZE;
-let catalogMatchedCount = 0;
-let catalogObserver = null;
 
 function normalizeMetaValue(value) {
   if (value === null || value === undefined) {
@@ -73,28 +81,12 @@ function debounce(fn, wait = 120) {
   };
 }
 
-function parseNumber(value, fallback = 0) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-}
-
-function clampQty(value) {
-  return Math.min(Math.max(parseNumber(value, 0), 0), MAX_QTY);
-}
-
 function formatCurrency(value) {
   return new Intl.NumberFormat('es-CL', {
     style: 'currency',
     currency: 'CLP',
     minimumFractionDigits: 0,
   }).format(parseNumber(value, 0));
-}
-
-function normalizeId(value) {
-  if (typeof value !== 'string' && typeof value !== 'number') {
-    return '';
-  }
-  return String(value).trim();
 }
 
 function normalizeSearchText(value) {
@@ -121,26 +113,6 @@ function createElement(tagName, { className = '', text = '', attrs = {} } = {}) 
   return element;
 }
 
-function loadStoredJson(key, fallback) {
-  try {
-    const stored = globalThis.localStorage.getItem(key);
-    if (!stored) {
-      return fallback;
-    }
-    return JSON.parse(stored);
-  } catch {
-    return fallback;
-  }
-}
-
-function saveStoredJson(key, value) {
-  try {
-    globalThis.localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    // Ignore persistence failures.
-  }
-}
-
 function triggerTransientClass(element, className) {
   if (!(element instanceof HTMLElement)) {
     return;
@@ -150,89 +122,77 @@ function triggerTransientClass(element, className) {
   element.classList.add(className);
 }
 
-function loadCart() {
-  const parsed = loadStoredJson(CART_STORAGE_KEY, []);
-  if (!Array.isArray(parsed)) {
-    return [];
-  }
+const storefrontStorage = createStorefrontStorage({ log });
 
-  return parsed
-    .map((item) => {
-      const id = normalizeId(item?.id);
-      const quantity = clampQty(item?.quantity);
-      if (!id || quantity <= 0) {
-        return null;
-      }
-      return {
-        id,
-        name: typeof item?.name === 'string' ? item.name : id,
-        category: typeof item?.category === 'string' ? item.category : '',
-        price: parseNumber(item?.price, 0),
-        image: typeof item?.image === 'string' ? item.image : '',
-        quantity,
-      };
-    })
-    .filter(Boolean);
+function loadCart() {
+  const cart = sanitizeCart(storefrontStorage.loadJson('cart', []));
+  if (
+    cart.length > 0 &&
+    globalThis.localStorage?.getItem(STOREFRONT_RUNTIME_CONTRACT.storageKeys.cart) === null
+  ) {
+    storefrontStorage.saveJson('cart', cart);
+  }
+  return cart;
 }
 
 function saveCart(cart) {
-  saveStoredJson(CART_STORAGE_KEY, cart);
+  storefrontStorage.saveJson('cart', sanitizeCart(cart));
 }
 
 function loadProfile() {
-  const profile = loadStoredJson(PROFILE_STORAGE_KEY, {});
+  const profile = storefrontStorage.loadJson('profile', {});
   return {
     deliveryNote: typeof profile?.deliveryNote === 'string' ? profile.deliveryNote : '',
   };
 }
 
 function saveProfile(profile) {
-  saveStoredJson(PROFILE_STORAGE_KEY, profile);
+  storefrontStorage.saveJson('profile', profile);
 }
 
 function loadRecentOrders() {
-  const recentOrders = loadStoredJson(RECENT_ORDERS_STORAGE_KEY, []);
+  const recentOrders = storefrontStorage.loadJson('recentOrders', []);
   return Array.isArray(recentOrders) ? recentOrders : [];
 }
 
 function saveRecentOrders(orders) {
-  saveStoredJson(RECENT_ORDERS_STORAGE_KEY, orders.slice(0, MAX_RECENT_ORDERS));
+  storefrontStorage.saveJson('recentOrders', orders.slice(0, MAX_RECENT_ORDERS));
 }
 
 function loadLastOrder() {
-  return loadStoredJson(LAST_ORDER_STORAGE_KEY, null);
+  return storefrontStorage.loadJson('lastOrder', null);
 }
 
 function saveLastOrder(order) {
-  saveStoredJson(LAST_ORDER_STORAGE_KEY, order);
+  storefrontStorage.saveJson('lastOrder', order);
 }
 
 function loadProductSignals() {
-  const signals = loadStoredJson(PRODUCT_SIGNALS_STORAGE_KEY, {});
+  const signals = storefrontStorage.loadJson('productSignals', {});
   return signals && typeof signals === 'object' ? signals : {};
 }
 
 function saveProductSignals(signals) {
-  saveStoredJson(PRODUCT_SIGNALS_STORAGE_KEY, signals);
+  storefrontStorage.saveJson('productSignals', signals);
 }
 
 function loadPreferredPayment() {
-  return normalizeId(loadStoredJson(PREFERRED_PAYMENT_STORAGE_KEY, ''));
+  return normalizeId(storefrontStorage.loadJson('preferredPayment', ''));
 }
 
 function savePreferredPayment(value) {
   if (value) {
-    saveStoredJson(PREFERRED_PAYMENT_STORAGE_KEY, value);
+    storefrontStorage.saveJson('preferredPayment', value);
   }
 }
 
 function loadSubstitutionPreference() {
-  return normalizeId(loadStoredJson(SUBSTITUTION_PREFERENCE_STORAGE_KEY, 'Preguntar antes'));
+  return normalizeId(storefrontStorage.loadJson('substitutionPreference', 'Preguntar antes'));
 }
 
 function saveSubstitutionPreference(value) {
   if (value) {
-    saveStoredJson(SUBSTITUTION_PREFERENCE_STORAGE_KEY, value);
+    storefrontStorage.saveJson('substitutionPreference', value);
   }
 }
 
@@ -333,15 +293,6 @@ function getProductByIdFromSource(id) {
   return getProductFromCard(
     getSourceProductCards().find((card) => normalizeId(card.dataset.productId) === id)
   );
-}
-
-function getCartState(cart) {
-  const totalItems = cart.reduce((total, item) => total + clampQty(item.quantity), 0);
-  const totalAmount = cart.reduce(
-    (total, item) => total + parseNumber(item.price, 0) * clampQty(item.quantity),
-    0
-  );
-  return { totalItems, totalAmount };
 }
 
 function updateBadge(cart, { animate = false } = {}) {
@@ -480,107 +431,21 @@ function syncProfileSummary(profile, lastOrder) {
   content.replaceChildren(title, detail);
 }
 
-function trackProductSignal(productId, field) {
-  if (!productId || !field) {
-    return;
-  }
-  const signals = loadProductSignals();
-  const current =
-    signals[productId] && typeof signals[productId] === 'object' ? signals[productId] : {};
-  current[field] = parseNumber(current[field], 0) + 1;
-  current.lastSeenAt = new Date().toISOString();
-  signals[productId] = current;
-  saveProductSignals(signals);
-}
-
-function recordOrderForPersonalization(cart, profile, payment, substitutionPreference) {
-  const timestamp = new Date().toISOString();
-  const order = {
-    timestamp,
-    payment,
-    substitutionPreference,
-    profile,
-    items: cart.map((item) => ({
-      id: item.id,
-      name: item.name,
-      category: item.category,
-      price: item.price,
-      quantity: item.quantity,
-      image: item.image,
-    })),
-  };
-
-  saveLastOrder(order);
-  saveRecentOrders([order, ...loadRecentOrders()]);
-
-  const signals = loadProductSignals();
-  order.items.forEach((item) => {
-    const current =
-      signals[item.id] && typeof signals[item.id] === 'object' ? signals[item.id] : {};
-    current.orderedCount = parseNumber(current.orderedCount, 0) + 1;
-    current.lastOrderedAt = timestamp;
-    signals[item.id] = current;
-  });
-  saveProductSignals(signals);
-}
-
-function scoreProductId(productId) {
-  const signals = loadProductSignals();
-  const signal =
-    signals[productId] && typeof signals[productId] === 'object' ? signals[productId] : {};
-  let score = parseNumber(signal.addedCount, 0) * 2 + parseNumber(signal.orderedCount, 0) * 5;
-
-  if (signal.lastSeenAt) {
-    const age = Date.now() - new Date(signal.lastSeenAt).getTime();
-    if (Number.isFinite(age) && age < 1000 * 60 * 60 * 24 * 7) {
-      score += 2;
-    }
-  }
-
-  if (signal.lastOrderedAt) {
-    const age = Date.now() - new Date(signal.lastOrderedAt).getTime();
-    if (Number.isFinite(age) && age < 1000 * 60 * 60 * 24 * 14) {
-      score += 3;
-    }
-  }
-
-  return score;
-}
-
-function getPersonalizedProductIds() {
-  const ranked = new Map();
-  const lastOrder = loadLastOrder();
-  const recentOrders = loadRecentOrders();
-
-  if (lastOrder && Array.isArray(lastOrder.items)) {
-    lastOrder.items.forEach((item, index) => {
-      ranked.set(item.id, (ranked.get(item.id) || 0) + 12 - index);
-    });
-  }
-
-  recentOrders.forEach((order, orderIndex) => {
-    if (!Array.isArray(order?.items)) {
-      return;
-    }
-    order.items.forEach((item) => {
-      ranked.set(item.id, (ranked.get(item.id) || 0) + Math.max(6 - orderIndex, 1));
-    });
-  });
-
-  getSourceProductCards().forEach((card) => {
-    const productId = normalizeId(card.dataset.productId);
-    if (!productId) {
-      return;
-    }
-    ranked.set(productId, (ranked.get(productId) || 0) + scoreProductId(productId));
-  });
-
-  return [...ranked.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .map(([productId]) => productId)
-    .filter((productId) => !!getProductByIdFromSource(productId))
-    .slice(0, MAX_PERSONALIZED_ITEMS);
-}
+const personalizationEngine = createPersonalizationEngine({
+  loadLastOrder,
+  saveLastOrder,
+  loadRecentOrders,
+  saveRecentOrders,
+  loadProductSignals,
+  saveProductSignals,
+  parseNumber,
+  getVisibleProductIds: () =>
+    getSourceProductCards()
+      .map((card) => normalizeId(card.dataset.productId))
+      .filter(Boolean),
+  resolveProductById: (productId) => getProductByIdFromSource(productId),
+  maxPersonalizedItems: MAX_PERSONALIZED_ITEMS,
+});
 
 function renderPersonalizedProducts() {
   const container = document.getElementById('home-personalized-grid');
@@ -589,7 +454,7 @@ function renderPersonalizedProducts() {
     return;
   }
 
-  const personalizedIds = getPersonalizedProductIds();
+  const personalizedIds = personalizationEngine.getPersonalizedProductIds();
   if (personalizedIds.length === 0) {
     if (note) {
       note.textContent =
@@ -799,124 +664,19 @@ function openCartOffcanvas() {
   offcanvasElement.style.transform = 'none';
 }
 
-function updateCatalogView() {
-  const container = document.getElementById('product-container');
-  const sortSelect = document.getElementById('sort-options');
-  const searchInput = document.getElementById('filter-keyword');
-  const discountCheckbox = document.getElementById('filter-discount');
-  const loadMoreBtn = document.getElementById('catalog-load-more');
-  const resultsStatus = document.getElementById('catalog-results-status');
-  const emptyState = document.getElementById('catalog-empty-state');
-  if (!(container instanceof HTMLElement)) {
-    return;
-  }
-
-  const products = Array.from(container.querySelectorAll('.producto'));
-  const sortValue = sortSelect?.value || 'original';
-  const keyword = normalizeSearchText(searchInput?.value || '');
-  const discountOnly = !!discountCheckbox?.checked;
-
-  const sortedProducts = [...products].sort((a, b) => {
-    const aOrder = parseNumber(a.dataset.productOrder, 0);
-    const bOrder = parseNumber(b.dataset.productOrder, 0);
-    const aName = normalizeSearchText(a.dataset.productName || '');
-    const bName = normalizeSearchText(b.dataset.productName || '');
-    const aPrice = parseNumber(a.dataset.productFinalPrice, 0);
-    const bPrice = parseNumber(b.dataset.productFinalPrice, 0);
-
-    switch (sortValue) {
-      case 'name-asc':
-        return aName.localeCompare(bName, 'es');
-      case 'name-desc':
-        return bName.localeCompare(aName, 'es');
-      case 'price-asc':
-        return aPrice - bPrice;
-      case 'price-desc':
-        return bPrice - aPrice;
-      default:
-        return aOrder - bOrder;
-    }
+function createCatalogController() {
+  return createCatalogViewController({
+    container: document.getElementById('product-container'),
+    sortSelect: document.getElementById('sort-options'),
+    searchInput: document.getElementById('filter-keyword'),
+    discountCheckbox: document.getElementById('filter-discount'),
+    loadMoreButton: document.getElementById('catalog-load-more'),
+    resultsStatus: document.getElementById('catalog-results-status'),
+    emptyState: document.getElementById('catalog-empty-state'),
+    sentinel: document.getElementById('catalog-sentinel'),
+    normalizeSearchText,
+    parseNumber,
   });
-
-  sortedProducts.forEach((item) => container.appendChild(item));
-
-  const matchingProducts = [];
-  sortedProducts.forEach((item) => {
-    const name = normalizeSearchText(item.dataset.productName || '');
-    const hasDiscount = parseNumber(item.dataset.productDiscount, 0) > 0;
-    const keywordMatch = !keyword || name.includes(keyword);
-    const discountMatch = !discountOnly || hasDiscount;
-    if (keywordMatch && discountMatch) {
-      matchingProducts.push(item);
-    }
-  });
-
-  catalogMatchedCount = matchingProducts.length;
-  const matchingSet = new Set(matchingProducts);
-  matchingProducts.forEach((item, index) => {
-    const isVisible = index < catalogVisibleLimit;
-    item.classList.toggle('is-hidden', !isVisible);
-  });
-
-  sortedProducts.forEach((item) => {
-    if (!matchingSet.has(item)) {
-      item.classList.add('is-hidden');
-    }
-  });
-
-  container.setAttribute('data-total-products', String(catalogMatchedCount));
-
-  if (resultsStatus) {
-    resultsStatus.textContent = `${catalogMatchedCount} productos encontrados`;
-  }
-
-  if (emptyState) {
-    emptyState.classList.toggle('d-none', catalogMatchedCount > 0);
-  }
-
-  if (loadMoreBtn) {
-    const hasMore = catalogMatchedCount > catalogVisibleLimit;
-    loadMoreBtn.classList.toggle('d-none', !hasMore);
-    const remaining = Math.max(catalogMatchedCount - catalogVisibleLimit, 0);
-    loadMoreBtn.textContent = hasMore
-      ? `Cargar más productos (${remaining} restantes)`
-      : 'Cargar más productos';
-  }
-}
-
-function resetCatalogVisibleLimit() {
-  catalogVisibleLimit = CATALOG_PAGE_SIZE;
-}
-
-function loadMoreCatalogProducts() {
-  if (catalogVisibleLimit >= catalogMatchedCount) {
-    return;
-  }
-  catalogVisibleLimit = Math.min(catalogVisibleLimit + CATALOG_PAGE_SIZE, catalogMatchedCount);
-  updateCatalogView();
-}
-
-function setupCatalogPagination() {
-  const sentinel = document.getElementById('catalog-sentinel');
-  if (!sentinel || typeof globalThis.IntersectionObserver !== 'function') {
-    return;
-  }
-
-  if (catalogObserver) {
-    catalogObserver.disconnect();
-  }
-
-  catalogObserver = new globalThis.IntersectionObserver(
-    (entries) => {
-      const inView = entries.some((entry) => entry.isIntersecting);
-      if (inView) {
-        loadMoreCatalogProducts();
-      }
-    },
-    { rootMargin: '240px 0px' }
-  );
-
-  catalogObserver.observe(sentinel);
 }
 
 function hydrateProfilePersistence() {
@@ -965,7 +725,7 @@ function submitCartOrder(cart) {
   saveProfile(profile);
   savePreferredPayment(selectedPayment);
   saveSubstitutionPreference(substitutionPreference);
-  recordOrderForPersonalization(cart, profile, selectedPayment, substitutionPreference);
+  personalizationEngine.recordOrder(cart, profile, selectedPayment, substitutionPreference);
 
   const lines = ['Hola, quiero confirmar este pedido:', ''];
 
@@ -1022,9 +782,12 @@ async function registerServiceWorker() {
 }
 
 function initStorefront() {
+  storefrontStorage.migrateLegacyState();
+
   let cart = loadCart();
   const initialProfile = loadProfile();
   const lastOrder = loadLastOrder();
+  const catalogController = createCatalogController();
 
   populateProfileForm(initialProfile);
   setPreferredPayment(loadPreferredPayment());
@@ -1049,14 +812,10 @@ function initStorefront() {
     } else if (index >= 0) {
       cart[index].quantity = quantity;
     } else if (fallbackProduct) {
-      cart.push({
-        id: fallbackProduct.id,
-        name: fallbackProduct.name,
-        category: fallbackProduct.category,
-        price: fallbackProduct.price,
-        image: fallbackProduct.image,
-        quantity,
-      });
+      const nextItem = createCartItemFromProduct(fallbackProduct, quantity);
+      if (nextItem) {
+        cart.push(nextItem);
+      }
     }
 
     const nextState = getCartState(cart);
@@ -1067,7 +826,7 @@ function initStorefront() {
     syncAllActionAreas(cart);
 
     if (quantity > previousQuantity) {
-      trackProductSignal(id, 'addedCount');
+      personalizationEngine.trackProductSignal(id, 'addedCount');
     }
   };
 
@@ -1092,16 +851,7 @@ function initStorefront() {
     if (!order || !Array.isArray(order.items) || order.items.length === 0) {
       return;
     }
-    cart = order.items
-      .map((item) => ({
-        id: normalizeId(item.id),
-        name: typeof item.name === 'string' ? item.name : '',
-        category: typeof item.category === 'string' ? item.category : '',
-        price: parseNumber(item.price, 0),
-        image: typeof item.image === 'string' ? item.image : '',
-        quantity: clampQty(item.quantity),
-      }))
-      .filter((item) => item.id && item.quantity > 0);
+    cart = hydrateCartFromOrder(order);
 
     saveCart(cart);
     updateBadge(cart, { animate: true });
@@ -1227,8 +977,8 @@ function initStorefront() {
     }
 
     if (target.id === 'sort-options' || target.id === 'filter-discount') {
-      resetCatalogVisibleLimit();
-      updateCatalogView();
+      catalogController.resetVisibleLimit();
+      catalogController.updateView();
       return;
     }
 
@@ -1255,14 +1005,14 @@ function initStorefront() {
   keywordInput?.addEventListener(
     'input',
     debounce(() => {
-      resetCatalogVisibleLimit();
-      updateCatalogView();
+      catalogController.resetVisibleLimit();
+      catalogController.updateView();
     })
   );
 
   const loadMoreBtn = document.getElementById('catalog-load-more');
   loadMoreBtn?.addEventListener('click', () => {
-    loadMoreCatalogProducts();
+    catalogController.loadMore();
   });
 
   hydrateProfilePersistence();
@@ -1271,12 +1021,16 @@ function initStorefront() {
   syncAllActionAreas(cart);
   renderPersonalizedProducts();
   initServiceOnboarding();
-  resetCatalogVisibleLimit();
-  updateCatalogView();
-  setupCatalogPagination();
+  catalogController.resetVisibleLimit();
+  catalogController.updateView();
+  catalogController.setupPagination();
   setupOnlineStatusIndicator();
   registerServiceWorker();
 
+  document.documentElement.dataset.storefrontRuntime = STOREFRONT_RUNTIME_CONTRACT.runtimeId;
+  document.documentElement.dataset.storefrontStorageVersion = String(
+    STOREFRONT_RUNTIME_CONTRACT.storageVersion
+  );
   document.documentElement.dataset.enhancementsInit = '1';
   globalThis.__APP_READY__ = true;
 }

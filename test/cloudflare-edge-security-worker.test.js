@@ -49,6 +49,44 @@ test('applySecurityHeaders injects the documented edge baseline without dropping
   );
 });
 
+test('sanitizeHtmlResponse removes disallowed Cloudflare-injected HTML while preserving allowed beacon scripts', async () => {
+  const { sanitizeHtmlResponse } = await loadModule();
+
+  const original = new Response(
+    `<!doctype html>
+      <html>
+        <head>
+          <script src="https://static.cloudflareinsights.com/beacon.min.js" defer></script>
+        </head>
+        <body>
+          <h1>ok</h1>
+          <script>
+            window.__CF$cv$params = { r: 'abc123' };
+            var a = document.createElement('script');
+            a.src = '/cdn-cgi/challenge-platform/scripts/jsd/main.js';
+            document.head.appendChild(a);
+          </script>
+        </body>
+      </html>`,
+    {
+      status: 200,
+      headers: {
+        'content-type': 'text/html; charset=utf-8',
+        etag: '"abc123"',
+      },
+    }
+  );
+
+  const sanitized = await sanitizeHtmlResponse(original);
+  const html = await sanitized.text();
+
+  assert.equal(sanitized.headers.get('etag'), '"abc123"');
+  assert.match(html, /static\.cloudflareinsights\.com\/beacon\.min\.js/);
+  assert.match(html, /<h1>ok<\/h1>/);
+  assert.doesNotMatch(html, /challenge-platform/);
+  assert.doesNotMatch(html, /__CF\$cv\$params/);
+});
+
 test('worker fetch handler hardens canonical-host HTML and leaves assets unchanged', async () => {
   const workerModule = await loadModule();
 
@@ -62,10 +100,13 @@ test('worker fetch handler hardens canonical-host HTML and leaves assets unchang
       });
     }
 
-    return new Response('<!doctype html><h1>ok</h1>', {
-      status: 200,
-      headers: { 'content-type': 'text/html; charset=utf-8' },
-    });
+    return new Response(
+      '<!doctype html><h1>ok</h1><script>window.__CF$cv$params={r:"abc"};var a=document.createElement("script");a.src="/cdn-cgi/challenge-platform/scripts/jsd/main.js";document.head.appendChild(a);</script>',
+      {
+        status: 200,
+        headers: { 'content-type': 'text/html; charset=utf-8' },
+      }
+    );
   };
 
   try {
@@ -74,7 +115,10 @@ test('worker fetch handler hardens canonical-host HTML and leaves assets unchang
       {},
       {}
     );
+    const html = await htmlResponse.text();
     assert.equal(htmlResponse.headers.get('x-frame-options'), 'DENY');
+    assert.doesNotMatch(html, /challenge-platform/);
+    assert.doesNotMatch(html, /__CF\$cv\$params/);
 
     const assetResponse = await workerModule.default.fetch(
       new Request('https://www.elrincondeebano.com/assets/images/web/logo.webp'),

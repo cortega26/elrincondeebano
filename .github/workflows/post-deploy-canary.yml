@@ -51,7 +51,6 @@ on:
 
 permissions:
   contents: read
-  actions: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -141,6 +140,16 @@ jobs:
       - name: Build storefront (artifact contract scope)
         run: npm run build
 
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser canary against the shipped artifact
+        id: browser_canary
+        continue-on-error: true
+        env:
+          PLAYWRIGHT_SKIP_BUILD: '1'
+        run: npx playwright test -c playwright.astro.config.ts test/e2e-astro/deploy-canary.spec.ts --trace on
+
       - name: Write artifact canary report
         shell: bash
         run: |
@@ -152,8 +161,14 @@ jobs:
             "deploySha": "${{ steps.meta.outputs.deploy_sha }}",
             "generatedAt": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
             "checks": [
-              "npm run build"
-            ]
+              "npm run build",
+              "browser-canary:${{ steps.browser_canary.outcome }}"
+            ],
+            "browserCanary": {
+              "mode": "observed",
+              "status": "${{ steps.browser_canary.outcome }}",
+              "command": "npx playwright test -c playwright.astro.config.ts test/e2e-astro/deploy-canary.spec.ts --trace on"
+            }
           }
           JSON
 
@@ -165,6 +180,16 @@ jobs:
           path: reports/canary
           if-no-files-found: error
 
+      - name: Upload browser canary artifacts
+        if: always()
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4
+        with:
+          name: post-deploy-browser-canary
+          path: |
+            test-results
+            playwright-report
+          if-no-files-found: ignore
+
       - name: Write canary summary
         if: always()
         shell: bash
@@ -175,6 +200,7 @@ jobs:
             echo "- Deploy SHA: ${{ steps.meta.outputs.deploy_sha }}"
             echo "- Base URL metadata: ${{ steps.meta.outputs.base_url }}"
             echo "- Mode: artifact-contract (no live network probe on GitHub-hosted runners)"
+            echo "- Browser canary: ${{ steps.browser_canary.outcome }} (observed, non-blocking)"
             echo ""
             if [ "${{ job.status }}" = "success" ]; then
               echo "Result: ✅ Artifact contract checks passed."
@@ -207,6 +233,18 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium
+
+      - name: Run live browser contract probe
+        shell: bash
+        run: |
+          mkdir -p reports/canary
+          node tools/live-browser-contract.mjs \
+            --base-url "${{ needs.artifact-canary.outputs.base_url }}" \
+            --timeout-ms "${{ needs.artifact-canary.outputs.timeout_ms }}" \
+            --report reports/canary/live-browser.json
 
       - name: Run live canary probes (allowed network)
         shell: bash
@@ -243,6 +281,7 @@ jobs:
             echo "- Timeout (ms): ${{ needs.artifact-canary.outputs.timeout_ms }}"
             echo "- Deploy SHA: ${{ needs.artifact-canary.outputs.deploy_sha }}"
             echo "- Runner: self-hosted (allowed network)"
+            echo "- Live browser contract: enforced"
             echo "- Require security headers: ${{ inputs.require_security_headers }}"
             echo ""
             if [ "${{ job.status }}" = "success" ]; then

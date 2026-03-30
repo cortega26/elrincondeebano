@@ -190,7 +190,7 @@ if (!TEST_MODE) {
     );
   });
 
-  const getCacheKeyForRequest = (request, url) => {
+  const getCacheKeyForRequest = (url) => {
     if (url.pathname.endsWith('.html')) {
       return { cacheName: CACHE_CONFIG.prefixes.html, type: 'html' };
     }
@@ -350,7 +350,7 @@ if (!TEST_MODE) {
           });
         }
 
-        const { cacheName, type } = getCacheKeyForRequest(req, url);
+        const { cacheName, type } = getCacheKeyForRequest(url);
         const cache = await caches.open(cacheName);
         const cached = await cache.match(req);
 

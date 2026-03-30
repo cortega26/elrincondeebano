@@ -142,9 +142,39 @@ export function getCategoryOgImageUrl(categorySlug: string, options?: SeoFileOpt
   return DEFAULT_OG_IMAGE;
 }
 
-export function getProductOgImageUrl(imagePath: string | undefined): string {
-  if (!imagePath || !imagePath.trim()) {
-    return DEFAULT_OG_IMAGE;
+function isSupportedOgImagePath(pathOrUrl: string): boolean {
+  const rawValue = String(pathOrUrl || '').trim();
+  if (!rawValue) {
+    return false;
   }
-  return absoluteUrl(imagePath.replace(/^\/+/, '/'));
+
+  let pathname = rawValue;
+  if (/^https?:\/\//i.test(rawValue)) {
+    pathname = new URL(rawValue).pathname;
+  }
+
+  return /\.(?:jpe?g|png)$/i.test(pathname);
+}
+
+export function getProductOgImageUrl(
+  imagePath: string | undefined,
+  categorySlug?: string,
+  options?: SeoFileOptions
+): string {
+  const normalizedImagePath = String(imagePath || '').trim();
+  if (normalizedImagePath && isSupportedOgImagePath(normalizedImagePath)) {
+    if (/^https?:\/\//i.test(normalizedImagePath)) {
+      return absoluteUrl(normalizedImagePath);
+    }
+
+    const normalizedAssetPath = normalizePath(normalizedImagePath);
+    return withVersionQuery(normalizedAssetPath, versionTokenFromFile(normalizedAssetPath, options));
+  }
+
+  const categoryOgImageUrl = getCategoryOgImageUrl(String(categorySlug || '').trim(), options);
+  if (categoryOgImageUrl !== DEFAULT_OG_IMAGE) {
+    return categoryOgImageUrl;
+  }
+
+  return DEFAULT_OG_IMAGE;
 }

@@ -10,15 +10,17 @@ El Rincon de Ebano.
 A change is done only when all items below are true:
 
 1. `npm run lint` passes with no errors.
-2. `npm test` passes.
-3. `npm run build` passes and generates a valid `astro-poc/dist/` deployment snapshot.
-4. `npm run guardrails:assets` passes when images, catalog references, templates,
+2. `npm run typecheck` passes, including Astro-native validation for `astro-poc/`.
+3. `npm test` passes.
+4. `npm run build` passes and generates a valid `astro-poc/dist/` deployment snapshot.
+5. `npm run guardrails:assets` passes when images, catalog references, templates,
    or build tooling are touched.
-5. `npm run test:e2e` passes when routes, navigation, cart, rendering,
-   service worker, or checkout-related UX are affected.
-6. Manual smoke checklist is executed for user-facing changes:
+6. `npm run test:e2e` passes when routes, navigation, cart, rendering,
+   service worker, checkout-related UX, or product-page metadata are affected. The
+   canonical suite is `playwright.astro.config.ts` over `test/e2e-astro/`.
+7. Manual smoke checklist is executed for user-facing changes:
    `npm run smoke:manual` and `docs/operations/SMOKE_TEST.md`.
-7. Evidence (commands and outcomes) is attached to the PR.
+8. Evidence (commands and outcomes) is attached to the PR.
 
 ## Sensitive Production Areas
 
@@ -28,8 +30,8 @@ The following areas require extra caution and explicit rollback notes:
    `astro-poc/src/pages/c/[category].astro`, `data/category_registry.json`).
 2. SEO metadata, sitemap, robots, structured data (`astro-poc/src/lib/seo.ts`,
    `astro-poc/scripts/postbuild-sitemap.mjs`, `robots.txt`).
-3. Cart and checkout-related flows (`src/js/modules/cart.mjs`,
-   `src/js/modules/checkout.mjs`).
+3. Cart, repeat-order, and checkout-related flows (`astro-poc/src/scripts/storefront.js`,
+   `astro-poc/src/scripts/storefront/*.js`, `astro-poc/src/components/Navbar.astro`).
 4. Product catalog and inventory contracts (`data/product_data.json`,
    `data/categories.json`, `data/category_registry.json`).
 5. Images and asset pipeline (`tools/generate-images.mjs`,
@@ -61,6 +63,7 @@ Use this process in PR descriptions for risky changes:
 2. Run `git revert <sha>` in a dedicated rollback branch.
 3. Re-run:
    - `npm run lint`
+   - `npm run typecheck`
    - `npm test`
    - `npm run build`
    - `npm run test:e2e` (if affected area had e2e coverage)

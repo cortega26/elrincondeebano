@@ -1,17 +1,6 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import ProductGrid from '../components/ProductGrid.astro';
-import CatalogControls from '../components/CatalogControls.astro';
-import {
-  getCategoryDescription,
-  getCategoryLabel,
-  getModernCategoryPath,
-  getCategoryRouteParams,
-  getCategorySlug,
-  getProductsByCategory,
-  resolveCategoryParamToKey,
-} from '../lib/catalog';
-import { getCategoryOgImageUrl } from '../lib/seo';
+import CategoryCatalogPage from '../components/CategoryCatalogPage.astro';
+import { getCategoryRouteParams, resolveCategoryParamToKey } from '../lib/catalog';
 
 export function getStaticPaths() {
   return getCategoryRouteParams().map(({ param, categoryKey }) => ({
@@ -23,52 +12,6 @@ export function getStaticPaths() {
 const { category } = Astro.params;
 const routeProps = Astro.props as { categoryKey?: string };
 const categoryKey = routeProps.categoryKey || resolveCategoryParamToKey(category || '') || '';
-const products = getProductsByCategory(categoryKey);
-const categoryLabel = getCategoryLabel(categoryKey);
-const categoryDescription = getCategoryDescription(categoryKey);
-const categorySlug = getCategorySlug(categoryKey).toLowerCase();
-const canonicalPath = getModernCategoryPath(categoryKey);
 ---
 
-<BaseLayout
-  title={`El Rincón de Ébano - ${categoryLabel}`}
-  description={categoryDescription}
-  canonicalPath={canonicalPath}
-  ogTitle={`El Rincón de Ébano - ${categoryLabel}`}
-  ogDescription={categoryDescription}
-  ogImage={getCategoryOgImageUrl(categorySlug)}
-  ogImageAlt={`Imagen de ${categoryLabel}`}
->
-  <section class="category-intro mb-4" aria-labelledby="category-heading">
-    <div class="category-intro-copy">
-      <p class="category-kicker mb-2">Servicio privado para residentes</p>
-      <h1 id="category-heading" class="mb-2">{categoryLabel}</h1>
-      <p class="category-summary mb-0">
-        El pedido se arma aquí y se envía por WhatsApp para coordinar la entrega dentro del edificio.
-      </p>
-    </div>
-    <div class="category-intro-note" role="note">
-      <strong>Importante:</strong> catálogo pensado para vecinos del edificio Ébano.
-    </div>
-  </section>
-
-  {
-    products.length > 0 ? (
-      <>
-        <CatalogControls />
-        <ProductGrid items={products} id="product-container" announce={true} />
-        <div id="catalog-empty-state" class="alert alert-info d-none mt-3" role="status">
-          No se encontraron productos con los filtros seleccionados.
-        </div>
-        <div id="catalog-controls" class="text-center my-4">
-          <button type="button" id="catalog-load-more" class="btn btn-outline-primary d-none">Cargar más productos</button>
-        </div>
-        <div id="catalog-sentinel" aria-hidden="true"></div>
-      </>
-    ) : (
-      <div class="alert alert-info" role="status">
-        No hay productos disponibles en esta categoría.
-      </div>
-    )
-  }
-</BaseLayout>
+<CategoryCatalogPage categoryKey={categoryKey} />
