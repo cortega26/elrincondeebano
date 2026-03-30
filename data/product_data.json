@@ -1,6 +1,6 @@
 {
-  "version": "20260326-224736",
-  "last_updated": "2026-03-26T22:47:36.252288",
+  "version": "20260330-152925",
+  "last_updated": "2026-03-30T15:29:25.496022",
   "rev": 0,
   "products": [
     {
@@ -103,7 +103,7 @@
       "description": "Envase desechable",
       "price": 2000,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Aguas",
       "image_path": "assets/images/bebidas/Agua 2L con gas Benedictino.webp",
       "image_avif_path": "assets/images/bebidas/Agua 2L con gas Benedictino.avif",
@@ -112,7 +112,7 @@
       "rev": 0,
       "field_last_modified": {
         "stock": {
-          "ts": "2026-03-10T17:26:37.879881Z",
+          "ts": "2026-03-30T18:28:43.133973Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -921,8 +921,8 @@
     {
       "name": "Stella Artois • Cerveza Lager",
       "description": "Lata de 354cc x 6 unidades",
-      "price": 5500,
-      "discount": 0,
+      "price": 5900,
+      "discount": 400,
       "stock": true,
       "category": "Cervezas",
       "image_path": "assets/images/cervezas/Stella Artois lata 350cc.webp",
@@ -931,8 +931,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "stock": {
-          "ts": "2025-11-22T15:58:28.000Z",
+        "discount": {
+          "ts": "2026-03-30T18:23:58.145467Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -2885,7 +2885,7 @@
       "description": "Envase desechable",
       "price": 2000,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Aguas",
       "image_path": "assets/images/bebidas/Agua 2L sin gas Benedictino.webp",
       "image_avif_path": "assets/images/bebidas/Agua 2L sin gas Benedictino.avif",
@@ -2893,15 +2893,15 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "price": {
-          "ts": "2025-11-08T15:21:33.246Z",
+        "stock": {
+          "ts": "2026-03-30T18:29:25.494885Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-11-08T15:21:33.246Z",
+          "ts": "2026-03-30T18:29:25.494885Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -4006,6 +4006,148 @@
       "field_last_modified": {
         "stock": {
           "ts": "2025-11-08T14:36:29.294Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Benedictino • Agua gasificada 2,5L",
+      "description": "Envase desechable",
+      "price": 2200,
+      "discount": 200,
+      "stock": true,
+      "category": "Aguas",
+      "image_path": "assets/images/aguas/Agua con gas 2,5L Benedictino.webp",
+      "image_avif_path": "assets/images/aguas/Agua con gas 2,5L Benedictino.avif",
+      "order": 171,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2026-03-30T18:28:36.549608Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2026-03-30T18:28:36.549608Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2026-03-30T18:28:36.549608Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2026-03-30T18:28:36.549608Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2026-03-30T18:28:36.549608Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2026-03-30T18:28:36.549608Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2026-03-30T18:28:36.549608Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-03-30T18:28:36.549608Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
+    },
+    {
+      "name": "Benedictino • Agua sin gas 2,5L",
+      "description": "Envase desechable",
+      "price": 2200,
+      "discount": 200,
+      "stock": true,
+      "category": "Aguas",
+      "image_path": "assets/images/aguas/Agua sin gas 2,5L Benedictino.webp",
+      "image_avif_path": "assets/images/aguas/Agua sin gas 2,5L Benedictino.avif",
+      "order": 172,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {
+        "name": {
+          "ts": "2026-03-30T18:29:11.533842Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2026-03-30T18:29:11.533842Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2026-03-30T18:29:11.533842Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2026-03-30T18:29:11.533842Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2026-03-30T18:29:11.533842Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "category": {
+          "ts": "2026-03-30T18:29:11.533842Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2026-03-30T18:29:11.533842Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-03-30T18:29:11.533842Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,

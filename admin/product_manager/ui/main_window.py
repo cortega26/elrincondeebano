@@ -14,6 +14,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
 from ..models import Product
+from ..keyboard import bind_submit_keys
 from ..services import (
     ProductService,
     ProductServiceError,
@@ -1877,7 +1878,7 @@ class MainWindow(DragDropMixin):
         def cancel(_evt=None):
             self._end_inline_edit()
 
-        entry.bind("<Return>", commit)
+        bind_submit_keys(entry, commit)
         entry.bind("<FocusOut>", commit)
         entry.bind("<Escape>", cancel)
 
