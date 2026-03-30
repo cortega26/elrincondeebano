@@ -18,7 +18,7 @@ Static storefront for `https://www.elrincondeebano.com/`, built from the active 
 
 ```bash
 npm ci
-npm ci --prefix astro-poc
+(cd astro-poc && npm ci)
 ```
 
 Node `22.x` is the supported local and CI baseline.

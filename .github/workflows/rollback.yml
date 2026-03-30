@@ -69,10 +69,12 @@ jobs:
             package-lock.json
             astro-poc/package-lock.json
 
-      - name: Install dependencies
-        run: |
-          npm ci
-          npm ci --prefix astro-poc
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install Astro storefront dependencies
+        working-directory: astro-poc
+        run: npm ci
 
       - name: Build storefront
         run: npm run build
