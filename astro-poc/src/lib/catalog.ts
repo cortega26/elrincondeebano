@@ -130,10 +130,21 @@ const DEFAULT_PRODUCT_DETAIL_WIDTHS = Object.freeze([320, 400, 640]);
 const PRODUCT_ASSET_PREFIX = 'assets/images/';
 const PRODUCT_VARIANT_PREFIX = 'assets/images/variants';
 const VARIANT_EXISTS_CACHE = new Map<string, boolean>();
-// process.cwd() is the astro-poc project root during both dev and production builds,
-// regardless of where Vite/Rollup places the compiled chunk (import.meta.url is unreliable
-// in prerender bundles as it resolves to dist/.prerender/chunks/).
-const ASTRO_ROOT = process.cwd();
+// import.meta.url is unreliable during Astro prerender (resolves to dist/.prerender/chunks/).
+// Instead, detect the astro-poc root by looking for astro.config.mjs from process.cwd(),
+// which is astro-poc/ during builds and the repo root during tests/scripts.
+function resolveAstroRoot(): string {
+  const cwd = process.cwd();
+  if (existsSync(path.join(cwd, 'astro.config.mjs'))) {
+    return cwd;
+  }
+  const subdir = path.join(cwd, 'astro-poc');
+  if (existsSync(path.join(subdir, 'astro.config.mjs'))) {
+    return subdir;
+  }
+  return cwd;
+}
+const ASTRO_ROOT = resolveAstroRoot();
 const REPO_ROOT = path.resolve(ASTRO_ROOT, '..');
 const STATIC_ASSET_ROOTS = [path.join(ASTRO_ROOT, 'public'), REPO_ROOT];
 
