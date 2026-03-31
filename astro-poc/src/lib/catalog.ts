@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+
 import rawProducts from '../data/products.json';
 import rawCategories from '../data/categories.json';
 import rawStorefrontExperience from '../data/storefront-experience.json';
@@ -130,9 +130,10 @@ const DEFAULT_PRODUCT_DETAIL_WIDTHS = Object.freeze([320, 400, 640]);
 const PRODUCT_ASSET_PREFIX = 'assets/images/';
 const PRODUCT_VARIANT_PREFIX = 'assets/images/variants';
 const VARIANT_EXISTS_CACHE = new Map<string, boolean>();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const ASTRO_ROOT = path.resolve(__dirname, '../..');
+// process.cwd() is the astro-poc project root during both dev and production builds,
+// regardless of where Vite/Rollup places the compiled chunk (import.meta.url is unreliable
+// in prerender bundles as it resolves to dist/.prerender/chunks/).
+const ASTRO_ROOT = process.cwd();
 const REPO_ROOT = path.resolve(ASTRO_ROOT, '..');
 const STATIC_ASSET_ROOTS = [path.join(ASTRO_ROOT, 'public'), REPO_ROOT];
 
