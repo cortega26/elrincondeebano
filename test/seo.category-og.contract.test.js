@@ -1,11 +1,10 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 
-test('all category og:image URLs use the live JPG hash for the current asset', async () => {
+test('all category og:image URLs are stable absolute URLs without a version query', async () => {
   const repoRoot = process.cwd();
   const manifestPath = path.join(
     repoRoot,
@@ -32,16 +31,12 @@ test('all category og:image URLs use the live JPG hash for the current asset', a
       continue;
     }
 
-    const expectedVersion = crypto
-      .createHash('sha1')
-      .update(fs.readFileSync(filePath))
-      .digest('hex')
-      .slice(0, 12);
-
+    const imageUrl = getCategoryOgImageUrl(slug, { repoRoot });
     assert.equal(
-      getCategoryOgImageUrl(slug, { repoRoot }),
-      `https://www.elrincondeebano.com/assets/images/og/categories/${fileName}?v=${expectedVersion}`,
-      `Expected ${slug} to use the live file hash`
+      imageUrl,
+      `https://www.elrincondeebano.com/assets/images/og/categories/${fileName}`,
+      `Expected ${slug} to have a stable URL without version query`
     );
+    assert.doesNotMatch(imageUrl, /[?&]v=/, `Expected ${slug} URL to have no version query`);
   }
 });

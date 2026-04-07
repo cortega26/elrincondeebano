@@ -1,12 +1,11 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const crypto = require('node:crypto');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 
-test('getCategoryOgImageUrl uses the live JPG hash instead of a stale manifest hash', async () => {
+test('getCategoryOgImageUrl returns a stable URL (no version query) using the manifest file path', async () => {
   const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'seo-og-'));
   const categoriesDir = path.join(tempRoot, 'assets', 'images', 'og', 'categories');
   fs.mkdirSync(categoriesDir, { recursive: true });
@@ -36,12 +35,11 @@ test('getCategoryOgImageUrl uses the live JPG hash instead of a stale manifest h
   }?t=${Date.now()}`;
   const { getCategoryOgImageUrl } = await import(seoModuleUrl);
 
-  const expectedVersion = crypto.createHash('sha1').update(imageBytes).digest('hex').slice(0, 12);
   const imageUrl = getCategoryOgImageUrl('cervezas', { repoRoot: tempRoot });
 
   assert.equal(
     imageUrl,
-    `https://www.elrincondeebano.com/assets/images/og/categories/cervezas.og_v3.jpg?v=${expectedVersion}`
+    'https://www.elrincondeebano.com/assets/images/og/categories/cervezas.og_v3.jpg'
   );
-  assert.doesNotMatch(imageUrl, /stale-manifest-hash/i);
+  assert.doesNotMatch(imageUrl, /[?&]v=/);
 });
