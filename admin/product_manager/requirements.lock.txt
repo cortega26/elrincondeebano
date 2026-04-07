@@ -7,7 +7,7 @@ bandit==1.9.4
 boolean.py==5.0
 CacheControl==0.14.4
 certifi==2026.2.25
-charset-normalizer==3.4.6
+charset-normalizer==3.4.7
 colorama==0.4.6
 coverage==7.13.5
 cyclonedx-python-lib==11.7.0
@@ -24,7 +24,7 @@ markdown-it-py==4.0.0
 mccabe==0.7.0
 mdurl==0.1.2
 msgpack==1.1.2
-mypy==1.19.1
+mypy==1.20.0
 mypy_extensions==1.1.0
 packageurl-python==0.17.6
 packaging==26.0
@@ -46,7 +46,7 @@ pytest-xdist==3.8.0
 PyYAML==6.0.3
 requests==2.33.1
 rich==14.3.3
-ruff==0.15.8
+ruff==0.15.9
 sortedcontainers==2.4.0
 stevedore==5.7.0
 tomli==2.4.1
