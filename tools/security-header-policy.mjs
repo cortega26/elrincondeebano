@@ -16,7 +16,7 @@ export const CONTENT_SECURITY_POLICY_DIRECTIVES = Object.freeze([
   ['base-uri', [CSP_SELF]],
   ['object-src', [CSP_NONE]],
   ['frame-ancestors', [CSP_NONE]],
-  ['script-src', [CSP_SELF, 'https://static.cloudflareinsights.com']],
+  ['script-src', [CSP_SELF, 'https://static.cloudflareinsights.com', "'sha256-SvXHAIPcJdE6zuH0y1Xb0AUS/ZJCmBwN7SfMfiEj578='"]],
   ['style-src', [CSP_SELF, CSP_UNSAFE_INLINE]],
   ['img-src', [CSP_SELF, 'data:', 'https:']],
   ['font-src', [CSP_SELF, 'data:']],

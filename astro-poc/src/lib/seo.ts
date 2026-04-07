@@ -74,7 +74,7 @@ function withVersionQuery(assetPath: string, versionToken: string | null): strin
 }
 
 function getHomeOgImageUrl(): string {
-  return withVersionQuery(HOME_OG_IMAGE_PATH, versionTokenFromFile(HOME_OG_IMAGE_PATH));
+  return absoluteUrl(HOME_OG_IMAGE_PATH);
 }
 
 export const DEFAULT_OG_IMAGE = getHomeOgImageUrl();
@@ -118,9 +118,8 @@ export function getCategoryOgImageUrl(categorySlug: string, options?: SeoFileOpt
   const candidateFile = categoryOgManifest?.[slug]?.jpg?.file;
   if (typeof candidateFile === 'string' && candidateFile.trim()) {
     const candidatePath = `/assets/images/og/categories/${candidateFile}`;
-    const liveVersionToken = versionTokenFromFile(candidatePath, options);
-    if (liveVersionToken) {
-      return withVersionQuery(candidatePath, liveVersionToken);
+    if (versionTokenFromFile(candidatePath, options)) {
+      return absoluteUrl(candidatePath);
     }
   }
 
@@ -133,10 +132,7 @@ export function getCategoryOgImageUrl(categorySlug: string, options?: SeoFileOpt
     `${slug}.jpg`
   );
   if (fs.existsSync(fallbackPath)) {
-    return withVersionQuery(
-      `/assets/images/og/categories/${slug}.jpg`,
-      versionTokenFromFile(`/assets/images/og/categories/${slug}.jpg`, options)
-    );
+    return absoluteUrl(`/assets/images/og/categories/${slug}.jpg`);
   }
 
   return DEFAULT_OG_IMAGE;
@@ -167,8 +163,7 @@ export function getProductOgImageUrl(
       return absoluteUrl(normalizedImagePath);
     }
 
-    const normalizedAssetPath = normalizePath(normalizedImagePath);
-    return withVersionQuery(normalizedAssetPath, versionTokenFromFile(normalizedAssetPath, options));
+    return absoluteUrl(normalizePath(normalizedImagePath));
   }
 
   const categoryOgImageUrl = getCategoryOgImageUrl(String(categorySlug || '').trim(), options);

@@ -51,7 +51,7 @@ test('inspectSecurityHeaders rejects drifted CSP and frame policy values', async
   assert.match(inspection.invalid.join('\n'), /content-security-policy \(frame-ancestors expected "'none'"\)/);
   assert.match(
     inspection.invalid.join('\n'),
-    /content-security-policy \(script-src expected "'self' https:\/\/static\.cloudflareinsights\.com"\)/
+    /content-security-policy \(script-src expected "'self' https:\/\/static\.cloudflareinsights\.com/
   );
   assert.match(inspection.invalid.join('\n'), /referrer-policy/);
   assert.match(inspection.invalid.join('\n'), /x-frame-options/);
