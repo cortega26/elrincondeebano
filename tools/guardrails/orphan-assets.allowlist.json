@@ -4,5 +4,7 @@
     "variants",
     "og/icons"
   ],
-  "allowedOrphans": []
+  "allowedOrphans": [
+    "assets/images/web/logo.avif"
+  ]
 }

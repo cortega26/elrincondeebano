@@ -1,5 +1,6 @@
 import * as bootstrap from 'bootstrap';
 import { createCatalogViewController } from './storefront/catalog-view.js';
+import { createObservabilityModule } from './storefront/observability.js';
 import { createPersonalizationEngine } from './storefront/personalization.js';
 import {
   createStorefrontStorage,
@@ -123,6 +124,7 @@ function triggerTransientClass(element, className) {
 }
 
 const storefrontStorage = createStorefrontStorage({ log });
+const observability = createObservabilityModule({ log });
 
 function loadCart() {
   const cart = sanitizeCart(storefrontStorage.loadJson('cart', []));
@@ -827,6 +829,7 @@ async function registerServiceWorker() {
 }
 
 function initStorefront() {
+  observability.initObservability({ enabled: true, slowEndpointMs: 1200 });
   storefrontStorage.migrateLegacyState();
 
   let cart = loadCart();
