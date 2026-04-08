@@ -491,6 +491,7 @@ function syncCheckoutState(cart, totalAmount) {
   const submitBtn = document.getElementById('submit-cart');
   const emptyBtn = document.getElementById('empty-cart');
   const paymentError = document.getElementById('payment-error');
+  const paymentHint = document.getElementById('payment-threshold-hint');
   const paymentInputs = Array.from(document.querySelectorAll('input[name="paymentMethod"]'));
 
   const creditContainer = document.getElementById('payment-credit-container');
@@ -523,6 +524,42 @@ function syncCheckoutState(cart, totalAmount) {
   if (paymentError && (isEmpty || hasPayment)) {
     paymentError.textContent = '';
   }
+
+  if (paymentHint) {
+    if (isEmpty) {
+      paymentHint.textContent = 'Tarjeta disponible desde CLP 30.000 en el total del pedido.';
+    } else if (allowCredit) {
+      paymentHint.textContent = 'Tu total ya permite pagar con tarjeta de credito.';
+    } else {
+      const missing = Math.max(30000 - totalAmount, 0);
+      paymentHint.textContent = `Te faltan ${formatCurrency(missing)} para habilitar pago con tarjeta.`;
+    }
+  }
+}
+
+function syncMobileCartShortcut(cart, totalAmount) {
+  const shortcut = document.getElementById('mobile-cart-shortcut');
+  if (!(shortcut instanceof HTMLButtonElement)) {
+    return;
+  }
+
+  const { totalItems } = getCartState(cart);
+  const isEmpty = totalItems <= 0;
+
+  shortcut.classList.toggle('is-hidden', isEmpty);
+  shortcut.setAttribute('aria-hidden', isEmpty ? 'true' : 'false');
+
+  if (isEmpty) {
+    shortcut.textContent = 'Ver pedido';
+    shortcut.setAttribute('aria-label', 'Carrito vacio');
+    return;
+  }
+
+  shortcut.textContent = `Ver pedido (${totalItems}) • ${formatCurrency(totalAmount)}`;
+  shortcut.setAttribute(
+    'aria-label',
+    `Ver pedido, ${totalItems} productos, total ${formatCurrency(totalAmount)}`
+  );
 }
 
 function renderCart(cart, { animateTotal = false } = {}) {
@@ -647,6 +684,7 @@ function renderCart(cart, { animateTotal = false } = {}) {
     triggerTransientClass(totalElement, 'cart-total-bump');
   }
   syncCheckoutState(cart, totalAmount);
+  syncMobileCartShortcut(cart, totalAmount);
 }
 
 function openCartOffcanvas() {
@@ -706,6 +744,10 @@ function submitCartOrder(cart) {
   }
 
   const paymentError = document.getElementById('payment-error');
+  const submitFeedback = document.getElementById('submit-feedback');
+  if (submitFeedback) {
+    submitFeedback.textContent = '';
+  }
   const selectedPayment = getSelectedPaymentValue();
   if (!selectedPayment) {
     if (paymentError) {
@@ -752,6 +794,9 @@ function submitCartOrder(cart) {
   renderPersonalizedProducts();
 
   const encodedMessage = encodeURIComponent(message);
+  if (submitFeedback) {
+    submitFeedback.textContent = 'Abriremos WhatsApp con el resumen listo. Solo revisa y presiona enviar para confirmar.';
+  }
   globalThis.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`, '_blank');
 }
 
@@ -884,6 +929,13 @@ function initStorefront() {
 
     const cartIcon = target.closest('#cart-icon');
     if (cartIcon) {
+      event.preventDefault();
+      openCartOffcanvas();
+      return;
+    }
+
+    const mobileCartShortcut = target.closest('#mobile-cart-shortcut');
+    if (mobileCartShortcut) {
       event.preventDefault();
       openCartOffcanvas();
       return;

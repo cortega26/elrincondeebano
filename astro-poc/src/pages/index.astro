@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ProductGrid from '../components/ProductGrid.astro';
 import CatalogControls from '../components/CatalogControls.astro';
 import {
+  getHomeFeaturedDeals,
   formatPrice,
   getHomeFeaturedStaples,
   getHomePrimaryCategories,
@@ -17,6 +18,7 @@ const homepageCatalogProducts = getHomepageCatalogProducts();
 const primaryCategories = getHomePrimaryCategories();
 const secondaryCategories = getHomeSecondaryCategories();
 const fallbackQuickPicks = getHomeQuickPicks();
+const featuredDeals = getHomeFeaturedDeals();
 const featuredStaples = getHomeFeaturedStaples();
 const bundles = getStorefrontBundles();
 ---
@@ -32,7 +34,7 @@ const bundles = getStorefrontBundles();
     <div class="home-overview__copy">
       <h1 id="main-heading">Pide más rápido dentro de Ébano</h1>
       <p class="home-overview__lead mb-0">
-        Arma tu pedido en la web, revisa el total y deja el WhatsApp solo para confirmar. Así compras más rápido y con menos mensajes de ida y vuelta.
+        Arma tu pedido completo en la web, revisa total y metodo de pago, y deja WhatsApp solo para confirmar el resumen. Asi compras rapido y con menos mensajes.
       </p>
     </div>
     <div class="home-overview__actions">
@@ -45,7 +47,7 @@ const bundles = getStorefrontBundles();
       >
         Cómo funciona
       </button>
-      <a href="#catalog-main" class="btn btn-primary home-overview__cta">Armar pedido ahora</a>
+      <a href="#home-quick-order-heading" class="btn btn-primary home-overview__cta">Armar pedido ahora</a>
       <button
         type="button"
         class="btn btn-outline-dark home-overview__repeat"
@@ -110,14 +112,16 @@ const bundles = getStorefrontBundles();
     <ProductGrid items={fallbackQuickPicks} id="home-personalized-grid" className="home-collection-grid" />
   </section>
 
-  <section class="home-section" aria-labelledby="home-staples-heading">
-    <div class="home-section__header">
-      <h2 id="home-staples-heading">Favoritos para resolver hoy</h2>
-      <p>Productos que hacen más simple un pedido corto: básicos, bebida, lácteos y limpieza.</p>
-    </div>
+  {featuredDeals.length > 0 ? (
+    <section class="home-section" aria-labelledby="home-deals-heading">
+      <div class="home-section__header">
+        <h2 id="home-deals-heading">Ahorra hoy</h2>
+        <p>Ofertas activas para resolver el pedido rapido sin revisar todo el catalogo.</p>
+      </div>
 
-    <ProductGrid items={featuredStaples} className="home-collection-grid" />
-  </section>
+      <ProductGrid items={featuredDeals} className="home-collection-grid" />
+    </section>
+  ) : null}
 
   <section class="home-section" aria-labelledby="home-bundles-heading">
     <div class="home-section__header">
@@ -156,6 +160,15 @@ const bundles = getStorefrontBundles();
     </div>
   </section>
 
+  <section class="home-section" aria-labelledby="home-staples-heading">
+    <div class="home-section__header">
+      <h2 id="home-staples-heading">Favoritos para resolver hoy</h2>
+      <p>Productos que hacen más simple un pedido corto: básicos, bebida, lácteos y limpieza.</p>
+    </div>
+
+    <ProductGrid items={featuredStaples} className="home-collection-grid" />
+  </section>
+
   <dialog
     id="service-guide-dialog"
     class="service-dialog"
@@ -184,7 +197,7 @@ const bundles = getStorefrontBundles();
         </li>
         <li>
           <strong>Confirma por WhatsApp.</strong>
-          El resumen sale listo para coordinar pago y entrega dentro del edificio.
+          El resumen sale listo para enviar, sin reescribir el pedido, y asi coordinamos pago y entrega dentro del edificio.
         </li>
       </ol>
       <p class="service-dialog__note mb-0">
