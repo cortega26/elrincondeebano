@@ -23,7 +23,12 @@ from ..services import (
 )
 from ..category_service import CategoryService, CategoryServiceError
 from ..category_gui import CategoryManagerDialog
-from ..storefront_service import StorefrontBundleError, StorefrontBundleService
+from ..storefront_service import (
+    StorefrontBundleError,
+    StorefrontBundleService,
+    FeaturedStaplesError,
+    FeaturedStaplesService,
+)
 
 from .components import (
     UIConfig,
@@ -36,7 +41,7 @@ from .utils import CategoryHelper
 from .gallery import GalleryFrame
 from .dialogs import PreferencesDialog, HelpDialog, AboutDialog
 from .product_form import ProductFormDialog
-from .storefront_dialogs import StorefrontBundlesDialog
+from .storefront_dialogs import StorefrontBundlesDialog, FeaturedStaplesDialog
 
 logger = logging.getLogger(__name__)
 
@@ -88,6 +93,7 @@ class MainWindow(DragDropMixin):
         self._pending_import_plan: Optional[Dict[str, Any]] = None
         self._pending_import_merge: Optional[Dict[str, bool]] = None
         self.storefront_bundle_service = self._create_storefront_bundle_service()
+        self.featured_staples_service = self._create_featured_staples_service()
 
         self._configure_styles()
         self.setup_gui()
@@ -101,6 +107,13 @@ class MainWindow(DragDropMixin):
             project_root / "astro-poc" / "src" / "data" / "storefront-bundles.json"
         )
         return StorefrontBundleService(bundles_path)
+
+    def _create_featured_staples_service(self) -> Optional[FeaturedStaplesService]:
+        project_root = self.project_root or Path(__file__).resolve().parents[3]
+        experience_path = (
+            project_root / "astro-poc" / "src" / "data" / "storefront-experience.json"
+        )
+        return FeaturedStaplesService(experience_path)
 
     def _configure_styles(self) -> None:
         """Configure application styles."""
@@ -379,6 +392,9 @@ class MainWindow(DragDropMixin):
         )
         edit_menu.add_command(
             label="Gestionar Combos Listos...", command=self.manage_storefront_bundles
+        )
+        edit_menu.add_command(
+            label="Gestionar Favoritos...", command=self.manage_featured_staples
         )
         menubar.add_cascade(label="Editar", menu=edit_menu)
 
@@ -1236,6 +1252,27 @@ class MainWindow(DragDropMixin):
             )
         except (ProductServiceError, StorefrontBundleError) as exc:
             messagebox.showerror("Combos listos", str(exc))
+            return
+        self.master.wait_window(dialog)
+
+    def manage_featured_staples(self) -> None:
+        """Open the featured staples management dialog."""
+        if not self.featured_staples_service:
+            messagebox.showinfo(
+                "Favoritos",
+                "La gestión de favoritos no está disponible en esta instalación.",
+            )
+            return
+        try:
+            products = self.product_service.get_all_products()
+            dialog = FeaturedStaplesDialog(
+                self.master,
+                self.featured_staples_service,
+                products,
+                on_saved=lambda: self.update_status("Favoritos actualizados."),
+            )
+        except (ProductServiceError, FeaturedStaplesError) as exc:
+            messagebox.showerror("Favoritos", str(exc))
             return
         self.master.wait_window(dialog)
 

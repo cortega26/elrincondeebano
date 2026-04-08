@@ -10,6 +10,8 @@ from admin.product_manager.storefront_service import (  # noqa: E402
     StorefrontBundle,
     StorefrontBundleService,
     StorefrontBundleValidationError,
+    FeaturedStaplesError,
+    FeaturedStaplesService,
     StorefrontProductReference,
     slugify_bundle_id,
 )
@@ -107,3 +109,101 @@ def test_storefront_bundle_service_rejects_duplicate_ids(tmp_path: Path) -> None
 
     with pytest.raises(StorefrontBundleValidationError):
         service.save_bundles(duplicate_bundles)
+
+
+# ---------------------------------------------------------------------------
+# FeaturedStaplesService tests
+# ---------------------------------------------------------------------------
+
+_EXPERIENCE_TEMPLATE = """{
+  "trustBar": [],
+  "home": {
+    "featuredStaples": [
+      {"category": "Bebidas", "name": "Coca-Cola 2L"},
+      {"category": "Lacteos", "name": "Leche Entera"}
+    ],
+    "quickPicks": []
+  },
+  "bundles": [],
+  "companionRules": []
+}
+"""
+
+
+def test_featured_staples_service_loads_staples(tmp_path: Path) -> None:
+    experience_file = tmp_path / "storefront-experience.json"
+    experience_file.write_text(_EXPERIENCE_TEMPLATE, encoding="utf-8")
+
+    service = FeaturedStaplesService(experience_file)
+    staples = service.load_staples()
+
+    require(len(staples) == 2, "Expected two staples to load from the JSON config")
+    require(
+        staples[0].name == "Coca-Cola 2L",
+        "Expected first staple name to match the JSON fixture",
+    )
+    require(
+        staples[1].category == "Lacteos",
+        "Expected second staple category to match the JSON fixture",
+    )
+
+
+def test_featured_staples_service_saves_and_preserves_other_fields(tmp_path: Path) -> None:
+    experience_file = tmp_path / "storefront-experience.json"
+    experience_file.write_text(_EXPERIENCE_TEMPLATE, encoding="utf-8")
+
+    service = FeaturedStaplesService(experience_file)
+    new_staples = [
+        StorefrontProductReference(category="Despensa", name="Mont Blanc • Harina sin polvos"),
+    ]
+    service.save_staples(new_staples)
+
+    content = experience_file.read_text(encoding="utf-8")
+    require(
+        '"Mont Blanc' in content,
+        "Expected saved staples to appear in the config file",
+    )
+    require(
+        '"bundles"' in content,
+        "Expected other top-level fields (bundles) to be preserved after saving staples",
+    )
+    require(
+        "Coca-Cola" not in content,
+        "Expected old staples to be replaced by the new list",
+    )
+    require(
+        content.endswith("\n"),
+        "Expected saved config to end with a newline for clean diffs",
+    )
+
+
+def test_featured_staples_service_returns_empty_for_missing_file(tmp_path: Path) -> None:
+    service = FeaturedStaplesService(tmp_path / "nonexistent.json")
+    staples = service.load_staples()
+    require(len(staples) == 0, "Expected empty list when config file does not exist")
+
+
+def test_featured_staples_service_raises_on_save_when_file_missing(tmp_path: Path) -> None:
+    service = FeaturedStaplesService(tmp_path / "nonexistent.json")
+    with pytest.raises(FeaturedStaplesError):
+        service.save_staples([])
+
+
+def test_featured_staples_service_round_trips_multiple_staples(tmp_path: Path) -> None:
+    experience_file = tmp_path / "storefront-experience.json"
+    experience_file.write_text(_EXPERIENCE_TEMPLATE, encoding="utf-8")
+
+    service = FeaturedStaplesService(experience_file)
+    original_staples = service.load_staples()
+    service.save_staples(original_staples)
+    reloaded = service.load_staples()
+
+    require(
+        len(reloaded) == len(original_staples),
+        "Expected staple count to survive a round-trip through save/load",
+    )
+    for original, reloaded_item in zip(original_staples, reloaded):
+        require(
+            original.category == reloaded_item.category and original.name == reloaded_item.name,
+            f"Expected staple '{original.name}' to survive round-trip unchanged",
+        )

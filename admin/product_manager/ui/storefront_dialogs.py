@@ -12,6 +12,8 @@ from ..storefront_service import (
     StorefrontBundle,
     StorefrontBundleService,
     StorefrontBundleValidationError,
+    FeaturedStaplesError,
+    FeaturedStaplesService,
     StorefrontProductReference,
     slugify_bundle_id,
 )
@@ -572,6 +574,183 @@ class StorefrontBundlesDialog(tk.Toplevel):
             approved = messagebox.askyesno(
                 "Cerrar sin guardar",
                 "Hay cambios sin guardar en Combos listos. ¿Cerrar de todos modos?",
+            )
+            if not approved:
+                return
+        self.destroy()
+
+
+class FeaturedStaplesDialog(tk.Toplevel):
+    """Manage the 'Favoritos para resolver hoy' list on the homepage."""
+
+    def __init__(
+        self,
+        parent: tk.Tk,
+        staples_service: FeaturedStaplesService,
+        products: List[Product],
+        on_saved: Optional[Callable[[], None]] = None,
+    ):
+        super().__init__(parent)
+        self.title("Favoritos para resolver hoy")
+        self.transient(parent)
+        self.wait_visibility()
+        self.grab_set()
+        self.geometry("760x520")
+        self.minsize(660, 400)
+        self.staples_service = staples_service
+        self.products = products
+        self.on_saved = on_saved
+        self._dirty = False
+        self.staples: List[StorefrontProductReference] = self.staples_service.load_staples()
+        self._setup_ui()
+        self._refresh_tree()
+        self.protocol("WM_DELETE_WINDOW", self._handle_close)
+
+    def _setup_ui(self) -> None:
+        frame = ttk.Frame(self, padding=16)
+        frame.pack(fill=tk.BOTH, expand=True)
+        frame.columnconfigure(0, weight=1)
+        frame.rowconfigure(1, weight=1)
+
+        ttk.Label(
+            frame,
+            text=(
+                "Productos que aparecen en la sección 'Favoritos para resolver hoy' de la home. "
+                "Se guardan en astro-poc/src/data/storefront-experience.json."
+            ),
+            wraplength=640,
+            justify=tk.LEFT,
+        ).grid(row=0, column=0, columnspan=2, sticky=tk.W, pady=(0, 12))
+
+        content = ttk.Frame(frame)
+        content.grid(row=1, column=0, columnspan=2, sticky="nsew")
+        content.columnconfigure(0, weight=1)
+        content.rowconfigure(0, weight=1)
+
+        self.tree = ttk.Treeview(
+            content,
+            columns=("category", "name"),
+            show="headings",
+            height=14,
+        )
+        self.tree.heading("category", text="Categoría")
+        self.tree.heading("name", text="Producto")
+        self.tree.column("category", width=210, anchor=tk.W)
+        self.tree.column("name", width=400, anchor=tk.W)
+        self.tree.grid(row=0, column=0, sticky="nsew")
+
+        actions = ttk.Frame(content)
+        actions.grid(row=0, column=1, sticky=tk.N, padx=(12, 0))
+        ttk.Button(actions, text="Agregar...", command=self._add_staple).pack(
+            fill=tk.X, pady=(0, 6)
+        )
+        ttk.Button(actions, text="Quitar", command=self._remove_staple).pack(
+            fill=tk.X, pady=6
+        )
+        ttk.Separator(actions, orient=tk.HORIZONTAL).pack(fill=tk.X, pady=10)
+        ttk.Button(actions, text="Subir", command=lambda: self._move_staple(-1)).pack(
+            fill=tk.X, pady=6
+        )
+        ttk.Button(actions, text="Bajar", command=lambda: self._move_staple(1)).pack(
+            fill=tk.X, pady=6
+        )
+
+        footer = ttk.Frame(frame)
+        footer.grid(row=2, column=0, columnspan=2, sticky="ew", pady=(12, 0))
+        self.status_var = tk.StringVar(value="")
+        ttk.Label(footer, textvariable=self.status_var).pack(side=tk.LEFT)
+        ttk.Button(footer, text="Cerrar", command=self._handle_close).pack(
+            side=tk.RIGHT, padx=(8, 0)
+        )
+        ttk.Button(footer, text="Guardar cambios", command=self._save_all).pack(
+            side=tk.RIGHT
+        )
+
+    def _refresh_tree(self) -> None:
+        self.tree.delete(*self.tree.get_children())
+        for index, staple in enumerate(self.staples):
+            self.tree.insert(
+                "",
+                tk.END,
+                iid=str(index),
+                values=(staple.category, staple.name),
+            )
+        self.status_var.set(f"{len(self.staples)} favorito(s) configurado(s)")
+
+    def _selected_index(self) -> Optional[int]:
+        selection = self.tree.selection()
+        if not selection:
+            return None
+        try:
+            return int(selection[0])
+        except (TypeError, ValueError):
+            return None
+
+    def _mark_dirty(self) -> None:
+        self._dirty = True
+        self.status_var.set(
+            f"{len(self.staples)} favorito(s) configurado(s) · cambios sin guardar"
+        )
+
+    def _add_staple(self) -> None:
+        dialog = ProductPickerDialog(self, self.products)
+        self.wait_window(dialog)
+        if not dialog.selected_reference:
+            return
+        if dialog.selected_reference in self.staples:
+            messagebox.showinfo(
+                "Favoritos", "Ese producto ya está en la lista de favoritos."
+            )
+            return
+        self.staples.append(dialog.selected_reference)
+        self._refresh_tree()
+        self.tree.selection_set(str(len(self.staples) - 1))
+        self._mark_dirty()
+
+    def _remove_staple(self) -> None:
+        index = self._selected_index()
+        if index is None:
+            messagebox.showinfo("Favoritos", "Selecciona un producto para quitar.")
+            return
+        self.staples.pop(index)
+        self._refresh_tree()
+        self._mark_dirty()
+
+    def _move_staple(self, offset: int) -> None:
+        index = self._selected_index()
+        if index is None:
+            return
+        next_index = index + offset
+        if next_index < 0 or next_index >= len(self.staples):
+            return
+        self.staples[index], self.staples[next_index] = (
+            self.staples[next_index],
+            self.staples[index],
+        )
+        self._refresh_tree()
+        self.tree.selection_set(str(next_index))
+        self._mark_dirty()
+
+    def _save_all(self) -> None:
+        try:
+            self.staples_service.save_staples(self.staples)
+        except FeaturedStaplesError as exc:
+            messagebox.showerror("Favoritos", str(exc))
+            return
+        self._dirty = False
+        self.status_var.set(f"{len(self.staples)} favorito(s) configurado(s)")
+        if self.on_saved:
+            self.on_saved()
+        messagebox.showinfo(
+            "Favoritos",
+            "Los favoritos se guardaron correctamente.",
+        )
+
+    def _handle_close(self) -> None:
+        if self._dirty:
+            approved = messagebox.askyesno(
+                "Cerrar sin guardar",
+                "Hay cambios sin guardar en Favoritos. ¿Cerrar de todos modos?",
             )
             if not approved:
                 return
