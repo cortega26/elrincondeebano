@@ -105,20 +105,31 @@ const { navGroups } = Astro.props;
       <p class="checkout-note mb-0">
         Arma el pedido aquí y usa WhatsApp solo para confirmar el resumen. Asi reduces ida y vuelta y aceleras la entrega.
       </p>
-      <div class="cart-customer-panel">
-        <div class="cart-customer-panel__header">
-          <h6>Nota opcional para tu pedido</h6>
-          <p class="mb-0">Si necesitas algo puntual, déjalo aquí. Se guarda solo en este dispositivo.</p>
-        </div>
-        <div class="cart-customer-fields">
-          <div>
-            <label class="form-label" for="delivery-note">Dejar una nota</label>
-            <textarea
-              class="form-control"
-              id="delivery-note"
-              rows="3"
-              placeholder="Ej. si no hay Coca-Cola Zero, cambiar por normal; dejar en conserjería; sumar bolsa, etc."
-            ></textarea>
+      <div class="cart-note-toggle-row">
+        <button
+          class="cart-note-toggle"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#cart-note-collapse"
+          aria-expanded="false"
+          aria-controls="cart-note-collapse"
+        >
+          Añadir nota al pedido
+        </button>
+      </div>
+      <div class="collapse" id="cart-note-collapse">
+        <div class="cart-customer-panel">
+          <div class="cart-customer-fields">
+            <div>
+              <label class="form-label" for="delivery-note">Nota opcional</label>
+              <textarea
+                class="form-control"
+                id="delivery-note"
+                rows="3"
+                placeholder="Ej. si no hay Coca-Cola Zero, cambiar por normal; dejar en conserjería; sumar bolsa, etc."
+              ></textarea>
+              <p class="cart-note-hint">Se guarda en este dispositivo y se incluye en el resumen de WhatsApp.</p>
+            </div>
           </div>
         </div>
       </div>
