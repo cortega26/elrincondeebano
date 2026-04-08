@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 import shutil
-import subprocess
+import subprocess  # nosec B404 - required to invoke the trusted, project-local Node.js fallback script; no untrusted input involved
 from pathlib import Path
 from typing import Any, Optional
 
@@ -203,7 +203,7 @@ def _generate_with_node(
         command.extend(["--max-size", str(resize_max)])
 
     try:
-        subprocess.run(
+        subprocess.run(  # nosec B603 - command is built from fixed constants (NODE_FALLBACK_SCRIPT) and validated Path objects; shell=False (default) is intentional
             command,
             check=True,
             capture_output=True,
