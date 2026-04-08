@@ -133,6 +133,11 @@ const bundles = getStorefrontBundles();
       {
         bundles.map((bundle) => (
           <article class="bundle-card">
+            {bundle.savingsPercent > 0 && (
+              <div class="bundle-card__savings-badge" aria-label={`Ahorra ${bundle.savingsPercent}%`}>
+                -{bundle.savingsPercent}%
+              </div>
+            )}
             <div class="bundle-card__content">
               <h3>{bundle.title}</h3>
               <p>{bundle.description}</p>
@@ -142,7 +147,14 @@ const bundles = getStorefrontBundles();
             </div>
             <div class="bundle-card__footer">
               <div class="bundle-card__meta">
-                <strong>{formatPrice(bundle.totalPrice)}</strong>
+                {bundle.bundlePrice && bundle.bundlePrice > 0 ? (
+                  <>
+                    <strong>{formatPrice(bundle.bundlePrice)}</strong>
+                    <span class="bundle-card__original-price">{formatPrice(bundle.totalPrice)}</span>
+                  </>
+                ) : (
+                  <strong>{formatPrice(bundle.totalPrice)}</strong>
+                )}
                 <span>{bundle.itemsResolved.length} productos</span>
               </div>
               <button

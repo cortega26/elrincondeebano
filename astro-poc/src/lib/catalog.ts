@@ -91,6 +91,8 @@ export type StorefrontBundleRecord = {
   title: string;
   description: string;
   items: ProductReference[];
+  /** Optional fixed sale price for the bundle (CLP). When set, used instead of sum of items. */
+  bundlePrice?: number;
 };
 
 export type StorefrontCompanionRule = {
@@ -115,7 +117,10 @@ export type StorefrontExperience = {
 
 export type StorefrontBundle = StorefrontBundleRecord & {
   itemsResolved: ProductWithSku[];
+  /** Sum of individual item prices (after per-item discounts). */
   totalPrice: number;
+  /** Savings percentage relative to totalPrice when bundlePrice is set (0 otherwise). */
+  savingsPercent: number;
 };
 
 export type ResponsiveImageSource = {
@@ -522,19 +527,29 @@ export function getHomeFeaturedStaples(): ProductWithSku[] {
 export function getStorefrontBundles(): StorefrontBundle[] {
   return (storefrontExperience.bundles || []).map((bundle) => {
     const itemsResolved = getProductsByReferences(bundle.items);
+    const totalPrice = itemsResolved.reduce(
+      (sum, item) =>
+        sum +
+        Math.max(
+          (typeof item.product.price === 'number' ? item.product.price : 0) -
+            (typeof item.product.discount === 'number' ? item.product.discount : 0),
+          0
+        ),
+      0
+    );
+    const bundlePrice =
+      typeof bundle.bundlePrice === 'number' && bundle.bundlePrice > 0
+        ? bundle.bundlePrice
+        : undefined;
+    const savingsPercent =
+      bundlePrice !== undefined && totalPrice > 0
+        ? Math.round(((totalPrice - bundlePrice) / totalPrice) * 100)
+        : 0;
     return {
       ...bundle,
       itemsResolved,
-      totalPrice: itemsResolved.reduce(
-        (sum, item) =>
-          sum +
-          Math.max(
-            (typeof item.product.price === 'number' ? item.product.price : 0) -
-              (typeof item.product.discount === 'number' ? item.product.discount : 0),
-            0
-          ),
-        0
-      ),
+      totalPrice,
+      savingsPercent,
     };
   });
 }

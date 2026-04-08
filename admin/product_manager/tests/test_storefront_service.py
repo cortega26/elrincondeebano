@@ -111,6 +111,59 @@ def test_storefront_bundle_service_rejects_duplicate_ids(tmp_path: Path) -> None
         service.save_bundles(duplicate_bundles)
 
 
+def test_storefront_bundle_service_round_trips_bundle_price(tmp_path: Path) -> None:
+    bundle_file = tmp_path / "storefront-bundles.json"
+    service = StorefrontBundleService(bundle_file)
+    bundle = StorefrontBundle(
+        id="combo-precio",
+        title="Combo con precio",
+        description="Con precio fijo.",
+        items=[StorefrontProductReference(category="Bebidas", name="Coca-Cola 2L")],
+        bundle_price=4990,
+    )
+
+    service.save_bundles([bundle])
+    loaded = service.load_bundles()
+
+    require(len(loaded) == 1, "Expected one bundle after round-trip")
+    require(
+        loaded[0].bundle_price == 4990,
+        "Expected bundlePrice to round-trip through save/load",
+    )
+
+
+def test_storefront_bundle_service_omits_bundle_price_when_zero(tmp_path: Path) -> None:
+    bundle_file = tmp_path / "storefront-bundles.json"
+    service = StorefrontBundleService(bundle_file)
+    bundle = StorefrontBundle(
+        id="combo-sin-precio",
+        title="Combo sin precio",
+        description="Sin precio fijo.",
+        items=[StorefrontProductReference(category="Bebidas", name="Coca-Cola 2L")],
+        bundle_price=0,
+    )
+
+    service.save_bundles([bundle])
+    content = bundle_file.read_text(encoding="utf-8")
+
+    require(
+        "bundlePrice" not in content,
+        "Expected bundlePrice key to be omitted from JSON when value is 0",
+    )
+
+
+def test_storefront_bundle_service_rejects_negative_bundle_price(tmp_path: Path) -> None:
+    bundle_file = tmp_path / "storefront-bundles.json"
+    bundle_file.write_text(
+        '[{"id": "x", "title": "X", "description": "Y", "bundlePrice": -100,'
+        ' "items": [{"category": "Bebidas", "name": "Coca-Cola 2L"}]}]\n',
+        encoding="utf-8",
+    )
+    service = StorefrontBundleService(bundle_file)
+    with pytest.raises(StorefrontBundleValidationError):
+        service.load_bundles()
+
+
 # ---------------------------------------------------------------------------
 # FeaturedStaplesService tests
 # ---------------------------------------------------------------------------

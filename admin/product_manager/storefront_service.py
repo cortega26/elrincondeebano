@@ -54,6 +54,7 @@ class StorefrontBundle:
     title: str
     description: str
     items: List[StorefrontProductReference]
+    bundle_price: int = 0  # 0 means no fixed price (sum of items is shown)
 
     @classmethod
     def from_dict(cls, payload: object) -> "StorefrontBundle":
@@ -78,15 +79,33 @@ class StorefrontBundle:
                 f"El combo '{bundle_id}' debe incluir al menos un producto."
             )
         items = [StorefrontProductReference.from_dict(item) for item in raw_items]
-        return cls(id=bundle_id, title=title, description=description, items=items)
+        raw_price = payload.get("bundlePrice")
+        try:
+            bundle_price = int(raw_price) if raw_price is not None else 0
+        except (TypeError, ValueError):
+            bundle_price = 0
+        if bundle_price < 0:
+            raise StorefrontBundleValidationError(
+                f"El precio del combo '{bundle_id}' no puede ser negativo."
+            )
+        return cls(
+            id=bundle_id,
+            title=title,
+            description=description,
+            items=items,
+            bundle_price=bundle_price,
+        )
 
     def to_dict(self) -> dict[str, object]:
-        return {
+        data: dict[str, object] = {
             "id": self.id,
             "title": self.title,
             "description": self.description,
             "items": [item.to_dict() for item in self.items],
         }
+        if self.bundle_price and self.bundle_price > 0:
+            data["bundlePrice"] = self.bundle_price
+        return data
 
 
 class FeaturedStaplesError(Exception):
