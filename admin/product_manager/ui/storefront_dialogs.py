@@ -161,6 +161,9 @@ class BundleEditorDialog(tk.Toplevel):
         self.title_var = tk.StringVar(value=bundle.title if bundle else "")
         self.id_var = tk.StringVar(value=bundle.id if bundle else "")
         self.description_var = tk.StringVar(value=bundle.description if bundle else "")
+        self.bundle_price_var = tk.StringVar(
+            value=str(bundle.bundle_price) if bundle and bundle.bundle_price > 0 else ""
+        )
         self.items: List[StorefrontProductReference] = (
             list(bundle.items) if bundle else []
         )
@@ -173,7 +176,7 @@ class BundleEditorDialog(tk.Toplevel):
         frame = ttk.Frame(self, padding=16)
         frame.pack(fill=tk.BOTH, expand=True)
         frame.columnconfigure(1, weight=1)
-        frame.rowconfigure(3, weight=1)
+        frame.rowconfigure(4, weight=1)
 
         ttk.Label(frame, text="Título").grid(row=0, column=0, sticky=tk.W, pady=(0, 8))
         ttk.Entry(frame, textvariable=self.title_var).grid(
@@ -193,8 +196,19 @@ class BundleEditorDialog(tk.Toplevel):
         description_text.insert("1.0", self.description_var.get())
         self.description_text = description_text
 
+        price_frame = ttk.Frame(frame)
+        price_frame.grid(row=3, column=0, columnspan=2, sticky="ew", pady=(0, 8))
+        ttk.Label(price_frame, text="Precio del combo (CLP)").pack(side=tk.LEFT)
+        ttk.Entry(price_frame, textvariable=self.bundle_price_var, width=14).pack(
+            side=tk.LEFT, padx=(12, 8)
+        )
+        ttk.Label(
+            price_frame,
+            text="Opcional. Deja vacío para mostrar la suma de los productos.",
+        ).pack(side=tk.LEFT)
+
         items_frame = ttk.LabelFrame(frame, text="Productos del combo", padding=12)
-        items_frame.grid(row=3, column=0, columnspan=2, sticky="nsew", pady=(4, 0))
+        items_frame.grid(row=4, column=0, columnspan=2, sticky="nsew", pady=(4, 0))
         items_frame.columnconfigure(0, weight=1)
         items_frame.rowconfigure(0, weight=1)
 
@@ -226,7 +240,7 @@ class BundleEditorDialog(tk.Toplevel):
         )
 
         footer = ttk.Frame(frame)
-        footer.grid(row=4, column=0, columnspan=2, sticky="ew", pady=(14, 0))
+        footer.grid(row=5, column=0, columnspan=2, sticky="ew", pady=(14, 0))
         ttk.Button(footer, text="Cancelar", command=self.destroy).pack(
             side=tk.RIGHT, padx=(8, 0)
         )
@@ -311,6 +325,20 @@ class BundleEditorDialog(tk.Toplevel):
             )
             return
 
+        raw_price = self.bundle_price_var.get().strip()
+        bundle_price = 0
+        if raw_price:
+            try:
+                bundle_price = int(raw_price)
+                if bundle_price < 0:
+                    raise ValueError
+            except ValueError:
+                messagebox.showerror(
+                    "Combos listos",
+                    "El precio del combo debe ser un número entero positivo (CLP).",
+                )
+                return
+
         if (
             bundle_id in self.existing_ids
             and (not self.original_bundle or bundle_id != self.original_bundle.id)
@@ -327,6 +355,7 @@ class BundleEditorDialog(tk.Toplevel):
                 title=title,
                 description=description,
                 items=list(self.items),
+                bundle_price=bundle_price,
             )
         except StorefrontBundleValidationError as exc:
             messagebox.showerror("Combos listos", str(exc))
