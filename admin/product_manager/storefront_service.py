@@ -89,6 +89,73 @@ class StorefrontBundle:
         }
 
 
+class FeaturedStaplesError(Exception):
+    """Base error for featured staples operations."""
+
+
+class FeaturedStaplesValidationError(FeaturedStaplesError):
+    """Raised when featured staples data is invalid."""
+
+
+class FeaturedStaplesService:
+    """Load and save the featuredStaples list inside storefront-experience.json."""
+
+    def __init__(self, file_path: Path):
+        self.file_path = Path(file_path)
+
+    def load_staples(self) -> List[StorefrontProductReference]:
+        """Return the current list of featured staples from the JSON config."""
+        if not self.file_path.exists():
+            return []
+        try:
+            raw = json.loads(self.file_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            raise FeaturedStaplesError(
+                f"No se pudo leer el archivo de configuración: {exc}"
+            ) from exc
+        if not isinstance(raw, dict):
+            raise FeaturedStaplesValidationError(
+                "El archivo de configuración debe ser un objeto JSON."
+            )
+        home = raw.get("home", {})
+        if not isinstance(home, dict):
+            raise FeaturedStaplesValidationError(
+                "La sección 'home' del archivo de configuración debe ser un objeto."
+            )
+        raw_staples = home.get("featuredStaples", [])
+        if not isinstance(raw_staples, list):
+            raise FeaturedStaplesValidationError(
+                "El campo 'home.featuredStaples' debe ser una lista."
+            )
+        return [StorefrontProductReference.from_dict(item) for item in raw_staples]
+
+    def save_staples(self, staples: Iterable[StorefrontProductReference]) -> None:
+        """Persist the featuredStaples list in place, leaving the rest of the file intact."""
+        if not self.file_path.exists():
+            raise FeaturedStaplesError(
+                "El archivo de configuración no existe. No se puede guardar."
+            )
+        try:
+            raw = json.loads(self.file_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            raise FeaturedStaplesError(
+                f"No se pudo leer el archivo de configuración: {exc}"
+            ) from exc
+        if not isinstance(raw, dict):
+            raise FeaturedStaplesValidationError(
+                "El archivo de configuración debe ser un objeto JSON."
+            )
+        if not isinstance(raw.get("home"), dict):
+            raw["home"] = {}
+        raw["home"]["featuredStaples"] = [s.to_dict() for s in staples]
+        temp_path = self.file_path.with_suffix(f"{self.file_path.suffix}.tmp")
+        temp_path.write_text(
+            json.dumps(raw, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        temp_path.replace(self.file_path)
+
+
 def slugify_bundle_id(value: str) -> str:
     """Create a stable bundle id from a title-like value."""
 
