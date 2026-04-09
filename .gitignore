@@ -116,6 +116,15 @@ astro-poc/public/assets/
 # Archived projects
 _archive/
 
+# Directories not needed in git
+logs/
+output/
+_products/
+
+# Tool caches
+.ruff_cache/
+.tmp/
+**/__pycache__/
 
 #Ignore vscode AI rules
 .github/instructions/codacy.instructions.md
