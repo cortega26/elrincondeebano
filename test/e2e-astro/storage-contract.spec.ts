@@ -47,6 +47,10 @@ test('repeat-order flow keeps canonical last-order state usable after reload', a
 
   await page.locator(`#product-container .add-to-cart-btn[data-id="${productId}"]`).first().click();
   await page.locator('#cart-icon').click();
+  // Wait for the offcanvas to be fully visible before interacting with its contents
+  await page.locator('#cartOffcanvas').waitFor({ state: 'visible' });
+  // The delivery note is inside a collapsed section; expand it first
+  await page.locator('.cart-note-toggle').click();
   await page.locator('#delivery-note').fill('Dejar en conserjeria');
   await page.locator('#payment-cash').check();
   await page.locator('#submit-cart').click();
