@@ -3,6 +3,11 @@ import path from 'node:path';
 import sharp from 'sharp';
 import { fileURLToPath } from 'node:url';
 
+if (process.env.PREFLIGHT_SKIP_OG === '1') {
+  console.log('PREFLIGHT_SKIP_OG=1: skipping home OG image generation.');
+  process.exit(0);
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
@@ -19,7 +24,7 @@ async function main() {
 
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
-  await sharp(SOURCE_PATH)
+  const rendered = await sharp(SOURCE_PATH)
     .resize(IMAGE_SIZE, IMAGE_SIZE, {
       fit: 'cover',
       position: 'center',
@@ -30,8 +35,17 @@ async function main() {
       progressive: true,
       mozjpeg: true,
     })
-    .toFile(OUTPUT_PATH);
+    .toBuffer();
 
+  if (fs.existsSync(OUTPUT_PATH)) {
+    const existing = fs.readFileSync(OUTPUT_PATH);
+    if (existing.equals(rendered)) {
+      console.log(`Home OG image unchanged, skipping write.`);
+      return;
+    }
+  }
+
+  fs.writeFileSync(OUTPUT_PATH, rendered);
   console.log(`Generated ${path.relative(rootDir, OUTPUT_PATH)}`);
 }
 
