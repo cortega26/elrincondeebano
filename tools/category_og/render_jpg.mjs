@@ -20,7 +20,7 @@ if (!fs.existsSync(input)) {
 (async () => {
   await sharp(input, { density: 300 })
     .resize(width, height, { fit: 'cover' })
-    .jpeg({ quality, mozjpeg: true, chromaSubsampling: '4:4:4' })
+    .jpeg({ quality, mozjpeg: true, progressive: false, chromaSubsampling: '4:4:4' })
     .toFile(output);
 })().catch((error) => {
   console.error(String(error && error.stack ? error.stack : error));

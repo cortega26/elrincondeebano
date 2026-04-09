@@ -25,7 +25,7 @@ if (!fs.existsSync(input)) {
       withoutEnlargement: false,
     })
     .flatten({ background: { r: 255, g: 255, b: 255 } })
-    .jpeg({ quality, progressive: true, mozjpeg: true, chromaSubsampling: '4:4:4' })
+    .jpeg({ quality, progressive: false, mozjpeg: true, chromaSubsampling: '4:4:4' })
     .toFile(output);
 })().catch((error) => {
   console.error(String(error && error.stack ? error.stack : error));
