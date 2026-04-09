@@ -57,6 +57,13 @@ jobs:
         run: npm ci
       - name: Build storefront (verification only)
         run: npm run build
+      - name: Cache Playwright browsers
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-chromium-
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
       - name: Run blocking browser canary against the verification artifact
@@ -119,6 +126,13 @@ jobs:
         run: npm ci
       - name: Build storefront
         run: npm run build
+      - name: Cache Playwright browsers
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-chromium-
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
       - name: Run blocking browser canary against the shipped artifact

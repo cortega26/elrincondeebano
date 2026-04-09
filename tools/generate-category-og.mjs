@@ -1,5 +1,10 @@
 ﻿import { spawnSync } from 'node:child_process';
 
+if (process.env.PREFLIGHT_SKIP_OG === '1') {
+  console.log('PREFLIGHT_SKIP_OG=1: skipping category OG image generation.');
+  process.exit(0);
+}
+
 const userArgs = process.argv.slice(2);
 const hasCommand = userArgs.includes('--sync') || userArgs.includes('--one') || userArgs.includes('--delete');
 const args = hasCommand ? userArgs : ['--sync', ...userArgs];

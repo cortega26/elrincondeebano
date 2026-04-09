@@ -69,7 +69,6 @@ jobs:
       - name: Deterministic build check
         run: |
           rm -rf build-determinism-a build-determinism-b
-          npm run build
           cp -R astro-poc/dist build-determinism-a
           npm run build
           cp -R astro-poc/dist build-determinism-b
