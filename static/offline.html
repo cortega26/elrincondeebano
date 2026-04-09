@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Modo sin conexión de El Rincón de Ébano. Vuelve a conectarte para recargar el catálogo."
+    />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Sin conexión | El Rincón de Ébano</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f4efe6;
+        --panel: rgba(255, 252, 247, 0.94);
+        --ink: #1d1a17;
+        --muted: #61574e;
+        --accent: #2a7b57;
+        --accent-strong: #18563c;
+        --border: rgba(42, 123, 87, 0.18);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background:
+          radial-gradient(circle at top, rgba(42, 123, 87, 0.18), transparent 38%),
+          linear-gradient(180deg, #faf6ee 0%, var(--bg) 100%);
+        color: var(--ink);
+        font-family: 'Segoe UI', sans-serif;
+      }
+
+      main {
+        width: min(100%, 540px);
+        padding: 32px;
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        background: var(--panel);
+        box-shadow: 0 24px 60px rgba(25, 22, 19, 0.08);
+        text-align: center;
+      }
+
+      img {
+        width: 88px;
+        height: 88px;
+        margin-bottom: 20px;
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-size: clamp(1.9rem, 4vw, 2.4rem);
+      }
+
+      p {
+        margin: 0 0 12px;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .actions {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 24px;
+      }
+
+      a,
+      button {
+        border: 0;
+        border-radius: 999px;
+        padding: 12px 18px;
+        font: inherit;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      button {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      a {
+        background: rgba(42, 123, 87, 0.08);
+        color: var(--accent-strong);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img
+        src="/assets/images/web/logo.webp"
+        alt="Logo de El Rincón de Ébano"
+        width="88"
+        height="88"
+      />
+      <h1>Estás sin conexión</h1>
+      <p>No pudimos cargar el catálogo en este momento.</p>
+      <p>Cuando vuelva internet, recarga la página para seguir comprando.</p>
+      <div class="actions">
+        <button type="button" onclick="window.location.reload()">Reintentar</button>
+        <a href="https://www.elrincondeebano.com/">Volver al inicio</a>
+      </div>
+    </main>
+  </body>
+</html>
