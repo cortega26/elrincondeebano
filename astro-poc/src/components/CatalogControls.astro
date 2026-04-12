@@ -1,4 +1,15 @@
-<section aria-label="Opciones de filtrado y ordenacion">
+---
+export interface Props {
+  stickyMobile?: boolean;
+}
+
+const { stickyMobile = false } = Astro.props;
+---
+
+<section
+  class={`catalog-controls ${stickyMobile ? 'catalog-controls--sticky-mobile' : ''}`.trim()}
+  aria-label="Opciones de filtrado y ordenacion"
+>
   <div class="row mb-3">
     <div class="col-md-6">
       <label for="sort-options" class="visually-hidden">Ordenar productos</label>

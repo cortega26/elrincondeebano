@@ -3,6 +3,11 @@ import { catalogMeta, getStorefrontStatusItems, getStorefrontTrustItems } from '
 
 const trustItems = getStorefrontTrustItems();
 const statusItems = getStorefrontStatusItems();
+const compactStatusItems = statusItems.slice(0, 2);
+const compactTrustItems = trustItems.filter((item) =>
+  ['Entrega', 'Pago'].includes(item.label)
+);
+const resolvedCompactTrustItems = compactTrustItems.length > 0 ? compactTrustItems : trustItems.slice(0, 2);
 
 let updatedLabel = 'Catálogo disponible';
 if (catalogMeta.lastUpdated) {
@@ -17,7 +22,7 @@ if (catalogMeta.lastUpdated) {
 }
 ---
 
-<section class="trust-strip" aria-label="Condiciones del servicio">
+<section class="trust-strip trust-strip--full" aria-label="Condiciones del servicio">
   <div class="trust-strip__status">
     {statusItems.map((item) => (
       <div class="trust-strip__status-item">
@@ -34,6 +39,25 @@ if (catalogMeta.lastUpdated) {
   <div class="trust-strip__highlights">
     {trustItems.map((item) => (
       <div class="trust-strip__pill">
+        <strong>{item.label}</strong>
+        <span>{item.value}</span>
+      </div>
+    ))}
+  </div>
+</section>
+
+<section class="trust-strip trust-strip--compact" aria-label="Resumen del servicio">
+  <div class="trust-strip__compact-row">
+    {compactStatusItems.map((item) => (
+      <div class="trust-strip__compact-card">
+        <strong>{item.label}</strong>
+        <span>{item.value}</span>
+      </div>
+    ))}
+  </div>
+  <div class="trust-strip__compact-row">
+    {resolvedCompactTrustItems.map((item) => (
+      <div class="trust-strip__compact-card">
         <strong>{item.label}</strong>
         <span>{item.value}</span>
       </div>

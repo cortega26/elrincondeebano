@@ -7,9 +7,10 @@ export interface Props {
   id?: string;
   className?: string;
   announce?: boolean;
+  compactMobile?: boolean;
 }
 
-const { items, id, className = '', announce = false } = Astro.props;
+const { items, id, className = '', announce = false, compactMobile = false } = Astro.props;
 ---
 
 <div
@@ -18,5 +19,5 @@ const { items, id, className = '', announce = false } = Astro.props;
   aria-live={announce ? 'polite' : undefined}
   data-total-products={items.length}
 >
-  {items.map((item, index) => <ProductCard item={item} index={index} />)}
+  {items.map((item, index) => <ProductCard item={item} index={index} compactMobile={compactMobile} />)}
 </div>

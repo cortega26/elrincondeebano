@@ -1,0 +1,62 @@
+---
+import ProductGrid from './ProductGrid.astro';
+import type { ProductWithSku } from '../lib/catalog';
+
+export interface Props {
+  headingId: string;
+  title: string;
+  description: string;
+  items: ProductWithSku[];
+  className?: string;
+  gridId?: string;
+  gridClassName?: string;
+  showProfileStrip?: boolean;
+  compactMobile?: boolean;
+}
+
+const {
+  headingId,
+  title,
+  description,
+  items,
+  className = '',
+  gridId,
+  gridClassName = 'home-collection-grid',
+  showProfileStrip = false,
+  compactMobile = true,
+} = Astro.props;
+---
+
+<section class={`home-section ${className}`.trim()} aria-labelledby={headingId}>
+  <div class="home-section__header">
+    <h2 id={headingId}>{title}</h2>
+    <p data-home-personalized-note={showProfileStrip ? 'true' : undefined}>{description}</p>
+  </div>
+
+  {
+    showProfileStrip ? (
+      <div class="home-profile-strip" data-home-profile-strip aria-live="polite">
+        <div data-home-profile-copy>
+          <strong>Tu último pedido puede quedar listo en un toque.</strong>
+          <span>Si quieres, deja una nota para el pedido y úsala también en la próxima compra.</span>
+        </div>
+        <button
+          type="button"
+          class="btn btn-outline-dark home-profile-strip__repeat"
+          data-repeat-last-order
+          disabled
+          aria-disabled="true"
+        >
+          Repetir último pedido
+        </button>
+      </div>
+    ) : null
+  }
+
+  <ProductGrid
+    items={items}
+    id={gridId}
+    className={gridClassName}
+    compactMobile={compactMobile}
+  />
+</section>

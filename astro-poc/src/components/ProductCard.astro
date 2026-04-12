@@ -5,11 +5,13 @@ import { formatPrice, getProductCardImageSource } from '../lib/catalog';
 export interface Props {
   item: ProductWithSku;
   index?: number;
+  compactMobile?: boolean;
 }
 
 const { item } = Astro.props;
 const { product, sku } = item;
 const { index = 0 } = Astro.props;
+const { compactMobile = false } = Astro.props;
 const isLikelyLcp = index === 0;
 const price = typeof product.price === 'number' ? product.price : 0;
 const discount = typeof product.discount === 'number' ? product.discount : 0;
@@ -22,7 +24,7 @@ const hasAvifSource = typeof avifImage.srcset === 'string' && avifImage.srcset.l
 ---
 
 <article
-  class={`producto col-6 col-sm-6 col-md-4 col-lg-3 mb-4 ${product.stock ? '' : 'agotado'}`}
+  class={`producto col-6 col-sm-6 col-md-4 col-lg-3 mb-4 ${product.stock ? '' : 'agotado'} ${compactMobile ? 'producto--compact-mobile' : ''}`.trim()}
   data-product-id={sku}
   data-product-name={product.name}
   data-product-category={product.category}
@@ -30,6 +32,7 @@ const hasAvifSource = typeof avifImage.srcset === 'string' && avifImage.srcset.l
   data-product-discount={discount}
   data-product-final-price={finalPrice}
   data-product-order={index}
+  data-compact-mobile={compactMobile ? 'true' : 'false'}
 >
   <div class="card h-100">
     {hasDiscount ? <span class="discount-badge badge bg-danger" aria-label="Producto en oferta">-{discountPercent}%</span> : null}
@@ -76,7 +79,7 @@ const hasAvifSource = typeof avifImage.srcset === 'string' && avifImage.srcset.l
       <div class="action-area mt-auto" data-pid={sku} role="group" aria-label={`Acciones para ${product.name}`}>
         <button class="btn btn-primary add-to-cart-btn mt-2" type="button" data-id={sku} aria-label={`Agregar ${product.name} al carrito`}>
           <span class="add-to-cart-btn__label">Agregar</span>
-          <span class="add-to-cart-btn__hint">al pedido</span>
+          {compactMobile ? null : <span class="add-to-cart-btn__hint">al pedido</span>}
         </button>
 
         <div class="quantity-control is-hidden" aria-live="polite" role="group" aria-label="Seleccionar cantidad">

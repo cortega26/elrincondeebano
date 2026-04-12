@@ -72,6 +72,28 @@ function log(level, message, meta = {}) {
   console.log(entry);
 }
 
+function trackAnalyticsEvent(eventName, properties = {}) {
+  try {
+    if (typeof window !== 'undefined' && typeof window.__analyticsTrack === 'function') {
+      window.__analyticsTrack(eventName, properties);
+    }
+  } catch {
+    // Ignore analytics failures to avoid blocking storefront interactions.
+  }
+}
+
+function isMobileViewport() {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  if (typeof window.matchMedia === 'function') {
+    return window.matchMedia('(max-width: 767px)').matches;
+  }
+
+  return window.innerWidth <= 767;
+}
+
 function debounce(fn, wait = 120) {
   let timeoutId;
   return (...args) => {
@@ -396,16 +418,6 @@ function setRepeatButtonsState(order) {
 }
 
 function syncProfileSummary(profile, lastOrder) {
-  const strip = document.getElementById('home-profile-strip');
-  if (!(strip instanceof HTMLElement)) {
-    return;
-  }
-
-  const content = strip.querySelector('div');
-  if (!(content instanceof HTMLElement)) {
-    return;
-  }
-
   const hasSavedNote = !!profile.deliveryNote;
   const hasLastOrder = !!(
     lastOrder &&
@@ -423,14 +435,22 @@ function syncProfileSummary(profile, lastOrder) {
     detail.textContent = hasSavedNote
       ? `Nota guardada: "${profile.deliveryNote}".`
       : 'Puedes repetir el pedido en un toque o ajustar cantidades antes de enviarlo por WhatsApp.';
-    content.replaceChildren(title, detail);
+    document.querySelectorAll('[data-home-profile-copy]').forEach((content) => {
+      if (content instanceof HTMLElement) {
+        content.replaceChildren(title.cloneNode(true), detail.cloneNode(true));
+      }
+    });
     return;
   }
 
   title.textContent = 'Tu último pedido puede quedar listo en un toque.';
   detail.textContent =
     'Si quieres, deja una nota para el pedido y úsala también en la próxima compra.';
-  content.replaceChildren(title, detail);
+  document.querySelectorAll('[data-home-profile-copy]').forEach((content) => {
+    if (content instanceof HTMLElement) {
+      content.replaceChildren(title.cloneNode(true), detail.cloneNode(true));
+    }
+  });
 }
 
 const personalizationEngine = createPersonalizationEngine({
@@ -450,42 +470,58 @@ const personalizationEngine = createPersonalizationEngine({
 });
 
 function renderPersonalizedProducts() {
-  const container = document.getElementById('home-personalized-grid');
-  const note = document.getElementById('home-personalized-note');
-  if (!(container instanceof HTMLElement)) {
+  const containers = Array.from(
+    document.querySelectorAll(
+      '[data-home-personalized-grid], #home-personalized-grid-desktop, #home-personalized-grid-mobile'
+    )
+  ).filter((container) => container instanceof HTMLElement);
+  const notes = Array.from(document.querySelectorAll('[data-home-personalized-note]')).filter(
+    (note) => note instanceof HTMLElement
+  );
+
+  if (containers.length === 0) {
     return;
   }
 
   const personalizedIds = personalizationEngine.getPersonalizedProductIds();
   if (personalizedIds.length === 0) {
-    if (note) {
+    notes.forEach((note) => {
       note.textContent =
         'Tus frecuentes aparecerán aquí. Mientras tanto, dejamos una selección útil para resolver rápido.';
-    }
+    });
     return;
   }
 
-  const fragment = document.createDocumentFragment();
-  personalizedIds.forEach((productId) => {
-    const sourceCard = getSourceProductCards().find(
-      (card) => normalizeId(card.dataset.productId) === productId
-    );
-    if (sourceCard) {
+  const sourceCards = personalizedIds
+    .map((productId) =>
+      getSourceProductCards().find((card) => normalizeId(card.dataset.productId) === productId)
+    )
+    .filter(Boolean);
+
+  if (sourceCards.length === 0) {
+    return;
+  }
+
+  containers.forEach((container) => {
+    if (!(container instanceof HTMLElement)) {
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    sourceCards.forEach((sourceCard) => {
       const clone = sourceCard.cloneNode(true);
       if (clone instanceof HTMLElement) {
         clone.classList.remove('is-hidden');
       }
       fragment.appendChild(clone);
-    }
+    });
+    container.replaceChildren(fragment);
   });
 
-  if (fragment.childNodes.length > 0) {
-    container.replaceChildren(fragment);
-    if (note) {
-      note.textContent =
-        'Esta selección se adapta a lo que ya agregaste o pediste desde este dispositivo.';
-    }
-  }
+  notes.forEach((note) => {
+    note.textContent =
+      'Esta selección se adapta a lo que ya agregaste o pediste desde este dispositivo.';
+  });
 }
 
 function syncCheckoutState(cart, totalAmount) {
@@ -557,7 +593,7 @@ function syncMobileCartShortcut(cart, totalAmount) {
     return;
   }
 
-  shortcut.textContent = `Ver pedido (${totalItems}) • ${formatCurrency(totalAmount)}`;
+  shortcut.textContent = `Ver pedido · ${totalItems} · ${formatCurrency(totalAmount)}`;
   shortcut.setAttribute(
     'aria-label',
     `Ver pedido, ${totalItems} productos, total ${formatCurrency(totalAmount)}`
@@ -796,10 +832,31 @@ function submitCartOrder(cart) {
   renderPersonalizedProducts();
 
   const encodedMessage = encodeURIComponent(message);
+  trackAnalyticsEvent('whatsapp_checkout_submit', {
+    items: cart.length,
+    totalAmount,
+    paymentMethod: selectedPayment,
+    source: isMobileViewport() ? 'mobile' : 'desktop',
+  });
   if (submitFeedback) {
-    submitFeedback.textContent = 'Abriremos WhatsApp con el resumen listo. Solo revisa y presiona enviar para confirmar.';
+    submitFeedback.textContent =
+      'Abriremos WhatsApp con el resumen listo. Solo revisa y presiona enviar para confirmar.';
   }
   globalThis.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`, '_blank');
+}
+
+function initHomeExperienceTelemetry() {
+  document.querySelectorAll('[data-home-merchandising]').forEach((element) => {
+    if (!(element instanceof HTMLDetailsElement)) {
+      return;
+    }
+
+    element.addEventListener('toggle', () => {
+      trackAnalyticsEvent('mobile_merchandising_toggle', {
+        expanded: element.open,
+      });
+    });
+  });
 }
 
 function setupOnlineStatusIndicator() {
@@ -841,6 +898,7 @@ function initStorefront() {
   setPreferredPayment(loadPreferredPayment());
   syncProfileSummary(initialProfile, lastOrder);
   setRepeatButtonsState(lastOrder);
+  initHomeExperienceTelemetry();
 
   const getQty = (id) => {
     const item = cart.find((entry) => entry.id === id);
@@ -940,8 +998,26 @@ function initStorefront() {
     const mobileCartShortcut = target.closest('#mobile-cart-shortcut');
     if (mobileCartShortcut) {
       event.preventDefault();
+      trackAnalyticsEvent('mobile_cart_shortcut_click', {
+        source: 'floating_shortcut',
+      });
       openCartOffcanvas();
       return;
+    }
+
+    const heroCta = target.closest('[data-home-hero-cta]');
+    if (heroCta) {
+      trackAnalyticsEvent('home_hero_primary_cta_click', {
+        destination: heroCta.getAttribute('href') || '#home-fast-track-heading',
+      });
+    }
+
+    const categoryShortcut = target.closest('[data-home-category-shortcut]');
+    if (categoryShortcut) {
+      trackAnalyticsEvent('home_category_shortcut_click', {
+        destination: categoryShortcut.getAttribute('href') || '',
+        index: parseNumber(categoryShortcut.getAttribute('data-shortcut-index'), -1),
+      });
     }
 
     const repeatBtn = target.closest('[data-repeat-last-order]');
@@ -975,6 +1051,13 @@ function initStorefront() {
           addBtn.classList.remove('is-added');
         }, 280);
         setQty(id, Math.max(getQty(id), 0) + 1, product);
+        if (isMobileViewport()) {
+          trackAnalyticsEvent('mobile_add_to_cart', {
+            id,
+            name: product.name,
+            price: product.price,
+          });
+        }
       }
       return;
     }
