@@ -53,6 +53,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 | Repo Cartographer             | `node -v`                                               | Antes de cualquier trabajo para verificar Node ≥ 22 tal como consume CI (`images.yml`). | Versión fija compatible con scripts (`22.x`).                                             | Registro en informe de descubrimiento.    |
 | Repo Cartographer             | `npm pkg get scripts`                                   | Al actualizar documentación o scripts.                                                  | JSON con scripts de `package.json`.                                                       | Tabla de scripts actualizada en docs.     |
 | Docs Steward                  | `npm run build`                                         | Tras cambios en storefront, datos o tooling compartido.                                 | Build Astro completo sin errores ni warnings críticos; genera `astro-poc/dist/`.          | Artefactos listos para commit/deploy.     |
+| Docs Steward                  | `npm run monitor:share-preview`                         | Tras cambios en SEO/OG images o antes de release.                                        | Homepage, categoría primaria y producto sample exponen previews compatibles para WhatsApp. | `reports/share-preview/latest.json`.      |
 | Docs Steward                  | `npm run lighthouse:audit`                              | Auditorías de rendimiento previas a release.                                            | Reportes en `reports/lighthouse/`.                                                        | Archivos HTML de Lighthouse.              |
 | Docs Steward                  | `npm run smoke:evidence`                                | Antes de release y al cerrar smoke manual.                                              | Plantilla persistente de evidencia en `reports/smoke/*.md`.                               | Artefacto smoke por commit/release.       |
 | Type & Lint Guardian          | `npm run lint`                                          | En cada PR y antes de merges; ejecutado también localmente.                             | Salida limpia sin errores ESLint usando `eslint.config.cjs`.                              | Logs de lint.                             |
@@ -123,6 +124,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - `npm run typecheck`
   - `npm test`
   - `npm run build`
+  - `npm run monitor:share-preview`
   - `npm run guardrails:assets`
   - `npm run test:e2e`
   - `npm run smoke:evidence`
@@ -138,6 +140,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 - [ ] `npm run typecheck` en verde (si hay cambios en `src/js/**`).
 - [ ] `npm test` en verde.
 - [ ] `npm run build` en verde.
+- [ ] `npm run monitor:share-preview` en verde cuando cambian metadatos, OG images o rutas compartibles.
 - [ ] `npm run test:e2e` en verde o justificado si no aplica.
 - [ ] `npm audit --omit=dev` sin vulnerabilidades altas/críticas.
 - [ ] Rollback documentado (`git revert <sha>` + pasos de verificación).
@@ -225,6 +228,7 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - `npm run lint`
   - `npm test`
   - `npm run build`
+  - `npm run monitor:share-preview`
   - `npm run test:e2e`
 3. Si hay rojo, priorizar volver a verde antes de mejoras incrementales.
 4. Ejecutar auditoría por etapas con checkpoints y evidencia por etapa en `docs/audit/`.
@@ -244,4 +248,4 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
 - Workflows de GitHub Actions. [`static.yml`](.github/workflows/static.yml), [`images.yml`](.github/workflows/images.yml), [`semgrep.yml`](.github/workflows/semgrep.yml), [`secret-scan.yml`](.github/workflows/secret-scan.yml)
 - Scripts de build y utilidades. [`tools/`](tools/)
 - Suite de pruebas Node. [`test/`](test/)
-- Documentación operativa existente. [`README.md`](README.md), [`RUNBOOK`](docs/operations/RUNBOOK.md), [`BACKUP`](docs/operations/BACKUP.md), [`QUALITY_GUARDRAILS`](docs/operations/QUALITY_GUARDRAILS.md), [`SMOKE_TEST`](docs/operations/SMOKE_TEST.md), [`OBSERVABILITY`](docs/operations/OBSERVABILITY.md), [`DEPENDENCY_POLICY`](docs/operations/DEPENDENCY_POLICY.md), [`DEBUGGING`](docs/operations/DEBUGGING.md), [`INCIDENT_TRIAGE`](docs/operations/INCIDENT_TRIAGE.md), [`ROLLBACK`](docs/operations/ROLLBACK.md)
+- Documentación operativa existente. [`README.md`](README.md), [`RUNBOOK`](docs/operations/RUNBOOK.md), [`BACKUP`](docs/operations/BACKUP.md), [`QUALITY_GUARDRAILS`](docs/operations/QUALITY_GUARDRAILS.md), [`SMOKE_TEST`](docs/operations/SMOKE_TEST.md), [`SHARE_PREVIEW`](docs/operations/SHARE_PREVIEW.md), [`OBSERVABILITY`](docs/operations/OBSERVABILITY.md), [`DEPENDENCY_POLICY`](docs/operations/DEPENDENCY_POLICY.md), [`DEBUGGING`](docs/operations/DEBUGGING.md), [`INCIDENT_TRIAGE`](docs/operations/INCIDENT_TRIAGE.md), [`ROLLBACK`](docs/operations/ROLLBACK.md)

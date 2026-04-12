@@ -33,6 +33,7 @@ npm run typecheck
 npm test
 npm run build
 npm run test:e2e
+npm run monitor:share-preview
 ```
 
 Validation details:
@@ -41,7 +42,8 @@ Validation details:
 - `npm run test:e2e` runs `playwright.astro.config.ts` against the canonical Astro suite in [`test/e2e-astro/`](./test/e2e-astro/).
 - Shopper-state persistence for the shipped storefront is canonical under the `astro-poc-*` localStorage keys; the legacy `cart` key is read only as a compatibility alias during upgrade.
 - Specs under [`test/e2e/`](./test/e2e/) plus the targeted Cypress runner are supplemental/manual coverage and are not the default release gate.
-- Product-detail pages now fall back to compatible category JPG OG assets when catalog media is WebP-only, preserving the WhatsApp/social preview contract.
+- Supported WhatsApp/social preview routes are `/`, `/<category>/`, and `/p/<sku>/`; legacy `/c/*` and `/pages/*.html` routes stay compatible but are not part of the supported preview contract.
+- Social-preview metadata and image versioning are centralized in [`astro-poc/src/lib/seo.ts`](./astro-poc/src/lib/seo.ts), and `npm run monitor:share-preview` is the dedicated live check for public unfurls.
 
 ## Build Notes
 
@@ -54,5 +56,6 @@ Validation details:
 - [`docs/operations/QUALITY_GUARDRAILS.md`](./docs/operations/QUALITY_GUARDRAILS.md)
 - [`docs/operations/DEBUGGING.md`](./docs/operations/DEBUGGING.md)
 - [`docs/operations/RUNBOOK.md`](./docs/operations/RUNBOOK.md)
+- [`docs/operations/SHARE_PREVIEW.md`](./docs/operations/SHARE_PREVIEW.md)
 - [`docs/implementation/ELRINCONDEEBANO_REMEDIATION_PLAN.md`](./docs/implementation/ELRINCONDEEBANO_REMEDIATION_PLAN.md)
 - [`docs/implementation/ELRINCONDEEBANO_REMEDIATION_BACKLOG.md`](./docs/implementation/ELRINCONDEEBANO_REMEDIATION_BACKLOG.md)

@@ -17,8 +17,8 @@ test('built homepage emits JPG og:image with explicit 1200x1200 metadata', (t) =
   assert.ok(imageMatch, 'Expected og:image meta tag in built homepage');
   assert.match(
     imageMatch[1],
-    /\/assets\/images\/og\/home\.og\.jpg$/i,
-    'Expected homepage og:image to point to the dedicated JPG social asset'
+    /\/assets\/images\/og\/home\.og\.jpg\?v=[a-f0-9]{12}$/i,
+    'Expected homepage og:image to point to the dedicated versioned JPG social asset'
   );
 
   assert.ok(

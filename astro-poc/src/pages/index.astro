@@ -12,7 +12,7 @@ import {
   getHomepageCatalogProducts,
   getStorefrontBundles,
 } from '../lib/catalog';
-import { DEFAULT_OG_IMAGE } from '../lib/seo';
+import { createSharePreviewMetadata, DEFAULT_OG_IMAGE } from '../lib/seo';
 
 const homepageCatalogProducts = getHomepageCatalogProducts();
 const primaryCategories = getHomePrimaryCategories();
@@ -21,14 +21,21 @@ const fallbackQuickPicks = getHomeQuickPicks();
 const featuredDeals = getHomeFeaturedDeals();
 const featuredStaples = getHomeFeaturedStaples();
 const bundles = getStorefrontBundles();
+const sharePreview = createSharePreviewMetadata({
+  title: 'El Rincón de Ébano',
+  description:
+    'Minimarket privado para residentes del edificio Ébano. Haz tu pedido por WhatsApp y recibe dentro del edificio.',
+  canonicalPath: '/',
+  ogImage: DEFAULT_OG_IMAGE,
+  ogImageAlt: 'Logotipo de El Rincón de Ébano',
+});
 ---
 
 <BaseLayout
-  title="El Rincón de Ébano"
-  description="Minimarket privado para residentes del edificio Ébano. Haz tu pedido por WhatsApp y recibe dentro del edificio."
+  title={sharePreview.title}
+  description={sharePreview.description}
   canonicalPath="/"
-  ogImage={DEFAULT_OG_IMAGE}
-  ogImageAlt="Logotipo de El Rincón de Ébano"
+  sharePreview={sharePreview}
 >
   <section class="home-overview" aria-labelledby="main-heading">
     <div class="home-overview__copy">

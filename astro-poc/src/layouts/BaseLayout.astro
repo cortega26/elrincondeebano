@@ -4,7 +4,16 @@ import '../styles/global.css';
 import Navbar from '../components/Navbar.astro';
 import TrustStrip from '../components/TrustStrip.astro';
 import { getNavigationGroups, getStorefrontExperience } from '../lib/catalog';
-import { absoluteUrl, DEFAULT_OG_IMAGE, SITE_NAME } from '../lib/seo';
+import {
+  absoluteUrl,
+  createSharePreviewMetadata,
+  DEFAULT_OG_IMAGE,
+  OG_IMAGE_HEIGHT,
+  OG_IMAGE_TYPE,
+  OG_IMAGE_WIDTH,
+  SITE_NAME,
+  type SharePreviewMetadata,
+} from '../lib/seo';
 
 export interface Props {
   title: string;
@@ -17,6 +26,7 @@ export interface Props {
   ogImage?: string;
   ogImageAlt?: string;
   ogType?: string;
+  sharePreview?: SharePreviewMetadata;
 }
 
 const {
@@ -30,12 +40,22 @@ const {
   ogImage = DEFAULT_OG_IMAGE,
   ogImageAlt = 'Logotipo de El Rincón de Ébano',
   ogType = 'website',
+  sharePreview,
 } = Astro.props;
 
 const navGroups = getNavigationGroups();
 const storefrontExperience = getStorefrontExperience();
-const resolvedCanonicalUrl = canonicalUrl || absoluteUrl(canonicalPath);
-const resolvedOgImage = absoluteUrl(ogImage);
+const resolvedSharePreview =
+  sharePreview ||
+  createSharePreviewMetadata({
+    title: ogTitle || title,
+    description: ogDescription || description,
+    canonicalPath,
+    canonicalUrl,
+    ogImage,
+    ogImageAlt,
+    ogType,
+  });
 ---
 
 <!doctype html>
@@ -43,26 +63,26 @@ const resolvedOgImage = absoluteUrl(ogImage);
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={description} />
-    <link rel="canonical" href={resolvedCanonicalUrl} />
+    <meta name="description" content={resolvedSharePreview.description} />
+    <link rel="canonical" href={resolvedSharePreview.canonicalUrl} />
     {robots ? <meta name="robots" content={robots} /> : null}
     <link rel="manifest" href="/app.webmanifest" />
 
-    <meta property="og:title" content={ogTitle} />
-    <meta property="og:description" content={ogDescription} />
-    <meta property="og:image" content={resolvedOgImage} />
-    <meta property="og:image:type" content="image/jpeg" />
-    <meta property="og:image:alt" content={ogImageAlt} />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="1200" />
-    <meta property="og:url" content={resolvedCanonicalUrl} />
+    <meta property="og:title" content={resolvedSharePreview.title} />
+    <meta property="og:description" content={resolvedSharePreview.description} />
+    <meta property="og:image" content={resolvedSharePreview.ogImage} />
+    <meta property="og:image:type" content={OG_IMAGE_TYPE} />
+    <meta property="og:image:alt" content={resolvedSharePreview.ogImageAlt} />
+    <meta property="og:image:width" content={String(OG_IMAGE_WIDTH)} />
+    <meta property="og:image:height" content={String(OG_IMAGE_HEIGHT)} />
+    <meta property="og:url" content={resolvedSharePreview.ogUrl} />
     <meta property="og:site_name" content={SITE_NAME} />
-    <meta property="og:type" content={ogType} />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={ogTitle} />
-    <meta name="twitter:description" content={ogDescription} />
-    <meta name="twitter:image" content={resolvedOgImage} />
-    <title>{title}</title>
+    <meta property="og:type" content={resolvedSharePreview.ogType} />
+    <meta name="twitter:card" content={resolvedSharePreview.twitterCard} />
+    <meta name="twitter:title" content={resolvedSharePreview.title} />
+    <meta name="twitter:description" content={resolvedSharePreview.description} />
+    <meta name="twitter:image" content={resolvedSharePreview.ogImage} />
+    <title>{resolvedSharePreview.title}</title>
 
     <link rel="icon" href={absoluteUrl('/assets/images/web/favicon.ico')} type="image/x-icon" />
   </head>

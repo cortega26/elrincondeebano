@@ -5,7 +5,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 
-test('getCategoryOgImageUrl returns a stable URL (no version query) using the manifest file path', async () => {
+test('getCategoryOgImageUrl derives a deterministic versioned URL from the built asset bytes', async () => {
   const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'seo-og-'));
   const categoriesDir = path.join(tempRoot, 'assets', 'images', 'og', 'categories');
   fs.mkdirSync(categoriesDir, { recursive: true });
@@ -37,9 +37,8 @@ test('getCategoryOgImageUrl returns a stable URL (no version query) using the ma
 
   const imageUrl = getCategoryOgImageUrl('cervezas', { repoRoot: tempRoot });
 
-  assert.equal(
+  assert.match(
     imageUrl,
-    'https://www.elrincondeebano.com/assets/images/og/categories/cervezas.og_v3.jpg'
+    /^https:\/\/www\.elrincondeebano\.com\/assets\/images\/og\/categories\/cervezas\.og_v3\.jpg\?v=[a-f0-9]{12}$/i
   );
-  assert.doesNotMatch(imageUrl, /[?&]v=/);
 });

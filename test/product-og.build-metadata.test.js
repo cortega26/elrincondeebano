@@ -57,7 +57,7 @@ test('built product page falls back to a compatible category JPG og:image when c
   assert.match(
     imageMatch[1],
     new RegExp(
-      `https://www\\.elrincondeebano\\.com/assets/images/og/categories/${categorySlug}[^"?#]*\\.jpg(?:\\?v=[^"]+)?$`,
+      `https://www\\.elrincondeebano\\.com/assets/images/og/categories/${categorySlug}[^"?#]*\\.jpg\\?v=[a-f0-9]{12}$`,
       'i'
     ),
     'Expected product-page og:image to fall back to the compatible category JPG asset'

@@ -185,6 +185,141 @@ function ensureSitemapOnlyListsPrimaryUrls() {
   }
 }
 
+function extractMetaContent(html, attributeName, attributeValue) {
+  const escapedValue = attributeValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = new RegExp(
+    `<meta[^>]+${attributeName}=["']${escapedValue}["'][^>]+content=["']([^"]+)["']`,
+    'i'
+  );
+  return html.match(pattern)?.[1] || null;
+}
+
+function extractCanonicalHref(html) {
+  return html.match(/<link\s+rel=["']canonical["'][^>]*href=["']([^"']+)["']/i)?.[1] || null;
+}
+
+function mapSitemapUrlToHtmlPath(loc) {
+  const pathname = new URL(loc).pathname;
+  if (pathname === '/') {
+    return path.join(distRoot, 'index.html');
+  }
+  if (!pathname.endsWith('/')) {
+    throw new Error(`Primary sitemap URL must end with a trailing slash: ${loc}`);
+  }
+  return path.join(distRoot, pathname.replace(/^\/+/, ''), 'index.html');
+}
+
+function mapAssetUrlToDistPath(assetUrl) {
+  const parsed = new URL(assetUrl);
+  if (parsed.origin !== SITE_ORIGIN) {
+    throw new Error(`Share-preview asset must stay on ${SITE_ORIGIN}: ${assetUrl}`);
+  }
+  return path.join(distRoot, decodeURIComponent(parsed.pathname).replace(/^\/+/, ''));
+}
+
+function assertSupportedSharePreviewHtml(html, loc, label) {
+  const canonical = extractCanonicalHref(html);
+  const ogUrl = extractMetaContent(html, 'property', 'og:url');
+  const description = extractMetaContent(html, 'name', 'description');
+  const ogDescription = extractMetaContent(html, 'property', 'og:description');
+  const twitterDescription = extractMetaContent(html, 'name', 'twitter:description');
+  const ogTitle = extractMetaContent(html, 'property', 'og:title');
+  const twitterTitle = extractMetaContent(html, 'name', 'twitter:title');
+  const ogImage = extractMetaContent(html, 'property', 'og:image');
+  const ogImageType = extractMetaContent(html, 'property', 'og:image:type');
+  const ogImageWidth = extractMetaContent(html, 'property', 'og:image:width');
+  const ogImageHeight = extractMetaContent(html, 'property', 'og:image:height');
+  const twitterCard = extractMetaContent(html, 'name', 'twitter:card');
+
+  if (!canonical || canonical !== loc) {
+    throw new Error(`${label} canonical must match sitemap URL. Expected ${loc}, got ${String(canonical)}`);
+  }
+  if (!ogUrl || ogUrl !== canonical) {
+    throw new Error(`${label} og:url must match canonical. Got ${String(ogUrl)}`);
+  }
+  if (!description || description !== ogDescription || description !== twitterDescription) {
+    throw new Error(`${label} description, og:description, and twitter:description must be present and identical.`);
+  }
+  if (!ogTitle || !twitterTitle || ogTitle !== twitterTitle) {
+    throw new Error(`${label} og:title and twitter:title must be present and identical.`);
+  }
+  if (!twitterCard || twitterCard !== 'summary_large_image') {
+    throw new Error(`${label} must emit twitter:card=summary_large_image.`);
+  }
+  if (!ogImage || !/^https:\/\/www\.elrincondeebano\.com\/.+\.(?:jpe?g|png)(?:\?[^"]+)?$/i.test(ogImage)) {
+    throw new Error(`${label} must emit an absolute same-origin JPG/PNG og:image. Got ${String(ogImage)}`);
+  }
+  if (ogImageType !== 'image/jpeg' && ogImageType !== 'image/png') {
+    throw new Error(`${label} must emit og:image:type=image/jpeg or image/png. Got ${String(ogImageType)}`);
+  }
+  if (ogImageWidth !== '1200' || ogImageHeight !== '1200') {
+    throw new Error(`${label} must emit og:image dimensions 1200x1200.`);
+  }
+
+  const assetPath = mapAssetUrlToDistPath(ogImage);
+  if (!fs.existsSync(assetPath)) {
+    throw new Error(`${label} og:image does not exist in dist: ${path.relative(distRoot, assetPath)}`);
+  }
+}
+
+function ensureSupportedSharePreviewContract() {
+  const sitemapContent = fs.readFileSync(path.join(distRoot, 'sitemap.xml'), 'utf8');
+  const locMatches = Array.from(sitemapContent.matchAll(/<loc>([^<]+)<\/loc>/g)).map(
+    (match) => match[1]
+  );
+  const categoryLocs = locMatches.filter((loc) => {
+    const pathname = new URL(loc).pathname;
+    return pathname !== '/' && !pathname.startsWith('/p/');
+  });
+  const productLocs = locMatches.filter((loc) => new URL(loc).pathname.startsWith('/p/'));
+
+  if (categoryLocs.length === 0) {
+    throw new Error('Share-preview contract requires at least one primary category route in sitemap.xml.');
+  }
+  if (productLocs.length === 0) {
+    throw new Error('Share-preview contract requires at least one product route in sitemap.xml.');
+  }
+
+  for (const loc of locMatches) {
+    const htmlPath = mapSitemapUrlToHtmlPath(loc);
+    if (!fs.existsSync(htmlPath)) {
+      throw new Error(`Primary share-preview route missing built HTML: ${path.relative(distRoot, htmlPath)}`);
+    }
+    const html = fs.readFileSync(htmlPath, 'utf8');
+    assertSupportedSharePreviewHtml(html, loc, path.relative(distRoot, htmlPath));
+  }
+}
+
+function ensureLegacySharePreviewPolicy() {
+  const legacyRoutes = [
+    {
+      file: path.join('pages', 'bebidas.html'),
+      canonical: `${SITE_ORIGIN}/bebidas/`,
+    },
+    {
+      file: path.join('c', 'bebidas', 'index.html'),
+      canonical: `${SITE_ORIGIN}/bebidas/`,
+    },
+  ];
+
+  for (const route of legacyRoutes) {
+    const htmlPath = path.join(distRoot, route.file);
+    const html = fs.readFileSync(htmlPath, 'utf8');
+    const canonical = extractCanonicalHref(html);
+    const ogUrl = extractMetaContent(html, 'property', 'og:url');
+    const robots = extractMetaContent(html, 'name', 'robots');
+    if (canonical !== route.canonical) {
+      throw new Error(`${route.file} canonical must point to the supported modern route.`);
+    }
+    if (ogUrl !== route.canonical) {
+      throw new Error(`${route.file} og:url must point to the supported modern route.`);
+    }
+    if (robots !== 'noindex, follow') {
+      throw new Error(`${route.file} must stay noindex, follow.`);
+    }
+  }
+}
+
 function main() {
   if (!fs.existsSync(distRoot)) {
     throw new Error(`Missing dist directory: ${distRoot}`);
@@ -199,6 +334,8 @@ function main() {
   ensureServiceWorkerDoesNotReferenceLegacyContracts();
   ensureOfflineFallbacksAreSanitized();
   ensureSitemapOnlyListsPrimaryUrls();
+  ensureSupportedSharePreviewContract();
+  ensureLegacySharePreviewPolicy();
 
   console.log(
     `Artifact contract validation passed: ${REQUIRED_FILES.length} required files verified.`
