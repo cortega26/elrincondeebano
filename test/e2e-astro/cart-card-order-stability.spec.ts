@@ -9,7 +9,7 @@ async function openFreshHome(page: Page) {
 }
 
 async function readQuickOrder(page: Page) {
-  return page.locator('#home-personalized-grid .producto').evaluateAll((elements) =>
+  return page.locator('#home-personalized-grid-desktop .producto').evaluateAll((elements) =>
     elements.map((element) => ({
       id: element.getAttribute('data-product-id'),
       name: element.getAttribute('data-product-name'),
@@ -19,7 +19,7 @@ async function readQuickOrder(page: Page) {
 
 async function bumpQuickOrderItem(page: Page, productId: string, expectedQty: number) {
   const addButton = page.locator(
-    `#home-personalized-grid .add-to-cart-btn[data-id="${productId}"]`
+    `#home-personalized-grid-desktop .add-to-cart-btn[data-id="${productId}"]`
   );
 
   if (await addButton.first().isVisible()) {
@@ -27,7 +27,7 @@ async function bumpQuickOrderItem(page: Page, productId: string, expectedQty: nu
   } else {
     await page
       .locator(
-        `#home-personalized-grid .quantity-btn[data-action="increase"][data-id="${productId}"]`
+        `#home-personalized-grid-desktop .quantity-btn[data-action="increase"][data-id="${productId}"]`
       )
       .first()
       .click();
