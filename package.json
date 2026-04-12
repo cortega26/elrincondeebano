@@ -46,6 +46,7 @@
     "test:e2e:visual:update": "playwright test test/e2e/visual-regression.spec.ts --project=chromium-desktop --update-snapshots --trace on",
     "smoke:manual": "node scripts/smoke-checklist.mjs",
     "smoke:evidence": "node scripts/smoke-evidence.mjs",
+    "monitor:share-preview": "node tools/share-preview-monitor.mjs --base-url https://www.elrincondeebano.com --timeout-ms 15000 --report reports/share-preview/latest.json",
     "monitor:live-contract": "node tools/live-contract-monitor.mjs --timeout-ms 15000 --sample-size 20 --report reports/live-contract/latest.json",
     "monitor:live-contract:strict": "node tools/live-contract-monitor.mjs --timeout-ms 15000 --sample-size 20 --require-security-headers --report reports/live-contract/latest.json",
     "monitor:live-browser-contract": "node tools/live-browser-contract.mjs --base-url https://www.elrincondeebano.com --timeout-ms 15000 --report reports/live-contract/browser.json",

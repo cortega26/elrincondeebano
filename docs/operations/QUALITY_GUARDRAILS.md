@@ -18,9 +18,14 @@ A change is done only when all items below are true:
 6. `npm run test:e2e` passes when routes, navigation, cart, rendering,
    service worker, checkout-related UX, or product-page metadata are affected. The
    canonical suite is `playwright.astro.config.ts` over `test/e2e-astro/`.
-7. Manual smoke checklist is executed for user-facing changes:
+7. `npm run monitor:share-preview` passes when supported shareable routes,
+   SEO metadata, OG assets, or category/product preview inputs change.
+8. Manual smoke checklist is executed for user-facing changes:
    `npm run smoke:manual` and `docs/operations/SMOKE_TEST.md`.
-8. Evidence (commands and outcomes) is attached to the PR.
+9. Share-preview changes also require the workflow in
+   [`SHARE_PREVIEW`](./SHARE_PREVIEW.md), including a Meta Sharing Debugger
+   re-scrape and a real WhatsApp verification before final release signoff.
+10. Evidence (commands and outcomes) is attached to the PR.
 
 ## Sensitive Production Areas
 
@@ -29,7 +34,7 @@ The following areas require extra caution and explicit rollback notes:
 1. Routing and category URLs (`astro-poc/src/lib/catalog.ts`,
    `astro-poc/src/pages/c/[category].astro`, `data/category_registry.json`).
 2. SEO metadata, sitemap, robots, structured data (`astro-poc/src/lib/seo.ts`,
-   `astro-poc/scripts/postbuild-sitemap.mjs`, `robots.txt`).
+   `astro-poc/scripts/postbuild-sitemap.mjs`, `robots.txt`, `docs/operations/SHARE_PREVIEW.md`).
 3. Cart, repeat-order, and checkout-related flows (`astro-poc/src/scripts/storefront.js`,
    `astro-poc/src/scripts/storefront/*.js`, `astro-poc/src/components/Navbar.astro`).
 4. Product catalog and inventory contracts (`data/product_data.json`,

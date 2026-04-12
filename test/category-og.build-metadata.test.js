@@ -6,9 +6,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 test('built category page emits JPG og:image with explicit 1200x1200 metadata', (t) => {
-  const pagePath = path.resolve(__dirname, '..', 'astro-poc', 'dist', 'pages', 'bebidas.html');
+  const pagePath = path.resolve(__dirname, '..', 'astro-poc', 'dist', 'bebidas', 'index.html');
   if (!fs.existsSync(pagePath)) {
-    t.skip('astro-poc/dist/pages/bebidas.html not found; run npm run build first');
+    t.skip('astro-poc/dist/bebidas/index.html not found; run npm run build first');
     return;
   }
 
@@ -17,8 +17,8 @@ test('built category page emits JPG og:image with explicit 1200x1200 metadata', 
   assert.ok(imageMatch, 'Expected og:image meta tag in built category page');
   assert.match(
     imageMatch[1],
-    /\/assets\/images\/og\/categories\/[^"?#]+\.jpg(?:\?v=[^"]+)?$/i,
-    'Expected og:image to point to category JPG with optional cache-busting query'
+    /\/assets\/images\/og\/categories\/[^"?#]+\.jpg\?v=[a-f0-9]{12}$/i,
+    'Expected og:image to point to a versioned category JPG social asset'
   );
 
   assert.ok(

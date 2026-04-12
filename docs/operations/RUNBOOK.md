@@ -1,5 +1,31 @@
 # Runbook
 
+## WhatsApp share preview drift
+
+- **Severity:** medium
+- **Detection:** `npm run build`, `npm test`, `npm run test:e2e`, `npm run monitor:share-preview`
+- **Supported public contract:** only `/`, `/<category>/`, and `/p/<sku>/` are guaranteed to produce valid WhatsApp/social previews. Legacy `/c/*` and `/pages/*.html` routes must stay canonicalized and `noindex`, but they are not supported share targets.
+- **Expected behavior:** supported public routes emit matching `canonical` and `og:url`, identical HTML/OG/Twitter descriptions, and a same-origin JPG/PNG `og:image` with a deterministic `?v=` token.
+- **Detailed workflow:** [`SHARE_PREVIEW`](./SHARE_PREVIEW.md)
+- **Steps:**
+  1. Rebuild and rerun the local gates:
+     ```bash
+     npm run build
+     npm test
+     npm run test:e2e
+     npm run monitor:share-preview
+     ```
+  2. Inspect the live HTML for the failing supported URL:
+     ```bash
+     curl -s https://www.elrincondeebano.com/<path> | rg -n 'canonical|og:|twitter:|description'
+     ```
+  3. Inspect the referenced social image:
+     ```bash
+     curl -sSI 'https://www.elrincondeebano.com/assets/images/og/...'
+     ```
+  4. If the build is correct but the preview is stale, re-scrape in the Meta Sharing Debugger and then verify in a real WhatsApp chat.
+  5. If the route is legacy-only, do not treat it as a supported preview regression unless it stopped canonicalizing to the modern route.
+
 ## Missing edge security headers
 
 - **Severity:** medium

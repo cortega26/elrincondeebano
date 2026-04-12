@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 
-test('all category og:image URLs are stable absolute URLs without a version query', async () => {
+test('all category og:image URLs are absolute same-origin URLs with a deterministic version query', async () => {
   const repoRoot = process.cwd();
   const manifestPath = path.join(
     repoRoot,
@@ -32,11 +32,13 @@ test('all category og:image URLs are stable absolute URLs without a version quer
     }
 
     const imageUrl = getCategoryOgImageUrl(slug, { repoRoot });
-    assert.equal(
+    assert.match(
       imageUrl,
-      `https://www.elrincondeebano.com/assets/images/og/categories/${fileName}`,
-      `Expected ${slug} to have a stable URL without version query`
+      new RegExp(
+        `^https://www\\.elrincondeebano\\.com/assets/images/og/categories/${fileName.replace('.', '\\.')}(?:\\?v=[a-f0-9]{12})$`,
+        'i'
+      ),
+      `Expected ${slug} to resolve to a versioned absolute URL`
     );
-    assert.doesNotMatch(imageUrl, /[?&]v=/, `Expected ${slug} URL to have no version query`);
   }
 });

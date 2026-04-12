@@ -6,8 +6,8 @@
         "exists": true,
         "file": "aguas.og_v3.jpg",
         "height": 1200,
-        "sha256": "cf7d8b3a4dea36049631686773331ae030de92d55c7a27bf011c26ed3b7db09a",
-        "size": 129754,
+        "sha256": "1c5f9b7b0cdaf20eb1be0771eb56ce4bb5420297ec1b4c0a4fa399c071c09a87",
+        "size": 101325,
         "width": 1200
       },
       "svg": {
@@ -23,8 +23,8 @@
         "exists": true,
         "file": "bebidas.og_v3.jpg",
         "height": 1200,
-        "sha256": "473014f0ee6539ee09bbb9d4eb975015c0ea2464f10425fd6704afec5644cfd9",
-        "size": 266705,
+        "sha256": "30d610122957b8b0c07fb806468434d79461ab451e440af3d63f14fb8819689e",
+        "size": 229369,
         "width": 1200
       },
       "svg": {
@@ -40,8 +40,8 @@
         "exists": true,
         "file": "carnesyembutidos.og_v3.jpg",
         "height": 1200,
-        "sha256": "f6f6f6ce48ddf0ef7a33715ec293be71fa8ffb926b85da01ce652f5cedfdcf45",
-        "size": 438928,
+        "sha256": "62d2dfb36906ff6c735c508a6785f72d3a04664ea2ba55adbe4b0aa53f1923c5",
+        "size": 381080,
         "width": 1200
       },
       "svg": {
@@ -57,8 +57,8 @@
         "exists": true,
         "file": "cervezas.og_v3.jpg",
         "height": 1200,
-        "sha256": "ff7db64886cdeab7e7128a883638bee94951262852c95add0de9ea1bc06b8428",
-        "size": 269572,
+        "sha256": "ec3bfaaf6ef0a8ef9d0c99373999de5888cbae26d1126895e0aa84967d4d2913",
+        "size": 247105,
         "width": 1200
       },
       "svg": {
@@ -74,8 +74,8 @@
         "exists": true,
         "file": "chocolates.og_v3.jpg",
         "height": 1200,
-        "sha256": "42099759121bbf6b02cf97881549ab98d920867da3ad3c963df2255f2f1b9e3f",
-        "size": 181165,
+        "sha256": "2679982f83425a864e191433cf730b1468b24205e77c0e6112ecea5543ee7cc8",
+        "size": 149370,
         "width": 1200
       },
       "svg": {
@@ -108,8 +108,8 @@
         "exists": true,
         "file": "despensa.og_v3.jpg",
         "height": 1200,
-        "sha256": "fcb55381b84c3ee912b4ef99525d79d49ad65f9b1a389664ebb7c9f02220e565",
-        "size": 239113,
+        "sha256": "f9952f2b7f714c7403680d156b3ed6690188a7c147ce1221895a7bc4e2ef4fc9",
+        "size": 202893,
         "width": 1200
       },
       "svg": {
@@ -159,8 +159,8 @@
         "exists": true,
         "file": "espumantes.og_v3.jpg",
         "height": 1200,
-        "sha256": "47c4792d5870e8b18e9a07d36d0c2946d1e8ddd3258cab3cbb29fd1f8f9e82cf",
-        "size": 175350,
+        "sha256": "b24340926212baef450944c92864be7b2466b827e20770a250d1da8e48742554",
+        "size": 146334,
         "width": 1200
       },
       "svg": {
@@ -193,8 +193,8 @@
         "exists": true,
         "file": "jugos.og_v3.jpg",
         "height": 1200,
-        "sha256": "41ecb9b9dcfddd522174de8770d6e1400ae391c4a85335c1ed5befea464dbf38",
-        "size": 161971,
+        "sha256": "243595ea7c78266da442d84f7d309993af01ccc377655806866c09bdb24a6572",
+        "size": 138631,
         "width": 1200
       },
       "svg": {
@@ -210,8 +210,8 @@
         "exists": true,
         "file": "lacteos.og_v3.jpg",
         "height": 1200,
-        "sha256": "78eab5697fec5d408282bb01efb33508a757826844f421c55a0f6da6aa89ab5f",
-        "size": 104164,
+        "sha256": "f097215593a3bbb73ee9908aff9dde20bfafc175267baed1ee58e032e0945aaa",
+        "size": 78297,
         "width": 1200
       },
       "svg": {
@@ -227,8 +227,8 @@
         "exists": true,
         "file": "limpiezayaseo.og_v3.jpg",
         "height": 1200,
-        "sha256": "64111348b0ca263f2582b9b877f4f5b257af360a144a4329b00a5fe3917d9778",
-        "size": 121913,
+        "sha256": "ca2b51f83e19a293f2f0f27645583d8ca830b3058e9aee43c8ca3c4985038eef",
+        "size": 95385,
         "width": 1200
       },
       "svg": {
@@ -278,8 +278,8 @@
         "exists": true,
         "file": "piscos.og_v3.jpg",
         "height": 1200,
-        "sha256": "43f3771d51a0087148db7e6d5b6807ffd3bbec21d2f7b05f5518c1db3a937f71",
-        "size": 95722,
+        "sha256": "b82b453740a5435790efac9241256969ff36cf37d3688b04c246ea17edd05199",
+        "size": 65482,
         "width": 1200
       },
       "svg": {
@@ -295,8 +295,8 @@
         "exists": true,
         "file": "snacksdulces.og_v3.jpg",
         "height": 1200,
-        "sha256": "c304ceb16da43f182d37a895e5154dc811ee585dfa251f565ac2e540f282fb10",
-        "size": 319714,
+        "sha256": "a5a06501d2b173e8108da67947ae67d0f7751c5f063873e563e26d57aba948be",
+        "size": 287490,
         "width": 1200
       },
       "svg": {
@@ -312,8 +312,8 @@
         "exists": true,
         "file": "snackssalados.og_v3.jpg",
         "height": 1200,
-        "sha256": "ba0f81d471e04102cf3a2add13942ed58bb4fdf0a672da9b50e364bb1ae5ee9c",
-        "size": 294302,
+        "sha256": "ebb9ddb92eacb4f9d58bb222859de0ae6b706e324b1d7065117a7906ef342d31",
+        "size": 266200,
         "width": 1200
       },
       "svg": {
@@ -346,8 +346,8 @@
         "exists": true,
         "file": "vinos.og_v3.jpg",
         "height": 1200,
-        "sha256": "883f5857123fbedf6f54c78217db38a8be37cfd148886428232994aba162afcb",
-        "size": 111173,
+        "sha256": "70babc994adb993f7a92cc65bf2c0f7fec4f5544382bcd138c107dd2fde1e27c",
+        "size": 84966,
         "width": 1200
       },
       "svg": {

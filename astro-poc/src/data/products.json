@@ -1,6 +1,6 @@
 {
-  "version": "20260330-184332",
-  "last_updated": "2026-03-30T18:43:32.678625",
+  "version": "20260411-022511",
+  "last_updated": "2026-04-11T02:25:11.974254",
   "rev": 0,
   "products": [
     {
@@ -695,8 +695,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "stock": {
-          "ts": "2025-12-29T20:57:16.386897Z",
+        "order": {
+          "ts": "2026-04-11T06:25:11.972390Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -1051,7 +1051,7 @@
       "description": "Presentación de 200mL",
       "price": 1500,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Lacteos",
       "image_path": "assets/images/lacteos/Crema de leche Surlat 200mL.webp",
       "image_avif_path": "assets/images/lacteos/Crema de leche Surlat 200mL.avif",
@@ -1060,7 +1060,14 @@
       "rev": 0,
       "field_last_modified": {
         "stock": {
-          "ts": "2026-02-13T14:06:27.002094Z",
+          "ts": "2026-04-11T06:24:11.047014Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "order": {
+          "ts": "2026-04-11T06:24:11.047014Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,

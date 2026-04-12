@@ -9,7 +9,7 @@ import {
   getModernCategoryPath,
   getProductsByCategory,
 } from '../lib/catalog';
-import { getCategoryOgImageUrl } from '../lib/seo';
+import { createSharePreviewMetadata, getCategoryOgImageUrl } from '../lib/seo';
 
 export interface Props {
   categoryKey: string;
@@ -22,17 +22,21 @@ const categoryLabel = getCategoryLabel(categoryKey);
 const categoryDescription = getCategoryDescription(categoryKey);
 const categorySlug = getCategorySlug(categoryKey).toLowerCase();
 const canonicalPath = getModernCategoryPath(categoryKey);
+const sharePreview = createSharePreviewMetadata({
+  title: `El Rincón de Ébano - ${categoryLabel}`,
+  description: categoryDescription,
+  canonicalPath,
+  ogImage: getCategoryOgImageUrl(categorySlug),
+  ogImageAlt: `Imagen de ${categoryLabel}`,
+});
 ---
 
 <BaseLayout
-  title={`El Rincón de Ébano - ${categoryLabel}`}
-  description={categoryDescription}
+  title={sharePreview.title}
+  description={sharePreview.description}
   canonicalPath={canonicalPath}
   robots={robots}
-  ogTitle={`El Rincón de Ébano - ${categoryLabel}`}
-  ogDescription={categoryDescription}
-  ogImage={getCategoryOgImageUrl(categorySlug)}
-  ogImageAlt={`Imagen de ${categoryLabel}`}
+  sharePreview={sharePreview}
 >
   <section class="category-intro mb-4" aria-labelledby="category-heading">
     <div class="category-intro-copy">
