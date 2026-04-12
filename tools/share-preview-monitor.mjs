@@ -1,6 +1,15 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
+import {
+  assertAllowlistedHttpsUrl,
+  assertSupportedOgImageUrl,
+  extractCanonicalHref,
+  extractMetaContent,
+  extractTitle,
+  looksLikeChallenge,
+  normalizeAllowlistedBaseUrl,
+} from './share-preview-contract.mjs';
 
 const DEFAULT_BASE_URL = 'https://www.elrincondeebano.com';
 const DEFAULT_TIMEOUT_MS = 15000;
@@ -19,68 +28,15 @@ function fail(message) {
 }
 
 function ensureAllowedUrl(url, label) {
-  if (!(url instanceof URL)) {
-    fail(`${label} must be a URL instance.`);
-  }
-  if (url.protocol !== 'https:') {
-    fail(`${label} must use HTTPS: ${url.toString()}`);
-  }
-  if (!ALLOWED_HOSTS.has(url.hostname)) {
-    fail(`${label} must target an allowlisted host: ${url.toString()}`);
-  }
+  assertAllowlistedHttpsUrl(url, label, { allowedHosts: ALLOWED_HOSTS });
 }
 
 export function normalizeBaseUrl(rawBaseUrl = DEFAULT_BASE_URL) {
-  const candidate = typeof rawBaseUrl === 'string' && rawBaseUrl.trim() ? rawBaseUrl.trim() : DEFAULT_BASE_URL;
-  const parsed = new URL(candidate);
-  ensureAllowedUrl(parsed, 'Base URL');
-  parsed.pathname = '';
-  parsed.search = '';
-  parsed.hash = '';
-  return parsed.toString().replace(/\/$/, '');
-}
-
-async function fetchWithTimeout(url, timeoutMs, accept = 'text/html') {
-  const target = url instanceof URL ? new URL(url.toString()) : new URL(String(url));
-  ensureAllowedUrl(target, 'Probe target');
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    return await fetch(target, {
-      signal: controller.signal,
-      redirect: 'follow',
-      headers: {
-        ...WHATSAPP_BOT_HEADERS,
-        accept,
-      },
-    });
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-function extractMetaContent(html, attributeName, attributeValue) {
-  const escapedValue = attributeValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const pattern = new RegExp(
-    `<meta[^>]+${attributeName}=["']${escapedValue}["'][^>]+content=["']([^"]+)["']`,
-    'i'
-  );
-  return html.match(pattern)?.[1] || null;
-}
-
-function extractCanonicalHref(html) {
-  return html.match(/<link\s+rel=["']canonical["'][^>]*href=["']([^"]+)["']/i)?.[1] || null;
-}
-
-function extractTitle(html) {
-  return html.match(/<title>([^<]+)<\/title>/i)?.[1]?.trim() || null;
-}
-
-function looksLikeChallenge(html) {
-  return /attention required|just a moment|cf-browser-verification|cdn-cgi\/challenge-platform|enable javascript and cookies/i.test(
-    String(html || '')
-  );
+  return normalizeAllowlistedBaseUrl(rawBaseUrl, {
+    allowedHosts: ALLOWED_HOSTS,
+    defaultBaseUrl: DEFAULT_BASE_URL,
+    label: 'Base URL',
+  });
 }
 
 function extractSitemapLocs(xml) {
@@ -150,6 +106,7 @@ function assertPreviewContract({ html, finalUrl, label }) {
   if (!ogImage || !/^https:\/\/www\.elrincondeebano\.com\/.+\.(?:jpe?g|png)(?:\?[^"]+)?$/i.test(ogImage)) {
     fail(`${label} must emit an absolute same-origin JPG/PNG og:image.`);
   }
+  assertSupportedOgImageUrl(ogImage, `${label} og:image`);
   if (!/^image\/(?:jpeg|png)$/i.test(String(ogImageType || ''))) {
     fail(`${label} must emit og:image:type=image/jpeg or image/png.`);
   }
@@ -163,6 +120,26 @@ function assertPreviewContract({ html, finalUrl, label }) {
     description,
     ogImage,
   };
+}
+
+async function fetchWithTimeout(url, timeoutMs, accept = 'text/html') {
+  const target = url instanceof URL ? new URL(url.toString()) : new URL(String(url));
+  ensureAllowedUrl(target, 'Probe target');
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(target, {
+      signal: controller.signal,
+      redirect: 'follow',
+      headers: {
+        ...WHATSAPP_BOT_HEADERS,
+        accept,
+      },
+    });
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 async function probeTarget({ name, url }, timeoutMs) {

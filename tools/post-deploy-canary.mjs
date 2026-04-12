@@ -3,6 +3,12 @@ import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import {
+  assertAllowlistedHttpsUrl,
+  assertSupportedOgImageUrl as assertSupportedOgImageUrlContract,
+  extractMetaContent as extractMetaContentContract,
+  normalizeAllowlistedBaseUrl,
+} from './share-preview-contract.mjs';
+import {
   formatPublicHtmlFailure,
   inspectPublicHtmlEdgeSurface,
   formatSecurityHeaderFailure,
@@ -16,35 +22,19 @@ function fail(message) {
 }
 
 function assertAllowedCanaryUrl(parsed, label) {
-  if (!(parsed instanceof URL)) {
-    fail(`${label} must be a URL instance.`);
-  }
-  if (parsed.protocol !== 'https:') {
-    fail(`${label} must use HTTPS: ${parsed.toString()}`);
-  }
-  if (parsed.username || parsed.password) {
-    fail(`${label} must not include credentials: ${parsed.toString()}`);
-  }
-  if (!ALLOWED_CANARY_HOSTS.has(parsed.hostname)) {
-    fail(`${label} must target an allowlisted host: ${parsed.toString()}`);
-  }
+  assertAllowlistedHttpsUrl(parsed, label, {
+    allowedHosts: ALLOWED_CANARY_HOSTS,
+    rejectCredentials: true,
+  });
 }
 
 export function normalizeBaseUrl(raw) {
-  if (typeof raw !== 'string' || !raw.trim()) {
-    fail('Missing required --base-url value.');
-  }
-  let parsed;
-  try {
-    parsed = new URL(raw.trim());
-  } catch {
-    fail(`Invalid base URL: ${raw}`);
-  }
-  assertAllowedCanaryUrl(parsed, 'Base URL');
-  parsed.pathname = '';
-  parsed.search = '';
-  parsed.hash = '';
-  return parsed.toString().replace(/\/$/, '');
+  return normalizeAllowlistedBaseUrl(raw, {
+    allowedHosts: ALLOWED_CANARY_HOSTS,
+    label: 'Base URL',
+    rejectCredentials: true,
+    requireValue: true,
+  });
 }
 
 export function normalizePathname(pathname) {
@@ -55,19 +45,8 @@ export function normalizePathname(pathname) {
   return value.startsWith('/') ? value : `/${value}`;
 }
 
-function escapeRegExp(input) {
-  return String(input).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
 export function extractMetaContent(html, attribute, key) {
-  const attr = escapeRegExp(attribute);
-  const needle = escapeRegExp(key);
-  const regex = new RegExp(
-    `<meta[^>]*${attr}\\s*=\\s*["']${needle}["'][^>]*content\\s*=\\s*["']([^"']+)["'][^>]*>`,
-    'i'
-  );
-  const match = regex.exec(html);
-  return match ? match[1] : null;
+  return extractMetaContentContract(html, attribute, key);
 }
 
 export function assertOgContract(html, pageLabel) {
@@ -113,10 +92,7 @@ function ensureAbsoluteSameOriginHttpsUrl(value, label, baseUrl) {
 }
 
 export function assertSupportedOgImageUrl(value, label) {
-  const parsed = new URL(value);
-  if (!/\.(?:jpe?g|png)$/i.test(parsed.pathname)) {
-    fail(`${label} must use JPG or PNG for WhatsApp compatibility: ${value}`);
-  }
+  return assertSupportedOgImageUrlContract(value, label);
 }
 
 function normalizeFetchTarget(rawUrl, baseUrl, label = 'Fetch target') {

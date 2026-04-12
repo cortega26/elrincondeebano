@@ -3,51 +3,27 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
+const { expectAsyncReject, withMockedFetch } = require('./helpers/network-harness.js');
+const {
+  SITE_ORIGIN,
+  makeHtmlResponse,
+  makeImageResponse,
+  makeSharePreviewHtml,
+  makeSitemapXml,
+  makeXmlResponse,
+} = require('./helpers/share-preview-fixtures.js');
+
 async function loadModule() {
   return import('../tools/share-preview-monitor.mjs');
 }
 
-function makeHtml({
-  title = 'Page',
-  canonical = 'https://www.elrincondeebano.com/page/',
-  description = 'Share preview description',
-  ogImage = 'https://www.elrincondeebano.com/assets/images/og/home.og.jpg?v=1234567890ab',
-} = {}) {
-  return `<!doctype html>
-<html>
-  <head>
-    <title>${title}</title>
-    <meta name="description" content="${description}">
-    <link rel="canonical" href="${canonical}">
-    <meta property="og:title" content="${title}">
-    <meta property="og:description" content="${description}">
-    <meta property="og:image" content="${ogImage}">
-    <meta property="og:image:type" content="image/jpeg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="1200">
-    <meta property="og:url" content="${canonical}">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="${title}">
-    <meta name="twitter:description" content="${description}">
-    <meta name="twitter:image" content="${ogImage}">
-  </head>
-  <body></body>
-</html>`;
-}
-
-function withMockedFetch(mockImpl, fn) {
-  const original = global.fetch;
-  global.fetch = mockImpl;
-  return Promise.resolve()
-    .then(fn)
-    .finally(() => {
-      global.fetch = original;
-    });
-}
+const HOMEPAGE_OG_IMAGE = `${SITE_ORIGIN}/assets/images/og/home.og.jpg?v=1234567890ab`;
+const CATEGORY_OG_IMAGE = `${SITE_ORIGIN}/assets/images/og/categories/bebidas.og_v3.jpg?v=abcdef123456`;
+const PRODUCT_OG_IMAGE = `${SITE_ORIGIN}/assets/images/og/categories/producto.og_v3.jpg?v=0123456789ab`;
 
 test('normalizeBaseUrl enforces HTTPS and allowlisted hosts', async () => {
   const { normalizeBaseUrl } = await loadModule();
-  assert.equal(normalizeBaseUrl('https://www.elrincondeebano.com/'), 'https://www.elrincondeebano.com');
+  assert.equal(normalizeBaseUrl(`${SITE_ORIGIN}/`), SITE_ORIGIN);
   assert.throws(() => normalizeBaseUrl('http://www.elrincondeebano.com'), /must use HTTPS/);
   assert.throws(() => normalizeBaseUrl('https://example.com'), /allowlisted host/);
 });
@@ -58,60 +34,47 @@ test('runSharePreviewMonitor validates homepage, category, and product previews 
   await withMockedFetch(async (url) => {
     const target = String(url);
     if (target.endsWith('/sitemap.xml')) {
-      return new Response(
-        `<?xml version="1.0" encoding="UTF-8"?>
-<urlset>
-  <url><loc>https://www.elrincondeebano.com/</loc></url>
-  <url><loc>https://www.elrincondeebano.com/bebidas/</loc></url>
-  <url><loc>https://www.elrincondeebano.com/p/pid-123/</loc></url>
-</urlset>`,
-        { status: 200, headers: { 'content-type': 'application/xml' } }
-      );
-    }
-    if (target.endsWith('/assets/images/og/home.og.jpg?v=1234567890ab')) {
-      return new Response('jpg', { status: 200, headers: { 'content-type': 'image/jpeg' } });
-    }
-    if (target.endsWith('/assets/images/og/categories/bebidas.og_v3.jpg?v=abcdef123456')) {
-      return new Response('jpg', { status: 200, headers: { 'content-type': 'image/jpeg' } });
-    }
-    if (target.endsWith('/assets/images/og/categories/producto.og_v3.jpg?v=0123456789ab')) {
-      return new Response('jpg', { status: 200, headers: { 'content-type': 'image/jpeg' } });
+      return makeXmlResponse(makeSitemapXml());
     }
     if (target.endsWith('/bebidas/')) {
-      return new Response(
-        makeHtml({
+      return makeHtmlResponse(
+        makeSharePreviewHtml({
           title: 'El Rincón de Ébano - Bebidas',
-          canonical: 'https://www.elrincondeebano.com/bebidas/',
-          ogImage:
-            'https://www.elrincondeebano.com/assets/images/og/categories/bebidas.og_v3.jpg?v=abcdef123456',
-        }),
-        { status: 200, headers: { 'content-type': 'text/html; charset=utf-8' } }
+          canonical: `${SITE_ORIGIN}/bebidas/`,
+          ogImage: CATEGORY_OG_IMAGE,
+        })
       );
     }
     if (target.endsWith('/p/pid-123/')) {
-      return new Response(
-        makeHtml({
+      return makeHtmlResponse(
+        makeSharePreviewHtml({
           title: 'Producto | El Rincón de Ébano',
-          canonical: 'https://www.elrincondeebano.com/p/pid-123/',
-          ogImage:
-            'https://www.elrincondeebano.com/assets/images/og/categories/producto.og_v3.jpg?v=0123456789ab',
-        }),
-        { status: 200, headers: { 'content-type': 'text/html; charset=utf-8' } }
+          canonical: `${SITE_ORIGIN}/p/pid-123/`,
+          ogImage: PRODUCT_OG_IMAGE,
+        })
       );
     }
     if (target.endsWith('/')) {
-      return new Response(
-        makeHtml({
+      return makeHtmlResponse(
+        makeSharePreviewHtml({
           title: 'El Rincón de Ébano',
-          canonical: 'https://www.elrincondeebano.com/',
-          ogImage: 'https://www.elrincondeebano.com/assets/images/og/home.og.jpg?v=1234567890ab',
-        }),
-        { status: 200, headers: { 'content-type': 'text/html; charset=utf-8' } }
+          canonical: `${SITE_ORIGIN}/`,
+          ogImage: HOMEPAGE_OG_IMAGE,
+        })
       );
+    }
+    if (target.endsWith(HOMEPAGE_OG_IMAGE.replace(SITE_ORIGIN, ''))) {
+      return makeImageResponse();
+    }
+    if (target.endsWith(CATEGORY_OG_IMAGE.replace(SITE_ORIGIN, ''))) {
+      return makeImageResponse();
+    }
+    if (target.endsWith(PRODUCT_OG_IMAGE.replace(SITE_ORIGIN, ''))) {
+      return makeImageResponse();
     }
     return new Response('not found', { status: 404 });
   }, async () => {
-    const report = await runSharePreviewMonitor({ baseUrl: 'https://www.elrincondeebano.com' });
+    const report = await runSharePreviewMonitor({ baseUrl: SITE_ORIGIN });
     assert.equal(report.checks.length, 3);
     assert.deepEqual(
       report.checks.map((check) => check.name),
@@ -126,26 +89,16 @@ test('runSharePreviewMonitor fails clearly on challenge pages', async () => {
   await withMockedFetch(async (url) => {
     const target = String(url);
     if (target.endsWith('/sitemap.xml')) {
-      return new Response(
-        `<?xml version="1.0" encoding="UTF-8"?>
-<urlset>
-  <url><loc>https://www.elrincondeebano.com/</loc></url>
-  <url><loc>https://www.elrincondeebano.com/bebidas/</loc></url>
-  <url><loc>https://www.elrincondeebano.com/p/pid-123/</loc></url>
-</urlset>`,
-        { status: 200, headers: { 'content-type': 'application/xml' } }
-      );
+      return makeXmlResponse(makeSitemapXml());
     }
     if (target.endsWith('/')) {
-      return new Response('<html><body>Just a moment... /cdn-cgi/challenge-platform/</body></html>', {
-        status: 200,
-        headers: { 'content-type': 'text/html; charset=utf-8' },
-      });
+      return makeHtmlResponse('<html><body>Just a moment... /cdn-cgi/challenge-platform/</body></html>');
     }
     return new Response('not found', { status: 404 });
   }, async () => {
-    await assert.rejects(
-      () => runSharePreviewMonitor({ baseUrl: 'https://www.elrincondeebano.com' }),
+    await expectAsyncReject(
+      assert,
+      () => runSharePreviewMonitor({ baseUrl: SITE_ORIGIN }),
       /challenge\/interstitial/
     );
   });

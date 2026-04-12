@@ -5,6 +5,10 @@ import rawProducts from '../data/products.json';
 import rawCategories from '../data/categories.json';
 import rawStorefrontExperience from '../data/storefront-experience.json';
 import rawStorefrontBundles from '../data/storefront-bundles.json';
+import {
+  getProductSku as getSharedProductSku,
+  normalizeIdentity,
+} from './product-identity';
 
 export type ProductImageVariant = {
   src?: string;
@@ -170,24 +174,6 @@ let cachedCategoryIndexes: {
   bySlug: Map<string, CategoryRecord>;
 } | null = null;
 
-function generateStableSku(product: ProductRecord): string {
-  const base = `${product.name}-${product.category}`.toLowerCase();
-  let hash = 0;
-  for (let i = 0; i < base.length; i += 1) {
-    hash = (hash << 5) - hash + base.charCodeAt(i);
-    hash |= 0;
-  }
-  return `pid-${Math.abs(hash)}`;
-}
-
-function normalizeIdentity(value: unknown): string | null {
-  if (typeof value !== 'string') {
-    return null;
-  }
-  const trimmed = value.trim();
-  return trimmed.length ? trimmed : null;
-}
-
 function normalizeCategoryToken(value: unknown): string {
   if (typeof value !== 'string') {
     return '';
@@ -219,17 +205,7 @@ function getCategoryIndexes() {
 }
 
 export function getProductSku(product: ProductRecord): string {
-  const explicitSku = normalizeIdentity((product as { sku?: unknown }).sku);
-  if (explicitSku) {
-    return explicitSku;
-  }
-
-  const explicitId = normalizeIdentity((product as { id?: unknown }).id);
-  if (explicitId) {
-    return explicitId;
-  }
-
-  return generateStableSku(product);
+  return getSharedProductSku(product);
 }
 
 export function formatPrice(value: unknown): string {

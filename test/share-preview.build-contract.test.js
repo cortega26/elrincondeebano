@@ -3,34 +3,11 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const path = require('node:path');
 
-const repoRoot = path.resolve(__dirname, '..');
-const distRoot = path.join(repoRoot, 'astro-poc', 'dist');
+const { distRoot, readDistFile, resolveDistPath } = require('./helpers/repo-files.js');
+const { getSharePreviewSampleProduct } = require('./helpers/product-catalog.js');
+
 const siteOrigin = 'https://www.elrincondeebano.com';
-
-function normalizeIdentity(value) {
-  if (typeof value !== 'string') {
-    return null;
-  }
-
-  const trimmed = value.trim();
-  return trimmed.length ? trimmed : null;
-}
-
-function generateStableSku(product) {
-  const base = `${product.name}-${product.category}`.toLowerCase();
-  let hash = 0;
-  for (let index = 0; index < base.length; index += 1) {
-    hash = (hash << 5) - hash + base.charCodeAt(index);
-    hash |= 0;
-  }
-  return `pid-${Math.abs(hash)}`;
-}
-
-function getProductSku(product) {
-  return normalizeIdentity(product.sku) || normalizeIdentity(product.id) || generateStableSku(product);
-}
 
 function extractMeta(html, attributeName, attributeValue) {
   const escapedValue = attributeValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -43,14 +20,6 @@ function extractMeta(html, attributeName, attributeValue) {
 
 function extractCanonical(html) {
   return html.match(/<link\s+rel=["']canonical["'][^>]*href=["']([^"]+)["']/i)?.[1] || null;
-}
-
-function readHtml(relativePath) {
-  const absolutePath = path.join(distRoot, relativePath);
-  if (!fs.existsSync(absolutePath)) {
-    return null;
-  }
-  return fs.readFileSync(absolutePath, 'utf8');
 }
 
 function assertSupportedSharePreview(html, expectedCanonical, label) {
@@ -90,33 +59,29 @@ function assertSupportedSharePreview(html, expectedCanonical, label) {
 
   const imageUrl = new URL(ogImage);
   assert.equal(imageUrl.origin, siteOrigin, `${label} og:image should stay on the canonical origin`);
-  const distImagePath = path.join(distRoot, decodeURIComponent(imageUrl.pathname).replace(/^\/+/, ''));
+  const distImagePath = resolveDistPath(decodeURIComponent(imageUrl.pathname).replace(/^\/+/, ''));
   assert.ok(fs.existsSync(distImagePath), `${label} og:image asset should exist in dist`);
 }
 
-test('built supported routes keep the share-preview contract aligned for WhatsApp unfurls', (t) => {
+test('built supported routes keep the share-preview contract aligned for WhatsApp unfurls', async (t) => {
   if (!fs.existsSync(distRoot)) {
     t.skip('astro-poc/dist not found; run npm run build first');
     return;
   }
 
-  const homepageHtml = readHtml('index.html');
+  const homepageHtml = readDistFile('index.html');
   assert.ok(homepageHtml, 'Expected built homepage');
   assertSupportedSharePreview(homepageHtml, `${siteOrigin}/`, 'homepage');
 
-  const categoryHtml = readHtml(path.join('bebidas', 'index.html'));
+  const categoryHtml = readDistFile('bebidas', 'index.html');
   assert.ok(categoryHtml, 'Expected built modern category page');
   assertSupportedSharePreview(categoryHtml, `${siteOrigin}/bebidas/`, 'modern category page');
 
-  const productCatalog = JSON.parse(fs.readFileSync(path.join(repoRoot, 'data', 'product_data.json'), 'utf8'));
-  const sampleProduct = (productCatalog.products || []).find((product) =>
-    /\.webp$/i.test(String(product?.image_path || ''))
-  ) || (productCatalog.products || [])[0];
-  assert.ok(sampleProduct, 'Expected at least one product in the catalog');
-  const sampleSku = getProductSku(sampleProduct);
-  const productHtml = readHtml(path.join('p', sampleSku, 'index.html'));
-  assert.ok(productHtml, `Expected built product page for ${sampleSku}`);
-  assertSupportedSharePreview(productHtml, `${siteOrigin}/p/${sampleSku}/`, 'product page');
+  const { getProductSku } = await import('../astro-poc/src/lib/product-identity.ts');
+  const sku = getProductSku(getSharePreviewSampleProduct());
+  const productHtml = readDistFile('p', sku, 'index.html');
+  assert.ok(productHtml, `Expected built product page for ${sku}`);
+  assertSupportedSharePreview(productHtml, `${siteOrigin}/p/${sku}/`, 'product page');
 });
 
 test('legacy compatibility routes stay out of the supported share-preview contract', (t) => {
@@ -128,12 +93,12 @@ test('legacy compatibility routes stay out of the supported share-preview contra
   const legacyCases = [
     {
       label: 'legacy pages route',
-      html: readHtml(path.join('pages', 'bebidas.html')),
+      html: readDistFile('pages', 'bebidas.html'),
       canonical: `${siteOrigin}/bebidas/`,
     },
     {
       label: 'legacy /c route',
-      html: readHtml(path.join('c', 'bebidas', 'index.html')),
+      html: readDistFile('c', 'bebidas', 'index.html'),
       canonical: `${siteOrigin}/bebidas/`,
     },
   ];
