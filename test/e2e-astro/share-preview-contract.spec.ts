@@ -1,38 +1,7 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import { expect, test } from '@playwright/test';
 
-type ProductRecord = {
-  sku?: string;
-  id?: string;
-  name: string;
-  category: string;
-  image_path?: string;
-};
-
-function normalizeIdentity(value: unknown): string | null {
-  if (typeof value !== 'string') {
-    return null;
-  }
-
-  const trimmed = value.trim();
-  return trimmed.length ? trimmed : null;
-}
-
-function generateStableSku(product: ProductRecord): string {
-  const base = `${product.name}-${product.category}`.toLowerCase();
-  let hash = 0;
-  for (let index = 0; index < base.length; index += 1) {
-    hash = (hash << 5) - hash + base.charCodeAt(index);
-    hash |= 0;
-  }
-
-  return `pid-${Math.abs(hash)}`;
-}
-
-function getProductSku(product: ProductRecord): string {
-  return normalizeIdentity(product.sku) || normalizeIdentity(product.id) || generateStableSku(product);
-}
+import { getProductSku } from '../../astro-poc/src/lib/product-identity.ts';
+import productCatalogHelpers from '../helpers/product-catalog.js';
 
 async function expectSharePreviewContract(
   page: Parameters<typeof test>[1]['page'],
@@ -73,19 +42,8 @@ async function expectSharePreviewContract(
   );
 }
 
-const productCatalogPath = path.resolve(__dirname, '..', '..', 'data', 'product_data.json');
-const productCatalog = JSON.parse(fs.readFileSync(productCatalogPath, 'utf8')) as {
-  products?: ProductRecord[];
-};
-const sampleProduct =
-  productCatalog.products?.find((product) => /\.webp$/i.test(String(product.image_path || ''))) ||
-  productCatalog.products?.[0];
-
-if (!sampleProduct) {
-  throw new Error('Expected at least one product in the catalog for share-preview contract coverage.');
-}
-
-const sampleSku = getProductSku(sampleProduct);
+const { getSharePreviewSampleProduct } = productCatalogHelpers;
+const sampleSku = getProductSku(getSharePreviewSampleProduct());
 
 test('supported public routes keep the browser-visible share-preview contract aligned', async ({ page, request }) => {
   const cases = [

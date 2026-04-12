@@ -3,51 +3,21 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const path = require('node:path');
 
-function normalizeIdentity(value) {
-  if (typeof value !== 'string') {
-    return null;
-  }
+const { distRoot, resolveDistPath } = require('./helpers/repo-files.js');
+const { getWebpBackedProduct } = require('./helpers/product-catalog.js');
 
-  const trimmed = value.trim();
-  return trimmed.length ? trimmed : null;
-}
-
-function generateStableSku(product) {
-  const base = `${product.name}-${product.category}`.toLowerCase();
-  let hash = 0;
-  for (let index = 0; index < base.length; index += 1) {
-    hash = (hash << 5) - hash + base.charCodeAt(index);
-    hash |= 0;
-  }
-  return `pid-${Math.abs(hash)}`;
-}
-
-function getProductSku(product) {
-  return normalizeIdentity(product.sku) || normalizeIdentity(product.id) || generateStableSku(product);
-}
-
-test('built product page falls back to a compatible category JPG og:image when catalog media is WebP', (t) => {
-  const repoRoot = path.resolve(__dirname, '..');
-  const distRoot = path.join(repoRoot, 'astro-poc', 'dist');
+test('built product page falls back to a compatible category JPG og:image when catalog media is WebP', async (t) => {
   if (!fs.existsSync(distRoot)) {
     t.skip('astro-poc/dist not found; run npm run build first');
     return;
   }
 
-  const productCatalog = JSON.parse(
-    fs.readFileSync(path.join(repoRoot, 'data', 'product_data.json'), 'utf8')
-  );
-  const webpBackedProduct = (productCatalog.products || []).find((product) =>
-    /\.webp$/i.test(String(product?.image_path || ''))
-  );
-
-  assert.ok(webpBackedProduct, 'Expected at least one product with a WebP image_path');
-
-  const sku = getProductSku(webpBackedProduct);
-  const categorySlug = String(webpBackedProduct.category || '').trim().toLowerCase();
-  const pagePath = path.join(distRoot, 'p', sku, 'index.html');
+  const { getProductSku } = await import('../astro-poc/src/lib/product-identity.ts');
+  const product = getWebpBackedProduct();
+  const sku = getProductSku(product);
+  const categorySlug = String(product.category || '').trim().toLowerCase();
+  const pagePath = resolveDistPath('p', sku, 'index.html');
 
   assert.ok(fs.existsSync(pagePath), `Expected built product page for ${sku}`);
 
@@ -63,6 +33,7 @@ test('built product page falls back to a compatible category JPG og:image when c
     'Expected product-page og:image to fall back to the compatible category JPG asset'
   );
 
+  assert.equal(product.category.trim().toLowerCase(), categorySlug);
   assert.ok(
     html.includes('<meta property="og:image:width" content="1200">'),
     'Expected og:image:width=1200'
