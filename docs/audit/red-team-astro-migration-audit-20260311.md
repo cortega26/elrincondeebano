@@ -1,4 +1,5 @@
 # 1. Executive verdict
+
 - Overall security posture: the live public site is a static Astro storefront with a relatively small interactive attack surface, but the migration is not cleanly hardened. The highest-risk issues are not classic backend bugs; they are security controls that fell off during migration, legacy residue still wired into service worker/offline/SEO behavior, and conflicting route authority signals that are already live.
 - Top 3 real risks:
   - `RT-01` Active Astro pages ship without CSP or other browser hardening headers, while the legacy EJS path still contains the old CSP logic. The hardening did not survive the migration to the actual production path.
@@ -11,6 +12,7 @@
 - Migration verdict: the Vanilla EJS → Astro transition is functionally migrated but still carries cleanup debt and some confirmed harmful residue. I would not call it fully decommissioned and clean.
 
 # 2. Architecture and attack-surface summary
+
 - Deployment model:
   - Astro SSG only. `astro-poc/astro.config.mjs:3-6` sets `output: 'static'`.
   - GitHub Pages is the authoritative production path. `.github/workflows/static.yml:136-141` uploads `astro-poc/dist`.
@@ -35,6 +37,7 @@
   - No evidence of `set:html`, `dangerouslySetInnerHTML`, or URL-param-driven HTML rendering in the active Astro storefront.
 
 # 3. Migration and decommission summary
+
 - Where legacy Vanilla EJS residue was found:
   - Source/templates: `templates/*.ejs`, `tools/build.js`, `tools/build-pages.js`, `tools/build-index.js`, `tools/copy-static.js`.
   - Shared runtime artifacts: root `service-worker.js`, `robots.txt`, `app.webmanifest`, `static/offline.html`.
@@ -51,15 +54,18 @@
   - Partial. The production build path moved to Astro, but legacy source, fallback assets, route duplication, and parts of the verification story were not fully decommissioned.
 
 # 4. Findings table
-| ID | Severity | Confidence | Affected area | Short title | Exploitability summary | Remediation priority |
-| --- | --- | --- | --- | --- | --- | --- |
-| RT-01 | Medium | High | Browser security posture / migration hardening | Astro production path lost CSP and browser hardening | Any future content/script injection or framed phishing attempt gets full browser execution latitude because live pages ship without CSP, frame restrictions, or related hardening | Immediate |
-| RT-02 | Medium | High | Service worker / offline / legacy residue | Deployed SW and offline fallback still target retired EJS assets | Production SW precache and offline HTML reference `/dist/*` files that return `404`, degrading resilience and proving legacy output assumptions are still active | Immediate |
-| RT-03 | Medium | High | SEO / routing / migration coherence | Public route authority is fragmented across hosts and duplicate route families | Search engines and users can reach multiple 200 variants of the same content; sitemap and canonical signals conflict with the live host and include low-trust offline/compat pages | Short term |
-| RT-04 | Low | High | Governance / maintainability / verification | Archived EJS pipeline still shapes docs, tests, and assurance | Not directly deployable today, but it creates false confidence and already hid a production hardening regression by testing the wrong output surface | Short term |
+
+| ID    | Severity | Confidence | Affected area                                  | Short title                                                                    | Exploitability summary                                                                                                                                                             | Remediation priority |
+| ----- | -------- | ---------- | ---------------------------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
+| RT-01 | Medium   | High       | Browser security posture / migration hardening | Astro production path lost CSP and browser hardening                           | Any future content/script injection or framed phishing attempt gets full browser execution latitude because live pages ship without CSP, frame restrictions, or related hardening  | Immediate            |
+| RT-02 | Medium   | High       | Service worker / offline / legacy residue      | Deployed SW and offline fallback still target retired EJS assets               | Production SW precache and offline HTML reference `/dist/*` files that return `404`, degrading resilience and proving legacy output assumptions are still active                   | Immediate            |
+| RT-03 | Medium   | High       | SEO / routing / migration coherence            | Public route authority is fragmented across hosts and duplicate route families | Search engines and users can reach multiple 200 variants of the same content; sitemap and canonical signals conflict with the live host and include low-trust offline/compat pages | Short term           |
+| RT-04 | Low      | High       | Governance / maintainability / verification    | Archived EJS pipeline still shapes docs, tests, and assurance                  | Not directly deployable today, but it creates false confidence and already hid a production hardening regression by testing the wrong output surface                               | Short term           |
 
 # 5. Detailed findings
+
 ## RT-01. Astro production path lost CSP and browser hardening
+
 1. Title
    Astro production path lost CSP and browser hardening
 2. Severity
@@ -92,11 +98,12 @@
    - CI gate that validates security headers against a preview deployment or a local header-emitting static server.
    - Replace `test/csp.policy.hardening.test.js` with checks against `astro-poc/dist/*.html` and live headers.
 10. Residue classification
-   Confirmed harmful residue
+    Confirmed harmful residue
 11. Decommission action
-   Remove legacy-only CSP assurance from active confidence claims; keep legacy CSP code only if it is clearly archived and not treated as active protection.
+    Remove legacy-only CSP assurance from active confidence claims; keep legacy CSP code only if it is clearly archived and not treated as active protection.
 
 ## RT-02. Deployed service worker and offline fallback still target retired EJS assets
+
 1. Title
    Deployed service worker and offline fallback still target retired EJS assets
 2. Severity
@@ -138,11 +145,12 @@
    - CI test that fetches every SW precache URL from the built artifact tree and fails on missing files.
    - CI test that scans all HTML and SW files for dead `/dist/*` references once the legacy path is retired.
 10. Residue classification
-   Confirmed harmful residue
+    Confirmed harmful residue
 11. Decommission action
-   Remove or rewrite legacy `/dist/*` references and the stale offline page contract.
+    Remove or rewrite legacy `/dist/*` references and the stale offline page contract.
 
 ## RT-03. Public route authority is fragmented across hosts and duplicate route families
+
 1. Title
    Public route authority is fragmented across hosts and duplicate route families
 2. Severity
@@ -185,11 +193,12 @@
    - CI check that canonical host matches the deployed host.
    - CI check that sitemap excludes offline pages and other non-indexable compatibility URLs.
 10. Residue classification
-   Confirmed harmful residue
+    Confirmed harmful residue
 11. Decommission action
-   Keep only the minimum compatibility routes needed for user bookmarks, but stop indexing them and stop emitting duplicate modern variants.
+    Keep only the minimum compatibility routes needed for user bookmarks, but stop indexing them and stop emitting duplicate modern variants.
 
 ## RT-04. Archived EJS pipeline still shapes docs, tests, and assurance
+
 1. Title
    Archived EJS pipeline still shapes docs, tests, and assurance
 2. Severity
@@ -232,12 +241,14 @@
    - CI grep gate that fails if active docs/tests reference retired templates outside archive docs.
    - Coverage review requiring new storefront hardening checks to point at Astro build output.
 10. Residue classification
-   Confirmed harmful residue
+    Confirmed harmful residue
 11. Decommission action
-   Archive or remove the EJS pipeline from `main`; do not keep it half-alive.
+    Archive or remove the EJS pipeline from `main`; do not keep it half-alive.
 
 # 6. Legacy cleanup and migration verification findings
+
 ## Harmful residue confirmed
+
 - Service worker precache list still includes retired EJS assets (`astro-poc/dist/service-worker.js:18-32`) that return live `404`s in production.
 - Offline fallback page is still a legacy artifact (`static/offline.html`, `astro-poc/public/pages/offline.html`) with dead CSS preloads and stale structured-data.
 - Modern and compatibility route families coexist and are all indexed via sitemap.
@@ -245,31 +256,37 @@
 - EJS-targeted docs/tests remain in active repo paths and missed hardening drift in the live Astro path.
 
 ## Safe intentional retention
+
 - Deploy authority itself is singular and coherent: `.github/workflows/static.yml:136-141` uploads only `astro-poc/dist`.
 - Legacy root compatibility routes such as `/bebidas.html` and `/vinos.html` appear intentionally retained for bookmark/backward-compatibility reasons. That retention is safe only if they are treated as secondary and not indexed as primary URLs.
 - Root build output directory `build/` is ignored by Git and is not part of the production deployment contract.
 
 ## Unclear residue requiring cleanup decision
+
 - Whether root compatibility pages (`/bebidas.html`, `/vinos.html`, `/offline.html`) should remain 200 forever or transition to redirects/noindex.
 - Whether the optional sync API/admin stack belongs in `main` alongside the static storefront or should live in a separate operational repo/package boundary.
 - Whether the public catalog JSON should continue exposing operational metadata fields such as `field_last_modified`, `rev`, and `by`.
 
 ## Functional parity/regression concerns
+
 - Core route availability is good. `npm run build`, `npm test`, and `npm run typecheck` all passed on 2026-03-11.
 - Legacy compatibility routes do resolve in production: `/pages/bebidas.html`, `/bebidas.html`, `/offline.html`.
 - The biggest parity regression is not route absence; it is route over-publication and stale offline/service-worker coupling.
 
 ## Efficiency/optimization concerns
+
 - Build output duplicates the same category content across `/c/<slug>/`, `/c/<Key>/`, `/pages/<slug>.html`, and some root compat pages.
 - Sitemap generation is file-tree based, so duplication automatically expands crawl surface and deploy artifact count.
 - Service worker precaches dead URLs, creating avoidable installation noise and wasted network work.
 
 ## Maintainability/scalability concerns
+
 - There are still dual mental models in the repo: “Astro is the only supported storefront” and “EJS templates are current” both appear in active documentation.
 - Security assurance is split between active Astro output and archived template tests, which is precisely how RT-01 escaped.
 - Shared root assets/contracts (`service-worker.js`, `robots.txt`, manifest, offline page) still carry legacy assumptions and should either be owned by the Astro build or explicitly archived.
 
 ## Closure criteria
+
 - Migration status: functionally migrated but with cleanup debt.
 - Justification:
   - Production deploy authority is singular.
@@ -278,12 +295,14 @@
   - Verification still partially targets legacy source instead of live Astro output.
 
 # 7. Near-misses and suspicious patterns
+
 - `astro-poc/src/lib/catalog.ts:173-190` accepts absolute `http(s)` image URLs, and `astro-poc/src/lib/seo.ts:133-138` would propagate those into product OG URLs. Current data is clean, but the content contract does not force local-only image origins.
 - `astro-poc/scripts/sync-data.mjs:100-112` only blocks path traversal for image fields. It does not enforce a strict `assets/images/...` contract at build sync time.
 - `data/product_data.json` is public and includes operational metadata (`field_last_modified`, `rev`, `by`). Not a secret leak, but broader than necessary for a public catalog contract.
 - `README.md:25-35` still documents stale service-worker cache versions (`v6/v4/v5`) while the live file is already `v7/v5/v6/html-v1`, which is another sign of migration/runtime docs drift.
 
 # 8. False positives avoided
+
 - I did not report the sync API as a public web finding because the live Pages deployment does not expose it. On 2026-03-11, `/api/products/changes?since_rev=0` returned `404`.
 - I did not report admin exposure because `/admin/` and `/admin-panel/` both returned `404` in production.
 - I did not report active Astro XSS because I did not find `set:html`, MDX raw HTML, or DOM sinks fed by URL/query-controlled input in the deployed storefront path.
@@ -292,7 +311,9 @@
 - I did not treat `Access-Control-Allow-Origin: *` on public HTML/JSON as a primary finding because the exposed data is intentionally public and there is no credentialed API behind it.
 
 # 9. Prioritized remediation plan
+
 ## Immediate (today)
+
 - Restore browser hardening on the actual Astro deployment path.
   - Why it matters: closes the biggest hardening gap that the migration introduced.
   - Expected risk reduction: high for future injection/clickjacking blast radius.
@@ -310,6 +331,7 @@
   - Regression risk: low.
 
 ## Short term (this week)
+
 - Collapse route authority to one canonical host and one canonical route family.
   - Why it matters: removes the biggest migration-era SEO inconsistency.
   - Expected risk reduction: medium.
@@ -327,6 +349,7 @@
   - Regression risk: medium.
 
 ## Structural (hardening / governance / CI)
+
 - Move or archive the retired EJS pipeline out of active repo surface.
   - Why it matters: removes dual-stack drift and maintenance ambiguity.
   - Expected risk reduction: medium.
@@ -344,6 +367,7 @@
   - Regression risk: low.
 
 ## 9.1 Legacy decommission actions
+
 - `templates/`, `tools/build*.js`, `tools/copy-static.js`
   - Action: archive or remove from `main`.
   - Why: confirmed harmful residue via false assurance and docs/test drift.
@@ -366,6 +390,7 @@
   - Regression protection needed: sitemap/canonical policy test plus redirect/noindex checks.
 
 # 10. Hardening gates to add
+
 - Header validation gate:
   - curl preview/live pages and fail if CSP, frame restriction, referrer policy, nosniff, and permissions policy are absent.
 - Route audit gate:
@@ -386,6 +411,7 @@
   - scan `astro-poc/dist/*.html` for CSP presence, inline script count, canonical consistency, and unwanted route families.
 
 # 11. Final conclusion
+
 - What would worry me most if this site went public at scale:
   - Not the absence of a backend. The bigger problem is that the migration left the live site with weaker browser hardening than the legacy path, and the repo still gives false signals about what is actually protected.
 - What is probably acceptable for now:

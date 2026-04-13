@@ -1,10 +1,4 @@
 {
-  "ignoredDirectories": [
-    "originals",
-    "variants",
-    "og/icons"
-  ],
-  "allowedOrphans": [
-    "assets/images/web/logo.avif"
-  ]
+  "ignoredDirectories": ["originals", "variants", "og/icons"],
+  "allowedOrphans": ["assets/images/web/logo.avif"]
 }

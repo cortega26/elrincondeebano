@@ -3,10 +3,8 @@ export function applyDeferredStyles(doc = typeof document !== 'undefined' ? docu
     return;
   }
 
-  doc
-    .querySelectorAll('link[rel="stylesheet"][media="print"][data-defer]')
-    .forEach((link) => {
-      /** @type {HTMLLinkElement} */ (link).media = 'all';
-      link.removeAttribute('data-defer');
-    });
+  doc.querySelectorAll('link[rel="stylesheet"][media="print"][data-defer]').forEach((link) => {
+    /** @type {HTMLLinkElement} */ (link).media = 'all';
+    link.removeAttribute('data-defer');
+  });
 }

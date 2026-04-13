@@ -232,13 +232,17 @@ function assertSupportedSharePreviewHtml(html, loc, label) {
   const twitterCard = extractMetaContent(html, 'name', 'twitter:card');
 
   if (!canonical || canonical !== loc) {
-    throw new Error(`${label} canonical must match sitemap URL. Expected ${loc}, got ${String(canonical)}`);
+    throw new Error(
+      `${label} canonical must match sitemap URL. Expected ${loc}, got ${String(canonical)}`
+    );
   }
   if (!ogUrl || ogUrl !== canonical) {
     throw new Error(`${label} og:url must match canonical. Got ${String(ogUrl)}`);
   }
   if (!description || description !== ogDescription || description !== twitterDescription) {
-    throw new Error(`${label} description, og:description, and twitter:description must be present and identical.`);
+    throw new Error(
+      `${label} description, og:description, and twitter:description must be present and identical.`
+    );
   }
   if (!ogTitle || !twitterTitle || ogTitle !== twitterTitle) {
     throw new Error(`${label} og:title and twitter:title must be present and identical.`);
@@ -246,11 +250,18 @@ function assertSupportedSharePreviewHtml(html, loc, label) {
   if (!twitterCard || twitterCard !== 'summary_large_image') {
     throw new Error(`${label} must emit twitter:card=summary_large_image.`);
   }
-  if (!ogImage || !/^https:\/\/www\.elrincondeebano\.com\/.+\.(?:jpe?g|png)(?:\?[^"]+)?$/i.test(ogImage)) {
-    throw new Error(`${label} must emit an absolute same-origin JPG/PNG og:image. Got ${String(ogImage)}`);
+  if (
+    !ogImage ||
+    !/^https:\/\/www\.elrincondeebano\.com\/.+\.(?:jpe?g|png)(?:\?[^"]+)?$/i.test(ogImage)
+  ) {
+    throw new Error(
+      `${label} must emit an absolute same-origin JPG/PNG og:image. Got ${String(ogImage)}`
+    );
   }
   if (ogImageType !== 'image/jpeg' && ogImageType !== 'image/png') {
-    throw new Error(`${label} must emit og:image:type=image/jpeg or image/png. Got ${String(ogImageType)}`);
+    throw new Error(
+      `${label} must emit og:image:type=image/jpeg or image/png. Got ${String(ogImageType)}`
+    );
   }
   if (ogImageWidth !== '1200' || ogImageHeight !== '1200') {
     throw new Error(`${label} must emit og:image dimensions 1200x1200.`);
@@ -258,7 +269,9 @@ function assertSupportedSharePreviewHtml(html, loc, label) {
 
   const assetPath = mapAssetUrlToDistPath(ogImage);
   if (!fs.existsSync(assetPath)) {
-    throw new Error(`${label} og:image does not exist in dist: ${path.relative(distRoot, assetPath)}`);
+    throw new Error(
+      `${label} og:image does not exist in dist: ${path.relative(distRoot, assetPath)}`
+    );
   }
 }
 
@@ -274,7 +287,9 @@ function ensureSupportedSharePreviewContract() {
   const productLocs = locMatches.filter((loc) => new URL(loc).pathname.startsWith('/p/'));
 
   if (categoryLocs.length === 0) {
-    throw new Error('Share-preview contract requires at least one primary category route in sitemap.xml.');
+    throw new Error(
+      'Share-preview contract requires at least one primary category route in sitemap.xml.'
+    );
   }
   if (productLocs.length === 0) {
     throw new Error('Share-preview contract requires at least one product route in sitemap.xml.');
@@ -283,7 +298,9 @@ function ensureSupportedSharePreviewContract() {
   for (const loc of locMatches) {
     const htmlPath = mapSitemapUrlToHtmlPath(loc);
     if (!fs.existsSync(htmlPath)) {
-      throw new Error(`Primary share-preview route missing built HTML: ${path.relative(distRoot, htmlPath)}`);
+      throw new Error(
+        `Primary share-preview route missing built HTML: ${path.relative(distRoot, htmlPath)}`
+      );
     }
     const html = fs.readFileSync(htmlPath, 'utf8');
     assertSupportedSharePreviewHtml(html, loc, path.relative(distRoot, htmlPath));

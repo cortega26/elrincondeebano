@@ -177,11 +177,7 @@ test('showOffcanvas loads module on demand and displays panel', async () => {
       assert.ok(result instanceof OffcanvasStub);
 
       await module.showOffcanvas('#cartOffcanvas');
-      assert.strictEqual(
-        offcanvasLoaded,
-        1,
-        'offcanvas loader should be cached after first call'
-      );
+      assert.strictEqual(offcanvasLoaded, 1, 'offcanvas loader should be cached after first call');
     }
   );
 });

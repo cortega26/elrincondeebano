@@ -1,95 +1,95 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     open-pull-requests-limit: 6
     labels:
-      - "dependencies"
-      - "npm"
+      - 'dependencies'
+      - 'npm'
     commit-message:
-      prefix: "chore(deps)"
+      prefix: 'chore(deps)'
     groups:
       npm-patch-minor:
         patterns:
-          - "*"
+          - '*'
         update-types:
-          - "patch"
-          - "minor"
+          - 'patch'
+          - 'minor'
       npm-major:
         patterns:
-          - "*"
+          - '*'
         update-types:
-          - "major"
-  - package-ecosystem: "npm"
-    directory: "/astro-poc"
+          - 'major'
+  - package-ecosystem: 'npm'
+    directory: '/astro-poc'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     open-pull-requests-limit: 6
     labels:
-      - "dependencies"
-      - "npm"
-      - "astro-poc"
+      - 'dependencies'
+      - 'npm'
+      - 'astro-poc'
     commit-message:
-      prefix: "chore(astro-deps)"
+      prefix: 'chore(astro-deps)'
     groups:
       astro-npm-patch-minor:
         patterns:
-          - "*"
+          - '*'
         update-types:
-          - "patch"
-          - "minor"
+          - 'patch'
+          - 'minor'
       astro-npm-major:
         patterns:
-          - "*"
+          - '*'
         update-types:
-          - "major"
-  - package-ecosystem: "github-actions"
-    directory: "/"
+          - 'major'
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     open-pull-requests-limit: 4
     labels:
-      - "dependencies"
-      - "github-actions"
+      - 'dependencies'
+      - 'github-actions'
     commit-message:
-      prefix: "chore(ci)"
+      prefix: 'chore(ci)'
     groups:
       actions-patch-minor:
         patterns:
-          - "*"
+          - '*'
         update-types:
-          - "patch"
-          - "minor"
+          - 'patch'
+          - 'minor'
       actions-major:
         patterns:
-          - "*"
+          - '*'
         update-types:
-          - "major"
-  - package-ecosystem: "pip"
-    directory: "/admin/product_manager"
+          - 'major'
+  - package-ecosystem: 'pip'
+    directory: '/admin/product_manager'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     open-pull-requests-limit: 4
     labels:
-      - "dependencies"
-      - "python"
+      - 'dependencies'
+      - 'python'
     commit-message:
-      prefix: "chore(py-deps)"
+      prefix: 'chore(py-deps)'
     ignore:
-      - dependency-name: "astroid"
+      - dependency-name: 'astroid'
         update-types:
-          - "version-update:semver-minor"
+          - 'version-update:semver-minor'
     groups:
       pip-patch-minor:
         patterns:
-          - "*"
+          - '*'
         update-types:
-          - "patch"
-          - "minor"
+          - 'patch'
+          - 'minor'
       pip-major:
         patterns:
-          - "*"
+          - '*'
         update-types:
-          - "major"
+          - 'major'

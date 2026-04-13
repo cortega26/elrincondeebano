@@ -3,10 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const {
-  validateNodeVersion,
-  buildNodeVersionErrorMessage,
-} = require('../tools/preflight.js');
+const { validateNodeVersion, buildNodeVersionErrorMessage } = require('../tools/preflight.js');
 
 test('validateNodeVersion accepts a compatible semver range match', () => {
   const result = validateNodeVersion('22.20.0', '>=22 <25');
@@ -28,4 +25,3 @@ test('preflight error message includes range, detected version, and fix hints', 
   assert.match(message, /volta install node@22/);
   assert.match(message, /node\.exe/);
 });
-

@@ -31,10 +31,7 @@ describe('product-data-manager', () => {
 
   it('transformProduct fills defaults and sanitizes strings', async () => {
     const { transformProduct } = await loadProductDataManager();
-    const result = transformProduct(
-      { name: '<b>Pan</b>', description: '<script>x</script>' },
-      0
-    );
+    const result = transformProduct({ name: '<b>Pan</b>', description: '<script>x</script>' }, 0);
     expect(result.id).toMatch(/^pid-/);
     expect(result.name).not.toContain('<');
     expect(result.description).not.toContain('<');

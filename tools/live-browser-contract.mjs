@@ -28,7 +28,8 @@ function assertAllowedUrl(url, label) {
 }
 
 export function normalizeBaseUrl(rawBaseUrl = DEFAULT_BASE_URL) {
-  const candidate = typeof rawBaseUrl === 'string' && rawBaseUrl.trim() ? rawBaseUrl.trim() : DEFAULT_BASE_URL;
+  const candidate =
+    typeof rawBaseUrl === 'string' && rawBaseUrl.trim() ? rawBaseUrl.trim() : DEFAULT_BASE_URL;
   const parsed = new URL(candidate);
   assertAllowedUrl(parsed, 'Base URL');
   parsed.pathname = '';
@@ -107,7 +108,9 @@ export async function inspectBrowserRoute(browser, baseUrl, route, timeoutMs = D
       waitUntil: 'domcontentloaded',
       timeout: timeoutMs,
     });
-    await page.waitForLoadState('networkidle', { timeout: Math.min(timeoutMs, 5000) }).catch(() => {});
+    await page
+      .waitForLoadState('networkidle', { timeout: Math.min(timeoutMs, 5000) })
+      .catch(() => {});
     await page.waitForTimeout(1000);
 
     const html = await page.content();

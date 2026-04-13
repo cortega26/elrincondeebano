@@ -63,11 +63,17 @@ export function extractMetaContent(html, attributeName, attributeValue) {
 }
 
 export function extractCanonicalHref(html) {
-  return String(html || '').match(/<link\s+rel=["']canonical["'][^>]*href=["']([^"]+)["']/i)?.[1] || null;
+  return (
+    String(html || '').match(/<link\s+rel=["']canonical["'][^>]*href=["']([^"]+)["']/i)?.[1] || null
+  );
 }
 
 export function extractTitle(html) {
-  return String(html || '').match(/<title>([^<]+)<\/title>/i)?.[1]?.trim() || null;
+  return (
+    String(html || '')
+      .match(/<title>([^<]+)<\/title>/i)?.[1]
+      ?.trim() || null
+  );
 }
 
 export function looksLikeChallenge(html) {

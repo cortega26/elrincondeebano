@@ -1,12 +1,14 @@
 import { log } from '../utils/logger.mts';
 
-export function createCartManager({
-  createSafeElement,
-  createCartThumbnail,
-  toggleActionArea,
-  showErrorMessage,
-  getUpdateProductDisplay,
-} = /** @type {Record<string, any>} */ ({})) {
+export function createCartManager(
+  {
+    createSafeElement,
+    createCartThumbnail,
+    toggleActionArea,
+    showErrorMessage,
+    getUpdateProductDisplay,
+  } = /** @type {Record<string, any>} */ ({})
+) {
   let cart = [];
   const normalizeId = (value) => (value === null || value === undefined ? '' : String(value));
   const clampQuantity = (value) => {
@@ -362,9 +364,7 @@ export function createCartManager({
     } catch (error) {
       log('error', 'cart_add_failed', { error });
       if (typeof showErrorMessage === 'function') {
-        showErrorMessage(
-          'Error al agregar el artículo al carrito. Por favor, intenta nuevamente.'
-        );
+        showErrorMessage('Error al agregar el artículo al carrito. Por favor, intenta nuevamente.');
       }
     }
   };
@@ -460,7 +460,8 @@ export function createCartManager({
       saveCart();
       updateCartIcon();
       renderCart();
-      const updater = typeof getUpdateProductDisplay === 'function' ? getUpdateProductDisplay() : null;
+      const updater =
+        typeof getUpdateProductDisplay === 'function' ? getUpdateProductDisplay() : null;
       if (typeof updater === 'function') {
         updater();
       }
@@ -477,9 +478,10 @@ export function createCartManager({
     const cartItems = document.getElementById('cart-items');
     if (cartItems) {
       cartItems.addEventListener('click', (e) => {
-        const target = /** @type {EventTarget & { closest?: (selector: string) => Element | null }} */ (
-          e.target
-        );
+        const target =
+          /** @type {EventTarget & { closest?: (selector: string) => Element | null }} */ (
+            e.target
+          );
         const hasClosest = !!target && typeof target.closest === 'function';
         if (!hasClosest) return;
         const elementTarget = /** @type {{ closest: (selector: string) => Element | null }} */ (

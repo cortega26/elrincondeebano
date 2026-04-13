@@ -20,9 +20,8 @@ const assert = require('node:assert');
     return location;
   };
 
-  const { resolveProductDataUrl, validateProductDataUrl } = await import(
-    '../src/js/utils/data-endpoint.mjs'
-  );
+  const { resolveProductDataUrl, validateProductDataUrl } =
+    await import('../src/js/utils/data-endpoint.mjs');
 
   test('resolveProductDataUrl builds same-origin URLs', () => {
     setWindow({ origin: 'https://example.com', hostname: 'example.com' });

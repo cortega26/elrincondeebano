@@ -30,7 +30,10 @@ function sanitizeUrlPath(url) {
     return 'unknown';
   }
   try {
-    const parsed = new URL(url, typeof window !== 'undefined' ? window.location.origin : 'https://localhost');
+    const parsed = new URL(
+      url,
+      typeof window !== 'undefined' ? window.location.origin : 'https://localhost'
+    );
     return parsed.pathname || '/';
   } catch {
     return 'unknown';

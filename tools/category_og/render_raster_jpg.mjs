@@ -1,10 +1,12 @@
 import fs from 'node:fs';
 import sharp from 'sharp';
 
-const [,, input, output, widthArg, heightArg, qualityArg] = process.argv;
+const [, , input, output, widthArg, heightArg, qualityArg] = process.argv;
 
 if (!input || !output) {
-  console.error('Usage: node render_raster_jpg.mjs <input> <output.jpg> [width] [height] [quality]');
+  console.error(
+    'Usage: node render_raster_jpg.mjs <input> <output.jpg> [width] [height] [quality]'
+  );
   process.exit(2);
 }
 

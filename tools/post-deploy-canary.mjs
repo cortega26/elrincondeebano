@@ -148,7 +148,13 @@ async function assertHttpOk(baseUrl, url, label, timeoutMs) {
   return response;
 }
 
-async function probeSecurityHeaders({ baseUrl, url, label, timeoutMs, requireSecurityHeaders = false }) {
+async function probeSecurityHeaders({
+  baseUrl,
+  url,
+  label,
+  timeoutMs,
+  requireSecurityHeaders = false,
+}) {
   const response = await assertHttpOk(baseUrl, url, label, timeoutMs);
   const securityHeaders = inspectSecurityHeaders(response.headers);
   const htmlSurface = inspectPublicHtmlEdgeSurface(await response.clone().text());
@@ -199,7 +205,12 @@ async function verifyPage({ baseUrl, url, label, timeoutMs, ensureWhatsapp = fal
     ensureWhatsAppPresence(html, label);
   }
 
-  const imageResponse = await assertHttpOk(baseUrl, absoluteOgImage, `${label} og:image`, timeoutMs);
+  const imageResponse = await assertHttpOk(
+    baseUrl,
+    absoluteOgImage,
+    `${label} og:image`,
+    timeoutMs
+  );
   const contentType = imageResponse.headers.get('content-type') || '';
   if (!/^image\/(?:jpeg|png)\b/i.test(contentType)) {
     fail(`${label} og:image returned unsupported content type for WhatsApp: ${contentType}`);

@@ -1,10 +1,12 @@
 ﻿# RELEASE RUNBOOK
 
 ## Release Types
+
 - Routine change: content copy, minor layout tweak, non-critical JS, no Service Worker (SW) or checkout path changes.
 - Risky change: SW, checkout/WhatsApp flow, product images/sizes, critical CSS, caching, or anything that can alter LCP/CLS.
 
 ## Pre-Release Checklist
+
 - Code ready: scope is small, reversible, and matches the PR intent.
 - Build artifacts: `npm run build` passes and outputs `dist/`, `pages/`, `sitemap.xml`.
 - SW version: cache prefixes updated for SW changes (e.g., `ebano-static-vX`).
@@ -20,13 +22,16 @@
   - Visible layout shift on load.
 
 ## Deploy Steps (Provider-Neutral)
+
 1. Ensure main is green (tests/build).
 2. Merge PR and trigger deploy.
 3. Confirm deploy completed successfully.
 4. Complete smoke evidence checklist file (from artifact/template) and record sign-off.
 
 ## Immediate Post-Deploy Validation (30-60 min)
+
 Pages to test: `/index.html`, `/pages/bebidas.html`
+
 - Hard reload with SW enabled:
   - Pass: no visible layout jump, content loads, no SW errors.
 - Hard reload with SW disabled:
@@ -47,12 +52,14 @@ Pages to test: `/index.html`, `/pages/bebidas.html`
   - Pass: consistent framing, no crop jumps.
 
 ## 72h Monitoring (Lightweight)
+
 - Daily manual check: PLP + category + cart + checkout flow.
 - Lighthouse spot-check on 2 pages; compare CLS/LCP trends vs previous report.
 - Watch for user reports: "price wrong", "checkout fails", "images broken".
 - Track WhatsApp clicks or order confirmations (manual log if no tooling).
 
 ## Release Log Template
+
 - Date/time:
 - PRs included:
 - Risk level: Routine / Risky
@@ -61,6 +68,7 @@ Pages to test: `/index.html`, `/pages/bebidas.html`
 - Notes:
 
 ## Definition of Done
+
 - All pre-release checks passed.
 - Post-deploy validation completed with pass/fail recorded.
 - Monitoring plan started.

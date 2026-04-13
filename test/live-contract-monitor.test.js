@@ -44,8 +44,14 @@ test('normalizeBaseUrl rejects non-allowlisted hosts', async () => {
 
 test('resolveProbeUrl blocks absolute and traversal probe targets', async () => {
   const { resolveProbeUrl } = await loadModule();
-  assert.equal(resolveProbeUrl(SITE_ORIGIN, '/pages/bebidas.html').toString(), `${SITE_ORIGIN}/pages/bebidas.html`);
-  assert.throws(() => resolveProbeUrl(SITE_ORIGIN, 'https://example.com/evil'), /Absolute URLs are not allowed/);
+  assert.equal(
+    resolveProbeUrl(SITE_ORIGIN, '/pages/bebidas.html').toString(),
+    `${SITE_ORIGIN}/pages/bebidas.html`
+  );
+  assert.throws(
+    () => resolveProbeUrl(SITE_ORIGIN, 'https://example.com/evil'),
+    /Absolute URLs are not allowed/
+  );
   assert.throws(() => resolveProbeUrl(SITE_ORIGIN, '/../secrets'), /Path traversal is not allowed/);
 });
 
@@ -54,17 +60,20 @@ test('runMonitor records security header failures without failing when strict mo
 
   await withMockedFetch(createMonitorFetch(), async () => {
     const captured = [];
-    await withMockedConsoleLog((value) => captured.push(value), async () => {
-      await assert.doesNotReject(() =>
-        runMonitor({
-          baseUrl: SITE_ORIGIN,
-          timeoutMs: 5000,
-          sampleSize: 5,
-          reportPath: '',
-          requireSecurityHeaders: false,
-        })
-      );
-    });
+    await withMockedConsoleLog(
+      (value) => captured.push(value),
+      async () => {
+        await assert.doesNotReject(() =>
+          runMonitor({
+            baseUrl: SITE_ORIGIN,
+            timeoutMs: 5000,
+            sampleSize: 5,
+            reportPath: '',
+            requireSecurityHeaders: false,
+          })
+        );
+      }
+    );
 
     const report = JSON.parse(captured[0]);
     assert.equal(report.success, true);
@@ -82,20 +91,23 @@ test('runMonitor fails in strict mode when security headers are missing', async 
   const { runMonitor } = await loadModule();
 
   await withMockedFetch(createMonitorFetch(), async () => {
-    await withMockedConsoleLog(() => {}, async () => {
-      await expectAsyncReject(
-        assert,
-        () =>
-          runMonitor({
-            baseUrl: SITE_ORIGIN,
-            timeoutMs: 5000,
-            sampleSize: 5,
-            reportPath: '',
-            requireSecurityHeaders: true,
-          }),
-        /security header contract failure/
-      );
-    });
+    await withMockedConsoleLog(
+      () => {},
+      async () => {
+        await expectAsyncReject(
+          assert,
+          () =>
+            runMonitor({
+              baseUrl: SITE_ORIGIN,
+              timeoutMs: 5000,
+              sampleSize: 5,
+              reportPath: '',
+              requireSecurityHeaders: true,
+            }),
+          /security header contract failure/
+        );
+      }
+    );
   });
 });
 
@@ -113,23 +125,29 @@ test('runMonitor fails when public HTML contains disallowed injected scripts', a
             compliantHeaders
           ),
       ],
-      ['/', () => makeHtmlResponse('<!doctype html><html><body>ok</body></html>', compliantHeaders)],
+      [
+        '/',
+        () => makeHtmlResponse('<!doctype html><html><body>ok</body></html>', compliantHeaders),
+      ],
     ]),
     async () => {
-      await withMockedConsoleLog(() => {}, async () => {
-        await expectAsyncReject(
-          assert,
-          () =>
-            runMonitor({
-              baseUrl: SITE_ORIGIN,
-              timeoutMs: 5000,
-              sampleSize: 5,
-              reportPath: '',
-              requireSecurityHeaders: false,
-            }),
-          /disallowed HTML surface failure/
-        );
-      });
+      await withMockedConsoleLog(
+        () => {},
+        async () => {
+          await expectAsyncReject(
+            assert,
+            () =>
+              runMonitor({
+                baseUrl: SITE_ORIGIN,
+                timeoutMs: 5000,
+                sampleSize: 5,
+                reportPath: '',
+                requireSecurityHeaders: false,
+              }),
+            /disallowed HTML surface failure/
+          );
+        }
+      );
     }
   );
 });

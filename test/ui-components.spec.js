@@ -19,11 +19,10 @@ describe('ui-components', () => {
   it('createSafeElement handles attributes, text, and children', () => {
     const child = document.createElement('span');
     child.textContent = 'child';
-    const element = createSafeElement(
-      'div',
-      { id: 'root', text: 'hello', 'data-x': '1' },
-      [child, 'tail']
-    );
+    const element = createSafeElement('div', { id: 'root', text: 'hello', 'data-x': '1' }, [
+      child,
+      'tail',
+    ]);
 
     expect(element.id).toBe('root');
     expect(element.getAttribute('data-x')).toBe('1');

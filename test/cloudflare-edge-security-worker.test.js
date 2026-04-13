@@ -21,10 +21,16 @@ test('shouldApplySecurityHeaders targets only canonical-host HTML documents', as
     status: 200,
     headers: { 'content-type': 'image/webp' },
   });
-  assert.equal(shouldApplySecurityHeaders({ request: htmlRequest, response: assetResponse }), false);
+  assert.equal(
+    shouldApplySecurityHeaders({ request: htmlRequest, response: assetResponse }),
+    false
+  );
 
   const foreignRequest = new Request('https://example.com/');
-  assert.equal(shouldApplySecurityHeaders({ request: foreignRequest, response: htmlResponse }), false);
+  assert.equal(
+    shouldApplySecurityHeaders({ request: foreignRequest, response: htmlResponse }),
+    false
+  );
 });
 
 test('applySecurityHeaders injects the documented edge baseline without dropping existing headers', async () => {

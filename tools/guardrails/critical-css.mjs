@@ -1,10 +1,4 @@
-﻿import {
-  extractDeclaration,
-  fail,
-  findSelectorBlock,
-  ok,
-  readFile,
-} from './_utils.mjs';
+﻿import { extractDeclaration, fail, findSelectorBlock, ok, readFile } from './_utils.mjs';
 
 const CRITICAL = 'assets/css/critical.css';
 const MAIN = 'assets/css/style.css';
@@ -42,9 +36,7 @@ if (!criticalPadding || !mainPadding) {
 }
 
 if (criticalPadding !== mainPadding) {
-  fail(
-    `body padding-top mismatch: ${CRITICAL}=${criticalPadding} vs ${MAIN}=${mainPadding}`
-  );
+  fail(`body padding-top mismatch: ${CRITICAL}=${criticalPadding} vs ${MAIN}=${mainPadding}`);
 }
 
 const criticalNavbar = findSelectorBlock(criticalCss, '.navbar');
@@ -57,9 +49,7 @@ if (!criticalMinHeight || !mainMinHeight) {
 }
 
 if (criticalMinHeight !== mainMinHeight) {
-  fail(
-    `.navbar min-height mismatch: ${CRITICAL}=${criticalMinHeight} vs ${MAIN}=${mainMinHeight}`
-  );
+  fail(`.navbar min-height mismatch: ${CRITICAL}=${criticalMinHeight} vs ${MAIN}=${mainMinHeight}`);
 }
 
 ok('Critical CSS guardrails passed.');

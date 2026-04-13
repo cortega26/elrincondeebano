@@ -8,18 +8,18 @@ La autoridad pública del storefront vive en `astro-poc/**` y se despliega desde
 
 ## Clasificación
 
-| Superficie | Estado | Decisión | Nota operativa |
-| --- | --- | --- | --- |
-| `templates/**` | archivado | completado | Movido a `_archive/legacy-storefront/templates/**`. |
-| `tools/build.js` | archivado | completado | Movido a `_archive/legacy-storefront/tools/build.js`. |
-| `tools/build-pages.js` | archivado | completado | Movido a `_archive/legacy-storefront/tools/build-pages.js`. |
-| `tools/build-index.js` | archivado | completado | Movido a `_archive/legacy-storefront/tools/build-index.js`. |
-| `tools/build-components.js` | archivado | completado | Movido a `_archive/legacy-storefront/tools/build-components.js`. |
-| `tools/copy-static.js` | archivado | completado | Movido a `_archive/legacy-storefront/tools/copy-static.js`. |
-| `test/buildIndex.lcp.test.js` | archivado | completado | Movido a `_archive/legacy-storefront/tests/buildIndex.lcp.test.js`. |
-| `test/template.seo-accessibility.test.js` | archivado | completado | Movido a `_archive/legacy-storefront/tests/template.seo-accessibility.test.js`. |
-| `test/noFlicker.stylesheetLoading.test.js` | archivado | completado | Movido a `_archive/legacy-storefront/tests/noFlicker.stylesheetLoading.test.js`. |
-| `package.json` -> `ejs` | retirado | completado | Eliminado del package surface activo porque ya no hay consumers en el path de build/test vigente. |
+| Superficie                                 | Estado    | Decisión   | Nota operativa                                                                                    |
+| ------------------------------------------ | --------- | ---------- | ------------------------------------------------------------------------------------------------- |
+| `templates/**`                             | archivado | completado | Movido a `_archive/legacy-storefront/templates/**`.                                               |
+| `tools/build.js`                           | archivado | completado | Movido a `_archive/legacy-storefront/tools/build.js`.                                             |
+| `tools/build-pages.js`                     | archivado | completado | Movido a `_archive/legacy-storefront/tools/build-pages.js`.                                       |
+| `tools/build-index.js`                     | archivado | completado | Movido a `_archive/legacy-storefront/tools/build-index.js`.                                       |
+| `tools/build-components.js`                | archivado | completado | Movido a `_archive/legacy-storefront/tools/build-components.js`.                                  |
+| `tools/copy-static.js`                     | archivado | completado | Movido a `_archive/legacy-storefront/tools/copy-static.js`.                                       |
+| `test/buildIndex.lcp.test.js`              | archivado | completado | Movido a `_archive/legacy-storefront/tests/buildIndex.lcp.test.js`.                               |
+| `test/template.seo-accessibility.test.js`  | archivado | completado | Movido a `_archive/legacy-storefront/tests/template.seo-accessibility.test.js`.                   |
+| `test/noFlicker.stylesheetLoading.test.js` | archivado | completado | Movido a `_archive/legacy-storefront/tests/noFlicker.stylesheetLoading.test.js`.                  |
+| `package.json` -> `ejs`                    | retirado  | completado | Eliminado del package surface activo porque ya no hay consumers en el path de build/test vigente. |
 
 ## Controles aplicados en este corte
 

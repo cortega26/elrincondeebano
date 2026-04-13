@@ -5,10 +5,7 @@ import rawProducts from '../data/products.json';
 import rawCategories from '../data/categories.json';
 import rawStorefrontExperience from '../data/storefront-experience.json';
 import rawStorefrontBundles from '../data/storefront-bundles.json';
-import {
-  getProductSku as getSharedProductSku,
-  normalizeIdentity,
-} from './product-identity';
+import { getProductSku as getSharedProductSku, normalizeIdentity } from './product-identity';
 
 export type ProductImageVariant = {
   src?: string;

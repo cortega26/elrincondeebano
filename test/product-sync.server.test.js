@@ -31,14 +31,16 @@ async function createTempStore(initialProducts = []) {
   return { store, dataPath, changeLogPath, tmpDir };
 }
 
-
-async function applyTestPatch(store, {
-  fields,
-  baseRev = 0,
-  source = 'offline',
-  changesetId = 'default-id',
-  timestamp = '2025-01-01T00:01:00.000Z'
-} = {}) {
+async function applyTestPatch(
+  store,
+  {
+    fields,
+    baseRev = 0,
+    source = 'offline',
+    changesetId = 'default-id',
+    timestamp = '2025-01-01T00:01:00.000Z',
+  } = {}
+) {
   return store.applyPatch({
     productId: 'Widget',
     baseRev,
@@ -50,7 +52,12 @@ async function applyTestPatch(store, {
 }
 
 function buildSyncProductId(name, description = '') {
-  const normalize = (value) => String(value || '').trim().split(/\s+/).join(' ').toLowerCase();
+  const normalize = (value) =>
+    String(value || '')
+      .trim()
+      .split(/\s+/)
+      .join(' ')
+      .toLowerCase();
   return `${normalize(name)}::${normalize(description)}`;
 }
 
@@ -136,7 +143,10 @@ test('idempotent patches reuse prior response', async () => {
   };
 
   const first = await applyTestPatch(store, patchData);
-  const second = await applyTestPatch(store, { ...patchData, timestamp: '2025-01-01T00:02:00.000Z' });
+  const second = await applyTestPatch(store, {
+    ...patchData,
+    timestamp: '2025-01-01T00:02:00.000Z',
+  });
 
   assert.deepEqual(second, first);
 

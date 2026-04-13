@@ -43,9 +43,11 @@ test('category route variants share catalog output while keeping route-specific 
     await page.goto(variant.path, { waitUntil: 'networkidle' });
     await page.waitForFunction(() => window.__APP_READY__ === true);
 
-    const products = await page.locator('#product-container .producto .card-title').evaluateAll(
-      (elements) => elements.slice(0, 4).map((element) => element.textContent?.trim() || '')
-    );
+    const products = await page
+      .locator('#product-container .producto .card-title')
+      .evaluateAll((elements) =>
+        elements.slice(0, 4).map((element) => element.textContent?.trim() || '')
+      );
     const robotsLocator = page.locator('meta[name="robots"]');
     const robots =
       (await robotsLocator.count()) > 0 ? await robotsLocator.getAttribute('content') : null;

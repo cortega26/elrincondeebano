@@ -6,7 +6,9 @@ const path = require('path');
 
 const LOCATIONS = [path.resolve(__dirname, '..', 'data')];
 const extraLocations = process.env.PRUNE_LOCATIONS
-  ? process.env.PRUNE_LOCATIONS.split(path.delimiter).map((entry) => entry.trim()).filter(Boolean)
+  ? process.env.PRUNE_LOCATIONS.split(path.delimiter)
+      .map((entry) => entry.trim())
+      .filter(Boolean)
   : [];
 extraLocations.forEach((entry) => {
   const resolved = path.resolve(entry);

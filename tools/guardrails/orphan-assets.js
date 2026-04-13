@@ -3,7 +3,16 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const IMAGE_EXTENSIONS = new Set(['.avif', '.webp', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico']);
+const IMAGE_EXTENSIONS = new Set([
+  '.avif',
+  '.webp',
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.gif',
+  '.svg',
+  '.ico',
+]);
 const SCANNED_TEXT_EXTENSIONS = new Set([
   '.js',
   '.mjs',
@@ -196,7 +205,9 @@ function findOrphanAssets({
 
   const candidates = collectCandidateAssets(repoRoot, ignoredDirectories);
   const orphanAssets = candidates.filter((candidate) => !references.has(candidate)).sort();
-  const unexpectedOrphans = orphanAssets.filter((candidate) => !allowedOrphans.has(candidate)).sort();
+  const unexpectedOrphans = orphanAssets
+    .filter((candidate) => !allowedOrphans.has(candidate))
+    .sort();
   const staleAllowedOrphans = Array.from(allowedOrphans)
     .filter((candidate) => !orphanAssets.includes(candidate))
     .sort();

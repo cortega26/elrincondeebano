@@ -89,13 +89,17 @@ function assertPreviewContract({ html, finalUrl, label }) {
     fail(`${label} is missing a <title>.`);
   }
   if (!canonical || canonical !== finalUrl) {
-    fail(`${label} canonical must match the final public URL. Expected ${finalUrl}, got ${String(canonical)}`);
+    fail(
+      `${label} canonical must match the final public URL. Expected ${finalUrl}, got ${String(canonical)}`
+    );
   }
   if (!ogUrl || ogUrl !== canonical) {
     fail(`${label} og:url must match canonical.`);
   }
   if (!description || description !== ogDescription || description !== twitterDescription) {
-    fail(`${label} description, og:description, and twitter:description must be present and identical.`);
+    fail(
+      `${label} description, og:description, and twitter:description must be present and identical.`
+    );
   }
   if (!ogTitle || ogTitle !== twitterTitle) {
     fail(`${label} og:title and twitter:title must be present and identical.`);
@@ -103,7 +107,10 @@ function assertPreviewContract({ html, finalUrl, label }) {
   if (twitterCard !== 'summary_large_image') {
     fail(`${label} must emit twitter:card=summary_large_image.`);
   }
-  if (!ogImage || !/^https:\/\/www\.elrincondeebano\.com\/.+\.(?:jpe?g|png)(?:\?[^"]+)?$/i.test(ogImage)) {
+  if (
+    !ogImage ||
+    !/^https:\/\/www\.elrincondeebano\.com\/.+\.(?:jpe?g|png)(?:\?[^"]+)?$/i.test(ogImage)
+  ) {
     fail(`${label} must emit an absolute same-origin JPG/PNG og:image.`);
   }
   assertSupportedOgImageUrl(ogImage, `${label} og:image`);
@@ -179,7 +186,11 @@ export async function runSharePreviewMonitor({
   timeoutMs = DEFAULT_TIMEOUT_MS,
 } = {}) {
   const normalizedBaseUrl = normalizeBaseUrl(baseUrl);
-  const sitemapResponse = await fetchWithTimeout(`${normalizedBaseUrl}/sitemap.xml`, timeoutMs, 'application/xml,text/xml');
+  const sitemapResponse = await fetchWithTimeout(
+    `${normalizedBaseUrl}/sitemap.xml`,
+    timeoutMs,
+    'application/xml,text/xml'
+  );
   if (!sitemapResponse.ok) {
     fail(`sitemap.xml returned HTTP ${sitemapResponse.status}.`);
   }
@@ -226,7 +237,9 @@ async function main() {
 
   fs.mkdirSync(path.dirname(reportPath), { recursive: true });
   fs.writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
-  console.log(`Share-preview monitor passed for ${report.checks.length} route(s). Report: ${reportPath}`);
+  console.log(
+    `Share-preview monitor passed for ${report.checks.length} route(s). Report: ${reportPath}`
+  );
 }
 
 const isMainModule =

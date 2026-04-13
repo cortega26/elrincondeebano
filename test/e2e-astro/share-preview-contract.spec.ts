@@ -22,8 +22,14 @@ async function expectSharePreviewContract(
 
   const descriptionValue = await description.getAttribute('content');
   expect(descriptionValue, `${label} description`).toBeTruthy();
-  await expect(ogDescription, `${label} og:description`).toHaveAttribute('content', descriptionValue!);
-  await expect(twitterDescription, `${label} twitter:description`).toHaveAttribute('content', descriptionValue!);
+  await expect(ogDescription, `${label} og:description`).toHaveAttribute(
+    'content',
+    descriptionValue!
+  );
+  await expect(twitterDescription, `${label} twitter:description`).toHaveAttribute(
+    'content',
+    descriptionValue!
+  );
 
   const ogTitleValue = await ogTitle.getAttribute('content');
   expect(ogTitleValue, `${label} og:title`).toBeTruthy();
@@ -33,7 +39,10 @@ async function expectSharePreviewContract(
     'content',
     'summary_large_image'
   );
-  await expect(page.locator('meta[property="og:image:type"]')).toHaveAttribute('content', /image\/(?:jpeg|png)/);
+  await expect(page.locator('meta[property="og:image:type"]')).toHaveAttribute(
+    'content',
+    /image\/(?:jpeg|png)/
+  );
   await expect(page.locator('meta[property="og:image:width"]')).toHaveAttribute('content', '1200');
   await expect(page.locator('meta[property="og:image:height"]')).toHaveAttribute('content', '1200');
   await expect(ogImage).toHaveAttribute(
@@ -45,7 +54,10 @@ async function expectSharePreviewContract(
 const { getSharePreviewSampleProduct } = productCatalogHelpers;
 const sampleSku = getProductSku(getSharePreviewSampleProduct());
 
-test('supported public routes keep the browser-visible share-preview contract aligned', async ({ page, request }) => {
+test('supported public routes keep the browser-visible share-preview contract aligned', async ({
+  page,
+  request,
+}) => {
   const cases = [
     {
       path: '/',

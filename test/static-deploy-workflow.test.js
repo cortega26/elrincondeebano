@@ -22,7 +22,10 @@ test('static deploy workflow gates Pages publish behind the browser canary', () 
   assert.notEqual(canaryIndex, -1, 'expected deploy workflow to run the blocking browser canary');
   assert.notEqual(deployIndex, -1, 'expected deploy workflow to publish to Pages');
   assert.ok(browserInstallIndex > buildIndex, 'Playwright install should happen after the build');
-  assert.ok(canaryIndex > browserInstallIndex, 'browser canary should run after Playwright install');
+  assert.ok(
+    canaryIndex > browserInstallIndex,
+    'browser canary should run after Playwright install'
+  );
   assert.ok(deployIndex > canaryIndex, 'Pages deploy should happen only after the browser canary');
   assert.match(
     workflow,

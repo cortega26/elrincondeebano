@@ -36,6 +36,7 @@ Cerrar el riesgo P2 de falta de evidencia persistente de smoke por release, impl
 6. `npm run test:e2e` -> OK (`26 passed`, `12 skipped`).
 
 Nota operativa:
+
 - `npm run guardrails` completo puede seguir fallando por `sw-cache-bump` si hay cambios previos de `service-worker.js` sin bump; no pertenece al alcance de este prompt.
 
 ## Riesgos restantes

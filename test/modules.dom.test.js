@@ -1,11 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert');
 const { createModuleLoader } = require('./helpers/module-loader');
-const {
-  ensureFileGlobal,
-  setupDom,
-  teardownDom,
-} = require('./helpers/dom-test-utils');
+const { ensureFileGlobal, setupDom, teardownDom } = require('./helpers/dom-test-utils');
 
 ensureFileGlobal();
 
@@ -113,7 +109,9 @@ test('injectStructuredData and injectSeoMetadata insert expected elements', asyn
     document.querySelector('script[type="application/ld+json"]'),
     'structured data script inserted'
   );
-  const structuredDataText = document.querySelector('script[type="application/ld+json"]')?.textContent;
+  const structuredDataText = document.querySelector(
+    'script[type="application/ld+json"]'
+  )?.textContent;
   assert.ok(
     structuredDataText && structuredDataText.includes('"url":"https://www.elrincondeebano.com/"'),
     'structured data Store URL should use HTTPS'

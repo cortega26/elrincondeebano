@@ -68,8 +68,7 @@ async function main() {
       const index = hrefs.findIndex(({ href }) => pattern.test(href));
       return { pattern: pattern.toString(), index, link: index >= 0 ? hrefs[index] : null };
     });
-    const duplicateCritical =
-      hrefs.filter(({ href }) => criticalPattern.test(href)).length > 1;
+    const duplicateCritical = hrefs.filter(({ href }) => criticalPattern.test(href)).length > 1;
     const duplicateShared = hrefs.filter(({ href }) => sharedPattern.test(href)).length > 1;
     const missing = matches.some(({ index }) => index === -1);
     const outOfOrder = matches.some(

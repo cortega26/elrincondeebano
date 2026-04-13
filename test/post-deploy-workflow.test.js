@@ -11,11 +11,24 @@ const workflow = fs.readFileSync(workflowPath, 'utf8');
 test('post-deploy live probe runs a browser contract before the fetch-based canary', () => {
   const liveProbeIndex = workflow.indexOf('live-probe:');
   const installDepsIndex = workflow.indexOf('- name: Install dependencies', liveProbeIndex);
-  const installChromiumIndex = workflow.indexOf('- name: Install Playwright Chromium', liveProbeIndex);
-  const browserProbeIndex = workflow.indexOf('- name: Run live browser contract probe', liveProbeIndex);
-  const liveCanaryIndex = workflow.indexOf('- name: Run live canary probes (allowed network)', liveProbeIndex);
+  const installChromiumIndex = workflow.indexOf(
+    '- name: Install Playwright Chromium',
+    liveProbeIndex
+  );
+  const browserProbeIndex = workflow.indexOf(
+    '- name: Run live browser contract probe',
+    liveProbeIndex
+  );
+  const liveCanaryIndex = workflow.indexOf(
+    '- name: Run live canary probes (allowed network)',
+    liveProbeIndex
+  );
 
-  assert.notEqual(liveProbeIndex, -1, 'expected the post-deploy workflow to define the live-probe job');
+  assert.notEqual(
+    liveProbeIndex,
+    -1,
+    'expected the post-deploy workflow to define the live-probe job'
+  );
   assert.notEqual(installDepsIndex, -1, 'expected the live-probe job to install dependencies');
   assert.notEqual(
     installChromiumIndex,

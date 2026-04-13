@@ -201,27 +201,17 @@ test('http sync server requires bearer auth when patch auth is enabled', async (
     assert.equal(missingAuthBody.message, 'Unauthorized');
     assert.equal(missingAuthBody.cause, null);
 
-    const invalidAuth = await requestJson(
-      port,
-      'PATCH',
-      '/api/products/Widget',
-      payload,
-      { authorization: 'Bearer bad-token' }
-    );
+    const invalidAuth = await requestJson(port, 'PATCH', '/api/products/Widget', payload, {
+      authorization: 'Bearer bad-token',
+    });
     assert.equal(invalidAuth.statusCode, 401);
     const invalidAuthBody = JSON.parse(invalidAuth.body);
     assert.equal(invalidAuthBody.code, 'UNAUTHORIZED');
 
-    const authorized = await requestJson(
-      port,
-      'PATCH',
-      '/api/products/Widget',
-      payload,
-      {
-        authorization: 'Bearer sync-token-123',
-        'x-correlation-id': 'cid-auth-accept',
-      }
-    );
+    const authorized = await requestJson(port, 'PATCH', '/api/products/Widget', payload, {
+      authorization: 'Bearer sync-token-123',
+      'x-correlation-id': 'cid-auth-accept',
+    });
     assert.equal(authorized.statusCode, 200);
     assert.equal(authorized.headers['x-correlation-id'], 'cid-auth-accept');
     const authorizedBody = JSON.parse(authorized.body);

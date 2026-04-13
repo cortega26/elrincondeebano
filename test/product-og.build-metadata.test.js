@@ -16,7 +16,9 @@ test('built product page falls back to a compatible category JPG og:image when c
   const { getProductSku } = await import('../astro-poc/src/lib/product-identity.ts');
   const product = getWebpBackedProduct();
   const sku = getProductSku(product);
-  const categorySlug = String(product.category || '').trim().toLowerCase();
+  const categorySlug = String(product.category || '')
+    .trim()
+    .toLowerCase();
   const pagePath = resolveDistPath('p', sku, 'index.html');
 
   assert.ok(fs.existsSync(pagePath), `Expected built product page for ${sku}`);

@@ -1,12 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert');
 const { createModuleLoader } = require('./helpers/module-loader');
-const {
-  setupDom,
-  teardownDom,
-  wait,
-  dispatchPointerDown,
-} = require('./helpers/dom-test-utils');
+const { setupDom, teardownDom, wait, dispatchPointerDown } = require('./helpers/dom-test-utils');
 
 const loadModule = createModuleLoader(__dirname);
 
@@ -100,11 +95,15 @@ test('menu controller supports keyboard toggle and escape', async () => {
         focusCalled = true;
       };
 
-      firstToggle.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      firstToggle.dispatchEvent(
+        new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true })
+      );
       await wait(25);
       assert.strictEqual(firstToggle.getAttribute('aria-expanded'), 'true');
 
-      firstToggle.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      firstToggle.dispatchEvent(
+        new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true })
+      );
       await wait(0);
       assert.strictEqual(firstToggle.getAttribute('aria-expanded'), 'false');
       assert.strictEqual(focusCalled, true);

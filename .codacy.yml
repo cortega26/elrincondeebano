@@ -1,8 +1,8 @@
 exclude_paths:
-  - "assets/js/**"
-  - "build/**"
-  - "dist/**"
-  - "pages/**"
-  - "reports/**"
-  - ".stryker-tmp/**"
-  - "node_modules/**"
+  - 'assets/js/**'
+  - 'build/**'
+  - 'dist/**'
+  - 'pages/**'
+  - 'reports/**'
+  - '.stryker-tmp/**'
+  - 'node_modules/**'

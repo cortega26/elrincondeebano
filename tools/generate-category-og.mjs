@@ -6,19 +6,21 @@ if (process.env.PREFLIGHT_SKIP_OG === '1') {
 }
 
 const userArgs = process.argv.slice(2);
-const hasCommand = userArgs.includes('--sync') || userArgs.includes('--one') || userArgs.includes('--delete');
+const hasCommand =
+  userArgs.includes('--sync') || userArgs.includes('--one') || userArgs.includes('--delete');
 const args = hasCommand ? userArgs : ['--sync', ...userArgs];
 
-const candidates = process.platform === 'win32'
-  ? [
-      ['python', []],
-      ['python3', []],
-      ['py', ['-3']],
-    ]
-  : [
-      ['python3', []],
-      ['python', []],
-    ];
+const candidates =
+  process.platform === 'win32'
+    ? [
+        ['python', []],
+        ['python3', []],
+        ['py', ['-3']],
+      ]
+    : [
+        ['python3', []],
+        ['python', []],
+      ];
 
 let lastError = null;
 for (const [bin, prefix] of candidates) {

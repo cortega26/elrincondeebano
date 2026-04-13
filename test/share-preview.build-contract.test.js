@@ -36,7 +36,11 @@ function assertSupportedSharePreview(html, expectedCanonical, label) {
   const ogImageHeight = extractMeta(html, 'property', 'og:image:height');
   const twitterCard = extractMeta(html, 'name', 'twitter:card');
 
-  assert.equal(canonical, expectedCanonical, `${label} canonical should match the supported public URL`);
+  assert.equal(
+    canonical,
+    expectedCanonical,
+    `${label} canonical should match the supported public URL`
+  );
   assert.equal(ogUrl, expectedCanonical, `${label} og:url should match canonical`);
   assert.ok(description, `${label} should emit meta description`);
   assert.equal(ogDescription, description, `${label} og:description should match meta description`);
@@ -58,7 +62,11 @@ function assertSupportedSharePreview(html, expectedCanonical, label) {
   assert.equal(ogImageHeight, '1200', `${label} should emit og:image:height=1200`);
 
   const imageUrl = new URL(ogImage);
-  assert.equal(imageUrl.origin, siteOrigin, `${label} og:image should stay on the canonical origin`);
+  assert.equal(
+    imageUrl.origin,
+    siteOrigin,
+    `${label} og:image should stay on the canonical origin`
+  );
   const distImagePath = resolveDistPath(decodeURIComponent(imageUrl.pathname).replace(/^\/+/, ''));
   assert.ok(fs.existsSync(distImagePath), `${label} og:image asset should exist in dist`);
 }

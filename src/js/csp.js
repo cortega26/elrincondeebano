@@ -43,5 +43,4 @@
   meta.httpEquiv = 'Content-Security-Policy';
   meta.content = cspPolicy;
   document.head.appendChild(meta);
-
 })();

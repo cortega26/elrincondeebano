@@ -1,24 +1,26 @@
 import { log } from '../utils/logger.mts';
 
-export function createCatalogManager({
-  productContainer,
-  sortOptions,
-  filterKeyword,
-  createSafeElement,
-  createProductPicture,
-  renderPriceHtml,
-  renderQuantityControl,
-  setupActionArea,
-  addToCart,
-  updateQuantity,
-  getCartItemQuantity,
-  filterProducts,
-  memoize,
-  debounce,
-  scheduleIdle,
-  cancelScheduledIdle,
-  showErrorMessage,
-} = /** @type {Record<string, any>} */ ({})) {
+export function createCatalogManager(
+  {
+    productContainer,
+    sortOptions,
+    filterKeyword,
+    createSafeElement,
+    createProductPicture,
+    renderPriceHtml,
+    renderQuantityControl,
+    setupActionArea,
+    addToCart,
+    updateQuantity,
+    getCartItemQuantity,
+    filterProducts,
+    memoize,
+    debounce,
+    scheduleIdle,
+    cancelScheduledIdle,
+    showErrorMessage,
+  } = /** @type {Record<string, any>} */ ({})
+) {
   const INITIAL_BATCH_FALLBACK = 12;
   const SUBSEQUENT_BATCH_SIZE = 12;
 
@@ -88,11 +90,13 @@ export function createCatalogManager({
         { rootMargin: '100px' }
       );
 
-      /** @type {NodeListOf<HTMLImageElement>} */ (document.querySelectorAll('img.lazyload')).forEach((img) =>
-        imageObserver.observe(img)
-      );
+      /** @type {NodeListOf<HTMLImageElement>} */ (
+        document.querySelectorAll('img.lazyload')
+      ).forEach((img) => imageObserver.observe(img));
     } else {
-      /** @type {NodeListOf<HTMLImageElement>} */ (document.querySelectorAll('img.lazyload')).forEach((img) => {
+      /** @type {NodeListOf<HTMLImageElement>} */ (
+        document.querySelectorAll('img.lazyload')
+      ).forEach((img) => {
         if (img.dataset.src) img.src = img.dataset.src;
         if (img.dataset.srcset) img.srcset = img.dataset.srcset;
         if (img.dataset.sizes) img.sizes = img.dataset.sizes;
@@ -352,7 +356,9 @@ export function createCatalogManager({
     }, 150);
   };
 
-  const bindFilterEvents = ({ log, onUserInteraction } = /** @type {Record<string, any>} */ ({})) => {
+  const bindFilterEvents = (
+    { log, onUserInteraction } = /** @type {Record<string, any>} */ ({})
+  ) => {
     const debouncedUpdateProductDisplay = createDebouncedUpdate();
 
     if (sortOptions) {
@@ -368,19 +374,20 @@ export function createCatalogManager({
     }
 
     if (filterKeyword) {
-      const handler = typeof debounce === 'function'
-        ? debounce(() => {
-            if (filterKeyword.value.length > 2 && typeof log === 'function') {
-              log('info', 'search_keyword', { keyword: filterKeyword.value });
-            }
-            if (typeof onUserInteraction === 'function' && filterKeyword.value.length > 2) {
-              onUserInteraction();
-            }
-            debouncedUpdateProductDisplay();
-          }, 300)
-        : () => {
-            debouncedUpdateProductDisplay();
-          };
+      const handler =
+        typeof debounce === 'function'
+          ? debounce(() => {
+              if (filterKeyword.value.length > 2 && typeof log === 'function') {
+                log('info', 'search_keyword', { keyword: filterKeyword.value });
+              }
+              if (typeof onUserInteraction === 'function' && filterKeyword.value.length > 2) {
+                onUserInteraction();
+              }
+              debouncedUpdateProductDisplay();
+            }, 300)
+          : () => {
+              debouncedUpdateProductDisplay();
+            };
       filterKeyword.addEventListener('input', handler);
     }
 

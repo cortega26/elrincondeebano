@@ -61,21 +61,23 @@ const registerCheckoutButtons = (submitCart, log) => {
   });
 };
 
-export function runAppBootstrap({
-  catalogManager,
-  cartManager,
-  submitCart,
-  initializeBootstrapUI,
-  getSharedProductData,
-  normalizeString,
-  log,
-  setupOnlineStatus,
-  utilityClasses,
-  scheduleIdle,
-  fetchProducts,
-  logPerformanceMetrics,
-  showOffcanvas,
-} = /** @type {Record<string, any>} */ ({})) {
+export function runAppBootstrap(
+  {
+    catalogManager,
+    cartManager,
+    submitCart,
+    initializeBootstrapUI,
+    getSharedProductData,
+    normalizeString,
+    log,
+    setupOnlineStatus,
+    utilityClasses,
+    scheduleIdle,
+    fetchProducts,
+    logPerformanceMetrics,
+    showOffcanvas,
+  } = /** @type {Record<string, any>} */ ({})
+) {
   initFooter();
   if (typeof initializeBootstrapUI === 'function') {
     initializeBootstrapUI();
@@ -151,8 +153,7 @@ export function runAppBootstrap({
   return new Promise((resolve) => {
     scheduleIdle(async () => {
       try {
-        const freshProducts =
-          typeof fetchProducts === 'function' ? await fetchProducts() : null;
+        const freshProducts = typeof fetchProducts === 'function' ? await fetchProducts() : null;
         if (!freshProducts) {
           return;
         }

@@ -1,7 +1,7 @@
 ﻿import sharp from 'sharp';
 import fs from 'node:fs';
 
-const [,, input, output, widthArg, heightArg, qualityArg] = process.argv;
+const [, , input, output, widthArg, heightArg, qualityArg] = process.argv;
 
 if (!input || !output) {
   console.error('Usage: node render_jpg.mjs <input.svg> <output.jpg> [width] [height] [quality]');

@@ -43,7 +43,9 @@ for (const filename of ROOT_COMPAT_FILES) {
   const sourceFile = path.join(pagesRoot, filename);
   const targetFile = path.join(distRoot, filename);
   if (!fs.existsSync(sourceFile)) {
-    throw new Error(`Missing required legacy page for root compatibility: ${path.relative(projectRoot, sourceFile)}`);
+    throw new Error(
+      `Missing required legacy page for root compatibility: ${path.relative(projectRoot, sourceFile)}`
+    );
   }
   fs.copyFileSync(sourceFile, targetFile);
   rootCompatCount += 1;

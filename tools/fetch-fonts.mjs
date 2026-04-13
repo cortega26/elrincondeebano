@@ -44,9 +44,7 @@ function assertAllowedRemoteUrl(rawUrl) {
   const allowed = getAllowedRemoteHosts();
   const host = parsed.hostname.toLowerCase();
   if (!allowed.has(host)) {
-    throw new Error(
-      `Remote host "${host}" not in allowlist. Set FONTS_REMOTE_HOSTS to allow it.`
-    );
+    throw new Error(`Remote host "${host}" not in allowlist. Set FONTS_REMOTE_HOSTS to allow it.`);
   }
   return parsed.toString();
 }
@@ -123,7 +121,10 @@ function extractWoff2Url(block) {
 }
 
 function normalizeFontUrl(raw) {
-  return raw.replace(/\u0026/g, '&').replace(/^['"]|['"]$/g, '').trim();
+  return raw
+    .replace(/\u0026/g, '&')
+    .replace(/^['"]|['"]$/g, '')
+    .trim();
 }
 
 function resolveLocalFontPath(rawUrl, cssPath) {

@@ -133,7 +133,8 @@ export async function injectStructuredData() {
           '@type': 'Store',
           name: 'El Rincón de Ébano',
           image: 'https://elrincondeebano.com/assets/images/og/home.og.jpg',
-          description: 'Minimarket privado para residentes del edificio Ébano con pedidos por WhatsApp y entrega dentro del edificio.',
+          description:
+            'Minimarket privado para residentes del edificio Ébano con pedidos por WhatsApp y entrega dentro del edificio.',
           address: { '@type': 'PostalAddress', addressCountry: 'CL' },
           telephone: '+56951118901',
           url: 'https://www.elrincondeebano.com/',

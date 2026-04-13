@@ -25,7 +25,10 @@ async function loadModule() {
 function createCanaryFetch(handlers = []) {
   const defaultHandlers = [
     ['/sitemap.xml', () => makeXmlResponse(makeSitemapXml([`${SITE_ORIGIN}/bebidas/`]))],
-    ['/pages/bebidas.html', () => makeHtmlResponse('<!doctype html><html><body>Compat bebidas</body></html>')],
+    [
+      '/pages/bebidas.html',
+      () => makeHtmlResponse('<!doctype html><html><body>Compat bebidas</body></html>'),
+    ],
     ['/assets/images/og/home.jpg', () => makeImageResponse()],
     ['/assets/images/og/bebidas.jpg', () => makeImageResponse()],
     ['/data/product_data.json', () => makeJsonResponse({ products: [{ id: 1 }] })],
@@ -140,7 +143,11 @@ test('runCanary fails when homepage does not expose WhatsApp flow', async () => 
       ],
     ]),
     async () => {
-      await expectAsyncReject(assert, () => runCanary({ baseUrl: SITE_ORIGIN }), /WhatsApp flow references/);
+      await expectAsyncReject(
+        assert,
+        () => runCanary({ baseUrl: SITE_ORIGIN }),
+        /WhatsApp flow references/
+      );
     }
   );
 });
@@ -163,7 +170,11 @@ test('runCanary fails when og:image uses an unsupported WebP asset', async () =>
       ],
     ]),
     async () => {
-      await expectAsyncReject(assert, () => runCanary({ baseUrl: SITE_ORIGIN }), /must use JPG or PNG/);
+      await expectAsyncReject(
+        assert,
+        () => runCanary({ baseUrl: SITE_ORIGIN }),
+        /must use JPG or PNG/
+      );
     }
   );
 });
@@ -239,7 +250,11 @@ test('runCanary fails when Cloudflare injects disallowed scripts into baseline H
       ],
     ]),
     async () => {
-      await expectAsyncReject(assert, () => runCanary({ baseUrl: SITE_ORIGIN }), /disallowed HTML script surface/);
+      await expectAsyncReject(
+        assert,
+        () => runCanary({ baseUrl: SITE_ORIGIN }),
+        /disallowed HTML script surface/
+      );
     }
   );
 });

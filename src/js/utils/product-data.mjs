@@ -147,13 +147,19 @@ export const fetchWithRetry = async (url, opts, retries, backoffMs, correlationI
       ? lastError.code
       : 'PRODUCT_DATA_FETCH_FAILED';
   const context =
-    lastError && typeof lastError === 'object' && lastError.context && typeof lastError.context === 'object'
+    lastError &&
+    typeof lastError === 'object' &&
+    lastError.context &&
+    typeof lastError.context === 'object'
       ? lastError.context
       : { url: sanitizedUrl, retries, attempts: attempt };
-  throw new ProductDataError(`Failed to fetch products: ${lastError?.message || String(lastError)}`, {
-    cause: lastError,
-    correlationId,
-    code,
-    context,
-  });
+  throw new ProductDataError(
+    `Failed to fetch products: ${lastError?.message || String(lastError)}`,
+    {
+      cause: lastError,
+      correlationId,
+      code,
+      context,
+    }
+  );
 };

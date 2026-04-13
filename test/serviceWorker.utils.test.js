@@ -28,7 +28,11 @@ const { addTimestamp, isCacheFresh, CACHE_CONFIG } = require('../service-worker.
       'sw-timestamp': String(baseNow - CACHE_CONFIG.duration.products - 1000),
     },
   });
-  assert.strictEqual(isCacheFresh(productStale, 'products'), false, 'product cache should be stale');
+  assert.strictEqual(
+    isCacheFresh(productStale, 'products'),
+    false,
+    'product cache should be stale'
+  );
   Date.now = originalNow;
 
   console.log('All tests passed');

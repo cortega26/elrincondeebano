@@ -1,7 +1,4 @@
-const {
-  categoryRegistryPath,
-  loadCategoryCatalogFromRegistry,
-} = require('./category-registry');
+const { categoryRegistryPath, loadCategoryCatalogFromRegistry } = require('./category-registry');
 
 const catalogPath = categoryRegistryPath;
 

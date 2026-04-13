@@ -31,75 +31,83 @@ test('normalizeBaseUrl enforces HTTPS and allowlisted hosts', async () => {
 test('runSharePreviewMonitor validates homepage, category, and product previews independently of the canary', async () => {
   const { runSharePreviewMonitor } = await loadModule();
 
-  await withMockedFetch(async (url) => {
-    const target = String(url);
-    if (target.endsWith('/sitemap.xml')) {
-      return makeXmlResponse(makeSitemapXml());
-    }
-    if (target.endsWith('/bebidas/')) {
-      return makeHtmlResponse(
-        makeSharePreviewHtml({
-          title: 'El Rincón de Ébano - Bebidas',
-          canonical: `${SITE_ORIGIN}/bebidas/`,
-          ogImage: CATEGORY_OG_IMAGE,
-        })
+  await withMockedFetch(
+    async (url) => {
+      const target = String(url);
+      if (target.endsWith('/sitemap.xml')) {
+        return makeXmlResponse(makeSitemapXml());
+      }
+      if (target.endsWith('/bebidas/')) {
+        return makeHtmlResponse(
+          makeSharePreviewHtml({
+            title: 'El Rincón de Ébano - Bebidas',
+            canonical: `${SITE_ORIGIN}/bebidas/`,
+            ogImage: CATEGORY_OG_IMAGE,
+          })
+        );
+      }
+      if (target.endsWith('/p/pid-123/')) {
+        return makeHtmlResponse(
+          makeSharePreviewHtml({
+            title: 'Producto | El Rincón de Ébano',
+            canonical: `${SITE_ORIGIN}/p/pid-123/`,
+            ogImage: PRODUCT_OG_IMAGE,
+          })
+        );
+      }
+      if (target.endsWith('/')) {
+        return makeHtmlResponse(
+          makeSharePreviewHtml({
+            title: 'El Rincón de Ébano',
+            canonical: `${SITE_ORIGIN}/`,
+            ogImage: HOMEPAGE_OG_IMAGE,
+          })
+        );
+      }
+      if (target.endsWith(HOMEPAGE_OG_IMAGE.replace(SITE_ORIGIN, ''))) {
+        return makeImageResponse();
+      }
+      if (target.endsWith(CATEGORY_OG_IMAGE.replace(SITE_ORIGIN, ''))) {
+        return makeImageResponse();
+      }
+      if (target.endsWith(PRODUCT_OG_IMAGE.replace(SITE_ORIGIN, ''))) {
+        return makeImageResponse();
+      }
+      return new Response('not found', { status: 404 });
+    },
+    async () => {
+      const report = await runSharePreviewMonitor({ baseUrl: SITE_ORIGIN });
+      assert.equal(report.checks.length, 3);
+      assert.deepEqual(
+        report.checks.map((check) => check.name),
+        ['homepage', 'category', 'product']
       );
     }
-    if (target.endsWith('/p/pid-123/')) {
-      return makeHtmlResponse(
-        makeSharePreviewHtml({
-          title: 'Producto | El Rincón de Ébano',
-          canonical: `${SITE_ORIGIN}/p/pid-123/`,
-          ogImage: PRODUCT_OG_IMAGE,
-        })
-      );
-    }
-    if (target.endsWith('/')) {
-      return makeHtmlResponse(
-        makeSharePreviewHtml({
-          title: 'El Rincón de Ébano',
-          canonical: `${SITE_ORIGIN}/`,
-          ogImage: HOMEPAGE_OG_IMAGE,
-        })
-      );
-    }
-    if (target.endsWith(HOMEPAGE_OG_IMAGE.replace(SITE_ORIGIN, ''))) {
-      return makeImageResponse();
-    }
-    if (target.endsWith(CATEGORY_OG_IMAGE.replace(SITE_ORIGIN, ''))) {
-      return makeImageResponse();
-    }
-    if (target.endsWith(PRODUCT_OG_IMAGE.replace(SITE_ORIGIN, ''))) {
-      return makeImageResponse();
-    }
-    return new Response('not found', { status: 404 });
-  }, async () => {
-    const report = await runSharePreviewMonitor({ baseUrl: SITE_ORIGIN });
-    assert.equal(report.checks.length, 3);
-    assert.deepEqual(
-      report.checks.map((check) => check.name),
-      ['homepage', 'category', 'product']
-    );
-  });
+  );
 });
 
 test('runSharePreviewMonitor fails clearly on challenge pages', async () => {
   const { runSharePreviewMonitor } = await loadModule();
 
-  await withMockedFetch(async (url) => {
-    const target = String(url);
-    if (target.endsWith('/sitemap.xml')) {
-      return makeXmlResponse(makeSitemapXml());
+  await withMockedFetch(
+    async (url) => {
+      const target = String(url);
+      if (target.endsWith('/sitemap.xml')) {
+        return makeXmlResponse(makeSitemapXml());
+      }
+      if (target.endsWith('/')) {
+        return makeHtmlResponse(
+          '<html><body>Just a moment... /cdn-cgi/challenge-platform/</body></html>'
+        );
+      }
+      return new Response('not found', { status: 404 });
+    },
+    async () => {
+      await expectAsyncReject(
+        assert,
+        () => runSharePreviewMonitor({ baseUrl: SITE_ORIGIN }),
+        /challenge\/interstitial/
+      );
     }
-    if (target.endsWith('/')) {
-      return makeHtmlResponse('<html><body>Just a moment... /cdn-cgi/challenge-platform/</body></html>');
-    }
-    return new Response('not found', { status: 404 });
-  }, async () => {
-    await expectAsyncReject(
-      assert,
-      () => runSharePreviewMonitor({ baseUrl: SITE_ORIGIN }),
-      /challenge\/interstitial/
-    );
-  });
+  );
 });
