@@ -4,8 +4,11 @@ test('home renders with navbar, catalog, and SEO tags', async ({ page }) => {
   await page.goto('/', { waitUntil: 'networkidle' });
   await page.waitForFunction(() => window.__APP_READY__ === true);
 
-  await expect(page.locator('#navbar-container')).toBeVisible();
+  await expect(page.locator('.navbar-brand')).toBeVisible();
+  await expect(page.locator('.trust-strip__card')).toHaveCount(4);
+  await expect(page.locator('.home-entry')).toBeVisible();
   await expect(page.locator('#product-container .producto').first()).toBeVisible();
+  await expect(page.locator('h2', { hasText: 'Categorías clave' })).toHaveCount(0);
 
   const canonical = page.locator('link[rel="canonical"]');
   await expect(canonical).toHaveAttribute('href', 'https://www.elrincondeebano.com/');
@@ -17,6 +20,25 @@ test('home renders with navbar, catalog, and SEO tags', async ({ page }) => {
     'content',
     'summary_large_image'
   );
+});
+
+test('desktop home keeps the service strip in a single row and quick-order CTA targets the first shoppable block', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1100 });
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await page.waitForFunction(() => window.__APP_READY__ === true);
+
+  const cardRows = await page.locator('.trust-strip__card').evaluateAll((elements) => {
+    const rows = new Set(
+      elements.map((element) => Math.round(element.getBoundingClientRect().top))
+    );
+    return rows.size;
+  });
+  expect(cardRows).toBe(1);
+
+  await page.locator('.home-entry__cta').click();
+  await expect(page.locator('#home-quick-order-heading')).toBeInViewport();
 });
 
 test('legacy category route /pages/*.html stays available', async ({ page }) => {

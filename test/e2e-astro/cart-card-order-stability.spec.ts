@@ -9,7 +9,7 @@ async function openFreshHome(page: Page) {
 }
 
 async function readQuickOrder(page: Page) {
-  return page.locator('#home-personalized-grid-desktop .producto').evaluateAll((elements) =>
+  return page.locator('#home-personalized-grid .producto').evaluateAll((elements) =>
     elements.map((element) => ({
       id: element.getAttribute('data-product-id'),
       name: element.getAttribute('data-product-name'),
@@ -18,16 +18,14 @@ async function readQuickOrder(page: Page) {
 }
 
 async function bumpQuickOrderItem(page: Page, productId: string, expectedQty: number) {
-  const addButton = page.locator(
-    `#home-personalized-grid-desktop .add-to-cart-btn[data-id="${productId}"]`
-  );
+  const addButton = page.locator(`#home-personalized-grid .add-to-cart-btn[data-id="${productId}"]`);
 
   if (await addButton.first().isVisible()) {
     await addButton.first().click();
   } else {
     await page
       .locator(
-        `#home-personalized-grid-desktop .quantity-btn[data-action="increase"][data-id="${productId}"]`
+        `#home-personalized-grid .quantity-btn[data-action="increase"][data-id="${productId}"]`
       )
       .first()
       .click();
@@ -48,7 +46,7 @@ test('quick-order cards keep a stable order while cart quantities change', async
   await openFreshHome(page);
 
   const initialOrder = await readQuickOrder(page);
-  expect(initialOrder.length).toBeGreaterThanOrEqual(4);
+  expect(initialOrder.length).toBeGreaterThanOrEqual(3);
 
   const target = initialOrder.at(-1);
   expect(target?.id).toBeTruthy();

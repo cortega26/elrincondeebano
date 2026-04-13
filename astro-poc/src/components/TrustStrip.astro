@@ -1,65 +1,38 @@
 ---
-import { catalogMeta, getStorefrontStatusItems, getStorefrontTrustItems } from '../lib/catalog';
+import { getStorefrontStatusItems, getStorefrontTrustItems } from '../lib/catalog';
 
 const trustItems = getStorefrontTrustItems();
 const statusItems = getStorefrontStatusItems();
-const compactStatusItems = statusItems.slice(0, 2);
-const compactTrustItems = trustItems.filter((item) =>
-  ['Entrega', 'Pago'].includes(item.label)
-);
-const resolvedCompactTrustItems = compactTrustItems.length > 0 ? compactTrustItems : trustItems.slice(0, 2);
 
-let updatedLabel = 'Catálogo disponible';
-if (catalogMeta.lastUpdated) {
-  try {
-    updatedLabel = `Actualizado ${new Intl.DateTimeFormat('es-CL', {
-      day: 'numeric',
-      month: 'short',
-    }).format(new Date(catalogMeta.lastUpdated))}`;
-  } catch {
-    updatedLabel = 'Catálogo actualizado';
-  }
-}
+const trustMap = new Map(trustItems.map((item) => [item.label, item.value]));
+const statusMap = new Map(statusItems.map((item) => [item.label, item.value]));
+
+const summaryCards = [
+  {
+    title: 'Solo residentes',
+    detail: trustMap.get('Acceso') || 'Servicio exclusivo del edificio.',
+  },
+  {
+    title: 'Entrega dentro de Ébano',
+    detail: trustMap.get('Entrega') || 'Coordinada dentro del edificio.',
+  },
+  {
+    title: 'Respuesta aprox. 10 min',
+    detail: statusMap.get('Respuesta') || 'Confirmamos rápido cuando estamos operando.',
+  },
+  {
+    title: 'Confirmación por WhatsApp',
+    detail: trustMap.get('Cierre') || 'El resumen final se envía por WhatsApp.',
+  },
+];
 ---
 
-<section class="trust-strip trust-strip--full" aria-label="Condiciones del servicio">
-  <div class="trust-strip__status">
-    {statusItems.map((item) => (
-      <div class="trust-strip__status-item">
-        <strong>{item.label}</strong>
-        <span>{item.value}</span>
-      </div>
-    ))}
-    <div class="trust-strip__status-item">
-      <strong>Catálogo</strong>
-      <span>{updatedLabel}</span>
-    </div>
-  </div>
-
-  <div class="trust-strip__highlights">
-    {trustItems.map((item) => (
-      <div class="trust-strip__pill">
-        <strong>{item.label}</strong>
-        <span>{item.value}</span>
-      </div>
-    ))}
-  </div>
-</section>
-
-<section class="trust-strip trust-strip--compact" aria-label="Resumen del servicio">
-  <div class="trust-strip__compact-row">
-    {compactStatusItems.map((item) => (
-      <div class="trust-strip__compact-card">
-        <strong>{item.label}</strong>
-        <span>{item.value}</span>
-      </div>
-    ))}
-  </div>
-  <div class="trust-strip__compact-row">
-    {resolvedCompactTrustItems.map((item) => (
-      <div class="trust-strip__compact-card">
-        <strong>{item.label}</strong>
-        <span>{item.value}</span>
+<section class="trust-strip" aria-label="Resumen del servicio">
+  <div class="trust-strip__grid">
+    {summaryCards.map((item) => (
+      <div class="trust-strip__card">
+        <strong>{item.title}</strong>
+        <span>{item.detail}</span>
       </div>
     ))}
   </div>
