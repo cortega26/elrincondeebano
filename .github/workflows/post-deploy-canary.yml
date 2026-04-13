@@ -73,7 +73,7 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Install dependencies
-        run: npm ci
+        run: bash tools/ci/npm-ci-with-retry.sh
       - name: Verify canary contract tests
         run: node --test test/post-deploy-canary.test.js test/live-contract-monitor.test.js
 
@@ -133,11 +133,11 @@ jobs:
             astro-poc/package-lock.json
 
       - name: Install root dependencies
-        run: npm ci
+        run: bash tools/ci/npm-ci-with-retry.sh
 
       - name: Install Astro storefront dependencies
         working-directory: astro-poc
-        run: npm ci
+        run: bash ../tools/ci/npm-ci-with-retry.sh
 
       - name: Build storefront (artifact contract scope)
         run: npm run build
@@ -242,7 +242,7 @@ jobs:
           cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: bash tools/ci/npm-ci-with-retry.sh
 
       - name: Install Playwright Chromium
         run: npx playwright install chromium
@@ -338,11 +338,11 @@ jobs:
             astro-poc/package-lock.json
 
       - name: Install root dependencies
-        run: npm ci
+        run: bash tools/ci/npm-ci-with-retry.sh
 
       - name: Install Astro storefront dependencies
         working-directory: astro-poc
-        run: npm ci
+        run: bash ../tools/ci/npm-ci-with-retry.sh
 
       - name: Build storefront for rollback ref
         run: npm run build
