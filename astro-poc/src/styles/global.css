@@ -1463,7 +1463,7 @@ body.service-dialog-open {
   }
 
   body {
-    padding-top: 56px;
+    padding-top: 64px;
   }
 
   .trust-strip__status,
@@ -1694,7 +1694,7 @@ section[aria-label*='Opciones de filtrado'] .form-control {
 
 /* Layout Containers */
 #navbar-container {
-  min-height: 56px;
+  min-height: 0;
 }
 
 #footer-container {
