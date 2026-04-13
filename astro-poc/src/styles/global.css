@@ -733,8 +733,12 @@ body.service-dialog-open {
 
 .storefront-navbar__menu .dropdown-item {
   min-height: 42px;
+  display: flex;
+  align-items: center;
+  padding: 0.6rem 0.9rem;
   border-radius: 8px;
   font-weight: 600;
+  line-height: 1.2;
 }
 
 .dropdown-item:hover {
@@ -817,8 +821,8 @@ body.service-dialog-open {
   position: relative;
   display: grid;
   place-items: center;
-  padding: 0.9rem 0.9rem 0.75rem;
-  background: #f7f4ef;
+  padding: 0.65rem 0.65rem 0.55rem;
+  background: #fff;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
@@ -858,7 +862,7 @@ body.service-dialog-open {
 
 .producto img {
   width: 100%;
-  height: 176px;
+  height: 208px;
   object-fit: contain;
   transition: none;
   backface-visibility: hidden;
@@ -1118,9 +1122,10 @@ body.service-dialog-open {
 
 .catalog-controls__switch {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.75rem;
   min-height: 46px;
+  margin-bottom: 0;
   padding: 0.75rem 0.85rem;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 10px;
@@ -1128,11 +1133,15 @@ body.service-dialog-open {
 }
 
 .catalog-controls__switch .form-check-input {
-  margin-top: 0.1rem;
+  float: none;
+  margin: 0;
+  flex: 0 0 auto;
 }
 
 .catalog-controls__switch .form-check-label {
   display: grid;
+  flex: 1 1 auto;
+  min-width: 0;
   gap: 0.08rem;
 }
 
@@ -1203,6 +1212,11 @@ body.service-dialog-open {
   background: #fbfaf8;
 }
 
+.cart-config-card .form-select {
+  width: 100%;
+  min-width: 0;
+}
+
 .cart-summary-card__row {
   display: flex;
   align-items: baseline;
@@ -1220,6 +1234,7 @@ body.service-dialog-open {
 .cart-preferences-grid {
   display: grid;
   gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
 }
 
 .cart-footer-actions {
@@ -1673,7 +1688,7 @@ body.service-dialog-open {
   }
 
   .producto--compact-mobile img {
-    height: 144px;
+    height: 164px;
   }
 }
 
@@ -1689,14 +1704,6 @@ body.service-dialog-open {
   .add-to-cart-btn {
     font-size: 0.9rem;
     padding: 0.6rem 0.5rem;
-  }
-}
-
-@media (max-width: 991.98px) {
-  .dropdown-item {
-    min-height: 44px;
-    display: flex;
-    align-items: center;
   }
 }
 
@@ -1834,9 +1841,6 @@ body.service-dialog-open {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .cart-preferences-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 @media (min-width: 992px) {
