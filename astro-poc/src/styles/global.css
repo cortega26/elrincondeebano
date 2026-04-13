@@ -22,6 +22,7 @@
 /* Base Styles */
 html {
   height: 100%;
+  scroll-padding-top: 4rem;
 }
 
 /* Skip link for keyboard users */
