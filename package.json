@@ -1,6 +1,6 @@
 {
   "name": "elrincondeebano",
-  "version": "1.0.0",
+  "version": "1.4.0",
   "description": "Providing a bilingual-friendly grocery catalog that ships as a static site, pre-caches critical assets, and keeps operations reproducible through scripted builds.",
   "main": "service-worker.js",
   "directories": {

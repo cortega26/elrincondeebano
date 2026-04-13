@@ -7,6 +7,28 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 - No unreleased changes.
 
+## [1.4.0] - 2026-04-13
+
+### Added
+
+- Template donor snapshot evidence for the conversion-first storefront refresh.
+
+### Changed
+
+- Reworked `ProductCard` with denser visual hierarchy, stronger price emphasis,
+  and clearer add-versus-adjust quantity states inspired by Micro Store.
+- Rebuilt `CatalogControls` into a faster mobile-first control bar with clearer
+  search, sort, and discount filtering affordances.
+- Refined the navbar and cart entry shell with calmer navigation hierarchy and
+  improved focus/interaction polish informed by Accessible Astro Starter.
+- Restructured the cart offcanvas summary and preference areas so confirmation
+  reads as one clearer WhatsApp-first checkout sequence.
+
+### Fixed
+
+- Preserved existing Astro route, storage, compatibility, and WhatsApp checkout
+  contracts while applying the donor-style UI refresh.
+
 ## [1.3.0] - 2025-12-29
 
 ### Added

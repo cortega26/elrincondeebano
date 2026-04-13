@@ -35,37 +35,47 @@ const hasAvifSource = typeof avifImage.srcset === 'string' && avifImage.srcset.l
   data-compact-mobile={compactMobile ? 'true' : 'false'}
 >
   <div class="card h-100">
-    {hasDiscount ? <span class="discount-badge badge bg-danger" aria-label="Producto en oferta">-{discountPercent}%</span> : null}
+    <div class="product-card__media">
+      {hasDiscount ? (
+        <span class="discount-badge badge bg-danger" aria-label="Producto en oferta">
+          -{discountPercent}%
+        </span>
+      ) : null}
 
-    <picture>
-      {
-        hasAvifSource ? (
-          <source srcset={avifImage.srcset} sizes={avifImage.sizes} type="image/avif" />
-        ) : null
-      }
-      <img
-        src={image.src}
-        srcset={image.srcset}
-        sizes={image.sizes}
-        alt={product.name}
-        class="card-img-top product-thumb"
-        loading={isLikelyLcp ? 'eager' : 'lazy'}
-        fetchpriority={isLikelyLcp ? 'high' : 'auto'}
-        decoding="async"
-        width="200"
-        height="200"
-      />
-    </picture>
+      <picture>
+        {
+          hasAvifSource ? (
+            <source srcset={avifImage.srcset} sizes={avifImage.sizes} type="image/avif" />
+          ) : null
+        }
+        <img
+          src={image.src}
+          srcset={image.srcset}
+          sizes={image.sizes}
+          alt={product.name}
+          class="card-img-top product-thumb"
+          loading={isLikelyLcp ? 'eager' : 'lazy'}
+          fetchpriority={isLikelyLcp ? 'high' : 'auto'}
+          decoding="async"
+          width="200"
+          height="200"
+        />
+      </picture>
+    </div>
 
     <div class="card-body d-flex flex-column">
-      <h3 class="card-title mb-2">{product.name}</h3>
-      {product.description ? <p class="card-text mb-2">{product.description}</p> : null}
+      <div class="product-card__copy">
+        <h3 class="card-title mb-0">{product.name}</h3>
+        {product.description ? <p class="card-text mb-0">{product.description}</p> : null}
+      </div>
 
-      <div class="precio-container mb-2">
+      <div class="precio-container product-card__pricing mb-2">
         {
           hasDiscount ? (
             <>
-              <span class="precio-descuento" aria-label="Precio con descuento">{formatPrice(finalPrice)}</span>
+              <span class="precio-descuento" aria-label="Precio con descuento">
+                {formatPrice(finalPrice)}
+              </span>
               <span class="precio-original" aria-label="Precio original">
                 <span class="tachado">{formatPrice(price)}</span>
               </span>
