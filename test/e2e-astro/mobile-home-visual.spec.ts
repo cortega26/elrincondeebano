@@ -6,6 +6,17 @@ async function waitForReady(page: import('@playwright/test').Page) {
 
 test('mobile home top section stays compact', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
+
+  // Seed a last order so the repeat-order strip is visible (it hides itself via
+  // CSS when the button is disabled, i.e. when no last order exists in storage).
+  await page.goto('/', { waitUntil: 'commit' });
+  await page.evaluate(() => {
+    localStorage.setItem(
+      'astro-poc-last-order',
+      JSON.stringify({ items: [{ id: 'test-product', quantity: 1, price: 100 }] })
+    );
+  });
+
   await page.goto('/', { waitUntil: 'networkidle' });
   await waitForReady(page);
 
