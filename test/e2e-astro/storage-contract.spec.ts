@@ -4,7 +4,9 @@ async function waitForReady(page: Page) {
   await page.waitForFunction(() => window.__APP_READY__ === true);
 }
 
-test('canonical cart storage survives a refresh on the shipped Astro storefront', async ({ page }) => {
+test('canonical cart storage survives a refresh on the shipped Astro storefront', async ({
+  page,
+}) => {
   await page.goto('/', { waitUntil: 'networkidle' });
   await waitForReady(page);
   await page.evaluate(() => localStorage.clear());
@@ -20,7 +22,9 @@ test('canonical cart storage survives a refresh on the shipped Astro storefront'
   await page.locator(`#product-container .add-to-cart-btn[data-id="${productId}"]`).first().click();
   await page.waitForFunction((id) => {
     const cart = JSON.parse(localStorage.getItem('astro-poc-cart') || '[]');
-    return cart.some((item: { id: string; quantity: number }) => item.id === id && item.quantity === 1);
+    return cart.some(
+      (item: { id: string; quantity: number }) => item.id === id && item.quantity === 1
+    );
   }, productId);
 
   await page.reload({ waitUntil: 'networkidle' });
@@ -68,7 +72,9 @@ test('repeat-order flow keeps canonical last-order state usable after reload', a
 
   await page.waitForFunction((id) => {
     const cart = JSON.parse(localStorage.getItem('astro-poc-cart') || '[]');
-    return cart.some((item: { id: string; quantity: number }) => item.id === id && item.quantity === 1);
+    return cart.some(
+      (item: { id: string; quantity: number }) => item.id === id && item.quantity === 1
+    );
   }, productId);
 
   const persistedState = await page.evaluate(() => ({

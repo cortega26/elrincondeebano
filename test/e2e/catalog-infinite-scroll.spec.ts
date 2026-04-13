@@ -36,7 +36,10 @@ test.describe('catalog infinite scroll', () => {
         if (!loadMoreButton) {
           return;
         }
-        if (loadMoreButton.classList.contains('d-none') || loadMoreButton.hasAttribute('disabled')) {
+        if (
+          loadMoreButton.classList.contains('d-none') ||
+          loadMoreButton.hasAttribute('disabled')
+        ) {
           return;
         }
         loadMoreButton.click();
@@ -44,8 +47,7 @@ test.describe('catalog infinite scroll', () => {
 
       try {
         await page.waitForFunction(
-          (prev) =>
-            document.querySelectorAll('#product-container [data-product-id]').length > prev,
+          (prev) => document.querySelectorAll('#product-container [data-product-id]').length > prev,
           currentCount,
           { timeout: 3000 }
         );

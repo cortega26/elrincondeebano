@@ -43,7 +43,9 @@ function applyOutputFormat(pipeline, destination) {
 async function main() {
   const { src, dest, maxSize } = parseArgs(process.argv.slice(2));
   if (!src || !dest) {
-    throw new Error('Usage: node tools/convert-avif-fallback.mjs --src <path> --dest <path> [--max-size 1000]');
+    throw new Error(
+      'Usage: node tools/convert-avif-fallback.mjs --src <path> --dest <path> [--max-size 1000]'
+    );
   }
 
   await mkdir(path.dirname(dest), { recursive: true });

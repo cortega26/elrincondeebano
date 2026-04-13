@@ -11,7 +11,9 @@ Verification SHA: `f761aed61ed533c13554042109f8a4378f1013e7`
 **Risk Rating: Medium**
 
 ### Top 5 reasons (with evidence)
+
 1. ✅ Legacy route + SEO + artifact parity is now implemented.
+
 - Evidence:
   - `npm --prefix astro-poc run build` passes and emits:
     - legacy routes (`/pages/*.html`)
@@ -23,6 +25,7 @@ Verification SHA: `f761aed61ed533c13554042109f8a4378f1013e7`
     - `astro-poc/dist/p/pid-1027260660/index.html`
 
 2. ✅ Hosted CI continuity is proven on PR for the required workflows.
+
 - Evidence:
   - `Continuous Integration`: https://github.com/cortega26/elrincondeebano/actions/runs/22020275800
   - `Verify catalog build artifacts`: https://github.com/cortega26/elrincondeebano/actions/runs/22020275801
@@ -30,6 +33,7 @@ Verification SHA: `f761aed61ed533c13554042109f8a4378f1013e7`
   - `Deploy static content to Pages` (workflow_dispatch verification path): https://github.com/cortega26/elrincondeebano/actions/runs/22020282170
 
 3. ✅ Content Manager compatibility is preserved without CM migration.
+
 - Evidence:
   - Astro adapter + validation in `astro-poc/scripts/sync-data.mjs`
   - slug/key route adapter in `astro-poc/src/lib/catalog.ts`
@@ -39,6 +43,7 @@ Verification SHA: `f761aed61ed533c13554042109f8a4378f1013e7`
     - `astro-poc/src/components/ProductDetail.astro`
 
 4. ✅ Offline route parity is restored.
+
 - Evidence:
   - Added committed source-of-truth file:
     - `astro-poc/public/pages/offline.html` (copied from `static/offline.html`)
@@ -49,6 +54,7 @@ Verification SHA: `f761aed61ed533c13554042109f8a4378f1013e7`
     - `astro-poc/public/service-worker.js:299`
 
 5. ⚠️ Live post-deploy synthetic probe against production origin is environment-sensitive.
+
 - Evidence:
   - prior canary run against `https://elrincondeebano.com` failed with `403` from GitHub runner network path.
   - PR path now validates canary contract tests successfully, but true live probe is still executed only on deploy path (`workflow_run`/manual dispatch).
@@ -60,20 +66,24 @@ No remaining functional blockers are open for migration cutover.
 ## 5.3 Migration steps (GO rollout)
 
 1. Confirm hosted green on PR:
+
 - `ci.yml`
 - `product-data-guard.yml`
 - `post-deploy-canary.yml`
 - `static.yml` verification path on non-main
 
 2. Merge and execute staged cutover:
+
 - let `static.yml` deploy on `main` via `workflow_run` of CI
 - run live post-deploy canary (`workflow_run` / manual dispatch) against production URL
 
 3. Rollback plan:
+
 - use `post-deploy-canary.yml` rollback inputs (`rollback_on_failure=true`, `rollback_ref`, `confirm_rollback=ROLLBACK`)
 - verify homepage/category/canary immediately after rollback
 
 4. Post-cutover monitoring checklist:
+
 - 404 rates (especially `/pages/*.html`)
 - canary status + OG/data/SW checks
 - broken images/assets

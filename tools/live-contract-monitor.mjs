@@ -62,7 +62,8 @@ function assertAllowedProbeUrl(parsed, label) {
 }
 
 export function normalizeBaseUrl(rawBaseUrl = DEFAULT_BASE_URL) {
-  const candidate = typeof rawBaseUrl === 'string' && rawBaseUrl.trim() ? rawBaseUrl.trim() : DEFAULT_BASE_URL;
+  const candidate =
+    typeof rawBaseUrl === 'string' && rawBaseUrl.trim() ? rawBaseUrl.trim() : DEFAULT_BASE_URL;
   const parsed = new URL(candidate);
   assertAllowedProbeUrl(parsed, 'Base URL');
   parsed.pathname = '';
@@ -185,16 +186,14 @@ async function executeProbe(
       cfRay: response.headers.get('cf-ray') || '',
       contentType,
       bodySnippet: '',
-      securityHeaders: shouldInspectSecurityHeaders ? inspectSecurityHeaders(response.headers) : null,
+      securityHeaders: shouldInspectSecurityHeaders
+        ? inspectSecurityHeaders(response.headers)
+        : null,
       htmlSurface: null,
       error: '',
     };
 
-    if (
-      result.ok &&
-      shouldInspectHtmlSurface &&
-      /^\s*text\/html\b/i.test(contentType)
-    ) {
+    if (result.ok && shouldInspectHtmlSurface && /^\s*text\/html\b/i.test(contentType)) {
       const html = await response.clone().text();
       result.htmlSurface = inspectPublicHtmlEdgeSurface(html);
     }
@@ -317,7 +316,9 @@ export async function runMonitor({
     routeResults.push(await checkUrl(baseUrl, route, timeoutMs, { maxAttempts, retryDelayMs }));
   }
 
-  const productDataResult = routeResults.find((result) => result.url.endsWith('/data/product_data.json'));
+  const productDataResult = routeResults.find((result) =>
+    result.url.endsWith('/data/product_data.json')
+  );
   const assetResults = [];
   let sampledAssets = [];
 

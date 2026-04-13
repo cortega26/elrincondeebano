@@ -36,7 +36,9 @@ async function bumpQuickOrderItem(page: Page, productId: string, expectedQty: nu
   await page.waitForFunction(
     ([id, qty]) => {
       const cart = JSON.parse(localStorage.getItem('astro-poc-cart') || '[]');
-      return cart.find((item: { id: string; quantity: number }) => item.id === id)?.quantity === qty;
+      return (
+        cart.find((item: { id: string; quantity: number }) => item.id === id)?.quantity === qty
+      );
     },
     [productId, expectedQty]
   );

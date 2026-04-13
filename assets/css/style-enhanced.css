@@ -568,7 +568,7 @@ h1 {
   border-bottom: none;
 }
 
-.cart-item>div {
+.cart-item > div {
   margin-bottom: 0;
 }
 
@@ -691,7 +691,6 @@ h1 {
 }
 
 @media (max-width: 600px) {
-
   #filter-keyword,
   #sort-options {
     width: 100%;

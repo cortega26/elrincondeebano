@@ -24,7 +24,7 @@ const hasBypass = (regex) => {
   const shouldSkipMatch = content.match(/shouldSkipCache[\s\S]*?(?=\n\s*const|\n\s*function|$)/);
   return Boolean(
     (shouldBypassMatch && regex.test(shouldBypassMatch[0])) ||
-      (shouldSkipMatch && regex.test(shouldSkipMatch[0]))
+    (shouldSkipMatch && regex.test(shouldSkipMatch[0]))
   );
 };
 

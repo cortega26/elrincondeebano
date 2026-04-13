@@ -71,10 +71,7 @@ const { JSDOM } = require('jsdom');
 
     const emptyMessage = document.querySelector('.cart-empty-message');
     assert.ok(emptyMessage);
-    assert.strictEqual(
-      document.getElementById('cart-total').textContent,
-      'Total: $0'
-    );
+    assert.strictEqual(document.getElementById('cart-total').textContent, 'Total: $0');
 
     const submit = document.getElementById('submit-cart');
     const emptyCart = document.getElementById('empty-cart');

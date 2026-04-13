@@ -2,10 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const { loadCategoryRegistry } = require('../tools/utils/category-registry');
-const {
-  loadProductData,
-  validateProductDataContract,
-} = require('../tools/utils/product-contract');
+const { loadProductData, validateProductDataContract } = require('../tools/utils/product-contract');
 const { getKnownCategoryKeys } = require('../tools/validate-category-registry');
 
 test('product_data.json satisfies product contract', () => {
@@ -35,8 +32,14 @@ test('product contract rejects malformed top-level payload', () => {
     result.errors.some((error) => error.includes('product_data.last_updated')),
     true
   );
-  assert.equal(result.errors.some((error) => error.includes('product_data.rev')), true);
-  assert.equal(result.errors.some((error) => error.includes('product_data.products')), true);
+  assert.equal(
+    result.errors.some((error) => error.includes('product_data.rev')),
+    true
+  );
+  assert.equal(
+    result.errors.some((error) => error.includes('product_data.products')),
+    true
+  );
 });
 
 test('product contract rejects invalid product fields and unknown categories', () => {
@@ -74,15 +77,26 @@ test('product contract rejects invalid product fields and unknown categories', (
   const result = validateProductDataContract(payload, { knownCategoryKeys });
 
   assert.equal(result.isValid, false);
-  assert.equal(result.errors.some((error) => error.includes('unknown category')), true);
-  assert.equal(result.errors.some((error) => error.includes('discount cannot exceed price')), true);
-  assert.equal(result.errors.some((error) => error.includes('stock must be a boolean')), true);
+  assert.equal(
+    result.errors.some((error) => error.includes('unknown category')),
+    true
+  );
+  assert.equal(
+    result.errors.some((error) => error.includes('discount cannot exceed price')),
+    true
+  );
+  assert.equal(
+    result.errors.some((error) => error.includes('stock must be a boolean')),
+    true
+  );
   assert.equal(
     result.errors.some((error) => error.includes('image_path must be a safe local path')),
     true
   );
   assert.equal(
-    result.errors.some((error) => error.includes('field_last_modified.stock.ts must be an ISO date string')),
+    result.errors.some((error) =>
+      error.includes('field_last_modified.stock.ts must be an ISO date string')
+    ),
     true
   );
 });
@@ -115,7 +129,9 @@ test('product contract requires image_avif_path for raster product images', () =
 
   assert.equal(result.isValid, false);
   assert.equal(
-    result.errors.some((error) => error.includes('image_avif_path is required for raster product images')),
+    result.errors.some((error) =>
+      error.includes('image_avif_path is required for raster product images')
+    ),
     true
   );
 });

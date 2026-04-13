@@ -126,12 +126,12 @@ export function findLegacyStorefrontSurfaceReferences({
   runnerTargets = DEFAULT_RUNNER_TARGETS,
 } = {}) {
   return [
-    ...LEGACY_ROOT_PATHS.filter((relativePath) => fs.existsSync(path.join(repoRoot, relativePath))).map(
-      (relativePath) => ({
-        file: relativePath,
-        label: 'legacy storefront path still present in repository root',
-      })
-    ),
+    ...LEGACY_ROOT_PATHS.filter((relativePath) =>
+      fs.existsSync(path.join(repoRoot, relativePath))
+    ).map((relativePath) => ({
+      file: relativePath,
+      label: 'legacy storefront path still present in repository root',
+    })),
     ...scanTargets(repoRoot, docTargets, DOC_RULES),
     ...scanRunnerTargets(repoRoot, runnerTargets, RUNNER_RULES),
   ];

@@ -14,7 +14,8 @@ export function setupNavigationAccessibility() {
     if (window && window.__CSP_NONCE__) {
       style.setAttribute('nonce', window.__CSP_NONCE__);
     }
-    style.textContent = '.keyboard-navigation *:focus { outline: 2px solid var(--primary-color); outline-offset: 2px; }';
+    style.textContent =
+      '.keyboard-navigation *:focus { outline: 2px solid var(--primary-color); outline-offset: 2px; }';
     document.head.appendChild(style);
   } catch (error) {
     log('warn', 'navigation_accessibility_setup_failed', { error });

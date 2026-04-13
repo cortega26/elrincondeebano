@@ -14,18 +14,18 @@
 
 ## Top 10 real risks
 
-| # | Risk | Severity | Exploitability | Status |
-|---|---|---|---|---|
-| 1 | Sync API responses lacked defensive security headers | Medium | Medium | Mitigated |
-| 2 | Sync API URL parsing depended on request host value | Medium | Medium | Mitigated |
-| 3 | Oversized PATCH body could terminate connection abruptly (reset) | Medium | Medium | Mitigated |
-| 4 | Malformed encoded product IDs could fail non-deterministically | Low | Medium | Mitigated |
-| 5 | Sync PATCH endpoint can be unauthenticated if deployed publicly | High | High | Mitigated |
-| 6 | CSP policy includes `'unsafe-inline'` in `script-src` | Medium | Medium | Mitigated |
-| 7 | CSP is delivered via `<meta http-equiv>` instead of HTTP header | Medium | Medium | Pending (hosting/platform limit) |
-| 8 | No dedicated automated secret scanning gate in CI | Medium | Medium | Mitigated |
-| 9 | Bandit reports broad `except` patterns in admin UI | Low | Low | Mitigated |
-|10| Dependency supply-chain risk remains on dev dependency graph (not prod) | Low | Medium | Monitored (prod audit clean) |
+| #   | Risk                                                                    | Severity | Exploitability | Status                           |
+| --- | ----------------------------------------------------------------------- | -------- | -------------- | -------------------------------- |
+| 1   | Sync API responses lacked defensive security headers                    | Medium   | Medium         | Mitigated                        |
+| 2   | Sync API URL parsing depended on request host value                     | Medium   | Medium         | Mitigated                        |
+| 3   | Oversized PATCH body could terminate connection abruptly (reset)        | Medium   | Medium         | Mitigated                        |
+| 4   | Malformed encoded product IDs could fail non-deterministically          | Low      | Medium         | Mitigated                        |
+| 5   | Sync PATCH endpoint can be unauthenticated if deployed publicly         | High     | High           | Mitigated                        |
+| 6   | CSP policy includes `'unsafe-inline'` in `script-src`                   | Medium   | Medium         | Mitigated                        |
+| 7   | CSP is delivered via `<meta http-equiv>` instead of HTTP header         | Medium   | Medium         | Pending (hosting/platform limit) |
+| 8   | No dedicated automated secret scanning gate in CI                       | Medium   | Medium         | Mitigated                        |
+| 9   | Bandit reports broad `except` patterns in admin UI                      | Low      | Low            | Mitigated                        |
+| 10  | Dependency supply-chain risk remains on dev dependency graph (not prod) | Low      | Medium         | Monitored (prod audit clean)     |
 
 ## Fixes applied
 
@@ -53,9 +53,10 @@
 9. Fixed Bandit `B110/B112` findings in `admin/product_manager/ui/main_window.py`:
    - replaced broad `except` with specific exceptions and diagnostic logging.
 10. Tightened storefront CSP bootstrap:
-   - removed `'unsafe-inline'` from `script-src` in `src/js/csp.js`.
-   - switched `csp.js` loading in templates to synchronous tag (without `async`) so policy is applied earlier.
-   - added regression test `test/csp.policy.hardening.test.js`.
+
+- removed `'unsafe-inline'` from `script-src` in `src/js/csp.js`.
+- switched `csp.js` loading in templates to synchronous tag (without `async`) so policy is applied earlier.
+- added regression test `test/csp.policy.hardening.test.js`.
 
 ## Dependency and secret results
 

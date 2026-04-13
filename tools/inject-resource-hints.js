@@ -2,8 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { resolveFromOutput } = require('./utils/output-dir');
 
-const LOGO_PRELOAD_PATH =
-  '/assets/images/web/logo.webp';
+const LOGO_PRELOAD_PATH = '/assets/images/web/logo.webp';
 const SCRIPT_PRELOAD_PATH = '/dist/js/script.min.js';
 
 function generateResourceHints() {

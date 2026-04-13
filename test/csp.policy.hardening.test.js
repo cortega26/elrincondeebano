@@ -47,9 +47,7 @@ function getScriptTags(html) {
 }
 
 function getExecutableScriptTags(html) {
-  return getScriptTags(html).filter(
-    (tag) => !/\btype=["']application\/json["']/i.test(tag)
-  );
+  return getScriptTags(html).filter((tag) => !/\btype=["']application\/json["']/i.test(tag));
 }
 
 function getCanonicalUrl(html) {

@@ -35,6 +35,7 @@ Mitigar el riesgo P2 de assets huérfanos introduciendo detección automática e
 6. `npm run test:e2e` -> OK (`26 passed`, `12 skipped`).
 
 Nota operativa:
+
 - `npm run guardrails` completo falla en este árbol por `sw-cache-bump` al detectar cambio existente en `service-worker.js` sin bump de prefijos; no forma parte de este bloque (se validó el nuevo guardrail de assets de forma específica).
 
 ## Riesgos restantes

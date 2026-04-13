@@ -123,9 +123,7 @@ function main() {
 
   allowlisted.forEach((entry) => {
     entry.hits.forEach((hit) => {
-      console.warn(
-        `ALLOWLISTED: ${entry.relPath}:${hit.line} [${hit.label}] ${hit.snippet}`
-      );
+      console.warn(`ALLOWLISTED: ${entry.relPath}:${hit.line} [${hit.label}] ${hit.snippet}`);
     });
   });
 

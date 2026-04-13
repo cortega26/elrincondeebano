@@ -58,7 +58,12 @@ function readJsonFile(filePath, fallback) {
 }
 
 function loadLegacyCategoryCatalog() {
-  return readJsonFile(legacyCatalogPath, { version: '', last_updated: '', nav_groups: [], categories: [] });
+  return readJsonFile(legacyCatalogPath, {
+    version: '',
+    last_updated: '',
+    nav_groups: [],
+    categories: [],
+  });
 }
 
 function convertLegacyCatalogToRegistry(catalog = {}) {
@@ -136,7 +141,10 @@ function convertRegistryToLegacyCatalog(registry = {}, metadata = {}) {
     categories: categories.map((category) => {
       const id = asString(category && category.id, '');
       const key = asString(category && (category.product_key ?? category.key), id);
-      const title = asString(category && category.title, asString(category?.display_name?.default, key || id));
+      const title = asString(
+        category && category.title,
+        asString(category?.display_name?.default, key || id)
+      );
       const rawSubcategories =
         category && Array.isArray(category.subcategories) ? category.subcategories : [];
       return {
@@ -150,7 +158,10 @@ function convertRegistryToLegacyCatalog(registry = {}, metadata = {}) {
         enabled: isActive(category && (category.enabled ?? category.active)),
         subcategories: rawSubcategories.map((subcategory) => {
           const subId = asString(subcategory && subcategory.id, '');
-          const subKey = asString(subcategory && (subcategory.product_key ?? subcategory.key), subId);
+          const subKey = asString(
+            subcategory && (subcategory.product_key ?? subcategory.key),
+            subId
+          );
           const subTitle = asString(
             subcategory && subcategory.title,
             asString(subcategory?.display_name?.default, subKey || subId)

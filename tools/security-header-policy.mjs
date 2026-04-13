@@ -16,11 +16,21 @@ export const CONTENT_SECURITY_POLICY_DIRECTIVES = Object.freeze([
   ['base-uri', [CSP_SELF]],
   ['object-src', [CSP_NONE]],
   ['frame-ancestors', [CSP_NONE]],
-  ['script-src', [CSP_SELF, 'https://static.cloudflareinsights.com', "'sha256-SvXHAIPcJdE6zuH0y1Xb0AUS/ZJCmBwN7SfMfiEj578='"]],
+  [
+    'script-src',
+    [
+      CSP_SELF,
+      'https://static.cloudflareinsights.com',
+      "'sha256-SvXHAIPcJdE6zuH0y1Xb0AUS/ZJCmBwN7SfMfiEj578='",
+    ],
+  ],
   ['style-src', [CSP_SELF, CSP_UNSAFE_INLINE]],
   ['img-src', [CSP_SELF, 'data:', 'https:']],
   ['font-src', [CSP_SELF, 'data:']],
-  ['connect-src', [CSP_SELF, 'https://cloudflareinsights.com', 'https://static.cloudflareinsights.com']],
+  [
+    'connect-src',
+    [CSP_SELF, 'https://cloudflareinsights.com', 'https://static.cloudflareinsights.com'],
+  ],
   ['manifest-src', [CSP_SELF]],
   ['worker-src', [CSP_SELF]],
   ['form-action', [CSP_SELF]],
@@ -153,14 +163,17 @@ export function inspectSecurityHeaders(headers) {
 
   if (!observed['referrer-policy']) {
     missing.push('referrer-policy');
-  } else if (normalizeHeaderValue(observed['referrer-policy']) !== SECURITY_HEADER_POLICY['referrer-policy']) {
+  } else if (
+    normalizeHeaderValue(observed['referrer-policy']) !== SECURITY_HEADER_POLICY['referrer-policy']
+  ) {
     invalid.push(`referrer-policy (expected ${SECURITY_HEADER_POLICY['referrer-policy']})`);
   }
 
   if (!observed['permissions-policy']) {
     missing.push('permissions-policy');
   } else if (
-    normalizeHeaderValue(observed['permissions-policy']) !== SECURITY_HEADER_POLICY['permissions-policy']
+    normalizeHeaderValue(observed['permissions-policy']) !==
+    SECURITY_HEADER_POLICY['permissions-policy']
   ) {
     invalid.push('permissions-policy (unexpected value)');
   }
@@ -171,7 +184,9 @@ export function inspectSecurityHeaders(headers) {
     normalizeHeaderValue(observed['x-content-type-options']).toLowerCase() !==
     SECURITY_HEADER_POLICY['x-content-type-options'].toLowerCase()
   ) {
-    invalid.push(`x-content-type-options (expected ${SECURITY_HEADER_POLICY['x-content-type-options']})`);
+    invalid.push(
+      `x-content-type-options (expected ${SECURITY_HEADER_POLICY['x-content-type-options']})`
+    );
   }
 
   if (!observed['x-frame-options']) {

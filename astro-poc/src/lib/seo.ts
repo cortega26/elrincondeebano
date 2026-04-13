@@ -6,7 +6,12 @@ import { fileURLToPath } from 'node:url';
 export const SITE_ORIGIN = 'https://www.elrincondeebano.com';
 export const SITE_NAME = 'El Rincón de Ébano';
 const HOME_OG_IMAGE_PATH = '/assets/images/og/home.og.jpg';
-const MODULE_REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
+const MODULE_REPO_ROOT = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '..',
+  '..',
+  '..'
+);
 const DEFAULT_SHARE_DESCRIPTION =
   'Minimarket privado para residentes del edificio Ébano. Pedidos por WhatsApp y entrega dentro del edificio.';
 const DEFAULT_OG_IMAGE_ALT = 'Logotipo de El Rincón de Ébano';
@@ -87,11 +92,9 @@ function resolveRepoRoot(options?: SeoFileOptions): string {
     return path.resolve(explicit);
   }
 
-  const candidates = [
-    process.cwd(),
-    path.resolve(process.cwd(), '..'),
-    MODULE_REPO_ROOT,
-  ].map((candidate) => path.resolve(candidate));
+  const candidates = [process.cwd(), path.resolve(process.cwd(), '..'), MODULE_REPO_ROOT].map(
+    (candidate) => path.resolve(candidate)
+  );
 
   for (const candidate of candidates) {
     if (

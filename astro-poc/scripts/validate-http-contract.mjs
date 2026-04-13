@@ -17,20 +17,30 @@ const REQUIRED_HTTP_FILES = [
   path.join('c', 'vinos', 'index.html'),
 ];
 
-const FORBIDDEN_HTTP_FILES = ['e.html', path.join('pages', 'e.html'), path.join('c', 'e', 'index.html')];
+const FORBIDDEN_HTTP_FILES = [
+  'e.html',
+  path.join('pages', 'e.html'),
+  path.join('c', 'e', 'index.html'),
+];
 function main() {
   if (!fs.existsSync(distRoot)) {
     throw new Error(`Missing dist directory: ${distRoot}`);
   }
 
-  const missing = REQUIRED_HTTP_FILES.filter((relativePath) => !fs.existsSync(path.join(distRoot, relativePath)));
+  const missing = REQUIRED_HTTP_FILES.filter(
+    (relativePath) => !fs.existsSync(path.join(distRoot, relativePath))
+  );
   if (missing.length > 0) {
     throw new Error(`HTTP contract failed. Missing required dist files: ${missing.join(', ')}`);
   }
 
-  const unexpected = FORBIDDEN_HTTP_FILES.filter((relativePath) => fs.existsSync(path.join(distRoot, relativePath)));
+  const unexpected = FORBIDDEN_HTTP_FILES.filter((relativePath) =>
+    fs.existsSync(path.join(distRoot, relativePath))
+  );
   if (unexpected.length > 0) {
-    throw new Error(`HTTP contract failed. Found unexpected stale dist files: ${unexpected.join(', ')}`);
+    throw new Error(
+      `HTTP contract failed. Found unexpected stale dist files: ${unexpected.join(', ')}`
+    );
   }
 
   console.log(

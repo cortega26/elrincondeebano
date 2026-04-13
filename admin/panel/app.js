@@ -373,7 +373,7 @@ function setupMediaManager() {
   });
 
   // Drag & Drop
-  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
     dropZone.addEventListener(eventName, preventDefaults, false);
   });
 
@@ -382,11 +382,11 @@ function setupMediaManager() {
     e.stopPropagation();
   }
 
-  ['dragenter', 'dragover'].forEach(eventName => {
+  ['dragenter', 'dragover'].forEach((eventName) => {
     dropZone.addEventListener(eventName, highlight, false);
   });
 
-  ['dragleave', 'drop'].forEach(eventName => {
+  ['dragleave', 'drop'].forEach((eventName) => {
     dropZone.addEventListener(eventName, unhighlight, false);
   });
 
@@ -446,7 +446,9 @@ function setupMediaManager() {
     }
 
     // Update UI input
-    const input = $(`input[data-id="${currentMediaTarget.id}"][data-field="${currentMediaTarget.field}"]`);
+    const input = $(
+      `input[data-id="${currentMediaTarget.id}"][data-field="${currentMediaTarget.field}"]`
+    );
     if (input) {
       input.value = path;
     }

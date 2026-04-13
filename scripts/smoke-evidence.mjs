@@ -62,15 +62,7 @@ function createDefaultOutputPath(commit) {
   return path.join('reports', 'smoke', `smoke-evidence-${stamp}-${shortCommit}.md`);
 }
 
-function buildEvidenceContent({
-  generatedAt,
-  status,
-  baseUrl,
-  commit,
-  runId,
-  runUrl,
-  signedBy,
-}) {
+function buildEvidenceContent({ generatedAt, status, baseUrl, commit, runId, runUrl, signedBy }) {
   return [
     '# Smoke Evidence',
     '',

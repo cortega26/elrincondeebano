@@ -39,7 +39,7 @@ test('inspectSecurityHeaders rejects drifted CSP and frame policy values', async
   const { inspectSecurityHeaders } = await loadModule();
   const headers = new Headers({
     'content-security-policy':
-      'default-src \'self\'; base-uri \'self\'; object-src \'none\'; frame-ancestors \'self\'; script-src \'self\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' data: https:; font-src \'self\' data:; connect-src \'self\'; manifest-src \'self\'; worker-src \'self\'; form-action \'self\'; upgrade-insecure-requests',
+      "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; form-action 'self'; upgrade-insecure-requests",
     'referrer-policy': 'no-referrer',
     'x-content-type-options': 'nosniff',
     'x-frame-options': 'SAMEORIGIN',
@@ -48,7 +48,10 @@ test('inspectSecurityHeaders rejects drifted CSP and frame policy values', async
 
   const inspection = inspectSecurityHeaders(headers);
   assert.equal(inspection.ok, false);
-  assert.match(inspection.invalid.join('\n'), /content-security-policy \(frame-ancestors expected "'none'"\)/);
+  assert.match(
+    inspection.invalid.join('\n'),
+    /content-security-policy \(frame-ancestors expected "'none'"\)/
+  );
   assert.match(
     inspection.invalid.join('\n'),
     /content-security-policy \(script-src expected "'self' https:\/\/static\.cloudflareinsights\.com/

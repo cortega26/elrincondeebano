@@ -173,16 +173,16 @@ Main findings absorbed:
 
 ## 4. Dependency Map
 
-| Workstream | Depends On | Unlocks | Safe Parallelism | Should Not Run In Parallel With | Main Regression Concern |
-| --- | --- | --- | --- | --- | --- |
-| WS1. Production Boot Recovery | None | WS2, WS4, WS6 | Limited documentation prep only | WS5, WS7, WS8 | A hotfix changing behavior beyond the runtime boot path |
-| WS2. Active Astro Validation Coverage | WS1 | Safe releases, trustworthy CI, later refactors | WS3, parts of WS6 | WS7 major cleanup | Reworking tests while the runtime is still unstable |
-| WS3. Dependency and Supply-Chain Hardening | None for visibility tasks; WS1 for runtime verification | Safer update posture, auditable dependency flow | WS2, WS6 | WS8 major migration | Patch upgrades becoming mixed with unrelated behavior changes |
-| WS4. Deploy Gating and CI Reliability | WS1 and enough of WS2 to define canonical browser gates | Safer promotion path, faster failure detection | WS3 | WS7 large refactors | A new gate that is noisy or misses the real failure mode |
-| WS5. Runtime Contract Convergence | WS1 and WS2 | Lower drift, smaller long-term risk | Parts of WS6 | WS7 route and modularization refactors at the same time | Breaking persisted state or legacy-compatible behavior unexpectedly |
-| WS6. Docs and Operational Truthfulness | WS1 for truthfulness; some prep can start earlier | Better decision-making and review quality | WS2, WS3 | None | Publishing docs that are still aspirational rather than true |
-| WS7. Architecture Cleanup and Test Rationalization | WS1, WS2, and preferably part of WS5 | Lower maintenance cost, clearer ownership | Later WS6 cleanup | WS1, WS4 | Broad cleanup hiding regressions inside large diffs |
-| WS8. Deferred Platform Modernization | WS1 through WS4 complete | Platform alignment, lower version drift | None | Any containment or stabilization work | Major migration masking unresolved current-state issues |
+| Workstream                                         | Depends On                                              | Unlocks                                         | Safe Parallelism                | Should Not Run In Parallel With                         | Main Regression Concern                                             |
+| -------------------------------------------------- | ------------------------------------------------------- | ----------------------------------------------- | ------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------- |
+| WS1. Production Boot Recovery                      | None                                                    | WS2, WS4, WS6                                   | Limited documentation prep only | WS5, WS7, WS8                                           | A hotfix changing behavior beyond the runtime boot path             |
+| WS2. Active Astro Validation Coverage              | WS1                                                     | Safe releases, trustworthy CI, later refactors  | WS3, parts of WS6               | WS7 major cleanup                                       | Reworking tests while the runtime is still unstable                 |
+| WS3. Dependency and Supply-Chain Hardening         | None for visibility tasks; WS1 for runtime verification | Safer update posture, auditable dependency flow | WS2, WS6                        | WS8 major migration                                     | Patch upgrades becoming mixed with unrelated behavior changes       |
+| WS4. Deploy Gating and CI Reliability              | WS1 and enough of WS2 to define canonical browser gates | Safer promotion path, faster failure detection  | WS3                             | WS7 large refactors                                     | A new gate that is noisy or misses the real failure mode            |
+| WS5. Runtime Contract Convergence                  | WS1 and WS2                                             | Lower drift, smaller long-term risk             | Parts of WS6                    | WS7 route and modularization refactors at the same time | Breaking persisted state or legacy-compatible behavior unexpectedly |
+| WS6. Docs and Operational Truthfulness             | WS1 for truthfulness; some prep can start earlier       | Better decision-making and review quality       | WS2, WS3                        | None                                                    | Publishing docs that are still aspirational rather than true        |
+| WS7. Architecture Cleanup and Test Rationalization | WS1, WS2, and preferably part of WS5                    | Lower maintenance cost, clearer ownership       | Later WS6 cleanup               | WS1, WS4                                                | Broad cleanup hiding regressions inside large diffs                 |
+| WS8. Deferred Platform Modernization               | WS1 through WS4 complete                                | Platform alignment, lower version drift         | None                            | Any containment or stabilization work                   | Major migration masking unresolved current-state issues             |
 
 ## 5. Phased Implementation Plan
 
@@ -980,26 +980,26 @@ Recommended size:
 
 ### Blocking Validation by Stream
 
-| Stream | Required Blocking Validation |
-| --- | --- |
-| WS1 | Build, canonical Playwright run, live browser smoke, console check |
-| WS2 | Astro-native type validation, canonical browser suite coverage review, OG contract verification |
-| WS3 | Successful workflow triggers for Dependabot/review/audit, production dependency audit path |
-| WS4 | Rehearsed browser canary, successful CI after artifact reuse changes, permission-scope sanity |
-| WS5 | Persistence/reload validation, repeat-order/browser behavior parity |
-| WS6 | Manual verification that docs match real commands and ownership |
-| WS7 | Route parity/browser regression suite after refactors |
-| WS8 | Full validation matrix before release |
+| Stream | Required Blocking Validation                                                                    |
+| ------ | ----------------------------------------------------------------------------------------------- |
+| WS1    | Build, canonical Playwright run, live browser smoke, console check                              |
+| WS2    | Astro-native type validation, canonical browser suite coverage review, OG contract verification |
+| WS3    | Successful workflow triggers for Dependabot/review/audit, production dependency audit path      |
+| WS4    | Rehearsed browser canary, successful CI after artifact reuse changes, permission-scope sanity   |
+| WS5    | Persistence/reload validation, repeat-order/browser behavior parity                             |
+| WS6    | Manual verification that docs match real commands and ownership                                 |
+| WS7    | Route parity/browser regression suite after refactors                                           |
+| WS8    | Full validation matrix before release                                                           |
 
 ### Required Exit Criteria by Phase
 
-| Phase | Exit Criteria |
-| --- | --- |
-| Phase 0 | Production browser runtime restored and hotfix validated |
-| Phase 1 | Active Astro app has trustworthy type/browser coverage and docs are truthful |
-| Phase 2 | Dependency automation, canary behavior, CI structure, and permission scopes are hardened |
+| Phase   | Exit Criteria                                                                                    |
+| ------- | ------------------------------------------------------------------------------------------------ |
+| Phase 0 | Production browser runtime restored and hotfix validated                                         |
+| Phase 1 | Active Astro app has trustworthy type/browser coverage and docs are truthful                     |
+| Phase 2 | Dependency automation, canary behavior, CI structure, and permission scopes are hardened         |
 | Phase 3 | Runtime/storage ownership is clearer, duplication is reduced, and test inventory is rationalized |
-| Phase 4 | Astro major upgrade passes the full matrix and canary path |
+| Phase 4 | Astro major upgrade passes the full matrix and canary path                                       |
 
 ## 8. Rollout and Release Strategy
 

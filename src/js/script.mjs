@@ -214,89 +214,88 @@ const initApp = async () => {
     initAppHasRun = true;
     log('info', 'init_app_start');
 
-  const productContainer = document.getElementById('product-container');
-  const sortOptions = document.getElementById('sort-options');
-  const filterKeyword = document.getElementById('filter-keyword');
-  const cartCountElement = document.getElementById('cart-count');
-  const cartItemsElement = document.getElementById('cart-items');
-  const cartTotalElement = document.getElementById('cart-total');
+    const productContainer = document.getElementById('product-container');
+    const sortOptions = document.getElementById('sort-options');
+    const filterKeyword = document.getElementById('filter-keyword');
+    const cartCountElement = document.getElementById('cart-count');
+    const cartItemsElement = document.getElementById('cart-items');
+    const cartTotalElement = document.getElementById('cart-total');
 
-  const essentialElements = {
-    '#product-container': productContainer,
-    '#sort-options': sortOptions,
-    '#filter-keyword': filterKeyword,
-    '#cart-count': cartCountElement,
-    '#cart-items': cartItemsElement,
-    '#cart-total': cartTotalElement,
-  };
+    const essentialElements = {
+      '#product-container': productContainer,
+      '#sort-options': sortOptions,
+      '#filter-keyword': filterKeyword,
+      '#cart-count': cartCountElement,
+      '#cart-items': cartItemsElement,
+      '#cart-total': cartTotalElement,
+    };
 
-  const missingSelectors = Object.entries(essentialElements)
-    .filter(([, element]) => !element)
-    .map(([selector]) => selector);
+    const missingSelectors = Object.entries(essentialElements)
+      .filter(([, element]) => !element)
+      .map(([selector]) => selector);
 
-  if (missingSelectors.length) {
-    log('warn', 'init_app_missing_dom', {
-      missingSelectors,
-      location: typeof window !== 'undefined' ? window.location?.pathname : 'unknown',
-    });
-    return;
-  }
+    if (missingSelectors.length) {
+      log('warn', 'init_app_missing_dom', {
+        missingSelectors,
+        location: typeof window !== 'undefined' ? window.location?.pathname : 'unknown',
+      });
+      return;
+    }
 
-  setupImageSkeletons(document);
+    setupImageSkeletons(document);
 
-  const catalogManager = createCatalogManager({
-    productContainer,
-    sortOptions,
-    filterKeyword,
-    createSafeElement,
-    createProductPicture,
-    renderPriceHtml,
-    renderQuantityControl,
-    setupActionArea,
-    addToCart,
-    updateQuantity,
-    getCartItemQuantity,
-    filterProducts,
-    memoize,
-    debounce,
-    scheduleIdle,
-    cancelScheduledIdle,
-    showErrorMessage,
-  });
-
-  updateProductDisplay = catalogManager.updateProductDisplay;
-
-  const { submitCart } = createCheckoutSubmission({
-    getCart,
-    renderCart,
-    showOffcanvas,
-  });
-
-  try {
-    return runAppBootstrap({
-      catalogManager,
-      cartManager: {
-        updateCartIcon,
-        renderCart,
-        setupCartInteraction: cartManager.setupCartInteraction,
-      },
-      submitCart,
-      initializeBootstrapUI,
-      getSharedProductData,
-      normalizeString,
-      log,
-      setupOnlineStatus,
-      utilityClasses: UTILITY_CLASSES,
+    const catalogManager = createCatalogManager({
+      productContainer,
+      sortOptions,
+      filterKeyword,
+      createSafeElement,
+      createProductPicture,
+      renderPriceHtml,
+      renderQuantityControl,
+      setupActionArea,
+      addToCart,
+      updateQuantity,
+      getCartItemQuantity,
+      filterProducts,
+      memoize,
+      debounce,
       scheduleIdle,
-      fetchProducts,
-      logPerformanceMetrics,
+      cancelScheduledIdle,
+      showErrorMessage,
+    });
+
+    updateProductDisplay = catalogManager.updateProductDisplay;
+
+    const { submitCart } = createCheckoutSubmission({
+      getCart,
+      renderCart,
       showOffcanvas,
     });
 
-  } catch (error) {
-    log('error', 'fatal_initialization_error', { error });
-    showErrorMessage('Error crítico al iniciar la aplicación.');
-  }
+    try {
+      return runAppBootstrap({
+        catalogManager,
+        cartManager: {
+          updateCartIcon,
+          renderCart,
+          setupCartInteraction: cartManager.setupCartInteraction,
+        },
+        submitCart,
+        initializeBootstrapUI,
+        getSharedProductData,
+        normalizeString,
+        log,
+        setupOnlineStatus,
+        utilityClasses: UTILITY_CLASSES,
+        scheduleIdle,
+        fetchProducts,
+        logPerformanceMetrics,
+        showOffcanvas,
+      });
+    } catch (error) {
+      log('error', 'fatal_initialization_error', { error });
+      showErrorMessage('Error crítico al iniciar la aplicación.');
+    }
   })();
 
   return initAppPromise;

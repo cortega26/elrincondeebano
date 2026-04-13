@@ -6,7 +6,9 @@ import productCatalogHelpers from '../helpers/product-catalog.js';
 const { getWebpBackedProduct } = productCatalogHelpers;
 const webpBackedProduct = getWebpBackedProduct();
 const webpBackedSku = getProductSku(webpBackedProduct);
-const expectedCategorySlug = String(webpBackedProduct.category || '').trim().toLowerCase();
+const expectedCategorySlug = String(webpBackedProduct.category || '')
+  .trim()
+  .toLowerCase();
 
 test('product detail page serves a compatible social-preview asset', async ({ page, request }) => {
   await page.goto(`/p/${webpBackedSku}/`, { waitUntil: 'networkidle' });

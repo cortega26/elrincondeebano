@@ -1,13 +1,16 @@
 ﻿# INCIDENT RESPONSE PLAYBOOK
 
 ## Panic Checklist (1 screen)
+
 - Check first: Is the issue reproducible on `/index.html` and one category page?
 - Do NOT touch: product data source unless confirmed stale; avoid large refactors.
 - Rollback immediately if: stale prices, checkout dead-end, or visible CLS regression.
 - SW incidents: bump cache prefixes and/or disable SW registration.
 
 ## Decision Tree
-1) Stale prices/inventory
+
+1. Stale prices/inventory
+
 - Symptoms: prices revert after reload; availability mismatches.
 - Verify (2-5 min): hard reload; compare product data source vs UI.
 - Suspected areas/files: `service-worker.js`, product data JSON.
@@ -19,7 +22,8 @@
   - Clear caches in DevTools for confirmation.
 - Log: time, affected products, cache prefix version.
 
-2) Checkout / WhatsApp failures
+2. Checkout / WhatsApp failures
+
 - Symptoms: button does nothing, popup blocked with no fallback, orders not sent.
 - Verify (2-5 min): try checkout with popups allowed/blocked.
 - Suspected areas/files: `src/js/modules/checkout.mjs`, `astro-poc/src/components/Navbar.astro`.
@@ -30,7 +34,8 @@
   - Revert checkout PR.
 - Log: browser, popup behavior, repro steps.
 
-3) Visible layout shift (CLS)
+3. Visible layout shift (CLS)
+
 - Symptoms: navbar/hero/images jump on load.
 - Verify (2-5 min): hard reload, observe top of page and first product row.
 - Suspected areas/files: `assets/css/critical.css`, `assets/css/style.css`.
@@ -40,7 +45,8 @@
   - Revert CSS PR.
 - Log: which elements shift, which pages.
 
-4) Broken images / LCP regression
+4. Broken images / LCP regression
+
 - Symptoms: blank images, blurred, slow first render.
 - Verify (2-5 min): check network for 404s, inspect `srcset`/`sizes`.
 - Suspected areas/files: `tools/utils/product-mapper.js`, `src/js/modules/ui-components.mjs`, templates.
@@ -51,11 +57,13 @@
 - Log: affected pages, image URLs, error codes.
 
 ## Mandatory SW Note
+
 - For SW incidents: always bump cache prefixes to invalidate old caches.
 
 ## Incident Log
 
 ### 2026-02-19 - Legacy Root Route 404 After Astro Cutover
+
 - Impact: production 404s on legacy root routes (`/bebidas.html`, `/vinos.html`, `/e.html`, `/offline.html`).
 - Detection: production HTTP contract sweep failed while `/pages/*.html` remained available.
 - Root cause: postbuild only flattened `/pages/*.html` and did not copy required legacy pages to `astro-poc/dist/` root.

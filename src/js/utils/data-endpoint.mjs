@@ -23,7 +23,9 @@ const readMetaBaseUrl = () => {
 };
 
 const isLocalhostHost = (hostname = '') => {
-  const normalized = String(hostname || '').trim().toLowerCase();
+  const normalized = String(hostname || '')
+    .trim()
+    .toLowerCase();
   return LOCALHOST_HOSTS.has(normalized);
 };
 
@@ -46,8 +48,7 @@ const shouldAllowLocalhostHttp = () => {
   }
   const explicitFlag = window.__ALLOW_LOCALHOST_HTTP__ === true;
   const query = window.location?.search || '';
-  const queryAllows =
-    typeof query === 'string' && /(?:^|[?&])http=on(?:&|$)/i.test(query);
+  const queryAllows = typeof query === 'string' && /(?:^|[?&])http=on(?:&|$)/i.test(query);
   const storageAllows = readLocalStorageFlag('ebano-allow-http-local') === 'true';
   return explicitFlag || queryAllows || storageAllows;
 };

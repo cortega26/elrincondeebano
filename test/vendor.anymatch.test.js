@@ -4,13 +4,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 
-const anymatch = require(path.join(
-  __dirname,
-  '..',
-  'astro-poc',
-  'node_modules',
-  'anymatch'
-));
+const anymatch = require(path.join(__dirname, '..', 'astro-poc', 'node_modules', 'anymatch'));
 
 test('vendored anymatch preserves basic glob and direct string matching', () => {
   const matcher = anymatch(['assets/**/*.png', 'robots.txt']);
@@ -28,10 +22,7 @@ test('vendored anymatch preserves negated glob behavior', () => {
 });
 
 test('vendored anymatch preserves regexp and function matcher behavior', () => {
-  const matcher = anymatch([
-    /^pages\/.+\.html$/,
-    (value) => value.endsWith('/service-worker.js'),
-  ]);
+  const matcher = anymatch([/^pages\/.+\.html$/, (value) => value.endsWith('/service-worker.js')]);
 
   assert.equal(matcher('pages/bebidas.html'), true);
   assert.equal(matcher('astro-poc/dist/service-worker.js'), true);

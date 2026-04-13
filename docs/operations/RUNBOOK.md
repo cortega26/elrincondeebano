@@ -174,17 +174,16 @@
 
 **Schema mínimo**
 
-| Name | Type | Default | Required | Description |
-| ---- | ---- | ------- | -------- | ----------- |
-| `size_value` | number | `null` | ✅ | Cantidad numérica en la unidad base de la categoría. |
-| `size_unit` | string | `null` | ✅ | Unidad normalizada (`g`, `ml`, `unit`). |
-| `size_display` | string | `null` | ❌ | Etiqueta opcional para mostrar el formato original. |
+| Name           | Type   | Default | Required | Description                                          |
+| -------------- | ------ | ------- | -------- | ---------------------------------------------------- |
+| `size_value`   | number | `null`  | ✅       | Cantidad numérica en la unidad base de la categoría. |
+| `size_unit`    | string | `null`  | ✅       | Unidad normalizada (`g`, `ml`, `unit`).              |
+| `size_display` | string | `null`  | ❌       | Etiqueta opcional para mostrar el formato original.  |
 
 **Regla de display**
 
 - Si existe `size_display`, mostrarla tal cual.
 - Si no existe, renderizar `${size_value} ${size_unit}` desde los campos normalizados.
-
 
 ## Nota operativa de stock
 

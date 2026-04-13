@@ -2,9 +2,8 @@ const test = require('node:test');
 const assert = require('node:assert');
 
 (async () => {
-  const { filterProducts, sortProducts, isSimpleTypo, simpleTypoFix } = await import(
-    '../src/js/modules/product-filter.mjs'
-  );
+  const { filterProducts, sortProducts, isSimpleTypo, simpleTypoFix } =
+    await import('../src/js/modules/product-filter.mjs');
 
   const products = [
     {
@@ -45,7 +44,10 @@ const assert = require('node:assert');
     );
 
     const discountedOnly = filterProducts(products, '', 'original', true);
-    assert.deepStrictEqual(discountedOnly.map((p) => p.id), ['a']);
+    assert.deepStrictEqual(
+      discountedOnly.map((p) => p.id),
+      ['a']
+    );
   });
 
   test('filterProducts matches exact keyword and simple typos', () => {

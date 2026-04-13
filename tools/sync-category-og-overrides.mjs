@@ -30,12 +30,7 @@ function buildCategoryLookup(categories) {
     if (!slug) {
       continue;
     }
-    const candidates = [
-      slug,
-      category?.id,
-      category?.key,
-      category?.display_name?.default,
-    ];
+    const candidates = [slug, category?.id, category?.key, category?.display_name?.default];
 
     for (const candidate of candidates) {
       const token = normalizeLookupToken(candidate);

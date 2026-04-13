@@ -22,8 +22,7 @@ export function setupCheckoutProgress() {
       );
       if (!submitButton) return;
 
-      const hasItems =
-        typeof state.hasItems === 'boolean' ? state.hasItems : readCartCount() > 0;
+      const hasItems = typeof state.hasItems === 'boolean' ? state.hasItems : readCartCount() > 0;
       const hasPayment =
         typeof state.hasPayment === 'boolean' ? state.hasPayment : hasSelectedPayment();
       const shouldDisable = !hasItems || !hasPayment;

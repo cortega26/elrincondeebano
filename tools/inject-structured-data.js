@@ -29,7 +29,8 @@ function mapProductToStructuredData(product) {
   }
 
   const description = typeof product?.description === 'string' ? product.description.trim() : '';
-  const brand = typeof product?.brand === 'string' && product.brand.trim() ? product.brand.trim() : 'Genérico';
+  const brand =
+    typeof product?.brand === 'string' && product.brand.trim() ? product.brand.trim() : 'Genérico';
   const price =
     typeof product?.price === 'number'
       ? product.price

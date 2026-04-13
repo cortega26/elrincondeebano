@@ -42,7 +42,7 @@ function createFixtureRepo() {
   );
   writeFile(
     path.join(repoRoot, 'service-worker.js'),
-    'const PRECACHE = [\'/assets/images/web/placeholder.svg\'];\n'
+    "const PRECACHE = ['/assets/images/web/placeholder.svg'];\n"
   );
 
   writeFile(path.join(repoRoot, 'assets', 'images', 'chocolates', 'used.webp'), 'used');
@@ -105,7 +105,9 @@ test('orphan-assets guard allows baseline entries and reports stale allowlist en
 
   const afterCleanup = findOrphanAssets({ repoRoot, allowlistPath });
   assert.deepStrictEqual(afterCleanup.orphanAssets, []);
-  assert.deepStrictEqual(afterCleanup.staleAllowedOrphans, ['assets/images/chocolates/orphan.webp']);
+  assert.deepStrictEqual(afterCleanup.staleAllowedOrphans, [
+    'assets/images/chocolates/orphan.webp',
+  ]);
 
   fs.rmSync(repoRoot, { recursive: true, force: true });
 });

@@ -132,7 +132,9 @@ test('runSync copies offline fallback into Astro public/pages, reduces public me
   assert.ok(fs.existsSync(paths.targetServiceWorkerPath));
   assert.ok(fs.existsSync(paths.targetPublicProductDataPath));
   const internalProductsPayload = JSON.parse(fs.readFileSync(paths.targetProductsPath, 'utf8'));
-  const publicProductsPayload = JSON.parse(fs.readFileSync(paths.targetPublicProductDataPath, 'utf8'));
+  const publicProductsPayload = JSON.parse(
+    fs.readFileSync(paths.targetPublicProductDataPath, 'utf8')
+  );
   assert.equal(internalProductsPayload.rev, 0);
   assert.equal(internalProductsPayload.products[0].rev, 0);
   assert.deepEqual(publicProductsPayload.rev, undefined);
