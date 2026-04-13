@@ -154,8 +154,8 @@ Este documento coordina a los agentes automatizados y humanos que mantienen **El
   - Concurrency: `group: "pages"`, `cancel-in-progress: false`.
   - Artefacto: `astro-poc/dist` desplegado con `actions/deploy-pages@v4`.
 - **`Optimize images` (`.github/workflows/images.yml`)**
-  - Trigger: cambios en `assets/images/originals/**` o manual.
-  - Node fijado con `actions/setup-node@v4` (`node-version: 22.x`). Usa `npm ci` + scripts `images:generate`, `images:rewrite`, `lint:images`. Auto-commitea resultados.
+  - Trigger: cambios en `assets/images/originals/**` sobre ramas o manual. Debe ignorar refs de tipo tag para no intentar commitear/pushear sobre releases etiquetadas.
+  - Node fijado con `actions/setup-node@v4` (`node-version: 22.x`). Usa `npm ci` + scripts `images:generate`, `images:rewrite`, `lint:images`. Auto-commitea resultados sólo de vuelta a `refs/heads/<branch>`.
   - Permisos: `contents: write` para subir optimizaciones.
 - **`Semgrep Security Scan` (`.github/workflows/semgrep.yml`)**
   - Trigger: push/PR a `main`, cron semanal y ejecución manual.
