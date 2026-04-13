@@ -1008,15 +1008,7 @@ function initStorefront() {
     const heroCta = target.closest('[data-home-hero-cta]');
     if (heroCta) {
       trackAnalyticsEvent('home_hero_primary_cta_click', {
-        destination: heroCta.getAttribute('href') || '#home-fast-track-heading',
-      });
-    }
-
-    const categoryShortcut = target.closest('[data-home-category-shortcut]');
-    if (categoryShortcut) {
-      trackAnalyticsEvent('home_category_shortcut_click', {
-        destination: categoryShortcut.getAttribute('href') || '',
-        index: parseNumber(categoryShortcut.getAttribute('data-shortcut-index'), -1),
+        destination: heroCta.getAttribute('href') || '#home-quick-order-heading',
       });
     }
 

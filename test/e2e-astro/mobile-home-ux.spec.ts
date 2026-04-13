@@ -17,29 +17,24 @@ for (const viewport of MOBILE_VIEWPORTS) {
     await waitForReady(page);
 
     const layoutState = await page.evaluate(() => {
+      const quickOrderHeading = document.getElementById('home-quick-order-heading');
       const heading = document.getElementById('products-heading');
-      const merchandising = document.querySelector('[data-home-merchandising]');
-      const shortcuts = Array.from(
-        document.querySelectorAll('[data-home-category-shortcut]')
-      ).filter((element) => {
-        const styles = window.getComputedStyle(element);
-        return styles.display !== 'none' && styles.visibility !== 'hidden';
-      });
-
-      const top = heading
+      const quickOrderTop = quickOrderHeading
+        ? quickOrderHeading.getBoundingClientRect().top + window.scrollY
+        : Number.POSITIVE_INFINITY;
+      const catalogTop = heading
         ? heading.getBoundingClientRect().top + window.scrollY
         : Number.POSITIVE_INFINITY;
       return {
-        screensFromTop: Number((top / window.innerHeight).toFixed(2)),
-        visibleShortcutCount: shortcuts.length,
-        merchandisingCollapsed:
-          merchandising instanceof HTMLDetailsElement ? merchandising.open === false : false,
+        quickOrderScreensFromTop: Number((quickOrderTop / window.innerHeight).toFixed(2)),
+        catalogScreensFromTop: Number((catalogTop / window.innerHeight).toFixed(2)),
+        hasShortcutSection: !!document.querySelector('[data-home-category-shortcuts]'),
       };
     });
 
-    expect(layoutState.screensFromTop).toBeLessThanOrEqual(2.5);
-    expect(layoutState.visibleShortcutCount).toBe(4);
-    expect(layoutState.merchandisingCollapsed).toBe(true);
+    expect(layoutState.quickOrderScreensFromTop).toBeLessThanOrEqual(2.5);
+    expect(layoutState.catalogScreensFromTop).toBeLessThanOrEqual(4.5);
+    expect(layoutState.hasShortcutSection).toBe(false);
 
     const mobileCartShortcut = page.locator('#mobile-cart-shortcut');
     await expect(mobileCartShortcut).toBeHidden();

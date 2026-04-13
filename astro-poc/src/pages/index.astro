@@ -6,21 +6,15 @@ import HomeProductSection from '../components/HomeProductSection.astro';
 import ProductGrid from '../components/ProductGrid.astro';
 import {
   getHomeFeaturedDeals,
-  getHomeFeaturedStaples,
-  getHomePrimaryCategories,
   getHomeQuickPicks,
-  getHomeSecondaryCategories,
   getHomepageCatalogProducts,
   getStorefrontBundles,
 } from '../lib/catalog';
 import { createSharePreviewMetadata, DEFAULT_OG_IMAGE } from '../lib/seo';
 
 const homepageCatalogProducts = getHomepageCatalogProducts();
-const primaryCategories = getHomePrimaryCategories();
-const secondaryCategories = getHomeSecondaryCategories();
 const fallbackQuickPicks = getHomeQuickPicks();
 const featuredDeals = getHomeFeaturedDeals();
-const featuredStaples = getHomeFeaturedStaples();
 const bundles = getStorefrontBundles();
 const sharePreview = createSharePreviewMetadata({
   title: 'El Rincón de Ébano',
@@ -39,66 +33,49 @@ const sharePreview = createSharePreviewMetadata({
   sharePreview={sharePreview}
 >
   <div class="home-layout">
-    <section class="home-overview home-layout__hero" aria-labelledby="main-heading">
-      <div class="home-overview__copy">
-        <h1 id="main-heading">Pide más rápido dentro de Ébano</h1>
-        <p class="home-overview__lead mb-0">
-          Revisa categorías, arma el pedido aquí y usa WhatsApp solo para confirmar el resumen.
-        </p>
+    <section class="home-entry home-layout__entry" aria-labelledby="main-heading">
+      <div class="home-entry__main">
+        <div class="home-entry__copy">
+          <h1 id="main-heading">Haz tu pedido en minutos</h1>
+          <p class="home-entry__lead mb-0">
+            Agrega aquí y confirma por WhatsApp al final.
+          </p>
+        </div>
+        <div class="home-entry__actions">
+          <a
+            href="#home-quick-order-heading"
+            class="btn btn-primary home-entry__cta"
+            data-home-hero-cta
+          >
+            Ver compra rápida
+          </a>
+          <button
+            type="button"
+            class="home-entry__help"
+            data-service-dialog-trigger
+            aria-haspopup="dialog"
+            aria-controls="service-guide-dialog"
+          >
+            Cómo pedir
+          </button>
+        </div>
       </div>
-      <div class="home-overview__actions">
-        <a
-          href="#home-fast-track-heading"
-          class="btn btn-primary home-overview__cta"
-          data-home-hero-cta
-        >
-          Ver categorías
-        </a>
+
+      <div class="home-profile-strip" data-home-profile-strip aria-live="polite">
+        <div data-home-profile-copy>
+          <strong>Tu último pedido puede quedar listo en un toque.</strong>
+          <span>Si quieres, deja una nota para el pedido y úsala también en la próxima compra.</span>
+        </div>
         <button
           type="button"
-          class="home-overview__help"
-          data-service-dialog-trigger
-          aria-haspopup="dialog"
-          aria-controls="service-guide-dialog"
+          class="btn btn-outline-dark home-profile-strip__repeat"
+          data-repeat-last-order
+          disabled
+          aria-disabled="true"
         >
-          Cómo funciona
+          Repetir último pedido
         </button>
       </div>
-    </section>
-
-    <section
-      class="home-section home-section--mobile-shortcuts home-layout__shortcuts"
-      aria-labelledby="home-fast-track-heading"
-    >
-      <div class="home-section__header">
-        <h2 id="home-fast-track-heading">Categorías clave</h2>
-        <p>Empieza por las secciones que más resuelven un pedido del día a día.</p>
-      </div>
-
-      <div class="category-shortcuts" data-home-category-shortcuts>
-        {
-          primaryCategories.map((category, index) => (
-            <a
-              class="category-shortcut"
-              href={category.modernPath}
-              data-home-category-shortcut
-              data-shortcut-index={String(index)}
-            >
-              <span class="category-shortcut-title">{category.label}</span>
-              <span class="category-shortcut-meta">Entrar directo</span>
-            </a>
-          ))
-        }
-      </div>
-
-      {secondaryCategories.length > 0 ? (
-        <div class="home-secondary-links" aria-label="Secciones secundarias">
-          <span class="home-secondary-links__label">Otras secciones:</span>
-          <div class="home-secondary-links__items">
-            {secondaryCategories.map((category) => <a href={category.modernPath}>{category.label}</a>)}
-          </div>
-        </div>
-      ) : null}
     </section>
 
     <HomeProductSection
@@ -106,37 +83,9 @@ const sharePreview = createSharePreviewMetadata({
       title="Compra rápida"
       description="Tus frecuentes aparecerán aquí. Mientras tanto, dejamos una selección útil para resolver rápido."
       items={fallbackQuickPicks}
-      className="home-layout__desktop-quick home-desktop-only"
-      gridId="home-personalized-grid-desktop"
-      showProfileStrip={true}
-      compactMobile={true}
-    />
-
-    {featuredDeals.length > 0 ? (
-      <HomeProductSection
-        headingId="home-deals-heading"
-        title="Ahorra hoy"
-        description="Ofertas activas para resolver el pedido rápido sin revisar todo el catálogo."
-        items={featuredDeals}
-        className="home-layout__desktop-deals home-desktop-only"
-        compactMobile={true}
-      />
-    ) : null}
-
-    <HomeBundlesSection
-      headingId="home-bundles-heading"
-      title="Combos listos"
-      description="Una forma rápida de subir el pedido sin tener que buscar producto por producto."
-      bundles={bundles}
-      className="home-layout__desktop-bundles home-desktop-only"
-    />
-
-    <HomeProductSection
-      headingId="home-staples-heading"
-      title="Favoritos para resolver hoy"
-      description="Productos que hacen más simple un pedido corto: básicos, bebida, lácteos y limpieza."
-      items={featuredStaples}
-      className="home-layout__desktop-staples home-desktop-only"
+      className="home-layout__quick-order"
+      gridId="home-personalized-grid"
+      showProfileStrip={false}
       compactMobile={true}
     />
 
@@ -144,7 +93,7 @@ const sharePreview = createSharePreviewMetadata({
       <div class="home-section__header">
         <h2 id="products-heading">Catálogo principal</h2>
         <p id="catalog-main">
-          Aquí empieza el pedido completo. Dejamos fuera de esta vista las secciones secundarias para que comprar sea más rápido.
+          Todo el catálogo queda aquí, con filtros y búsqueda para completar el pedido sin salir de la página.
         </p>
       </div>
       <CatalogControls stickyMobile={true} />
@@ -163,49 +112,24 @@ const sharePreview = createSharePreviewMetadata({
       <div id="catalog-sentinel" aria-hidden="true"></div>
     </section>
 
-    <details class="home-merchandising home-layout__mobile-merchandising home-mobile-only" data-home-merchandising>
-      <summary class="home-merchandising__summary">Más formas de comprar</summary>
-      <div class="home-merchandising__content">
-        <HomeProductSection
-          headingId="home-quick-order-mobile-heading"
-          title="Compra rápida"
-          description="Tus frecuentes aparecerán aquí. Mientras tanto, dejamos una selección útil para resolver rápido."
-          items={fallbackQuickPicks}
-          className="home-merchandising__section"
-          gridId="home-personalized-grid-mobile"
-          showProfileStrip={true}
-          compactMobile={true}
-        />
+    {featuredDeals.length > 0 ? (
+      <HomeProductSection
+        headingId="home-deals-heading"
+        title="Ahorra hoy"
+        description="Ofertas activas para resolver el pedido sin revisar promociones por separado."
+        items={featuredDeals}
+        className="home-layout__deals"
+        compactMobile={true}
+      />
+    ) : null}
 
-        {featuredDeals.length > 0 ? (
-          <HomeProductSection
-            headingId="home-deals-mobile-heading"
-            title="Ahorra hoy"
-            description="Ofertas activas para resolver el pedido rápido sin revisar todo el catálogo."
-            items={featuredDeals}
-            className="home-merchandising__section"
-            compactMobile={true}
-          />
-        ) : null}
-
-        <HomeBundlesSection
-          headingId="home-bundles-mobile-heading"
-          title="Combos listos"
-          description="Una forma rápida de subir el pedido sin tener que buscar producto por producto."
-          bundles={bundles}
-          className="home-merchandising__section"
-        />
-
-        <HomeProductSection
-          headingId="home-staples-mobile-heading"
-          title="Favoritos para resolver hoy"
-          description="Productos que hacen más simple un pedido corto: básicos, bebida, lácteos y limpieza."
-          items={featuredStaples}
-          className="home-merchandising__section"
-          compactMobile={true}
-        />
-      </div>
-    </details>
+    <HomeBundlesSection
+      headingId="home-bundles-heading"
+      title="Combos listos"
+      description="Una forma rápida de sumar productos que normalmente se piden juntos."
+      bundles={bundles}
+      className="home-layout__bundles"
+    />
   </div>
 
   <dialog
@@ -218,7 +142,12 @@ const sharePreview = createSharePreviewMetadata({
     <div class="service-dialog__surface">
       <div class="service-dialog__header">
         <h2 id="service-guide-title" class="service-dialog__title">Cómo pedir</h2>
-        <button type="button" class="service-dialog__close" data-service-dialog-close aria-label="Cerrar instrucciones">
+        <button
+          type="button"
+          class="service-dialog__close"
+          data-service-dialog-close
+          aria-label="Cerrar instrucciones"
+        >
           Cerrar
         </button>
       </div>

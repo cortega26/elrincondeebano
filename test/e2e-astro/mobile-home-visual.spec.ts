@@ -9,23 +9,24 @@ test('mobile home top section stays compact', async ({ page }) => {
   await page.goto('/', { waitUntil: 'networkidle' });
   await waitForReady(page);
 
-  // Trust strip switches to compact layout at ≤767px
-  await expect(page.locator('.trust-strip--full')).toBeHidden();
-  await expect(page.locator('.trust-strip--compact')).toBeVisible();
+  const trustCards = page.locator('.trust-strip__card');
+  await expect(trustCards).toHaveCount(4);
 
-  // Hero section and primary CTA are present
-  const hero = page.locator('.home-overview');
-  await expect(hero).toBeVisible();
-  await expect(page.locator('.home-overview__cta')).toBeVisible();
+  const entry = page.locator('.home-entry');
+  await expect(entry).toBeVisible();
+  await expect(page.locator('.home-entry__cta')).toBeVisible();
+  await expect(page.locator('[data-repeat-last-order]')).toBeVisible();
 
-  // Hero section stays compact — must not dominate the viewport
-  const heroBox = await hero.boundingBox();
-  expect(heroBox?.height).toBeLessThan(300);
+  const entryBox = await entry.boundingBox();
+  expect(entryBox?.height).toBeLessThan(460);
 
-  // Category shortcuts section is visible
-  await expect(page.locator('.home-section--mobile-shortcuts')).toBeVisible();
+  await expect(page.locator('h2', { hasText: 'Categorías clave' })).toHaveCount(0);
 
-  // No horizontal overflow on the mobile viewport
+  await page.locator('.home-entry__help').click();
+  await expect(page.locator('#service-guide-dialog')).toBeVisible();
+  await page.locator('[data-service-dialog-close]').first().click();
+  await expect(page.locator('#service-guide-dialog')).not.toBeVisible();
+
   const scrollWidth = await page.evaluate(() => document.body.scrollWidth);
   expect(scrollWidth).toBeLessThanOrEqual(390);
 });
