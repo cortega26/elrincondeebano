@@ -1687,8 +1687,8 @@ section[aria-label*='Opciones de filtrado'] .form-control {
   border-color: rgba(0, 0, 0, 0.08);
 }
 
-main .container {
-  padding-top: 0.5rem;
+.storefront-shell {
+  padding-top: 0.75rem;
   padding-bottom: 1rem;
 }
 
@@ -1748,7 +1748,7 @@ main .container {
     padding-bottom: 1.5rem;
   }
 
-  main .container {
+  .storefront-shell {
     padding-bottom: 5rem;
   }
 }
