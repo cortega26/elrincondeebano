@@ -4,6 +4,8 @@ on:
   push:
     paths:
       - 'assets/images/originals/**'
+    tags-ignore:
+      - '*'
   workflow_dispatch:
 
 concurrency:
@@ -15,6 +17,7 @@ permissions:
 
 jobs:
   build:
+    if: ${{ github.ref_type == 'branch' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     steps:
@@ -25,8 +28,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git fetch origin "${GITHUB_REF_NAME}"
-          git checkout -B "${GITHUB_REF_NAME}"
+          git fetch origin "refs/heads/${GITHUB_REF_NAME}:refs/remotes/origin/${GITHUB_REF_NAME}"
+          git checkout -B "${GITHUB_REF_NAME}" "refs/remotes/origin/${GITHUB_REF_NAME}"
           git pull --rebase origin "${GITHUB_REF_NAME}"
       - name: Set deterministic build environment
         run: |
@@ -55,4 +58,4 @@ jobs:
           fi
           git commit -m 'chore: update optimized images'
           git pull --rebase origin "${GITHUB_REF_NAME}"
-          git push origin HEAD:"${GITHUB_REF_NAME}"
+          git push origin HEAD:"refs/heads/${GITHUB_REF_NAME}"
