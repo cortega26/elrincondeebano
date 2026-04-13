@@ -10,9 +10,21 @@ const { stickyMobile = false } = Astro.props;
   class={`catalog-controls ${stickyMobile ? 'catalog-controls--sticky-mobile' : ''}`.trim()}
   aria-label="Opciones de filtrado y ordenacion"
 >
-  <div class="row mb-3">
-    <div class="col-md-6">
-      <label for="sort-options" class="visually-hidden">Ordenar productos</label>
+  <div class="catalog-controls__grid">
+    <div class="catalog-controls__field catalog-controls__field--search">
+      <label for="filter-keyword" class="catalog-controls__label">Buscar</label>
+      <input
+        type="text"
+        id="filter-keyword"
+        class="form-control"
+        placeholder="Nombre o marca"
+        aria-label="Filtrar productos por nombre"
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="catalog-controls__field catalog-controls__field--sort">
+      <label for="sort-options" class="catalog-controls__label">Ordenar</label>
       <select id="sort-options" class="form-select" aria-label="Ordenar productos">
         <option value="original" selected>Orden por defecto</option>
         <option value="name-asc">Nombre (A-Z)</option>
@@ -21,24 +33,18 @@ const { stickyMobile = false } = Astro.props;
         <option value="price-desc">Precio (mayor a menor)</option>
       </select>
     </div>
-    <div class="col-md-6">
-      <label for="filter-keyword" class="visually-hidden">Filtrar productos por nombre</label>
-      <input
-        type="text"
-        id="filter-keyword"
-        class="form-control"
-        placeholder="Filtrar por nombre"
-        aria-label="Filtrar productos por nombre"
-        autocomplete="off"
-      />
-    </div>
-    <div class="col-12 mt-2">
-      <div class="form-check form-switch">
+
+    <div class="catalog-controls__field catalog-controls__field--toggle">
+      <div class="form-check form-switch catalog-controls__switch">
         <input class="form-check-input" type="checkbox" id="filter-discount" aria-label="Mostrar solo productos con descuento" />
-        <label class="form-check-label" for="filter-discount">Solo productos con descuento</label>
+        <label class="form-check-label" for="filter-discount">
+          <span class="catalog-controls__switch-title">Solo ofertas</span>
+          <span class="catalog-controls__switch-copy">Oculta productos sin descuento</span>
+        </label>
       </div>
     </div>
-    <div class="col-12">
+
+    <div class="catalog-controls__status">
       <p id="catalog-results-status" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></p>
     </div>
   </div>
