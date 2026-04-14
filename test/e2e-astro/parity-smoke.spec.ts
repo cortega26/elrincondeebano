@@ -22,7 +22,7 @@ test('home renders with navbar, catalog, and SEO tags', async ({ page }) => {
   );
 });
 
-test('desktop home keeps the service strip in a single row and quick-order CTA targets the first shoppable block', async ({
+test('desktop home keeps the service strip in a single row and hero CTA scrolls to Combos listos', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1100 });
@@ -38,7 +38,7 @@ test('desktop home keeps the service strip in a single row and quick-order CTA t
   expect(cardRows).toBe(1);
 
   await page.locator('.home-entry__cta').click();
-  await expect(page.locator('#home-quick-order-heading')).toBeInViewport();
+  await expect(page.locator('#home-bundles-heading')).toBeInViewport();
 });
 
 test('legacy category route /pages/*.html stays available', async ({ page }) => {
