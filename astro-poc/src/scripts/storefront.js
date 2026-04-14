@@ -147,6 +147,16 @@ function triggerTransientClass(element, className) {
 
 const storefrontStorage = createStorefrontStorage({ log });
 const observability = createObservabilityModule({ log });
+const cartUiState = {
+  isOffcanvasOpen: false,
+};
+
+function setCartOffcanvasState(nextOpen) {
+  const isOpen = Boolean(nextOpen);
+  cartUiState.isOffcanvasOpen = isOpen;
+  document.documentElement.dataset.cartOpen = isOpen ? '1' : '0';
+  document.body.classList.toggle('cart-offcanvas-open', isOpen);
+}
 
 function loadCart() {
   const cart = sanitizeCart(storefrontStorage.loadJson('cart', []));
@@ -583,9 +593,10 @@ function syncMobileCartShortcut(cart, totalAmount) {
 
   const { totalItems } = getCartState(cart);
   const isEmpty = totalItems <= 0;
+  const shouldHide = isEmpty || cartUiState.isOffcanvasOpen;
 
-  shortcut.classList.toggle('is-hidden', isEmpty);
-  shortcut.setAttribute('aria-hidden', isEmpty ? 'true' : 'false');
+  shortcut.classList.toggle('is-hidden', shouldHide);
+  shortcut.setAttribute('aria-hidden', shouldHide ? 'true' : 'false');
 
   if (isEmpty) {
     shortcut.textContent = 'Ver pedido';
@@ -695,7 +706,7 @@ function renderCart(cart, { animateTotal = false } = {}) {
       qtyRow.appendChild(increaseBtn);
 
       const removeBtn = createElement('button', {
-        className: 'btn btn-sm btn-outline-danger remove-item mt-2',
+        className: 'btn btn-sm btn-outline-danger remove-item cart-item__remove',
         text: 'Eliminar',
         attrs: {
           type: 'button',
@@ -735,6 +746,7 @@ function openCartOffcanvas() {
     instance.show();
     return;
   }
+  setCartOffcanvasState(true);
   offcanvasElement.classList.add('show');
   offcanvasElement.style.visibility = 'visible';
   offcanvasElement.style.transform = 'none';
@@ -893,12 +905,38 @@ function initStorefront() {
   const initialProfile = loadProfile();
   const lastOrder = loadLastOrder();
   const catalogController = createCatalogController();
+  const cartOffcanvas = document.getElementById('cartOffcanvas');
+
+  const syncCartShortcutState = () => {
+    const { totalAmount } = getCartState(cart);
+    syncMobileCartShortcut(cart, totalAmount);
+  };
+
+  setCartOffcanvasState(
+    cartOffcanvas instanceof HTMLElement && cartOffcanvas.classList.contains('show')
+  );
 
   populateProfileForm(initialProfile);
   setPreferredPayment(loadPreferredPayment());
   syncProfileSummary(initialProfile, lastOrder);
   setRepeatButtonsState(lastOrder);
   initHomeExperienceTelemetry();
+
+  if (cartOffcanvas instanceof HTMLElement) {
+    const handleOpen = () => {
+      setCartOffcanvasState(true);
+      syncCartShortcutState();
+    };
+    const handleClose = () => {
+      setCartOffcanvasState(false);
+      syncCartShortcutState();
+    };
+
+    cartOffcanvas.addEventListener('show.bs.offcanvas', handleOpen);
+    cartOffcanvas.addEventListener('shown.bs.offcanvas', handleOpen);
+    cartOffcanvas.addEventListener('hide.bs.offcanvas', handleClose);
+    cartOffcanvas.addEventListener('hidden.bs.offcanvas', handleClose);
+  }
 
   const getQty = (id) => {
     const item = cart.find((entry) => entry.id === id);
@@ -1022,10 +1060,11 @@ function initStorefront() {
           catalogController.disconnect();
           const targetTop = scrollTarget.getBoundingClientRect().top + globalThis.scrollY;
           const scrollPaddingTop =
-            parseFloat(
-              globalThis.getComputedStyle(document.documentElement).scrollPaddingTop
-            ) || 0;
-          globalThis.scrollTo({ top: Math.max(0, targetTop - scrollPaddingTop), behavior: 'instant' });
+            parseFloat(globalThis.getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+          globalThis.scrollTo({
+            top: Math.max(0, targetTop - scrollPaddingTop),
+            behavior: 'instant',
+          });
           catalogController.setupPagination();
           return;
         }
