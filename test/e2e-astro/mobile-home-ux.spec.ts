@@ -5,9 +5,30 @@ const MOBILE_VIEWPORTS = [
   { name: '360x800', width: 360, height: 800 },
   { name: '320x568', width: 320, height: 568 },
 ] as const;
+const CART_VIEWPORTS = MOBILE_VIEWPORTS.filter((viewport) =>
+  ['390x844', '320x568'].includes(viewport.name)
+);
 
 async function waitForReady(page: Page) {
   await page.waitForFunction(() => window.__APP_READY__ === true);
+}
+
+async function openCartFromHome(page: Page, viewport: (typeof MOBILE_VIEWPORTS)[number]) {
+  await page.setViewportSize({ width: viewport.width, height: viewport.height });
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await waitForReady(page);
+
+  const firstAddButton = page.locator('#product-container .add-to-cart-btn').first();
+  await firstAddButton.click();
+
+  const mobileCartShortcut = page.locator('#mobile-cart-shortcut');
+  await expect(mobileCartShortcut).toBeVisible();
+  await mobileCartShortcut.click();
+
+  const offcanvas = page.locator('#cartOffcanvas');
+  await expect(offcanvas).toBeVisible();
+
+  return { mobileCartShortcut, offcanvas };
 }
 
 for (const viewport of MOBILE_VIEWPORTS) {
@@ -76,3 +97,72 @@ for (const viewport of MOBILE_VIEWPORTS) {
     expect(categoryState.screensFromTop).toBeLessThanOrEqual(1.5);
   });
 }
+
+for (const viewport of CART_VIEWPORTS) {
+  test(`cart keeps products visible and shortcut state correct on mobile ${viewport.name}`, async ({
+    page,
+  }) => {
+    const { mobileCartShortcut, offcanvas } = await openCartFromHome(page, viewport);
+
+    await expect(mobileCartShortcut).toBeHidden();
+
+    const cartState = await page.evaluate(() => {
+      const items = document.getElementById('cart-items');
+      const footer = document.querySelector('#cartOffcanvas .cart-footer');
+      const firstItem = document.querySelector('#cart-items .cart-item');
+      const submit = document.getElementById('submit-cart');
+      if (
+        !(items instanceof HTMLElement) ||
+        !(footer instanceof HTMLElement) ||
+        !(firstItem instanceof HTMLElement)
+      ) {
+        return null;
+      }
+
+      const itemsRect = items.getBoundingClientRect();
+      const footerRect = footer.getBoundingClientRect();
+      const firstItemRect = firstItem.getBoundingClientRect();
+      const submitRect =
+        submit instanceof HTMLElement ? submit.getBoundingClientRect() : { height: 0 };
+
+      return {
+        itemsHeight: Number(itemsRect.height.toFixed(2)),
+        footerHeight: Number(footerRect.height.toFixed(2)),
+        firstItemHeight: Number(firstItemRect.height.toFixed(2)),
+        firstItemFullyVisible:
+          firstItemRect.top >= itemsRect.top - 1 && firstItemRect.bottom <= itemsRect.bottom + 1,
+        footerViewportShare: Number((footerRect.height / window.innerHeight).toFixed(2)),
+        submitHeight: Number(submitRect.height.toFixed(2)),
+      };
+    });
+
+    expect(cartState).not.toBeNull();
+    expect(cartState?.firstItemFullyVisible).toBe(true);
+    expect(cartState?.itemsHeight).toBeGreaterThanOrEqual((cartState?.firstItemHeight ?? 0) - 2);
+    expect(cartState?.footerViewportShare).toBeLessThan(0.58);
+    expect(cartState?.submitHeight).toBeGreaterThanOrEqual(44);
+
+    const submitButton = page.locator('#submit-cart');
+    await expect(submitButton).toBeVisible();
+    await expect(submitButton).toBeDisabled();
+
+    await page.locator('#payment-transfer').check();
+    await expect(submitButton).toBeEnabled();
+
+    await page.locator('#continue-shopping').click();
+    await expect(offcanvas).toBeHidden();
+    await expect(mobileCartShortcut).toBeVisible();
+  });
+}
+
+test('cart offcanvas keeps a readable mobile hierarchy at 390x844', async ({ page }) => {
+  await openCartFromHome(page, MOBILE_VIEWPORTS[0]);
+
+  await expect(page.locator('#cartOffcanvas .offcanvas-body')).toHaveScreenshot(
+    'mobile-cart-offcanvas-390x844.png',
+    {
+      animations: 'disabled',
+      caret: 'hide',
+    }
+  );
+});

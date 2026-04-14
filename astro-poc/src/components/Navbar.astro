@@ -101,77 +101,84 @@ const { navGroups } = Astro.props;
       </div>
     </div>
     <div class="cart-footer">
-      <div class="cart-summary-card">
-        <div class="cart-summary-card__row">
-          <span class="cart-summary-card__label">Resumen actual</span>
-          <div id="cart-total">Total: $0</div>
-        </div>
-        <p class="checkout-note mb-0">
-          Agrega aquí y confirma por WhatsApp al final. Asi reduces ida y vuelta y aceleras la entrega dentro del edificio.
-        </p>
-      </div>
-      <div class="cart-note-toggle-row">
-        <button
-          class="cart-note-toggle"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#cart-note-collapse"
-          aria-expanded="false"
-          aria-controls="cart-note-collapse"
-        >
-          Añadir nota al pedido
-        </button>
-      </div>
-      <div class="collapse" id="cart-note-collapse">
-        <div class="cart-customer-panel">
-          <div class="cart-customer-fields">
-            <div>
-              <label class="form-label" for="delivery-note">Nota opcional</label>
-              <textarea
-                class="form-control"
-                id="delivery-note"
-                rows="3"
-                placeholder="Ej. si no hay Coca-Cola Zero, cambiar por normal; dejar en conserjería; sumar bolsa, etc."
-              ></textarea>
-              <p class="cart-note-hint">Se guarda en este dispositivo y se incluye en el resumen de WhatsApp.</p>
+      <div class="cart-footer-primary">
+        <div class="cart-summary-card cart-summary-card--compact">
+          <div class="cart-summary-card__row">
+            <div class="cart-summary-card__copy">
+              <span class="cart-summary-card__label">Resumen actual</span>
+              <p class="checkout-note mb-0">
+                Revisa aquí y confirma por WhatsApp en menos de un minuto.
+              </p>
             </div>
+            <div id="cart-total">Total: $0</div>
           </div>
         </div>
-      </div>
-      <div class="cart-preferences-grid">
-        <div id="payment-method-container" class="cart-config-card">
-          <label class="form-label d-block" for="payment-cash">Método de Pago</label>
+        <div id="payment-method-container" class="cart-config-card cart-config-card--payment">
+          <div class="cart-config-card__header">
+            <label class="form-label d-block mb-0" for="payment-cash">Pago rápido</label>
+            <p class="cart-config-card__hint mb-0">
+              Elige una opción para habilitar el envío del pedido.
+            </p>
+          </div>
           <p id="payment-threshold-hint" class="cart-payment-hint mb-2" role="status" aria-live="polite">
             Tarjeta disponible desde CLP 30.000 en el total del pedido.
           </p>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="paymentMethod" id="payment-cash" value="Efectivo" required />
-            <label class="form-check-label" for="payment-cash">Efectivo</label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="paymentMethod" id="payment-transfer" value="Transferencia" required />
-            <label class="form-check-label" for="payment-transfer">Transferencia</label>
-          </div>
-          <div class="form-check d-none" id="payment-credit-container">
-            <input class="form-check-input" type="radio" name="paymentMethod" id="payment-credit" value="Tarjeta de Crédito" required />
-            <label class="form-check-label" for="payment-credit">Tarjeta de Crédito</label>
+          <div class="cart-payment-options">
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="paymentMethod" id="payment-cash" value="Efectivo" required />
+              <label class="form-check-label" for="payment-cash">Efectivo</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="paymentMethod" id="payment-transfer" value="Transferencia" required />
+              <label class="form-check-label" for="payment-transfer">Transferencia</label>
+            </div>
+            <div class="form-check d-none" id="payment-credit-container">
+              <input class="form-check-input" type="radio" name="paymentMethod" id="payment-credit" value="Tarjeta de Crédito" required />
+              <label class="form-check-label" for="payment-credit">Tarjeta de Crédito</label>
+            </div>
           </div>
           <div id="payment-error" class="text-danger small mt-2" role="alert" aria-live="assertive"></div>
-        </div>
-        <div id="substitution-preference-container" class="cart-config-card">
-          <label class="form-label d-block" for="substitution-preference">Si no hay stock</label>
-          <select class="form-select" id="substitution-preference">
-            <option value="Preguntar antes" selected>Preguntar antes</option>
-            <option value="Reemplazar por algo similar">Reemplazar por algo similar</option>
-            <option value="Quitar del pedido">Quitar del pedido</option>
-          </select>
         </div>
       </div>
       <p id="submit-feedback" class="cart-submit-feedback mb-0" role="status" aria-live="polite"></p>
       <div class="cart-footer-actions">
         <button id="submit-cart" class="btn btn-success cart-submit-btn" disabled aria-disabled="true">Enviar resumen por WhatsApp</button>
         <button id="continue-shopping" class="btn btn-outline-primary" data-bs-dismiss="offcanvas">Seguir comprando</button>
-        <button id="empty-cart" class="btn btn-outline-secondary">Vaciar carrito</button>
+      </div>
+      <div class="cart-note-toggle-row">
+        <button
+          class="cart-note-toggle cart-details-toggle"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#cart-details-collapse"
+          aria-expanded="false"
+          aria-controls="cart-details-collapse"
+        >
+          Agregar nota o ajustar pedido
+        </button>
+      </div>
+      <div class="collapse cart-details-collapse" id="cart-details-collapse">
+        <div class="cart-details-panel">
+          <div class="cart-config-card cart-config-card--note">
+            <label class="form-label" for="delivery-note">Nota opcional</label>
+            <textarea
+              class="form-control"
+              id="delivery-note"
+              rows="3"
+              placeholder="Ej. si no hay Coca-Cola Zero, cambiar por normal; dejar en conserjería; sumar bolsa, etc."
+            ></textarea>
+            <p class="cart-note-hint">Se guarda en este dispositivo y se incluye en el resumen de WhatsApp.</p>
+          </div>
+          <div id="substitution-preference-container" class="cart-config-card cart-config-card--inline">
+            <label class="form-label d-block" for="substitution-preference">Si no hay stock</label>
+            <select class="form-select" id="substitution-preference">
+              <option value="Preguntar antes" selected>Preguntar antes</option>
+              <option value="Reemplazar por algo similar">Reemplazar por algo similar</option>
+              <option value="Quitar del pedido">Quitar del pedido</option>
+            </select>
+          </div>
+          <button id="empty-cart" class="btn btn-outline-secondary cart-secondary-action">Vaciar carrito</button>
+        </div>
       </div>
     </div>
   </div>
