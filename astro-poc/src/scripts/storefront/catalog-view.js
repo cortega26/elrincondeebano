@@ -131,7 +131,7 @@ export function createCatalogViewController({
           loadMore();
         }
       },
-      { rootMargin: '0px 0px 240px 0px' }
+      { rootMargin: '-64px 0px 240px 0px' }
     );
     observer.observe(sentinel);
     return observer;

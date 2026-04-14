@@ -1007,9 +1007,29 @@ function initStorefront() {
 
     const heroCta = target.closest('[data-home-hero-cta]');
     if (heroCta) {
+      const href = heroCta.getAttribute('href') || '';
       trackAnalyticsEvent('home_hero_primary_cta_click', {
-        destination: heroCta.getAttribute('href') || '#home-quick-order-heading',
+        destination: href || '#home-quick-order-heading',
       });
+      if (href.startsWith('#')) {
+        const scrollTarget = document.getElementById(href.slice(1));
+        if (scrollTarget) {
+          // Prevent native smooth-scroll: Chrome animates anchor navigation even without
+          // scroll-behavior:smooth, causing the catalog IntersectionObserver to fire
+          // loadMore() mid-flight, which expands the catalog and pushes the target section
+          // far below where the scroll lands.
+          event.preventDefault();
+          catalogController.disconnect();
+          const targetTop = scrollTarget.getBoundingClientRect().top + globalThis.scrollY;
+          const scrollPaddingTop =
+            parseFloat(
+              globalThis.getComputedStyle(document.documentElement).scrollPaddingTop
+            ) || 0;
+          globalThis.scrollTo({ top: Math.max(0, targetTop - scrollPaddingTop), behavior: 'instant' });
+          catalogController.setupPagination();
+          return;
+        }
+      }
     }
 
     const repeatBtn = target.closest('[data-repeat-last-order]');
