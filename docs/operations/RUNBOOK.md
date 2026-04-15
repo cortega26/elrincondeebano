@@ -159,6 +159,103 @@
     y usa `size_unit: "unit"`.
   - `size_display` es opcional; úsalo para conservar el string original si ayuda a ventas.
 
+## Comandos canónicos
+
+Runtime: Node 22.x · Instalación determinista: `npm ci`
+
+```bash
+npm run lint && npm run typecheck
+npm test
+npm run build
+npm run guardrails:assets
+npm run test:e2e
+npm run monitor:share-preview
+npm run smoke:evidence
+```
+
+Auditoría de dependencias: `npm audit --omit=dev`  
+Fallback sin `node` en PATH: `npx -y node@22 "C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js" run <script>`
+
+## Matriz de comandos por agente
+
+| Agente | Comando | Cuándo | Salida esperada |
+|---|---|---|---|
+| Repo Cartographer | `node -v` | Antes de cualquier trabajo | Versión `22.x` |
+| Repo Cartographer | `npm pkg get scripts` | Al actualizar docs/scripts | JSON de scripts |
+| Docs Steward | `npm run build` | Tras cambios en storefront/datos | Build sin errores; artefactos en `astro-poc/dist/` |
+| Docs Steward | `npm run monitor:share-preview` | Cambios SEO/OG o antes de release | Previews WhatsApp válidas |
+| Docs Steward | `npm run lighthouse:audit` | Auditorías de rendimiento | Reportes en `reports/lighthouse/` |
+| Docs Steward | `npm run smoke:evidence` | Antes de release | Evidencia en `reports/smoke/` |
+| Type & Lint Guardian | `npm run lint` | Cada PR | Sin errores ESLint |
+| Type & Lint Guardian | `npm run typecheck` | PRs en `src/js/**` | Sin errores tsc |
+| Type & Lint Guardian | `npm run format` | Cada PR | Código formateado |
+| Type & Lint Guardian | `npm run guardrails:assets` | PRs con cambios en imágenes/catálogo | Sin assets huérfanos nuevos |
+| Security / Supply Chain | `npm audit --production` | Mensual o ante cambios de deps | Sin vulns altas/críticas |
+| Security / Supply Chain | `pip-audit -r admin/product_manager/requirements.lock.txt` | Cambios en tooling Python | Sin vulns altas/críticas |
+| Security / Supply Chain | `npm run security:secret-scan` | Cada PR/push | Sin credenciales en versión |
+| Security / Supply Chain | `semgrep scan --config p/default --config p/secrets --metrics=off --sarif --output reports/semgrep/results.sarif .` | CI o reproducción local | SARIF generado y subido |
+| Test Sentinel | `npm ci && npm test` | Tras modificaciones | Todas las pruebas pasan |
+| Test Sentinel | `npx stryker run` | Cambios en lógica crítica | Mutation score estable |
+| Test Sentinel | `npx vitest run <file>` | Ejecución rápida aislada | Test pasa |
+| CI Guardian | `gh workflow view <name>` | Revisiones periódicas | Versiones fijadas, permisos mínimos |
+| PR/Release Manager | `git status && git diff --stat` | Antes de revisión/merge | Árbol limpio, diff ≤400 líneas |
+
+## Flujos de trabajo (CI)
+
+- **`Deploy static content to Pages`** (`.github/workflows/static.yml`) — push a `main` / `workflow_dispatch`. Permisos: `contents: read`, `pages: write`, `id-token: write`. Artefacto: `astro-poc/dist`.
+- **`Optimize images`** (`.github/workflows/images.yml`) — cambios en `assets/images/originals/**`. Node 22.x; usa `npm ci` + `images:generate`, `images:rewrite`, `lint:images`. Auto-commitea solo a `refs/heads/<branch>`.
+- **`Semgrep Security Scan`** (`.github/workflows/semgrep.yml`) — push/PR a `main`, cron semanal. Instala desde `tools/requirements-semgrep.txt`; escanea con `p/default` + `p/secrets`; sube SARIF.
+- **`Secret Scan`** (`.github/workflows/secret-scan.yml`) — push/PR, cron semanal. Ejecuta `npm run security:secret-scan`.
+- **`Continuous Integration`** (`.github/workflows/ci.yml`) — push/PR a `main` (excluye `admin/**`). Node 22.x: build, guardrails, unit tests, E2E, smoke, Lighthouse.
+- **`Post-Deploy Canary`** (`.github/workflows/post-deploy-canary.yml`) — PR a `main`, `workflow_run` post-deploy. Live probe solo en runner self-hosted; modo estricto de headers en `/` y `/pages/bebidas.html`.
+- **`Live Contract Monitor`** (`.github/workflows/live-contract-monitor.yml`) — cron diario. Runner self-hosted (Cloudflare puede challengear runners GitHub-hosted con `403`). Abre/actualiza issue si falla el baseline de headers.
+- **`Admin Tools CI`** (`.github/workflows/admin.yml`) — cambios en `admin/**`. Python 3.12, pytest.
+
+## Playbooks
+
+### Añadir un test nuevo
+
+1. **Lógica compleja/DOM/Async** → `.spec.js` en `test/` con Vitest.
+2. **Scripts simples/Legacy** → `.test.js` con `node:test`.
+3. **TypeScript** → `.mts` en `src/`; soportado nativamente por Vitest.
+4. Ejecutar `npm test`; adjuntar logs en el PR.
+
+### Actualizar una dependencia
+
+1. `npm pkg get dependencies["<paquete>"]` — versión actual.
+2. Patch/minor: `npm install <paquete>@latest --save`; verificar `package-lock.json`.
+3. Correr `npm audit --production`, `npm test`, `npm run build`; documentar resultados.
+4. Major: preparar RFC (alcance, breaking changes, plan de validación) antes del PR.
+
+### Depurar fallos de CI
+
+1. Identificar workflow fallido (`gh workflow run list`) y revisar logs.
+2. Reproducir localmente con `npm ci`, `npm test`, `npm run build`, `npm run test:e2e`.
+3. Si falla SARIF, ejecutar sanitizador `jq` y verificar esquema `2.1.0`.
+4. Documentar hallazgos con pasos reproducibles en el PR.
+
+### Ejecutar smoke manual guiado
+
+1. `npm run build`.
+2. Levantar preview: `npx serve astro-poc/dist -l 4174`.
+3. `npm run smoke:manual` — imprime checklist.
+4. Completar con [`SMOKE_TEST`](./SMOKE_TEST.md); adjuntar evidencia en el PR.
+
+### Gestionar planes de ejecución
+
+1. **Cambio pequeño** — plan efímero en la descripción del PR.
+2. **Trabajo complejo** — crear `docs/audit/plan-YYYYMMDD-<slug>.md` con objetivo, pasos `[ ]`/`[x]`, decisiones y deuda técnica.
+3. Versionar el plan junto al código.
+4. Al cerrar, mover a `docs/audit/completed/` y referenciar el SHA del merge.
+
+### Auditoría del repositorio
+
+1. Crear rama `audit/mega-YYYYMMDD`.
+2. Levantar baseline: `lint`, `test`, `build`, `monitor:share-preview`, `test:e2e`.
+3. Si hay rojo, volver a verde antes de mejoras.
+4. Ejecutar por etapas con evidencia en `docs/audit/`.
+5. PRs ≤400 líneas netas; rollback explícito en cada etapa.
+
 ## Nota de esquema de datos (price/discount)
 
 - `price`: entero en CLP, representa el precio base del producto.

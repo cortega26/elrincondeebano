@@ -74,3 +74,24 @@ Use this process in PR descriptions for risky changes:
    - `npm run test:e2e` (if affected area had e2e coverage)
 4. Validate smoke checklist before redeploy.
 5. Document incident summary and root cause in the PR thread.
+
+## Guardrails CI/Tests (checklist)
+
+- **Ejecución determinista:** `node -v` debe coincidir con `22.x`; usar `npm ci` (prohibido `npm install` con lockfile presente).
+- **Build estricto:** `npm run build` sin warnings críticos; artefactos en `astro-poc/dist/`. `npm run guardrails:assets` en verde.
+- **Tests:** `npm ci && npm test` completos tras modificaciones. Prohibido `test.skip`, `--forceExit`, `--passWithNoTests` o eliminar asserts sin reemplazo.
+- **Cobertura:** baseline objetivo 80%. Mutation testing (Stryker) en lógica crítica (Cart, Analytics, Logger); no reintroducir survivors.
+- **Linter/formatter:** `npm run lint`, `npm run typecheck` (para `src/js/**`), `npm run format` en verde.
+- **SARIF:** si se genera manualmente, sanitizar con `jq` y verificar esquema `2.1.0`. Nunca construir JSON con `echo` + interpolaciones.
+- **Secretos:** nunca registrar valores sensibles en logs o `git diff`. `SYNC_API_REQUIRE_AUTH=true` y `SYNC_API_STRICT_STARTUP=true` en producción.
+- **Permisos mínimos:** `contents: read`, `pages: write` — sólo lo necesario por workflow.
+- **Presupuesto de cambio:** objetivo ≤400 líneas netas por PR; refactors grandes requieren desglose.
+
+## Política de cambio y PR
+
+- Ramas con formato `tipo/slug`, p. ej. `docs/agents-refresh-YYYYMMDD`.
+- Commits en Conventional Commits (`docs(agents): ...`).
+- PRs incluyen evidencia de `npm test`, `npm run build`, `npm run test:e2e` y auditorías relevantes.
+- Actualizar docs relacionadas en el mismo PR cuando cambia un comportamiento.
+- Adjuntar `npm audit --production` cuando se toquen dependencias.
+- Patch/minor permitidos si pruebas y auditorías en verde. Major requieren RFC documentado.
