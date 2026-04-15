@@ -17,6 +17,12 @@ Static storefront for `https://www.elrincondeebano.com/`, built from the active 
 ## Setup
 
 ```bash
+npm run bootstrap
+```
+
+This installs dependencies for both the root tooling and the Astro storefront (`astro-poc/`). Equivalent to:
+
+```bash
 npm ci
 (cd astro-poc && npm ci)
 ```

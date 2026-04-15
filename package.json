@@ -8,6 +8,7 @@
     "test": "test"
   },
   "scripts": {
+    "bootstrap": "npm ci && npm --prefix astro-poc ci",
     "fonts": "node tools/fetch-fonts.mjs",
     "categories:sync": "node tools/sync-category-catalog.js",
     "preflight": "npm run categories:sync && npm run images:avif && npm run images:og:home && npm run images:og:overrides && npm run images:og:categories && node tools/preflight.js",
