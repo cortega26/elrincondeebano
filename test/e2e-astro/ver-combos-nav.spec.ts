@@ -19,8 +19,7 @@ test.describe('Ver combos navigation', () => {
 
     // Capture catalog visible count BEFORE clicking the button.
     const countBefore = await page.evaluate(
-      () =>
-        document.querySelectorAll('#product-container [data-product-id]:not(.is-hidden)').length
+      () => document.querySelectorAll('#product-container [data-product-id]:not(.is-hidden)').length
     );
     expect(countBefore).toBeGreaterThan(0);
 
@@ -41,8 +40,7 @@ test.describe('Ver combos navigation', () => {
 
     // The catalog must NOT have expanded (loadMore must not have fired).
     const countAfter = await page.evaluate(
-      () =>
-        document.querySelectorAll('#product-container [data-product-id]:not(.is-hidden)').length
+      () => document.querySelectorAll('#product-container [data-product-id]:not(.is-hidden)').length
     );
     expect(countAfter).toBe(countBefore);
   });

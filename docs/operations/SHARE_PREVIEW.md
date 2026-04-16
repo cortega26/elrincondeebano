@@ -98,3 +98,37 @@ If `npm run monitor:share-preview` fails:
    ```
 4. Rebuild locally with `npm run build` and compare the built HTML against production.
 5. If the HTML looks correct but the unfurl is stale, re-scrape in Meta Sharing Debugger and repeat the WhatsApp manual check.
+
+### Cloudflare Bot Fight Mode blocking social crawlers
+
+**Symptom:** monitor fails with `"returned a challenge/interstitial page instead of the public storefront"`. The OG images show as broken or missing in WhatsApp even though the physical image files and meta tags are correct.
+
+**Root cause:** Cloudflare's Bot Fight Mode (or a WAF managed rule) is issuing JavaScript challenges to `facebookexternalhit/1.1` and `WhatsApp/*` user agents. These bots cannot execute JavaScript, so they never receive the real HTML and cannot read OG tags.
+
+**Diagnosis:**
+
+```bash
+curl -sA "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)" \
+  https://www.elrincondeebano.com/ | grep -c 'cdn-cgi/challenge-platform'
+# returns 1 → bot is being challenged; returns 0 → bot is not being challenged
+```
+
+**Fix (Cloudflare dashboard — must be done manually):**
+
+1. Go to **Security → WAF → Custom Rules** (or Firewall Rules on older plans).
+2. Create a rule with the expression:
+   ```
+   (http.user_agent contains "facebookexternalhit") or
+   (http.user_agent contains "WhatsApp") or
+   (http.user_agent contains "Twitterbot")
+   ```
+3. Set the action to **Skip → All remaining custom rules** (and disable "Bot Fight Mode" for this request if that option is available on your plan).
+4. Save and verify:
+   ```bash
+   curl -sA "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)" \
+     https://www.elrincondeebano.com/ | grep -c 'cdn-cgi/challenge-platform'
+   # must return 0
+   npm run monitor:share-preview
+   ```
+
+This is a **recurring regression**: every time Cloudflare's security settings are reset (e.g., after a plan change, a zone re-import, or "Reset to Defaults") the bypass rule is lost and the bot challenge re-activates.

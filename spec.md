@@ -21,21 +21,21 @@ The checkout cart offcanvas has three compounding UX problems on mobile:
 
 ## Goals
 
-| # | Goal |
-|---|------|
-| G1 | **Single scroll zone** — the offcanvas body scrolls as one continuous region. No nested scroll. |
-| G2 | **Sticky CTA** — Submit + Continue Shopping buttons are always visible at the bottom of the panel without scrolling. |
-| G3 | **SVG trash icon** — The remove button renders a proper inline SVG trash icon at exactly 20 × 20 px, inside a 44 × 44 px touch target. No text overflow. |
-| G4 | **Item clarity** — Each cart item has a clear visual hierarchy: thumbnail → product name → price line → quantity controls + remove. |
-| G5 | **Payment visible by default** — On a 390 × 844 viewport with one item in cart, payment options are fully visible without scrolling. |
-| G6 | **All existing tests stay green** — unit, render, checkout, and e2e specs. |
-| G7 | **Accessible** — No WCAG regressions. All interactive elements ≥ 44 × 44 px. aria-labels on all icon-only buttons. |
+| #   | Goal                                                                                                                                                     |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| G1  | **Single scroll zone** — the offcanvas body scrolls as one continuous region. No nested scroll.                                                          |
+| G2  | **Sticky CTA** — Submit + Continue Shopping buttons are always visible at the bottom of the panel without scrolling.                                     |
+| G3  | **SVG trash icon** — The remove button renders a proper inline SVG trash icon at exactly 20 × 20 px, inside a 44 × 44 px touch target. No text overflow. |
+| G4  | **Item clarity** — Each cart item has a clear visual hierarchy: thumbnail → product name → price line → quantity controls + remove.                      |
+| G5  | **Payment visible by default** — On a 390 × 844 viewport with one item in cart, payment options are fully visible without scrolling.                     |
+| G6  | **All existing tests stay green** — unit, render, checkout, and e2e specs.                                                                               |
+| G7  | **Accessible** — No WCAG regressions. All interactive elements ≥ 44 × 44 px. aria-labels on all icon-only buttons.                                       |
 
 ## Non-Goals
 
-- Migrating the cart to a reactive framework  
-- Changing the WhatsApp phone number  
-- Redesigning the product catalogue or navbar  
+- Migrating the cart to a reactive framework
+- Changing the WhatsApp phone number
+- Redesigning the product catalogue or navbar
 - Changing the Astro page structure (adding new pages)
 
 ---
@@ -141,25 +141,25 @@ Playwright tests validating all goals (see Verification section).
 
 Each goal has a test ID and what proves it.
 
-| Goal | Test | How Verified |
-|------|------|--------------|
-| G1 | `T1` | In-browser eval: `#cart-items` and `.cart-footer` have `overflow` ≠ `auto`/`scroll`. Only `.offcanvas-body` has `overflow-y: auto`. |
-| G2 | `T2` | `.cart-footer-actions` bottom edge equals offcanvas body bottom edge (within 2 px) on 390 × 844 with 3 items. |
-| G3 | `T3` | `.cart-item__remove svg` exists; button bounding box ≥ 44 × 44 px; `innerText` of button does not include "Eliminar" or "✕". |
-| G4 | `T4` | Within a `.cart-item`, thumb appears before content column in DOM order; name text visible; price line visible. |
-| G5 | `T5` | On 390 × 844 with 1 item, `#payment-method-container` bounding rect is fully within the offcanvas body visible rect (no scroll needed). |
-| G6 | `T6` | `npm test` and `node --test test/cart.render.test.js test/cart.unit.test.mjs test/checkout.test.js` all pass. |
-| G7 | `T7` | All `.quantity-btn` and `.cart-item__remove` bounding rects ≥ 44 × 44 px. No `aria-hidden="true"` on visible interactive elements. |
+| Goal | Test | How Verified                                                                                                                            |
+| ---- | ---- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| G1   | `T1` | In-browser eval: `#cart-items` and `.cart-footer` have `overflow` ≠ `auto`/`scroll`. Only `.offcanvas-body` has `overflow-y: auto`.     |
+| G2   | `T2` | `.cart-footer-actions` bottom edge equals offcanvas body bottom edge (within 2 px) on 390 × 844 with 3 items.                           |
+| G3   | `T3` | `.cart-item__remove svg` exists; button bounding box ≥ 44 × 44 px; `innerText` of button does not include "Eliminar" or "✕".            |
+| G4   | `T4` | Within a `.cart-item`, thumb appears before content column in DOM order; name text visible; price line visible.                         |
+| G5   | `T5` | On 390 × 844 with 1 item, `#payment-method-container` bounding rect is fully within the offcanvas body visible rect (no scroll needed). |
+| G6   | `T6` | `npm test` and `node --test test/cart.render.test.js test/cart.unit.test.mjs test/checkout.test.js` all pass.                           |
+| G7   | `T7` | All `.quantity-btn` and `.cart-item__remove` bounding rects ≥ 44 × 44 px. No `aria-hidden="true"` on visible interactive elements.      |
 
 ---
 
 ## Files Modified
 
-| File | Change |
-|------|--------|
+| File                                    | Change                                                                  |
+| --------------------------------------- | ----------------------------------------------------------------------- |
 | `astro-poc/src/components/Navbar.astro` | Move `.cart-footer-actions` + `#submit-feedback` outside `.cart-footer` |
-| `astro-poc/src/styles/global.css` | Single scroll layout, remove dual-scroll CSS |
-| `src/js/modules/cart.mjs` | SVG trash icon in remove button |
-| `test/cart-ux/cart-ux.spec.ts` | New e2e tests T1–T7 |
-| `spec.md` | This document |
-| `todo.md` | Task tracking |
+| `astro-poc/src/styles/global.css`       | Single scroll layout, remove dual-scroll CSS                            |
+| `src/js/modules/cart.mjs`               | SVG trash icon in remove button                                         |
+| `test/cart-ux/cart-ux.spec.ts`          | New e2e tests T1–T7                                                     |
+| `spec.md`                               | This document                                                           |
+| `todo.md`                               | Task tracking                                                           |

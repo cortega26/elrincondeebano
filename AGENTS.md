@@ -14,15 +14,15 @@
 
 ## Agentes
 
-| Agente | Responsabilidad |
-|---|---|
-| Repo Cartographer | Inventaría scripts (`package.json`), configs y workflows. |
-| Docs Steward | Mantiene `docs/`, ejecuta doc-gardening. |
-| Type & Lint Guardian | `npm run lint`, `typecheck`, `format`. |
-| Security / Supply Chain | Dependencias, SARIF, secret-scan. |
-| Test Sentinel | Suite completa, mutation testing, flakiness. |
-| CI Guardian | Workflows: versiones fijadas, permisos mínimos. |
-| PR/Release Manager | Ramas, PRs, versionado, evidencia. |
+| Agente                  | Responsabilidad                                           |
+| ----------------------- | --------------------------------------------------------- |
+| Repo Cartographer       | Inventaría scripts (`package.json`), configs y workflows. |
+| Docs Steward            | Mantiene `docs/`, ejecuta doc-gardening.                  |
+| Type & Lint Guardian    | `npm run lint`, `typecheck`, `format`.                    |
+| Security / Supply Chain | Dependencias, SARIF, secret-scan.                         |
+| Test Sentinel           | Suite completa, mutation testing, flakiness.              |
+| CI Guardian             | Workflows: versiones fijadas, permisos mínimos.           |
+| PR/Release Manager      | Ramas, PRs, versionado, evidencia.                        |
 
 ## Validación base
 
@@ -49,16 +49,16 @@ npm run monitor:share-preview
 
 ## Mapa de documentación
 
-| Qué | Dónde |
-|---|---|
-| Guardrails, cobertura, política de cambios y PRs | [`QUALITY_GUARDRAILS`](docs/operations/QUALITY_GUARDRAILS.md) |
-| Runbook, workflows CI, playbooks, comandos | [`RUNBOOK`](docs/operations/RUNBOOK.md) |
-| Planes activos y completados | [`docs/audit/`](docs/audit/) |
-| Smoke manual | [`SMOKE_TEST`](docs/operations/SMOKE_TEST.md) |
-| Share preview | [`SHARE_PREVIEW`](docs/operations/SHARE_PREVIEW.md) |
-| Incidentes y rollback | [`INCIDENT_TRIAGE`](docs/operations/INCIDENT_TRIAGE.md) · [`ROLLBACK`](docs/operations/ROLLBACK.md) |
-| Observabilidad | [`OBSERVABILITY`](docs/operations/OBSERVABILITY.md) |
-| Política de dependencias | [`DEPENDENCY_POLICY`](docs/operations/DEPENDENCY_POLICY.md) |
-| Headers de seguridad edge | [`EDGE_SECURITY_HEADERS`](docs/operations/EDGE_SECURITY_HEADERS.md) |
-| Scripts y utilidades | [`tools/`](tools/) |
-| Suite de pruebas | [`test/`](test/) |
+| Qué                                              | Dónde                                                                                               |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| Guardrails, cobertura, política de cambios y PRs | [`QUALITY_GUARDRAILS`](docs/operations/QUALITY_GUARDRAILS.md)                                       |
+| Runbook, workflows CI, playbooks, comandos       | [`RUNBOOK`](docs/operations/RUNBOOK.md)                                                             |
+| Planes activos y completados                     | [`docs/audit/`](docs/audit/)                                                                        |
+| Smoke manual                                     | [`SMOKE_TEST`](docs/operations/SMOKE_TEST.md)                                                       |
+| Share preview                                    | [`SHARE_PREVIEW`](docs/operations/SHARE_PREVIEW.md)                                                 |
+| Incidentes y rollback                            | [`INCIDENT_TRIAGE`](docs/operations/INCIDENT_TRIAGE.md) · [`ROLLBACK`](docs/operations/ROLLBACK.md) |
+| Observabilidad                                   | [`OBSERVABILITY`](docs/operations/OBSERVABILITY.md)                                                 |
+| Política de dependencias                         | [`DEPENDENCY_POLICY`](docs/operations/DEPENDENCY_POLICY.md)                                         |
+| Headers de seguridad edge                        | [`EDGE_SECURITY_HEADERS`](docs/operations/EDGE_SECURITY_HEADERS.md)                                 |
+| Scripts y utilidades                             | [`tools/`](tools/)                                                                                  |
+| Suite de pruebas                                 | [`test/`](test/)                                                                                    |

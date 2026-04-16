@@ -178,27 +178,27 @@ Fallback sin `node` en PATH: `npx -y node@22 "C:\Program Files\nodejs\node_modul
 
 ## Matriz de comandos por agente
 
-| Agente | Comando | Cuándo | Salida esperada |
-|---|---|---|---|
-| Repo Cartographer | `node -v` | Antes de cualquier trabajo | Versión `22.x` |
-| Repo Cartographer | `npm pkg get scripts` | Al actualizar docs/scripts | JSON de scripts |
-| Docs Steward | `npm run build` | Tras cambios en storefront/datos | Build sin errores; artefactos en `astro-poc/dist/` |
-| Docs Steward | `npm run monitor:share-preview` | Cambios SEO/OG o antes de release | Previews WhatsApp válidas |
-| Docs Steward | `npm run lighthouse:audit` | Auditorías de rendimiento | Reportes en `reports/lighthouse/` |
-| Docs Steward | `npm run smoke:evidence` | Antes de release | Evidencia en `reports/smoke/` |
-| Type & Lint Guardian | `npm run lint` | Cada PR | Sin errores ESLint |
-| Type & Lint Guardian | `npm run typecheck` | PRs en `src/js/**` | Sin errores tsc |
-| Type & Lint Guardian | `npm run format` | Cada PR | Código formateado |
-| Type & Lint Guardian | `npm run guardrails:assets` | PRs con cambios en imágenes/catálogo | Sin assets huérfanos nuevos |
-| Security / Supply Chain | `npm audit --production` | Mensual o ante cambios de deps | Sin vulns altas/críticas |
-| Security / Supply Chain | `pip-audit -r admin/product_manager/requirements.lock.txt` | Cambios en tooling Python | Sin vulns altas/críticas |
-| Security / Supply Chain | `npm run security:secret-scan` | Cada PR/push | Sin credenciales en versión |
-| Security / Supply Chain | `semgrep scan --config p/default --config p/secrets --metrics=off --sarif --output reports/semgrep/results.sarif .` | CI o reproducción local | SARIF generado y subido |
-| Test Sentinel | `npm ci && npm test` | Tras modificaciones | Todas las pruebas pasan |
-| Test Sentinel | `npx stryker run` | Cambios en lógica crítica | Mutation score estable |
-| Test Sentinel | `npx vitest run <file>` | Ejecución rápida aislada | Test pasa |
-| CI Guardian | `gh workflow view <name>` | Revisiones periódicas | Versiones fijadas, permisos mínimos |
-| PR/Release Manager | `git status && git diff --stat` | Antes de revisión/merge | Árbol limpio, diff ≤400 líneas |
+| Agente                  | Comando                                                                                                             | Cuándo                               | Salida esperada                                    |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------ | -------------------------------------------------- |
+| Repo Cartographer       | `node -v`                                                                                                           | Antes de cualquier trabajo           | Versión `22.x`                                     |
+| Repo Cartographer       | `npm pkg get scripts`                                                                                               | Al actualizar docs/scripts           | JSON de scripts                                    |
+| Docs Steward            | `npm run build`                                                                                                     | Tras cambios en storefront/datos     | Build sin errores; artefactos en `astro-poc/dist/` |
+| Docs Steward            | `npm run monitor:share-preview`                                                                                     | Cambios SEO/OG o antes de release    | Previews WhatsApp válidas                          |
+| Docs Steward            | `npm run lighthouse:audit`                                                                                          | Auditorías de rendimiento            | Reportes en `reports/lighthouse/`                  |
+| Docs Steward            | `npm run smoke:evidence`                                                                                            | Antes de release                     | Evidencia en `reports/smoke/`                      |
+| Type & Lint Guardian    | `npm run lint`                                                                                                      | Cada PR                              | Sin errores ESLint                                 |
+| Type & Lint Guardian    | `npm run typecheck`                                                                                                 | PRs en `src/js/**`                   | Sin errores tsc                                    |
+| Type & Lint Guardian    | `npm run format`                                                                                                    | Cada PR                              | Código formateado                                  |
+| Type & Lint Guardian    | `npm run guardrails:assets`                                                                                         | PRs con cambios en imágenes/catálogo | Sin assets huérfanos nuevos                        |
+| Security / Supply Chain | `npm audit --production`                                                                                            | Mensual o ante cambios de deps       | Sin vulns altas/críticas                           |
+| Security / Supply Chain | `pip-audit -r admin/product_manager/requirements.lock.txt`                                                          | Cambios en tooling Python            | Sin vulns altas/críticas                           |
+| Security / Supply Chain | `npm run security:secret-scan`                                                                                      | Cada PR/push                         | Sin credenciales en versión                        |
+| Security / Supply Chain | `semgrep scan --config p/default --config p/secrets --metrics=off --sarif --output reports/semgrep/results.sarif .` | CI o reproducción local              | SARIF generado y subido                            |
+| Test Sentinel           | `npm ci && npm test`                                                                                                | Tras modificaciones                  | Todas las pruebas pasan                            |
+| Test Sentinel           | `npx stryker run`                                                                                                   | Cambios en lógica crítica            | Mutation score estable                             |
+| Test Sentinel           | `npx vitest run <file>`                                                                                             | Ejecución rápida aislada             | Test pasa                                          |
+| CI Guardian             | `gh workflow view <name>`                                                                                           | Revisiones periódicas                | Versiones fijadas, permisos mínimos                |
+| PR/Release Manager      | `git status && git diff --stat`                                                                                     | Antes de revisión/merge              | Árbol limpio, diff ≤400 líneas                     |
 
 ## Flujos de trabajo (CI)
 

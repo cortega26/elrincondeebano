@@ -106,8 +106,11 @@
   },
   "homepage": "https://github.com/cortega26/elrincondeebano#readme",
   "lint-staged": {
-    "*.{js,mjs,cjs,ts,mts}": [
+    "*.{js,mjs,cjs}": [
       "eslint --max-warnings=0",
+      "prettier --check"
+    ],
+    "*.{ts,mts}": [
       "prettier --check"
     ],
     "*.{json,md,css,html}": [

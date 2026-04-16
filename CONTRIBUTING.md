@@ -2,12 +2,12 @@
 
 ## Prerequisites
 
-| Tool | Version | Required for |
-|------|---------|-------------|
-| Node.js | 22.x | All storefront work |
-| npm | 10.x (bundled with Node 22) | All JS tasks |
-| Python | 3.12 | `admin/` tooling only |
-| Git | Any recent | Version control |
+| Tool    | Version                     | Required for          |
+| ------- | --------------------------- | --------------------- |
+| Node.js | 22.x                        | All storefront work   |
+| npm     | 10.x (bundled with Node 22) | All JS tasks          |
+| Python  | 3.12                        | `admin/` tooling only |
+| Git     | Any recent                  | Version control       |
 
 Use `nvm use 22` or rely on the [Volta](https://volta.sh/) pin in `package.json` to get the right Node version automatically.
 
@@ -75,17 +75,17 @@ See [AGENTS.md](AGENTS.md#checklist-pr-mínimo) for the full machine-readable ch
 
 ## Key directories
 
-| Path | Purpose |
-|------|---------|
-| `astro-poc/` | Production Astro storefront — the canonical runtime |
-| `data/` | Shared source data (product catalog, categories) — read-only input to build |
-| `assets/` | Shared source images and fonts — read-only input to build |
-| `src/js/` | Typed JS modules (cart, logger, analytics) — typecheck-scoped |
-| `test/` | All unit, contract, guardrail, and integration tests |
-| `tools/` | Preflight pipeline scripts run before Astro build |
-| `scripts/` | Developer utility scripts (smoke, dev server, image conversion) |
-| `admin/` | Python GUI for product data management (separate Python runtime) |
-| `docs/` | All architectural, operational, and decision documentation |
+| Path         | Purpose                                                                     |
+| ------------ | --------------------------------------------------------------------------- |
+| `astro-poc/` | Production Astro storefront — the canonical runtime                         |
+| `data/`      | Shared source data (product catalog, categories) — read-only input to build |
+| `assets/`    | Shared source images and fonts — read-only input to build                   |
+| `src/js/`    | Typed JS modules (cart, logger, analytics) — typecheck-scoped               |
+| `test/`      | All unit, contract, guardrail, and integration tests                        |
+| `tools/`     | Preflight pipeline scripts run before Astro build                           |
+| `scripts/`   | Developer utility scripts (smoke, dev server, image conversion)             |
+| `admin/`     | Python GUI for product data management (separate Python runtime)            |
+| `docs/`      | All architectural, operational, and decision documentation                  |
 
 For the full data-flow and module-boundary map see [docs/architecture/CODEBASE_MAP.md](docs/architecture/CODEBASE_MAP.md).
 

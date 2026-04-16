@@ -18,7 +18,9 @@ async function readQuickOrder(page: Page) {
 }
 
 async function bumpQuickOrderItem(page: Page, productId: string, expectedQty: number) {
-  const addButton = page.locator(`#home-personalized-grid .add-to-cart-btn[data-id="${productId}"]`);
+  const addButton = page.locator(
+    `#home-personalized-grid .add-to-cart-btn[data-id="${productId}"]`
+  );
 
   if (await addButton.first().isVisible()) {
     await addButton.first().click();
