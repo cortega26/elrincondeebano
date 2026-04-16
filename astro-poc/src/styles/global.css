@@ -1282,7 +1282,7 @@ body.service-dialog-open {
 
 .cart-item {
   display: grid;
-  grid-template-columns: 82px minmax(0, 1fr);
+  grid-template-columns: 96px minmax(0, 1fr);
   align-items: start;
   gap: 0.85rem;
   padding: 0.8rem;
@@ -1329,12 +1329,18 @@ body.service-dialog-open {
 }
 
 .cart-item-thumb {
-  width: 82px;
-  height: 82px;
+  width: 96px;
+  height: 96px;
   border-radius: 14px;
   overflow: hidden;
   background: #f3ede4;
   box-shadow: inset 0 0 0 1px rgba(18, 59, 53, 0.06);
+}
+
+.cart-item-thumb picture {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .cart-item-thumb-img {
@@ -1345,8 +1351,8 @@ body.service-dialog-open {
 }
 
 .cart-item .quantity-btn {
-  width: 40px;
-  min-height: 40px;
+  width: 44px;
+  min-height: 44px;
   font-size: 18px;
   font-weight: 700;
   background-color: transparent;
@@ -1406,6 +1412,35 @@ body.service-dialog-open {
   border-radius: 999px;
   border-color: rgba(159, 41, 41, 0.3);
   color: #a32626;
+}
+
+.cart-item__remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: none;
+  border: 1px solid rgba(18, 59, 53, 0.15);
+  border-radius: 50%;
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.cart-item__remove:hover,
+.cart-item__remove:focus-visible {
+  color: #a32626;
+  border-color: rgba(163, 38, 38, 0.4);
+  background-color: rgba(163, 38, 38, 0.06);
+  outline: none;
 }
 
 .cart-note-toggle-row {
@@ -1750,8 +1785,8 @@ body.service-dialog-open {
   }
 
   .cart-item .quantity-btn {
-    width: 40px;
-    min-height: 40px;
+    width: 44px;
+    min-height: 44px;
     font-size: 18px;
   }
 
@@ -1767,9 +1802,9 @@ body.service-dialog-open {
 
   .cart-footer {
     gap: 0.6rem;
-    max-height: min(46vh, 320px);
+    max-height: min(52vh, 380px);
     padding-top: 0.65rem;
-    padding-right: 0.1rem;
+    scrollbar-gutter: stable;
   }
 
   .cart-summary-card,
@@ -1789,6 +1824,11 @@ body.service-dialog-open {
   .cart-item-thumb {
     width: 88px;
     height: 88px;
+  }
+
+  .cart-item__remove {
+    width: 40px;
+    height: 40px;
   }
 
   .cart-payment-options {
@@ -1850,7 +1890,7 @@ body.service-dialog-open {
   }
 
   .cart-footer {
-    max-height: min(50vh, 330px);
+    max-height: min(55vh, 380px);
   }
 
   .cart-payment-options {

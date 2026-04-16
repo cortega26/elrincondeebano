@@ -140,7 +140,6 @@ export function createCartManager(
           {
             class: 'alert alert-info mb-0 cart-empty-message',
             role: 'status',
-            tabindex: '-1',
           },
           ['Tu carrito está vacío. Agrega productos antes de realizar el pedido.']
         )
@@ -150,72 +149,11 @@ export function createCartManager(
         const discountedPrice = item.price - (item.discount || 0);
 
         const itemElement = createSafeElement('div', {
-          class: 'cart-item mb-3 d-flex align-items-start',
+          class: 'cart-item',
           'aria-label': `Producto en carrito: ${item.name}`,
         });
 
-        const contentContainer = createSafeElement('div', {
-          class: 'cart-item-content flex-grow-1',
-        });
-
-        contentContainer.appendChild(
-          createSafeElement('div', { class: 'fw-bold mb-1' }, [item.name])
-        );
-
-        const quantityContainer = createSafeElement('div', { class: 'mb-2' });
-        const decreaseBtn = createSafeElement(
-          'button',
-          {
-            class: 'btn btn-sm btn-secondary decrease-quantity',
-            'data-id': item.id,
-            'aria-label': `Disminuir cantidad de ${item.name}`,
-          },
-          ['-']
-        );
-        const increaseBtn = createSafeElement(
-          'button',
-          {
-            class: 'btn btn-sm btn-secondary increase-quantity',
-            'data-id': item.id,
-            'aria-label': `Aumentar cantidad de ${item.name}`,
-          },
-          ['+']
-        );
-        const quantitySpan = createSafeElement(
-          'span',
-          {
-            class: 'mx-2 item-quantity',
-            'aria-label': `Cantidad de ${item.name}`,
-          },
-          [item.quantity.toString()]
-        );
-        quantityContainer.appendChild(decreaseBtn);
-        quantityContainer.appendChild(quantitySpan);
-        quantityContainer.appendChild(increaseBtn);
-        contentContainer.appendChild(quantityContainer);
-
-        contentContainer.appendChild(
-          createSafeElement('div', { class: 'text-muted small' }, [
-            `Precio: $${discountedPrice.toLocaleString('es-CL')}`,
-          ])
-        );
-        contentContainer.appendChild(
-          createSafeElement('div', { class: 'fw-bold' }, [
-            `Subtotal: $${(discountedPrice * item.quantity).toLocaleString('es-CL')}`,
-          ])
-        );
-
-        const removeBtn = createSafeElement(
-          'button',
-          {
-            class: 'btn btn-sm btn-danger remove-item mt-2',
-            'data-id': item.id,
-            'aria-label': `Eliminar ${item.name} del carrito`,
-          },
-          ['Eliminar']
-        );
-        contentContainer.appendChild(removeBtn);
-
+        // Thumbnail — first child (grid column 1, 96px)
         const isSubcategoryPage =
           typeof window !== 'undefined' && window.location.pathname.includes('/pages/');
         let adjustedImagePath;
@@ -226,7 +164,7 @@ export function createCartManager(
         }
 
         const thumbnailContainer = createSafeElement('div', {
-          class: 'cart-item-thumb ms-3 flex-shrink-0',
+          class: 'cart-item-thumb',
         });
         const thumbnailPicture = createCartThumbnail({
           imagePath: item.thumbnail_path || adjustedImagePath,
@@ -252,8 +190,77 @@ export function createCartManager(
         }
         thumbnailContainer.appendChild(thumbnailPicture);
 
-        itemElement.appendChild(contentContainer);
+        // Content — second child (grid column 2, 1fr)
+        const contentContainer = createSafeElement('div', {
+          class: 'cart-item-content',
+        });
+
+        contentContainer.appendChild(
+          createSafeElement('div', { class: 'cart-item__title' }, [item.name])
+        );
+
+        const priceLine =
+          item.quantity > 1
+            ? `${item.quantity} × $${discountedPrice.toLocaleString('es-CL')} = $${(discountedPrice * item.quantity).toLocaleString('es-CL')}`
+            : `$${discountedPrice.toLocaleString('es-CL')}`;
+        const metaContainer = createSafeElement('div', { class: 'cart-item__meta' });
+        metaContainer.appendChild(
+          createSafeElement('span', { class: 'cart-item__subtotal' }, [priceLine])
+        );
+        contentContainer.appendChild(metaContainer);
+
+        const actionsRow = createSafeElement('div', { class: 'cart-item__actions' });
+
+        const qtyRow = createSafeElement('div', { class: 'cart-qty-row' });
+        const decreaseBtn = createSafeElement(
+          'button',
+          {
+            class: 'quantity-btn decrease-quantity',
+            'data-id': item.id,
+            type: 'button',
+            'aria-label': `Disminuir cantidad de ${item.name}`,
+          },
+          ['−']
+        );
+        const quantitySpan = createSafeElement(
+          'span',
+          {
+            class: 'item-quantity',
+            'aria-label': `Cantidad de ${item.name}`,
+          },
+          [item.quantity.toString()]
+        );
+        const increaseBtn = createSafeElement(
+          'button',
+          {
+            class: 'quantity-btn increase-quantity',
+            'data-id': item.id,
+            type: 'button',
+            'aria-label': `Aumentar cantidad de ${item.name}`,
+          },
+          ['+']
+        );
+        qtyRow.appendChild(decreaseBtn);
+        qtyRow.appendChild(quantitySpan);
+        qtyRow.appendChild(increaseBtn);
+        actionsRow.appendChild(qtyRow);
+
+        const removeBtn = createSafeElement(
+          'button',
+          {
+            class: 'remove-item cart-item__remove',
+            'data-id': item.id,
+            type: 'button',
+            'aria-label': `Eliminar ${item.name} del carrito`,
+          },
+          ['✕']
+        );
+        actionsRow.appendChild(removeBtn);
+
+        contentContainer.appendChild(actionsRow);
+
         itemElement.appendChild(thumbnailContainer);
+        itemElement.appendChild(contentContainer);
         cartItems.appendChild(itemElement);
 
         total += discountedPrice * item.quantity;
