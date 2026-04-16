@@ -36,10 +36,20 @@ See [docs/operations/RUNBOOK.md](docs/operations/RUNBOOK.md) for the variables r
 Run this before opening a PR:
 
 ```bash
+npm run validate:release
+```
+
+`validate:release` is the canonical ship gate. It runs:
+
+`lint → typecheck → test → build → guardrails:assets → test:e2e → monitor:share-preview`
+
+Use the lighter baseline during iteration:
+
+```bash
 npm run validate
 ```
 
-This chains: `lint → typecheck → test → build → guardrails:assets`. For individual steps:
+For individual steps:
 
 ```bash
 npm run lint             # ESLint across all JS
@@ -67,6 +77,7 @@ Before requesting review, verify:
 - [ ] `npm run build` passes
 - [ ] `npm run guardrails:assets` passes (required when touching images or data files)
 - [ ] `npm run test:e2e` passes or is explicitly justified as not applicable
+- [ ] `npm run monitor:share-preview` passes when SEO/OG/share-preview behavior changes
 - [ ] `npm audit --omit=dev` shows no high/critical vulnerabilities
 - [ ] Rollback documented (`git revert <sha>` + verification steps)
 - [ ] Operational docs updated if behavior changed

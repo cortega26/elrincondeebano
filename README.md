@@ -31,19 +31,17 @@ Node `22.x` is the supported local and CI baseline.
 
 ## Canonical Validation
 
-Run these commands for storefront work:
+Use the supported validation tiers for storefront work:
 
 ```bash
-npm run lint
-npm run typecheck
-npm test
-npm run build
-npm run test:e2e
-npm run monitor:share-preview
+npm run validate
+npm run validate:release
 ```
 
 Validation details:
 
+- `npm run validate` is the fast local baseline: `lint → typecheck → test → build → guardrails:assets`.
+- `npm run validate:release` is the canonical ship gate: `validate` plus `test:e2e` and `monitor:share-preview`.
 - `npm run typecheck` runs the legacy root JS contract check plus Astro-native `astro check` for the active app.
 - `npm run test:e2e` runs `playwright.astro.config.ts` against the canonical Astro suite in [`test/e2e-astro/`](./test/e2e-astro/).
 - Shopper-state persistence for the shipped storefront is canonical under the `astro-poc-*` localStorage keys; the legacy `cart` key is read only as a compatibility alias during upgrade.
@@ -59,6 +57,8 @@ Validation details:
 
 ## Key Docs
 
+- [`docs/START_HERE.md`](./docs/START_HERE.md)
+- [`docs/operations/VALIDATION_MATRIX.md`](./docs/operations/VALIDATION_MATRIX.md)
 - [`docs/operations/QUALITY_GUARDRAILS.md`](./docs/operations/QUALITY_GUARDRAILS.md)
 - [`docs/operations/DEBUGGING.md`](./docs/operations/DEBUGGING.md)
 - [`docs/operations/RUNBOOK.md`](./docs/operations/RUNBOOK.md)

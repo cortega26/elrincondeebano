@@ -29,12 +29,8 @@
 Node 22.x · instalación determinista: `npm ci`
 
 ```bash
-npm run lint && npm run typecheck
-npm test
-npm run build
-npm run guardrails:assets
-npm run test:e2e
-npm run monitor:share-preview
+npm run validate
+npm run validate:release
 ```
 
 ## Checklist PR mínimo
@@ -42,7 +38,9 @@ npm run monitor:share-preview
 - [ ] `lint` + `typecheck` en verde.
 - [ ] `test` en verde.
 - [ ] `build` en verde.
+- [ ] `guardrails:assets` en verde si cambia catálogo, taxonomía o assets.
 - [ ] `test:e2e` en verde o justificado.
+- [ ] `monitor:share-preview` en verde si cambia SEO/OG/share-preview.
 - [ ] `npm audit --omit=dev` sin vulnerabilidades altas/críticas.
 - [ ] Rollback documentado (`git revert <sha>`).
 - [ ] Docs actualizadas si cambió comportamiento.
@@ -51,6 +49,8 @@ npm run monitor:share-preview
 
 | Qué                                              | Dónde                                                                                               |
 | ------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| Punto de entrada por tarea                       | [`START_HERE`](docs/START_HERE.md)                                                                  |
+| Matriz de validación                             | [`VALIDATION_MATRIX`](docs/operations/VALIDATION_MATRIX.md)                                         |
 | Guardrails, cobertura, política de cambios y PRs | [`QUALITY_GUARDRAILS`](docs/operations/QUALITY_GUARDRAILS.md)                                       |
 | Runbook, workflows CI, playbooks, comandos       | [`RUNBOOK`](docs/operations/RUNBOOK.md)                                                             |
 | Planes activos y completados                     | [`docs/audit/`](docs/audit/)                                                                        |
@@ -62,3 +62,11 @@ npm run monitor:share-preview
 | Headers de seguridad edge                        | [`EDGE_SECURITY_HEADERS`](docs/operations/EDGE_SECURITY_HEADERS.md)                                 |
 | Scripts y utilidades                             | [`tools/`](tools/)                                                                                  |
 | Suite de pruebas                                 | [`test/`](test/)                                                                                    |
+
+<claude-mem-context>
+# Memory Context
+
+# [Tienda Ebano] recent context, 2026-04-16 7:50pm GMT-4
+
+No previous sessions found.
+</claude-mem-context>
