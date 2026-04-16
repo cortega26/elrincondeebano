@@ -133,8 +133,46 @@ export function createCheckoutSubmission(
     message += `Total: $${total.toLocaleString('es-CL')}\n`;
     message += `Método de pago: ${/** @type {HTMLInputElement} */ (selectedPayment).value}`;
 
+    const deliveryNote = /** @type {HTMLTextAreaElement | null} */ (
+      document.getElementById('delivery-note')
+    );
+    const substitutionPreference = /** @type {HTMLSelectElement | null} */ (
+      document.getElementById('substitution-preference')
+    );
+
+    if (deliveryNote?.value?.trim()) {
+      message += `\nNotas: ${deliveryNote.value.trim()}`;
+    }
+    if (substitutionPreference?.value) {
+      message += `\nSi no hay stock: ${substitutionPreference.value}`;
+    }
+
+    const submitButton = /** @type {HTMLButtonElement | null} */ (
+      document.getElementById('submit-cart')
+    );
+    const originalLabel = submitButton?.textContent ?? '';
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = 'Preparando pedido…';
+    }
+
     const encodedMessage = encodeURIComponent(message);
     window.open(`https://wa.me/56951118901?text=${encodedMessage}`, '_blank');
+
+    const feedbackEl = document.getElementById('submit-feedback');
+    if (feedbackEl) {
+      feedbackEl.textContent = '¡Pedido enviado! Continúa en WhatsApp para confirmar.';
+    }
+
+    if (submitButton) {
+      setTimeout(() => {
+        submitButton.disabled = false;
+        submitButton.textContent = originalLabel;
+        if (feedbackEl) {
+          feedbackEl.textContent = '';
+        }
+      }, 4000);
+    }
   };
 
   return { submitCart };

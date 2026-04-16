@@ -156,3 +156,66 @@ test('createCheckoutSubmission builds WhatsApp order with totals and selected pa
   assert.match(decoded, /Total: \$4\.000/);
   assert.strictEqual(document.getElementById('payment-error').textContent, '');
 });
+
+test('createCheckoutSubmission includes delivery note and substitution in message', async () => {
+  const { createCheckoutSubmission } = await loadCheckoutModule();
+  installDom(`<!doctype html>
+    <html>
+      <body>
+        <div id="payment-error"></div>
+        <input type="radio" name="paymentMethod" value="Efectivo" checked />
+        <textarea id="delivery-note">Dejar en conserjería</textarea>
+        <select id="substitution-preference">
+          <option value="Preguntar antes">Preguntar antes</option>
+          <option value="Reemplazar por algo similar" selected>Reemplazar por algo similar</option>
+        </select>
+        <button id="submit-cart">Enviar</button>
+      </body>
+    </html>`);
+
+  let openedUrl = null;
+  window.open = (url) => {
+    openedUrl = url;
+  };
+
+  const { submitCart } = createCheckoutSubmission({
+    getCart: () => [{ name: 'Coca Cola', price: 2000, discount: 0, quantity: 1 }],
+  });
+
+  submitCart();
+
+  assert.ok(openedUrl, 'should open WhatsApp');
+  const decoded = decodeURIComponent(openedUrl.split('text=')[1]);
+  assert.match(decoded, /Notas: Dejar en conserjería/);
+  assert.match(decoded, /Si no hay stock: Reemplazar por algo similar/);
+});
+
+test('createCheckoutSubmission omits notes fields when empty', async () => {
+  const { createCheckoutSubmission } = await loadCheckoutModule();
+  installDom(`<!doctype html>
+    <html>
+      <body>
+        <div id="payment-error"></div>
+        <input type="radio" name="paymentMethod" value="Efectivo" checked />
+        <textarea id="delivery-note"></textarea>
+        <select id="substitution-preference">
+          <option value="" selected></option>
+        </select>
+      </body>
+    </html>`);
+
+  let openedUrl = null;
+  window.open = (url) => {
+    openedUrl = url;
+  };
+
+  const { submitCart } = createCheckoutSubmission({
+    getCart: () => [{ name: 'Agua', price: 1000, discount: 0, quantity: 1 }],
+  });
+
+  submitCart();
+
+  const decoded = decodeURIComponent(openedUrl.split('text=')[1]);
+  assert.ok(!decoded.includes('Notas:'), 'empty note should not appear');
+  assert.ok(!decoded.includes('Si no hay stock:'), 'empty substitution should not appear');
+});
