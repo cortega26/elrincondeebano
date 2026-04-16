@@ -30,6 +30,8 @@ For Node changes:
 2. `npm test`
 3. `npm run build`
 4. `npm run test:e2e` (smoke subset is acceptable when full run is expensive)
+5. `npm run lighthouse:audit` when the dependency affects rendering, bundling,
+   image processing, routing, or critical fetch behavior
 
 For Python admin changes:
 
@@ -55,6 +57,18 @@ For workflow changes:
 2. Use `npm ci` in CI and local reproducibility checks.
 3. Keep Dependabot PRs small and grouped by severity/risk level.
 4. Keep `requirements.lock.txt` in sync with `requirements.txt` for admin Python tooling changes.
+5. Avoid adding dependencies that duplicate capabilities already covered by the
+   platform, Astro, Vitest, Playwright, or existing repo utilities unless the
+   tradeoff is documented.
+
+## Maintainability review for upgrades
+
+1. Document why the dependency is still needed after the upgrade.
+2. Note any change to build time, browser bundle shape, or operational surface.
+3. Remove obsolete adapters, polyfills, or compatibility layers in the same PR
+   when safe.
+4. Update docs if the upgrade changes the canonical command path, runtime
+   assumptions, or rollout/rollback expectations.
 
 ## PR structure
 

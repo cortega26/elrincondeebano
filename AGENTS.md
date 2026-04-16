@@ -1,7 +1,7 @@
 # AGENTS
 
 **El Rincón de Ébano** — web estática servida desde Astro. Runtime: Node 22.x.
-Última actualización: 2026-04-15 (Prompt 19).
+Última actualización: 2026-04-16 (Docs refresh: engineering priorities).
 
 ## Principios
 
@@ -52,6 +52,7 @@ npm run validate:release
 | Punto de entrada por tarea                       | [`START_HERE`](docs/START_HERE.md)                                                                  |
 | Matriz de validación                             | [`VALIDATION_MATRIX`](docs/operations/VALIDATION_MATRIX.md)                                         |
 | Guardrails, cobertura, política de cambios y PRs | [`QUALITY_GUARDRAILS`](docs/operations/QUALITY_GUARDRAILS.md)                                       |
+| Performance, escalabilidad y mantenibilidad      | [`ENGINEERING_PRIORITIES`](docs/architecture/ENGINEERING_PRIORITIES.md)                             |
 | Runbook, workflows CI, playbooks, comandos       | [`RUNBOOK`](docs/operations/RUNBOOK.md)                                                             |
 | Planes activos y completados                     | [`docs/audit/`](docs/audit/)                                                                        |
 | Smoke manual                                     | [`SMOKE_TEST`](docs/operations/SMOKE_TEST.md)                                                       |
@@ -62,11 +63,3 @@ npm run validate:release
 | Headers de seguridad edge                        | [`EDGE_SECURITY_HEADERS`](docs/operations/EDGE_SECURITY_HEADERS.md)                                 |
 | Scripts y utilidades                             | [`tools/`](tools/)                                                                                  |
 | Suite de pruebas                                 | [`test/`](test/)                                                                                    |
-
-<claude-mem-context>
-# Memory Context
-
-# [Tienda Ebano] recent context, 2026-04-16 7:50pm GMT-4
-
-No previous sessions found.
-</claude-mem-context>

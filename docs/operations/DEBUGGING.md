@@ -23,6 +23,36 @@ Estandarizar depuración local para fallos de build, test y runtime sin introduc
    - `git diff --stat`
 5. Aplicar fix mínimo y volver a correr gates obligatorios.
 
+## Cuando el problema es de performance
+
+1. Confirmar si la regresión está en build-time, browser runtime, o live probe.
+2. Para UX/rendering:
+   - `npm run build`
+   - `npm run lighthouse:audit`
+   - `npm run test:e2e`
+3. Para fetch o catálogo:
+   - revisar `slow_endpoint_detected`, `web_vitals_snapshot`, y cambios en
+     `data/product_data.json`.
+4. Comparar antes/después del cambio:
+   - tamaño de inputs (`data/`, `assets/images/`)
+   - paths tocados en `astro-poc/src/`, `src/js/`, `tools/`
+5. Si la regresión es real pero la corrección es grande:
+   - abrir un follow-up pequeño y reversible antes de mezclar refactor amplio.
+
+## Cuando el problema es de escalabilidad o mantenibilidad
+
+1. Buscar trabajo repetido:
+   - múltiples scans completos de catálogo
+   - múltiples recorridos del árbol de imágenes
+   - comandos nuevos que duplican gates existentes
+2. Confirmar si la solución correcta es:
+   - reutilizar un módulo existente
+   - mover trabajo al preflight/build
+   - documentar una restricción duradera en ADR o arquitectura
+3. Si el cambio introduce una nueva superficie operativa:
+   - actualizar `docs/START_HERE.md`, `docs/repo/STRUCTURE.md`, y el runbook
+     correspondiente en el mismo PR.
+
 ## Casos frecuentes
 
 1. `node` fuera de `PATH`:
@@ -40,3 +70,5 @@ Estandarizar depuración local para fallos de build, test y runtime sin introduc
 3. causa raíz
 4. fix aplicado
 5. rollback posible
+6. nota de performance/escala si el problema involucró tiempos, tamaño de
+   inputs, o crecimiento del catálogo/assets

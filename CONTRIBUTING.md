@@ -61,6 +61,22 @@ npm run guardrails:assets  # orphan-asset check
 
 Full CI equivalents are documented in [AGENTS.md](AGENTS.md#matriz-de-comandos-por-agente).
 
+## Non-functional expectations
+
+- **Performance:** prefer build-time and Astro-native solutions before adding
+  more browser runtime work; run `npm run lighthouse:audit` when a change can
+  affect rendering, assets, navigation, or critical data fetches.
+- **Scalability:** avoid tooling or runtime logic that rescans the full catalog,
+  image tree, or route set unnecessarily; prefer indexed, cached, or batched
+  approaches.
+- **Maintainability:** extend existing commands/modules before creating new
+  entry points, and keep long-lived constraints documented outside the PR.
+- **Documentation:** update command, topology, and runbook docs in the same PR
+  whenever behavior or ownership changes.
+
+See [docs/architecture/ENGINEERING_PRIORITIES.md](docs/architecture/ENGINEERING_PRIORITIES.md)
+for the full non-functional guide.
+
 ## Branching and commits
 
 - **Branch format:** `type/slug` — e.g., `feat/cart-persistence`, `docs/adr-service-worker`
@@ -81,6 +97,8 @@ Before requesting review, verify:
 - [ ] `npm audit --omit=dev` shows no high/critical vulnerabilities
 - [ ] Rollback documented (`git revert <sha>` + verification steps)
 - [ ] Operational docs updated if behavior changed
+- [ ] Performance evidence attached when UX/rendering-critical behavior changed
+- [ ] Architecture/ADR docs updated when constraints or ownership changed
 
 See [AGENTS.md](AGENTS.md#checklist-pr-mínimo) for the full machine-readable checklist.
 
