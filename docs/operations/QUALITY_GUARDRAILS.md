@@ -9,23 +9,21 @@ El Rincon de Ebano.
 
 A change is done only when all items below are true:
 
-1. `npm run lint` passes with no errors.
-2. `npm run typecheck` passes, including Astro-native validation for `astro-poc/`.
-3. `npm test` passes.
-4. `npm run build` passes and generates a valid `astro-poc/dist/` deployment snapshot.
-5. `npm run guardrails:assets` passes when images, catalog references, templates,
+1. `npm run validate:release` passes for any release candidate or change that
+   affects shipped behavior.
+2. `npm run guardrails:assets` passes when images, catalog references, templates,
    or build tooling are touched.
-6. `npm run test:e2e` passes when routes, navigation, cart, rendering,
+3. `npm run test:e2e` passes when routes, navigation, cart, rendering,
    service worker, checkout-related UX, or product-page metadata are affected. The
    canonical suite is `playwright.astro.config.ts` over `test/e2e-astro/`.
-7. `npm run monitor:share-preview` passes when supported shareable routes,
+4. `npm run monitor:share-preview` passes when supported shareable routes,
    SEO metadata, OG assets, or category/product preview inputs change.
-8. Manual smoke checklist is executed for user-facing changes:
+5. Manual smoke checklist is executed for user-facing changes:
    `npm run smoke:manual` and `docs/operations/SMOKE_TEST.md`.
-9. Share-preview changes also require the workflow in
+6. Share-preview changes also require the workflow in
    [`SHARE_PREVIEW`](./SHARE_PREVIEW.md), including a Meta Sharing Debugger
    re-scrape and a real WhatsApp verification before final release signoff.
-10. Evidence (commands and outcomes) is attached to the PR.
+7. Evidence (commands and outcomes) is attached to the PR.
 
 ## Sensitive Production Areas
 

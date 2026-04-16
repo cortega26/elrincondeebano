@@ -1,9 +1,12 @@
 # Documentation Index
 
+- `docs/START_HERE.md`: single task router for agents and contributors.
+
 ## Operations
 
 - `docs/operations/RUNBOOK.md`: production incident handling and recovery steps.
 - `docs/operations/BACKUP.md`: backup and restore procedures.
+- `docs/operations/VALIDATION_MATRIX.md`: fast baseline vs canonical release gate.
 - `docs/operations/QUALITY_GUARDRAILS.md`: non-regression checklist and release gates.
 - `docs/operations/OBSERVABILITY.md`: telemetry and monitoring baseline.
 - `docs/operations/SMOKE_TEST.md`: manual smoke checklist.
@@ -15,7 +18,8 @@
 ## Architecture
 
 - `docs/architecture/CATEGORY_REGISTRY.md`: category taxonomy contract.
-- `docs/adr/`: architecture decision records.
+- `docs/adr/README.md`: ADR index and authoring guidance.
+- `docs/adr/0007-canonical-validation-contract.md`: canonical release gate decision.
 - `docs/adr/0002-audit-ops-guardrails.md`: operational guardrails and contract gates decision.
 - `docs/repo/STRUCTURE.md`: repo map, naming conventions, and script ownership.
 

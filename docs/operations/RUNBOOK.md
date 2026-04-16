@@ -164,12 +164,8 @@
 Runtime: Node 22.x · Instalación determinista: `npm ci`
 
 ```bash
-npm run lint && npm run typecheck
-npm test
-npm run build
-npm run guardrails:assets
-npm run test:e2e
-npm run monitor:share-preview
+npm run validate
+npm run validate:release
 npm run smoke:evidence
 ```
 
