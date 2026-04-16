@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import {
   assertAllowlistedHttpsUrl,
@@ -243,7 +244,7 @@ async function main() {
 }
 
 const isMainModule =
-  process.argv[1] && path.resolve(process.argv[1]) === new URL(import.meta.url).pathname;
+  process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (isMainModule) {
   main().catch((error) => {

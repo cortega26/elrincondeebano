@@ -35,7 +35,9 @@ async function seedCartAndOpen(page: Page, itemCount: number, viewport = MOBILE)
 
 // ─── T1: Single scroll zone ───────────────────────────────────────────────────
 
-test('T1: only .offcanvas-scroll-area has scrollable overflow — no nested scroll', async ({ page }) => {
+test('T1: only .offcanvas-scroll-area has scrollable overflow — no nested scroll', async ({
+  page,
+}) => {
   const offcanvas = await seedCartAndOpen(page, 1);
 
   const scrollZones = await offcanvas.evaluate((el) => {
@@ -62,9 +64,7 @@ test('T1: only .offcanvas-scroll-area has scrollable overflow — no nested scro
 
 // ─── T2: Sticky CTA visible at bottom ────────────────────────────────────────
 
-test('T2: .cart-footer-actions is always visible at the bottom of the panel', async ({
-  page,
-}) => {
+test('T2: .cart-footer-actions is always visible at the bottom of the panel', async ({ page }) => {
   const offcanvas = await seedCartAndOpen(page, 3);
 
   const positions = await offcanvas.evaluate((el) => {
