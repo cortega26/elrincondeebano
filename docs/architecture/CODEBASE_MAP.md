@@ -118,3 +118,18 @@ These are non-negotiable rules derived from the ADRs. Violating them will break 
 | Self-hosted runner required for live-contract probes                            | ADR-0004  | False 403 failures in CI                     |
 | `npm ci` mandatory in CI; `npm install` forbidden when lockfile is present      | AGENTS.md | Non-deterministic dependency trees           |
 | `SYNC_API_REQUIRE_AUTH=true` + `SYNC_API_TOKEN` required in production Sync API | AGENTS.md | Unauthenticated write access to product data |
+
+---
+
+## Performance and scaling hotspots
+
+These areas deserve extra caution because small local changes can have
+repo-wide operational impact.
+
+| Hotspot                          | Why it scales poorly when mishandled                                               | Preferred response                                                                       |
+| -------------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `data/product_data.json` readers | Full-catalog scans and repeated transforms get more expensive as the catalog grows | Reuse normalized data, cache where practical, avoid duplicate passes                     |
+| `assets/images/` pipelines       | Variant generation and orphan detection cost grows with asset count                | Keep generators deterministic, incremental where practical, and validated via guardrails |
+| `test/e2e-astro/`                | Browser-suite duration grows with every route-level addition                       | Add focused coverage and justify any broad end-to-end expansion                          |
+| `tools/` preflight scripts       | Every extra preflight pass affects all builds and CI runs                          | Consolidate work into existing stages before creating new ones                           |
+| `docs/` entry points             | Drift increases agent onboarding cost and bad-command risk                         | Update index docs in the same PR as command or topology changes                          |

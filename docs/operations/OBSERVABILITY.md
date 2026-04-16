@@ -8,6 +8,17 @@ Disponer de señales operativas útiles en producción sin introducir tracking i
 2. tasa de errores de frontend
 3. endpoints lentos (latencia en fetch crítico de catálogo)
 
+## Umbrales de triage
+
+Usar estos valores como señal operativa para investigar antes de release o como
+parte de una regresión en producción:
+
+1. `LCP > 2.5s`
+2. `INP > 200ms`
+3. `CLS > 0.1`
+4. fetch crítico de catálogo por sobre `1200ms`
+5. incremento visible de `error` o `unhandledrejection` tras un cambio
+
 ## Implementación actual
 
 ### Inicialización
@@ -52,3 +63,18 @@ Disponer de señales operativas útiles en producción sin introducir tracking i
    - correlacionar con `runtime_error_before_app_ready` / `unhandled_js_error`.
 3. Ajustar umbral de latencia por entorno:
    - default `1200ms`.
+4. Si el cambio afecta rendering, navegación, service worker, bundles o fetch de
+   catálogo:
+   - complementar con `npm run lighthouse:audit`.
+5. Si la tendencia empeora a medida que crece el catálogo o el número de assets:
+   - revisar si hay trabajo repetido sobre `product_data.json` o `assets/images/`
+     y abrir un follow-up de escalabilidad aunque no haya incidente todavía.
+
+## Qué no debe pasar
+
+1. No crear nuevas rutas de telemetría que dupliquen `log(...)` sin una razón
+   clara y documentada.
+2. No capturar payloads de usuario, query strings o PII para explicar
+   regresiones de rendimiento.
+3. No tratar Lighthouse o Web Vitals como opcionales cuando la PR toca la ruta
+   crítica del shopper.

@@ -85,6 +85,19 @@ config/ ─────────────────┘                  
 
 Manual/specialized scripts are kept for targeted maintenance tasks and should not be added to CI gates without explicit RFC/ADR.
 
+## Maintainability and scaling rules
+
+- Prefer one canonical command per workflow instead of multiple near-duplicate
+  entry points.
+- If a script becomes required for normal development or release readiness,
+  document it in `package.json`, `docs/START_HERE.md`, and the appropriate
+  runbook.
+- Keep runtime code out of `tools/` and build-time code out of browser modules.
+- Treat catalog growth, image growth, and test growth as default conditions:
+  avoid repeated full scans when an indexed or batched approach is practical.
+- Archive dead paths explicitly; do not leave them looking active in entry-point
+  docs.
+
 ## Naming conventions
 
 - JavaScript/TypeScript:
@@ -113,6 +126,7 @@ Manual/specialized scripts are kept for targeted maintenance tasks and should no
 - Do not commit temporary logs in repo root.
 - Keep generated outputs and caches out of git (`astro-poc/dist/`, `reports/`, `coverage/`, test artifacts).
 - Before opening PRs, validate:
-  - `npm run lint`
-  - `npm test`
-  - `npm run build`
+  - `npm run validate`
+  - `npm run validate:release` when shipped behavior changes
+- Update docs in the same PR when adding commands, changing ownership
+  boundaries, or introducing long-lived constraints.

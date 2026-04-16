@@ -52,6 +52,20 @@ The following areas require extra caution and explicit rollback notes:
 3. No large refactors in the same PR as behavior or contract changes.
 4. Risky changes must be reversible in one revert commit.
 
+## Non-functional guardrails
+
+1. Performance-sensitive changes should prefer static/build-time work over new
+   browser-time work.
+2. Rendering, navigation, bundle-shape, or critical data-fetch changes should
+   include `npm run lighthouse:audit` evidence or an explicit reason it was not
+   required.
+3. Tooling and data-path changes must remain deterministic and safe to rerun;
+   do not introduce alternate source-of-truth files for catalog or asset data.
+4. New scripts, commands, or workflow gates must update the relevant entry-point
+   docs in the same PR.
+5. Durable constraints belong in ADRs or architecture docs, not only in audit
+   notes or PR text.
+
 ## Small PR Plan
 
 1. PR0: Tooling and guardrails baseline (lint/test/build/smoke gates).
@@ -78,12 +92,15 @@ Use this process in PR descriptions for risky changes:
 - **Ejecución determinista:** `node -v` debe coincidir con `22.x`; usar `npm ci` (prohibido `npm install` con lockfile presente).
 - **Build estricto:** `npm run build` sin warnings críticos; artefactos en `astro-poc/dist/`. `npm run guardrails:assets` en verde.
 - **Tests:** `npm ci && npm test` completos tras modificaciones. Prohibido `test.skip`, `--forceExit`, `--passWithNoTests` o eliminar asserts sin reemplazo.
+- **Performance:** usar `npm run lighthouse:audit` cuando se toquen rutas, rendering, navegación, bundles, imágenes críticas o fetches de catálogo.
+- **Escalabilidad:** evitar nuevos pasos CI o scripts O(n) repetidos sobre catálogo/assets sin justificación y sin camino de reproducción local.
 - **Cobertura:** baseline objetivo 80%. Mutation testing (Stryker) en lógica crítica (Cart, Analytics, Logger); no reintroducir survivors.
 - **Linter/formatter:** `npm run lint`, `npm run typecheck` (para `src/js/**`), `npm run format` en verde.
 - **SARIF:** si se genera manualmente, sanitizar con `jq` y verificar esquema `2.1.0`. Nunca construir JSON con `echo` + interpolaciones.
 - **Secretos:** nunca registrar valores sensibles en logs o `git diff`. `SYNC_API_REQUIRE_AUTH=true` y `SYNC_API_STRICT_STARTUP=true` en producción.
 - **Permisos mínimos:** `contents: read`, `pages: write` — sólo lo necesario por workflow.
 - **Presupuesto de cambio:** objetivo ≤400 líneas netas por PR; refactors grandes requieren desglose.
+- **Docs como contrato:** actualizar `README.md`, `docs/START_HERE.md`, runbooks y ADRs afectados cuando cambian comandos, ownership o restricciones.
 
 ## Política de cambio y PR
 

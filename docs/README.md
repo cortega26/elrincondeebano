@@ -18,6 +18,7 @@
 ## Architecture
 
 - `docs/architecture/CATEGORY_REGISTRY.md`: category taxonomy contract.
+- `docs/architecture/ENGINEERING_PRIORITIES.md`: performance, scalability, maintainability, and documentation expectations.
 - `docs/adr/README.md`: ADR index and authoring guidance.
 - `docs/adr/0007-canonical-validation-contract.md`: canonical release gate decision.
 - `docs/adr/0002-audit-ops-guardrails.md`: operational guardrails and contract gates decision.

@@ -55,9 +55,20 @@ Validation details:
 - `npm run build` runs the shared preflight pipeline and then builds `astro-poc/dist/`.
 - `npm run build` and `npm run test:e2e` should be executed sequentially on Windows because they touch the same generated output.
 
+## Engineering Priorities
+
+- Performance, scalability, maintainability, and documentation-quality
+  expectations are documented in
+  [`docs/architecture/ENGINEERING_PRIORITIES.md`](./docs/architecture/ENGINEERING_PRIORITIES.md).
+- For rendering, bundle, navigation, or critical data-fetch changes, attach
+  `npm run lighthouse:audit` evidence or equivalent performance notes in the PR.
+- For command, topology, or workflow changes, update the relevant docs in the
+  same PR so entry-point docs remain trustworthy.
+
 ## Key Docs
 
 - [`docs/START_HERE.md`](./docs/START_HERE.md)
+- [`docs/architecture/ENGINEERING_PRIORITIES.md`](./docs/architecture/ENGINEERING_PRIORITIES.md)
 - [`docs/operations/VALIDATION_MATRIX.md`](./docs/operations/VALIDATION_MATRIX.md)
 - [`docs/operations/QUALITY_GUARDRAILS.md`](./docs/operations/QUALITY_GUARDRAILS.md)
 - [`docs/operations/DEBUGGING.md`](./docs/operations/DEBUGGING.md)
