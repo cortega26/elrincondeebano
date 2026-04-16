@@ -1177,20 +1177,31 @@ body.service-dialog-open {
 }
 
 .offcanvas-body {
-  flex: 1 1 auto;
+  flex: 1 1 0;
+  height: 0; /* explicit definite size so nested flex layout distributes height correctly */
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
-  padding-bottom: 0.85rem;
-  overflow-y: hidden; /* prevent a second scrollbar; #cart-items is the sole scroll area */
+  gap: 0;
+  padding: 0;
+  overflow-y: hidden; /* layout container — scroll happens in .offcanvas-scroll-area */
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(247, 244, 238, 0.98) 100%);
 }
 
-#cart-items {
-  flex: 1 1 0; /* allow shrinking when footer expands (e.g. note section open) */
+.offcanvas-scroll-area {
+  flex: 1 1 0;
   min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem 1rem 1rem;
+}
+
+#cart-items {
+  flex: none;
+  overflow-y: visible;
   padding-right: 0.15rem;
   padding-bottom: 0.35rem;
 }
@@ -1208,8 +1219,7 @@ body.service-dialog-open {
   gap: 0.7rem;
   padding-top: 0.75rem;
   border-top: 1px solid rgba(18, 59, 53, 0.1);
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  flex: none;
 }
 
 .cart-footer-primary {
@@ -1267,17 +1277,10 @@ body.service-dialog-open {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  position: sticky;
-  bottom: 0;
-  z-index: 1;
-  padding-top: 0.45rem;
-  padding-bottom: max(0.15rem, env(safe-area-inset-bottom, 0));
-  background: linear-gradient(
-    180deg,
-    rgba(247, 244, 238, 0) 0%,
-    rgba(247, 244, 238, 0.92) 18%,
-    #f7f4ee 100%
-  );
+  flex: 0 0 auto;
+  padding: 0.65rem 1rem max(0.85rem, env(safe-area-inset-bottom, 0.85rem));
+  background: #f7f4ee;
+  border-top: 1px solid rgba(18, 59, 53, 0.08);
 }
 
 .cart-item {
@@ -1408,27 +1411,27 @@ body.service-dialog-open {
 
 .cart-item .remove-item {
   margin-top: 0 !important;
-  white-space: nowrap;
-  border-radius: 999px;
-  border-color: rgba(159, 41, 41, 0.3);
-  color: #a32626;
 }
 
 .cart-item__remove {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  padding: 0;
+  gap: 0.3rem;
+  width: auto;
+  min-width: 44px;
+  height: 32px;
+  padding: 0 0.7rem;
   background: none;
-  border: 1px solid rgba(18, 59, 53, 0.15);
-  border-radius: 50%;
-  color: rgba(0, 0, 0, 0.4);
-  font-size: 1rem;
+  border: 1px solid rgba(163, 38, 38, 0.28);
+  border-radius: 999px;
+  color: #a32626;
+  font-size: 0.8rem;
+  font-weight: 600;
   line-height: 1;
   cursor: pointer;
   flex-shrink: 0;
+  white-space: nowrap;
   transition:
     color 0.15s ease,
     border-color 0.15s ease,
@@ -1790,21 +1793,22 @@ body.service-dialog-open {
     font-size: 18px;
   }
 
-  .offcanvas-body {
+  .offcanvas-scroll-area {
     gap: 0.7rem;
-    padding: 0.8rem 0.9rem max(0.85rem, env(safe-area-inset-bottom, 0.85rem));
+    padding: 0.8rem 0.9rem 0.85rem;
   }
 
   #cart-items {
-    min-height: clamp(205px, 35vh, 320px);
     padding-right: 0;
   }
 
   .cart-footer {
     gap: 0.6rem;
-    max-height: min(52vh, 380px);
     padding-top: 0.65rem;
-    scrollbar-gutter: stable;
+  }
+
+  .cart-footer-actions {
+    padding-inline: 0.9rem;
   }
 
   .cart-summary-card,
@@ -1827,8 +1831,8 @@ body.service-dialog-open {
   }
 
   .cart-item__remove {
-    width: 40px;
-    height: 40px;
+    min-width: 40px;
+    height: 30px;
   }
 
   .cart-payment-options {
@@ -1887,10 +1891,6 @@ body.service-dialog-open {
 @media (max-width: 576px) {
   .offcanvas {
     width: 100%;
-  }
-
-  .cart-footer {
-    max-height: min(55vh, 380px);
   }
 
   .cart-payment-options {

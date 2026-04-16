@@ -95,12 +95,13 @@ const { navGroups } = Astro.props;
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
   </div>
   <div class="offcanvas-body">
-    <div id="cart-items">
-      <div class="alert alert-info mb-0 cart-empty-message" role="status">
-        Tu carrito está vacío. Agrega productos antes de realizar el pedido.
+    <div class="offcanvas-scroll-area">
+      <div id="cart-items">
+        <div class="alert alert-info mb-0 cart-empty-message" role="status">
+          Tu carrito está vacío. Agrega productos antes de realizar el pedido.
+        </div>
       </div>
-    </div>
-    <div class="cart-footer">
+      <div class="cart-footer">
       <div class="cart-footer-primary">
         <div class="cart-summary-card cart-summary-card--compact">
           <div class="cart-summary-card__row">
@@ -140,11 +141,6 @@ const { navGroups } = Astro.props;
           <div id="payment-error" class="text-danger small mt-2" role="alert" aria-live="assertive"></div>
         </div>
       </div>
-      <p id="submit-feedback" class="cart-submit-feedback mb-0" role="status" aria-live="polite"></p>
-      <div class="cart-footer-actions">
-        <button id="submit-cart" class="btn btn-success cart-submit-btn" disabled aria-disabled="true">Enviar resumen por WhatsApp</button>
-        <button id="continue-shopping" class="btn btn-outline-primary" data-bs-dismiss="offcanvas">Seguir comprando</button>
-      </div>
       <div class="cart-note-toggle-row">
         <button
           class="cart-note-toggle cart-details-toggle"
@@ -179,7 +175,13 @@ const { navGroups } = Astro.props;
           </div>
           <button id="empty-cart" class="btn btn-outline-secondary cart-secondary-action">Vaciar carrito</button>
         </div>
-      </div>
+      </div><!-- close .collapse.cart-details-collapse -->
+      </div><!-- close .cart-footer -->
+    </div><!-- /.offcanvas-scroll-area -->
+    <p id="submit-feedback" class="cart-submit-feedback mb-0" role="status" aria-live="polite"></p>
+    <div class="cart-footer-actions">
+      <button id="submit-cart" class="btn btn-success cart-submit-btn" disabled aria-disabled="true">Enviar resumen por WhatsApp</button>
+      <button id="continue-shopping" class="btn btn-outline-primary" data-bs-dismiss="offcanvas">Seguir comprando</button>
     </div>
   </div>
 </div>
