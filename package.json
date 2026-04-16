@@ -108,13 +108,13 @@
   "lint-staged": {
     "*.{js,mjs,cjs}": [
       "eslint --max-warnings=0",
-      "prettier --check"
+      "prettier --write"
     ],
     "*.{ts,mts}": [
-      "prettier --check"
+      "prettier --write"
     ],
     "*.{json,md,css,html}": [
-      "prettier --check"
+      "prettier --write"
     ]
   }
 }
