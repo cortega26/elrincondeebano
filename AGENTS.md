@@ -1,6 +1,6 @@
 # AGENTS
 
-**El Rincón de Ébano** — web estática servida desde Astro. Runtime: Node 22.x.
+**El Rincón de Ébano** — web estática servida desde Astro. Runtime: Node 24.x.
 Última actualización: 2026-04-16 (Docs refresh: engineering priorities).
 
 ## Principios
@@ -26,7 +26,7 @@
 
 ## Validación base
 
-Node 22.x · instalación determinista: `npm ci`
+Node 24.x · instalación determinista: `npm ci`
 
 ```bash
 npm run validate
@@ -49,6 +49,7 @@ npm run validate:release
 
 | Qué                                              | Dónde                                                                                               |
 | ------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| Bootstrap / cold start                           | [`BOOTSTRAP`](docs/onboarding/BOOTSTRAP.md)                                                         |
 | Punto de entrada por tarea                       | [`START_HERE`](docs/START_HERE.md)                                                                  |
 | Matriz de validación                             | [`VALIDATION_MATRIX`](docs/operations/VALIDATION_MATRIX.md)                                         |
 | Guardrails, cobertura, política de cambios y PRs | [`QUALITY_GUARDRAILS`](docs/operations/QUALITY_GUARDRAILS.md)                                       |
@@ -63,3 +64,11 @@ npm run validate:release
 | Headers de seguridad edge                        | [`EDGE_SECURITY_HEADERS`](docs/operations/EDGE_SECURITY_HEADERS.md)                                 |
 | Scripts y utilidades                             | [`tools/`](tools/)                                                                                  |
 | Suite de pruebas                                 | [`test/`](test/)                                                                                    |
+
+<claude-mem-context>
+# Memory Context
+
+# [Tienda Ebano] recent context, 2026-04-16 8:01pm GMT-4
+
+No previous sessions found.
+</claude-mem-context>

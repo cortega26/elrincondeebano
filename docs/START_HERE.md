@@ -6,8 +6,8 @@ changes.
 
 ## Cold start
 
-1. Confirm the runtime baseline: Node 22.x.
-2. Install dependencies with `npm run bootstrap`.
+1. Confirm the runtime baseline: Node 24.x.
+2. Follow [`docs/onboarding/BOOTSTRAP.md`](./onboarding/BOOTSTRAP.md).
 3. Use `npm run validate` for a fast local baseline.
 4. Use `npm run validate:release` before release or when a change touches
    shipped behavior.

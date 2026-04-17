@@ -4,16 +4,15 @@ This guide provides a short, repeatable setup for contributors.
 
 ## Requirements
 
-- Node.js 22.x (npm 10.x recommended). Keep in sync with `.nvmrc`, `.tool-versions`, and Volta.
+- Node.js 24.x. Keep in sync with `.nvmrc`, `.tool-versions`, and Volta.
 - Python 3.12 for admin tooling (optional).
 - Git.
 
 ## First run (site)
 
-1. `nvm use 22` (or `volta install node@22.20.0 npm@10.9.3`).
-2. `npm ci`.
-3. `npm run build`.
-4. Preview the staged site:
+1. Follow [`BOOTSTRAP`](./BOOTSTRAP.md).
+2. `npm run build`.
+3. Preview the staged site:
 
 Option A: built-in server
 

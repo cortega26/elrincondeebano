@@ -19,7 +19,7 @@ def _resolve_node_binary() -> str:
     for candidate in candidates:
         if candidate and Path(candidate).exists():
             return str(candidate)
-    raise RenderError("Node.js executable not found. Install Node 22.x and retry.")
+    raise RenderError("Node.js executable not found. Install Node 24.x and retry.")
 
 
 def render_svg_to_jpg(

@@ -5,7 +5,8 @@
  * under Node.js versions that do not yet expose them by default (e.g. Node 20).
  *
  * The shim only installs each global if it is absent to preserve the runtime's
- * native implementations on modern Node LTS releases (Node 22+ today).
+ * native implementations on modern Node LTS releases (Node 24+ is the repo
+ * baseline today).
  */
 try {
   const { fetch, Headers, Request, Response, FormData, File, Blob } = require('undici');

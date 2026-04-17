@@ -11,6 +11,7 @@
     "contract:http": "node scripts/validate-http-contract.mjs",
     "contract:artifacts": "node scripts/validate-artifact-contract.mjs",
     "dev": "astro dev",
+    "lint": "node ../node_modules/eslint/bin/eslint.js .",
     "typecheck": "astro check",
     "build": "npm run clean && npm run data:sync && astro build && node scripts/postbuild-legacy-pages.mjs && node scripts/postbuild-sitemap.mjs && npm run assets:validate && npm run contract:http && npm run contract:artifacts",
     "preview": "astro preview"

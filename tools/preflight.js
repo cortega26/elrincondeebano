@@ -145,8 +145,8 @@ function buildNodeVersionErrorMessage(requiredRange, currentVersion, reason) {
     `- Required range: ${requiredRange}`,
     `- Detected version: ${currentVersion}`,
     `- Reason: ${reasonDetail}`,
-    '- Fix: switch to a compatible runtime (recommended: Node 22.x).',
-    '- Quick fixes: `nvm use 22` or `volta install node@22`.',
+    '- Fix: switch to a compatible runtime (recommended: Node 24.x).',
+    '- Quick fixes: `nvm use 24` or `volta install node@24`.',
     '- Windows fallback (if `node` is not in PATH):',
     '  "C:\\Program Files\\nodejs\\node.exe" "C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" run <script>',
   ].join('\n');

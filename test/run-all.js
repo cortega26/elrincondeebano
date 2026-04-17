@@ -23,6 +23,7 @@ const tests = [
   'sync-data.script.test.js',
   'sync-category-og-overrides.test.js',
   'category-registry.contract.test.js',
+  'active-surfaces.contract.test.js',
   'product-data.contract.test.js',
   'swCache.test.js',
   'service-worker.runtime.test.js',

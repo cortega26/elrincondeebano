@@ -15,6 +15,9 @@ Or use the single `bootstrap` script:
 npm run bootstrap
 ```
 
+The canonical cold-start instructions live in
+[`docs/onboarding/BOOTSTRAP.md`](../onboarding/BOOTSTRAP.md).
+
 The canonical production build is always `npm run build` from the repo root — it runs the shared preflight pipeline and then delegates to `astro-poc/`.
 
 ## Directory reference
@@ -58,6 +61,7 @@ config/ ─────────────────┘                  
 - **Build pipeline:** `tools/` + root `package.json` scripts
 - **Tests:** `test/` + `npm test` + `npm run test:e2e`
 - **Edge config (headers/CSP):** `infra/cloudflare/` — not the Astro source
+- **Machine-readable map:** `docs/repo/ACTIVE_SURFACES.json`
 
 ## Top-level layout (legacy detail)
 
@@ -130,3 +134,5 @@ Manual/specialized scripts are kept for targeted maintenance tasks and should no
   - `npm run validate:release` when shipped behavior changes
 - Update docs in the same PR when adding commands, changing ownership
   boundaries, or introducing long-lived constraints.
+- Keep `docs/repo/ACTIVE_SURFACES.json` in sync with canonical runtime, docs,
+  and workflow entry points.

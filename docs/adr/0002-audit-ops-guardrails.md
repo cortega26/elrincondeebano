@@ -12,7 +12,7 @@ La auditoría incremental introdujo contratos explícitos para `product_data.jso
 1. Mantener validación contractual de datos como gate previo a build/release.
 2. Ejecutar actualizaciones de dependencias por oleadas (`patch/minor` y `major` separadas).
 3. Usar runbooks explícitos para debugging, triage y rollback en incidentes.
-4. Estandarizar Node 22.x como runtime canónico para reproducibilidad local/CI.
+4. Estandarizar Node 24.x como runtime canónico para reproducibilidad local/CI.
 
 ## Consecuencias
 

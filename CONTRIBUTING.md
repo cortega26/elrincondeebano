@@ -2,21 +2,22 @@
 
 ## Prerequisites
 
-| Tool    | Version                     | Required for          |
-| ------- | --------------------------- | --------------------- |
-| Node.js | 22.x                        | All storefront work   |
-| npm     | 10.x (bundled with Node 22) | All JS tasks          |
-| Python  | 3.12                        | `admin/` tooling only |
-| Git     | Any recent                  | Version control       |
+| Tool    | Version              | Required for          |
+| ------- | -------------------- | --------------------- |
+| Node.js | 24.x                 | All storefront work   |
+| npm     | bundled with Node 24 | All JS tasks          |
+| Python  | 3.12                 | `admin/` tooling only |
+| Git     | Any recent           | Version control       |
 
-Use `nvm use 22` or rely on the [Volta](https://volta.sh/) pin in `package.json` to get the right Node version automatically.
+Use `nvm use 24` or rely on the [Volta](https://volta.sh/) pin in `package.json` to get the right Node version automatically.
 
 ## First-time setup
 
+Start with [docs/onboarding/BOOTSTRAP.md](docs/onboarding/BOOTSTRAP.md).
+
 ```bash
-npm run bootstrap        # installs root deps + astro-poc deps
-npm run build            # verify the baseline build passes
-npm test                 # verify the baseline tests pass
+npm run bootstrap
+npm run validate
 ```
 
 `bootstrap` is the only supported setup path. Do not run `npm install` or `npm --prefix astro-poc install` manually when a lockfile is present.
@@ -52,7 +53,7 @@ npm run validate
 For individual steps:
 
 ```bash
-npm run lint             # ESLint across all JS
+npm run lint             # root JS + dedicated astro-poc lint
 npm run typecheck        # tsc --noEmit (root + astro-poc)
 npm test                 # node:test (legacy) + Vitest (modern)
 npm run build            # preflight pipeline + Astro build
