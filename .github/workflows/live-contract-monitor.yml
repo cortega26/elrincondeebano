@@ -67,6 +67,16 @@ jobs:
             } >> "$GITHUB_STEP_SUMMARY"
           fi
 
+      - name: Verify gh CLI availability on the self-hosted runner
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          if ! command -v gh >/dev/null 2>&1; then
+            echo "::error::gh CLI is required on the self-hosted runner for issue and label management."
+            exit 1
+          fi
+
       - name: Ensure live-contract-monitor label exists
         if: ${{ steps.monitor.outcome == 'failure' || steps.monitor.outcome == 'success' }}
         env:

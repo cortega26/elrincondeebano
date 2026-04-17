@@ -63,3 +63,11 @@ test('post-deploy live probe runs a browser contract before the fetch-based cana
     'expected the live-probe job to persist a browser contract report'
   );
 });
+
+test('post-deploy workflow_run derives artifact canary metadata from the triggering deploy run head SHA', () => {
+  assert.match(
+    workflow,
+    /github\.event\.workflow_run\.head_sha/,
+    'expected workflow_run metadata to be tied to the triggering deploy run SHA'
+  );
+});

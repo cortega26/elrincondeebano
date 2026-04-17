@@ -21,6 +21,7 @@ Restaurar estabilidad de producción con el menor tiempo de recuperación y ries
    - `npm run build`
    - `npm run test:e2e` (smoke mínimo si urge)
 4. Desplegar rollback.
+   - Para restaurar un SHA/ref histórico en GitHub Pages, usar `.github/workflows/rollback.yml` con `confirm_rollback=ROLLBACK`.
 5. Confirmar recuperación en producción.
 
 ## Rollback de caché/SW

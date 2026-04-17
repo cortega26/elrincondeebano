@@ -33,3 +33,21 @@ test('static deploy workflow gates Pages publish behind the browser canary', () 
     'expected the blocking browser canary to reuse the built artifact'
   );
 });
+
+test('static deploy workflow requires explicit manual confirmation on main and does not accept deploy_ref overrides', () => {
+  assert.match(
+    workflow,
+    /confirm_production_deploy:[\s\S]*DEPLOY/,
+    'expected workflow_dispatch to require explicit production confirmation'
+  );
+  assert.match(
+    workflow,
+    /reject-invalid-dispatch:[\s\S]*refs\/heads\/main[\s\S]*confirm_production_deploy != 'DEPLOY'/,
+    'expected invalid manual dispatches to fail closed'
+  );
+  assert.doesNotMatch(
+    workflow,
+    /deploy_ref:/,
+    'expected static deploy workflow to stop accepting arbitrary ref overrides'
+  );
+});

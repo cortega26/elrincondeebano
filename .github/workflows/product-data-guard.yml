@@ -24,8 +24,8 @@ jobs:
     name: Ensure build artifacts remain reproducible
     runs-on: ubuntu-22.04
     timeout-minutes: 20
-    permissions:
-      contents: write
+    outputs:
+      dirty_tree: ${{ steps.tree_state.outputs.dirty_tree }}
 
     steps:
       - name: Checkout repository
@@ -65,25 +65,23 @@ jobs:
         run: |
           ls -R astro-poc/dist | head -n 120
 
-      - name: Verify working tree is clean
+      - name: Check working tree state
+        id: tree_state
+        shell: bash
         run: |
           if [[ -n "$(git status --porcelain)" ]]; then
-            echo "::error::Detected tracked changes after running Astro build. Synced data/public files must be committed."
-            git status --short
-            exit 1
+            echo "dirty_tree=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "dirty_tree=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Auto-commit synced files for Dependabot
-        if: failure() && github.actor == 'dependabot[bot]'
+      - name: Verify working tree is clean
+        if: ${{ steps.tree_state.outputs.dirty_tree == 'true' }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          # Re-authenticate since persist-credentials is false
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-          git add data/product_data.json robots.txt astro-poc/public/robots.txt || true
-          git add assets/images/og/ || true
-          git commit -m "chore(ci): auto-sync generated files for dependabot PR [skip ci]"
-          git push
+          echo "::error::Detected tracked changes after running Astro build. Synced data/public files must be committed."
+          git status --short
+          exit 1
+
       - name: Capture failure diagnostics
         if: failure()
         shell: bash
@@ -114,3 +112,59 @@ jobs:
               echo "- Sitemap: missing"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
+
+  auto-commit-synced-files-for-dependabot:
+    name: Auto-commit synced files for Dependabot
+    needs: ensure-build-in-sync
+    if: ${{ always() && needs.ensure-build-in-sync.outputs.dirty_tree == 'true' && github.actor == 'dependabot[bot]' }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set deterministic build environment
+        run: |
+          echo "TZ=UTC" >> $GITHUB_ENV
+          echo "LC_ALL=C.UTF-8" >> $GITHUB_ENV
+          echo "LANG=C.UTF-8" >> $GITHUB_ENV
+          echo "CFIMG_DISABLE=1" >> $GITHUB_ENV
+          echo "PREFLIGHT_SKIP_OG=1" >> $GITHUB_ENV
+          echo "SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)" >> $GITHUB_ENV
+
+      - name: Use Node.js 24.x
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 24.x
+          cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            astro-poc/package-lock.json
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install Astro storefront dependencies
+        working-directory: astro-poc
+        run: npm ci
+
+      - name: Rebuild synced outputs
+        run: npm run build
+
+      - name: Commit synced files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git add data/product_data.json robots.txt astro-poc/public/robots.txt || true
+          git add assets/images/og/ || true
+          if git diff --cached --quiet; then
+            echo "No synced changes remained after rebuild. Skipping commit."
+            exit 0
+          fi
+          git commit -m "chore(ci): auto-sync generated files for dependabot PR [skip ci]"
+          git push

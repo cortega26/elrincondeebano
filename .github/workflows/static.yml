@@ -10,8 +10,8 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
-      deploy_ref:
-        description: 'Optional git ref/SHA to deploy (defaults to current workflow ref HEAD)'
+      confirm_production_deploy:
+        description: 'Safety confirmation phrase for a manual main deployment: DEPLOY'
         required: false
         default: ''
 
@@ -26,6 +26,15 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  reject-invalid-dispatch:
+    if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.confirm_production_deploy != 'DEPLOY' }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Require explicit confirmation on main
+        run: |
+          echo "Manual Pages deploys from refs/heads/main require confirm_production_deploy=DEPLOY."
+          exit 1
+
   verify-dispatch:
     if: ${{ github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' }}
     runs-on: ubuntu-22.04
@@ -33,7 +42,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: ${{ inputs.deploy_ref != '' && inputs.deploy_ref || github.sha }}
+          ref: ${{ github.sha }}
       - name: Set deterministic build environment
         run: |
           echo "TZ=UTC" >> $GITHUB_ENV
@@ -78,7 +87,7 @@ jobs:
           if-no-files-found: error
 
   deploy:
-    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') }}
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.confirm_production_deploy == 'DEPLOY') }}
     permissions:
       contents: read
       pages: write
@@ -91,14 +100,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy_ref != '' && inputs.deploy_ref || github.sha }}
+          ref: ${{ github.sha }}
       - name: Resolve deploy metadata
         shell: bash
         run: |
           echo "DEPLOY_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.deploy_ref }}" ]; then
-            echo "DEPLOY_REQUESTED_REF=${{ inputs.deploy_ref }}" >> "$GITHUB_ENV"
-          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "DEPLOY_REQUESTED_REF=${{ github.ref_name }}" >> "$GITHUB_ENV"
           else
             echo "DEPLOY_REQUESTED_REF=${{ github.sha }}" >> "$GITHUB_ENV"
