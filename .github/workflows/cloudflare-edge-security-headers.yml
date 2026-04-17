@@ -7,6 +7,11 @@ on:
       - 'infra/cloudflare/edge-security-headers/**'
       - 'tools/security-header-policy.mjs'
   workflow_dispatch:
+    inputs:
+      confirm_edge_deploy:
+        description: 'Safety confirmation phrase for a manual edge deploy from main: DEPLOY_EDGE'
+        required: true
+        default: ''
 
 permissions:
   contents: read
@@ -16,7 +21,17 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  reject-invalid-dispatch:
+    if: ${{ github.event_name == 'workflow_dispatch' && (github.ref != 'refs/heads/main' || inputs.confirm_edge_deploy != 'DEPLOY_EDGE') }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Require explicit confirmation on main
+        run: |
+          echo "Manual Cloudflare edge deploys are allowed only from refs/heads/main with confirm_edge_deploy=DEPLOY_EDGE."
+          exit 1
+
   deploy:
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.confirm_edge_deploy == 'DEPLOY_EDGE') }}
     runs-on: ubuntu-22.04
     timeout-minutes: 15
     steps:

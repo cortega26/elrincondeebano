@@ -198,7 +198,8 @@ Fallback sin `node` en PATH: `npx -y node@24 "C:\Program Files\nodejs\node_modul
 
 ## Flujos de trabajo (CI)
 
-- **`Deploy static content to Pages`** (`.github/workflows/static.yml`) — push a `main` / `workflow_dispatch`. Permisos: `contents: read`, `pages: write`, `id-token: write`. Artefacto: `astro-poc/dist`.
+- **`Deploy static content to Pages`** (`.github/workflows/static.yml`) — push a `main` / `workflow_dispatch` sólo desde `main` con `confirm_production_deploy=DEPLOY`. Permisos: `contents: read`, `pages: write`, `id-token: write`. Artefacto: `astro-poc/dist`. Deploys manuales de SHA/ref históricos deben usar `rollback.yml`.
+- **`Deploy Cloudflare Edge Security Headers`** (`.github/workflows/cloudflare-edge-security-headers.yml`) — push a `main` por cambios en la policy/worker, o `workflow_dispatch` sólo desde `main` con `confirm_edge_deploy=DEPLOY_EDGE`.
 - **`Optimize images`** (`.github/workflows/images.yml`) — cambios en `assets/images/originals/**`. Node 24.x; usa `npm ci` + `images:generate`, `images:rewrite`, `lint:images`. Auto-commitea solo a `refs/heads/<branch>`.
 - **`Semgrep Security Scan`** (`.github/workflows/semgrep.yml`) — push/PR a `main`, cron semanal. Instala desde `tools/requirements-semgrep.txt`; escanea con `p/default` + `p/secrets`; sube SARIF.
 - **`Secret Scan`** (`.github/workflows/secret-scan.yml`) — push/PR, cron semanal. Ejecuta `npm run security:secret-scan`.
@@ -206,7 +207,7 @@ Fallback sin `node` en PATH: `npx -y node@24 "C:\Program Files\nodejs\node_modul
 - **`CI Guardrails`** (`.github/workflows/ci-guardrails.yml`) — push/PR a `main`. Node 24.x: build, lint de imágenes y guardrails rápidos para regressions operativas.
 - **`Security Audits`** (`.github/workflows/security-audit.yml`) — cron semanal / manual. Node 24.x en las superficies npm; `pip-audit` para el tooling Python.
 - **`Post-Deploy Canary`** (`.github/workflows/post-deploy-canary.yml`) — PR a `main`, `workflow_run` post-deploy. Live probe solo en runner self-hosted; modo estricto de headers en `/` y `/pages/bebidas.html`.
-- **`Live Contract Monitor`** (`.github/workflows/live-contract-monitor.yml`) — cron diario. Runner self-hosted (Cloudflare puede challengear runners GitHub-hosted con `403`). Abre/actualiza issue si falla el baseline de headers.
+- **`Live Contract Monitor`** (`.github/workflows/live-contract-monitor.yml`) — cron diario. Runner self-hosted (Cloudflare puede challengear runners GitHub-hosted con `403`). Abre/actualiza issue si falla el baseline de headers y exige `gh` CLI presente en el runner.
 - **`Admin Tools CI`** (`.github/workflows/admin.yml`) — cambios en `admin/**`. Python 3.12, pytest.
 
 ## Playbooks
