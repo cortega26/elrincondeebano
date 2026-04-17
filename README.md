@@ -16,6 +16,8 @@ Static storefront for `https://www.elrincondeebano.com/`, built from the active 
 
 ## Setup
 
+Canonical cold-start setup lives in [docs/onboarding/BOOTSTRAP.md](./docs/onboarding/BOOTSTRAP.md).
+
 ```bash
 npm run bootstrap
 ```
@@ -27,7 +29,7 @@ npm ci
 (cd astro-poc && npm ci)
 ```
 
-Node `22.x` is the supported local and CI baseline.
+Node `24.x` is the supported local and CI baseline.
 
 ## Canonical Validation
 

@@ -42,10 +42,10 @@ jobs:
           echo "PREFLIGHT_SKIP_OG=1" >> $GITHUB_ENV
           echo "SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)" >> $GITHUB_ENV
 
-      - name: Use Node.js 22.x
+      - name: Use Node.js 24.x
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version: 22.x
+          node-version: 24.x
           cache: 'npm'
           cache-dependency-path: |
             package-lock.json

@@ -89,13 +89,13 @@ Use this process in PR descriptions for risky changes:
 
 ## Guardrails CI/Tests (checklist)
 
-- **Ejecución determinista:** `node -v` debe coincidir con `22.x`; usar `npm ci` (prohibido `npm install` con lockfile presente).
+- **Ejecución determinista:** `node -v` debe coincidir con `24.x`; usar `npm ci` (prohibido `npm install` con lockfile presente).
 - **Build estricto:** `npm run build` sin warnings críticos; artefactos en `astro-poc/dist/`. `npm run guardrails:assets` en verde.
 - **Tests:** `npm ci && npm test` completos tras modificaciones. Prohibido `test.skip`, `--forceExit`, `--passWithNoTests` o eliminar asserts sin reemplazo.
 - **Performance:** usar `npm run lighthouse:audit` cuando se toquen rutas, rendering, navegación, bundles, imágenes críticas o fetches de catálogo.
 - **Escalabilidad:** evitar nuevos pasos CI o scripts O(n) repetidos sobre catálogo/assets sin justificación y sin camino de reproducción local.
 - **Cobertura:** baseline objetivo 80%. Mutation testing (Stryker) en lógica crítica (Cart, Analytics, Logger); no reintroducir survivors.
-- **Linter/formatter:** `npm run lint`, `npm run typecheck` (para `src/js/**`), `npm run format` en verde.
+- **Linter/formatter:** `npm run lint` (root + `astro-poc`), `npm run typecheck`, `npm run format` en verde.
 - **SARIF:** si se genera manualmente, sanitizar con `jq` y verificar esquema `2.1.0`. Nunca construir JSON con `echo` + interpolaciones.
 - **Secretos:** nunca registrar valores sensibles en logs o `git diff`. `SYNC_API_REQUIRE_AUTH=true` y `SYNC_API_STRICT_STARTUP=true` en producción.
 - **Permisos mínimos:** `contents: read`, `pages: write` — sólo lo necesario por workflow.

@@ -1,0 +1,27 @@
+{
+  "runtime": {
+    "canonical_app": "astro-poc",
+    "browser_entrypoints": [
+      "astro-poc/src/scripts/storefront.js",
+      "src/js/modules/app-bootstrap.mjs",
+      "src/js/modules/product-data-manager.mjs"
+    ]
+  },
+  "docs": {
+    "bootstrap": "docs/onboarding/BOOTSTRAP.md",
+    "task_router": "docs/START_HERE.md",
+    "codebase_map": "docs/architecture/CODEBASE_MAP.md",
+    "repo_structure": "docs/repo/STRUCTURE.md"
+  },
+  "validation": {
+    "fast_gate": "npm run validate",
+    "release_gate": "npm run validate:release"
+  },
+  "workflows": [
+    ".github/workflows/ci.yml",
+    ".github/workflows/ci-guardrails.yml",
+    ".github/workflows/static.yml",
+    ".github/workflows/security-audit.yml",
+    ".github/workflows/live-contract-monitor.yml"
+  ]
+}

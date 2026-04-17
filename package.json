@@ -13,7 +13,9 @@
     "categories:sync": "node tools/sync-category-catalog.js",
     "preflight": "npm run categories:sync && npm run images:avif && npm run images:og:home && npm run images:og:overrides && npm run images:og:categories && node tools/preflight.js",
     "build": "npm run preflight && npm --prefix astro-poc run build",
-    "lint": "eslint .",
+    "lint:root": "eslint .",
+    "lint:astro": "npm --prefix astro-poc run lint",
+    "lint": "npm run lint:root && npm run lint:astro",
     "check:determinism": "node tools/check-determinism-paths.mjs",
     "check:css-order": "node scripts/check-css-order.mjs",
     "format": "prettier --write .",
@@ -78,6 +80,7 @@
     "cypress": "^15.13.1",
     "esbuild": "^0.28.0",
     "eslint": "^10.2.0",
+    "eslint-plugin-astro": "^1.7.0",
     "globals": "^17.5.0",
     "husky": "^9.1.7",
     "jsdom": "^29.0.2",
@@ -88,15 +91,15 @@
     "serve": "^14.2.6",
     "sharp": "^0.34.5",
     "typescript": "^6.0.2",
+    "typescript-eslint": "^8.58.2",
     "undici": "^8.1.0",
     "vitest": "^4.0.16"
   },
   "engines": {
-    "node": ">=22 <25"
+    "node": ">=24 <25"
   },
   "volta": {
-    "node": "22.20.0",
-    "npm": "10.9.3"
+    "node": "24.0.0"
   },
   "repository": {
     "type": "git",

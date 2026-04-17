@@ -5,7 +5,15 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## [Unreleased]
 
-- No unreleased changes.
+### Added
+
+- Canonical `docs/onboarding/BOOTSTRAP.md` cold-start guide for the dual-root repo.
+- `docs/repo/ACTIVE_SURFACES.json` plus a contract test to keep key runtime/docs/workflow entry points from drifting.
+
+### Changed
+
+- Standardized the active repo baseline on Node 24.x across configs, workflows, tests, and operational docs.
+- Added dedicated `astro-poc` linting to the canonical `npm run lint` path.
 
 ## [1.4.0] - 2026-04-13
 

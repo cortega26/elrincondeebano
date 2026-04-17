@@ -2,6 +2,11 @@
 
 - `docs/START_HERE.md`: single task router for agents and contributors.
 
+## Onboarding
+
+- `docs/onboarding/BOOTSTRAP.md`: canonical cold-start setup for the dual-root repo.
+- `docs/onboarding/LOCAL_DEV.md`: local preview, runtime flags, and optional admin-tool setup.
+
 ## Operations
 
 - `docs/operations/RUNBOOK.md`: production incident handling and recovery steps.
@@ -23,6 +28,7 @@
 - `docs/adr/0007-canonical-validation-contract.md`: canonical release gate decision.
 - `docs/adr/0002-audit-ops-guardrails.md`: operational guardrails and contract gates decision.
 - `docs/repo/STRUCTURE.md`: repo map, naming conventions, and script ownership.
+- `docs/repo/ACTIVE_SURFACES.json`: machine-checkable manifest of canonical runtime, docs, and workflow entry points.
 
 ## Audit History
 

@@ -161,7 +161,7 @@
 
 ## Comandos canónicos
 
-Runtime: Node 22.x · Instalación determinista: `npm ci`
+Runtime: Node 24.x · Instalación determinista: `npm ci`
 
 ```bash
 npm run validate
@@ -170,13 +170,13 @@ npm run smoke:evidence
 ```
 
 Auditoría de dependencias: `npm audit --omit=dev`  
-Fallback sin `node` en PATH: `npx -y node@22 "C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js" run <script>`
+Fallback sin `node` en PATH: `npx -y node@24 "C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js" run <script>`
 
 ## Matriz de comandos por agente
 
 | Agente                  | Comando                                                                                                             | Cuándo                               | Salida esperada                                    |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------ | -------------------------------------------------- |
-| Repo Cartographer       | `node -v`                                                                                                           | Antes de cualquier trabajo           | Versión `22.x`                                     |
+| Repo Cartographer       | `node -v`                                                                                                           | Antes de cualquier trabajo           | Versión `24.x`                                     |
 | Repo Cartographer       | `npm pkg get scripts`                                                                                               | Al actualizar docs/scripts           | JSON de scripts                                    |
 | Docs Steward            | `npm run build`                                                                                                     | Tras cambios en storefront/datos     | Build sin errores; artefactos en `astro-poc/dist/` |
 | Docs Steward            | `npm run monitor:share-preview`                                                                                     | Cambios SEO/OG o antes de release    | Previews WhatsApp válidas                          |
@@ -199,10 +199,12 @@ Fallback sin `node` en PATH: `npx -y node@22 "C:\Program Files\nodejs\node_modul
 ## Flujos de trabajo (CI)
 
 - **`Deploy static content to Pages`** (`.github/workflows/static.yml`) — push a `main` / `workflow_dispatch`. Permisos: `contents: read`, `pages: write`, `id-token: write`. Artefacto: `astro-poc/dist`.
-- **`Optimize images`** (`.github/workflows/images.yml`) — cambios en `assets/images/originals/**`. Node 22.x; usa `npm ci` + `images:generate`, `images:rewrite`, `lint:images`. Auto-commitea solo a `refs/heads/<branch>`.
+- **`Optimize images`** (`.github/workflows/images.yml`) — cambios en `assets/images/originals/**`. Node 24.x; usa `npm ci` + `images:generate`, `images:rewrite`, `lint:images`. Auto-commitea solo a `refs/heads/<branch>`.
 - **`Semgrep Security Scan`** (`.github/workflows/semgrep.yml`) — push/PR a `main`, cron semanal. Instala desde `tools/requirements-semgrep.txt`; escanea con `p/default` + `p/secrets`; sube SARIF.
 - **`Secret Scan`** (`.github/workflows/secret-scan.yml`) — push/PR, cron semanal. Ejecuta `npm run security:secret-scan`.
-- **`Continuous Integration`** (`.github/workflows/ci.yml`) — push/PR a `main` (excluye `admin/**`). Node 22.x: build, guardrails, unit tests, E2E, smoke, Lighthouse.
+- **`Continuous Integration`** (`.github/workflows/ci.yml`) — push/PR a `main` (excluye `admin/**`). Node 24.x: lint root + Astro, build, guardrails, unit tests, E2E, smoke, Lighthouse.
+- **`CI Guardrails`** (`.github/workflows/ci-guardrails.yml`) — push/PR a `main`. Node 24.x: build, lint de imágenes y guardrails rápidos para regressions operativas.
+- **`Security Audits`** (`.github/workflows/security-audit.yml`) — cron semanal / manual. Node 24.x en las superficies npm; `pip-audit` para el tooling Python.
 - **`Post-Deploy Canary`** (`.github/workflows/post-deploy-canary.yml`) — PR a `main`, `workflow_run` post-deploy. Live probe solo en runner self-hosted; modo estricto de headers en `/` y `/pages/bebidas.html`.
 - **`Live Contract Monitor`** (`.github/workflows/live-contract-monitor.yml`) — cron diario. Runner self-hosted (Cloudflare puede challengear runners GitHub-hosted con `403`). Abre/actualiza issue si falla el baseline de headers.
 - **`Admin Tools CI`** (`.github/workflows/admin.yml`) — cambios en `admin/**`. Python 3.12, pytest.

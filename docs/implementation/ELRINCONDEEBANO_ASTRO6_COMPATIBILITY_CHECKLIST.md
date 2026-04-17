@@ -21,7 +21,7 @@ Prepared for Phase 4 / `EB-017` of the remediation plan.
 
 - Node baseline:
   - Astro 6 requires Node `>=22.12.0`.
-  - Repo baseline already targets Node 22.x and the implementation environment is on Node `22.20.0`.
+  - Repo baseline now targets Node 24.x for local and CI reproducibility.
 - Astro adapters:
   - No Astro adapter is configured in `astro-poc/astro.config.mjs`.
   - Static output only, so adapter migration work is out of scope.
@@ -61,7 +61,7 @@ Prepared for Phase 4 / `EB-017` of the remediation plan.
 
 ## Closure Notes
 
-- Validation matrix completed green on Node `22.20.0`.
+- Validation matrix should remain green on the Node 24.x repo baseline.
 - `npm audit --omit=dev --prefix astro-poc` is green after the temporary `anymatch` remediation.
 - Built parity still includes:
   - `astro-poc/dist/bebidas/index.html`

@@ -17,7 +17,7 @@ Gemini must prioritize using these verified commands as per the [Command Matrix]
 
 | Purpose           | Command                    | Success Criteria                                        |
 | ----------------- | -------------------------- | ------------------------------------------------------- |
-| **Discovery**     | `node -v`                  | Version must match `22.x`                               |
+| **Discovery**     | `node -v`                  | Version must match `24.x`                               |
 | **Build**         | `npm run build`            | Exit code 0, no critical warnings, artifacts in `dist/` |
 | **Test (Full)**   | `npm ci && npm test`       | Exit code 0, all tests passed                           |
 | **Test (Single)** | `node test/<name>.test.js` | Exit code 0                                             |
@@ -29,7 +29,7 @@ Gemini must prioritize using these verified commands as per the [Command Matrix]
 Before declaring a task complete, Gemini must ensure:
 
 1.  **Deterministic Environment**:
-    - [ ] `node -v` confirmed as `22.x`.
+    - [ ] `node -v` confirmed as `24.x`.
     - [ ] Used `npm ci` for dependencies (never `npm install` unless updating lockfile).
 
 2.  **Strict Compilation**:
