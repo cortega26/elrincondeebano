@@ -41,7 +41,7 @@ jobs:
         with:
           node-version: '24.x'
           cache: 'npm'
-      - run: npm ci
+      - run: bash tools/ci/npm-ci-with-retry.sh
       - run: npm run images:generate
       - run: npm run images:rewrite
       - run: npm run lint:images

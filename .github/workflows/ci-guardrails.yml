@@ -35,11 +35,11 @@ jobs:
             package-lock.json
             astro-poc/package-lock.json
       - name: Install root dependencies
-        run: npm ci
+        run: bash tools/ci/npm-ci-with-retry.sh
 
       - name: Install Astro storefront dependencies
         working-directory: astro-poc
-        run: npm ci
+        run: bash ../tools/ci/npm-ci-with-retry.sh
       - name: Build
         run: npm run build
       - name: Lint images

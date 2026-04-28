@@ -2,6 +2,11 @@
 
 set -euo pipefail
 
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd -- "${script_dir}/../.." && pwd)"
+
+node "${repo_root}/tools/guardrails/dependency-manifest-compat.mjs"
+
 max_attempts="${NPM_CI_MAX_ATTEMPTS:-3}"
 base_delay_seconds="${NPM_CI_RETRY_DELAY_SECONDS:-10}"
 

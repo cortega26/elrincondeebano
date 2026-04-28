@@ -26,11 +26,13 @@ Do not mix major upgrades with unrelated feature work.
 
 For Node changes:
 
-1. `npm run lint`
-2. `npm test`
-3. `npm run build`
-4. `npm run test:e2e` (smoke subset is acceptable when full run is expensive)
-5. `npm run lighthouse:audit` when the dependency affects rendering, bundling,
+1. `node tools/guardrails/dependency-manifest-compat.mjs`
+2. Review peer dependency ranges before merging major upgrades. TypeScript major bumps must stay compatible with Astro validation tooling (for example `@astrojs/check`).
+3. `npm run lint`
+4. `npm test`
+5. `npm run build`
+6. `npm run test:e2e` (smoke subset is acceptable when full run is expensive)
+7. `npm run lighthouse:audit` when the dependency affects rendering, bundling,
    image processing, routing, or critical fetch behavior
 
 For Python admin changes:
@@ -55,9 +57,10 @@ For workflow changes:
 
 1. Keep `package-lock.json` in sync for every Node dependency change.
 2. Use `npm ci` in CI and local reproducibility checks.
-3. Keep Dependabot PRs small and grouped by severity/risk level.
-4. Keep `requirements.lock.txt` in sync with `requirements.txt` for admin Python tooling changes.
-5. Avoid adding dependencies that duplicate capabilities already covered by the
+3. Route CI installs through `tools/ci/npm-ci-with-retry.sh` so manifest compatibility is checked before the resolver runs.
+4. Keep Dependabot PRs small and grouped by severity/risk level.
+5. Keep `requirements.lock.txt` in sync with `requirements.txt` for admin Python tooling changes.
+6. Avoid adding dependencies that duplicate capabilities already covered by the
    platform, Astro, Vitest, Playwright, or existing repo utilities unless the
    tradeoff is documented.
 

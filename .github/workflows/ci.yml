@@ -42,11 +42,11 @@ jobs:
           echo "SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)" >> $GITHUB_ENV
 
       - name: Install root dependencies
-        run: npm ci
+        run: bash tools/ci/npm-ci-with-retry.sh
 
       - name: Install Astro storefront dependencies
         working-directory: astro-poc
-        run: npm ci
+        run: bash ../tools/ci/npm-ci-with-retry.sh
 
       - name: Determinism path scan
         run: npm run check:determinism
