@@ -1,0 +1,67 @@
+---
+export interface Props {
+  targetHref?: string;
+  targetLabel?: string;
+}
+
+const { targetHref = '#products-heading', targetLabel = 'Ir al catálogo' } = Astro.props;
+---
+
+<dialog
+  id="service-guide-dialog"
+  class="service-dialog"
+  aria-labelledby="service-guide-title"
+  aria-describedby="service-guide-description"
+  aria-hidden="true"
+>
+  <div class="service-dialog__surface">
+    <div class="service-dialog__header">
+      <h2 id="service-guide-title" class="service-dialog__title">Cómo pedir</h2>
+      <button
+        type="button"
+        class="service-dialog__close"
+        data-service-dialog-close
+        aria-label="Cerrar instrucciones"
+      >
+        Cerrar
+      </button>
+    </div>
+    <p id="service-guide-description" class="service-dialog__description">
+      La web te ayuda a elegir rápido y el cierre del pedido se hace por WhatsApp.
+    </p>
+    <ol class="service-dialog__steps mb-0">
+      <li>
+        <strong>Explora el catálogo.</strong>
+        Usa categorías, búsqueda y ofertas para encontrar lo que necesitas.
+      </li>
+      <li>
+        <strong>Ajusta tu pedido.</strong>
+        Agrega productos, cambia cantidades y revisa el total antes de enviar.
+      </li>
+      <li>
+        <strong>Confirma por WhatsApp.</strong>
+        El resumen sale listo para enviar, sin reescribir el pedido, y así coordinamos pago y
+        entrega dentro del edificio.
+      </li>
+    </ol>
+    <p class="service-dialog__note mb-0">
+      Servicio exclusivo para residentes de Ébano. La entrega se coordina dentro del edificio.
+    </p>
+    <div class="service-dialog__actions">
+      <a
+        href={targetHref}
+        class="btn btn-primary"
+        data-service-dialog-close=""
+      >
+        {targetLabel}
+      </a>
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        data-service-dialog-close=""
+      >
+        Entendido
+      </button>
+    </div>
+  </div>
+</dialog>

@@ -20,8 +20,7 @@ test('mobile home top section stays compact', async ({ page }) => {
   await page.goto('/', { waitUntil: 'networkidle' });
   await waitForReady(page);
 
-  const trustCards = page.locator('.trust-strip__card');
-  await expect(trustCards).toHaveCount(4);
+  await expect(page.locator('.trust-strip__card')).toHaveCount(0);
 
   const entry = page.locator('.home-entry');
   await expect(entry).toBeVisible();
@@ -29,7 +28,7 @@ test('mobile home top section stays compact', async ({ page }) => {
   await expect(page.locator('[data-repeat-last-order]')).toBeVisible();
 
   const entryBox = await entry.boundingBox();
-  expect(entryBox?.height).toBeLessThan(460);
+  expect(entryBox?.height).toBeLessThan(400);
 
   await expect(page.locator('h2', { hasText: 'Categorías clave' })).toHaveCount(0);
 
