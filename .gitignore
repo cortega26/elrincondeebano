@@ -10,6 +10,7 @@ build/
 
 # Virtual environments and admin files
 venv/
+.venv
 .venv/
 .venv*/
 env/
@@ -96,9 +97,16 @@ test-results/
 # Generated site artifacts
 build/
 dist/
-pages/
+/pages/
 sitemap.xml
-reports/
+
+# Generated reports
+/reports/*
+!/reports/snapshots/
+/reports/snapshots/*
+!/reports/snapshots/README.md
+!/reports/snapshots/manifest.json
+!/reports/snapshots/*.png
 
 # Cache directories
 .cache/
