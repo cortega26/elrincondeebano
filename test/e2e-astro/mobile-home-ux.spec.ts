@@ -113,21 +113,28 @@ for (const viewport of MOBILE_VIEWPORTS) {
     const layoutState = await page.evaluate(() => {
       const quickOrderHeading = document.getElementById('home-quick-order-heading');
       const heading = document.getElementById('products-heading');
+      const firstProduct = document.querySelector('#product-container .producto');
       const quickOrderTop = quickOrderHeading
         ? quickOrderHeading.getBoundingClientRect().top + window.scrollY
         : Number.POSITIVE_INFINITY;
       const catalogTop = heading
         ? heading.getBoundingClientRect().top + window.scrollY
         : Number.POSITIVE_INFINITY;
+      const firstProductTop =
+        firstProduct instanceof HTMLElement
+          ? firstProduct.getBoundingClientRect().top + window.scrollY
+          : Number.POSITIVE_INFINITY;
       return {
         quickOrderScreensFromTop: Number((quickOrderTop / window.innerHeight).toFixed(2)),
         catalogScreensFromTop: Number((catalogTop / window.innerHeight).toFixed(2)),
+        firstProductScreensFromTop: Number((firstProductTop / window.innerHeight).toFixed(2)),
         hasShortcutSection: !!document.querySelector('[data-home-category-shortcuts]'),
       };
     });
 
-    expect(layoutState.quickOrderScreensFromTop).toBeLessThanOrEqual(2.5);
-    expect(layoutState.catalogScreensFromTop).toBeLessThanOrEqual(4.5);
+    expect(layoutState.quickOrderScreensFromTop).toBeLessThanOrEqual(1.9);
+    expect(layoutState.catalogScreensFromTop).toBeLessThanOrEqual(3.7);
+    expect(layoutState.firstProductScreensFromTop).toBeLessThanOrEqual(4.7);
     expect(layoutState.hasShortcutSection).toBe(false);
 
     const mobileCartShortcut = page.locator('#mobile-cart-shortcut');
@@ -150,9 +157,14 @@ for (const viewport of MOBILE_VIEWPORTS) {
       const firstCard = document.querySelector('#product-container .producto');
       const firstDescription = firstCard?.querySelector('.card-text');
       const heading = document.getElementById('category-heading');
+      const helpTrigger = document.querySelector('[data-service-dialog-trigger]');
       const top = heading
         ? heading.getBoundingClientRect().top + window.scrollY
         : Number.POSITIVE_INFINITY;
+      const firstProductTop =
+        firstCard instanceof HTMLElement
+          ? firstCard.getBoundingClientRect().top + window.scrollY
+          : Number.POSITIVE_INFINITY;
 
       return {
         controlsPosition: controls ? window.getComputedStyle(controls).position : '',
@@ -160,14 +172,25 @@ for (const viewport of MOBILE_VIEWPORTS) {
         descriptionDisplay: firstDescription
           ? window.getComputedStyle(firstDescription).display
           : '',
-        screensFromTop: Number((top / window.innerHeight).toFixed(2)),
+        headingScreensFromTop: Number((top / window.innerHeight).toFixed(2)),
+        firstProductScreensFromTop: Number((firstProductTop / window.innerHeight).toFixed(2)),
+        hasHelpTrigger: helpTrigger instanceof HTMLElement,
       };
     });
 
     expect(categoryState.controlsPosition).toBe('sticky');
     expect(categoryState.compactCard).toBe(true);
     expect(categoryState.descriptionDisplay).toBe('none');
-    expect(categoryState.screensFromTop).toBeLessThanOrEqual(1.5);
+    expect(categoryState.headingScreensFromTop).toBeLessThanOrEqual(1.35);
+    expect(categoryState.firstProductScreensFromTop).toBeLessThanOrEqual(2.55);
+    expect(categoryState.hasHelpTrigger).toBe(true);
+
+    await page
+      .locator('[data-service-dialog-trigger]')
+      .evaluate((trigger) => (trigger as HTMLButtonElement).click());
+    await expect(page.locator('#service-guide-dialog')).toBeVisible();
+    await page.locator('[data-service-dialog-close]').first().click();
+    await expect(page.locator('#service-guide-dialog')).not.toBeVisible();
   });
 }
 

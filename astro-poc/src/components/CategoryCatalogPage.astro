@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProductGrid from './ProductGrid.astro';
 import CatalogControls from './CatalogControls.astro';
+import ServiceGuideDialog from './ServiceGuideDialog.astro';
 import {
   getCategoryDescription,
   getCategoryLabel,
@@ -37,17 +38,25 @@ const sharePreview = createSharePreviewMetadata({
   canonicalPath={canonicalPath}
   robots={robots}
   sharePreview={sharePreview}
+  showTrustStrip={false}
 >
   <section class="category-intro mb-4" aria-labelledby="category-heading">
     <div class="category-intro-copy">
-      <p class="category-kicker mb-2">Servicio privado para residentes</p>
-      <h1 id="category-heading" class="mb-2">{categoryLabel}</h1>
+      <div class="category-intro-headline">
+        <h1 id="category-heading" class="mb-0">{categoryLabel}</h1>
+        <button
+          type="button"
+          class="service-guide-trigger"
+          data-service-dialog-trigger
+          aria-haspopup="dialog"
+          aria-controls="service-guide-dialog"
+        >
+          Cómo pedir
+        </button>
+      </div>
       <p class="category-summary mb-0">
-        El pedido se arma aquí y se envía por WhatsApp para coordinar la entrega dentro del edificio.
+        Solo residentes de Ébano. Cierre del pedido por WhatsApp.
       </p>
-    </div>
-    <div class="category-intro-note" role="note">
-      <strong>Importante:</strong> catálogo pensado para vecinos del edificio Ébano.
     </div>
   </section>
 
@@ -70,4 +79,5 @@ const sharePreview = createSharePreviewMetadata({
       </div>
     )
   }
+  <ServiceGuideDialog targetHref="#product-container" targetLabel="Ir a productos" />
 </BaseLayout>

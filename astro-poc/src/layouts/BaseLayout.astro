@@ -27,6 +27,7 @@ export interface Props {
   ogImageAlt?: string;
   ogType?: string;
   sharePreview?: SharePreviewMetadata;
+  showTrustStrip?: boolean;
 }
 
 const {
@@ -41,6 +42,7 @@ const {
   ogImageAlt = 'Logotipo de El Rincón de Ébano',
   ogType = 'website',
   sharePreview,
+  showTrustStrip = true,
 } = Astro.props;
 
 const navGroups = getNavigationGroups();
@@ -92,7 +94,7 @@ const resolvedSharePreview =
 
     <main id="main-content" role="main" tabindex="-1">
       <div class="container storefront-shell mb-4">
-        <TrustStrip />
+        {showTrustStrip ? <TrustStrip /> : null}
         <slot />
       </div>
     </main>

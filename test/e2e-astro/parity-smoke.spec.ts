@@ -5,7 +5,7 @@ test('home renders with navbar, catalog, and SEO tags', async ({ page }) => {
   await page.waitForFunction(() => window.__APP_READY__ === true);
 
   await expect(page.locator('.navbar-brand')).toBeVisible();
-  await expect(page.locator('.trust-strip__card')).toHaveCount(4);
+  await expect(page.locator('.trust-strip__card')).toHaveCount(0);
   await expect(page.locator('.home-entry')).toBeVisible();
   await expect(page.locator('#product-container .producto').first()).toBeVisible();
   await expect(page.locator('h2', { hasText: 'Categorías clave' })).toHaveCount(0);
@@ -22,20 +22,15 @@ test('home renders with navbar, catalog, and SEO tags', async ({ page }) => {
   );
 });
 
-test('desktop home keeps the service strip in a single row and hero CTA scrolls to Combos listos', async ({
+test('desktop home keeps the compact hero and hero CTA scrolls to Combos listos', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1100 });
   await page.goto('/', { waitUntil: 'networkidle' });
   await page.waitForFunction(() => window.__APP_READY__ === true);
 
-  const cardRows = await page.locator('.trust-strip__card').evaluateAll((elements) => {
-    const rows = new Set(
-      elements.map((element) => Math.round(element.getBoundingClientRect().top))
-    );
-    return rows.size;
-  });
-  expect(cardRows).toBe(1);
+  await expect(page.locator('.trust-strip__card')).toHaveCount(0);
+  await expect(page.locator('.home-entry')).toBeVisible();
 
   await page.locator('.home-entry__cta').click();
   await expect(page.locator('#home-bundles-heading')).toBeInViewport();
