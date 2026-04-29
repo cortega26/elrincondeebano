@@ -17,25 +17,27 @@
   --font-size-md: 1.0625rem;
   --font-size-lg: 1.25rem;
   --font-size-price: 1.125rem;
+  --storefront-header-height: 64px;
 }
 
 /* Base Styles */
 html {
   height: 100%;
-  scroll-padding-top: 4rem;
+  scroll-padding-top: var(--storefront-header-height);
 }
 
 /* Skip link for keyboard users */
 .skip-link {
-  position: absolute;
-  top: 8px;
+  position: fixed;
+  top: calc(var(--storefront-header-height) + 8px);
   left: 8px;
   background: #000;
   color: #fff;
   padding: 8px 12px;
   z-index: 2000;
   border-radius: 4px;
-  transform: translateY(calc(-100% - 16px));
+  max-width: calc(100vw - 16px);
+  transform: translateY(calc(-100% - var(--storefront-header-height) - 16px));
   transition: transform 0.2s ease;
 }
 
@@ -76,7 +78,7 @@ body {
   background-color: var(--background-color);
   line-height: 1.6;
   height: 100%;
-  padding-top: 64px;
+  padding-top: var(--storefront-header-height);
   display: flex;
   flex-direction: column;
 }
@@ -685,7 +687,7 @@ body.service-dialog-open {
 .navbar,
 .storefront-navbar {
   padding: 0.35rem 0.75rem;
-  min-height: 64px;
+  min-height: var(--storefront-header-height);
 }
 
 .storefront-navbar {
@@ -1794,7 +1796,7 @@ body.service-dialog-open {
   }
 
   body {
-    padding-top: 64px;
+    padding-top: var(--storefront-header-height);
   }
 
   .bundle-grid {
@@ -1974,7 +1976,7 @@ body.service-dialog-open {
 
   .catalog-controls--sticky-mobile {
     position: sticky;
-    top: 3.75rem;
+    top: calc(var(--storefront-header-height) - 0.25rem);
     z-index: 30;
     background: var(--background-color);
     padding-top: 0.25rem;

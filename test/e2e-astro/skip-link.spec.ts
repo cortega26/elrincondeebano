@@ -18,17 +18,39 @@ async function readSkipLinkState(page: Page) {
   });
 }
 
+async function readSkipLinkFocusLayout(page: Page) {
+  return await page.evaluate(() => {
+    const skipLink = document.querySelector('.skip-link');
+    const navbar = document.querySelector('.storefront-navbar');
+
+    if (!(skipLink instanceof HTMLElement) || !(navbar instanceof HTMLElement)) {
+      return null;
+    }
+
+    const skipRect = skipLink.getBoundingClientRect();
+    const navbarRect = navbar.getBoundingClientRect();
+
+    return {
+      skipTop: skipRect.top,
+      skipBottom: skipRect.bottom,
+      navbarBottom: navbarRect.bottom,
+      active: document.activeElement === skipLink,
+    };
+  });
+}
+
 async function expectSkipLinkHidden(page: Page) {
   await expect
-    .poll(async () => readSkipLinkState(page), {
-      message: 'Expected the skip link to stay off-canvas while unfocused',
-    })
-    .toMatchObject({
-      active: false,
-    });
-
-  const state = await readSkipLinkState(page);
-  expect(state.rectBottom).toBeLessThanOrEqual(0);
+    .poll(
+      async () => {
+        const state = await readSkipLinkState(page);
+        return !state.active && state.rectBottom <= 0;
+      },
+      {
+        message: 'Expected the skip link to stay off-canvas while unfocused',
+      }
+    )
+    .toBe(true);
 }
 
 test.describe('skip link visibility', () => {
@@ -54,6 +76,23 @@ test.describe('skip link visibility', () => {
     await page.keyboard.press('Tab');
     await expect(skipLink).toBeFocused();
     await expect(skipLink).toBeInViewport();
+
+    await expect
+      .poll(
+        async () => {
+          const focusLayout = await readSkipLinkFocusLayout(page);
+
+          if (!focusLayout) {
+            return false;
+          }
+
+          return focusLayout.active && focusLayout.skipTop >= focusLayout.navbarBottom - 1;
+        },
+        {
+          message: 'Expected the focused skip link to settle below the fixed navbar',
+        }
+      )
+      .toBe(true);
 
     await page.keyboard.press('Enter');
     await expect(page.locator('#main-content')).toBeFocused();
