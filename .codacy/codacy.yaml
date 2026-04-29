@@ -7,4 +7,4 @@ tools:
     - lizard@1.17.31
     - opengrep@1.17.0
     - pmd@7.16.0
-    - trivy@0.69.3
+    - trivy@0.70.0
