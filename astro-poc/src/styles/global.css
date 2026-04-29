@@ -28,17 +28,19 @@ html {
 /* Skip link for keyboard users */
 .skip-link {
   position: absolute;
-  top: -40px;
+  top: 8px;
   left: 8px;
   background: #000;
   color: #fff;
   padding: 8px 12px;
   z-index: 2000;
   border-radius: 4px;
+  transform: translateY(calc(-100% - 16px));
+  transition: transform 0.2s ease;
 }
 
-.skip-link:focus {
-  top: 8px;
+.skip-link:focus-visible {
+  transform: translateY(0);
   outline: 2px solid #fff;
 }
 
