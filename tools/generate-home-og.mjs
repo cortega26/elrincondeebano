@@ -12,7 +12,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 
-const SOURCE_PATH = path.join(rootDir, 'assets', 'images', 'web', 'logo.webp');
+const SOURCE_PATH = path.join(rootDir, 'assets', 'images', 'og', 'logo.png');
 const OUTPUT_DIR = path.join(rootDir, 'assets', 'images', 'og');
 const OUTPUT_PATH = path.join(OUTPUT_DIR, 'home.og.jpg');
 const IMAGE_SIZE = 1200;

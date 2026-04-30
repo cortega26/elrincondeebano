@@ -14,6 +14,8 @@ Legacy compatibility routes such as `/c/*` and `/pages/*.html` may remain reacha
 
 - Metadata generation: `astro-poc/src/lib/seo.ts`
 - Metadata rendering: `astro-poc/src/layouts/BaseLayout.astro`
+- Logo artwork source: `assets/images/og/logo.png`
+- Logo/web-icon generation: `npm run images:logo`
 - OG image generation: `npm run images:og:home`, `npm run images:og:overrides`, `npm run images:og:categories`
 - Build enforcement: `astro-poc/scripts/validate-artifact-contract.mjs`
 - Live validation: `npm run monitor:share-preview`
@@ -50,6 +52,7 @@ Expected results:
 If the social image artwork changed, regenerate the pipeline before building:
 
 ```bash
+npm run images:logo
 npm run images:og:home
 npm run images:og:overrides
 npm run images:og:categories

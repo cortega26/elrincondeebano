@@ -1,4 +1,4 @@
-// Generates PWA PNG icons from the existing WebP logo
+// Generates PWA PNG icons from the tracked logo source image
 // Requires: sharp (npm i --save-dev sharp)
 
 const fs = require('fs');
@@ -17,7 +17,7 @@ async function ensureSharp() {
 async function main() {
   const sharp = await ensureSharp();
   const rootDir = path.resolve(__dirname, '..');
-  const src = path.join(rootDir, 'assets/images/web/logo.webp');
+  const src = path.join(rootDir, 'assets/images/og/logo.png');
   const outDir = path.join(rootDir, 'assets/images/web');
   const targets = [
     { size: 192, name: 'icon-192.png' },
