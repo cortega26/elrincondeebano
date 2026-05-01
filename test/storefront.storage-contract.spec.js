@@ -28,6 +28,7 @@ describe('storefront storage contract', () => {
       runtimeId: 'astro-poc-storefront',
       runtimeEntry: 'astro-poc/src/scripts/storefront.js',
       storageVersion: 1,
+      cacheVersion: 2,
     });
     expect(STOREFRONT_RUNTIME_CONTRACT.storageKeys.cart).toBe('astro-poc-cart');
     expect(STOREFRONT_RUNTIME_CONTRACT.legacyAliases.cart).toEqual(['cart']);

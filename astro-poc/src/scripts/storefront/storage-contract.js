@@ -16,6 +16,7 @@ export const STOREFRONT_RUNTIME_CONTRACT = Object.freeze({
   runtimeId: 'astro-poc-storefront',
   runtimeEntry: 'astro-poc/src/scripts/storefront.js',
   storageVersion: 1,
+  cacheVersion: 2,
   storageKeys: STOREFRONT_STORAGE_KEYS,
   legacyAliases: STOREFRONT_STORAGE_ALIASES,
 });

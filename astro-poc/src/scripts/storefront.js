@@ -3,6 +3,7 @@ import { createCatalogViewController } from './storefront/catalog-view.js';
 import { scrollToHashTarget } from './storefront/hero-anchor-scroll.js';
 import { createObservabilityModule } from './storefront/observability.js';
 import { createPersonalizationEngine } from './storefront/personalization.js';
+import { syncStorefrontServiceWorkerVersion } from './storefront/service-worker-sync.js';
 import {
   createStorefrontStorage,
   STOREFRONT_RUNTIME_CONTRACT,
@@ -894,7 +895,14 @@ async function registerServiceWorker() {
     return;
   }
   try {
-    await navigator.serviceWorker.register('/service-worker.js', { scope: '/' });
+    const registration = await navigator.serviceWorker.register('/service-worker.js', {
+      scope: '/',
+    });
+    await syncStorefrontServiceWorkerVersion({
+      registration,
+      runtimeContract: STOREFRONT_RUNTIME_CONTRACT,
+      log,
+    });
   } catch (error) {
     log('warn', 'service_worker_registration_failed', { error });
   }
