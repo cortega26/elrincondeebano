@@ -11,6 +11,33 @@ async function waitForReady(page: Page) {
  * out of view).
  */
 test.describe('Ver combos navigation', () => {
+  test('early click: "Ver combos" works before app ready completes', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+
+    const countBefore = await page.evaluate(
+      () => document.querySelectorAll('#product-container [data-product-id]:not(.is-hidden)').length
+    );
+    expect(countBefore).toBeGreaterThan(0);
+
+    await page.locator('[data-home-hero-cta]').click();
+    await waitForReady(page);
+    await expect(page).toHaveURL(/#home-bundles-heading$/);
+    await page.waitForTimeout(600);
+
+    const headingVisible = await page.evaluate(() => {
+      const el = document.getElementById('home-bundles-heading');
+      if (!el) return false;
+      const { top, bottom } = el.getBoundingClientRect();
+      return top < window.innerHeight && bottom > 0;
+    });
+    expect(headingVisible).toBe(true);
+
+    const countAfter = await page.evaluate(
+      () => document.querySelectorAll('#product-container [data-product-id]:not(.is-hidden)').length
+    );
+    expect(countAfter).toBe(countBefore);
+  });
+
   test('desktop: "Ver combos" scrolls to Combos listos without catalog expansion', async ({
     page,
   }) => {

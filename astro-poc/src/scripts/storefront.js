@@ -1159,6 +1159,9 @@ function initStorefront() {
     }
   };
 
+  // Register the click delegate before the rest of the hydration work finishes
+  // so the hero CTA is protected even when Chrome users click as soon as the
+  // page paints.
   document.addEventListener('click', onDocumentClick, true);
 
   document.addEventListener('change', (event) => {
