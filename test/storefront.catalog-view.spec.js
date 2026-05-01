@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { createCatalogViewController } from '../astro-poc/src/scripts/storefront/catalog-view.js';
 
@@ -44,6 +44,8 @@ function parseNumber(value, fallback = 0) {
 }
 
 afterEach(() => {
+  vi.useRealTimers();
+  vi.restoreAllMocks();
   delete global.window;
   delete global.document;
   delete global.HTMLElement;
@@ -110,5 +112,60 @@ describe('createCatalogViewController', () => {
       false
     );
     expect(document.getElementById('catalog-load-more').classList.contains('d-none')).toBe(true);
+  });
+
+  it('suppresses observer-driven pagination during programmatic jumps and resumes afterward', () => {
+    vi.useFakeTimers();
+    setupCatalogDom();
+
+    let observerCallback = null;
+    const observers = [];
+    const intersectionObserverFactory = vi.fn((callback) => {
+      observerCallback = callback;
+      const observer = {
+        observe: vi.fn(),
+        disconnect: vi.fn(),
+      };
+      observers.push(observer);
+      return observer;
+    });
+
+    const controller = createCatalogViewController({
+      container: document.getElementById('product-container'),
+      sortSelect: document.getElementById('sort-options'),
+      searchInput: document.getElementById('filter-keyword'),
+      discountCheckbox: document.getElementById('filter-discount'),
+      loadMoreButton: document.getElementById('catalog-load-more'),
+      resultsStatus: document.getElementById('catalog-results-status'),
+      emptyState: document.getElementById('catalog-empty-state'),
+      sentinel: document.getElementById('catalog-sentinel'),
+      normalizeSearchText,
+      parseNumber,
+      pageSize: 1,
+      intersectionObserverFactory,
+    });
+
+    controller.updateView();
+    controller.setupPagination();
+    expect(observers).toHaveLength(1);
+    expect(controller.getState().paginationSuppressed).toBe(false);
+
+    controller.suspendPaginationForProgrammaticScroll();
+    expect(controller.getState().paginationSuppressed).toBe(true);
+    expect(observers[0].disconnect).toHaveBeenCalledTimes(1);
+
+    observerCallback?.([{ isIntersecting: true }]);
+    expect(document.querySelector('[data-product-id="p2"]').classList.contains('is-hidden')).toBe(
+      true
+    );
+
+    vi.advanceTimersByTime(40);
+    expect(controller.getState().paginationSuppressed).toBe(false);
+    expect(observers).toHaveLength(2);
+
+    observerCallback?.([{ isIntersecting: true }]);
+    expect(document.querySelector('[data-product-id="p2"]').classList.contains('is-hidden')).toBe(
+      false
+    );
   });
 });

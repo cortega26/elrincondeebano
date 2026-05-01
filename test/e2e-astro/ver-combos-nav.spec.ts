@@ -25,6 +25,7 @@ test.describe('Ver combos navigation', () => {
 
     // Click the "Ver combos" CTA.
     await page.locator('[data-home-hero-cta]').click();
+    await expect(page).toHaveURL(/#home-bundles-heading$/);
 
     // Wait a moment for any IntersectionObserver side-effects to settle.
     await page.waitForTimeout(600);
@@ -65,6 +66,7 @@ test.describe('Ver combos navigation', () => {
       expect(countBefore).toBeGreaterThan(0);
 
       await page.locator('[data-home-hero-cta]').click();
+      await expect(page).toHaveURL(/#home-bundles-heading$/);
       await page.waitForTimeout(600);
 
       const headingVisible = await page.evaluate(() => {

@@ -1,0 +1,503 @@
+- generic [active] [ref=e1]:
+  - link "Saltar al contenido principal" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner:
+    - navigation "Navegación principal" [ref=e3]:
+      - generic [ref=e4]:
+        - link "Logo de El Rincón de Ébano El Rincón de Ébano" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - img "Logo de El Rincón de Ébano" [ref=e7]
+          - generic [ref=e8]: El Rincón de Ébano
+        - button "Carrito de compras" [ref=e10] [cursor=pointer]:
+          - img [ref=e11]
+          - generic "0 productos en el carrito" [ref=e13]: "0"
+        - list [ref=e15]:
+          - listitem [ref=e16]:
+            - button "Alimentos" [ref=e17] [cursor=pointer]
+          - listitem [ref=e18]:
+            - button "Bebidas" [ref=e19] [cursor=pointer]
+          - listitem [ref=e20]:
+            - button "Alcohol" [ref=e21] [cursor=pointer]
+          - listitem [ref=e22]:
+            - button "Snacks y Confites" [ref=e23] [cursor=pointer]
+          - listitem [ref=e24]:
+            - button "Hogar y Mascotas" [ref=e25] [cursor=pointer]
+          - listitem [ref=e26]:
+            - button "Varios" [ref=e27] [cursor=pointer]
+  - main [ref=e28]:
+    - generic [ref=e30]:
+      - region "Haz tu pedido en minutos" [ref=e31]:
+        - generic [ref=e32]:
+          - generic [ref=e33]:
+            - heading "Haz tu pedido en minutos" [level=1] [ref=e34]
+            - paragraph [ref=e35]: Agrega aquí y confirma por WhatsApp al final.
+          - generic [ref=e36]:
+            - link "Ver combos" [ref=e37] [cursor=pointer]:
+              - /url: "#home-bundles-heading"
+            - button "Cómo pedir" [ref=e38] [cursor=pointer]
+      - region "Compra rápida" [ref=e39]:
+        - generic [ref=e40]:
+          - heading "Compra rápida" [level=2] [ref=e41]
+          - paragraph [ref=e42]: Tus frecuentes aparecerán aquí. Mientras tanto, dejamos una selección útil para resolver rápido.
+        - generic [ref=e43]:
+          - article [ref=e44]:
+            - generic [ref=e45]:
+              - img "Coca-Cola 2L" [ref=e48]
+              - generic [ref=e49]:
+                - generic [ref=e50]:
+                  - heading "Coca-Cola 2L" [level=3] [ref=e51]
+                  - paragraph [ref=e52]: Envase desechable
+                - generic "Precio" [ref=e54]: $3.000
+                - group "Acciones para Coca-Cola 2L" [ref=e55]:
+                  - button "Agregar Coca-Cola 2L al carrito" [ref=e56] [cursor=pointer]:
+                    - generic [ref=e57]: Agregar
+          - article [ref=e58]:
+            - generic [ref=e59]:
+              - img "Leche Entera" [ref=e62]
+              - generic [ref=e63]:
+                - generic [ref=e64]:
+                  - heading "Leche Entera" [level=3] [ref=e65]
+                  - paragraph [ref=e66]: Envase Tetrabrik de 1L
+                - generic "Precio" [ref=e68]: $1.800
+                - group "Acciones para Leche Entera" [ref=e69]:
+                  - button "Agregar Leche Entera al carrito" [ref=e70] [cursor=pointer]:
+                    - generic [ref=e71]: Agregar
+          - article [ref=e72]:
+            - generic [ref=e73]:
+              - img "PF • Jamón de Pierna Acaramelado" [ref=e76]
+              - generic [ref=e77]:
+                - generic [ref=e78]:
+                  - heading "PF • Jamón de Pierna Acaramelado" [level=3] [ref=e79]
+                  - paragraph [ref=e80]: Empaque al vacío de 200g
+                - generic "Precio" [ref=e82]: $2.900
+                - group "Acciones para PF • Jamón de Pierna Acaramelado" [ref=e83]:
+                  - button "Agregar PF • Jamón de Pierna Acaramelado al carrito" [ref=e84] [cursor=pointer]:
+                    - generic [ref=e85]: Agregar
+      - region "Catálogo principal" [ref=e86]:
+        - generic [ref=e87]:
+          - heading "Catálogo principal" [level=2] [ref=e88]
+          - paragraph [ref=e89]: Todo el catálogo queda aquí, con filtros y búsqueda para completar el pedido sin salir de la página.
+        - region "Opciones de filtrado y ordenacion" [ref=e90]:
+          - generic [ref=e91]:
+            - generic [ref=e92]:
+              - generic [ref=e93]: Buscar
+              - textbox "Filtrar productos por nombre" [ref=e94]:
+                - /placeholder: Nombre o marca
+            - generic [ref=e95]:
+              - generic [ref=e96]: Ordenar
+              - combobox "Ordenar productos" [ref=e97]:
+                - option "Orden por defecto" [selected]
+                - option "Nombre (A-Z)"
+                - option "Nombre (Z-A)"
+                - option "Precio (menor a mayor)"
+                - option "Precio (mayor a menor)"
+            - generic [ref=e99]:
+              - checkbox "Mostrar solo productos con descuento" [ref=e100]
+              - generic [ref=e101]:
+                - generic [ref=e102]: Solo ofertas
+                - generic [ref=e103]: Oculta productos sin descuento
+            - status [ref=e104]: 88 productos encontrados
+        - generic [ref=e105]:
+          - article [ref=e106]:
+            - generic [ref=e107]:
+              - img "Toalla Papel Nova Clásica" [ref=e110]
+              - generic [ref=e111]:
+                - generic [ref=e112]:
+                  - heading "Toalla Papel Nova Clásica" [level=3] [ref=e113]
+                  - paragraph [ref=e114]: Dos Rollos de 14m c/u
+                - generic "Precio" [ref=e116]: $2.000
+                - group "Acciones para Toalla Papel Nova Clásica" [ref=e117]:
+                  - button "Agregar Toalla Papel Nova Clásica al carrito" [ref=e118] [cursor=pointer]:
+                    - generic [ref=e119]: Agregar
+          - article [ref=e120]:
+            - generic [ref=e121]:
+              - img "Mont Blanc • Harina sin polvos" [ref=e124]
+              - generic [ref=e125]:
+                - generic [ref=e126]:
+                  - heading "Mont Blanc • Harina sin polvos" [level=3] [ref=e127]
+                  - paragraph [ref=e128]: Empaque de 1Kg
+                - generic "Precio" [ref=e130]: $1.800
+                - group "Acciones para Mont Blanc • Harina sin polvos" [ref=e131]:
+                  - button "Agregar Mont Blanc • Harina sin polvos al carrito" [ref=e132] [cursor=pointer]:
+                    - generic [ref=e133]: Agregar
+          - article [ref=e134]:
+            - generic [ref=e135]:
+              - img "Coca-Cola 3L" [ref=e138]
+              - generic [ref=e139]:
+                - generic [ref=e140]:
+                  - heading "Coca-Cola 3L" [level=3] [ref=e141]
+                  - paragraph [ref=e142]: Envase retornable
+                - generic "Precio" [ref=e144]: $3.800
+                - group "Acciones para Coca-Cola 3L" [ref=e145]:
+                  - button "Agregar Coca-Cola 3L al carrito" [ref=e146] [cursor=pointer]:
+                    - generic [ref=e147]: Agregar
+          - article [ref=e148]:
+            - generic [ref=e149]:
+              - img "Cousiño-Macul • Carmenere Reserva, Chivilingo" [ref=e152]
+              - generic [ref=e153]:
+                - generic [ref=e154]:
+                  - heading "Cousiño-Macul • Carmenere Reserva, Chivilingo" [level=3] [ref=e155]
+                  - paragraph [ref=e156]: Vino tinto • Botella 750mL • 13,5° G.L.
+                - generic "Precio" [ref=e158]: $5.900
+                - group "Acciones para Cousiño-Macul • Carmenere Reserva, Chivilingo" [ref=e159]:
+                  - button "Agregar Cousiño-Macul • Carmenere Reserva, Chivilingo al carrito" [ref=e160] [cursor=pointer]:
+                    - generic [ref=e161]: Agregar
+          - article [ref=e162]:
+            - generic [ref=e163]:
+              - img "Sprite 3L" [ref=e166]
+              - generic [ref=e167]:
+                - generic [ref=e168]:
+                  - heading "Sprite 3L" [level=3] [ref=e169]
+                  - paragraph [ref=e170]: Envase desechable
+                - generic "Precio" [ref=e172]: $3.800
+                - group "Acciones para Sprite 3L" [ref=e173]:
+                  - button "Agregar Sprite 3L al carrito" [ref=e174] [cursor=pointer]:
+                    - generic [ref=e175]: Agregar
+          - article [ref=e176]:
+            - generic [ref=e177]:
+              - img "Queso Llanero 1Kg" [ref=e180]
+              - generic [ref=e181]:
+                - generic [ref=e182]:
+                  - heading "Queso Llanero 1Kg" [level=3] [ref=e183]
+                  - paragraph [ref=e184]: A granel, trozo
+                - generic "Precio" [ref=e186]: $10.000
+                - group "Acciones para Queso Llanero 1Kg" [ref=e187]:
+                  - button "Agregar Queso Llanero 1Kg al carrito" [ref=e188] [cursor=pointer]:
+                    - generic [ref=e189]: Agregar
+          - article [ref=e190]:
+            - generic [ref=e191]:
+              - img "Iansa • Azúcar Blanca" [ref=e194]
+              - generic [ref=e195]:
+                - generic [ref=e196]:
+                  - heading "Iansa • Azúcar Blanca" [level=3] [ref=e197]
+                  - paragraph [ref=e198]: Empaque de 900g
+                - generic "Precio" [ref=e200]: $2.000
+                - group "Acciones para Iansa • Azúcar Blanca" [ref=e201]:
+                  - button "Agregar Iansa • Azúcar Blanca al carrito" [ref=e202] [cursor=pointer]:
+                    - generic [ref=e203]: Agregar
+          - article [ref=e204]:
+            - generic [ref=e205]:
+              - img "Misiones de Rengo • Merlot" [ref=e208]
+              - generic [ref=e209]:
+                - generic [ref=e210]:
+                  - heading "Misiones de Rengo • Merlot" [level=3] [ref=e211]
+                  - paragraph [ref=e212]: Vino tinto • Botella de 750mL • 13° G.L.
+                - generic "Precio" [ref=e214]: $4.500
+                - group "Acciones para Misiones de Rengo • Merlot" [ref=e215]:
+                  - button "Agregar Misiones de Rengo • Merlot al carrito" [ref=e216] [cursor=pointer]:
+                    - generic [ref=e217]: Agregar
+          - article [ref=e218]:
+            - generic [ref=e219]:
+              - img "Kross • Cerveza Golden Pale Ale" [ref=e222]
+              - generic [ref=e223]:
+                - generic [ref=e224]:
+                  - heading "Kross • Cerveza Golden Pale Ale" [level=3] [ref=e225]
+                  - paragraph [ref=e226]: Lata de 470cc x 6 unidades
+                - generic "Precio" [ref=e228]: $13.000
+                - group "Acciones para Kross • Cerveza Golden Pale Ale" [ref=e229]:
+                  - button "Agregar Kross • Cerveza Golden Pale Ale al carrito" [ref=e230] [cursor=pointer]:
+                    - generic [ref=e231]: Agregar
+          - article [ref=e232]:
+            - generic [ref=e233]:
+              - img "Mantequilla Kumey 250g" [ref=e236]
+              - generic [ref=e237]:
+                - generic [ref=e238]:
+                  - heading "Mantequilla Kumey 250g" [level=3] [ref=e239]
+                  - paragraph [ref=e240]: Artesanal
+                - generic "Precio" [ref=e242]: $3.200
+                - group "Acciones para Mantequilla Kumey 250g" [ref=e243]:
+                  - button "Agregar Mantequilla Kumey 250g al carrito" [ref=e244] [cursor=pointer]:
+                    - generic [ref=e245]: Agregar
+          - article [ref=e246]:
+            - generic [ref=e247]:
+              - img "Easy Clean Lavanda L" [ref=e250]
+              - generic [ref=e251]:
+                - generic [ref=e252]:
+                  - heading "Easy Clean Lavanda L" [level=3] [ref=e253]
+                  - paragraph [ref=e254]: Arena Sanitaria - Bolsa de 8Kg/10L
+                - generic "Precio" [ref=e256]: $9.500
+                - group "Acciones para Easy Clean Lavanda L" [ref=e257]:
+                  - button "Agregar Easy Clean Lavanda L al carrito" [ref=e258] [cursor=pointer]:
+                    - generic [ref=e259]: Agregar
+          - article [ref=e260]:
+            - generic [ref=e261]:
+              - img "Espumante Brut • Undurraga" [ref=e264]
+              - generic [ref=e265]:
+                - generic [ref=e266]:
+                  - heading "Espumante Brut • Undurraga" [level=3] [ref=e267]
+                  - paragraph [ref=e268]: Botella de 750mL
+                - generic "Precio" [ref=e270]: $6.900
+                - group "Acciones para Espumante Brut • Undurraga" [ref=e271]:
+                  - button "Agregar Espumante Brut • Undurraga al carrito" [ref=e272] [cursor=pointer]:
+                    - generic [ref=e273]: Agregar
+          - article [ref=e274]:
+            - generic [ref=e275]:
+              - generic [ref=e276]:
+                - generic "Producto en oferta" [ref=e277]: "-14%"
+                - img "Pisco Especial 35° • Alto del Carmen" [ref=e279]
+              - generic [ref=e280]:
+                - generic [ref=e281]:
+                  - heading "Pisco Especial 35° • Alto del Carmen" [level=3] [ref=e282]
+                  - paragraph [ref=e283]: Botella de 750 mL
+                - generic [ref=e284]:
+                  - generic "Precio con descuento" [ref=e285]: $6.900
+                  - generic "Precio original" [ref=e286]:
+                    - generic [ref=e287]: $8.000
+                - group "Acciones para Pisco Especial 35° • Alto del Carmen" [ref=e288]:
+                  - button "Agregar Pisco Especial 35° • Alto del Carmen al carrito" [ref=e289] [cursor=pointer]:
+                    - generic [ref=e290]: Agregar
+          - article [ref=e291]:
+            - generic [ref=e292]:
+              - img "Pisco Especial 35° g • Alto del Carmen" [ref=e295]
+              - generic [ref=e296]:
+                - generic [ref=e297]:
+                  - heading "Pisco Especial 35° g • Alto del Carmen" [level=3] [ref=e298]
+                  - paragraph [ref=e299]: Botella de 1L
+                - generic "Precio" [ref=e301]: $9.900
+                - group "Acciones para Pisco Especial 35° g • Alto del Carmen" [ref=e302]:
+                  - button "Agregar Pisco Especial 35° g • Alto del Carmen al carrito" [ref=e303] [cursor=pointer]:
+                    - generic [ref=e304]: Agregar
+          - article [ref=e305]:
+            - generic [ref=e306]:
+              - img "Leche Semidescremada Deslactosada" [ref=e309]
+              - generic [ref=e310]:
+                - generic [ref=e311]:
+                  - heading "Leche Semidescremada Deslactosada" [level=3] [ref=e312]
+                  - paragraph [ref=e313]: Envase Tetrabrik de 1L
+                - generic "Precio" [ref=e315]: $1.800
+                - group "Acciones para Leche Semidescremada Deslactosada" [ref=e316]:
+                  - button "Agregar Leche Semidescremada Deslactosada al carrito" [ref=e317] [cursor=pointer]:
+                    - generic [ref=e318]: Agregar
+          - article [ref=e319]:
+            - generic [ref=e320]:
+              - generic [ref=e321]:
+                - generic "Producto en oferta" [ref=e322]: "-8%"
+                - img "Pepita de Oro • Aceite de Oliva Extra Virgen" [ref=e324]
+              - generic [ref=e325]:
+                - generic [ref=e326]:
+                  - heading "Pepita de Oro • Aceite de Oliva Extra Virgen" [level=3] [ref=e327]
+                  - paragraph [ref=e328]: Botella de 1L
+                - generic [ref=e329]:
+                  - generic "Precio con descuento" [ref=e330]: $11.900
+                  - generic "Precio original" [ref=e331]:
+                    - generic [ref=e332]: $12.900
+                - group "Acciones para Pepita de Oro • Aceite de Oliva Extra Virgen" [ref=e333]:
+                  - button "Agregar Pepita de Oro • Aceite de Oliva Extra Virgen al carrito" [ref=e334] [cursor=pointer]:
+                    - generic [ref=e335]: Agregar
+          - article [ref=e336]:
+            - generic [ref=e337]:
+              - img "Coors • Cerveza Lager" [ref=e340]
+              - generic [ref=e341]:
+                - generic [ref=e342]:
+                  - heading "Coors • Cerveza Lager" [level=3] [ref=e343]
+                  - paragraph [ref=e344]: Botella de 355cc x 6 unidades
+                - generic "Precio" [ref=e346]: $7.900
+                - group "Acciones para Coors • Cerveza Lager" [ref=e347]:
+                  - button "Agregar Coors • Cerveza Lager al carrito" [ref=e348] [cursor=pointer]:
+                    - generic [ref=e349]: Agregar
+          - article [ref=e350]:
+            - generic [ref=e351]:
+              - img "Heineken • Cerveza Lager" [ref=e354]
+              - generic [ref=e355]:
+                - generic [ref=e356]:
+                  - heading "Heineken • Cerveza Lager" [level=3] [ref=e357]
+                  - paragraph [ref=e358]: Lata de 350cc x 6 unidades
+                - generic "Precio" [ref=e360]: $6.800
+                - group "Acciones para Heineken • Cerveza Lager" [ref=e361]:
+                  - button "Agregar Heineken • Cerveza Lager al carrito" [ref=e362] [cursor=pointer]:
+                    - generic [ref=e363]: Agregar
+          - article [ref=e364]:
+            - generic [ref=e365]:
+              - img "Royal Guard • Cerveza Lager" [ref=e368]
+              - generic [ref=e369]:
+                - generic [ref=e370]:
+                  - heading "Royal Guard • Cerveza Lager" [level=3] [ref=e371]
+                  - paragraph [ref=e372]: Lata de 350cc x 6 unidades
+                - generic "Precio" [ref=e374]: $5.900
+                - group "Acciones para Royal Guard • Cerveza Lager" [ref=e375]:
+                  - button "Agregar Royal Guard • Cerveza Lager al carrito" [ref=e376] [cursor=pointer]:
+                    - generic [ref=e377]: Agregar
+          - article [ref=e378]:
+            - generic [ref=e379]:
+              - generic [ref=e380]:
+                - generic "Producto en oferta" [ref=e381]: "-7%"
+                - img "Stella Artois • Cerveza Lager" [ref=e383]
+              - generic [ref=e384]:
+                - generic [ref=e385]:
+                  - heading "Stella Artois • Cerveza Lager" [level=3] [ref=e386]
+                  - paragraph [ref=e387]: Lata de 354cc x 6 unidades
+                - generic [ref=e388]:
+                  - generic "Precio con descuento" [ref=e389]: $5.500
+                  - generic "Precio original" [ref=e390]:
+                    - generic [ref=e391]: $5.900
+                - group "Acciones para Stella Artois • Cerveza Lager" [ref=e392]:
+                  - button "Agregar Stella Artois • Cerveza Lager al carrito" [ref=e393] [cursor=pointer]:
+                    - generic [ref=e394]: Agregar
+          - article [ref=e395]:
+            - generic [ref=e396]:
+              - img "Stones • Cerveza Lemon" [ref=e399]
+              - generic [ref=e400]:
+                - generic [ref=e401]:
+                  - heading "Stones • Cerveza Lemon" [level=3] [ref=e402]
+                  - paragraph [ref=e403]: Lata de 350cc x 6 unidades
+                - generic "Precio" [ref=e405]: $6.900
+                - group "Acciones para Stones • Cerveza Lemon" [ref=e406]:
+                  - button "Agregar Stones • Cerveza Lemon al carrito" [ref=e407] [cursor=pointer]:
+                    - generic [ref=e408]: Agregar
+          - article [ref=e409]:
+            - generic [ref=e410]:
+              - img "Crema de Leche Surlat" [ref=e413]
+              - generic [ref=e414]:
+                - generic [ref=e415]:
+                  - heading "Crema de Leche Surlat" [level=3] [ref=e416]
+                  - paragraph [ref=e417]: Presentación de 200mL
+                - generic "Precio" [ref=e419]: $1.500
+                - group "Acciones para Crema de Leche Surlat" [ref=e420]:
+                  - button "Agregar Crema de Leche Surlat al carrito" [ref=e421] [cursor=pointer]:
+                    - generic [ref=e422]: Agregar
+          - article [ref=e423]:
+            - generic [ref=e424]:
+              - img "PAN • Harina de Maiz" [ref=e427]
+              - generic [ref=e428]:
+                - generic [ref=e429]:
+                  - heading "PAN • Harina de Maiz" [level=3] [ref=e430]
+                  - paragraph [ref=e431]: Empaque de 1Kg
+                - generic "Precio" [ref=e433]: $2.200
+                - group "Acciones para PAN • Harina de Maiz" [ref=e434]:
+                  - button "Agregar PAN • Harina de Maiz al carrito" [ref=e435] [cursor=pointer]:
+                    - generic [ref=e436]: Agregar
+          - article [ref=e437]:
+            - generic [ref=e438]:
+              - img "Nescafé • Café Fina Selección" [ref=e441]
+              - generic [ref=e442]:
+                - generic [ref=e443]:
+                  - heading "Nescafé • Café Fina Selección" [level=3] [ref=e444]
+                  - paragraph [ref=e445]: Frasco de 200g
+                - generic "Precio" [ref=e447]: $11.900
+                - group "Acciones para Nescafé • Café Fina Selección" [ref=e448]:
+                  - button "Agregar Nescafé • Café Fina Selección al carrito" [ref=e449] [cursor=pointer]:
+                    - generic [ref=e450]: Agregar
+        - button "Cargar más productos (64 restantes)" [ref=e452] [cursor=pointer]
+      - region "Ahorra hoy" [ref=e453]:
+        - generic [ref=e454]:
+          - heading "Ahorra hoy" [level=2] [ref=e455]
+          - paragraph [ref=e456]: Ofertas activas para resolver el pedido sin revisar promociones por separado.
+        - generic [ref=e457]:
+          - article [ref=e458]:
+            - generic [ref=e459]:
+              - generic [ref=e460]:
+                - generic "Producto en oferta" [ref=e461]: "-29%"
+                - img "Shweppes • Agua Tónica" [ref=e463]
+              - generic [ref=e464]:
+                - generic [ref=e465]:
+                  - heading "Shweppes • Agua Tónica" [level=3] [ref=e466]
+                  - paragraph [ref=e467]: Botella de 1,5L
+                - generic [ref=e468]:
+                  - generic "Precio con descuento" [ref=e469]: $2.000
+                  - generic "Precio original" [ref=e470]:
+                    - generic [ref=e471]: $2.800
+                - group "Acciones para Shweppes • Agua Tónica" [ref=e472]:
+                  - button "Agregar Shweppes • Agua Tónica al carrito" [ref=e473] [cursor=pointer]:
+                    - generic [ref=e474]: Agregar
+          - article [ref=e475]:
+            - generic [ref=e476]:
+              - generic [ref=e477]:
+                - generic "Producto en oferta" [ref=e478]: "-18%"
+                - img "Hershey's • Chocolate con Leche" [ref=e480]
+              - generic [ref=e481]:
+                - generic [ref=e482]:
+                  - heading "Hershey's • Chocolate con Leche" [level=3] [ref=e483]
+                  - paragraph [ref=e484]: Barra de 82g
+                - generic [ref=e485]:
+                  - generic "Precio con descuento" [ref=e486]: $1.800
+                  - generic "Precio original" [ref=e487]:
+                    - generic [ref=e488]: $2.200
+                - group "Acciones para Hershey's • Chocolate con Leche" [ref=e489]:
+                  - button "Agregar Hershey's • Chocolate con Leche al carrito" [ref=e490] [cursor=pointer]:
+                    - generic [ref=e491]: Agregar
+          - article [ref=e492]:
+            - generic [ref=e493]:
+              - generic [ref=e494]:
+                - generic "Producto en oferta" [ref=e495]: "-18%"
+                - img "Misiones de Rengo • Cabernet Sauvignon Gran Reserva Black 2022" [ref=e497]
+              - generic [ref=e498]:
+                - generic [ref=e499]:
+                  - heading "Misiones de Rengo • Cabernet Sauvignon Gran Reserva Black 2022" [level=3] [ref=e500]
+                  - paragraph [ref=e501]: Vino tinto • Botella de 750mL • 14° G.L.
+                - generic [ref=e502]:
+                  - generic "Precio con descuento" [ref=e503]: $9.900
+                  - generic "Precio original" [ref=e504]:
+                    - generic [ref=e505]: $12.000
+                - group "Acciones para Misiones de Rengo • Cabernet Sauvignon Gran Reserva Black 2022" [ref=e506]:
+                  - button "Agregar Misiones de Rengo • Cabernet Sauvignon Gran Reserva Black 2022 al carrito" [ref=e507] [cursor=pointer]:
+                    - generic [ref=e508]: Agregar
+          - article [ref=e509]:
+            - generic [ref=e510]:
+              - generic [ref=e511]:
+                - generic "Producto en oferta" [ref=e512]: "-14%"
+                - img "Concha y Toro • Cabernet Sauvignon Reserva, Casillero del Diablo" [ref=e514]
+              - generic [ref=e515]:
+                - generic [ref=e516]:
+                  - heading "Concha y Toro • Cabernet Sauvignon Reserva, Casillero del Diablo" [level=3] [ref=e517]
+                  - paragraph [ref=e518]: Vino tinto • Botella de 750mL • 13,5° G.L.
+                - generic [ref=e519]:
+                  - generic "Precio con descuento" [ref=e520]: $5.900
+                  - generic "Precio original" [ref=e521]:
+                    - generic [ref=e522]: $6.900
+                - group "Acciones para Concha y Toro • Cabernet Sauvignon Reserva, Casillero del Diablo" [ref=e523]:
+                  - button "Agregar Concha y Toro • Cabernet Sauvignon Reserva, Casillero del Diablo al carrito" [ref=e524] [cursor=pointer]:
+                    - generic [ref=e525]: Agregar
+      - region "Combos listos" [ref=e526]:
+        - generic [ref=e527]:
+          - heading "Combos listos" [level=2] [ref=e528]
+          - paragraph [ref=e529]: Una forma rápida de sumar productos que normalmente se piden juntos.
+        - generic [ref=e530]:
+          - article [ref=e531]:
+            - generic [ref=e532]:
+              - heading "Básicos del día" [level=3] [ref=e533]
+              - paragraph [ref=e534]: Un combo rápido para resolver despensa, bebida y limpieza en una sola pasada.
+              - list [ref=e535]:
+                - listitem [ref=e536]: Mont Blanc • Harina sin polvos
+                - listitem [ref=e537]: Coca-Cola 2L
+                - listitem [ref=e538]: Leche Entera
+                - listitem [ref=e539]: Toalla Papel Nova Clásica
+            - generic [ref=e540]:
+              - generic [ref=e541]:
+                - strong [ref=e542]: $8.600
+                - generic [ref=e543]: 4 productos
+              - button "Agregar combo" [ref=e544] [cursor=pointer]
+          - article [ref=e545]:
+            - generic [ref=e546]:
+              - heading "Desayuno rápido" [level=3] [ref=e547]
+              - paragraph [ref=e548]: Lo justo para partir la mañana sin armar el pedido pieza por pieza.
+              - list [ref=e549]:
+                - listitem [ref=e550]: Leche Entera
+                - listitem [ref=e551]: Nescafé • Café Dolca
+                - listitem [ref=e552]: Iansa • Azúcar Blanca
+                - listitem [ref=e553]: Queso Gauda La Vaquita
+            - generic [ref=e554]:
+              - generic [ref=e555]:
+                - strong [ref=e556]: $13.200
+                - generic [ref=e557]: 4 productos
+              - button "Agregar combo" [ref=e558] [cursor=pointer]
+          - article [ref=e559]:
+            - generic [ref=e560]:
+              - heading "Noche de pelis" [level=3] [ref=e561]
+              - paragraph [ref=e562]: Bebida y picoteo listos para pedir en pocos toques.
+              - list [ref=e563]:
+                - listitem [ref=e564]: Coca-Cola 2L
+                - listitem [ref=e565]: Nabisco • Galletas Oreo Original
+                - listitem [ref=e566]: Hershey's • Chocolate con Leche
+                - listitem [ref=e567]: Selección • Chips de Plátano Frito
+            - generic [ref=e568]:
+              - generic [ref=e569]:
+                - strong [ref=e570]: $9.600
+                - generic [ref=e571]: 4 productos
+              - button "Agregar combo" [ref=e572] [cursor=pointer]
+  - contentinfo [ref=e573]:
+    - paragraph [ref=e575]:
+      - text: © El Rincón de Ébano — Minimarket privado para residentes del edificio. Pedidos coordinados por WhatsApp.
+      - generic [ref=e576]:
+        - text: Desarrollado por
+        - link "Tooltician" [ref=e577] [cursor=pointer]:
+          - /url: https://tooltician.com/
