@@ -68,6 +68,10 @@ test('runSharePreviewDiagnosis flags social bot challenges independently from br
       assert.equal(report.results[1].summary.challengeCount, 1);
       assert.equal(report.results[1].attempts[0].failurePhase, 'html');
       assert.equal(report.results[1].attempts[0].html.challengeDetected, true);
+      assert.match(
+        report.results[1].attempts[0].html.challengeEvidence || '',
+        /cdn-cgi\/challenge-platform/i
+      );
       assert.deepEqual(report.suspicions, [
         {
           code: 'social-bot-challenge',
@@ -75,6 +79,47 @@ test('runSharePreviewDiagnosis flags social bot challenges independently from br
             'At least one social-bot profile received a challenge/interstitial while the browser profile did not.',
         },
       ]);
+    }
+  );
+});
+
+test('runSharePreviewDiagnosis flags edge challenge injection when every profile is challenged', async () => {
+  const { runSharePreviewDiagnosis } = await loadModule();
+
+  await withMockedFetch(
+    async (url) => {
+      const target = String(url);
+      if (target === `${SITE_ORIGIN}/`) {
+        return makeHtmlResponse(
+          '<html><body><script src="/cdn-cgi/challenge-platform/scripts/jsd/main.js"></script></body></html>',
+          {
+            'cf-cache-status': 'DYNAMIC',
+            'cf-ray': 'edge-ray',
+          }
+        );
+      }
+
+      return new Response('not found', { status: 404 });
+    },
+    async () => {
+      const report = await runSharePreviewDiagnosis({
+        baseUrl: SITE_ORIGIN,
+        route: '/',
+        attempts: 2,
+        profiles: ['browser', 'whatsapp'],
+        reportPath: 'reports/share-preview/test-diagnostics-edge.json',
+      });
+
+      assert.equal(report.success, false);
+      assert.deepEqual(report.suspicions, [
+        {
+          code: 'edge-challenge-injection',
+          message:
+            'Every tested profile received HTML contaminated by a challenge/interstitial script, which points to edge-side injection rather than route-specific metadata drift.',
+        },
+      ]);
+      assert.equal(report.results[0].summary.challengeCount, 2);
+      assert.equal(report.results[1].summary.challengeCount, 2);
     }
   );
 });

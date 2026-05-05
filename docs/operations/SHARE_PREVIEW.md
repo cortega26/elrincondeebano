@@ -19,6 +19,7 @@ Legacy compatibility routes such as `/c/*` and `/pages/*.html` may remain reacha
 - OG image generation: `npm run images:og:home`, `npm run images:og:overrides`, `npm run images:og:categories`
 - Build enforcement: `astro-poc/scripts/validate-artifact-contract.mjs`
 - Live validation: `npm run monitor:share-preview`
+- Root-cause diagnosis: `npm run diagnose:share-preview`
 
 ## Required validation when preview-related inputs change
 
@@ -38,6 +39,7 @@ npm run build
 npm test
 npm run test:e2e
 npm run monitor:share-preview
+npm run diagnose:share-preview
 ```
 
 Expected results:
@@ -46,6 +48,7 @@ Expected results:
 - build-output tests confirm canonical, description, and OG/Twitter metadata alignment
 - browser tests confirm supported routes expose the same metadata seen in the built HTML
 - the live monitor confirms homepage, one primary category route, and one product route return a valid public preview contract and a fetchable JPG/PNG OG image
+- the diagnosis command returns either a clean probe set or an explicit suspicion code that narrows the fault domain (`social-bot-challenge`, `edge-challenge-injection`, `og-image-fetch-failure`, `og-image-url-instability`, `network-instability`)
 
 ## Regenerating OG images
 
@@ -90,17 +93,34 @@ When a PR changes share-preview behavior or inputs, attach:
 
 If `npm run monitor:share-preview` fails:
 
-1. Determine whether the failing URL is supported (`/`, `/<category>/`, `/p/<sku>/`) or legacy-only.
-2. Inspect the live HTML:
+1. Capture a root-cause report for the homepage before changing edge settings blindly:
+   ```bash
+   npm run diagnose:share-preview
+   ```
+   Read `reports/share-preview/diagnostics-home.json` and inspect:
+   - `results[].attempts[].html.challengeEvidence`
+   - `results[].attempts[].html.cfCacheStatus`
+   - `results[].attempts[].preview.ogImage`
+   - `suspicions[]`
+2. Determine whether the failing URL is supported (`/`, `/<category>/`, `/p/<sku>/`) or legacy-only.
+3. Inspect the live HTML:
    ```bash
    curl -s https://www.elrincondeebano.com/<path> | rg -n 'canonical|og:|twitter:|description'
    ```
-3. Inspect the referenced image:
+4. Inspect the referenced image:
    ```bash
    curl -sSI 'https://www.elrincondeebano.com/assets/images/og/...'
    ```
-4. Rebuild locally with `npm run build` and compare the built HTML against production.
-5. If the HTML looks correct but the unfurl is stale, re-scrape in Meta Sharing Debugger and repeat the WhatsApp manual check.
+5. Rebuild locally with `npm run build` and compare the built HTML against production.
+6. If the HTML looks correct but the unfurl is stale, re-scrape in Meta Sharing Debugger and repeat the WhatsApp manual check.
+
+### Interpreting `diagnose:share-preview`
+
+- `social-bot-challenge`: the browser profile succeeds but one or more bot profiles receive challenge/interstitial HTML. This points to a bot-specific Cloudflare/WAF rule.
+- `edge-challenge-injection`: every tested profile receives otherwise-valid storefront HTML contaminated with `/cdn-cgi/challenge-platform` injection. This points to edge-side JavaScript challenge injection on the public HTML surface, not to broken OG tags.
+- `og-image-fetch-failure`: metadata was readable, but the image fetch failed. Treat this as an asset or edge-cache problem, not a metadata-generation problem.
+- `og-image-url-instability`: the same route emitted more than one `og:image` URL across attempts. Inspect `astro-poc/src/lib/seo.ts` and the OG asset versioning pipeline.
+- `network-instability`: the probe failed before HTML or image validation. Correlate timestamps and `cf-ray` values with Cloudflare logs.
 
 ### Cloudflare Bot Fight Mode blocking social crawlers
 

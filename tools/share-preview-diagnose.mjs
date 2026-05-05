@@ -19,6 +19,9 @@ const DEFAULT_TIMEOUT_MS = 15000;
 const DEFAULT_ATTEMPTS = 5;
 const DEFAULT_REPORT_PATH = path.resolve('reports', 'share-preview', 'diagnostics-home.json');
 const ALLOWED_HOSTS = new Set(['www.elrincondeebano.com', 'elrincondeebano.com']);
+const ALLOWED_ORIGINS = new Set(['https://www.elrincondeebano.com', 'https://elrincondeebano.com']);
+const CHALLENGE_PATTERN =
+  /attention required|just a moment|cf-browser-verification|cdn-cgi\/challenge-platform|enable javascript and cookies/i;
 
 const REQUEST_PROFILES = Object.freeze({
   browser: Object.freeze({
@@ -125,6 +128,20 @@ function collectResponseHeaders(headers) {
   };
 }
 
+function extractChallengeEvidence(html) {
+  const normalized = String(html || '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const match = normalized.match(CHALLENGE_PATTERN);
+  if (!match || typeof match.index !== 'number') {
+    return null;
+  }
+
+  const start = Math.max(0, match.index - 80);
+  const end = Math.min(normalized.length, match.index + 180);
+  return normalized.slice(start, end).trim();
+}
+
 function buildHtmlProbe({ requestedUrl, response, html }) {
   return {
     requestedUrl: String(requestedUrl),
@@ -132,6 +149,7 @@ function buildHtmlProbe({ requestedUrl, response, html }) {
     statusCode: response.status,
     bodySha1: digestText(html),
     challengeDetected: looksLikeChallenge(html),
+    challengeEvidence: extractChallengeEvidence(html),
     ...collectResponseHeaders(response.headers),
   };
 }
@@ -145,14 +163,31 @@ function buildResponseProbe({ requestedUrl, response }) {
   };
 }
 
+function toAllowlistedFetchUrl(target) {
+  const suffix = `${target.pathname}${target.search}${target.hash}`;
+
+  switch (target.origin) {
+    case 'https://www.elrincondeebano.com':
+      return new URL(suffix, 'https://www.elrincondeebano.com');
+    case 'https://elrincondeebano.com':
+      return new URL(suffix, 'https://elrincondeebano.com');
+    default:
+      throw new Error(`Probe target must use an allowlisted origin: ${target.toString()}`);
+  }
+}
+
 async function fetchWithTimeout(url, timeoutMs, headers) {
   const target = url instanceof URL ? new URL(url.toString()) : new URL(String(url));
   assertAllowlistedHttpsUrl(target, 'Probe target', { allowedHosts: ALLOWED_HOSTS });
+  if (!ALLOWED_ORIGINS.has(target.origin)) {
+    throw new Error(`Probe target must use an allowlisted origin: ${target.toString()}`);
+  }
+  const targetUrl = toAllowlistedFetchUrl(target);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    return await fetch(target, {
+    return await fetch(targetUrl, {
       signal: controller.signal,
       redirect: 'follow',
       headers,
@@ -353,6 +388,17 @@ function inferSuspicions(results) {
   const byProfile = new Map(results.map((result) => [result.profile, result]));
   const browser = byProfile.get('browser');
   const socialProfiles = results.filter((result) => result.profile !== 'browser');
+  const allProfilesChallenged =
+    results.length > 0 &&
+    results.every((result) => result.summary.challengeCount === result.summary.attempts);
+
+  if (allProfilesChallenged) {
+    suspicions.push({
+      code: 'edge-challenge-injection',
+      message:
+        'Every tested profile received HTML contaminated by a challenge/interstitial script, which points to edge-side injection rather than route-specific metadata drift.',
+    });
+  }
 
   if (
     socialProfiles.some((result) => result.summary.challengeCount > 0) &&
@@ -379,7 +425,10 @@ function inferSuspicions(results) {
     });
   }
 
-  if (results.some((result) => result.summary.uniqueHtmlBodyHashes.length > 1)) {
+  if (
+    !allProfilesChallenged &&
+    results.some((result) => result.summary.uniqueHtmlBodyHashes.length > 1)
+  ) {
     suspicions.push({
       code: 'html-variant-instability',
       message: 'The same route returned more than one HTML body variant across repeated attempts.',

@@ -17,6 +17,7 @@ const DEFAULT_BASE_URL = 'https://www.elrincondeebano.com';
 const DEFAULT_TIMEOUT_MS = 15000;
 const DEFAULT_REPORT_PATH = path.resolve('reports', 'share-preview', 'latest.json');
 const ALLOWED_HOSTS = new Set(['www.elrincondeebano.com', 'elrincondeebano.com']);
+const ALLOWED_ORIGINS = new Set(['https://www.elrincondeebano.com', 'https://elrincondeebano.com']);
 const WHATSAPP_BOT_HEADERS = Object.freeze({
   accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
   'accept-language': 'en-US,en;q=0.8',
@@ -68,6 +69,19 @@ function buildImageProbe({ requestedUrl, response }) {
     statusCode: response.status,
     ...collectResponseHeaders(response.headers),
   };
+}
+
+function toAllowlistedFetchUrl(target) {
+  const suffix = `${target.pathname}${target.search}${target.hash}`;
+
+  switch (target.origin) {
+    case 'https://www.elrincondeebano.com':
+      return new URL(suffix, 'https://www.elrincondeebano.com');
+    case 'https://elrincondeebano.com':
+      return new URL(suffix, 'https://elrincondeebano.com');
+    default:
+      fail(`Probe target must use an allowlisted origin: ${target.toString()}`);
+  }
 }
 
 function ensureAllowedUrl(url, label) {
@@ -175,11 +189,15 @@ function assertPreviewContract({ html, finalUrl, label }) {
 async function fetchWithTimeout(url, timeoutMs, accept = 'text/html') {
   const target = url instanceof URL ? new URL(url.toString()) : new URL(String(url));
   ensureAllowedUrl(target, 'Probe target');
+  if (!ALLOWED_ORIGINS.has(target.origin)) {
+    fail(`Probe target must use an allowlisted origin: ${target.toString()}`);
+  }
+  const targetUrl = toAllowlistedFetchUrl(target);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    return await fetch(target, {
+    return await fetch(targetUrl, {
       signal: controller.signal,
       redirect: 'follow',
       headers: {
