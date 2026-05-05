@@ -7,16 +7,18 @@ import ProductGrid from '../components/ProductGrid.astro';
 import ServiceGuideDialog from '../components/ServiceGuideDialog.astro';
 import {
   getHomeFeaturedDeals,
+  getHomePrimaryCategories,
   getHomeQuickPicks,
-  getHomepageCatalogProducts,
+  getHomepageCatalogInitialProducts,
   getStorefrontBundles,
 } from '../lib/catalog';
 import { createSharePreviewMetadata, DEFAULT_OG_IMAGE } from '../lib/seo';
 
-const homepageCatalogProducts = getHomepageCatalogProducts();
+const homepageCatalogProducts = getHomepageCatalogInitialProducts();
 const fallbackQuickPicks = getHomeQuickPicks();
 const featuredDeals = getHomeFeaturedDeals();
 const bundles = getStorefrontBundles();
+const primaryCategories = getHomePrimaryCategories();
 const sharePreview = createSharePreviewMetadata({
   title: 'El Rincón de Ébano',
   description:
@@ -95,8 +97,17 @@ const sharePreview = createSharePreviewMetadata({
       <div class="home-section__header">
         <h2 id="products-heading">Catálogo principal</h2>
         <p id="catalog-main">
-          Todo el catálogo queda aquí, con filtros y búsqueda para completar el pedido sin salir de la página.
+          Parte con una selección rápida y entra por categoría cuando quieras recorrer todo el surtido.
         </p>
+      </div>
+      <div class="home-category-shortcuts" aria-label="Categorías principales">
+        {
+          primaryCategories.map((category) => (
+            <a class="btn btn-outline-dark poc-category-chip home-category-shortcuts__chip" href={category.modernPath}>
+              {category.label}
+            </a>
+          ))
+        }
       </div>
       <CatalogControls stickyMobile={true} />
       <ProductGrid
@@ -108,10 +119,9 @@ const sharePreview = createSharePreviewMetadata({
       <div id="catalog-empty-state" class="alert alert-info d-none mt-3" role="status">
         No se encontraron productos con los filtros seleccionados.
       </div>
-      <div id="catalog-controls" class="text-center my-4">
-        <button type="button" id="catalog-load-more" class="btn btn-outline-primary d-none">Cargar más productos</button>
+      <div id="catalog-controls" class="home-catalog-footer text-center my-4">
+        <a href="/despensa/" class="btn btn-outline-primary">Explorar categorías</a>
       </div>
-      <div id="catalog-sentinel" aria-hidden="true"></div>
     </section>
 
     {featuredDeals.length > 0 ? (

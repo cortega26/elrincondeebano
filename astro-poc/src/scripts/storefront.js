@@ -137,6 +137,19 @@ function createElement(tagName, { className = '', text = '', attrs = {} } = {}) 
   return element;
 }
 
+function readStorefrontExperience() {
+  const script = document.getElementById('storefront-experience-data');
+  if (!(script instanceof HTMLScriptElement)) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(script.textContent || '{}');
+  } catch {
+    return {};
+  }
+}
+
 function triggerTransientClass(element, className) {
   if (!(element instanceof HTMLElement)) {
     return;
@@ -320,8 +333,9 @@ function getProductFromCard(card) {
   const category = card.dataset.productCategory || '';
   const price = parseNumber(card.dataset.productFinalPrice, 0);
   const image = card.querySelector('.product-thumb')?.getAttribute('src') || '';
+  const stock = card.dataset.productStock !== 'false';
 
-  return { id, name, category, price, image };
+  return { id, name, category, price, image, stock };
 }
 
 function getProductByIdFromSource(id) {
@@ -533,6 +547,98 @@ function renderPersonalizedProducts() {
     note.textContent =
       'Esta selección se adapta a lo que ya agregaste o pediste desde este dispositivo.';
   });
+}
+
+function getCompanionProducts(cart, companionRules) {
+  if (!Array.isArray(cart) || cart.length === 0 || !Array.isArray(companionRules)) {
+    return [];
+  }
+
+  const categoriesInCart = new Set(cart.map((item) => normalizeSearchText(item.category)));
+  const idsInCart = new Set(cart.map((item) => normalizeId(item.id)));
+  const suggested = [];
+  const seen = new Set();
+
+  companionRules.forEach((rule) => {
+    const sourceCategories = Array.isArray(rule?.sourceCategories) ? rule.sourceCategories : [];
+    const applies = sourceCategories.some((category) =>
+      categoriesInCart.has(normalizeSearchText(category))
+    );
+    if (!applies) {
+      return;
+    }
+
+    const targets = Array.isArray(rule?.targets) ? rule.targets : [];
+    targets.forEach((target) => {
+      const product = getSourceProductCards()
+        .map((card) => getProductFromCard(card))
+        .find((entry) => {
+          if (!entry || entry.stock === false) {
+            return false;
+          }
+          return (
+            normalizeSearchText(entry.category) === normalizeSearchText(target?.category) &&
+            normalizeSearchText(entry.name) === normalizeSearchText(target?.name)
+          );
+        });
+
+      if (!product || idsInCart.has(product.id) || seen.has(product.id)) {
+        return;
+      }
+
+      seen.add(product.id);
+      suggested.push(product);
+    });
+  });
+
+  return suggested.slice(0, 3);
+}
+
+function renderCompanionSuggestions(cart, companionRules) {
+  const section = document.getElementById('cart-companions');
+  const list = document.getElementById('cart-companion-items');
+  if (!(section instanceof HTMLElement) || !(list instanceof HTMLElement)) {
+    return;
+  }
+
+  const suggestions = getCompanionProducts(cart, companionRules);
+  list.replaceChildren();
+
+  if (suggestions.length === 0) {
+    section.classList.add('is-hidden');
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  suggestions.forEach((item) => {
+    const row = createElement('div', { className: 'cart-companion-card' });
+    const copy = createElement('div', { className: 'cart-companion-card__copy' });
+    copy.appendChild(createElement('strong', { text: item.name }));
+    copy.appendChild(
+      createElement('span', {
+        className: 'cart-companion-card__meta',
+        text: `${item.category} · ${formatCurrency(item.price)}`,
+      })
+    );
+
+    const button = createElement('button', {
+      className: 'btn btn-outline-dark cart-companion-card__action',
+      text: 'Agregar',
+      attrs: {
+        type: 'button',
+        'data-id': item.id,
+        'data-role': 'companion-add',
+        'aria-label': `Agregar ${item.name} al pedido`,
+      },
+    });
+
+    row.appendChild(copy);
+    row.appendChild(button);
+    fragment.appendChild(row);
+  });
+
+  list.appendChild(fragment);
+  section.classList.remove('is-hidden');
 }
 
 function syncCheckoutState(cart, totalAmount) {
@@ -760,6 +866,7 @@ function createCatalogController() {
     container: document.getElementById('product-container'),
     sortSelect: document.getElementById('sort-options'),
     searchInput: document.getElementById('filter-keyword'),
+    clearButton: document.getElementById('filter-clear'),
     discountCheckbox: document.getElementById('filter-discount'),
     loadMoreButton: document.getElementById('catalog-load-more'),
     resultsStatus: document.getElementById('catalog-results-status'),
@@ -910,6 +1017,10 @@ async function registerServiceWorker() {
 function initStorefront() {
   observability.initObservability({ enabled: true, slowEndpointMs: 1200 });
   storefrontStorage.migrateLegacyState();
+  const storefrontExperience = readStorefrontExperience();
+  const companionRules = Array.isArray(storefrontExperience?.companionRules)
+    ? storefrontExperience.companionRules
+    : [];
 
   let cart = loadCart();
   const initialProfile = loadProfile();
@@ -959,6 +1070,10 @@ function initStorefront() {
     const previousState = getCartState(cart);
     const previousQuantity = index >= 0 ? cart[index].quantity : 0;
 
+    if (index < 0 && fallbackProduct?.stock === false) {
+      return;
+    }
+
     if (quantity <= 0) {
       if (index >= 0) {
         cart.splice(index, 1);
@@ -976,6 +1091,7 @@ function initStorefront() {
     saveCart(cart);
     updateBadge(cart, { animate: previousState.totalItems !== nextState.totalItems });
     renderCart(cart, { animateTotal: previousState.totalAmount !== nextState.totalAmount });
+    renderCompanionSuggestions(cart, companionRules);
     // Keep quick-order cards stable while the shopper is actively editing quantities.
     syncAllActionAreas(cart);
 
@@ -1033,6 +1149,7 @@ function initStorefront() {
     saveCart(cart);
     updateBadge(cart, { animate: true });
     renderCart(cart, { animateTotal: true });
+    renderCompanionSuggestions(cart, companionRules);
     syncAllActionAreas(cart);
     if (order.profile) {
       populateProfileForm(order.profile);
@@ -1107,11 +1224,14 @@ function initStorefront() {
 
     const addBtn = target.closest('.add-to-cart-btn');
     if (addBtn) {
+      if (addBtn instanceof HTMLButtonElement && addBtn.disabled) {
+        return;
+      }
       event.preventDefault();
       const id = normalizeId(addBtn.getAttribute('data-id'));
       const card = addBtn.closest('.producto');
       const product = getProductFromCard(card);
-      if (id && product) {
+      if (id && product && product.stock !== false) {
         addBtn.classList.add('is-added');
         globalThis.setTimeout(() => {
           addBtn.classList.remove('is-added');
@@ -1124,6 +1244,17 @@ function initStorefront() {
             price: product.price,
           });
         }
+      }
+      return;
+    }
+
+    const companionAddBtn = target.closest('[data-role="companion-add"]');
+    if (companionAddBtn) {
+      event.preventDefault();
+      const id = normalizeId(companionAddBtn.getAttribute('data-id'));
+      const product = getProductByIdFromSource(id) || getProductFromCard(getProductCardById(id));
+      if (id && product && product.stock !== false) {
+        setQty(id, Math.max(getQty(id), 0) + 1, product);
       }
       return;
     }
@@ -1222,9 +1353,29 @@ function initStorefront() {
     catalogController.loadMore();
   });
 
+  const clearBtn = document.getElementById('filter-clear');
+  clearBtn?.addEventListener('click', () => {
+    const keywordField = document.getElementById('filter-keyword');
+    const sortField = document.getElementById('sort-options');
+    const discountField = document.getElementById('filter-discount');
+    if (keywordField instanceof HTMLInputElement) {
+      keywordField.value = '';
+      keywordField.focus();
+    }
+    if (sortField instanceof HTMLSelectElement) {
+      sortField.value = 'original';
+    }
+    if (discountField instanceof HTMLInputElement) {
+      discountField.checked = false;
+    }
+    catalogController.resetVisibleLimit();
+    catalogController.updateView();
+  });
+
   hydrateProfilePersistence();
   updateBadge(cart);
   renderCart(cart);
+  renderCompanionSuggestions(cart, companionRules);
   syncAllActionAreas(cart);
   renderPersonalizedProducts();
   initServiceOnboarding();

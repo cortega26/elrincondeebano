@@ -4,6 +4,7 @@ export function createCatalogViewController({
   container,
   sortSelect,
   searchInput,
+  clearButton,
   discountCheckbox,
   loadMoreButton,
   resultsStatus,
@@ -65,9 +66,16 @@ export function createCatalogViewController({
 
     const matchingProducts = [];
     sortedProducts.forEach((item) => {
-      const name = normalizeSearchText(item.dataset.productName || '');
+      const searchText = normalizeSearchText(
+        item.dataset.productSearchText ||
+          [
+            item.dataset.productName || '',
+            item.dataset.productDescription || '',
+            item.dataset.productCategory || '',
+          ].join(' ')
+      );
       const hasDiscount = parseNumber(item.dataset.productDiscount, 0) > 0;
-      const keywordMatch = !keyword || name.includes(keyword);
+      const keywordMatch = !keyword || searchText.includes(keyword);
       const discountMatch = !discountOnly || hasDiscount;
       if (keywordMatch && discountMatch) {
         matchingProducts.push(item);
@@ -90,7 +98,18 @@ export function createCatalogViewController({
     container.setAttribute('data-total-products', String(matchedCount));
 
     if (resultsStatus instanceof HTMLElement) {
-      resultsStatus.textContent = `${matchedCount} productos encontrados`;
+      const parts = [`${matchedCount} producto${matchedCount === 1 ? '' : 's'}`];
+      if (keyword) {
+        parts.push(`para "${searchInput?.value?.trim() || ''}"`);
+      }
+      if (discountOnly) {
+        parts.push('en oferta');
+      }
+      resultsStatus.textContent = `Mostrando ${parts.join(' ')}`;
+    }
+
+    if (clearButton instanceof HTMLButtonElement) {
+      clearButton.disabled = !keyword && !discountOnly && sortValue === 'original';
     }
 
     if (emptyState instanceof HTMLElement) {

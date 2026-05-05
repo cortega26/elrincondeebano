@@ -124,6 +124,8 @@ export type StorefrontBundle = StorefrontBundleRecord & {
   savingsPercent: number;
 };
 
+export const HOME_CATALOG_INITIAL_LIMIT = 24;
+
 export type ResponsiveImageSource = {
   src: string;
   srcset?: string;
@@ -465,6 +467,12 @@ export function getHomepageCatalogProducts(): ProductWithSku[] {
   return getProductsWithSku().filter(
     ({ product }) => !secondary.has(normalizeCategoryToken(product.category))
   );
+}
+
+export function getHomepageCatalogInitialProducts(
+  limit: number = HOME_CATALOG_INITIAL_LIMIT
+): ProductWithSku[] {
+  return getHomepageCatalogProducts().slice(0, limit);
 }
 
 export function getHomeHighlightedCategories(): NavGroup['categories'] {

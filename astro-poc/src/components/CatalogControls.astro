@@ -13,14 +13,24 @@ const { stickyMobile = false } = Astro.props;
   <div class="catalog-controls__grid">
     <div class="catalog-controls__field catalog-controls__field--search">
       <label for="filter-keyword" class="catalog-controls__label">Buscar</label>
-      <input
-        type="text"
-        id="filter-keyword"
-        class="form-control"
-        placeholder="Nombre o marca"
-        aria-label="Filtrar productos por nombre"
-        autocomplete="off"
-      />
+      <div class="catalog-controls__search-input">
+        <input
+          type="text"
+          id="filter-keyword"
+          class="form-control"
+          placeholder="Nombre, marca o categoría"
+          aria-label="Filtrar productos por nombre, marca o categoría"
+          autocomplete="off"
+        />
+        <button
+          type="button"
+          id="filter-clear"
+          class="btn btn-outline-secondary catalog-controls__clear"
+          aria-label="Limpiar búsqueda"
+        >
+          Limpiar
+        </button>
+      </div>
     </div>
 
     <div class="catalog-controls__field catalog-controls__field--sort">
@@ -45,7 +55,15 @@ const { stickyMobile = false } = Astro.props;
     </div>
 
     <div class="catalog-controls__status">
-      <p id="catalog-results-status" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></p>
+      <p
+        id="catalog-results-status"
+        class="catalog-controls__results"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        Mostrando productos
+      </p>
     </div>
   </div>
 </section>

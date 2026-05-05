@@ -18,20 +18,25 @@ const discount = typeof product.discount === 'number' ? product.discount : 0;
 const finalPrice = Math.max(price - discount, 0);
 const hasDiscount = discount > 0 && price > 0 && finalPrice < price;
 const discountPercent = hasDiscount ? Math.round((discount / price) * 100) : 0;
+const isAvailable = product.stock !== false;
 const image = getProductCardImageSource(product.image_path);
 const avifImage = getProductCardImageSource(product.image_avif_path);
 const hasAvifSource = typeof avifImage.srcset === 'string' && avifImage.srcset.length > 0;
+const searchText = [product.name, product.description, product.category].filter(Boolean).join(' ');
 ---
 
 <article
-  class={`producto col-6 col-sm-6 col-md-4 col-lg-3 ${product.stock ? '' : 'agotado'} ${compactMobile ? 'producto--compact-mobile' : ''}`.trim()}
+  class={`producto col-6 col-sm-6 col-md-4 col-lg-3 ${isAvailable ? '' : 'agotado'} ${compactMobile ? 'producto--compact-mobile' : ''}`.trim()}
   data-product-id={sku}
   data-product-name={product.name}
   data-product-category={product.category}
+  data-product-description={product.description || ''}
+  data-product-search-text={searchText}
   data-product-price={price}
   data-product-discount={discount}
   data-product-final-price={finalPrice}
   data-product-order={index}
+  data-product-stock={isAvailable ? 'true' : 'false'}
   data-compact-mobile={compactMobile ? 'true' : 'false'}
 >
   <div class="card h-100">
@@ -87,10 +92,25 @@ const hasAvifSource = typeof avifImage.srcset === 'string' && avifImage.srcset.l
       </div>
 
       <div class="action-area mt-auto" data-pid={sku} role="group" aria-label={`Acciones para ${product.name}`}>
-        <button class="btn btn-primary add-to-cart-btn mt-2" type="button" data-id={sku} aria-label={`Agregar ${product.name} al carrito`}>
-          <span class="add-to-cart-btn__label">Agregar</span>
-          {compactMobile ? null : <span class="add-to-cart-btn__hint">al pedido</span>}
-        </button>
+        {
+          isAvailable ? (
+            <button class="btn btn-primary add-to-cart-btn mt-2" type="button" data-id={sku} aria-label={`Agregar ${product.name} al carrito`}>
+              <span class="add-to-cart-btn__label">Agregar</span>
+              {compactMobile ? null : <span class="add-to-cart-btn__hint">al pedido</span>}
+            </button>
+          ) : (
+            <button
+              class="btn btn-outline-secondary add-to-cart-btn mt-2"
+              type="button"
+              data-id={sku}
+              disabled
+              aria-disabled="true"
+              aria-label={`${product.name} agotado`}
+            >
+              <span class="add-to-cart-btn__label">Agotado</span>
+            </button>
+          )
+        }
 
         <div class="quantity-control is-hidden" aria-live="polite" role="group" aria-label="Seleccionar cantidad">
           <button class="quantity-btn" type="button" data-action="decrease" data-id={sku} aria-label="Disminuir cantidad">-</button>

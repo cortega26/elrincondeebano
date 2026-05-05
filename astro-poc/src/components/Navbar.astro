@@ -101,6 +101,17 @@ const { navGroups } = Astro.props;
           Tu carrito está vacío. Agrega productos antes de realizar el pedido.
         </div>
       </div>
+      <section
+        id="cart-companions"
+        class="cart-companions is-hidden"
+        aria-labelledby="cart-companions-heading"
+      >
+        <div class="cart-companions__header">
+          <h6 id="cart-companions-heading" class="mb-0">Te puede servir también</h6>
+          <p class="mb-0">Sugerencias rápidas para completar el pedido sin salir del carrito.</p>
+        </div>
+        <div id="cart-companion-items" class="cart-companions__list"></div>
+      </section>
       <div class="cart-footer">
       <div class="cart-footer-primary">
         <div class="cart-summary-card cart-summary-card--compact">
