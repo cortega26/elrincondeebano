@@ -22,7 +22,7 @@ test('home renders with navbar, catalog, and SEO tags', async ({ page }) => {
   );
 });
 
-test('desktop home keeps the compact hero and hero CTA scrolls to Combos listos', async ({
+test('desktop home keeps the compact hero and hero CTA navigates to combos page', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1100 });
@@ -33,7 +33,9 @@ test('desktop home keeps the compact hero and hero CTA scrolls to Combos listos'
   await expect(page.locator('.home-entry')).toBeVisible();
 
   await page.locator('.home-entry__cta').click();
-  await expect(page.locator('#home-bundles-heading')).toBeInViewport();
+  await expect(page).toHaveURL(/\/combos\/$/);
+  await expect(page.locator('#combos-page-heading')).toBeVisible();
+  await expect(page.locator('#combos-list-heading')).toBeVisible();
 });
 
 test('legacy category route /pages/*.html stays available', async ({ page }) => {

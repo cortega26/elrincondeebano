@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -26,6 +27,47 @@ const WHATSAPP_BOT_HEADERS = Object.freeze({
 
 function fail(message) {
   throw new Error(message);
+}
+
+function digestText(value) {
+  return crypto
+    .createHash('sha1')
+    .update(String(value || ''), 'utf8')
+    .digest('hex')
+    .slice(0, 12);
+}
+
+function collectResponseHeaders(headers) {
+  return {
+    contentType: headers.get('content-type') || null,
+    cacheControl: headers.get('cache-control') || null,
+    cfCacheStatus: headers.get('cf-cache-status') || null,
+    cfRay: headers.get('cf-ray') || null,
+    age: headers.get('age') || null,
+    etag: headers.get('etag') || null,
+    lastModified: headers.get('last-modified') || null,
+    contentLength: headers.get('content-length') || null,
+  };
+}
+
+function buildHtmlProbe({ requestedUrl, response, html }) {
+  return {
+    requestedUrl: String(requestedUrl),
+    finalUrl: response.url || String(requestedUrl),
+    statusCode: response.status,
+    bodySha1: digestText(html),
+    challengeDetected: looksLikeChallenge(html),
+    ...collectResponseHeaders(response.headers),
+  };
+}
+
+function buildImageProbe({ requestedUrl, response }) {
+  return {
+    requestedUrl: String(requestedUrl),
+    finalUrl: response.url || String(requestedUrl),
+    statusCode: response.status,
+    ...collectResponseHeaders(response.headers),
+  };
 }
 
 function ensureAllowedUrl(url, label) {
@@ -158,11 +200,13 @@ async function probeTarget({ name, url }, timeoutMs) {
 
   const finalUrl = response.url || String(url);
   const html = await response.text();
+  const htmlProbe = buildHtmlProbe({ requestedUrl: url, response, html });
   const preview = assertPreviewContract({ html, finalUrl, label: name });
   const imageResponse = await fetchWithTimeout(preview.ogImage, timeoutMs, 'image/*');
   if (!imageResponse.ok) {
     fail(`${name} og:image returned HTTP ${imageResponse.status}.`);
   }
+  const imageProbe = buildImageProbe({ requestedUrl: preview.ogImage, response: imageResponse });
 
   const contentType = imageResponse.headers.get('content-type') || '';
   if (!/^image\/(?:jpeg|png)\b/i.test(contentType)) {
@@ -178,6 +222,8 @@ async function probeTarget({ name, url }, timeoutMs) {
     description: preview.description,
     ogImage: preview.ogImage,
     imageContentType: contentType,
+    htmlProbe,
+    imageProbe,
     status: 'pass',
   };
 }

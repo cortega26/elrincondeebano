@@ -82,6 +82,41 @@ test('runSharePreviewMonitor validates homepage, category, and product previews 
         report.checks.map((check) => check.name),
         ['homepage', 'category', 'product']
       );
+      assert.match(report.checks[0].htmlProbe.bodySha1, /^[0-9a-f]{12}$/);
+      assert.deepEqual(
+        {
+          ...report.checks[0].htmlProbe,
+          bodySha1: '<hash>',
+        },
+        {
+          requestedUrl: `${SITE_ORIGIN}/`,
+          finalUrl: `${SITE_ORIGIN}/`,
+          statusCode: 200,
+          bodySha1: '<hash>',
+          challengeDetected: false,
+          contentType: 'text/html; charset=utf-8',
+          cacheControl: null,
+          cfCacheStatus: null,
+          cfRay: null,
+          age: null,
+          etag: null,
+          lastModified: null,
+          contentLength: null,
+        }
+      );
+      assert.deepEqual(report.checks[0].imageProbe, {
+        requestedUrl: HOMEPAGE_OG_IMAGE,
+        finalUrl: HOMEPAGE_OG_IMAGE,
+        statusCode: 200,
+        contentType: 'image/jpeg',
+        cacheControl: null,
+        cfCacheStatus: null,
+        cfRay: null,
+        age: null,
+        etag: null,
+        lastModified: null,
+        contentLength: null,
+      });
     }
   );
 });
