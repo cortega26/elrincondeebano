@@ -114,8 +114,7 @@ describe('createCatalogViewController', () => {
     expect(document.getElementById('catalog-load-more').classList.contains('d-none')).toBe(true);
   });
 
-  it('suppresses observer-driven pagination during programmatic jumps and resumes afterward', () => {
-    vi.useFakeTimers();
+  it('loads more products when the sentinel enters the viewport', () => {
     setupCatalogDom();
 
     let observerCallback = null;
@@ -148,20 +147,6 @@ describe('createCatalogViewController', () => {
     controller.updateView();
     controller.setupPagination();
     expect(observers).toHaveLength(1);
-    expect(controller.getState().paginationSuppressed).toBe(false);
-
-    controller.suspendPaginationForProgrammaticScroll();
-    expect(controller.getState().paginationSuppressed).toBe(true);
-    expect(observers[0].disconnect).toHaveBeenCalledTimes(1);
-
-    observerCallback?.([{ isIntersecting: true }]);
-    expect(document.querySelector('[data-product-id="p2"]').classList.contains('is-hidden')).toBe(
-      true
-    );
-
-    vi.advanceTimersByTime(40);
-    expect(controller.getState().paginationSuppressed).toBe(false);
-    expect(observers).toHaveLength(2);
 
     observerCallback?.([{ isIntersecting: true }]);
     expect(document.querySelector('[data-product-id="p2"]').classList.contains('is-hidden')).toBe(

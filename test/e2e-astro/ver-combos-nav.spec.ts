@@ -4,111 +4,106 @@ async function waitForReady(page: Page) {
   await page.waitForFunction(() => window.__APP_READY__ === true);
 }
 
-/**
- * Verifies that the "Ver combos" CTA in the home hero actually navigates to the
- * "Combos listos" section and that the IntersectionObserver-driven infinite scroll
- * does NOT expand the catalog during the jump (which would push the bundles section
- * out of view).
- */
+async function visibleCatalogCount(page: Page) {
+  return await page.evaluate(
+    () => document.querySelectorAll('#product-container [data-product-id]:not(.is-hidden)').length
+  );
+}
+
 test.describe('Ver combos navigation', () => {
-  test('early click: "Ver combos" works before app ready completes', async ({ page }) => {
+  test('early click navigates from home to /combos/ without mutating the home catalog', async ({
+    page,
+  }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-    const countBefore = await page.evaluate(
-      () => document.querySelectorAll('#product-container [data-product-id]:not(.is-hidden)').length
-    );
+    const countBefore = await visibleCatalogCount(page);
     expect(countBefore).toBeGreaterThan(0);
 
     await page.locator('[data-home-hero-cta]').click();
+    await expect(page).toHaveURL(/\/combos\/$/);
     await waitForReady(page);
-    await expect(page).toHaveURL(/#home-bundles-heading$/);
-    await page.waitForTimeout(600);
+    await expect(page.locator('#combos-page-heading')).toBeVisible();
 
-    const headingVisible = await page.evaluate(() => {
-      const el = document.getElementById('home-bundles-heading');
-      if (!el) return false;
-      const { top, bottom } = el.getBoundingClientRect();
-      return top < window.innerHeight && bottom > 0;
-    });
-    expect(headingVisible).toBe(true);
-
-    const countAfter = await page.evaluate(
-      () => document.querySelectorAll('#product-container [data-product-id]:not(.is-hidden)').length
-    );
-    expect(countAfter).toBe(countBefore);
-  });
-
-  test('desktop: "Ver combos" scrolls to Combos listos without catalog expansion', async ({
-    page,
-  }) => {
     await page.goto('/', { waitUntil: 'networkidle' });
     await waitForReady(page);
 
-    // Capture catalog visible count BEFORE clicking the button.
-    const countBefore = await page.evaluate(
-      () => document.querySelectorAll('#product-container [data-product-id]:not(.is-hidden)').length
-    );
-    expect(countBefore).toBeGreaterThan(0);
-
-    // Click the "Ver combos" CTA.
-    await page.locator('[data-home-hero-cta]').click();
-    await expect(page).toHaveURL(/#home-bundles-heading$/);
-
-    // Wait a moment for any IntersectionObserver side-effects to settle.
-    await page.waitForTimeout(600);
-
-    // The bundles heading must be in the viewport.
-    const headingVisible = await page.evaluate(() => {
-      const el = document.getElementById('home-bundles-heading');
-      if (!el) return false;
-      const { top, bottom } = el.getBoundingClientRect();
-      return top < window.innerHeight && bottom > 0;
-    });
-    expect(headingVisible).toBe(true);
-
-    // The catalog must NOT have expanded (loadMore must not have fired).
-    const countAfter = await page.evaluate(
-      () => document.querySelectorAll('#product-container [data-product-id]:not(.is-hidden)').length
-    );
+    const countAfter = await visibleCatalogCount(page);
     expect(countAfter).toBe(countBefore);
   });
 
-  const MOBILE_VIEWPORTS = [
-    { name: '390x844', width: 390, height: 844 },
-    { name: '360x800', width: 360, height: 800 },
-  ] as const;
+  test('home teaser stays compact and its CTAs navigate to /combos/', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
+    await waitForReady(page);
 
-  for (const vp of MOBILE_VIEWPORTS) {
-    test(`mobile ${vp.name}: "Ver combos" scrolls to Combos listos without catalog expansion`, async ({
-      page,
-    }) => {
-      await page.setViewportSize({ width: vp.width, height: vp.height });
-      await page.goto('/', { waitUntil: 'networkidle' });
-      await waitForReady(page);
+    const countBefore = await visibleCatalogCount(page);
+    expect(countBefore).toBeGreaterThan(0);
 
-      const countBefore = await page.evaluate(
-        () =>
-          document.querySelectorAll('#product-container [data-product-id]:not(.is-hidden)').length
-      );
-      expect(countBefore).toBeGreaterThan(0);
+    const teaserState = await page.evaluate(() => {
+      const cards = document.querySelectorAll('.home-layout__bundles .bundle-card');
+      const introLink = document.querySelector('.home-layout__bundles .home-section__link');
+      const footerLink = document.querySelector('.home-layout__bundles .home-section__footer a');
+      const experienceData = document.getElementById('storefront-experience-data');
+      let totalBundles = 0;
 
-      await page.locator('[data-home-hero-cta]').click();
-      await expect(page).toHaveURL(/#home-bundles-heading$/);
-      await page.waitForTimeout(600);
+      try {
+        const parsed = JSON.parse(experienceData?.textContent || '{}');
+        totalBundles = Array.isArray(parsed?.bundles) ? parsed.bundles.length : 0;
+      } catch {
+        totalBundles = 0;
+      }
 
-      const headingVisible = await page.evaluate(() => {
-        const el = document.getElementById('home-bundles-heading');
-        if (!el) return false;
-        const { top, bottom } = el.getBoundingClientRect();
-        return top < window.innerHeight && bottom > 0;
-      });
-      expect(headingVisible).toBe(true);
-
-      const countAfter = await page.evaluate(
-        () =>
-          document.querySelectorAll('#product-container [data-product-id]:not(.is-hidden)').length
-      );
-      expect(countAfter).toBe(countBefore);
+      return {
+        cardCount: cards.length,
+        introHref: introLink?.getAttribute('href') || '',
+        footerHref: footerLink?.getAttribute('href') || '',
+        totalBundles,
+      };
     });
-  }
+
+    expect(teaserState.cardCount).toBe(Math.min(3, teaserState.totalBundles));
+    expect(teaserState.introHref).toBe('/combos/');
+    expect(teaserState.footerHref).toBe('/combos/');
+
+    await page.locator('.home-layout__bundles .home-section__footer a').click();
+    await expect(page).toHaveURL(/\/combos\/$/);
+    await waitForReady(page);
+    await expect(page.locator('#combos-list-heading')).toBeVisible();
+
+    await page.goto('/', { waitUntil: 'networkidle' });
+    await waitForReady(page);
+
+    const countAfter = await visibleCatalogCount(page);
+    expect(countAfter).toBe(countBefore);
+  });
+
+  test('combos page renders the full list, adds a combo to the cart, and links back to the catalog', async ({
+    page,
+  }) => {
+    await page.goto('/combos/', { waitUntil: 'networkidle' });
+    await waitForReady(page);
+
+    const pageState = await page.evaluate(() => {
+      const cards = document.querySelectorAll('.bundle-card');
+      const backLink = document.querySelector('a[href="/#products-heading"]');
+      return {
+        cardCount: cards.length,
+        backHref: backLink?.getAttribute('href') || '',
+      };
+    });
+
+    expect(pageState.cardCount).toBeGreaterThan(0);
+    expect(pageState.backHref).toBe('/#products-heading');
+
+    await page.locator('.bundle-card__action').first().click();
+    await expect(page.locator('#cartOffcanvas')).toBeVisible();
+    await expect(page.locator('#cart-items .cart-item').first()).toBeVisible();
+
+    await page.locator('#continue-shopping').click();
+    await expect(page.locator('#cartOffcanvas')).toBeHidden();
+
+    await page.locator('a[href="/#products-heading"]').first().click();
+    await expect(page).toHaveURL(/\/#products-heading$/);
+    await waitForReady(page);
+    await expect(page.locator('#products-heading')).toBeVisible();
+  });
 });

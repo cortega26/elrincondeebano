@@ -17,10 +17,6 @@ export function createCatalogViewController({
   let visibleLimit = pageSize;
   let matchedCount = 0;
   let observer = null;
-  let paginationSuppressed = false;
-  let paginationResumeFrameId = null;
-  let paginationResumeTimeoutId = null;
-  let paginationSuspensionToken = 0;
 
   const observerFactory =
     intersectionObserverFactory ||
@@ -31,36 +27,6 @@ export function createCatalogViewController({
   function disconnectObserver() {
     observer?.disconnect();
     observer = null;
-  }
-
-  function clearScheduledPaginationResume() {
-    if (typeof globalThis.cancelAnimationFrame === 'function' && paginationResumeFrameId !== null) {
-      globalThis.cancelAnimationFrame(paginationResumeFrameId);
-    }
-    if (paginationResumeTimeoutId !== null) {
-      globalThis.clearTimeout(paginationResumeTimeoutId);
-    }
-    paginationResumeFrameId = null;
-    paginationResumeTimeoutId = null;
-  }
-
-  function schedulePaginationResume(callback, framesRemaining) {
-    if (typeof globalThis.requestAnimationFrame === 'function') {
-      paginationResumeFrameId = globalThis.requestAnimationFrame(() => {
-        if (framesRemaining <= 1) {
-          paginationResumeFrameId = null;
-          callback();
-          return;
-        }
-        schedulePaginationResume(callback, framesRemaining - 1);
-      });
-      return;
-    }
-
-    paginationResumeTimeoutId = globalThis.setTimeout(() => {
-      paginationResumeTimeoutId = null;
-      callback();
-    }, 32);
   }
 
   function updateView() {
@@ -165,9 +131,6 @@ export function createCatalogViewController({
     disconnectObserver();
     observer = observerFactory(
       (entries) => {
-        if (paginationSuppressed) {
-          return;
-        }
         const inView = entries.some((entry) => entry.isIntersecting);
         if (inView) {
           loadMore();
@@ -179,30 +142,7 @@ export function createCatalogViewController({
     return observer;
   }
 
-  function suspendPaginationForProgrammaticScroll({ resumeAfterFrames = 2 } = {}) {
-    paginationSuppressed = true;
-    paginationSuspensionToken += 1;
-    const suspensionToken = paginationSuspensionToken;
-
-    clearScheduledPaginationResume();
-    disconnectObserver();
-
-    schedulePaginationResume(
-      () => {
-        if (suspensionToken !== paginationSuspensionToken) {
-          return;
-        }
-        paginationSuppressed = false;
-        setupPagination();
-      },
-      Math.max(1, resumeAfterFrames)
-    );
-  }
-
   function disconnect() {
-    paginationSuppressed = false;
-    paginationSuspensionToken += 1;
-    clearScheduledPaginationResume();
     disconnectObserver();
   }
 
@@ -211,10 +151,9 @@ export function createCatalogViewController({
     resetVisibleLimit,
     loadMore,
     setupPagination,
-    suspendPaginationForProgrammaticScroll,
     disconnect,
     getState() {
-      return { matchedCount, visibleLimit, paginationSuppressed };
+      return { matchedCount, visibleLimit };
     },
   };
 }

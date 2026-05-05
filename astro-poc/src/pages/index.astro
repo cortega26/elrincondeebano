@@ -45,7 +45,7 @@ const sharePreview = createSharePreviewMetadata({
         </div>
         <div class="home-entry__actions">
           <a
-            href="#home-bundles-heading"
+            href="/combos/"
             class="btn btn-primary home-entry__cta"
             data-home-hero-cta
           >
@@ -128,9 +128,14 @@ const sharePreview = createSharePreviewMetadata({
     <HomeBundlesSection
       headingId="home-bundles-heading"
       title="Combos listos"
-      description="Una forma rápida de sumar productos que normalmente se piden juntos."
+      description="Una muestra rápida para resolver pedidos frecuentes sin quedar atrapados en el scroll del catálogo."
       bundles={bundles}
       className="home-layout__bundles"
+      limit={3}
+      introHref="/combos/"
+      introLabel="Explorar la colección completa de combos"
+      footerHref="/combos/"
+      footerLabel="Ver todos los combos"
     />
   </div>
 

@@ -1,6 +1,5 @@
 import * as bootstrap from 'bootstrap';
 import { createCatalogViewController } from './storefront/catalog-view.js';
-import { scrollToHashTarget } from './storefront/hero-anchor-scroll.js';
 import { createObservabilityModule } from './storefront/observability.js';
 import { createPersonalizationEngine } from './storefront/personalization.js';
 import { syncStorefrontServiceWorkerVersion } from './storefront/service-worker-sync.js';
@@ -985,12 +984,35 @@ function initStorefront() {
     }
   };
 
-  const addProductById = (id, quantity = 1) => {
-    const product = getProductByIdFromSource(id) || getProductFromCard(getProductCardById(id));
-    if (!product) {
-      return;
+  const addBundleItems = (bundleItems) => {
+    if (!Array.isArray(bundleItems) || bundleItems.length === 0) {
+      return false;
     }
-    setQty(id, Math.max(getQty(id), 0) + quantity, product);
+
+    let added = false;
+    bundleItems.forEach((item) => {
+      const id = normalizeId(item?.id);
+      if (!id) {
+        return;
+      }
+
+      const fallbackProduct = {
+        id,
+        name: typeof item?.name === 'string' ? item.name : id,
+        category: typeof item?.category === 'string' ? item.category : '',
+        price: parseNumber(item?.price, 0),
+        image: typeof item?.image === 'string' ? item.image : '',
+      };
+
+      const product =
+        getProductByIdFromSource(id) ||
+        getProductFromCard(getProductCardById(id)) ||
+        fallbackProduct;
+      setQty(id, Math.max(getQty(id), 0) + 1, product);
+      added = true;
+    });
+
+    return added;
   };
 
   const updateQtyByDelta = (id, delta) => {
@@ -1058,19 +1080,8 @@ function initStorefront() {
     if (heroCta) {
       const href = heroCta.getAttribute('href') || '';
       trackAnalyticsEvent('home_hero_primary_cta_click', {
-        destination: href || '#home-quick-order-heading',
+        destination: href || '/combos/',
       });
-      if (
-        scrollToHashTarget({
-          href,
-          documentRef: document,
-          scrollRoot: globalThis,
-          onBeforeScroll: () => catalogController.suspendPaginationForProgrammaticScroll(),
-        })
-      ) {
-        event.preventDefault();
-        return;
-      }
     }
 
     const repeatBtn = target.closest('[data-repeat-last-order]');
@@ -1080,15 +1091,17 @@ function initStorefront() {
       return;
     }
 
-    const bundleBtn = target.closest('[data-bundle-items]');
+    const bundleBtn = target.closest('[data-bundle-payload]');
     if (bundleBtn) {
       event.preventDefault();
-      const bundleItems = String(bundleBtn.getAttribute('data-bundle-items') || '')
-        .split(',')
-        .map((value) => normalizeId(value))
-        .filter(Boolean);
-      bundleItems.forEach((productId) => addProductById(productId, 1));
-      openCartOffcanvas();
+      try {
+        const bundleItems = JSON.parse(bundleBtn.getAttribute('data-bundle-payload') || '[]');
+        if (addBundleItems(bundleItems)) {
+          openCartOffcanvas();
+        }
+      } catch (error) {
+        log('warn', 'bundle_payload_parse_failed', { error });
+      }
       return;
     }
 

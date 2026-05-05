@@ -1,0 +1,48 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HomeBundlesSection from '../components/HomeBundlesSection.astro';
+import { getStorefrontBundles } from '../lib/catalog';
+import { createSharePreviewMetadata, DEFAULT_OG_IMAGE } from '../lib/seo';
+
+const bundles = getStorefrontBundles();
+const sharePreview = createSharePreviewMetadata({
+  title: 'Combos listos | El Rincón de Ébano',
+  description:
+    'Descubre combos listos para pedir más rápido en El Rincón de Ébano y agrega varios productos al carrito en un solo paso.',
+  canonicalPath: '/combos/',
+  ogImage: DEFAULT_OG_IMAGE,
+  ogImageAlt: 'Combos listos de El Rincón de Ébano',
+});
+---
+
+<BaseLayout
+  title={sharePreview.title}
+  description={sharePreview.description}
+  canonicalPath="/combos/"
+  sharePreview={sharePreview}
+  showTrustStrip={false}
+>
+  <section class="category-intro mb-4" aria-labelledby="combos-page-heading">
+    <div class="category-intro-copy">
+      <div class="category-intro-headline">
+        <h1 id="combos-page-heading" class="mb-0">Combos listos</h1>
+        <a class="btn btn-outline-primary hero-secondary" href="/#products-heading">
+          Seguir comprando
+        </a>
+      </div>
+      <p class="category-summary mb-0">
+        Arma el pedido más rápido con selecciones pensadas para resolverse en pocos toques.
+      </p>
+    </div>
+  </section>
+
+  <HomeBundlesSection
+    headingId="combos-list-heading"
+    title="Todos los combos disponibles"
+    description="Cada combo agrega productos relacionados al carrito en un solo paso, sin depender del scroll del catálogo."
+    bundles={bundles}
+    className="home-layout__bundles"
+    footerHref="/#products-heading"
+    footerLabel="Volver al catálogo principal"
+  />
+</BaseLayout>

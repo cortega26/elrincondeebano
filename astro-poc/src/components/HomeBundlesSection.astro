@@ -1,6 +1,6 @@
 ---
 import type { StorefrontBundle } from '../lib/catalog';
-import { formatPrice } from '../lib/catalog';
+import { formatPrice, resolveImageUrl } from '../lib/catalog';
 
 export interface Props {
   headingId: string;
@@ -8,56 +8,111 @@ export interface Props {
   description: string;
   bundles: StorefrontBundle[];
   className?: string;
+  limit?: number;
+  footerHref?: string;
+  footerLabel?: string;
+  introHref?: string;
+  introLabel?: string;
 }
 
-const { headingId, title, description, bundles, className = '' } = Astro.props;
+const {
+  headingId,
+  title,
+  description,
+  bundles,
+  className = '',
+  limit,
+  footerHref,
+  footerLabel,
+  introHref,
+  introLabel,
+} = Astro.props;
+
+const visibleBundles =
+  typeof limit === 'number' && Number.isFinite(limit) && limit > 0 ? bundles.slice(0, limit) : bundles;
 ---
 
 <section class={`home-section ${className}`.trim()} aria-labelledby={headingId}>
   <div class="home-section__header">
     <h2 id={headingId}>{title}</h2>
     <p>{description}</p>
+    {
+      introHref && introLabel ? (
+        <a class="home-section__link" href={introHref}>
+          {introLabel}
+        </a>
+      ) : null
+    }
   </div>
 
   <div class="bundle-grid">
     {
-      bundles.map((bundle) => (
-        <article class="bundle-card">
-          {bundle.savingsPercent > 0 && (
-            <div class="bundle-card__savings-badge" aria-label={`Ahorra ${bundle.savingsPercent}%`}>
-              -{bundle.savingsPercent}%
+      visibleBundles.map((bundle) => {
+        const bundlePayload = JSON.stringify(
+          bundle.itemsResolved.map((item) => ({
+            id: item.sku,
+            name: item.product.name,
+            category: item.product.category,
+            price: Math.max(
+              (typeof item.product.price === 'number' ? item.product.price : 0) -
+                (typeof item.product.discount === 'number' ? item.product.discount : 0),
+              0
+            ),
+            image: resolveImageUrl(item.product.thumbnail_path || item.product.image_path),
+          }))
+        );
+
+        return (
+          <article class="bundle-card">
+            {bundle.savingsPercent > 0 && (
+              <div
+                class="bundle-card__savings-badge"
+                aria-label={`Ahorra ${bundle.savingsPercent}%`}
+              >
+                -{bundle.savingsPercent}%
+              </div>
+            )}
+            <div class="bundle-card__content">
+              <h3>{bundle.title}</h3>
+              <p>{bundle.description}</p>
+              <ul class="bundle-card__items">
+                {bundle.itemsResolved.map((item) => <li>{item.product.name}</li>)}
+              </ul>
             </div>
-          )}
-          <div class="bundle-card__content">
-            <h3>{bundle.title}</h3>
-            <p>{bundle.description}</p>
-            <ul class="bundle-card__items">
-              {bundle.itemsResolved.map((item) => <li>{item.product.name}</li>)}
-            </ul>
-          </div>
-          <div class="bundle-card__footer">
-            <div class="bundle-card__meta">
-              {bundle.bundlePrice && bundle.bundlePrice > 0 ? (
-                <>
-                  <strong>{formatPrice(bundle.bundlePrice)}</strong>
-                  <span class="bundle-card__original-price">{formatPrice(bundle.totalPrice)}</span>
-                </>
-              ) : (
-                <strong>{formatPrice(bundle.totalPrice)}</strong>
-              )}
-              <span>{bundle.itemsResolved.length} productos</span>
+            <div class="bundle-card__footer">
+              <div class="bundle-card__meta">
+                {bundle.bundlePrice && bundle.bundlePrice > 0 ? (
+                  <>
+                    <strong>{formatPrice(bundle.bundlePrice)}</strong>
+                    <span class="bundle-card__original-price">{formatPrice(bundle.totalPrice)}</span>
+                  </>
+                ) : (
+                  <strong>{formatPrice(bundle.totalPrice)}</strong>
+                )}
+                <span>{bundle.itemsResolved.length} productos</span>
+              </div>
+              <button
+                type="button"
+                class="btn btn-outline-dark bundle-card__action"
+                data-bundle-id={bundle.id}
+                data-bundle-payload={bundlePayload}
+              >
+                Agregar combo
+              </button>
             </div>
-            <button
-              type="button"
-              class="btn btn-outline-dark bundle-card__action"
-              data-bundle-id={bundle.id}
-              data-bundle-items={bundle.itemsResolved.map((item) => item.sku).join(',')}
-            >
-              Agregar combo
-            </button>
-          </div>
-        </article>
-      ))
+          </article>
+        );
+      })
     }
   </div>
+
+  {
+    footerHref && footerLabel ? (
+      <div class="home-section__footer">
+        <a class="btn btn-outline-primary" href={footerHref}>
+          {footerLabel}
+        </a>
+      </div>
+    ) : null
+  }
 </section>
