@@ -44,7 +44,7 @@ for (const [index, stage] of stages.entries()) {
 
   const result = spawnSync(stage.command, stage.args, {
     stdio: 'inherit',
-    shell: process.platform === 'win32',
+    shell: false,
   });
 
   if (result.error) {

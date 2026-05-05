@@ -91,12 +91,14 @@ export function normalizeAssetPath(raw) {
 }
 
 async function fetchWithTimeout(url, timeoutMs) {
-  const targetUrl = url instanceof URL ? new URL(url.toString()) : new URL(String(url));
-  assertAllowedProbeUrl(targetUrl, 'Probe target');
+  if (!(url instanceof URL)) {
+    throw new Error('URL must be a URL instance');
+  }
+  assertAllowedProbeUrl(url, 'Probe target');
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const response = await fetch(targetUrl, {
+    const response = await fetch(url, {
       signal: controller.signal,
       redirect: 'follow',
       headers: PROBE_REQUEST_HEADERS,
