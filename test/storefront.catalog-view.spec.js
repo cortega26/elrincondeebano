@@ -78,7 +78,7 @@ describe('createCatalogViewController', () => {
     expect(orderedIds).toEqual(['p2', 'p3', 'p1']);
     expect(state).toEqual({ matchedCount: 2, visibleLimit: 2 });
     expect(document.getElementById('catalog-results-status').textContent).toBe(
-      '2 productos encontrados'
+      'Mostrando 2 productos para "a"'
     );
     expect(document.getElementById('catalog-empty-state').classList.contains('d-none')).toBe(true);
   });
