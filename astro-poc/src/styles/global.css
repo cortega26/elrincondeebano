@@ -196,6 +196,52 @@ h1 {
   max-width: 38rem;
 }
 
+.home-entry__eyebrow {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary-color);
+}
+
+.home-entry__meta {
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.home-entry__service-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-entry__service-item {
+  display: grid;
+  gap: 0.12rem;
+  min-width: min(100%, 11.5rem);
+  padding: 0.6rem 0.75rem;
+  border: 1px solid rgba(0, 91, 79, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.home-entry__service-label {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.home-entry__service-value {
+  font-size: 0.88rem;
+  line-height: 1.3;
+}
+
 .home-entry__actions {
   display: flex;
   flex-wrap: wrap;
@@ -1879,16 +1925,26 @@ body.service-dialog-open {
   }
 
   .home-entry {
-    gap: 0.6rem;
+    gap: 0.45rem;
+    padding: 0.75rem 0.85rem;
   }
 
   .home-entry__copy,
   .home-entry__main {
-    gap: 0.45rem;
+    gap: 0.35rem;
   }
 
   .home-entry__lead {
     font-size: 0.95rem;
+  }
+
+  .home-entry__eyebrow {
+    display: none;
+  }
+
+  .home-entry__meta,
+  .home-entry__service-list {
+    display: none;
   }
 
   .catalog-controls {
@@ -1896,7 +1952,7 @@ body.service-dialog-open {
   }
 
   .home-entry__actions {
-    gap: 0.6rem;
+    gap: 0.45rem;
   }
 
   .home-entry__actions .btn,
@@ -1927,8 +1983,8 @@ body.service-dialog-open {
 
   .home-profile-strip {
     display: grid;
-    gap: 0.5rem;
-    padding: 0.7rem 0.75rem;
+    gap: 0.4rem;
+    padding: 0.6rem 0.7rem;
   }
 
   .home-profile-strip__repeat {

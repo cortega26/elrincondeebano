@@ -472,7 +472,14 @@ export function getHomepageCatalogProducts(): ProductWithSku[] {
 export function getHomepageCatalogInitialProducts(
   limit: number = HOME_CATALOG_INITIAL_LIMIT
 ): ProductWithSku[] {
-  return getHomepageCatalogProducts().slice(0, limit);
+  const prioritized = getProductsByReferences([
+    ...storefrontExperience.home.featuredStaples,
+    ...storefrontExperience.home.fallbackQuickPicks,
+  ]);
+  const prioritizedSkus = new Set(prioritized.map((item) => item.sku));
+  const remaining = getHomepageCatalogProducts().filter((item) => !prioritizedSkus.has(item.sku));
+
+  return [...prioritized, ...remaining].slice(0, limit);
 }
 
 export function getHomeHighlightedCategories(): NavGroup['categories'] {

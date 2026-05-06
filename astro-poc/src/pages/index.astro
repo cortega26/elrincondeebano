@@ -7,22 +7,50 @@ import ProductGrid from '../components/ProductGrid.astro';
 import ServiceGuideDialog from '../components/ServiceGuideDialog.astro';
 import {
   getHomeFeaturedDeals,
+  getHomeFeaturedStaples,
   getHomePrimaryCategories,
   getHomeQuickPicks,
   getHomepageCatalogInitialProducts,
+  getStorefrontStatusItems,
+  getStorefrontTrustItems,
   getStorefrontBundles,
 } from '../lib/catalog';
 import { createSharePreviewMetadata, DEFAULT_OG_IMAGE } from '../lib/seo';
 
-const homepageCatalogProducts = getHomepageCatalogInitialProducts();
 const fallbackQuickPicks = getHomeQuickPicks();
+const featuredStaples = getHomeFeaturedStaples();
+const quickOrderItems = featuredStaples.slice(0, 4).length > 0 ? featuredStaples.slice(0, 4) : fallbackQuickPicks;
+const quickOrderSkus = new Set(quickOrderItems.map((item) => item.sku));
+const homepageCatalogProducts = getHomepageCatalogInitialProducts(28)
+  .filter((item) => !quickOrderSkus.has(item.sku))
+  .slice(0, 24);
 const featuredDeals = getHomeFeaturedDeals();
 const bundles = getStorefrontBundles();
 const primaryCategories = getHomePrimaryCategories();
+const trustItems = getStorefrontTrustItems();
+const statusItems = getStorefrontStatusItems();
+const trustMap = new Map(trustItems.map((item) => [item.label, item.value]));
+const statusMap = new Map(statusItems.map((item) => [item.label, item.value]));
+const heroHighlights = [
+  {
+    label: 'Pedidos hoy',
+    value: statusMap.get('Pedidos hoy') || 'Abierto para vecinos de Ébano',
+  },
+  {
+    label: 'Respuesta',
+    value: statusMap.get('Respuesta') || 'Aprox. 10 minutos',
+  },
+  {
+    label: 'Entrega',
+    value: trustMap.get('Entrega') || 'Coordinada dentro del edificio',
+  },
+];
+const heroPaymentCopy =
+  trustMap.get('Pago') || 'Efectivo, transferencia y tarjeta desde $30.000.';
 const sharePreview = createSharePreviewMetadata({
   title: 'El Rincón de Ébano',
   description:
-    'Minimarket privado para residentes del edificio Ébano. Haz tu pedido por WhatsApp y recibe dentro del edificio.',
+    'Despensa, bebidas y aseo para residentes de Ébano. Haz tu pedido por WhatsApp y recibe dentro del edificio.',
   canonicalPath: '/',
   ogImage: DEFAULT_OG_IMAGE,
   ogImageAlt: 'Logotipo de El Rincón de Ébano',
@@ -40,15 +68,33 @@ const sharePreview = createSharePreviewMetadata({
     <section class="home-entry home-layout__entry" aria-labelledby="main-heading">
       <div class="home-entry__main">
         <div class="home-entry__copy">
-          <h1 id="main-heading">Haz tu pedido en minutos</h1>
+          <p class="home-entry__eyebrow mb-0">Minimarket privado del edificio</p>
+          <h1 id="main-heading">Básicos del día con entrega dentro de Ébano</h1>
           <p class="home-entry__lead mb-0">
-            Agrega aquí y confirma por WhatsApp al final.
+            Despensa, bebidas y aseo para vecinos del edificio. Agrega aquí y confirma por WhatsApp.
           </p>
+          <p class="home-entry__meta mb-0">{heroPaymentCopy}</p>
         </div>
+        <ul class="home-entry__service-list" aria-label="Estado del servicio">
+          {
+            heroHighlights.map((item) => (
+              <li class="home-entry__service-item">
+                <span class="home-entry__service-label">{item.label}</span>
+                <strong class="home-entry__service-value">{item.value}</strong>
+              </li>
+            ))
+          }
+        </ul>
         <div class="home-entry__actions">
           <a
+            href="#home-quick-order-heading"
+            class="btn btn-primary home-entry__primary-link"
+          >
+            Resolver pedido
+          </a>
+          <a
             href="/combos/"
-            class="btn btn-primary home-entry__cta"
+            class="btn btn-outline-primary home-entry__cta"
             data-home-hero-cta
           >
             Ver combos
@@ -84,9 +130,9 @@ const sharePreview = createSharePreviewMetadata({
 
     <HomeProductSection
       headingId="home-quick-order-heading"
-      title="Compra rápida"
-      description="Tus frecuentes aparecerán aquí. Mientras tanto, dejamos una selección útil para resolver rápido."
-      items={fallbackQuickPicks}
+      title="Esenciales de hoy"
+      description="Una salida rápida con los básicos que más se repiten entre vecinos para resolver bebidas, despensa, lácteos y aseo."
+      items={quickOrderItems}
       className="home-layout__quick-order"
       gridId="home-personalized-grid"
       showProfileStrip={false}
@@ -95,9 +141,9 @@ const sharePreview = createSharePreviewMetadata({
 
     <section class="home-section home-layout__catalog" aria-labelledby="products-heading">
       <div class="home-section__header">
-        <h2 id="products-heading">Catálogo principal</h2>
+        <h2 id="products-heading">Más con stock hoy</h2>
         <p id="catalog-main">
-          Parte con una selección rápida y entra por categoría cuando quieras recorrer todo el surtido.
+          Una vitrina breve del surtido útil para el edificio. Si no está aquí, entra por categoría y sigue armando tu pedido.
         </p>
       </div>
       <div class="home-category-shortcuts" aria-label="Categorías principales">
@@ -120,7 +166,7 @@ const sharePreview = createSharePreviewMetadata({
         No se encontraron productos con los filtros seleccionados.
       </div>
       <div id="catalog-controls" class="home-catalog-footer text-center my-4">
-        <a href="/despensa/" class="btn btn-outline-primary">Explorar categorías</a>
+        <a href="/despensa/" class="btn btn-outline-primary">Ver categorías completas</a>
       </div>
     </section>
 
