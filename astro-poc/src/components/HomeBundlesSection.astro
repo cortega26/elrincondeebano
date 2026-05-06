@@ -93,11 +93,12 @@ const visibleBundles =
               </div>
               <button
                 type="button"
-                class="btn btn-outline-dark bundle-card__action"
+                class="btn btn-primary bundle-card__action"
                 data-bundle-id={bundle.id}
                 data-bundle-payload={bundlePayload}
+                aria-label={`Agregar el combo ${bundle.title} al pedido`}
               >
-                Agregar combo
+                Pedir este combo
               </button>
             </div>
           </article>

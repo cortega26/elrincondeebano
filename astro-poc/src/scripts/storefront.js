@@ -445,32 +445,59 @@ function getSelectedSubstitutionPreference() {
   return select instanceof HTMLSelectElement ? select.value : 'Preguntar antes';
 }
 
+function getOrderItemCount(order) {
+  if (!order || !Array.isArray(order.items)) {
+    return 0;
+  }
+
+  return order.items.reduce(
+    (total, item) => total + Math.max(parseNumber(item?.quantity, 1), 1),
+    0
+  );
+}
+
+function formatOrderItemLabel(count) {
+  return count === 1 ? '1 producto' : `${count} productos`;
+}
+
 function setRepeatButtonsState(order) {
+  const itemCount = getOrderItemCount(order);
   document.querySelectorAll('[data-repeat-last-order]').forEach((button) => {
-    const enabled = !!(order && Array.isArray(order.items) && order.items.length > 0);
+    const enabled = itemCount > 0;
     button.disabled = !enabled;
     button.setAttribute('aria-disabled', enabled ? 'false' : 'true');
+    button.textContent = enabled
+      ? `Repetir ${formatOrderItemLabel(itemCount)}`
+      : 'Repetir último pedido';
+    button.setAttribute(
+      'aria-label',
+      enabled
+        ? `Repetir pedido anterior con ${formatOrderItemLabel(itemCount)}`
+        : 'Repetir último pedido'
+    );
   });
 }
 
 function syncProfileSummary(profile, lastOrder) {
   const hasSavedNote = !!profile.deliveryNote;
-  const hasLastOrder = !!(
-    lastOrder &&
-    Array.isArray(lastOrder.items) &&
-    lastOrder.items.length > 0
-  );
+  const itemCount = getOrderItemCount(lastOrder);
+  const hasLastOrder = itemCount > 0;
 
   const title = createElement('strong');
   const detail = createElement('span');
 
   if (hasSavedNote || hasLastOrder) {
     title.textContent = hasLastOrder
-      ? 'Tu último pedido quedó guardado en este dispositivo.'
+      ? 'Repite tu último pedido en un toque.'
       : 'Tu nota también puede quedar guardada para el próximo pedido.';
     detail.textContent = hasSavedNote
       ? `Nota guardada: "${profile.deliveryNote}".`
-      : 'Puedes repetir el pedido en un toque o ajustar cantidades antes de enviarlo por WhatsApp.';
+      : `${formatOrderItemLabel(itemCount)} listos para volver al carrito y ajustar antes de enviar.`;
+
+    if (hasSavedNote && hasLastOrder) {
+      detail.textContent = `${formatOrderItemLabel(itemCount)} listos para repetir. Nota guardada: "${profile.deliveryNote}".`;
+    }
+
     document.querySelectorAll('[data-home-profile-copy]').forEach((content) => {
       if (content instanceof HTMLElement) {
         content.replaceChildren(title.cloneNode(true), detail.cloneNode(true));

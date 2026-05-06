@@ -183,16 +183,27 @@ const sharePreview = createSharePreviewMetadata({
 
     <HomeBundlesSection
       headingId="home-bundles-heading"
-      title="Combos listos"
-      description="Una muestra rápida para resolver pedidos frecuentes sin quedar atrapados en el scroll del catálogo."
+      title="Combos en un toque"
+      description="Suma un pedido completo al carrito sin armarlo producto por producto y ajusta después si quieres."
       bundles={bundles}
       className="home-layout__bundles"
       limit={3}
       introHref="/combos/"
-      introLabel="Explorar la colección completa de combos"
+      introLabel="Ver todos los combos listos"
       footerHref="/combos/"
-      footerLabel="Ver todos los combos"
+      footerLabel="Explorar combos"
     />
+
+    {featuredDeals.length > 0 ? (
+      <HomeProductSection
+        headingId="home-deals-heading"
+        title="Ahorra hoy"
+        description="Ofertas activas para resolver el pedido sin revisar promociones por separado."
+        items={featuredDeals}
+        className="home-layout__deals"
+        compactMobile={true}
+      />
+    ) : null}
   </div>
 
   <ServiceGuideDialog targetHref="#products-heading" targetLabel="Ir al catálogo" />
