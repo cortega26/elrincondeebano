@@ -2049,6 +2049,12 @@ body.service-dialog-open {
     padding-top: 0.35rem;
   }
 
+  #product-container .producto,
+  #product-container .add-to-cart-btn {
+    scroll-margin-top: calc(var(--storefront-header-height) + 7rem);
+    scroll-margin-bottom: 6.5rem;
+  }
+
   .catalog-controls--sticky-mobile {
     position: sticky;
     top: calc(var(--storefront-header-height) - 0.25rem);
@@ -2102,7 +2108,7 @@ body.service-dialog-open {
   }
 
   .cart-footer {
-    max-height: min(53vh, 18rem);
+    max-height: min(56vh, 19.5rem);
   }
 
   .cart-payment-options {
@@ -2318,7 +2324,7 @@ body.service-dialog-open {
   }
 
   .storefront-shell {
-    padding-bottom: 5rem;
+    padding-bottom: 6.5rem;
   }
 }
 

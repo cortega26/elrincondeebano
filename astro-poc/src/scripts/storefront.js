@@ -20,6 +20,7 @@ import {
 const MAX_RECENT_ORDERS = 6;
 const MAX_PERSONALIZED_ITEMS = 4;
 const WHATSAPP_NUMBER = '56951118901';
+const MOBILE_CART_SHORTCUT_REVEAL_DELAY_MS = 280;
 
 if (typeof window !== 'undefined') {
   globalThis.bootstrap = bootstrap;
@@ -164,6 +165,16 @@ const observability = createObservabilityModule({ log });
 const cartUiState = {
   isOffcanvasOpen: false,
 };
+let mobileCartShortcutRevealTimeoutId = 0;
+
+function clearMobileCartShortcutRevealTimeout() {
+  if (!mobileCartShortcutRevealTimeoutId) {
+    return;
+  }
+
+  globalThis.clearTimeout(mobileCartShortcutRevealTimeoutId);
+  mobileCartShortcutRevealTimeoutId = 0;
+}
 
 function setCartOffcanvasState(nextOpen) {
   const isOpen = Boolean(nextOpen);
@@ -702,10 +713,10 @@ function syncMobileCartShortcut(cart, totalAmount) {
   const isEmpty = totalItems <= 0;
   const shouldHide = isEmpty || cartUiState.isOffcanvasOpen;
 
-  shortcut.classList.toggle('is-hidden', shouldHide);
-  shortcut.setAttribute('aria-hidden', shouldHide ? 'true' : 'false');
-
   if (isEmpty) {
+    clearMobileCartShortcutRevealTimeout();
+    shortcut.classList.add('is-hidden');
+    shortcut.setAttribute('aria-hidden', 'true');
     shortcut.textContent = 'Ver pedido';
     shortcut.setAttribute('aria-label', 'Carrito vacio');
     return;
@@ -716,6 +727,30 @@ function syncMobileCartShortcut(cart, totalAmount) {
     'aria-label',
     `Ver pedido, ${totalItems} productos, total ${formatCurrency(totalAmount)}`
   );
+
+  if (shouldHide) {
+    clearMobileCartShortcutRevealTimeout();
+    shortcut.classList.add('is-hidden');
+    shortcut.setAttribute('aria-hidden', 'true');
+    return;
+  }
+
+  if (!shortcut.classList.contains('is-hidden')) {
+    shortcut.setAttribute('aria-hidden', 'false');
+    return;
+  }
+
+  clearMobileCartShortcutRevealTimeout();
+  mobileCartShortcutRevealTimeoutId = globalThis.setTimeout(() => {
+    mobileCartShortcutRevealTimeoutId = 0;
+
+    if (cartUiState.isOffcanvasOpen || shortcut.textContent === 'Ver pedido') {
+      return;
+    }
+
+    shortcut.classList.remove('is-hidden');
+    shortcut.setAttribute('aria-hidden', 'false');
+  }, MOBILE_CART_SHORTCUT_REVEAL_DELAY_MS);
 }
 
 function renderCart(cart, { animateTotal = false } = {}) {
