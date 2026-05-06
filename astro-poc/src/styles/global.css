@@ -1969,7 +1969,7 @@ body.service-dialog-open {
   }
 
   .home-profile-strip span {
-    font-size: 0.8125rem;
+    display: none;
   }
 
   .precio-descuento,
