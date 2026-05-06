@@ -104,6 +104,15 @@ async function readCartHierarchyState(page: Page) {
   });
 }
 
+test('home renders featured deals only once', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await waitForReady(page);
+
+  await expect(page.locator('.home-layout__deals')).toHaveCount(1);
+  await expect(page.getByRole('heading', { level: 2, name: 'Ahorra hoy' })).toHaveCount(1);
+});
+
 for (const viewport of MOBILE_VIEWPORTS) {
   test(`home keeps catalog within reach on mobile ${viewport.name}`, async ({ page }) => {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
