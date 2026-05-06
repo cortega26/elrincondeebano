@@ -18,7 +18,7 @@ filelock==3.29.0
 idna==3.13
 iniconfig==2.3.0
 isort==7.0.0
-librt==0.9.0
+librt==0.10.0
 license-expression==30.4.4
 markdown-it-py==4.0.0
 mccabe==0.7.0
