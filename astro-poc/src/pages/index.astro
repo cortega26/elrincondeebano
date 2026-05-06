@@ -193,17 +193,6 @@ const sharePreview = createSharePreviewMetadata({
       footerHref="/combos/"
       footerLabel="Explorar combos"
     />
-
-    {featuredDeals.length > 0 ? (
-      <HomeProductSection
-        headingId="home-deals-heading"
-        title="Ahorra hoy"
-        description="Ofertas activas para resolver el pedido sin revisar promociones por separado."
-        items={featuredDeals}
-        className="home-layout__deals"
-        compactMobile={true}
-      />
-    ) : null}
   </div>
 
   <ServiceGuideDialog targetHref="#products-heading" targetLabel="Ir al catálogo" />
