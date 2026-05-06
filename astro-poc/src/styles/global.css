@@ -1103,30 +1103,6 @@ body.service-dialog-open {
   text-decoration: line-through;
 }
 
-/* Out of Stock Styles */
-.producto.agotado {
-  position: relative;
-}
-
-.producto.agotado::before {
-  content: 'AGOTADO';
-  position: absolute;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 1.25rem;
-  z-index: 2;
-  backdrop-filter: blur(2px);
-}
-
-.producto.agotado img {
-  filter: grayscale(100%);
-}
-
 /* Quantity Control Styles */
 .quantity-control {
   display: flex;
@@ -2484,9 +2460,4 @@ body.service-dialog-open {
 .stock-pill-on {
   background: #e8f5e9;
   color: #256029;
-}
-
-.stock-pill-off {
-  background: #ffebee;
-  color: #9f3a38;
 }
