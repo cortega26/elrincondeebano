@@ -31,6 +31,12 @@ describe('storefront storage contract', () => {
       cacheVersion: 2,
     });
     expect(STOREFRONT_RUNTIME_CONTRACT.storageKeys.cart).toBe('astro-poc-cart');
+    expect(STOREFRONT_RUNTIME_CONTRACT.storageKeys.orderLastSentAt).toBe(
+      'astro-poc-order-last-sent-at'
+    );
+    expect(STOREFRONT_RUNTIME_CONTRACT.storageKeys.recoveryDismissed).toBe(
+      'astro-poc-recovery-dismissed'
+    );
     expect(STOREFRONT_RUNTIME_CONTRACT.legacyAliases.cart).toEqual(['cart']);
   });
 
@@ -82,5 +88,19 @@ describe('storefront storage contract', () => {
     expect(JSON.parse(storage.getItem(STOREFRONT_STORAGE_KEYS.cart))).toEqual([
       { id: 'pid-4', name: 'Pan', price: 700, quantity: 1 },
     ]);
+  });
+
+  it('supports auxiliary storefront state slots used during order recovery flows', () => {
+    const storage = createMemoryStorage();
+    const contract = createStorefrontStorage({ storage });
+
+    expect(contract.loadJson('orderLastSentAt', 0)).toBe(0);
+    expect(contract.loadJson('recoveryDismissed', 0)).toBe(0);
+
+    contract.saveJson('orderLastSentAt', 123);
+    contract.saveJson('recoveryDismissed', 456);
+
+    expect(JSON.parse(storage.getItem(STOREFRONT_STORAGE_KEYS.orderLastSentAt))).toBe(123);
+    expect(JSON.parse(storage.getItem(STOREFRONT_STORAGE_KEYS.recoveryDismissed))).toBe(456);
   });
 });

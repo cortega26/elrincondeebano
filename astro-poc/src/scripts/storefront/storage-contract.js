@@ -6,6 +6,8 @@ export const STOREFRONT_STORAGE_KEYS = Object.freeze({
   productSignals: 'astro-poc-product-signals',
   preferredPayment: 'astro-poc-preferred-payment',
   substitutionPreference: 'astro-poc-substitution-preference',
+  orderLastSentAt: 'astro-poc-order-last-sent-at',
+  recoveryDismissed: 'astro-poc-recovery-dismissed',
 });
 
 export const STOREFRONT_STORAGE_ALIASES = Object.freeze({
