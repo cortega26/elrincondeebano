@@ -197,6 +197,27 @@ const { navGroups } = Astro.props;
   </div>
 </div>
 
+<!-- Cart Recovery Banner -->
+<div id="cart-recovery" class="cart-recovery is-hidden" role="status" aria-live="polite">
+  <div class="cart-recovery__body">
+    <div class="cart-recovery__icon" aria-hidden="true">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+    </div>
+    <div class="cart-recovery__copy">
+      <strong class="cart-recovery__title">Tienes productos pendientes</strong>
+      <span class="cart-recovery__subtitle">Completa tu pedido desde donde lo dejaste.</span>
+    </div>
+    <div class="cart-recovery__actions">
+      <button id="cart-recovery-review" type="button" class="btn btn-sm btn-primary cart-recovery__btn">
+        Revisar pedido
+      </button>
+      <button id="cart-recovery-dismiss" type="button" class="cart-recovery__dismiss" aria-label="Descartar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Order Confirmation Dialog -->
 <dialog
   id="order-confirm-dialog"

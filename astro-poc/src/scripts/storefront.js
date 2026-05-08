@@ -791,15 +791,39 @@ function renderCart(cart, { animateTotal = false } = {}) {
   container.replaceChildren();
 
   if (cart.length === 0) {
-    const emptyMessage = createElement('div', {
-      className: 'alert alert-info mb-0 cart-empty-message',
-      text: 'Tu carrito está vacío. Agrega productos antes de realizar el pedido.',
-      attrs: {
-        role: 'status',
-        tabindex: '-1',
-      },
-    });
-    container.appendChild(emptyMessage);
+    if (isOrderJustSent()) {
+      const sentWrapper = createElement('div', { className: 'cart-post-send' });
+      const sentIcon = createElement('div', { className: 'cart-post-send__icon' });
+      sentIcon.innerHTML =
+        '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+      const sentTitle = createElement('h3', {
+        className: 'cart-post-send__title',
+        text: '¡Pedido enviado!',
+      });
+      const sentBody = createElement('div', { className: 'cart-post-send__body' });
+      const sentP1 = document.createElement('p');
+      sentP1.textContent =
+        'Recibirás una respuesta por WhatsApp para confirmar el horario de entrega dentro del edificio.';
+      const sentP2 = document.createElement('p');
+      sentP2.textContent =
+        'Si no recibes respuesta en 30 minutos, escríbenos directamente al mismo chat.';
+      sentBody.appendChild(sentP1);
+      sentBody.appendChild(sentP2);
+      sentWrapper.appendChild(sentIcon);
+      sentWrapper.appendChild(sentTitle);
+      sentWrapper.appendChild(sentBody);
+      container.appendChild(sentWrapper);
+    } else {
+      const emptyMessage = createElement('div', {
+        className: 'alert alert-info mb-0 cart-empty-message',
+        text: 'Tu carrito está vacío. Agrega productos antes de realizar el pedido.',
+        attrs: {
+          role: 'status',
+          tabindex: '-1',
+        },
+      });
+      container.appendChild(emptyMessage);
+    }
   } else {
     const fragment = document.createDocumentFragment();
     cart.forEach((item) => {
@@ -963,6 +987,33 @@ function hydrateProfilePersistence() {
 // --- Order Confirmation Flow ---
 
 let pendingOrderData = null;
+
+const STORAGE_SENT_KEY = 'orderLastSentAt';
+const STORAGE_RECOVERY_KEY = 'recoveryDismissed';
+const RECOVERY_BANNER_TTL_MS = 3600000; // 1 hour
+const SENT_STATE_TTL_MS = 86400000; // 24 hours
+
+function getStoredJson(key, fallback) {
+  return storefrontStorage.loadJson(key, fallback);
+}
+
+function saveStoredJson(key, value) {
+  storefrontStorage.saveJson(key, value);
+}
+
+function isOrderJustSent() {
+  const sentAt = getStoredJson(STORAGE_SENT_KEY, 0);
+  return sentAt > 0 && Date.now() - sentAt < SENT_STATE_TTL_MS;
+}
+
+function clearLastOrderSentAt() {
+  saveStoredJson(STORAGE_SENT_KEY, 0);
+}
+
+function isRecoveryBannerDismissed() {
+  const dismissedAt = getStoredJson(STORAGE_RECOVERY_KEY, 0);
+  return dismissedAt > 0 && Date.now() - dismissedAt < RECOVERY_BANNER_TTL_MS;
+}
 
 function buildOrderConfirmSummary(
   cart,
@@ -1129,6 +1180,39 @@ function hidePostSubmitToast() {
   toast.setAttribute('aria-hidden', 'true');
 }
 
+// --- Cart Recovery Banner ---
+
+function showRecoveryBanner() {
+  const banner = document.getElementById('cart-recovery');
+  if (!banner) {
+    return;
+  }
+  banner.classList.remove('is-hidden');
+  banner.setAttribute('aria-hidden', 'false');
+}
+
+function hideRecoveryBanner() {
+  const banner = document.getElementById('cart-recovery');
+  if (!banner) {
+    return;
+  }
+  banner.classList.add('is-hidden');
+  banner.setAttribute('aria-hidden', 'true');
+}
+
+function shouldShowRecoveryBanner(cart) {
+  if (!Array.isArray(cart) || cart.length === 0) {
+    return false;
+  }
+  if (isOrderJustSent()) {
+    return false;
+  }
+  if (isRecoveryBannerDismissed()) {
+    return false;
+  }
+  return true;
+}
+
 function markOrderAsSent() {
   const cart = loadCart();
   if (cart.length === 0) {
@@ -1142,6 +1226,7 @@ function markOrderAsSent() {
   personalizationEngine.recordOrder(cart, profile, selectedPayment, substitutionPreference);
 
   saveCart([]);
+  saveStoredJson(STORAGE_SENT_KEY, Date.now());
   updateBadge([], { animate: true });
   renderCart([]);
   syncAllActionAreas([]);
@@ -1360,6 +1445,10 @@ function initStorefront() {
     if (quantity > previousQuantity) {
       personalizationEngine.trackProductSignal(id, 'addedCount');
     }
+
+    if (cart.length > 0 && isOrderJustSent()) {
+      clearLastOrderSentAt();
+    }
   };
 
   const addBundleItems = (bundleItems) => {
@@ -1481,6 +1570,22 @@ function initStorefront() {
       } catch (error) {
         log('warn', 'bundle_payload_parse_failed', { error });
       }
+      return;
+    }
+
+    const reviewRecoveryBtn = target.closest('#cart-recovery-review');
+    if (reviewRecoveryBtn) {
+      event.preventDefault();
+      hideRecoveryBanner();
+      openCartOffcanvas();
+      return;
+    }
+
+    const dismissRecoveryBtn = target.closest('#cart-recovery-dismiss');
+    if (dismissRecoveryBtn) {
+      event.preventDefault();
+      hideRecoveryBanner();
+      saveStoredJson(STORAGE_RECOVERY_KEY, Date.now());
       return;
     }
 
@@ -1670,6 +1775,11 @@ function initStorefront() {
   renderCart(cart);
   renderCompanionSuggestions(cart, companionRules);
   syncAllActionAreas(cart);
+
+  if (shouldShowRecoveryBanner(cart)) {
+    showRecoveryBanner();
+  }
+
   renderPersonalizedProducts();
   initServiceOnboarding();
 
