@@ -1,4 +1,4 @@
-import { spawnSync } from 'node:child_process';
+import { runStages } from './utils/stage-runner.mjs';
 
 const stages = [
   {
@@ -38,22 +38,11 @@ const stages = [
   },
 ];
 
-for (const [index, stage] of stages.entries()) {
-  const label = `[${index + 1}/${stages.length}] ${stage.name}`;
-  console.log(`\n==> ${label}`);
-
-  const result = spawnSync(stage.command, stage.args, {
-    stdio: 'inherit',
-    shell: false,
+try {
+  runStages(stages, {
+    successMessage: 'Release validation passed.',
   });
-
-  if (result.error) {
-    throw result.error;
-  }
-
-  if (typeof result.status === 'number' && result.status !== 0) {
-    process.exit(result.status);
-  }
+} catch (error) {
+  console.error(error?.message || String(error));
+  process.exitCode = error?.exitCode || 1;
 }
-
-console.log('\nRelease validation passed.');

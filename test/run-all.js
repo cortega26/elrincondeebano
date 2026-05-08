@@ -56,6 +56,7 @@ const tests = [
   'legacy-storefront-surface.guardrail.test.js',
   'orphan-assets.guardrail.test.js',
   'smoke-evidence.script.test.js',
+  'stage-runner.test.js',
   'security-header-policy.test.js',
   'cloudflare-edge-security-worker.test.js',
   'post-deploy-canary.test.js',

@@ -1,5 +1,4 @@
 import crypto from 'node:crypto';
-import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
@@ -12,6 +11,7 @@ import {
   looksLikeChallenge,
   normalizeAllowlistedBaseUrl,
 } from './share-preview-contract.mjs';
+import { parseOptionalIntegerOption, writeJsonReport } from './utils/cli.mjs';
 
 const DEFAULT_BASE_URL = 'https://www.elrincondeebano.com';
 const DEFAULT_TIMEOUT_MS = 15000;
@@ -250,10 +250,15 @@ export async function runSharePreviewMonitor({
   baseUrl = DEFAULT_BASE_URL,
   timeoutMs = DEFAULT_TIMEOUT_MS,
 } = {}) {
+  const normalizedTimeoutMs = parseOptionalIntegerOption(timeoutMs, {
+    name: 'timeoutMs',
+    defaultValue: DEFAULT_TIMEOUT_MS,
+    minimum: 1,
+  });
   const normalizedBaseUrl = normalizeBaseUrl(baseUrl);
   const sitemapResponse = await fetchWithTimeout(
     `${normalizedBaseUrl}/sitemap.xml`,
-    timeoutMs,
+    normalizedTimeoutMs,
     'application/xml,text/xml'
   );
   if (!sitemapResponse.ok) {
@@ -268,12 +273,13 @@ export async function runSharePreviewMonitor({
 
   const checks = [];
   for (const target of targets) {
-    checks.push(await probeTarget(target, timeoutMs));
+    checks.push(await probeTarget(target, normalizedTimeoutMs));
   }
 
   return {
     baseUrl: normalizedBaseUrl,
     checkedAt: new Date().toISOString(),
+    timeoutMs: normalizedTimeoutMs,
     checks,
   };
 }
@@ -294,14 +300,17 @@ async function main() {
   });
 
   const reportPath = values.report ? path.resolve(values.report) : DEFAULT_REPORT_PATH;
-  const timeoutMs = values['timeout-ms'] ? Number(values['timeout-ms']) : DEFAULT_TIMEOUT_MS;
+  const timeoutMs = parseOptionalIntegerOption(values['timeout-ms'], {
+    name: '--timeout-ms',
+    defaultValue: DEFAULT_TIMEOUT_MS,
+    minimum: 1,
+  });
   const report = await runSharePreviewMonitor({
     baseUrl: values['base-url'] || DEFAULT_BASE_URL,
     timeoutMs,
   });
 
-  fs.mkdirSync(path.dirname(reportPath), { recursive: true });
-  fs.writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+  writeJsonReport(reportPath, report);
   console.log(
     `Share-preview monitor passed for ${report.checks.length} route(s). Report: ${reportPath}`
   );

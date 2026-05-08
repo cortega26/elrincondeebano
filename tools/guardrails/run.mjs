@@ -1,11 +1,11 @@
-﻿import { spawnSync } from 'node:child_process';
-import path from 'node:path';
+﻿import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { runStages } from '../utils/stage-runner.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const checks = [
+const stages = [
   'dependency-manifest-compat.mjs',
   'secret-scan.mjs',
   'sw-cache-bump.mjs',
@@ -14,16 +14,18 @@ const checks = [
   'critical-css.mjs',
   'legacy-storefront-surface.mjs',
   'orphan-assets.js',
-];
+].map((check) => ({
+  name: check,
+  command: process.execPath,
+  args: [path.join(__dirname, check)],
+}));
 
-for (const check of checks) {
-  console.log(`\n==> ${check}`);
-  const result = spawnSync('node', [path.join(__dirname, check)], {
-    stdio: 'inherit',
+try {
+  runStages(stages, {
+    labelFormatter: (stage) => stage.name,
+    successMessage: 'All guardrails passed.',
   });
-  if (result.status !== 0) {
-    process.exit(result.status ?? 1);
-  }
+} catch (error) {
+  console.error(error?.message || String(error));
+  process.exitCode = error?.exitCode || 1;
 }
-
-console.log('\nAll guardrails passed.');

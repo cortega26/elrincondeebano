@@ -214,3 +214,19 @@ test('checkUrl retries Cloudflare-like 403 responses before failing', async () =
     }
   );
 });
+
+test('runMonitor rejects invalid numeric options before starting probes', async () => {
+  const { runMonitor } = await loadModule();
+
+  await expectAsyncReject(
+    assert,
+    () =>
+      runMonitor({
+        baseUrl: SITE_ORIGIN,
+        timeoutMs: 5000,
+        sampleSize: 0,
+        reportPath: '',
+      }),
+    /Invalid sampleSize: expected a positive integer/
+  );
+});

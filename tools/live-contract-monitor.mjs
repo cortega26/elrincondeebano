@@ -1,5 +1,3 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import {
@@ -9,6 +7,7 @@ import {
   summarizePublicHtmlFailure,
   summarizeSecurityHeaderFailure,
 } from './security-header-policy.mjs';
+import { parseOptionalIntegerOption, writeJsonReport } from './utils/cli.mjs';
 
 const DEFAULT_BASE_URL = 'https://www.elrincondeebano.com';
 const DEFAULT_TIMEOUT_MS = 15000;
@@ -293,15 +292,6 @@ export async function checkUrl(baseUrl, routeOrPath, timeoutMs, options = {}) {
   }
 }
 
-function writeReport(reportPath, payload) {
-  if (!reportPath) {
-    return;
-  }
-  const resolvedPath = path.resolve(reportPath);
-  fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
-  fs.writeFileSync(resolvedPath, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
-}
-
 export async function runMonitor({
   baseUrl,
   timeoutMs,
@@ -311,11 +301,36 @@ export async function runMonitor({
   maxAttempts = DEFAULT_MAX_ATTEMPTS,
   retryDelayMs = DEFAULT_RETRY_DELAY_MS,
 }) {
+  const normalizedTimeoutMs = parseOptionalIntegerOption(timeoutMs, {
+    name: 'timeoutMs',
+    defaultValue: DEFAULT_TIMEOUT_MS,
+    minimum: 1,
+  });
+  const normalizedSampleSize = parseOptionalIntegerOption(sampleSize, {
+    name: 'sampleSize',
+    defaultValue: DEFAULT_SAMPLE_SIZE,
+    minimum: 1,
+  });
+  const normalizedMaxAttempts = parseOptionalIntegerOption(maxAttempts, {
+    name: 'maxAttempts',
+    defaultValue: DEFAULT_MAX_ATTEMPTS,
+    minimum: 1,
+  });
+  const normalizedRetryDelayMs = parseOptionalIntegerOption(retryDelayMs, {
+    name: 'retryDelayMs',
+    defaultValue: DEFAULT_RETRY_DELAY_MS,
+    minimum: 0,
+  });
   const startedAt = new Date().toISOString();
   const routeResults = [];
 
   for (const route of KEY_ROUTES) {
-    routeResults.push(await checkUrl(baseUrl, route, timeoutMs, { maxAttempts, retryDelayMs }));
+    routeResults.push(
+      await checkUrl(baseUrl, route, normalizedTimeoutMs, {
+        maxAttempts: normalizedMaxAttempts,
+        retryDelayMs: normalizedRetryDelayMs,
+      })
+    );
   }
 
   const productDataResult = routeResults.find((result) =>
@@ -326,7 +341,9 @@ export async function runMonitor({
 
   if (productDataResult?.ok) {
     const productDataUrl = resolveProbeUrl(baseUrl, '/data/product_data.json');
-    const productPayload = await (await fetchWithTimeout(productDataUrl, timeoutMs)).json();
+    const productPayload = await (
+      await fetchWithTimeout(productDataUrl, normalizedTimeoutMs)
+    ).json();
     const products = Array.isArray(productPayload?.products) ? productPayload.products : [];
     const assetSet = new Set();
 
@@ -339,10 +356,13 @@ export async function runMonitor({
       }
     }
 
-    sampledAssets = Array.from(assetSet).sort().slice(0, sampleSize);
+    sampledAssets = Array.from(assetSet).sort().slice(0, normalizedSampleSize);
     for (const relativePath of sampledAssets) {
       assetResults.push(
-        await checkUrl(baseUrl, `/${relativePath}`, timeoutMs, { maxAttempts, retryDelayMs })
+        await checkUrl(baseUrl, `/${relativePath}`, normalizedTimeoutMs, {
+          maxAttempts: normalizedMaxAttempts,
+          retryDelayMs: normalizedRetryDelayMs,
+        })
       );
     }
   }
@@ -362,11 +382,11 @@ export async function runMonitor({
     generatedAt: new Date().toISOString(),
     startedAt,
     baseUrl,
-    timeoutMs,
-    sampleSize,
+    timeoutMs: normalizedTimeoutMs,
+    sampleSize: normalizedSampleSize,
     requireSecurityHeaders,
-    maxAttempts,
-    retryDelayMs,
+    maxAttempts: normalizedMaxAttempts,
+    retryDelayMs: normalizedRetryDelayMs,
     keyRouteCount: routeResults.length,
     sampledAssetCount: sampledAssets.length,
     routeResults,
@@ -382,7 +402,7 @@ export async function runMonitor({
     success,
   };
 
-  writeReport(reportPath, report);
+  writeJsonReport(reportPath, report);
   console.log(JSON.stringify(report, null, 2));
 
   if (availabilityFailures.length > 0) {
@@ -417,20 +437,26 @@ async function runCli() {
   });
 
   const baseUrl = normalizeBaseUrl(values['base-url']);
-  const timeoutRaw = Number(values['timeout-ms']);
-  const sampleRaw = Number(values['sample-size']);
-  const maxAttemptsRaw = Number(values['max-attempts']);
-  const retryDelayRaw = Number(values['retry-delay-ms']);
-  const timeoutMs = Number.isFinite(timeoutRaw) && timeoutRaw > 0 ? timeoutRaw : DEFAULT_TIMEOUT_MS;
-  const sampleSize = Number.isFinite(sampleRaw) && sampleRaw > 0 ? sampleRaw : DEFAULT_SAMPLE_SIZE;
-  const maxAttempts =
-    Number.isFinite(maxAttemptsRaw) && maxAttemptsRaw > 0
-      ? Math.floor(maxAttemptsRaw)
-      : DEFAULT_MAX_ATTEMPTS;
-  const retryDelayMs =
-    Number.isFinite(retryDelayRaw) && retryDelayRaw >= 0
-      ? Math.floor(retryDelayRaw)
-      : DEFAULT_RETRY_DELAY_MS;
+  const timeoutMs = parseOptionalIntegerOption(values['timeout-ms'], {
+    name: '--timeout-ms',
+    defaultValue: DEFAULT_TIMEOUT_MS,
+    minimum: 1,
+  });
+  const sampleSize = parseOptionalIntegerOption(values['sample-size'], {
+    name: '--sample-size',
+    defaultValue: DEFAULT_SAMPLE_SIZE,
+    minimum: 1,
+  });
+  const maxAttempts = parseOptionalIntegerOption(values['max-attempts'], {
+    name: '--max-attempts',
+    defaultValue: DEFAULT_MAX_ATTEMPTS,
+    minimum: 1,
+  });
+  const retryDelayMs = parseOptionalIntegerOption(values['retry-delay-ms'], {
+    name: '--retry-delay-ms',
+    defaultValue: DEFAULT_RETRY_DELAY_MS,
+    minimum: 0,
+  });
 
   await runMonitor({
     baseUrl,

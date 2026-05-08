@@ -146,3 +146,13 @@ test('runSharePreviewMonitor fails clearly on challenge pages', async () => {
     }
   );
 });
+
+test('runSharePreviewMonitor rejects invalid timeout input before probing', async () => {
+  const { runSharePreviewMonitor } = await loadModule();
+
+  await expectAsyncReject(
+    assert,
+    () => runSharePreviewMonitor({ baseUrl: SITE_ORIGIN, timeoutMs: 0 }),
+    /Invalid timeoutMs: expected a positive integer/
+  );
+});

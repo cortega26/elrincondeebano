@@ -1,5 +1,3 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
@@ -7,6 +5,7 @@ import {
   inspectPublicHtmlEdgeSurface,
   SECURITY_HEADER_BASELINE_ROUTES,
 } from './security-header-policy.mjs';
+import { parseOptionalIntegerOption, writeJsonReport } from './utils/cli.mjs';
 
 const DEFAULT_BASE_URL = 'https://www.elrincondeebano.com';
 const DEFAULT_TIMEOUT_MS = 15000;
@@ -51,16 +50,6 @@ export function resolveProbeUrl(baseUrl, route) {
   const target = new URL(normalizedRoute, base);
   assertAllowedUrl(target, 'Probe target');
   return target.toString();
-}
-
-function writeReport(reportPath, payload) {
-  if (!reportPath) {
-    return;
-  }
-
-  const resolvedPath = path.resolve(reportPath);
-  fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
-  fs.writeFileSync(resolvedPath, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
 }
 
 function simplifyConsoleMessage(message) {
@@ -145,27 +134,34 @@ export async function runLiveBrowserContract({
   reportPath = '',
 } = {}) {
   const normalizedBaseUrl = normalizeBaseUrl(baseUrl);
+  const normalizedTimeoutMs = parseOptionalIntegerOption(timeoutMs, {
+    name: 'timeoutMs',
+    defaultValue: DEFAULT_TIMEOUT_MS,
+    minimum: 1,
+  });
   const browser = await chromium.launch({ headless: true });
 
   try {
     const routeResults = [];
 
     for (const route of SECURITY_HEADER_BASELINE_ROUTES) {
-      routeResults.push(await inspectBrowserRoute(browser, normalizedBaseUrl, route, timeoutMs));
+      routeResults.push(
+        await inspectBrowserRoute(browser, normalizedBaseUrl, route, normalizedTimeoutMs)
+      );
     }
 
     const failures = routeResults.filter((result) => !result.ok);
     const report = {
       generatedAt: new Date().toISOString(),
       baseUrl: normalizedBaseUrl,
-      timeoutMs,
+      timeoutMs: normalizedTimeoutMs,
       routes: SECURITY_HEADER_BASELINE_ROUTES,
       routeResults,
       failures,
       success: failures.length === 0,
     };
 
-    writeReport(reportPath, report);
+    writeJsonReport(reportPath, report);
     console.log(JSON.stringify(report, null, 2));
 
     if (failures.length > 0) {
@@ -186,8 +182,11 @@ async function runCli() {
     allowPositionals: false,
   });
 
-  const timeoutRaw = Number(values['timeout-ms']);
-  const timeoutMs = Number.isFinite(timeoutRaw) && timeoutRaw > 0 ? timeoutRaw : DEFAULT_TIMEOUT_MS;
+  const timeoutMs = parseOptionalIntegerOption(values['timeout-ms'], {
+    name: '--timeout-ms',
+    defaultValue: DEFAULT_TIMEOUT_MS,
+    minimum: 1,
+  });
 
   await runLiveBrowserContract({
     baseUrl: values['base-url'] || DEFAULT_BASE_URL,
