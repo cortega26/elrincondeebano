@@ -196,3 +196,77 @@ const { navGroups } = Astro.props;
     </div><!-- /.offcanvas-scroll-area -->
   </div>
 </div>
+
+<!-- Order Confirmation Dialog -->
+<dialog
+  id="order-confirm-dialog"
+  class="order-confirm-dialog"
+  aria-labelledby="order-confirm-title"
+  aria-hidden="true"
+>
+  <div class="order-confirm__surface">
+    <div class="order-confirm__header">
+      <h2 id="order-confirm-title" class="order-confirm__title">Revisa tu pedido</h2>
+      <button
+        type="button"
+        class="order-confirm__close"
+        data-order-confirm-close
+        aria-label="Cerrar"
+      >
+        Cerrar
+      </button>
+    </div>
+    <div id="order-confirm-summary" class="order-confirm__summary"></div>
+    <details class="order-confirm__preview-details">
+      <summary class="order-confirm__preview-toggle">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Ver cómo llegará a WhatsApp
+      </summary>
+      <div id="order-confirm-preview" class="order-confirm__preview"></div>
+    </details>
+    <p class="order-confirm__hint">
+      Al confirmar se abrirá WhatsApp con el resumen listo. Solo presiona enviar.
+    </p>
+    <div class="order-confirm__actions">
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        data-order-confirm-close
+      >
+        Cancelar
+      </button>
+      <button
+        id="order-confirm-send"
+        type="button"
+        class="btn btn-success"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Enviar por WhatsApp
+      </button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Post-submit Toast -->
+<div
+  id="order-sent-toast"
+  class="order-sent-toast is-hidden"
+  role="status"
+  aria-live="polite"
+>
+  <div class="order-sent-toast__body">
+    <svg class="order-sent-toast__icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="20 6 9 17 4 12"/></svg>
+    <div class="order-sent-toast__copy">
+      <strong>Pedido listo en WhatsApp</strong>
+      <span>Revisa y confirma en la conversación.</span>
+    </div>
+  </div>
+  <div class="order-sent-toast__actions">
+    <button id="order-mark-sent" type="button" class="btn btn-sm btn-outline-success">
+      Marcar como enviado
+    </button>
+    <button id="order-toast-dismiss" type="button" class="order-sent-toast__dismiss" aria-label="Descartar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+</div>

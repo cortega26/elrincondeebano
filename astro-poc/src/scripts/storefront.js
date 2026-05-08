@@ -960,15 +960,202 @@ function hydrateProfilePersistence() {
   }
 }
 
+// --- Order Confirmation Flow ---
+
+let pendingOrderData = null;
+
+function buildOrderConfirmSummary(
+  cart,
+  totalAmount,
+  selectedPayment,
+  substitutionPreference,
+  deliveryNote
+) {
+  const container = document.getElementById('order-confirm-summary');
+  if (!container) {
+    return;
+  }
+
+  container.replaceChildren();
+
+  cart.forEach((item) => {
+    const subtotal = item.price * item.quantity;
+    const row = createElement('div', { className: 'order-confirm__summary-row' });
+    const info = createElement('div', { className: 'order-confirm__summary-item' });
+    info.appendChild(
+      createElement('div', { className: 'order-confirm__summary-item-name', text: item.name })
+    );
+    info.appendChild(
+      createElement('div', {
+        className: 'order-confirm__summary-item-meta',
+        text: `${item.quantity} × ${formatCurrency(item.price)}`,
+      })
+    );
+    const total = createElement('span', {
+      className: 'order-confirm__summary-item-total',
+      text: formatCurrency(subtotal),
+    });
+    row.appendChild(info);
+    row.appendChild(total);
+    container.appendChild(row);
+  });
+
+  const totalRow = createElement('div', { className: 'order-confirm__summary-total-row' });
+  totalRow.appendChild(createElement('span', { text: 'Total' }));
+  totalRow.appendChild(
+    createElement('span', {
+      className: 'order-confirm__summary-total-amount',
+      text: formatCurrency(totalAmount),
+    })
+  );
+  container.appendChild(totalRow);
+
+  const metaDiv = createElement('div', { className: 'order-confirm__summary-meta' });
+  const addMetaLine = (label, value) => {
+    const line = document.createElement('div');
+    const strong = document.createElement('strong');
+    strong.textContent = label;
+    line.appendChild(strong);
+    line.appendChild(document.createTextNode(value));
+    metaDiv.appendChild(line);
+  };
+  addMetaLine('Pago: ', selectedPayment);
+  if (deliveryNote) {
+    addMetaLine('Nota: ', `“${deliveryNote}”`);
+  }
+  addMetaLine('Stock: ', substitutionPreference);
+  container.appendChild(metaDiv);
+}
+
+function buildWhatsAppMessageText(
+  cart,
+  totalAmount,
+  selectedPayment,
+  substitutionPreference,
+  deliveryNote
+) {
+  const lines = [];
+  lines.push('🛒 *Nuevo Pedido - El Rincón de Ébano*');
+  lines.push('');
+
+  cart.forEach((item) => {
+    const subtotal = item.price * item.quantity;
+    lines.push(`*${item.name}*`);
+    lines.push(
+      `   ${item.quantity} × $${item.price.toLocaleString('es-CL')} = $${subtotal.toLocaleString('es-CL')}`
+    );
+    lines.push('');
+  });
+
+  lines.push('_ _ _ _ _ _ _ _ _ _ _ _ _ _ _');
+  lines.push('');
+  lines.push(`*Total:* $${totalAmount.toLocaleString('es-CL')}`);
+  lines.push(`*Pago:* ${selectedPayment}`);
+  lines.push(`*Stock:* ${substitutionPreference}`);
+  if (deliveryNote) {
+    lines.push(`📝 *Nota:* ${deliveryNote}`);
+  }
+
+  return lines.join('\n');
+}
+
+function showOrderConfirmationDialog() {
+  const dialog = document.getElementById('order-confirm-dialog');
+  if (!dialog) {
+    return;
+  }
+  if (typeof dialog.showModal === 'function') {
+    dialog.showModal();
+  }
+  dialog.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('service-dialog-open');
+}
+
+function closeOrderConfirmationDialog() {
+  const dialog = document.getElementById('order-confirm-dialog');
+  if (!dialog) {
+    return;
+  }
+  if (typeof dialog.close === 'function') {
+    dialog.close();
+  }
+  dialog.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('service-dialog-open');
+}
+
+function executeSendOrder(pending) {
+  if (!pending) {
+    return;
+  }
+
+  const { message, cart, selectedPayment, profile, substitutionPreference } = pending;
+
+  personalizationEngine.recordOrder(cart, profile, selectedPayment, substitutionPreference);
+
+  syncProfileSummary(profile, loadLastOrder());
+  setRepeatButtonsState(loadLastOrder());
+  renderPersonalizedProducts();
+
+  const encodedMessage = encodeURIComponent(message);
+  trackAnalyticsEvent('whatsapp_checkout_submit', {
+    items: cart.length,
+    totalAmount: getCartState(cart).totalAmount,
+    paymentMethod: selectedPayment,
+    source: isMobileViewport() ? 'mobile' : 'desktop',
+  });
+
+  globalThis.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`, '_blank');
+
+  closeOrderConfirmationDialog();
+  showPostSubmitToast();
+}
+
+function showPostSubmitToast() {
+  const toast = document.getElementById('order-sent-toast');
+  if (!toast) {
+    return;
+  }
+  toast.classList.remove('is-hidden');
+  toast.setAttribute('aria-hidden', 'false');
+  globalThis.setTimeout(hidePostSubmitToast, 6000);
+}
+
+function hidePostSubmitToast() {
+  const toast = document.getElementById('order-sent-toast');
+  if (!toast) {
+    return;
+  }
+  toast.classList.add('is-hidden');
+  toast.setAttribute('aria-hidden', 'true');
+}
+
+function markOrderAsSent() {
+  const cart = loadCart();
+  if (cart.length === 0) {
+    return;
+  }
+
+  const profile = readProfileForm();
+  const selectedPayment = getSelectedPaymentValue();
+  const substitutionPreference = getSelectedSubstitutionPreference();
+
+  personalizationEngine.recordOrder(cart, profile, selectedPayment, substitutionPreference);
+
+  saveCart([]);
+  updateBadge([], { animate: true });
+  renderCart([]);
+  syncAllActionAreas([]);
+  hidePostSubmitToast();
+}
+
 function submitCartOrder(cart) {
   if (!Array.isArray(cart) || cart.length === 0) {
     return;
   }
 
   const paymentError = document.getElementById('payment-error');
-  const submitFeedback = document.getElementById('submit-feedback');
-  if (submitFeedback) {
-    submitFeedback.textContent = '';
+  if (paymentError) {
+    paymentError.textContent = '';
   }
   const selectedPayment = getSelectedPaymentValue();
   if (!selectedPayment) {
@@ -980,53 +1167,66 @@ function submitCartOrder(cart) {
     return;
   }
 
-  if (paymentError) {
-    paymentError.textContent = '';
-  }
-
+  const { totalAmount } = getCartState(cart);
   const profile = readProfileForm();
   const substitutionPreference = getSelectedSubstitutionPreference();
+
   saveProfile(profile);
   savePreferredPayment(selectedPayment);
   saveSubstitutionPreference(substitutionPreference);
-  personalizationEngine.recordOrder(cart, profile, selectedPayment, substitutionPreference);
 
-  const lines = ['Hola, quiero confirmar este pedido:', ''];
-
-  cart.forEach((item) => {
-    const subtotal = item.price * item.quantity;
-    lines.push(item.name);
-    lines.push(`Cantidad: ${item.quantity}`);
-    lines.push(`Precio unitario: $${item.price.toLocaleString('es-CL')}`);
-    lines.push(`Subtotal: $${subtotal.toLocaleString('es-CL')}`);
-    lines.push('');
-  });
-
-  const { totalAmount } = getCartState(cart);
-  lines.push(`Total: $${totalAmount.toLocaleString('es-CL')}`);
-  lines.push(`Método de pago: ${selectedPayment}`);
-  lines.push(`Si no hay stock: ${substitutionPreference}`);
-  if (profile.deliveryNote) {
-    lines.push(`Nota de entrega: ${profile.deliveryNote}`);
-  }
-
-  const message = lines.join('\n');
-  syncProfileSummary(profile, loadLastOrder());
-  setRepeatButtonsState(loadLastOrder());
-  renderPersonalizedProducts();
-
-  const encodedMessage = encodeURIComponent(message);
-  trackAnalyticsEvent('whatsapp_checkout_submit', {
-    items: cart.length,
+  const message = buildWhatsAppMessageText(
+    cart,
     totalAmount,
-    paymentMethod: selectedPayment,
-    source: isMobileViewport() ? 'mobile' : 'desktop',
-  });
-  if (submitFeedback) {
-    submitFeedback.textContent =
-      'Abriremos WhatsApp con el resumen listo. Solo revisa y presiona enviar para confirmar.';
+    selectedPayment,
+    substitutionPreference,
+    profile.deliveryNote
+  );
+
+  pendingOrderData = {
+    message,
+    cart,
+    totalAmount,
+    selectedPayment,
+    profile,
+    substitutionPreference,
+  };
+
+  buildOrderConfirmSummary(
+    cart,
+    totalAmount,
+    selectedPayment,
+    substitutionPreference,
+    profile.deliveryNote
+  );
+  buildWhatsAppPreview(
+    cart,
+    totalAmount,
+    selectedPayment,
+    substitutionPreference,
+    profile.deliveryNote
+  );
+  showOrderConfirmationDialog();
+}
+
+function buildWhatsAppPreview(
+  cart,
+  totalAmount,
+  selectedPayment,
+  substitutionPreference,
+  deliveryNote
+) {
+  const preview = document.getElementById('order-confirm-preview');
+  if (!preview) {
+    return;
   }
-  globalThis.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`, '_blank');
+  preview.textContent = buildWhatsAppMessageText(
+    cart,
+    totalAmount,
+    selectedPayment,
+    substitutionPreference,
+    deliveryNote
+  );
 }
 
 function initHomeExperienceTelemetry() {
@@ -1362,6 +1562,37 @@ function initStorefront() {
     if (submitBtn) {
       event.preventDefault();
       submitCartOrder(cart);
+      return;
+    }
+
+    const confirmSendBtn = target.closest('#order-confirm-send');
+    if (confirmSendBtn) {
+      event.preventDefault();
+      const pending = pendingOrderData;
+      pendingOrderData = null;
+      executeSendOrder(pending);
+      return;
+    }
+
+    const markSentBtn = target.closest('#order-mark-sent');
+    if (markSentBtn) {
+      event.preventDefault();
+      markOrderAsSent();
+      return;
+    }
+
+    const dismissToastBtn = target.closest('#order-toast-dismiss');
+    if (dismissToastBtn) {
+      event.preventDefault();
+      hidePostSubmitToast();
+      return;
+    }
+
+    const orderConfirmClose = target.closest('[data-order-confirm-close]');
+    if (orderConfirmClose) {
+      event.preventDefault();
+      closeOrderConfirmationDialog();
+      pendingOrderData = null;
     }
   };
 
@@ -1441,6 +1672,27 @@ function initStorefront() {
   syncAllActionAreas(cart);
   renderPersonalizedProducts();
   initServiceOnboarding();
+
+  // Order confirmation dialog events
+  const orderConfirmDialog = document.getElementById('order-confirm-dialog');
+  if (orderConfirmDialog) {
+    orderConfirmDialog.addEventListener('close', () => {
+      orderConfirmDialog.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('service-dialog-open');
+      pendingOrderData = null;
+    });
+    orderConfirmDialog.addEventListener('cancel', () => {
+      orderConfirmDialog.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('service-dialog-open');
+      pendingOrderData = null;
+    });
+    orderConfirmDialog.addEventListener('click', (event) => {
+      if (event.target === orderConfirmDialog) {
+        closeOrderConfirmationDialog();
+        pendingOrderData = null;
+      }
+    });
+  }
   catalogController.resetVisibleLimit();
   catalogController.updateView();
   catalogController.setupPagination();
