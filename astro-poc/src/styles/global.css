@@ -1016,18 +1016,7 @@ body.service-dialog-open {
 .product-thumb {
   object-fit: cover;
   aspect-ratio: 1 / 1;
-  background: linear-gradient(90deg, #efeae3 25%, #f7f2ec 50%, #efeae3 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.3s ease-in-out infinite;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
+  background-color: var(--surface-color);
 }
 
 /* Discount badge */
@@ -2199,8 +2188,7 @@ body.service-dialog-open {
   #cart-count.cart-count-bump,
   .add-to-cart-btn.is-added,
   .quantity-changed,
-  #cart-total.cart-total-bump,
-  .product-thumb {
+  #cart-total.cart-total-bump {
     animation: none;
   }
 }
