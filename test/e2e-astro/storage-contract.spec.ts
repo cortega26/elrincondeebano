@@ -60,11 +60,16 @@ test('repeat-order flow keeps canonical last-order state usable after reload', a
   await page.locator('#submit-cart').click();
   await page.locator('#order-confirm-dialog').waitFor({ state: 'visible' });
   await page.locator('#order-confirm-send').click();
-
-  await page.waitForFunction(() => {
-    const lastOrder = JSON.parse(localStorage.getItem('astro-poc-last-order') || 'null');
-    return Array.isArray(lastOrder?.items) && lastOrder.items.length > 0;
-  });
+  // Wait for the dialog to close — proves executeSendOrder completed
+  await page.locator('#order-confirm-dialog').waitFor({ state: 'hidden', timeout: 10000 });
+  // Then verify localStorage was populated
+  await page.waitForFunction(
+    () => {
+      const lastOrder = JSON.parse(localStorage.getItem('astro-poc-last-order') || 'null');
+      return Array.isArray(lastOrder?.items) && lastOrder.items.length > 0;
+    },
+    { timeout: 15000 }
+  );
 
   await page.reload({ waitUntil: 'networkidle' });
   await waitForReady(page);
