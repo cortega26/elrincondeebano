@@ -362,7 +362,13 @@ function updateBadge(cart, { animate = false } = {}) {
   }
   const { totalItems } = getCartState(cart);
   badge.textContent = String(totalItems);
-  badge.setAttribute('aria-label', `${totalItems} productos en el carrito`);
+  const cartButton = document.getElementById('cart-icon');
+  if (cartButton) {
+    cartButton.setAttribute(
+      'aria-label',
+      `Carrito de compras — ${totalItems} ${totalItems === 1 ? 'producto' : 'productos'}`
+    );
+  }
   if (animate) {
     triggerTransientClass(badge, 'cart-count-bump');
   }
