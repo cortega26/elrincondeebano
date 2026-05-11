@@ -2619,6 +2619,17 @@ body.service-dialog-open {
   margin-top: 0;
 }
 
+/* Validation styles */
+.parking-field input.is-invalid {
+  border-color: #dc3545;
+}
+
+.parking-payment--invalid {
+  padding: 0.6rem 0.7rem;
+  border: 1px solid #dc3545;
+  border-radius: 12px;
+}
+
 @media (min-width: 576px) {
   .parking-dates {
     grid-template-columns: 1fr 1fr;

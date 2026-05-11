@@ -297,16 +297,13 @@ function validateForm() {
   var driver = document.getElementById('parking-driver');
   var plate = document.getElementById('parking-plate');
   var apt = document.getElementById('parking-apartment');
-  var submitBtn = document.getElementById('parking-submit');
 
   var datesOk = checkIn && checkOut && checkOut > checkIn;
   var aptOk = apt && /^\d{3,4}$/.test(apt.value.trim());
-  var paymentOk = !!getSelectedPayment();
-  var fieldsOk = driver && driver.value.trim() && plate && plate.value.trim() && aptOk && paymentOk;
+  var fieldsOk =
+    driver && driver.value.trim() && plate && plate.value.trim() && aptOk && !!getSelectedPayment();
 
-  if (submitBtn) {
-    submitBtn.disabled = !(datesOk && fieldsOk);
-  }
+  return datesOk && fieldsOk;
 }
 
 function onDateChange(holidays) {
@@ -333,6 +330,44 @@ function onDateChange(holidays) {
   validateForm();
 }
 
+function clearValidationErrors() {
+  var fields = ['parking-driver', 'parking-plate', 'parking-apartment'];
+  fields.forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.remove('is-invalid');
+  });
+  var paymentContainer = document.getElementById('parking-payment');
+  if (paymentContainer) paymentContainer.classList.remove('parking-payment--invalid');
+}
+
+function markValidationErrors() {
+  var hasError = false;
+
+  var driver = document.getElementById('parking-driver');
+  var plate = document.getElementById('parking-plate');
+  var apt = document.getElementById('parking-apartment');
+
+  if (!driver || !driver.value.trim()) {
+    if (driver) driver.classList.add('is-invalid');
+    hasError = true;
+  }
+  if (!plate || !plate.value.trim()) {
+    if (plate) plate.classList.add('is-invalid');
+    hasError = true;
+  }
+  if (!apt || !/^\d{3,4}$/.test(apt.value.trim())) {
+    if (apt) apt.classList.add('is-invalid');
+    hasError = true;
+  }
+  if (!getSelectedPayment()) {
+    var paymentContainer = document.getElementById('parking-payment');
+    if (paymentContainer) paymentContainer.classList.add('parking-payment--invalid');
+    hasError = true;
+  }
+
+  return hasError;
+}
+
 function onSubmit(holidays) {
   var checkIn = getDateFromInput('parking-checkin');
   var checkOut = getDateFromInput('parking-checkout');
@@ -344,16 +379,8 @@ function onSubmit(holidays) {
   var apt = document.getElementById('parking-apartment');
   var paymentMethod = getSelectedPayment();
 
-  if (
-    !driver ||
-    !driver.value.trim() ||
-    !plate ||
-    !plate.value.trim() ||
-    !apt ||
-    !/^\d{3,4}$/.test(apt.value.trim()) ||
-    !paymentMethod
-  )
-    return;
+  clearValidationErrors();
+  if (markValidationErrors()) return;
 
   var breakdown = calculateBreakdown(checkIn, checkOut, holidays);
   if (breakdown.length === 0) return;
@@ -420,7 +447,10 @@ function initParkingReservation() {
   var plateInput = document.getElementById('parking-plate');
   var aptInput = document.getElementById('parking-apartment');
 
-  function onFieldChange() {
+  function onFieldChange(e) {
+    if (e && e.target && e.target.classList) {
+      e.target.classList.remove('is-invalid');
+    }
     validateForm();
   }
 
@@ -430,7 +460,10 @@ function initParkingReservation() {
 
   var paymentRadios = document.querySelectorAll('input[name="parkingPayment"]');
   for (var i = 0; i < paymentRadios.length; i++) {
-    paymentRadios[i].addEventListener('change', onFieldChange);
+    paymentRadios[i].addEventListener('change', function () {
+      document.getElementById('parking-payment')?.classList.remove('parking-payment--invalid');
+      validateForm();
+    });
   }
 }
 
