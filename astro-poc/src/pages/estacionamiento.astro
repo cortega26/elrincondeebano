@@ -1,13 +1,13 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { createSharePreviewMetadata, DEFAULT_OG_IMAGE } from '../lib/seo';
+import { createSharePreviewMetadata } from '../lib/seo';
 
 const sharePreview = createSharePreviewMetadata({
   title: 'Estacionamiento | El Rincón de Ébano',
   description:
     'Reserva tu estacionamiento en el edificio Ébano por noche. Tarifas desde $4.000.',
   canonicalPath: '/estacionamiento/',
-  ogImage: DEFAULT_OG_IMAGE,
+  ogImage: '/assets/images/og/parking.og.jpg',
   ogImageAlt: 'Estacionamiento El Rincón de Ébano',
 });
 ---
