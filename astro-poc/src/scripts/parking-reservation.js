@@ -179,13 +179,10 @@ function renderBreakdown(breakdown) {
   var container = document.getElementById('parking-breakdown');
   var list = document.getElementById('parking-breakdown-list');
   var totalEl = document.getElementById('parking-total');
-  var submitBtn = document.getElementById('parking-submit');
-
   if (!container || !list || !totalEl) return;
 
   if (breakdown.length === 0) {
     container.classList.add('is-hidden');
-    if (submitBtn) submitBtn.disabled = true;
     return;
   }
 
@@ -262,12 +259,10 @@ function clearBreakdown() {
   var container = document.getElementById('parking-breakdown');
   var list = document.getElementById('parking-breakdown-list');
   var totalEl = document.getElementById('parking-total');
-  var submitBtn = document.getElementById('parking-submit');
 
   if (container) container.classList.add('is-hidden');
   if (list) list.innerHTML = '';
   if (totalEl) totalEl.textContent = '';
-  if (submitBtn) submitBtn.disabled = true;
 }
 
 function setStatusMessage(text, type) {
@@ -372,7 +367,10 @@ function onSubmit(holidays) {
   var checkIn = getDateFromInput('parking-checkin');
   var checkOut = getDateFromInput('parking-checkout');
 
-  if (!checkIn || !checkOut || checkOut <= checkIn) return;
+  if (!checkIn || !checkOut || checkOut <= checkIn) {
+    setStatusMessage('Selecciona las fechas de llegada y salida.', 'alert-warning');
+    return;
+  }
 
   var driver = document.getElementById('parking-driver');
   var plate = document.getElementById('parking-plate');
@@ -380,8 +378,12 @@ function onSubmit(holidays) {
   var paymentMethod = getSelectedPayment();
 
   clearValidationErrors();
-  if (markValidationErrors()) return;
+  if (markValidationErrors()) {
+    setStatusMessage('Completa todos los campos obligatorios antes de enviar.', 'alert-warning');
+    return;
+  }
 
+  setStatusMessage('', '');
   var breakdown = calculateBreakdown(checkIn, checkOut, holidays);
   if (breakdown.length === 0) return;
 
@@ -451,6 +453,7 @@ function initParkingReservation() {
     if (e && e.target && e.target.classList) {
       e.target.classList.remove('is-invalid');
     }
+    setStatusMessage('', '');
     validateForm();
   }
 
@@ -462,6 +465,7 @@ function initParkingReservation() {
   for (var i = 0; i < paymentRadios.length; i++) {
     paymentRadios[i].addEventListener('change', function () {
       document.getElementById('parking-payment')?.classList.remove('parking-payment--invalid');
+      setStatusMessage('', '');
       validateForm();
     });
   }
