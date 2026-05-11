@@ -28,6 +28,7 @@ export interface Props {
   ogType?: string;
   sharePreview?: SharePreviewMetadata;
   showTrustStrip?: boolean;
+  hideCartShortcut?: boolean;
 }
 
 const {
@@ -43,6 +44,7 @@ const {
   ogType = 'website',
   sharePreview,
   showTrustStrip = true,
+  hideCartShortcut = false,
 } = Astro.props;
 
 const navGroups = getNavigationGroups();
@@ -98,7 +100,7 @@ const resolvedSharePreview =
         <slot />
       </div>
     </main>
-    <button id="mobile-cart-shortcut" class="mobile-cart-shortcut is-hidden" type="button" aria-label="Ver pedido">
+    <button id="mobile-cart-shortcut" class:list={['mobile-cart-shortcut', 'is-hidden', hideCartShortcut && 'mobile-cart-shortcut--disabled']} type="button" aria-label="Ver pedido">
       Ver pedido
     </button>
     <div id="offline-indicator" aria-live="assertive" class="alert alert-warning is-hidden" role="alert">
