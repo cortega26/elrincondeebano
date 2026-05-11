@@ -42,8 +42,7 @@ test.describe('cart state persistence', () => {
 
     const badge = page.getByTestId('cart-badge');
 
-    await page
-      .getByRole('listitem')
+    await page.getByRole('listitem')
       .filter({ hasText: 'Wireless Headphones' })
       .getByRole('button', { name: 'Add' })
       .click();
@@ -386,7 +385,9 @@ export default defineConfig({
     trace: 'on-first-retry',
     ctPort: 3100,
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+  ],
 });
 ```
 
@@ -460,12 +461,12 @@ export default defineConfig({
 
 ### CRA vs Vite Differences
 
-| Aspect           | Create React App             | Vite                           |
-| ---------------- | ---------------------------- | ------------------------------ |
-| Default port     | `3000`                       | `5173`                         |
-| Build output     | `build/`                     | `dist/`                        |
+| Aspect | Create React App | Vite |
+|---|---|---|
+| Default port | `3000` | `5173` |
+| Build output | `build/` | `dist/` |
 | Serve production | `npx serve -s build -l 3000` | `npx vite preview --port 5173` |
-| Env var prefix   | `REACT_APP_*`                | `VITE_*`                       |
+| Env var prefix | `REACT_APP_*` | `VITE_*` |
 
 ## Framework Tips
 
@@ -510,15 +511,15 @@ test('no unmounted state warnings', async ({ page }) => {
 
 ## Anti-Patterns
 
-| Don't                                          | Problem                             | Do Instead                                                  |
-| ---------------------------------------------- | ----------------------------------- | ----------------------------------------------------------- |
-| `page.evaluate(() => store.getState())`        | Couples tests to implementation     | Assert on UI: `expect(badge).toHaveText('3')`               |
-| Import components in E2E tests                 | E2E runs in Node, not browser       | Use `@playwright/experimental-ct-react` for components      |
-| `page.waitForTimeout(500)` after state changes | Timing varies across machines       | `expect(locator).toHaveText('value')` auto-retries          |
-| `page.locator('.MuiButton-root')`              | Class names change between versions | `page.getByRole('button', { name: 'Submit' })`              |
-| Test every component with CT                   | Overhead for simple components      | CT for complex widgets, unit tests for logic, E2E for flows |
-| Skip keyboard navigation tests                 | Accessibility regressions common    | Test Tab, Enter, Escape, Arrow interactions                 |
-| Assert on `__REACT_FIBER__` internals          | Not stable across versions          | Only interact with rendered DOM                             |
+| Don't | Problem | Do Instead |
+|---|---|---|
+| `page.evaluate(() => store.getState())` | Couples tests to implementation | Assert on UI: `expect(badge).toHaveText('3')` |
+| Import components in E2E tests | E2E runs in Node, not browser | Use `@playwright/experimental-ct-react` for components |
+| `page.waitForTimeout(500)` after state changes | Timing varies across machines | `expect(locator).toHaveText('value')` auto-retries |
+| `page.locator('.MuiButton-root')` | Class names change between versions | `page.getByRole('button', { name: 'Submit' })` |
+| Test every component with CT | Overhead for simple components | CT for complex widgets, unit tests for logic, E2E for flows |
+| Skip keyboard navigation tests | Accessibility regressions common | Test Tab, Enter, Escape, Arrow interactions |
+| Assert on `__REACT_FIBER__` internals | Not stable across versions | Only interact with rendered DOM |
 
 ## Related
 

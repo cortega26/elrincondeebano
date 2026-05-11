@@ -158,8 +158,8 @@ test('reorder persists after reload', async ({ page }) => {
 
   await priorityC.dragTo(priorityA);
 
-  await page.waitForResponse(
-    (response) => response.url().includes('/api/priorities/reorder') && response.status() === 200
+  await page.waitForResponse((response) =>
+    response.url().includes('/api/priorities/reorder') && response.status() === 200
   );
 
   await page.reload();
@@ -387,7 +387,9 @@ test('constrains drag within boundaries', async ({ page }) => {
 
   expect(shapeBox!.x).toBeGreaterThanOrEqual(containerBox!.x);
   expect(shapeBox!.y).toBeGreaterThanOrEqual(containerBox!.y);
-  expect(shapeBox!.x + shapeBox!.width).toBeLessThanOrEqual(containerBox!.x + containerBox!.width);
+  expect(shapeBox!.x + shapeBox!.width).toBeLessThanOrEqual(
+    containerBox!.x + containerBox!.width
+  );
   expect(shapeBox!.y + shapeBox!.height).toBeLessThanOrEqual(
     containerBox!.y + containerBox!.height
   );
@@ -441,9 +443,11 @@ test('shows custom drag preview', async ({ page }) => {
   await expect(page.locator('.drag-preview')).toBeVisible();
   await expect(card).toHaveClass(/dragging|placeholder/);
 
-  await page.mouse.move(targetBox!.x + targetBox!.width / 2, targetBox!.y + targetBox!.height / 2, {
-    steps: 5,
-  });
+  await page.mouse.move(
+    targetBox!.x + targetBox!.width / 2,
+    targetBox!.y + targetBox!.height / 2,
+    { steps: 5 }
+  );
   await page.mouse.up();
 
   await expect(page.locator('.drag-preview')).not.toBeVisible();

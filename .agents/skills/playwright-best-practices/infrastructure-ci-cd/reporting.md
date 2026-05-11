@@ -51,22 +51,25 @@ export default defineConfig({
         ['junit', { outputFile: 'results/junit.xml' }],
         ['github'],
       ]
-    : [['list'], ['html', { open: 'on-failure' }]],
+    : [
+        ['list'],
+        ['html', { open: 'on-failure' }],
+      ],
 });
 ```
 
 ### Reporter Types
 
-| Reporter | Output                | Use Case            |
-| -------- | --------------------- | ------------------- |
-| `list`   | One line per test     | Local development   |
-| `line`   | Single updating line  | Local, less verbose |
-| `dot`    | `.` pass, `F` fail    | CI logs             |
-| `html`   | Interactive HTML page | Post-run analysis   |
-| `json`   | Machine-readable JSON | Custom tooling      |
-| `junit`  | JUnit XML             | CI platforms        |
-| `github` | PR annotations        | GitHub Actions      |
-| `blob`   | Binary archive        | Shard merging       |
+| Reporter | Output | Use Case |
+|---|---|---|
+| `list` | One line per test | Local development |
+| `line` | Single updating line | Local, less verbose |
+| `dot` | `.` pass, `F` fail | CI logs |
+| `html` | Interactive HTML page | Post-run analysis |
+| `json` | Machine-readable JSON | Custom tooling |
+| `junit` | JUnit XML | CI platforms |
+| `github` | PR annotations | GitHub Actions |
+| `blob` | Binary archive | Shard merging |
 
 ### JSON Output to File
 
@@ -74,7 +77,9 @@ export default defineConfig({
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
-  reporter: [['json', { outputFile: 'results/output.json' }]],
+  reporter: [
+    ['json', { outputFile: 'results/output.json' }],
+  ],
 });
 ```
 
@@ -85,14 +90,11 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   reporter: [
-    [
-      'junit',
-      {
-        outputFile: 'results/junit.xml',
-        stripANSIControlSequences: true,
-        includeProjectInTestName: true,
-      },
-    ],
+    ['junit', {
+      outputFile: 'results/junit.xml',
+      stripANSIControlSequences: true,
+      includeProjectInTestName: true,
+    }],
   ],
 });
 ```
@@ -103,7 +105,12 @@ Build custom reporters for Slack notifications, database logging, or dashboards.
 
 ```typescript
 // reporters/notification-reporter.ts
-import type { FullResult, Reporter, TestCase, TestResult } from '@playwright/test/reporter';
+import type {
+  FullResult,
+  Reporter,
+  TestCase,
+  TestResult,
+} from '@playwright/test/reporter';
 
 class NotificationReporter implements Reporter {
   private passed = 0;
@@ -174,7 +181,11 @@ export default NotificationReporter;
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
-  reporter: [['dot'], ['html', { open: 'never' }], ['./reporters/notification-reporter.ts']],
+  reporter: [
+    ['dot'],
+    ['html', { open: 'never' }],
+    ['./reporters/notification-reporter.ts'],
+  ],
 });
 ```
 
@@ -195,13 +206,13 @@ export default defineConfig({
 
 ### Trace Options
 
-| Value                       | Behavior                         | Overhead |
-| --------------------------- | -------------------------------- | -------- |
-| `'off'`                     | Never records                    | None     |
-| `'on'`                      | Every test                       | High     |
-| `'on-first-retry'`          | On first retry after failure     | Minimal  |
-| `'retain-on-failure'`       | Records all, keeps failures      | Medium   |
-| `'retain-on-first-failure'` | Records all, keeps first failure | Medium   |
+| Value | Behavior | Overhead |
+|---|---|---|
+| `'off'` | Never records | None |
+| `'on'` | Every test | High |
+| `'on-first-retry'` | On first retry after failure | Minimal |
+| `'retain-on-failure'` | Records all, keeps failures | Medium |
+| `'retain-on-first-failure'` | Records all, keeps first failure | Medium |
 
 ### Viewing Traces
 
@@ -241,20 +252,20 @@ use: {
 
 ### Screenshot Options
 
-| Value               | Captures     | Disk Cost |
-| ------------------- | ------------ | --------- |
-| `'off'`             | Never        | None      |
-| `'on'`              | Every test   | High      |
-| `'only-on-failure'` | Failed tests | Low       |
+| Value | Captures | Disk Cost |
+|---|---|---|
+| `'off'` | Never | None |
+| `'on'` | Every test | High |
+| `'only-on-failure'` | Failed tests | Low |
 
 ### Video Options
 
-| Value                 | Records    | Keeps   | Disk Cost |
-| --------------------- | ---------- | ------- | --------- |
-| `'off'`               | Never      | —       | None      |
-| `'on'`                | Every test | All     | Very high |
-| `'on-first-retry'`    | On retry   | Retried | Low       |
-| `'retain-on-failure'` | Every test | Failed  | Medium    |
+| Value | Records | Keeps | Disk Cost |
+|---|---|---|---|
+| `'off'` | Never | — | None |
+| `'on'` | Every test | All | Very high |
+| `'on-first-retry'` | On retry | Retried | Low |
+| `'retain-on-failure'` | Every test | Failed | Medium |
 
 ## Artifact Directory Structure
 
@@ -302,36 +313,36 @@ blob-report/
 
 ## Decision Guide
 
-| Scenario               | Reporter Configuration                                |
-| ---------------------- | ----------------------------------------------------- |
-| Local development      | `[['list'], ['html', { open: 'on-failure' }]]`        |
-| GitHub Actions         | `[['dot'], ['html'], ['github']]`                     |
-| GitLab CI              | `[['dot'], ['html'], ['junit']]`                      |
-| Azure DevOps / Jenkins | `[['dot'], ['html'], ['junit']]`                      |
-| Sharded CI             | `[['blob'], ['github']]`                              |
-| Custom dashboard       | `[['json', { outputFile: '...' }]]` + custom reporter |
+| Scenario | Reporter Configuration |
+|---|---|
+| Local development | `[['list'], ['html', { open: 'on-failure' }]]` |
+| GitHub Actions | `[['dot'], ['html'], ['github']]` |
+| GitLab CI | `[['dot'], ['html'], ['junit']]` |
+| Azure DevOps / Jenkins | `[['dot'], ['html'], ['junit']]` |
+| Sharded CI | `[['blob'], ['github']]` |
+| Custom dashboard | `[['json', { outputFile: '...' }]]` + custom reporter |
 
-| Artifact    | When to Collect  | Retention | Upload Condition          |
-| ----------- | ---------------- | --------- | ------------------------- |
-| HTML report | Always           | 14 days   | `if: ${{ !cancelled() }}` |
-| Traces      | On failure       | 7 days    | `if: failure()`           |
-| Screenshots | On failure       | 7 days    | `if: failure()`           |
-| Videos      | On failure       | 7 days    | `if: failure()`           |
-| JUnit XML   | Always           | 14 days   | `if: ${{ !cancelled() }}` |
-| Blob report | Always (sharded) | 1 day     | `if: ${{ !cancelled() }}` |
+| Artifact | When to Collect | Retention | Upload Condition |
+|---|---|---|---|
+| HTML report | Always | 14 days | `if: ${{ !cancelled() }}` |
+| Traces | On failure | 7 days | `if: failure()` |
+| Screenshots | On failure | 7 days | `if: failure()` |
+| Videos | On failure | 7 days | `if: failure()` |
+| JUnit XML | Always | 14 days | `if: ${{ !cancelled() }}` |
+| Blob report | Always (sharded) | 1 day | `if: ${{ !cancelled() }}` |
 
 ## Anti-Patterns
 
-| Anti-Pattern                        | Problem                                   | Solution                              |
-| ----------------------------------- | ----------------------------------------- | ------------------------------------- |
-| No reporter configured              | Default `list` only; no persistent report | Configure `html` + CI reporter        |
-| `trace: 'on'` in CI                 | Massive artifacts, slow uploads           | Use `trace: 'on-first-retry'`         |
-| `video: 'on'` in CI                 | Enormous storage, slower tests            | Use `video: 'retain-on-failure'`      |
-| Upload artifacts only on failure    | No report when tests pass                 | Upload with `if: ${{ !cancelled() }}` |
-| No retention limits                 | CI storage fills quickly                  | Set `retention-days: 7-14`            |
-| Only `dot` reporter                 | Cannot drill into failures                | Pair `dot` with `html`                |
-| JUnit to stdout                     | Interferes with console output            | Write to file                         |
-| Blocking `onEnd` in custom reporter | Slow HTTP calls delay pipeline            | Use `Promise.race` with timeout       |
+| Anti-Pattern | Problem | Solution |
+|---|---|---|
+| No reporter configured | Default `list` only; no persistent report | Configure `html` + CI reporter |
+| `trace: 'on'` in CI | Massive artifacts, slow uploads | Use `trace: 'on-first-retry'` |
+| `video: 'on'` in CI | Enormous storage, slower tests | Use `video: 'retain-on-failure'` |
+| Upload artifacts only on failure | No report when tests pass | Upload with `if: ${{ !cancelled() }}` |
+| No retention limits | CI storage fills quickly | Set `retention-days: 7-14` |
+| Only `dot` reporter | Cannot drill into failures | Pair `dot` with `html` |
+| JUnit to stdout | Interferes with console output | Write to file |
+| Blocking `onEnd` in custom reporter | Slow HTTP calls delay pipeline | Use `Promise.race` with timeout |
 
 ## Troubleshooting
 
@@ -394,7 +405,9 @@ Use `blob` reporter for sharded runs (not `html`):
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
-  reporter: process.env.CI ? [['blob'], ['dot']] : [['html', { open: 'on-failure' }]],
+  reporter: process.env.CI
+    ? [['blob'], ['dot']]
+    : [['html', { open: 'on-failure' }]],
 });
 ```
 

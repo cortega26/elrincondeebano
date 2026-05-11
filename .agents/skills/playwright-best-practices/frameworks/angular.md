@@ -357,7 +357,9 @@ test('lazy module loads without chunk errors', async ({ page }) => {
 
   await page.goto('/');
 
-  const chunkRequest = page.waitForResponse((r) => r.url().includes('.js') && r.status() === 200);
+  const chunkRequest = page.waitForResponse((r) =>
+    r.url().includes('.js') && r.status() === 200
+  );
   await page.getByRole('link', { name: 'Analytics' }).click();
   await chunkRequest;
 
@@ -394,8 +396,7 @@ test.describe('signals through UI', () => {
     await expect(page.getByTestId('total')).toHaveText('$0.00');
 
     await page.goto('/catalog');
-    await page
-      .getByRole('listitem')
+    await page.getByRole('listitem')
       .filter({ hasText: '$19.99' })
       .getByRole('button', { name: 'Add' })
       .click();
@@ -474,27 +475,27 @@ test('no hydration errors', async ({ page }) => {
 
 ## Protractor Migration Reference
 
-| Protractor                              | Playwright                                     |
-| --------------------------------------- | ---------------------------------------------- |
-| `element(by.css('.btn'))`               | `page.getByRole('button', { name: '...' })`    |
-| `element(by.id('login'))`               | `page.getByTestId('login')`                    |
-| `element(by.buttonText('Submit'))`      | `page.getByRole('button', { name: 'Submit' })` |
-| `element(by.model('user.name'))`        | `page.getByLabel('Name')`                      |
-| `element(by.binding('user.name'))`      | `page.getByText(expectedValue)`                |
-| `element(by.repeater('item in items'))` | `page.getByRole('listitem')`                   |
-| `browser.waitForAngular()`              | Not needed — Playwright auto-waits             |
-| `browser.sleep(3000)`                   | `await expect(locator).toBeVisible()`          |
-| `browser.get('/path')`                  | `await page.goto('/path')`                     |
-| `protractor.ExpectedConditions`         | `await expect(locator).toBeVisible()`          |
+| Protractor | Playwright |
+|---|---|
+| `element(by.css('.btn'))` | `page.getByRole('button', { name: '...' })` |
+| `element(by.id('login'))` | `page.getByTestId('login')` |
+| `element(by.buttonText('Submit'))` | `page.getByRole('button', { name: 'Submit' })` |
+| `element(by.model('user.name'))` | `page.getByLabel('Name')` |
+| `element(by.binding('user.name'))` | `page.getByText(expectedValue)` |
+| `element(by.repeater('item in items'))` | `page.getByRole('listitem')` |
+| `browser.waitForAngular()` | Not needed — Playwright auto-waits |
+| `browser.sleep(3000)` | `await expect(locator).toBeVisible()` |
+| `browser.get('/path')` | `await page.goto('/path')` |
+| `protractor.ExpectedConditions` | `await expect(locator).toBeVisible()` |
 
 ## Build Configurations
 
-| Scenario      | Command                                                       | Notes                          |
-| ------------- | ------------------------------------------------------------- | ------------------------------ |
-| Local dev     | `npx ng serve`                                                | Fast rebuild, source maps      |
-| CI production | `npx ng build && npx http-server dist/app/browser -p 4200 -s` | Tests production bundle        |
-| CI SSR        | `npx ng build --ssr && node dist/app/server/server.mjs`       | Tests server-side rendering    |
-| Staging       | No `webServer`                                                | Point `baseURL` to staging URL |
+| Scenario | Command | Notes |
+|---|---|---|
+| Local dev | `npx ng serve` | Fast rebuild, source maps |
+| CI production | `npx ng build && npx http-server dist/app/browser -p 4200 -s` | Tests production bundle |
+| CI SSR | `npx ng build --ssr && node dist/app/server/server.mjs` | Tests server-side rendering |
+| Staging | No `webServer` | Point `baseURL` to staging URL |
 
 The `-s` flag on `http-server` enables SPA fallback for Angular Router.
 
@@ -510,16 +511,16 @@ const listbox = page.getByRole('listbox');
 
 ## Anti-Patterns
 
-| Anti-Pattern                         | Problem                                        | Solution                                           |
-| ------------------------------------ | ---------------------------------------------- | -------------------------------------------------- |
-| `page.locator('[_ngcontent-xyz]')`   | Scoped style attributes change every build     | Use `getByRole`, `getByLabel`, `getByTestId`       |
-| `page.locator('[ng-reflect-model]')` | Only exists in dev mode                        | Test rendered value: `expect(input).toHaveValue()` |
-| `page.locator('app-my-component')`   | Component selectors are implementation details | Target rendered content with semantic locators     |
-| `page.locator('.mat-mdc-button')`    | Material classes change between versions       | `page.getByRole('button', { name: '...' })`        |
-| `page.evaluate(() => window.ng)`     | Not available in production builds             | Test through the DOM                               |
-| `await page.waitForTimeout(500)`     | Zone.js timing varies                          | Use auto-retrying assertions                       |
-| `browser.waitForAngular()`           | Does not exist in Playwright                   | Remove entirely                                    |
-| `ng serve` in CI                     | Slower, includes debug code                    | Use `ng build && http-server`                      |
+| Anti-Pattern | Problem | Solution |
+|---|---|---|
+| `page.locator('[_ngcontent-xyz]')` | Scoped style attributes change every build | Use `getByRole`, `getByLabel`, `getByTestId` |
+| `page.locator('[ng-reflect-model]')` | Only exists in dev mode | Test rendered value: `expect(input).toHaveValue()` |
+| `page.locator('app-my-component')` | Component selectors are implementation details | Target rendered content with semantic locators |
+| `page.locator('.mat-mdc-button')` | Material classes change between versions | `page.getByRole('button', { name: '...' })` |
+| `page.evaluate(() => window.ng)` | Not available in production builds | Test through the DOM |
+| `await page.waitForTimeout(500)` | Zone.js timing varies | Use auto-retrying assertions |
+| `browser.waitForAngular()` | Does not exist in Playwright | Remove entirely |
+| `ng serve` in CI | Slower, includes debug code | Use `ng build && http-server` |
 
 ## Related
 

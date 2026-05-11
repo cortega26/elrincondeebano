@@ -23,7 +23,7 @@ interface User {
   id: string;
   email: string;
   name: string;
-  role: 'admin' | 'user' | 'guest';
+  role: "admin" | "user" | "guest";
   createdAt: Date;
 }
 
@@ -35,7 +35,7 @@ export function createUser(overrides: Partial<User> = {}): User {
     id: `user-${userIdCounter}`,
     email: `user${userIdCounter}@test.com`,
     name: `Test User ${userIdCounter}`,
-    role: 'user',
+    role: "user",
     createdAt: new Date(),
     ...overrides,
   };
@@ -43,7 +43,7 @@ export function createUser(overrides: Partial<User> = {}): User {
 
 // Usage
 const user = createUser();
-const admin = createUser({ role: 'admin', name: 'Admin User' });
+const admin = createUser({ role: "admin", name: "Admin User" });
 ```
 
 ### Factory with Traits
@@ -59,7 +59,7 @@ interface Product {
   featured: boolean;
 }
 
-type ProductTrait = 'outOfStock' | 'featured' | 'expensive' | 'sale';
+type ProductTrait = "outOfStock" | "featured" | "expensive" | "sale";
 
 const traits: Record<ProductTrait, Partial<Product>> = {
   outOfStock: { stock: 0 },
@@ -76,14 +76,17 @@ export function createProduct(
 ): Product {
   productIdCounter++;
 
-  const appliedTraits = traitNames.reduce((acc, trait) => ({ ...acc, ...traits[trait] }), {});
+  const appliedTraits = traitNames.reduce(
+    (acc, trait) => ({ ...acc, ...traits[trait] }),
+    {},
+  );
 
   return {
     id: `prod-${productIdCounter}`,
     name: `Product ${productIdCounter}`,
     price: 29.99,
     stock: 100,
-    category: 'General',
+    category: "General",
     featured: false,
     ...appliedTraits,
     ...overrides,
@@ -92,17 +95,17 @@ export function createProduct(
 
 // Usage
 const product = createProduct();
-const featuredProduct = createProduct({}, 'featured');
-const saleItem = createProduct({ name: 'Sale Item' }, 'sale', 'featured');
-const soldOut = createProduct({}, 'outOfStock');
+const featuredProduct = createProduct({}, "featured");
+const saleItem = createProduct({ name: "Sale Item" }, "sale", "featured");
+const soldOut = createProduct({}, "outOfStock");
 ```
 
 ### Factory with Relationships
 
 ```typescript
 // factories/order.factory.ts
-import { createUser, User } from './user.factory';
-import { createProduct, Product } from './product.factory';
+import { createUser, User } from "./user.factory";
+import { createProduct, Product } from "./product.factory";
 
 interface OrderItem {
   product: Product;
@@ -114,7 +117,7 @@ interface Order {
   user: User;
   items: OrderItem[];
   total: number;
-  status: 'pending' | 'paid' | 'shipped' | 'delivered';
+  status: "pending" | "paid" | "shipped" | "delivered";
 }
 
 let orderIdCounter = 0;
@@ -124,14 +127,17 @@ export function createOrder(overrides: Partial<Order> = {}): Order {
 
   const user = overrides.user ?? createUser();
   const items = overrides.items ?? [{ product: createProduct(), quantity: 1 }];
-  const total = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const total = items.reduce(
+    (sum, item) => sum + item.product.price * item.quantity,
+    0,
+  );
 
   return {
     id: `order-${orderIdCounter}`,
     user,
     items,
     total,
-    status: 'pending',
+    status: "pending",
     ...overrides,
   };
 }
@@ -156,7 +162,7 @@ npm install -D @faker-js/faker
 
 ```typescript
 // factories/faker-user.factory.ts
-import { faker } from '@faker-js/faker';
+import { faker } from "@faker-js/faker";
 
 interface User {
   id: string;
@@ -191,7 +197,7 @@ export function createFakeUser(overrides: Partial<User> = {}): User {
 ### Seeded Faker for Reproducibility
 
 ```typescript
-import { faker } from '@faker-js/faker';
+import { faker } from "@faker-js/faker";
 
 // Set seed for reproducible data
 faker.seed(12345);
@@ -206,7 +212,7 @@ export function createDeterministicUser(): User {
 }
 
 // Or seed per test
-test('user profile', async ({ page }) => {
+test("user profile", async ({ page }) => {
   faker.seed(42); // Reset seed for this test
   const user = createFakeUser();
   // user will always have the same data
@@ -217,8 +223,8 @@ test('user profile', async ({ page }) => {
 
 ```typescript
 // fixtures/faker.fixture.ts
-import { test as base } from '@playwright/test';
-import { faker } from '@faker-js/faker';
+import { test as base } from "@playwright/test";
+import { faker } from "@faker-js/faker";
 
 type FakerFixtures = {
   fake: typeof faker;
@@ -233,14 +239,14 @@ export const test = base.extend<FakerFixtures>({
 });
 
 // Usage
-test('create user with fake data', async ({ page, fake }) => {
-  await page.goto('/signup');
+test("create user with fake data", async ({ page, fake }) => {
+  await page.goto("/signup");
 
-  await page.getByLabel('Name').fill(fake.person.fullName());
-  await page.getByLabel('Email').fill(fake.internet.email());
-  await page.getByLabel('Password').fill(fake.internet.password());
+  await page.getByLabel("Name").fill(fake.person.fullName());
+  await page.getByLabel("Email").fill(fake.internet.email());
+  await page.getByLabel("Password").fill(fake.internet.password());
 
-  await page.getByRole('button', { name: 'Sign Up' }).click();
+  await page.getByRole("button", { name: "Sign Up" }).click();
 });
 ```
 
@@ -250,21 +256,21 @@ test('create user with fake data', async ({ page, fake }) => {
 
 ```typescript
 const loginScenarios = [
-  { email: 'user@example.com', password: 'pass123', expected: 'Dashboard' },
-  { email: 'admin@example.com', password: 'admin123', expected: 'Admin Panel' },
+  { email: "user@example.com", password: "pass123", expected: "Dashboard" },
+  { email: "admin@example.com", password: "admin123", expected: "Admin Panel" },
   {
-    email: 'invalid@example.com',
-    password: 'wrong',
-    expected: 'Invalid credentials',
+    email: "invalid@example.com",
+    password: "wrong",
+    expected: "Invalid credentials",
   },
 ];
 
 for (const { email, password, expected } of loginScenarios) {
   test(`login with ${email}`, async ({ page }) => {
-    await page.goto('/login');
-    await page.getByLabel('Email').fill(email);
-    await page.getByLabel('Password').fill(password);
-    await page.getByRole('button', { name: 'Sign In' }).click();
+    await page.goto("/login");
+    await page.getByLabel("Email").fill(email);
+    await page.getByLabel("Password").fill(password);
+    await page.getByRole("button", { name: "Sign In" }).click();
 
     await expect(page.getByText(expected)).toBeVisible();
   });
@@ -277,33 +283,33 @@ for (const { email, password, expected } of loginScenarios) {
 // data/checkout-scenarios.ts
 export const checkoutScenarios = [
   {
-    name: 'standard shipping',
-    shipping: 'standard',
-    expectedDays: '5-7 business days',
-    expectedCost: '$5.99',
+    name: "standard shipping",
+    shipping: "standard",
+    expectedDays: "5-7 business days",
+    expectedCost: "$5.99",
   },
   {
-    name: 'express shipping',
-    shipping: 'express',
-    expectedDays: '2-3 business days',
-    expectedCost: '$14.99',
+    name: "express shipping",
+    shipping: "express",
+    expectedDays: "2-3 business days",
+    expectedCost: "$14.99",
   },
   {
-    name: 'overnight shipping',
-    shipping: 'overnight',
-    expectedDays: 'Next business day',
-    expectedCost: '$29.99',
+    name: "overnight shipping",
+    shipping: "overnight",
+    expectedDays: "Next business day",
+    expectedCost: "$29.99",
   },
 ];
 ```
 
 ```typescript
-import { checkoutScenarios } from './data/checkout-scenarios';
+import { checkoutScenarios } from "./data/checkout-scenarios";
 
-test.describe('shipping options', () => {
+test.describe("shipping options", () => {
   for (const scenario of checkoutScenarios) {
     test(`checkout with ${scenario.name}`, async ({ page }) => {
-      await page.goto('/checkout');
+      await page.goto("/checkout");
 
       await page.getByLabel(scenario.shipping, { exact: false }).check();
 
@@ -317,7 +323,7 @@ test.describe('shipping options', () => {
 ### CSV/JSON Data Source
 
 ```typescript
-import fs from 'fs';
+import fs from "fs";
 
 interface TestCase {
   input: string;
@@ -325,14 +331,16 @@ interface TestCase {
 }
 
 // Load test data from JSON
-const testCases: TestCase[] = JSON.parse(fs.readFileSync('./data/search-tests.json', 'utf-8'));
+const testCases: TestCase[] = JSON.parse(
+  fs.readFileSync("./data/search-tests.json", "utf-8"),
+);
 
-test.describe('search functionality', () => {
+test.describe("search functionality", () => {
   for (const { input, expected } of testCases) {
     test(`search for "${input}"`, async ({ page }) => {
-      await page.goto('/search');
-      await page.getByLabel('Search').fill(input);
-      await page.getByLabel('Search').press('Enter');
+      await page.goto("/search");
+      await page.getByLabel("Search").fill(input);
+      await page.getByLabel("Search").press("Enter");
 
       await expect(page.getByText(expected)).toBeVisible();
     });
@@ -346,9 +354,9 @@ test.describe('search functionality', () => {
 
 ```typescript
 // fixtures/data.fixture.ts
-import { test as base } from '@playwright/test';
-import { createUser, User } from '../factories/user.factory';
-import { createProduct, Product } from '../factories/product.factory';
+import { test as base } from "@playwright/test";
+import { createUser, User } from "../factories/user.factory";
+import { createProduct, Product } from "../factories/product.factory";
 
 type DataFixtures = {
   testUser: User;
@@ -357,27 +365,29 @@ type DataFixtures = {
 
 export const test = base.extend<DataFixtures>({
   testUser: async ({}, use) => {
-    const user = createUser({ name: 'E2E Test User' });
+    const user = createUser({ name: "E2E Test User" });
     await use(user);
   },
 
   testProducts: async ({}, use) => {
     const products = [
-      createProduct({ name: 'Test Product 1' }),
-      createProduct({ name: 'Test Product 2' }),
-      createProduct({ name: 'Test Product 3' }),
+      createProduct({ name: "Test Product 1" }),
+      createProduct({ name: "Test Product 2" }),
+      createProduct({ name: "Test Product 3" }),
     ];
     await use(products);
   },
 });
 
 // Usage
-test('add product to cart', async ({ page, testUser, testProducts }) => {
+test("add product to cart", async ({ page, testUser, testProducts }) => {
   // Mock API with test data
-  await page.route('**/api/user', (route) => route.fulfill({ json: testUser }));
-  await page.route('**/api/products', (route) => route.fulfill({ json: testProducts }));
+  await page.route("**/api/user", (route) => route.fulfill({ json: testUser }));
+  await page.route("**/api/products", (route) =>
+    route.fulfill({ json: testProducts }),
+  );
 
-  await page.goto('/products');
+  await page.goto("/products");
   await expect(page.getByText(testProducts[0].name)).toBeVisible();
 });
 ```
@@ -388,8 +398,8 @@ test('add product to cart', async ({ page, testUser, testProducts }) => {
 
 ```typescript
 // fixtures/seed.fixture.ts
-import { test as base, APIRequestContext } from '@playwright/test';
-import { createUser } from '../factories/user.factory';
+import { test as base, APIRequestContext } from "@playwright/test";
+import { createUser } from "../factories/user.factory";
 
 type SeedFixtures = {
   seedUser: (overrides?: Partial<User>) => Promise<User>;
@@ -403,7 +413,7 @@ export const test = base.extend<SeedFixtures>({
     await use(async (overrides = {}) => {
       const userData = createUser(overrides);
 
-      const response = await request.post('/api/test/users', {
+      const response = await request.post("/api/test/users", {
         data: userData,
       });
       const user = await response.json();
@@ -426,11 +436,11 @@ export const test = base.extend<SeedFixtures>({
 });
 
 // Usage
-test('user profile page', async ({ page, seedUser }) => {
-  const user = await seedUser({ name: 'John Doe' });
+test("user profile page", async ({ page, seedUser }) => {
+  const user = await seedUser({ name: "John Doe" });
 
   await page.goto(`/users/${user.id}`);
-  await expect(page.getByText('John Doe')).toBeVisible();
+  await expect(page.getByText("John Doe")).toBeVisible();
 });
 ```
 
@@ -442,7 +452,7 @@ export const test = base.extend<{}, { db: DbTransaction }>({
   db: [
     async ({}, use) => {
       const client = await pool.connect();
-      await client.query('BEGIN');
+      await client.query("BEGIN");
 
       await use({
         query: (sql: string, params?: any[]) => client.query(sql, params),
@@ -452,17 +462,17 @@ export const test = base.extend<{}, { db: DbTransaction }>({
           const placeholders = keys.map((_, i) => `$${i + 1}`);
 
           const result = await client.query(
-            `INSERT INTO ${table} (${keys.join(', ')}) VALUES (${placeholders.join(', ')}) RETURNING *`,
-            values
+            `INSERT INTO ${table} (${keys.join(", ")}) VALUES (${placeholders.join(", ")}) RETURNING *`,
+            values,
           );
           return result.rows[0];
         },
       });
 
-      await client.query('ROLLBACK');
+      await client.query("ROLLBACK");
       client.release();
     },
-    { scope: 'test' },
+    { scope: "test" },
   ],
 });
 ```

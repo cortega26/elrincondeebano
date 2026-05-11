@@ -309,9 +309,7 @@ test('logs out and clears session', async ({ page, context }) => {
   await expect(page).toHaveURL('/signin');
 
   const cookies = await context.cookies();
-  const sessionCookies = cookies.filter(
-    (c) => c.name.includes('session') || c.name.includes('token')
-  );
+  const sessionCookies = cookies.filter((c) => c.name.includes('session') || c.name.includes('token'));
   expect(sessionCookies).toHaveLength(0);
 
   await page.goto('/home');

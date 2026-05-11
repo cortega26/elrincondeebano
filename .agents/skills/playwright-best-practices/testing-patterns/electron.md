@@ -22,13 +22,13 @@ npm install -D @playwright/test electron
 
 ```typescript
 // playwright.config.ts
-import { defineConfig } from '@playwright/test';
+import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
-  testDir: './tests',
+  testDir: "./tests",
   timeout: 30000,
   use: {
-    trace: 'on-first-retry',
+    trace: "on-first-retry",
   },
 });
 ```
@@ -37,7 +37,12 @@ export default defineConfig({
 
 ```typescript
 // fixtures/electron.ts
-import { test as base, _electron as electron, ElectronApplication, Page } from '@playwright/test';
+import {
+  test as base,
+  _electron as electron,
+  ElectronApplication,
+  Page,
+} from "@playwright/test";
 
 type ElectronFixtures = {
   electronApp: ElectronApplication;
@@ -48,10 +53,10 @@ export const test = base.extend<ElectronFixtures>({
   electronApp: async ({}, use) => {
     // Launch Electron app
     const electronApp = await electron.launch({
-      args: ['.', '--no-sandbox'],
+      args: [".", "--no-sandbox"],
       env: {
         ...process.env,
-        NODE_ENV: 'test',
+        NODE_ENV: "test",
       },
     });
 
@@ -66,13 +71,13 @@ export const test = base.extend<ElectronFixtures>({
     const window = await electronApp.firstWindow();
 
     // Wait for app to be ready
-    await window.waitForLoadState('domcontentloaded');
+    await window.waitForLoadState("domcontentloaded");
 
     await use(window);
   },
 });
 
-export { expect } from '@playwright/test';
+export { expect } from "@playwright/test";
 ```
 
 ### Launch Options
@@ -80,16 +85,16 @@ export { expect } from '@playwright/test';
 ```typescript
 // Advanced launch configuration
 const electronApp = await electron.launch({
-  args: ['main.js', '--custom-flag'],
-  cwd: '/path/to/app',
+  args: ["main.js", "--custom-flag"],
+  cwd: "/path/to/app",
   env: {
     ...process.env,
-    ELECTRON_ENABLE_LOGGING: '1',
-    NODE_ENV: 'test',
+    ELECTRON_ENABLE_LOGGING: "1",
+    NODE_ENV: "test",
   },
   timeout: 30000,
   // For packaged apps
-  executablePath: '/path/to/MyApp.app/Contents/MacOS/MyApp',
+  executablePath: "/path/to/MyApp.app/Contents/MacOS/MyApp",
 });
 ```
 
@@ -98,13 +103,13 @@ const electronApp = await electron.launch({
 ### Development Mode
 
 ```typescript
-test('launch in dev mode', async () => {
+test("launch in dev mode", async () => {
   const electronApp = await electron.launch({
-    args: ['.'], // Points to package.json main
+    args: ["."], // Points to package.json main
   });
 
   const window = await electronApp.firstWindow();
-  await expect(window.locator('h1')).toContainText('My App');
+  await expect(window.locator("h1")).toContainText("My App");
 
   await electronApp.close();
 });
@@ -113,13 +118,13 @@ test('launch in dev mode', async () => {
 ### Packaged Application
 
 ```typescript
-test('launch packaged app', async () => {
+test("launch packaged app", async () => {
   const appPath =
-    process.platform === 'darwin'
-      ? '/Applications/MyApp.app/Contents/MacOS/MyApp'
-      : process.platform === 'win32'
-        ? 'C:\\Program Files\\MyApp\\MyApp.exe'
-        : '/usr/bin/myapp';
+    process.platform === "darwin"
+      ? "/Applications/MyApp.app/Contents/MacOS/MyApp"
+      : process.platform === "win32"
+        ? "C:\\Program Files\\MyApp\\MyApp.exe"
+        : "/usr/bin/myapp";
 
   const electronApp = await electron.launch({
     executablePath: appPath,
@@ -135,18 +140,18 @@ test('launch packaged app', async () => {
 ### Multiple Windows
 
 ```typescript
-test('handle multiple windows', async ({ electronApp }) => {
+test("handle multiple windows", async ({ electronApp }) => {
   const mainWindow = await electronApp.firstWindow();
 
   // Trigger new window
-  await mainWindow.getByRole('button', { name: 'Open Settings' }).click();
+  await mainWindow.getByRole("button", { name: "Open Settings" }).click();
 
   // Wait for new window
-  const settingsWindow = await electronApp.waitForEvent('window');
+  const settingsWindow = await electronApp.waitForEvent("window");
 
   // Both windows are now accessible
-  await expect(settingsWindow.locator('h1')).toHaveText('Settings');
-  await expect(mainWindow.locator('h1')).toHaveText('Main');
+  await expect(settingsWindow.locator("h1")).toHaveText("Settings");
+  await expect(mainWindow.locator("h1")).toHaveText("Main");
 
   // Get all windows
   const windows = electronApp.windows();
@@ -159,20 +164,20 @@ test('handle multiple windows', async ({ electronApp }) => {
 ### Evaluate in Main Process
 
 ```typescript
-test('access main process', async ({ electronApp }) => {
+test("access main process", async ({ electronApp }) => {
   // Evaluate in main process context
   const appPath = await electronApp.evaluate(async ({ app }) => {
     return app.getAppPath();
   });
 
-  expect(appPath).toContain('my-electron-app');
+  expect(appPath).toContain("my-electron-app");
 });
 ```
 
 ### Access Electron APIs
 
 ```typescript
-test('electron API access', async ({ electronApp }) => {
+test("electron API access", async ({ electronApp }) => {
   // Get app version
   const version = await electronApp.evaluate(async ({ app }) => {
     return app.getVersion();
@@ -183,7 +188,7 @@ test('electron API access', async ({ electronApp }) => {
   const platform = await electronApp.evaluate(async ({ app }) => {
     return process.platform;
   });
-  expect(['darwin', 'win32', 'linux']).toContain(platform);
+  expect(["darwin", "win32", "linux"]).toContain(platform);
 
   // Check if app is ready
   const isReady = await electronApp.evaluate(async ({ app }) => {
@@ -196,7 +201,7 @@ test('electron API access', async ({ electronApp }) => {
 ### BrowserWindow Properties
 
 ```typescript
-test('check window properties', async ({ electronApp, window }) => {
+test("check window properties", async ({ electronApp, window }) => {
   // Get BrowserWindow from main process
   const windowBounds = await electronApp.evaluate(async ({ BrowserWindow }) => {
     const win = BrowserWindow.getAllWindows()[0];
@@ -226,15 +231,15 @@ test('check window properties', async ({ electronApp, window }) => {
 ### Standard Page Testing
 
 ```typescript
-test('renderer interactions', async ({ window }) => {
+test("renderer interactions", async ({ window }) => {
   // Standard Playwright page interactions
-  await window.getByRole('button', { name: 'Click Me' }).click();
-  await expect(window.getByText('Clicked!')).toBeVisible();
+  await window.getByRole("button", { name: "Click Me" }).click();
+  await expect(window.getByText("Clicked!")).toBeVisible();
 
   // Fill forms
-  await window.getByLabel('Username').fill('testuser');
-  await window.getByLabel('Password').fill('password123');
-  await window.getByRole('button', { name: 'Login' }).click();
+  await window.getByLabel("Username").fill("testuser");
+  await window.getByLabel("Password").fill("password123");
+  await window.getByRole("button", { name: "Login" }).click();
 
   // Verify navigation
   await expect(window).toHaveURL(/dashboard/);
@@ -244,7 +249,7 @@ test('renderer interactions', async ({ window }) => {
 ### Access Node.js in Renderer
 
 ```typescript
-test('node integration', async ({ window }) => {
+test("node integration", async ({ window }) => {
   // If nodeIntegration is enabled
   const nodeVersion = await window.evaluate(() => {
     return (window as any).process?.version;
@@ -252,7 +257,7 @@ test('node integration', async ({ window }) => {
 
   // Check if Node APIs are available
   const hasFs = await window.evaluate(() => {
-    return typeof (window as any).require === 'function';
+    return typeof (window as any).require === "function";
   });
 });
 ```
@@ -260,10 +265,10 @@ test('node integration', async ({ window }) => {
 ### Context Isolation Testing
 
 ```typescript
-test('context isolation', async ({ window }) => {
+test("context isolation", async ({ window }) => {
   // Test preload script exposed APIs
   const apiAvailable = await window.evaluate(() => {
-    return typeof (window as any).electronAPI !== 'undefined';
+    return typeof (window as any).electronAPI !== "undefined";
   });
   expect(apiAvailable).toBe(true);
 
@@ -280,20 +285,20 @@ test('context isolation', async ({ window }) => {
 ### Testing IPC from Renderer
 
 ```typescript
-test('IPC invoke', async ({ window }) => {
+test("IPC invoke", async ({ window }) => {
   // Test preload-exposed IPC call
   const result = await window.evaluate(async () => {
-    return await (window as any).electronAPI.getData('user-settings');
+    return await (window as any).electronAPI.getData("user-settings");
   });
 
-  expect(result).toHaveProperty('theme');
+  expect(result).toHaveProperty("theme");
 });
 ```
 
 ### Testing IPC from Main Process
 
 ```typescript
-test('main to renderer IPC', async ({ electronApp, window }) => {
+test("main to renderer IPC", async ({ electronApp, window }) => {
   // Set up listener in renderer
   await window.evaluate(() => {
     (window as any).receivedMessage = null;
@@ -305,13 +310,13 @@ test('main to renderer IPC', async ({ electronApp, window }) => {
   // Send from main process
   await electronApp.evaluate(async ({ BrowserWindow }) => {
     const win = BrowserWindow.getAllWindows()[0];
-    win.webContents.send('message', 'Hello from main!');
+    win.webContents.send("message", "Hello from main!");
   });
 
   // Verify receipt
   await window.waitForFunction(() => (window as any).receivedMessage !== null);
   const message = await window.evaluate(() => (window as any).receivedMessage);
-  expect(message).toBe('Hello from main!');
+  expect(message).toBe("Hello from main!");
 });
 ```
 
@@ -319,15 +324,15 @@ test('main to renderer IPC', async ({ electronApp, window }) => {
 
 ```typescript
 // In test setup or fixture
-test('mock IPC handler', async ({ electronApp, window }) => {
+test("mock IPC handler", async ({ electronApp, window }) => {
   // Override IPC handler in main process
   await electronApp.evaluate(async ({ ipcMain }) => {
     // Remove existing handler
-    ipcMain.removeHandler('fetch-data');
+    ipcMain.removeHandler("fetch-data");
 
     // Add mock handler
-    ipcMain.handle('fetch-data', async () => {
-      return { mocked: true, data: 'test-data' };
+    ipcMain.handle("fetch-data", async () => {
+      return { mocked: true, data: "test-data" };
     });
   });
 
@@ -345,53 +350,55 @@ test('mock IPC handler', async ({ electronApp, window }) => {
 ### File System Dialogs
 
 ```typescript
-test('file dialog', async ({ electronApp, window }) => {
+test("file dialog", async ({ electronApp, window }) => {
   // Mock dialog response
   await electronApp.evaluate(async ({ dialog }) => {
     dialog.showOpenDialog = async () => ({
       canceled: false,
-      filePaths: ['/mock/path/file.txt'],
+      filePaths: ["/mock/path/file.txt"],
     });
   });
 
   // Trigger file open
-  await window.getByRole('button', { name: 'Open File' }).click();
+  await window.getByRole("button", { name: "Open File" }).click();
 
   // Verify file was "opened"
-  await expect(window.getByText('file.txt')).toBeVisible();
+  await expect(window.getByText("file.txt")).toBeVisible();
 });
 
-test('save dialog', async ({ electronApp, window }) => {
+test("save dialog", async ({ electronApp, window }) => {
   await electronApp.evaluate(async ({ dialog }) => {
     dialog.showSaveDialog = async () => ({
       canceled: false,
-      filePath: '/mock/path/saved-file.txt',
+      filePath: "/mock/path/saved-file.txt",
     });
   });
 
-  await window.getByRole('button', { name: 'Save' }).click();
-  await expect(window.getByText('Saved successfully')).toBeVisible();
+  await window.getByRole("button", { name: "Save" }).click();
+  await expect(window.getByText("Saved successfully")).toBeVisible();
 });
 ```
 
 ### Menu Testing
 
 ```typescript
-test('application menu', async ({ electronApp }) => {
+test("application menu", async ({ electronApp }) => {
   // Get menu structure
   const menuLabels = await electronApp.evaluate(async ({ Menu }) => {
     const menu = Menu.getApplicationMenu();
     return menu?.items.map((item) => item.label) || [];
   });
 
-  expect(menuLabels).toContain('File');
-  expect(menuLabels).toContain('Edit');
+  expect(menuLabels).toContain("File");
+  expect(menuLabels).toContain("Edit");
 
   // Trigger menu action
   await electronApp.evaluate(async ({ Menu }) => {
     const menu = Menu.getApplicationMenu();
-    const fileMenu = menu?.items.find((item) => item.label === 'File');
-    const newItem = fileMenu?.submenu?.items.find((item) => item.label === 'New');
+    const fileMenu = menu?.items.find((item) => item.label === "File");
+    const newItem = fileMenu?.submenu?.items.find(
+      (item) => item.label === "New",
+    );
     newItem?.click();
   });
 });
@@ -400,7 +407,7 @@ test('application menu', async ({ electronApp }) => {
 ### Native Notifications
 
 ```typescript
-test('notifications', async ({ electronApp, window }) => {
+test("notifications", async ({ electronApp, window }) => {
   // Mock Notification
   let notificationShown = false;
   await electronApp.evaluate(async ({ Notification }) => {
@@ -414,36 +421,36 @@ test('notifications', async ({ electronApp, window }) => {
   });
 
   // Trigger notification
-  await window.getByRole('button', { name: 'Notify' }).click();
+  await window.getByRole("button", { name: "Notify" }).click();
 
   // Verify notification was created
   const notification = await electronApp.evaluate(async () => {
     return (global as any).lastNotification;
   });
 
-  expect(notification.title).toBe('New Message');
+  expect(notification.title).toBe("New Message");
 });
 ```
 
 ### Clipboard
 
 ```typescript
-test('clipboard operations', async ({ electronApp, window }) => {
+test("clipboard operations", async ({ electronApp, window }) => {
   // Write to clipboard
   await electronApp.evaluate(async ({ clipboard }) => {
-    clipboard.writeText('Test clipboard content');
+    clipboard.writeText("Test clipboard content");
   });
 
   // Paste in app
-  await window.getByRole('textbox').focus();
-  await window.keyboard.press('ControlOrMeta+v');
+  await window.getByRole("textbox").focus();
+  await window.keyboard.press("ControlOrMeta+v");
 
   // Read clipboard
   const clipboardContent = await electronApp.evaluate(async ({ clipboard }) => {
     return clipboard.readText();
   });
 
-  expect(clipboardContent).toBe('Test clipboard content');
+  expect(clipboardContent).toBe("Test clipboard content");
 });
 ```
 
@@ -453,22 +460,29 @@ test('clipboard operations', async ({ electronApp, window }) => {
 
 ```typescript
 // fixtures/packaged-electron.ts
-import { test as base, _electron as electron } from '@playwright/test';
-import path from 'path';
-import { execSync } from 'child_process';
+import { test as base, _electron as electron } from "@playwright/test";
+import path from "path";
+import { execSync } from "child_process";
 
 export const test = base.extend({
   electronApp: async ({}, use) => {
     // Build the app first (or use pre-built)
-    const distPath = path.join(__dirname, '../dist');
+    const distPath = path.join(__dirname, "../dist");
 
     let executablePath: string;
-    if (process.platform === 'darwin') {
-      executablePath = path.join(distPath, 'mac', 'MyApp.app', 'Contents', 'MacOS', 'MyApp');
-    } else if (process.platform === 'win32') {
-      executablePath = path.join(distPath, 'win-unpacked', 'MyApp.exe');
+    if (process.platform === "darwin") {
+      executablePath = path.join(
+        distPath,
+        "mac",
+        "MyApp.app",
+        "Contents",
+        "MacOS",
+        "MyApp",
+      );
+    } else if (process.platform === "win32") {
+      executablePath = path.join(distPath, "win-unpacked", "MyApp.exe");
     } else {
-      executablePath = path.join(distPath, 'linux-unpacked', 'myapp');
+      executablePath = path.join(distPath, "linux-unpacked", "myapp");
     }
 
     const electronApp = await electron.launch({ executablePath });

@@ -15,21 +15,21 @@
 
 ```typescript
 // playwright.config.ts
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   projects: [
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
     },
     {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      name: "firefox",
+      use: { ...devices["Desktop Firefox"] },
     },
     {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      name: "webkit",
+      use: { ...devices["Desktop Safari"] },
     },
   ],
 });
@@ -41,21 +41,21 @@ export default defineConfig({
 export default defineConfig({
   projects: [
     {
-      name: 'staging',
+      name: "staging",
       use: {
-        baseURL: 'https://staging.example.com',
+        baseURL: "https://staging.example.com",
       },
     },
     {
-      name: 'production',
+      name: "production",
       use: {
-        baseURL: 'https://example.com',
+        baseURL: "https://example.com",
       },
     },
     {
-      name: 'local',
+      name: "local",
       use: {
-        baseURL: 'http://localhost:3000',
+        baseURL: "http://localhost:3000",
       },
     },
   ],
@@ -68,20 +68,20 @@ export default defineConfig({
 export default defineConfig({
   projects: [
     {
-      name: 'e2e',
-      testDir: './tests/e2e',
-      use: { ...devices['Desktop Chrome'] },
+      name: "e2e",
+      testDir: "./tests/e2e",
+      use: { ...devices["Desktop Chrome"] },
     },
     {
-      name: 'api',
-      testDir: './tests/api',
-      use: { baseURL: 'http://localhost:3000' },
+      name: "api",
+      testDir: "./tests/api",
+      use: { baseURL: "http://localhost:3000" },
     },
     {
-      name: 'visual',
-      testDir: './tests/visual',
+      name: "visual",
+      testDir: "./tests/visual",
       use: {
-        ...devices['Desktop Chrome'],
+        ...devices["Desktop Chrome"],
         viewport: { width: 1280, height: 720 },
       },
     },
@@ -98,26 +98,26 @@ export default defineConfig({
   projects: [
     // Setup project runs first
     {
-      name: 'setup',
+      name: "setup",
       testMatch: /.*\.setup\.ts/,
     },
 
     // Browser projects depend on setup
     {
-      name: 'chromium',
+      name: "chromium",
       use: {
-        ...devices['Desktop Chrome'],
-        storageState: '.auth/user.json',
+        ...devices["Desktop Chrome"],
+        storageState: ".auth/user.json",
       },
-      dependencies: ['setup'],
+      dependencies: ["setup"],
     },
     {
-      name: 'firefox',
+      name: "firefox",
       use: {
-        ...devices['Desktop Firefox'],
-        storageState: '.auth/user.json',
+        ...devices["Desktop Firefox"],
+        storageState: ".auth/user.json",
       },
-      dependencies: ['setup'],
+      dependencies: ["setup"],
     },
   ],
 });
@@ -130,35 +130,35 @@ export default defineConfig({
   projects: [
     // Auth setup projects
     {
-      name: 'setup-admin',
+      name: "setup-admin",
       testMatch: /admin\.setup\.ts/,
     },
     {
-      name: 'setup-user',
+      name: "setup-user",
       testMatch: /user\.setup\.ts/,
     },
 
     // Admin tests
     {
-      name: 'admin-tests',
-      testDir: './tests/admin',
-      use: { storageState: '.auth/admin.json' },
-      dependencies: ['setup-admin'],
+      name: "admin-tests",
+      testDir: "./tests/admin",
+      use: { storageState: ".auth/admin.json" },
+      dependencies: ["setup-admin"],
     },
 
     // User tests
     {
-      name: 'user-tests',
-      testDir: './tests/user',
-      use: { storageState: '.auth/user.json' },
-      dependencies: ['setup-user'],
+      name: "user-tests",
+      testDir: "./tests/user",
+      use: { storageState: ".auth/user.json" },
+      dependencies: ["setup-user"],
     },
 
     // Tests that need both
     {
-      name: 'integration-tests',
-      testDir: './tests/integration',
-      dependencies: ['setup-admin', 'setup-user'],
+      name: "integration-tests",
+      testDir: "./tests/integration",
+      dependencies: ["setup-admin", "setup-user"],
     },
   ],
 });
@@ -171,29 +171,29 @@ export default defineConfig({
   projects: [
     // Step 1: Database setup
     {
-      name: 'db-setup',
+      name: "db-setup",
       testMatch: /db\.setup\.ts/,
     },
 
     // Step 2: Auth setup (needs DB)
     {
-      name: 'auth-setup',
+      name: "auth-setup",
       testMatch: /auth\.setup\.ts/,
-      dependencies: ['db-setup'],
+      dependencies: ["db-setup"],
     },
 
     // Step 3: Seed data (needs auth)
     {
-      name: 'seed-setup',
+      name: "seed-setup",
       testMatch: /seed\.setup\.ts/,
-      dependencies: ['auth-setup'],
+      dependencies: ["auth-setup"],
     },
 
     // Tests (need everything)
     {
-      name: 'tests',
-      testDir: './tests',
-      dependencies: ['seed-setup'],
+      name: "tests",
+      testDir: "./tests",
+      dependencies: ["seed-setup"],
     },
   ],
 });
@@ -211,11 +211,11 @@ Setup projects are the recommended way to handle authentication. They run before
 
 ```typescript
 // seed.setup.ts
-import { test as setup } from '@playwright/test';
+import { test as setup } from "@playwright/test";
 
-setup('seed test data', async ({ request }) => {
+setup("seed test data", async ({ request }) => {
   // Create test data via API
-  await request.post('/api/test/seed', {
+  await request.post("/api/test/seed", {
     data: {
       users: 10,
       products: 50,
@@ -229,11 +229,11 @@ setup('seed test data', async ({ request }) => {
 
 ```typescript
 // cleanup.setup.ts
-import { test as setup } from '@playwright/test';
+import { test as setup } from "@playwright/test";
 
-setup('cleanup previous run', async ({ request }) => {
+setup("cleanup previous run", async ({ request }) => {
   // Clean up data from previous test runs
-  await request.delete('/api/test/cleanup');
+  await request.delete("/api/test/cleanup");
 });
 ```
 
@@ -268,14 +268,14 @@ npx playwright test --grep-invert @slow
 export default defineConfig({
   projects: [
     {
-      name: 'smoke',
+      name: "smoke",
       grep: /@smoke/,
-      use: { ...devices['Desktop Chrome'] },
+      use: { ...devices["Desktop Chrome"] },
     },
     {
-      name: 'regression',
+      name: "regression",
       grepInvert: /@smoke/,
-      use: { ...devices['Desktop Chrome'] },
+      use: { ...devices["Desktop Chrome"] },
     },
   ],
 });
@@ -291,8 +291,8 @@ const baseConfig = {
   timeout: 30000,
   expect: { timeout: 5000 },
   use: {
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
+    trace: "on-first-retry",
+    screenshot: "only-on-failure",
   },
 };
 
@@ -300,17 +300,17 @@ export default defineConfig({
   ...baseConfig,
   projects: [
     {
-      name: 'chromium',
+      name: "chromium",
       use: {
         ...baseConfig.use,
-        ...devices['Desktop Chrome'],
+        ...devices["Desktop Chrome"],
       },
     },
     {
-      name: 'firefox',
+      name: "firefox",
       use: {
         ...baseConfig.use,
-        ...devices['Desktop Firefox'],
+        ...devices["Desktop Firefox"],
       },
     },
   ],
@@ -324,27 +324,27 @@ const sharedBrowserConfig = {
   timeout: 60000,
   retries: 2,
   use: {
-    video: 'on-first-retry',
-    trace: 'on-first-retry',
+    video: "on-first-retry",
+    trace: "on-first-retry",
   },
 };
 
 export default defineConfig({
   projects: [
     {
-      name: 'chromium',
+      name: "chromium",
       ...sharedBrowserConfig,
       use: {
         ...sharedBrowserConfig.use,
-        ...devices['Desktop Chrome'],
+        ...devices["Desktop Chrome"],
       },
     },
     {
-      name: 'firefox',
+      name: "firefox",
       ...sharedBrowserConfig,
       use: {
         ...sharedBrowserConfig.use,
-        ...devices['Desktop Firefox'],
+        ...devices["Desktop Firefox"],
       },
     },
   ],
@@ -358,24 +358,24 @@ export default defineConfig({
 ```typescript
 const projects = [
   {
-    name: 'chromium',
-    use: { ...devices['Desktop Chrome'] },
+    name: "chromium",
+    use: { ...devices["Desktop Chrome"] },
   },
 ];
 
 // Add Firefox only in CI
 if (process.env.CI) {
   projects.push({
-    name: 'firefox',
-    use: { ...devices['Desktop Firefox'] },
+    name: "firefox",
+    use: { ...devices["Desktop Firefox"] },
   });
 }
 
 // Add mobile only for specific test dirs
 if (process.env.TEST_MOBILE) {
   projects.push({
-    name: 'mobile',
-    use: { ...devices['iPhone 14'] },
+    name: "mobile",
+    use: { ...devices["iPhone 14"] },
   });
 }
 
@@ -388,19 +388,19 @@ export default defineConfig({ projects });
 export default defineConfig({
   projects: [
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
       metadata: {
-        platform: 'desktop',
-        browser: 'chromium',
-        priority: 'high',
+        platform: "desktop",
+        browser: "chromium",
+        priority: "high",
       },
     },
   ],
 });
 
 // Access in test
-test('example', async ({ page }, testInfo) => {
+test("example", async ({ page }, testInfo) => {
   const { platform, priority } = testInfo.project.metadata;
   console.log(`Running on ${platform} with ${priority} priority`);
 });
@@ -412,17 +412,17 @@ test('example', async ({ page }, testInfo) => {
 export default defineConfig({
   projects: [
     {
-      name: 'setup',
+      name: "setup",
       testMatch: /.*\.setup\.ts/,
-      teardown: 'teardown', // Run teardown after this completes
+      teardown: "teardown", // Run teardown after this completes
     },
     {
-      name: 'teardown',
+      name: "teardown",
       testMatch: /.*\.teardown\.ts/,
     },
     {
-      name: 'tests',
-      dependencies: ['setup'],
+      name: "tests",
+      dependencies: ["setup"],
     },
   ],
 });
@@ -430,10 +430,10 @@ export default defineConfig({
 
 ```typescript
 // cleanup.teardown.ts
-import { test as teardown } from '@playwright/test';
+import { test as teardown } from "@playwright/test";
 
-teardown('cleanup', async ({ request }) => {
-  await request.delete('/api/test/data');
+teardown("cleanup", async ({ request }) => {
+  await request.delete("/api/test/data");
 });
 ```
 

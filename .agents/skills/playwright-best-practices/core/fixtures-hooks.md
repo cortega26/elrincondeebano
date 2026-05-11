@@ -14,7 +14,7 @@
 ### Core Fixtures
 
 ```typescript
-test('example', async ({
+test("example", async ({
   page, // Isolated page instance
   context, // Browser context (cookies, localStorage)
   browser, // Browser instance
@@ -28,8 +28,8 @@ test('example', async ({
 ### Request Fixture
 
 ```typescript
-test('API call', async ({ request }) => {
-  const response = await request.get('/api/users');
+test("API call", async ({ request }) => {
+  const response = await request.get("/api/users");
   await expect(response).toBeOK();
 
   const users = await response.json();
@@ -43,7 +43,7 @@ test('API call', async ({ request }) => {
 
 ```typescript
 // fixtures.ts
-import { test as base } from '@playwright/test';
+import { test as base } from "@playwright/test";
 
 // Declare fixture types
 type MyFixtures = {
@@ -69,7 +69,7 @@ export const test = base.extend<MyFixtures>({
   },
 });
 
-export { expect } from '@playwright/test';
+export { expect } from "@playwright/test";
 ```
 
 ### Fixture with Options
@@ -85,14 +85,17 @@ type Fixtures = {
 
 export const test = base.extend<Options & Fixtures>({
   // Define option with default
-  defaultUser: [{ email: 'test@example.com', password: 'pass123' }, { option: true }],
+  defaultUser: [
+    { email: "test@example.com", password: "pass123" },
+    { option: true },
+  ],
 
   // Use option in fixture
   authenticatedPage: async ({ page, defaultUser }, use) => {
-    await page.goto('/login');
-    await page.getByLabel('Email').fill(defaultUser.email);
-    await page.getByLabel('Password').fill(defaultUser.password);
-    await page.getByRole('button', { name: 'Sign in' }).click();
+    await page.goto("/login");
+    await page.getByLabel("Email").fill(defaultUser.email);
+    await page.getByLabel("Password").fill(defaultUser.password);
+    await page.getByRole("button", { name: "Sign in" }).click();
     await use(page);
   },
 });
@@ -100,7 +103,7 @@ export const test = base.extend<Options & Fixtures>({
 // Override in config
 export default defineConfig({
   use: {
-    defaultUser: { email: 'admin@example.com', password: 'admin123' },
+    defaultUser: { email: "admin@example.com", password: "admin123" },
   },
 });
 ```
@@ -154,7 +157,7 @@ export const test = base.extend<{}, WorkerFixtures>({
       await use(account);
       await deleteTestAccount(account);
     },
-    { scope: 'worker' },
+    { scope: "worker" },
   ],
 });
 ```
@@ -164,7 +167,7 @@ export const test = base.extend<{}, WorkerFixtures>({
 When tests in different workers touch the same backend or DB (e.g. same user, same tenant), they can collide and cause flaky failures. Use `testInfo.workerIndex` (or `process.env.TEST_WORKER_INDEX`) in a worker-scoped fixture to create unique data per worker:
 
 ```typescript
-import { test as baseTest } from '@playwright/test';
+import { test as baseTest } from "@playwright/test";
 
 type WorkerFixtures = {
   dbUserName: string;
@@ -178,7 +181,7 @@ export const test = baseTest.extend<{}, WorkerFixtures>({
       await use(userName);
       await deleteUserFromTestDatabase(userName);
     },
-    { scope: 'worker' },
+    { scope: "worker" },
   ],
 });
 ```
@@ -192,12 +195,12 @@ Then each worker uses a distinct user (e.g. `user-1`, `user-2`), so parallel wor
 ```typescript
 test.beforeEach(async ({ page }) => {
   // Runs before each test in file
-  await page.goto('/');
+  await page.goto("/");
 });
 
 test.afterEach(async ({ page }, testInfo) => {
   // Runs after each test
-  if (testInfo.status !== 'passed') {
+  if (testInfo.status !== "passed") {
     await page.screenshot({ path: `failed-${testInfo.title}.png` });
   }
 });
@@ -219,16 +222,16 @@ test.afterAll(async () => {
 ### Describe-Level Hooks
 
 ```typescript
-test.describe('User Management', () => {
+test.describe("User Management", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/users');
+    await page.goto("/users");
   });
 
-  test('can list users', async ({ page }) => {
+  test("can list users", async ({ page }) => {
     // Starts at /users
   });
 
-  test('can add user', async ({ page }) => {
+  test("can add user", async ({ page }) => {
     // Starts at /users
   });
 });
@@ -240,17 +243,17 @@ test.describe('User Management', () => {
 
 ```typescript
 // auth.setup.ts
-import { test as setup, expect } from '@playwright/test';
+import { test as setup, expect } from "@playwright/test";
 
-const authFile = '.auth/user.json';
+const authFile = ".auth/user.json";
 
-setup('authenticate', async ({ page }) => {
-  await page.goto('/login');
-  await page.getByLabel('Email').fill(process.env.TEST_EMAIL!);
-  await page.getByLabel('Password').fill(process.env.TEST_PASSWORD!);
-  await page.getByRole('button', { name: 'Sign in' }).click();
+setup("authenticate", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByLabel("Email").fill(process.env.TEST_EMAIL!);
+  await page.getByLabel("Password").fill(process.env.TEST_PASSWORD!);
+  await page.getByRole("button", { name: "Sign in" }).click();
 
-  await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
   await page.context().storageState({ path: authFile });
 });
 ```
@@ -259,14 +262,14 @@ setup('authenticate', async ({ page }) => {
 // playwright.config.ts
 export default defineConfig({
   projects: [
-    { name: 'setup', testMatch: /.*\.setup\.ts/ },
+    { name: "setup", testMatch: /.*\.setup\.ts/ },
     {
-      name: 'chromium',
+      name: "chromium",
       use: {
-        ...devices['Desktop Chrome'],
-        storageState: '.auth/user.json',
+        ...devices["Desktop Chrome"],
+        storageState: ".auth/user.json",
       },
-      dependencies: ['setup'],
+      dependencies: ["setup"],
     },
   ],
 });
@@ -276,14 +279,14 @@ export default defineConfig({
 
 ```typescript
 // auth.setup.ts
-setup('admin auth', async ({ page }) => {
-  await login(page, 'admin@example.com', 'adminpass');
-  await page.context().storageState({ path: '.auth/admin.json' });
+setup("admin auth", async ({ page }) => {
+  await login(page, "admin@example.com", "adminpass");
+  await page.context().storageState({ path: ".auth/admin.json" });
 });
 
-setup('user auth', async ({ page }) => {
-  await login(page, 'user@example.com', 'userpass');
-  await page.context().storageState({ path: '.auth/user.json' });
+setup("user auth", async ({ page }) => {
+  await login(page, "user@example.com", "userpass");
+  await page.context().storageState({ path: ".auth/user.json" });
 });
 ```
 
@@ -291,16 +294,16 @@ setup('user auth', async ({ page }) => {
 // playwright.config.ts
 projects: [
   {
-    name: 'admin tests',
+    name: "admin tests",
     testMatch: /.*admin.*\.spec\.ts/,
-    use: { storageState: '.auth/admin.json' },
-    dependencies: ['setup'],
+    use: { storageState: ".auth/admin.json" },
+    dependencies: ["setup"],
   },
   {
-    name: 'user tests',
+    name: "user tests",
     testMatch: /.*user.*\.spec\.ts/,
-    use: { storageState: '.auth/user.json' },
-    dependencies: ['setup'],
+    use: { storageState: ".auth/user.json" },
+    dependencies: ["setup"],
   },
 ];
 ```
@@ -312,7 +315,7 @@ projects: [
 export const test = base.extend<{ adminPage: Page; userPage: Page }>({
   adminPage: async ({ browser }, use) => {
     const context = await browser.newContext({
-      storageState: '.auth/admin.json',
+      storageState: ".auth/admin.json",
     });
     const page = await context.newPage();
     await use(page);
@@ -321,7 +324,7 @@ export const test = base.extend<{ adminPage: Page; userPage: Page }>({
 
   userPage: async ({ browser }, use) => {
     const context = await browser.newContext({
-      storageState: '.auth/user.json',
+      storageState: ".auth/user.json",
     });
     const page = await context.newPage();
     await use(page);
@@ -340,8 +343,8 @@ This section covers **per-test database fixtures** (isolation, transaction rollb
 ### Transaction Rollback Pattern
 
 ```typescript
-import { test as base } from '@playwright/test';
-import { db } from '../db';
+import { test as base } from "@playwright/test";
+import { db } from "../db";
 
 export const test = base.extend<{ dbTransaction: Transaction }>({
   dbTransaction: async ({}, use) => {
@@ -366,7 +369,7 @@ export const test = base.extend<TestData>({
   testUser: async ({}, use) => {
     const user = await db.users.create({
       email: `test-${Date.now()}@example.com`,
-      name: 'Test User',
+      name: "Test User",
     });
 
     await use(user);
@@ -376,8 +379,8 @@ export const test = base.extend<TestData>({
 
   testProducts: async ({ testUser }, use) => {
     const products = await db.products.createMany([
-      { name: 'Product A', ownerId: testUser.id },
-      { name: 'Product B', ownerId: testUser.id },
+      { name: "Product A", ownerId: testUser.id },
+      { name: "Product B", ownerId: testUser.id },
     ]);
 
     await use(products);

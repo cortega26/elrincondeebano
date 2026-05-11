@@ -23,7 +23,7 @@ Page Object Model encapsulates page structure and interactions, providing:
 
 ```typescript
 // pages/login.page.ts
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator, expect } from "@playwright/test";
 
 export class LoginPage {
   readonly page: Page;
@@ -34,14 +34,14 @@ export class LoginPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.emailInput = page.getByLabel('Email');
-    this.passwordInput = page.getByLabel('Password');
-    this.submitButton = page.getByRole('button', { name: 'Sign in' });
-    this.errorMessage = page.getByRole('alert');
+    this.emailInput = page.getByLabel("Email");
+    this.passwordInput = page.getByLabel("Password");
+    this.submitButton = page.getByRole("button", { name: "Sign in" });
+    this.errorMessage = page.getByRole("alert");
   }
 
   async goto() {
-    await this.page.goto('/login');
+    await this.page.goto("/login");
   }
 
   async login(email: string, password: string) {
@@ -60,22 +60,22 @@ export class LoginPage {
 
 ```typescript
 // tests/login.spec.ts
-import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pages/login.page';
+import { test, expect } from "@playwright/test";
+import { LoginPage } from "../pages/login.page";
 
-test.describe('Login', () => {
-  test('successful login redirects to dashboard', async ({ page }) => {
+test.describe("Login", () => {
+  test("successful login redirects to dashboard", async ({ page }) => {
     const loginPage = new LoginPage(page);
     await loginPage.goto();
-    await loginPage.login('user@example.com', 'password123');
-    await expect(page).toHaveURL('/dashboard');
+    await loginPage.login("user@example.com", "password123");
+    await expect(page).toHaveURL("/dashboard");
   });
 
-  test('shows error for invalid credentials', async ({ page }) => {
+  test("shows error for invalid credentials", async ({ page }) => {
     const loginPage = new LoginPage(page);
     await loginPage.goto();
-    await loginPage.login('invalid@example.com', 'wrong');
-    await loginPage.expectError('Invalid credentials');
+    await loginPage.login("invalid@example.com", "wrong");
+    await loginPage.expectError("Invalid credentials");
   });
 });
 ```
@@ -86,7 +86,7 @@ For reusable UI components:
 
 ```typescript
 // components/navbar.component.ts
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator } from "@playwright/test";
 
 export class NavbarComponent {
   readonly container: Locator;
@@ -95,15 +95,15 @@ export class NavbarComponent {
   readonly userMenu: Locator;
 
   constructor(page: Page) {
-    this.container = page.getByRole('navigation');
-    this.logo = this.container.getByRole('link', { name: 'Home' });
-    this.searchInput = this.container.getByRole('searchbox');
-    this.userMenu = this.container.getByRole('button', { name: /user menu/i });
+    this.container = page.getByRole("navigation");
+    this.logo = this.container.getByRole("link", { name: "Home" });
+    this.searchInput = this.container.getByRole("searchbox");
+    this.userMenu = this.container.getByRole("button", { name: /user menu/i });
   }
 
   async search(query: string) {
     await this.searchInput.fill(query);
-    await this.searchInput.press('Enter');
+    await this.searchInput.press("Enter");
   }
 
   async openUserMenu() {
@@ -114,7 +114,7 @@ export class NavbarComponent {
 
 ```typescript
 // components/modal.component.ts
-import { Locator, expect } from '@playwright/test';
+import { Locator, expect } from "@playwright/test";
 
 export class ModalComponent {
   readonly container: Locator;
@@ -124,9 +124,9 @@ export class ModalComponent {
 
   constructor(container: Locator) {
     this.container = container;
-    this.title = container.getByRole('heading');
-    this.closeButton = container.getByRole('button', { name: 'Close' });
-    this.confirmButton = container.getByRole('button', { name: 'Confirm' });
+    this.title = container.getByRole("heading");
+    this.closeButton = container.getByRole("button", { name: "Close" });
+    this.confirmButton = container.getByRole("button", { name: "Confirm" });
   }
 
   async expectTitle(title: string) {
@@ -149,9 +149,9 @@ export class ModalComponent {
 
 ```typescript
 // pages/dashboard.page.ts
-import { Page, Locator } from '@playwright/test';
-import { NavbarComponent } from '../components/navbar.component';
-import { ModalComponent } from '../components/modal.component';
+import { Page, Locator } from "@playwright/test";
+import { NavbarComponent } from "../components/navbar.component";
+import { ModalComponent } from "../components/modal.component";
 
 export class DashboardPage {
   readonly page: Page;
@@ -161,16 +161,16 @@ export class DashboardPage {
   constructor(page: Page) {
     this.page = page;
     this.navbar = new NavbarComponent(page);
-    this.newProjectButton = page.getByRole('button', { name: 'New Project' });
+    this.newProjectButton = page.getByRole("button", { name: "New Project" });
   }
 
   async goto() {
-    await this.page.goto('/dashboard');
+    await this.page.goto("/dashboard");
   }
 
   async createProject() {
     await this.newProjectButton.click();
-    return new ModalComponent(this.page.getByRole('dialog'));
+    return new ModalComponent(this.page.getByRole("dialog"));
   }
 }
 ```
@@ -179,7 +179,7 @@ export class DashboardPage {
 
 ```typescript
 // pages/base.page.ts
-import { Page } from '@playwright/test';
+import { Page } from "@playwright/test";
 
 export abstract class BasePage {
   constructor(readonly page: Page) {}
@@ -206,7 +206,7 @@ export class LoginPage extends BasePage {
 // Usage
 const loginPage = new LoginPage(page);
 await loginPage.goto();
-const dashboardPage = await loginPage.login('user@example.com', 'pass');
+const dashboardPage = await loginPage.login("user@example.com", "pass");
 await dashboardPage.expectWelcomeMessage();
 ```
 
@@ -216,15 +216,15 @@ Alternative to classes for simpler pages:
 
 ```typescript
 // pages/login.page.ts
-import { Page } from '@playwright/test';
+import { Page } from "@playwright/test";
 
 export function createLoginPage(page: Page) {
-  const emailInput = page.getByLabel('Email');
-  const passwordInput = page.getByLabel('Password');
-  const submitButton = page.getByRole('button', { name: 'Sign in' });
+  const emailInput = page.getByLabel("Email");
+  const passwordInput = page.getByLabel("Password");
+  const submitButton = page.getByRole("button", { name: "Sign in" });
 
   return {
-    goto: () => page.goto('/login'),
+    goto: () => page.goto("/login"),
     login: async (email: string, password: string) => {
       await emailInput.fill(email);
       await passwordInput.fill(password);
@@ -239,7 +239,7 @@ export function createLoginPage(page: Page) {
 // Usage
 const loginPage = createLoginPage(page);
 await loginPage.goto();
-await loginPage.login('user@example.com', 'password');
+await loginPage.login("user@example.com", "password");
 ```
 
 ## Best Practices
@@ -283,9 +283,9 @@ tests/
 
 ```typescript
 // fixtures/pages.fixture.ts
-import { test as base } from '@playwright/test';
-import { LoginPage } from '../pages/login.page';
-import { DashboardPage } from '../pages/dashboard.page';
+import { test as base } from "@playwright/test";
+import { LoginPage } from "../pages/login.page";
+import { DashboardPage } from "../pages/dashboard.page";
 
 type Pages = {
   loginPage: LoginPage;
@@ -302,9 +302,9 @@ export const test = base.extend<Pages>({
 });
 
 // Usage in tests
-test('can login', async ({ loginPage }) => {
+test("can login", async ({ loginPage }) => {
   await loginPage.goto();
-  await loginPage.login('user@example.com', 'password');
+  await loginPage.login("user@example.com", "password");
 });
 ```
 

@@ -33,7 +33,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -76,7 +76,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -105,7 +105,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -144,7 +144,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -176,7 +176,7 @@ CMD ["npx", "playwright", "test"]
 
 ```yaml
 # docker-compose.yml
-version: '3.8'
+version: "3.8"
 
 services:
   playwright:
@@ -193,7 +193,7 @@ services:
   app:
     build: ./app
     ports:
-      - '3000:3000'
+      - "3000:3000"
 ```
 
 ### Run with Docker
@@ -216,22 +216,22 @@ docker-compose run --rm playwright
 export default defineConfig({
   reporter: [
     // Always generate
-    ['html', { outputFolder: 'playwright-report' }],
+    ["html", { outputFolder: "playwright-report" }],
 
     // Console output
-    ['list'],
+    ["list"],
 
     // CI-friendly
-    ['github'], // GitHub Actions annotations
+    ["github"], // GitHub Actions annotations
 
     // JUnit for CI integration
-    ['junit', { outputFile: 'results.xml' }],
+    ["junit", { outputFile: "results.xml" }],
 
     // JSON for custom processing
-    ['json', { outputFile: 'results.json' }],
+    ["json", { outputFile: "results.json" }],
 
     // Blob for merging shards
-    ['blob', { outputDir: 'blob-report' }],
+    ["blob", { outputDir: "blob-report" }],
   ],
 });
 ```
@@ -240,7 +240,9 @@ export default defineConfig({
 
 ```typescript
 export default defineConfig({
-  reporter: process.env.CI ? [['github'], ['blob'], ['html']] : [['list'], ['html']],
+  reporter: process.env.CI
+    ? [["github"], ["blob"], ["html"]]
+    : [["list"], ["html"]],
 });
 ```
 
@@ -265,7 +267,7 @@ export default defineConfig({
   fullyParallel: true,
 
   // For blob reporter to merge later
-  reporter: process.env.CI ? [['blob']] : [['html']],
+  reporter: process.env.CI ? [["blob"]] : [["html"]],
 });
 ```
 
@@ -282,15 +284,15 @@ npx playwright merge-reports --reporter html ./all-blob-reports
 
 ```typescript
 // playwright.config.ts
-import { defineConfig } from '@playwright/test';
-import dotenv from 'dotenv';
+import { defineConfig } from "@playwright/test";
+import dotenv from "dotenv";
 
 // Load env file based on environment
-dotenv.config({ path: `.env.${process.env.NODE_ENV || 'development'}` });
+dotenv.config({ path: `.env.${process.env.NODE_ENV || "development"}` });
 
 export default defineConfig({
   use: {
-    baseURL: process.env.BASE_URL || 'http://localhost:3000',
+    baseURL: process.env.BASE_URL || "http://localhost:3000",
   },
 });
 ```
@@ -325,9 +327,9 @@ jobs:
 
 ```typescript
 // tests use environment variables
-test('login', async ({ page }) => {
-  await page.getByLabel('Email').fill(process.env.TEST_EMAIL!);
-  await page.getByLabel('Password').fill(process.env.TEST_PASSWORD!);
+test("login", async ({ page }) => {
+  await page.getByLabel("Email").fill(process.env.TEST_EMAIL!);
+  await page.getByLabel("Password").fill(process.env.TEST_PASSWORD!);
 });
 ```
 
@@ -358,7 +360,7 @@ test('login', async ({ page }) => {
 - uses: actions/setup-node@v4
   with:
     node-version: 22
-    cache: 'npm'
+    cache: "npm"
 
 - name: Install dependencies
   run: npm ci
@@ -411,11 +413,11 @@ export default defineConfig({
 export default defineConfig({
   projects: [
     {
-      name: 'smoke',
+      name: "smoke",
       grep: /@smoke/,
     },
     {
-      name: 'regression',
+      name: "regression",
       grepInvert: /@smoke/,
     },
   ],
@@ -441,17 +443,19 @@ export default defineConfig({
 ```typescript
 // playwright.config.ts - CI optimized
 export default defineConfig({
-  testDir: './tests',
+  testDir: "./tests",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: process.env.CI ? [['github'], ['blob'], ['html']] : [['list'], ['html']],
+  reporter: process.env.CI
+    ? [["github"], ["blob"], ["html"]]
+    : [["list"], ["html"]],
   use: {
-    baseURL: process.env.BASE_URL || 'http://localhost:3000',
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
-    video: 'on-first-retry',
+    baseURL: process.env.BASE_URL || "http://localhost:3000",
+    trace: "on-first-retry",
+    screenshot: "only-on-failure",
+    video: "on-first-retry",
   },
 });
 ```

@@ -17,27 +17,27 @@
 ### Tag via Details Object
 
 ```typescript
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
 test(
-  'test login page',
+  "test login page",
   {
-    tag: '@fast',
+    tag: "@fast",
   },
   async ({ page }) => {
-    await page.goto('/login');
-    await expect(page.getByRole('heading')).toBeVisible();
+    await page.goto("/login");
+    await expect(page.getByRole("heading")).toBeVisible();
   }
 );
 
 test(
-  'test dashboard',
+  "test dashboard",
   {
-    tag: '@slow',
+    tag: "@slow",
   },
   async ({ page }) => {
-    await page.goto('/dashboard');
-    await expect(page.getByTestId('charts')).toBeVisible();
+    await page.goto("/dashboard");
+    await expect(page.getByTestId("charts")).toBeVisible();
   }
 );
 ```
@@ -45,14 +45,14 @@ test(
 ### Tag via Title (not recommended)
 
 ```typescript
-test('test full report @slow', async ({ page }) => {
-  await page.goto('/reports/full');
-  await expect(page.getByText('Report loaded')).toBeVisible();
+test("test full report @slow", async ({ page }) => {
+  await page.goto("/reports/full");
+  await expect(page.getByText("Report loaded")).toBeVisible();
 });
 
-test('quick validation @fast @smoke', async ({ page }) => {
-  await page.goto('/');
-  await expect(page.locator('body')).toBeVisible();
+test("quick validation @fast @smoke", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("body")).toBeVisible();
 });
 ```
 
@@ -62,16 +62,16 @@ test('quick validation @fast @smoke', async ({ page }) => {
 
 ```typescript
 test.describe(
-  'report tests',
+  "report tests",
   {
-    tag: '@report',
+    tag: "@report",
   },
   () => {
-    test('test report header', async ({ page }) => {
+    test("test report header", async ({ page }) => {
       // Inherits @report tag
     });
 
-    test('test report footer', async ({ page }) => {
+    test("test report footer", async ({ page }) => {
       // Inherits @report tag
     });
   }
@@ -82,19 +82,19 @@ test.describe(
 
 ```typescript
 test.describe(
-  'admin features',
+  "admin features",
   {
-    tag: '@admin',
+    tag: "@admin",
   },
   () => {
-    test('admin dashboard', async ({ page }) => {
+    test("admin dashboard", async ({ page }) => {
       // Has @admin tag
     });
 
     test(
-      'admin settings',
+      "admin settings",
       {
-        tag: ['@slow', '@critical'],
+        tag: ["@slow", "@critical"],
       },
       async ({ page }) => {
         // Has @admin, @slow, @critical tags
@@ -151,7 +151,7 @@ npx playwright test --grep "@api" --grep-invert "@slow"
 ### Filter in playwright.config.ts
 
 ```typescript
-import { defineConfig } from '@playwright/test';
+import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
   grep: /@smoke/,
@@ -162,20 +162,20 @@ export default defineConfig({
 ### Project-Specific Tags
 
 ```typescript
-import { defineConfig } from '@playwright/test';
+import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
   projects: [
     {
-      name: 'smoke',
+      name: "smoke",
       grep: /@smoke/,
     },
     {
-      name: 'regression',
+      name: "regression",
       grepInvert: /@smoke/,
     },
     {
-      name: 'critical-only',
+      name: "critical-only",
       grep: /@critical/,
     },
   ],
@@ -185,7 +185,7 @@ export default defineConfig({
 ### Environment-Based Filtering
 
 ```typescript
-import { defineConfig } from '@playwright/test';
+import { defineConfig } from "@playwright/test";
 
 const isCI = !!process.env.CI;
 
@@ -201,40 +201,40 @@ export default defineConfig({
 
 ```typescript
 // Smoke tests - quick validation
-test('homepage loads', { tag: '@smoke' }, async ({ page }) => {});
-test('login works', { tag: '@smoke' }, async ({ page }) => {});
+test("homepage loads", { tag: "@smoke" }, async ({ page }) => {});
+test("login works", { tag: "@smoke" }, async ({ page }) => {});
 
 // Regression tests - comprehensive
-test('full checkout flow', { tag: '@regression' }, async ({ page }) => {});
-test('all payment methods', { tag: '@regression' }, async ({ page }) => {});
+test("full checkout flow", { tag: "@regression" }, async ({ page }) => {});
+test("all payment methods", { tag: "@regression" }, async ({ page }) => {});
 
 // E2E tests - user journeys
-test('complete user journey', { tag: '@e2e' }, async ({ page }) => {});
+test("complete user journey", { tag: "@e2e" }, async ({ page }) => {});
 ```
 
 ### By Priority
 
 ```typescript
 test(
-  'payment processing',
+  "payment processing",
   {
-    tag: ['@critical', '@p0'],
+    tag: ["@critical", "@p0"],
   },
   async ({ page }) => {}
 );
 
 test(
-  'user preferences',
+  "user preferences",
   {
-    tag: ['@p1'],
+    tag: ["@p1"],
   },
   async ({ page }) => {}
 );
 
 test(
-  'theme customization',
+  "theme customization",
   {
-    tag: ['@p2'],
+    tag: ["@p2"],
   },
   async ({ page }) => {}
 );
@@ -244,25 +244,25 @@ test(
 
 ```typescript
 test.describe(
-  'authentication',
+  "authentication",
   {
-    tag: '@auth',
+    tag: "@auth",
   },
   () => {
-    test('login @smoke', async ({ page }) => {});
-    test('logout', async ({ page }) => {});
-    test('password reset @slow', async ({ page }) => {});
+    test("login @smoke", async ({ page }) => {});
+    test("logout", async ({ page }) => {});
+    test("password reset @slow", async ({ page }) => {});
   }
 );
 
 test.describe(
-  'payments',
+  "payments",
   {
-    tag: '@payments',
+    tag: "@payments",
   },
   () => {
-    test('credit card @critical', async ({ page }) => {});
-    test('paypal @critical', async ({ page }) => {});
+    test("credit card @critical", async ({ page }) => {});
+    test("paypal @critical", async ({ page }) => {});
   }
 );
 ```

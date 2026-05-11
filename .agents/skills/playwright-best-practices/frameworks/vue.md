@@ -51,7 +51,9 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: process.env.CI ? 'npm run build && npx vite preview --port 5173' : 'npm run dev',
+    command: process.env.CI
+      ? 'npm run build && npx vite preview --port 5173'
+      : 'npm run dev',
     url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
@@ -80,10 +82,14 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
 
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+  ],
 
   webServer: {
-    command: process.env.CI ? 'npx nuxi build && npx nuxi preview' : 'npx nuxi dev',
+    command: process.env.CI
+      ? 'npx nuxi build && npx nuxi preview'
+      : 'npx nuxi dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
@@ -109,7 +115,9 @@ export default defineConfig({
     ctPort: 3100,
   },
 
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+  ],
 });
 ```
 
@@ -179,15 +187,13 @@ test.describe('shopping cart store', () => {
     const badge = page.getByTestId('cart-badge');
     await expect(badge).toHaveText('0');
 
-    await page
-      .getByRole('listitem')
+    await page.getByRole('listitem')
       .filter({ hasText: 'Hoodie' })
       .getByRole('button', { name: 'Add' })
       .click();
     await expect(badge).toHaveText('1');
 
-    await page
-      .getByRole('listitem')
+    await page.getByRole('listitem')
       .filter({ hasText: 'Cap' })
       .getByRole('button', { name: 'Add' })
       .click();
@@ -203,8 +209,7 @@ test.describe('shopping cart store', () => {
   test('persisted state survives reload', async ({ page }) => {
     await page.goto('/shop');
 
-    await page
-      .getByRole('listitem')
+    await page.getByRole('listitem')
       .filter({ hasText: 'Hoodie' })
       .getByRole('button', { name: 'Add' })
       .click();
@@ -356,8 +361,7 @@ test.describe('transitions', () => {
     await page.getByRole('button', { name: 'Add' }).click();
     await expect(page.getByText('Temp item')).toBeVisible();
 
-    await page
-      .getByRole('listitem')
+    await page.getByRole('listitem')
       .filter({ hasText: 'Temp item' })
       .getByRole('button', { name: 'Remove' })
       .click();
@@ -494,15 +498,15 @@ test.describe('nuxt features', () => {
 
 ## Vue vs Nuxt Differences
 
-| Aspect             | Vue 3 (Vite)                        | Nuxt 3                                      |
-| ------------------ | ----------------------------------- | ------------------------------------------- |
-| Default port       | `5173`                              | `3000`                                      |
-| Dev command        | `npm run dev`                       | `npx nuxi dev`                              |
-| Build + preview    | `npm run build && npx vite preview` | `npx nuxi build && npx nuxi preview`        |
-| SSR                | Optional                            | Built-in                                    |
-| API routes         | External backend                    | `/server/api/` built-in                     |
-| Env variables      | `VITE_*` prefix                     | `NUXT_PUBLIC_*` (client), `NUXT_*` (server) |
-| File-based routing | No                                  | Yes                                         |
+| Aspect | Vue 3 (Vite) | Nuxt 3 |
+| --- | --- | --- |
+| Default port | `5173` | `3000` |
+| Dev command | `npm run dev` | `npx nuxi dev` |
+| Build + preview | `npm run build && npx vite preview` | `npx nuxi build && npx nuxi preview` |
+| SSR | Optional | Built-in |
+| API routes | External backend | `/server/api/` built-in |
+| Env variables | `VITE_*` prefix | `NUXT_PUBLIC_*` (client), `NUXT_*` (server) |
+| File-based routing | No | Yes |
 
 ## Component Testing Dependencies
 
@@ -558,13 +562,13 @@ test('no Vue warnings during render', async ({ page }) => {
 
 ## Anti-Patterns
 
-| Avoid                                                                 | Problem                                            | Instead                                                   |
-| --------------------------------------------------------------------- | -------------------------------------------------- | --------------------------------------------------------- |
-| `page.evaluate(() => app.__vue_app__.config.globalProperties.$store)` | Accesses Vue internals; breaks on upgrades         | Assert on UI that state produces                          |
-| `page.locator('[data-v-abc123]')`                                     | Scoped style hashes change on every build          | Use `getByRole`, `getByText`, `getByTestId`               |
-| Import `.vue` files in E2E tests                                      | E2E tests run in Node.js; `.vue` needs compilation | Use `@playwright/experimental-ct-vue` for component tests |
-| `page.waitForTimeout(300)` for transitions                            | Arbitrary waits are fragile                        | `await expect(locator).toBeVisible()` auto-waits          |
-| Mock Pinia by patching `window.__pinia`                               | Fragile; may not trigger reactivity                | Control state through UI or mock API responses            |
-| Test composables via `page.evaluate`                                  | Composables need Vue's setup context               | Test through components or unit test with Vitest          |
-| `page.locator('.v-btn')` for Vuetify                                  | Class names change between versions                | `page.getByRole('button', { name: 'Submit' })`            |
-| Run Nuxt dev server in CI                                             | Dev mode is slower with hot reload overhead        | Use `npx nuxi build && npx nuxi preview`                  |
+| Avoid | Problem | Instead |
+| --- | --- | --- |
+| `page.evaluate(() => app.__vue_app__.config.globalProperties.$store)` | Accesses Vue internals; breaks on upgrades | Assert on UI that state produces |
+| `page.locator('[data-v-abc123]')` | Scoped style hashes change on every build | Use `getByRole`, `getByText`, `getByTestId` |
+| Import `.vue` files in E2E tests | E2E tests run in Node.js; `.vue` needs compilation | Use `@playwright/experimental-ct-vue` for component tests |
+| `page.waitForTimeout(300)` for transitions | Arbitrary waits are fragile | `await expect(locator).toBeVisible()` auto-waits |
+| Mock Pinia by patching `window.__pinia` | Fragile; may not trigger reactivity | Control state through UI or mock API responses |
+| Test composables via `page.evaluate` | Composables need Vue's setup context | Test through components or unit test with Vitest |
+| `page.locator('.v-btn')` for Vuetify | Class names change between versions | `page.getByRole('button', { name: 'Submit' })` |
+| Run Nuxt dev server in CI | Dev mode is slower with hot reload overhead | Use `npx nuxi build && npx nuxi preview` |

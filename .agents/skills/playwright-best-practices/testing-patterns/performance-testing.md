@@ -14,7 +14,7 @@
 ### Measure LCP, FID, CLS
 
 ```typescript
-test('core web vitals within thresholds', async ({ page }) => {
+test("core web vitals within thresholds", async ({ page }) => {
   // Inject web-vitals library
   await page.addInitScript(() => {
     (window as any).__webVitals = {};
@@ -22,11 +22,11 @@ test('core web vitals within thresholds', async ({ page }) => {
     // Simplified web vitals collection
     new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
-        if (entry.entryType === 'largest-contentful-paint') {
+        if (entry.entryType === "largest-contentful-paint") {
           (window as any).__webVitals.lcp = entry.startTime;
         }
       }
-    }).observe({ type: 'largest-contentful-paint', buffered: true });
+    }).observe({ type: "largest-contentful-paint", buffered: true });
 
     new PerformanceObserver((list) => {
       let cls = 0;
@@ -36,13 +36,13 @@ test('core web vitals within thresholds', async ({ page }) => {
         }
       }
       (window as any).__webVitals.cls = cls;
-    }).observe({ type: 'layout-shift', buffered: true });
+    }).observe({ type: "layout-shift", buffered: true });
   });
 
-  await page.goto('/');
+  await page.goto("/");
 
   // Wait for page to stabilize
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState("networkidle");
 
   // Get metrics
   const vitals = await page.evaluate(() => (window as any).__webVitals);
@@ -56,16 +56,16 @@ test('core web vitals within thresholds', async ({ page }) => {
 ### Using web-vitals Library
 
 ```typescript
-test('web vitals with library', async ({ page }) => {
+test("web vitals with library", async ({ page }) => {
   await page.addInitScript(() => {
     (window as any).__vitals = {};
   });
 
   // Inject web-vitals after navigation
-  await page.goto('/');
+  await page.goto("/");
 
   await page.addScriptTag({
-    url: 'https://unpkg.com/web-vitals@3/dist/web-vitals.iife.js',
+    url: "https://unpkg.com/web-vitals@3/dist/web-vitals.iife.js",
   });
 
   await page.evaluate(() => {
@@ -79,14 +79,14 @@ test('web vitals with library', async ({ page }) => {
   });
 
   // Trigger FID by clicking
-  await page.getByRole('button').first().click();
+  await page.getByRole("button").first().click();
 
   // Wait and collect
   await page.waitForTimeout(1000);
 
   const vitals = await page.evaluate(() => (window as any).__vitals);
 
-  console.log('Web Vitals:', vitals);
+  console.log("Web Vitals:", vitals);
 
   // Assertions
   if (vitals.lcp) expect(vitals.lcp).toBeLessThan(2500);
@@ -100,11 +100,13 @@ test('web vitals with library', async ({ page }) => {
 ### Navigation Timing
 
 ```typescript
-test('page load performance', async ({ page }) => {
-  await page.goto('/');
+test("page load performance", async ({ page }) => {
+  await page.goto("/");
 
   const timing = await page.evaluate(() => {
-    const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+    const nav = performance.getEntriesByType(
+      "navigation",
+    )[0] as PerformanceNavigationTiming;
 
     return {
       // Time to First Byte
@@ -124,7 +126,7 @@ test('page load performance', async ({ page }) => {
     };
   });
 
-  console.log('Performance timing:', timing);
+  console.log("Performance timing:", timing);
 
   // Assertions
   expect(timing.ttfb).toBeLessThan(600); // TTFB < 600ms
@@ -136,12 +138,12 @@ test('page load performance', async ({ page }) => {
 ### Resource Timing
 
 ```typescript
-test('resource loading performance', async ({ page }) => {
-  await page.goto('/');
+test("resource loading performance", async ({ page }) => {
+  await page.goto("/");
 
   const resources = await page.evaluate(() => {
-    return performance.getEntriesByType('resource').map((entry) => ({
-      name: entry.name.split('/').pop(),
+    return performance.getEntriesByType("resource").map((entry) => ({
+      name: entry.name.split("/").pop(),
       type: (entry as PerformanceResourceTiming).initiatorType,
       duration: entry.duration,
       size: (entry as PerformanceResourceTiming).transferSize,
@@ -152,7 +154,7 @@ test('resource loading performance', async ({ page }) => {
   const slowResources = resources.filter((r) => r.duration > 1000);
 
   if (slowResources.length > 0) {
-    console.warn('Slow resources:', slowResources);
+    console.warn("Slow resources:", slowResources);
   }
 
   // Find large resources
@@ -165,8 +167,8 @@ test('resource loading performance', async ({ page }) => {
 ### Memory Usage
 
 ```typescript
-test('memory usage is reasonable', async ({ page }) => {
-  await page.goto('/dashboard');
+test("memory usage is reasonable", async ({ page }) => {
+  await page.goto("/dashboard");
 
   // Check memory (Chrome only)
   const memory = await page.evaluate(() => {
@@ -219,13 +221,13 @@ export const budgets = {
 ### Test Against Budgets
 
 ```typescript
-import { budgets } from './performance-budgets';
+import { budgets } from "./performance-budgets";
 
-test('homepage meets performance budget', async ({ page }) => {
+test("homepage meets performance budget", async ({ page }) => {
   const budget = budgets.homepage;
 
-  await page.goto('/');
-  await page.waitForLoadState('networkidle');
+  await page.goto("/");
+  await page.waitForLoadState("networkidle");
 
   // Measure LCP
   const lcp = await page.evaluate(() => {
@@ -233,27 +235,35 @@ test('homepage meets performance budget', async ({ page }) => {
       new PerformanceObserver((list) => {
         const entries = list.getEntries();
         resolve(entries[entries.length - 1].startTime);
-      }).observe({ type: 'largest-contentful-paint', buffered: true });
+      }).observe({ type: "largest-contentful-paint", buffered: true });
     });
   });
 
   // Measure resources
   const resources = await page.evaluate(() => {
-    const entries = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
+    const entries = performance.getEntriesByType(
+      "resource",
+    ) as PerformanceResourceTiming[];
     return {
       totalSize: entries.reduce((sum, e) => sum + (e.transferSize || 0), 0),
       jsSize: entries
-        .filter((e) => e.initiatorType === 'script')
+        .filter((e) => e.initiatorType === "script")
         .reduce((sum, e) => sum + (e.transferSize || 0), 0),
-      imageCount: entries.filter((e) => e.initiatorType === 'img').length,
+      imageCount: entries.filter((e) => e.initiatorType === "img").length,
     };
   });
 
   // Assert budgets
-  expect(lcp, 'LCP exceeds budget').toBeLessThan(budget.lcp);
-  expect(resources.totalSize, 'Total size exceeds budget').toBeLessThan(budget.totalSize);
-  expect(resources.jsSize, 'JS size exceeds budget').toBeLessThan(budget.jsSize);
-  expect(resources.imageCount, 'Too many images').toBeLessThanOrEqual(budget.imageCount);
+  expect(lcp, "LCP exceeds budget").toBeLessThan(budget.lcp);
+  expect(resources.totalSize, "Total size exceeds budget").toBeLessThan(
+    budget.totalSize,
+  );
+  expect(resources.jsSize, "JS size exceeds budget").toBeLessThan(
+    budget.jsSize,
+  );
+  expect(resources.imageCount, "Too many images").toBeLessThanOrEqual(
+    budget.imageCount,
+  );
 });
 ```
 
@@ -276,23 +286,33 @@ export const test = base.extend<PerformanceFixtures>({
   assertBudget: async ({ page }, use) => {
     await use(async (budget) => {
       const metrics = await page.evaluate(() => {
-        const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-        const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
+        const nav = performance.getEntriesByType(
+          "navigation",
+        )[0] as PerformanceNavigationTiming;
+        const resources = performance.getEntriesByType(
+          "resource",
+        ) as PerformanceResourceTiming[];
 
         return {
           ttfb: nav.responseStart - nav.requestStart,
-          totalSize: resources.reduce((sum, r) => sum + (r.transferSize || 0), 0),
+          totalSize: resources.reduce(
+            (sum, r) => sum + (r.transferSize || 0),
+            0,
+          ),
         };
       });
 
       if (budget.ttfb) {
-        expect(metrics.ttfb, `TTFB ${metrics.ttfb}ms exceeds budget ${budget.ttfb}ms`).toBeLessThan(
-          budget.ttfb
-        );
+        expect(
+          metrics.ttfb,
+          `TTFB ${metrics.ttfb}ms exceeds budget ${budget.ttfb}ms`,
+        ).toBeLessThan(budget.ttfb);
       }
 
       if (budget.totalSize) {
-        expect(metrics.totalSize, `Total size exceeds budget`).toBeLessThan(budget.totalSize);
+        expect(metrics.totalSize, `Total size exceeds budget`).toBeLessThan(
+          budget.totalSize,
+        );
       }
     });
   },
@@ -308,10 +328,10 @@ npm install -D playwright-lighthouse lighthouse
 ```
 
 ```typescript
-import { playAudit } from 'playwright-lighthouse';
+import { playAudit } from "playwright-lighthouse";
 
-test('lighthouse audit', async ({ page }) => {
-  await page.goto('/');
+test("lighthouse audit", async ({ page }) => {
+  await page.goto("/");
 
   // Run Lighthouse
   const audit = await playAudit({
@@ -320,22 +340,26 @@ test('lighthouse audit', async ({ page }) => {
     thresholds: {
       performance: 80,
       accessibility: 90,
-      'best-practices': 80,
+      "best-practices": 80,
       seo: 80,
     },
   });
 
   // Assertions
-  expect(audit.lhr.categories.performance.score * 100).toBeGreaterThanOrEqual(80);
-  expect(audit.lhr.categories.accessibility.score * 100).toBeGreaterThanOrEqual(90);
+  expect(audit.lhr.categories.performance.score * 100).toBeGreaterThanOrEqual(
+    80,
+  );
+  expect(audit.lhr.categories.accessibility.score * 100).toBeGreaterThanOrEqual(
+    90,
+  );
 });
 ```
 
 ### Lighthouse with Config
 
 ```typescript
-test('lighthouse with custom config', async ({ page }, testInfo) => {
-  await page.goto('/');
+test("lighthouse with custom config", async ({ page }, testInfo) => {
+  await page.goto("/");
 
   const audit = await playAudit({
     page,
@@ -344,9 +368,9 @@ test('lighthouse with custom config', async ({ page }, testInfo) => {
       performance: 70,
     },
     config: {
-      extends: 'lighthouse:default',
+      extends: "lighthouse:default",
       settings: {
-        onlyCategories: ['performance'],
+        onlyCategories: ["performance"],
         throttling: {
           rttMs: 40,
           throughputKbps: 10240,
@@ -357,13 +381,13 @@ test('lighthouse with custom config', async ({ page }, testInfo) => {
   });
 
   // Save report
-  const reportPath = testInfo.outputPath('lighthouse-report.html');
+  const reportPath = testInfo.outputPath("lighthouse-report.html");
   // Save audit.report to file
 
   // Attach to test report
-  await testInfo.attach('lighthouse', {
+  await testInfo.attach("lighthouse", {
     body: JSON.stringify(audit.lhr),
-    contentType: 'application/json',
+    contentType: "application/json",
   });
 });
 ```
@@ -374,13 +398,15 @@ test('lighthouse with custom config', async ({ page }, testInfo) => {
 
 ```typescript
 // reporters/perf-reporter.ts
-import { Reporter, TestResult } from '@playwright/test/reporter';
+import { Reporter, TestResult } from "@playwright/test/reporter";
 
 class PerfReporter implements Reporter {
   private metrics: any[] = [];
 
   onTestEnd(test: any, result: TestResult) {
-    const perfAnnotation = test.annotations.find((a: any) => a.type === 'performance');
+    const perfAnnotation = test.annotations.find(
+      (a: any) => a.type === "performance",
+    );
 
     if (perfAnnotation) {
       this.metrics.push({
@@ -395,7 +421,7 @@ class PerfReporter implements Reporter {
     // Send to metrics service
     if (process.env.METRICS_ENDPOINT) {
       await fetch(process.env.METRICS_ENDPOINT, {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify({
           commit: process.env.GITHUB_SHA,
           branch: process.env.GITHUB_REF,
@@ -412,11 +438,13 @@ export default PerfReporter;
 ### Performance Regression Detection
 
 ```typescript
-test('no performance regression', async ({ page }) => {
-  await page.goto('/');
+test("no performance regression", async ({ page }) => {
+  await page.goto("/");
 
   const metrics = await page.evaluate(() => {
-    const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+    const nav = performance.getEntriesByType(
+      "navigation",
+    )[0] as PerformanceNavigationTiming;
     return {
       loadTime: nav.loadEventEnd - nav.startTime,
     };
@@ -428,7 +456,7 @@ test('no performance regression', async ({ page }) => {
 
   expect(
     metrics.loadTime,
-    `Load time ${metrics.loadTime}ms is ${((metrics.loadTime / baseline - 1) * 100).toFixed(1)}% slower than baseline`
+    `Load time ${metrics.loadTime}ms is ${((metrics.loadTime / baseline - 1) * 100).toFixed(1)}% slower than baseline`,
   ).toBeLessThan(baseline * threshold);
 });
 ```

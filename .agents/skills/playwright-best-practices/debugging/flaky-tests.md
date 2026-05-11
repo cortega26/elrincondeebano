@@ -63,9 +63,9 @@ CI=true npx playwright test --repeat-each=10
 export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   use: {
-    trace: 'on-first-retry', // Capture trace on retry
-    video: 'retain-on-failure',
-    screenshot: 'only-on-failure',
+    trace: "on-first-retry", // Capture trace on retry
+    video: "retain-on-failure",
+    screenshot: "only-on-failure",
   },
 });
 ```
@@ -75,7 +75,7 @@ export default defineConfig({
 ```typescript
 // Track test results across runs
 test.afterEach(async ({}, testInfo) => {
-  if (testInfo.retry > 0 && testInfo.status === 'passed') {
+  if (testInfo.retry > 0 && testInfo.status === "passed") {
     console.warn(`FLAKY: ${testInfo.title} passed on retry ${testInfo.retry}`);
     // Log to your tracking system
   }
@@ -90,9 +90,13 @@ Add comprehensive event logging to expose timing issues:
 
 ```typescript
 test.beforeEach(async ({ page }) => {
-  page.on('console', (msg) => console.log(`CONSOLE [${msg.type()}]:`, msg.text()));
-  page.on('pageerror', (err) => console.error('PAGE ERROR:', err.message));
-  page.on('requestfailed', (req) => console.error(`REQUEST FAILED: ${req.url()}`));
+  page.on("console", (msg) =>
+    console.log(`CONSOLE [${msg.type()}]:`, msg.text()),
+  );
+  page.on("pageerror", (err) => console.error("PAGE ERROR:", err.message));
+  page.on("requestfailed", (req) =>
+    console.error(`REQUEST FAILED: ${req.url()}`),
+  );
 });
 ```
 
@@ -105,7 +109,7 @@ test.beforeEach(async ({ page }) => {
 test.beforeEach(async ({ page }) => {
   const slowRequests: string[] = [];
 
-  page.on('requestfinished', (request) => {
+  page.on("requestfinished", (request) => {
     const timing = request.timing();
     const duration = timing.responseEnd - timing.requestStart;
     if (duration > 2000) {
@@ -113,7 +117,7 @@ test.beforeEach(async ({ page }) => {
     }
   });
 
-  page.on('requestfailed', (request) => {
+  page.on("requestfailed", (request) => {
     console.error(`Failed: ${request.url()} - ${request.failure()?.errorText}`);
   });
 });
@@ -137,37 +141,37 @@ npx playwright test tests/flaky.spec.ts --trace on
 
 ```typescript
 // ❌ BAD: No wait for element state
-await page.click('#submit');
-await page.fill('#username', 'test'); // Element may not be ready
+await page.click("#submit");
+await page.fill("#username", "test"); // Element may not be ready
 
 // ✅ GOOD: Actions + assertions pattern (auto-waiting built-in)
-await page.getByRole('button', { name: 'Submit' }).click();
-await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
+await page.getByRole("button", { name: "Submit" }).click();
+await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
 ```
 
 **Problem: Animations or transitions interfere**
 
 ```typescript
 // ❌ BAD: Click during animation
-await page.click('.menu-item');
+await page.click(".menu-item");
 
 // ✅ GOOD: Wait for animation to complete
-await page.getByRole('menuitem', { name: 'Settings' }).click();
-await expect(page.getByRole('dialog')).toBeVisible();
+await page.getByRole("menuitem", { name: "Settings" }).click();
+await expect(page.getByRole("dialog")).toBeVisible();
 // Or disable animations entirely
-await page.emulateMedia({ reducedMotion: 'reduce' });
+await page.emulateMedia({ reducedMotion: "reduce" });
 ```
 
 **Problem: Brittle selectors**
 
 ```typescript
 // ❌ BAD: Fragile CSS chain
-await page.click('div.container > div:nth-child(2) > button.btn-primary');
+await page.click("div.container > div:nth-child(2) > button.btn-primary");
 
 // ✅ GOOD: Semantic selectors
-await page.getByRole('button', { name: 'Continue' }).click();
-await page.getByTestId('checkout-button').click();
-await page.getByLabel('Email address').fill('test@example.com');
+await page.getByRole("button", { name: "Continue" }).click();
+await page.getByTestId("checkout-button").click();
+await page.getByLabel("Email address").fill("test@example.com");
 ```
 
 ### Async/Timing Flakiness
@@ -176,20 +180,23 @@ await page.getByLabel('Email address').fill('test@example.com');
 
 ```typescript
 // ❌ BAD: Arbitrary sleep
-await page.click('#load-data');
+await page.click("#load-data");
 await page.waitForTimeout(3000); // Hope data loads in 3s
 
 // ✅ GOOD: Wait for specific condition
-await page.click('#load-data');
-await expect(page.locator('.data-row')).toHaveCount(10, { timeout: 10000 });
+await page.click("#load-data");
+await expect(page.locator(".data-row")).toHaveCount(10, { timeout: 10000 });
 
 // ✅ BETTER: Wait for network response, then assert
 const responsePromise = page.waitForResponse(
-  (r) => r.url().includes('/api/data') && r.request().method() === 'GET' && r.ok()
+  (r) =>
+    r.url().includes("/api/data") &&
+    r.request().method() === "GET" &&
+    r.ok(),
 );
-await page.click('#load-data');
+await page.click("#load-data");
 await responsePromise;
-await expect(page.locator('.data-row')).toHaveCount(10);
+await expect(page.locator(".data-row")).toHaveCount(10);
 ```
 
 > **For comprehensive waiting strategies** (navigation, element state, network, polling with `toPass()`), see [assertions-waiting.md](assertions-waiting.md#waiting-strategies).
@@ -205,9 +212,9 @@ await page.waitForFunction(() => {
 
 // Wait for multiple conditions
 await Promise.all([
-  page.waitForResponse('**/api/user'),
-  page.waitForResponse('**/api/settings'),
-  page.getByRole('button', { name: 'Load' }).click(),
+  page.waitForResponse("**/api/user"),
+  page.waitForResponse("**/api/settings"),
+  page.getByRole("button", { name: "Load" }).click(),
 ]);
 ```
 
@@ -217,12 +224,15 @@ await Promise.all([
 
 ```typescript
 // ❌ BAD: All workers use same user
-const testUser = { email: 'test@example.com', password: 'pass123' };
+const testUser = { email: "test@example.com", password: "pass123" };
 
 // ✅ GOOD: Unique data per worker
-import { test as base } from '@playwright/test';
+import { test as base } from "@playwright/test";
 
-export const test = base.extend<{}, { testUser: { email: string; id: string } }>({
+export const test = base.extend<
+  {},
+  { testUser: { email: string; id: string } }
+>({
   testUser: [
     async ({}, use, workerInfo) => {
       const email = `test-${workerInfo.workerIndex}-${Date.now()}@example.com`;
@@ -230,7 +240,7 @@ export const test = base.extend<{}, { testUser: { email: string; id: string } }>
       await use(user);
       await deleteTestUser(user.id);
     },
-    { scope: 'worker' },
+    { scope: "worker" },
   ],
 });
 ```
@@ -277,11 +287,11 @@ test.beforeAll(async ({ browser }) => {
 });
 
 // ✅ GOOD: Use Playwright's default isolation (fresh context per test)
-test('first test', async ({ page }) => {
+test("first test", async ({ page }) => {
   // Fresh page for this test
 });
 
-test('second test', async ({ page }) => {
+test("second test", async ({ page }) => {
   // Fresh page for this test
 });
 ```
@@ -293,7 +303,7 @@ test('second test', async ({ page }) => {
 export const test = base.extend<{ tempFile: string }>({
   tempFile: async ({}, use) => {
     const file = `/tmp/test-${Date.now()}.json`;
-    fs.writeFileSync(file, '{}');
+    fs.writeFileSync(file, "{}");
 
     await use(file);
 
@@ -352,16 +362,18 @@ export default defineConfig({
 // Eliminate external API flakiness
 test.beforeEach(async ({ page }) => {
   // Stub unstable third-party APIs
-  await page.route('**/api.analytics.com/**', (route) => route.fulfill({ body: '' }));
-  await page.route('**/api.payment-provider.com/**', (route) =>
-    route.fulfill({ json: { status: 'ok' } })
+  await page.route("**/api.analytics.com/**", (route) =>
+    route.fulfill({ body: "" }),
+  );
+  await page.route("**/api.payment-provider.com/**", (route) =>
+    route.fulfill({ json: { status: "ok" } }),
   );
 });
 
 // Test-specific stub
-test('checkout with payment', async ({ page }) => {
-  await page.route('**/api/payment', (route) =>
-    route.fulfill({ json: { success: true, transactionId: 'test-123' } })
+test("checkout with payment", async ({ page }) => {
+  await page.route("**/api/payment", (route) =>
+    route.fulfill({ json: { success: true, transactionId: "test-123" } }),
   );
   // Test proceeds with deterministic response
 });
@@ -376,12 +388,12 @@ test('checkout with payment', async ({ page }) => {
 export default defineConfig({
   projects: [
     {
-      name: 'stable',
-      testIgnore: ['**/*.flaky.spec.ts'],
+      name: "stable",
+      testIgnore: ["**/*.flaky.spec.ts"],
     },
     {
-      name: 'quarantine',
-      testMatch: ['**/*.flaky.spec.ts'],
+      name: "quarantine",
+      testMatch: ["**/*.flaky.spec.ts"],
       retries: 3,
     },
   ],
@@ -392,18 +404,18 @@ export default defineConfig({
 
 ```typescript
 // Mark flaky tests with annotations
-test('intermittent checkout issue', async ({ page }, testInfo) => {
+test("intermittent checkout issue", async ({ page }, testInfo) => {
   testInfo.annotations.push({
-    type: 'flaky',
-    description: 'Investigating payment API timing - JIRA-1234',
+    type: "flaky",
+    description: "Investigating payment API timing - JIRA-1234",
   });
 
   // Test implementation
 });
 
 // Skip flaky test conditionally
-test('known CI flaky', async ({ page }) => {
-  test.skip(!!process.env.CI, 'Flaky in CI - investigating JIRA-5678');
+test("known CI flaky", async ({ page }) => {
+  test.skip(!!process.env.CI, "Flaky in CI - investigating JIRA-5678");
   // Test implementation
 });
 ```
@@ -424,14 +436,14 @@ npx playwright test tests/new-feature.spec.ts --repeat-each=20 --workers=4
 
 ```typescript
 // ✅ Each test should be self-contained
-test.describe('User profile', () => {
-  test('can update name', async ({ page, testUser }) => {
+test.describe("User profile", () => {
+  test("can update name", async ({ page, testUser }) => {
     // Uses unique testUser fixture
     // No dependency on other tests
     // Cleanup handled by fixture
   });
 
-  test('can update email', async ({ page, testUser }) => {
+  test("can update email", async ({ page, testUser }) => {
     // Independent of "can update name"
     // Own testUser, own state
   });
@@ -442,12 +454,12 @@ test.describe('User profile', () => {
 
 ```typescript
 // ❌ BAD: Single point of failure
-await expect(page.locator('.items')).toHaveCount(5);
+await expect(page.locator(".items")).toHaveCount(5);
 
 // ✅ GOOD: Progressive assertions that help diagnose
-await expect(page.locator('.items-container')).toBeVisible();
-await expect(page.locator('.loading')).not.toBeVisible();
-await expect(page.locator('.items')).toHaveCount(5);
+await expect(page.locator(".items-container")).toBeVisible();
+await expect(page.locator(".loading")).not.toBeVisible();
+await expect(page.locator(".items")).toHaveCount(5);
 ```
 
 ### Retry Budget

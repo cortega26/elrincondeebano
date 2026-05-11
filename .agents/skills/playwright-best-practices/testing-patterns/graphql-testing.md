@@ -15,11 +15,11 @@
 All GraphQL requests go through `POST` to a single endpoint. Send `query`, `variables`, and optionally `operationName` in the JSON body.
 
 ```typescript
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-const GQL_ENDPOINT = '/graphql';
+const GQL_ENDPOINT = "/graphql";
 
-test('query with variables', async ({ request }) => {
+test("query with variables", async ({ request }) => {
   const resp = await request.post(GQL_ENDPOINT, {
     data: {
       query: `
@@ -32,7 +32,7 @@ test('query with variables', async ({ request }) => {
           }
         }
       `,
-      variables: { id: '101' },
+      variables: { id: "101" },
     },
   });
 
@@ -42,7 +42,7 @@ test('query with variables', async ({ request }) => {
   // GraphQL returns 200 even on errors — always check both
   expect(errors).toBeUndefined();
   expect(data.item).toMatchObject({
-    id: '101',
+    id: "101",
     title: expect.any(String),
     price: expect.any(Number),
   });
@@ -60,11 +60,11 @@ test('query with variables', async ({ request }) => {
 ### Mutations
 
 ```typescript
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-const GQL_ENDPOINT = '/graphql';
+const GQL_ENDPOINT = "/graphql";
 
-test('mutation creates resource', async ({ request }) => {
+test("mutation creates resource", async ({ request }) => {
   const resp = await request.post(GQL_ENDPOINT, {
     data: {
       query: `
@@ -78,9 +78,9 @@ test('mutation creates resource', async ({ request }) => {
       `,
       variables: {
         input: {
-          title: 'New Widget',
+          title: "New Widget",
           price: 15.0,
-          status: 'DRAFT',
+          status: "DRAFT",
         },
       },
     },
@@ -90,8 +90,8 @@ test('mutation creates resource', async ({ request }) => {
   expect(errors).toBeUndefined();
   expect(data.addItem).toMatchObject({
     id: expect.any(String),
-    title: 'New Widget',
-    status: 'DRAFT',
+    title: "New Widget",
+    status: "DRAFT",
   });
 });
 ```
@@ -99,11 +99,11 @@ test('mutation creates resource', async ({ request }) => {
 ### Validation Errors
 
 ```typescript
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-const GQL_ENDPOINT = '/graphql';
+const GQL_ENDPOINT = "/graphql";
 
-test('handles validation errors', async ({ request }) => {
+test("handles validation errors", async ({ request }) => {
   const resp = await request.post(GQL_ENDPOINT, {
     data: {
       query: `
@@ -111,26 +111,26 @@ test('handles validation errors', async ({ request }) => {
           addItem(input: $input) { id }
         }
       `,
-      variables: { input: { title: '' } },
+      variables: { input: { title: "" } },
     },
   });
 
   const { data, errors } = await resp.json();
   expect(errors).toBeDefined();
   expect(errors.length).toBeGreaterThan(0);
-  expect(errors[0].message).toContain('title');
-  expect(errors[0].extensions?.code).toBe('BAD_USER_INPUT');
+  expect(errors[0].message).toContain("title");
+  expect(errors[0].extensions?.code).toBe("BAD_USER_INPUT");
 });
 ```
 
 ### Authorization Errors
 
 ```typescript
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-const GQL_ENDPOINT = '/graphql';
+const GQL_ENDPOINT = "/graphql";
 
-test('handles authorization errors', async ({ request }) => {
+test("handles authorization errors", async ({ request }) => {
   const resp = await request.post(GQL_ENDPOINT, {
     data: {
       query: `
@@ -143,7 +143,7 @@ test('handles authorization errors', async ({ request }) => {
 
   const { data, errors } = await resp.json();
   expect(errors).toBeDefined();
-  expect(errors[0].extensions?.code).toBe('UNAUTHORIZED');
+  expect(errors[0].extensions?.code).toBe("UNAUTHORIZED");
   expect(data?.adminMetrics).toBeNull();
 });
 ```
@@ -152,7 +152,7 @@ test('handles authorization errors', async ({ request }) => {
 
 ```typescript
 // fixtures/graphql-fixtures.ts
-import { test as base, expect, APIRequestContext } from '@playwright/test';
+import { test as base, expect, APIRequestContext } from "@playwright/test";
 
 type GraphQLFixtures = {
   gqlClient: APIRequestContext;
@@ -162,10 +162,10 @@ type GraphQLFixtures = {
 export const test = base.extend<GraphQLFixtures>({
   gqlClient: async ({ playwright }, use) => {
     const ctx = await playwright.request.newContext({
-      baseURL: 'https://api.myapp.io',
+      baseURL: "https://api.myapp.io",
       extraHTTPHeaders: {
         Authorization: `Bearer ${process.env.API_TOKEN}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
     await use(ctx);
@@ -174,9 +174,9 @@ export const test = base.extend<GraphQLFixtures>({
 
   adminGqlClient: async ({ playwright }, use) => {
     const loginCtx = await playwright.request.newContext({
-      baseURL: 'https://api.myapp.io',
+      baseURL: "https://api.myapp.io",
     });
-    const loginResp = await loginCtx.post('/graphql', {
+    const loginResp = await loginCtx.post("/graphql", {
       data: {
         query: `
           mutation Login($email: String!, $password: String!) {
@@ -190,20 +190,18 @@ export const test = base.extend<GraphQLFixtures>({
       },
     });
     const { data } = await loginResp.json();
-
+    
     if (!data?.login?.token) {
-      throw new Error(
-        `Admin login failed: status ${loginResp.status()}, response: ${JSON.stringify(data)}`
-      );
+      throw new Error(`Admin login failed: status ${loginResp.status()}, response: ${JSON.stringify(data)}`);
     }
-
+    
     await loginCtx.dispose();
 
     const ctx = await playwright.request.newContext({
-      baseURL: 'https://api.myapp.io',
+      baseURL: "https://api.myapp.io",
       extraHTTPHeaders: {
         Authorization: `Bearer ${data.login.token}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
     await use(ctx);
@@ -218,14 +216,14 @@ export { expect };
 
 ```typescript
 // utils/graphql.ts
-import { APIRequestContext, expect } from '@playwright/test';
+import { APIRequestContext, expect } from "@playwright/test";
 
 export async function gqlQuery<T = any>(
   request: APIRequestContext,
   query: string,
   variables?: Record<string, any>
 ): Promise<{ data: T; errors?: any[] }> {
-  const resp = await request.post('/graphql', {
+  const resp = await request.post("/graphql", {
     data: { query, variables },
   });
   expect(resp.ok()).toBeTruthy();
@@ -243,14 +241,14 @@ export async function gqlMutation<T = any>(
 
 ```typescript
 // tests/api/items.spec.ts
-import { test, expect } from '@playwright/test';
-import { gqlQuery, gqlMutation } from '../../utils/graphql';
+import { test, expect } from "@playwright/test";
+import { gqlQuery, gqlMutation } from "../../utils/graphql";
 
-test('fetch and update item', async ({ request }) => {
+test("fetch and update item", async ({ request }) => {
   const { data: fetchData } = await gqlQuery(
     request,
     `query GetItem($id: ID!) { item(id: $id) { id title } }`,
-    { id: '101' }
+    { id: "101" }
   );
   expect(fetchData.item.title).toBeDefined();
 
@@ -259,21 +257,21 @@ test('fetch and update item', async ({ request }) => {
     `mutation UpdateItem($id: ID!, $title: String!) {
       updateItem(id: $id, title: $title) { id title }
     }`,
-    { id: '101', title: 'Updated Title' }
+    { id: "101", title: "Updated Title" }
   );
   expect(errors).toBeUndefined();
-  expect(updateData.updateItem.title).toBe('Updated Title');
+  expect(updateData.updateItem.title).toBe("Updated Title");
 });
 ```
 
 ## Anti-Patterns
 
-| Don't Do This                            | Problem                                                                | Do This Instead                                            |
-| ---------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------- |
-| Check only `response.ok()`               | GraphQL returns 200 even on errors — `errors` array is the real signal | Always check both `data` and `errors` in the response body |
-| Ignore `errors` array                    | Validation and auth errors appear in `errors`, not HTTP status         | Destructure and assert: `expect(errors).toBeUndefined()`   |
-| Hardcode query strings inline everywhere | Duplicated queries are hard to maintain                                | Extract queries to constants or use a helper function      |
-| Skip variable validation                 | Invalid variables cause cryptic server errors                          | Validate input shape before sending                        |
+| Don't Do This | Problem | Do This Instead |
+| --- | --- | --- |
+| Check only `response.ok()` | GraphQL returns 200 even on errors — `errors` array is the real signal | Always check both `data` and `errors` in the response body |
+| Ignore `errors` array | Validation and auth errors appear in `errors`, not HTTP status | Destructure and assert: `expect(errors).toBeUndefined()` |
+| Hardcode query strings inline everywhere | Duplicated queries are hard to maintain | Extract queries to constants or use a helper function |
+| Skip variable validation | Invalid variables cause cryptic server errors | Validate input shape before sending |
 
 ## Troubleshooting
 
@@ -286,7 +284,7 @@ test('fetch and update item', async ({ request }) => {
 ```typescript
 const { data, errors } = await resp.json();
 if (errors) {
-  console.error('GraphQL errors:', JSON.stringify(errors, null, 2));
+  console.error("GraphQL errors:", JSON.stringify(errors, null, 2));
 }
 expect(errors).toBeUndefined();
 expect(data.item).toBeDefined();
@@ -300,7 +298,7 @@ expect(data.item).toBeDefined();
 
 ```typescript
 // Introspection query to debug schema
-const { data } = await request.post('/graphql', {
+const { data } = await request.post("/graphql", {
   data: {
     query: `{ __type(name: "Item") { fields { name type { name } } } }`,
   },
@@ -316,18 +314,18 @@ console.log(data.__type.fields);
 
 ```typescript
 // Wrong: variable name mismatch
-const resp = await request.post('/graphql', {
+const resp = await request.post("/graphql", {
   data: {
     query: `query GetItem($itemId: ID!) { item(id: $itemId) { id } }`,
-    variables: { id: '101' }, // Should be { itemId: "101" }
+    variables: { id: "101" }, // Should be { itemId: "101" }
   },
 });
 
 // Correct
-const resp = await request.post('/graphql', {
+const resp = await request.post("/graphql", {
   data: {
     query: `query GetItem($itemId: ID!) { item(id: $itemId) { id } }`,
-    variables: { itemId: '101' },
+    variables: { itemId: "101" },
   },
 });
 ```
