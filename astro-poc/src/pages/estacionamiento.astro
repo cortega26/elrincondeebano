@@ -62,6 +62,44 @@ const sharePreview = createSharePreviewMetadata({
       </div>
     </div>
 
+    <div class="parking-section-title">Datos del conductor</div>
+    <p class="parking-section-desc">
+      Obligatorios para que conserjería autorice el ingreso y salida del
+      vehículo.
+    </p>
+    <div class="parking-fields-group">
+      <div class="parking-field">
+        <label for="parking-driver">Nombre completo</label>
+        <input
+          type="text"
+          id="parking-driver"
+          class="form-control"
+          placeholder="Ej. Juan Pérez"
+          autocomplete="name"
+        />
+      </div>
+      <div class="parking-field">
+        <label for="parking-plate">Patente del vehículo</label>
+        <input
+          type="text"
+          id="parking-plate"
+          class="form-control"
+          placeholder="Ej. ABC-123"
+          autocomplete="off"
+        />
+      </div>
+      <div class="parking-field">
+        <label for="parking-apartment">N.° de departamento</label>
+        <input
+          type="text"
+          id="parking-apartment"
+          class="form-control"
+          placeholder="Ej. 42"
+          autocomplete="off"
+        />
+      </div>
+    </div>
+
     <div id="parking-breakdown" class="parking-breakdown is-hidden">
       <div id="parking-breakdown-list"></div>
       <div id="parking-total" class="parking-total is-hidden"></div>

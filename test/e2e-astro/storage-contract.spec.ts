@@ -58,6 +58,8 @@ test('repeat-order flow keeps canonical last-order state usable after reload', a
   await page.locator('#delivery-note').fill('Dejar en conserjeria');
   await page.locator('#payment-cash').check();
   await page.locator('#submit-cart').click();
+  await page.locator('#order-confirm-dialog').waitFor({ state: 'visible' });
+  await page.locator('#order-confirm-send').click();
 
   await page.waitForFunction(() => {
     const lastOrder = JSON.parse(localStorage.getItem('astro-poc-last-order') || 'null');

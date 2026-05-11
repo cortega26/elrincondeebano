@@ -64,11 +64,3 @@ npm run validate:release
 | Headers de seguridad edge                        | [`EDGE_SECURITY_HEADERS`](docs/operations/EDGE_SECURITY_HEADERS.md)                                 |
 | Scripts y utilidades                             | [`tools/`](tools/)                                                                                  |
 | Suite de pruebas                                 | [`test/`](test/)                                                                                    |
-
-<claude-mem-context>
-# Memory Context
-
-# [Tienda Ebano] recent context, 2026-04-16 8:16pm GMT-4
-
-No previous sessions found.
-</claude-mem-context>

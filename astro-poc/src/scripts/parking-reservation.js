@@ -123,9 +123,14 @@ function formatCurrency(value) {
   return '$' + Number(value).toLocaleString('es-CL');
 }
 
-function buildWhatsAppMessage(breakdown) {
+function buildWhatsAppMessage(breakdown, driverName, licensePlate, apartment) {
   var lines = [];
   lines.push('🔵 *Reserva Estacionamiento — El Rincón de Ébano*');
+  lines.push('');
+  lines.push('*Datos del conductor:*');
+  lines.push('Nombre: ' + driverName);
+  lines.push('Patente: ' + licensePlate);
+  lines.push('Dpto: ' + apartment);
   lines.push('');
   lines.push('*Noches:*');
   lines.push('');
@@ -242,8 +247,6 @@ function renderBreakdown(breakdown) {
   list.appendChild(totalRow);
 
   totalEl.textContent = formatCurrency(total);
-
-  if (submitBtn) submitBtn.disabled = false;
 }
 
 function clearBreakdown() {
@@ -271,6 +274,23 @@ function setStatusMessage(text, type) {
   msg.classList.remove('is-hidden');
 }
 
+function validateForm() {
+  var checkIn = getDateFromInput('parking-checkin');
+  var checkOut = getDateFromInput('parking-checkout');
+  var driver = document.getElementById('parking-driver');
+  var plate = document.getElementById('parking-plate');
+  var apt = document.getElementById('parking-apartment');
+  var submitBtn = document.getElementById('parking-submit');
+
+  var datesOk = checkIn && checkOut && checkOut > checkIn;
+  var fieldsOk =
+    driver && driver.value.trim() && plate && plate.value.trim() && apt && apt.value.trim();
+
+  if (submitBtn) {
+    submitBtn.disabled = !(datesOk && fieldsOk);
+  }
+}
+
 function onDateChange(holidays) {
   var checkIn = getDateFromInput('parking-checkin');
   var checkOut = getDateFromInput('parking-checkout');
@@ -278,18 +298,21 @@ function onDateChange(holidays) {
   if (!checkIn || !checkOut) {
     clearBreakdown();
     setStatusMessage('', '');
+    validateForm();
     return;
   }
 
   if (checkOut <= checkIn) {
     clearBreakdown();
     setStatusMessage('La fecha de salida debe ser posterior a la de llegada.', 'alert-warning');
+    validateForm();
     return;
   }
 
   setStatusMessage('', '');
   var breakdown = calculateBreakdown(checkIn, checkOut, holidays);
   renderBreakdown(breakdown);
+  validateForm();
 }
 
 function onSubmit(holidays) {
@@ -298,10 +321,22 @@ function onSubmit(holidays) {
 
   if (!checkIn || !checkOut || checkOut <= checkIn) return;
 
+  var driver = document.getElementById('parking-driver');
+  var plate = document.getElementById('parking-plate');
+  var apt = document.getElementById('parking-apartment');
+
+  if (!driver || !driver.value.trim() || !plate || !plate.value.trim() || !apt || !apt.value.trim())
+    return;
+
   var breakdown = calculateBreakdown(checkIn, checkOut, holidays);
   if (breakdown.length === 0) return;
 
-  var message = buildWhatsAppMessage(breakdown);
+  var message = buildWhatsAppMessage(
+    breakdown,
+    driver.value.trim(),
+    plate.value.trim(),
+    apt.value.trim()
+  );
   var encoded = encodeURIComponent(message);
   globalThis.open('https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encoded, '_blank');
 }
@@ -352,6 +387,18 @@ function initParkingReservation() {
     e.preventDefault();
     onSubmit(holidays);
   });
+
+  var driverInput = document.getElementById('parking-driver');
+  var plateInput = document.getElementById('parking-plate');
+  var aptInput = document.getElementById('parking-apartment');
+
+  function onFieldChange() {
+    validateForm();
+  }
+
+  if (driverInput) driverInput.addEventListener('input', onFieldChange);
+  if (plateInput) plateInput.addEventListener('input', onFieldChange);
+  if (aptInput) aptInput.addEventListener('input', onFieldChange);
 }
 
 /* ── Boot ───────────────────────────────────────────────────── */

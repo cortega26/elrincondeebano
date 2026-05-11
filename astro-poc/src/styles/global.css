@@ -2559,9 +2559,34 @@ body.service-dialog-open {
   display: none;
 }
 
+.parking-section-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.parking-section-desc {
+  margin: 0.15rem 0 0.65rem;
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+  line-height: 1.35;
+}
+
+.parking-fields-group {
+  display: grid;
+  gap: 0.75rem;
+}
+
 @media (min-width: 576px) {
   .parking-dates {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .parking-fields-group {
+    grid-template-columns: 2fr 1fr 1fr;
   }
 }
 
