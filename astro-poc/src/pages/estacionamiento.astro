@@ -1,0 +1,100 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { createSharePreviewMetadata, DEFAULT_OG_IMAGE } from '../lib/seo';
+
+const sharePreview = createSharePreviewMetadata({
+  title: 'Estacionamiento | El Rincón de Ébano',
+  description:
+    'Reserva tu estacionamiento en el edificio Ébano por noche. Tarifas desde $4.000.',
+  canonicalPath: '/estacionamiento/',
+  ogImage: DEFAULT_OG_IMAGE,
+  ogImageAlt: 'Estacionamiento El Rincón de Ébano',
+});
+---
+
+<BaseLayout
+  title={sharePreview.title}
+  description={sharePreview.description}
+  canonicalPath="/estacionamiento/"
+  sharePreview={sharePreview}
+  showTrustStrip={false}
+>
+  <section class="category-intro mb-4" aria-labelledby="parking-page-heading">
+    <div class="category-intro-copy">
+      <div class="category-intro-headline">
+        <h1 id="parking-page-heading" class="mb-0">Estacionamiento</h1>
+        <a class="btn btn-outline-primary hero-secondary" href="/">
+          Seguir comprando
+        </a>
+      </div>
+      <p class="category-summary mb-0">
+        Reserva tu estacionamiento por noche. Selecciona las fechas y confirma
+        por WhatsApp.
+      </p>
+    </div>
+  </section>
+
+  <!-- Pricing Legend -->
+  <div class="pricing-legend mb-4" aria-label="Tabla de tarifas">
+    <div class="pricing-legend__item">
+      <span class="pricing-legend__swatch pricing-legend__swatch--regular" aria-hidden="true"></span>
+      <span><strong>Domingo a jueves</strong> · $4.000 / noche (excepto feriados)</span>
+    </div>
+    <div class="pricing-legend__item">
+      <span class="pricing-legend__swatch pricing-legend__swatch--high" aria-hidden="true"></span>
+      <span
+        ><strong>Viernes, sábado, vísperas y feriados</strong> · $5.000 /
+        noche</span
+      >
+    </div>
+  </div>
+
+  <!-- Reservation Card -->
+  <div class="parking-card">
+    <div class="parking-dates">
+      <div class="parking-field">
+        <label for="parking-checkin">Llegada (check-in)</label>
+        <input type="date" id="parking-checkin" class="form-control" />
+      </div>
+      <div class="parking-field">
+        <label for="parking-checkout">Salida (check-out)</label>
+        <input type="date" id="parking-checkout" class="form-control" />
+      </div>
+    </div>
+
+    <div id="parking-breakdown" class="parking-breakdown is-hidden">
+      <div id="parking-breakdown-list"></div>
+      <div id="parking-total" class="parking-total is-hidden"></div>
+    </div>
+
+    <div id="parking-message" class="is-hidden" role="status" aria-live="polite"></div>
+
+    <button
+      id="parking-submit"
+      class="btn btn-primary parking-submit"
+      disabled
+    >
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        focusable="false"
+        style="margin-right: 0.45rem;"
+      >
+        <line x1="22" y1="2" x2="11" y2="13" />
+        <polygon points="22 2 15 22 11 13 2 9 22 2" />
+      </svg>
+      Enviar reserva por WhatsApp
+    </button>
+  </div>
+
+  <script>
+    import '../scripts/parking-reservation.js';
+  </script>
+</BaseLayout>
