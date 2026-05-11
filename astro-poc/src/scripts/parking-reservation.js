@@ -123,7 +123,7 @@ function formatCurrency(value) {
   return '$' + Number(value).toLocaleString('es-CL');
 }
 
-function buildWhatsAppMessage(breakdown, driverName, licensePlate, apartment) {
+function buildWhatsAppMessage(breakdown, driverName, licensePlate, apartment, paymentMethod) {
   var lines = [];
   lines.push('🔵 *Reserva Estacionamiento — El Rincón de Ébano*');
   lines.push('');
@@ -161,6 +161,7 @@ function buildWhatsAppMessage(breakdown, driverName, licensePlate, apartment) {
     return sum + n.price;
   }, 0);
   lines.push('*Total:* ' + formatCurrency(total));
+  lines.push('*Pago:* ' + paymentMethod);
 
   return lines.join('\n');
 }
@@ -247,6 +248,14 @@ function renderBreakdown(breakdown) {
   list.appendChild(totalRow);
 
   totalEl.textContent = formatCurrency(total);
+
+  var creditContainer = document.getElementById('parking-payment-credit-container');
+  var paymentHint = document.getElementById('parking-payment-hint');
+  if (creditContainer && paymentHint) {
+    var showCredit = total >= 30000;
+    creditContainer.classList.toggle('is-hidden', !showCredit);
+    paymentHint.classList.toggle('is-hidden', !showCredit);
+  }
 }
 
 function clearBreakdown() {
@@ -274,6 +283,14 @@ function setStatusMessage(text, type) {
   msg.classList.remove('is-hidden');
 }
 
+function getSelectedPayment() {
+  var radios = document.querySelectorAll('input[name="parkingPayment"]');
+  for (var i = 0; i < radios.length; i++) {
+    if (radios[i].checked) return radios[i].value;
+  }
+  return '';
+}
+
 function validateForm() {
   var checkIn = getDateFromInput('parking-checkin');
   var checkOut = getDateFromInput('parking-checkout');
@@ -283,8 +300,9 @@ function validateForm() {
   var submitBtn = document.getElementById('parking-submit');
 
   var datesOk = checkIn && checkOut && checkOut > checkIn;
-  var fieldsOk =
-    driver && driver.value.trim() && plate && plate.value.trim() && apt && apt.value.trim();
+  var aptOk = apt && /^\d{3,4}$/.test(apt.value.trim());
+  var paymentOk = !!getSelectedPayment();
+  var fieldsOk = driver && driver.value.trim() && plate && plate.value.trim() && aptOk && paymentOk;
 
   if (submitBtn) {
     submitBtn.disabled = !(datesOk && fieldsOk);
@@ -324,8 +342,17 @@ function onSubmit(holidays) {
   var driver = document.getElementById('parking-driver');
   var plate = document.getElementById('parking-plate');
   var apt = document.getElementById('parking-apartment');
+  var paymentMethod = getSelectedPayment();
 
-  if (!driver || !driver.value.trim() || !plate || !plate.value.trim() || !apt || !apt.value.trim())
+  if (
+    !driver ||
+    !driver.value.trim() ||
+    !plate ||
+    !plate.value.trim() ||
+    !apt ||
+    !/^\d{3,4}$/.test(apt.value.trim()) ||
+    !paymentMethod
+  )
     return;
 
   var breakdown = calculateBreakdown(checkIn, checkOut, holidays);
@@ -335,7 +362,8 @@ function onSubmit(holidays) {
     breakdown,
     driver.value.trim(),
     plate.value.trim(),
-    apt.value.trim()
+    apt.value.trim(),
+    paymentMethod
   );
   var encoded = encodeURIComponent(message);
   globalThis.open('https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encoded, '_blank');
@@ -399,6 +427,11 @@ function initParkingReservation() {
   if (driverInput) driverInput.addEventListener('input', onFieldChange);
   if (plateInput) plateInput.addEventListener('input', onFieldChange);
   if (aptInput) aptInput.addEventListener('input', onFieldChange);
+
+  var paymentRadios = document.querySelectorAll('input[name="parkingPayment"]');
+  for (var i = 0; i < paymentRadios.length; i++) {
+    paymentRadios[i].addEventListener('change', onFieldChange);
+  }
 }
 
 /* ── Boot ───────────────────────────────────────────────────── */

@@ -94,9 +94,31 @@ const sharePreview = createSharePreviewMetadata({
           type="text"
           id="parking-apartment"
           class="form-control"
-          placeholder="Ej. 42"
+          placeholder="Ej. 201"
           autocomplete="off"
         />
+      </div>
+    </div>
+
+    <div class="parking-section-title">Método de pago</div>
+    <p class="parking-section-desc">Selecciona cómo pagarás al retirar el vehículo.</p>
+    <div class="parking-payment">
+      <p id="parking-payment-hint" class="parking-payment-hint is-hidden" role="status" aria-live="polite">
+        Tarjeta de crédito disponible desde CLP 30.000 en adelante.
+      </p>
+      <div class="parking-payment-options">
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="parkingPayment" id="parking-payment-cash" value="Efectivo" />
+          <label class="form-check-label" for="parking-payment-cash">Efectivo</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="parkingPayment" id="parking-payment-transfer" value="Transferencia" />
+          <label class="form-check-label" for="parking-payment-transfer">Transferencia</label>
+        </div>
+        <div class="form-check is-hidden" id="parking-payment-credit-container">
+          <input class="form-check-input" type="radio" name="parkingPayment" id="parking-payment-credit" value="Tarjeta de Crédito" />
+          <label class="form-check-label" for="parking-payment-credit">Tarjeta de Crédito</label>
+        </div>
       </div>
     </div>
 
