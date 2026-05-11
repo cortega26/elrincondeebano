@@ -9,6 +9,10 @@ var MAX_NIGHTS = 30;
 var HOLIDAYS_API_URL = 'https://feriados.cl/api/v1/feriados';
 var SESSION_CACHE_KEY = 'astro-poc-parking-holidays';
 var CACHE_TTL_MS = 86400000;
+var BOOKINGS_CSV_URL =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQzPYJK56BihZqj2SDz39CcXt1G5ll7h2yNPFGbu_Y4gM8uax0otamO9Zh-SCMpDFCLk7isRRaJINYE/pub?gid=936239218&single=true&output=csv';
+var BOOKINGS_CACHE_KEY = 'astro-poc-parking-bookings';
+var BOOKINGS_CACHE_TTL = 300000;
 
 /* ── Holiday API ────────────────────────────────────────────── */
 
@@ -63,6 +67,70 @@ function fetchHolidays() {
     });
 }
 
+/* ── Bookings CSV ──────────────────────────────────────────── */
+
+function getCachedBookings() {
+  try {
+    var raw = sessionStorage.getItem(BOOKINGS_CACHE_KEY);
+    if (!raw) return null;
+    var cached = JSON.parse(raw);
+    if (Date.now() - cached.timestamp > BOOKINGS_CACHE_TTL) return null;
+    return cached.data;
+  } catch (_) {
+    return null;
+  }
+}
+
+function setCachedBookings(data) {
+  try {
+    sessionStorage.setItem(
+      BOOKINGS_CACHE_KEY,
+      JSON.stringify({ timestamp: Date.now(), data: data })
+    );
+  } catch (_) {
+    /* ignore */
+  }
+}
+
+function parseBookingsCSV(csvText) {
+  var lines = csvText.trim().split('\n');
+  if (lines.length < 2) return [];
+  var bookings = [];
+  for (var i = 1; i < lines.length; i++) {
+    var parts = lines[i].split(',');
+    if (parts.length >= 2 && parts[0].trim() && parts[1].trim()) {
+      bookings.push({ desde: parts[0].trim(), hasta: parts[1].trim() });
+    }
+  }
+  return bookings;
+}
+
+function isNightBlocked(dateStr, bookings) {
+  for (var i = 0; i < bookings.length; i++) {
+    if (dateStr >= bookings[i].desde && dateStr < bookings[i].hasta) return true;
+  }
+  return false;
+}
+
+function fetchBookings() {
+  var cached = getCachedBookings();
+  if (cached) return Promise.resolve(cached);
+
+  return fetch(BOOKINGS_CSV_URL)
+    .then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    })
+    .then(function (csvText) {
+      var bookings = parseBookingsCSV(csvText);
+      setCachedBookings(bookings);
+      return bookings;
+    })
+    .catch(function () {
+      return [];
+    });
+}
+
 /* ── Pricing ────────────────────────────────────────────────── */
 
 function getNightPrice(date, holidays) {
@@ -90,14 +158,16 @@ function isDateEveOfHoliday(date, holidays) {
   return holidays.indexOf(dateToISO(nextDay)) !== -1;
 }
 
-function calculateBreakdown(checkIn, checkOut, holidays) {
+function calculateBreakdown(checkIn, checkOut, holidays, bookings) {
   var nights = [];
   var current = new Date(checkIn.getTime());
 
   while (current < checkOut) {
+    var dateStr = dateToISO(current);
     var price = getNightPrice(current, holidays);
     var holiday = isDateHoliday(current, holidays);
     var eve = !holiday && isDateEveOfHoliday(current, holidays);
+    var blocked = bookings && isNightBlocked(dateStr, bookings);
 
     nights.push({
       date: new Date(current.getTime()),
@@ -109,6 +179,7 @@ function calculateBreakdown(checkIn, checkOut, holidays) {
       price: price,
       isHoliday: holiday,
       isEve: eve,
+      isBlocked: blocked,
     });
 
     current.setDate(current.getDate() + 1);
@@ -194,6 +265,7 @@ function renderBreakdown(breakdown) {
   breakdown.forEach(function (night) {
     var row = document.createElement('div');
     row.className = 'parking-breakdown__row';
+    if (night.isBlocked) row.classList.add('parking-breakdown__row--blocked');
 
     var label = document.createElement('span');
     label.className = 'parking-breakdown__label';
@@ -202,7 +274,12 @@ function renderBreakdown(breakdown) {
       night.dayName.charAt(0).toUpperCase() + night.dayName.slice(1) + ' ' + night.dateStr;
     label.appendChild(document.createTextNode(labelText));
 
-    if (night.isHoliday) {
+    if (night.isBlocked) {
+      var bBadge = document.createElement('span');
+      bBadge.className = 'parking-breakdown__badge parking-breakdown__badge--blocked';
+      bBadge.textContent = 'Ocupada';
+      label.appendChild(bBadge);
+    } else if (night.isHoliday) {
       var hBadge = document.createElement('span');
       hBadge.className = 'parking-breakdown__badge parking-breakdown__badge--holiday';
       hBadge.textContent = 'Feriado';
@@ -226,11 +303,12 @@ function renderBreakdown(breakdown) {
 
     var priceSpan = document.createElement('span');
     priceSpan.className = 'parking-breakdown__price';
-    priceSpan.textContent = formatCurrency(night.price);
+    if (night.isBlocked) priceSpan.classList.add('parking-breakdown__price--blocked');
+    priceSpan.textContent = night.isBlocked ? '—' : formatCurrency(night.price);
     row.appendChild(priceSpan);
 
     list.appendChild(row);
-    total += night.price;
+    if (!night.isBlocked) total += night.price;
   });
 
   var totalRow = document.createElement('div');
@@ -301,7 +379,7 @@ function validateForm() {
   return datesOk && fieldsOk;
 }
 
-function onDateChange(holidays) {
+function onDateChange(holidays, bookings) {
   var checkIn = getDateFromInput('parking-checkin');
   var checkOut = getDateFromInput('parking-checkout');
 
@@ -320,9 +398,16 @@ function onDateChange(holidays) {
   }
 
   setStatusMessage('', '');
-  var breakdown = calculateBreakdown(checkIn, checkOut, holidays);
+  var breakdown = calculateBreakdown(checkIn, checkOut, holidays, bookings);
   renderBreakdown(breakdown);
   validateForm();
+
+  var hasBlocked = breakdown.some(function (n) {
+    return n.isBlocked;
+  });
+  if (hasBlocked) {
+    setStatusMessage('Una o más noches están ocupadas. Selecciona otras fechas.', 'alert-warning');
+  }
 }
 
 function clearValidationErrors() {
@@ -363,12 +448,26 @@ function markValidationErrors() {
   return hasError;
 }
 
-function onSubmit(holidays) {
+function onSubmit(holidays, bookings) {
   var checkIn = getDateFromInput('parking-checkin');
   var checkOut = getDateFromInput('parking-checkout');
 
   if (!checkIn || !checkOut || checkOut <= checkIn) {
     setStatusMessage('Selecciona las fechas de llegada y salida.', 'alert-warning');
+    return;
+  }
+
+  var breakdown = calculateBreakdown(checkIn, checkOut, holidays, bookings);
+  if (breakdown.length === 0) return;
+
+  var hasBlocked = breakdown.some(function (n) {
+    return n.isBlocked;
+  });
+  if (hasBlocked) {
+    setStatusMessage(
+      'Una o más noches están ocupadas. No se puede enviar la reserva.',
+      'alert-danger'
+    );
     return;
   }
 
@@ -384,9 +483,6 @@ function onSubmit(holidays) {
   }
 
   setStatusMessage('', '');
-  var breakdown = calculateBreakdown(checkIn, checkOut, holidays);
-  if (breakdown.length === 0) return;
-
   var message = buildWhatsAppMessage(
     breakdown,
     driver.value.trim(),
@@ -417,9 +513,14 @@ function initParkingReservation() {
   checkout.max = maxStr;
 
   var holidays = [];
+  var bookings = [];
 
   fetchHolidays().then(function (result) {
     holidays = result;
+  });
+
+  fetchBookings().then(function (result) {
+    bookings = result;
   });
 
   checkin.addEventListener('change', function () {
@@ -433,16 +534,16 @@ function initParkingReservation() {
       clearBreakdown();
       setStatusMessage('', '');
     }
-    onDateChange(holidays);
+    onDateChange(holidays, bookings);
   });
 
   checkout.addEventListener('change', function () {
-    onDateChange(holidays);
+    onDateChange(holidays, bookings);
   });
 
   submitBtn.addEventListener('click', function (e) {
     e.preventDefault();
-    onSubmit(holidays);
+    onSubmit(holidays, bookings);
   });
 
   var driverInput = document.getElementById('parking-driver');

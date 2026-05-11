@@ -2610,6 +2610,21 @@ body.service-dialog-open {
   color: #7b1fa2;
 }
 
+.parking-breakdown__badge--blocked {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.parking-breakdown__row--blocked {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+.parking-breakdown__price--blocked {
+  color: var(--text-muted);
+  font-style: normal;
+}
+
 .parking-submit {
   width: 100%;
   min-height: 48px;
