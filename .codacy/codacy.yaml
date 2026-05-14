@@ -5,6 +5,6 @@ runtimes:
 tools:
     - eslint@9.39.4
     - lizard@1.17.31
-    - opengrep@1.18.0
+    - opengrep@1.21.0
     - pmd@7.16.0
     - trivy@0.70.0
