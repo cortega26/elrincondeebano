@@ -1,4 +1,17 @@
-function canUseStorage(storage) {
+interface RuntimeContract {
+  runtimeId: string;
+  storageVersion: number;
+  cacheVersion: number;
+}
+
+interface SyncResult {
+  available: boolean;
+  invalidated: boolean;
+  version?: string;
+  reason?: string;
+}
+
+function canUseStorage(storage: Storage | null | undefined): storage is Storage {
   if (!storage || typeof storage.getItem !== 'function' || typeof storage.setItem !== 'function') {
     return false;
   }
@@ -13,19 +26,28 @@ function canUseStorage(storage) {
   }
 }
 
-function getVersionStorageKey(runtimeContract) {
+function getVersionStorageKey(runtimeContract: RuntimeContract): string {
   return `${runtimeContract.runtimeId}:service-worker-cache-version`;
 }
 
-export function getStorefrontCacheVersion(runtimeContract) {
+export function getStorefrontCacheVersion(runtimeContract: RuntimeContract): string {
   return `${runtimeContract.runtimeId}:storage-v${runtimeContract.storageVersion}:cache-v${runtimeContract.cacheVersion}`;
 }
 
+interface ServiceWorkerMessageTarget {
+  postMessage(message: unknown, transfer?: Transferable[]): void;
+}
+
+interface SendMessageOptions {
+  channelFactory?: () => MessageChannel;
+  timeoutMs?: number;
+}
+
 export function sendServiceWorkerMessage(
-  target,
-  message,
-  { channelFactory = () => new MessageChannel(), timeoutMs = 5000 } = {}
-) {
+  target: ServiceWorkerMessageTarget | null | undefined,
+  message: unknown,
+  { channelFactory = () => new MessageChannel(), timeoutMs = 5000 }: SendMessageOptions = {}
+): Promise<unknown> {
   if (!target || typeof target.postMessage !== 'function') {
     return Promise.reject(new Error('Service worker target is unavailable.'));
   }
@@ -37,12 +59,12 @@ export function sendServiceWorkerMessage(
       reject(new Error(`Service worker message timed out after ${timeoutMs}ms.`));
     }, timeoutMs);
 
-    channel.port1.onmessage = (event) => {
+    channel.port1.onmessage = (event: MessageEvent) => {
       globalThis.clearTimeout(timeoutId);
-      const payload = event?.data || {};
+      const payload = (event?.data || {}) as Record<string, unknown>;
 
       if (payload?.error) {
-        reject(new Error(payload.error));
+        reject(new Error(String(payload.error)));
         return;
       }
 
@@ -53,6 +75,16 @@ export function sendServiceWorkerMessage(
   });
 }
 
+interface SyncOptions {
+  registration?: ServiceWorkerRegistration | null;
+  runtimeContract?: RuntimeContract | null;
+  storage?: Storage | null;
+  navigatorRef?: Navigator | null;
+  channelFactory?: () => MessageChannel;
+  timeoutMs?: number;
+  log?: ((level: string, message: string, meta?: Record<string, unknown>) => void) | null;
+}
+
 export async function syncStorefrontServiceWorkerVersion({
   registration,
   runtimeContract,
@@ -61,7 +93,7 @@ export async function syncStorefrontServiceWorkerVersion({
   channelFactory,
   timeoutMs = 5000,
   log,
-} = {}) {
+}: SyncOptions = {}): Promise<SyncResult> {
   if (!runtimeContract) {
     return { available: false, invalidated: false, reason: 'missing-runtime-contract' };
   }

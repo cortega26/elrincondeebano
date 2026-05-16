@@ -15,7 +15,7 @@ const rasterTargets = [
   {
     output: 'logo.webp',
     format: 'webp',
-    formatOptions: { quality: 90 },
+    formatOptions: { quality: 85, effort: 6 },
   },
   {
     output: 'logo.avif',
@@ -32,7 +32,7 @@ const rasterTargets = [
         fit: 'contain',
         background: TRANSPARENT_BACKGROUND,
       },
-      formatOptions: { quality: 90 },
+      formatOptions: { quality: 85, effort: 6 },
     },
     {
       output: `logo-${size}.avif`,
@@ -43,7 +43,7 @@ const rasterTargets = [
         fit: 'contain',
         background: TRANSPARENT_BACKGROUND,
       },
-      formatOptions: { quality: 60, effort: 4 },
+      formatOptions: { quality: 60, effort: 6 },
     },
   ]),
   ...[192, 512].map((size) => ({
