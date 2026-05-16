@@ -148,7 +148,7 @@ class ProductManager:
     def _handle_shutdown_signal(self, signum: int, _frame) -> None:
         """Handle shutdown signals gracefully."""
         if self.logger:
-            self.logger.info("Received signal %s, initiating shutdown...", signum)
+            self.logger.info("Recibida señal %s, iniciando cierre...", signum)
         self.exit_event.set()
 
     def initialize(self, config_path: Optional[str] = None) -> None:
@@ -165,7 +165,7 @@ class ProductManager:
             self.config = self._load_configuration(config_path)
             self._setup_logging()
             self._setup_directories()
-            self.logger.info("Application initialization started")
+            self.logger.info("Inicio de inicialización de la aplicación")
         except Exception as exc:
             raise ConfigurationError(
                 f"Failed to initialize application: {exc}"
@@ -398,7 +398,7 @@ class ProductManager:
             yield
         except Exception as exc:  # pylint: disable=broad-exception-caught
             if self.logger:
-                self.logger.error("Unhandled error: %s", exc)
+                self.logger.error("Error no manejado: %s", exc)
                 self.logger.debug(traceback.format_exc())
             message = (
                 f"Ha ocurrido un error inesperado: {str(exc)}\n\n"
@@ -444,8 +444,8 @@ class ProductManager:
         sync_cfg = self.config.get("sync", {})
         queue_name = sync_cfg.get("queue_file", "sync_queue.json")
         queue_path = os.path.join(self.config["data_dir"], queue_name)
-        if not sync_cfg.get("enabled", True):
-            self.logger.info("Remote synchronization disabled by configuration")
+        if not sync_cfg.get("enabled", False):
+            self.logger.info("Sincronización remota deshabilitada por configuración")
             service.set_sync_engine(None)
             return None
         api_base = (sync_cfg.get("api_base") or "").strip()
@@ -483,7 +483,7 @@ class ProductManager:
     def run(self) -> None:
         """Run the application using Tkinter's main loop."""
         with self.error_handler():
-            self.logger.info("Starting application")
+            self.logger.info("Iniciando aplicación")
 
             # Initialize Tk
             root = tk.Tk()
@@ -521,7 +521,7 @@ class ProductManager:
     def _check_exit(self, root: tk.Tk) -> None:
         """Periodically check if an exit event has been triggered and close the app."""
         if self.exit_event.is_set():
-            self.logger.info("Exit event detected, closing the application.")
+            self.logger.info("Evento de salida detectado, cerrando la aplicación.")
             root.quit()
         else:
             root.after(100, lambda: self._check_exit(root))
@@ -533,19 +533,19 @@ class ProductManager:
 
     def _on_window_close(self) -> None:
         """Handle window close event."""
-        self.logger.info("Application shutdown initiated by user")
+        self.logger.info("Cierre de aplicación iniciado por el usuario")
         self.exit_event.set()
 
     def _cleanup(self) -> None:
         """Clean up resources before exit."""
-        self.logger.info("Cleaning up resources")
+        self.logger.info("Limpiando recursos")
         try:
             if self.gui and self.gui.master:
                 self.gui.master.destroy()
         except Exception as exc:  # pylint: disable=broad-exception-caught
-            self.logger.error("Error during cleanup: %s", exc)
+            self.logger.error("Error durante la limpieza: %s", exc)
         finally:
-            self.logger.info("Application shutdown complete")
+            self.logger.info("Cierre de aplicación completado")
             logging.shutdown()
 
 

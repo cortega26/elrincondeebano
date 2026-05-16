@@ -1,6 +1,6 @@
 import { cfimg, CFIMG_THUMB } from './cfimg.mjs';
 
-const PRODUCT_IMAGE_WIDTHS = Object.freeze([200, 320, 400]);
+const PRODUCT_IMAGE_WIDTHS = Object.freeze([200, 320, 400, 480, 640]);
 const STATIC_SRC_DESCRIPTOR_KEYS = Object.freeze(['descriptor', 'd']);
 
 export const normaliseAssetPath = (value = '') => {

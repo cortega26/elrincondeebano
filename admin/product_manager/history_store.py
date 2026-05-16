@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import threading
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -13,6 +14,7 @@ class HistoryStore:
 
     def __init__(self, path: Optional[Path] = None) -> None:
         self.path = path or (Path.home() / ".product_manager" / "product_history.json")
+        self._lock = threading.Lock()
 
     def load_history(self) -> Dict[str, List[Dict[str, Any]]]:
         """Load history from disk; return empty on error."""
@@ -45,8 +47,9 @@ class HistoryStore:
         self, product_key: str, entry: Dict[str, Any], cap: int = 20
     ) -> None:
         """Append an entry to the product history."""
-        history = self.load_history()
-        entries = history.get(product_key, [])
-        entries.append(entry)
-        history[product_key] = entries[-cap:]
-        self.save_history(history)
+        with self._lock:
+            history = self.load_history()
+            entries = history.get(product_key, [])
+            entries.append(entry)
+            history[product_key] = entries[-cap:]
+            self.save_history(history)

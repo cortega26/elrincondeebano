@@ -31,9 +31,10 @@ async function main() {
       withoutEnlargement: false,
     })
     .jpeg({
-      quality: 88,
-      progressive: true,
+      quality: 95,
+      progressive: false,
       mozjpeg: true,
+      chromaSubsampling: '4:4:4',
     })
     .toBuffer();
 

@@ -93,6 +93,7 @@ class ProductFilterCriteria:
     max_price: Optional[float] = None
     only_discount: bool = False
     only_out_of_stock: bool = False
+    only_in_stock: bool = False
     show_archived_only: bool = False
 
 
@@ -152,6 +153,7 @@ class ProductService:
         self.sync_engine = None
         self.category_service = category_service
         self._history_store = HistoryStore()
+        self._dirty: bool = False
         if self.category_service:
             self.category_service.attach_product_service(self)
         self._rebuild_indexes()
@@ -231,6 +233,14 @@ class ProductService:
                 handler.handle_event(event)
             except Exception as exc:  # pylint: disable=broad-exception-caught
                 logger.error("Error en el manejador de eventos: %s", exc)
+
+    def has_changes(self) -> bool:
+        """Return True if there are unsynced local changes."""
+        return self._dirty
+
+    def mark_clean(self) -> None:
+        """Reset the dirty flag after changes have been acknowledged."""
+        self._dirty = False
 
     def set_sync_engine(self, sync_engine) -> None:
         """Attach a sync engine for remote coordination."""
@@ -379,6 +389,7 @@ class ProductService:
                     if key in metadata:
                         catalog_meta[key] = metadata[key]
             self.repository.save_products(products, metadata=catalog_meta)
+            self._dirty = True
             self.clear_cache()
             self._rebuild_indexes()
             return new_product
@@ -462,6 +473,7 @@ class ProductService:
                 if product.category:
                     self._category_index[product.category.lower()].add(product)
                 self.clear_cache()
+                self._dirty = True
                 self._notify_event_handlers(
                     ProductEvent(
                         ProductEventType.CREATED,
@@ -565,6 +577,7 @@ class ProductService:
                 raise ProductServiceError(
                     f"Error al actualizar producto: {exc}"
                 ) from exc
+        self._dirty = True
         if history_entries is not None:
             self._record_history_entries(history_entries)
         if self.sync_engine and queue_payload:
@@ -581,6 +594,7 @@ class ProductService:
                 before_snapshot = product.to_dict()
                 product.is_archived = True
                 self.repository.save_products(products)
+                self._dirty = True
                 self.clear_cache()
                 self._notify_event_handlers(
                     ProductEvent(
@@ -608,16 +622,16 @@ class ProductService:
                 ) from exc
 
     def get_categories(self) -> List[str]:
-        """
-        Get a list of unique categories.
-        """
+        """Get a list of unique non-archived categories."""
         if self.category_service:
             return [
                 product_key
                 for _, product_key in self.category_service.list_category_choices()
             ]
         categories = {
-            product.category for product in self.get_all_products() if product.category
+            product.category
+            for product in self.get_all_products()
+            if product.category and not product.is_archived
         }
         return sorted(categories)
 
@@ -679,6 +693,7 @@ class ProductService:
                     updated += 1
             if updated:
                 self.repository.save_products(products)
+                self._dirty = True
                 self.clear_cache()
                 self._rebuild_indexes()
         return updated
@@ -691,51 +706,51 @@ class ProductService:
         return self.filter_products(ProductFilterCriteria(query=query))
 
     def filter_products(self, criteria: ProductFilterCriteria) -> List[Product]:
-        """Filter products based on multiple criteria."""
+        """Filter products based on multiple criteria (single pass)."""
         with self._products_lock:
-            # Start with all products
-            # Ideally this could be optimized with better indexing if dataset gets large,
-            # but for <10k items linear scan with python is usually fine.
             products = self.get_all_products()
-            if getattr(criteria, "show_archived_only", False):
-                products = [p for p in products if getattr(p, "is_archived", False)]
-            else:
-                products = [p for p in products if not getattr(p, "is_archived", False)]
+            normalized_cat = (
+                criteria.category.strip().lower() if criteria.category else None
+            )
+            q = criteria.query.lower() if criteria.query else None
 
-            # 1. Category Filter
-            if criteria.category:
-                normalized_cat = criteria.category.strip().lower()
-                products = [
-                    p
-                    for p in products
-                    if (p.category or "").strip().lower() == normalized_cat
-                ]
+            def _match(product: Product) -> bool:
+                if criteria.show_archived_only:
+                    if not product.is_archived:
+                        return False
+                elif product.is_archived:
+                    return False
 
-            # 2. Text Search
-            if criteria.query:
-                q = criteria.query.lower()
-                products = [
-                    p
-                    for p in products
-                    if q in p.name.lower()
-                    or (p.description and q in p.description.lower())
-                ]
+                if normalized_cat is not None and (
+                    product.category or ""
+                ).strip().lower() != normalized_cat:
+                    return False
 
-            # 3. Attributes
-            if criteria.only_discount:
-                products = [p for p in products if (p.discount or 0) > 0]
+                if q is not None and q not in product.name.lower() and not (
+                    product.description and q in product.description.lower()
+                ):
+                    return False
 
-            if criteria.only_out_of_stock:
-                products = [p for p in products if not p.stock]
+                if criteria.only_discount and not (product.discount or 0) > 0:
+                    return False
 
-            if criteria.min_price is not None:
-                products = [p for p in products if p.price >= criteria.min_price]
+                if criteria.only_out_of_stock and product.stock:
+                    return False
 
-            if criteria.max_price is not None:
-                products = [p for p in products if p.price <= criteria.max_price]
+                if criteria.only_in_stock and not product.stock:
+                    return False
 
-            # 4. Sorting (Default by order)
-            return sorted(products, key=lambda p: p.order)
+                if criteria.min_price is not None and product.price < criteria.min_price:
+                    return False
+
+                if criteria.max_price is not None and product.price > criteria.max_price:
+                    return False
+
+                return True
+
+            return sorted(
+                (p for p in products if _match(p)), key=lambda p: p.order
+            )
 
     def reorder_products(self, new_order: List[Product]) -> None:
         """
@@ -746,6 +761,7 @@ class ProductService:
                 for i, product in enumerate(new_order):
                     product.order = i
                 self.repository.save_products(new_order)
+                self._dirty = True
                 self._products = new_order
                 self.clear_cache()
                 self._notify_event_handlers(
@@ -868,6 +884,7 @@ class ProductService:
                     )
 
                 self.repository.save_products(products)
+                self._dirty = True
                 self.clear_cache()
                 self._rebuild_indexes()
                 self._notify_event_handlers(
@@ -904,6 +921,7 @@ class ProductService:
             for product in normalized_products:
                 product.category = self._normalize_category_value(product.category)
             self.repository.save_products(normalized_products)
+            self._dirty = True
             self.clear_cache()
             self._rebuild_indexes()
             if entries_list:
@@ -1055,6 +1073,31 @@ class ProductService:
             "summary": summary,
         }
 
+    def purge_product(self, name: str, description: Optional[str] = None) -> bool:
+        """Permanently remove a product from the catalog."""
+        with self._products_lock:
+            try:
+                product = self.get_product_by_name(name, description)
+                products = self.get_all_products()
+                products.remove(product)
+                self.repository.save_products(products)
+                self._dirty = True
+                self.clear_cache()
+                self._rebuild_indexes()
+                self._notify_event_handlers(
+                    ProductEvent(
+                        ProductEventType.DELETED,
+                        name,
+                        details={"purged": True},
+                    )
+                )
+                return True
+            except ProductNotFoundError:
+                return False
+            except Exception as exc:  # pylint: disable=broad-exception-caught
+                logger.error("Error al purgar producto: %s", exc)
+                raise ProductServiceError(f"Error al purgar producto: {exc}") from exc
+
     def get_version_info(self) -> VersionInfo:
         """Get current version information."""
         try:
@@ -1075,7 +1118,7 @@ class ProductService:
                     product_count=len(products),
                 )
         except Exception as exc:  # pylint: disable=broad-exception-caught
-            logger.error("Error getting version info: %s", exc)
+            logger.error("Error al obtener información de versión: %s", exc)
             return VersionInfo(
                 version=datetime.now().strftime("%Y%m%d-%H%M%S"),
                 last_updated=datetime.now(),
