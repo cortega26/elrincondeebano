@@ -111,6 +111,16 @@ test('runSync copies offline fallback into Astro public/pages, reduces public me
   );
   fs.writeFileSync(path.join(repoRoot, 'assets', 'images', 'demo', 'producto.webp'), 'webp');
   fs.writeFileSync(path.join(repoRoot, 'assets', 'images', 'demo', 'producto.avif'), 'avif');
+  fs.mkdirSync(path.join(repoRoot, 'assets', 'images', 'og', 'categories'), { recursive: true });
+  fs.writeFileSync(path.join(repoRoot, 'assets', 'images', 'og', 'logo.png'), 'source-logo');
+  fs.writeFileSync(
+    path.join(repoRoot, 'assets', 'images', 'og', 'categories', 'demo.override.png'),
+    'source-override'
+  );
+  fs.writeFileSync(
+    path.join(repoRoot, 'assets', 'images', 'og', 'categories', 'demo.og_v3.jpg'),
+    'generated-og'
+  );
   fs.writeFileSync(path.join(repoRoot, 'robots.txt'), 'User-agent: *\nAllow: /\n');
   fs.writeFileSync(path.join(repoRoot, 'app.webmanifest'), '{"name":"demo"}\n');
   fs.writeFileSync(
@@ -140,6 +150,24 @@ test('runSync copies offline fallback into Astro public/pages, reduces public me
   assert.deepEqual(publicProductsPayload.rev, undefined);
   assert.deepEqual(publicProductsPayload.products[0].rev, undefined);
   assert.deepEqual(publicProductsPayload.products[0].field_last_modified, undefined);
+  assert.ok(
+    fs.existsSync(path.join(projectRoot, 'public', 'assets', 'images', 'demo', 'producto.webp'))
+  );
+  assert.ok(
+    fs.existsSync(
+      path.join(projectRoot, 'public', 'assets', 'images', 'og', 'categories', 'demo.og_v3.jpg')
+    )
+  );
+  assert.equal(
+    fs.existsSync(path.join(projectRoot, 'public', 'assets', 'images', 'og', 'logo.png')),
+    false
+  );
+  assert.equal(
+    fs.existsSync(
+      path.join(projectRoot, 'public', 'assets', 'images', 'og', 'categories', 'demo.override.png')
+    ),
+    false
+  );
 
   const invalidPayload = {
     ...productPayload,
