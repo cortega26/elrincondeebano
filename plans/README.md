@@ -10,13 +10,12 @@ Cada ejecutor: lee el plan completo antes de empezar y actualiza su fila al term
 | -------------------------------------------------- | ---------------------------------------------------- | --------- | -------- | -------------------------------------- | ------ |
 | [001](001-remove-cypress.md)                       | Eliminar Cypress y sus vulnerabilidades              | P1        | S        | —                                      | DONE   |
 | [002](002-fix-double-record-order.md)              | Corregir doble `recordOrder()` en checkout           | P1        | S        | —                                      | DONE   |
-| [003](003-csp-secret-scan-hardening.md)            | Hardening CSP + patrón Cloudflare en secret-scan     | P2        | S        | —                                      | TODO   |
+| [003](003-csp-secret-scan-hardening.md)            | Hardening CSP + patrón Cloudflare en secret-scan     | P2        | S        | —                                      | DONE   |
 | [004](004-fix-sw-cache-timeout-nav-groups.md)      | Fix SW cache timeout + nil-guard `nav_groups`        | P1        | S        | —                                      | DONE   |
-| [005](005-dx-bundle-eslint-playwright-coverage.md) | DX bundle: ESLint TS + Playwright retries + coverage | P2        | S        | 001 (para no lintar cypress.config.ts) | TODO   |
-| [006](006-extract-shared-formatting-constants.md)  | Extraer `formatCurrency` + `WHATSAPP_NUMBER` a lib   | P2        | S        | —                                      | TODO   |
-| [007](007-storefront-state-unit-tests.md)          | Unit tests para `storefront-state.ts`                | P1        | M        | 002 (recomendado)                      | TODO   |
+| [005](005-dx-bundle-eslint-playwright-coverage.md) | DX bundle: ESLint TS + Playwright retries + coverage | P2        | S        | 001 (para no lintar cypress.config.ts) | DONE   |
+| [006](006-extract-shared-formatting-constants.md)  | Extraer `formatCurrency` + `WHATSAPP_NUMBER` a lib   | P2        | S        | —                                      | DONE   |
+| [007](007-storefront-state-unit-tests.md)          | Unit tests para `storefront-state.ts`                | P1        | M        | 002 (recomendado)                      | DONE   |
 | [008](008-dir-shareable-cart-url.md)               | SPIKE: Carrito compartible por URL                   | P3        | S→M      | 006 (recomendado)                      | TODO   |
-| [009](009-dir-delivery-slot-selection.md)          | SPIKE: Selector de horario de retiro                 | P3        | S→M      | —                                      | TODO   |
 | [010](010-dir-stock-notifications.md)              | SPIKE: Notificaciones de productos favoritos         | P3        | S→L      | —                                      | TODO   |
 
 **Valores de estado**: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED: <razón>` | `REJECTED: <razón>`
@@ -31,7 +30,7 @@ Cada ejecutor: lee el plan completo antes de empezar y actualiza su fila al term
   Tener el fix del Plan 002 primero hace el test más claro.
 - **008 después de 006 (recomendado)**: el carrito compartible usa `WHATSAPP_NUMBER`.
   Tener la constante centralizada facilita el spike.
-- Planes 003, 004, 006, 009, 010 son totalmente independientes entre sí.
+- Planes 003, 004, 006 y 010 son totalmente independientes entre sí.
 
 ## Notas de ejecución
 
@@ -85,6 +84,7 @@ Los siguientes fueron auditados y descartados. No reabrir sin nueva evidencia.
 | LAYER-01: Factory pattern con 12+ deps          | By design para testabilidad — no es un anti-patrón en este contexto                                                                                                   |
 | DIR-03: Personalización no renderizada en home  | FALSO POSITIVO — `renderPersonalizedProducts()` SÍ se llama en init (`storefront.js:1749`) y el contenedor `[data-home-personalized-grid]` SÍ existe en `index.astro` |
 | DIR-05: Falta botón "repetir último pedido"     | FALSO POSITIVO — `[data-repeat-last-order]` existe y está wired en `storefront.js:431–444` y `1459–1524`                                                              |
+| DIR-09: Selector de horario de retiro/entrega   | RECHAZADO por decisión operativa — la mercancía se entrega a domicilio y de forma inmediata; no se deben prometer slots ni retiro programado                          |
 
 ## Próxima auditoría recomendada
 

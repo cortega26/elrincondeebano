@@ -43,14 +43,14 @@ test.describe('Ver combos navigation', () => {
       const introLink = document.querySelector('.home-layout__bundles .home-section__link');
       const footerLink = document.querySelector('.home-layout__bundles .home-section__footer a');
       const experienceData = document.getElementById('storefront-experience-data');
-      let totalBundles = 0;
-
-      try {
-        const parsed = JSON.parse(experienceData?.textContent || '{}');
-        totalBundles = Array.isArray(parsed?.bundles) ? parsed.bundles.length : 0;
-      } catch {
-        totalBundles = 0;
-      }
+      const totalBundles = (() => {
+        try {
+          const parsed = JSON.parse(experienceData?.textContent || '{}');
+          return Array.isArray(parsed?.bundles) ? parsed.bundles.length : 0;
+        } catch {
+          return 0;
+        }
+      })();
 
       return {
         cardCount: cards.length,

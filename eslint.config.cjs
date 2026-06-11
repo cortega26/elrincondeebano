@@ -1,5 +1,6 @@
 const js = require('@eslint/js');
 const globals = require('globals');
+const tseslint = require('typescript-eslint');
 
 module.exports = [
   {
@@ -26,7 +27,7 @@ module.exports = [
   },
   js.configs.recommended,
   {
-    files: ['**/*.{js,mjs,cjs}'],
+    files: ['**/*.{js,mjs,cjs,ts,mts}'],
     languageOptions: {
       ecmaVersion: 2021,
       sourceType: 'module',
@@ -60,6 +61,26 @@ module.exports = [
     files: ['**/*.cjs'],
     languageOptions: {
       sourceType: 'commonjs',
+    },
+  },
+  {
+    files: ['**/*.{ts,mts}'],
+    plugins: {
+      '@typescript-eslint': tseslint.plugin,
+    },
+    languageOptions: {
+      parser: tseslint.parser,
+    },
+    rules: {
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          caughtErrors: 'none',
+          varsIgnorePattern: '^_',
+        },
+      ],
     },
   },
 ];

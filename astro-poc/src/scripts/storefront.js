@@ -8,6 +8,7 @@ import {
   STOREFRONT_RUNTIME_CONTRACT,
 } from './storefront/storage-contract.js';
 import { log } from '../lib/logger.js';
+import { WHATSAPP_NUMBER, formatCurrency } from '../lib/formatting.js';
 import {
   clampQty,
   createCartItemFromProduct,
@@ -20,7 +21,6 @@ import {
 
 const MAX_RECENT_ORDERS = 6;
 const MAX_PERSONALIZED_ITEMS = 4;
-const WHATSAPP_NUMBER = '56951118901';
 const MOBILE_CART_SHORTCUT_REVEAL_DELAY_MS = 280;
 
 if (typeof window !== 'undefined') {
@@ -64,14 +64,6 @@ function debounce(fn, wait = 120) {
       fn(...args);
     }, wait);
   };
-}
-
-function formatCurrency(value) {
-  return new Intl.NumberFormat('es-CL', {
-    style: 'currency',
-    currency: 'CLP',
-    minimumFractionDigits: 0,
-  }).format(parseNumber(value, 0));
 }
 
 function normalizeSearchText(value) {

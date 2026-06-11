@@ -190,5 +190,5 @@ Al terminar el spike:
   que vuelven regularmente (lo que el tracking de recentOrders sugiere que sí).
 - V1 intencional con scope mínimo: solo in-page, solo campo de stock estático.
   Las notificaciones push requieren un plan separado de complejidad L.
-- Relacionado con Plan 009 (slots): si ambos se implementan, el UX debe ser
-  coherente (mismo lenguaje visual para "preferencias del usuario").
+- Mantener el alcance alineado con la operación actual: la mercancía se entrega
+  a domicilio y de forma inmediata, sin slots ni retiro programado.

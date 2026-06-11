@@ -183,16 +183,17 @@ coverage: {
   provider: 'v8',
   reporter: ['text', 'json', 'html'],
   thresholds: {
-    statements: <baseline_statements - 5>,
-    branches: <baseline_branches - 5>,
-    functions: <baseline_functions - 5>,
-    lines: <baseline_lines - 5>,
+    statements: 33,
+    branches: 25,
+    functions: 28,
+    lines: 33,
   },
 },
 ```
 
-Reemplaza `<baseline_X - 5>` con los valores reales. Redondea hacia abajo al
-entero más cercano. Ejemplo: si `statements` está en 67.3%, usa `62`.
+Estos valores corresponden a ~5 puntos bajo la baseline medida durante la
+implementación: statements 38.27%, branches 30.47%, functions 33.78%, lines
+38.79%.
 
 **Verificar**: `npx vitest run --coverage` → exit 0 (los thresholds deben
 pasarse con la baseline actual).

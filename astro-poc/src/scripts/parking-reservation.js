@@ -1,8 +1,9 @@
 // Parking reservation module for /estacionamiento/
 // Standalone vanilla JS — no framework, no dependencies.
 
+import { WHATSAPP_NUMBER, formatCurrency } from '../lib/formatting.js';
+
 /* Constants */
-var WHATSAPP_NUMBER = '56951118901';
 var PRICE_REGULAR = 4000;
 var PRICE_HIGH = 5000;
 var MAX_NIGHTS = 30;
@@ -186,12 +187,6 @@ function calculateBreakdown(checkIn, checkOut, holidays, bookings) {
   }
 
   return nights;
-}
-
-/* ── Formatting ─────────────────────────────────────────────── */
-
-function formatCurrency(value) {
-  return '$' + Number(value).toLocaleString('es-CL');
 }
 
 function buildWhatsAppMessage(breakdown, driverName, licensePlate, apartment, paymentMethod) {

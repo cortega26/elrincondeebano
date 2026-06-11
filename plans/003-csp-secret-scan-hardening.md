@@ -167,7 +167,7 @@ En `tools/guardrails/secret-scan.mjs`, agrega **una** entrada al array
 
 ```js
   // Cloudflare API tokens: asignación explícita con token de 40 chars
-  { id: 'cloudflare-api-token', regex: /\bcf[_-]?(?:api[_-]?)?token[_-]?[:=]\s*['"]?[A-Za-z0-9_-]{40}['"]?/gi },
+  { id: 'cloudflare-api-token', regex: /\b(?:cf|cloudflare)[_-]?(?:api[_-]?)?token\b\s*[:=]\s*['"]?[A-Za-z0-9_-]{40}['"]?/gi },
 ```
 
 Este patrón captura asignaciones explícitas como:

@@ -11,6 +11,7 @@ export default defineConfig({
   testDir: 'test/e2e-astro',
   fullyParallel: false,
   timeout: 60_000,
+  retries: 1,
   use: {
     baseURL,
   },

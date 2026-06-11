@@ -1,7 +1,6 @@
 export const SECURITY_HEADER_BASELINE_ROUTES = Object.freeze(['/', '/pages/bebidas.html']);
 const CSP_SELF = "'self'";
 const CSP_NONE = "'none'";
-const CSP_UNSAFE_INLINE = "'unsafe-inline'";
 
 export const SECURITY_HEADER_POLICY = Object.freeze({
   'referrer-policy': 'strict-origin-when-cross-origin',
@@ -24,7 +23,7 @@ export const CONTENT_SECURITY_POLICY_DIRECTIVES = Object.freeze([
       "'sha256-SvXHAIPcJdE6zuH0y1Xb0AUS/ZJCmBwN7SfMfiEj578='",
     ],
   ],
-  ['style-src', [CSP_SELF, CSP_UNSAFE_INLINE]],
+  ['style-src', [CSP_SELF]],
   ['img-src', [CSP_SELF, 'data:', 'https:']],
   ['font-src', [CSP_SELF, 'data:']],
   [
