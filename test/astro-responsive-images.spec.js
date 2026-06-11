@@ -13,6 +13,12 @@ describe('astro responsive images', () => {
       '/assets/images/variants/w200/images/lacteos/Leche%20entera%20L%C3%ADder%201L.webp'
     );
     expect(image.srcset).toContain(
+      '/assets/images/variants/w480/images/lacteos/Leche%20entera%20L%C3%ADder%201L.webp 480w'
+    );
+    expect(image.srcset).toContain(
+      '/assets/images/variants/w640/images/lacteos/Leche%20entera%20L%C3%ADder%201L.webp 640w'
+    );
+    expect(image.srcset).toContain(
       '/assets/images/variants/w320/images/lacteos/Leche%20entera%20L%C3%ADder%201L.webp 320w'
     );
     expect(image.sizes).toBe(PRODUCT_CARD_IMAGE_SIZES);

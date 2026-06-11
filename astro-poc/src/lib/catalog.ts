@@ -133,7 +133,7 @@ export type ResponsiveImageSource = {
 };
 
 const PLACEHOLDER_IMAGE_URL = '/assets/images/web/placeholder.svg';
-const DEFAULT_PRODUCT_CARD_WIDTHS = Object.freeze([200, 320, 400]);
+const DEFAULT_PRODUCT_CARD_WIDTHS = Object.freeze([200, 320, 400, 480, 640]);
 const DEFAULT_PRODUCT_DETAIL_WIDTHS = Object.freeze([320, 400, 640]);
 const PRODUCT_ASSET_PREFIX = 'assets/images/';
 const PRODUCT_VARIANT_PREFIX = 'assets/images/variants';
@@ -643,7 +643,7 @@ export function getCategoryRouteParams(): Array<{ param: string; categoryKey: st
 export function getNavigationGroups(): NavGroup[] {
   const activeCategories = getActiveCategories();
 
-  const groups = categoryRegistry.nav_groups
+  const groups = (categoryRegistry.nav_groups || [])
     .filter((group) => group.active !== false)
     .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
     .map((group) => {

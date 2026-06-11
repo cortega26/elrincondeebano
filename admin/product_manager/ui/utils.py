@@ -218,7 +218,7 @@ def load_thumbnail(path: str, w: int, h: int) -> Optional[Any]:
             img.thumbnail((w, h))
             return ImageTk.PhotoImage(img)
     except Exception as exc:  # pylint: disable=broad-exception-caught
-        logger.warning("Failed to load thumbnail %s: %s", path, exc)
+        logger.warning("Error al cargar miniatura %s: %s", path, exc)
         return None
 
 

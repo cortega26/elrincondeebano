@@ -2636,6 +2636,10 @@ body.service-dialog-open {
   justify-content: center;
 }
 
+.parking-submit__icon {
+  margin-right: 0.45rem;
+}
+
 .parking-total.is-hidden {
   display: none;
 }

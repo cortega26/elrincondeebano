@@ -91,13 +91,19 @@ class AsyncOperation:
             """Poll the queue and update the dialog."""
             try:
                 status, result = self.queue.get_nowait()
-                dialog.destroy()
+                try:
+                    dialog.destroy()
+                except tk.TclError:
+                    pass
                 if status == "success" and on_complete:
                     on_complete(result)
                 elif status == "error":
                     messagebox.showerror("Error", str(result))
             except Empty:
-                dialog.after(100, check_queue)
+                try:
+                    dialog.after(100, check_queue)
+                except tk.TclError:
+                    pass
 
         threading.Thread(target=worker, daemon=True).start()
         check_queue()
@@ -107,6 +113,7 @@ class AsyncOperation:
         dialog = tk.Toplevel(self.parent)
         dialog.title("Procesando...")
         dialog.transient(cast(tk.Wm, self.parent))
+        dialog.protocol("WM_DELETE_WINDOW", lambda: None)
         dialog.wait_visibility()
         dialog.grab_set()
 
@@ -217,19 +224,7 @@ class DragDropMixin:
                         self.reorder_products(end_index)
                 self._drag_data = {"item": None, "start_index": -1}
 
-            # Stock toggle logic check
-            region = self.tree.identify("region", event.x, event.y)
-            column = self.tree.identify_column(event.x)
-            clicked_item = self.tree.identify_row(event.y)
-
-            # This part interacts with product_service which might not be present
-            # in the Mixin itself. Ideally this logic should be in the main class
-            # using the mixin, or the mixin should access it via self.
-            if region == "cell" and column == "#5" and clicked_item:
-                if hasattr(self, "toggle_stock_by_click"):
-                    self.toggle_stock_by_click(clicked_item)
-
         except Exception as exc:  # pylint: disable=broad-exception-caught
             if hasattr(self, "logger"):
-                self.logger.error("Error in drag & drop handling: %s", exc)
+                self.logger.error("Error al manejar arrastrar y soltar: %s", exc)
             messagebox.showerror("Error", f"Error al actualizar el estado: {exc}")

@@ -4,14 +4,12 @@ from __future__ import annotations
 
 import json
 import logging
-import csv
-from datetime import datetime, timezone
 from dataclasses import fields
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import tkinter as tk
-from tkinter import filedialog, messagebox, ttk
+from tkinter import messagebox, ttk
 
 from ..models import Product
 from ..keyboard import bind_submit_keys
@@ -30,6 +28,8 @@ from ..storefront_service import (
     FeaturedStaplesService,
 )
 
+from .bulk_operations_mixin import BulkOperationsMixin
+from .import_export_mixin import ImportExportMixin
 from .components import (
     UIConfig,
     UIState,
@@ -52,7 +52,7 @@ logger = logging.getLogger(__name__)
 # pylint: disable=broad-exception-caught
 
 
-class MainWindow(DragDropMixin):
+class MainWindow(DragDropMixin, BulkOperationsMixin, ImportExportMixin):
     """Main Product Manager GUI Window."""
     # Large UI controller with many widget references and handlers.
     # pylint: disable=too-many-instance-attributes,too-many-public-methods
@@ -90,8 +90,11 @@ class MainWindow(DragDropMixin):
         self._config_save_job: Optional[str] = None
         self._config_save_delay_ms = 500
         self._last_window_size: Optional[tuple[int, int]] = None
+        self._only_in_stock_override: bool = False
         self._pending_import_plan: Optional[Dict[str, Any]] = None
         self._pending_import_merge: Optional[Dict[str, bool]] = None
+        self._import_file_menu: Optional[tk.Menu] = None
+        self._import_apply_index: int = -1
         self.storefront_bundle_service = self._create_storefront_bundle_service()
         self.featured_staples_service = self._create_featured_staples_service()
 
@@ -100,6 +103,7 @@ class MainWindow(DragDropMixin):
         self.bind_shortcuts()
         # Configure drag & drop after treeview has been created in setup_treeview()
         self.setup_drag_and_drop(self.tree)
+        self.master.protocol("WM_DELETE_WINDOW", self._on_closing)
 
     def _create_storefront_bundle_service(self) -> Optional[StorefrontBundleService]:
         project_root = self.project_root or Path(__file__).resolve().parents[3]
@@ -227,7 +231,7 @@ class MainWindow(DragDropMixin):
                         filtered_data.pop("window_size", None)
                     return UIConfig(**filtered_data)
         except Exception as exc:
-            logger.warning("Error loading config: %s", exc)
+            logger.warning("Error al cargar configuración: %s", exc)
         return UIConfig()
 
     @staticmethod
@@ -278,6 +282,19 @@ class MainWindow(DragDropMixin):
         config_path.parent.mkdir(parents=True, exist_ok=True)
         with open(config_path, "w", encoding="utf-8") as f:
             json.dump(existing, f, indent=2, ensure_ascii=False)
+
+    def _on_closing(self) -> None:
+        """Check for unsaved changes before closing."""
+        if self.product_service.has_changes():
+            response = messagebox.askyesno(
+                title="Cambios sin sincronizar",
+                message="Hay cambios locales que no se han sincronizado con el servidor.\n\n"
+                        "¿Desea salir de todas formas?",
+            )
+            if not response:
+                return
+            self.product_service.mark_clean()
+        self.master.quit()
 
     def _capture_column_widths(self) -> None:
         if not hasattr(self, "tree"):
@@ -364,13 +381,17 @@ class MainWindow(DragDropMixin):
         """Create application menu."""
         menubar = tk.Menu(self.master)
 
-        file_menu = tk.Menu(menubar, tearoff=0)
-        file_menu.add_command(
+        self._import_file_menu = tk.Menu(menubar, tearoff=0)
+        self._import_file_menu.add_command(
             label="Importar Productos...", command=self.import_products
         )
-        file_menu.add_command(
-            label="Aplicar importación aprobada...", command=self.apply_pending_import
+        self._import_file_menu.add_command(
+            label="Aplicar importación aprobada...",
+            command=self.apply_pending_import,
+            state=tk.DISABLED,
         )
+        self._import_apply_index = 1
+        file_menu = self._import_file_menu
         file_menu.add_command(
             label="Exportar Productos...", command=self.export_products
         )
@@ -381,7 +402,7 @@ class MainWindow(DragDropMixin):
             label="Chequeo de integridad...", command=self.run_integrity_check
         )
         file_menu.add_separator()
-        file_menu.add_command(label="Salir", command=self.master.quit)
+        file_menu.add_command(label="Salir", command=self._on_closing)
         menubar.add_cascade(label="Archivo", menu=file_menu)
 
         edit_menu = tk.Menu(menubar, tearoff=0)
@@ -705,7 +726,7 @@ class MainWindow(DragDropMixin):
                 f"v{version_info.version} | Actualizado: {timestamp}"
             )
         except Exception as exc:
-            logger.error("Error updating version info: %s", exc)
+            logger.error("Error al actualizar información de versión: %s", exc)
             self.version_var.set("Versión: desconocida")
         self.master.after(60000, self.update_version_info)
 
@@ -824,11 +845,11 @@ class MainWindow(DragDropMixin):
             )
 
     def delete_product(self) -> None:
-        """Delete selected product(s)."""
+        """Delete or purge selected product(s) based on current view mode."""
         selected = self.tree.selection()
         if not selected:
             messagebox.showwarning(
-                "Advertencia", "Por favor seleccione uno o más productos para eliminar."
+                "Advertencia", "Por favor seleccione uno o más productos."
             )
             return
 
@@ -841,17 +862,34 @@ class MainWindow(DragDropMixin):
         if not products:
             return
 
+        show_archived = bool(
+            getattr(self, "show_archived_var", tk.BooleanVar(value=False)).get()
+        )
+        if show_archived:
+            action = "purgar"
+        else:
+            action = "archivar"
+
         if not messagebox.askyesno(
-            "Confirmar Eliminación",
-            f"¿Está seguro de que desea eliminar {len(products)} producto(s)?",
+            "Confirmar",
+            f"¿Está seguro de que desea {action} {len(products)} producto(s)?",
         ):
             return
 
         try:
-            for product in products:
-                self.product_service.delete_product(product.name, product.description)
+            if show_archived:
+                for product in products:
+                    self.product_service.purge_product(
+                        product.name, product.description
+                    )
+                self.update_status(f"{len(products)} producto(s) purgado(s)")
+            else:
+                for product in products:
+                    self.product_service.delete_product(
+                        product.name, product.description
+                    )
+                self.update_status(f"{len(products)} producto(s) archivado(s)")
             self.refresh_products()
-            self.update_status(f"{len(products)} producto(s) eliminado(s)")
         except ProductServiceError as exc:
             messagebox.showerror("Error", str(exc))
 
@@ -1021,48 +1059,52 @@ class MainWindow(DragDropMixin):
         tree.bind("<<TreeviewSelect>>", on_select)
         revert_btn.config(command=on_revert)
 
-    def refresh_products(self) -> None:
-        """Refresh the product list."""
+    def _build_filter_criteria(self) -> ProductFilterCriteria:
+        """Build filter criteria from current UI state."""
+        criteria = ProductFilterCriteria()
         query = self.search_var.get().strip()
-        self.update_categories()
         category_label = self.category_var.get()
 
+        if category_label != "Todas" and self.category_helper:
+            key = self.category_helper.get_key_from_display(category_label)
+            if key:
+                criteria.category = key
+
+        if query:
+            criteria.query = query
+
+        if hasattr(self, "only_discount_var") and self.only_discount_var.get():
+            criteria.only_discount = True
+
+        if (
+            hasattr(self, "only_out_of_stock_var")
+            and self.only_out_of_stock_var.get()
+        ):
+            criteria.only_out_of_stock = True
+
+        if getattr(self, "_only_in_stock_override", False):
+            criteria.only_in_stock = True
+
+        if hasattr(self, "min_price_var"):
+            try:
+                criteria.min_price = float(self.min_price_var.get())
+            except (ValueError, TypeError):
+                pass
+        if hasattr(self, "max_price_var"):
+            try:
+                criteria.max_price = float(self.max_price_var.get())
+            except (ValueError, TypeError):
+                pass
+        if hasattr(self, "show_archived_var"):
+            criteria.show_archived_only = bool(self.show_archived_var.get())
+
+        return criteria
+
+    def refresh_products(self) -> None:
+        """Refresh the product list."""
+        self.update_categories()
         try:
-            # Build Filter Criteria
-            criteria = ProductFilterCriteria()
-
-            if category_label != "Todas" and self.category_helper:
-                key = self.category_helper.get_key_from_display(category_label)
-                if key:
-                    criteria.category = key
-
-            if query:
-                criteria.query = query
-
-            if hasattr(self, "only_discount_var") and self.only_discount_var.get():
-                criteria.only_discount = True
-
-            if (
-                hasattr(self, "only_out_of_stock_var")
-                and self.only_out_of_stock_var.get()
-            ):
-                criteria.only_out_of_stock = True
-
-            # Price parsing
-            def _parse_float(val: str) -> Optional[float]:
-                try:
-                    return float(val)
-                except ValueError:
-                    return None
-
-            if hasattr(self, "min_price_var"):
-                criteria.min_price = _parse_float(self.min_price_var.get())
-            if hasattr(self, "max_price_var"):
-                criteria.max_price = _parse_float(self.max_price_var.get())
-            if hasattr(self, "show_archived_var"):
-                criteria.show_archived_only = bool(self.show_archived_var.get())
-
-            # Fetch Filtered Results
+            criteria = self._build_filter_criteria()
             products = self.product_service.filter_products(criteria)
 
             self.populate_tree(products)
@@ -1076,6 +1118,7 @@ class MainWindow(DragDropMixin):
         """Apply quick view presets by adjusting filters and refreshing."""
         view = self.quick_view_var.get()
         # Reset base filters
+        self._only_in_stock_override = False
         if hasattr(self, "only_discount_var"):
             self.only_discount_var.set(False)
         if hasattr(self, "only_out_of_stock_var"):
@@ -1090,9 +1133,7 @@ class MainWindow(DragDropMixin):
         elif view == "Sin stock":
             self.only_out_of_stock_var.set(True)
         elif view == "En stock":
-            # No explicit flag; leaving both toggles off shows all. We emulate this
-            # by clearing "Solo sin stock".
-            pass
+            self._only_in_stock_override = True
         elif view == "Precio >= 10000":
             self.min_price_var.set("10000")
         elif view == "Precio <= 2000":
@@ -1308,13 +1349,17 @@ class MainWindow(DragDropMixin):
                     state=tk.NORMAL if selected else tk.DISABLED
                 )
             if hasattr(self, "delete_button"):
-                self.delete_button.config(state=tk.DISABLED)
+                self.delete_button.config(
+                    text="Purgar",
+                    state=tk.NORMAL if selected else tk.DISABLED,
+                )
         else:
             if hasattr(self, "restore_button") and self.restore_button.winfo_ismapped():
                 self.restore_button.pack_forget()
             if hasattr(self, "delete_button"):
                 self.delete_button.config(
-                    state=tk.NORMAL if selected else tk.DISABLED
+                    text="Eliminar",
+                    state=tk.NORMAL if selected else tk.DISABLED,
                 )
 
     def handle_selection(self, _event: Optional[tk.Event] = None) -> None:
@@ -1372,6 +1417,7 @@ class MainWindow(DragDropMixin):
 
     def clear_filters(self) -> None:
         """Reset all filters to their default values."""
+        self._only_in_stock_override = False
         if hasattr(self, "search_var"):
             self.search_var.set("")
         if hasattr(self, "category_var"):
@@ -1401,6 +1447,8 @@ class MainWindow(DragDropMixin):
             active = True
         if hasattr(self, "only_out_of_stock_var") and self.only_out_of_stock_var.get():
             active = True
+        if getattr(self, "_only_in_stock_override", False):
+            active = True
         if hasattr(self, "min_price_var") and self.min_price_var.get().strip():
             active = True
         if hasattr(self, "max_price_var") and self.max_price_var.get().strip():
@@ -1420,405 +1468,6 @@ class MainWindow(DragDropMixin):
                 products.append(p)
         return products
 
-    def _ask_number(
-        self,
-        title: str,
-        prompt: str,
-        min_val: Optional[int] = None,
-        max_val: Optional[int] = None,
-    ) -> Optional[float]:
-        dialog = tk.Toplevel(self.master)
-        dialog.title(title)
-        dialog.transient(self.master)
-        dialog.wait_visibility()
-        dialog.grab_set()
-        ttk.Label(dialog, text=prompt).pack(padx=10, pady=10)
-        var = tk.StringVar()
-        entry = ttk.Entry(dialog, textvariable=var)
-        entry.pack(padx=10, pady=5)
-        entry.focus_set()
-        result: Dict[str, Optional[float]] = {"value": None}
-
-        def on_ok():
-            try:
-                val = float(var.get())
-                if min_val is not None and val < min_val:
-                    raise ValueError
-                if max_val is not None and val > max_val:
-                    raise ValueError
-                result["value"] = val
-                dialog.destroy()
-            except ValueError:
-                range_msg = (
-                    f" entre {min_val} y {max_val}" if max_val is not None else ""
-                )
-                messagebox.showerror(
-                    "Valor inválido",
-                    f"Ingrese un número válido{range_msg}.",
-                )
-
-        def on_cancel():
-            dialog.destroy()
-
-        btn_frame = ttk.Frame(dialog)
-        btn_frame.pack(pady=10)
-        ttk.Button(btn_frame, text="Aceptar", command=on_ok).pack(side=tk.LEFT, padx=5)
-        ttk.Button(btn_frame, text="Cancelar", command=on_cancel).pack(
-            side=tk.LEFT, padx=5
-        )
-        dialog.wait_window()
-        return result["value"]
-
-    def _ask_category(self, title: str, prompt: str) -> Optional[str]:
-        """Prompt the user to select a destination category."""
-        dialog = tk.Toplevel(self.master)
-        dialog.title(title)
-        dialog.transient(self.master)
-        dialog.grab_set()
-        ttk.Label(dialog, text=prompt).pack(padx=10, pady=10)
-
-        choices = self.product_service.get_category_choices()
-        category_helper = CategoryHelper(choices)
-        values = category_helper.display_values
-        if not values:
-            dialog.destroy()
-            messagebox.showwarning(
-                "Categoría", "No hay categorías disponibles para seleccionar."
-            )
-            return None
-
-        var = tk.StringVar(value=values[0])
-        combo = ttk.Combobox(dialog, textvariable=var, values=values, state="readonly")
-        combo.pack(padx=10, pady=5)
-        combo.focus_set()
-
-        result: Dict[str, Optional[str]] = {"value": None}
-
-        def on_ok():
-            display_value = var.get().strip()
-            key = category_helper.get_key_from_display(display_value)
-            result["value"] = key
-            dialog.destroy()
-
-        def on_cancel():
-            dialog.destroy()
-
-        btn_frame = ttk.Frame(dialog)
-        btn_frame.pack(pady=10)
-        ttk.Button(btn_frame, text="Aceptar", command=on_ok).pack(
-            side=tk.LEFT, padx=5
-        )
-        ttk.Button(btn_frame, text="Cancelar", command=on_cancel).pack(
-            side=tk.LEFT, padx=5
-        )
-        dialog.wait_window()
-        return result["value"]
-
-    def bulk_change_category(self) -> None:
-        """Bulk change category for selected products."""
-        products = self._get_selected_products()
-        if not products:
-            messagebox.showwarning(
-                "Acción masiva", "Seleccione uno o más productos."
-            )
-            return
-
-        try:
-            destination_key = self._ask_category(
-                "Cambiar categoría", "Seleccione la nueva categoría:"
-            )
-        except Exception as exc:
-            messagebox.showerror(
-                "Categoría", f"No se pudieron cargar las categorías: {exc}"
-            )
-            return
-
-        if not destination_key:
-            return
-
-        try:
-            valid_choices = {
-                key for _, key in self.product_service.get_category_choices()
-            }
-            if destination_key not in valid_choices:
-                messagebox.showerror(
-                    "Categoría",
-                    f"La categoría seleccionada no existe: {destination_key}",
-                )
-                return
-            if self.category_service:
-                match = self.category_service.find_category_by_product_key(
-                    destination_key
-                )
-                if not match:
-                    messagebox.showerror(
-                        "Categoría",
-                        f"La categoría seleccionada no existe: {destination_key}",
-                    )
-                    return
-        except Exception as exc:
-            messagebox.showerror(
-                "Categoría", f"No se pudo validar la categoría: {exc}"
-            )
-            return
-
-        pairs: List[tuple[Product, Product]] = []
-        for p in products:
-            new_p = Product(
-                name=p.name,
-                description=p.description,
-                price=p.price,
-                discount=p.discount,
-                stock=p.stock,
-                category=destination_key,
-                image_path=p.image_path,
-                image_avif_path=p.image_avif_path,
-                order=p.order,
-            )
-            pairs.append((p, new_p))
-        self._preview_and_apply_operation(
-            f"Cambiar categoría a '{destination_key}' para {len(products)} producto(s)",
-            pairs,
-            operation="cambiar_categoria",
-        )
-
-    def bulk_percentage_discount(self) -> None:
-        products = self._get_selected_products()
-        if not products:
-            messagebox.showinfo("Acción masiva", "Seleccione uno o más productos.")
-            return
-        pct = self._ask_number(
-            "Aplicar descuento %", "Porcentaje (0-100):", min_val=0, max_val=100
-        )
-        if pct is None:
-            return
-        pairs: List[tuple[Product, Product]] = []
-        for p in products:
-            new_p = Product(
-                name=p.name,
-                description=p.description,
-                price=p.price,
-                discount=int(p.price * (pct / 100)),
-                stock=p.stock,
-                category=p.category,
-                image_path=p.image_path,
-                order=p.order,
-            )
-            pairs.append((p, new_p))
-        self._preview_and_apply_operation(
-            f"Descuento {pct}% a {len(products)} producto(s)",
-            pairs,
-            operation="descuento_porcentaje",
-        )
-
-    def bulk_fixed_discount(self) -> None:
-        products = self._get_selected_products()
-        if not products:
-            messagebox.showinfo("Acción masiva", "Seleccione uno o más productos.")
-            return
-        amount = self._ask_number("Descuento fijo", "Monto a descontar:", min_val=0)
-        if amount is None:
-            return
-        pairs: List[tuple[Product, Product]] = []
-        for p in products:
-            d = min(int(amount), p.price - 1) if p.price > 0 else 0
-            new_p = Product(
-                name=p.name,
-                description=p.description,
-                price=p.price,
-                discount=d,
-                stock=p.stock,
-                category=p.category,
-                image_path=p.image_path,
-                order=p.order,
-            )
-            pairs.append((p, new_p))
-        self._preview_and_apply_operation(
-            f"Descuento fijo ${int(amount):,} a {len(products)} producto(s)",
-            pairs,
-            operation="descuento_fijo",
-        )
-
-    def bulk_set_stock(self, value: bool) -> None:
-        products = self._get_selected_products()
-        if not products:
-            messagebox.showinfo("Acción masiva", "Seleccione uno o más productos.")
-            return
-        pairs: List[tuple[Product, Product]] = []
-        for p in products:
-            new_p = Product(
-                name=p.name,
-                description=p.description,
-                price=p.price,
-                discount=p.discount,
-                stock=value,
-                category=p.category,
-                image_path=p.image_path,
-                order=p.order,
-            )
-            pairs.append((p, new_p))
-        self._preview_and_apply_operation(
-            f"Stock {'ON' if value else 'OFF'} para {len(products)} producto(s)",
-            pairs,
-            operation="stock",
-        )
-
-    def bulk_adjust_price(self, increase: bool) -> None:
-        products = self._get_selected_products()
-        if not products:
-            messagebox.showinfo("Acción masiva", "Seleccione uno o más productos.")
-            return
-        pct = self._ask_number(
-            "Ajustar precio %", "Porcentaje (0-100):", min_val=0, max_val=100
-        )
-        if pct is None:
-            return
-        factor = 1 + (pct / 100) if increase else 1 - (pct / 100)
-        pairs: List[tuple[Product, Product]] = []
-        for p in products:
-            new_price = max(1, int(round(p.price * factor)))
-            new_discount = min(p.discount, new_price - 1) if new_price > 0 else 0
-            new_p = Product(
-                name=p.name,
-                description=p.description,
-                price=new_price,
-                discount=new_discount,
-                stock=p.stock,
-                category=p.category,
-                image_path=p.image_path,
-                order=p.order,
-            )
-            pairs.append((p, new_p))
-        self._preview_and_apply_operation(
-            f"Precio {'+' if increase else '-'}{pct}% a {len(products)} producto(s)",
-            pairs,
-            operation="ajustar_precio",
-        )
-
-    def _preview_and_apply_operation(
-        self,
-        description: str,
-        pairs: List[tuple[Product, Product]],
-        *,
-        operation: str = "bulk",
-    ) -> None:
-        """Show a preview for bulk updates and apply with undo support if confirmed."""
-        if not pairs:
-            return
-        # Build summary
-        lines = []
-        changed_count = 0
-        for old, new in pairs:
-            changes = []
-            if old.price != new.price:
-                changes.append(f"Precio: {old.price:,} → {new.price:,}")
-            if old.discount != new.discount:
-                changes.append(f"Desc.: {old.discount:,} → {new.discount:,}")
-            if old.stock != new.stock:
-                changes.append(
-                    f"Stock: {'☑' if old.stock else '☐'} → {'☑' if new.stock else '☐'}"
-                )
-            if changes:
-                changed_count += 1
-                lines.append(f"• {old.name} — " + "; ".join(changes))
-        preview_text = (
-            f"{description}\n\nCambios: {changed_count} de {len(pairs)} productos\n\n"
-            + "\n".join(lines[:50])
-        )
-
-        if not self._show_preview_dialog(preview_text):
-            return
-
-        # Build do/undo updates
-        do_updates: List[tuple[str, str, Product]] = [
-            (old.name, old.description, new) for old, new in pairs
-        ]
-        undo_updates: List[tuple[str, str, Product]] = [
-            (new.name, new.description, old) for old, new in pairs
-        ]
-        try:
-            self.product_service.batch_update(do_updates, operation=operation)
-            # Push to undo history
-            op = {"description": description, "do": do_updates, "undo": undo_updates}
-            self._undo_stack.append(op)
-            if len(self._undo_stack) > self._undo_max:
-                self._undo_stack.pop(0)
-            self._redo_stack.clear()
-            self._update_history_buttons()
-            self.refresh_products()
-            self.update_status(f"{description} — aplicado")
-        except ProductServiceError as exc:
-            messagebox.showerror("Error", str(exc))
-
-    def _show_preview_dialog(self, content: str) -> bool:
-        dialog = tk.Toplevel(self.master)
-        dialog.title("Previsualización de cambios")
-        dialog.transient(self.master)
-        dialog.grab_set()
-        dialog.geometry("720x520")
-
-        txt = tk.Text(dialog, wrap=tk.WORD)
-        txt.insert("1.0", content)
-        txt.configure(state=tk.DISABLED)
-        txt.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-
-        btn_frame = ttk.Frame(dialog)
-        btn_frame.pack(pady=10)
-        result = {"ok": False}
-
-        def on_ok():
-            result["ok"] = True
-            dialog.destroy()
-
-        def on_cancel():
-            dialog.destroy()
-
-        ttk.Button(btn_frame, text="Confirmar", command=on_ok).pack(
-            side=tk.LEFT, padx=6
-        )
-        ttk.Button(btn_frame, text="Cancelar", command=on_cancel).pack(
-            side=tk.LEFT, padx=6
-        )
-        dialog.wait_window()
-        return result["ok"]
-
-    def _update_history_buttons(self) -> None:
-        if hasattr(self, "undo_btn"):
-            self.undo_btn.config(
-                state=tk.NORMAL if len(self._undo_stack) > 0 else tk.DISABLED
-            )
-        if hasattr(self, "redo_btn"):
-            self.redo_btn.config(
-                state=tk.NORMAL if len(self._redo_stack) > 0 else tk.DISABLED
-            )
-
-    def undo_last(self) -> None:
-        if not self._undo_stack:
-            return
-        op = self._undo_stack.pop()
-        try:
-            self.product_service.batch_update(op["undo"])
-            # Prepare for redo
-            self._redo_stack.append(op)
-            self._update_history_buttons()
-            self.refresh_products()
-            self.update_status(f"Deshecho: {op['description']}")
-        except ProductServiceError as exc:
-            messagebox.showerror("Error", f"No se pudo deshacer: {str(exc)}")
-
-    def redo_last(self) -> None:
-        if not self._redo_stack:
-            return
-        op = self._redo_stack.pop()
-        try:
-            self.product_service.batch_update(op["do"])
-            # Return to undo stack
-            self._undo_stack.append(op)
-            self._update_history_buttons()
-            self.refresh_products()
-            self.update_status(f"Rehecho: {op['description']}")
-        except ProductServiceError as exc:
-            messagebox.showerror("Error", f"No se pudo rehacer: {str(exc)}")
 
     def handle_double_click(self, event: tk.Event) -> None:
         # On double-click: inline edit for price/discount, toggle stock on stock column,
@@ -1891,8 +1540,12 @@ class MainWindow(DragDropMixin):
         if not product:
             return
 
-        # Determine initial value (raw integer)
-        initial_value = str(getattr(product, field) or 0)
+        # Determine initial value (format with thousands separator for price/discount)
+        raw_value = getattr(product, field) or 0
+        if field in ("price", "discount"):
+            initial_value = f"{raw_value:,}"
+        else:
+            initial_value = str(raw_value)
 
         # Create entry editor
         entry = ttk.Entry(self.tree)
@@ -1937,9 +1590,10 @@ class MainWindow(DragDropMixin):
                 self._end_inline_edit()
                 return
 
-            # Parse integer
+            # Parse integer (strip thousands separator before parsing)
+            cleaned_str = value_str.replace(",", "")
             try:
-                new_val = int(value_str)
+                new_val = int(cleaned_str)
             except ValueError:
                 messagebox.showerror(
                     "Valor inválido", "Ingrese un número entero válido."
@@ -2015,355 +1669,7 @@ class MainWindow(DragDropMixin):
         self._cell_editor = None
         self._cell_editor_info = {}
 
-    def import_products(self) -> None:
-        """Import products from JSON file."""
-        file_path = filedialog.askopenfilename(filetypes=[("Archivos JSON", "*.json")])
-        if not file_path:
-            return
 
-        try:
-            plan = self.product_service.build_import_plan(file_path)
-        except Exception as exc:
-            messagebox.showerror("Error de Importación", str(exc))
-            return
-
-        approval = self._show_import_preview_dialog(plan)
-        if not approval:
-            return
-        self._pending_import_plan = approval["plan"]
-        self._pending_import_merge = approval["merge"]
-        self.update_status("Importación aprobada (pendiente de aplicar)")
-
-    def _show_import_preview_dialog(
-        self, plan: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
-        dialog = tk.Toplevel(self.master)
-        dialog.title("Previsualización de importación")
-        dialog.transient(self.master)
-        dialog.grab_set()
-        dialog.geometry("860x520")
-
-        summary = plan.get("summary", {})
-        summary_text = (
-            "Resumen:\n"
-            f"Nuevos: {summary.get('new', 0)}  "
-            f"Duplicados: {summary.get('duplicate', 0)}  "
-            f"Inválidos: {summary.get('invalid', 0)}\n"
-            f"Acciones: agregar {summary.get('add', 0)}, "
-            f"actualizar {summary.get('update', 0)}, "
-            f"omitir {summary.get('skip', 0)}"
-        )
-        ttk.Label(dialog, text=summary_text, justify=tk.LEFT).pack(
-            padx=12, pady=(12, 6), anchor=tk.W
-        )
-
-        table_frame = ttk.Frame(dialog)
-        table_frame.pack(fill=tk.BOTH, expand=True, padx=12, pady=(0, 8))
-        columns = ("index", "status", "action", "name", "error")
-        tree = ttk.Treeview(
-            table_frame, columns=columns, show="headings", height=10
-        )
-        headings = {
-            "index": "Índice",
-            "status": "Estado",
-            "action": "Acción",
-            "name": "Nombre",
-            "error": "Error",
-        }
-        widths = {"index": 70, "status": 100, "action": 100, "name": 220, "error": 320}
-        for col in columns:
-            tree.heading(col, text=headings[col])
-            tree.column(col, width=widths[col], anchor=tk.W, stretch=True)
-        tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=tree.yview)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        tree.configure(yscrollcommand=scrollbar.set)
-
-        rows = plan.get("rows", [])
-        for row in rows[:30]:
-            incoming = row.get("incoming")
-            name = getattr(incoming, "name", "") if incoming else ""
-            tree.insert(
-                "",
-                "end",
-                values=(
-                    row.get("index"),
-                    row.get("status"),
-                    row.get("action"),
-                    name,
-                    row.get("error") or "",
-                ),
-            )
-
-        merge_frame = ttk.LabelFrame(dialog, text="Reglas de merge (duplicados)")
-        merge_frame.pack(fill=tk.X, padx=12, pady=(0, 8))
-
-        merge_vars = {
-            "price": tk.BooleanVar(value=True),
-            "discount": tk.BooleanVar(value=True),
-            "stock": tk.BooleanVar(value=True),
-            "category": tk.BooleanVar(value=False),
-            "image_path": tk.BooleanVar(value=False),
-            "image_avif_path": tk.BooleanVar(value=False),
-        }
-
-        ttk.Checkbutton(
-            merge_frame, text="Sobrescribir precio", variable=merge_vars["price"]
-        ).pack(anchor=tk.W, padx=8, pady=2)
-        ttk.Checkbutton(
-            merge_frame, text="Sobrescribir descuento", variable=merge_vars["discount"]
-        ).pack(anchor=tk.W, padx=8, pady=2)
-        ttk.Checkbutton(
-            merge_frame, text="Sobrescribir stock", variable=merge_vars["stock"]
-        ).pack(anchor=tk.W, padx=8, pady=2)
-        ttk.Checkbutton(
-            merge_frame, text="Sobrescribir categoría", variable=merge_vars["category"]
-        ).pack(anchor=tk.W, padx=8, pady=2)
-        ttk.Checkbutton(
-            merge_frame,
-            text="Sobrescribir image_path",
-            variable=merge_vars["image_path"],
-        ).pack(anchor=tk.W, padx=8, pady=2)
-        ttk.Checkbutton(
-            merge_frame,
-            text="Sobrescribir image_avif_path",
-            variable=merge_vars["image_avif_path"],
-        ).pack(anchor=tk.W, padx=8, pady=2)
-
-        btn_frame = ttk.Frame(dialog)
-        btn_frame.pack(pady=10)
-        result: Dict[str, Any] = {"approved": False, "plan": None, "merge": {}}
-
-        def on_apply():
-            result["approved"] = True
-            result["plan"] = plan
-            result["merge"] = {key: var.get() for key, var in merge_vars.items()}
-            dialog.destroy()
-
-        def on_cancel():
-            dialog.destroy()
-
-        actionable = int(summary.get("add", 0)) + int(summary.get("update", 0))
-        apply_state = tk.NORMAL if actionable > 0 else tk.DISABLED
-        ttk.Button(btn_frame, text="Cancelar", command=on_cancel).pack(
-            side=tk.LEFT, padx=6
-        )
-        ttk.Button(
-            btn_frame, text="Aprobar importación", command=on_apply, state=apply_state
-        ).pack(side=tk.LEFT, padx=6)
-
-        dialog.wait_window()
-        if not result["approved"]:
-            return None
-        return {"plan": result["plan"], "merge": result["merge"]}
-
-    def _merge_import_product(
-        self, existing: Product, incoming: Product, merge: Dict[str, bool]
-    ) -> Product:
-        data = existing.to_dict()
-        if merge.get("price", False):
-            data["price"] = incoming.price
-        if merge.get("discount", False):
-            data["discount"] = incoming.discount
-        if merge.get("stock", False):
-            data["stock"] = incoming.stock
-        if merge.get("category", False):
-            data["category"] = incoming.category
-        if merge.get("image_path", False):
-            data["image_path"] = incoming.image_path
-        if merge.get("image_avif_path", False):
-            data["image_avif_path"] = incoming.image_avif_path
-        data["is_archived"] = existing.is_archived
-        data["order"] = existing.order
-        return Product.from_dict(data)
-
-    def apply_pending_import(self) -> None:
-        """Apply the approved import plan with a single atomic write."""
-        if not self._pending_import_plan:
-            messagebox.showinfo(
-                "Importación", "No hay una importación aprobada pendiente."
-            )
-            return
-
-        plan = self._pending_import_plan
-        merge = self._pending_import_merge or {}
-
-        try:
-            current = self.product_service.get_all_products()
-            identity_map: Dict[str, tuple[int, Product]] = {
-                product.identity_key(): (index, product)
-                for index, product in enumerate(current)
-            }
-            replacements: Dict[str, Product] = {}
-            additions: List[Product] = []
-            history_entries: List[tuple[str, str, Dict[str, Any]]] = []
-
-            for row in plan.get("rows", []):
-                status = row.get("status")
-                action = row.get("action")
-                if status == "invalid" or action == "skip":
-                    continue
-                incoming = row.get("incoming")
-                if not isinstance(incoming, Product):
-                    raise ProductServiceError(
-                        "Fila de importación inválida: falta producto."
-                    )
-                key = incoming.identity_key()
-                if status == "duplicate" and action == "update":
-                    if key not in identity_map:
-                        raise ProductServiceError(
-                            "El catálogo cambió desde la previsualización. "
-                            "Vuelve a ejecutar la importación."
-                        )
-                    existing = identity_map[key][1]
-                    merged = self._merge_import_product(existing, incoming, merge)
-                    replacements[key] = merged
-                    history_entries.append(
-                        (
-                            existing.identity_key(),
-                            merged.identity_key(),
-                            {
-                                "ts": datetime.now(timezone.utc).isoformat(),
-                                "operation": "import",
-                                "before": existing.to_dict(),
-                                "after": merged.to_dict(),
-                            },
-                        )
-                    )
-                elif status == "new" and action == "add":
-                    data = incoming.to_dict()
-                    additions.append(Product.from_dict(data))
-
-            final_products: List[Product] = []
-            for product in current:
-                key = product.identity_key()
-                final_products.append(replacements.get(key, product))
-
-            for new_product in additions:
-                data = new_product.to_dict()
-                data["order"] = len(final_products)
-                created = Product.from_dict(data)
-                final_products.append(created)
-                history_entries.append(
-                    (
-                        created.identity_key(),
-                        created.identity_key(),
-                        {
-                            "ts": datetime.now(timezone.utc).isoformat(),
-                            "operation": "import_add",
-                            "before": {},
-                            "after": created.to_dict(),
-                        },
-                    )
-                )
-
-            self.product_service.save_all_products(
-                final_products, history_entries=history_entries or None
-            )
-        except Exception as exc:
-            messagebox.showerror(
-                "Importación", f"No se pudo aplicar la importación: {exc}"
-            )
-            return
-
-        self._pending_import_plan = None
-        self._pending_import_merge = None
-        self.refresh_products()
-        self.update_status("Importación aplicada correctamente")
-
-    def export_products(self) -> None:
-        """Export products to JSON file."""
-        file_path = filedialog.asksaveasfilename(
-            defaultextension=".json", filetypes=[("Archivos JSON", "*.json")]
-        )
-        if not file_path:
-            return
-
-        try:
-            products = self.product_service.get_all_products()
-            data = [p.to_dict() for p in products]
-            with open(file_path, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2, ensure_ascii=False)
-            self.update_status(f"Se exportaron {len(products)} productos")
-        except Exception as exc:
-            messagebox.showerror("Error de Exportación", str(exc))
-
-    def export_filtered_csv(self) -> None:
-        """Export filtered products to CSV."""
-        file_path = filedialog.asksaveasfilename(
-            defaultextension=".csv", filetypes=[("Archivos CSV", "*.csv")]
-        )
-        if not file_path:
-            return
-
-        try:
-            criteria = ProductFilterCriteria()
-            query = self.search_var.get().strip()
-            category_label = self.category_var.get()
-
-            if category_label != "Todas" and self.category_helper:
-                key = self.category_helper.get_key_from_display(category_label)
-                if key:
-                    criteria.category = key
-
-            if query:
-                criteria.query = query
-
-            if hasattr(self, "only_discount_var") and self.only_discount_var.get():
-                criteria.only_discount = True
-
-            if (
-                hasattr(self, "only_out_of_stock_var")
-                and self.only_out_of_stock_var.get()
-            ):
-                criteria.only_out_of_stock = True
-
-            def _parse_float(val: str) -> Optional[float]:
-                try:
-                    return float(val)
-                except ValueError:
-                    return None
-
-            if hasattr(self, "min_price_var"):
-                criteria.min_price = _parse_float(self.min_price_var.get())
-            if hasattr(self, "max_price_var"):
-                criteria.max_price = _parse_float(self.max_price_var.get())
-            criteria.show_archived_only = False
-
-            products = self.product_service.filter_products(criteria)
-
-            with open(file_path, "w", encoding="utf-8", newline="") as f:
-                writer = csv.writer(f)
-                writer.writerow(
-                    [
-                        "name",
-                        "description",
-                        "price",
-                        "discount",
-                        "stock",
-                        "category",
-                        "image_path",
-                        "image_avif_path",
-                        "order",
-                    ]
-                )
-                for product in products:
-                    writer.writerow(
-                        [
-                            product.name,
-                            product.description,
-                            int(product.price),
-                            int(product.discount),
-                            bool(product.stock),
-                            product.category,
-                            product.image_path,
-                            product.image_avif_path,
-                            int(product.order),
-                        ]
-                    )
-            self.update_status(f"Se exportaron {len(products)} productos a CSV")
-        except Exception as exc:
-            messagebox.showerror("Error de Exportación", str(exc))
 
     def run_integrity_check(self) -> None:
         """Run a read-only integrity check on product data."""

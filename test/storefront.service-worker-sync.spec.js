@@ -80,6 +80,75 @@ describe('service worker storefront sync', () => {
     expect(waitingWorker.postMessage).toHaveBeenCalledWith({ type: 'SKIP_WAITING' });
   });
 
+  it('persists the target version when cache invalidation rejects', async () => {
+    const versionKey = 'astro-poc-storefront:service-worker-cache-version';
+    const storage = createMemoryStorage({
+      [versionKey]: 'astro-poc-storefront:storage-v1:cache-v1',
+    });
+    const activeWorker = {
+      postMessage: vi.fn((message, ports) => {
+        expect(message).toEqual({ type: 'INVALIDATE_ALL_CACHES' });
+        ports[0].postMessage({ error: 'boom' });
+      }),
+    };
+    const waitingWorker = {
+      postMessage: vi.fn(),
+    };
+    const log = vi.fn();
+
+    const result = await syncStorefrontServiceWorkerVersion({
+      registration: {
+        active: activeWorker,
+        waiting: waitingWorker,
+      },
+      runtimeContract: STOREFRONT_RUNTIME_CONTRACT,
+      storage,
+      log,
+    });
+
+    expect(result).toMatchObject({
+      available: true,
+      invalidated: false,
+      version: 'astro-poc-storefront:storage-v1:cache-v2',
+      reason: 'message-failed',
+    });
+    expect(storage.getItem(versionKey)).toBe('astro-poc-storefront:storage-v1:cache-v2');
+    expect(waitingWorker.postMessage).toHaveBeenCalledWith({ type: 'SKIP_WAITING' });
+    expect(log).toHaveBeenCalledWith(
+      'warn',
+      'service_worker_cache_invalidation_failed',
+      expect.objectContaining({ version: 'astro-poc-storefront:storage-v1:cache-v2' })
+    );
+  });
+
+  it('persists the target version when cache invalidation times out', async () => {
+    vi.useFakeTimers();
+    const versionKey = 'astro-poc-storefront:service-worker-cache-version';
+    const storage = createMemoryStorage({
+      [versionKey]: 'astro-poc-storefront:storage-v1:cache-v1',
+    });
+    const activeWorker = {
+      postMessage: vi.fn(),
+    };
+
+    const syncPromise = syncStorefrontServiceWorkerVersion({
+      registration: { active: activeWorker },
+      runtimeContract: STOREFRONT_RUNTIME_CONTRACT,
+      storage,
+      timeoutMs: 5,
+    });
+
+    await vi.advanceTimersByTimeAsync(5);
+    const result = await syncPromise;
+
+    expect(result).toMatchObject({
+      available: true,
+      invalidated: false,
+      reason: 'message-failed',
+    });
+    expect(storage.getItem(versionKey)).toBe('astro-poc-storefront:storage-v1:cache-v2');
+  });
+
   it('records the first seen version without invalidating caches', async () => {
     const storage = createMemoryStorage();
     const activeWorker = {

@@ -7,6 +7,8 @@ import {
   createStorefrontStorage,
   STOREFRONT_RUNTIME_CONTRACT,
 } from './storefront/storage-contract.js';
+import { log } from '../lib/logger.js';
+import { WHATSAPP_NUMBER, formatCurrency } from '../lib/formatting.js';
 import {
   clampQty,
   createCartItemFromProduct,
@@ -19,7 +21,6 @@ import {
 
 const MAX_RECENT_ORDERS = 6;
 const MAX_PERSONALIZED_ITEMS = 4;
-const WHATSAPP_NUMBER = '56951118901';
 const MOBILE_CART_SHORTCUT_REVEAL_DELAY_MS = 280;
 
 if (typeof window !== 'undefined') {
@@ -31,47 +32,6 @@ if (typeof window !== 'undefined') {
   document.documentElement.dataset.storefrontStorageVersion = String(
     STOREFRONT_RUNTIME_CONTRACT.storageVersion
   );
-}
-
-function normalizeMetaValue(value) {
-  if (value === null || value === undefined) {
-    return value;
-  }
-
-  if (value instanceof Error) {
-    return {
-      name: value.name,
-      message: value.message,
-    };
-  }
-
-  if (Array.isArray(value)) {
-    return value.map((item) => normalizeMetaValue(item));
-  }
-
-  if (typeof value === 'object') {
-    return Object.fromEntries(
-      Object.entries(value).map(([key, nestedValue]) => [key, normalizeMetaValue(nestedValue)])
-    );
-  }
-
-  return value;
-}
-
-function log(level, message, meta = {}) {
-  const entry = JSON.stringify({
-    level,
-    message,
-    timestamp: new Date().toISOString(),
-    ...normalizeMetaValue(meta),
-  });
-
-  if (typeof console[level] === 'function') {
-    console[level](entry);
-    return;
-  }
-
-  console.log(entry);
 }
 
 function trackAnalyticsEvent(eventName, properties = {}) {
@@ -104,14 +64,6 @@ function debounce(fn, wait = 120) {
       fn(...args);
     }, wait);
   };
-}
-
-function formatCurrency(value) {
-  return new Intl.NumberFormat('es-CL', {
-    style: 'currency',
-    currency: 'CLP',
-    minimumFractionDigits: 0,
-  }).format(parseNumber(value, 0));
 }
 
 function normalizeSearchText(value) {
@@ -1224,12 +1176,6 @@ function markOrderAsSent() {
   if (cart.length === 0) {
     return;
   }
-
-  const profile = readProfileForm();
-  const selectedPayment = getSelectedPaymentValue();
-  const substitutionPreference = getSelectedSubstitutionPreference();
-
-  personalizationEngine.recordOrder(cart, profile, selectedPayment, substitutionPreference);
 
   saveCart([]);
   saveStoredJson(STORAGE_SENT_KEY, Date.now());

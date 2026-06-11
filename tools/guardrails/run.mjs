@@ -13,6 +13,7 @@ const stages = [
   'checkout-guard.mjs',
   'critical-css.mjs',
   'legacy-storefront-surface.mjs',
+  'image-size-check.mjs',
   'orphan-assets.js',
 ].map((check) => ({
   name: check,

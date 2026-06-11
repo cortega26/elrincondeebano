@@ -166,7 +166,7 @@ class SyncEngine:
             return ""
         parsed = parse.urlparse(trimmed)
         if parsed.scheme not in ("http", "https") or not parsed.netloc:
-            self.logger.warning("Sync disabled: api_base must be http(s) with a host.")
+            self.logger.warning("Sincronización deshabilitada: api_base debe ser http(s) con un host.")
             return ""
         return trimmed.rstrip("/")
 

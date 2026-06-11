@@ -33,6 +33,10 @@ const SECRET_PATTERNS = [
   { id: 'stripe-secret', regex: /\bsk_(?:live|test)_[0-9A-Za-z]{16,}\b/g },
   { id: 'slack-token', regex: /\bxox[baprs]-[A-Za-z0-9-]{10,}\b/g },
   {
+    id: 'cloudflare-api-token',
+    regex: /\b(?:cf|cloudflare)[_-]?(?:api[_-]?)?token\b\s*[:=]\s*['"]?[A-Za-z0-9_-]{40}['"]?/gi,
+  },
+  {
     id: 'generic-secret-assignment',
     regex:
       /\b(?:api[_-]?key|access[_-]?token|auth[_-]?token|secret|password)\b\s*[:=]\s*['"][A-Za-z0-9._/+=-]{20,}['"]/gi,

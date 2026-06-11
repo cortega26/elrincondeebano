@@ -22,6 +22,8 @@ test('buildSecurityHeadersPolicy returns the versioned edge baseline', async () 
     policy['content-security-policy'],
     /connect-src 'self' https:\/\/cloudflareinsights\.com https:\/\/static\.cloudflareinsights\.com/
   );
+  assert.match(policy['content-security-policy'], /style-src 'self'(?:;|$)/);
+  assert.doesNotMatch(policy['content-security-policy'], /style-src[^;]*'unsafe-inline'/);
   assert.match(policy['content-security-policy'], /frame-ancestors 'none'/);
 });
 
