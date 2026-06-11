@@ -35,8 +35,8 @@ class ImportExportMixin:
         state = tk.NORMAL if self._pending_import_plan is not None else tk.DISABLED
         try:
             self._import_file_menu.entryconfig(self._import_apply_index, state=state)
-        except Exception:
-            pass
+        except tk.TclError as exc:
+            logger.debug("Could not update import apply menu state: %s", exc)
 
     def import_products(self) -> None:
         """Import products from JSON file."""
