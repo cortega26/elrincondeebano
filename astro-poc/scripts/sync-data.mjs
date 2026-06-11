@@ -13,6 +13,10 @@ const DEFAULT_PROJECT_ROOT = path.resolve(__dirname, '..');
 const DEFAULT_REPO_ROOT = path.resolve(DEFAULT_PROJECT_ROOT, '..');
 const ALLOWED_PRODUCT_ASSET_PREFIXES = ['assets/images/'];
 const PRODUCT_ASSET_FIELDS = ['image_path', 'image_avif_path'];
+const PUBLIC_ASSET_SOURCE_EXCLUDES = [
+  /^images\/og\/logo\.png$/i,
+  /^images\/og\/categories\/[^/]+\.override\.(?:png|jpe?g|webp)$/i,
+];
 
 export function createSyncPaths({
   projectRoot = DEFAULT_PROJECT_ROOT,
@@ -83,6 +87,15 @@ function copyFile(sourcePath, targetPath) {
   fs.copyFileSync(sourcePath, targetPath);
 }
 
+function normalizeAssetPathForPublicCopy(sourcePath, sourceDir) {
+  return path.relative(sourceDir, sourcePath).split(path.sep).join('/');
+}
+
+function shouldCopyPublicAsset(sourcePath, sourceDir) {
+  const relativeAssetPath = normalizeAssetPathForPublicCopy(sourcePath, sourceDir);
+  return !PUBLIC_ASSET_SOURCE_EXCLUDES.some((pattern) => pattern.test(relativeAssetPath));
+}
+
 function syncDirectory(sourceDir, targetDir) {
   if (!fs.existsSync(sourceDir)) {
     throw new Error(`Missing source directory: ${sourceDir}`);
@@ -93,6 +106,7 @@ function syncDirectory(sourceDir, targetDir) {
     recursive: true,
     force: true,
     errorOnExist: false,
+    filter: (sourcePath) => shouldCopyPublicAsset(sourcePath, sourceDir),
   });
 }
 
