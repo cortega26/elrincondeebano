@@ -135,11 +135,26 @@ export async function syncStorefrontServiceWorkerVersion({
     };
   }
 
-  await sendServiceWorkerMessage(
-    messageTarget,
-    { type: 'INVALIDATE_ALL_CACHES' },
-    { channelFactory, timeoutMs }
-  );
+  let invalidated = true;
+  let invalidationFailureReason: string | undefined;
+
+  try {
+    await sendServiceWorkerMessage(
+      messageTarget,
+      { type: 'INVALIDATE_ALL_CACHES' },
+      { channelFactory, timeoutMs }
+    );
+  } catch (error) {
+    invalidated = false;
+    invalidationFailureReason = error instanceof Error ? error.message : String(error);
+
+    if (typeof log === 'function') {
+      log('warn', 'service_worker_cache_invalidation_failed', {
+        version: targetVersion,
+        reason: invalidationFailureReason,
+      });
+    }
+  }
 
   if (registration?.waiting && typeof registration.waiting.postMessage === 'function') {
     registration.waiting.postMessage({ type: 'SKIP_WAITING' });
@@ -150,9 +165,14 @@ export async function syncStorefrontServiceWorkerVersion({
   if (typeof log === 'function') {
     log('info', 'service_worker_cache_version_synced', {
       version: targetVersion,
-      invalidated: true,
+      invalidated,
     });
   }
 
-  return { available: true, invalidated: true, version: targetVersion };
+  return {
+    available: true,
+    invalidated,
+    version: targetVersion,
+    ...(invalidationFailureReason ? { reason: 'message-failed' } : {}),
+  };
 }

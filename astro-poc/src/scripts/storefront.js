@@ -1185,12 +1185,6 @@ function markOrderAsSent() {
     return;
   }
 
-  const profile = readProfileForm();
-  const selectedPayment = getSelectedPaymentValue();
-  const substitutionPreference = getSelectedSubstitutionPreference();
-
-  personalizationEngine.recordOrder(cart, profile, selectedPayment, substitutionPreference);
-
   saveCart([]);
   saveStoredJson(STORAGE_SENT_KEY, Date.now());
   updateBadge([], { animate: true });
