@@ -14,6 +14,7 @@ export function createCatalogViewController({
   parseNumber,
   pageSize = DEFAULT_PAGE_SIZE,
   intersectionObserverFactory,
+  onViewUpdated,
 } = {}) {
   let visibleLimit = pageSize;
   let matchedCount = 0;
@@ -62,7 +63,9 @@ export function createCatalogViewController({
       }
     });
 
-    sortedProducts.forEach((item) => container.appendChild(item));
+    const reorderFragment = document.createDocumentFragment();
+    sortedProducts.forEach((item) => reorderFragment.appendChild(item));
+    container.appendChild(reorderFragment);
 
     const matchingProducts = [];
     sortedProducts.forEach((item) => {
@@ -125,6 +128,7 @@ export function createCatalogViewController({
         : 'Cargar más productos';
     }
 
+    onViewUpdated?.();
     return { matchedCount, visibleLimit };
   }
 

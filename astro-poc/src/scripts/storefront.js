@@ -453,10 +453,20 @@ function getProductCardById(id) {
   );
 }
 
-function getSourceProductCards() {
-  return Array.from(document.querySelectorAll('#product-container .producto')).filter(
-    (card) => card instanceof HTMLElement
-  );
+let productCardCache = null;
+
+function getProductCardMap() {
+  if (productCardCache) {
+    return productCardCache;
+  }
+  productCardCache = new Map();
+  document.querySelectorAll('#product-container .producto').forEach((card) => {
+    if (card instanceof HTMLElement) {
+      const id = normalizeId(card.dataset.productId);
+      if (id) productCardCache.set(id, card);
+    }
+  });
+  return productCardCache;
 }
 
 function getProductFromCard(card) {
@@ -479,9 +489,8 @@ function getProductFromCard(card) {
 }
 
 function getProductByIdFromSource(id) {
-  return getProductFromCard(
-    getSourceProductCards().find((card) => normalizeId(card.dataset.productId) === id)
-  );
+  const card = getProductCardMap().get(id);
+  return card ? getProductFromCard(card) : null;
 }
 
 function updateBadge(cart, { animate = false } = {}) {
@@ -659,10 +668,7 @@ const personalizationEngine = createPersonalizationEngine({
   loadProductSignals,
   saveProductSignals,
   parseNumber,
-  getVisibleProductIds: () =>
-    getSourceProductCards()
-      .map((card) => normalizeId(card.dataset.productId))
-      .filter(Boolean),
+  getVisibleProductIds: () => [...getProductCardMap().keys()].filter(Boolean),
   resolveProductById: (productId) => getProductByIdFromSource(productId),
   maxPersonalizedItems: MAX_PERSONALIZED_ITEMS,
 });
@@ -690,11 +696,8 @@ function renderPersonalizedProducts() {
     return;
   }
 
-  const sourceCards = personalizedIds
-    .map((productId) =>
-      getSourceProductCards().find((card) => normalizeId(card.dataset.productId) === productId)
-    )
-    .filter(Boolean);
+  const cardMap = getProductCardMap();
+  const sourceCards = personalizedIds.map((productId) => cardMap.get(productId)).filter(Boolean);
 
   if (sourceCards.length === 0) {
     return;
@@ -743,7 +746,7 @@ function getCompanionProducts(cart, companionRules) {
 
     const targets = Array.isArray(rule?.targets) ? rule.targets : [];
     targets.forEach((target) => {
-      const product = getSourceProductCards()
+      const product = [...getProductCardMap().values()]
         .map((card) => getProductFromCard(card))
         .find((entry) => {
           if (!entry || entry.stock === false) {
@@ -915,12 +918,60 @@ function syncMobileCartShortcut(cart, totalAmount) {
   }, MOBILE_CART_SHORTCUT_REVEAL_DELAY_MS);
 }
 
-function renderCart(cart, { animateTotal = false } = {}) {
+function renderCart(cart, { animateTotal = false, changedItemId = null } = {}) {
   const container = document.getElementById('cart-items');
   const totalElement = document.getElementById('cart-total');
 
   if (!(container instanceof HTMLElement) || !(totalElement instanceof HTMLElement)) {
     return;
+  }
+
+  // Targeted update for a single changed item when the cart already has items rendered
+  if (changedItemId && container.querySelector('.cart-item')) {
+    const cartItem = cart.find((item) => item.id === changedItemId);
+    const existingEl = container.querySelector(`.cart-item[data-id="${changedItemId}"]`);
+
+    // Quantity update for existing item
+    if (cartItem && existingEl) {
+      const qtySpan = existingEl.querySelector('.item-quantity');
+      if (qtySpan) {
+        qtySpan.textContent = String(cartItem.quantity);
+      }
+      const subtotalSpan = existingEl.querySelector('.cart-item__subtotal');
+      if (subtotalSpan) {
+        subtotalSpan.textContent = `Subtotal: ${formatCurrency(cartItem.price * cartItem.quantity)}`;
+      }
+      // Update total and sync state
+      const { totalAmount } = getCartState(cart);
+      totalElement.textContent = `Total: ${formatCurrency(totalAmount)}`;
+      if (animateTotal) {
+        triggerTransientClass(totalElement, 'cart-total-bump');
+      }
+      syncCheckoutState(cart, totalAmount);
+      syncMobileCartShortcut(cart, totalAmount);
+      return;
+    }
+
+    // Item removed (quantity to 0)
+    if (!cartItem && existingEl) {
+      existingEl.remove();
+      // If no items left, also remove share row and fall through to empty state
+      const shareRow = container.querySelector('.cart-share-row');
+      if (shareRow && !container.querySelector('.cart-item')) {
+        shareRow.remove();
+        // Fall through to show empty state
+      } else {
+        const { totalAmount } = getCartState(cart);
+        totalElement.textContent = `Total: ${formatCurrency(totalAmount)}`;
+        if (animateTotal) {
+          triggerTransientClass(totalElement, 'cart-total-bump');
+        }
+        syncCheckoutState(cart, totalAmount);
+        syncMobileCartShortcut(cart, totalAmount);
+        return;
+      }
+    }
+    // New item: fall through to full render
   }
 
   container.replaceChildren();
@@ -1113,6 +1164,9 @@ function createCatalogController() {
     sentinel: document.getElementById('catalog-sentinel'),
     normalizeSearchText,
     parseNumber,
+    onViewUpdated: () => {
+      productCardCache = null;
+    },
   });
 }
 
@@ -1608,7 +1662,10 @@ function initStorefront() {
       return;
     }
     updateBadge(cart, { animate: previousState.totalItems !== nextState.totalItems });
-    renderCart(cart, { animateTotal: previousState.totalAmount !== nextState.totalAmount });
+    renderCart(cart, {
+      animateTotal: previousState.totalAmount !== nextState.totalAmount,
+      changedItemId: id,
+    });
     renderCompanionSuggestions(cart, companionRules);
     // Keep quick-order cards stable while the shopper is actively editing quantities.
     syncAllActionAreas(cart);

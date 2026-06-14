@@ -55,8 +55,7 @@ export function createPersonalizationEngine({
     saveProductSignals(signals);
   }
 
-  function scoreProductId(productId) {
-    const signals = loadProductSignals();
+  function scoreProductId(productId, signals) {
     const signal =
       signals[productId] && typeof signals[productId] === 'object' ? signals[productId] : {};
     let score = parseNumber(signal.addedCount, 0) * 2 + parseNumber(signal.orderedCount, 0) * 5;
@@ -82,6 +81,7 @@ export function createPersonalizationEngine({
     const ranked = new Map();
     const lastOrder = loadLastOrder();
     const recentOrders = loadRecentOrders();
+    const signals = loadProductSignals();
 
     if (lastOrder && Array.isArray(lastOrder.items)) {
       lastOrder.items.forEach((item, index) => {
@@ -103,7 +103,7 @@ export function createPersonalizationEngine({
       if (!productId) {
         return;
       }
-      ranked.set(productId, (ranked.get(productId) || 0) + scoreProductId(productId));
+      ranked.set(productId, (ranked.get(productId) || 0) + scoreProductId(productId, signals));
     });
 
     return [...ranked.entries()]
