@@ -940,7 +940,6 @@ body.service-dialog-open {
 .producto {
   position: relative;
   height: 100%;
-  transition: none;
 }
 
 .producto .card {
@@ -948,33 +947,17 @@ body.service-dialog-open {
   display: flex;
   flex-direction: column;
   background-color: var(--surface-color);
-  border-radius: 12px;
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.06),
-    0 0 0 1px rgba(0, 0, 0, 0.04);
-  transition:
-    transform 0.22s ease,
-    box-shadow 0.22s ease,
-    border-color 0.22s ease;
+  border-radius: 10px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  position: relative;
-}
-
-.producto:hover .card {
-  transform: translateY(-4px);
-  box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(0, 91, 79, 0.18);
-  border-color: rgba(0, 91, 79, 0.28);
 }
 
 .product-card__media {
   position: relative;
   display: grid;
   place-items: center;
-  padding: 0.85rem 0.75rem 0.65rem;
-  background: #faf9f6;
+  padding: 0.75rem;
+  background: #fafaf8;
   border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 }
 
@@ -1018,14 +1001,9 @@ body.service-dialog-open {
   width: 100%;
   height: 208px;
   object-fit: contain;
-  transition: transform 0.22s ease;
   backface-visibility: hidden;
   transform: translateZ(0);
   will-change: transform;
-}
-
-.producto:hover img {
-  transform: translateZ(0) scale(1.04);
 }
 
 /* Improve image rounding continuity */
@@ -1875,21 +1853,56 @@ body.service-dialog-open {
 @media (max-width: 767px) {
   #product-container,
   .home-collection-grid {
-    row-gap: 0.65rem;
+    row-gap: 0.5rem;
   }
 
   .trust-strip__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .trust-strip__card {
+    min-height: 72px;
+    padding: 0.55rem 0.65rem;
+    gap: 0.08rem;
+  }
+
+  .trust-strip__card strong {
+    font-size: 0.85rem;
+  }
+
+  .trust-strip__card span {
+    font-size: 0.75rem;
+  }
+
   .producto .card-title {
-    font-size: 1rem;
+    font-size: 0.9rem;
     line-height: 1.25;
+    min-height: auto;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
 
   .producto .card-text {
-    font-size: 0.84rem;
-    line-height: 1.35;
+    font-size: 0.8rem;
+    line-height: 1.3;
+  }
+
+  .producto .card-body {
+    gap: 0.5rem;
+    padding: 0.6rem;
+  }
+
+  .product-card__copy {
+    gap: 0.25rem;
+    padding-bottom: 0.4rem;
+  }
+
+  .product-card__media {
+    padding: 0.5rem;
+  }
+
+  .producto img {
+    height: 140px;
   }
 
   .hero-section {
@@ -1912,21 +1925,21 @@ body.service-dialog-open {
 
   .home-entry,
   .home-section {
-    padding: 0.75rem 0.85rem;
+    padding: 0.6rem 0.7rem;
   }
 
   .home-entry {
-    gap: 0.45rem;
-    padding: 0.75rem 0.85rem;
+    gap: 0.4rem;
+    padding: 0.6rem 0.7rem;
   }
 
   .home-entry__copy,
   .home-entry__main {
-    gap: 0.35rem;
+    gap: 0.3rem;
   }
 
   .home-entry__lead {
-    font-size: 0.95rem;
+    font-size: 0.88rem;
   }
 
   .home-entry__eyebrow {
@@ -1939,20 +1952,36 @@ body.service-dialog-open {
   }
 
   .catalog-controls {
-    padding: 0.65rem 0.75rem;
+    padding: 0.5rem 0.65rem;
   }
 
   .home-entry__actions {
-    gap: 0.45rem;
+    gap: 0.4rem;
   }
 
   .home-entry__actions .btn,
   .home-entry__help {
     flex: 1 1 0;
+    min-height: 42px;
+    padding-inline: 0.85rem;
+    font-size: 0.88rem;
+  }
+
+  .home-section__header {
+    gap: 0.15rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .home-section__header h2 {
+    font-size: 1.1rem;
+  }
+
+  .home-section__header p {
+    font-size: 0.84rem;
   }
 
   .category-intro {
-    margin-bottom: 0.75rem !important;
+    margin-bottom: 0.5rem !important;
   }
 
   .category-intro-headline {
@@ -1960,12 +1989,12 @@ body.service-dialog-open {
   }
 
   .category-intro-copy h1 {
-    font-size: 1.35rem;
+    font-size: 1.25rem;
   }
 
   .category-summary {
-    font-size: 0.9rem;
-    line-height: 1.35;
+    font-size: 0.85rem;
+    line-height: 1.3;
   }
 
   .bundle-card__action {
@@ -1974,8 +2003,8 @@ body.service-dialog-open {
 
   .home-profile-strip {
     display: grid;
-    gap: 0.4rem;
-    padding: 0.6rem 0.7rem;
+    gap: 0.3rem;
+    padding: 0.5rem 0.6rem;
   }
 
   .home-profile-strip__repeat {
@@ -1989,7 +2018,7 @@ body.service-dialog-open {
 
   .precio-descuento,
   .precio {
-    font-size: 1.15rem;
+    font-size: 1.05rem;
   }
 
   .quantity-btn {
@@ -2118,8 +2147,8 @@ body.service-dialog-open {
   }
 
   .producto--compact-mobile .card-body {
-    gap: 0.65rem;
-    padding: 0.75rem;
+    gap: 0.4rem;
+    padding: 0.5rem 0.55rem;
   }
 
   .producto--compact-mobile .card-text,
@@ -2129,23 +2158,44 @@ body.service-dialog-open {
 
   .producto--compact-mobile .card-title {
     min-height: auto;
-    margin-bottom: 0.35rem;
+    margin-bottom: 0;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
 
   .producto--compact-mobile .precio-container {
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.35rem;
   }
 
   .producto--compact-mobile .add-to-cart-btn {
-    padding: 0.6rem 0.5rem;
+    padding: 0.5rem 0.4rem;
+    min-height: 42px;
+    font-size: 0.85rem;
+    border-radius: 8px;
   }
 
   .producto--compact-mobile .add-to-cart-btn__label {
-    font-size: 0.92rem;
+    font-size: 0.85rem;
   }
 
   .producto--compact-mobile img {
-    height: 164px;
+    height: 120px;
+  }
+
+  .producto--compact-mobile .product-card__media {
+    padding: 0.4rem;
+  }
+
+  .producto--compact-mobile .product-card__copy {
+    gap: 0.15rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .producto--compact-mobile .discount-badge {
+    top: 0.35rem;
+    right: 0.35rem;
+    font-size: 0.7rem;
+    padding: 0.1rem 0.45rem;
   }
 }
 
@@ -2379,7 +2429,12 @@ body.service-dialog-open {
   }
 
   .storefront-shell {
+    padding-top: 0.4rem;
     padding-bottom: 6.5rem;
+  }
+
+  .trust-strip {
+    margin-bottom: 0.6rem;
   }
 }
 
