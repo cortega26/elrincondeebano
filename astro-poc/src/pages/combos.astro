@@ -1,10 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import HomeBundlesSection from '../components/HomeBundlesSection.astro';
-import { getStorefrontBundles } from '../lib/catalog';
+import { getStorefrontBundles, getStorefrontExperience } from '../lib/catalog';
 import { createSharePreviewMetadata, DEFAULT_OG_IMAGE } from '../lib/seo';
 
 const bundles = getStorefrontBundles();
+const storefrontExperience = getStorefrontExperience();
 const sharePreview = createSharePreviewMetadata({
   title: 'Combos listos | El Rincón de Ébano',
   description:
@@ -45,4 +46,10 @@ const sharePreview = createSharePreviewMetadata({
     footerHref="/#products-heading"
     footerLabel="Volver al catálogo principal"
   />
+  <script
+    is:inline
+    id="storefront-experience-data"
+    type="application/json"
+    set:html={JSON.stringify(storefrontExperience)}
+  ></script>
 </BaseLayout>

@@ -172,6 +172,8 @@ let cachedCategoryIndexes: {
   byKey: Map<string, CategoryRecord>;
   bySlug: Map<string, CategoryRecord>;
 } | null = null;
+let cachedReferenceMap: Map<string, ProductWithSku> | null = null;
+let cachedNavigationGroups: NavGroup[] | null = null;
 
 function normalizeCategoryToken(value: unknown): string {
   if (typeof value !== 'string') {
@@ -399,13 +401,17 @@ function normalizeSearchToken(value: unknown): string {
     .toLowerCase();
 }
 
-function getProductReferenceMap() {
-  return new Map(
+function getProductReferenceMap(): Map<string, ProductWithSku> {
+  if (cachedReferenceMap) {
+    return cachedReferenceMap;
+  }
+  cachedReferenceMap = new Map(
     getProductsWithSku().map((item) => [
       productReferenceKey({ category: item.product.category, name: item.product.name }),
       item,
     ])
   );
+  return cachedReferenceMap;
 }
 
 export function getStorefrontExperience(): StorefrontExperience {
@@ -641,6 +647,10 @@ export function getCategoryRouteParams(): Array<{ param: string; categoryKey: st
 }
 
 export function getNavigationGroups(): NavGroup[] {
+  if (cachedNavigationGroups) {
+    return cachedNavigationGroups;
+  }
+
   const activeCategories = getActiveCategories();
 
   const groups = (categoryRegistry.nav_groups || [])
@@ -666,7 +676,8 @@ export function getNavigationGroups(): NavGroup[] {
     })
     .filter((group) => group.categories.length > 0);
 
-  return groups;
+  cachedNavigationGroups = groups;
+  return cachedNavigationGroups;
 }
 
 export const catalogMeta = {

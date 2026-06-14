@@ -11,9 +11,10 @@ import {
   getHomePrimaryCategories,
   getHomeQuickPicks,
   getHomepageCatalogInitialProducts,
+  getStorefrontBundles,
+  getStorefrontExperience,
   getStorefrontStatusItems,
   getStorefrontTrustItems,
-  getStorefrontBundles,
 } from '../lib/catalog';
 import { createSharePreviewMetadata, DEFAULT_OG_IMAGE } from '../lib/seo';
 
@@ -47,6 +48,7 @@ const heroHighlights = [
 ];
 const heroPaymentCopy =
   trustMap.get('Pago') || 'Efectivo, transferencia y tarjeta desde $30.000.';
+const storefrontExperience = getStorefrontExperience();
 const sharePreview = createSharePreviewMetadata({
   title: 'El Rincón de Ébano',
   description:
@@ -196,4 +198,10 @@ const sharePreview = createSharePreviewMetadata({
   </div>
 
   <ServiceGuideDialog targetHref="#products-heading" targetLabel="Ir al catálogo" />
+  <script
+    is:inline
+    id="storefront-experience-data"
+    type="application/json"
+    set:html={JSON.stringify(storefrontExperience)}
+  ></script>
 </BaseLayout>

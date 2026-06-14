@@ -3,7 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/global.css';
 import Navbar from '../components/Navbar.astro';
 import TrustStrip from '../components/TrustStrip.astro';
-import { getNavigationGroups, getStorefrontExperience } from '../lib/catalog';
+import { getNavigationGroups } from '../lib/catalog';
 import {
   absoluteUrl,
   createSharePreviewMetadata,
@@ -48,7 +48,6 @@ const {
 } = Astro.props;
 
 const navGroups = getNavigationGroups();
-const storefrontExperience = getStorefrontExperience();
 const resolvedSharePreview =
   sharePreview ||
   createSharePreviewMetadata({
@@ -116,12 +115,6 @@ const resolvedSharePreview =
       </div>
     </footer>
 
-    <script
-      is:inline
-      id="storefront-experience-data"
-      type="application/json"
-      set:html={JSON.stringify(storefrontExperience)}
-    ></script>
     <script>
       import '../scripts/storefront.js';
     </script>
