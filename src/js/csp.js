@@ -21,18 +21,20 @@
   // Los modulos que necesiten nonce deben recibirlo por parametro o usar el meta tag directamente.
 
   const cspPolicy = `
-        default-src 'self';
-        script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://static.cloudflareinsights.com 'nonce-${cspNonce}';
-        style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com 'nonce-${cspNonce}';
-        img-src 'self' data: https:;
-        font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net;
-        connect-src 'self' https://cloudflareinsights.com https://cdn.jsdelivr.net;
-        frame-src 'none';
-        object-src 'none';
-        base-uri 'self';
-        form-action 'self';
-        upgrade-insecure-requests;
-    `
+    default-src 'self';
+    base-uri 'self';
+    object-src 'none';
+    frame-ancestors 'none';
+    script-src 'self' https://static.cloudflareinsights.com 'sha256-SvXHAIPcJdE6zuH0y1Xb0AUS/ZJCmBwN7SfMfiEj578=';
+    style-src 'self';
+    img-src 'self' data: https:;
+    font-src 'self' data:;
+    connect-src 'self' https://cloudflareinsights.com https://static.cloudflareinsights.com;
+    manifest-src 'self';
+    worker-src 'self';
+    form-action 'self';
+    upgrade-insecure-requests;
+  `
     .replace(/\s+/g, ' ')
     .trim();
 
