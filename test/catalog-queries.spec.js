@@ -8,8 +8,8 @@ import {
   getNavigationGroups,
   getProductByReference,
   getProductsByReferences,
-  formatPrice,
 } from '../astro-poc/src/lib/catalog.ts';
+import { formatCurrency } from '../astro-poc/src/lib/formatting.ts';
 
 describe('getProducts', () => {
   it('returns a non-empty array of products', () => {
@@ -175,15 +175,15 @@ describe('getProductsByReferences', () => {
   });
 });
 
-describe('formatPrice', () => {
+describe('formatCurrency', () => {
   it('formats a number as CLP currency', () => {
-    const formatted = formatPrice(1990);
+    const formatted = formatCurrency(1990);
     expect(formatted).toContain('$');
     expect(formatted).toContain('1');
   });
 
   it('formats zero when no value is provided', () => {
-    const formatted = formatPrice(undefined);
+    const formatted = formatCurrency(undefined);
     expect(formatted).toContain('$');
     expect(formatted).toContain('0');
   });

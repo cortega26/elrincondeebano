@@ -1,6 +1,6 @@
 {
-  "version": "20260614-141310",
-  "last_updated": "2026-06-14T14:13:10.994294",
+  "version": "20260614-174050",
+  "last_updated": "2026-06-14T17:40:50.693830",
   "rev": 0,
   "products": [
     {
@@ -1006,7 +1006,7 @@
       "name": "Stella Artois • Cerveza Lager",
       "description": "Lata de 354cc x 6 unidades",
       "price": 5900,
-      "discount": 400,
+      "discount": 0,
       "stock": true,
       "category": "Cervezas",
       "image_path": "assets/images/cervezas/Stella Artois lata 350cc.webp",
@@ -1016,7 +1016,7 @@
       "rev": 0,
       "field_last_modified": {
         "discount": {
-          "ts": "2026-03-30T18:23:58.145467Z",
+          "ts": "2026-06-14T21:40:50.690872Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
