@@ -2014,12 +2014,37 @@ function initStorefront() {
   setupOnlineStatusIndicator();
   registerServiceWorker();
 
+  setupBackToTop();
+
   document.documentElement.dataset.storefrontRuntime = STOREFRONT_RUNTIME_CONTRACT.runtimeId;
   document.documentElement.dataset.storefrontStorageVersion = String(
     STOREFRONT_RUNTIME_CONTRACT.storageVersion
   );
   document.documentElement.dataset.enhancementsInit = '1';
   globalThis.__APP_READY__ = true;
+}
+
+function setupBackToTop() {
+  const btn = document.getElementById('back-to-top');
+  if (!btn) return;
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const SCROLL_THRESHOLD = 300;
+
+  function toggleVisibility() {
+    const shouldShow = window.scrollY > SCROLL_THRESHOLD;
+    btn.classList.toggle('is-visible', shouldShow);
+  }
+
+  window.addEventListener('scroll', toggleVisibility, { passive: true });
+  toggleVisibility();
+
+  btn.addEventListener('click', () => {
+    window.scrollTo({
+      top: 0,
+      behavior: prefersReducedMotion ? 'instant' : 'smooth',
+    });
+  });
 }
 
 if (document.readyState === 'loading') {
