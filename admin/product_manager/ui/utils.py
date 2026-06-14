@@ -159,35 +159,33 @@ try:
     except Exception:  # pylint: disable=broad-exception-caught
         PIL_WEBP = False
 
-    # Try multiple strategies for AVIF support
+    # Prefer Pillow's native AVIF decoder. Registering a third-party opener first
+    # can shadow it with a libheif build that lacks the file's compression codec.
     try:
-        import pillow_heif
-
-        pillow_heif.register_heif_opener()
-        REGISTER_AVIF_OPENER = cast(
-            Optional[Callable[[], None]],
-            getattr(pillow_heif, "register_avif_opener", None),
-        )
-        if REGISTER_AVIF_OPENER is not None:
-            try:
-                REGISTER_AVIF_OPENER()
-            except Exception as exc:  # pylint: disable=broad-exception-caught
-                logger.debug(
-                    "Failed to register AVIF opener via pillow_heif: %s", exc
-                )
-        PIL_AVIF = True
-    except ImportError:
-        try:
-            import pillow_avif
-
-            PIL_AVIF = bool(getattr(pillow_avif, "__name__", ""))
-        except ImportError:
-            try:
-                PIL_AVIF = bool(features.check("avif"))
-            except Exception:  # pylint: disable=broad-exception-caught
-                PIL_AVIF = False
+        PIL_AVIF = bool(features.check("avif"))
     except Exception:  # pylint: disable=broad-exception-caught
         PIL_AVIF = False
+
+    if not PIL_AVIF:
+        try:
+            import pillow_heif
+
+            REGISTER_AVIF_OPENER = cast(
+                Optional[Callable[[], None]],
+                getattr(pillow_heif, "register_avif_opener", None),
+            )
+            if REGISTER_AVIF_OPENER is not None:
+                REGISTER_AVIF_OPENER()
+                PIL_AVIF = True
+        except ImportError:
+            try:
+                import pillow_avif
+
+                PIL_AVIF = bool(getattr(pillow_avif, "__name__", ""))
+            except ImportError:
+                PIL_AVIF = False
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            logger.debug("Failed to register AVIF opener via pillow_heif: %s", exc)
 
 except ImportError:
     PIL_AVAILABLE = False
