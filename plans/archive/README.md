@@ -15,8 +15,8 @@ Cada ejecutor: lee el plan completo antes de empezar y actualiza su fila al term
 | [005](005-dx-bundle-eslint-playwright-coverage.md) | DX bundle: ESLint TS + Playwright retries + coverage | P2        | S        | 001 (para no lintar cypress.config.ts) | DONE   |
 | [006](006-extract-shared-formatting-constants.md)  | Extraer `formatCurrency` + `WHATSAPP_NUMBER` a lib   | P2        | S        | —                                      | DONE   |
 | [007](007-storefront-state-unit-tests.md)          | Unit tests para `storefront-state.ts`                | P1        | M        | 002 (recomendado)                      | DONE   |
-| [008](008-dir-shareable-cart-url.md)               | SPIKE: Carrito compartible por URL                   | P3        | S→M      | 006 (recomendado)                      | TODO   |
-| [010](010-dir-stock-notifications.md)              | SPIKE: Notificaciones de productos favoritos         | P3        | S→L      | —                                      | TODO   |
+| [008](008-dir-shareable-cart-url.md)               | SPIKE: Carrito compartible por URL                   | P3        | S→M      | 006 (recomendado)                      | DONE   |
+| [010](010-dir-stock-notifications.md)              | SPIKE: Notificaciones de productos favoritos         | P3        | S→L      | —                                      | DONE   |
 
 **Valores de estado**: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED: <razón>` | `REJECTED: <razón>`
 

@@ -1,6 +1,6 @@
 {
-  "version": "20260411-022511",
-  "last_updated": "2026-04-11T02:25:11.974254",
+  "version": "20260614-141310",
+  "last_updated": "2026-06-14T14:13:10.994294",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -521,7 +521,7 @@
     {
       "name": "PAN • Harina de Maiz",
       "description": "Empaque de 1Kg",
-      "price": 2200,
+      "price": 2500,
       "discount": 0,
       "stock": true,
       "category": "Despensa",
@@ -1013,7 +1013,7 @@
     {
       "name": "Soprole • Jugo de Naranja",
       "description": "Envase de 1L • Sin azúcar añadida",
-      "price": 1500,
+      "price": 1700,
       "discount": 0,
       "stock": true,
       "category": "Jugos",
@@ -1025,7 +1025,7 @@
     {
       "name": "Soprole • Jugo de Durazno",
       "description": "Envase de 1L • Sin azúcar añadida",
-      "price": 1500,
+      "price": 1700,
       "discount": 0,
       "stock": true,
       "category": "Jugos",

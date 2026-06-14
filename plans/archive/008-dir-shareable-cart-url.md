@@ -226,11 +226,52 @@ Si el spike es exitoso, el plan de implementación incluye:
 
 ## Criterios de done del spike
 
-- [ ] Round-trip encoding/decoding funciona para carts de hasta 20 items
-- [ ] Longitud de URL documentada (dentro de límites del browser)
-- [ ] Prototipo funcional en dev (aunque sea en consola)
-- [ ] Preguntas abiertas documentadas en este plan
-- [ ] `plans/README.md` fila actualizada con veredicto (viable/no viable/requiere investigación adicional)
+## Resultados del spike
+
+**Veredicto: VIABLE** — el carrito compartible por URL es factible con el enfoque de hash `#cart=<base64>`.
+
+### Encoding
+
+| Cart size | JSON size | URL length (base64) |
+| --------- | --------- | ------------------- |
+| 3 items   | 434 bytes | 904 chars           |
+| 20 items  | 2.2 KB    | 4,684 chars         |
+
+Todos bajo el límite práctico de 8000 chars para navegadores modernos.
+
+### Implementación en el spike
+
+Funciones agregadas en `astro-poc/src/scripts/storefront.js`:
+
+- `encodeCart(cart)` / `decodeCart(encoded)` — serialización/deserialización via base64
+- `getShareableCartUrl(cart)` — genera URL con hash `#cart=<base64>`
+- `shareCart(cart)` — copia la URL al portapapeles
+- `loadCartFromUrl()` — carga carrito desde hash al iniciar (solo si carrito propio está vacío)
+- Botón "Compartir carrito" en `renderCart()` con feedback "¡Enlace copiado!"
+- Hookeado en `initStorefront()` para carga automática desde URL
+
+### Seguridad
+
+- `sanitizeCart()` se usa en `loadCartFromUrl()` para normalizar input
+- Todos los campos del carrito se insertan como `textContent`, no `innerHTML`
+- No hay riesgo de XSS desde la URL
+
+### Preguntas abiertas post-spike
+
+1. **UX para carrito propio no vacío**: Hoy `loadCartFromUrl()` no hace nada si el carrito actual tiene items. Para implementación completa se necesita un modal con opciones "Cargar carrito compartido (pierdes el actual)" / "Agregar items al carrito actual" / "Ignorar".
+2. **Feedback de estado**: El botón "Compartir carrito" solo muestra feedback temporal. Considerar notificación tipo toast persistente.
+3. **Mobile testing**: Verificar en Safari iOS y Chrome Android que el hash se lee correctamente al abrir el enlace.
+4. **Acortador de URL**: Con ~900 chars para 3 items no es necesario, pero para carritos grandes (+10 items) podría ser útil.
+
+### Esfuerzo estimado para implementación completa
+
+- **M (~2-3 días)**: incluye modal de confirmación, tests unitarios, E2E, y pulido de UX.
+
+- [x] Round-trip encoding/decoding funciona para carts de hasta 20 items
+- [x] Longitud de URL documentada (dentro de límites del browser)
+- [x] Prototipo funcional en dev
+- [x] Preguntas abiertas documentadas en este plan
+- [x] `plans/README.md` fila actualizada con veredicto (viable/no viable/requiere investigación adicional)
 
 ## Notas
 

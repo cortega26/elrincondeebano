@@ -1,6 +1,6 @@
 {
-  "version": "20260411-022511",
-  "last_updated": "2026-04-11T02:25:11.974254",
+  "version": "20260614-141310",
+  "last_updated": "2026-06-14T14:13:10.994294",
   "rev": 0,
   "products": [
     {
@@ -1078,7 +1078,7 @@
     {
       "name": "PAN • Harina de Maiz",
       "description": "Empaque de 1Kg",
-      "price": 2200,
+      "price": 2500,
       "discount": 0,
       "stock": true,
       "category": "Despensa",
@@ -1088,15 +1088,15 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-17T18:26:30.589Z",
+        "price": {
+          "ts": "2026-06-14T18:12:53.555178Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2025-10-17T18:26:30.589Z",
+          "ts": "2026-06-14T18:12:53.555178Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -1830,7 +1830,7 @@
     {
       "name": "Soprole • Jugo de Naranja",
       "description": "Envase de 1L • Sin azúcar añadida",
-      "price": 1500,
+      "price": 1700,
       "discount": 0,
       "stock": true,
       "category": "Jugos",
@@ -1840,15 +1840,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-18T15:17:46.620Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-18T15:17:46.620Z",
+        "price": {
+          "ts": "2026-06-14T18:13:07.327055Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -1859,7 +1852,7 @@
     {
       "name": "Soprole • Jugo de Durazno",
       "description": "Envase de 1L • Sin azúcar añadida",
-      "price": 1500,
+      "price": 1700,
       "discount": 0,
       "stock": true,
       "category": "Jugos",
@@ -1869,15 +1862,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2025-10-18T15:17:33.010Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2025-10-18T15:17:33.010Z",
+        "price": {
+          "ts": "2026-06-14T18:13:10.991413Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,

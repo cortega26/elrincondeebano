@@ -150,6 +150,146 @@ function saveCart(cart) {
   storefrontStorage.saveJson('cart', sanitizeCart(cart));
 }
 
+// --- Spike 008: Carrito compartible por URL (prototype) ---
+function encodeCart(cart) {
+  try {
+    return btoa(encodeURIComponent(JSON.stringify(cart)));
+  } catch {
+    return '';
+  }
+}
+
+function decodeCart(encoded) {
+  try {
+    return JSON.parse(decodeURIComponent(atob(encoded)));
+  } catch {
+    return null;
+  }
+}
+
+function getShareableCartUrl(cart) {
+  if (!cart || cart.length === 0) return null;
+  const encoded = encodeCart(cart);
+  if (!encoded) return null;
+  const url = new URL(globalThis.location.href);
+  url.hash = 'cart=' + encoded;
+  return url.toString();
+}
+
+function shareCart(cart) {
+  const url = getShareableCartUrl(cart);
+  if (!url) return;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).catch(function () {});
+  }
+}
+
+function loadCartFromUrl() {
+  var hash = globalThis.location.hash;
+  var match = hash.match(/^#?cart=(.+)$/);
+  if (!match) return false;
+
+  try {
+    var raw = decodeCart(match[1]);
+    if (!raw) return false;
+    var sanitized = sanitizeCart(raw);
+    if (sanitized.length === 0) return false;
+
+    var currentCart = loadCart();
+    if (currentCart.length > 0) return false;
+
+    saveCart(sanitized);
+    history.replaceState(null, '', globalThis.location.pathname + globalThis.location.search);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+// --- Fin Spike 008 ---
+
+// --- Spike 010: Notificaciones de stock (prototype) ---
+function getFavorites() {
+  try {
+    return JSON.parse(globalThis.localStorage.getItem('astro-poc-favorites') || '[]');
+  } catch (e) {
+    return [];
+  }
+}
+
+function toggleFavorite(productId) {
+  const current = getFavorites();
+  const idx = current.indexOf(productId);
+  if (idx >= 0) {
+    current.splice(idx, 1);
+  } else {
+    current.push(productId);
+  }
+  try {
+    globalThis.localStorage.setItem('astro-poc-favorites', JSON.stringify(current));
+  } catch (e) {
+    // localStorage not available
+  }
+  return current;
+}
+
+function isFavorite(productId) {
+  return getFavorites().indexOf(productId) >= 0;
+}
+
+function checkStockNotifications() {
+  const favorites = getFavorites();
+  if (favorites.length === 0) return;
+
+  const products = Array.from(document.querySelectorAll('.producto')).map(function (el) {
+    return {
+      id: el.dataset.productId || '',
+      name: el.dataset.productName || '',
+      stock: el.dataset.productStock === 'true',
+    };
+  });
+
+  const inStock = products.filter(function (p) {
+    return favorites.indexOf(p.id) >= 0 && p.stock;
+  });
+
+  if (inStock.length === 0) return;
+
+  const existing = document.getElementById('stock-notification-banner');
+  if (existing) existing.remove();
+
+  const banner = document.createElement('div');
+  banner.id = 'stock-notification-banner';
+  banner.className = 'alert alert-success alert-dismissible fade show stock-notification-banner';
+  banner.setAttribute('role', 'alert');
+  banner.setAttribute('aria-live', 'polite');
+
+  const names = inStock
+    .map(function (p) {
+      return p.name;
+    })
+    .join(', ');
+  banner.innerHTML =
+    '<div class="d-flex align-items-center gap-2 mb-1"><strong>¡Productos disponibles de nuevo!</strong></div>' +
+    '<div class="stock-notification-body">' +
+    names +
+    ' ' +
+    (inStock.length === 1 ? 'está' : 'están') +
+    ' disponible' +
+    (inStock.length === 1 ? '' : 's') +
+    '. ¡Agrégal' +
+    (inStock.length === 1 ? 'o' : 'os') +
+    ' a tu pedido!</div>' +
+    '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>';
+
+  const target = document.querySelector('main') || document.body;
+  target.insertBefore(banner, target.firstChild);
+}
+
+// Exponer para pruebas en consola del browser (Spike 010)
+globalThis.toggleFavorite = toggleFavorite;
+globalThis.isFavorite = isFavorite;
+// --- Fin Spike 010 ---
+
 function loadProfile() {
   const profile = storefrontStorage.loadJson('profile', {});
   return {
@@ -878,6 +1018,23 @@ function renderCart(cart, { animateTotal = false } = {}) {
       fragment.appendChild(line);
     });
     container.appendChild(fragment);
+
+    // Spike 008: Share cart button
+    const shareRow = createElement('div', { className: 'cart-share-row mt-2' });
+    const shareBtn = createElement('button', {
+      className: 'btn btn-outline-secondary btn-sm w-100',
+      text: 'Compartir carrito',
+      attrs: { type: 'button', 'aria-label': 'Copiar enlace del carrito para compartir' },
+    });
+    shareBtn.addEventListener('click', function () {
+      shareCart(cart);
+      shareBtn.textContent = '¡Enlace copiado!';
+      globalThis.setTimeout(function () {
+        shareBtn.textContent = 'Compartir carrito';
+      }, 2000);
+    });
+    shareRow.appendChild(shareBtn);
+    container.appendChild(shareRow);
   }
 
   const { totalAmount } = getCartState(cart);
@@ -1322,6 +1479,10 @@ function initStorefront() {
     : [];
 
   let cart = loadCart();
+  // Spikes 008/010: Cargar carrito desde URL y notificar stock
+  const urlLoaded = loadCartFromUrl();
+  if (urlLoaded) cart = loadCart();
+  checkStockNotifications();
   const initialProfile = loadProfile();
   const lastOrder = loadLastOrder();
   const catalogController = createCatalogController();

@@ -175,20 +175,85 @@ Al terminar el spike:
 - ¿El banner in-page sin tiempo real es suficiente o necesita push?
 - Esfuerzo estimado para v1 (in-page): S/M/L
 
+## Resultados del spike
+
+**Veredicto: VIABLE (parcial)** — la v1 in-page es factible, pero requiere
+validación con el operador sobre la frecuencia de stock-outs.
+
+### Q1: Campo de stock en product_data.json
+
+✅ **Sí, existe**: los productos tienen campo `stock: boolean` (true/false).
+
+```json
+{
+  "name": "Toalla Papel Nova Clásica",
+  "stock": true,
+  ...
+}
+```
+
+Además, `ProductRecord` en `astro-poc/src/lib/catalog.ts` ya tipa `stock?: boolean`.
+No se necesita fuente externa de datos.
+
+### Q2: Frecuencia de stock-outs
+
+⏳ **Pendiente de validación con el operador**. El campo `stock` existe y se usa
+(se filtra `stock !== false` en `getCatalogView()`), pero la frecuencia con que
+los productos salen y vuelven de stock depende de la operación real.
+
+**Recomendación**: Preguntar al operador si hay productos que se agotan y
+reabastecen regularmente (ej. pan artesanal, lácteos). Si la respuesta es sí,
+el feature tiene valor para usuarios recurrentes.
+
+### Q3: Canal de notificación para v1
+
+✅ **Decidido: banner in-page** al cargar la página.
+
+- Canal más simple: sin backend, sin push, sin email
+- Se lee del DOM (`data-product-stock`) al cargar la página
+- Si un favorito tiene `stock: true` → muestra banner verde: "¡Producto X disponible de nuevo!"
+- Si el carrito no pasa por `sanitizeCart` de forma insegura, todo bien
+
+### Implementación en el spike
+
+- `data-product-stock` agregado a `ProductCard.astro` (atributo en el DOM)
+- `getFavorites()` / `toggleFavorite(productId)` / `isFavorite(productId)` en storefront.js
+- `checkStockNotifications()` — lee productos del DOM y muestra banner si hay favoritos en stock
+- Hookeado en `initStorefront()` para ejecutarse al cargar
+
+### Preguntas abiertas post-spike
+
+1. **Botón de favorito en UI**: Hoy las funciones existen pero no hay un botón
+   ♡/♥ en la ProductCard. Para implementación completa se necesita agregar un
+   toggle visual en cada card.
+2. **Persistencia del banner**: El banner actual se muestra en cada carga si hay
+   favoritos en stock. Se necesita un timestamp de "última notificación" para
+   evitar notificar repetidamente.
+3. **Stock dinámico**: El JSON de productos se actualiza solo con redeploy.
+   Notificaciones en tiempo real requerirían WebSocket o polling.
+4. **Storage contract**: `astro-poc-favorites` debe agregarse a
+   `STOREFRONT_STORAGE_KEYS` en `storage-contract.ts` para implementación completa.
+
+### Esfuerzo estimado para v1 (in-page)
+
+- **S (~1 día)**: agregar botón de favorito en ProductCard + CSS + tests unitarios
+- **Extensión a banner con timestamp**: S adicional
+- **v1 completa con UI y tests**: **M (~2-3 días)**
+
 ## Criterios de done del spike
 
-- [ ] Q1 respondida (campo de stock verificado o ausencia confirmada)
-- [ ] Q2 respondida (frecuencia de stock-outs verificada con operador)
-- [ ] Q3 decidida (canal de notificación elegido para v1)
-- [ ] Prototype de toggle de favorito funciona en consola del browser
-- [ ] Esfuerzo de v1 estimado
-- [ ] `plans/README.md` fila actualizada con veredicto
+- [x] Q1 respondida (campo `stock: boolean` confirmado)
+- [ ] Q2 respondida (pendiente validación con operador - ver arriba)
+- [x] Q3 decidida (banner in-page como canal v1)
+- [x] Prototype de toggle de favorito implementado en storefront.js
+- [x] Esfuerzo de v1 estimado (S/M)
+- [x] `plans/README.md` actualizado
 
 ## Notas
 
 - Este es un feature de "returning user" — solo aporta valor si hay usuarios
-  que vuelven regularmente (lo que el tracking de recentOrders sugiere que sí).
+  que vuelven regularmente.
 - V1 intencional con scope mínimo: solo in-page, solo campo de stock estático.
   Las notificaciones push requieren un plan separado de complejidad L.
-- Mantener el alcance alineado con la operación actual: la mercancía se entrega
-  a domicilio y de forma inmediata, sin slots ni retiro programado.
+- `astro-poc-favorites` se agregó como clave raw de localStorage. Para
+  implementación completa debe migrarse a `STOREFRONT_STORAGE_KEYS`.

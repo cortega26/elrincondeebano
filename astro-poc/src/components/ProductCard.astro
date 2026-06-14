@@ -35,6 +35,7 @@ const searchText = [product.name, product.description, product.category].filter(
   data-product-discount={discount}
   data-product-final-price={finalPrice}
   data-product-order={index}
+  data-product-stock={product.stock ?? true}
   data-compact-mobile={compactMobile ? 'true' : 'false'}
 >
   <div class="card h-100">
