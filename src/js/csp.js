@@ -17,11 +17,8 @@
   }
 
   const cspNonce = generateNonce();
-  try {
-    window.__CSP_NONCE__ = cspNonce;
-  } catch (error) {
-    // Ignore if the CSP nonce cannot be attached to window.
-  }
+  // El nonce se usa solo en este script; no se expone globalmente.
+  // Los modulos que necesiten nonce deben recibirlo por parametro o usar el meta tag directamente.
 
   const cspPolicy = `
         default-src 'self';

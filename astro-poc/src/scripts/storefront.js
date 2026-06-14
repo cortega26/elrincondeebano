@@ -288,29 +288,35 @@ function checkStockNotifications() {
   const existing = document.getElementById('stock-notification-banner');
   if (existing) existing.remove();
 
-  const banner = document.createElement('div');
-  banner.id = 'stock-notification-banner';
-  banner.className = 'alert alert-success alert-dismissible fade show stock-notification-banner';
-  banner.setAttribute('role', 'alert');
-  banner.setAttribute('aria-live', 'polite');
+  const banner = createElement('div', {
+    className: 'alert alert-success alert-dismissible fade show stock-notification-banner',
+    attrs: { id: 'stock-notification-banner', role: 'alert', 'aria-live': 'polite' },
+  });
 
+  const headerRow = createElement('div', { className: 'd-flex align-items-center gap-2 mb-1' });
+  const strong = document.createElement('strong');
+  strong.textContent = '¡Productos disponibles de nuevo!';
+  headerRow.appendChild(strong);
+  banner.appendChild(headerRow);
+
+  const body = createElement('div', { className: 'stock-notification-body' });
   const names = inStock
     .map(function (p) {
       return p.name;
     })
     .join(', ');
-  banner.innerHTML =
-    '<div class="d-flex align-items-center gap-2 mb-1"><strong>¡Productos disponibles de nuevo!</strong></div>' +
-    '<div class="stock-notification-body">' +
-    names +
-    ' ' +
-    (inStock.length === 1 ? 'está' : 'están') +
-    ' disponible' +
-    (inStock.length === 1 ? '' : 's') +
-    '. ¡Agrégal' +
-    (inStock.length === 1 ? 'o' : 'os') +
-    ' a tu pedido!</div>' +
-    '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>';
+  const verb = inStock.length === 1 ? 'está' : 'están';
+  const plural = inStock.length === 1 ? '' : 's';
+  const pronoun = inStock.length === 1 ? 'o' : 'os';
+  body.textContent =
+    names + ' ' + verb + ' disponible' + plural + '. ¡Agrégal' + pronoun + ' a tu pedido!';
+  banner.appendChild(body);
+
+  const closeBtn = createElement('button', {
+    className: 'btn-close',
+    attrs: { type: 'button', 'data-bs-dismiss': 'alert', 'aria-label': 'Cerrar' },
+  });
+  banner.appendChild(closeBtn);
 
   const target = document.querySelector('main') || document.body;
   target.insertBefore(banner, target.firstChild);
