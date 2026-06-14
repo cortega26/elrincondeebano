@@ -509,14 +509,22 @@ function initParkingReservation() {
 
   var holidays = [];
   var bookings = [];
+  var dataReady = false;
 
-  fetchHolidays().then(function (result) {
-    holidays = result;
-  });
+  Promise.all([fetchHolidays(), fetchBookings()])
+    .then(function (results) {
+      holidays = results[0];
+      bookings = results[1];
+      dataReady = true;
+    })
+    .catch(function () {
+      dataReady = true;
+    });
 
-  fetchBookings().then(function (result) {
-    bookings = result;
-  });
+  function onDateChangeGuarded() {
+    if (!dataReady) return;
+    onDateChange(holidays, bookings);
+  }
 
   checkin.addEventListener('change', function () {
     if (checkin.value) {
@@ -529,15 +537,19 @@ function initParkingReservation() {
       clearBreakdown();
       setStatusMessage('', '');
     }
-    onDateChange(holidays, bookings);
+    onDateChangeGuarded();
   });
 
   checkout.addEventListener('change', function () {
-    onDateChange(holidays, bookings);
+    onDateChangeGuarded();
   });
 
   submitBtn.addEventListener('click', function (e) {
     e.preventDefault();
+    if (!dataReady) {
+      setStatusMessage('Cargando disponibilidad...', 'text-muted');
+      return;
+    }
     onSubmit(holidays, bookings);
   });
 
@@ -566,6 +578,22 @@ function initParkingReservation() {
     });
   }
 }
+
+export {
+  dateToISO,
+  parseBookingsCSV,
+  isNightBlocked,
+  getNightPrice,
+  calculateBreakdown,
+  buildWhatsAppMessage,
+  getCachedHolidays,
+  setCachedHolidays,
+  getCachedBookings,
+  setCachedBookings,
+  initParkingReservation,
+  PRICE_REGULAR,
+  PRICE_HIGH,
+};
 
 /* ── Boot ───────────────────────────────────────────────────── */
 
