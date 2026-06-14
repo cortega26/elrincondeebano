@@ -52,6 +52,7 @@ describe('storefront-state cart primitives', () => {
       name: 'Leche',
       category: 'Lacteos',
       price: 1500,
+      discount: 0,
       image: 'leche.jpg',
       quantity: 2,
     };
@@ -72,6 +73,7 @@ describe('storefront-state cart primitives', () => {
         name: 'prod-1',
         category: '',
         price: 0,
+        discount: 0,
         image: '',
         quantity: MAX_CART_ITEM_QTY,
       });
@@ -122,14 +124,82 @@ describe('storefront-state cart primitives', () => {
         name: 'Pan',
         category: 'Panaderia',
         price: 800,
+        discount: 0,
         image: 'pan.jpg',
         quantity: 3,
       });
     });
 
+    it('propagates discount from product', () => {
+      expect(
+        createCartItemFromProduct({
+          id: 'p1',
+          name: 'Pan',
+          category: 'Panaderia',
+          price: 1000,
+          discount: 200,
+          image: 'pan.jpg',
+          quantity: 1,
+        })
+      ).toMatchObject({ id: 'p1', price: 1000, discount: 200 });
+    });
+
     it('returns null for invalid products', () => {
       expect(createCartItemFromProduct(null)).toBeNull();
       expect(createCartItemFromProduct({})).toBeNull();
+    });
+  });
+
+  describe('normalizeCartItem with discount', () => {
+    it('extracts discount when present', () => {
+      const item = normalizeCartItem({
+        id: 'prod-1',
+        name: 'Test',
+        price: 1000,
+        discount: 200,
+        quantity: 1,
+      });
+      expect(item).not.toBeNull();
+      expect(item.discount).toBe(200);
+    });
+
+    it('defaults discount to 0 when absent', () => {
+      const item = normalizeCartItem({ id: 'prod-1', price: 1000, quantity: 1 });
+      expect(item).not.toBeNull();
+      expect(item.discount).toBe(0);
+    });
+  });
+
+  describe('sanitizeCart with discount', () => {
+    it('preserves discount when sanitizing items', () => {
+      const result = sanitizeCart([
+        { id: 'a', price: 1000, discount: 200, quantity: 2 },
+        { id: 'b', price: 500, discount: 0, quantity: 1 },
+        { id: 'c', price: 3000, discount: 500, quantity: 3 },
+      ]);
+
+      expect(result.map((item) => ({ id: item.id, discount: item.discount }))).toEqual([
+        { id: 'a', discount: 200 },
+        { id: 'b', discount: 0 },
+        { id: 'c', discount: 500 },
+      ]);
+    });
+  });
+
+  describe('getCartState with discount', () => {
+    it('applies discounts when calculating totalAmount', () => {
+      const state = getCartState([
+        { id: 'a', price: 1000, discount: 200, quantity: 2 },
+        { id: 'b', price: 500, discount: 0, quantity: 1 },
+      ]);
+      expect(state.totalItems).toBe(3);
+      // a: (1000 - 200) * 2 = 1600, b: (500 - 0) * 1 = 500 → total 2100
+      expect(state.totalAmount).toBe(2100);
+    });
+
+    it('clamps effective price to zero when discount exceeds price', () => {
+      const state = getCartState([{ id: 'a', price: 1000, discount: 1500, quantity: 2 }]);
+      expect(state.totalAmount).toBe(0);
     });
   });
 

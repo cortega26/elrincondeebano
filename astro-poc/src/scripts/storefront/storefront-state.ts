@@ -5,6 +5,7 @@ export interface CartItem {
   name: string;
   category: string;
   price: number;
+  discount: number;
   image: string;
   quantity: number;
 }
@@ -39,6 +40,7 @@ export function normalizeCartItem(item: unknown): CartItem | null {
     name: typeof itemObj?.name === 'string' ? itemObj.name : id,
     category: typeof itemObj?.category === 'string' ? itemObj.category : '',
     price: parseNumber(itemObj?.price, 0),
+    discount: parseNumber(itemObj?.discount, 0),
     image: typeof itemObj?.image === 'string' ? itemObj.image : '',
     quantity,
   };
@@ -62,10 +64,10 @@ export interface CartState {
 export function getCartState(cart: unknown): CartState {
   const normalizedCart = sanitizeCart(cart);
   const totalItems = normalizedCart.reduce((total, item) => total + clampQty(item.quantity), 0);
-  const totalAmount = normalizedCart.reduce(
-    (total, item) => total + parseNumber(item.price, 0) * clampQty(item.quantity),
-    0
-  );
+  const totalAmount = normalizedCart.reduce((total, item) => {
+    const effectivePrice = Math.max(0, parseNumber(item.price, 0) - parseNumber(item.discount, 0));
+    return total + effectivePrice * clampQty(item.quantity);
+  }, 0);
 
   return { totalItems, totalAmount };
 }
@@ -77,6 +79,7 @@ export function createCartItemFromProduct(product: unknown, quantity = 1): CartI
     name: prod?.name,
     category: prod?.category,
     price: prod?.price,
+    discount: prod?.discount,
     image: prod?.image,
     quantity,
   });

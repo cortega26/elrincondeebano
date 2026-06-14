@@ -137,17 +137,46 @@ function setCartOffcanvasState(nextOpen) {
 
 function loadCart() {
   const cart = sanitizeCart(storefrontStorage.loadJson('cart', []));
-  if (
-    cart.length > 0 &&
-    globalThis.localStorage?.getItem(STOREFRONT_RUNTIME_CONTRACT.storageKeys.cart) === null
-  ) {
-    storefrontStorage.saveJson('cart', cart);
+  // Si hay datos en la key legacy pero no en la canónica, migrar
+  if (cart.length === 0) {
+    const legacyRaw = globalThis.localStorage?.getItem('cart');
+    if (legacyRaw) {
+      try {
+        const legacyCart = sanitizeCart(JSON.parse(legacyRaw));
+        if (legacyCart.length > 0) {
+          storefrontStorage.saveJson('cart', legacyCart);
+          return legacyCart;
+        }
+      } catch {
+        /* ignorar JSON inválido */
+      }
+    }
+    return [];
+  }
+  // Mantener la key legacy sincronizada durante la transición (write-through)
+  try {
+    const serialized = JSON.stringify(cart);
+    globalThis.localStorage?.setItem('cart', serialized);
+  } catch {
+    /* ignorar error de quota en la key legacy */
   }
   return cart;
 }
 
 function saveCart(cart) {
-  storefrontStorage.saveJson('cart', sanitizeCart(cart));
+  return storefrontStorage.saveJson('cart', sanitizeCart(cart));
+}
+
+function showCartSaveError() {
+  const existing = document.getElementById('cart-save-error');
+  if (existing) return;
+  const toast = createElement('div', {
+    className: 'alert alert-warning alert-dismissible fade show position-fixed bottom-0 end-0 m-3',
+    attrs: { id: 'cart-save-error', role: 'alert', style: 'z-index: 9999; max-width: 400px;' },
+  });
+  toast.innerHTML =
+    '<strong>No se pudo guardar el carrito.</strong> Libera espacio en tu navegador e intenta de nuevo.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>';
+  document.body.appendChild(toast);
 }
 
 // --- Spike 008: Carrito compartible por URL (prototype) ---
@@ -198,7 +227,9 @@ function loadCartFromUrl() {
     var currentCart = loadCart();
     if (currentCart.length > 0) return false;
 
-    saveCart(sanitized);
+    if (!saveCart(sanitized)) {
+      return false;
+    }
     history.replaceState(null, '', globalThis.location.pathname + globalThis.location.search);
     return true;
   } catch (e) {
@@ -946,17 +977,18 @@ function renderCart(cart, { animateTotal = false } = {}) {
       const name = createElement('div', { className: 'fw-bold cart-item__title', text: item.name });
       content.appendChild(name);
 
+      const effectivePrice = Math.max(0, item.price - (item.discount || 0));
       const meta = createElement('div', { className: 'cart-item__meta' });
       meta.appendChild(
         createElement('span', {
           className: 'cart-item__price-line',
-          text: `Unitario: ${formatCurrency(item.price)}`,
+          text: `Unitario: ${formatCurrency(effectivePrice)}`,
         })
       );
       meta.appendChild(
         createElement('span', {
           className: 'cart-item__subtotal',
-          text: `Subtotal: ${formatCurrency(item.price * item.quantity)}`,
+          text: `Subtotal: ${formatCurrency(effectivePrice * item.quantity)}`,
         })
       );
       content.appendChild(meta);
@@ -1145,7 +1177,8 @@ function buildOrderConfirmSummary(
   container.replaceChildren();
 
   cart.forEach((item) => {
-    const subtotal = item.price * item.quantity;
+    const effectivePrice = Math.max(0, item.price - (item.discount || 0));
+    const subtotal = effectivePrice * item.quantity;
     const row = createElement('div', { className: 'order-confirm__summary-row' });
     const info = createElement('div', { className: 'order-confirm__summary-item' });
     info.appendChild(
@@ -1154,7 +1187,7 @@ function buildOrderConfirmSummary(
     info.appendChild(
       createElement('div', {
         className: 'order-confirm__summary-item-meta',
-        text: `${item.quantity} × ${formatCurrency(item.price)}`,
+        text: `${item.quantity} × ${formatCurrency(effectivePrice)}`,
       })
     );
     const total = createElement('span', {
@@ -1205,10 +1238,11 @@ function buildWhatsAppMessageText(
   lines.push('');
 
   cart.forEach((item) => {
-    const subtotal = item.price * item.quantity;
+    const effectivePrice = Math.max(0, item.price - (item.discount || 0));
+    const subtotal = effectivePrice * item.quantity;
     lines.push(`*${item.name}*`);
     lines.push(
-      `   ${item.quantity} × $${item.price.toLocaleString('es-CL')} = $${subtotal.toLocaleString('es-CL')}`
+      `   ${item.quantity} × $${effectivePrice.toLocaleString('es-CL')} = $${subtotal.toLocaleString('es-CL')}`
     );
     lines.push('');
   });
@@ -1539,6 +1573,10 @@ function initStorefront() {
         cart.splice(index, 1);
       }
     } else if (index >= 0) {
+      // Verificar stock antes de incrementar
+      if (quantity > cart[index].quantity && fallbackProduct?.stock === false) {
+        return;
+      }
       cart[index].quantity = quantity;
     } else if (fallbackProduct) {
       const nextItem = createCartItemFromProduct(fallbackProduct, quantity);
@@ -1548,7 +1586,21 @@ function initStorefront() {
     }
 
     const nextState = getCartState(cart);
-    saveCart(cart);
+    const saved = saveCart(cart);
+    if (!saved) {
+      log('warn', 'cart_save_failed', { reason: 'localStorage_quota' });
+      // Restaurar estado anterior
+      if (index >= 0 && previousQuantity > 0) {
+        cart[index].quantity = previousQuantity;
+      } else if (index >= 0 && previousQuantity <= 0) {
+        cart.splice(index, 1);
+      }
+      if (previousQuantity <= 0 && index < 0 && fallbackProduct) {
+        cart.pop();
+      }
+      showCartSaveError();
+      return;
+    }
     updateBadge(cart, { animate: previousState.totalItems !== nextState.totalItems });
     renderCart(cart, { animateTotal: previousState.totalAmount !== nextState.totalAmount });
     renderCompanionSuggestions(cart, companionRules);
