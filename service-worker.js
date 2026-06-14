@@ -11,10 +11,10 @@ const CACHE_CONFIG = {
     html: 'ebano-html-2026-05-01-b',
   },
   duration: {
-    html: 60 * 1000, // 1 minute for HTML navigations
-    products: 2 * 60 * 1000, // 2 minutes for product data
-    static: 24 * 60 * 60 * 1000, // 24 hours for static assets
-    dynamic: 12 * 60 * 60 * 1000, // 12 hours for dynamic content
+    html: 24 * 60 * 60 * 1000, // 1 day for HTML navigations (SSG, changes only on deploy)
+    products: 60 * 60 * 1000, // 1 hour for product data (covers typical shopping sessions)
+    static: 30 * 24 * 60 * 60 * 1000, // 30 days for static assets (versioned, cache bust via SW version)
+    dynamic: 24 * 60 * 60 * 1000, // 24 hours for dynamic content
   },
   staticAssets: [
     '/',

@@ -9,7 +9,7 @@ const { addTimestamp, isCacheFresh, CACHE_CONFIG } = require('../service-worker.
   assert.strictEqual(isCacheFresh(stamped, 'static'), true, 'fresh response should be fresh');
 
   const headers = new Headers(stamped.headers);
-  const past = Date.now() - 2 * 24 * 60 * 60 * 1000; // older than cache duration
+  const past = Date.now() - 31 * 24 * 60 * 60 * 1000; // older than 30-day static cache duration
   headers.set('sw-timestamp', past.toString());
   const oldResp = new Response('old', { headers });
   assert.strictEqual(isCacheFresh(oldResp, 'static'), false, 'stale response should be stale');
