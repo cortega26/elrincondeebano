@@ -948,26 +948,34 @@ body.service-dialog-open {
   display: flex;
   flex-direction: column;
   background-color: var(--surface-color);
-  border-radius: 10px;
-  box-shadow: none;
-  transition: border-color 0.18s ease;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-radius: 12px;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   overflow: hidden;
   position: relative;
-  contain: layout paint;
 }
 
 .producto:hover .card {
-  border-color: rgba(0, 91, 79, 0.34);
+  transform: translateY(-4px);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 91, 79, 0.18);
+  border-color: rgba(0, 91, 79, 0.28);
 }
 
 .product-card__media {
   position: relative;
   display: grid;
   place-items: center;
-  padding: 0.65rem 0.65rem 0.55rem;
-  background: #fff;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 0.85rem 0.75rem 0.65rem;
+  background: #faf9f6;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 .producto .card-body {
@@ -1010,10 +1018,14 @@ body.service-dialog-open {
   width: 100%;
   height: 208px;
   object-fit: contain;
-  transition: none;
+  transition: transform 0.22s ease;
   backface-visibility: hidden;
   transform: translateZ(0);
   will-change: transform;
+}
+
+.producto:hover img {
+  transform: translateZ(0) scale(1.04);
 }
 
 /* Improve image rounding continuity */
