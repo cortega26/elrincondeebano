@@ -209,15 +209,6 @@ export function getProductSku(product: ProductRecord): string {
   return getSharedProductSku(product);
 }
 
-export function formatPrice(value: unknown): string {
-  const amount = typeof value === 'number' ? value : 0;
-  return new Intl.NumberFormat('es-CL', {
-    style: 'currency',
-    currency: 'CLP',
-    minimumFractionDigits: 0,
-  }).format(amount);
-}
-
 function encodePathSegment(segment: string): string {
   if (!segment) {
     return segment;

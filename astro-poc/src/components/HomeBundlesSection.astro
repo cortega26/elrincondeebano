@@ -1,6 +1,7 @@
 ---
 import type { StorefrontBundle } from '../lib/catalog';
-import { formatPrice, resolveImageUrl } from '../lib/catalog';
+import { resolveImageUrl } from '../lib/catalog';
+import { formatCurrency } from '../lib/formatting';
 
 export interface Props {
   headingId: string;
@@ -83,11 +84,11 @@ const visibleBundles =
               <div class="bundle-card__meta">
                 {bundle.bundlePrice && bundle.bundlePrice > 0 ? (
                   <>
-                    <strong>{formatPrice(bundle.bundlePrice)}</strong>
-                    <span class="bundle-card__original-price">{formatPrice(bundle.totalPrice)}</span>
+                    <strong>{formatCurrency(bundle.bundlePrice)}</strong>
+                    <span class="bundle-card__original-price">{formatCurrency(bundle.totalPrice)}</span>
                   </>
                 ) : (
-                  <strong>{formatPrice(bundle.totalPrice)}</strong>
+                  <strong>{formatCurrency(bundle.totalPrice)}</strong>
                 )}
                 <span>{bundle.itemsResolved.length} productos</span>
               </div>

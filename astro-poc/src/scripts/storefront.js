@@ -179,7 +179,7 @@ function showCartSaveError() {
   document.body.appendChild(toast);
 }
 
-// --- Spike 008: Carrito compartible por URL (prototype) ---
+// Carrito compartible por URL
 function encodeCart(cart) {
   try {
     return btoa(encodeURIComponent(JSON.stringify(cart)));
@@ -236,35 +236,15 @@ function loadCartFromUrl() {
     return false;
   }
 }
-// --- Fin Spike 008 ---
+// Fin ---
 
-// --- Spike 010: Notificaciones de stock (prototype) ---
+// Notificaciones de stock
 function getFavorites() {
   try {
     return JSON.parse(globalThis.localStorage.getItem('astro-poc-favorites') || '[]');
   } catch (e) {
     return [];
   }
-}
-
-function toggleFavorite(productId) {
-  const current = getFavorites();
-  const idx = current.indexOf(productId);
-  if (idx >= 0) {
-    current.splice(idx, 1);
-  } else {
-    current.push(productId);
-  }
-  try {
-    globalThis.localStorage.setItem('astro-poc-favorites', JSON.stringify(current));
-  } catch (e) {
-    // localStorage not available
-  }
-  return current;
-}
-
-function isFavorite(productId) {
-  return getFavorites().indexOf(productId) >= 0;
 }
 
 function checkStockNotifications() {
@@ -322,10 +302,7 @@ function checkStockNotifications() {
   target.insertBefore(banner, target.firstChild);
 }
 
-// Exponer para pruebas en consola del browser (Spike 010)
-globalThis.toggleFavorite = toggleFavorite;
-globalThis.isFavorite = isFavorite;
-// --- Fin Spike 010 ---
+// Fin ---
 
 function loadProfile() {
   const profile = storefrontStorage.loadJson('profile', {});
@@ -1108,7 +1085,7 @@ function renderCart(cart, { animateTotal = false, changedItemId = null } = {}) {
     });
     container.appendChild(fragment);
 
-    // Spike 008: Share cart button
+    // Share cart button
     const shareRow = createElement('div', { className: 'cart-share-row mt-2' });
     const shareBtn = createElement('button', {
       className: 'btn btn-outline-secondary btn-sm w-100',
@@ -1573,7 +1550,7 @@ function initStorefront() {
     : [];
 
   let cart = loadCart();
-  // Spikes 008/010: Cargar carrito desde URL y notificar stock
+  // Cargar carrito desde URL y notificar stock
   const urlLoaded = loadCartFromUrl();
   if (urlLoaded) cart = loadCart();
   checkStockNotifications();
