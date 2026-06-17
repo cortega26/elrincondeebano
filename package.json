@@ -77,12 +77,12 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@playwright/test": "^1.60.0",
+    "@playwright/test": "^1.61.0",
     "@stryker-mutator/core": "^9.6.1",
     "@stryker-mutator/vitest-runner": "^9.6.1",
-    "@vitest/coverage-v8": "^4.1.8",
+    "@vitest/coverage-v8": "^4.1.9",
     "chrome-launcher": "^1.1.2",
-    "eslint": "^10.4.1",
+    "eslint": "^10.5.0",
     "eslint-plugin-astro": "^1.7.0",
     "globals": "^17.6.0",
     "husky": "^9.1.7",
@@ -92,8 +92,8 @@
     "prettier": "^3.8.4",
     "sharp": "^0.35.1",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.61.0",
-    "undici": "^8.4.1",
+    "typescript-eslint": "^8.61.1",
+    "undici": "^8.5.0",
     "vitest": "^4.0.16"
   },
   "engines": {
