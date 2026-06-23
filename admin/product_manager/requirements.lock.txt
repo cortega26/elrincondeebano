@@ -23,7 +23,7 @@ license-expression==30.4.4
 markdown-it-py==4.2.0
 mccabe==0.7.0
 mdurl==0.1.2
-msgpack==1.1.2
+msgpack==1.2.1
 mypy==2.1.0
 mypy_extensions==1.1.0
 packageurl-python==0.17.6
