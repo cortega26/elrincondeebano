@@ -136,5 +136,9 @@ _products/
 .tmp/
 **/__pycache__/
 
-#Ignore vscode AI rules
+# Ignore vscode AI rules
 .github/instructions/codacy.instructions.md
+
+# CodeGraph runtime files (daemon PID, lock files, etc.)
+.codegraph/daemon.pid
+.codegraph/*.lock
