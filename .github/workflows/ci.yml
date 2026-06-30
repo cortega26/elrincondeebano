@@ -54,6 +54,9 @@ jobs:
       - name: Lint repository
         run: npm run lint
 
+      - name: Validate E2E CSS selectors exist in source
+        run: npm run check:e2e-selectors
+
       - name: Typecheck active storefront and legacy modules
         run: npm run typecheck
 

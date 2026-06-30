@@ -32,7 +32,7 @@ test('mobile home top section stays compact', async ({ page }) => {
 
   await expect(page.locator('h2', { hasText: 'Categorías clave' })).toHaveCount(0);
 
-  await page.locator('.home-entry__help').click();
+  await page.locator('[data-service-dialog-trigger]').click();
   await expect(page.locator('#service-guide-dialog')).toBeVisible();
   await page.locator('[data-service-dialog-close]').first().click();
   await expect(page.locator('#service-guide-dialog')).not.toBeVisible();
