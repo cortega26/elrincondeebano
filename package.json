@@ -84,7 +84,7 @@
     "@vitest/coverage-v8": "^4.1.9",
     "chrome-launcher": "^1.1.2",
     "eslint": "^10.5.0",
-    "eslint-plugin-astro": "^1.7.0",
+    "eslint-plugin-astro": "^2.1.1",
     "globals": "^17.7.0",
     "husky": "^9.1.7",
     "jsdom": "^29.1.1",
