@@ -18,7 +18,7 @@ filelock==3.29.4
 idna==3.18
 iniconfig==2.3.0
 isort==8.0.1
-librt==0.11.0
+librt==0.12.0
 license-expression==30.4.4
 markdown-it-py==4.2.0
 mccabe==0.7.0
@@ -46,7 +46,7 @@ pytest-xdist==3.8.0
 PyYAML==6.0.3
 requests==2.34.2
 rich==15.0.0
-ruff==0.15.18
+ruff==0.15.20
 sortedcontainers==2.4.0
 stevedore==5.8.0
 tomli==2.4.1
