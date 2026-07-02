@@ -59,27 +59,20 @@ concurrency:
 jobs:
   canary-pr-verify:
     if: ${{ github.event_name == 'pull_request' }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
-      - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
-        with:
-          node-version: '24.x'
-          cache: npm
-          cache-dependency-path: package-lock.json
-      - name: Install dependencies
-        run: bash tools/ci/npm-ci-with-retry.sh
+      - uses: ./.github/actions/setup-node-and-deps
       - name: Verify canary contract tests
         run: node --test test/post-deploy-canary.test.js test/live-contract-monitor.test.js
 
   artifact-canary:
     if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     outputs:
       deploy_sha: ${{ steps.meta.outputs.deploy_sha }}
@@ -123,31 +116,12 @@ jobs:
           ref: ${{ steps.meta.outputs.deploy_sha }}
           persist-credentials: false
 
-      - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
-        with:
-          node-version: '24.x'
-          cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            astro-poc/package-lock.json
-
-      - name: Install dependencies
-        run: bash tools/ci/npm-ci-with-retry.sh
+      - uses: ./.github/actions/setup-node-and-deps
 
       - name: Build storefront (artifact contract scope)
         run: npm run build
 
-      - name: Cache Playwright browsers
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-chromium-
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+      - uses: ./.github/actions/setup-playwright
 
       - name: Run browser canary against the shipped artifact
         id: browser_canary
@@ -230,15 +204,7 @@ jobs:
           ref: ${{ needs.artifact-canary.outputs.deploy_sha }}
           persist-credentials: false
 
-      - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
-        with:
-          node-version: '24.x'
-          cache: npm
-          cache-dependency-path: package-lock.json
-
-      - name: Install dependencies
-        run: bash tools/ci/npm-ci-with-retry.sh
+      - uses: ./.github/actions/setup-node-and-deps
 
       - name: Install Playwright Chromium
         run: npx playwright install chromium
@@ -300,7 +266,7 @@ jobs:
   rollback:
     needs: [artifact-canary, live-probe]
     if: ${{ always() && github.event_name == 'workflow_dispatch' && inputs.rollback_on_failure == true && needs.live-probe.result == 'failure' && inputs.rollback_ref != '' && inputs.confirm_rollback == 'ROLLBACK' }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     permissions:
       contents: read
@@ -316,25 +282,9 @@ jobs:
           ref: ${{ inputs.rollback_ref }}
           persist-credentials: false
 
-      - name: Set deterministic build environment
-        run: |
-          echo "TZ=UTC" >> $GITHUB_ENV
-          echo "LC_ALL=C.UTF-8" >> $GITHUB_ENV
-          echo "LANG=C.UTF-8" >> $GITHUB_ENV
-          echo "CFIMG_ENABLE=1" >> $GITHUB_ENV
-          echo "SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)" >> $GITHUB_ENV
-
-      - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+      - uses: ./.github/actions/setup-node-and-deps
         with:
-          node-version: '24.x'
-          cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            astro-poc/package-lock.json
-
-      - name: Install dependencies
-        run: bash tools/ci/npm-ci-with-retry.sh
+          cfimg: 'enable'
 
       - name: Build storefront for rollback ref
         run: npm run build
@@ -343,7 +293,7 @@ jobs:
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
 
       - name: Upload rollback artifact
-        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v3
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: astro-poc/dist
 

@@ -22,7 +22,7 @@ concurrency:
 jobs:
   reject-unconfirmed:
     if: ${{ inputs.confirm_rollback != 'ROLLBACK' }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Require explicit confirmation
         run: |
@@ -38,7 +38,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout rollback ref
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -52,25 +52,9 @@ jobs:
           echo "ROLLBACK_REF=${{ inputs.rollback_ref }}" >> "$GITHUB_ENV"
           echo "ROLLBACK_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
 
-      - name: Set deterministic build environment
-        run: |
-          echo "TZ=UTC" >> $GITHUB_ENV
-          echo "LC_ALL=C.UTF-8" >> $GITHUB_ENV
-          echo "LANG=C.UTF-8" >> $GITHUB_ENV
-          echo "CFIMG_ENABLE=1" >> $GITHUB_ENV
-          echo "SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)" >> $GITHUB_ENV
-
-      - name: Set up Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+      - uses: ./.github/actions/setup-node-and-deps
         with:
-          node-version: 24.x
-          cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            astro-poc/package-lock.json
-
-      - name: Install dependencies
-        run: bash tools/ci/npm-ci-with-retry.sh
+          cfimg: 'enable'
 
       - name: Build storefront
         run: npm run build
@@ -79,7 +63,7 @@ jobs:
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
 
       - name: Upload rollback artifact
-        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v3
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: astro-poc/dist
 

@@ -15,7 +15,7 @@ permissions:
 jobs:
   release:
     name: Version Packages
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - name: Checkout repository
@@ -28,6 +28,9 @@ jobs:
         with:
           node-version: '24.x'
           cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            astro-poc/package-lock.json
 
       - name: Install dependencies
         run: npm ci
