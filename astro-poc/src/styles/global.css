@@ -308,26 +308,6 @@ h1 {
   text-decoration: none;
 }
 
-.home-category-shortcuts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  margin-bottom: 0.9rem;
-}
-
-.home-category-shortcuts__chip {
-  min-height: 40px;
-  padding-inline: 0.95rem;
-  font-weight: 600;
-  border-color: rgba(0, 91, 79, 0.12);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 244, 238, 0.94));
-}
-
-.home-catalog-footer {
-  display: flex;
-  justify-content: center;
-}
-
 .home-section__link:hover,
 .home-section__link:focus-visible {
   text-decoration: underline;
@@ -2313,21 +2293,6 @@ body.service-dialog-open {
 
   .catalog-controls__field--toggle {
     grid-column: 1 / -1;
-  }
-
-  .home-layout__catalog .home-section__header p {
-    display: none;
-  }
-
-  .home-category-shortcuts {
-    gap: 0.45rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .home-category-shortcuts__chip {
-    min-height: 38px;
-    padding-inline: 0.8rem;
-    font-size: 0.88rem;
   }
 
   .add-to-cart-btn {
