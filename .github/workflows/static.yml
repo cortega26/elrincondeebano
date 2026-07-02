@@ -19,11 +19,12 @@ on:
 permissions:
   contents: read
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+# Cancel in-progress deploys when a new one is triggered. This prevents
+# race conditions in GitHub Pages that cause "Deployment failed, try again later"
+# when multiple deploys (push + manual dispatch) overlap.
 concurrency:
   group: 'pages'
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   reject-invalid-dispatch:
