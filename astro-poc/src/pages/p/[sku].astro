@@ -30,6 +30,24 @@ const sharePreview = createSharePreviewMetadata({
   description={sharePreview.description}
   canonicalPath={canonicalPath}
   sharePreview={sharePreview}
+  pageType="product"
+  structuredProducts={[
+    {
+      sku: item.sku,
+      name: item.product.name,
+      description: item.product.description,
+      image: item.product.image_path,
+      price: item.product.price,
+      stock: Boolean(item.product.stock),
+      brand: typeof item.product.brand === 'string' ? item.product.brand : undefined,
+      category: item.product.category,
+    },
+  ]}
+  breadcrumbs={[
+    { name: 'Inicio', url: '/' },
+    { name: item.product.category, url: `/${item.product.category.toLowerCase()}/` },
+    { name: item.product.name, url: canonicalPath },
+  ]}
 >
   <ProductDetail item={item} />
 </BaseLayout>

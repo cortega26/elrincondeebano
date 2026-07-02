@@ -1,0 +1,136 @@
+---
+// SearchBox.astro — Búsqueda textual estática con Pagefind
+// Pagefind indexa el HTML generado durante el build (postbuild:pagefind).
+// El JS/CSS se carga desde /pagefind/ en el directorio dist.
+---
+
+<div id="site-search" class="site-search">
+  <div class="container site-search__container">
+    <label class="site-search__label" for="search-input">Buscar productos</label>
+    <div class="site-search__input-wrapper">
+      <input
+        type="search"
+        id="search-input"
+        class="site-search__input"
+        placeholder="Ej. aceite, leche, pan..."
+        autocomplete="off"
+      />
+      <svg
+        class="site-search__icon"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </div>
+    <div id="search-results" class="site-search__results" aria-live="polite"></div>
+  </div>
+</div>
+
+<style>
+  .site-search {
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 0.5rem 0;
+    position: sticky;
+    top: 56px;
+    z-index: 1020;
+  }
+
+  .site-search__container {
+    position: relative;
+  }
+
+  .site-search__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .site-search__input-wrapper {
+    position: relative;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .site-search__input {
+    width: 100%;
+    padding: 0.5rem 1rem 0.5rem 2.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: #fff;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .site-search__input:focus {
+    outline: none;
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+  }
+
+  .site-search__icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    pointer-events: none;
+  }
+
+  .site-search__results {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(480px, calc(100% - 1rem));
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-height: 60vh;
+    overflow-y: auto;
+    z-index: 1030;
+  }
+
+  /* Pagefind UI overrides */
+  .site-search__results :global(.pagefind-ui) {
+    padding: 0.5rem;
+  }
+
+  .site-search__results :global(.pagefind-ui__result) {
+    padding: 0.5rem;
+    border-bottom: 1px solid #eee;
+  }
+
+  .site-search__results :global(.pagefind-ui__result:last-child) {
+    border-bottom: none;
+  }
+
+  .site-search__results :global(.pagefind-ui__result-link) {
+    font-weight: 600;
+    color: #212529;
+    text-decoration: none;
+  }
+
+  .site-search__results :global(.pagefind-ui__result-excerpt) {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+  }
+</style>
+
+<script src="../scripts/search-box.js"></script>

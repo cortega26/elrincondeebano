@@ -2,6 +2,8 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/global.css';
 import Navbar from '../components/Navbar.astro';
+import SearchBox from '../components/SearchBox.astro';
+import StructuredData from '../components/StructuredData.astro';
 import TrustStrip from '../components/TrustStrip.astro';
 import { getNavigationGroups } from '../lib/catalog';
 import {
@@ -29,6 +31,14 @@ export interface Props {
   sharePreview?: SharePreviewMetadata;
   showTrustStrip?: boolean;
   hideCartShortcut?: boolean;
+  /** Tipo de página para Schema.org: 'home', 'category', 'product', 'page' */
+  pageType?: 'home' | 'category' | 'product' | 'page';
+  /** Productos para JSON-LD StructuredData */
+  structuredProducts?: import('../components/StructuredData.astro').StructuredDataProduct[];
+  /** Migas de pan para BreadcrumbList */
+  breadcrumbs?: { name: string; url: string }[];
+  /** Nombre de categoría (para ItemList en páginas de categoría) */
+  categoryName?: string;
 }
 
 const {
@@ -45,6 +55,10 @@ const {
   sharePreview,
   showTrustStrip = true,
   hideCartShortcut = false,
+  pageType = 'page',
+  structuredProducts = [],
+  breadcrumbs = [],
+  categoryName,
 } = Astro.props;
 
 const navGroups = getNavigationGroups();
@@ -88,10 +102,29 @@ const resolvedSharePreview =
     <title>{resolvedSharePreview.title}</title>
 
     <link rel="icon" href={absoluteUrl('/assets/images/web/favicon.ico')} type="image/x-icon" />
+
+    <!-- Plausible Analytics — analítica sin cookies, respeta privacidad -->
+    <script
+      defer
+      data-domain="elrincondeebano.com"
+      src="https://plausible.io/js/script.js"
+    ></script>
+
+    <StructuredData
+      pageType={pageType}
+      products={structuredProducts}
+      breadcrumbs={breadcrumbs}
+      categoryName={categoryName}
+    />
+
+    <!-- Astro View Transitions: navegación estilo SPA sin recarga completa -->
+    <meta name="astro-view-transitions-enabled" content="true" />
+    <meta name="astro-view-transitions-fallback" content="animate" />
   </head>
   <body>
     <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
     <Navbar navGroups={navGroups} />
+    <SearchBox />
 
     <main id="main-content" role="main" tabindex="-1">
       <div class="container storefront-shell mb-4">

@@ -106,7 +106,7 @@ test('service worker and compatibility artifacts are served', async ({ page }) =
 
   for (const path of [
     '/robots.txt',
-    '/sitemap.xml',
+    '/sitemap-index.xml',
     '/404.html',
     '/service-worker.js',
     '/data/product_data.json',

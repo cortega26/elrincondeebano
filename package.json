@@ -8,14 +8,16 @@
     "test": "test"
   },
   "scripts": {
-    "bootstrap": "npm ci && npm --prefix astro-poc ci",
+    "bootstrap": "npm ci",
+    "turbo": "turbo",
+    "changeset": "changeset",
     "fonts": "node tools/fetch-fonts.mjs",
     "categories:sync": "node tools/sync-category-catalog.js",
     "preflight": "npm run categories:sync && npm run images:logo && npm run images:avif && npm run images:og:home && npm run images:og:overrides && npm run images:og:categories && npm run images:og:parking && npm run images:og:clean-overrides && node tools/preflight.js",
-    "build": "npm run preflight && npm --prefix astro-poc run build",
-    "dev": "npm --prefix astro-poc run dev",
+    "build": "npm run preflight && npm -w astro-poc run build",
+    "dev": "npm -w astro-poc run dev",
     "lint:root": "eslint .",
-    "lint:astro": "npm --prefix astro-poc run lint",
+    "lint:astro": "npm -w astro-poc run lint",
     "lint": "npm run lint:root && npm run lint:astro",
     "check:determinism": "node tools/check-determinism-paths.mjs",
     "check:css-order": "node scripts/check-css-order.mjs",
@@ -45,7 +47,7 @@
     "test": "node test/run-all.js && vitest run",
     "test:coverage": "npx c8 npm test",
     "typecheck:legacy": "tsc -p tsconfig.typecheck.json",
-    "typecheck:astro": "npm --prefix astro-poc run typecheck",
+    "typecheck:astro": "npm -w astro-poc run typecheck",
     "typecheck": "npm run typecheck:legacy && npm run typecheck:astro",
     "test:e2e": "playwright test -c playwright.astro.config.ts --trace on",
     "test:e2e:astro": "npm run test:e2e",
@@ -72,12 +74,18 @@
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "workspaces": [
+    "astro-poc"
+  ],
   "dependencies": {
     "@popperjs/core": "^2.11.8",
-    "bootstrap": "^5.3.3"
+    "bootstrap": "^5.3.3",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.31.0",
     "@eslint/js": "^10.0.1",
+    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.61.1",
     "@stryker-mutator/core": "^9.6.1",
     "@stryker-mutator/vitest-runner": "^9.6.1",
@@ -85,13 +93,16 @@
     "chrome-launcher": "^1.1.2",
     "eslint": "^10.6.0",
     "eslint-plugin-astro": "^2.1.1",
+    "eslint-plugin-sonarjs": "^4.1.0",
     "globals": "^17.7.0",
     "husky": "^9.1.7",
     "jsdom": "^29.1.1",
     "lighthouse": "^13.4.0",
     "lint-staged": "^17.0.8",
+    "pa11y-ci": "^4.1.1",
     "prettier": "^3.9.4",
     "sharp": "^0.35.3",
+    "turbo": "^2.10.2",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.62.1",
     "undici": "^8.6.0",
@@ -113,11 +124,11 @@
   "homepage": "https://github.com/cortega26/elrincondeebano#readme",
   "lint-staged": {
     "*.{js,mjs,cjs}": [
-      "eslint --max-warnings=0",
+      "eslint --max-warnings=0 --no-warn-ignored --ignore-pattern 'astro-poc/**'",
       "prettier --write"
     ],
     "*.{ts,mts}": [
-      "eslint --max-warnings=0",
+      "eslint --max-warnings=0 --no-warn-ignored --ignore-pattern 'astro-poc/**'",
       "prettier --write"
     ],
     "*.{json,md,css,html}": [
