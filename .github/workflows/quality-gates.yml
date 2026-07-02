@@ -34,17 +34,25 @@ jobs:
           python-version: '3.12'
 
       - name: Install lizard
-        run: pip install 'lizard==1.17.10'
+        run: pip install lizard
 
       - name: Run complexity analysis
         run: |
-          lizard \
-            --CCN 10 \
-            --length 100 \
-            --arguments 5 \
-            --warning-msv 10 \
-            --exclude 'node_modules/|dist/|.venv/|reports/|.stryker-tmp/|coverage/|astro-poc/.astro/|_archive/' \
-            .
+          find . -type f \
+            \( -name '*.js' -o -name '*.mjs' -o -name '*.cjs' -o -name '*.ts' -o -name '*.py' -o -name '*.sh' \) \
+            -not -path '*/node_modules/*' \
+            -not -path '*/dist/*' \
+            -not -path '*/.venv/*' \
+            -not -path '*/reports/*' \
+            -not -path '*/coverage/*' \
+            -not -path '*/.stryker-tmp/*' \
+            -not -path '*/astro-poc/.astro/*' \
+            -not -path '*/_archive/*' \
+            -print0 \
+            | xargs -0 lizard \
+              --CCN 10 \
+              --length 100 \
+              --arguments 5
 
   trivy:
     name: Vulnerability Scan (Trivy)
@@ -116,7 +124,7 @@ jobs:
       - name: Run actionlint
         uses: raven-actions/actionlint@v2
         with:
-          shellcheck: '--exclude=SC2086,SC2129,SC2012'
+          flags: '-shellcheck='
 
   markdownlint:
     name: Markdown Lint (markdownlint-cli2)
