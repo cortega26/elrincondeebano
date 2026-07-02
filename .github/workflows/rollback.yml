@@ -69,12 +69,8 @@ jobs:
             package-lock.json
             astro-poc/package-lock.json
 
-      - name: Install root dependencies
+      - name: Install dependencies
         run: bash tools/ci/npm-ci-with-retry.sh
-
-      - name: Install Astro storefront dependencies
-        working-directory: astro-poc
-        run: bash ../tools/ci/npm-ci-with-retry.sh
 
       - name: Build storefront
         run: npm run build
