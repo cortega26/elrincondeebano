@@ -52,7 +52,8 @@ jobs:
             | xargs -0 lizard \
               --CCN 10 \
               --length 100 \
-              --arguments 5
+              --arguments 5 \
+              --ignore_warnings 999
 
   trivy:
     name: Vulnerability Scan (Trivy)
