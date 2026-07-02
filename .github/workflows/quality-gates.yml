@@ -34,7 +34,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install lizard
-        run: pip install 'lizard<1.23'
+        run: pip install 'lizard==1.17.10'
 
       - name: Run complexity analysis
         run: |
@@ -56,6 +56,10 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Ensure reports directory
+        shell: bash
+        run: mkdir -p reports/trivy
+
       - name: Run Trivy vulnerability scanner (fs mode)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
@@ -66,10 +70,6 @@ jobs:
           severity: 'HIGH,CRITICAL'
           scanners: 'vuln,secret,misconfig'
           skip-dirs: 'node_modules,.venv,reports,coverage,.stryker-tmp,astro-poc/.astro,astro-poc/dist'
-
-      - name: Ensure reports directory
-        shell: bash
-        run: mkdir -p reports/trivy
 
       - name: Upload SARIF results to GitHub Security tab
         if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
@@ -116,7 +116,7 @@ jobs:
       - name: Run actionlint
         uses: raven-actions/actionlint@v2
         with:
-          shellcheck: --severity=warning
+          shellcheck: '--exclude=SC2086,SC2129,SC2012'
 
   markdownlint:
     name: Markdown Lint (markdownlint-cli2)
