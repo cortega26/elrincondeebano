@@ -2,7 +2,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/global.css';
 import Navbar from '../components/Navbar.astro';
-import SearchBox from '../components/SearchBox.astro';
+
 import StructuredData from '../components/StructuredData.astro';
 import TrustStrip from '../components/TrustStrip.astro';
 import { getNavigationGroups } from '../lib/catalog';
@@ -124,7 +124,6 @@ const resolvedSharePreview =
   <body>
     <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
     <Navbar navGroups={navGroups} />
-    <SearchBox />
 
     <main id="main-content" role="main" tabindex="-1">
       <div class="container storefront-shell mb-4">

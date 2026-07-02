@@ -1,0 +1,317 @@
+---
+// CategoryStrip.astro — Cintillo horizontal desplazable de productos por categoría.
+// Mobile-first: scroll nativo con CSS scroll-snap, sin JS de carrusel.
+// Flechas de scroll visibles solo en desktop (hover), ocultas en touch.
+import ProductCardStrip from './ProductCardStrip.astro';
+import type { ProductWithSku } from '../lib/catalog';
+
+export interface Props {
+  /** ID único para el heading (accesibilidad) */
+  headingId: string;
+  /** Título visible del cintillo */
+  title: string;
+  /** Productos a mostrar en el cintillo */
+  items: ProductWithSku[];
+  /** Ruta del enlace "Ver todo" */
+  viewAllHref: string;
+  /** Texto del enlace "Ver todo" (por defecto: 'Ver todo') */
+  viewAllLabel?: string;
+  /** Clase CSS adicional para el section */
+  className?: string;
+}
+
+const {
+  headingId,
+  title,
+  items,
+  viewAllHref,
+  viewAllLabel = 'Ver todo',
+  className = '',
+} = Astro.props;
+
+// Identificador único para el contenedor de scroll (uno por cintillo en la página)
+const scrollId = `strip-scroll-${headingId}`;
+---
+
+<section
+  class={`category-strip home-section ${className}`.trim()}
+  aria-labelledby={headingId}
+>
+  <div class="category-strip__header">
+    <h2 id={headingId} class="category-strip__title">{title}</h2>
+    <a
+      href={viewAllHref}
+      class="category-strip__view-all"
+      aria-label={`Ver todos los productos de ${title}`}
+    >
+      {viewAllLabel}
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </a>
+  </div>
+
+  <div class="category-strip__viewport">
+    <div
+      class="category-strip__items"
+      id={scrollId}
+      role="list"
+      aria-label={`Productos de ${title}`}
+    >
+      {items.length > 0 ? (
+        items.map((item, index) => (
+          <div role="listitem">
+            <ProductCardStrip item={item} index={index} />
+          </div>
+        ))
+      ) : (
+        <p class="category-strip__empty" role="status">
+          No hay productos disponibles en esta categoría por el momento.
+        </p>
+      )}
+    </div>
+
+    {
+      items.length > 0 ? (
+        <>
+          <button
+            class="category-strip__arrow category-strip__arrow--left"
+            type="button"
+            aria-label={`Desplazar productos de ${title} hacia la izquierda`}
+            data-strip-scroll={scrollId}
+            data-direction="left"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+          <button
+            class="category-strip__arrow category-strip__arrow--right"
+            type="button"
+            aria-label={`Desplazar productos de ${title} hacia la derecha`}
+            data-strip-scroll={scrollId}
+            data-direction="right"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </>
+      ) : null
+    }
+  </div>
+</section>
+
+<style>
+  .category-strip {
+    padding: 0.85rem 1.1rem;
+  }
+
+  .category-strip__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.6rem;
+    padding-inline: 0;
+  }
+
+  .category-strip__title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+
+  .category-strip__view-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    flex-shrink: 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    text-decoration: none;
+    white-space: nowrap;
+    min-height: 36px;
+    padding: 0.25rem 0;
+    border-radius: 6px;
+    transition: opacity 0.15s ease;
+  }
+
+  .category-strip__view-all:hover,
+  .category-strip__view-all:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+  .category-strip__viewport {
+    position: relative;
+  }
+
+  .category-strip__items {
+    display: flex;
+    gap: 0.65rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-block: 0.15rem 0.35rem;
+    /* Alinea el padding visual con el resto de la página */
+    scroll-padding-inline: 0;
+  }
+
+  .category-strip__items::-webkit-scrollbar {
+    display: none;
+  }
+
+  .category-strip__items > [role='listitem'] {
+    display: flex;
+  }
+
+  .category-strip__empty {
+    padding: 1.5rem 1rem;
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-align: center;
+    width: 100%;
+  }
+
+  /* ── Flechas de scroll ────────────────────────────────────────────── */
+
+  .category-strip__arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.94);
+    color: var(--text-color);
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.2s ease,
+      visibility 0.2s ease,
+      background-color 0.15s ease,
+      box-shadow 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .category-strip__arrow:hover,
+  .category-strip__arrow:focus-visible {
+    background: #fff;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    outline: none;
+  }
+
+  .category-strip__arrow--left {
+    left: 0;
+  }
+
+  .category-strip__arrow--right {
+    right: 0;
+  }
+
+  /* Visible solo en hover del viewport (desktop) o focus del botón */
+  .category-strip__viewport:hover .category-strip__arrow,
+  .category-strip__arrow:focus-visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* En touch (móvil) ocultamos siempre las flechas — el swipe es suficiente */
+  @media (hover: none) and (pointer: coarse) {
+    .category-strip__arrow {
+      display: none;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .category-strip__title {
+      font-size: 1.25rem;
+    }
+
+    .category-strip__items {
+      gap: 0.8rem;
+    }
+  }
+</style>
+
+<script>
+  // Scroll programático con las flechas — solo se ejecuta en desktop donde son visibles.
+  function initCategoryStripArrows() {
+    const arrows = document.querySelectorAll<HTMLButtonElement>(
+      '[data-strip-scroll][data-direction]'
+    );
+
+    arrows.forEach((arrow) => {
+      // Evitar múltiples bindings
+      if (arrow.dataset.stripBound === 'true') return;
+      arrow.dataset.stripBound = 'true';
+
+      arrow.addEventListener('click', () => {
+        const scrollId = arrow.dataset.stripScroll;
+        const direction = arrow.dataset.direction;
+        const container = document.getElementById(scrollId || '');
+        if (!container) return;
+
+        const scrollAmount = Math.floor(container.clientWidth * 0.75);
+        const target =
+          direction === 'left'
+            ? container.scrollLeft - scrollAmount
+            : container.scrollLeft + scrollAmount;
+
+        container.scrollTo({
+          left: target,
+          behavior: 'smooth',
+        });
+      });
+    });
+  }
+
+  // Inicializar al cargar y después de transiciones de vista de Astro
+  initCategoryStripArrows();
+  document.addEventListener('astro:page-load', initCategoryStripArrows);
+</script>

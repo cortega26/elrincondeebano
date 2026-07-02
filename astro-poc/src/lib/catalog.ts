@@ -124,8 +124,6 @@ export type StorefrontBundle = StorefrontBundleRecord & {
   savingsPercent: number;
 };
 
-export const HOME_CATALOG_INITIAL_LIMIT = 24;
-
 export type ResponsiveImageSource = {
   src: string;
   srcset?: string;
@@ -452,31 +450,6 @@ export function getHomePrimaryCategories(): NavGroup['categories'] {
 
 export function getHomeSecondaryCategories(): NavGroup['categories'] {
   return resolveHomeCategories(storefrontExperience.home.secondaryCategories);
-}
-
-export function getHomepageCatalogProducts(): ProductWithSku[] {
-  const secondary = new Set(
-    storefrontExperience.home.secondaryCategories.map((categoryKey) =>
-      normalizeCategoryToken(categoryKey)
-    )
-  );
-
-  return getProductsWithSku().filter(
-    ({ product }) => !secondary.has(normalizeCategoryToken(product.category))
-  );
-}
-
-export function getHomepageCatalogInitialProducts(
-  limit: number = HOME_CATALOG_INITIAL_LIMIT
-): ProductWithSku[] {
-  const prioritized = getProductsByReferences([
-    ...storefrontExperience.home.featuredStaples,
-    ...storefrontExperience.home.fallbackQuickPicks,
-  ]);
-  const prioritizedSkus = new Set(prioritized.map((item) => item.sku));
-  const remaining = getHomepageCatalogProducts().filter((item) => !prioritizedSkus.has(item.sku));
-
-  return [...prioritized, ...remaining].slice(0, limit);
 }
 
 export function getHomeHighlightedCategories(): NavGroup['categories'] {
