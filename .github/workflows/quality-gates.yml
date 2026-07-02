@@ -34,7 +34,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install lizard
-        run: pip install lizard
+        run: pip install 'lizard<1.23'
 
       - name: Run complexity analysis
         run: |
@@ -57,7 +57,7 @@ jobs:
           persist-credentials: false
 
       - name: Run Trivy vulnerability scanner (fs mode)
-        uses: aquasecurity/trivy-action@6c17544078bdd35b5102960ec0af7ac0698eb419 # master
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
@@ -96,7 +96,7 @@ jobs:
           persist-credentials: false
 
       - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@00cae5a21422f4e0e5e348cf64f419f1e049a4b5 # 2.0.0
+        uses: ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38 # 2.0.0
         with:
           format: tty
           severity: error
@@ -116,7 +116,7 @@ jobs:
       - name: Run actionlint
         uses: raven-actions/actionlint@v2
         with:
-          format: concise
+          shellcheck: --severity=warning
 
   markdownlint:
     name: Markdown Lint (markdownlint-cli2)

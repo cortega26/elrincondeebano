@@ -1,0 +1,44 @@
+{
+  // markdownlint-cli2 configuration
+  // See: https://github.com/DavidAnson/markdownlint-cli2
+  "config": {
+    // Line length — 80 is too restrictive for modern docs with links and tables
+    "MD013": {
+      "line_length": 200,
+      "tables": false,
+      "code_blocks": false
+    },
+    // Duplicate headings — CHANGELOG.md and other files have repeated section titles (e.g. "Added", "Fixed")
+    "MD024": {
+      "siblings_only": true,
+      "allow_different_nesting": true
+    },
+    // Allow bare URLs (common in docs and changelogs)
+    "MD034": false,
+    // Allow inline HTML (needed for some markdown extensions)
+    "MD033": false,
+    // First line in file should be top-level heading
+    "MD041": false,
+    // Blanks around fenced code blocks — too strict for some inline docs
+    "MD031": false,
+    // Ordered list item prefix — some changelog formats use repetitive prefixes
+    "MD029": false,
+    // Fenced code blocks should have language — not always needed
+    "MD040": false,
+    // Multiple top-level headings in same doc — common in multi-section docs
+    "MD025": false,
+    // Emphasis used instead of heading — valid style choice in some docs
+    "MD036": false,
+    // List marker spaces — minor formatting
+    "MD030": false,
+    // Single trailing newline — handled by editorconfig/prettier
+    "MD047": false
+  },
+  "ignores": [
+    "node_modules/**",
+    "astro-poc/node_modules/**",
+    "astro-poc/dist/**",
+    "astro-poc/.astro/**",
+    ".claude/**"
+  ]
+}
