@@ -5,6 +5,10 @@ set -euo pipefail
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd -- "${script_dir}/../.." && pwd)"
 
+# Skip husky install in CI environments — the prepare script runs husky
+# which requires a full git checkout (including .git) and isn't needed in CI.
+export HUSKY=0
+
 node "${repo_root}/tools/guardrails/dependency-manifest-compat.mjs"
 
 max_attempts="${NPM_CI_MAX_ATTEMPTS:-3}"

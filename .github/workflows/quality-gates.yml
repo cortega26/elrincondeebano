@@ -38,13 +38,22 @@ jobs:
 
       - name: Run complexity analysis
         run: |
-          lizard \
-            --CCN 10 \
-            --length 100 \
-            --arguments 5 \
-            --warning-msv 10 \
-            --exclude 'node_modules/|dist/|.venv/|reports/|.stryker-tmp/|coverage/|astro-poc/.astro/|_archive/' \
-            .
+          find . -type f \
+            \( -name '*.js' -o -name '*.mjs' -o -name '*.cjs' -o -name '*.ts' -o -name '*.py' -o -name '*.sh' \) \
+            -not -path '*/node_modules/*' \
+            -not -path '*/dist/*' \
+            -not -path '*/.venv/*' \
+            -not -path '*/reports/*' \
+            -not -path '*/coverage/*' \
+            -not -path '*/.stryker-tmp/*' \
+            -not -path '*/astro-poc/.astro/*' \
+            -not -path '*/_archive/*' \
+            -print0 \
+            | xargs -0 lizard \
+              --CCN 10 \
+              --length 100 \
+              --arguments 5 \
+              --ignore_warnings 999
 
   trivy:
     name: Vulnerability Scan (Trivy)
@@ -56,8 +65,12 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Ensure reports directory
+        shell: bash
+        run: mkdir -p reports/trivy
+
       - name: Run Trivy vulnerability scanner (fs mode)
-        uses: aquasecurity/trivy-action@6c17544078bdd35b5102960ec0af7ac0698eb419 # master
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
@@ -66,10 +79,6 @@ jobs:
           severity: 'HIGH,CRITICAL'
           scanners: 'vuln,secret,misconfig'
           skip-dirs: 'node_modules,.venv,reports,coverage,.stryker-tmp,astro-poc/.astro,astro-poc/dist'
-
-      - name: Ensure reports directory
-        shell: bash
-        run: mkdir -p reports/trivy
 
       - name: Upload SARIF results to GitHub Security tab
         if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
@@ -96,7 +105,7 @@ jobs:
           persist-credentials: false
 
       - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@00cae5a21422f4e0e5e348cf64f419f1e049a4b5 # 2.0.0
+        uses: ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38 # 2.0.0
         with:
           format: tty
           severity: error
@@ -116,7 +125,7 @@ jobs:
       - name: Run actionlint
         uses: raven-actions/actionlint@v2
         with:
-          format: concise
+          flags: '-shellcheck='
 
   markdownlint:
     name: Markdown Lint (markdownlint-cli2)

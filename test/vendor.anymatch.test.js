@@ -4,7 +4,14 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 
-const anymatch = require(path.join(__dirname, '..', 'astro-poc', 'node_modules', 'anymatch'));
+// In CI with npm workspaces, astro-poc dependencies may be hoisted to root node_modules.
+// Try the workspace-local path first, then fall back to the hoisted root location.
+let anymatch;
+try {
+  anymatch = require(path.join(__dirname, '..', 'astro-poc', 'node_modules', 'anymatch'));
+} catch {
+  anymatch = require('anymatch');
+}
 
 test('vendored anymatch preserves basic glob and direct string matching', () => {
   const matcher = anymatch(['assets/**/*.png', 'robots.txt']);
