@@ -2,6 +2,9 @@
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
+const GRID_BODY_SELECTOR = '#grid-body';
+const SELECT_ROWS_MESSAGE = 'Seleccione filas';
+
 let products = [];
 const originalMeta = { version: null, last_updated: null };
 
@@ -147,7 +150,7 @@ function renderGrid() {
         p.description?.toLowerCase().includes(filter)
     );
 
-  const tbody = $('#grid-body');
+  const tbody = $(GRID_BODY_SELECTOR);
   tbody.textContent = '';
   for (const p of rows) {
     const id = pid(p);
@@ -216,13 +219,13 @@ function wireEvents() {
   $('#filter').addEventListener('input', renderGrid);
   $('#category').addEventListener('change', renderGrid);
   $('#select-all').addEventListener('change', (e) => {
-    $$('#grid-body input[type="checkbox"][data-id]').forEach(
+    $$(`${GRID_BODY_SELECTOR} input[type="checkbox"][data-id]`).forEach(
       (cb) => (cb.checked = e.target.checked)
     );
   });
 
   // inline edits
-  $('#grid-body').addEventListener('input', (e) => {
+  $(GRID_BODY_SELECTOR).addEventListener('input', (e) => {
     const t = e.target;
     const id = t.getAttribute('data-id');
     const field = t.getAttribute('data-field');
@@ -234,7 +237,7 @@ function wireEvents() {
     p[field] = val;
   });
 
-  $('#grid-body').addEventListener('change', (e) => {
+  $(GRID_BODY_SELECTOR).addEventListener('change', (e) => {
     const t = e.target;
     if (t.matches('input[type="checkbox"][data-field="stock"]')) {
       const id = t.getAttribute('data-id');
@@ -251,7 +254,7 @@ function wireEvents() {
 }
 
 function selectedIds() {
-  return $$('#grid-body input[type="checkbox"][data-id]:checked').map((cb) =>
+  return $$(`${GRID_BODY_SELECTOR} input[type="checkbox"][data-id]:checked`).map((cb) =>
     cb.getAttribute('data-id')
   );
 }
@@ -259,7 +262,7 @@ function selectedIds() {
 function bulkPct() {
   const ids = selectedIds();
   if (!ids.length) {
-    alert('Seleccione filas');
+    alert(SELECT_ROWS_MESSAGE);
     return;
   }
   const pct = prompt('Porcentaje de descuento (0-100):', '10');
@@ -275,7 +278,7 @@ function bulkPct() {
 function bulkFixed() {
   const ids = selectedIds();
   if (!ids.length) {
-    alert('Seleccione filas');
+    alert(SELECT_ROWS_MESSAGE);
     return;
   }
   const amt = prompt('Descuento fijo:', '500');
@@ -291,7 +294,7 @@ function bulkFixed() {
 function bulkStock(on) {
   const ids = selectedIds();
   if (!ids.length) {
-    alert('Seleccione filas');
+    alert(SELECT_ROWS_MESSAGE);
     return;
   }
   ids.forEach((id) => {
@@ -338,123 +341,108 @@ document.addEventListener('DOMContentLoaded', () => {
   loadFromServer();
 });
 
+function getMediaElements() {
+  return {
+    modal: $('#mediaModal'),
+    dropZone: $('#drop-zone'),
+    fileInput: $('#media-input'),
+    previewContainer: $('#media-preview-container'),
+    previewImage: $('#media-preview-img'),
+    filenameBadge: $('#media-filename'),
+    filesizeBadge: $('#media-filesize'),
+    applyButton: $('#btn-apply-media'),
+  };
+}
+
+function openMediaManager(event, state, elements) {
+  const button = event.target.closest('.btn-img-mgr');
+  if (!button) {
+    return;
+  }
+  state.target = {
+    id: button.getAttribute('data-id'),
+    field: button.getAttribute('data-field'),
+  };
+  state.file = null;
+  elements.previewContainer.classList.add('d-none');
+  elements.dropZone.classList.remove('d-none');
+  elements.applyButton.disabled = true;
+  elements.fileInput.value = '';
+  new bootstrap.Modal(elements.modal).show();
+}
+
+function preventMediaDefaults(event) {
+  event.preventDefault();
+  event.stopPropagation();
+}
+
+function wireMediaDropZone({ dropZone, fileInput, onFiles }) {
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
+    dropZone.addEventListener(eventName, preventMediaDefaults, false);
+  });
+  ['dragenter', 'dragover'].forEach((eventName) => {
+    dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+  });
+  ['dragleave', 'drop'].forEach((eventName) => {
+    dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+  });
+  dropZone.addEventListener('drop', (event) => onFiles(event.dataTransfer.files), false);
+  fileInput.addEventListener('change', (event) => onFiles(event.target.files), false);
+}
+
+function showMediaPreview(file, elements) {
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onloadend = () => {
+    elements.previewImage.src = reader.result;
+    elements.filenameBadge.textContent = file.name;
+    elements.filesizeBadge.textContent = (file.size / 1024).toFixed(1) + ' KB';
+    elements.dropZone.classList.add('d-none');
+    elements.previewContainer.classList.remove('d-none');
+    elements.applyButton.disabled = false;
+  };
+}
+
+function handleMediaFiles(files, state, elements) {
+  if (!files.length) {
+    return;
+  }
+  const file = files[0];
+  if (!file.type.startsWith('image/')) {
+    alert('Por favor selecciona un archivo de imagen válido.');
+    return;
+  }
+  state.file = file;
+  showMediaPreview(file, elements);
+}
+
+function applyMediaSelection(state, elements) {
+  if (!state.target || !state.file) {
+    return;
+  }
+  const assetPath = `assets/images/${state.file.name}`;
+  const product = findByPid(state.target.id);
+  if (product) {
+    product[state.target.field] = assetPath;
+  }
+  const input = $(`input[data-id="${state.target.id}"][data-field="${state.target.field}"]`);
+  if (input) {
+    input.value = assetPath;
+  }
+  bootstrap.Modal.getInstance(elements.modal).hide();
+}
+
 function setupMediaManager() {
   renderMediaModal();
-
-  const modalEl = $('#mediaModal');
-  const dropZone = $('#drop-zone');
-  const fileInput = $('#media-input');
-  const previewContainer = $('#media-preview-container');
-  const previewImg = $('#media-preview-img');
-  const filenameBadge = $('#media-filename');
-  const filesizeBadge = $('#media-filesize');
-  const btnApply = $('#btn-apply-media');
-  let currentFile = null;
-  let currentMediaTarget = null; // { id, field }
-
-  // Delegate click for grid buttons
-  $('#grid-body').addEventListener('click', (e) => {
-    const btn = e.target.closest('.btn-img-mgr');
-    if (!btn) return;
-    const id = btn.getAttribute('data-id');
-    const field = btn.getAttribute('data-field');
-    currentMediaTarget = { id, field };
-
-    // Reset modal state
-    currentFile = null;
-    previewContainer.classList.add('d-none');
-    dropZone.classList.remove('d-none');
-    btnApply.disabled = true;
-    fileInput.value = ''; // Reset file input
-
-    // Use bootstrap instance to show
-    const bsModal = new bootstrap.Modal(modalEl);
-    bsModal.show();
+  const elements = getMediaElements();
+  const state = { file: null, target: null };
+  $(GRID_BODY_SELECTOR).addEventListener('click', (event) =>
+    openMediaManager(event, state, elements)
+  );
+  wireMediaDropZone({
+    dropZone: elements.dropZone,
+    fileInput: elements.fileInput,
+    onFiles: (files) => handleMediaFiles(files, state, elements),
   });
-
-  // Drag & Drop
-  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
-    dropZone.addEventListener(eventName, preventDefaults, false);
-  });
-
-  function preventDefaults(e) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-
-  ['dragenter', 'dragover'].forEach((eventName) => {
-    dropZone.addEventListener(eventName, highlight, false);
-  });
-
-  ['dragleave', 'drop'].forEach((eventName) => {
-    dropZone.addEventListener(eventName, unhighlight, false);
-  });
-
-  function highlight() {
-    dropZone.classList.add('dragover');
-  }
-
-  function unhighlight() {
-    dropZone.classList.remove('dragover');
-  }
-
-  dropZone.addEventListener('drop', handleDrop, false);
-  fileInput.addEventListener('change', (e) => handleFiles(e.target.files), false);
-
-  function handleDrop(e) {
-    const dt = e.dataTransfer;
-    const files = dt.files;
-    handleFiles(files);
-  }
-
-  function handleFiles(files) {
-    if (files.length > 0) {
-      const file = files[0];
-      if (!file.type.startsWith('image/')) {
-        alert('Por favor selecciona un archivo de imagen válido.');
-        return;
-      }
-      currentFile = file;
-      showPreview(file);
-    }
-  }
-
-  function showPreview(file) {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onloadend = function () {
-      previewImg.src = reader.result;
-      filenameBadge.textContent = file.name;
-      filesizeBadge.textContent = (file.size / 1024).toFixed(1) + ' KB';
-
-      dropZone.classList.add('d-none');
-      previewContainer.classList.remove('d-none');
-      btnApply.disabled = false;
-    };
-  }
-
-  btnApply.addEventListener('click', () => {
-    if (!currentMediaTarget || !currentFile) return;
-
-    // Construct path - assuming standard assets structure
-    const path = `assets/images/${currentFile.name}`;
-
-    // Update data model
-    const p = findByPid(currentMediaTarget.id);
-    if (p) {
-      p[currentMediaTarget.field] = path;
-    }
-
-    // Update UI input
-    const input = $(
-      `input[data-id="${currentMediaTarget.id}"][data-field="${currentMediaTarget.field}"]`
-    );
-    if (input) {
-      input.value = path;
-    }
-
-    // Close modal
-    const bsModal = bootstrap.Modal.getInstance(modalEl);
-    bsModal.hide();
-  });
+  elements.applyButton.addEventListener('click', () => applyMediaSelection(state, elements));
 }

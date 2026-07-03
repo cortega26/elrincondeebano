@@ -149,6 +149,10 @@ function sanitizeLogValue(value, key = '', seen = new WeakSet()) {
       message: value.message,
     };
   }
+  return sanitizeLogObject(value, key, seen);
+}
+
+function sanitizeLogObject(value, key, seen) {
   if (seen.has(value)) {
     return '[Circular]';
   }
@@ -268,98 +272,126 @@ function sanitizeSource(value) {
   return 'admin';
 }
 
-async function handlePatch(store, req, res, url, requestId) {
+function getRequestContext(req, url, extra = {}) {
+  return { method: req.method, path: url.pathname, ...extra };
+}
+
+function decodeProductId(pathname) {
+  return decodeURIComponent(pathname.replace('/api/products/', ''));
+}
+
+function resolveBaseRevision(body, ifMatch) {
+  if (typeof body?.base_rev === 'number') {
+    return body.base_rev;
+  }
+  return ifMatch ? Number(ifMatch.replace(/"/g, '')) : NaN;
+}
+
+async function readPatchPayload(req) {
+  const body = await readBody(req);
+  const ifMatch = req.headers['if-match'];
+  return {
+    baseRev: resolveBaseRevision(body, ifMatch),
+    changesetId: body?.changeset_id,
+    source: sanitizeSource(body?.source),
+    fields: body?.fields || {},
+  };
+}
+
+function writeInvalidProductIdentifier({ req, res, url, requestId }) {
+  writeError(
+    res,
+    400,
+    {
+      code: 'INVALID_PRODUCT_IDENTIFIER',
+      message: 'Invalid product identifier',
+      context: getRequestContext(req, url),
+      cause: null,
+    },
+    requestId
+  );
+}
+
+function writeInvalidPatchPayload(error, { req, res, url, requestId }) {
+  const statusCode = error.statusCode || 400;
+  const code = statusCode === 413 ? 'PAYLOAD_TOO_LARGE' : 'INVALID_JSON_PAYLOAD';
+  writeError(
+    res,
+    statusCode,
+    {
+      code,
+      message: error.message || 'Invalid request payload',
+      context: getRequestContext(req, url),
+      cause: null,
+    },
+    requestId
+  );
+  logApi('warn', 'sync_api_invalid_payload', {
+    requestId,
+    code,
+    statusCode,
+    path: url.pathname,
+    method: req.method,
+  });
+}
+
+function writePatchFailure(error, { req, res, url, requestId, productId }) {
+  const status = error.statusCode || 500;
+  const isServerError = status >= 500;
+  const message = isServerError ? 'Internal Server Error' : error.message || 'Request failed';
+  const code = isServerError ? 'INTERNAL_SERVER_ERROR' : 'SYNC_PATCH_REJECTED';
+  writeError(
+    res,
+    status,
+    {
+      code,
+      message,
+      context: getRequestContext(req, url, { productId }),
+      cause: isServerError ? error.message || null : null,
+    },
+    requestId
+  );
+  logApi(isServerError ? 'error' : 'warn', 'sync_api_patch_failed', {
+    requestId,
+    status,
+    code,
+    productId,
+    path: url.pathname,
+    method: req.method,
+    cause: error,
+  });
+}
+
+async function handlePatch(context) {
+  const { store, req, res, url, requestId } = context;
   let productId;
   try {
-    productId = decodeURIComponent(url.pathname.replace('/api/products/', ''));
+    productId = decodeProductId(url.pathname);
   } catch (error) {
-    writeError(
-      res,
-      400,
-      {
-        code: 'INVALID_PRODUCT_IDENTIFIER',
-        message: 'Invalid product identifier',
-        context: { method: req.method, path: url.pathname },
-        cause: null,
-      },
-      requestId
-    );
+    writeInvalidProductIdentifier(context);
     return;
   }
-  let body;
+
+  let patchPayload;
   try {
-    body = await readBody(req);
+    patchPayload = await readPatchPayload(req);
   } catch (error) {
-    const statusCode = error.statusCode || 400;
-    const code = statusCode === 413 ? 'PAYLOAD_TOO_LARGE' : 'INVALID_JSON_PAYLOAD';
-    writeError(
-      res,
-      statusCode,
-      {
-        code,
-        message: error.message || 'Invalid request payload',
-        context: { method: req.method, path: url.pathname },
-        cause: null,
-      },
-      requestId
-    );
-    logApi('warn', 'sync_api_invalid_payload', {
-      requestId,
-      code,
-      statusCode,
-      path: url.pathname,
-      method: req.method,
-    });
+    writeInvalidPatchPayload(error, context);
     return;
   }
-  const ifMatch = req.headers['if-match'];
-  const baseRev =
-    typeof body?.base_rev === 'number'
-      ? body.base_rev
-      : ifMatch
-        ? Number(ifMatch.replace(/"/g, ''))
-        : NaN;
-  const changesetId = body?.changeset_id;
-  const source = sanitizeSource(body?.source);
-  const fields = body?.fields || {};
+
   try {
     const result = await store.applyPatch({
       productId,
-      baseRev,
-      fields,
-      source,
-      changesetId,
+      ...patchPayload,
     });
     writeJson(res, 200, result, { 'x-correlation-id': requestId });
   } catch (error) {
-    const status = error.statusCode || 500;
-    const isServerError = status >= 500;
-    const message = isServerError ? 'Internal Server Error' : error.message || 'Request failed';
-    const code = isServerError ? 'INTERNAL_SERVER_ERROR' : 'SYNC_PATCH_REJECTED';
-    writeError(
-      res,
-      status,
-      {
-        code,
-        message,
-        context: { method: req.method, path: url.pathname, productId },
-        cause: isServerError ? error.message || null : null,
-      },
-      requestId
-    );
-    logApi(isServerError ? 'error' : 'warn', 'sync_api_patch_failed', {
-      requestId,
-      status,
-      code,
-      productId,
-      path: url.pathname,
-      method: req.method,
-      cause: error,
-    });
+    writePatchFailure(error, { ...context, productId });
   }
 }
 
-async function handleChanges(store, req, res, url, requestId) {
+async function handleChanges({ store, req, res, url, requestId }) {
   const sinceParam = url.searchParams.get('since_rev');
   const sinceRev = sinceParam ? Number(sinceParam) : 0;
   try {
@@ -387,88 +419,117 @@ async function handleChanges(store, req, res, url, requestId) {
   }
 }
 
+function parseRequestUrl(req, res, requestId) {
+  try {
+    return new URL(req.url || '/', 'http://localhost');
+  } catch (error) {
+    writeError(
+      res,
+      400,
+      {
+        code: 'INVALID_REQUEST_URL',
+        message: 'Invalid request URL',
+        context: { method: req.method || 'UNKNOWN', path: req.url || '/' },
+        cause: null,
+      },
+      requestId
+    );
+    return null;
+  }
+}
+
+function isPatchRequest(req, url) {
+  return req.method === 'PATCH' && url.pathname.startsWith('/api/products/');
+}
+
+function isChangesRequest(req, url) {
+  return req.method === 'GET' && url.pathname === '/api/products/changes';
+}
+
+function rejectUnauthorizedPatch(authResult, { req, res, url, requestId }) {
+  writeError(
+    res,
+    authResult.statusCode,
+    {
+      code: authResult.code,
+      message: authResult.message,
+      context: getRequestContext(req, url),
+      cause: null,
+    },
+    requestId
+  );
+  logApi('warn', 'sync_api_auth_rejected', {
+    requestId,
+    path: url.pathname,
+    method: req.method,
+    statusCode: authResult.statusCode,
+    code: authResult.code,
+  });
+}
+
+async function routeRequest(context) {
+  const { authConfig, req, url } = context;
+  if (isPatchRequest(req, url)) {
+    const authResult = authorizePatchRequest(req, authConfig);
+    if (!authResult.ok) {
+      rejectUnauthorizedPatch(authResult, context);
+      return;
+    }
+    await handlePatch(context);
+    return;
+  }
+  if (isChangesRequest(req, url)) {
+    await handleChanges(context);
+    return;
+  }
+  writeError(
+    context.res,
+    404,
+    {
+      code: 'NOT_FOUND',
+      message: 'Not Found',
+      context: getRequestContext(req, url, { method: req.method || 'UNKNOWN' }),
+      cause: null,
+    },
+    context.requestId
+  );
+}
+
+function createRequestHandler({ store, authConfig }) {
+  return async (req, res) => {
+    const requestId =
+      normalizeCorrelationId(req.headers['x-correlation-id']) || createCorrelationId();
+    const url = parseRequestUrl(req, res, requestId);
+    if (!url) {
+      return;
+    }
+    await routeRequest({ store, authConfig, req, res, url, requestId });
+  };
+}
+
+function reportAuthConfiguration(authConfig) {
+  const authMisconfigured = authConfig.requirePatchAuth && !authConfig.syncApiToken;
+  if (!authMisconfigured) {
+    return;
+  }
+  logApi('error', 'sync_api_auth_not_configured', {
+    requirePatchAuth: authConfig.requirePatchAuth,
+    strictAuthStartup: authConfig.strictAuthStartup,
+    remediation: 'Set SYNC_API_TOKEN or disable auth requirement explicitly.',
+  });
+  if (authConfig.strictAuthStartup) {
+    throw new Error('Sync API auth is required but SYNC_API_TOKEN is not configured');
+  }
+}
+
 function createServer(options = {}) {
   const dataPath = options.dataPath || path.join(__dirname, '..', 'data', 'product_data.json');
   const changeLogPath =
     options.changeLogPath || path.join(__dirname, '..', 'data', 'product_changes.json');
   const authConfig = resolveAuthConfig(options);
-  const authMisconfigured = authConfig.requirePatchAuth && !authConfig.syncApiToken;
-  if (authMisconfigured) {
-    logApi('error', 'sync_api_auth_not_configured', {
-      requirePatchAuth: authConfig.requirePatchAuth,
-      strictAuthStartup: authConfig.strictAuthStartup,
-      remediation: 'Set SYNC_API_TOKEN or disable auth requirement explicitly.',
-    });
-    if (authConfig.strictAuthStartup) {
-      throw new Error('Sync API auth is required but SYNC_API_TOKEN is not configured');
-    }
-  }
+  reportAuthConfiguration(authConfig);
   const store = new ProductStore({ dataPath, changeLogPath });
-
-  const server = http.createServer(async (req, res) => {
-    const requestId =
-      normalizeCorrelationId(req.headers['x-correlation-id']) || createCorrelationId();
-    let url;
-    try {
-      url = new URL(req.url || '/', 'http://localhost');
-    } catch (error) {
-      writeError(
-        res,
-        400,
-        {
-          code: 'INVALID_REQUEST_URL',
-          message: 'Invalid request URL',
-          context: { method: req.method || 'UNKNOWN', path: req.url || '/' },
-          cause: null,
-        },
-        requestId
-      );
-      return;
-    }
-
-    if (req.method === 'PATCH' && url.pathname.startsWith('/api/products/')) {
-      const authResult = authorizePatchRequest(req, authConfig);
-      if (!authResult.ok) {
-        writeError(
-          res,
-          authResult.statusCode,
-          {
-            code: authResult.code,
-            message: authResult.message,
-            context: { method: req.method, path: url.pathname },
-            cause: null,
-          },
-          requestId
-        );
-        logApi('warn', 'sync_api_auth_rejected', {
-          requestId,
-          path: url.pathname,
-          method: req.method,
-          statusCode: authResult.statusCode,
-          code: authResult.code,
-        });
-        return;
-      }
-      await handlePatch(store, req, res, url, requestId);
-      return;
-    }
-    if (req.method === 'GET' && url.pathname === '/api/products/changes') {
-      await handleChanges(store, req, res, url, requestId);
-      return;
-    }
-    writeError(
-      res,
-      404,
-      {
-        code: 'NOT_FOUND',
-        message: 'Not Found',
-        context: { method: req.method || 'UNKNOWN', path: url.pathname },
-        cause: null,
-      },
-      requestId
-    );
-  });
-
+  const server = http.createServer(createRequestHandler({ store, authConfig }));
   return { server, store };
 }
 
