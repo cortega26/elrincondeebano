@@ -7,7 +7,7 @@ test('home renders with navbar, catalog, and SEO tags', async ({ page }) => {
   await expect(page.locator('.navbar-brand')).toBeVisible();
   await expect(page.locator('.trust-strip__card')).toHaveCount(0);
   await expect(page.locator('.home-entry')).toBeVisible();
-  await expect(page.locator('#product-container .producto').first()).toBeVisible();
+  await expect(page.locator('.category-strip .strip-card.producto').first()).toBeVisible();
   await expect(page.locator('h2', { hasText: 'Categorías clave' })).toHaveCount(0);
 
   const canonical = page.locator('link[rel="canonical"]');

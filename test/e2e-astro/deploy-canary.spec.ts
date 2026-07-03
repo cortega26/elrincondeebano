@@ -24,7 +24,7 @@ test('deploy canary boots the shipped storefront bundle without browser errors',
     }
   });
 
-  await expect(page.locator('#product-container .producto').first()).toBeVisible();
+  await expect(page.locator('.strip-card.producto').first()).toBeVisible();
 
   const firstAddToCartButton = page.locator('.add-to-cart-btn').first();
   await expect(firstAddToCartButton).toBeVisible();

@@ -6,7 +6,7 @@ async function waitForReady(page: Page) {
 
 async function visibleCatalogCount(page: Page) {
   return await page.evaluate(
-    () => document.querySelectorAll('#product-container [data-product-id]:not(.is-hidden)').length
+    () => document.querySelectorAll('.category-strip [data-product-id]:not(.is-hidden)').length
   );
 }
 

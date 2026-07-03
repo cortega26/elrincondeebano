@@ -18,7 +18,7 @@ async function openCartFromHome(page: Page, viewport: (typeof MOBILE_VIEWPORTS)[
   await page.goto('/', { waitUntil: 'networkidle' });
   await waitForReady(page);
 
-  const firstAddButton = page.locator('#product-container .add-to-cart-btn').first();
+  const firstAddButton = page.locator('.category-strip .add-to-cart-btn').first();
   await firstAddButton.click();
 
   const mobileCartShortcut = page.locator('#mobile-cart-shortcut');
@@ -32,6 +32,7 @@ async function openCartFromHome(page: Page, viewport: (typeof MOBILE_VIEWPORTS)[
 }
 
 async function readCartHierarchyState(page: Page) {
+  /* eslint-disable-next-line complexity */
   return await page.evaluate(() => {
     const body = document.querySelector('#cartOffcanvas .offcanvas-body');
     const items = document.getElementById('cart-items');
@@ -122,7 +123,7 @@ for (const viewport of MOBILE_VIEWPORTS) {
     const layoutState = await page.evaluate(() => {
       const quickOrderHeading = document.getElementById('home-quick-order-heading');
       const heading = document.getElementById('products-heading');
-      const firstProduct = document.querySelector('#product-container .producto');
+      const firstProduct = document.querySelector('.category-strip .strip-card.producto');
       const quickOrderTop = quickOrderHeading
         ? quickOrderHeading.getBoundingClientRect().top + window.scrollY
         : Number.POSITIVE_INFINITY;
@@ -149,7 +150,7 @@ for (const viewport of MOBILE_VIEWPORTS) {
     const mobileCartShortcut = page.locator('#mobile-cart-shortcut');
     await expect(mobileCartShortcut).toBeHidden();
 
-    const firstAddButton = page.locator('#product-container .add-to-cart-btn').first();
+    const firstAddButton = page.locator('.category-strip .add-to-cart-btn').first();
     await firstAddButton.click();
 
     await expect(mobileCartShortcut).toBeVisible();
@@ -260,6 +261,7 @@ for (const viewport of CART_VIEWPORTS) {
   });
 }
 
+/* eslint-disable-next-line complexity */
 test('cart offcanvas keeps a readable mobile hierarchy at 390x844', async ({ page }) => {
   await openCartFromHome(page, MOBILE_VIEWPORTS[0]);
   const hierarchyState = await readCartHierarchyState(page);
