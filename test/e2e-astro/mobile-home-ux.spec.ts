@@ -122,13 +122,13 @@ for (const viewport of MOBILE_VIEWPORTS) {
 
     const layoutState = await page.evaluate(() => {
       const quickOrderHeading = document.getElementById('home-quick-order-heading');
-      const heading = document.getElementById('products-heading');
+      const catalogSection = document.getElementById('catalog-section');
       const firstProduct = document.querySelector('.category-strip .strip-card.producto');
       const quickOrderTop = quickOrderHeading
         ? quickOrderHeading.getBoundingClientRect().top + window.scrollY
         : Number.POSITIVE_INFINITY;
-      const catalogTop = heading
-        ? heading.getBoundingClientRect().top + window.scrollY
+      const catalogTop = catalogSection
+        ? catalogSection.getBoundingClientRect().top + window.scrollY
         : Number.POSITIVE_INFINITY;
       const firstProductTop =
         firstProduct instanceof HTMLElement

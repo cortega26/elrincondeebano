@@ -10,7 +10,10 @@ const workflow = fs.readFileSync(workflowPath, 'utf8');
 
 test('post-deploy live probe runs a browser contract before the fetch-based canary', () => {
   const liveProbeIndex = workflow.indexOf('live-probe:');
-  const installDepsIndex = workflow.indexOf('- name: Install dependencies', liveProbeIndex);
+  const setupDepsIndex = workflow.indexOf(
+    '- uses: ./.github/actions/setup-node-and-deps',
+    liveProbeIndex
+  );
   const installChromiumIndex = workflow.indexOf(
     '- name: Install Playwright Chromium',
     liveProbeIndex
@@ -29,7 +32,11 @@ test('post-deploy live probe runs a browser contract before the fetch-based cana
     -1,
     'expected the post-deploy workflow to define the live-probe job'
   );
-  assert.notEqual(installDepsIndex, -1, 'expected the live-probe job to install dependencies');
+  assert.notEqual(
+    setupDepsIndex,
+    -1,
+    'expected the live-probe job to set up Node and install dependencies'
+  );
   assert.notEqual(
     installChromiumIndex,
     -1,
@@ -46,7 +53,7 @@ test('post-deploy live probe runs a browser contract before the fetch-based cana
     'expected the live-probe job to keep the fetch-based live canary'
   );
   assert.ok(
-    installChromiumIndex > installDepsIndex,
+    installChromiumIndex > setupDepsIndex,
     'Playwright Chromium install should happen after dependency install'
   );
   assert.ok(

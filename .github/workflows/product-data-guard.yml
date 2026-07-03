@@ -124,6 +124,7 @@ jobs:
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
           git add data/product_data.json robots.txt astro-poc/public/robots.txt || true
           git add assets/images/og/ || true
+          git add assets/images/web/ || true
           if git diff --cached --quiet; then
             echo "No synced changes remained after rebuild. Skipping commit."
             exit 0
