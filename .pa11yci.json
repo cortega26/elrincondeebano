@@ -1,0 +1,16 @@
+{
+  "defaults": {
+    "timeout": 30000,
+    "screenCapture": "reports/pa11y/screenshots",
+    "standard": "WCAG2AA",
+    "runners": ["htmlcs", "axe"]
+  },
+  "urls": [
+    "http://localhost:4321/",
+    "http://localhost:4321/despensa/",
+    "http://localhost:4321/lacteos/",
+    "http://localhost:4321/bebidas/",
+    "http://localhost:4321/combos/",
+    "http://localhost:4321/estacionamiento/"
+  ]
+}

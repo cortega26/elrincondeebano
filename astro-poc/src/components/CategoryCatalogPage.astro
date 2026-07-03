@@ -39,6 +39,22 @@ const sharePreview = createSharePreviewMetadata({
   robots={robots}
   sharePreview={sharePreview}
   showTrustStrip={false}
+  pageType="category"
+  categoryName={categoryLabel}
+  structuredProducts={products.map((item) => ({
+    sku: item.sku,
+    name: item.product.name,
+    description: item.product.description,
+    image: item.product.image_path,
+    price: item.product.price,
+    stock: Boolean(item.product.stock),
+    brand: typeof item.product.brand === 'string' ? item.product.brand : undefined,
+    category: item.product.category,
+  }))}
+  breadcrumbs={[
+    { name: 'Inicio', url: '/' },
+    { name: categoryLabel, url: canonicalPath },
+  ]}
 >
   <section class="category-intro mb-4" aria-labelledby="category-heading">
     <div class="category-intro-copy">

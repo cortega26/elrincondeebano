@@ -1,20 +1,20 @@
 import { test, expect, type Page } from '@playwright/test';
 
 const getRenderedCount = async (page: Page) =>
-  page.evaluate(() => document.querySelectorAll('#product-container [data-product-id]').length);
+  page.evaluate(() => document.querySelectorAll('.category-strip [data-product-id]').length);
 
 test.describe('catalog infinite scroll', () => {
   test('home page loads all products on scroll', async ({ page }) => {
     await page.goto('/?http=on', { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => window.__APP_READY__ === true);
     await page.waitForFunction(
-      () => document.querySelectorAll('#product-container [data-product-id]').length > 0
+      () => document.querySelectorAll('.category-strip [data-product-id]').length > 0
     );
 
     const total = await page.evaluate(() => {
-      const container = document.getElementById('product-container');
-      const value = container?.dataset?.totalProducts;
-      return value ? Number(value) : 0;
+      // Homepage replaced #product-container grid with .category-strip horizontal strips.
+      // Count products rendered inside category strips instead.
+      return document.querySelectorAll('.category-strip [data-product-id]').length;
     });
     expect(total).toBeGreaterThan(0);
 
@@ -47,7 +47,7 @@ test.describe('catalog infinite scroll', () => {
 
       try {
         await page.waitForFunction(
-          (prev) => document.querySelectorAll('#product-container [data-product-id]').length > prev,
+          (prev) => document.querySelectorAll('.category-strip [data-product-id]').length > prev,
           currentCount,
           { timeout: 3000 }
         );

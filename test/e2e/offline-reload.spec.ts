@@ -31,7 +31,7 @@ test.describe('offline reload', () => {
     await page.goto('/?sw=on', { waitUntil: 'domcontentloaded' });
     await ensureServiceWorkerControl(page);
     await page.waitForFunction(
-      () => document.querySelectorAll('#product-container .producto').length > 0
+      () => document.querySelectorAll('.category-strip .strip-card.producto').length > 0
     );
 
     await context.setOffline(true);
@@ -40,7 +40,7 @@ test.describe('offline reload', () => {
 
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.waitForFunction(
-      () => document.querySelectorAll('#product-container .producto').length > 0
+      () => document.querySelectorAll('.category-strip .strip-card.producto').length > 0
     );
 
     const offlineIndicator = page.locator('#offline-indicator');

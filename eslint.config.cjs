@@ -1,6 +1,7 @@
 const js = require('@eslint/js');
 const globals = require('globals');
 const tseslint = require('typescript-eslint');
+const sonarjs = require('eslint-plugin-sonarjs');
 
 module.exports = [
   {
@@ -28,6 +29,9 @@ module.exports = [
   js.configs.recommended,
   {
     files: ['**/*.{js,mjs,cjs,ts,mts}'],
+    plugins: {
+      sonarjs,
+    },
     languageOptions: {
       ecmaVersion: 2021,
       sourceType: 'module',
@@ -55,12 +59,33 @@ module.exports = [
           varsIgnorePattern: '^_',
         },
       ],
+      complexity: ['warn', 10],
+      'max-depth': ['warn', 4],
+      'max-lines-per-function': ['warn', { max: 80, skipBlankLines: true, skipComments: true }],
+      'max-params': ['warn', 4],
+      'sonarjs/cognitive-complexity': ['warn', 15],
+      'sonarjs/no-identical-functions': 'warn',
+      'sonarjs/no-duplicate-string': 'warn',
     },
   },
   {
     files: ['**/*.cjs'],
     languageOptions: {
       sourceType: 'commonjs',
+    },
+  },
+  {
+    files: ['test/**', '**/*.test.*', '**/*.spec.*'],
+    rules: {
+      'sonarjs/no-duplicate-string': 'off',
+    },
+  },
+  {
+    files: ['tools/**', 'scripts/**'],
+    rules: {
+      complexity: 'off',
+      'max-lines-per-function': 'off',
+      'sonarjs/cognitive-complexity': 'off',
     },
   },
   {

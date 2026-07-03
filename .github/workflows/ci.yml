@@ -15,59 +15,88 @@ permissions:
   contents: read
 
 jobs:
-  verify:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 60
+  # ── Pre-build checks (no build artifact needed) ──
+
+  lint-and-typecheck:
+    name: Lint, Images, and Typecheck
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - name: Checkout repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
+          fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
-        with:
-          node-version: '24.x'
-          cache: 'npm'
-          cache-dependency-path: |
-            package-lock.json
-            astro-poc/package-lock.json
-
-      - name: Set deterministic build environment
-        run: |
-          echo "TZ=UTC" >> $GITHUB_ENV
-          echo "LC_ALL=C.UTF-8" >> $GITHUB_ENV
-          echo "LANG=C.UTF-8" >> $GITHUB_ENV
-          echo "CFIMG_DISABLE=1" >> $GITHUB_ENV
-          echo "SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)" >> $GITHUB_ENV
-
-      - name: Install root dependencies
-        run: bash tools/ci/npm-ci-with-retry.sh
-
-      - name: Install Astro storefront dependencies
-        working-directory: astro-poc
-        run: bash ../tools/ci/npm-ci-with-retry.sh
-
-      - name: Determinism path scan
-        run: npm run check:determinism
+      - uses: ./.github/actions/setup-node-and-deps
 
       - name: Lint repository
         run: npm run lint
 
-      - name: Validate E2E CSS selectors exist in source
-        run: npm run check:e2e-selectors
+      - name: Lint images
+        run: npm run lint:images
 
       - name: Typecheck active storefront and legacy modules
         run: npm run typecheck
 
+  unit-tests:
+    name: Unit and Integration Tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-node-and-deps
+
       - name: Run unit and integration tests
         run: npm test
 
-      - name: Build project
-        run: npm run build
+  static-checks:
+    name: Static Checks and Guardrails
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup-node-and-deps
+        with:
+          skip-npm-ci: 'true'
+
+      - name: Determinism path scan
+        run: npm run check:determinism
+
+      - name: Validate E2E CSS selectors exist in source
+        run: npm run check:e2e-selectors
 
       - name: Guard orphan assets
         run: npm run guardrails:assets
+
+      - name: Run full guardrails suite
+        run: npm run guardrails
+
+  # ── Build artifact (shared with downstream jobs) ──
+
+  build-and-check:
+    name: Build and Determinism Check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-node-and-deps
+
+      - name: Build project
+        run: npm run build
 
       - name: Deterministic build check
         run: |
@@ -82,22 +111,6 @@ jobs:
             exit 1
           fi
 
-      - name: Cache Playwright browsers
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-chromium-
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
-
-      - name: Run canonical Playwright suite against the validated artifact
-        env:
-          PLAYWRIGHT_SKIP_BUILD: '1'
-        run: npm run test:e2e
-
       - name: Upload determinism artifacts on failure
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -109,24 +122,41 @@ jobs:
             build-determinism.diff
           if-no-files-found: ignore
 
-      - name: Generate smoke evidence template
-        if: always()
-        run: |
-          npm run smoke:evidence -- \
-            --output reports/smoke/ci-${{ github.sha }}.md \
-            --status pending \
-            --base-url https://www.elrincondeebano.com \
-            --commit ${{ github.sha }} \
-            --run-id ${{ github.run_id }} \
-            --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-
-      - name: Upload smoke evidence artifact
-        if: always()
+      - name: Upload build artifact for downstream jobs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: smoke-evidence
-          path: reports/smoke
+          name: astro-dist
+          path: astro-poc/dist
           if-no-files-found: error
+          retention-days: 1
+
+  # ── Post-build checks (build artifact needed) ──
+
+  e2e-tests:
+    name: Playwright E2E Tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    needs: [build-and-check]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-node-and-deps
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: astro-dist
+          path: astro-poc/dist
+
+      - uses: ./.github/actions/setup-playwright
+
+      - name: Run canonical Playwright suite against the validated artifact
+        env:
+          PLAYWRIGHT_SKIP_BUILD: '1'
+        run: npm run test:e2e
 
       - name: Upload Playwright artifacts on failure
         if: failure()
@@ -137,6 +167,25 @@ jobs:
             test-results
             playwright-report
           if-no-files-found: ignore
+
+  lighthouse:
+    name: Lighthouse Audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    needs: [build-and-check]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-node-and-deps
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: astro-dist
+          path: astro-poc/dist
 
       - name: Lighthouse regression audit
         run: npm run lighthouse:audit
@@ -151,6 +200,81 @@ jobs:
           path: reports/lighthouse
           if-no-files-found: ignore
 
+  # ── Aggregation (must wait for all jobs) ──
+
+  verify:
+    name: CI Verification Summary
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    needs:
+      - lint-and-typecheck
+      - unit-tests
+      - static-checks
+      - build-and-check
+      - e2e-tests
+      - lighthouse
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-node-and-deps
+        with:
+          skip-npm-ci: 'true'
+
+      - name: Check all CI jobs passed
+        shell: bash
+        run: |
+          STATUS="success"
+
+          check_job() {
+            if [ "$1" != "success" ] && [ "$1" != "skipped" ]; then
+              echo "::error::Job $2 failed: $1"
+              STATUS="failure"
+            fi
+          }
+
+          check_job "${{ needs.lint-and-typecheck.result }}" "lint-and-typecheck"
+          check_job "${{ needs.unit-tests.result }}" "unit-tests"
+          check_job "${{ needs.static-checks.result }}" "static-checks"
+          check_job "${{ needs.build-and-check.result }}" "build-and-check"
+          check_job "${{ needs.e2e-tests.result }}" "e2e-tests"
+          check_job "${{ needs.lighthouse.result }}" "lighthouse"
+
+          echo "CI_STATUS=$STATUS" >> $GITHUB_ENV
+
+          npm run smoke:evidence -- \
+            --output reports/smoke/ci-${{ github.sha }}.md \
+            --status "$STATUS" \
+            --base-url https://www.elrincondeebano.com \
+            --commit ${{ github.sha }} \
+            --run-id ${{ github.run_id }} \
+            --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          mkdir -p reports/smoke
+          {
+            echo "## CI Summary"
+            echo ""
+            echo "- Node: $(node -v)"
+            echo "- SOURCE_DATE_EPOCH: ${SOURCE_DATE_EPOCH:-unset}"
+            echo "- Jobs: lint-and-typecheck, unit-tests, static-checks, build-and-check, e2e-tests, lighthouse"
+            echo "- Result: $STATUS"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$STATUS" != "success" ]; then
+            exit 1
+          fi
+
+      - name: Upload smoke evidence artifact
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: smoke-evidence
+          path: reports/smoke
+          if-no-files-found: error
+
       - name: Upload orphan-assets report on failure
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -158,19 +282,3 @@ jobs:
           name: orphan-assets-report
           path: reports/orphan-assets
           if-no-files-found: ignore
-
-      - name: Write CI summary
-        if: always()
-        shell: bash
-        run: |
-          {
-            echo "## CI Summary"
-            echo ""
-            echo "- Node: $(node -v)"
-            echo "- SOURCE_DATE_EPOCH: ${SOURCE_DATE_EPOCH:-unset}"
-            if [ -f build-determinism.diff ]; then
-              echo "- Determinism diff: build-determinism.diff"
-            else
-              echo "- Determinism diff: none"
-            fi
-          } >> "$GITHUB_STEP_SUMMARY"

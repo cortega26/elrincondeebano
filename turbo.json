@@ -1,0 +1,45 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", "astro-poc/dist/**"],
+      "cache": true
+    },
+    "lint": {
+      "cache": true
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "cache": true,
+      "inputs": ["test/**", "src/**", "astro-poc/src/**"]
+    },
+    "typecheck": {
+      "cache": true
+    },
+    "typecheck:legacy": {
+      "cache": true
+    },
+    "typecheck:astro": {
+      "cache": true
+    },
+    "lint:root": {
+      "cache": true
+    },
+    "lint:astro": {
+      "cache": true
+    },
+    "test:e2e": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
+    "validate": {
+      "dependsOn": ["lint", "typecheck", "test", "build"],
+      "cache": false
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}

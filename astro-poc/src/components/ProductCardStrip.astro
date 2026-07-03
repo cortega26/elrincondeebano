@@ -1,0 +1,250 @@
+---
+// ProductCardStrip.astro — Tarjeta compacta para cintillos horizontales desplazables.
+// Mobile-first: imagen más pequeña, nombre truncado, botón compacto.
+// Reutiliza los mismos data-attributes que ProductCard para compatibilidad con storefront.js.
+import type { ProductWithSku } from '../lib/catalog';
+import { getProductCardImageSource } from '../lib/catalog';
+import { formatCurrency } from '../lib/formatting';
+
+export interface Props {
+  item: ProductWithSku;
+  index?: number;
+}
+
+const { item, index = 0 } = Astro.props;
+const { product, sku } = item;
+const isLikelyLcp = index < 3;
+const price = typeof product.price === 'number' ? product.price : 0;
+const discount = typeof product.discount === 'number' ? product.discount : 0;
+const finalPrice = Math.max(price - discount, 0);
+const hasDiscount = discount > 0 && price > 0 && finalPrice < price;
+const discountPercent = hasDiscount ? Math.round((discount / price) * 100) : 0;
+const image = getProductCardImageSource(product.image_path);
+const avifImage = getProductCardImageSource(product.image_avif_path);
+const hasAvifSource = typeof avifImage.srcset === 'string' && avifImage.srcset.length > 0;
+const searchText = [product.name, product.description, product.category].filter(Boolean).join(' ');
+---
+
+<article
+  class="strip-card producto"
+  data-product-id={sku}
+  data-product-name={product.name}
+  data-product-category={product.category}
+  data-product-description={product.description || ''}
+  data-product-search-text={searchText}
+  data-product-price={price}
+  data-product-discount={discount}
+  data-product-final-price={finalPrice}
+  data-product-order={index}
+  data-product-stock={product.stock ?? true}
+>
+  <div class="strip-card__inner">
+    <div class="strip-card__media">
+      {hasDiscount ? (
+        <span class="discount-badge strip-card__badge" aria-label="Producto en oferta">
+          -{discountPercent}%
+        </span>
+      ) : null}
+
+      <picture>
+        {
+          hasAvifSource ? (
+            <source srcset={avifImage.srcset} sizes={avifImage.sizes} type="image/avif" />
+          ) : null
+        }
+        <img
+          src={image.src}
+          srcset={image.srcset}
+          sizes={image.sizes}
+          alt={product.name}
+          class="strip-card__img"
+          loading={isLikelyLcp ? 'eager' : 'lazy'}
+          fetchpriority={isLikelyLcp ? 'high' : 'auto'}
+          decoding="async"
+          width="150"
+          height="150"
+        />
+      </picture>
+    </div>
+
+    <div class="strip-card__body">
+      <h3 class="strip-card__title">{product.name}</h3>
+
+      <div class="precio-container strip-card__pricing">
+        {
+          hasDiscount ? (
+            <>
+              <span class="precio-descuento" aria-label="Precio con descuento">
+                {formatCurrency(finalPrice)}
+              </span>
+              <span class="precio-original" aria-label="Precio original">
+                <span class="tachado">{formatCurrency(price)}</span>
+              </span>
+            </>
+          ) : (
+            <span class="precio" aria-label="Precio">{formatCurrency(price)}</span>
+          )
+        }
+      </div>
+
+      <div class="action-area" data-pid={sku} role="group" aria-label={`Acciones para ${product.name}`}>
+        <button
+          class="btn btn-primary add-to-cart-btn strip-card__btn"
+          type="button"
+          data-id={sku}
+          aria-label={`Agregar ${product.name} al carrito`}
+        >
+          <span class="add-to-cart-btn__label">Agregar</span>
+        </button>
+
+        <div class="quantity-control is-hidden" aria-live="polite" role="group" aria-label="Seleccionar cantidad">
+          <button class="quantity-btn" type="button" data-action="decrease" data-id={sku} aria-label="Disminuir cantidad">-</button>
+          <span class="quantity-value" data-id={sku} aria-live="polite" aria-atomic="true">1</span>
+          <button class="quantity-btn" type="button" data-action="increase" data-id={sku} aria-label="Aumentar cantidad">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</article>
+
+<style>
+  .strip-card {
+    flex: 0 0 auto;
+    width: min(160px, 44vw);
+    scroll-snap-align: start;
+  }
+
+  .strip-card__inner {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: var(--surface-color);
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .strip-card__inner:hover {
+    border-color: rgba(0, 91, 79, 0.25);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  }
+
+  .strip-card__media {
+    position: relative;
+    display: grid;
+    place-items: center;
+    background: #fafaf8;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 0.55rem;
+  }
+
+  .strip-card__badge {
+    top: 0.35rem;
+    right: 0.35rem;
+    font-size: 0.7rem;
+    padding: 0.12rem 0.45rem;
+    z-index: 3;
+  }
+
+  .strip-card__img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    backface-visibility: hidden;
+  }
+
+  .strip-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 0.6rem 0.65rem;
+    flex: 1 1 auto;
+  }
+
+  .strip-card__title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    min-height: 2.1em;
+  }
+
+  .strip-card__pricing {
+    padding-top: 0;
+  }
+
+  .strip-card .precio-descuento,
+  .strip-card .precio {
+    font-size: 1rem;
+  }
+
+  .strip-card .precio-original {
+    font-size: 0.78rem;
+  }
+
+  .strip-card__btn.add-to-cart-btn {
+    padding: 0.45rem 0.5rem;
+    min-height: 38px;
+    font-size: 0.82rem;
+    gap: 0;
+    width: 100%;
+    border-radius: 8px;
+  }
+
+  .strip-card__btn .add-to-cart-btn__label {
+    font-size: 0.82rem;
+  }
+
+  .strip-card .action-area {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .strip-card .quantity-btn {
+    width: 38px;
+    min-height: 38px;
+    font-size: 16px;
+  }
+
+  .strip-card .quantity-control {
+    min-height: 38px;
+    border-radius: 8px;
+    gap: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .strip-card .quantity-value {
+    font-size: 14px;
+  }
+
+  @media (min-width: 768px) {
+    .strip-card {
+      width: min(180px, 22vw);
+    }
+
+    .strip-card__img {
+      aspect-ratio: 1 / 1;
+    }
+
+    .strip-card__title {
+      font-size: 0.9rem;
+    }
+
+    .strip-card .precio-descuento,
+    .strip-card .precio {
+      font-size: 1.05rem;
+    }
+  }
+</style>

@@ -15,7 +15,7 @@ async function seedCartAndOpen(page: Page, itemCount: number, viewport = MOBILE)
   await waitForReady(page);
 
   // Add `itemCount` distinct products (or same product repeatedly up to stock cap)
-  const addButtons = page.locator('#product-container .add-to-cart-btn');
+  const addButtons = page.locator('.category-strip .add-to-cart-btn');
   const count = await addButtons.count();
 
   for (let i = 0; i < Math.min(itemCount, count); i++) {
@@ -175,7 +175,7 @@ test('T6: cart state is consistent after adding and removing an item', async ({ 
   await page.goto('/', { waitUntil: 'networkidle' });
   await waitForReady(page);
 
-  const addBtn = page.locator('#product-container .add-to-cart-btn').first();
+  const addBtn = page.locator('.category-strip .add-to-cart-btn').first();
   await addBtn.click();
 
   // Badge count should be 1

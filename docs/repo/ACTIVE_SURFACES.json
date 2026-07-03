@@ -19,7 +19,6 @@
   },
   "workflows": [
     ".github/workflows/ci.yml",
-    ".github/workflows/ci-guardrails.yml",
     ".github/workflows/static.yml",
     ".github/workflows/security-audit.yml",
     ".github/workflows/live-contract-monitor.yml"

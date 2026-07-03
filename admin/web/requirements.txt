@@ -1,0 +1,2 @@
+streamlit>=1.40.0
+watchfiles>=0.24.0

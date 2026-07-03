@@ -1,16 +1,15 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import CatalogControls from '../components/CatalogControls.astro';
+import CategoryStrip from '../components/CategoryStrip.astro';
 import HomeBundlesSection from '../components/HomeBundlesSection.astro';
 import HomeProductSection from '../components/HomeProductSection.astro';
-import ProductGrid from '../components/ProductGrid.astro';
 import ServiceGuideDialog from '../components/ServiceGuideDialog.astro';
 import {
   getHomeFeaturedDeals,
   getHomeFeaturedStaples,
   getHomePrimaryCategories,
   getHomeQuickPicks,
-  getHomepageCatalogInitialProducts,
+  getProductsByCategory,
   getStorefrontBundles,
   getStorefrontExperience,
   getStorefrontStatusItems,
@@ -21,10 +20,6 @@ import { createSharePreviewMetadata, DEFAULT_OG_IMAGE } from '../lib/seo';
 const fallbackQuickPicks = getHomeQuickPicks();
 const featuredStaples = getHomeFeaturedStaples();
 const quickOrderItems = featuredStaples.slice(0, 4).length > 0 ? featuredStaples.slice(0, 4) : fallbackQuickPicks;
-const quickOrderSkus = new Set(quickOrderItems.map((item) => item.sku));
-const homepageCatalogProducts = getHomepageCatalogInitialProducts(28)
-  .filter((item) => !quickOrderSkus.has(item.sku))
-  .slice(0, 24);
 const featuredDeals = getHomeFeaturedDeals();
 const bundles = getStorefrontBundles();
 const primaryCategories = getHomePrimaryCategories();
@@ -65,6 +60,7 @@ const sharePreview = createSharePreviewMetadata({
   canonicalPath="/"
   sharePreview={sharePreview}
   showTrustStrip={false}
+  pageType="home"
 >
   <div class="home-layout">
     <section class="home-entry home-layout__entry" aria-labelledby="main-heading">
@@ -135,36 +131,23 @@ const sharePreview = createSharePreviewMetadata({
       compactMobile={true}
     />
 
-    <section class="home-section home-layout__catalog" aria-labelledby="products-heading">
-      <div class="home-section__header">
-        <h2 id="products-heading">Más con stock hoy</h2>
-        <p id="catalog-main">
-          Una vitrina breve del surtido útil para el edificio. Si no está aquí, entra por categoría y sigue armando tu pedido.
-        </p>
-      </div>
-      <div class="home-category-shortcuts" aria-label="Categorías principales">
-        {
-          primaryCategories.map((category) => (
-            <a class="btn btn-outline-dark poc-category-chip home-category-shortcuts__chip" href={category.modernPath}>
-              {category.label}
-            </a>
-          ))
-        }
-      </div>
-      <CatalogControls stickyMobile={true} />
-      <ProductGrid
-        items={homepageCatalogProducts}
-        id="product-container"
-        announce={true}
-        compactMobile={true}
-      />
-      <div id="catalog-empty-state" class="alert alert-info d-none mt-3" role="status">
-        No se encontraron productos con los filtros seleccionados.
-      </div>
-      <div id="catalog-controls" class="home-catalog-footer text-center my-4">
-        <a href="/despensa/" class="btn btn-outline-primary">Ver categorías completas</a>
-      </div>
-    </section>
+    <div id="catalog-section" class="home-layout__catalog">
+      {
+        primaryCategories.map((category) => {
+          const categoryProducts = getProductsByCategory(category.key).slice(0, 12);
+          if (categoryProducts.length === 0) return null;
+          return (
+            <CategoryStrip
+              headingId={`home-strip-${category.slug}`}
+              title={category.label}
+              items={categoryProducts}
+              viewAllHref={category.modernPath}
+              viewAllLabel="Ver todo"
+            />
+          );
+        })
+      }
+    </div>
 
     {featuredDeals.length > 0 ? (
       <HomeProductSection
@@ -191,7 +174,7 @@ const sharePreview = createSharePreviewMetadata({
     />
   </div>
 
-  <ServiceGuideDialog targetHref="#products-heading" targetLabel="Ir al catálogo" />
+  <ServiceGuideDialog targetHref="#catalog-section" targetLabel="Ir al catálogo" />
   <script
     is:inline
     id="storefront-experience-data"

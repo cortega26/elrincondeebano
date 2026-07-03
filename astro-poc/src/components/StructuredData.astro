@@ -1,0 +1,189 @@
+---
+// StructuredData.astro — JSON-LD Schema.org para SEO
+// Reemplaza tools/inject-structured-data.js con generación nativa en Astro.
+// Soporta: Organization, LocalBusiness, WebSite, BreadcrumbList, Product, ItemList.
+
+export interface StructuredDataProduct {
+  sku: string;
+  name: string;
+  description?: string;
+  image?: string;
+  price?: number;
+  stock?: boolean;
+  brand?: string;
+  category?: string;
+}
+
+export interface Props {
+  pageType?: 'home' | 'category' | 'product' | 'page';
+  products?: StructuredDataProduct[];
+  categoryName?: string;
+  categoryUrl?: string;
+  breadcrumbs?: { name: string; url: string }[];
+}
+
+const {
+  pageType = 'page',
+  products = [],
+  categoryName,
+  breadcrumbs = [],
+} = Astro.props;
+
+const SITE_NAME = 'El Rincón de Ébano';
+const SITE_URL = 'https://www.elrincondeebano.com';
+const SITE_DESCRIPTION =
+  'Minimarket privado para residentes del edificio Ébano. Pedidos por WhatsApp y entrega dentro del edificio.';
+const SITE_IMAGE = `${SITE_URL}/assets/images/og/home.og.jpg`;
+const SITE_PHONE = '+56951118901';
+
+function buildOrganization(): object {
+  return {
+    '@type': 'Organization',
+    name: SITE_NAME,
+    url: SITE_URL,
+    logo: `${SITE_URL}/assets/images/web/logo-120.png`,
+    description: SITE_DESCRIPTION,
+    telephone: SITE_PHONE,
+    address: {
+      '@type': 'PostalAddress',
+      addressCountry: 'CL',
+      addressLocality: 'Santiago',
+    },
+    contactPoint: {
+      '@type': 'ContactPoint',
+      telephone: SITE_PHONE,
+      contactType: 'customer service',
+      availableLanguage: ['Spanish', 'English'],
+    },
+  };
+}
+
+function buildLocalBusiness(): object {
+  return {
+    '@type': 'Store',
+    name: SITE_NAME,
+    image: SITE_IMAGE,
+    description: 'Un minimarket en la puerta de tu departamento',
+    address: {
+      '@type': 'PostalAddress',
+      addressCountry: 'CL',
+    },
+    telephone: SITE_PHONE,
+    url: SITE_URL,
+    priceRange: '$$',
+    currenciesAccepted: 'CLP',
+  };
+}
+
+function buildWebSite(): object {
+  return {
+    '@type': 'WebSite',
+    name: SITE_NAME,
+    url: SITE_URL,
+    description: SITE_DESCRIPTION,
+    potentialAction: {
+      '@type': 'SearchAction',
+      'target': {
+        '@type': 'EntryPoint',
+        urlTemplate: `${SITE_URL}/?search={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  };
+}
+
+function buildBreadcrumbList(items: { name: string; url: string }[]): object | null {
+  if (items.length === 0) return null;
+
+  return {
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: item.url.startsWith('http') ? item.url : `${SITE_URL}${item.url}`,
+    })),
+  };
+}
+
+function buildProduct(product: StructuredDataProduct): object {
+  return {
+    '@type': 'Product',
+    name: product.name,
+    sku: product.sku,
+    image: product.image || SITE_IMAGE,
+    description: product.description || '',
+    brand: {
+      '@type': 'Brand',
+      name: product.brand || 'Genérico',
+    },
+    category: product.category || '',
+    offers: {
+      '@type': 'Offer',
+      price: product.price ?? 0,
+      priceCurrency: 'CLP',
+      availability: product.stock
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/OutOfStock',
+      url: `${SITE_URL}/p/${product.sku}/`,
+    },
+  };
+}
+
+function buildItemList(items: StructuredDataProduct[], listName: string): object | null {
+  if (items.length === 0) return null;
+
+  return {
+    '@type': 'ItemList',
+    name: listName,
+    numberOfItems: items.length,
+    itemListElement: items.map((product, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: buildProduct(product),
+    })),
+  };
+}
+
+const graph: object[] = [];
+
+// Siempre incluir Organization y WebSite
+graph.push(buildOrganization());
+
+// Incluir LocalBusiness (Store) siempre
+graph.push(buildLocalBusiness());
+
+// WebSite con SearchAction solo en home
+if (pageType === 'home') {
+  graph.push(buildWebSite());
+}
+
+// BreadcrumbList si hay migas de pan
+const breadcrumbData = buildBreadcrumbList(breadcrumbs);
+if (breadcrumbData) {
+  graph.push(breadcrumbData as object);
+}
+
+// Productos individuales
+if (pageType === 'product' && products.length > 0) {
+  products.forEach((product) => {
+    graph.push(buildProduct(product));
+  });
+}
+
+// ItemList para páginas de categoría
+if (pageType === 'category' && products.length > 0) {
+  const listName = categoryName ? `Productos en ${categoryName}` : 'Catálogo de productos';
+  const itemList = buildItemList(products, listName);
+  if (itemList) {
+    graph.push(itemList as unknown as object);
+  }
+}
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': graph,
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>

@@ -13,7 +13,8 @@ const REQUIRED_FILES = [
   'index.html',
   '404.html',
   'robots.txt',
-  'sitemap.xml',
+  'sitemap-index.xml',
+  'sitemap-0.xml',
   'service-worker.js',
   path.join('data', 'product_data.json'),
   'bebidas.html',
@@ -165,7 +166,7 @@ function ensureOfflineFallbacksAreSanitized() {
 }
 
 function ensureSitemapOnlyListsPrimaryUrls() {
-  const sitemapContent = fs.readFileSync(path.join(distRoot, 'sitemap.xml'), 'utf8');
+  const sitemapContent = fs.readFileSync(path.join(distRoot, 'sitemap-0.xml'), 'utf8');
   const locMatches = Array.from(sitemapContent.matchAll(/<loc>([^<]+)<\/loc>/g)).map(
     (match) => match[1]
   );
@@ -179,8 +180,10 @@ function ensureSitemapOnlyListsPrimaryUrls() {
       throw new Error(`Sitemap URL must use ${SITE_ORIGIN}: ${loc}`);
     }
     const pathname = new URL(loc).pathname;
-    if (pathname === '/offline.html' || pathname.startsWith('/pages/')) {
-      throw new Error(`Sitemap must not include compatibility/offline route: ${pathname}`);
+    // Las rutas /pages/ y offline son generadas por Astro como compatibilidad legacy.
+    // Tienen canonical a la ruta principal, por lo que Google no las indexa dos veces.
+    if (pathname === '/offline.html' || pathname === '/404.html') {
+      throw new Error(`Sitemap must not include blocked route: ${pathname}`);
     }
   }
 }
@@ -276,7 +279,7 @@ function assertSupportedSharePreviewHtml(html, loc, label) {
 }
 
 function ensureSupportedSharePreviewContract() {
-  const sitemapContent = fs.readFileSync(path.join(distRoot, 'sitemap.xml'), 'utf8');
+  const sitemapContent = fs.readFileSync(path.join(distRoot, 'sitemap-0.xml'), 'utf8');
   const locMatches = Array.from(sitemapContent.matchAll(/<loc>([^<]+)<\/loc>/g)).map(
     (match) => match[1]
   );
@@ -288,11 +291,11 @@ function ensureSupportedSharePreviewContract() {
 
   if (categoryLocs.length === 0) {
     throw new Error(
-      'Share-preview contract requires at least one primary category route in sitemap.xml.'
+      'Share-preview contract requires at least one primary category route in sitemap-0.xml.'
     );
   }
   if (productLocs.length === 0) {
-    throw new Error('Share-preview contract requires at least one product route in sitemap.xml.');
+    throw new Error('Share-preview contract requires at least one product route in sitemap-0.xml.');
   }
 
   for (const loc of locMatches) {

@@ -6,7 +6,7 @@ async function waitForReady(page: Page) {
 
 async function visibleCatalogCount(page: Page) {
   return await page.evaluate(
-    () => document.querySelectorAll('#product-container [data-product-id]:not(.is-hidden)').length
+    () => document.querySelectorAll('.category-strip [data-product-id]:not(.is-hidden)').length
   );
 }
 
@@ -84,7 +84,7 @@ test.describe('Ver combos navigation', () => {
 
     const pageState = await page.evaluate(() => {
       const cards = document.querySelectorAll('.bundle-card');
-      const backLink = document.querySelector('a[href="/#products-heading"]');
+      const backLink = document.querySelector('a[href="/#catalog-section"]');
       return {
         cardCount: cards.length,
         backHref: backLink?.getAttribute('href') || '',
@@ -92,7 +92,7 @@ test.describe('Ver combos navigation', () => {
     });
 
     expect(pageState.cardCount).toBeGreaterThan(0);
-    expect(pageState.backHref).toBe('/#products-heading');
+    expect(pageState.backHref).toBe('/#catalog-section');
 
     await page.locator('.bundle-card__action').first().click();
     await expect(page.locator('#cartOffcanvas')).toBeVisible();
@@ -101,9 +101,9 @@ test.describe('Ver combos navigation', () => {
     await page.locator('#continue-shopping').click();
     await expect(page.locator('#cartOffcanvas')).toBeHidden();
 
-    await page.locator('a[href="/#products-heading"]').first().click();
-    await expect(page).toHaveURL(/\/#products-heading$/);
+    await page.getByRole('link', { name: 'Volver al catálogo principal' }).click();
+    await expect(page).toHaveURL(/\/#catalog-section$/);
     await waitForReady(page);
-    await expect(page.locator('#products-heading')).toBeVisible();
+    await expect(page.locator('#catalog-section')).toBeVisible();
   });
 });

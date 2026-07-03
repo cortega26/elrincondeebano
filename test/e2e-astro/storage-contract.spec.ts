@@ -14,12 +14,12 @@ test('canonical cart storage survives a refresh on the shipped Astro storefront'
   await waitForReady(page);
 
   const productId = await page
-    .locator('#product-container .add-to-cart-btn')
+    .locator('.category-strip .add-to-cart-btn')
     .first()
     .getAttribute('data-id');
   expect(productId).toBeTruthy();
 
-  await page.locator(`#product-container .add-to-cart-btn[data-id="${productId}"]`).first().click();
+  await page.locator(`.category-strip .add-to-cart-btn[data-id="${productId}"]`).first().click();
   await page.waitForFunction((id) => {
     const cart = JSON.parse(localStorage.getItem('astro-poc-cart') || '[]');
     return cart.some(
@@ -31,7 +31,7 @@ test('canonical cart storage survives a refresh on the shipped Astro storefront'
   await waitForReady(page);
 
   await expect(
-    page.locator(`#product-container .action-area[data-pid="${productId}"] .quantity-value`)
+    page.locator(`.category-strip .action-area[data-pid="${productId}"] .quantity-value`)
   ).toHaveText('1');
 });
 
@@ -40,7 +40,7 @@ test('repeat-order flow keeps canonical last-order state usable after reload', a
   await waitForReady(page);
 
   const productId = await page
-    .locator('#product-container .add-to-cart-btn')
+    .locator('.category-strip .add-to-cart-btn')
     .first()
     .getAttribute('data-id');
   expect(productId).toBeTruthy();
@@ -49,7 +49,7 @@ test('repeat-order flow keeps canonical last-order state usable after reload', a
     window.open = () => null;
   });
 
-  await page.locator(`#product-container .add-to-cart-btn[data-id="${productId}"]`).first().click();
+  await page.locator(`.category-strip .add-to-cart-btn[data-id="${productId}"]`).first().click();
   await page.locator('#cart-icon').click();
   // Wait for the offcanvas to be fully visible before interacting with its contents
   await page.locator('#cartOffcanvas').waitFor({ state: 'visible' });
