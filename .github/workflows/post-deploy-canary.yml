@@ -26,7 +26,7 @@ on:
         required: false
         default: ''
       run_live_probe:
-        description: 'Run live production probe from an allowed self-hosted runner'
+        description: 'Run live production probe'
         required: true
         type: boolean
         default: false
@@ -179,7 +179,7 @@ jobs:
             echo ""
             echo "- Deploy SHA: ${{ steps.meta.outputs.deploy_sha }}"
             echo "- Base URL metadata: ${{ steps.meta.outputs.base_url }}"
-            echo "- Mode: artifact-contract (no live network probe on GitHub-hosted runners)"
+            echo "- Mode: artifact-contract (no live network probe on this runner)"
             echo "- Browser canary: ${{ steps.browser_canary.outcome }} (observed, non-blocking)"
             echo ""
             if [ "${{ job.status }}" = "success" ]; then
@@ -192,10 +192,7 @@ jobs:
   live-probe:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_live_probe == true }}
     needs: artifact-canary
-    runs-on:
-      - self-hosted
-      - linux
-      - x64
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - name: Checkout repository
@@ -252,7 +249,7 @@ jobs:
             echo "- Category path: ${{ needs.artifact-canary.outputs.category_path || '(auto from sitemap)' }}"
             echo "- Timeout (ms): ${{ needs.artifact-canary.outputs.timeout_ms }}"
             echo "- Deploy SHA: ${{ needs.artifact-canary.outputs.deploy_sha }}"
-            echo "- Runner: self-hosted (allowed network)"
+            echo "- Runner: github-hosted"
             echo "- Live browser contract: enforced"
             echo "- Require security headers: ${{ inputs.require_security_headers }}"
             echo ""

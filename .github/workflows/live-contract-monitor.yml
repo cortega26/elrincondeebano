@@ -15,10 +15,7 @@ concurrency:
 
 jobs:
   monitor:
-    runs-on:
-      - self-hosted
-      - linux
-      - x64
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - name: Checkout repository
@@ -57,23 +54,23 @@ jobs:
         shell: bash
         run: |
           if [ -f reports/live-contract/latest.json ]; then
-            node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync('reports/live-contract/latest.json','utf8')); console.log('## Live Contract Monitor'); console.log(''); console.log('- Base URL: ' + r.baseUrl); console.log('- Runner: self-hosted (allowed network)'); console.log('- Key routes checked: ' + r.keyRouteCount); console.log('- Assets sampled: ' + r.sampledAssetCount); console.log('- Availability failures: ' + r.failures.length); console.log('- Security header failures: ' + r.securityHeaderFailures.length); console.log('- HTML surface failures: ' + (r.htmlSurfaceFailures || []).length); console.log('- Strict security mode: ' + (r.requireSecurityHeaders ? 'enabled' : 'disabled')); console.log('- Result: ' + (r.success ? '✅ PASS' : '❌ FAIL'));" >> "$GITHUB_STEP_SUMMARY"
+            node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync('reports/live-contract/latest.json','utf8')); console.log('## Live Contract Monitor'); console.log(''); console.log('- Base URL: ' + r.baseUrl); console.log('- Runner: github-hosted'); console.log('- Key routes checked: ' + r.keyRouteCount); console.log('- Assets sampled: ' + r.sampledAssetCount); console.log('- Availability failures: ' + r.failures.length); console.log('- Security header failures: ' + r.securityHeaderFailures.length); console.log('- HTML surface failures: ' + (r.htmlSurfaceFailures || []).length); console.log('- Strict security mode: ' + (r.requireSecurityHeaders ? 'enabled' : 'disabled')); console.log('- Result: ' + (r.success ? '✅ PASS' : '❌ FAIL'));" >> "$GITHUB_STEP_SUMMARY"
           else
             {
               echo "## Live Contract Monitor"
               echo ""
-              echo "- Runner: self-hosted (allowed network)"
+              echo "- Runner: github-hosted"
               echo "No JSON report was generated."
             } >> "$GITHUB_STEP_SUMMARY"
           fi
 
-      - name: Verify gh CLI availability on the self-hosted runner
+      - name: Verify gh CLI availability
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           if ! command -v gh >/dev/null 2>&1; then
-            echo "::error::gh CLI is required on the self-hosted runner for issue and label management."
+            echo "::error::gh CLI is required on the runner for issue and label management."
             exit 1
           fi
 
