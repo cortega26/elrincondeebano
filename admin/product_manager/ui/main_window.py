@@ -30,13 +30,18 @@ from ..storefront_service import (
 
 from .bulk_operations_mixin import BulkOperationsMixin
 from .import_export_mixin import ImportExportMixin
+from .deploy_panel import DeployPanelMixin
 from .components import (
     UIConfig,
     UIState,
     AsyncOperation,
     TreeviewManager,
     DragDropMixin,
+    ContextMenuBuilder,
+    StatsDashboard,
 )
+from .theme import ThemeManager, AppTheme, load_theme_preference
+from .toast import ToastLevel
 from .utils import CategoryHelper
 from .gallery import GalleryFrame
 from .dialogs import PreferencesDialog, HelpDialog, AboutDialog
@@ -52,7 +57,7 @@ logger = logging.getLogger(__name__)
 # pylint: disable=broad-exception-caught
 
 
-class MainWindow(DragDropMixin, BulkOperationsMixin, ImportExportMixin):
+class MainWindow(DragDropMixin, BulkOperationsMixin, ImportExportMixin, DeployPanelMixin):
     """Main Product Manager GUI Window."""
     # Large UI controller with many widget references and handlers.
     # pylint: disable=too-many-instance-attributes,too-many-public-methods
@@ -64,6 +69,8 @@ class MainWindow(DragDropMixin, BulkOperationsMixin, ImportExportMixin):
         product_service: ProductService,
         category_service: Optional[CategoryService] = None,
         project_root: Optional[Path] = None,
+        deploy_pipeline: Optional[Any] = None,
+        git_sync: Optional[Any] = None,
     ):
         self.master = master
         self.product_service = product_service
@@ -73,6 +80,28 @@ class MainWindow(DragDropMixin, BulkOperationsMixin, ImportExportMixin):
         self.state = UIState()
         self.config = self._load_config()
         self.view_mode = "list"  # list | gallery
+
+        self.setup_deploy_integration()
+        self.init_deploy_services(
+            deploy_pipeline=deploy_pipeline,
+            git_sync=git_sync,
+            dark_mode=False,
+        )
+
+        self._theme_manager = ThemeManager(master)
+        saved_prefs = load_theme_preference()
+        saved_theme = AppTheme(saved_prefs["theme"])
+        saved_theme_name = saved_prefs.get("theme_name")
+        if saved_theme_name:
+            self._theme_manager.set_theme(saved_theme, theme_name=saved_theme_name)
+        else:
+            self._theme_manager.set_theme(saved_theme)
+        if saved_theme == AppTheme.DARK:
+            self.init_deploy_services(
+                deploy_pipeline=deploy_pipeline,
+                git_sync=git_sync,
+                dark_mode=True,
+            )
         configured_mode = getattr(self.config, "view_mode", "list")
         if configured_mode in ("list", "gallery"):
             self.view_mode = configured_mode
@@ -294,6 +323,7 @@ class MainWindow(DragDropMixin, BulkOperationsMixin, ImportExportMixin):
             if not response:
                 return
             self.product_service.mark_clean()
+        self.cleanup_deploy()
         self.master.quit()
 
     def _capture_column_widths(self) -> None:
@@ -344,7 +374,7 @@ class MainWindow(DragDropMixin, BulkOperationsMixin, ImportExportMixin):
 
     def setup_gui(self) -> None:
         """Set up the main GUI components."""
-        self.master.title("Gestor de Productos")
+        self.master.title("Gestor de Productos — El Rincón de Ébano")
         self.master.geometry(
             f"{self.config.window_size[0]}x{self.config.window_size[1]}"
         )
@@ -358,24 +388,64 @@ class MainWindow(DragDropMixin, BulkOperationsMixin, ImportExportMixin):
         self.master.bind("<Configure>", self._on_window_configure)
 
         self.create_menu()
+        self.create_toast_manager()
 
         # Packing Order (Outer to Inner)
         self.setup_status_bar()  # 1. Bottom
         self.setup_bottom_bar()  # 2. Bottom (Above Status)
         self.setup_top_bar()  # 3. Top
-        self._sync_view_toggle_label()
 
         # 4. Center (Fill Remaining)
+        self._setup_stats_dashboard()
         self.view_container = ttk.Frame(self.master)
         self.view_container.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
 
         self.setup_treeview()
         self._apply_column_widths()
+        self._setup_context_menu()
 
         self.async_operation = AsyncOperation(self.master)
         self.async_operation.start(
             self.product_service.get_all_products, self.populate_tree
         )
+
+        self.start_git_status_polling()
+        self._refresh_stats_dashboard()
+
+    def _setup_stats_dashboard(self):
+        self._stats_frame = ttk.Frame(self.master)
+        self._stats_frame.pack(side=tk.TOP, fill=tk.X, padx=15, pady=(0, 5))
+
+        self._stats_dashboard = StatsDashboard(self._stats_frame)
+        self._stats_dashboard.pack(side=tk.LEFT)
+
+        self._stats_dashboard.add_card("total", "Total Productos", "-", "#3584e4")
+        self._stats_dashboard.add_card("discounts", "Con Descuento", "-", "#e67e22")
+        self._stats_dashboard.add_card("out_of_stock", "Sin Stock", "-", "#c0392b")
+        self._stats_dashboard.add_card("categories", "Categorías", "-", "#41855a")
+        self._stats_dashboard.layout_horizontal(width=160, height=70, padx=8)
+
+    def _refresh_stats_dashboard(self):
+        try:
+            products = self.product_service.get_all_products()
+            active = [p for p in products if not p.is_archived]
+            archived = [p for p in products if p.is_archived]
+
+            self._stats_dashboard.update_value("total", f"{len(active)} (+{len(archived)})")
+            self._stats_dashboard.update_value(
+                "discounts",
+                str(len([p for p in active if (p.discount or 0) > 0]))
+            )
+            self._stats_dashboard.update_value(
+                "out_of_stock",
+                str(len([p for p in active if not p.stock]))
+            )
+            self._stats_dashboard.update_value(
+                "categories",
+                str(len({p.category for p in active if p.category}))
+            )
+        except Exception as exc:
+            logger.debug("Error al actualizar estadísticas: %s", exc)
 
     def create_menu(self) -> None:
         """Create application menu."""
@@ -418,6 +488,28 @@ class MainWindow(DragDropMixin, BulkOperationsMixin, ImportExportMixin):
             label="Gestionar Favoritos...", command=self.manage_featured_staples
         )
         menubar.add_cascade(label="Editar", menu=edit_menu)
+
+        # Deploy menu
+        deploy_menu = tk.Menu(menubar, tearoff=0)
+        deploy_menu.add_command(
+            label="Publicar (commit + push)",
+            command=self._on_deploy_click,
+        )
+        deploy_menu.add_command(
+            label="Solo commit local",
+            command=self._on_commit_click,
+        )
+        deploy_menu.add_separator()
+        deploy_menu.add_command(
+            label="Pull del remoto",
+            command=self._on_pull_click,
+        )
+        deploy_menu.add_separator()
+        deploy_menu.add_command(
+            label="Modo oscuro",
+            command=self._toggle_theme,
+        )
+        menubar.add_cascade(label="Publicar", menu=deploy_menu)
 
         help_menu = tk.Menu(menubar, tearoff=0)
         help_menu.add_command(label="Manual de Usuario", command=self.show_help)
@@ -482,7 +574,7 @@ class MainWindow(DragDropMixin, BulkOperationsMixin, ImportExportMixin):
 
         ttk.Label(search_frame, text="Buscar:").pack(side=tk.LEFT, padx=5)
         self.search_var = tk.StringVar()
-        self.search_var.trace("w", self.handle_search)
+        self.search_var.trace_add("write", self.handle_search)
         ttk.Entry(search_frame, textvariable=self.search_var).pack(
             side=tk.LEFT, fill=tk.X, expand=True, padx=5
         )
@@ -532,8 +624,8 @@ class MainWindow(DragDropMixin, BulkOperationsMixin, ImportExportMixin):
         def _on_price_change(*_):
             self.refresh_products()
 
-        self.min_price_var.trace("w", _on_price_change)
-        self.max_price_var.trace("w", _on_price_change)
+        self.min_price_var.trace_add("write", _on_price_change)
+        self.max_price_var.trace_add("write", _on_price_change)
 
         # Quick View
         quick_frame = ttk.Frame(top_frame)
@@ -577,6 +669,13 @@ class MainWindow(DragDropMixin, BulkOperationsMixin, ImportExportMixin):
             variable=self.show_archived_var,
             command=self.refresh_products,
         ).pack(side=tk.LEFT, padx=5)
+
+        self._sync_view_toggle_label()
+
+        # 6. Deploy toolbar (below top bar)
+        self._deploy_toolbar = ttk.Frame(self.master, style="Status.TFrame")
+        self._deploy_toolbar.pack(side=tk.TOP, fill=tk.X, padx=15, pady=(0, 5))
+        self.create_deploy_toolbar(self._deploy_toolbar)
 
     def setup_bottom_bar(self) -> None:
         """Set up the bottom bar with CRUD and bulk actions."""
@@ -802,8 +901,11 @@ class MainWindow(DragDropMixin, BulkOperationsMixin, ImportExportMixin):
         """Bind keyboard shortcuts."""
         self.master.bind("<Control-n>", lambda e: self.add_product())
         self.master.bind("<Control-e>", lambda e: self.edit_product())
+        self.master.bind("<Control-d>", lambda e: self.duplicate_product())
         self.master.bind("<Delete>", lambda e: self.delete_product())
         self.master.bind("<Control-f>", self.focus_search)
+        self.master.bind("<Control-Shift-P>", lambda e: self._on_deploy_click())
+        self.master.bind("<Control-Shift-C>", lambda e: self._on_commit_click())
 
     def add_product(self) -> None:
         """Open dialog to add new product."""
@@ -882,11 +984,19 @@ class MainWindow(DragDropMixin, BulkOperationsMixin, ImportExportMixin):
                     self.product_service.purge_product(
                         product.name, product.description
                     )
+                    self._append_activity(
+                        "purgar", product.name,
+                        f"Precio: ${product.price:,} | Cat: {product.category}"
+                    )
                 self.update_status(f"{len(products)} producto(s) purgado(s)")
             else:
                 for product in products:
                     self.product_service.delete_product(
                         product.name, product.description
+                    )
+                    self._append_activity(
+                        "archivar", product.name,
+                        f"Precio: ${product.price:,} | Cat: {product.category}"
                     )
                 self.update_status(f"{len(products)} producto(s) archivado(s)")
             self.refresh_products()
@@ -1111,6 +1221,7 @@ class MainWindow(DragDropMixin, BulkOperationsMixin, ImportExportMixin):
             self.update_status(f"Mostrando {len(products)} productos")
             self.update_filter_indicator()
             self._update_archive_controls()
+            self._refresh_stats_dashboard()
         except ProductServiceError as exc:
             messagebox.showerror("Error", f"Error al cargar productos: {str(exc)}")
 
@@ -1510,6 +1621,7 @@ class MainWindow(DragDropMixin, BulkOperationsMixin, ImportExportMixin):
                 self.update_status(
                     f"Stock de '{product.name}' actualizado: {stock_label}"
                 )
+                self._append_activity("stock", product.name, stock_label)
             except Exception as exc:
                 messagebox.showerror(
                     "Error", f"No se pudo actualizar el stock: {str(exc)}"
@@ -1654,6 +1766,7 @@ class MainWindow(DragDropMixin, BulkOperationsMixin, ImportExportMixin):
                 )
 
             self.update_status(f"{field.capitalize()} de '{product.name}' actualizado.")
+            self._append_activity(f"editar-{field}", product.name, f"{field.capitalize()}: {new_val}")
         except Exception as exc:
             messagebox.showerror("Error", f"No se pudo guardar el cambio: {str(exc)}")
         finally:
@@ -1779,3 +1892,179 @@ class MainWindow(DragDropMixin, BulkOperationsMixin, ImportExportMixin):
     def show_about(self) -> None:
         """Show about dialog."""
         AboutDialog(self.master)
+
+    # ------------------------------------------------------------------
+    #  Context Menu (right-click)
+    # ------------------------------------------------------------------
+
+    def _setup_context_menu(self) -> None:
+        """Bind right-click context menu to the treeview."""
+        if not hasattr(self, "tree"):
+            return
+        self.tree.bind("<Button-3>" if not self._is_macos() else "<Button-2>", self._show_context_menu)
+
+    @staticmethod
+    def _is_macos() -> bool:
+        import sys
+        return sys.platform == "darwin"
+
+    def _show_context_menu(self, event: tk.Event) -> None:
+        """Display right-click context menu for selected products."""
+        builder = ContextMenuBuilder(self.master)
+
+        selected = list(self.tree.selection())
+        item = self.tree.identify_row(event.y)
+        if item:
+            self.tree.selection_set(item)
+            selected = [item]
+
+        if not selected:
+            builder.add_command("Agregar producto...", command=self.add_product)
+            builder.build()
+            builder.show(event.x_root, event.y_root)
+            return
+
+        builder.add_command(
+            "Editar...", command=self.edit_product, accelerator="Ctrl+E"
+        )
+        builder.add_command(
+            "Duplicar", command=self.duplicate_product, accelerator="Ctrl+D"
+        )
+        builder.add_command(
+            "Alternar stock", command=self._toggle_stock_context,
+        )
+        builder.add_separator()
+
+        show_archived = bool(
+            getattr(self, "show_archived_var", tk.BooleanVar(value=False)).get()
+        )
+        if show_archived:
+            builder.add_command(
+                "Purgar permanentemente",
+                command=self.delete_product,
+                accelerator="Supr",
+            )
+            builder.add_command(
+                "Restaurar", command=self.restore_archived,
+            )
+        else:
+            builder.add_command(
+                "Archivar", command=self.delete_product, accelerator="Supr",
+            )
+
+        builder.add_separator()
+        builder.add_command(
+            "Historial...", command=self.show_history,
+        )
+        builder.add_command(
+            "Ver imagen", command=self._context_open_image,
+        )
+
+        builder.build()
+        builder.show(event.x_root, event.y_root)
+
+    def _toggle_stock_context(self) -> None:
+        """Toggle stock state for selected product via context menu."""
+        selected = self.tree.selection()
+        if not selected:
+            return
+        for item in selected:
+            product = self.get_product_by_tree_item(item)
+            if not product:
+                continue
+            try:
+                updated = Product(
+                    name=product.name,
+                    description=product.description,
+                    price=product.price,
+                    discount=product.discount,
+                    stock=not product.stock,
+                    category=product.category,
+                    image_path=product.image_path,
+                    image_avif_path=product.image_avif_path,
+                    order=product.order,
+                )
+                self.product_service.update_product(
+                    product.name, updated, product.description
+                )
+                self.tree.set(item, "stock", "☑" if updated.stock else "☐")
+                stock_label = "En stock" if updated.stock else "Sin stock"
+                self.update_status(f"Stock de '{product.name}': {stock_label}")
+                if self.toast_manager:
+                    self.toast_manager.show(f"Stock actualizado: {stock_label}", ToastLevel.SUCCESS)
+            except Exception as exc:
+                messagebox.showerror("Error", f"No se pudo actualizar stock: {str(exc)}")
+        self.refresh_products()
+
+    def _context_open_image(self) -> None:
+        """Open image of selected product via context menu."""
+        selected = self.tree.selection()
+        if not selected:
+            return
+        product = self.get_product_by_tree_item(selected[0])
+        if not product:
+            return
+        import webbrowser
+        assets_root = (
+            Path(self.project_root) / "assets" / "images"
+            if self.project_root
+            else Path(__file__).resolve().parents[3] / "assets" / "images"
+        )
+        for path_field in ("image_path", "image_avif_path"):
+            rel = getattr(product, path_field, "")
+            if not rel:
+                continue
+            clean = rel.strip().replace("\\", "/")
+            if clean.startswith("assets/images/"):
+                clean = clean[len("assets/images/"):]
+            abs_path = assets_root / clean
+            if abs_path.exists():
+                webbrowser.open(abs_path.as_uri())
+                return
+        messagebox.showinfo("Imagen", "Este producto no tiene imagen asociada.")
+
+    def duplicate_product(self) -> None:
+        """Duplicate the selected product."""
+        selected = self.tree.selection()
+        if not selected:
+            messagebox.showwarning("Duplicar", "Seleccione un producto para duplicar.")
+            return
+        product = self.get_product_by_tree_item(selected[0])
+        if not product:
+            return
+        try:
+            new_product = Product(
+                name=f"{product.name} (copia)",
+                description=product.description,
+                price=product.price,
+                discount=product.discount,
+                stock=product.stock,
+                category=product.category,
+                image_path=product.image_path,
+                image_avif_path=product.image_avif_path,
+                order=0,
+            )
+            self.product_service.add_product(new_product)
+            self._append_activity(
+                "duplicar", new_product.name,
+                f"Origen: {product.name} | Precio: ${product.price:,}"
+            )
+            self.refresh_products()
+            if self.toast_manager:
+                self.toast_manager.show(f"Producto '{product.name}' duplicado.", ToastLevel.SUCCESS)
+        except DuplicateProductError as exc:
+            messagebox.showerror("Duplicado", str(exc))
+        except ProductServiceError as exc:
+            messagebox.showerror("Error", str(exc))
+
+    # ------------------------------------------------------------------
+    #  Theme toggle
+    # ------------------------------------------------------------------
+
+    def _toggle_theme(self) -> None:
+        new_theme = self._theme_manager.toggle_theme()
+        is_dark = new_theme == AppTheme.DARK
+        self.update_theme_toasts(dark_mode=is_dark)
+        self._theme_manager.save_preference()
+        self.refresh_products()
+

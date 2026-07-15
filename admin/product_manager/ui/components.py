@@ -7,7 +7,7 @@ import threading
 from dataclasses import dataclass, field
 from functools import partial
 from queue import Empty, Queue
-from typing import Any, Callable, Dict, List, Optional, TypeVar, cast
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, cast
 
 import tkinter as tk
 from tkinter import messagebox, ttk
@@ -228,3 +228,86 @@ class DragDropMixin:
             if hasattr(self, "logger"):
                 self.logger.error("Error al manejar arrastrar y soltar: %s", exc)
             messagebox.showerror("Error", f"Error al actualizar el estado: {exc}")
+
+
+class ContextMenuBuilder:
+    """Build and manage right-click context menus for treeviews."""
+
+    def __init__(self, master: tk.Misc):
+        self._menu: Optional[tk.Menu] = None
+        self._items: List[Tuple[str, Optional[Callable[[], None]], Optional[str]]] = []
+        self._master = master
+
+    def add_command(
+        self,
+        label: str,
+        command: Optional[Callable[[], None]] = None,
+        accelerator: Optional[str] = None,
+        state: str = "normal",
+    ) -> None:
+        self._items.append((label, command, accelerator, state))
+
+    def add_separator(self) -> None:
+        self._items.append(("---", None, None, "normal"))
+
+    def build(self) -> tk.Menu:
+        menu = tk.Menu(self._master, tearoff=0)
+        for item in self._items:
+            if item[0] == "---":
+                menu.add_separator()
+            else:
+                label, cmd, accel, state = item
+                kwargs = {"label": label, "command": cmd, "state": state}
+                if accel:
+                    kwargs["accelerator"] = accel
+                menu.add_command(**kwargs)
+        self._menu = menu
+        return menu
+
+    def show(self, x: int, y: int) -> None:
+        if self._menu:
+            try:
+                self._menu.tk_popup(x, y)
+            finally:
+                try:
+                    self._menu.grab_release()
+                except tk.TclError:
+                    pass
+
+
+class StatsDashboard(ttk.Frame):
+    """Compact product statistics dashboard."""
+
+    def __init__(self, master: tk.Misc, **kw: Any):
+        super().__init__(master, **kw)
+        self._cards: Dict[str, Dict[str, Any]] = {}
+        self._label_font = ("sans-serif", 9)
+        self._value_font = ("sans-serif", 20, "bold")
+
+    def add_card(self, key: str, title: str, value: str = "-", color: str = "#3584e4") -> None:
+        frame = tk.Frame(self, bg="#ffffff", relief="solid", bd=1)
+        frame.pack_propagate(False)
+
+        title_lbl = tk.Label(
+            frame, text=title, font=self._label_font,
+            bg="#ffffff", fg="#888888", anchor="w",
+        )
+        title_lbl.pack(fill=tk.X, padx=10, pady=(8, 0))
+
+        value_lbl = tk.Label(
+            frame, text=str(value), font=self._value_font,
+            bg="#ffffff", fg=color, anchor="w",
+        )
+        value_lbl.pack(fill=tk.X, padx=10, pady=(0, 8))
+
+        self._cards[key] = {"frame": frame, "title_lbl": title_lbl, "value_lbl": value_lbl}
+
+    def update_value(self, key: str, value: Any) -> None:
+        card = self._cards.get(key)
+        if card:
+            card["value_lbl"].config(text=str(value))
+
+    def layout_horizontal(self, width: int = 150, height: int = 80, padx: int = 5):
+        for i, key in enumerate(self._cards):
+            card = self._cards[key]
+            card["frame"].place(x=i * (width + padx), y=0, width=width, height=height)

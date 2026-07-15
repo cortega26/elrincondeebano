@@ -33,37 +33,28 @@ try:
     from .ui.main_window import MainWindow
     from .ui.components import UIConfig
     from .sync import SyncEngine
+    from .git_sync import GitSync, detect_repo_root
+    from .deploy import DeployPipeline
 except ModuleNotFoundError as exc:
     if __name__ != "__main__":
         raise
 
     package_dir = Path(__file__).resolve().parent
     venv_python = package_dir / ".venv" / "bin" / "python"
-    direct_command = f'"{venv_python}" "{Path(__file__).resolve()}"'
-    module_command = (
-        'cd "{root}" && source admin/product_manager/.venv/bin/activate && '
-        "python -m admin.product_manager.content_manager"
-    ).format(root=Path(__file__).resolve().parents[2])
 
-    guidance = [
-        f"Missing dependency '{exc.name}' in interpreter: {sys.executable}",
-        "This admin tool must run with the project virtual environment.",
-    ]
     if venv_python.exists():
-        guidance.extend(
-            [
-                "Use one of these commands:",
-                f"  {direct_command}",
-                f"  {module_command}",
-            ]
-        )
+        if sys.executable != str(venv_python.resolve()):
+            os.execv(str(venv_python), [str(venv_python), __file__] + sys.argv[1:])
+
+        guidance = [
+            "The venv interpreter failed to import dependencies.",
+            f"Try reinstalling: pip install -r {package_dir / 'requirements.txt'}",
+        ]
     else:
-        guidance.extend(
-            [
-                "Create the environment first:",
-                f'  "{sys.executable}" -m venv "{package_dir / ".venv"}"',
-            ]
-        )
+        guidance = [
+            "Virtual environment not found.",
+            f'Create it: "{sys.executable}" -m venv "{package_dir / ".venv"}"',
+        ]
 
     raise SystemExit("\n".join(guidance)) from exc
 
@@ -300,7 +291,7 @@ class ProductManager:
         if not isinstance(value, str):
             return default
         level = value.strip().upper()
-        if not isinstance(logging.getLevelName(level), int):
+        if level not in logging._nameToLevel:
             return default
         return level
 
@@ -485,8 +476,12 @@ class ProductManager:
         with self.error_handler():
             self.logger.info("Iniciando aplicación")
 
-            # Initialize Tk
-            root = tk.Tk()
+            # Initialize Tk (use ttkbootstrap Window if available)
+            try:
+                import ttkbootstrap  # noqa: F811
+                root = ttkbootstrap.Window()
+            except ImportError:
+                root = tk.Tk()
             root.protocol("WM_DELETE_WINDOW", self._on_window_close)
 
             # Set up components
@@ -497,15 +492,29 @@ class ProductManager:
             self.sync_engine = self._create_sync_engine(repository, service)
             ui_config = self._create_ui_config()
 
+            # Git and deploy services
+            repo_root = detect_repo_root() or PROJECT_ROOT
+            git_sync = GitSync(repo_root=repo_root, logger_instance=self.logger)
+            deploy_pipeline = DeployPipeline(
+                repo_root=repo_root,
+                git_sync=git_sync,
+                logger_instance=self.logger,
+                skip_push=False,
+            )
+
             # Create and run GUI
             self.gui = MainWindow(
-                root, service, self.category_service, project_root=PROJECT_ROOT
+                root,
+                service,
+                self.category_service,
+                project_root=PROJECT_ROOT,
+                deploy_pipeline=deploy_pipeline,
+                git_sync=git_sync,
             )
 
             # Configure window using ui_config
             root.title("Gestor de Productos")
             root.geometry(f"{ui_config.window_size[0]}x{ui_config.window_size[1]}")
-            root.configure(background="#f6f5f4")
 
             # Start update checker in background
             self._start_update_checker()

@@ -123,17 +123,35 @@ Gestor de Productos - Ayuda
 Atajos de Teclado:
 • Ctrl+N: Agregar nuevo producto
 • Ctrl+E: Editar producto seleccionado
-• Supr: Eliminar producto(s) seleccionado(s)
+• Ctrl+D: Duplicar producto seleccionado
+• Supr: Eliminar/Archivar producto(s) seleccionado(s)
 • Ctrl+F: Enfocar búsqueda
+• Ctrl+Shift+P: Publicar (commit + push)
+• Ctrl+Shift+C: Commit local
+• Doble clic en Stock: Alternar disponibilidad
+• Doble clic en Precio/Descuento: Edición rápida
+• Clic derecho: Menú contextual
+• Arrastrar filas: Reordenar productos
+
+Publicar cambios:
+• "Guardar y publicar": Sincroniza categorías, genera imágenes OG, crea commit y push.
+• "Commit local": Solo crea un commit sin push.
+• Menú Publicar → Modo oscuro: Alternar tema claro/oscuro.
+• Indicador de git: Verde = limpio | Naranja = cambios | Azul = por subir | Rojo = conflictos.
+
+Panel de registro:
+• Botón "Registro" en la barra de despliegue: muestra/oculta el historial de operaciones recientes.
+• El panel registra: archivados, purgas, duplicados, cambios de stock y ediciones rápidas.
 
 Características:
-• Agregar, editar y eliminar productos
+• Agregar, editar, eliminar y duplicar productos
 • Ordenar por cualquier columna
 • Buscar productos por nombre o descripción
 • Filtrar por categoría
 • Arrastrar y soltar para reordenar productos
 • Importar/Exportar productos
 • Personalizar preferencias
+• Tema oscuro integrado
 
 Para más información, consulte el manual de usuario o contacte con soporte.
         """
