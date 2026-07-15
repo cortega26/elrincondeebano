@@ -13,6 +13,7 @@ const REQUIRED_FILES = [
   'index.html',
   '404.html',
   'robots.txt',
+  'sitemap.xml',
   'sitemap-index.xml',
   'sitemap-0.xml',
   'service-worker.js',

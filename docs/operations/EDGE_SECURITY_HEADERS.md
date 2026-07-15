@@ -118,6 +118,9 @@ Automatización repo-side:
 
 - Push a `main` con cambios en `infra/cloudflare/edge-security-headers/**` o `tools/security-header-policy.mjs` dispara el workflow `Deploy Cloudflare Edge Security Headers`.
 - El workflow requiere el secret `CLOUDFLARE_API_TOKEN`.
+- Un deploy de Pages no despliega ni reemplaza el Worker. Si el workflow de edge falla por ausencia del
+  secret, producción conserva la versión anterior y el monitor debe seguir reportando ese drift; no se
+  debe relajar el baseline repo-side para hacerlo coincidir con un Worker obsoleto.
 
 Hardening adicional esperado en Cloudflare sobre HTML público (`www.elrincondeebano.com/*`):
 
@@ -145,6 +148,22 @@ Chequeos repo-side ya disponibles:
 - workflow `Deploy static content to Pages`; ahora ejecuta un browser canary bloqueante contra `astro-poc/dist` antes de publicar a Pages para validar `__APP_READY__`, service worker y cart boot path del bundle shipped
 - workflow `Post-Deploy Canary` con `require_security_headers=true`; ahora también ejecuta `tools/live-browser-contract.mjs` en el runner self-hosted para capturar errores de consola/CSP sobre la zona live antes del probe fetch-only
 - ambos probes live también fallan si detectan HTML público contaminado por scripts inyectados desde edge
+
+### Semántica del monitor en runners compartidos
+
+Cloudflare puede desafiar IPs compartidas de GitHub-hosted runners aunque el sitio esté disponible para
+usuarios normales. El monitor usa la señal documentada `cf-mitigated: challenge` y, como respaldo, la
+firma de la página de challenge para separar tres estados:
+
+- `passed`: todas las comprobaciones live fueron concluyentes y cumplieron el contrato;
+- `failed`: existe al menos un fallo confirmado de disponibilidad, headers o superficie HTML;
+- `inconclusive`: Cloudflare bloqueó al observador; el workflow emite una advertencia y mantiene una
+  incidencia operativa actualizada, pero no declara una caída ni valida headers sobre la página de challenge.
+
+La incidencia se actualiza en lugar de agregar comentarios diarios idénticos. Un `inconclusive` no debe
+cerrarse como si fuera un pase: para recuperar cobertura edge concluyente se necesita un runner con salida
+estable/permitida o una excepción Cloudflare autenticada y de alcance mínimo. No se deben permitir todos
+los rangos dinámicos de GitHub Actions ni desactivar fallos HTTP confirmados.
 
 ## Cierre de backlog
 

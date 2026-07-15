@@ -191,6 +191,7 @@ test('checkUrl retries Cloudflare-like 403 responses before failing', async () =
           headers: {
             server: 'cloudflare',
             'cf-ray': 'retry-me',
+            'cf-mitigated': 'challenge',
             'content-type': 'text/html; charset=utf-8',
           },
         });
@@ -210,7 +211,116 @@ test('checkUrl retries Cloudflare-like 403 responses before failing', async () =
       assert.equal(result.retried, true);
       assert.equal(result.retryHistory.length, 2);
       assert.equal(result.retryHistory[0].status, 403);
-      assert.match(result.retryHistory[0].retryReason, /Cloudflare-managed challenge/);
+      assert.equal(result.retryHistory[0].retryReason, 'Cloudflare-managed challenge');
+    }
+  );
+});
+
+test('checkUrl treats a persistent Cloudflare challenge as observer blocking, not header drift', async () => {
+  const { checkUrl } = await loadModule();
+
+  await withMockedFetch(
+    async () =>
+      new Response('<html><title>Just a moment...</title></html>', {
+        status: 403,
+        headers: {
+          server: 'cloudflare',
+          'cf-ray': 'blocked-monitor',
+          'cf-mitigated': 'challenge',
+          'content-type': 'text/html; charset=utf-8',
+        },
+      }),
+    async () => {
+      const result = await checkUrl(SITE_ORIGIN, '/', 5000, {
+        maxAttempts: 2,
+        retryDelayMs: 0,
+      });
+
+      assert.equal(result.ok, false);
+      assert.equal(result.observerBlocked, true);
+      assert.equal(result.securityHeaders, null);
+      assert.equal(result.cfMitigated, 'challenge');
+      assert.equal(result.attemptCount, 2);
+    }
+  );
+});
+
+test('runMonitor reports Cloudflare observer blocking as inconclusive without masking real failures', async () => {
+  const { runMonitor } = await loadModule();
+
+  await withMockedFetch(
+    async () =>
+      new Response('<html><title>Just a moment...</title></html>', {
+        status: 403,
+        headers: {
+          server: 'cloudflare',
+          'cf-mitigated': 'challenge',
+          'content-type': 'text/html; charset=utf-8',
+        },
+      }),
+    async () => {
+      const captured = [];
+      await withMockedConsoleLog(
+        (value) => captured.push(value),
+        async () => {
+          await assert.doesNotReject(() =>
+            runMonitor({
+              baseUrl: SITE_ORIGIN,
+              timeoutMs: 5000,
+              sampleSize: 5,
+              reportPath: '',
+              requireSecurityHeaders: true,
+              maxAttempts: 1,
+              retryDelayMs: 0,
+            })
+          );
+        }
+      );
+
+      const report = JSON.parse(captured[0]);
+      assert.equal(report.monitorStatus, 'inconclusive');
+      assert.equal(report.conclusive, false);
+      assert.equal(report.success, false);
+      assert.equal(report.confirmedAvailabilityFailures.length, 0);
+      assert.equal(report.observerBlockedFailures.length, report.keyRouteCount);
+      assert.equal(report.securityHeaderFailures.length, 0);
+    }
+  );
+});
+
+test('runMonitor still fails for a confirmed non-challenge HTTP error', async () => {
+  const { runMonitor } = await loadModule();
+
+  await withMockedFetch(
+    createMonitorFetch([
+      [
+        '/pages/vinos.html',
+        () =>
+          new Response('not found', {
+            status: 404,
+            headers: { 'content-type': 'text/plain; charset=utf-8' },
+          }),
+      ],
+    ]),
+    async () => {
+      await withMockedConsoleLog(
+        () => {},
+        async () => {
+          await expectAsyncReject(
+            assert,
+            () =>
+              runMonitor({
+                baseUrl: SITE_ORIGIN,
+                timeoutMs: 5000,
+                sampleSize: 5,
+                reportPath: '',
+                maxAttempts: 1,
+                retryDelayMs: 0,
+              }),
+            /confirmed failing probe/
+          );
+        }
+      );
     }
   );
 });
