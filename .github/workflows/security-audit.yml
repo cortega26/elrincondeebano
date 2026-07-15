@@ -52,16 +52,27 @@ jobs:
       - name: Set up Python 3.12
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v5
         with:
-          python-version: '3.12'
+          python-version: '3.14'
       - name: Install pip-audit
         run: python -m pip install --upgrade pip pip-audit
       - name: Run pip-audit (if requirements files exist)
         shell: bash
         run: |
+          exit_code=0
+
           if [ -f admin/product_manager/requirements.lock.txt ]; then
-            pip-audit -r admin/product_manager/requirements.lock.txt
+            pip-audit -r admin/product_manager/requirements.lock.txt || exit_code=$?
           elif [ -f admin/product_manager/requirements.txt ]; then
-            pip-audit -r admin/product_manager/requirements.txt
-          else
-            echo "No Python requirements file found; skipping pip-audit."
+            pip-audit -r admin/product_manager/requirements.txt || exit_code=$?
+          fi
+
+          if [ -f admin/web/requirements.lock.txt ]; then
+            pip-audit -r admin/web/requirements.lock.txt || exit_code=$?
+          elif [ -f admin/web/requirements.txt ]; then
+            pip-audit -r admin/web/requirements.txt || exit_code=$?
+          fi
+
+          if [ $exit_code -ne 0 ]; then
+            echo "pip-audit found vulnerabilities."
+            exit 1
           fi
