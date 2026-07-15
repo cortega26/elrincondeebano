@@ -90,6 +90,54 @@ solo que la coincidencia es por header secreto en lugar de por User-Agent.
   corrida real puede revelar hallazgos genuinos de disponibilidad o de headers de seguridad
   (el workflow corre con `--require-security-headers`). Eso es señal legítima, no ruido.
 
+## Remediación cuando el monitor reporta drift (headers / superficie HTML)
+
+Una vez que el observador atraviesa el challenge, el monitor **exige el contrato** de
+[tools/security-header-policy.mjs](../../tools/security-header-policy.mjs). Si reporta
+`failed` por headers de seguridad o por superficie HTML (no por disponibilidad), casi
+siempre es **deriva de despliegue**: el Worker en producción es más antiguo que la
+política del repo. No es un bug de código: el repo ya emite el contrato correcto.
+
+Diagnóstico observado (2026-07-15, desde una IP no bloqueada):
+
+- CSP de producción sin el hash `'sha256-…'` en `script-src` y con `'unsafe-inline'` en
+  `style-src`. El repo ya emite el hash y `style-src 'self'`; la home no usa estilos
+  inline (`<style>` ni `style=`), así que apretar es seguro.
+- HTML público con `/cdn-cgi/challenge-platform/` (`__CF$cv$params`) y, de forma variable,
+  el bootstrap de insights de Cloudflare.
+
+Causa raíz: el Worker desplegado precede a los commits de endurecimiento (`b11cfc8` añadió
+el hash, `4d7aa38` quitó `'unsafe-inline'`). El Worker importa la política en tiempo de
+bundle, así que **redeplegarlo** recoge la política vigente.
+
+Pasos:
+
+1. Autentícate y redeplega el Worker (es un despliegue a producción):
+
+   ```bash
+   npx wrangler whoami
+   npm run cloudflare:deploy:edge-security-headers
+   ```
+
+2. Verifica el CSP y la superficie HTML:
+
+   ```bash
+   curl -sSI https://www.elrincondeebano.com/ | grep -i content-security-policy
+   curl -sS  https://www.elrincondeebano.com/ | grep -o 'cdn-cgi/challenge-platform\|__CF$cv$params\|data-cf-beacon' | sort -u
+   ```
+
+   - El CSP debe incluir el hash y `style-src 'self'` → arregla los hallazgos de headers.
+   - Si `/cdn-cgi/challenge-platform/` o el beacon **persisten tras el redeploy**, entonces
+     Cloudflare los inyecta aguas abajo del Worker (el Worker ya los sanea en su salida con
+     `sanitizePublicHtmlEdgeSurface`, pero el edge los reinyecta). Eso es ajuste de
+     **dashboard**, no de código:
+     - Challenge sensor (`__CF$cv$params`): Bot Fight Mode / detections de JS.
+     - Beacon de insights: Web Analytics con inyección automática → desactívala o migra al
+       snippet self-hosted (el hash de `script-src` ya lo contempla).
+
+No se puede decidir pre- vs post-Worker por análisis estático: es empírico. Redeplega
+primero y observa; solo si sobreviven, ve al dashboard.
+
 ## Notas de seguridad
 
 - Cualquiera que posea el header salta el challenge del edge. Usa un token largo y aleatorio
