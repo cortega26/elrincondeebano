@@ -1,5 +1,6 @@
 const assert = require('assert');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const http = require('http');
 
@@ -11,32 +12,35 @@ const http = require('http');
   assert.strictEqual(getMimeType('x.css'), 'text/css; charset=utf-8');
   assert.strictEqual(getMimeType('x.woff2'), 'font/woff2');
 
-  const tmpRoot = path.join(__dirname, 'tmp-static');
-  fs.mkdirSync(tmpRoot, { recursive: true });
-  fs.writeFileSync(path.join(tmpRoot, 'index.html'), '<h1>ok</h1>');
+  const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'static-server-test-'));
+  let server;
+  try {
+    fs.writeFileSync(path.join(tmpRoot, 'index.html'), '<h1>ok</h1>');
 
-  const server = createStaticServer(tmpRoot);
-  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
-  const port = server.address().port;
+    server = createStaticServer(tmpRoot);
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    const port = server.address().port;
 
-  // 1) GET /index.html should be 200
-  const okRes = await httpGet(`http://127.0.0.1:${port}/index.html`);
-  assert.strictEqual(okRes.statusCode, 200);
-  assert.match(okRes.body, /<h1>ok<\/h1>/);
-  assert.match(okRes.headers['content-type'], /text\/html/);
+    // 1) GET /index.html should be 200
+    const okRes = await httpGet(`http://127.0.0.1:${port}/index.html`);
+    assert.strictEqual(okRes.statusCode, 200);
+    assert.match(okRes.body, /<h1>ok<\/h1>/);
+    assert.match(okRes.headers['content-type'], /text\/html/);
 
-  // 2) Path traversal should be blocked
-  const trav = await httpGet(`http://127.0.0.1:${port}/%2e%2e%2fpackage.json`);
-  assert.strictEqual(trav.statusCode, 403);
+    // 2) Path traversal should be blocked
+    const trav = await httpGet(`http://127.0.0.1:${port}/%2e%2e%2fpackage.json`);
+    assert.strictEqual(trav.statusCode, 403);
 
-  // 3) Method restriction
-  const postRes = await httpRequest(`http://127.0.0.1:${port}/index.html`, 'POST');
-  assert.strictEqual(postRes.statusCode, 405);
-  assert.strictEqual(postRes.headers['allow'], 'GET, HEAD');
+    // 3) Method restriction
+    const postRes = await httpRequest(`http://127.0.0.1:${port}/index.html`, 'POST');
+    assert.strictEqual(postRes.statusCode, 405);
+    assert.strictEqual(postRes.headers['allow'], 'GET, HEAD');
 
-  await new Promise((resolve) => server.close(resolve));
-
-  console.log('tools.staticServer.security.test.js passed');
+    console.log('tools.staticServer.security.test.js passed');
+  } finally {
+    if (server) await new Promise((resolve) => server.close(resolve));
+    fs.rmSync(tmpRoot, { recursive: true, force: true });
+  }
 })();
 
 function httpGet(url) {

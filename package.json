@@ -124,6 +124,13 @@
   },
   "homepage": "https://github.com/cortega26/elrincondeebano#readme",
   "lint-staged": {
+    "astro-poc/**/*.{astro}": [
+      "eslint --max-warnings=0 --no-warn-ignored --config astro-poc/eslint.config.mjs"
+    ],
+    "astro-poc/**/*.{js,mjs,ts,mts}": [
+      "eslint --max-warnings=0 --no-warn-ignored --config astro-poc/eslint.config.mjs",
+      "prettier --write"
+    ],
     "*.{js,mjs,cjs}": [
       "eslint --max-warnings=0 --no-warn-ignored --ignore-pattern 'astro-poc/**'",
       "prettier --write"
