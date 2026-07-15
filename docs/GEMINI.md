@@ -13,36 +13,37 @@ Gemini acts as a dynamic agent capable of fulfilling multiple roles defined in t
 
 ## Verified Commands
 
-Gemini must prioritize using these verified commands as per the [Command Matrix](AGENTS.md#matriz-de-comandos-por-agente):
+Gemini must prioritize these verified commands from the
+[command matrix](./operations/RUNBOOK.md#matriz-de-comandos-por-agente):
 
-| Purpose           | Command                    | Success Criteria                                        |
-| ----------------- | -------------------------- | ------------------------------------------------------- |
-| **Discovery**     | `node -v`                  | Version must match `24.x`                               |
-| **Build**         | `npm run build`            | Exit code 0, no critical warnings, artifacts in `dist/` |
-| **Test (Full)**   | `npm ci && npm test`       | Exit code 0, all tests passed                           |
-| **Test (Single)** | `node test/<name>.test.js` | Exit code 0                                             |
-| **Lint**          | `npx eslint .`             | Exit code 0                                             |
-| **Security**      | `npm audit --production`   | No High/Critical vulnerabilities                        |
+| Purpose           | Command                    | Success Criteria                                                  |
+| ----------------- | -------------------------- | ----------------------------------------------------------------- |
+| **Discovery**     | `node -v`                  | Version must match `24.x`                                         |
+| **Build**         | `npm run build`            | Exit code 0, no critical warnings, artifacts in `astro-poc/dist/` |
+| **Test (Full)**   | `npm test`                 | Exit code 0, all tests passed                                     |
+| **Test (Single)** | `node test/<name>.test.js` | Exit code 0                                                       |
+| **Lint**          | `npm run lint`             | Exit code 0                                                       |
+| **Security**      | `npm audit --omit=dev`     | No high/critical production vulnerabilities                       |
 
 ## Guardrails (Checklist)
 
 Before declaring a task complete, Gemini must ensure:
 
-1.  **Deterministic Environment**:
-    - [ ] `node -v` confirmed as `24.x`.
-    - [ ] Used `npm ci` for dependencies (never `npm install` unless updating lockfile).
+1. **Deterministic Environment**:
+   - [ ] `node -v` confirmed as `24.x`.
+   - [ ] Used `npm ci` for dependencies (never `npm install` unless updating lockfile).
 
-2.  **Strict Compilation**:
-    - [ ] `npm run build` passes.
+2. **Strict Compilation**:
+   - [ ] `npm run build` passes.
 
-3.  **Test Integrity**:
-    - [ ] `npm test` passes completely.
-    - [ ] No `test.skip` or commented-out tests introduced without explicit user approval.
-    - [ ] Mutations/Survivors addressed (if applicable).
+3. **Test Integrity**:
+   - [ ] `npm test` passes completely.
+   - [ ] No `test.skip` or commented-out tests introduced without explicit user approval.
+   - [ ] Mutations/Survivors addressed (if applicable).
 
-4.  **Code Quality**:
-    - [ ] ESLint checks pass.
-    - [ ] No secrets logged to console.
+4. **Code Quality**:
+   - [ ] ESLint checks pass.
+   - [ ] No secrets logged to console.
 
 ## PR & Change Policy
 

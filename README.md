@@ -1,84 +1,132 @@
 # El Rincón de Ébano
 
-Static storefront for `https://www.elrincondeebano.com/`, built from the active Astro app in [`astro-poc/`](./astro-poc/) and shared root-level data/assets.
+Static, mobile-first storefront for [elrincondeebano.com](https://www.elrincondeebano.com/),
+built with Astro and a versioned product catalog. The repository contains the
+production storefront, catalog and image inputs, build tooling, automated tests,
+and operational runbooks.
 
-## Current Runtime Truth
+## At a glance
 
-- Production storefront: [`astro-poc/`](./astro-poc/)
-- Canonical browser runtime entry: [`astro-poc/src/scripts/storefront.js`](./astro-poc/src/scripts/storefront.js)
-- Phase 3 runtime modules: [`astro-poc/src/scripts/storefront/`](./astro-poc/src/scripts/storefront/)
-- Canonical production build: `npm run build`
-- Canonical browser suite: `npm run test:e2e`
-- Canonical type validation: `npm run typecheck`
-- Legacy Node + EJS storefront: archived reference only in [`docs/archive/LEGACY_STOREFRONT.md`](./docs/archive/LEGACY_STOREFRONT.md)
+| Area                         | Source of truth                                                                |
+| ---------------------------- | ------------------------------------------------------------------------------ |
+| Production app               | [`astro-poc/`](./astro-poc/)                                                   |
+| Browser entry point          | [`astro-poc/src/scripts/storefront.js`](./astro-poc/src/scripts/storefront.js) |
+| Product and category data    | [`data/`](./data/)                                                             |
+| Source assets                | [`assets/`](./assets/)                                                         |
+| Build and validation tooling | [`tools/`](./tools/) and root [`package.json`](./package.json)                 |
+| Contributor task router      | [`docs/START_HERE.md`](./docs/START_HERE.md)                                   |
 
-`preview.html` remains a local/demo artifact and is not part of the deploy contract.
+The shipped artifact is a static Astro site in `astro-poc/dist/`. There is no
+required application server. The former Node/EJS storefront is an archived
+reference, not part of the deployment contract.
 
-## Setup
+## Quick start
 
-Canonical cold-start setup lives in [docs/onboarding/BOOTSTRAP.md](./docs/onboarding/BOOTSTRAP.md).
+Prerequisite: Node `24.x`. The repository is an npm workspace, so the root
+lockfile covers both the tooling and the Astro app.
 
 ```bash
 npm run bootstrap
+npm run dev
 ```
 
-This installs dependencies for both the root tooling and the Astro storefront (`astro-poc/`). Equivalent to:
+`npm run bootstrap` performs a deterministic workspace install with `npm ci`.
+The development server prints its local URL after startup. Environment variables
+are optional for normal storefront work; see
+[`docs/onboarding/LOCAL_DEV.md`](./docs/onboarding/LOCAL_DEV.md) for admin and
+Cloudflare tasks.
+
+## Build and validate
 
 ```bash
-npm ci
-(cd astro-poc && npm ci)
-```
-
-Node `24.x` is the supported local and CI baseline.
-
-## Canonical Validation
-
-Use the supported validation tiers for storefront work:
-
-```bash
+npm run build
 npm run validate
 npm run validate:release
 ```
 
-Validation details:
+| Command                    | Use it for                                                                        |
+| -------------------------- | --------------------------------------------------------------------------------- |
+| `npm run build`            | Canonical production build: preflight, generated assets, then Astro               |
+| `npm run build:fast`       | Code-only build: skip preflight (images/data unchanged). See "Fast build" below   |
+| `npm run validate`         | Local confidence: lint, types, selector guard, tests, build, and asset guardrails |
+| `npm run validate:release` | Ship gate: release stages plus browser tests and the live share-preview probe     |
+| `npm run test:e2e`         | Canonical Playwright suite in `test/e2e-astro/`                                   |
+| `npm run lighthouse:audit` | Performance evidence for rendering, navigation, bundle, or critical-fetch changes |
 
-- `npm run validate` is the fast local baseline: `lint → typecheck → test → build → guardrails:assets`.
-- `npm run validate:release` is the canonical ship gate: `validate` plus `test:e2e` and `monitor:share-preview`.
-- `npm run typecheck` runs the legacy root JS contract check plus Astro-native `astro check` for the active app.
-- `npm run test:e2e` runs `playwright.astro.config.ts` against the canonical Astro suite in [`test/e2e-astro/`](./test/e2e-astro/).
-- Shopper-state persistence for the shipped storefront is canonical under the `astro-poc-*` localStorage keys; the legacy `cart` key is read only as a compatibility alias during upgrade.
-- Specs under [`test/e2e/`](./test/e2e/) plus the targeted Cypress runner are supplemental/manual coverage and are not the default release gate.
-- Supported WhatsApp/social preview routes are `/`, `/<category>/`, and `/p/<sku>/`; legacy `/c/*` and `/pages/*.html` routes stay compatible but are not part of the supported preview contract.
-- Social-preview metadata and image versioning are centralized in [`astro-poc/src/lib/seo.ts`](./astro-poc/src/lib/seo.ts), and `npm run monitor:share-preview` is the dedicated live check for public unfurls.
+Run `build` and `test:e2e` sequentially on Windows because both use generated
+Astro output. The release gate includes a live network probe and is therefore
+slower and dependent on the deployed site.
 
-## Build Notes
+## How the build works
 
-- Root `data/` and `assets/` remain shared inputs to the Astro storefront.
-- `npm run build` runs the shared preflight pipeline and then builds `astro-poc/dist/`.
-- `npm run build` and `npm run test:e2e` should be executed sequentially on Windows because they touch the same generated output.
+```text
+data/ + assets/ + config/
+          |
+          v
+   npm run preflight
+          |
+          v
+   Astro static build
+          |
+          v
+   astro-poc/dist/
+```
 
-## Engineering Priorities
+Always build from the repository root with `npm run build`. Calling Astro
+directly skips the shared preflight contract and can produce incomplete output.
 
-- Performance, scalability, maintainability, and documentation-quality
-  expectations are documented in
-  [`docs/architecture/ENGINEERING_PRIORITIES.md`](./docs/architecture/ENGINEERING_PRIORITIES.md).
-- For rendering, bundle, navigation, or critical data-fetch changes, attach
-  `npm run lighthouse:audit` evidence or equivalent performance notes in the PR.
-- For command, topology, or workflow changes, update the relevant docs in the
-  same PR so entry-point docs remain trustworthy.
+### Fast build (skip preflight)
 
-## Key Docs
+For code-only changes (CSS, TypeScript, Astro components) where catalog data
+and images haven't changed, use the fast build:
 
-- [`docs/START_HERE.md`](./docs/START_HERE.md)
-- [`docs/architecture/ENGINEERING_PRIORITIES.md`](./docs/architecture/ENGINEERING_PRIORITIES.md)
-- [`docs/operations/VALIDATION_MATRIX.md`](./docs/operations/VALIDATION_MATRIX.md)
-- [`docs/operations/QUALITY_GUARDRAILS.md`](./docs/operations/QUALITY_GUARDRAILS.md)
-- [`docs/operations/DEBUGGING.md`](./docs/operations/DEBUGGING.md)
-- [`docs/operations/RUNBOOK.md`](./docs/operations/RUNBOOK.md)
-- [`docs/operations/SHARE_PREVIEW.md`](./docs/operations/SHARE_PREVIEW.md)
-- [`docs/implementation/ELRINCONDEEBANO_REMEDIATION_PLAN.md`](./docs/implementation/ELRINCONDEEBANO_REMEDIATION_PLAN.md)
-- [`docs/implementation/ELRINCONDEEBANO_REMEDIATION_BACKLOG.md`](./docs/implementation/ELRINCONDEEBANO_REMEDIATION_BACKLOG.md)
+```bash
+npm run build:fast
+```
 
----
+This skips the image generation pipeline and runs only the Astro build.
+Use `npm run build` (full) for CI and when catalog data or images have changed.
 
-Built and maintained by **Carlos Ortega** — automation, data systems, and web technical hygiene consulting. Portfolio and services: **[tooltician.com](https://tooltician.com/)**.
+## Working in the repository
+
+- Start with [`docs/START_HERE.md`](./docs/START_HERE.md) to select the correct
+  code surface and validation tier.
+- Read [`CONTRIBUTING.md`](./CONTRIBUTING.md) before opening a pull request.
+- Apply the maintainability rules in
+  [`docs/architecture/ENGINEERING_PRIORITIES.md`](./docs/architecture/ENGINEERING_PRIORITIES.md),
+  including the repository's pragmatic DRY, SOLID, and KISS guidance.
+- For agent or API-assisted work, follow
+  [`docs/operations/AI_EFFICIENCY.md`](./docs/operations/AI_EFFICIENCY.md) to
+  reduce token and tool consumption without weakening verification.
+- When commands, ownership, or behavior change, update the affected docs in the
+  same pull request. The freshness policy is in
+  [`docs/operations/DOCUMENTATION.md`](./docs/operations/DOCUMENTATION.md).
+
+## Documentation map
+
+| Need                     | Document                                                                         |
+| ------------------------ | -------------------------------------------------------------------------------- |
+| First setup              | [`docs/onboarding/BOOTSTRAP.md`](./docs/onboarding/BOOTSTRAP.md)                 |
+| Local development        | [`docs/onboarding/LOCAL_DEV.md`](./docs/onboarding/LOCAL_DEV.md)                 |
+| Repository architecture  | [`docs/architecture/CODEBASE_MAP.md`](./docs/architecture/CODEBASE_MAP.md)       |
+| Validation requirements  | [`docs/operations/VALIDATION_MATRIX.md`](./docs/operations/VALIDATION_MATRIX.md) |
+| Operations and incidents | [`docs/operations/RUNBOOK.md`](./docs/operations/RUNBOOK.md)                     |
+| Share-preview contract   | [`docs/operations/SHARE_PREVIEW.md`](./docs/operations/SHARE_PREVIEW.md)         |
+| Documentation ownership  | [`docs/operations/DOCUMENTATION.md`](./docs/operations/DOCUMENTATION.md)         |
+| Historical decisions     | [`docs/adr/README.md`](./docs/adr/README.md)                                     |
+
+## Production contract
+
+- Supported public routes: `/`, `/<category>/`, and `/p/<sku>/`.
+- Catalog and assets are versioned build inputs; generated output is not edited
+  by hand.
+- Social metadata and image versioning are centralized in
+  [`astro-poc/src/lib/seo.ts`](./astro-poc/src/lib/seo.ts).
+- Shopper state uses `astro-poc-*` local-storage keys. The old `cart` key is a
+  read-only upgrade alias.
+
+## License and maintainer
+
+Licensed under ISC. Built and maintained by **Carlos Ortega** — automation,
+data systems, and web technical-hygiene consulting at
+[tooltician.com](https://tooltician.com/).

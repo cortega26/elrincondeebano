@@ -101,13 +101,14 @@
     "lint-staged": "^17.0.8",
     "pa11y-ci": "^4.1.1",
     "prettier": "^3.9.5",
+    "sass-embedded": "^1.100.0",
     "sharp": "^0.35.3",
     "turbo": "^2.10.5",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.64.0",
     "undici": "^8.7.0",
     "vitest": "^4.0.16",
-    "ws": "^7.5.11"
+    "ws": "^8.21.0"
   },
   "engines": {
     "node": ">=24 <25"

@@ -25,11 +25,13 @@ runs:
 
     - name: Set deterministic build environment
       shell: bash
+      env:
+        CFIMG_MODE: ${{ inputs.cfimg }}
       run: |
         echo "TZ=UTC" >> $GITHUB_ENV
         echo "LC_ALL=C.UTF-8" >> $GITHUB_ENV
         echo "LANG=C.UTF-8" >> $GITHUB_ENV
-        if [ "${{ inputs.cfimg }}" = "enable" ]; then
+        if [ "$CFIMG_MODE" = "enable" ]; then
           echo "CFIMG_ENABLE=1" >> $GITHUB_ENV
         else
           echo "CFIMG_DISABLE=1" >> $GITHUB_ENV

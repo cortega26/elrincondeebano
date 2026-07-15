@@ -9,8 +9,7 @@ Estandarizar depuración local para fallos de build, test y runtime sin introduc
 1. Confirmar runtime:
    - `node -v` (objetivo 24.x)
 2. Instalar limpio:
-   - `npm ci`
-   - `(cd astro-poc && npm ci)`
+   - `npm run bootstrap`
 3. Reproducir fallo en el menor scope posible:
    - lint: `npm run lint`
    - typecheck canónico: `npm run typecheck`
@@ -61,7 +60,7 @@ Estandarizar depuración local para fallos de build, test y runtime sin introduc
    - ejecutar `build` y `e2e` en secuencia, no en paralelo.
 3. Falla solo en CI:
    - comparar versión de runtime y comandos exactos de workflow.
-   - replicar local con `npm ci` y `(cd astro-poc && npm ci)`.
+   - replicar local con `npm run bootstrap`.
 
 ## Evidencia mínima en PR
 

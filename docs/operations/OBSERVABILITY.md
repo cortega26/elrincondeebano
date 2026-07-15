@@ -23,30 +23,39 @@ parte de una regresión en producción:
 
 ### Inicialización
 
-- Módulo: `src/js/modules/observability.mjs`
-- Arranque: `src/js/main.js` con `initObservability({ enabled: true, slowEndpointMs: 1200 })`.
+- Módulo: `astro-poc/src/scripts/storefront/observability.js`
+- Arranque: `astro-poc/src/scripts/storefront.js` llama a `observability.initObservability({ enabled: true, slowEndpointMs: 1200 })` durante `initStorefront()`.
 - Kill switch local: `localStorage.ebano-observability-disabled = "true"`.
+- La inicialización es idempotente: una segunda llamada devuelve el snapshot sin reinstalar listeners.
 
 ### Métricas capturadas
 
-1. Web Vitals:
+1. Web Vitals (via `PerformanceObserver`):
    - `LCP`: último `largest-contentful-paint`.
    - `CLS`: suma de `layout-shift` sin input reciente.
-   - `INP`: máximo `event.duration` con `interactionId`.
+   - `INP`: máximo `event.duration` con `interactionId > 0`.
+   - Snapshot automático al cambio de visibilidad (`visibilitychange` → `hidden`).
 2. Error rate:
-   - contador total de `error` y `unhandledrejection`.
+   - Contadores separados para `error` (`state.errors.runtime`) y `unhandledrejection` (`state.errors.unhandledRejection`), más total acumulado.
 3. Endpoints lentos:
-   - `recordEndpointMetric(...)` guarda sólo llamados sobre umbral.
-   - Integrado en `fetchWithRetry` (`src/js/utils/product-data.mjs`) para `product_data_fetch`.
+   - `recordEndpointMetric({ name, url, method, status, durationMs })` registra sólo métricas sobre el umbral configurable (`slowEndpointMs`, default 1200 ms).
+   - Retiene máximo 50 entradas en buffer circular (`state.endpoints.slow`).
+   - La URL se sanitiza a pathname (sin query string, sin PII).
 
 ### Salida operativa
 
-- Eventos estructurados por `log(...)`:
+- Eventos estructurados via `log(...)`:
   - `observability_initialized`
   - `web_vitals_snapshot`
   - `slow_endpoint_detected`
 - Snapshot local:
   - `getObservabilitySnapshot()` (uso interno/test).
+  - `cleanup()` desregistra listeners y desconecta observers.
+
+### Limitaciones conocidas
+
+- No hay integración automática con `fetch` del catálogo; `recordEndpointMetric` debe llamarse explícitamente desde el código de fetch si se desea rastrear latencia de endpoints.
+- El kill switch se evalúa sólo en la inicialización; cambiarlo en runtime no desactiva métricas ya activas sin una recarga.
 
 ## Privacidad y retención
 

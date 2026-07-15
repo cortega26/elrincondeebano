@@ -39,7 +39,7 @@ jobs:
       - name: Set up Python 3.12
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v5
         with:
-          python-version: '3.12'
+          python-version: '3.14'
           cache: 'pip'
           cache-dependency-path: |
             admin/product_manager/requirements.txt
@@ -64,3 +64,37 @@ jobs:
         run: |
           # Run pytest with the configuration in tests/conftest.py
           python -m pytest
+
+  test-web:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: admin
+
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v5
+        with:
+          python-version: '3.14'
+          cache: 'pip'
+          cache-dependency-path: admin/web/requirements.lock.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest ruff
+          pip install -r web/requirements.txt -c web/requirements.lock.txt
+          python -m pip check
+
+      - name: Run static analysis (ruff)
+        run: |
+          python -m ruff check web/
+
+      - name: Run smoke tests
+        run: |
+          python -m pytest web/tests/ -v

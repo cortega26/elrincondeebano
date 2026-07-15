@@ -31,8 +31,8 @@ Estos planes son paralelizables y preparan cambios posteriores:
 | 029  | Corregir estado de carga de parking             | P1       | S      | —          | DONE   |
 | 032  | Limpiar LHCI y audit de dependencias dev        | P2       | S      | —          | DONE   |
 | 033  | Reforzar pre-commit y hermeticidad de tests     | P2       | S      | —          | DONE   |
-| 034  | Integrar admin web en lock y CI                 | P2       | M      | —          | TODO   |
-| 037  | Converger documentación con runtime real        | P2       | M      | —          | TODO   |
+| 034  | Integrar admin web en lock y CI                 | P2       | M      | —          | DONE   |
+| 037  | Converger documentación con runtime real        | P2       | M      | —          | DONE   |
 
 **Gate**: `npm run lint && npm run typecheck && npm test`; para 028/034,
 además `cd admin/product_manager && python -m ruff check . && python -m pytest`.
@@ -45,7 +45,7 @@ además `cd admin/product_manager && python -m ruff check . && python -m pytest`
 | 027  | Preservar descuentos y rollback de carrito | P1       | M      | 025             | TODO   |
 | 031  | Retirar Partytown y reducir Bootstrap JS   | P2       | M      | 025             | TODO   |
 | 035  | Consolidar builds duplicados de CI         | P2       | M      | —               | TODO   |
-| 019  | Reducir Bootstrap CSS                      | P2       | M      | 031 recomendado | TODO   |
+| 019  | Reducir Bootstrap CSS                      | P2       | M      | 031 recomendado | DONE   |
 
 **Gate**: `npm run validate` más los E2E focalizados de cada plan.
 
@@ -246,7 +246,7 @@ Cada gate es acumulativo: el gate del Stage N incluye todos los checks de los ga
 | 021 | Card helpers extract          | 4     | M      | LOW  | `ProductCard*.astro`, helper                              | DONE   |
 | 002 | Parking race condition        | 4     | M      | MED  | `parking-reservation.js`                                  | DONE   |
 | 001 | Cart bugs comprehensive       | 4     | M      | MED  | `storefront.js` multi, `*-state.ts`, `*-contract.ts`      | DONE   |
-| 019 | Bootstrap CSS reduction       | 4     | M      | MED  | `BaseLayout.astro`, `global.css`, `.scss`                 | TODO   |
+| 019 | Bootstrap CSS reduction       | 4     | M      | MED  | `BaseLayout.astro`, `global.css`, `.scss`                 | DONE   |
 | 007 | Duplicates + spike cleanup ⚠️ | 5     | M      | LOW  | `catalog.ts`, `formatting.ts`, `storefront.js`, `tools/`  | DONE   |
 | 012 | Unify CSP policies            | 5     | M      | MED  | `csp.js`, `security-header-policy.mjs`, worker            | DONE   |
 | 022 | Types from Zod + dead code    | 5     | M      | LOW  | `catalog.ts`, `data-schemas.ts`, `src/js/`                | DONE   |

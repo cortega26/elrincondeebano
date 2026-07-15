@@ -12,7 +12,17 @@ release readiness.
 
 ## Release gate contents
 
-`npm run validate:release` runs the following stages in order:
+`npm run validate` runs the following stages in order:
+
+1. `npm run lint`
+2. `npm run typecheck`
+3. `npm run check:e2e-selectors`
+4. `npm test`
+5. `npm run build`
+6. `npm run guardrails:assets`
+
+`npm run validate:release` runs the release stages explicitly defined in
+`tools/validate-release.mjs`:
 
 1. `npm run lint`
 2. `npm run typecheck`
@@ -28,6 +38,7 @@ release readiness.
 | ------------------------------- | ---------------------------------------------------------------------------- |
 | `npm run lint`                  | Every change.                                                                |
 | `npm run typecheck`             | Runtime, shared JS, or Astro source changes.                                 |
+| `npm run check:e2e-selectors`   | Storefront markup, styles, or browser-test selector changes.                 |
 | `npm test`                      | Every behavior change.                                                       |
 | `npm run build`                 | Any change that affects shipped output or generated assets.                  |
 | `npm run guardrails:assets`     | Images, catalog data, taxonomy, or build-tooling changes.                    |
@@ -38,5 +49,8 @@ release readiness.
 
 - `npm run build` remains the only supported build path.
 - `npm run validate` is intentionally lighter than the release gate.
+- The local baseline owns `check:e2e-selectors`; the release runner currently
+  defines its stages independently rather than invoking `npm run validate`.
+- `monitor:share-preview` is a live-network check against the deployed site.
 - If the release gate needs to change, update this file, `package.json`, and the
   ADR index together.
