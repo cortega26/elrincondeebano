@@ -1,16 +1,278 @@
 # Implementation Plans
 
-Generados por `/improve deep` en tres auditorías. La cola de Auditoría 3
-supersede el orden histórico para todo trabajo todavía pendiente; los planes
-DONE se conservan como registro.
+Generados por `/improve deep` en cuatro auditorías. La Auditoría 4 está
+deliberadamente limitada a `admin/product_manager/` y define la cola vigente
+para el revamp del Content Manager. La cola de Auditoría 3 sigue vigente para
+las demás superficies; los planes DONE se conservan como registro.
 
 | Auditoría | Fecha      | Commit    | Planes  |
 | --------- | ---------- | --------- | ------- |
 | 1         | 2026-06-14 | `4751633` | 001–012 |
 | 2         | 2026-07-14 | `633eeb8` | 013–024 |
 | 3         | 2026-07-14 | `877f179` | 025–038 |
+| 4         | 2026-07-15 | `8c903e3` | 039–054 |
 
 Cada executor debe leer el plan completo antes de empezar, respetar sus STOP conditions, y actualizar su fila al terminar.
+
+---
+
+## Cola vigente — Auditoría 4: Content Manager
+
+### Objetivo y límites
+
+Esta wave convierte el Content Manager en una herramienta segura, verificable
+y orientada a tareas. El orden evita construir una interfaz nueva sobre flujos
+que hoy pueden perder metadata, mover medios antes de guardar, reordenar el
+producto equivocado, borrar conflictos al verlos o declarar un deploy exitoso
+sin push exitoso.
+
+Todos los cambios de implementación quedan limitados a
+`admin/product_manager/`. Los planes pueden actualizar su propia fila en este
+README, pero no autorizan cambios en storefront, datos reales, assets, CI,
+servidores remotos ni scripts root. El plan 049 tiene una dependencia explícita
+en el ADR cross-surface 036 y no debe ejecutarse antes de esa decisión.
+
+> **Advertencia de snapshot**: la auditoría se escribió contra commit
+> `8c903e3` con cambios locales ya presentes en `content_manager.py`, varios
+> módulos UI y requirements, además de archivos nuevos de deploy/Git/theme/toast.
+> Cada executor debe ejecutar tanto el drift check del plan como
+> `git status --short -- admin/product_manager` y preservar ese trabajo.
+
+### Secuencia óptima resumida
+
+```text
+WAVE 0  BASELINE & HYGIENE
+  039 characterization tests
+  048 dependency lock                    (parallel with 039)
+
+WAVE 1  DATA-INTEGRITY BUGS
+  039 ─┬─► 040 preserve bulk state
+       ├─► 041 transactional media
+       ├─► 042 identity-based reorder
+       ├─► 043 durable conflicts
+       └─► 044 unified discount rule
+
+WAVE 2  RELEASE & RUNTIME SAFETY
+  039 ─► 045 safe publication ─► 046 async Git/UI
+  039 ─► 047 centralized configuration
+
+WAVE 3  ARCHITECTURAL SEAM
+  039–047 ─► 050 typed presenters
+
+WAVE 4  PRODUCT CAPABILITIES
+  041 + 045 + 047 + 050 ─► 051 staged change sets ─► 052 workspace redesign
+  036 + 039 + 043 + 050 ─► 053 stable identities
+  043 + 050 + 052 (+ 053 recommended) ─► 054 conflict center
+
+CONDITIONAL CLEANUP
+  036 accepted ADR ─► 049 retire dormant SQLite store
+```
+
+The numeric order is the default execution order. Plans 048 and 049 are placed
+near the baseline because they are small, but 049 remains blocked until plan
+036 decides catalog authority. Plan 053 may run after 050 in parallel with early
+workspace design, but it should land before the final persistence contract of
+the conflict center.
+
+### Wave 0 — Baseline and reproducibility
+
+| Plan                                                    | Título                               | Priority | Effort | Depends on | Status |
+| ------------------------------------------------------- | ------------------------------------ | -------- | ------ | ---------- | ------ |
+| [039](039-characterize-product-manager-ui.md)           | Caracterizar workflows UI headlessly | P1       | M      | —          | DONE   |
+| [048](048-lock-product-manager-runtime-dependencies.md) | Bloquear dependencias runtime        | P2       | S      | —          | TODO   |
+
+Run 039 first on the branch that will carry UI work. Plan 048 is file-disjoint
+from 039 and can run concurrently, but reconcile it with completed plan 034:
+034 integrated the admin web profile; 048 closes missing pins specifically in
+the Tk Content Manager profile.
+
+**Wave gate**:
+
+```bash
+admin/product_manager/.venv/bin/python -m pytest admin/product_manager/tests -q
+admin/product_manager/.venv/bin/ruff check admin/product_manager
+```
+
+Expected: all tests pass and Ruff exits 0. Coverage must be non-zero for the
+five high-risk UI modules named in plan 039.
+
+### Wave 1 — Correctness and data integrity
+
+These plans may be implemented in parallel after 039 because their primary
+production files do not overlap, except 040/044 both touch bulk operations.
+If using multiple executors, run 040 before 044 or serialize those two branches.
+
+| Plan                                                    | Título                                          | Priority | Effort | Depends on           | Status |
+| ------------------------------------------------------- | ----------------------------------------------- | -------- | ------ | -------------------- | ------ |
+| [040](040-preserve-product-state-in-bulk-operations.md) | Preservar metadata en operaciones masivas       | P1       | S      | 039                  | TODO   |
+| [041](041-stage-media-mutations-until-save.md)          | Hacer transaccionales los cambios de medios     | P1       | M      | 039                  | TODO   |
+| [042](042-reorder-products-by-identity.md)              | Reordenar por identidad real                    | P1       | S      | 039                  | TODO   |
+| [043](043-preserve-sync-conflicts.md)                   | Preservar conflictos hasta resolución explícita | P1       | S      | 039                  | TODO   |
+| [044](044-unify-discount-invariant.md)                  | Unificar invariante de descuentos               | P2       | S      | 039; 040 recomendado | TODO   |
+
+**Why this order**: 040 and 041 remove silent data-loss paths first. Plan 042
+then fixes incorrect catalog mutation, 043 makes sync evidence durable, and 044
+closes a smaller but concrete validation inconsistency. Each relevant strict
+xfail from plan 039 must become a passing regression test.
+
+**Wave gate**: full pytest + Ruff; additionally rerun coverage and confirm no
+target module regresses to 0%.
+
+### Wave 2 — Publication, responsiveness, and configuration
+
+| Plan                                                   | Título                                   | Priority | Effort | Depends on | Status |
+| ------------------------------------------------------ | ---------------------------------------- | -------- | ------ | ---------- | ------ |
+| [045](045-make-publication-safe-and-truthful.md)       | Publicación acotada, preflighted y veraz | P1       | M      | 039        | TODO   |
+| [046](046-run-git-operations-off-ui-thread.md)         | Ejecutar Git fuera del hilo Tk           | P1       | M      | 039, 045   | TODO   |
+| [047](047-centralize-product-manager-configuration.md) | Centralizar configuración tipada         | P1       | M      | 039        | TODO   |
+
+Implement 045 before 046 so async orchestration wraps the final publication
+contract, not a transitional API. Plan 047 is file-overlapping with the current
+dirty UI work but logically independent; it can run in parallel only in a
+separate worktree with a deliberate merge.
+
+**Wave gate**:
+
+```bash
+admin/product_manager/.venv/bin/python -m pytest \
+  admin/product_manager/tests/test_git_sync.py \
+  admin/product_manager/tests/test_deploy.py \
+  admin/product_manager/tests/test_ui_deploy_panel.py -q
+admin/product_manager/.venv/bin/python -m pytest admin/product_manager/tests -q
+admin/product_manager/.venv/bin/ruff check admin/product_manager
+```
+
+No focused test may touch the developer repository, network remote, or user
+configuration path.
+
+### Wave 3 — Typed architecture seam
+
+| Plan                                             | Título                                            | Priority | Effort | Depends on | Status |
+| ------------------------------------------------ | ------------------------------------------------- | -------- | ------ | ---------- | ------ |
+| [050](050-decompose-ui-into-typed-presenters.md) | Extraer presenters tipados y adelgazar MainWindow | P1       | L      | 039–047    | TODO   |
+
+This is intentionally after behavior fixes. It is a sequence of feature slices,
+not a big-bang rewrite: catalog state, mixin orchestration, forms, then final
+composition. Keep the app runnable and tests green after every slice.
+
+**Wave gate**:
+
+```bash
+admin/product_manager/.venv/bin/python -m pytest admin/product_manager/tests -q
+admin/product_manager/.venv/bin/ruff check admin/product_manager
+admin/product_manager/.venv/bin/python -m mypy admin/product_manager \
+  --no-incremental --cache-dir=/tmp/pm-mypy
+```
+
+Expected: tests/Ruff pass and production-package mypy errors reach the accepted
+zero or explicitly approved narrower baseline. Do not start visual redesign
+while implicit mixin contracts remain.
+
+### Wave 4 — New operator workflow
+
+| Plan                                                | Título                                    | Priority | Effort | Depends on                     | Status |
+| --------------------------------------------------- | ----------------------------------------- | -------- | ------ | ------------------------------ | ------ |
+| [051](051-design-staged-content-changes.md)         | Introducir change sets durables           | P2       | L      | 041, 045, 047, 050             | TODO   |
+| [052](052-build-task-oriented-content-workspace.md) | Reconstruir workspace orientado a tareas  | P2       | L      | 039–051                        | TODO   |
+| [053](053-design-stable-content-identities.md)      | Diseñar/migrar identidades estables       | P2       | L      | 036, 039, 043, 050             | TODO   |
+| [054](054-build-actionable-conflict-center.md)      | Construir centro de conflictos accionable | P2       | L      | 043, 050, 052; 053 recomendado | TODO   |
+
+Plan 051 creates the application-owned draft/review/publish state machine. Plan
+052 then redesigns the UI around that workflow. Plan 053 is a high-risk schema
+migration and begins with design/dry-run gates; it may overlap early 052 design
+but should not be merged concurrently with selection/state changes. Plan 054
+lands last because durable conflicts, presenters, workspace navigation, and
+preferably stable IDs must already exist.
+
+**Wave gate**: full pytest, Ruff, mypy, plus targeted change-set, identity, and
+conflict-center suites. Manual smoke must cover keyboard-only browse → edit →
+review → publish confirmation in both themes and at maximum configured font.
+
+### Conditional cleanup
+
+| Plan                                      | Título                       | Priority | Effort | Depends on | Status                                      |
+| ----------------------------------------- | ---------------------------- | -------- | ------ | ---------- | ------------------------------------------- |
+| [049](049-retire-dormant-sqlite-store.md) | Retirar store SQLite dormido | P3       | S      | 036        | BLOCKED — waiting for catalog-authority ADR |
+
+Do not delete `data_store.py` merely because it has no callers. Plan 036 already
+owns the cross-surface authority decision and may retain SQLite as an operator
+cache or compatibility layer. Execute 049 only if the accepted ADR explicitly
+retires it.
+
+### Master status table — Auditoría 4
+
+| #   | Plan                | Category  | Priority | Effort | Risk | Primary files                     | Status             |
+| --- | ------------------- | --------- | -------- | ------ | ---- | --------------------------------- | ------------------ |
+| 039 | UI characterization | tests     | P1       | M      | LOW  | `tests/`, minimal UI seams        | TODO               |
+| 040 | Preserve bulk state | bug       | P1       | S      | MED  | `bulk_operations_mixin.py`        | TODO               |
+| 041 | Transactional media | bug       | P1       | M      | MED  | `product_form.py`                 | TODO               |
+| 042 | Identity reorder    | bug       | P1       | S      | MED  | `main_window.py`, `components.py` | TODO               |
+| 043 | Durable conflicts   | bug       | P1       | S      | MED  | `sync.py`, `services.py`, UI      | TODO               |
+| 044 | Discount invariant  | bug       | P2       | S      | LOW  | model/form/main/bulk              | TODO               |
+| 045 | Safe publication    | bug       | P1       | M      | HIGH | deploy/Git/deploy panel           | TODO               |
+| 046 | Async Git UI        | perf      | P1       | M      | MED  | deploy panel/task runner          | TODO               |
+| 047 | Central config      | tech-debt | P1       | M      | MED  | bootstrap/main/dialog/theme       | TODO               |
+| 048 | Runtime lock        | migration | P2       | S      | LOW  | requirements files                | TODO               |
+| 049 | Retire SQLite store | tech-debt | P3       | S      | LOW  | `data_store.py`                   | BLOCKED — plan 036 |
+| 050 | Typed presenters    | tech-debt | P1       | L      | HIGH | UI/category GUI                   | TODO               |
+| 051 | Staged change sets  | direction | P2       | L      | HIGH | new domain + services             | TODO               |
+| 052 | Task workspace      | direction | P2       | L      | HIGH | UI shell/pages                    | TODO               |
+| 053 | Stable identities   | migration | P2       | L      | HIGH | model/service/sync                | TODO               |
+| 054 | Conflict center     | direction | P2       | L      | HIGH | sync/service/UI                   | TODO               |
+
+### Parallelism and merge-conflict guidance
+
+| Can run together                            | Must serialize                               | Reason                                                         |
+| ------------------------------------------- | -------------------------------------------- | -------------------------------------------------------------- |
+| 039 + 048                                   | 040 before 044                               | Both alter bulk-operation behavior/tests                       |
+| 041 + 042 + 043                             | 045 before 046                               | Async layer must wrap final publication contract               |
+| 045 + 047 in isolated worktrees             | All before 050                               | Presenter extraction must see stabilized behavior              |
+| 051 design + 053 design                     | 051 implementation before 052                | Workspace consumes staged-change API                           |
+| Early 052 wireframes + 053 migration design | 053 implementation and late 052 state wiring | Both affect selection/identity contracts                       |
+| —                                           | 054 last                                     | Needs durable conflicts, presenters, workspace, preferably IDs |
+
+### Rollback and release policy
+
+- Every implementation plan uses its own branch and conventional commit.
+- Do not combine multiple HIGH-risk plans in one commit or PR.
+- Roll back with `git revert <sha>`; never reset the shared branch.
+- Plans 041, 045, 051, 053, and 054 require explicit recovery/failure tests
+  before merge because they mutate durable content or publication state.
+- No executor may publish, push, migrate real data, or modify real assets as a
+  verification step.
+
+### Final acceptance gate for the revamp
+
+The roadmap is complete only when all applicable 039–054 rows are DONE and:
+
+1. Full product-manager pytest and Ruff pass.
+2. Production mypy reaches the accepted zero/baseline defined in plan 050.
+3. High-risk UI modules have meaningful behavior coverage, not merely imports.
+4. Cancel/validation/service failures cannot leave media or product data split.
+5. Publication previews exact owned paths, validates before commit, and never
+   reports success for a failed required step.
+6. Tk remains responsive during Git/network work and ignores late callbacks on close.
+7. The operator can browse, edit, review staged changes, resolve conflicts, and
+   reach publish confirmation via keyboard.
+8. No implementation file outside `admin/product_manager/` changed under this roadmap.
+
+### Findings considered and rejected — Auditoría 4
+
+- **Immediate Tkinter-to-web/Electron rewrite**: rejected. No evidence justifies
+  a platform migration before correctness, testability, and workflow boundaries
+  are fixed; plan 052 rebuilds the workflow on the current runtime.
+- **Adopt SQLite immediately**: rejected pending plan 036. Active JSON repositories
+  already use locks, fsync, backups, and atomic replacement; the dormant store
+  has an incompatible model and no callers.
+- **Treat all local pip-audit findings as repository vulnerabilities**: rejected.
+  The active `.venv` is stale relative to the constraint file. Plan 048 audits a
+  clean, reproducible environment and fixes missing direct pins.
+- **Bandit subprocess warnings as command injection**: rejected. Current Git/npm
+  calls use argument arrays and `shell=False`; the release risk is incorrect
+  scoping/result semantics, covered by plan 045.
+- **Micro-optimize product filtering**: rejected at current catalog scale. The
+  observable performance risk is blocking Git/network work on the Tk thread,
+  covered by plan 046.
 
 ---
 
