@@ -17,6 +17,11 @@ const DEFAULT_RETRY_DELAY_MS = 750;
 const FAILURE_SNIPPET_MAX_LENGTH = 220;
 const PRODUCT_DATA_ROUTE = '/data/product_data.json';
 const ALLOWED_PROBE_HOSTS = new Set(['www.elrincondeebano.com', 'elrincondeebano.com']);
+// Secret handshake that lets a Cloudflare WAF "Skip" rule wave the GitHub-hosted
+// observer past the managed challenge so it reaches origin. Without it the probe
+// is challenged at the edge and can never tell an up site from a down one.
+export const BYPASS_TOKEN_ENV = 'LIVE_MONITOR_BYPASS_TOKEN';
+export const BYPASS_TOKEN_HEADER = 'x-live-monitor-token';
 const PROBE_REQUEST_HEADERS = Object.freeze({
   accept:
     'text/html,application/xhtml+xml,application/xml;q=0.9,application/json;q=0.8,text/plain;q=0.7,*/*;q=0.5',
@@ -90,6 +95,19 @@ export function normalizeAssetPath(raw) {
   return normalized;
 }
 
+export function resolveBypassToken(env = process.env) {
+  const raw = env?.[BYPASS_TOKEN_ENV];
+  return typeof raw === 'string' && raw.trim() ? raw.trim() : '';
+}
+
+function buildProbeHeaders(env = process.env) {
+  const token = resolveBypassToken(env);
+  if (!token) {
+    return PROBE_REQUEST_HEADERS;
+  }
+  return { ...PROBE_REQUEST_HEADERS, [BYPASS_TOKEN_HEADER]: token };
+}
+
 async function fetchWithTimeout(url, timeoutMs) {
   if (!(url instanceof URL)) {
     throw new Error('URL must be a URL instance');
@@ -101,7 +119,7 @@ async function fetchWithTimeout(url, timeoutMs) {
     const response = await fetch(url, {
       signal: controller.signal,
       redirect: 'follow',
-      headers: PROBE_REQUEST_HEADERS,
+      headers: buildProbeHeaders(),
     });
     return response;
   } finally {

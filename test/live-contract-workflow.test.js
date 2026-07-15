@@ -22,3 +22,10 @@ test('live contract workflow updates one incident and only blocks confirmed fail
   );
   assert.match(workflow, /Cloudflare challenged the GitHub-hosted observer/);
 });
+
+test('live contract workflow passes the WAF bypass secret to the monitor step', () => {
+  assert.match(
+    workflow,
+    /LIVE_MONITOR_BYPASS_TOKEN: \$\{\{ secrets\.LIVE_MONITOR_BYPASS_TOKEN \}\}/
+  );
+});
