@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ipaddress
 import json
 import logging
 import os
@@ -118,6 +119,68 @@ _NETWORK_ERROR_MARKERS: tuple[str, ...] = (
 )
 
 
+def _validate_sync_url(url: str) -> bool:
+    """Validate that a sync URL uses secure transport.
+
+    HTTPS is allowed for any host. HTTP is only allowed for
+    localhost and loopback IP addresses (127.0.0.0/8, ::1).
+    URLs with userinfo, missing host, or malformed ports are rejected.
+    """
+    parsed = parse.urlparse(url)
+
+    if not parsed.scheme or not parsed.hostname:
+        return False
+
+    if parsed.username or parsed.password:
+        return False
+
+    # Detect malformed port: colon present in netloc after host
+    netloc = parsed.netloc
+    if "@" in netloc:
+        netloc = netloc.split("@", 1)[1]
+    if netloc.startswith("["):
+        bracket_end = netloc.find("]")
+        if bracket_end != -1:
+            after_bracket = netloc[bracket_end + 1 :]
+            if after_bracket.startswith(":"):
+                port_str = after_bracket[1:]
+                if not port_str:
+                    return False
+                try:
+                    int(port_str)
+                except ValueError:
+                    return False
+    else:
+        if ":" in netloc:
+            port_str = netloc.split(":", 1)[1]
+            if not port_str:
+                return False
+            try:
+                int(port_str)
+            except ValueError:
+                return False
+
+    if parsed.scheme == "https":
+        return True
+
+    if parsed.scheme == "http":
+        hostname = parsed.hostname
+
+        if hostname.lower() == "localhost":
+            return True
+
+        try:
+            addr = ipaddress.ip_address(hostname)
+            if addr.is_loopback:
+                return True
+        except ValueError:
+            pass
+
+        return False
+
+    return False
+
+
 class SyncEngine:
     """Coordinate local changes with the remote sync API."""
     # Service class stores multiple runtime flags and state.
@@ -164,9 +227,14 @@ class SyncEngine:
         trimmed = api_base.strip()
         if not trimmed:
             return ""
-        parsed = parse.urlparse(trimmed)
-        if parsed.scheme not in ("http", "https") or not parsed.netloc:
-            self.logger.warning("Sincronización deshabilitada: api_base debe ser http(s) con un host.")
+        if not _validate_sync_url(trimmed):
+            parsed = parse.urlparse(trimmed)
+            self.logger.warning(
+                "Sincronización deshabilitada: URL insegura (%s://%s). "
+                "HTTPS requerido para hosts remotos; HTTP solo para localhost/loopback.",
+                parsed.scheme,
+                parsed.hostname or "sin host",
+            )
             return ""
         return trimmed.rstrip("/")
 
@@ -367,10 +435,11 @@ class SyncEngine:
         return f"{self.api_base}{path}"
 
     def _assert_http_url(self, url: str) -> str:
-        """Validate that the URL is http(s) with a host."""
-        parsed = parse.urlparse(url)
-        if parsed.scheme not in ("http", "https") or not parsed.netloc:
-            raise ValueError("Sync URL inválida; solo se permiten esquemas http/https.")
+        """Validate that the URL uses a permitted transport."""
+        if not _validate_sync_url(url):
+            raise ValueError(
+                "Sync URL inválida; solo se permiten esquemas http/https seguros."
+            )
         return url
 
     def _send_patch(self, entry: SyncQueueEntry) -> Optional[Dict[str, Any]]:
