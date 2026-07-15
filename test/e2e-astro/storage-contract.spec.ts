@@ -46,23 +46,23 @@ test('repeat-order flow keeps canonical last-order state usable after reload', a
   expect(productId).toBeTruthy();
 
   await page.evaluate(() => {
-    window.open = () => null;
+    (window as any).__openCallCount = 0;
+    window.open = (..._args: any[]) => {
+      (window as any).__openCallCount = ((window as any).__openCallCount || 0) + 1;
+      return null;
+    };
   });
 
   await page.locator(`.category-strip .add-to-cart-btn[data-id="${productId}"]`).first().click();
   await page.locator('#cart-icon').click();
-  // Wait for the offcanvas to be fully visible before interacting with its contents
   await page.locator('#cartOffcanvas').waitFor({ state: 'visible' });
-  // The delivery note is inside a collapsed section; expand it first
   await page.locator('.cart-note-toggle').click();
   await page.locator('#delivery-note').fill('Dejar en conserjeria');
   await page.locator('#payment-cash').check();
   await page.locator('#submit-cart').click();
   await page.locator('#order-confirm-dialog').waitFor({ state: 'visible' });
   await page.locator('#order-confirm-send').click();
-  // Wait for the dialog to close — proves executeSendOrder completed
   await page.locator('#order-confirm-dialog').waitFor({ state: 'hidden', timeout: 10000 });
-  // Then verify localStorage was populated
   await page.waitForFunction(
     () => {
       const lastOrder = JSON.parse(localStorage.getItem('astro-poc-last-order') || 'null');
@@ -70,6 +70,9 @@ test('repeat-order flow keeps canonical last-order state usable after reload', a
     },
     { timeout: 15000 }
   );
+
+  const openCount = await page.evaluate(() => (window as any).__openCallCount || 0);
+  expect(openCount).toBe(1);
 
   await page.reload({ waitUntil: 'networkidle' });
   await waitForReady(page);

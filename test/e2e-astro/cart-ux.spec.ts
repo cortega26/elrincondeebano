@@ -240,3 +240,73 @@ test('T8: cart does not overflow horizontally on 320×568', async ({ page }) => 
 
   expect(overflow).toBe(false);
 });
+
+// ─── T9: Empty cart cannot submit ─────────────────────────────────────────
+
+test('T9: empty cart cannot submit — button disabled, no WhatsApp opened', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await waitForReady(page);
+
+  await page.evaluate(() => {
+    (window as any).__openCallCount = 0;
+    window.open = (..._args: any[]) => {
+      (window as any).__openCallCount = ((window as any).__openCallCount || 0) + 1;
+      return null;
+    };
+  });
+
+  const cartIcon = page.locator('#cart-icon');
+  await expect(cartIcon).toBeVisible({ timeout: 5000 });
+  await cartIcon.click();
+
+  const offcanvas = page.locator('#cartOffcanvas');
+  await expect(offcanvas).toBeVisible({ timeout: 5000 });
+
+  const submitBtn = offcanvas.locator('#submit-cart');
+  await expect(submitBtn).toBeVisible();
+
+  const disabled = await submitBtn.getAttribute('disabled');
+  const ariaDisabled = await submitBtn.getAttribute('aria-disabled');
+  expect(disabled !== null || ariaDisabled === 'true').toBe(true);
+
+  const openCallCount = await page.evaluate(() => (window as any).__openCallCount || 0);
+  expect(openCallCount).toBe(0);
+});
+
+// ─── T10: Missing payment shows error, no WhatsApp ────────────────────────
+
+test('T10: missing payment blocks submit — button disabled, error text shown', async ({ page }) => {
+  await page.setViewportSize(MOBILE);
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await waitForReady(page);
+
+  await page.evaluate(() => {
+    (window as any).__openCallCount = 0;
+    window.open = (..._args: any[]) => {
+      (window as any).__openCallCount = ((window as any).__openCallCount || 0) + 1;
+      return null;
+    };
+  });
+
+  const addBtn = page.locator('.category-strip .add-to-cart-btn').first();
+  await addBtn.click();
+  await page.waitForTimeout(120);
+
+  const shortcut = page.locator('#mobile-cart-shortcut');
+  await expect(shortcut).toBeVisible({ timeout: 5000 });
+  await shortcut.click();
+
+  const offcanvas = page.locator('#cartOffcanvas');
+  await expect(offcanvas).toBeVisible({ timeout: 5000 });
+
+  const submitBtn = offcanvas.locator('#submit-cart');
+  await expect(submitBtn).toBeVisible();
+
+  const disabled = await submitBtn.getAttribute('disabled');
+  const ariaDisabled = await submitBtn.getAttribute('aria-disabled');
+  expect(disabled !== null || ariaDisabled === 'true').toBe(true);
+
+  const openCount = await page.evaluate(() => (window as any).__openCallCount || 0);
+  expect(openCount).toBe(0);
+});

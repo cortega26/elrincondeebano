@@ -1,19 +1,94 @@
 # Implementation Plans
 
-Generados por `/improve deep` en dos auditorías:
+Generados por `/improve deep` en tres auditorías. La cola de Auditoría 3
+supersede el orden histórico para todo trabajo todavía pendiente; los planes
+DONE se conservan como registro.
 
 | Auditoría | Fecha      | Commit    | Planes  |
 | --------- | ---------- | --------- | ------- |
 | 1         | 2026-06-14 | `4751633` | 001–012 |
 | 2         | 2026-07-14 | `633eeb8` | 013–024 |
+| 3         | 2026-07-14 | `877f179` | 025–038 |
 
 Cada executor debe leer el plan completo antes de empezar, respetar sus STOP conditions, y actualizar su fila al terminar.
 
 ---
 
+## Cola vigente — Auditoría 3
+
+Los planes nuevos agrupan todos los findings con balance net-positive. Los
+planes 019 y 024 siguen vigentes; 010 fue reconciliado como DONE porque sus
+tres suites objetivo ya existen y pasan.
+
+### Wave A — Safety, characterization and truth
+
+Estos planes son paralelizables y preparan cambios posteriores:
+
+| Plan | Título                                          | Priority | Effort | Depends on | Status |
+| ---- | ----------------------------------------------- | -------- | ------ | ---------- | ------ |
+| 025  | Caracterizar checkout y personalización activos | P1       | M      | —          | DONE   |
+| 028  | Exigir transporte seguro en catalog sync        | P1       | S      | —          | DONE   |
+| 029  | Corregir estado de carga de parking             | P1       | S      | —          | TODO   |
+| 032  | Limpiar LHCI y audit de dependencias dev        | P2       | S      | —          | TODO   |
+| 033  | Reforzar pre-commit y hermeticidad de tests     | P2       | S      | —          | TODO   |
+| 034  | Integrar admin web en lock y CI                 | P2       | M      | —          | TODO   |
+| 037  | Converger documentación con runtime real        | P2       | M      | —          | TODO   |
+
+**Gate**: `npm run lint && npm run typecheck && npm test`; para 028/034,
+además `cd admin/product_manager && python -m ruff check . && python -m pytest`.
+
+### Wave B — Storefront and CI improvements
+
+| Plan | Título                                     | Priority | Effort | Depends on      | Status |
+| ---- | ------------------------------------------ | -------- | ------ | --------------- | ------ |
+| 026  | Canonicalizar carritos compartidos         | P1       | M      | 025             | TODO   |
+| 027  | Preservar descuentos y rollback de carrito | P1       | M      | 025             | TODO   |
+| 031  | Retirar Partytown y reducir Bootstrap JS   | P2       | M      | 025             | TODO   |
+| 035  | Consolidar builds duplicados de CI         | P2       | M      | —               | TODO   |
+| 019  | Reducir Bootstrap CSS                      | P2       | M      | 031 recomendado | TODO   |
+
+**Gate**: `npm run validate` más los E2E focalizados de cada plan.
+
+### Wave C — Durability and authority
+
+| Plan | Título                                  | Priority | Effort | Depends on | Status |
+| ---- | --------------------------------------- | -------- | ------ | ---------- | ------ |
+| 030  | Hacer durable el ProductStore           | P1       | L      | —          | TODO   |
+| 036  | Decidir una autoridad única de catálogo | P2       | M      | 034        | TODO   |
+
+El plan 030 es independiente lógicamente, pero se difiere a esta wave por su
+riesgo de durabilidad. El plan 036 termina en ADR y contract tests; no autoriza
+una migración de datos.
+
+### Wave D — Convergence and optional direction
+
+| Plan | Título                               | Priority | Effort | Depends on   | Status |
+| ---- | ------------------------------------ | -------- | ------ | ------------ | ------ |
+| 024  | Unificar test runners bajo Vitest    | P2       | M      | 025–030, 033 | TODO   |
+| 038  | Spike de medición privada del funnel | P3       | S      | 037          | TODO   |
+
+**Final gate**: `npm run validate:release`.
+
+### Dependency graph — Auditoría 3
+
+```text
+025 ─┬─► 026
+     ├─► 027
+     └─► 031 ─► 019
+
+034 ───► 036
+037 ───► 038
+
+025–030 + 033 ─► 024
+
+028, 029, 030, 032, 035 are otherwise independent.
+```
+
+---
+
 ## Pipeline de ejecución óptimo
 
-Los 24 planes se organizan en 7 stages secuenciales. Dentro de cada stage, los planes son paralelizables (no comparten archivos en conflicto ni tienen dependencias lógicas entre sí). Cada stage cierra con un gate de validación.
+Los 24 planes históricos de las auditorías 1–2 se organizaron en 7 stages secuenciales. Dentro de cada stage, los planes eran paralelizables (no compartían archivos en conflicto ni dependencias lógicas). Este pipeline se conserva como registro; para trabajo pendiente manda la cola vigente de Auditoría 3.
 
 ```
 STAGE 0  FOUNDATION         1 plan   ~30 min    prerequisito universal
@@ -176,7 +251,7 @@ Cada gate es acumulativo: el gate del Stage N incluye todos los checks de los ga
 | 012 | Unify CSP policies            | 5     | M      | MED  | `csp.js`, `security-header-policy.mjs`, worker            | DONE   |
 | 022 | Types from Zod + dead code    | 5     | M      | LOW  | `catalog.ts`, `data-schemas.ts`, `src/js/`                | DONE   |
 | 005 | Client DOM optimization       | 6     | M      | MED  | `storefront.js`, `catalog-view.js`, `personalization.js`  | DONE   |
-| 010 | Lib unit tests                | 6     | M      | LOW  | `test/` (new files)                                       | TODO   |
+| 010 | Lib unit tests                | 6     | M      | LOW  | `test/` (new files)                                       | DONE   |
 | 024 | Unify test runners            | 6     | M      | MED  | `vitest.config.mts`, `test/run-all.js`, `test/*.test.js`  | TODO   |
 
 Status: TODO | IN PROGRESS | DONE | BLOCKED | REJECTED
@@ -242,3 +317,28 @@ Status: TODO | IN PROGRESS | DONE | BLOCKED | REJECTED
 - **DX-05** (`.vscode/` gitignored): preferencia del maintainer.
 - **DOCS-01 a DOCS-05**: doc-gardening recurrente, no planes de implementación.
 - **DIR-01, DIR-02, DIR-05, DIR-06**: requieren decisión del maintainer sobre producto/stack.
+
+---
+
+## Reconciliación y descartes — Auditoría 3
+
+### Plan reconciliado
+
+- **010 → DONE**: `test/catalog-queries.spec.js`, `test/seo.spec.js` y
+  `test/product-identity.spec.js` existen y pasaron dentro de `npm test` en
+  `877f179`. El plan 037 vuelve a ejecutar los tres specs focalizados y registra
+  la evidencia documental.
+
+### Findings no convertidos en plan
+
+- **Programar vigencia de promociones/bundles**: arquitectura favorable, pero
+  no hay evidencia de necesidad operativa ni frecuencia de campañas. Reabrir
+  cuando exista un owner y calendario de promociones.
+- **Hold transaccional para parking**: L-effort/HIGH-risk, introduce backend,
+  abuso y expiraciones sin evidencia de colisiones reales. Medir primero.
+- **Partición adicional completa de `storefront.js`**: LOW-confidence y alto
+  riesgo de listeners/estado. El plan 025 caracteriza el runtime; sólo crear un
+  refactor posterior si emerge una frontera pequeña y medible.
+- **Persistir como exitosa una invalidación de SW fallida**: comportamiento
+  deliberado cubierto por tests y mitigado por la versión propia del worker.
+  Reabrir sólo con evidencia de caché obsoleta después de deploy.
