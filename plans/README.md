@@ -28,7 +28,7 @@ Estos planes son paralelizables y preparan cambios posteriores:
 | ---- | ----------------------------------------------- | -------- | ------ | ---------- | ------ |
 | 025  | Caracterizar checkout y personalización activos | P1       | M      | —          | DONE   |
 | 028  | Exigir transporte seguro en catalog sync        | P1       | S      | —          | DONE   |
-| 029  | Corregir estado de carga de parking             | P1       | S      | —          | TODO   |
+| 029  | Corregir estado de carga de parking             | P1       | S      | —          | DONE   |
 | 032  | Limpiar LHCI y audit de dependencias dev        | P2       | S      | —          | TODO   |
 | 033  | Reforzar pre-commit y hermeticidad de tests     | P2       | S      | —          | TODO   |
 | 034  | Integrar admin web en lock y CI                 | P2       | M      | —          | TODO   |
