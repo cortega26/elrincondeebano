@@ -16,6 +16,7 @@ export const productSchema = z.object({
   discount: z.number().nonnegative().optional(),
   stock: z.boolean().optional(),
   category: z.string().min(1, 'La categoría es obligatoria'),
+  brand: z.string().optional(),
   image_path: z.string().optional(),
   image_avif_path: z.string().optional(),
   image_variants: z.array(productImageVariantSchema).optional(),
@@ -96,6 +97,7 @@ export const storefrontExperienceSchema = z.object({
 export type ProductRecord = z.infer<typeof productSchema>;
 export type ProductCatalog = z.infer<typeof productCatalogSchema>;
 export type CategoryRecord = z.infer<typeof categoryRecordSchema>;
+export type NavGroupRecord = z.infer<typeof navGroupRecordSchema>;
 export type CategoryRegistry = z.infer<typeof categoryRegistrySchema>;
 export type StorefrontExperience = z.infer<typeof storefrontExperienceSchema>;
 export type StorefrontBundleRecord = z.infer<typeof storefrontBundleSchema>;

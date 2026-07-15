@@ -978,8 +978,6 @@ body.service-dialog-open {
   height: 208px;
   object-fit: contain;
   backface-visibility: hidden;
-  transform: translateZ(0);
-  will-change: transform;
 }
 
 /* Improve image rounding continuity */

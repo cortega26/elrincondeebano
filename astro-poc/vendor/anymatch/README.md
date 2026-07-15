@@ -16,6 +16,7 @@ vendored copy is used instead of the upstream package.
 ## Changes from upstream
 
 Only `package.json` was modified:
+
 - `"picomatch": "^2.0.4"` → `"picomatch": "^4.0.4"`
 
 Source code (`index.js`) is identical to upstream anymatch 3.1.3.

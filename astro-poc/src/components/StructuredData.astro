@@ -3,6 +3,8 @@
 // Reemplaza tools/inject-structured-data.js con generación nativa en Astro.
 // Soporta: Organization, LocalBusiness, WebSite, BreadcrumbList, Product, ItemList.
 
+import { safeScriptJSON } from '../lib/serialization';
+
 export interface StructuredDataProduct {
   sku: string;
   name: string;
@@ -186,4 +188,4 @@ const jsonLd = {
 };
 ---
 
-<script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
+<script type="application/ld+json" set:html={safeScriptJSON(jsonLd)}></script>

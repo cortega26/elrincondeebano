@@ -6,58 +6,21 @@ import rawCategories from '../data/categories.json';
 import rawStorefrontExperience from '../data/storefront-experience.json';
 import rawStorefrontBundles from '../data/storefront-bundles.json';
 import { getProductSku as getSharedProductSku, normalizeIdentity } from './product-identity';
+import type {
+  ProductRecord,
+  ProductCatalog,
+  CategoryRecord,
+  NavGroupRecord,
+  CategoryRegistry,
+  StorefrontTrustItem,
+  StorefrontBundleRecord,
+} from './data-schemas';
+import type { StorefrontExperience as StorefrontExperienceData } from './data-schemas';
 
 export type ProductImageVariant = {
   src?: string;
   url?: string;
   width?: number;
-};
-
-export type ProductRecord = {
-  name: string;
-  description?: string;
-  price?: number;
-  discount?: number;
-  stock?: boolean;
-  category: string;
-  image_path?: string;
-  image_avif_path?: string;
-  image_variants?: ProductImageVariant[];
-  thumbnail_path?: string;
-  thumbnail_variants?: ProductImageVariant[];
-  order?: number;
-  is_archived?: boolean;
-  [key: string]: unknown;
-};
-
-export type ProductCatalog = {
-  version?: string;
-  last_updated?: string;
-  rev?: number;
-  products: ProductRecord[];
-};
-
-export type CategoryRecord = {
-  id: string;
-  key: string;
-  slug: string;
-  display_name?: { default?: string };
-  nav_group?: string;
-  active?: boolean;
-  sort_order?: number;
-  description?: string;
-};
-
-export type NavGroupRecord = {
-  id: string;
-  display_name?: { default?: string };
-  active?: boolean;
-  sort_order?: number;
-};
-
-export type CategoryRegistry = {
-  nav_groups: NavGroupRecord[];
-  categories: CategoryRecord[];
 };
 
 export type ProductWithSku = {
@@ -82,45 +45,19 @@ export type ProductReference = {
   name: string;
 };
 
-export type StorefrontTrustItem = {
-  label: string;
-  value: string;
-};
-
-export type StorefrontBundleRecord = {
-  id: string;
-  title: string;
-  description: string;
-  items: ProductReference[];
-  /** Optional fixed sale price for the bundle (CLP). When set, used instead of sum of items. */
-  bundlePrice?: number;
-};
-
 export type StorefrontCompanionRule = {
   sourceCategories: string[];
   targets: ProductReference[];
 };
 
-export type StorefrontExperience = {
-  trustBar: {
-    highlights: StorefrontTrustItem[];
-    statusItems: StorefrontTrustItem[];
-  };
-  home: {
-    primaryCategories: string[];
-    secondaryCategories: string[];
-    fallbackQuickPicks: ProductReference[];
-    featuredStaples: ProductReference[];
-  };
+export type StorefrontExperience = StorefrontExperienceData & {
   bundles: StorefrontBundleRecord[];
   companionRules: StorefrontCompanionRule[];
 };
 
 export type StorefrontBundle = StorefrontBundleRecord & {
   itemsResolved: ProductWithSku[];
-  /** Sum of individual item prices (after per-item discounts). */
   totalPrice: number;
-  /** Savings percentage relative to totalPrice when bundlePrice is set (0 otherwise). */
   savingsPercent: number;
 };
 
@@ -128,6 +65,16 @@ export type ResponsiveImageSource = {
   src: string;
   srcset?: string;
   sizes?: string;
+};
+
+export type {
+  ProductRecord,
+  ProductCatalog,
+  CategoryRecord,
+  NavGroupRecord,
+  CategoryRegistry,
+  StorefrontTrustItem,
+  StorefrontBundleRecord,
 };
 
 const PLACEHOLDER_IMAGE_URL = '/assets/images/web/placeholder.svg';
@@ -371,6 +318,7 @@ export function getProductsWithSku(): ProductWithSku[] {
     const sku = nextCount === 1 ? baseSku : `${baseSku}-${nextCount}`;
     return { sku, product };
   });
+  cachedProductsByCategory = null;
 
   return cachedProductsWithSku;
 }
@@ -452,10 +400,6 @@ export function getHomeSecondaryCategories(): NavGroup['categories'] {
   return resolveHomeCategories(storefrontExperience.home.secondaryCategories);
 }
 
-export function getHomeHighlightedCategories(): NavGroup['categories'] {
-  return getHomePrimaryCategories();
-}
-
 export function getHomeFeaturedDeals(): ProductWithSku[] {
   return [...getProductsWithSku()]
     .filter(({ product }) => Number(product.discount) > 0)
@@ -516,12 +460,24 @@ export function getStorefrontCompanionRules(): StorefrontCompanionRule[] {
   return storefrontExperience.companionRules || [];
 }
 
+let cachedProductsByCategory: Map<string, ProductWithSku[]> | null = null;
+
 export function getCategoryKeys(): string[] {
   return getActiveCategories().map((category) => category.key);
 }
 
 export function getProductsByCategory(categoryKey: string): ProductWithSku[] {
-  return getProductsWithSku().filter(({ product }) => product.category === categoryKey);
+  if (!cachedProductsByCategory) {
+    cachedProductsByCategory = new Map();
+    for (const item of getProductsWithSku()) {
+      const cat = item.product.category;
+      if (!cachedProductsByCategory.has(cat)) {
+        cachedProductsByCategory.set(cat, []);
+      }
+      cachedProductsByCategory.get(cat)!.push(item);
+    }
+  }
+  return cachedProductsByCategory.get(categoryKey) || [];
 }
 
 export function getProductBySku(sku: string): ProductWithSku | undefined {

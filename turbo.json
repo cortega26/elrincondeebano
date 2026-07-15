@@ -3,6 +3,14 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
+      "inputs": [
+        "astro-poc/src/**",
+        "astro-poc/astro.config.mjs",
+        "astro-poc/public/**",
+        "astro-poc/package.json",
+        "data/**",
+        "assets/**"
+      ],
       "outputs": ["dist/**", "astro-poc/dist/**"],
       "cache": true
     },

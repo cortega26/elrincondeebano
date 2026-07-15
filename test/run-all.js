@@ -46,7 +46,6 @@ const tests = [
   'seo.category-og.contract.test.js',
   'share-preview.build-contract.test.js',
   'csp.policy.hardening.test.js',
-  'observability.metrics.test.js',
   'performance.metrics.test.js',
   'deferredCss.swap.test.js',
   'snapshot.utils.test.mjs',

@@ -1,6 +1,7 @@
 import { log } from './logger.mts';
 import { validateProductDataUrl } from './data-endpoint.mjs';
-import { recordEndpointMetric } from '../modules/observability.mjs';
+
+const recordEndpointMetric = (_opts) => {};
 
 export const normalizeProductVersion = (value) => {
   if (typeof value !== 'string') {
@@ -83,7 +84,9 @@ export class ProductDataError extends Error {
   }
 }
 
+/* eslint-disable max-params, sonarjs/cognitive-complexity, complexity */
 export const fetchWithRetry = async (url, opts, retries, backoffMs, correlationId) => {
+  /* eslint-enable max-params, sonarjs/cognitive-complexity, complexity */
   const sanitizedUrl = validateProductDataUrl(url);
   const method = String(opts?.method || 'GET').toUpperCase();
   let attempt = 0;

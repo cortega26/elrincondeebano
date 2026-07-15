@@ -77,9 +77,7 @@ de exceder 8000 chars.
 **Verificar en el spike**:
 
 ```js
-const sampleCart = [
-  /* 10 items reales del catálogo */
-];
+const sampleCart = [/* 10 items reales del catálogo */];
 const encoded = btoa(JSON.stringify(sampleCart));
 console.log(`URL length: ${encoded.length} chars`);
 ```

@@ -1,0 +1,13 @@
+dist/
+build/
+coverage/
+reports/
+.stryker-tmp/
+.turbo/
+astro-poc/dist/
+astro-poc/.astro/
+node_modules/
+package-lock.json
+astro-poc/package-lock.json
+_archive/
+_products/

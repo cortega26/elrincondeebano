@@ -164,7 +164,14 @@ function loadCart() {
 }
 
 function saveCart(cart) {
-  return storefrontStorage.saveJson('cart', sanitizeCart(cart));
+  const saved = storefrontStorage.saveJson('cart', sanitizeCart(cart));
+  try {
+    var serialized = JSON.stringify(cart);
+    globalThis.localStorage?.setItem('cart', serialized);
+  } catch (_e) {
+    /* ignorar error de quota en la key legacy */
+  }
+  return saved;
 }
 
 function showCartSaveError() {
@@ -346,9 +353,7 @@ function loadPreferredPayment() {
 }
 
 function savePreferredPayment(value) {
-  if (value) {
-    storefrontStorage.saveJson('preferredPayment', value);
-  }
+  storefrontStorage.saveJson('preferredPayment', value);
 }
 
 function loadSubstitutionPreference() {
@@ -356,9 +361,7 @@ function loadSubstitutionPreference() {
 }
 
 function saveSubstitutionPreference(value) {
-  if (value) {
-    storefrontStorage.saveJson('substitutionPreference', value);
-  }
+  storefrontStorage.saveJson('substitutionPreference', value);
 }
 
 function initServiceOnboarding() {
@@ -722,18 +725,23 @@ function getCompanionProducts(cart, companionRules) {
     }
 
     const targets = Array.isArray(rule?.targets) ? rule.targets : [];
-    targets.forEach((target) => {
-      const product = [...getProductCardMap().values()]
-        .map((card) => getProductFromCard(card))
-        .find((entry) => {
-          if (!entry || entry.stock === false) {
-            return false;
-          }
-          return (
-            normalizeSearchText(entry.category) === normalizeSearchText(target?.category) &&
-            normalizeSearchText(entry.name) === normalizeSearchText(target?.name)
-          );
-        });
+    var productByKey = new Map();
+    getProductCardMap().forEach(function (card) {
+      var product = getProductFromCard(card);
+      if (product && product.stock !== false) {
+        var key = normalizeSearchText(product.category) + '::' + normalizeSearchText(product.name);
+        if (!productByKey.has(key)) {
+          productByKey.set(key, product);
+        }
+      }
+    });
+
+    targets.forEach(function (target) {
+      var key =
+        normalizeSearchText(target?.category || '') +
+        '::' +
+        normalizeSearchText(target?.name || '');
+      var product = productByKey.get(key);
 
       if (!product || idsInCart.has(product.id) || seen.has(product.id)) {
         return;
@@ -1605,9 +1613,11 @@ function initStorefront() {
       return;
     }
 
+    let _removedItem = null;
+
     if (quantity <= 0) {
       if (index >= 0) {
-        cart.splice(index, 1);
+        _removedItem = cart.splice(index, 1)[0] || null;
       }
     } else if (index >= 0) {
       // Verificar stock antes de incrementar
@@ -1627,7 +1637,9 @@ function initStorefront() {
     if (!saved) {
       log('warn', 'cart_save_failed', { reason: 'localStorage_quota' });
       // Restaurar estado anterior
-      if (index >= 0 && previousQuantity > 0) {
+      if (_removedItem) {
+        cart.splice(index, 0, _removedItem);
+      } else if (index >= 0 && previousQuantity > 0) {
         cart[index].quantity = previousQuantity;
       } else if (index >= 0 && previousQuantity <= 0) {
         cart.splice(index, 1);

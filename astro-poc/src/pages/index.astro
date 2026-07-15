@@ -4,6 +4,7 @@ import CategoryStrip from '../components/CategoryStrip.astro';
 import HomeBundlesSection from '../components/HomeBundlesSection.astro';
 import HomeProductSection from '../components/HomeProductSection.astro';
 import ServiceGuideDialog from '../components/ServiceGuideDialog.astro';
+import { safeScriptJSON } from '../lib/serialization';
 import {
   getHomeFeaturedDeals,
   getHomeFeaturedStaples,
@@ -179,6 +180,6 @@ const sharePreview = createSharePreviewMetadata({
     is:inline
     id="storefront-experience-data"
     type="application/json"
-    set:html={JSON.stringify(storefrontExperience)}
+    set:html={safeScriptJSON(storefrontExperience)}
   ></script>
 </BaseLayout>

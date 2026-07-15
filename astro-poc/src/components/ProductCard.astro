@@ -1,7 +1,7 @@
 ---
 import type { ProductWithSku } from '../lib/catalog';
-import { getProductCardImageSource } from '../lib/catalog';
 import { formatCurrency } from '../lib/formatting';
+import { computeProductCardData } from '../lib/product-card-helpers';
 
 export interface Props {
   item: ProductWithSku;
@@ -14,15 +14,16 @@ const { product, sku } = item;
 const { index = 0 } = Astro.props;
 const { compactMobile = false } = Astro.props;
 const isLikelyLcp = index === 0;
-const price = typeof product.price === 'number' ? product.price : 0;
-const discount = typeof product.discount === 'number' ? product.discount : 0;
-const finalPrice = Math.max(price - discount, 0);
-const hasDiscount = discount > 0 && price > 0 && finalPrice < price;
-const discountPercent = hasDiscount ? Math.round((discount / price) * 100) : 0;
-const image = getProductCardImageSource(product.image_path);
-const avifImage = getProductCardImageSource(product.image_avif_path);
-const hasAvifSource = typeof avifImage.srcset === 'string' && avifImage.srcset.length > 0;
-const searchText = [product.name, product.description, product.category].filter(Boolean).join(' ');
+const card = computeProductCardData(product, index);
+const price = card.price;
+const discount = card.discount;
+const finalPrice = card.finalPrice;
+const hasDiscount = card.hasDiscount;
+const discountPercent = card.discountPercent;
+const searchText = card.searchText;
+const image = card.imageSource;
+const avifImage = card.avifImageSource;
+const hasAvifSource = typeof avifImage?.srcset === 'string' && avifImage.srcset.length > 0;
 ---
 
 <article
