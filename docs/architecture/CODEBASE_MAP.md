@@ -101,14 +101,14 @@ Typecheck scope is declared in [tsconfig.typecheck.json](../../tsconfig.typechec
 | `secret-scan.yml`                      | push/PR, weekly cron, manual              | Credential scan on versioned files             |
 | `security-audit.yml`                   | weekly cron, manual                       | `npm audit`/`pip-audit` supply-chain checks    |
 | `admin.yml`                            | changes in `admin/**`                     | Python pytest for admin tooling                |
-| `post-deploy-canary.yml`               | PR `main`, post-deploy, manual            | Canary contract + live probe (self-hosted)     |
+| `post-deploy-canary.yml`               | PR `main`, post-deploy, manual            | Canary contract + live probe                   |
 | `live-contract-monitor.yml`            | daily cron, manual                        | Live site health + security headers check      |
 | `dependency-review.yml`                | PR                                        | Supply chain review                            |
 | `product-data-guard.yml`               | changes in `data/product_data.json`       | Product data contract validation               |
 | `rollback.yml`                         | manual                                    | Orchestrated rollback                          |
 | `cloudflare-edge-security-headers.yml` | manual                                    | Deploy Cloudflare Workers security headers     |
 
-**Note:** Live probes run on a **self-hosted runner** (Linux x64) to avoid Cloudflare 403 challenges on GitHub-hosted runners (ADR-0004).
+**Note:** Live probes use **GitHub-hosted `ubuntu-24.04`** runners. Cloudflare challenge behaviour was resolved by the 2026-07 migration away from self-hosted runners (ADR-0004 superseding note).
 
 `docs/repo/ACTIVE_SURFACES.json` is the machine-readable companion to this map; update both together when changing canonical entry points or workflow ownership.
 
@@ -123,7 +123,7 @@ These are non-negotiable rules derived from the ADRs. Violating them will break 
 | Never skip preflight before Astro build                                         | ADR-0005  | Missing OG images, broken category pages     |
 | `data/` and `assets/` are read-only build inputs — tools must not write back    | ADR-0005  | Data corruption, non-deterministic builds    |
 | `astro-poc/` is the canonical runtime; legacy `pages/` path is archived         | ADR-0003  | Deploying wrong artifact                     |
-| Self-hosted runner required for live-contract probes                            | ADR-0004  | False 403 failures in CI                     |
+| Live probes run on GitHub-hosted `ubuntu-24.04` runners                         | ADR-0004  | N/A — migration completed 2026-07            |
 | `npm ci` mandatory in CI; `npm install` forbidden when lockfile is present      | AGENTS.md | Non-deterministic dependency trees           |
 | `SYNC_API_REQUIRE_AUTH=true` + `SYNC_API_TOKEN` required in production Sync API | AGENTS.md | Unauthenticated write access to product data |
 

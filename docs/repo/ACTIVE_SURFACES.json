@@ -1,11 +1,7 @@
 {
   "runtime": {
     "canonical_app": "astro-poc",
-    "browser_entrypoints": [
-      "astro-poc/src/scripts/storefront.js",
-      "src/js/modules/app-bootstrap.mjs",
-      "src/js/modules/product-data-manager.mjs"
-    ]
+    "browser_entrypoints": ["astro-poc/src/scripts/storefront.js"]
   },
   "docs": {
     "bootstrap": "docs/onboarding/BOOTSTRAP.md",

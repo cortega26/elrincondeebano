@@ -33,7 +33,7 @@
 - **Expected behavior:** the public HTML routes at `https://www.elrincondeebano.com/` and `/pages/bebidas.html` must emit the hardening baseline documented in [`EDGE_SECURITY_HEADERS`](./EDGE_SECURITY_HEADERS.md) and must not include `rocket-loader.min.js`, `/cdn-cgi/challenge-platform/`, or script references to `cdn.jsdelivr.net`.
 - **Cloudflare Insights constraint:** the only acceptable analytics surface is the external `https://static.cloudflareinsights.com/beacon.min.js` beacon. Inline Cloudflare Insights bootstrap snippets are treated as edge drift and should be removed rather than whitelisted in CSP.
 - **Important constraint:** the content deploy path is GitHub Pages; fixing the issue requires Cloudflare or equivalent edge configuration, not a rebuild of `astro-poc/dist`.
-- **Runner constraint:** since the 2026-03-29 incident, the scheduled `Live Contract Monitor` runs only from the allowed self-hosted runner. GitHub-hosted probes may receive Cloudflare-managed `403` challenge pages that do not reflect the public contract.
+- **Runner:** the `Live Contract Monitor` and `Post-Deploy Canary` workflows use GitHub-hosted `ubuntu-24.04` runners (migrated 2026-07). Cloudflare challenge behaviour observed before migration no longer applies.
 - **Probe behavior:** the live monitor retries transient edge-style failures (`403` challenge pages, `429`, `5xx`, timeout/network) before opening an incident, and the JSON report records `cf-ray`, attempt count, retry reason, and any disallowed HTML surface findings for triage.
 - **Steps:**
   1. Confirm the failure with:
@@ -206,8 +206,8 @@ Fallback sin `node` en PATH: `npx -y node@24 "C:\Program Files\nodejs\node_modul
 - **`Continuous Integration`** (`.github/workflows/ci.yml`) — push/PR a `main` (excluye `admin/**`). Node 24.x: lint root + Astro, build, guardrails, unit tests, E2E, smoke, Lighthouse.
 - **`Quality Gates`** (`.github/workflows/quality-gates.yml`) — push/PR a `main`, cron semanal y manual. Verifica complejidad, vulnerabilidades, scripts shell, workflows y Markdown.
 - **`Security Audits`** (`.github/workflows/security-audit.yml`) — cron semanal / manual. Node 24.x en las superficies npm; `pip-audit` para el tooling Python.
-- **`Post-Deploy Canary`** (`.github/workflows/post-deploy-canary.yml`) — PR a `main`, `workflow_run` post-deploy. Live probe solo en runner self-hosted; modo estricto de headers en `/` y `/pages/bebidas.html`.
-- **`Live Contract Monitor`** (`.github/workflows/live-contract-monitor.yml`) — cron diario. Runner self-hosted (Cloudflare puede challengear runners GitHub-hosted con `403`). Abre/actualiza issue si falla el baseline de headers y exige `gh` CLI presente en el runner.
+- **`Post-Deploy Canary`** (`.github/workflows/post-deploy-canary.yml`) — PR a `main`, `workflow_run` post-deploy. Live probe en GitHub-hosted `ubuntu-24.04`; modo estricto de headers en `/` y `/pages/bebidas.html`.
+- **`Live Contract Monitor`** (`.github/workflows/live-contract-monitor.yml`) — cron diario. GitHub-hosted `ubuntu-24.04`. Abre/actualiza issue si falla el baseline de headers.
 - **`Admin Tools CI`** (`.github/workflows/admin.yml`) — cambios en `admin/**`. Python 3.12, pytest.
 
 ## Playbooks
