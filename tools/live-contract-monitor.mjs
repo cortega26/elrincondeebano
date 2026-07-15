@@ -15,6 +15,7 @@ const DEFAULT_SAMPLE_SIZE = 20;
 const DEFAULT_MAX_ATTEMPTS = 3;
 const DEFAULT_RETRY_DELAY_MS = 750;
 const FAILURE_SNIPPET_MAX_LENGTH = 220;
+const PRODUCT_DATA_ROUTE = '/data/product_data.json';
 const ALLOWED_PROBE_HOSTS = new Set(['www.elrincondeebano.com', 'elrincondeebano.com']);
 const PROBE_REQUEST_HEADERS = Object.freeze({
   accept:
@@ -40,7 +41,7 @@ const KEY_ROUTES = [
   '/sitemap.xml',
   '/404.html',
   '/service-worker.js',
-  '/data/product_data.json',
+  PRODUCT_DATA_ROUTE,
 ];
 
 const PRODUCT_ASSET_FIELDS = ['image_path', 'image_avif_path', 'thumbnail_path'];
@@ -140,6 +141,13 @@ function looksLikeCloudflareChallenge(bodySnippet) {
   );
 }
 
+function isCloudflareChallengeResponse(result) {
+  return (
+    String(result?.cfMitigated || '').toLowerCase() === 'challenge' ||
+    looksLikeCloudflareChallenge(result?.bodySnippet)
+  );
+}
+
 function classifyRetryableFailure(result) {
   if (!result || result.ok) {
     return '';
@@ -157,14 +165,8 @@ function classifyRetryableFailure(result) {
     return 'transient upstream or edge error';
   }
 
-  const server = String(result.server || '').toLowerCase();
-  const cloudflareManaged =
-    server.includes('cloudflare') ||
-    Boolean(result.cfRay) ||
-    looksLikeCloudflareChallenge(result.bodySnippet);
-
-  if (result.status === 403 && cloudflareManaged) {
-    return 'possible Cloudflare-managed challenge';
+  if (result.status === 403 && isCloudflareChallengeResponse(result)) {
+    return 'Cloudflare-managed challenge';
   }
 
   return '';
@@ -185,11 +187,13 @@ async function executeProbe(
       finalUrl: response.url,
       server: response.headers.get('server') || '',
       cfRay: response.headers.get('cf-ray') || '',
+      cfMitigated: response.headers.get('cf-mitigated') || '',
       contentType,
       bodySnippet: '',
-      securityHeaders: shouldInspectSecurityHeaders
-        ? inspectSecurityHeaders(response.headers)
-        : null,
+      securityHeaders:
+        response.status === 200 && shouldInspectSecurityHeaders
+          ? inspectSecurityHeaders(response.headers)
+          : null,
       htmlSurface: null,
       error: '',
     };
@@ -211,6 +215,7 @@ async function executeProbe(
       finalUrl: '',
       server: '',
       cfRay: '',
+      cfMitigated: '',
       contentType: '',
       bodySnippet: '',
       securityHeaders: null,
@@ -274,6 +279,7 @@ export async function checkUrl(baseUrl, routeOrPath, timeoutMs, options = {}) {
       contentType: probeResult.contentType,
       error: probeResult.error,
       bodySnippet: probeResult.bodySnippet,
+      cfMitigated: probeResult.cfMitigated,
       retryReason,
     });
 
@@ -284,6 +290,7 @@ export async function checkUrl(baseUrl, routeOrPath, timeoutMs, options = {}) {
         attemptCount: attempts.length,
         retried: attempts.length > 1,
         retryReason,
+        observerBlocked: isCloudflareChallengeResponse(probeResult),
         retryHistory: attempts,
       };
     }
@@ -333,14 +340,12 @@ export async function runMonitor({
     );
   }
 
-  const productDataResult = routeResults.find((result) =>
-    result.url.endsWith('/data/product_data.json')
-  );
+  const productDataResult = routeResults.find((result) => result.url.endsWith(PRODUCT_DATA_ROUTE));
   const assetResults = [];
   let sampledAssets = [];
 
   if (productDataResult?.ok) {
-    const productDataUrl = resolveProbeUrl(baseUrl, '/data/product_data.json');
+    const productDataUrl = resolveProbeUrl(baseUrl, PRODUCT_DATA_ROUTE);
     const productPayload = await (
       await fetchWithTimeout(productDataUrl, normalizedTimeoutMs)
     ).json();
@@ -368,16 +373,26 @@ export async function runMonitor({
   }
 
   const availabilityFailures = [...routeResults, ...assetResults].filter((result) => !result.ok);
+  const observerBlockedFailures = availabilityFailures.filter((result) => result.observerBlocked);
+  const confirmedAvailabilityFailures = availabilityFailures.filter(
+    (result) => !result.observerBlocked
+  );
   const securityHeaderFailures = routeResults
     .filter((result) => result.securityHeaders && !result.securityHeaders.ok)
     .map(summarizeSecurityHeaderFailure);
   const htmlSurfaceFailures = routeResults
     .filter((result) => result.htmlSurface && !result.htmlSurface.ok)
     .map(summarizePublicHtmlFailure);
-  const success =
-    availabilityFailures.length === 0 &&
-    htmlSurfaceFailures.length === 0 &&
-    (!requireSecurityHeaders || securityHeaderFailures.length === 0);
+  const hasConfirmedFailure =
+    confirmedAvailabilityFailures.length > 0 ||
+    htmlSurfaceFailures.length > 0 ||
+    (requireSecurityHeaders && securityHeaderFailures.length > 0);
+  const monitorStatus = hasConfirmedFailure
+    ? 'failed'
+    : observerBlockedFailures.length > 0
+      ? 'inconclusive'
+      : 'passed';
+  const success = monitorStatus === 'passed';
   const report = {
     generatedAt: new Date().toISOString(),
     startedAt,
@@ -392,6 +407,8 @@ export async function runMonitor({
     routeResults,
     assetResults,
     failures: availabilityFailures,
+    confirmedAvailabilityFailures,
+    observerBlockedFailures,
     securityHeaderBaselineRoutes: SECURITY_HEADER_BASELINE_ROUTES,
     securityHeaderFailures,
     htmlSurfaceBaselineRoutes: SECURITY_HEADER_BASELINE_ROUTES,
@@ -399,14 +416,18 @@ export async function runMonitor({
     availabilityOk: availabilityFailures.length === 0,
     securityHeadersOk: securityHeaderFailures.length === 0,
     htmlSurfaceOk: htmlSurfaceFailures.length === 0,
+    conclusive: monitorStatus !== 'inconclusive',
+    monitorStatus,
     success,
   };
 
   writeJsonReport(reportPath, report);
   console.log(JSON.stringify(report, null, 2));
 
-  if (availabilityFailures.length > 0) {
-    throw new Error(`Live contract monitor found ${availabilityFailures.length} failing probe(s).`);
+  if (confirmedAvailabilityFailures.length > 0) {
+    throw new Error(
+      `Live contract monitor found ${confirmedAvailabilityFailures.length} confirmed failing probe(s).`
+    );
   }
 
   if (requireSecurityHeaders && securityHeaderFailures.length > 0) {

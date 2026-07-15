@@ -30,9 +30,10 @@ jobs:
 
       - name: Run live contract monitor
         id: monitor
-        continue-on-error: true
+        shell: bash
         run: |
           mkdir -p reports/live-contract
+          set +e
           node tools/live-contract-monitor.mjs \
             --timeout-ms "15000" \
             --sample-size "20" \
@@ -40,6 +41,16 @@ jobs:
             --retry-delay-ms "1000" \
             --require-security-headers \
             --report reports/live-contract/latest.json
+          command_status="$?"
+          set -e
+
+          if [ ! -f reports/live-contract/latest.json ]; then
+            echo "status=failed" >> "$GITHUB_OUTPUT"
+            exit "$command_status"
+          fi
+
+          monitor_status="$(node -p "JSON.parse(require('fs').readFileSync('reports/live-contract/latest.json', 'utf8')).monitorStatus || 'failed'")"
+          echo "status=$monitor_status" >> "$GITHUB_OUTPUT"
 
       - name: Upload live monitor artifact
         if: always()
@@ -54,7 +65,7 @@ jobs:
         shell: bash
         run: |
           if [ -f reports/live-contract/latest.json ]; then
-            node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync('reports/live-contract/latest.json','utf8')); console.log('## Live Contract Monitor'); console.log(''); console.log('- Base URL: ' + r.baseUrl); console.log('- Runner: github-hosted'); console.log('- Key routes checked: ' + r.keyRouteCount); console.log('- Assets sampled: ' + r.sampledAssetCount); console.log('- Availability failures: ' + r.failures.length); console.log('- Security header failures: ' + r.securityHeaderFailures.length); console.log('- HTML surface failures: ' + (r.htmlSurfaceFailures || []).length); console.log('- Strict security mode: ' + (r.requireSecurityHeaders ? 'enabled' : 'disabled')); console.log('- Result: ' + (r.success ? '✅ PASS' : '❌ FAIL'));" >> "$GITHUB_STEP_SUMMARY"
+            node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync('reports/live-contract/latest.json','utf8')); const icon=r.monitorStatus==='passed'?'✅':r.monitorStatus==='inconclusive'?'⚠️':'❌'; console.log('## Live Contract Monitor'); console.log(''); console.log('- Base URL: ' + r.baseUrl); console.log('- Runner: github-hosted'); console.log('- Key routes checked: ' + r.keyRouteCount); console.log('- Assets sampled: ' + r.sampledAssetCount); console.log('- Confirmed availability failures: ' + (r.confirmedAvailabilityFailures || []).length); console.log('- Observer-blocked probes: ' + (r.observerBlockedFailures || []).length); console.log('- Security header failures: ' + r.securityHeaderFailures.length); console.log('- HTML surface failures: ' + (r.htmlSurfaceFailures || []).length); console.log('- Strict security mode: ' + (r.requireSecurityHeaders ? 'enabled' : 'disabled')); console.log('- Result: ' + icon + ' ' + String(r.monitorStatus || 'failed').toUpperCase());" >> "$GITHUB_STEP_SUMMARY"
           else
             {
               echo "## Live Contract Monitor"
@@ -75,7 +86,7 @@ jobs:
           fi
 
       - name: Ensure live-contract-monitor label exists
-        if: ${{ steps.monitor.outcome == 'failure' || steps.monitor.outcome == 'success' }}
+        if: ${{ always() && steps.monitor.outputs.status != '' }}
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -86,25 +97,26 @@ jobs:
             --force
 
       - name: Open or update failure issue
-        if: ${{ steps.monitor.outcome == 'failure' }}
+        if: ${{ steps.monitor.outputs.status == 'failed' || steps.monitor.outputs.status == 'inconclusive' }}
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           ISSUE_NUMBER="$(gh issue list --state open --label live-contract-monitor --json number --jq '.[0].number')"
-          FAILURE_BODY="$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync('reports/live-contract/latest.json','utf8')); const availability=r.failures.slice(0,20).map(f=>{ const details=[f.error ? 'error=' + f.error : '', f.server ? 'server=' + f.server : '', f.cfRay ? 'cf-ray=' + f.cfRay : '', Number.isFinite(f.attemptCount) ? 'attempts=' + f.attemptCount : '', f.retryReason ? 'retry=' + f.retryReason : ''].filter(Boolean).join(', '); return '- availability: ' + f.status + ' ' + f.url + (details ? ' (' + details + ')' : ''); }); const headers=r.securityHeaderFailures.slice(0,20).map(f=>'- headers: ' + f.url + ' missing=[' + f.missing.join(', ') + '] invalid=[' + f.invalid.join(', ') + ']'); const html=(r.htmlSurfaceFailures || []).slice(0,20).map(f=>'- html-surface: ' + f.url + ' findings=[' + f.findings.join(', ') + ']'); console.log(['Live contract monitor detected failures.','','Run: ' + process.env.GITHUB_SERVER_URL + '/' + process.env.GITHUB_REPOSITORY + '/actions/runs/' + process.env.GITHUB_RUN_ID,'Generated at: ' + r.generatedAt,'Availability failures: ' + r.failures.length,'Security header failures: ' + r.securityHeaderFailures.length,'HTML surface failures: ' + (r.htmlSurfaceFailures || []).length,'Strict security mode: ' + (r.requireSecurityHeaders ? 'enabled' : 'disabled'),'','Failure summary:',...availability,...headers,...html].join('\n'));")"
+          ISSUE_TITLE="$(node -p "const r=JSON.parse(require('fs').readFileSync('reports/live-contract/latest.json','utf8')); r.monitorStatus === 'inconclusive' ? 'Live Contract Monitor blocked by Cloudflare' : 'Live Contract Monitor failure'")"
+          FAILURE_BODY="$(node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync('reports/live-contract/latest.json','utf8')); const blocked=r.monitorStatus==='inconclusive'; const availability=(blocked?r.observerBlockedFailures:r.confirmedAvailabilityFailures).slice(0,20).map(f=>{ const details=[f.error ? 'error=' + f.error : '', f.server ? 'server=' + f.server : '', f.cfRay ? 'cf-ray=' + f.cfRay : '', f.cfMitigated ? 'cf-mitigated=' + f.cfMitigated : '', Number.isFinite(f.attemptCount) ? 'attempts=' + f.attemptCount : '', f.retryReason ? 'retry=' + f.retryReason : ''].filter(Boolean).join(', '); return '- availability: ' + f.status + ' ' + f.url + (details ? ' (' + details + ')' : ''); }); const headers=r.securityHeaderFailures.slice(0,20).map(f=>'- headers: ' + f.url + ' missing=[' + f.missing.join(', ') + '] invalid=[' + f.invalid.join(', ') + ']'); const html=(r.htmlSurfaceFailures || []).slice(0,20).map(f=>'- html-surface: ' + f.url + ' findings=[' + f.findings.join(', ') + ']'); console.log([blocked?'Cloudflare challenged the GitHub-hosted observer. This run is inconclusive; it does not demonstrate a production outage.':'Live contract monitor detected confirmed failures.','', 'Run: ' + process.env.GITHUB_SERVER_URL + '/' + process.env.GITHUB_REPOSITORY + '/actions/runs/' + process.env.GITHUB_RUN_ID,'Generated at: ' + r.generatedAt,'Status: ' + r.monitorStatus,'Confirmed availability failures: ' + r.confirmedAvailabilityFailures.length,'Observer-blocked probes: ' + r.observerBlockedFailures.length,'Security header failures: ' + r.securityHeaderFailures.length,'HTML surface failures: ' + (r.htmlSurfaceFailures || []).length,'Strict security mode: ' + (r.requireSecurityHeaders ? 'enabled' : 'disabled'),'','Current evidence:',...availability,...headers,...html].join('\n'));")"
 
           if [ -n "$ISSUE_NUMBER" ]; then
-            gh issue comment "$ISSUE_NUMBER" --body "$FAILURE_BODY"
+            gh issue edit "$ISSUE_NUMBER" --title "$ISSUE_TITLE" --body "$FAILURE_BODY"
           else
             gh issue create \
-              --title "Live Contract Monitor failure" \
+              --title "$ISSUE_TITLE" \
               --body "$FAILURE_BODY" \
               --label live-contract-monitor
           fi
 
       - name: Close existing monitor issue when healthy
-        if: ${{ steps.monitor.outcome == 'success' }}
+        if: ${{ steps.monitor.outputs.status == 'passed' }}
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -116,5 +128,9 @@ jobs:
           fi
 
       - name: Fail job when monitor fails
-        if: ${{ steps.monitor.outcome == 'failure' }}
+        if: ${{ steps.monitor.outputs.status == 'failed' }}
         run: exit 1
+
+      - name: Warn when the observer is challenged
+        if: ${{ steps.monitor.outputs.status == 'inconclusive' }}
+        run: echo "::warning::Cloudflare challenged the GitHub-hosted observer. The run is inconclusive, not a confirmed outage."
