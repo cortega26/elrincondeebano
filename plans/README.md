@@ -79,7 +79,7 @@ the conflict center.
 | Plan                                                    | Título                               | Priority | Effort | Depends on | Status |
 | ------------------------------------------------------- | ------------------------------------ | -------- | ------ | ---------- | ------ |
 | [039](039-characterize-product-manager-ui.md)           | Caracterizar workflows UI headlessly | P1       | M      | —          | DONE   |
-| [048](048-lock-product-manager-runtime-dependencies.md) | Bloquear dependencias runtime        | P2       | S      | —          | TODO   |
+| [048](048-lock-product-manager-runtime-dependencies.md) | Bloquear dependencias runtime        | P2       | S      | —          | DONE   |
 
 Run 039 first on the branch that will carry UI work. Plan 048 is file-disjoint
 from 039 and can run concurrently, but reconcile it with completed plan 034:

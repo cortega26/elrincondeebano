@@ -1,18 +1,9 @@
-# Top-level dependencies for admin tooling.
-# Reproducible versions are enforced via requirements.lock.txt in CI:
+# Runtime dependencies for the Content Manager GUI.
+# Install together with the dev-and-tooling requirements and the version lock:
+#   pip install -r requirements.txt -r requirements-dev.txt -c requirements.lock.txt
+# For a production-only environment (no testing/linting toolchain):
 #   pip install -r requirements.txt -c requirements.lock.txt
-pytest
-pytest-mock
-pylint>=4.0.6,<4.1
-# Keep astroid aligned with pylint 4.0.x to avoid resolver conflicts in CI.
-astroid>=4.0.2,<4.1
-ruff
 portalocker
-mypy
-pytest-cov
-pytest-xdist
-bandit
-pip-audit
-types-Pillow
 pillow-heif
 pillow-avif-plugin
+ttkbootstrap
