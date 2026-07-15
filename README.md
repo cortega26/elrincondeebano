@@ -47,6 +47,7 @@ npm run validate:release
 | Command                    | Use it for                                                                        |
 | -------------------------- | --------------------------------------------------------------------------------- |
 | `npm run build`            | Canonical production build: preflight, generated assets, then Astro               |
+| `npm run build:fast`       | Code-only build: skip preflight (images/data unchanged). See "Fast build" below   |
 | `npm run validate`         | Local confidence: lint, types, selector guard, tests, build, and asset guardrails |
 | `npm run validate:release` | Ship gate: release stages plus browser tests and the live share-preview probe     |
 | `npm run test:e2e`         | Canonical Playwright suite in `test/e2e-astro/`                                   |
@@ -73,6 +74,18 @@ data/ + assets/ + config/
 
 Always build from the repository root with `npm run build`. Calling Astro
 directly skips the shared preflight contract and can produce incomplete output.
+
+### Fast build (skip preflight)
+
+For code-only changes (CSS, TypeScript, Astro components) where catalog data
+and images haven't changed, use the fast build:
+
+```bash
+npm run build:fast
+```
+
+This skips the image generation pipeline and runs only the Astro build.
+Use `npm run build` (full) for CI and when catalog data or images have changed.
 
 ## Working in the repository
 
