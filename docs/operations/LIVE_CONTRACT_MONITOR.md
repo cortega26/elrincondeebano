@@ -126,17 +126,30 @@ Pasos:
    curl -sS  https://www.elrincondeebano.com/ | grep -o 'cdn-cgi/challenge-platform\|__CF$cv$params\|data-cf-beacon' | sort -u
    ```
 
-   - El CSP debe incluir el hash y `style-src 'self'` → arregla los hallazgos de headers.
-   - Si `/cdn-cgi/challenge-platform/` o el beacon **persisten tras el redeploy**, entonces
-     Cloudflare los inyecta aguas abajo del Worker (el Worker ya los sanea en su salida con
-     `sanitizePublicHtmlEdgeSurface`, pero el edge los reinyecta). Eso es ajuste de
-     **dashboard**, no de código:
-     - Challenge sensor (`__CF$cv$params`): Bot Fight Mode / detections de JS.
-     - Beacon de insights: Web Analytics con inyección automática → desactívala o migra al
-       snippet self-hosted (el hash de `script-src` ya lo contempla).
+   - El CSP debe incluir el hash y `style-src 'self'` → arregla los hallazgos de headers
+     (confirmado el 2026-07-15: el redeploy corrige el CSP de inmediato).
 
-No se puede decidir pre- vs post-Worker por análisis estático: es empírico. Redeplega
-primero y observa; solo si sobreviven, ve al dashboard.
+3. Corrige la superficie HTML en el **dashboard** (confirmado post-Worker: Cloudflare
+   inyecta estos scripts aguas abajo del Worker, con `cf-cache-status: DYNAMIC`, así que el
+   redeploy no los quita). No debilites el contrato; ajusta Cloudflare:
+   - **Bootstrap inline de insights** → Web Analytics: cambia de inyección _automática_ a
+     _manual_. Para conservar analítica, usa el beacon **externo**
+     (`static.cloudflareinsights.com/beacon.min.js`), que el contrato ya permite.
+   - **Sensor `/cdn-cgi/challenge-platform/` (`__CF$cv$params`)** → Security → Bots →
+     **JavaScript Detections: Off** (con Bot Fight Mode ya desactivado para el bypass).
+
+Por qué no se relaja el contrato: la regla de superficie HTML permite el beacon externo pero
+rechaza la inyección automática de Cloudflare. Eso es intencional; consulta
+[ADR 0008](../adr/0008-enforced-edge-security-contract.md).
+
+### Página offline y `style-src`
+
+`astro-poc/public/pages/offline.html` es autocontenida (CSS crítico inline, sin hoja externa)
+para renderizar sin red. Con `style-src 'self'` su estilo inline queda bloqueado, así que su
+hash está fijado en `OFFLINE_STYLE_HASH` dentro de
+[tools/security-header-policy.mjs](../../tools/security-header-policy.mjs). Si cambias esa
+página, actualiza el hash: el guard en `test/security-header-policy.test.js` lo recalcula y
+falla si no coincide. Es la única ruta con `<style>` inline; el resto usa CSS externo.
 
 ## Notas de seguridad
 

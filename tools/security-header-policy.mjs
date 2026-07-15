@@ -1,6 +1,13 @@
 export const SECURITY_HEADER_BASELINE_ROUTES = Object.freeze(['/', '/pages/bebidas.html']);
 const CSP_SELF = "'self'";
 const CSP_NONE = "'none'";
+// Hash of the inline critical CSS in the self-contained offline fallback page
+// (astro-poc/public/pages/offline.html), which must render with no network and
+// therefore cannot use an external stylesheet. Pinning the hash keeps style-src
+// strict ('self') instead of relaxing to 'unsafe-inline'. The drift guard in
+// security-header-policy.test.js recomputes this from the page and fails if the
+// offline CSS changes without this hash being updated.
+const OFFLINE_STYLE_HASH = "'sha256-txruc9PJz00ka/r40Dz/BjbfCBZ9ZbTqVda8f/oiI2k='";
 
 export const SECURITY_HEADER_POLICY = Object.freeze({
   'referrer-policy': 'strict-origin-when-cross-origin',
@@ -23,7 +30,7 @@ export const CONTENT_SECURITY_POLICY_DIRECTIVES = Object.freeze([
       "'sha256-SvXHAIPcJdE6zuH0y1Xb0AUS/ZJCmBwN7SfMfiEj578='",
     ],
   ],
-  ['style-src', [CSP_SELF]],
+  ['style-src', [CSP_SELF, OFFLINE_STYLE_HASH]],
   ['img-src', [CSP_SELF, 'data:', 'https:']],
   ['font-src', [CSP_SELF, 'data:']],
   [
