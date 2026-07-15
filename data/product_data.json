@@ -1,6 +1,6 @@
 {
-  "version": "20260614-174050",
-  "last_updated": "2026-06-14T17:40:50.693830",
+  "version": "20260715-142139",
+  "last_updated": "2026-07-15T14:21:39.945171",
   "rev": 0,
   "products": [
     {
@@ -3042,7 +3042,7 @@
       "description": "Botella de 1,5L",
       "price": 2800,
       "discount": 800,
-      "stock": true,
+      "stock": false,
       "category": "Aguas",
       "image_path": "assets/images/aguas/Shweppes - Agua Tonica 1,5L.webp",
       "image_avif_path": "assets/images/aguas/Shweppes - Agua Tonica 1,5L.avif",
@@ -3050,15 +3050,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "discount": {
-          "ts": "2026-01-26T22:04:57.006558Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2026-01-26T22:04:57.006558Z",
+        "stock": {
+          "ts": "2026-07-15T18:21:24.667536Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -4074,7 +4067,7 @@
       "name": "Benedictino • Agua gasificada 2,5L",
       "description": "Envase desechable",
       "price": 2200,
-      "discount": 200,
+      "discount": 0,
       "stock": true,
       "category": "Aguas",
       "image_path": "assets/images/aguas/Agua con gas 2,5L Benedictino.webp",
@@ -4083,57 +4076,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2026-03-30T18:28:36.549608Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2026-03-30T18:28:36.549608Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2026-03-30T18:28:36.549608Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "discount": {
-          "ts": "2026-03-30T18:28:36.549608Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "stock": {
-          "ts": "2026-03-30T18:28:36.549608Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2026-03-30T18:28:36.549608Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2026-03-30T18:28:36.549608Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2026-03-30T18:28:36.549608Z",
+          "ts": "2026-07-15T18:21:37.756256Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -4145,7 +4089,7 @@
       "name": "Benedictino • Agua sin gas 2,5L",
       "description": "Envase desechable",
       "price": 2200,
-      "discount": 200,
+      "discount": 0,
       "stock": true,
       "category": "Aguas",
       "image_path": "assets/images/aguas/Agua sin gas 2,5L Benedictino.webp",
@@ -4154,57 +4098,8 @@
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {
-        "name": {
-          "ts": "2026-03-30T18:29:11.533842Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "description": {
-          "ts": "2026-03-30T18:29:11.533842Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "price": {
-          "ts": "2026-03-30T18:29:11.533842Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
         "discount": {
-          "ts": "2026-03-30T18:29:11.533842Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "stock": {
-          "ts": "2026-03-30T18:29:11.533842Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "category": {
-          "ts": "2026-03-30T18:29:11.533842Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "image_path": {
-          "ts": "2026-03-30T18:29:11.533842Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
-          "changeset_id": null
-        },
-        "order": {
-          "ts": "2026-03-30T18:29:11.533842Z",
+          "ts": "2026-07-15T18:21:39.940571Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
@@ -4222,7 +4117,7 @@
       "image_path": "assets/images/bebidas/Coca Cola 2L desechable.webp",
       "image_avif_path": "assets/images/bebidas/Coca Cola 2L desechable.avif",
       "order": 173,
-      "is_archived": false,
+      "is_archived": true,
       "rev": 0,
       "field_last_modified": {
         "name": {
