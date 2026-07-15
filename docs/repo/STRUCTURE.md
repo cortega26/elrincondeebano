@@ -1,19 +1,15 @@
 # Repository Structure and Conventions
 
-## Dual-root layout
+## npm workspace layout
 
-This repo has **two `package.json` roots**. A full cold-start install requires both:
-
-```bash
-npm ci                   # root tooling, tests, guardrails
-(cd astro-poc && npm ci) # Astro storefront dependencies
-```
-
-Or use the single `bootstrap` script:
+This repo has a root package and the `astro-poc` workspace. The root lockfile
+installs both with one deterministic command:
 
 ```bash
 npm run bootstrap
 ```
+
+Do not run a separate install inside `astro-poc/`.
 
 The canonical cold-start instructions live in
 [`docs/onboarding/BOOTSTRAP.md`](../onboarding/BOOTSTRAP.md).
@@ -35,7 +31,7 @@ The canonical production build is always `npm run build` from the repo root — 
 | `config/`    | Shared config inputs consumed by tooling (e.g., `category_og_icon_map.json`).                                                 |
 | `infra/`     | Cloudflare Workers config (`wrangler.toml`) for edge security headers. Not part of the static build.                          |
 | `admin/`     | Python-based desktop product manager. Separate venv; CI via `admin.yml`.                                                      |
-| `reports/`   | Committed report artifacts (Lighthouse, canary, orphan-assets, smoke evidence).                                               |
+| `reports/`   | Generated evidence; ignored by default, with selected baselines committed explicitly.                                         |
 | `build/`     | Legacy asset manifest artifact. Not used by the Astro build path.                                                             |
 | `output/`    | Playwright trace/report output. Not committed.                                                                                |
 | `coverage/`  | Test coverage output. Not committed.                                                                                          |
@@ -112,7 +108,6 @@ Manual/specialized scripts are kept for targeted maintenance tasks and should no
   - Unit/integration: `test/*.test.js` or `test/*.spec.js`.
   - E2E Playwright (active): `test/e2e-astro/*.spec.ts`.
   - Supplemental/manual Playwright: `test/e2e/*.spec.ts`.
-  - Supplemental/manual Cypress: `cypress/e2e/*.cy.ts`.
   - Archived legacy storefront checks live under `_archive/legacy-storefront/tests/` and are outside the active assurance path.
 - Documentation:
   - Prompt checkpoints: `docs/audit/prompt-<N>-<topic>-YYYYMMDD.md`.

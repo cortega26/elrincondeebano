@@ -71,7 +71,8 @@ Pay extra attention to:
 - `data/product_data.json` growth and any code that loads or transforms the full
   catalog;
 - `assets/images/` variant generation and orphan-asset detection;
-- browser-test scope growth in `test/e2e-astro/` and `cypress/e2e/`;
+- browser-test scope growth in canonical `test/e2e-astro/` and supplemental
+  `test/e2e/`;
 - scheduled live monitors that depend on network or third-party edge behavior.
 
 ## Maintainability
@@ -94,6 +95,32 @@ Pay extra attention to:
   only in PR descriptions or audit notes.
 - Keep PRs small enough to preserve rollback clarity; if the change mixes
   behavior, tooling, and docs, split it unless the coupling is unavoidable.
+
+### DRY, SOLID, and KISS
+
+Use these as decision tools, not abstraction quotas:
+
+- **DRY (Don't Repeat Yourself):** keep each business rule, schema, command, and
+  source-of-truth fact in one canonical place. Extract code after duplication
+  represents the same stable concept; do not merge coincidentally similar code
+  that is likely to evolve independently.
+- **SOLID:** give modules one reason to change, keep public contracts narrow,
+  extend behavior through small composable seams, preserve substitutability,
+  avoid forcing consumers to depend on unused interfaces, and inject external
+  effects at boundaries. In this mostly functional JavaScript codebase, module
+  boundaries and function contracts matter more than class hierarchies.
+- **KISS (Keep It Simple):** choose the smallest design that satisfies the
+  current contract and has a clear test and rollback path. Prefer plain data,
+  named functions, and existing commands over new frameworks, factories, or
+  configuration layers.
+
+When the rules pull in different directions, prioritize correctness and KISS,
+then remove proven duplication. Before adding an abstraction, answer:
+
+1. Which stable concept does it own?
+2. Which current callers need it?
+3. Is the new contract smaller and easier to test than the duplicated code?
+4. Can a future maintainer remove or change it without a repository-wide edit?
 
 ## Documentation Quality
 
@@ -122,3 +149,7 @@ Pay extra attention to:
   text on top of them.
 - If a decision is durable enough to surprise a future maintainer, capture it in
   an ADR or architecture doc.
+- Follow [`docs/operations/DOCUMENTATION.md`](../operations/DOCUMENTATION.md) for
+  source-of-truth order, freshness triggers, and human-writing standards.
+- Follow [`docs/operations/AI_EFFICIENCY.md`](../operations/AI_EFFICIENCY.md) for
+  context, caching, tool-output, and validation guidance in API-assisted work.

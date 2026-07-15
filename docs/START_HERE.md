@@ -23,17 +23,19 @@ changes.
 | Build pipeline or generated assets                | `tools/`, `config/`, root `package.json`                | `npm run validate:release`                                                          | `docs/repo/STRUCTURE.md`                      |
 | CI workflows or release gating                    | `.github/workflows/`, `tools/`, `package.json`          | `npm run validate:release`                                                          | `docs/operations/RUNBOOK.md`                  |
 | Performance, scalability, or maintainability work | `astro-poc/`, `src/js/`, `tools/`, `docs/`              | `npm run validate:release` plus `npm run lighthouse:audit` when UX/perf is affected | `docs/architecture/ENGINEERING_PRIORITIES.md` |
-| Docs, runbooks, or ADRs                           | `docs/`                                                 | `npm run validate`                                                                  | `docs/README.md`                              |
+| Docs, runbooks, or ADRs                           | `README.md`, `CONTRIBUTING.md`, `docs/`                 | Markdown lint, then `npm run validate` when executable contracts are affected       | `docs/operations/DOCUMENTATION.md`            |
+| Agent prompts, context, or API-token efficiency   | Agent config and the owning workflow                    | Measure tokens, retries, latency, and first-pass success                            | `docs/operations/AI_EFFICIENCY.md`            |
 
 ## Canonical commands
 
-| Goal                     | Command                         |
-| ------------------------ | ------------------------------- |
-| Fast local confidence    | `npm run validate`              |
-| Full release gate        | `npm run validate:release`      |
-| Build only               | `npm run build`                 |
-| Browser suite only       | `npm run test:e2e`              |
-| Live share-preview probe | `npm run monitor:share-preview` |
+| Goal                     | Command                                       |
+| ------------------------ | --------------------------------------------- |
+| Fast local confidence    | `npm run validate`                            |
+| Full release gate        | `npm run validate:release`                    |
+| Build only               | `npm run build`                               |
+| Browser suite only       | `npm run test:e2e`                            |
+| Live share-preview probe | `npm run monitor:share-preview`               |
+| Markdown lint            | `npx markdownlint-cli2 'docs/**/*.md' '*.md'` |
 
 ## Ground rules
 
@@ -44,3 +46,5 @@ changes.
   performance, scalability, maintainability, or doc-quality goals.
 - Follow the ADRs for decisions that affect runtime topology, validation, or
   deployment.
+- Treat audit and migration files as historical evidence; use current entry
+  points for active instructions.

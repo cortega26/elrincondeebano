@@ -5,7 +5,7 @@ Canonical cold-start instructions for agents and contributors.
 ## Runtime baseline
 
 - Node 24.x
-- Deterministic install: `npm ci`
+- Deterministic workspace install: `npm ci`
 
 Keep `.nvmrc`, `.node-version`, `.tool-versions`, CI workflows, and
 `package.json` aligned to the same Node 24 baseline.
@@ -16,16 +16,17 @@ Keep `.nvmrc`, `.node-version`, `.tool-versions`, CI workflows, and
 2. Run `npm run bootstrap`.
 3. Run `npm run validate`.
 
-## Why not plain `npm ci`?
+## Why use the bootstrap command?
 
-This repository has two npm roots:
+This repository is an npm workspace with two packages:
 
 - `/`
 - `astro-poc/`
 
-Running only root `npm ci` leaves the Astro storefront dependencies uninstalled.
-`npm run bootstrap` is the only supported cold-start path because it installs
-both roots in the correct order.
+The root lockfile covers both packages, and `npm run bootstrap` currently wraps
+the correct deterministic root install (`npm ci`). Use the named command so the
+onboarding contract remains stable if installation steps change later. Do not
+run a second install inside `astro-poc/`.
 
 ## Optional environment setup
 
