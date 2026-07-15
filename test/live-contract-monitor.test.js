@@ -178,6 +178,46 @@ test('checkUrl sends browser-like probe headers to reduce Cloudflare false posit
   assert.match(capturedHeaders.get('user-agent') || '', /Mozilla\/5\.0/);
 });
 
+test('checkUrl attaches the WAF bypass header only when the secret is configured', async () => {
+  const { checkUrl, BYPASS_TOKEN_ENV, BYPASS_TOKEN_HEADER } = await loadModule();
+  const previous = process.env[BYPASS_TOKEN_ENV];
+
+  try {
+    let withTokenHeaders;
+    process.env[BYPASS_TOKEN_ENV] = '  s3cret-token  ';
+    await withMockedFetch(
+      async (_url, init = {}) => {
+        withTokenHeaders = new Headers(init.headers || {});
+        return makeHtmlResponse('<!doctype html><html><body>ok</body></html>');
+      },
+      async () => {
+        await checkUrl(SITE_ORIGIN, '/', 5000);
+      }
+    );
+    // The env value is trimmed before it is sent as a header.
+    assert.equal(withTokenHeaders.get(BYPASS_TOKEN_HEADER), 's3cret-token');
+
+    let withoutTokenHeaders;
+    delete process.env[BYPASS_TOKEN_ENV];
+    await withMockedFetch(
+      async (_url, init = {}) => {
+        withoutTokenHeaders = new Headers(init.headers || {});
+        return makeHtmlResponse('<!doctype html><html><body>ok</body></html>');
+      },
+      async () => {
+        await checkUrl(SITE_ORIGIN, '/', 5000);
+      }
+    );
+    assert.equal(withoutTokenHeaders.has(BYPASS_TOKEN_HEADER), false);
+  } finally {
+    if (previous === undefined) {
+      delete process.env[BYPASS_TOKEN_ENV];
+    } else {
+      process.env[BYPASS_TOKEN_ENV] = previous;
+    }
+  }
+});
+
 test('checkUrl retries Cloudflare-like 403 responses before failing', async () => {
   const { checkUrl } = await loadModule();
   let attempt = 0;
