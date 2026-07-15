@@ -44,6 +44,10 @@ npm run validate:release
 
 `lint → typecheck → test → build → guardrails:assets → test:e2e → monitor:share-preview`
 
+The local `validate` command also runs the E2E selector guard before the test
+suite. See the exact executable stages in
+[docs/operations/VALIDATION_MATRIX.md](docs/operations/VALIDATION_MATRIX.md).
+
 Use the lighter baseline during iteration:
 
 ```bash
@@ -60,7 +64,8 @@ npm run build            # preflight pipeline + Astro build
 npm run guardrails:assets  # orphan-asset check
 ```
 
-Full CI equivalents are documented in [AGENTS.md](AGENTS.md#matriz-de-comandos-por-agente).
+Full CI equivalents are documented in
+[docs/operations/RUNBOOK.md](docs/operations/RUNBOOK.md#matriz-de-comandos-por-agente).
 
 ## Non-functional expectations
 
@@ -71,9 +76,14 @@ Full CI equivalents are documented in [AGENTS.md](AGENTS.md#matriz-de-comandos-p
   image tree, or route set unnecessarily; prefer indexed, cached, or batched
   approaches.
 - **Maintainability:** extend existing commands/modules before creating new
-  entry points, and keep long-lived constraints documented outside the PR.
+  entry points, apply DRY only to stable shared concepts, and favor simple,
+  narrow contracts under the SOLID and KISS guidance.
 - **Documentation:** update command, topology, and runbook docs in the same PR
-  whenever behavior or ownership changes.
+  whenever behavior or ownership changes; follow the
+  [documentation policy](docs/operations/DOCUMENTATION.md).
+- **AI/API efficiency:** retrieve focused context, preserve cacheable prompt
+  prefixes, and measure cost alongside first-pass quality; see
+  [AI and API efficiency](docs/operations/AI_EFFICIENCY.md).
 
 See [docs/architecture/ENGINEERING_PRIORITIES.md](docs/architecture/ENGINEERING_PRIORITIES.md)
 for the full non-functional guide.

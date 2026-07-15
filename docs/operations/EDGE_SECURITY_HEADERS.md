@@ -32,12 +32,14 @@ Rutas mínimas de verificación operativa:
 
 ## Política objetivo
 
-Source of truth repo-side: [tools/security-header-policy.mjs](/home/carlos/VS_Code_Projects/Tienda%20Ebano/tools/security-header-policy.mjs)
+Source of truth repo-side:
+[`tools/security-header-policy.mjs`](../../tools/security-header-policy.mjs)
 
 Implementación lista para aplicar:
 
-- Worker: [worker.mjs](/home/carlos/VS_Code_Projects/Tienda%20Ebano/infra/cloudflare/edge-security-headers/worker.mjs)
-- Template Wrangler: [wrangler.toml.example](/home/carlos/VS_Code_Projects/Tienda%20Ebano/infra/cloudflare/edge-security-headers/wrangler.toml.example)
+- Worker: [`worker.mjs`](../../infra/cloudflare/edge-security-headers/worker.mjs)
+- Template Wrangler:
+  [`wrangler.toml.example`](../../infra/cloudflare/edge-security-headers/wrangler.toml.example)
 - Script de deploy: `npm run cloudflare:deploy:edge-security-headers`
 - Workflow de deploy: `Deploy Cloudflare Edge Security Headers`
 

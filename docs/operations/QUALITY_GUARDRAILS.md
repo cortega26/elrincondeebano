@@ -1,9 +1,9 @@
-# Quality Guardrails (Prompt 1)
+# Quality Guardrails
 
 ## Scope
 
 This document defines the baseline reliability rules for production changes in
-El Rincon de Ebano.
+El Rincón de Ébano.
 
 ## Global Definition of Done
 
@@ -108,5 +108,5 @@ Use this process in PR descriptions for risky changes:
 - Commits en Conventional Commits (`docs(agents): ...`).
 - PRs incluyen evidencia de `npm test`, `npm run build`, `npm run test:e2e` y auditorías relevantes.
 - Actualizar docs relacionadas en el mismo PR cuando cambia un comportamiento.
-- Adjuntar `npm audit --production` cuando se toquen dependencias.
+- Adjuntar `npm audit --omit=dev` cuando se toquen dependencias de producción.
 - Patch/minor permitidos si pruebas y auditorías en verde. Major requieren RFC documentado.

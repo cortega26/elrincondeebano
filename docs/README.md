@@ -1,10 +1,12 @@
 # Documentation Index
 
 - `docs/START_HERE.md`: single task router for agents and contributors.
+- `README.md`: human-oriented project overview and quick start.
+- `CONTRIBUTING.md`: pull-request workflow and contributor checklist.
 
 ## Onboarding
 
-- `docs/onboarding/BOOTSTRAP.md`: canonical cold-start setup for the dual-root repo.
+- `docs/onboarding/BOOTSTRAP.md`: canonical npm-workspace cold start.
 - `docs/onboarding/LOCAL_DEV.md`: local preview, runtime flags, and optional admin-tool setup.
 
 ## Operations
@@ -16,6 +18,8 @@
 - `docs/operations/OBSERVABILITY.md`: telemetry and monitoring baseline.
 - `docs/operations/SMOKE_TEST.md`: manual smoke checklist.
 - `docs/operations/DEPENDENCY_POLICY.md`: upgrade cadence, risk tiers, and rollback rules.
+- `docs/operations/DOCUMENTATION.md`: freshness, ownership, and human-writing policy.
+- `docs/operations/AI_EFFICIENCY.md`: token, context, caching, and tool-efficiency guidance.
 - `docs/operations/DEBUGGING.md`: standard local/CI debugging workflow.
 - `docs/operations/INCIDENT_TRIAGE.md`: incident severity and triage sequence.
 - `docs/operations/ROLLBACK.md`: rollback procedures and validation gates.

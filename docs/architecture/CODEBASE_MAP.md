@@ -15,9 +15,9 @@ Reference document for automated agents, CI tools, and new contributors. Maps ev
 | `astro-poc/`                     | **Production Astro storefront** — the canonical runtime (ADR-0003). Contains `src/`, `public/`, `scripts/`, and its own `package.json`.                             | Storefront dev                          | CI/CD (static.yml)             |
 | `astro-poc/dist/`                | Compiled static site. Git-ignored. Deployed to GitHub Pages.                                                                                                        | `npm run build`                         | GitHub Pages (static.yml)      |
 | `src/js/`                        | Shared typed JS modules (cart, logger, analytics, fetch). Covered by `tsconfig.typecheck.json`.                                                                     | Core dev                                | Astro storefront, tests        |
-| `test/`                          | All unit (Vitest), legacy integration (node:test), contract, guardrail, E2E (Playwright + Cypress) tests.                                                           | Test Sentinel                           | `npm test`, `npm run test:e2e` |
-| `tools/`                         | Preflight pipeline scripts (`preflight.js`), build utilities (image gen, guardrails, canary, lighthouse).                                                           | Repo Cartographer                       | `npm run build`, CI            |
-| `scripts/`                       | Developer utility scripts: dev server, smoke test, Cypress runner, CSS order check. Not part of the build.                                                          | Docs Steward                            | Local dev, CI smoke steps      |
+| `test/`                          | Unit, integration, contract, guardrail, and Playwright end-to-end tests.                                                                                            | Test Sentinel                           | `npm test`, `npm run test:e2e` |
+| `tools/`                         | Preflight pipeline scripts (`preflight.js`), build utilities (image generation, guardrails, canary, Lighthouse).                                                    | Repo Cartographer                       | `npm run build`, CI            |
+| `scripts/`                       | Developer utility scripts: dev server, smoke test, CI helpers, and CSS-order check. Not part of the build.                                                          | Docs Steward                            | Local dev, CI smoke steps      |
 | `admin/`                         | Python 3.12 GUI (`product_manager/`) for editing `data/product_data.json`. Separate runtime from Node storefront.                                                   | Product Manager                         | Manual use only                |
 | `config/`                        | Static config files read by build tools (e.g., `category_og_icon_map.json`).                                                                                        | Manual edits                            | tools/, preflight              |
 | `infra/cloudflare/`              | Cloudflare Workers source for edge security headers. Deployed via `npm run cloudflare:deploy:edge-security-headers`.                                                | Security agent                          | Cloudflare (manual deploy)     |
@@ -82,7 +82,6 @@ Typecheck scope is declared in [tsconfig.typecheck.json](../../tsconfig.typechec
 | Guardrail          | Vitest         | `test/*.guardrail.test.js`           | `npm test`                |
 | Build metadata     | Vitest         | `test/*.build-metadata.test.js`      | `npm test`                |
 | E2E — Astro        | Playwright     | `test/e2e-astro/**/*.spec.ts`        | `npm run test:e2e`        |
-| E2E — legacy       | Cypress        | `cypress/e2e/**/*.cy.ts`             | `npm run test:cypress`    |
 | Mutation           | Stryker        | `test/cart.spec.js` et al.           | `npx stryker run`         |
 | Visual regression  | Playwright     | `test/e2e/visual-regression.spec.ts` | `npm run test:e2e:visual` |
 
@@ -96,7 +95,7 @@ Typecheck scope is declared in [tsconfig.typecheck.json](../../tsconfig.typechec
 | -------------------------------------- | ----------------------------------------- | ---------------------------------------------- |
 | `static.yml`                           | push `main`, manual                       | Build Astro + deploy to GitHub Pages           |
 | `ci.yml`                               | push/PR `main`                            | Lint → build → tests → guardrails → lighthouse |
-| `ci-guardrails.yml`                    | push/PR `main`                            | Fast build + asset guardrails                  |
+| `quality-gates.yml`                    | push/PR `main`                            | Shell, workflow, Markdown, and quality linting |
 | `images.yml`                           | push `assets/images/originals/**`, manual | Generate image variants, auto-commit           |
 | `semgrep.yml`                          | push/PR `main`, weekly cron, manual       | SAST scan → SARIF → Code Scanning              |
 | `secret-scan.yml`                      | push/PR, weekly cron, manual              | Credential scan on versioned files             |
