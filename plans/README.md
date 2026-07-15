@@ -32,7 +32,7 @@ Estos planes son paralelizables y preparan cambios posteriores:
 | 032  | Limpiar LHCI y audit de dependencias dev        | P2       | S      | —          | DONE   |
 | 033  | Reforzar pre-commit y hermeticidad de tests     | P2       | S      | —          | DONE   |
 | 034  | Integrar admin web en lock y CI                 | P2       | M      | —          | DONE   |
-| 037  | Converger documentación con runtime real        | P2       | M      | —          | TODO   |
+| 037  | Converger documentación con runtime real        | P2       | M      | —          | DONE   |
 
 **Gate**: `npm run lint && npm run typecheck && npm test`; para 028/034,
 además `cd admin/product_manager && python -m ruff check . && python -m pytest`.
