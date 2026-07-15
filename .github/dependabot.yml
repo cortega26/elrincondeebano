@@ -4,6 +4,8 @@ updates:
     directory: '/'
     schedule:
       interval: 'weekly'
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 6
     labels:
       - 'dependencies'
@@ -26,6 +28,8 @@ updates:
     directory: '/astro-poc'
     schedule:
       interval: 'weekly'
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 6
     labels:
       - 'dependencies'
@@ -49,6 +53,8 @@ updates:
     directory: '/'
     schedule:
       interval: 'weekly'
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 4
     labels:
       - 'dependencies'
@@ -71,6 +77,8 @@ updates:
     directory: '/admin/product_manager'
     schedule:
       interval: 'weekly'
+    cooldown:
+      default-days: 7
     open-pull-requests-limit: 4
     labels:
       - 'dependencies'
