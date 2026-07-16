@@ -161,5 +161,15 @@ const resolvedSharePreview =
     <script>
       import '../scripts/storefront.js';
     </script>
+
+    {/* Cloudflare Web Analytics — manual external beacon. Auto-injection is disabled
+        so the edge does not inject an inline bootstrap; the external beacon is the
+        contract-allowed form (see docs/adr/0008-enforced-edge-security-contract.md). */}
+    <script
+      is:inline
+      type="module"
+      src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon='{"token": "74a43f533d0249389be8cc99de91bfdc"}'
+    ></script>
   </body>
 </html>
