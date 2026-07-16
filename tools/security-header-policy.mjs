@@ -22,21 +22,15 @@ export const CONTENT_SECURITY_POLICY_DIRECTIVES = Object.freeze([
   ['base-uri', [CSP_SELF]],
   ['object-src', [CSP_NONE]],
   ['frame-ancestors', [CSP_NONE]],
-  [
-    'script-src',
-    [
-      CSP_SELF,
-      'https://static.cloudflareinsights.com',
-      "'sha256-SvXHAIPcJdE6zuH0y1Xb0AUS/ZJCmBwN7SfMfiEj578='",
-    ],
-  ],
+  // Plausible Analytics (cookie-less) is the site's analytics, loaded from
+  // plausible.io in BaseLayout.astro. Cloudflare Web Analytics is not used, so its
+  // insights origins/hash are intentionally absent (auto-injection is disabled and
+  // the HTML-surface rules still flag it if the edge injects it).
+  ['script-src', [CSP_SELF, 'https://plausible.io']],
   ['style-src', [CSP_SELF, OFFLINE_STYLE_HASH]],
   ['img-src', [CSP_SELF, 'data:', 'https:']],
   ['font-src', [CSP_SELF, 'data:']],
-  [
-    'connect-src',
-    [CSP_SELF, 'https://cloudflareinsights.com', 'https://static.cloudflareinsights.com'],
-  ],
+  ['connect-src', [CSP_SELF, 'https://plausible.io']],
   ['manifest-src', [CSP_SELF]],
   ['worker-src', [CSP_SELF]],
   ['form-action', [CSP_SELF]],

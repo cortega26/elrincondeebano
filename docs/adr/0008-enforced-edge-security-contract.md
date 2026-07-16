@@ -42,12 +42,12 @@ Concretely:
   products (Browser Integrity Check, Security Level) — never managed WAF, rate
   limiting, or block rules. Free **Bot Fight Mode** is not skippable by any rule,
   so it must be **off** for the observer to reach origin.
-- **Cloudflare's automatic script injection is disallowed, not accepted.** The
-  contract deliberately permits the _external_ Web Analytics beacon
-  (`static.cloudflareinsights.com/beacon.min.js`) but rejects Cloudflare's
-  _automatic inline_ injection and the challenge-platform sensor. Production must
-  therefore use **manual** Web Analytics (external beacon) and keep **JavaScript
-  Detections off** — not weaken the monitor's HTML-surface rules.
+- **Cloudflare's automatic script injection is disallowed.** The site uses
+  Plausible (cookie-less analytics, loaded from `plausible.io` and allowlisted in
+  the CSP); Cloudflare Web Analytics is not used. Cloudflare's automatic inline
+  injection and the `/cdn-cgi/challenge-platform/` sensor are rejected by the
+  HTML-surface rules, so production must keep Cloudflare Web Analytics
+  auto-injection and **JavaScript Detections off** — not weaken the rules.
 - **`style-src` stays strict (`'self'`).** The self-contained offline fallback
   page (`astro-poc/public/pages/offline.html`) must render with no network, so its
   inline critical CSS is allowed via a pinned `'sha256-…'` hash rather than
