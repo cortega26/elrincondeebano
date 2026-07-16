@@ -22,7 +22,7 @@ test('buildSecurityHeadersPolicy returns the versioned edge baseline', async () 
     policy['content-security-policy'],
     /connect-src 'self' https:\/\/cloudflareinsights\.com https:\/\/static\.cloudflareinsights\.com/
   );
-  assert.match(policy['content-security-policy'], /style-src 'self'(?:;|$)/);
+  assert.match(policy['content-security-policy'], /style-src 'self' 'sha256-[^']+'(?:;|$)/);
   assert.doesNotMatch(policy['content-security-policy'], /style-src[^;]*'unsafe-inline'/);
   assert.match(policy['content-security-policy'], /frame-ancestors 'none'/);
 });
@@ -138,4 +138,37 @@ test('inspectPublicHtmlEdgeSurface flags inline Cloudflare insights bootstrap bu
   assert.match(sanitized.html, /static\.cloudflareinsights\.com\/beacon\.min\.js/);
   assert.doesNotMatch(sanitized.html, /challenge-platform/);
   assert.doesNotMatch(sanitized.html, /__CF\$cv\$params/);
+});
+
+test('style-src pins the offline fallback inline-style hash (drift guard)', async () => {
+  const { buildContentSecurityPolicy } = await loadModule();
+  const fs = require('node:fs');
+  const crypto = require('node:crypto');
+
+  const offlinePath = 'astro-poc/public/pages/offline.html';
+  const offlineHtml = fs.readFileSync(offlinePath, 'utf8');
+
+  // The offline fallback must stay self-contained (no external stylesheet) so it
+  // renders with no network; that is why its inline critical CSS needs a CSP hash.
+  assert.doesNotMatch(
+    offlineHtml,
+    /rel=["']stylesheet["']/i,
+    `${offlinePath} must not depend on an external stylesheet.`
+  );
+
+  const match = offlineHtml.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+  assert.ok(match, `${offlinePath} should contain an inline <style> block.`);
+
+  const expectedHash = `sha256-${crypto.createHash('sha256').update(match[1], 'utf8').digest('base64')}`;
+  const styleSrc =
+    buildContentSecurityPolicy()
+      .split(';')
+      .map((directive) => directive.trim())
+      .find((directive) => directive.startsWith('style-src')) || '';
+
+  assert.ok(
+    styleSrc.includes(`'${expectedHash}'`),
+    `style-src must pin the offline inline-style hash '${expectedHash}'. If ${offlinePath} ` +
+      `changed, update OFFLINE_STYLE_HASH in tools/security-header-policy.mjs to match.`
+  );
 });
