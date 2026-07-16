@@ -132,14 +132,15 @@ Pasos:
 3. Corrige la superficie HTML en el **dashboard** (confirmado post-Worker: Cloudflare
    inyecta estos scripts aguas abajo del Worker, con `cf-cache-status: DYNAMIC`, así que el
    redeploy no los quita). No debilites el contrato; ajusta Cloudflare:
-   - **Bootstrap inline de insights** → Web Analytics: cambia de inyección _automática_ a
-     _manual_. Para conservar analítica, usa el beacon **externo**
-     (`static.cloudflareinsights.com/beacon.min.js`), que el contrato ya permite.
+   - **Bootstrap inline de insights** → Web Analytics: desactiva la inyección _automática_
+     (auto-inject off). El sitio usa **Plausible** (`plausible.io`, en el CSP y en
+     `astro-poc/src/layouts/BaseLayout.astro`), no Cloudflare Web Analytics.
    - **Sensor `/cdn-cgi/challenge-platform/` (`__CF$cv$params`)** → Security → Bots →
      **JavaScript Detections: Off** (con Bot Fight Mode ya desactivado para el bypass).
 
-Por qué no se relaja el contrato: la regla de superficie HTML permite el beacon externo pero
-rechaza la inyección automática de Cloudflare. Eso es intencional; consulta
+Por qué no se relaja el contrato: la regla de superficie HTML rechaza la inyección automática
+de Cloudflare (challenge-platform y bootstrap de insights). El sitio usa Plausible para
+analítica, no Cloudflare Web Analytics. Eso es intencional; consulta
 [ADR 0008](../adr/0008-enforced-edge-security-contract.md).
 
 ### Página offline y `style-src`
