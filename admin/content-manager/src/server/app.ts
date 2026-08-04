@@ -36,6 +36,7 @@ export interface AppOptions {
   repoRoot?: string;
   enableWrites?: boolean;
   logger?: boolean;
+  launchCredential?: string;
 }
 
 function loadSyncConfig(configPath: string): SyncConfig {
@@ -57,7 +58,11 @@ export type { SyncConfig };
 export function createApp(opts?: AppOptions): FastifyInstance {
   const repoRoot = opts?.repoRoot ?? process.env.REPO_ROOT ?? process.cwd();
   const enableWrites = opts?.enableWrites ?? false;
-  const launchCredential = generateCredential();
+  // The launch credential is never served over HTTP (see bootstrap.ts); the
+  // operator supplies it via ADMIN_CREDENTIAL or reads it from the startup
+  // log (start.ts prints it once in operator mode).
+  const launchCredential =
+    opts?.launchCredential ?? process.env.ADMIN_CREDENTIAL ?? generateCredential();
 
   const idempotencyStore = new PersistentIdempotencyStore(repoRoot, 200);
   const productService = new ProductService();
@@ -125,7 +130,7 @@ export function createApp(opts?: AppOptions): FastifyInstance {
 
   app.register(
     async function (instance) {
-      await bootstrapRoute(instance, repos, launchCredential);
+      await bootstrapRoute(instance, repos);
     },
     { prefix: '/api/v1' }
   );
@@ -160,7 +165,7 @@ export function createApp(opts?: AppOptions): FastifyInstance {
 
   app.register(
     async function (instance) {
-      await backupRoutes(instance, repoRoot);
+      await backupRoutes(instance, repoRoot, enableWrites);
     },
     { prefix: '/api/v1' }
   );
@@ -168,7 +173,6 @@ export function createApp(opts?: AppOptions): FastifyInstance {
   app.addHook('preHandler', async (request, reply) => {
     const url = request.url.split('?')[0] ?? '';
     if (url.startsWith('/api/v1/health')) return;
-    if (url.startsWith('/api/v1/bootstrap')) return;
 
     const routeClass = classifyRoute(request.method, url);
 
@@ -196,6 +200,16 @@ export function createApp(opts?: AppOptions): FastifyInstance {
   });
 
   app.addHook('onRequest', async (request, reply) => {
+    // Host-header allowlist (DNS rebinding protection): the admin app is a
+    // loopback-only control plane, so any other Host is rejected before any
+    // origin/method logic runs — including on /health.
+    const host = (request.headers.host ?? '').replace(/:\d+$/, '').replace(/^\[|\]$/g, '');
+    if (!['localhost', '127.0.0.1', '::1'].includes(host)) {
+      return reply.status(403).send({
+        error: { code: 'FORBIDDEN', message: 'Invalid Host header' },
+      });
+    }
+
     const url = request.url.split('?')[0] ?? '';
     if (url === '/api/v1/health') return;
 

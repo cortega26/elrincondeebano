@@ -80,12 +80,14 @@ test('history API returns entries', async ({ request }) => {
   expect(body).toHaveProperty('total_products');
 });
 
-test('bootstrap endpoint returns config', async ({ request }) => {
+test('bootstrap endpoint returns config without serving the launch credential', async ({
+  request,
+}) => {
   const response = await request.get('http://127.0.0.1:3000/api/v1/bootstrap');
   expect(response.status()).toBe(200);
   const body = await response.json();
   expect(body).toHaveProperty('capabilities');
-  expect(body).toHaveProperty('credential');
+  expect(body).not.toHaveProperty('credential');
 });
 
 test('navigation links work between pages', async ({ page }) => {

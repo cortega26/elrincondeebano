@@ -1,6 +1,7 @@
 import type { Product } from '../../shared/schemas/product.ts';
 import type { CategoryRegistry } from '../../shared/schemas/category.ts';
 import type { StorefrontExperience, StorefrontBundle } from '../../shared/schemas/storefront.ts';
+import { getCredentialValue } from '../app/credentialStore.ts';
 
 export interface PaginatedResponse<T> {
   page: number;
@@ -29,7 +30,6 @@ export interface BootstrapResponse {
     nav_groups: number;
     bundles: number;
   };
-  credential: string;
 }
 
 export interface ProductResponse extends Product {
@@ -100,37 +100,9 @@ export interface JobResponse {
 
 export class ContentManagerClient {
   private readonly baseUrl: string;
-  private credential: string | null = null;
-  private credentialPromise: Promise<void> | null = null;
 
   constructor(baseUrl = 'http://127.0.0.1:3000') {
     this.baseUrl = baseUrl.replace(/\/$/, '');
-  }
-
-  private async ensureCredential(): Promise<void> {
-    if (this.credential) return;
-    if (this.credentialPromise) {
-      await this.credentialPromise;
-      return;
-    }
-
-    this.credentialPromise = (async () => {
-      try {
-        const resp = await fetch(`${this.baseUrl}/api/v1/bootstrap`);
-        if (resp.ok) {
-          const data = (await resp.json()) as BootstrapResponse;
-          if (data.credential) {
-            this.credential = data.credential;
-          }
-        }
-      } catch {
-        // credential fetch failed — mutations will be rejected by server
-      } finally {
-        this.credentialPromise = null;
-      }
-    })();
-
-    await this.credentialPromise;
   }
 
   private async request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -143,9 +115,11 @@ export class ContentManagerClient {
     };
 
     if (isMutation) {
-      await this.ensureCredential();
-      if (this.credential) {
-        headers['x-admin-credential'] = this.credential;
+      // The credential is operator-supplied (plan 071); a 401 means it is
+      // missing/wrong and the CredentialPrompt must be shown.
+      const credential = getCredentialValue();
+      if (credential) {
+        headers['x-admin-credential'] = credential;
       }
     }
 
@@ -154,26 +128,6 @@ export class ContentManagerClient {
       ...init,
       headers,
     });
-
-    if (response.status === 401 && isMutation && this.credential) {
-      this.credential = null;
-      await this.ensureCredential();
-      if (this.credential) {
-        headers['x-admin-credential'] = this.credential;
-        const retryResponse = await fetch(url, {
-          ...init,
-          headers,
-        });
-        if (!retryResponse.ok) {
-          const body = await retryResponse.json().catch(() => ({}));
-          throw new Error(
-            (body as ApiError).error?.message ??
-              `HTTP ${retryResponse.status}: ${retryResponse.statusText}`
-          );
-        }
-        return retryResponse.json() as Promise<T>;
-      }
-    }
 
     if (!response.ok) {
       const body = await response.json().catch(() => ({}));

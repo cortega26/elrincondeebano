@@ -4,6 +4,13 @@ import { writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execFileSync } from 'node:child_process';
+import { CREDENTIAL_HEADER } from '../../src/server/security/launchCredential.ts';
+import type { FastifyInstance } from 'fastify';
+
+function credHeaders(app: FastifyInstance): Record<string, string> {
+  const cred = (app as unknown as { launchCredential?: string }).launchCredential ?? '';
+  return { [CREDENTIAL_HEADER]: cred };
+}
 
 function createTempRepo(): string {
   const dir = resolve(tmpdir(), `cm-pub-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
@@ -82,14 +89,14 @@ test('POST /api/v1/publications/preview returns preflight checks and git info', 
   try {
     setupData(dir);
 
-    const app = createApp({ repoRoot: dir, logger: false });
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/publications/preview',
       payload: {},
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...credHeaders(app) },
     });
 
     expect(response.statusCode).toBe(200);
@@ -121,7 +128,7 @@ test('POST /api/v1/publications schedules a job and returns job_id', async () =>
       method: 'POST',
       url: '/api/v1/publications',
       payload: { commitMessage: 'test commit', push: false },
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...credHeaders(app) },
     });
 
     expect(response.statusCode).toBe(200);
@@ -148,7 +155,7 @@ test('GET /api/v1/jobs/:id returns job progress', async () => {
       method: 'POST',
       url: '/api/v1/publications',
       payload: { commitMessage: 'test', push: false },
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...credHeaders(app) },
     });
 
     const { job_id } = pubResponse.json<{ job_id: string }>();
@@ -182,7 +189,7 @@ test('POST /api/v1/jobs/:id/cancel cancels a pending job', async () => {
       method: 'POST',
       url: '/api/v1/publications',
       payload: { commitMessage: 'test', push: false },
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...credHeaders(app) },
     });
 
     const { job_id } = pubResponse.json<{ job_id: string }>();
@@ -190,6 +197,7 @@ test('POST /api/v1/jobs/:id/cancel cancels a pending job', async () => {
     const cancelResponse = await app.inject({
       method: 'POST',
       url: `/api/v1/jobs/${job_id}/cancel`,
+      headers: credHeaders(app),
     });
 
     expect(cancelResponse.statusCode).toBe(200);
@@ -208,12 +216,13 @@ test('POST /api/v1/jobs/:id/cancel returns 404 for unknown job', async () => {
   try {
     setupData(dir);
 
-    const app = createApp({ repoRoot: dir, logger: false });
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/jobs/nonexistent/cancel',
+      headers: credHeaders(app),
     });
 
     expect(response.statusCode).toBe(404);
@@ -224,7 +233,7 @@ test('POST /api/v1/jobs/:id/cancel returns 404 for unknown job', async () => {
   }
 });
 
-test('POST /api/v1/publications returns 403 when writes disabled', async () => {
+test('POST /api/v1/publications returns 405 when writes disabled', async () => {
   const dir = createTempRepo();
   try {
     setupData(dir);
@@ -236,10 +245,10 @@ test('POST /api/v1/publications returns 403 when writes disabled', async () => {
       method: 'POST',
       url: '/api/v1/publications',
       payload: { commitMessage: 'test', push: false },
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...credHeaders(app) },
     });
 
-    expect(response.statusCode).toBe(403);
+    expect(response.statusCode).toBe(405);
 
     await app.close();
   } finally {

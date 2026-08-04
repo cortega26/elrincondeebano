@@ -3,6 +3,13 @@ import { createApp } from '../../src/server/app.ts';
 import { writeFileSync, mkdirSync, rmSync, readFileSync, existsSync, readdirSync } from 'node:fs';
 import { resolve, basename } from 'node:path';
 import { tmpdir } from 'node:os';
+import { CREDENTIAL_HEADER } from '../../src/server/security/launchCredential.ts';
+import type { FastifyInstance } from 'fastify';
+
+function credHeaders(app: FastifyInstance): Record<string, string> {
+  const cred = (app as unknown as { launchCredential?: string }).launchCredential ?? '';
+  return { [CREDENTIAL_HEADER]: cred };
+}
 
 function createTempDir(): string {
   const dir = resolve(
@@ -68,12 +75,13 @@ test('POST /api/v1/backup creates a timestamped backup', async () => {
   try {
     setupDir(dir);
 
-    const app = createApp({ repoRoot: dir, logger: false });
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/backup',
+      headers: credHeaders(app),
     });
 
     expect(response.statusCode).toBe(200);
@@ -97,18 +105,20 @@ test('GET /api/v1/backup lists available backups', async () => {
   try {
     setupDir(dir);
 
-    const app = createApp({ repoRoot: dir, logger: false });
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
     const createRes = await app.inject({
       method: 'POST',
       url: '/api/v1/backup',
+      headers: credHeaders(app),
     });
     expect(createRes.statusCode).toBe(200);
 
     const listRes = await app.inject({
       method: 'GET',
       url: '/api/v1/backup',
+      headers: credHeaders(app),
     });
 
     expect(listRes.statusCode).toBe(200);
@@ -133,12 +143,13 @@ test('backed up files match original content', async () => {
   try {
     setupDir(dir);
 
-    const app = createApp({ repoRoot: dir, logger: false });
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
     const createRes = await app.inject({
       method: 'POST',
       url: '/api/v1/backup',
+      headers: credHeaders(app),
     });
     const { backup_id } = createRes.json<{ backup_id: string }>();
 
@@ -159,12 +170,13 @@ test('POST /api/v1/backup/:id/restore restores files and creates pre-restore sna
   try {
     setupDir(dir);
 
-    const app = createApp({ repoRoot: dir, logger: false });
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
     const createRes = await app.inject({
       method: 'POST',
       url: '/api/v1/backup',
+      headers: credHeaders(app),
     });
     const { backup_id } = createRes.json<{ backup_id: string }>();
 
@@ -196,6 +208,7 @@ test('POST /api/v1/backup/:id/restore restores files and creates pre-restore sna
     const restoreRes = await app.inject({
       method: 'POST',
       url: `/api/v1/backup/${backup_id}/restore`,
+      headers: credHeaders(app),
     });
 
     expect(restoreRes.statusCode).toBe(200);
@@ -226,12 +239,13 @@ test('POST /api/v1/backup/:id/restore returns 404 for unknown backup', async () 
   try {
     setupDir(dir);
 
-    const app = createApp({ repoRoot: dir, logger: false });
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
     const res = await app.inject({
       method: 'POST',
       url: '/api/v1/backup/nonexistent-id/restore',
+      headers: credHeaders(app),
     });
 
     expect(res.statusCode).toBe(404);
@@ -247,10 +261,14 @@ test('multiple backups are independent', async () => {
   try {
     setupDir(dir);
 
-    const app = createApp({ repoRoot: dir, logger: false });
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
-    const res1 = await app.inject({ method: 'POST', url: '/api/v1/backup' });
+    const res1 = await app.inject({
+      method: 'POST',
+      url: '/api/v1/backup',
+      headers: credHeaders(app),
+    });
     const { backup_id: id1 } = res1.json<{ backup_id: string }>();
 
     writeFileSync(
@@ -278,7 +296,11 @@ test('multiple backups are independent', async () => {
       })
     );
 
-    const res2 = await app.inject({ method: 'POST', url: '/api/v1/backup' });
+    const res2 = await app.inject({
+      method: 'POST',
+      url: '/api/v1/backup',
+      headers: credHeaders(app),
+    });
     const { backup_id: id2 } = res2.json<{ backup_id: string }>();
 
     expect(id1).not.toBe(id2);

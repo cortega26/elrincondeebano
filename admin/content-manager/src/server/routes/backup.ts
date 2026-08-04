@@ -15,7 +15,11 @@ export interface BackupEntry {
   files: Array<{ name: string; size: number }>;
 }
 
-export async function backupRoutes(app: FastifyInstance, repoRoot: string): Promise<void> {
+export async function backupRoutes(
+  app: FastifyInstance,
+  repoRoot: string,
+  enableWrites: boolean
+): Promise<void> {
   const backupsDir = resolve(repoRoot, 'data', 'backups');
 
   function listBackups(): BackupEntry[] {
@@ -69,6 +73,14 @@ export async function backupRoutes(app: FastifyInstance, repoRoot: string): Prom
   });
 
   app.post('/backup/:id/restore', async (request, reply) => {
+    // Restore overwrites canonical data files; enforce write mode here as
+    // defense in depth in addition to the central preHandler gate.
+    if (!enableWrites) {
+      return reply.status(405).send({
+        error: { code: 'READ_ONLY', message: 'Write operations are disabled in read-only mode' },
+      });
+    }
+
     const { id } = request.params as { id: string };
     const backupDir = resolve(backupsDir, id);
 

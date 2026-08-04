@@ -1,10 +1,17 @@
 import { test, expect } from 'vitest';
 import { createApp } from '../../src/server/app.ts';
+import { CREDENTIAL_HEADER } from '../../src/server/security/launchCredential.ts';
+import type { FastifyInstance } from 'fastify';
 import { ConflictService } from '../../src/domain/conflicts/conflictService.ts';
 import { ConflictRepository } from '../../src/server/repositories/conflictRepository.ts';
 import { rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
+
+function credHeaders(app: FastifyInstance): Record<string, string> {
+  const cred = (app as unknown as { launchCredential?: string }).launchCredential ?? '';
+  return { [CREDENTIAL_HEADER]: cred };
+}
 
 function createTempDir(): string {
   const dir = resolve(
@@ -94,12 +101,13 @@ test('POST /api/v1/conflicts/:id/resolve resolves a field', async () => {
     const conflict = createTestConflict();
     repo.save(conflict);
 
-    const app = createApp({ repoRoot: dir, logger: false });
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
     const response = await app.inject({
       method: 'POST',
       url: `/api/v1/conflicts/${conflict.id}/resolve`,
+      headers: credHeaders(app),
       payload: { field: 'name', resolution: 'local' },
     });
 
@@ -127,12 +135,13 @@ test('POST /api/v1/conflicts/:id/resolve adds resolution audit log', async () =>
     const conflict = createTestConflict();
     repo.save(conflict);
 
-    const app = createApp({ repoRoot: dir, logger: false });
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
     const response = await app.inject({
       method: 'POST',
       url: `/api/v1/conflicts/${conflict.id}/resolve`,
+      headers: credHeaders(app),
       payload: { field: 'name', resolution: 'server' },
     });
 
@@ -157,12 +166,13 @@ test('POST /api/v1/conflicts/:id/resolve adds resolution audit log', async () =>
 test('POST /api/v1/conflicts/:id/resolve returns 404 for missing conflict', async () => {
   const dir = createTempDir();
   try {
-    const app = createApp({ repoRoot: dir, logger: false });
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/conflicts/nonexistent/resolve',
+      headers: credHeaders(app),
       payload: { field: 'name', resolution: 'local' },
     });
 
@@ -184,12 +194,13 @@ test('POST /api/v1/conflicts/:id/resolve returns 409 when conflict is resolved',
     conflictService.resolveField(conflict, 'price', 'server');
     repo.save(conflict);
 
-    const app = createApp({ repoRoot: dir, logger: false });
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
     const response = await app.inject({
       method: 'POST',
       url: `/api/v1/conflicts/${conflict.id}/resolve`,
+      headers: credHeaders(app),
       payload: { field: 'name', resolution: 'local' },
     });
 
@@ -209,12 +220,13 @@ test('POST /api/v1/conflicts/:id/retry transitions to retrying', async () => {
     const conflict = createTestConflict();
     repo.save(conflict);
 
-    const app = createApp({ repoRoot: dir, logger: false });
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
     const response = await app.inject({
       method: 'POST',
       url: `/api/v1/conflicts/${conflict.id}/retry`,
+      headers: credHeaders(app),
     });
 
     expect(response.statusCode).toBe(200);
@@ -237,12 +249,13 @@ test('POST /api/v1/conflicts/:id/retry returns 409 for resolved conflict', async
     conflictService.resolveField(conflict, 'price', 'server');
     repo.save(conflict);
 
-    const app = createApp({ repoRoot: dir, logger: false });
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
     const response = await app.inject({
       method: 'POST',
       url: `/api/v1/conflicts/${conflict.id}/retry`,
+      headers: credHeaders(app),
     });
 
     expect(response.statusCode).toBe(409);
@@ -367,13 +380,15 @@ test('POST /api/v1/conflicts/:id/resolve with manual value stores it in field', 
     const conflict = createTestConflict();
     repo.save(conflict);
 
-    const app = createApp({ repoRoot: dir, logger: false });
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
     const response = await app.inject({
       method: 'POST',
       url: `/api/v1/conflicts/${conflict.id}/resolve`,
+      headers: credHeaders(app),
       payload: { field: 'name', resolution: 'manual', manual_value: 'Custom Resolution' },
+      headers: credHeaders(app),
     });
 
     expect(response.statusCode).toBe(200);

@@ -18,16 +18,28 @@ if (!VALID_MODES.has(mode)) {
 
 const enableWrites = mode === 'operator';
 
+// The launch credential is never served over HTTP (plan 071): the operator
+// sets ADMIN_CREDENTIAL, or createApp generates one which start logs exactly
+// once below. Mirror this contract in .env.example (plan 079).
+const launchCredential = process.env.ADMIN_CREDENTIAL || undefined;
+
 const repoRoot = process.env.REPO_ROOT || resolve(process.cwd(), '..', '..');
 
-const app = createApp({ repoRoot, enableWrites, logger: true });
+const app = createApp({ repoRoot, enableWrites, logger: true, launchCredential });
 
 async function start(): Promise<void> {
   try {
     await app.listen({ port: PORT, host: HOST });
     console.log(`Content Manager running at http://${HOST}:${PORT} (mode: ${mode})`);
     if (enableWrites) {
-      console.log('Write mode enabled — mutations are allowed with launch credential');
+      if (launchCredential) {
+        console.log('Write mode enabled — launch credential from ADMIN_CREDENTIAL environment');
+      } else {
+        const generated = (app as unknown as { launchCredential?: string }).launchCredential;
+        console.log(
+          `Write mode enabled — generated launch credential: ${generated ?? '(unknown)'}`
+        );
+      }
     } else {
       console.log('Read-only mode — mutations are rejected');
     }

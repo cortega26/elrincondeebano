@@ -1,11 +1,10 @@
 import type { FastifyInstance } from 'fastify';
 import type { Repositories } from './catalog.ts';
 
-export async function bootstrapRoute(
-  app: FastifyInstance,
-  repos: Repositories,
-  launchCredential: string
-): Promise<void> {
+// Bootstrap is a public (unauthenticated) informational endpoint: capabilities,
+// revision and counts only. The launch credential is deliberately NOT served
+// here — the operator supplies it via ADMIN_CREDENTIAL or the startup log.
+export async function bootstrapRoute(app: FastifyInstance, repos: Repositories): Promise<void> {
   app.get('/bootstrap', async () => {
     const productRev = repos.products.getRevision();
     const categories = repos.categories.getCategories();
@@ -32,7 +31,6 @@ export async function bootstrapRoute(
         nav_groups: navGroups.length,
         bundles: bundles.length,
       },
-      credential: launchCredential,
     };
   });
 }

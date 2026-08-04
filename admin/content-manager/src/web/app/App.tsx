@@ -9,6 +9,7 @@ import { ConflictsPage } from "./routes/ConflictsPage.tsx";
 import { NotFoundPage } from "./routes/NotFoundPage.tsx";
 import { PublicationPage } from "./routes/PublicationPage.tsx";
 import { RouteErrorPage } from "./RouteErrorPage.tsx";
+import { CredentialPrompt } from "./CredentialPrompt.tsx";
 
 const router = createBrowserRouter([
   {
@@ -60,5 +61,10 @@ const router = createBrowserRouter([
 ]);
 
 export function App(): React.ReactElement {
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <RouterProvider router={router} />
+      <CredentialPrompt />
+    </>
+  );
 }

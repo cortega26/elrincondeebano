@@ -5,6 +5,13 @@ import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { RecoveryJournal } from '../../src/server/services/publicationRecovery.ts';
 import { createApp } from '../../src/server/app.ts';
+import { CREDENTIAL_HEADER } from '../../src/server/security/launchCredential.ts';
+import type { FastifyInstance } from 'fastify';
+
+function credHeaders(app: FastifyInstance): Record<string, string> {
+  const cred = (app as unknown as { launchCredential?: string }).launchCredential ?? '';
+  return { [CREDENTIAL_HEADER]: cred };
+}
 
 test('Rollback drill: recovery journal detects pending publication after crash', () => {
   const journal = new RecoveryJournal(tmpdir());
@@ -72,7 +79,7 @@ test('Rollback drill: recovery endpoint reports pending state', async () => {
     });
 
     // Start app and check recovery endpoint
-    const app = createApp({ repoRoot: dir, logger: false });
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
     const res = await app.inject({ method: 'GET', url: '/api/v1/publications/recovery' });
@@ -123,11 +130,16 @@ test('Rollback drill: backup/restore cycle preserves data', async () => {
   writeFileSync(resolve(dir, 'data', 'product_data.json'), JSON.stringify(originalData));
 
   try {
-    const app = createApp({ repoRoot: dir, logger: false });
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
     // Create backup
-    const backupRes = await app.inject({ method: 'POST', url: '/api/v1/backup', payload: {} });
+    const backupRes = await app.inject({
+      method: 'POST',
+      url: '/api/v1/backup',
+      payload: {},
+      headers: credHeaders(app),
+    });
     expect(backupRes.statusCode).toBe(200);
     const backup = backupRes.json<{ backup_id: string; files: string[] }>();
     expect(backup.files.length).toBeGreaterThan(0);
@@ -142,6 +154,7 @@ test('Rollback drill: backup/restore cycle preserves data', async () => {
     const restoreRes = await app.inject({
       method: 'POST',
       url: `/api/v1/backup/${backup.backup_id}/restore`,
+      headers: credHeaders(app),
     });
     expect(restoreRes.statusCode).toBe(200);
 

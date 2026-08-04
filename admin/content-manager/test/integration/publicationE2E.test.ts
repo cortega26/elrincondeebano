@@ -1,9 +1,16 @@
 import { test, expect } from 'vitest';
 import { createApp } from '../../src/server/app.ts';
+import { CREDENTIAL_HEADER } from '../../src/server/security/launchCredential.ts';
+import type { FastifyInstance } from 'fastify';
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
+
+function credHeaders(app: FastifyInstance): Record<string, string> {
+  const cred = (app as unknown as { launchCredential?: string }).launchCredential ?? '';
+  return { [CREDENTIAL_HEADER]: cred };
+}
 
 function setupDir(): string {
   const dir = resolve(tmpdir(), `cm-e2e-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`);
@@ -78,7 +85,7 @@ test('E2E: git status returns branch data', async () => {
 test('E2E: publication preview succeeds on clean repo', async () => {
   const dir = setupDir();
   try {
-    const app = createApp({ repoRoot: dir, logger: false });
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
     const res = await app.inject({
       method: 'POST',
@@ -105,6 +112,7 @@ test('E2E: publication commit-only completes', async () => {
     const res = await app.inject({
       method: 'POST',
       url: '/api/v1/publications',
+      headers: credHeaders(app),
       payload: { commitMessage: 'e2e-commit-only', push: false },
     });
 
@@ -141,6 +149,7 @@ test('E2E: recovery state is cleared after successful publication', async () => 
     const res = await app.inject({
       method: 'POST',
       url: '/api/v1/publications',
+      headers: credHeaders(app),
       payload: { commitMessage: 'e2e-recovery-test', push: false },
     });
 
@@ -181,6 +190,7 @@ test('E2E: job cancellation marks job as cancelled', async () => {
     const res = await app.inject({
       method: 'POST',
       url: '/api/v1/publications',
+      headers: credHeaders(app),
       payload: { commitMessage: 'cancel-test', push: false },
     });
 

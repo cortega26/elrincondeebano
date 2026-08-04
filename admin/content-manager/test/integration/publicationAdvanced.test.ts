@@ -1,9 +1,16 @@
 import { test, expect } from 'vitest';
 import { createApp } from '../../src/server/app.ts';
+import { CREDENTIAL_HEADER } from '../../src/server/security/launchCredential.ts';
+import type { FastifyInstance } from 'fastify';
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
+
+function credHeaders(app: FastifyInstance): Record<string, string> {
+  const cred = (app as unknown as { launchCredential?: string }).launchCredential ?? '';
+  return { [CREDENTIAL_HEADER]: cred };
+}
 
 function setup(dir: string): void {
   const dataDir = resolve(dir, 'data');
@@ -96,7 +103,7 @@ test('POST /api/v1/publications/preview fails on merge conflict branch', async (
   setup(dir);
 
   try {
-    const app = createApp({ repoRoot: dir, logger: false });
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
     const res = await app.inject({
@@ -137,6 +144,7 @@ test('POST /api/v1/publications preflight failure blocks job execution', async (
     const res = await app.inject({
       method: 'POST',
       url: '/api/v1/publications',
+      headers: credHeaders(app),
       payload: { commitMessage: 'test', push: false },
     });
 
@@ -164,6 +172,7 @@ test('GET /api/v1/jobs/:id returns completed job with result', async () => {
     const pubRes = await app.inject({
       method: 'POST',
       url: '/api/v1/publications',
+      headers: credHeaders(app),
       payload: { commitMessage: 'test', push: false },
     });
 
@@ -221,12 +230,13 @@ test('POST /api/v1/jobs/:id/cancel handles unknown job', async () => {
   setup(dir);
 
   try {
-    const app = createApp({ repoRoot: dir, logger: false });
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
     const res = await app.inject({
       method: 'POST',
       url: '/api/v1/jobs/nonexistent/cancel',
+      headers: credHeaders(app),
     });
     expect(res.statusCode).toBe(404);
 
