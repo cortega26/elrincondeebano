@@ -52,7 +52,7 @@ frontera de escritura y la verificación del estado real sobre esa base.
 | [082](082-resolve-admin-ci-and-dep-audits.md)          | CI admin alineada al retiro + npm audit HIGHs                   | P1       | M      | 070, 076   | TODO                          |
 | [083](083-characterize-category-mutation-boundary.md)  | Tests de caracterización categorías + ensureDiscountToggle real | P2       | M      | 070, 080   | TODO                          |
 | [084](084-unify-monorepo-validation-and-lint.md)       | validate/typecheck del monorepo + lint de .tsx                  | P2       | S      | 070        | DONE — `5552137` (2026-08-03) |
-| [085](085-add-parking-degraded-mode.md)                | Modo degradado de parking con datos externos caídos             | P2       | S      | —          | TODO                          |
+| [085](085-add-parking-degraded-mode.md)                | Modo degradado de parking con datos externos caídos             | P2       | S      | —          | DONE — `d49dbf2` (2026-08-03) |
 
 ### Dependency graph
 
