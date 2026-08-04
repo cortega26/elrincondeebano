@@ -7,14 +7,15 @@ and operational runbooks.
 
 ## At a glance
 
-| Area                         | Source of truth                                                                |
-| ---------------------------- | ------------------------------------------------------------------------------ |
-| Production app               | [`astro-poc/`](./astro-poc/)                                                   |
-| Browser entry point          | [`astro-poc/src/scripts/storefront.js`](./astro-poc/src/scripts/storefront.js) |
-| Product and category data    | [`data/`](./data/)                                                             |
-| Source assets                | [`assets/`](./assets/)                                                         |
-| Build and validation tooling | [`tools/`](./tools/) and root [`package.json`](./package.json)                 |
-| Contributor task router      | [`docs/START_HERE.md`](./docs/START_HERE.md)                                   |
+| Area                         | Source of truth                                                                                                                                                               |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Production app               | [`astro-poc/`](./astro-poc/)                                                                                                                                                  |
+| Browser entry point          | [`astro-poc/src/scripts/storefront.js`](./astro-poc/src/scripts/storefront.js)                                                                                                |
+| Product and category data    | [`data/`](./data/)                                                                                                                                                            |
+| Admin Content Manager        | [`admin/content-manager/`](./admin/content-manager/README.md) (TypeScript; Python/Tkinter en `admin/product_manager/` es fallback durante la ventana de transición, plan 069) |
+| Source assets                | [`assets/`](./assets/)                                                                                                                                                        |
+| Build and validation tooling | [`tools/`](./tools/) and root [`package.json`](./package.json)                                                                                                                |
+| Contributor task router      | [`docs/START_HERE.md`](./docs/START_HERE.md)                                                                                                                                  |
 
 The shipped artifact is a static Astro site in `astro-poc/dist/`. There is no
 required application server. The former Node/EJS storefront is an archived
@@ -22,8 +23,8 @@ reference, not part of the deployment contract.
 
 ## Quick start
 
-Prerequisite: Node `24.x`. The repository is an npm workspace, so the root
-lockfile covers both the tooling and the Astro app.
+Prerequisite: Node `24.x`. The repository is an npm workspace (root, `astro-poc/`,
+and `admin/content-manager/`), so the root lockfile covers all three packages.
 
 ```bash
 npm run bootstrap

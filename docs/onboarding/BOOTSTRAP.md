@@ -18,15 +18,17 @@ Keep `.nvmrc`, `.node-version`, `.tool-versions`, CI workflows, and
 
 ## Why use the bootstrap command?
 
-This repository is an npm workspace with two packages:
+This repository is an npm workspace with three packages:
 
 - `/`
 - `astro-poc/`
+- `admin/content-manager/`
 
-The root lockfile covers both packages, and `npm run bootstrap` currently wraps
-the correct deterministic root install (`npm ci`). Use the named command so the
-onboarding contract remains stable if installation steps change later. Do not
-run a second install inside `astro-poc/`.
+The root lockfile covers all three packages, and `npm run bootstrap` currently
+wraps the correct deterministic root install (`npm ci`). Use the named command
+so the onboarding contract remains stable if installation steps change later.
+Do not run a second install inside `astro-poc/` or
+`admin/content-manager/`.
 
 ## Optional environment setup
 

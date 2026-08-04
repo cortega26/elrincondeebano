@@ -40,7 +40,24 @@ npx serve astro-poc/dist -l 4174
 - Include admin panel in build:
   - `INCLUDE_ADMIN_PANEL=1 npm run build`
 
-## Optional: admin tool (desktop manager)
+## Admin: Content Manager (canónico)
+
+The canonical admin application is the TypeScript Content Manager
+(`admin/content-manager/`, Fastify + React). From the repo root:
+
+```bash
+npm run admin:dev      # dev server (http://127.0.0.1:3000)
+ADMIN_MODE=operator npm run admin:start   # production start, writes enabled
+```
+
+In operator mode the launch credential comes from `ADMIN_CREDENTIAL` or is
+printed once in the startup log (plan 071); the UI prompts for it on first use.
+See `admin/content-manager/README.md` and `.env.example`.
+
+## Optional: Python fallback (desktop manager, transition window only)
+
+The Tkinter manager (`admin/product_manager/`) is the fallback during the
+transition window (plan 069); prefer the TypeScript manager above.
 
 1. `cd admin/product_manager`.
 2. `python -m venv .venv`.

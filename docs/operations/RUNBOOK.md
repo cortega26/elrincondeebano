@@ -145,9 +145,10 @@
 
 ## Content Manager (modo offline)
 
-- **Ruta:** `admin/product_manager/` (aplicación Tkinter).
+- **Canónico (TypeScript):** `admin/content-manager/`. Ejecuta `npm run admin:dev` desde la raíz del repo (o `npm run admin:start` en producción). Modos: `ADMIN_MODE=operator` (escribe) o `read-only` (por defecto). La credencial de lanzamiento se define con `ADMIN_CREDENTIAL` o se imprime una generada en el arranque en modo operator (plan 071); la UI la pide al primer uso. Detalles: `admin/content-manager/README.md` y `.env.example`.
+- **Fallback (Python/Tkinter):** `admin/product_manager/` — solo durante la ventana de transición (plan 069).
 - **Fuente de verdad:** `data/product_data.json` versionado en Git. No existe API remota por defecto.
-- **Configuración:** `sync.enabled` se mantiene en `false` y `sync.api_base` vacío (`admin/product_manager/content_manager.py:44-69`).
+- **Configuración (fallback Python):** `sync.enabled` se mantiene en `false` y `sync.api_base` vacío (`admin/product_manager/content_manager.py:44-69`).
 - **Ejecución:** abre la app → realiza ediciones → guarda. Los cambios quedan en el archivo del repo y se suben vía commit/push.
 - **Sincronización remota opcional:** habilítala sólo si hay un backend disponible. Crea un override (`config.json`) con `sync.enabled: true` y `sync.api_base` apuntando al endpoint. Mientras no haya backend, deja esos valores en blanco para evitar colas pendientes.
 - **Campos normalizados obligatorios (size):**
