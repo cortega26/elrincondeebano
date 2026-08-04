@@ -36,7 +36,12 @@ const DIST_CASES = [
 function readDistFile(relPath, t) {
   const filePath = path.join(ROOT, relPath);
   if (!fs.existsSync(filePath)) {
-    t.skip(`${relPath} not found; run npm run build first`);
+    // Explicit CI opt-in: the unit-tests job has no build artifacts.
+    if (process.env.CI_SKIP_BUILD_CONTRACT === '1') {
+      t.skip(`${relPath} not found; run npm run build first`);
+      return null;
+    }
+    assert.fail(`${relPath} not found; run npm run build first`);
     return null;
   }
   return fs.readFileSync(filePath, 'utf8');

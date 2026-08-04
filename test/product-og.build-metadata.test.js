@@ -9,7 +9,12 @@ const { getWebpBackedProduct } = require('./helpers/product-catalog.js');
 
 test('built product page falls back to a compatible category JPG og:image when catalog media is WebP', async (t) => {
   if (!fs.existsSync(distRoot)) {
-    t.skip('astro-poc/dist not found; run npm run build first');
+    // Explicit CI opt-in: the unit-tests job has no build artifacts.
+    if (process.env.CI_SKIP_BUILD_CONTRACT === '1') {
+      t.skip('skipped: CI_SKIP_BUILD_CONTRACT=1 (no build artifacts in this job)');
+      return;
+    }
+    assert.fail('astro-poc/dist not found; run npm run build first');
     return;
   }
 

@@ -8,7 +8,12 @@ const path = require('node:path');
 test('built homepage emits JPG og:image with explicit 1200x1200 metadata', (t) => {
   const pagePath = path.resolve(__dirname, '..', 'astro-poc', 'dist', 'index.html');
   if (!fs.existsSync(pagePath)) {
-    t.skip('astro-poc/dist/index.html not found; run npm run build first');
+    // Explicit CI opt-in: the unit-tests job has no build artifacts.
+    if (process.env.CI_SKIP_BUILD_CONTRACT === '1') {
+      t.skip('skipped: CI_SKIP_BUILD_CONTRACT=1 (no build artifacts in this job)');
+      return;
+    }
+    assert.fail('astro-poc/dist/index.html not found; run npm run build first');
     return;
   }
 

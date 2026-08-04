@@ -53,6 +53,10 @@ jobs:
 
       - name: Run unit and integration tests
         run: npm test
+        env:
+          # This job has no build artifacts; the build-contract tests skip
+          # explicitly instead of failing (plan 075).
+          CI_SKIP_BUILD_CONTRACT: '1'
 
   static-checks:
     name: Static Checks and Guardrails
