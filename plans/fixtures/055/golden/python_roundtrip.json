@@ -1,0 +1,209 @@
+[
+  {
+    "name": "Producto Básico",
+    "description": "Producto con solo campos obligatorios",
+    "price": 1000,
+    "discount": 0,
+    "stock": true,
+    "category": "Despensa",
+    "image_path": "",
+    "image_avif_path": "",
+    "order": 0,
+    "is_archived": false,
+    "rev": 1,
+    "field_last_modified": {
+      "name": {
+        "ts": "2026-07-15T00:00:00.000Z",
+        "by": "admin",
+        "rev": 1,
+        "base_rev": 0,
+        "changeset_id": "cs-001"
+      }
+    }
+  },
+  {
+    "name": "Producto Completo",
+    "description": "Producto con todos los campos opcionales completos",
+    "price": 50000,
+    "discount": 10000,
+    "stock": true,
+    "category": "Lácteos",
+    "image_path": "assets/images/lacteos/Producto Completo.webp",
+    "image_avif_path": "assets/images/lacteos/Producto Completo.avif",
+    "order": 1,
+    "is_archived": false,
+    "rev": 3,
+    "field_last_modified": {
+      "name": {
+        "ts": "2026-07-15T00:00:01.000Z",
+        "by": "admin",
+        "rev": 3,
+        "base_rev": 2,
+        "changeset_id": "cs-002"
+      },
+      "price": {
+        "ts": "2026-07-15T00:00:02.000Z",
+        "by": "admin",
+        "rev": 3,
+        "base_rev": 2,
+        "changeset_id": "cs-002"
+      },
+      "discount": {
+        "ts": "2026-07-15T00:00:02.000Z",
+        "by": "admin",
+        "rev": 3,
+        "base_rev": 1,
+        "changeset_id": "cs-002"
+      },
+      "stock": {
+        "ts": "2026-07-15T00:00:01.000Z",
+        "by": "admin",
+        "rev": 3,
+        "base_rev": 2,
+        "changeset_id": "cs-002"
+      },
+      "category": {
+        "ts": "2026-07-15T00:00:01.000Z",
+        "by": "admin",
+        "rev": 3,
+        "base_rev": 2,
+        "changeset_id": "cs-002"
+      },
+      "image_path": {
+        "ts": "2026-07-15T00:00:01.000Z",
+        "by": "admin",
+        "rev": 3,
+        "base_rev": 2,
+        "changeset_id": "cs-002"
+      },
+      "image_avif_path": {
+        "ts": "2026-07-15T00:00:01.000Z",
+        "by": "admin",
+        "rev": 3,
+        "base_rev": 1,
+        "changeset_id": "cs-001"
+      },
+      "order": {
+        "ts": "2026-07-15T00:00:01.000Z",
+        "by": "admin",
+        "rev": 3,
+        "base_rev": 2,
+        "changeset_id": "cs-002"
+      }
+    }
+  },
+  {
+    "name": "Producto Archivado",
+    "description": "Producto fuera de catálogo activo",
+    "price": 3000,
+    "discount": 0,
+    "stock": false,
+    "category": "Limpieza y Aseo",
+    "image_path": "assets/images/limpieza_y_aseo/Archivado.webp",
+    "image_avif_path": "assets/images/limpieza_y_aseo/Archivado.avif",
+    "order": 2,
+    "is_archived": true,
+    "rev": 1,
+    "field_last_modified": {
+      "is_archived": {
+        "ts": "2026-07-15T00:00:03.000Z",
+        "by": "admin",
+        "rev": 1,
+        "base_rev": 0,
+        "changeset_id": "cs-003"
+      }
+    }
+  },
+  {
+    "name": "Producto Sin Stock",
+    "description": "Producto activo pero agotado",
+    "price": 4500,
+    "discount": 500,
+    "stock": false,
+    "category": "Bebidas",
+    "image_path": "assets/images/bebidas/Sin Stock.webp",
+    "image_avif_path": "",
+    "order": 3,
+    "is_archived": false,
+    "rev": 2,
+    "field_last_modified": {
+      "stock": {
+        "ts": "2026-07-15T00:00:04.000Z",
+        "by": "admin",
+        "rev": 2,
+        "base_rev": 1,
+        "changeset_id": "cs-004"
+      }
+    }
+  },
+  {
+    "name": "Producto Gratis",
+    "description": "Producto con descuento igual al precio",
+    "price": 2500,
+    "discount": 2500,
+    "stock": true,
+    "category": "Despensa",
+    "image_path": "",
+    "image_avif_path": "",
+    "order": 4,
+    "is_archived": false,
+    "rev": 1,
+    "field_last_modified": {}
+  },
+  {
+    "name": "Café 100% Arábica ☕",
+    "description": "Café de origen único — Huatusco, Veracruz",
+    "price": 8500,
+    "discount": 0,
+    "stock": true,
+    "category": "Bebidas",
+    "image_path": "assets/images/bebidas/Café Arábica.webp",
+    "image_avif_path": "assets/images/bebidas/Café Arábica.avif",
+    "order": 5,
+    "is_archived": false,
+    "rev": 1,
+    "field_last_modified": {}
+  },
+  {
+    "name": "Queso Añejo • Pieza 500g",
+    "description": "Endulzado con miel de abeja melipona 🐝 — producto artesanal de la región",
+    "price": 12000,
+    "discount": 2000,
+    "stock": true,
+    "category": "Lácteos",
+    "image_path": "assets/images/lacteos/Queso Añejo 500g.webp",
+    "image_avif_path": "assets/images/lacteos/Queso Añejo 500g.avif",
+    "order": 6,
+    "is_archived": false,
+    "rev": 1,
+    "field_last_modified": {}
+  },
+  {
+    "name": "Jabón Artesanal Lavanda",
+    "description": "",
+    "price": 3500,
+    "discount": 0,
+    "stock": true,
+    "category": "Limpiezayaseo",
+    "image_path": "assets/images/limpieza_y_aseo/Jabón Lavanda.webp",
+    "image_avif_path": "",
+    "order": 7,
+    "is_archived": false,
+    "rev": 1,
+    "field_last_modified": {}
+  },
+  {
+    "name": "Miel Orgánica 250ml",
+    "description": "Miel pura de abeja sin procesar",
+    "price": 6000,
+    "discount": 0,
+    "stock": true,
+    "category": "Despensa",
+    "image_path": "assets/images/despensa/Miel 250ml.webp",
+    "image_avif_path": "assets/images/despensa/Miel 250ml.avif",
+    "order": 8,
+    "is_archived": false,
+    "rev": 1,
+    "field_last_modified": {}
+  }
+]

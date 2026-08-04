@@ -1,0 +1,38 @@
+{
+  "Producto Básico": {
+    "identity": "producto básico::producto con solo campos obligatorios",
+    "index": 0
+  },
+  "Producto Completo": {
+    "identity": "producto completo::producto con todos los campos opcionales completos",
+    "index": 1
+  },
+  "Producto Archivado": {
+    "identity": "producto archivado::producto fuera de catálogo activo",
+    "index": 2
+  },
+  "Producto Sin Stock": {
+    "identity": "producto sin stock::producto activo pero agotado",
+    "index": 3
+  },
+  "Producto Gratis": {
+    "identity": "producto gratis::producto con descuento igual al precio",
+    "index": 4
+  },
+  "Café 100% Arábica ☕": {
+    "identity": "café 100% arábica ☕::café de origen único — huatusco, veracruz",
+    "index": 5
+  },
+  "Queso Añejo • Pieza 500g": {
+    "identity": "queso añejo • pieza 500g::endulzado con miel de abeja melipona 🐝 — producto artesanal de la región",
+    "index": 6
+  },
+  "Jabón Artesanal Lavanda": {
+    "identity": "jabón artesanal lavanda::",
+    "index": 7
+  },
+  "Miel Orgánica 250ml": {
+    "identity": "miel orgánica 250ml::miel pura de abeja sin procesar",
+    "index": 8
+  }
+}

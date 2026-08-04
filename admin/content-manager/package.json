@@ -1,0 +1,47 @@
+{
+  "name": "admin-content-manager",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TypeScript Content Manager — local-first product/category/storefront admin",
+  "type": "module",
+  "scripts": {
+    "dev": "ADMIN_MODE=operator node --import tsx src/server/start.ts",
+    "build": "npm run build:web && npm run typecheck",
+    "build:web": "tsc -p tsconfig.web.json && vite build",
+    "start": "ADMIN_MODE=operator node --import tsx src/server/start.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck:root": "tsc -p tsconfig.root-compat.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test -c playwright.config.ts",
+    "parity": "node --import tsx scripts/parity-report.ts",
+    "shadow-read": "node --import tsx scripts/shadow-read.ts",
+    "certify": "node --import tsx scripts/certification-report.ts",
+    "doctor": "node --import tsx scripts/doctor.ts"
+  },
+  "dependencies": {
+    "fastify": "^5.10.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-router-dom": "^7.18.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "@types/node": "^24.13.0",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "@vitest/browser-playwright": "^4.1.10",
+    "@vitest/coverage-v8": "^4.1.10",
+    "playwright": "^1.61.1",
+    "tsx": "^4.21.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.1.4",
+    "vitest": "^4.0.16"
+  },
+  "engines": {
+    "node": ">=24 <25"
+  }
+}

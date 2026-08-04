@@ -1,0 +1,49 @@
+{
+  "trustBar": {
+    "highlights": [
+      { "label": "Envíos", "value": "Entrega local en Tuxtla" },
+      { "label": "Calidad", "value": "Productos 100% artesanales" }
+    ],
+    "statusItems": [{ "label": "Pedidos", "value": "WhatsApp al 961-123-4567" }]
+  },
+  "home": {
+    "primaryCategories": ["Despensa", "Lácteos"],
+    "secondaryCategories": ["Bebidas", "Limpieza y Aseo"],
+    "fallbackQuickPicks": [
+      { "category": "Despensa", "name": "Miel Orgánica 250ml" },
+      { "category": "Lácteos", "name": "Queso Añejo • Pieza 500g" }
+    ],
+    "featuredStaples": [
+      { "category": "Bebidas", "name": "Café 100% Arábica ☕" },
+      { "category": "Despensa", "name": "Producto Básico" }
+    ]
+  },
+  "bundles": [
+    {
+      "id": "combo-desayuno",
+      "title": "Combo Desayuno",
+      "description": "Café más miel para empezar el día",
+      "items": [
+        { "category": "Bebidas", "name": "Café 100% Arábica ☕" },
+        { "category": "Despensa", "name": "Miel Orgánica 250ml" }
+      ],
+      "bundlePrice": 13000
+    },
+    {
+      "id": "combo-quesos",
+      "title": "Combo de Quesos",
+      "description": "Dos clásicos de la región",
+      "items": [
+        { "category": "Lácteos", "name": "Queso Añejo • Pieza 500g" },
+        { "category": "Lácteos", "name": "Producto Completo" }
+      ],
+      "bundlePrice": 18000
+    }
+  ],
+  "companionRules": [
+    {
+      "sourceCategories": ["Despensa"],
+      "targets": [{ "category": "Bebidas", "name": "Café 100% Arábica ☕" }]
+    }
+  ]
+}

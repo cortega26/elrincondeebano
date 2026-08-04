@@ -8,6 +8,18 @@
     "test": "test"
   },
   "scripts": {
+    "admin:dev": "npm -w admin/content-manager run dev",
+    "admin:build": "npm -w admin/content-manager run build",
+    "admin:start": "npm -w admin/content-manager run start",
+    "admin:typecheck": "npm -w admin/content-manager run typecheck",
+    "admin:test": "npm -w admin/content-manager run test",
+    "admin:test:coverage": "npm -w admin/content-manager run test:coverage",
+    "admin:test:e2e": "npm -w admin/content-manager run test:e2e",
+    "admin:parity": "npm -w admin/content-manager run parity",
+    "admin:shadow-read": "npm -w admin/content-manager run shadow-read",
+    "admin:certify": "npm -w admin/content-manager run certify",
+    "admin:doctor": "npm -w admin/content-manager run doctor",
+    "admin:validate": "npm run admin:typecheck && npm run admin:test && npm run admin:build && npm run admin:parity",
     "bootstrap": "npm ci",
     "turbo": "turbo",
     "changeset": "changeset",
@@ -76,7 +88,8 @@
   "license": "ISC",
   "type": "commonjs",
   "workspaces": [
-    "astro-poc"
+    "astro-poc",
+    "admin/content-manager"
   ],
   "dependencies": {
     "@popperjs/core": "^2.11.8",
@@ -133,11 +146,11 @@
       "prettier --write"
     ],
     "*.{js,mjs,cjs}": [
-      "eslint --max-warnings=0 --no-warn-ignored --ignore-pattern 'astro-poc/**'",
+      "eslint --max-warnings=0 --no-warn-ignored --ignore-pattern 'astro-poc/**' --ignore-pattern 'admin/content-manager/**'",
       "prettier --write"
     ],
     "*.{ts,mts}": [
-      "eslint --max-warnings=0 --no-warn-ignored --ignore-pattern 'astro-poc/**'",
+      "eslint --max-warnings=0 --no-warn-ignored --ignore-pattern 'astro-poc/**' --ignore-pattern 'admin/content-manager/**'",
       "prettier --write"
     ],
     "*.{json,md,css,html}": [
