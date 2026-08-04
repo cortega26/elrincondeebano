@@ -40,7 +40,7 @@ npm run validate:release
 
 ## Checklist PR mínimo
 
-- [ ] `lint` + `typecheck` en verde.
+- [ ] `lint` + `typecheck` en verde (cubren storefront + legacy + Content Manager TS; `.tsx` incluido).
 - [ ] `test` en verde.
 - [ ] `build` en verde.
 - [ ] `guardrails:assets` en verde si cambia catálogo, taxonomía o assets.
