@@ -5,7 +5,6 @@ import {
   isValidMediaExtension,
   VALID_IMAGE_EXTENSIONS,
   type MediaItem,
-  type MediaIntent,
 } from '../../shared/schemas/media.ts';
 import type { Product } from '../../shared/schemas/product.ts';
 

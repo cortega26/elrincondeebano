@@ -1,4 +1,11 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
+import {
+  readFileSync,
+  writeFileSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  unlinkSync,
+} from 'node:fs';
 import { resolve } from 'node:path';
 import type { Conflict, ConflictFilter } from '../../shared/schemas/conflict.ts';
 import { conflictSchema } from '../../shared/schemas/conflict.ts';
@@ -52,7 +59,6 @@ export class ConflictRepository {
     const path = resolve(this.dir, `${id}.json`);
     if (!existsSync(path)) return false;
     try {
-      const { unlinkSync } = require('node:fs');
       unlinkSync(path);
       return true;
     } catch {

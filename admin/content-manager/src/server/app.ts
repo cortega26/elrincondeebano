@@ -28,7 +28,6 @@ import {
   generateCredential,
   validateCredential,
   extractCredential,
-  CREDENTIAL_HEADER,
 } from './security/launchCredential.ts';
 import { classifyRoute } from './security/routePolicy.ts';
 

@@ -42,7 +42,8 @@ export class StorefrontRepository {
       raw = readFileSync(this.experiencePath, 'utf-8');
     } catch (err) {
       throw new Error(
-        `Cannot read storefront experience from ${this.experiencePath}: ${(err as Error).message}`
+        `Cannot read storefront experience from ${this.experiencePath}: ${(err as Error).message}`,
+        { cause: err }
       );
     }
 

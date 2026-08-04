@@ -1,4 +1,4 @@
-import { existsSync, statSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { readFileSync } from 'node:fs';
 
@@ -105,12 +105,11 @@ export function runDoctor(repoRoot: string): DoctorReport {
 
   // Idempotency journal
   const idempotencyFile = resolve(repoRoot, 'data', 'idempotency.json');
-  let idempotencyCount = 0;
   if (existsSync(idempotencyFile)) {
     try {
       const raw = readFileSync(idempotencyFile, 'utf-8');
       const parsed = JSON.parse(raw);
-      idempotencyCount = Array.isArray(parsed) ? parsed.length : Object.keys(parsed).length;
+      const idempotencyCount = Array.isArray(parsed) ? parsed.length : Object.keys(parsed).length;
       addCheck('idempotency', 'ok', `${idempotencyCount} entries`);
     } catch {
       addCheck('idempotency', 'warn', 'Invalid JSON in idempotency.json');

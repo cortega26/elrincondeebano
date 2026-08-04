@@ -1,4 +1,4 @@
-import { writeFileSync, mkdirSync, readFileSync, existsSync } from 'node:fs';
+import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { execSync } from 'node:child_process';
 
@@ -60,15 +60,6 @@ function readTestOutput(command: string, cwd: string): { ok: boolean; output: st
       ok: false,
       output: (e.stderr ?? e.stdout ?? e.message ?? 'unknown error').slice(-2000),
     };
-  }
-}
-
-function loadJsonIfExists(path: string): Record<string, unknown> | null {
-  if (!existsSync(path)) return null;
-  try {
-    return JSON.parse(readFileSync(path, 'utf-8')) as Record<string, unknown>;
-  } catch {
-    return null;
   }
 }
 

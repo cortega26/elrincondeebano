@@ -1,4 +1,11 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
+import {
+  readFileSync,
+  writeFileSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  unlinkSync,
+} from 'node:fs';
 import { resolve } from 'node:path';
 import type { ChangeSet } from '../../shared/schemas/changeSet.ts';
 import { changeSetSchema } from '../../shared/schemas/changeSet.ts';
@@ -49,7 +56,6 @@ export class ChangeSetRepository {
     const path = resolve(this.dir, `${id}.json`);
     if (!existsSync(path)) return false;
     try {
-      const { unlinkSync } = require('node:fs');
       unlinkSync(path);
       return true;
     } catch {

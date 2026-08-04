@@ -1,5 +1,5 @@
 import type { Product, ProductCatalog } from '../../shared/schemas/product.ts';
-import { productSchema, productCatalogSchema } from '../../shared/schemas/product.ts';
+import { productSchema } from '../../shared/schemas/product.ts';
 import { generateProductId } from '../../shared/identity.ts';
 
 export interface CreateProductInput {

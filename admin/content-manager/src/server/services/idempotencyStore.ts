@@ -1,9 +1,4 @@
-import type {
-  CommandEnvelope,
-  CommandResult,
-  CommandIssue,
-  CommandConflict,
-} from '../../shared/commands/envelope.ts';
+import type { CommandResult } from '../../shared/commands/envelope.ts';
 
 export class IdempotencyStore {
   private readonly cache = new Map<string, CommandResult>();

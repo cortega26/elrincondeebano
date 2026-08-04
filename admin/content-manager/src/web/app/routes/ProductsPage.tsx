@@ -1,18 +1,18 @@
-import { useState, useEffect, useMemo, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
-import { ContentManagerClient } from "../../api/client.ts";
-import type { PaginatedResponse, ProductResponse } from "../../api/client.ts";
-import type { CategoryRecord } from "../../../shared/schemas/category.ts";
-import { fetchWithCredential } from "../credentialStore.ts";
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { ContentManagerClient } from '../../api/client.ts';
+import type { PaginatedResponse, ProductResponse } from '../../api/client.ts';
+import type { CategoryRecord } from '../../../shared/schemas/category.ts';
+import { fetchWithCredential } from '../credentialStore.ts';
 
 const client = new ContentManagerClient();
 
 function getImageUrl(mediaPath: string): string {
-  if (!mediaPath) return "";
-  if (mediaPath.startsWith("assets/images/")) {
-    return "/" + mediaPath;
+  if (!mediaPath) return '';
+  if (mediaPath.startsWith('assets/images/')) {
+    return '/' + mediaPath;
   }
-  return "/" + mediaPath;
+  return '/' + mediaPath;
 }
 
 interface BulkChange {
@@ -28,7 +28,12 @@ interface UndoEntry {
   value: number | boolean | string;
   product_ids: string[];
   oldValues?: Record<string, string>;
-  perProductOldValues?: Array<{ product_id: string; field: string; old_value: unknown; rev: number }>;
+  perProductOldValues?: Array<{
+    product_id: string;
+    field: string;
+    old_value: unknown;
+    rev: number;
+  }>;
 }
 
 export function ProductsPage(): React.ReactElement {
@@ -40,23 +45,23 @@ export function ProductsPage(): React.ReactElement {
   const [editing, setEditing] = useState<ProductResponse | null>(null);
   const [creating, setCreating] = useState(false);
   const [bulkPreview, setBulkPreview] = useState<BulkChange[] | null>(null);
-  const [bulkAction, setBulkAction] = useState<string>("set_discount_percent");
-  const [bulkValue, setBulkValue] = useState<string>("10");
+  const [bulkAction, setBulkAction] = useState<string>('set_discount_percent');
+  const [bulkValue, setBulkValue] = useState<string>('10');
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"table" | "gallery">("table");
-  const [sortField, setSortField] = useState<string>("order");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [viewMode, setViewMode] = useState<'table' | 'gallery'>('table');
+  const [sortField, setSortField] = useState<string>('order');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [categories, setCategories] = useState<CategoryRecord[]>([]);
   const [syncStatus, setSyncStatus] = useState<{ enabled: boolean; api_base: string } | null>(null);
   const [showSyncConfig, setShowSyncConfig] = useState(false);
-  const [syncConfig, setSyncConfig] = useState({ enabled: true, api_base: "", api_token: "" });
+  const [syncConfig, setSyncConfig] = useState({ enabled: true, api_base: '', api_token: '' });
   const undoStack = useRef<UndoEntry[]>([]);
   const dragIndex = useRef<number | null>(null);
 
-  const q = searchParams.get("q") ?? "";
-  const category = searchParams.get("category") ?? "";
-  const archived = searchParams.get("archived") ?? "";
-  const outOfStock = searchParams.get("out_of_stock") ?? "";
+  const q = searchParams.get('q') ?? '';
+  const category = searchParams.get('category') ?? '';
+  const archived = searchParams.get('archived') ?? '';
+  const outOfStock = searchParams.get('out_of_stock') ?? '';
 
   const load = async (): Promise<void> => {
     setLoading(true);
@@ -65,8 +70,8 @@ export function ProductsPage(): React.ReactElement {
       const result = await client.getProducts({
         q: q || undefined,
         category: category || undefined,
-        archived: archived === "true" ? true : archived === "false" ? false : undefined,
-        out_of_stock: outOfStock === "true" ? true : undefined,
+        archived: archived === 'true' ? true : archived === 'false' ? false : undefined,
+        out_of_stock: outOfStock === 'true' ? true : undefined,
       });
       setData(result);
     } catch (err) {
@@ -81,47 +86,55 @@ export function ProductsPage(): React.ReactElement {
   }, [q, category, archived, outOfStock]);
 
   useEffect(() => {
-    fetch("/api/v1/sync/status")
+    fetch('/api/v1/sync/status')
       .then((r) => r.json())
       .then((d) => {
-        const s = d.sync as { enabled: boolean; api_base: string; poll_interval: number; pull_interval: number };
+        const s = d.sync as {
+          enabled: boolean;
+          api_base: string;
+          poll_interval: number;
+          pull_interval: number;
+        };
         setSyncStatus(s);
         setSyncConfig({
           enabled: s.enabled,
-          api_base: s.api_base ?? "",
-          api_token: "",
+          api_base: s.api_base ?? '',
+          api_token: '',
         });
       })
       .catch(() => {});
   }, []);
 
   useEffect(() => {
-    client.getCategories().then((res) => setCategories(res.categories)).catch(() => {});
+    client
+      .getCategories()
+      .then((res) => setCategories(res.categories))
+      .catch(() => {});
   }, []);
 
   const sortedItems = useMemo(() => {
     if (!data) return [] as ProductResponse[];
     const items = [...data.items].sort((a, b) => {
-      let cmp = 0;
+      let cmp: number;
       switch (sortField) {
-        case "name":
-          cmp = (a.name ?? "").localeCompare(b.name ?? "", "es-MX");
+        case 'name':
+          cmp = (a.name ?? '').localeCompare(b.name ?? '', 'es-MX');
           break;
-        case "category":
-          cmp = (a.category ?? "").localeCompare(b.category ?? "", "es-MX");
+        case 'category':
+          cmp = (a.category ?? '').localeCompare(b.category ?? '', 'es-MX');
           break;
-        case "price":
+        case 'price':
           cmp = a.price - b.price;
           break;
-        case "discount":
+        case 'discount':
           cmp = a.discount - b.discount;
           break;
-        case "order":
+        case 'order':
         default:
           cmp = a.order - b.order;
           break;
       }
-      return sortDir === "asc" ? cmp : -cmp;
+      return sortDir === 'asc' ? cmp : -cmp;
     });
     return items;
   }, [data, sortField, sortDir]);
@@ -138,10 +151,10 @@ export function ProductsPage(): React.ReactElement {
 
   function handleSort(field: string): void {
     if (sortField === field) {
-      setSortDir(sortDir === "asc" ? "desc" : "asc");
+      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
     } else {
       setSortField(field);
-      setSortDir("asc");
+      setSortDir('asc');
     }
   }
 
@@ -151,7 +164,7 @@ export function ProductsPage(): React.ReactElement {
       await client.updateProduct(editing.id!, editing.rev, changes);
       setEditing(null);
       setSelected(null);
-      setFeedback("Producto actualizado ✓");
+      setFeedback('Producto actualizado ✓');
       await load();
     } catch (err) {
       setError((err as Error).message);
@@ -161,14 +174,14 @@ export function ProductsPage(): React.ReactElement {
   async function handleCreate(form: Record<string, unknown>): Promise<void> {
     try {
       await client.createProduct({
-        name: String(form.name ?? ""),
+        name: String(form.name ?? ''),
         price: Number(form.price ?? 0),
-        description: String(form.description ?? ""),
+        description: String(form.description ?? ''),
         stock: Boolean(form.stock),
-        category: String(form.category ?? ""),
+        category: String(form.category ?? ''),
       });
       setCreating(false);
-      setFeedback("Producto creado ✓");
+      setFeedback('Producto creado ✓');
       await load();
     } catch (err) {
       setError((err as Error).message);
@@ -177,11 +190,11 @@ export function ProductsPage(): React.ReactElement {
 
   async function handleArchive(id: string, rev: number): Promise<void> {
     const product = data?.items.find((p) => p.id === id);
-    if (!window.confirm(`¿Archivar ${product?.name ?? "producto"}?`)) return;
+    if (!window.confirm(`¿Archivar ${product?.name ?? 'producto'}?`)) return;
     try {
       await client.updateProduct(id, rev, { is_archived: true });
       setSelected(null);
-      setFeedback("Producto archivado ✓");
+      setFeedback('Producto archivado ✓');
       await load();
     } catch (err) {
       setError((err as Error).message);
@@ -190,11 +203,11 @@ export function ProductsPage(): React.ReactElement {
 
   async function handleRestore(id: string, rev: number): Promise<void> {
     const product = data?.items.find((p) => p.id === id);
-    if (!window.confirm(`¿Restaurar ${product?.name ?? "producto"}?`)) return;
+    if (!window.confirm(`¿Restaurar ${product?.name ?? 'producto'}?`)) return;
     try {
       await client.updateProduct(id, rev, { is_archived: false });
       setSelected(null);
-      setFeedback("Producto restaurado ✓");
+      setFeedback('Producto restaurado ✓');
       await load();
     } catch (err) {
       setError((err as Error).message);
@@ -206,11 +219,12 @@ export function ProductsPage(): React.ReactElement {
     const ids = data.items.filter((p) => p.id).map((p) => p.id!);
     if (ids.length === 0) return;
     try {
-      const val = bulkAction === "set_stock"
-        ? bulkValue === "true"
-        : bulkAction === "set_category"
-          ? bulkValue
-          : Number(bulkValue);
+      const val =
+        bulkAction === 'set_stock'
+          ? bulkValue === 'true'
+          : bulkAction === 'set_category'
+            ? bulkValue
+            : Number(bulkValue);
       const result = await client.bulkPreview(bulkAction, val, ids);
       setBulkPreview(result.changes);
       setFeedback(`Vista previa: ${result.changes.length} cambios`);
@@ -224,11 +238,12 @@ export function ProductsPage(): React.ReactElement {
     const ids = data.items.filter((p) => p.id).map((p) => p.id!);
     if (ids.length === 0) return;
     try {
-      const val = bulkAction === "set_stock"
-        ? bulkValue === "true"
-        : bulkAction === "set_category"
-          ? bulkValue
-          : Number(bulkValue);
+      const val =
+        bulkAction === 'set_stock'
+          ? bulkValue === 'true'
+          : bulkAction === 'set_category'
+            ? bulkValue
+            : Number(bulkValue);
 
       const entry: UndoEntry = { action: bulkAction, value: val, product_ids: [...ids] };
 
@@ -248,10 +263,10 @@ export function ProductsPage(): React.ReactElement {
           }
         }
       }
-      if (bulkAction === "set_category" && bulkPreview) {
+      if (bulkAction === 'set_category' && bulkPreview) {
         entry.oldValues = {};
         for (const change of bulkPreview) {
-          if (change.field === "category") {
+          if (change.field === 'category') {
             entry.oldValues[change.product_id] = String(change.old_value);
           }
         }
@@ -273,7 +288,7 @@ export function ProductsPage(): React.ReactElement {
     if (ids.length === 0) return;
     try {
       await client.reorderProducts(ids);
-      setFeedback("Productos reordenados ✓");
+      setFeedback('Productos reordenados ✓');
       await load();
     } catch (err) {
       setError((err as Error).message);
@@ -289,10 +304,12 @@ export function ProductsPage(): React.ReactElement {
         for (const undoItem of entry.perProductOldValues) {
           const product = data.items.find((p) => p.id === undoItem.product_id);
           if (product) {
-            await client.updateProduct(undoItem.product_id, product.rev, { [undoItem.field]: undoItem.old_value });
+            await client.updateProduct(undoItem.product_id, product.rev, {
+              [undoItem.field]: undoItem.old_value,
+            });
           }
         }
-      } else if (entry.action === "set_category" && entry.oldValues) {
+      } else if (entry.action === 'set_category' && entry.oldValues) {
         for (const product of data.items) {
           if (product.id && entry.product_ids.includes(product.id)) {
             const oldCategory = entry.oldValues[product.id];
@@ -303,14 +320,14 @@ export function ProductsPage(): React.ReactElement {
         }
       } else {
         let inverseValue: number | boolean | string;
-        if (entry.action === "set_stock") {
+        if (entry.action === 'set_stock') {
           inverseValue = entry.value === true ? false : true;
         } else {
           inverseValue = 0;
         }
         await client.bulkApply(entry.action, inverseValue, entry.product_ids);
       }
-      setFeedback("Operación deshecha ✓");
+      setFeedback('Operación deshecha ✓');
       await load();
     } catch (err) {
       setError((err as Error).message);
@@ -319,12 +336,12 @@ export function ProductsPage(): React.ReactElement {
 
   function handleDragStart(e: React.DragEvent<HTMLTableRowElement>, index: number): void {
     dragIndex.current = index;
-    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.effectAllowed = 'move';
   }
 
   function handleDragOver(e: React.DragEvent<HTMLTableRowElement>): void {
     e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
+    e.dataTransfer.dropEffect = 'move';
   }
 
   function handleDrop(e: React.DragEvent<HTMLTableRowElement>, dropIndex: number): void {
@@ -339,12 +356,15 @@ export function ProductsPage(): React.ReactElement {
     dragIndex.current = null;
 
     const ids = items.filter((p) => p.id).map((p) => p.id!);
-    client.reorderProducts(ids).then(() => {
-      setFeedback("Productos reordenados ✓");
-      void load();
-    }).catch((err) => {
-      setError((err as Error).message);
-    });
+    client
+      .reorderProducts(ids)
+      .then(() => {
+        setFeedback('Productos reordenados ✓');
+        void load();
+      })
+      .catch((err) => {
+        setError((err as Error).message);
+      });
   }
 
   if (error) {
@@ -352,40 +372,86 @@ export function ProductsPage(): React.ReactElement {
       <main role="main" aria-label="Productos">
         <h1>Productos</h1>
         <p role="alert">{error}</p>
-        <button onClick={() => { setError(null); void load(); }}>Reintentar</button>
+        <button
+          onClick={() => {
+            setError(null);
+            void load();
+          }}
+        >
+          Reintentar
+        </button>
       </main>
     );
   }
 
   return (
     <main role="main" aria-label="Productos">
-      <h1>Productos{data ? ` (${data.total})` : ""}</h1>
+      <h1>Productos{data ? ` (${data.total})` : ''}</h1>
 
       {syncStatus && (
-        <div style={{ background: "#e3f2fd", padding: "0.35rem 0.5rem", marginBottom: "0.5rem", borderRadius: "var(--radius)", display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", flexWrap: "wrap" }}>
+        <div
+          style={{
+            background: '#e3f2fd',
+            padding: '0.35rem 0.5rem',
+            marginBottom: '0.5rem',
+            borderRadius: 'var(--radius)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            fontSize: '0.85rem',
+            flexWrap: 'wrap',
+          }}
+        >
           <span>
-            Sync: {syncStatus.enabled ? "Conectado" : "Desactivado"} — {syncStatus.api_base || "No configurado"}
+            Sync: {syncStatus.enabled ? 'Conectado' : 'Desactivado'} —{' '}
+            {syncStatus.api_base || 'No configurado'}
           </span>
-          <button onClick={() => { setShowSyncConfig(!showSyncConfig); }} style={{ padding: "0.15rem 0.5rem", fontSize: "0.8rem" }}>
+          <button
+            onClick={() => {
+              setShowSyncConfig(!showSyncConfig);
+            }}
+            style={{ padding: '0.15rem 0.5rem', fontSize: '0.8rem' }}
+          >
             Configurar
           </button>
           {syncStatus.enabled && (
             <button
               onClick={() => {
-                fetchWithCredential("/api/v1/sync/now", { method: "POST" })
+                fetchWithCredential('/api/v1/sync/now', { method: 'POST' })
                   .then((r) => r.json())
-                  .then((d) => setFeedback((d as { message?: string }).message ?? "Sync solicitado"))
-                  .catch(() => setFeedback("Error al sincronizar"));
+                  .then((d) =>
+                    setFeedback((d as { message?: string }).message ?? 'Sync solicitado')
+                  )
+                  .catch(() => setFeedback('Error al sincronizar'));
               }}
-              style={{ padding: "0.15rem 0.5rem", fontSize: "0.8rem" }}
+              style={{ padding: '0.15rem 0.5rem', fontSize: '0.8rem' }}
             >
               Sincronizar ahora
             </button>
           )}
           {showSyncConfig && (
-            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexBasis: "100%", marginTop: "0.25rem" }}>
-              <label style={{ display: "flex", alignItems: "center", gap: "0.25rem", fontSize: "0.8rem" }}>
-                <input type="checkbox" checked={syncConfig.enabled} onChange={(e) => setSyncConfig({ ...syncConfig, enabled: e.target.checked })} />
+            <div
+              style={{
+                display: 'flex',
+                gap: '0.5rem',
+                alignItems: 'center',
+                flexBasis: '100%',
+                marginTop: '0.25rem',
+              }}
+            >
+              <label
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                  fontSize: '0.8rem',
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={syncConfig.enabled}
+                  onChange={(e) => setSyncConfig({ ...syncConfig, enabled: e.target.checked })}
+                />
                 Habilitado
               </label>
               <input
@@ -393,42 +459,45 @@ export function ProductsPage(): React.ReactElement {
                 value={syncConfig.api_base}
                 onChange={(e) => setSyncConfig({ ...syncConfig, api_base: e.target.value })}
                 placeholder="api_base"
-                style={{ padding: "0.15rem 0.25rem", fontSize: "0.8rem", width: "150px" }}
+                style={{ padding: '0.15rem 0.25rem', fontSize: '0.8rem', width: '150px' }}
               />
               <input
                 type="text"
                 value={syncConfig.api_token}
                 onChange={(e) => setSyncConfig({ ...syncConfig, api_token: e.target.value })}
                 placeholder="api_token"
-                style={{ padding: "0.15rem 0.25rem", fontSize: "0.8rem", width: "120px" }}
+                style={{ padding: '0.15rem 0.25rem', fontSize: '0.8rem', width: '120px' }}
               />
               <button
                 onClick={async () => {
                   try {
-                    const res = await fetchWithCredential("/api/v1/sync/config", {
-                      method: "PUT",
-                      headers: { "Content-Type": "application/json" },
+                    const res = await fetchWithCredential('/api/v1/sync/config', {
+                      method: 'PUT',
+                      headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify(syncConfig),
                     });
                     if (!res.ok) {
                       const err = await res.json().catch(() => ({}));
-                      throw new Error((err as { error?: { message?: string } }).error?.message ?? `HTTP ${res.status}`);
+                      throw new Error(
+                        (err as { error?: { message?: string } }).error?.message ??
+                          `HTTP ${res.status}`
+                      );
                     }
                     const updated = await res.json();
-                    setSyncStatus((updated as { enabled: boolean; api_base: string }));
+                    setSyncStatus(updated as { enabled: boolean; api_base: string });
                     setShowSyncConfig(false);
-                    setFeedback("Configuración de sync guardada ✓");
+                    setFeedback('Configuración de sync guardada ✓');
                   } catch (err) {
                     setError((err as Error).message);
                   }
                 }}
-                style={{ padding: "0.15rem 0.5rem", fontSize: "0.8rem" }}
+                style={{ padding: '0.15rem 0.5rem', fontSize: '0.8rem' }}
               >
                 Guardar
               </button>
               <button
                 onClick={() => setShowSyncConfig(false)}
-                style={{ padding: "0.15rem 0.5rem", fontSize: "0.8rem" }}
+                style={{ padding: '0.15rem 0.5rem', fontSize: '0.8rem' }}
               >
                 Cerrar
               </button>
@@ -439,43 +508,77 @@ export function ProductsPage(): React.ReactElement {
 
       {/* Feedback */}
       {feedback && (
-        <div role="status" aria-live="polite" style={{ background: "#e8f5e9", padding: "0.5rem", marginBottom: "0.5rem", borderRadius: "var(--radius)" }}>
+        <div
+          role="status"
+          aria-live="polite"
+          style={{
+            background: '#e8f5e9',
+            padding: '0.5rem',
+            marginBottom: '0.5rem',
+            borderRadius: 'var(--radius)',
+          }}
+        >
           {feedback}
-          <button onClick={() => setFeedback(null)} style={{ marginLeft: "0.5rem", background: "none", border: "none", cursor: "pointer" }} aria-label="Cerrar">×</button>
+          <button
+            onClick={() => setFeedback(null)}
+            style={{ marginLeft: '0.5rem', background: 'none', border: 'none', cursor: 'pointer' }}
+            aria-label="Cerrar"
+          >
+            ×
+          </button>
         </div>
       )}
 
       {/* Filters */}
-      <nav aria-label="Filtros" style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap", alignItems: "center" }}>
+      <nav
+        aria-label="Filtros"
+        style={{
+          display: 'flex',
+          gap: '0.5rem',
+          marginBottom: '1rem',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+        }}
+      >
         <label>
-          Buscar:{" "}
+          Buscar:{' '}
           <input
             type="search"
             value={q}
-            onChange={(e) => setParam("q", e.target.value)}
+            onChange={(e) => setParam('q', e.target.value)}
             placeholder="Nombre, descripción…"
-            style={{ padding: "0.25rem 0.5rem", width: "200px" }}
+            style={{ padding: '0.25rem 0.5rem', width: '200px' }}
           />
         </label>
         <label>
-          Categoría:{" "}
+          Categoría:{' '}
           <select
             value={category}
-            onChange={(e) => setParam("category", e.target.value)}
-            style={{ padding: "0.25rem 0.5rem", minWidth: "140px" }}
+            onChange={(e) => setParam('category', e.target.value)}
+            style={{ padding: '0.25rem 0.5rem', minWidth: '140px' }}
           >
             <option value="">Todas</option>
             {categories.map((c) => (
-              <option key={c.key} value={c.key}>{c.display_name?.default ?? c.key}</option>
+              <option key={c.key} value={c.key}>
+                {c.display_name?.default ?? c.key}
+              </option>
             ))}
           </select>
         </label>
-        <label style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-          <input type="checkbox" checked={outOfStock === "true"} onChange={(e) => setParam("out_of_stock", e.target.checked ? "true" : "")} />
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+          <input
+            type="checkbox"
+            checked={outOfStock === 'true'}
+            onChange={(e) => setParam('out_of_stock', e.target.checked ? 'true' : '')}
+          />
           Sin stock
         </label>
-        <label style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-          <select value={archived} onChange={(e) => setParam("archived", e.target.value)} style={{ padding: "0.25rem" }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+          <select
+            value={archived}
+            onChange={(e) => setParam('archived', e.target.value)}
+            style={{ padding: '0.25rem' }}
+          >
             <option value="">Todos</option>
             <option value="false">Activos</option>
             <option value="true">Archivados</option>
@@ -483,63 +586,108 @@ export function ProductsPage(): React.ReactElement {
         </label>
         <button
           onClick={() => {
-            fetch("/api/v1/products")
+            fetch('/api/v1/products')
               .then((r) => r.json())
               .then((d) => setFeedback(`Sanity check: ${d.total} productos, sin errores`))
-              .catch(() => setFeedback("Error al validar"));
+              .catch(() => setFeedback('Error al validar'));
           }}
-          style={{ padding: "0.25rem 0.75rem" }}
+          style={{ padding: '0.25rem 0.75rem' }}
         >
           ✓ Validar
         </button>
-        <button onClick={() => setCreating(true)} style={{ padding: "0.25rem 0.75rem", marginLeft: "auto" }}>
+        <button
+          onClick={() => setCreating(true)}
+          style={{ padding: '0.25rem 0.75rem', marginLeft: 'auto' }}
+        >
           + Nuevo
         </button>
         <button
-          onClick={() => setViewMode(viewMode === "table" ? "gallery" : "table")}
-          style={{ padding: "0.25rem 0.75rem" }}
-          aria-label={viewMode === "table" ? "Vista galería" : "Vista tabla"}
+          onClick={() => setViewMode(viewMode === 'table' ? 'gallery' : 'table')}
+          style={{ padding: '0.25rem 0.75rem' }}
+          aria-label={viewMode === 'table' ? 'Vista galería' : 'Vista tabla'}
         >
-          {viewMode === "table" ? "🖼️" : "📋"}
+          {viewMode === 'table' ? '🖼️' : '📋'}
         </button>
       </nav>
 
       {/* Bulk operations */}
-      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", alignItems: "center", flexWrap: "wrap" }}>
-        <select value={bulkAction} onChange={(e) => setBulkAction(e.target.value)} style={{ padding: "0.25rem" }} aria-label="Acción masiva">
+      <div
+        style={{
+          display: 'flex',
+          gap: '0.5rem',
+          marginBottom: '1rem',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+        }}
+      >
+        <select
+          value={bulkAction}
+          onChange={(e) => setBulkAction(e.target.value)}
+          style={{ padding: '0.25rem' }}
+          aria-label="Acción masiva"
+        >
           <option value="set_discount_percent">Dto. %</option>
           <option value="set_discount_fixed">Dto. fijo</option>
           <option value="set_price_delta_percent">Precio ±%</option>
           <option value="set_stock">Stock ON/OFF</option>
           <option value="set_category">Categoría</option>
         </select>
-        {bulkAction === "set_stock" ? (
-          <select value={bulkValue} onChange={(e) => setBulkValue(e.target.value)} style={{ padding: "0.25rem" }}>
+        {bulkAction === 'set_stock' ? (
+          <select
+            value={bulkValue}
+            onChange={(e) => setBulkValue(e.target.value)}
+            style={{ padding: '0.25rem' }}
+          >
             <option value="true">Con stock</option>
             <option value="false">Sin stock</option>
           </select>
         ) : (
           <input
-            type={bulkAction === "set_category" ? "text" : "number"}
+            type={bulkAction === 'set_category' ? 'text' : 'number'}
             value={bulkValue}
             onChange={(e) => setBulkValue(e.target.value)}
-            placeholder={bulkAction === "set_category" ? "categoría" : "valor"}
-            style={{ padding: "0.25rem 0.5rem", width: "100px" }}
+            placeholder={bulkAction === 'set_category' ? 'categoría' : 'valor'}
+            style={{ padding: '0.25rem 0.5rem', width: '100px' }}
           />
         )}
-        <button onClick={() => void handleBulkPreview()} style={{ padding: "0.25rem 0.75rem" }}>Vista previa</button>
-        <button onClick={() => void handleBulkApply()} style={{ padding: "0.25rem 0.75rem" }}>Aplicar</button>
-        <button onClick={() => void handleReorder()} style={{ padding: "0.25rem 0.75rem", marginLeft: "auto" }} title="Reordenar por orden actual">⇅ Reordenar</button>
+        <button onClick={() => void handleBulkPreview()} style={{ padding: '0.25rem 0.75rem' }}>
+          Vista previa
+        </button>
+        <button onClick={() => void handleBulkApply()} style={{ padding: '0.25rem 0.75rem' }}>
+          Aplicar
+        </button>
+        <button
+          onClick={() => void handleReorder()}
+          style={{ padding: '0.25rem 0.75rem', marginLeft: 'auto' }}
+          title="Reordenar por orden actual"
+        >
+          ⇅ Reordenar
+        </button>
         {undoStack.current.length > 0 && (
-          <button onClick={() => void handleUndo()} style={{ padding: "0.25rem 0.75rem" }} title="Deshacer última operación masiva">↩ Deshacer</button>
+          <button
+            onClick={() => void handleUndo()}
+            style={{ padding: '0.25rem 0.75rem' }}
+            title="Deshacer última operación masiva"
+          >
+            ↩ Deshacer
+          </button>
         )}
       </div>
 
       {/* Bulk preview results */}
       {bulkPreview && bulkPreview.length > 0 && (
-        <div style={{ background: "#fff3e0", padding: "0.5rem", marginBottom: "0.5rem", borderRadius: "var(--radius)", maxHeight: "200px", overflowY: "auto" }}>
+        <div
+          style={{
+            background: '#fff3e0',
+            padding: '0.5rem',
+            marginBottom: '0.5rem',
+            borderRadius: 'var(--radius)',
+            maxHeight: '200px',
+            overflowY: 'auto',
+          }}
+        >
           <strong>Cambios ({bulkPreview.length}):</strong>
-          <table style={{ width: "100%", fontSize: "0.85rem" }}>
+          <table style={{ width: '100%', fontSize: '0.85rem' }}>
             <thead>
               <tr>
                 <th>Producto</th>
@@ -554,7 +702,7 @@ export function ProductsPage(): React.ReactElement {
                   <td>{c.name}</td>
                   <td>{c.field}</td>
                   <td>{String(c.old_value)}</td>
-                  <td style={{ fontWeight: "bold" }}>{String(c.new_value)}</td>
+                  <td style={{ fontWeight: 'bold' }}>{String(c.new_value)}</td>
                 </tr>
               ))}
             </tbody>
@@ -569,27 +717,70 @@ export function ProductsPage(): React.ReactElement {
       {!loading && data && data.items.length === 0 && <p>No se encontraron productos.</p>}
 
       {/* Table or Gallery */}
-      {viewMode === "table" && data && data.items.length > 0 && (
-        <table aria-label="Lista de productos" style={{ width: "100%", borderCollapse: "collapse" }}>
+      {viewMode === 'table' && data && data.items.length > 0 && (
+        <table
+          aria-label="Lista de productos"
+          style={{ width: '100%', borderCollapse: 'collapse' }}
+        >
           <thead>
             <tr>
-              <th scope="col" style={{ textAlign: "left", padding: "0.25rem 0.5rem", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("name")}>
-                Nombre{sortField === "name" ? (sortDir === "asc" ? " ▲" : " ▼") : ""}
+              <th
+                scope="col"
+                style={{
+                  textAlign: 'left',
+                  padding: '0.25rem 0.5rem',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                }}
+                onClick={() => handleSort('name')}
+              >
+                Nombre{sortField === 'name' ? (sortDir === 'asc' ? ' ▲' : ' ▼') : ''}
               </th>
-              <th scope="col" style={{ textAlign: "left", padding: "0.25rem 0.5rem" }}>
+              <th scope="col" style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>
                 Descripción
               </th>
-              <th scope="col" style={{ textAlign: "left", padding: "0.25rem 0.5rem", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("category")}>
-                Cat.{sortField === "category" ? (sortDir === "asc" ? " ▲" : " ▼") : ""}
+              <th
+                scope="col"
+                style={{
+                  textAlign: 'left',
+                  padding: '0.25rem 0.5rem',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                }}
+                onClick={() => handleSort('category')}
+              >
+                Cat.{sortField === 'category' ? (sortDir === 'asc' ? ' ▲' : ' ▼') : ''}
               </th>
-              <th scope="col" style={{ textAlign: "right", padding: "0.25rem 0.5rem", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("price")}>
-                Precio{sortField === "price" ? (sortDir === "asc" ? " ▲" : " ▼") : ""}
+              <th
+                scope="col"
+                style={{
+                  textAlign: 'right',
+                  padding: '0.25rem 0.5rem',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                }}
+                onClick={() => handleSort('price')}
+              >
+                Precio{sortField === 'price' ? (sortDir === 'asc' ? ' ▲' : ' ▼') : ''}
               </th>
-              <th scope="col" style={{ textAlign: "right", padding: "0.25rem 0.5rem", cursor: "pointer", userSelect: "none" }} onClick={() => handleSort("discount")}>
-                Dto.{sortField === "discount" ? (sortDir === "asc" ? " ▲" : " ▼") : ""}
+              <th
+                scope="col"
+                style={{
+                  textAlign: 'right',
+                  padding: '0.25rem 0.5rem',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                }}
+                onClick={() => handleSort('discount')}
+              >
+                Dto.{sortField === 'discount' ? (sortDir === 'asc' ? ' ▲' : ' ▼') : ''}
               </th>
-              <th scope="col" style={{ textAlign: "center", padding: "0.25rem 0.5rem" }}>Stock</th>
-              <th scope="col" style={{ padding: "0.25rem 0.5rem" }}>Acciones</th>
+              <th scope="col" style={{ textAlign: 'center', padding: '0.25rem 0.5rem' }}>
+                Stock
+              </th>
+              <th scope="col" style={{ padding: '0.25rem 0.5rem' }}>
+                Acciones
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -597,17 +788,28 @@ export function ProductsPage(): React.ReactElement {
               <tr
                 key={product.id ?? product.sku ?? product.name}
                 style={{
-                  background: product.is_archived ? "#f5f5f5" : selected?.id === product.id ? "#e3f2fd" : "transparent",
-                  cursor: "pointer",
+                  background: product.is_archived
+                    ? '#f5f5f5'
+                    : selected?.id === product.id
+                      ? '#e3f2fd'
+                      : 'transparent',
+                  cursor: 'pointer',
                 }}
                 onClick={() => {
                   setSelected(product);
                   setEditing(null);
                   setBulkPreview(null);
                 }}
-                onDoubleClick={() => { setEditing(product); setSelected(null); }}
+                onDoubleClick={() => {
+                  setEditing(product);
+                  setSelected(null);
+                }}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") { setSelected(product); setEditing(null); setBulkPreview(null); }
+                  if (e.key === 'Enter') {
+                    setSelected(product);
+                    setEditing(null);
+                    setBulkPreview(null);
+                  }
                 }}
                 tabIndex={0}
                 role="row"
@@ -617,43 +819,60 @@ export function ProductsPage(): React.ReactElement {
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, idx)}
               >
-                <td style={{ padding: "0.25rem 0.5rem" }}>
+                <td style={{ padding: '0.25rem 0.5rem' }}>
                   {product.name}
-                  {product.is_archived ? " (arch.)" : ""}
+                  {product.is_archived ? ' (arch.)' : ''}
                 </td>
-                <td style={{ padding: "0.25rem 0.5rem", maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {product.description || "—"}
+                <td
+                  style={{
+                    padding: '0.25rem 0.5rem',
+                    maxWidth: '200px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {product.description || '—'}
                 </td>
-                <td style={{ padding: "0.25rem 0.5rem" }}>{product.category || "—"}</td>
-                <td style={{ padding: "0.25rem 0.5rem", textAlign: "right" }}>
-                  ${product.price.toLocaleString("es-MX")}
+                <td style={{ padding: '0.25rem 0.5rem' }}>{product.category || '—'}</td>
+                <td style={{ padding: '0.25rem 0.5rem', textAlign: 'right' }}>
+                  ${product.price.toLocaleString('es-MX')}
                 </td>
-                <td style={{ padding: "0.25rem 0.5rem", textAlign: "right" }}>
-                  {product.discount > 0 ? `${product.discount_percentage}%` : "—"}
+                <td style={{ padding: '0.25rem 0.5rem', textAlign: 'right' }}>
+                  {product.discount > 0 ? `${product.discount_percentage}%` : '—'}
                 </td>
-                <td style={{ padding: "0.25rem 0.5rem", textAlign: "center" }}>
-                  {product.stock ? "✓" : "✗"}
+                <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center' }}>
+                  {product.stock ? '✓' : '✗'}
                 </td>
-                <td style={{ padding: "0.25rem 0.5rem", whiteSpace: "nowrap" }}>
+                <td style={{ padding: '0.25rem 0.5rem', whiteSpace: 'nowrap' }}>
                   <button
-                    onClick={(e) => { e.stopPropagation(); setEditing(product); }}
-                    style={{ padding: "0.1rem 0.4rem", fontSize: "0.85rem" }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditing(product);
+                    }}
+                    style={{ padding: '0.1rem 0.4rem', fontSize: '0.85rem' }}
                     aria-label={`Editar ${product.name}`}
                   >
                     Editar
-                  </button>{" "}
+                  </button>{' '}
                   {product.is_archived ? (
                     <button
-                      onClick={(e) => { e.stopPropagation(); void handleRestore(product.id!, product.rev); }}
-                      style={{ padding: "0.1rem 0.4rem", fontSize: "0.85rem" }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        void handleRestore(product.id!, product.rev);
+                      }}
+                      style={{ padding: '0.1rem 0.4rem', fontSize: '0.85rem' }}
                       aria-label={`Restaurar ${product.name}`}
                     >
                       Rest.
                     </button>
                   ) : (
                     <button
-                      onClick={(e) => { e.stopPropagation(); void handleArchive(product.id!, product.rev); }}
-                      style={{ padding: "0.1rem 0.4rem", fontSize: "0.85rem" }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        void handleArchive(product.id!, product.rev);
+                      }}
+                      style={{ padding: '0.1rem 0.4rem', fontSize: '0.85rem' }}
                       aria-label={`Archivar ${product.name}`}
                     >
                       Arch.
@@ -667,41 +886,87 @@ export function ProductsPage(): React.ReactElement {
       )}
 
       {/* Gallery view */}
-      {viewMode === "gallery" && data && data.items.length > 0 && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "0.75rem" }}>
+      {viewMode === 'gallery' && data && data.items.length > 0 && (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+            gap: '0.75rem',
+          }}
+        >
           {sortedItems.map((product) => (
             <div
               key={product.id ?? product.sku ?? product.name}
-              onClick={() => { setSelected(product); setEditing(null); }}
-              onKeyDown={(e) => { if (e.key === "Enter") { setSelected(product); setEditing(null); } }}
+              onClick={() => {
+                setSelected(product);
+                setEditing(null);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  setSelected(product);
+                  setEditing(null);
+                }
+              }}
               tabIndex={0}
               role="button"
               aria-label={`${product.name} — $${product.price}`}
               style={{
-                border: selected?.id === product.id ? "2px solid var(--color-primary)" : "1px solid var(--color-border)",
-                borderRadius: "var(--radius)",
-                padding: "0.75rem",
-                cursor: "pointer",
-                background: product.is_archived ? "#f5f5f5" : "white",
+                border:
+                  selected?.id === product.id
+                    ? '2px solid var(--color-primary)'
+                    : '1px solid var(--color-border)',
+                borderRadius: 'var(--radius)',
+                padding: '0.75rem',
+                cursor: 'pointer',
+                background: product.is_archived ? '#f5f5f5' : 'white',
               }}
             >
               {product.image_path ? (
-                <img src={getImageUrl(product.image_path)} alt={product.name} style={{ width: "100%", height: "120px", objectFit: "cover", borderRadius: "var(--radius)" }} />
+                <img
+                  src={getImageUrl(product.image_path)}
+                  alt={product.name}
+                  style={{
+                    width: '100%',
+                    height: '120px',
+                    objectFit: 'cover',
+                    borderRadius: 'var(--radius)',
+                  }}
+                />
               ) : (
-                <div style={{ width: "100%", height: "120px", background: "#eee", borderRadius: "var(--radius)", display: "flex", alignItems: "center", justifyContent: "center", color: "#999" }}>Sin imagen</div>
+                <div
+                  style={{
+                    width: '100%',
+                    height: '120px',
+                    background: '#eee',
+                    borderRadius: 'var(--radius)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#999',
+                  }}
+                >
+                  Sin imagen
+                </div>
               )}
-              <h3 style={{ margin: "0 0 0.25rem", fontSize: "0.95rem" }}>{product.name}</h3>
-              <p style={{ margin: "0.25rem 0", fontSize: "1.1rem", fontWeight: "bold" }}>
-                ${product.price.toLocaleString("es-MX")}
+              <h3 style={{ margin: '0 0 0.25rem', fontSize: '0.95rem' }}>{product.name}</h3>
+              <p style={{ margin: '0.25rem 0', fontSize: '1.1rem', fontWeight: 'bold' }}>
+                ${product.price.toLocaleString('es-MX')}
               </p>
               {product.discount > 0 && (
-                <span style={{ background: "#c8e6c9", padding: "0.1rem 0.3rem", borderRadius: "3px", fontSize: "0.8rem" }}>
+                <span
+                  style={{
+                    background: '#c8e6c9',
+                    padding: '0.1rem 0.3rem',
+                    borderRadius: '3px',
+                    fontSize: '0.8rem',
+                  }}
+                >
                   -{product.discount_percentage}%
                 </span>
               )}
-              <div style={{ marginTop: "0.5rem", fontSize: "0.8rem", color: "#6c757d" }}>
-                {product.category || "Sin categoría"} · {product.stock ? "✓ Stock" : "✗ Agotado"}
-                {product.is_archived ? " · Archivado" : ""}
+              <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#6c757d' }}>
+                {product.category || 'Sin categoría'} · {product.stock ? '✓ Stock' : '✗ Agotado'}
+                {product.is_archived ? ' · Archivado' : ''}
               </div>
             </div>
           ))}
@@ -712,34 +977,76 @@ export function ProductsPage(): React.ReactElement {
       {selected && !editing && (
         <aside
           aria-label={`Detalle: ${selected.name}`}
-          style={{ marginTop: "1rem", padding: "1rem", border: "1px solid var(--color-border)", borderRadius: "var(--radius)" }}
+          style={{
+            marginTop: '1rem',
+            padding: '1rem',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius)',
+          }}
         >
           <h2>{selected.name}</h2>
-          <dl style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: "0.25rem 0.5rem" }}>
-            <dt>ID:</dt><dd><code>{selected.id}</code></dd>
-            <dt>Descripción:</dt><dd>{selected.description || "—"}</dd>
-            <dt>Precio:</dt><dd>${selected.price.toLocaleString("es-MX")}</dd>
-            <dt>Descuento:</dt><dd>${selected.discount.toLocaleString("es-MX")} ({selected.discount_percentage}%)</dd>
-            <dt>Precio final:</dt><dd>${selected.discounted_price.toLocaleString("es-MX")}</dd>
-            <dt>Stock:</dt><dd>{selected.stock ? "Disponible" : "Agotado"}</dd>
-            <dt>Categoría:</dt><dd>{selected.category || "—"}</dd>
-            <dt>Imagen:</dt><dd>{selected.image_path || "—"}</dd>
-            <dt>AVIF:</dt><dd>{selected.image_avif_path || "—"}</dd>
-            <dt>Orden:</dt><dd>{selected.order}</dd>
-            <dt>Rev:</dt><dd>{selected.rev}</dd>
-            <dt>Archivado:</dt><dd>{selected.is_archived ? "Sí" : "No"}</dd>
+          <dl style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '0.25rem 0.5rem' }}>
+            <dt>ID:</dt>
+            <dd>
+              <code>{selected.id}</code>
+            </dd>
+            <dt>Descripción:</dt>
+            <dd>{selected.description || '—'}</dd>
+            <dt>Precio:</dt>
+            <dd>${selected.price.toLocaleString('es-MX')}</dd>
+            <dt>Descuento:</dt>
+            <dd>
+              ${selected.discount.toLocaleString('es-MX')} ({selected.discount_percentage}%)
+            </dd>
+            <dt>Precio final:</dt>
+            <dd>${selected.discounted_price.toLocaleString('es-MX')}</dd>
+            <dt>Stock:</dt>
+            <dd>{selected.stock ? 'Disponible' : 'Agotado'}</dd>
+            <dt>Categoría:</dt>
+            <dd>{selected.category || '—'}</dd>
+            <dt>Imagen:</dt>
+            <dd>{selected.image_path || '—'}</dd>
+            <dt>AVIF:</dt>
+            <dd>{selected.image_avif_path || '—'}</dd>
+            <dt>Orden:</dt>
+            <dd>{selected.order}</dd>
+            <dt>Rev:</dt>
+            <dd>{selected.rev}</dd>
+            <dt>Archivado:</dt>
+            <dd>{selected.is_archived ? 'Sí' : 'No'}</dd>
           </dl>
           {selected.image_path && (
-            <div style={{ marginTop: "0.5rem" }}>
-              <img src={getImageUrl(selected.image_path)} alt={selected.name} style={{ width: "100%", maxHeight: "200px", objectFit: "contain", borderRadius: "var(--radius)" }} />
+            <div style={{ marginTop: '0.5rem' }}>
+              <img
+                src={getImageUrl(selected.image_path)}
+                alt={selected.name}
+                style={{
+                  width: '100%',
+                  maxHeight: '200px',
+                  objectFit: 'contain',
+                  borderRadius: 'var(--radius)',
+                }}
+              />
               {selected.image_avif_path && (
-                <div style={{ marginTop: "0.25rem", fontSize: "0.8rem", color: "#6c757d" }}>
-                  AVIF: <img src={getImageUrl(selected.image_avif_path)} alt={selected.name + " (AVIF)"} style={{ width: "60px", height: "60px", objectFit: "cover", borderRadius: "3px", verticalAlign: "middle", marginLeft: "0.25rem" }} />
+                <div style={{ marginTop: '0.25rem', fontSize: '0.8rem', color: '#6c757d' }}>
+                  AVIF:{' '}
+                  <img
+                    src={getImageUrl(selected.image_avif_path)}
+                    alt={selected.name + ' (AVIF)'}
+                    style={{
+                      width: '60px',
+                      height: '60px',
+                      objectFit: 'cover',
+                      borderRadius: '3px',
+                      verticalAlign: 'middle',
+                      marginLeft: '0.25rem',
+                    }}
+                  />
                 </div>
               )}
             </div>
           )}
-          <div style={{ marginTop: "0.5rem", display: "flex", gap: "0.5rem" }}>
+          <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem' }}>
             <button onClick={() => setEditing(selected)}>Editar</button>
             <button onClick={() => setSelected(null)}>Cerrar</button>
           </div>
@@ -748,20 +1055,11 @@ export function ProductsPage(): React.ReactElement {
 
       {/* Edit form */}
       {editing && (
-        <ProductForm
-          product={editing}
-          onSave={handleSave}
-          onCancel={() => setEditing(null)}
-        />
+        <ProductForm product={editing} onSave={handleSave} onCancel={() => setEditing(null)} />
       )}
 
       {/* Create form */}
-      {creating && (
-        <ProductForm
-          onSave={handleCreate}
-          onCancel={() => setCreating(false)}
-        />
-      )}
+      {creating && <ProductForm onSave={handleCreate} onCancel={() => setCreating(false)} />}
     </main>
   );
 }
@@ -775,31 +1073,38 @@ function ProductForm({
   onSave: (data: Record<string, unknown>) => Promise<void>;
   onCancel: () => void;
 }): React.ReactElement {
-  const [name, setName] = useState(product?.name ?? "");
-  const [price, setPrice] = useState(String(product?.price ?? ""));
-  const [description, setDescription] = useState(product?.description ?? "");
+  const [name, setName] = useState(product?.name ?? '');
+  const [price, setPrice] = useState(String(product?.price ?? ''));
+  const [description, setDescription] = useState(product?.description ?? '');
   const [stock, setStock] = useState(product?.stock ?? false);
-  const [category, setCategory] = useState(product?.category ?? "");
-  const [discount, setDiscount] = useState(String(product?.discount ?? "0"));
-  const [imagePath, setImagePath] = useState(product?.image_path ?? "");
+  const [category, setCategory] = useState(product?.category ?? '');
+  const [discount, setDiscount] = useState(String(product?.discount ?? '0'));
+  const [imagePath, setImagePath] = useState(product?.image_path ?? '');
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState<CategoryRecord[]>([]);
-  const [mediaItems, setMediaItems] = useState<Array<{ path: string; name: string; status: string; productName?: string }>>([]);
-  const [imageSearch, setImageSearch] = useState("");
+  const [mediaItems, setMediaItems] = useState<
+    Array<{ path: string; name: string; status: string; productName?: string }>
+  >([]);
+  const [imageSearch, setImageSearch] = useState('');
   const [showImagePicker, setShowImagePicker] = useState(false);
 
   useEffect(() => {
-    client.getCategories().then((res) => setCategories(res.categories)).catch(() => {});
+    client
+      .getCategories()
+      .then((res) => setCategories(res.categories))
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
-    fetch("/api/v1/media")
+    fetch('/api/v1/media')
       .then((r) => r.json())
-      .then((d) => setMediaItems(
-        (d.items as Array<{ path: string; name: string; status: string; productName?: string }>)
-          .filter((item) => item.status === "active" || item.status === "orphan")
-          .sort((a, b) => a.name.localeCompare(b.name, "es-MX"))
-      ))
+      .then((d) =>
+        setMediaItems(
+          (d.items as Array<{ path: string; name: string; status: string; productName?: string }>)
+            .filter((item) => item.status === 'active' || item.status === 'orphan')
+            .sort((a, b) => a.name.localeCompare(b.name, 'es-MX'))
+        )
+      )
       .catch(() => {});
   }, [showImagePicker]);
 
@@ -822,7 +1127,7 @@ function ProductForm({
         if (stock !== product.stock) changes.stock = stock;
         if (category !== product.category) changes.category = category;
         if (Number(discount) !== product.discount) changes.discount = Number(discount);
-        if (imagePath !== (product.image_path ?? "")) changes.image_path = imagePath;
+        if (imagePath !== (product.image_path ?? '')) changes.image_path = imagePath;
       }
       await onSave(changes);
     } finally {
@@ -841,132 +1146,237 @@ function ProductForm({
 
   return (
     <form
-      onSubmit={(e) => { void handleSubmit(e); }}
-      style={{ marginTop: "1rem", padding: "1rem", border: "2px solid var(--color-primary)", borderRadius: "var(--radius)" }}
+      onSubmit={(e) => {
+        void handleSubmit(e);
+      }}
+      style={{
+        marginTop: '1rem',
+        padding: '1rem',
+        border: '2px solid var(--color-primary)',
+        borderRadius: 'var(--radius)',
+      }}
     >
-      <h2>{product ? `Editar: ${product.name}` : "Nuevo producto"}</h2>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginTop: "0.5rem" }}>
+      <h2>{product ? `Editar: ${product.name}` : 'Nuevo producto'}</h2>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '0.5rem',
+          marginTop: '0.5rem',
+        }}
+      >
         <label>
           Nombre *<br />
-          <input required value={name} onChange={(e) => setName(e.target.value)} style={{ width: "100%", padding: "0.25rem" }} />
+          <input
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            style={{ width: '100%', padding: '0.25rem' }}
+          />
         </label>
         <label>
           Precio *<br />
-          <input required type="number" min="1" value={price} onChange={(e) => setPrice(e.target.value)} style={{ width: "100%", padding: "0.25rem" }} />
+          <input
+            required
+            type="number"
+            min="1"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            style={{ width: '100%', padding: '0.25rem' }}
+          />
         </label>
-        <label style={{ gridColumn: "span 2" }}>
-          Descripción<br />
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} style={{ width: "100%", padding: "0.25rem" }} />
+        <label style={{ gridColumn: 'span 2' }}>
+          Descripción
+          <br />
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={2}
+            style={{ width: '100%', padding: '0.25rem' }}
+          />
         </label>
         <label>
-          Categoría<br />
+          Categoría
+          <br />
           {categories.length > 0 ? (
-            <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ width: "100%", padding: "0.25rem" }}>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              style={{ width: '100%', padding: '0.25rem' }}
+            >
               <option value="">Sin categoría</option>
               {categories.map((c) => (
-                <option key={c.id} value={c.key}>{c.display_name?.default ?? c.key}</option>
+                <option key={c.id} value={c.key}>
+                  {c.display_name?.default ?? c.key}
+                </option>
               ))}
             </select>
           ) : (
-            <input value={category} onChange={(e) => setCategory(e.target.value)} style={{ width: "100%", padding: "0.25rem" }} />
+            <input
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              style={{ width: '100%', padding: '0.25rem' }}
+            />
           )}
         </label>
         <label>
-          Descuento<br />
-          <input type="number" min="0" value={discount} onChange={(e) => setDiscount(e.target.value)} style={{ width: "100%", padding: "0.25rem" }} />
+          Descuento
+          <br />
+          <input
+            type="number"
+            min="0"
+            value={discount}
+            onChange={(e) => setDiscount(e.target.value)}
+            style={{ width: '100%', padding: '0.25rem' }}
+          />
         </label>
-        <label style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
           <input type="checkbox" checked={stock} onChange={(e) => setStock(e.target.checked)} />
           Stock disponible
         </label>
       </div>
 
-      <div style={{ marginTop: "0.75rem" }}>
-        <label style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+      <div style={{ marginTop: '0.75rem' }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <strong>Imagen:</strong>
           <input
             type="text"
             value={imagePath}
             onChange={(e) => setImagePath(e.target.value)}
             placeholder="assets/images/…"
-            style={{ flex: 1, padding: "0.25rem", fontSize: "0.85rem" }}
+            style={{ flex: 1, padding: '0.25rem', fontSize: '0.85rem' }}
           />
-          <button type="button" onClick={() => setShowImagePicker(!showImagePicker)} style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }}>
-            {showImagePicker ? "Ocultar" : "Explorar"}
+          <button
+            type="button"
+            onClick={() => setShowImagePicker(!showImagePicker)}
+            style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}
+          >
+            {showImagePicker ? 'Ocultar' : 'Explorar'}
           </button>
         </label>
 
         {imagePath && (
-          <div style={{ marginTop: "0.25rem" }}>
+          <div style={{ marginTop: '0.25rem' }}>
             <img
               src={getImageUrl(imagePath)}
               alt="Previsualización"
-              style={{ maxWidth: "200px", maxHeight: "100px", objectFit: "contain", borderRadius: "3px", border: "1px solid var(--color-border)" }}
-              onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+              style={{
+                maxWidth: '200px',
+                maxHeight: '100px',
+                objectFit: 'contain',
+                borderRadius: '3px',
+                border: '1px solid var(--color-border)',
+              }}
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
             />
           </div>
         )}
 
         {showImagePicker && (
-          <div style={{ marginTop: "0.5rem", border: "1px solid var(--color-border)", borderRadius: "var(--radius)", padding: "0.5rem", maxHeight: "250px", overflowY: "auto" }}>
+          <div
+            style={{
+              marginTop: '0.5rem',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius)',
+              padding: '0.5rem',
+              maxHeight: '250px',
+              overflowY: 'auto',
+            }}
+          >
             <input
               type="search"
               value={imageSearch}
               onChange={(e) => setImageSearch(e.target.value)}
               placeholder="Buscar imagen…"
-              style={{ width: "100%", padding: "0.25rem", marginBottom: "0.5rem", fontSize: "0.85rem" }}
+              style={{
+                width: '100%',
+                padding: '0.25rem',
+                marginBottom: '0.5rem',
+                fontSize: '0.85rem',
+              }}
             />
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(40px, 1fr))", gap: "4px" }}>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(40px, 1fr))',
+                gap: '4px',
+              }}
+            >
               {filteredImages.map((item) => {
                 const fullPath = `assets/images/${item.path}`;
                 return (
                   <button
                     key={item.path}
                     type="button"
-                    onClick={() => { setImagePath(fullPath); }}
+                    onClick={() => {
+                      setImagePath(fullPath);
+                    }}
                     title={item.path}
                     style={{
-                      border: imagePath === fullPath ? "2px solid var(--color-primary)" : "1px solid #ddd",
+                      border:
+                        imagePath === fullPath
+                          ? '2px solid var(--color-primary)'
+                          : '1px solid #ddd',
                       padding: 0,
-                      cursor: "pointer",
-                      borderRadius: "3px",
-                      overflow: "hidden",
-                      width: "40px",
-                      height: "40px",
-                      background: "#f0f0f0",
+                      cursor: 'pointer',
+                      borderRadius: '3px',
+                      overflow: 'hidden',
+                      width: '40px',
+                      height: '40px',
+                      background: '#f0f0f0',
                     }}
                   >
                     <img
                       src={getImageUrl(fullPath)}
                       alt={item.name}
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       loading="lazy"
-                      onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
                     />
                   </button>
                 );
               })}
             </div>
             {filteredImages.length === 0 && (
-              <p style={{ fontSize: "0.8rem", color: "#6c757d" }}>No se encontraron imágenes{imageSearch ? ` para "${imageSearch}"` : ""}.</p>
+              <p style={{ fontSize: '0.8rem', color: '#6c757d' }}>
+                No se encontraron imágenes{imageSearch ? ` para "${imageSearch}"` : ''}.
+              </p>
             )}
           </div>
         )}
       </div>
 
       {product && !showImagePicker && (
-        <div style={{ marginTop: "0.5rem" }}>
-          <strong>Imagen actual:</strong>{" "}
+        <div style={{ marginTop: '0.5rem' }}>
+          <strong>Imagen actual:</strong>{' '}
           {product.image_path ? (
-            <img src={getImageUrl(product.image_path)} alt={product.name} style={{ maxWidth: "200px", maxHeight: "120px", objectFit: "contain", display: "block", marginTop: "0.25rem" }} />
+            <img
+              src={getImageUrl(product.image_path)}
+              alt={product.name}
+              style={{
+                maxWidth: '200px',
+                maxHeight: '120px',
+                objectFit: 'contain',
+                display: 'block',
+                marginTop: '0.25rem',
+              }}
+            />
           ) : (
             <span>Sin imagen</span>
           )}
         </div>
       )}
-      <div style={{ marginTop: "0.75rem", display: "flex", gap: "0.5rem" }}>
-        <button type="submit" disabled={saving}>{saving ? "Guardando…" : product ? "Guardar cambios" : "Crear producto"}</button>
-        <button type="button" onClick={onCancel}>Cancelar</button>
+      <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem' }}>
+        <button type="submit" disabled={saving}>
+          {saving ? 'Guardando…' : product ? 'Guardar cambios' : 'Crear producto'}
+        </button>
+        <button type="button" onClick={onCancel}>
+          Cancelar
+        </button>
       </div>
     </form>
   );

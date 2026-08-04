@@ -42,7 +42,7 @@ export class RecoveryJournal {
     });
   }
 
-  failOperation(operation: string, targetFile: string, commandId?: string, error?: string): void {
+  failOperation(operation: string, targetFile: string, commandId?: string, _error?: string): void {
     this.append({
       timestamp: new Date().toISOString(),
       operation,

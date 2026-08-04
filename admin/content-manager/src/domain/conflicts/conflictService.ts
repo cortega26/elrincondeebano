@@ -1,4 +1,4 @@
-import type { Conflict, FieldConflict } from '../../shared/schemas/conflict.ts';
+import type { Conflict } from '../../shared/schemas/conflict.ts';
 import { generateConflictId } from '../../shared/schemas/conflict.ts';
 
 export class ConflictService {

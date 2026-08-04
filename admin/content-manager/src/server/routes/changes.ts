@@ -8,7 +8,7 @@ export async function changesRoutes(
   app: FastifyInstance,
   repos: Repositories,
   changeSets: ChangeSetRepository,
-  repoRoot: string
+  _repoRoot: string
 ): Promise<void> {
   app.get('/change-sets', async () => {
     return { items: changeSets.listAll() };

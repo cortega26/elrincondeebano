@@ -21,6 +21,7 @@ module.exports = [
       'coverage/**',
       'node_modules/**',
       'astro-poc/**',
+      'admin/content-manager/**',
       'pages/**',
       'reports/**',
       'templates/**',
@@ -28,7 +29,7 @@ module.exports = [
   },
   js.configs.recommended,
   {
-    files: ['**/*.{js,mjs,cjs,ts,mts}'],
+    files: ['**/*.{js,mjs,cjs,ts,mts,tsx}'],
     plugins: {
       sonarjs,
     },
@@ -89,7 +90,7 @@ module.exports = [
     },
   },
   {
-    files: ['**/*.{ts,mts}'],
+    files: ['**/*.{ts,mts,tsx}'],
     plugins: {
       '@typescript-eslint': tseslint.plugin,
     },

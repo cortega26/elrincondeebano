@@ -1,4 +1,12 @@
-import { writeFileSync, readFileSync, renameSync, unlinkSync, existsSync } from 'node:fs';
+import {
+  writeFileSync,
+  readFileSync,
+  renameSync,
+  unlinkSync,
+  existsSync,
+  readdirSync,
+  statSync,
+} from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { mkdirSync } from 'node:fs';
 import type { ProductCatalog } from '../../shared/schemas/product.ts';
@@ -73,7 +81,6 @@ export class AtomicWriter {
   private pruneBackups(maxBackups: number): void {
     try {
       const dir = dirname(this.targetPath);
-      const { readdirSync, unlinkSync, statSync } = require('node:fs');
       const prefix = `${this.targetPath.split('/').pop()}.backup_`;
 
       const backups = readdirSync(dir)

@@ -40,7 +40,9 @@ export class ProductRepository {
     try {
       raw = readFileSync(this.filePath, 'utf-8');
     } catch (err) {
-      throw new Error(`Cannot read product data from ${this.filePath}: ${(err as Error).message}`);
+      throw new Error(`Cannot read product data from ${this.filePath}: ${(err as Error).message}`, {
+        cause: err,
+      });
     }
 
     let parsed: unknown;

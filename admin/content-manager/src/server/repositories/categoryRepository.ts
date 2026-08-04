@@ -43,7 +43,9 @@ export class CategoryRepository {
     try {
       raw = readFileSync(sourcePath, 'utf-8');
     } catch (err) {
-      throw new Error(`Cannot read categories from ${sourcePath}: ${(err as Error).message}`);
+      throw new Error(`Cannot read categories from ${sourcePath}: ${(err as Error).message}`, {
+        cause: err,
+      });
     }
 
     let parsed: unknown;
@@ -111,7 +113,7 @@ export class CategoryRepository {
     return categories.find((c) => c.key.toLowerCase() === normalized) as never;
   }
 
-  countProductsInCategory(categoryId: string): number {
+  countProductsInCategory(_categoryId: string): number {
     return 0; // Product-count check requires product repo cross-reference — deferred to domain
   }
 

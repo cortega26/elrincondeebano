@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync, unlinkSync } from 'node:fs';
 import { resolve } from 'node:path';
-import type { IdempotencyStore } from './idempotencyStore.ts';
+
 import type { CommandResult } from '../../shared/commands/envelope.ts';
 
 export class PersistentIdempotencyStore {

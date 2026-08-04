@@ -74,7 +74,7 @@ export async function mediaMutRoutes(
     return reply.status(201).send(intent);
   });
 
-  app.delete('/media/intents/:id', async (request, reply) => {
+  app.delete('/media/intents/:id', async (request, _reply) => {
     const { id } = request.params as { id: string };
     return { status: 'discarded', intent_id: id };
   });

@@ -451,7 +451,7 @@ export async function categoryRoutes(
     }
 
     const registry = repos.categories.load();
-    const result = categoryService.reorder(registry, body.ordered_ids);
+    categoryService.reorder(registry, body.ordered_ids);
 
     const wrote = repos.categories.write(registry);
     if (!wrote.ok) {

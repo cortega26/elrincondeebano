@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 export interface RecoveryState {
@@ -38,7 +38,6 @@ export class RecoveryJournal {
 
   clear(): void {
     try {
-      const { unlinkSync } = require('node:fs');
       unlinkSync(this.filePath);
     } catch {
       /* ignore */

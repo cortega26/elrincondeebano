@@ -5,7 +5,7 @@ import type { SyncAdapter } from '../adapters/syncAdapter.ts';
 import type { ConflictFilter } from '../../shared/schemas/conflict.ts';
 import { conflictFilterSchema } from '../../shared/schemas/conflict.ts';
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { resolve as pathResolve, dirname } from 'node:path';
+import { dirname } from 'node:path';
 import { syncConfigSchema, type SyncConfig } from '../adapters/syncAdapter.ts';
 
 export async function conflictsRoutes(
@@ -15,7 +15,7 @@ export async function conflictsRoutes(
   syncAdapter: SyncAdapter,
   syncConfigPath: string
 ): Promise<void> {
-  app.get('/conflicts', async (request, reply) => {
+  app.get('/conflicts', async (request, _reply) => {
     const query = request.query as Record<string, string>;
 
     const filterResult = conflictFilterSchema.safeParse({
