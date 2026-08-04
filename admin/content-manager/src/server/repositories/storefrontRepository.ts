@@ -102,21 +102,20 @@ export class StorefrontRepository {
       }
       renameSync(tmpPath, this.experiencePath);
 
-      // Also write bundles separately if modified
-      if (result.data.bundles.length > 0) {
-        const bundlesTmp = `${this.bundlesPath}.tmp`;
-        writeFileSync(bundlesTmp, JSON.stringify(result.data.bundles, null, 2), {
-          encoding: 'utf-8',
-          flush: true,
-        });
-        if (existsSync(this.bundlesPath)) {
-          renameSync(
-            this.bundlesPath,
-            `${this.bundlesPath}.backup_${new Date().toISOString().replace(/[:.]/g, '-')}`
-          );
-        }
-        renameSync(bundlesTmp, this.bundlesPath);
+      // Also write bundles separately (unconditionally, so clearing all
+      // bundles persists [] instead of leaving a stale file behind — plan 081).
+      const bundlesTmp = `${this.bundlesPath}.tmp`;
+      writeFileSync(bundlesTmp, JSON.stringify(result.data.bundles, null, 2), {
+        encoding: 'utf-8',
+        flush: true,
+      });
+      if (existsSync(this.bundlesPath)) {
+        renameSync(
+          this.bundlesPath,
+          `${this.bundlesPath}.backup_${new Date().toISOString().replace(/[:.]/g, '-')}`
+        );
       }
+      renameSync(bundlesTmp, this.bundlesPath);
 
       return { ok: true };
     } catch (err) {

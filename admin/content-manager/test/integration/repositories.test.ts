@@ -269,3 +269,72 @@ test('CategoryRepository does not mutate data on read', () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+// Plan 081: clearing all storefront bundles must persist [] instead of
+// leaving the stale standalone bundles file behind.
+import { StorefrontRepository } from '../../src/server/repositories/storefrontRepository.ts';
+import { existsSync, readFileSync } from 'node:fs';
+
+const experienceWithBundles = (bundles: unknown[]) => ({
+  trustBar: { highlights: [], statusItems: [] },
+  home: {
+    primaryCategories: [],
+    secondaryCategories: [],
+    fallbackQuickPicks: [],
+    featuredStaples: [],
+  },
+  bundles,
+  companionRules: [],
+});
+
+test('StorefrontRepository persists an empty bundles file and overwrites stale content', () => {
+  const dir = createTempDir();
+  try {
+    mkdirSync(resolve(dir, 'astro-poc', 'src', 'data'), { recursive: true });
+    const bundlesFile = resolve(dir, 'astro-poc', 'src', 'data', 'storefront-bundles.json');
+
+    // Stale standalone file with a bundle the operator deleted.
+    writeFileSync(
+      bundlesFile,
+      JSON.stringify([{ id: 'stale-bundle', name: 'Viejo Combo' }]),
+      'utf-8'
+    );
+
+    const repo = new StorefrontRepository({ repoRoot: dir });
+    const result = repo.write(experienceWithBundles([]));
+    expect(result.ok).toBe(true);
+
+    expect(existsSync(bundlesFile)).toBe(true);
+    const persisted = JSON.parse(readFileSync(bundlesFile, 'utf-8'));
+    expect(persisted).toEqual([]);
+
+    // load() must return the empty list, not the stale bundle.
+    const loaded = repo.load();
+    expect(loaded.bundles).toEqual([]);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('StorefrontRepository still persists a non-empty bundles file', () => {
+  const dir = createTempDir();
+  try {
+    mkdirSync(resolve(dir, 'astro-poc', 'src', 'data'), { recursive: true });
+    const bundlesFile = resolve(dir, 'astro-poc', 'src', 'data', 'storefront-bundles.json');
+
+    const bundle = {
+      id: 'combo-1',
+      title: 'Combo Único',
+      description: 'Un combo',
+      items: [{ category: 'cat1', name: 'Producto A' }],
+    };
+    const repo = new StorefrontRepository({ repoRoot: dir });
+    const result = repo.write(experienceWithBundles([bundle]));
+    expect(result.ok).toBe(true);
+
+    const persisted = JSON.parse(readFileSync(bundlesFile, 'utf-8'));
+    expect(persisted).toEqual([bundle]);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
