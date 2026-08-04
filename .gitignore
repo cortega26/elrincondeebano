@@ -109,6 +109,7 @@ sitemap.xml
 !/reports/snapshots/README.md
 !/reports/snapshots/manifest.json
 !/reports/snapshots/*.png
+admin/content-manager/reports/
 
 # Cache directories
 .cache/

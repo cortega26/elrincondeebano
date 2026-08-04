@@ -28,6 +28,7 @@ const tests = [
   'swCache.test.js',
   'service-worker.runtime.test.js',
   'modules.dom.test.js',
+  'canonical-tree.guard.test.js',
   'fetchWithRetry.test.js',
   'data-endpoint.resolver.test.js',
   'productDataVersion.normalization.test.js',
