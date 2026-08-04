@@ -5,12 +5,21 @@
 
 ## Current state
 
-The TypeScript Content Manager (`admin/content-manager/`) is fully functional
-for all product, category, storefront, media, import, conflict, history, and
-publication workflows. It has been certified with 21/21 parity rows passing.
+The TypeScript Content Manager (`admin/content-manager/`) is functional for the
+covered workflows, but certification is **in progress, not complete**. The
+newest certification report
+(`reports/certification/certification-2026-07-16T15-36-32-416Z.json`) records
+`summary: { total: 30, pass: 6, fail: 2, untested: 20, manual: 2 }` and its
+exit gate is not met (line coverage below threshold, e2e smoke failing). The
+parity report
+(`reports/parity/parity-2026-07-16T16-10-34-672Z.json`) samples 9 of 184
+products and its category row is missing ("Python golden category file not
+found"). Closing the gap is tracked by plans 056–069 (Auditoría 6) and the
+Wave 4 gate of the Auditoría 7 queue; this document must be revisited when
+plan 069 lands.
 
 The Python Tkinter manager (`admin/product_manager/`) remains the active read
-fallback.
+fallback during the transition window (plan 069).
 
 ## Cutover steps
 

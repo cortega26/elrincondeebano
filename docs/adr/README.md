@@ -15,16 +15,16 @@ Create or update an ADR when a change:
 
 ## ADR list
 
-| ADR    | Status   | Summary                                                                                                                                |
-| ------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `0001` | Accepted | Shared utilities for Cloudflare image URLs and structured logging.                                                                     |
-| `0002` | Accepted | Operational guardrails and data-contract discipline from the audit baseline.                                                           |
-| `0003` | Accepted | Astro storefront replaces the legacy EJS/Node runtime.                                                                                 |
-| `0004` | Accepted | GitHub Pages remains the content origin behind Cloudflare edge controls.                                                               |
-| `0005` | Accepted | `data/` and `assets/` stay at repo root as shared build inputs.                                                                        |
-| `0006` | Accepted | Service worker caching uses independently versioned cache namespaces.                                                                  |
-| `0007` | Accepted | `npm run validate:release` is the canonical release-validation contract.                                                               |
-| `0008` | Proposed | `data/product_data.json` is the single authoritative product catalog. All write-path ownership documented, stale artifacts identified. |
+| ADR    | Status   | Summary                                                                                                                                                                                                                                                                  |
+| ------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `0001` | Accepted | Shared utilities for Cloudflare image URLs and structured logging.                                                                                                                                                                                                       |
+| `0002` | Accepted | Operational guardrails and data-contract discipline from the audit baseline.                                                                                                                                                                                             |
+| `0003` | Accepted | Astro storefront replaces the legacy EJS/Node runtime.                                                                                                                                                                                                                   |
+| `0004` | Accepted | GitHub Pages remains the content origin behind Cloudflare edge controls.                                                                                                                                                                                                 |
+| `0005` | Accepted | `data/` and `assets/` stay at repo root as shared build inputs.                                                                                                                                                                                                          |
+| `0006` | Accepted | Service worker caching uses independently versioned cache namespaces.                                                                                                                                                                                                    |
+| `0007` | Accepted | `npm run validate:release` is the canonical release-validation contract.                                                                                                                                                                                                 |
+| `0008` | Accepted | `data/product_data.json` is the single authoritative product catalog. All write-path ownership documented; synced copies and the TS Content Manager write paths identified. Executed by the Streamlit retirement notice (`docs/archive/streamlit-retirement-notice.md`). |
 
 ## Maintenance notes
 
