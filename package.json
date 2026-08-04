@@ -57,11 +57,11 @@
     "security:secret-scan": "node tools/guardrails/secret-scan.mjs",
     "ci:guardrails": "npm run build && npm run lint:images && npm run guardrails && npm run guardrails:assets",
     "prune:backups": "node tools/prune-backups.js",
-    "test": "node test/run-all.js && vitest run",
+    "test": "node test/run-all.js && vitest run && npm run admin:test",
     "test:coverage": "npx c8 npm test",
     "typecheck:legacy": "tsc -p tsconfig.typecheck.json",
     "typecheck:astro": "npm -w astro-poc run typecheck",
-    "typecheck": "npm run typecheck:legacy && npm run typecheck:astro",
+    "typecheck": "npm run typecheck:legacy && npm run typecheck:astro && npm run admin:typecheck",
     "test:e2e": "playwright test -c playwright.astro.config.ts --trace on",
     "test:e2e:astro": "npm run test:e2e",
     "test:e2e:visual": "playwright test test/e2e/visual-regression.spec.ts --project=chromium-desktop --trace on",
@@ -143,6 +143,10 @@
     ],
     "astro-poc/**/*.{js,mjs,ts,mts}": [
       "eslint --max-warnings=0 --no-warn-ignored --config astro-poc/eslint.config.mjs",
+      "prettier --write"
+    ],
+    "admin/content-manager/**/*.{ts,tsx}": [
+      "eslint --no-warn-ignored --config admin/content-manager/eslint.config.mjs",
       "prettier --write"
     ],
     "*.{js,mjs,cjs}": [
