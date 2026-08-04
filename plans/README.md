@@ -35,24 +35,24 @@ frontera de escritura y la verificación del estado real sobre esa base.
 
 ### Orden de ejecución y estado
 
-| Plan                                                   | Título                                                          | Priority | Effort | Depends on | Status |
-| ------------------------------------------------------ | --------------------------------------------------------------- | -------- | ------ | ---------- | ------ |
-| [070](070-commit-canonical-content-manager.md)         | Commit del Content Manager canónico y del registro de migración | P0       | M      | —          | TODO   |
-| [071](071-enforce-write-boundary.md)                   | Frontera de escritura: clasificación de rutas, bootstrap y Host | P0       | M      | 070        | TODO   |
-| [072](072-make-publication-commit-scoped.md)           | Publicación commit scoped a ownedPaths + no-unrelated-staged    | P1       | M      | 070, 071   | TODO   |
-| [073](073-fix-lossless-import-apply.md)                | Import aplica productos nuevos y reporta conteos reales         | P1       | M      | 070        | TODO   |
-| [074](074-enforce-discount-invariant-schemas.md)       | Invariante discount ≤ price en todos los write boundaries       | P1       | S–M    | 070        | TODO   |
-| [075](075-fail-closed-build-contract-tests.md)         | Tests de contrato de build fail-closed                          | P1       | S      | —          | TODO   |
-| [076](076-fix-backup-id-collision.md)                  | IDs de backup únicos (flake de CI + pérdida de datos)           | P1       | S      | 070        | TODO   |
-| [077](077-fix-bulk-undo-snapshot.md)                   | Undo bulk con snapshot de valores previos siempre               | P1       | S      | 070        | TODO   |
-| [078](078-close-atomic-writer-recovery-gap.md)         | Restore-on-failure del AtomicWriter + journal conectado         | P1       | M      | 070        | TODO   |
-| [079](079-align-cutover-docs-with-evidence.md)         | Docs de cutover/onboarding alineadas con la evidencia           | P1       | S–M    | 070        | TODO   |
-| [080](080-harden-category-concurrency-and-id-paths.md) | Concurrencia optimista de categorías + IDs contenidos           | P2       | M      | 070, 071   | TODO   |
-| [081](081-fix-empty-bundles-persistence.md)            | Persistir bundles vacíos (stale storefront-bundles.json)        | P2       | S      | 070        | TODO   |
-| [082](082-resolve-admin-ci-and-dep-audits.md)          | CI admin alineada al retiro + npm audit HIGHs                   | P1       | M      | 070, 076   | TODO   |
-| [083](083-characterize-category-mutation-boundary.md)  | Tests de caracterización categorías + ensureDiscountToggle real | P2       | M      | 070, 080   | TODO   |
-| [084](084-unify-monorepo-validation-and-lint.md)       | validate/typecheck del monorepo + lint de .tsx                  | P2       | S      | 070        | TODO   |
-| [085](085-add-parking-degraded-mode.md)                | Modo degradado de parking con datos externos caídos             | P2       | S      | —          | TODO   |
+| Plan                                                   | Título                                                          | Priority | Effort | Depends on | Status                        |
+| ------------------------------------------------------ | --------------------------------------------------------------- | -------- | ------ | ---------- | ----------------------------- |
+| [070](070-commit-canonical-content-manager.md)         | Commit del Content Manager canónico y del registro de migración | P0       | M      | —          | DONE — `27d6c0e` (2026-08-03) |
+| [071](071-enforce-write-boundary.md)                   | Frontera de escritura: clasificación de rutas, bootstrap y Host | P0       | M      | 070        | TODO                          |
+| [072](072-make-publication-commit-scoped.md)           | Publicación commit scoped a ownedPaths + no-unrelated-staged    | P1       | M      | 070, 071   | TODO                          |
+| [073](073-fix-lossless-import-apply.md)                | Import aplica productos nuevos y reporta conteos reales         | P1       | M      | 070        | TODO                          |
+| [074](074-enforce-discount-invariant-schemas.md)       | Invariante discount ≤ price en todos los write boundaries       | P1       | S–M    | 070        | TODO                          |
+| [075](075-fail-closed-build-contract-tests.md)         | Tests de contrato de build fail-closed                          | P1       | S      | —          | TODO                          |
+| [076](076-fix-backup-id-collision.md)                  | IDs de backup únicos (flake de CI + pérdida de datos)           | P1       | S      | 070        | TODO                          |
+| [077](077-fix-bulk-undo-snapshot.md)                   | Undo bulk con snapshot de valores previos siempre               | P1       | S      | 070        | TODO                          |
+| [078](078-close-atomic-writer-recovery-gap.md)         | Restore-on-failure del AtomicWriter + journal conectado         | P1       | M      | 070        | TODO                          |
+| [079](079-align-cutover-docs-with-evidence.md)         | Docs de cutover/onboarding alineadas con la evidencia           | P1       | S–M    | 070        | TODO                          |
+| [080](080-harden-category-concurrency-and-id-paths.md) | Concurrencia optimista de categorías + IDs contenidos           | P2       | M      | 070, 071   | TODO                          |
+| [081](081-fix-empty-bundles-persistence.md)            | Persistir bundles vacíos (stale storefront-bundles.json)        | P2       | S      | 070        | TODO                          |
+| [082](082-resolve-admin-ci-and-dep-audits.md)          | CI admin alineada al retiro + npm audit HIGHs                   | P1       | M      | 070, 076   | TODO                          |
+| [083](083-characterize-category-mutation-boundary.md)  | Tests de caracterización categorías + ensureDiscountToggle real | P2       | M      | 070, 080   | TODO                          |
+| [084](084-unify-monorepo-validation-and-lint.md)       | validate/typecheck del monorepo + lint de .tsx                  | P2       | S      | 070        | TODO                          |
+| [085](085-add-parking-degraded-mode.md)                | Modo degradado de parking con datos externos caídos             | P2       | S      | —          | TODO                          |
 
 ### Dependency graph
 
