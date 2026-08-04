@@ -1,7 +1,12 @@
 # AGENTS
 
 **El Rincón de Ébano** — web estática servida desde Astro. Runtime: Node 24.x.
-Última actualización: 2026-04-16 (Docs refresh: engineering priorities).
+Última actualización: 2026-07-16 (TypeScript Content Manager cutover).
+
+**Content Manager**: el Content Manager canónico es ahora la aplicación TypeScript
+en `admin/content-manager/` (Fastify + React + Vite + TS7). El manager Python/Tkinter
+(`admin/product_manager/`) permanece como fallback durante la ventana de transición.
+El prototipo Streamlit/SQLite (`admin/web/`) está retirado.
 
 ## Principios
 
