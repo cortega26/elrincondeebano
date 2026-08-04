@@ -38,7 +38,7 @@ frontera de escritura y la verificación del estado real sobre esa base.
 | Plan                                                   | Título                                                          | Priority | Effort | Depends on | Status                        |
 | ------------------------------------------------------ | --------------------------------------------------------------- | -------- | ------ | ---------- | ----------------------------- |
 | [070](070-commit-canonical-content-manager.md)         | Commit del Content Manager canónico y del registro de migración | P0       | M      | —          | DONE — `27d6c0e` (2026-08-03) |
-| [071](071-enforce-write-boundary.md)                   | Frontera de escritura: clasificación de rutas, bootstrap y Host | P0       | M      | 070        | TODO                          |
+| [071](071-enforce-write-boundary.md)                   | Frontera de escritura: clasificación de rutas, bootstrap y Host | P0       | M      | 070        | DONE — `ad7b303` (2026-08-03) |
 | [072](072-make-publication-commit-scoped.md)           | Publicación commit scoped a ownedPaths + no-unrelated-staged    | P1       | M      | 070, 071   | TODO                          |
 | [073](073-fix-lossless-import-apply.md)                | Import aplica productos nuevos y reporta conteos reales         | P1       | M      | 070        | TODO                          |
 | [074](074-enforce-discount-invariant-schemas.md)       | Invariante discount ≤ price en todos los write boundaries       | P1       | S–M    | 070        | TODO                          |
