@@ -291,3 +291,96 @@ describe('initParkingReservation', () => {
     }).not.toThrow();
   });
 });
+
+/* ── Degraded mode (plan 085) ────────────────────────────── */
+
+describe('degraded availability mode (plan 085)', () => {
+  beforeEach(function () {
+    sessionStorage.clear();
+    installParkingDOM();
+  });
+
+  function submitWithDates(checkinDate, checkoutDate) {
+    document.getElementById('parking-checkin').value = checkinDate;
+    document.getElementById('parking-checkout').value = checkoutDate;
+    document.getElementById('parking-driver').value = 'Ana Pérez';
+    document.getElementById('parking-plate').value = 'ABC-123';
+    document.getElementById('parking-apartment').value = '101';
+    const payment = document.querySelector('input[name="parkingPayment"][value="transferencia"]');
+    if (payment) payment.checked = true;
+    document.getElementById('parking-submit').dispatchEvent(new window.Event('click'));
+  }
+
+  it('parses the { data: [...] } holidays envelope and prices the night as holiday', async () => {
+    globalThis.fetch = () =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ data: [{ date: '2026-09-18' }] }),
+      });
+    initParkingReservation();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(getCachedHolidays()).toEqual(['2026-09-18']);
+    expect(getNightPrice(new Date(2026, 8, 18), getCachedHolidays())).toBe(PRICE_HIGH);
+  });
+
+  it('still opens WhatsApp with an availability warning when fetches fail', async () => {
+    globalThis.fetch = () => Promise.reject(new Error('offline'));
+    const opened = [];
+    const originalOpen = globalThis.open;
+    globalThis.open = (url) => {
+      opened.push(url);
+    };
+    try {
+      initParkingReservation();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const after = new Date(today);
+      after.setDate(after.getDate() + 2);
+      submitWithDates(dateToISO(tomorrow), dateToISO(after));
+
+      expect(opened.length).toBe(1);
+      expect(opened[0]).toContain('wa.me');
+      expect(decodeURIComponent(opened[0])).toContain('Disponibilidad no verificada');
+    } finally {
+      globalThis.open = originalOpen;
+    }
+  });
+
+  it('still refuses when data loaded and everything is taken', async () => {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const after = new Date(today);
+    after.setDate(after.getDate() + 2);
+    const t1 = dateToISO(tomorrow);
+    const t2 = dateToISO(after);
+
+    globalThis.fetch = (url) => {
+      if (String(url).includes('feriados')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+      }
+      return Promise.resolve({ ok: true, text: () => Promise.resolve(`desde,hasta\n${t1},${t2}`) });
+    };
+
+    const opened = [];
+    const originalOpen = globalThis.open;
+    globalThis.open = (url) => {
+      opened.push(url);
+    };
+    try {
+      initParkingReservation();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      submitWithDates(t1, t2);
+
+      expect(opened.length).toBe(0);
+      const message = document.getElementById('parking-message');
+      expect(message.textContent).toContain('ocupadas');
+    } finally {
+      globalThis.open = originalOpen;
+    }
+  });
+});

@@ -57,7 +57,9 @@ function fetchHolidays() {
       return r.json();
     })
     .then(function (data) {
-      var dates = (Array.isArray(data) ? data : []).map(function (h) {
+      // Accept both the bare-array shape and the { data: [...] } envelope.
+      var payload = Array.isArray(data) ? data : data && Array.isArray(data.data) ? data.data : [];
+      var dates = payload.map(function (h) {
         return h.date;
       });
       setCachedHolidays(dates);
@@ -445,7 +447,7 @@ function markValidationErrors() {
   return hasError;
 }
 
-function onSubmit(holidays, bookings) {
+function onSubmit(holidays, bookings, availabilityDataMissing) {
   var checkIn = getDateFromInput('parking-checkin');
   var checkOut = getDateFromInput('parking-checkout');
 
@@ -487,6 +489,10 @@ function onSubmit(holidays, bookings) {
     apt.value.trim(),
     paymentMethod
   );
+  if (availabilityDataMissing) {
+    message +=
+      '\n\n*Disponibilidad no verificada*: no se pudieron consultar feriados/reservas al cargar la página.';
+  }
   var encoded = encodeURIComponent(message);
   globalThis.open('https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encoded, '_blank');
 }
@@ -512,18 +518,31 @@ function initParkingReservation() {
   var holidays = [];
   var bookings = [];
   var dataReady = false;
-  var dataLoadFailed = false;
+  var availabilityDataMissing = false;
 
-  Promise.all([fetchHolidays(), fetchBookings()])
-    .then(function (results) {
-      holidays = results[0];
-      bookings = results[1];
-      dataReady = true;
-    })
-    .catch(function (err) {
-      console.warn('[parking] Error cargando datos de disponibilidad:', err);
-      dataLoadFailed = true;
+  // Degraded mode (plan 085): external availability sources failing must not
+  // block booking — the flow proceeds with an explicit warning instead.
+  function fetchHolidaysSafe() {
+    return fetchHolidays().catch(function () {
+      console.warn('[parking] Feriados no disponibles; continuando sin verificar.');
+      return { unavailable: true, dates: [] };
     });
+  }
+  function fetchBookingsSafe() {
+    return fetchBookings().catch(function () {
+      console.warn('[parking] Reservas no disponibles; continuando sin verificar.');
+      return { unavailable: true, bookings: [] };
+    });
+  }
+
+  Promise.all([fetchHolidaysSafe(), fetchBookingsSafe()]).then(function (results) {
+    holidays = Array.isArray(results[0]) ? results[0] : results[0].dates || [];
+    bookings = Array.isArray(results[1]) ? results[1] : results[1].bookings || [];
+    availabilityDataMissing = results.some(function (r) {
+      return r && r.unavailable;
+    });
+    dataReady = true;
+  });
 
   function onDateChangeGuarded() {
     if (!dataReady) return;
@@ -554,14 +573,7 @@ function initParkingReservation() {
       setStatusMessage('Cargando disponibilidad...', 'text-muted');
       return;
     }
-    if (dataLoadFailed) {
-      setStatusMessage(
-        'No se pudo verificar disponibilidad. Recarga la página e intenta de nuevo.',
-        'text-danger'
-      );
-      return;
-    }
-    onSubmit(holidays, bookings);
+    onSubmit(holidays, bookings, availabilityDataMissing);
   });
 
   var driverInput = document.getElementById('parking-driver');

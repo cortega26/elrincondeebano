@@ -12,7 +12,14 @@ export default [
   ...tseslint.configs.recommended,
   ...astro.configs['flat/recommended'],
   {
-    files: ['src/**/*.{js,mjs,ts,mts}', 'scripts/**/*.{js,mjs,ts,mts}'],
+    files: [
+      'src/**/*.{js,mjs,ts,mts}',
+      'scripts/**/*.{js,mjs,ts,mts}',
+      // Repo-root-relative aliases: lint-staged runs this config from the
+      // root, where flat-config globs resolve against the CWD.
+      'astro-poc/src/**/*.{js,mjs,ts,mts}',
+      'astro-poc/scripts/**/*.{js,mjs,ts,mts}',
+    ],
     plugins: {
       sonarjs,
     },
@@ -80,7 +87,7 @@ export default [
     },
   },
   {
-    files: ['src/scripts/**'],
+    files: ['src/scripts/**', 'astro-poc/src/scripts/**'],
     rules: {
       'no-unused-vars': 'off',
     },

@@ -1,1 +1,1 @@
-npx lint-staged --concurrent 2
+npx lint-staged --concurrent false
