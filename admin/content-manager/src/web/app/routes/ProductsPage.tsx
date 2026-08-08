@@ -4,6 +4,8 @@ import { ContentManagerClient } from '../../api/client.ts';
 import type { PaginatedResponse, ProductResponse } from '../../api/client.ts';
 import type { CategoryRecord } from '../../../shared/schemas/category.ts';
 import { fetchWithCredential } from '../credentialStore.ts';
+import { buildUndoEntry, computeUndoActions } from './undo.ts';
+import type { UndoEntry } from './undo.ts';
 
 const client = new ContentManagerClient();
 
@@ -21,19 +23,6 @@ interface BulkChange {
   field: string;
   old_value: number | boolean | string;
   new_value: number | boolean | string;
-}
-
-interface UndoEntry {
-  action: string;
-  value: number | boolean | string;
-  product_ids: string[];
-  oldValues?: Record<string, string>;
-  perProductOldValues?: Array<{
-    product_id: string;
-    field: string;
-    old_value: unknown;
-    rev: number;
-  }>;
 }
 
 export function ProductsPage(): React.ReactElement {
@@ -245,32 +234,22 @@ export function ProductsPage(): React.ReactElement {
             ? bulkValue
             : Number(bulkValue);
 
-      const entry: UndoEntry = { action: bulkAction, value: val, product_ids: [...ids] };
-
-      if (bulkPreview) {
-        entry.perProductOldValues = [];
-        for (const change of bulkPreview) {
-          for (const product of data.items) {
-            if (product.id === change.product_id) {
-              entry.perProductOldValues.push({
-                product_id: change.product_id,
-                field: change.field,
-                old_value: change.old_value,
-                rev: product.rev,
-              });
-              break;
-            }
-          }
-        }
-      }
-      if (bulkAction === 'set_category' && bulkPreview) {
-        entry.oldValues = {};
-        for (const change of bulkPreview) {
-          if (change.field === 'category') {
-            entry.oldValues[change.product_id] = String(change.old_value);
-          }
-        }
-      }
+      const snapshotProducts = data.items
+        .filter((p): p is ProductResponse & { id: string } => Boolean(p.id))
+        .map((p) => ({
+          id: p.id,
+          price: p.price,
+          discount: p.discount,
+          stock: p.stock,
+          category: p.category,
+        }));
+      const entry = buildUndoEntry({
+        action: bulkAction,
+        value: val,
+        productIds: ids,
+        products: snapshotProducts,
+        preview: bulkPreview,
+      });
       undoStack.current.push(entry);
 
       const result = await client.bulkApply(bulkAction, val, ids);
@@ -297,35 +276,20 @@ export function ProductsPage(): React.ReactElement {
 
   async function handleUndo(): Promise<void> {
     const entry = undoStack.current.pop();
-    if (!entry || !data) return;
+    if (!entry || entry.perProductOldValues.length === 0) return;
 
     try {
-      if (entry.perProductOldValues && entry.perProductOldValues.length > 0) {
-        for (const undoItem of entry.perProductOldValues) {
-          const product = data.items.find((p) => p.id === undoItem.product_id);
-          if (product) {
-            await client.updateProduct(undoItem.product_id, product.rev, {
-              [undoItem.field]: undoItem.old_value,
-            });
-          }
-        }
-      } else if (entry.action === 'set_category' && entry.oldValues) {
-        for (const product of data.items) {
-          if (product.id && entry.product_ids.includes(product.id)) {
-            const oldCategory = entry.oldValues[product.id];
-            if (oldCategory !== undefined) {
-              await client.updateProduct(product.id, product.rev, { category: oldCategory });
-            }
-          }
-        }
-      } else {
-        let inverseValue: number | boolean | string;
-        if (entry.action === 'set_stock') {
-          inverseValue = entry.value === true ? false : true;
-        } else {
-          inverseValue = 0;
-        }
-        await client.bulkApply(entry.action, inverseValue, entry.product_ids);
+      // Fetch fresh revisions right before undoing — data.items may already be
+      // stale (a prior undo item in this same entry, or the apply itself).
+      const currentProducts = await Promise.all(
+        entry.perProductOldValues.map(async (item) => {
+          const product = await client.getProduct(item.product_id);
+          return { id: item.product_id, rev: product.rev ?? 0 };
+        })
+      );
+      const actions = computeUndoActions(entry, currentProducts);
+      for (const action of actions) {
+        await client.updateProduct(action.id, action.rev, action.patch);
       }
       setFeedback('Operación deshecha ✓');
       await load();
