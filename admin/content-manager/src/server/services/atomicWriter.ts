@@ -11,6 +11,7 @@ import { resolve, dirname } from 'node:path';
 import { mkdirSync } from 'node:fs';
 import type { ProductCatalog } from '../../shared/schemas/product.ts';
 import type { RecoveryJournal } from './recoveryJournal.ts';
+import { uniqueTimestamp } from './uniqueTimestamp.ts';
 
 export interface WriteResult {
   success: boolean;
@@ -74,8 +75,7 @@ export class AtomicWriter {
   }
 
   private backupPath(): string {
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    return `${this.targetPath}.backup_${timestamp}`;
+    return `${this.targetPath}.backup_${uniqueTimestamp()}`;
   }
 
   private pruneBackups(maxBackups: number): void {

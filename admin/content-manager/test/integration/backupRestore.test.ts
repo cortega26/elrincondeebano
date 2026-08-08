@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest';
 import { createApp } from '../../src/server/app.ts';
 import { writeFileSync, mkdirSync, rmSync, readFileSync, existsSync, readdirSync } from 'node:fs';
-import { resolve, basename } from 'node:path';
+import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { CREDENTIAL_HEADER } from '../../src/server/security/launchCredential.ts';
 import type { FastifyInstance } from 'fastify';
@@ -304,6 +304,10 @@ test('multiple backups are independent', async () => {
     const { backup_id: id2 } = res2.json<{ backup_id: string }>();
 
     expect(id1).not.toBe(id2);
+
+    const backupsDir = resolve(dir, 'data', 'backups');
+    expect(existsSync(resolve(backupsDir, id1))).toBe(true);
+    expect(existsSync(resolve(backupsDir, id2))).toBe(true);
 
     const listRes = await app.inject({ method: 'GET', url: '/api/v1/backup' });
     const body = listRes.json<{ backups: Array<{ id: string }> }>();

@@ -15,6 +15,7 @@ import {
 } from '../../shared/schemas/storefront.ts';
 import type { ValidationIssue } from '../../shared/schemas/validation.ts';
 import { createIssue } from '../../shared/schemas/validation.ts';
+import { uniqueTimestamp } from '../services/uniqueTimestamp.ts';
 
 export interface StorefrontRepositoryConfig {
   repoRoot: string;
@@ -91,7 +92,7 @@ export class StorefrontRepository {
     }
 
     const tmpPath = `${this.experiencePath}.tmp`;
-    const backupPath = `${this.experiencePath}.backup_${new Date().toISOString().replace(/[:.]/g, '-')}`;
+    const backupPath = `${this.experiencePath}.backup_${uniqueTimestamp()}`;
 
     try {
       mkdirSync(dirname(this.experiencePath), { recursive: true });
@@ -111,10 +112,7 @@ export class StorefrontRepository {
         flush: true,
       });
       if (existsSync(this.bundlesPath)) {
-        renameSync(
-          this.bundlesPath,
-          `${this.bundlesPath}.backup_${new Date().toISOString().replace(/[:.]/g, '-')}`
-        );
+        renameSync(this.bundlesPath, `${this.bundlesPath}.backup_${uniqueTimestamp()}`);
       }
       renameSync(bundlesTmp, this.bundlesPath);
 

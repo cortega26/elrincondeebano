@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { existsSync, mkdirSync, readdirSync, statSync, copyFileSync } from 'node:fs';
 import { resolve, basename } from 'node:path';
+import { uniqueTimestamp } from '../services/uniqueTimestamp.ts';
 
 const BACKUP_FILES = [
   'data/product_data.json',
@@ -43,7 +44,7 @@ export async function backupRoutes(
 
   app.post('/backup', async (_request, reply) => {
     try {
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const timestamp = uniqueTimestamp();
       const backupDir = resolve(backupsDir, timestamp);
       mkdirSync(backupDir, { recursive: true });
 
@@ -91,7 +92,7 @@ export async function backupRoutes(
     }
 
     try {
-      const snapshotTimestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const snapshotTimestamp = uniqueTimestamp();
       const snapshotDir = resolve(backupsDir, `pre-restore-${snapshotTimestamp}`);
       mkdirSync(snapshotDir, { recursive: true });
 

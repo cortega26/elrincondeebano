@@ -43,7 +43,7 @@ frontera de escritura y la verificación del estado real sobre esa base.
 | [073](073-fix-lossless-import-apply.md)                | Import aplica productos nuevos y reporta conteos reales         | P1       | M      | 070        | TODO                          |
 | [074](074-enforce-discount-invariant-schemas.md)       | Invariante discount ≤ price en todos los write boundaries       | P1       | S–M    | 070        | TODO                          |
 | [075](075-fail-closed-build-contract-tests.md)         | Tests de contrato de build fail-closed                          | P1       | S      | —          | DONE — `316924a` (2026-08-03) |
-| [076](076-fix-backup-id-collision.md)                  | IDs de backup únicos (flake de CI + pérdida de datos)           | P1       | S      | 070        | TODO                          |
+| [076](076-fix-backup-id-collision.md)                  | IDs de backup únicos (flake de CI + pérdida de datos)           | P1       | S      | 070        | DONE — (2026-08-08)           |
 | [077](077-fix-bulk-undo-snapshot.md)                   | Undo bulk con snapshot de valores previos siempre               | P1       | S      | 070        | TODO                          |
 | [078](078-close-atomic-writer-recovery-gap.md)         | Restore-on-failure del AtomicWriter + journal conectado         | P1       | M      | 070        | TODO                          |
 | [079](079-align-cutover-docs-with-evidence.md)         | Docs de cutover/onboarding alineadas con la evidencia           | P1       | S–M    | 070        | DONE — `68850f1` (2026-08-03) |

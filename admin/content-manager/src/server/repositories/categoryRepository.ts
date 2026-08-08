@@ -11,6 +11,7 @@ import type { CategoryRegistry } from '../../shared/schemas/category.ts';
 import { categoryRegistrySchema } from '../../shared/schemas/category.ts';
 import type { ValidationIssue } from '../../shared/schemas/validation.ts';
 import { createIssue } from '../../shared/schemas/validation.ts';
+import { uniqueTimestamp } from '../services/uniqueTimestamp.ts';
 
 export interface CategoryRepositoryConfig {
   repoRoot: string;
@@ -73,7 +74,7 @@ export class CategoryRepository {
     }
 
     const tmpPath = `${this.registryPath}.tmp`;
-    const backupPath = `${this.registryPath}.backup_${new Date().toISOString().replace(/[:.]/g, '-')}`;
+    const backupPath = `${this.registryPath}.backup_${uniqueTimestamp()}`;
 
     try {
       mkdirSync(dirname(this.registryPath), { recursive: true });
