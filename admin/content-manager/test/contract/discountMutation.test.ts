@@ -121,3 +121,82 @@ test('ProductService.edit: price = 1, discount = 1 (free product corner case)', 
   expect(result.ok).toBe(true);
   expect(result.product!.discount).toBe(1);
 });
+
+test('ProductService.edit rejects lowering price below the existing discount', () => {
+  const service = new ProductService();
+  service.enable();
+
+  const catalog = makeCatalog();
+  const id = generateProductId();
+  catalog.products.push(makeProduct(id, 1000, 800, 1));
+
+  const result = service.edit(catalog, {
+    entityId: id,
+    baseRevision: 1,
+    changes: { price: 500 },
+  });
+
+  expect(result.ok).toBe(false);
+  expect(result.statusCode).toBe(422);
+  expect(result.error).toContain('Price');
+  expect(catalog.products[0].price).toBe(1000); // unchanged — no partial mutation
+});
+
+test('ProductService.edit allows a simultaneous price+discount edit that stays valid', () => {
+  const service = new ProductService();
+  service.enable();
+
+  const catalog = makeCatalog();
+  const id = generateProductId();
+  catalog.products.push(makeProduct(id, 1000, 800, 1));
+
+  // Price drops to 500 and discount drops to 400 in the same request — the
+  // final state is valid even though price alone would fail against the
+  // stale (pre-edit) discount of 800.
+  const result = service.edit(catalog, {
+    entityId: id,
+    baseRevision: 1,
+    changes: { price: 500, discount: 400 },
+  });
+
+  expect(result.ok).toBe(true);
+  expect(result.product!.price).toBe(500);
+  expect(result.product!.discount).toBe(400);
+});
+
+test('ProductService.bulkPreview clamps set_discount_percent to price', () => {
+  const service = new ProductService();
+  service.enable();
+
+  const catalog = makeCatalog();
+  const id = generateProductId();
+  catalog.products.push(makeProduct(id, 1000, 0, 1));
+
+  const preview = service.bulkPreview(catalog, {
+    action: 'set_discount_percent',
+    value: 150,
+    product_ids: [id],
+  });
+
+  expect(preview.ok).toBe(true);
+  expect(preview.changes).toHaveLength(1);
+  expect(preview.changes[0].new_value).toBe(1000);
+});
+
+test('ProductService.bulkApply clamps set_discount_percent to price', () => {
+  const service = new ProductService();
+  service.enable();
+
+  const catalog = makeCatalog();
+  const id = generateProductId();
+  catalog.products.push(makeProduct(id, 1000, 0, 1));
+
+  const result = service.bulkApply(catalog, {
+    action: 'set_discount_percent',
+    value: 150,
+    product_ids: [id],
+  });
+
+  expect(result.ok).toBe(true);
+  expect(catalog.products[0].discount).toBe(1000);
+});

@@ -181,6 +181,19 @@ export class ProductService {
     }
 
     if (params.changes.price !== undefined && params.changes.price !== product.price) {
+      // A discount also changing in this same request takes precedence over
+      // the stale stored value — otherwise a valid simultaneous
+      // price-down + discount-down edit would be rejected here even though
+      // the discount branch below would accept it.
+      const effectiveDiscount =
+        params.changes.discount !== undefined ? params.changes.discount : product.discount;
+      if (effectiveDiscount > params.changes.price) {
+        return {
+          ok: false,
+          error: `Price (${params.changes.price}) cannot be lower than discount (${effectiveDiscount})`,
+          statusCode: 422,
+        };
+      }
       product.price = params.changes.price;
       product.rev += 1;
       product.field_last_modified.price = {
@@ -307,7 +320,7 @@ export class ProductService {
       switch (operation.action) {
         case 'set_discount_percent': {
           const pct = operation.value as number;
-          const newDiscount = Math.round(product.price * (pct / 100));
+          const newDiscount = Math.min(product.price, Math.round(product.price * (pct / 100)));
           if (newDiscount !== product.discount) {
             changes.push({
               product_id: product.id!,
@@ -409,7 +422,10 @@ export class ProductService {
     for (const product of products) {
       switch (operation.action) {
         case 'set_discount_percent':
-          product.discount = Math.round(product.price * ((operation.value as number) / 100));
+          product.discount = Math.min(
+            product.price,
+            Math.round(product.price * ((operation.value as number) / 100))
+          );
           break;
         case 'set_discount_fixed': {
           const val = operation.value as number;
