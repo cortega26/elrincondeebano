@@ -29,6 +29,7 @@ const tests = [
   'service-worker.runtime.test.js',
   'modules.dom.test.js',
   'canonical-tree.guard.test.js',
+  'build-contract.guard.test.js',
   'fetchWithRetry.test.js',
   'data-endpoint.resolver.test.js',
   'productDataVersion.normalization.test.js',

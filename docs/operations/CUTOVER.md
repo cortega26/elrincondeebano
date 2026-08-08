@@ -18,6 +18,11 @@ found"). Closing the gap is tracked by plans 056–069 (Auditoría 6) and the
 Wave 4 gate of the Auditoría 7 queue; this document must be revisited when
 plan 069 lands.
 
+> The certification/parity reports are **local evidence artifacts**, generated
+> by `npm run admin:certify` / `admin:parity` (they are not committed — the
+> root `.gitignore` excludes `reports/`). The exact filenames above are the
+> newest ones present at audit time; re-run the commands to regenerate them.
+
 The Python Tkinter manager (`admin/product_manager/`) remains the active read
 fallback during the transition window (plan 069).
 

@@ -114,6 +114,9 @@ jobs:
 
       - uses: ./.github/actions/setup-node-and-deps
 
+      - name: Lint
+        run: npx eslint src scripts --config eslint.config.mjs
+
       - name: Typecheck
         run: npx tsc -p tsconfig.json --noEmit
 

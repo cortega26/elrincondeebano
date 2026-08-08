@@ -23,6 +23,10 @@ export default [
   ...tseslint.configs.recommended,
   {
     files: [
+      // Workspace-relative (npm run lint inside admin/content-manager/).
+      'src/**/*.{js,mjs,ts,mts,tsx}',
+      'scripts/**/*.{js,mjs,ts,mts}',
+      // Repo-root-relative aliases (lint-staged and root CWDs).
       'admin/content-manager/src/**/*.{js,mjs,ts,mts,tsx}',
       'admin/content-manager/scripts/**/*.{js,mjs,ts,mts}',
     ],

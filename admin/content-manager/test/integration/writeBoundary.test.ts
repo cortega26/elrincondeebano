@@ -150,3 +150,26 @@ test('Host header not in the allowlist is rejected with 403 (DNS rebinding)', as
   });
   expect(allowed.statusCode).toBe(200);
 });
+
+test('Host allowlist strips ports and brackets (localhost:3000, [::1]:3000)', async () => {
+  const withPort = await operatorApp.inject({
+    method: 'GET',
+    url: '/api/v1/health',
+    headers: { host: 'localhost:3000' },
+  });
+  expect(withPort.statusCode).toBe(200);
+
+  const ipv6WithPort = await operatorApp.inject({
+    method: 'GET',
+    url: '/api/v1/health',
+    headers: { host: '[::1]:3000' },
+  });
+  expect(ipv6WithPort.statusCode).toBe(200);
+
+  const evasive = await operatorApp.inject({
+    method: 'GET',
+    url: '/api/v1/health',
+    headers: { host: 'localhost.evil.example' },
+  });
+  expect(evasive.statusCode).toBe(403);
+});

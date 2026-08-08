@@ -85,6 +85,8 @@ Pipfile.lock
 output.txt
 .backup/
 product_data.backup_*
+# Atomic-writer backups of the canonical storefront files (plan 081)
+astro-poc/src/data/*.backup_*
 .qodo
 node_modules/
 text_files/
