@@ -1,5 +1,9 @@
 import { test, expect } from 'vitest';
-import { productSchema, productCatalogSchema } from '../../src/shared/schemas/product.ts';
+import {
+  productSchema,
+  productReadSchema,
+  productCatalogSchema,
+} from '../../src/shared/schemas/product.ts';
 import { categoryRegistrySchema } from '../../src/shared/schemas/category.ts';
 import { storefrontExperienceSchema } from '../../src/shared/schemas/storefront.ts';
 
@@ -45,8 +49,32 @@ test('productSchema rejects price <= 0', () => {
   expect(result.success).toBe(false);
 });
 
-test('productSchema passes discount > price (cross-field invariant is domain rule, not schema)', () => {
+test('productSchema (write, strict) rejects discount > price', () => {
   const result = productSchema.safeParse({
+    name: 'x',
+    description: 'x',
+    price: 100,
+    discount: 150,
+  });
+  expect(result.success).toBe(false);
+  if (!result.success) {
+    expect(result.error.issues.some((i) => i.message.includes('Discount'))).toBe(true);
+    expect(result.error.issues.some((i) => i.path.join('.') === 'discount')).toBe(true);
+  }
+});
+
+test('productSchema (write, strict) allows discount === price', () => {
+  const result = productSchema.safeParse({
+    name: 'x',
+    description: 'x',
+    price: 100,
+    discount: 100,
+  });
+  expect(result.success).toBe(true);
+});
+
+test('productReadSchema (read, lenient) accepts discount > price — legacy data must still load', () => {
+  const result = productReadSchema.safeParse({
     name: 'x',
     description: 'x',
     price: 100,
@@ -92,6 +120,21 @@ test('productCatalogSchema validates full catalog', () => {
   if (result.success) {
     expect(result.data.products).toHaveLength(2);
     expect(result.data.rev).toBe(42);
+  }
+});
+
+test('productCatalogSchema (read, lenient) still loads a catalog with discount > price', () => {
+  const catalog = {
+    version: '20260715-000000',
+    last_updated: '2026-07-15T00:00:00.000Z',
+    rev: 1,
+    products: [{ name: 'Legacy', description: 'Desc', price: 100, discount: 300 }],
+  };
+
+  const result = productCatalogSchema.safeParse(catalog);
+  expect(result.success).toBe(true);
+  if (result.success) {
+    expect(result.data.products[0].discount).toBe(300);
   }
 });
 

@@ -8,7 +8,12 @@ export const fieldMetadataSchema = z.object({
   changeset_id: z.string().nullable().optional(),
 });
 
-export const productSchema = z.object({
+// Lenient per-product shape used on the READ path only (loadCatalog,
+// validate()): a legacy catalog file that already has discount > price must
+// still load so the repository's validate() can report it explicitly,
+// rather than the parse hard-failing at read time. Write paths must use
+// productSchema (below), which adds the cross-field invariant.
+export const productReadSchema = z.object({
   name: z.string().min(1, 'El nombre del producto es obligatorio').max(200),
   description: z.string().max(1000).default(''),
   price: z.number().int().positive('El precio debe ser mayor que cero').max(1_000_000),
@@ -48,13 +53,26 @@ export const productSchema = z.object({
     .optional(),
 });
 
+// Strict write schema: every create/edit/import write path must parse
+// through this, never productReadSchema — see product.ts's Reviewer focus
+// note in plan 074 for why the split must not silently drop this check.
+export const productSchema = productReadSchema.superRefine((data, ctx) => {
+  if (data.discount > data.price) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['discount'],
+      message: `Discount (${data.discount}) cannot exceed price (${data.price})`,
+    });
+  }
+});
+
 export type Product = z.infer<typeof productSchema>;
 
 export const productCatalogSchema = z.object({
   version: z.string(),
   last_updated: z.string(),
   rev: z.number().int().nonnegative().default(0),
-  products: z.array(productSchema),
+  products: z.array(productReadSchema),
 });
 
 export type ProductCatalog = z.infer<typeof productCatalogSchema>;

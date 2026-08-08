@@ -1,4 +1,4 @@
-import { test, expect, beforeAll } from 'vitest';
+import { test, expect } from 'vitest';
 import { createApp } from '../../src/server/app.ts';
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -62,8 +62,8 @@ const baseStorefront = {
   companionRules: [],
 };
 
-function setupDir(dir: string): void {
-  writeFileSync(resolve(dir, 'data', 'product_data.json'), JSON.stringify(baseCatalog));
+function setupDir(dir: string, catalog: unknown = baseCatalog): void {
+  writeFileSync(resolve(dir, 'data', 'product_data.json'), JSON.stringify(catalog));
   writeFileSync(resolve(dir, 'data', 'category_registry.json'), JSON.stringify(baseCategories));
   writeFileSync(
     resolve(dir, 'astro-poc', 'src', 'data', 'storefront-experience.json'),
@@ -310,6 +310,75 @@ test('POST /api/v1/products with same command_id is idempotent', async () => {
     const listRes = await app.inject({ method: 'GET', url: '/api/v1/products' });
     const list = listRes.json<{ total: number }>();
     expect(list.total).toBe(2); // 1 original + 1 created once
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('PATCH /api/v1/products/:id rejects a price lowered below the existing discount', async () => {
+  const dir = createTempDir();
+  try {
+    setupDir(dir);
+
+    const app1 = createApp({ repoRoot: dir, enableWrites: true });
+    await app1.ready();
+    const createRes = await app1.inject({
+      method: 'POST',
+      url: '/api/v1/products',
+      headers: credHeaders(app1),
+      payload: {
+        command_id: 'cmd-create-discounted',
+        payload: { name: 'Con descuento', price: 1000, discount: 800 },
+      },
+    });
+    expect(createRes.statusCode).toBe(201);
+    const created = createRes.json<{ product: { id: string } }>();
+    await app1.close();
+
+    const app2 = createApp({ repoRoot: dir, enableWrites: true });
+    await app2.ready();
+    const editRes = await app2.inject({
+      method: 'PATCH',
+      url: `/api/v1/products/${created.product.id}`,
+      headers: credHeaders(app2),
+      payload: {
+        command_id: 'cmd-lower-price',
+        base_revision: 1,
+        payload: { price: 500 },
+      },
+    });
+
+    expect(editRes.statusCode).toBe(422);
+    const body = editRes.json<{ error: { message: string } }>();
+    expect(body.error.message).toContain('Price');
+
+    await app2.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('GET /api/v1/products still loads a legacy catalog with discount > price', async () => {
+  const dir = createTempDir();
+  try {
+    const legacyCatalog = {
+      ...baseCatalog,
+      products: [
+        { ...baseCatalog.products[0], name: 'Legacy corrupto', price: 100, discount: 300 },
+      ],
+    };
+    setupDir(dir, legacyCatalog);
+
+    const app = createApp({ repoRoot: dir, enableWrites: false });
+    await app.ready();
+
+    const response = await app.inject({ method: 'GET', url: '/api/v1/products' });
+    expect(response.statusCode).toBe(200);
+    const body = response.json<{ items: Array<{ discount: number; price: number }> }>();
+    expect(body.items[0].discount).toBe(300);
+    expect(body.items[0].price).toBe(100);
 
     await app.close();
   } finally {

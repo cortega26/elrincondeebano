@@ -9,22 +9,36 @@ export const productImageVariantSchema = z.object({
   width: z.number().int().positive().optional(),
 });
 
-export const productSchema = z.object({
-  name: z.string().min(1, 'El nombre del producto es obligatorio'),
-  description: z.string().optional(),
-  price: z.number().nonnegative().optional(),
-  discount: z.number().nonnegative().optional(),
-  stock: z.boolean().optional(),
-  category: z.string().min(1, 'La categoría es obligatoria'),
-  brand: z.string().optional(),
-  image_path: z.string().optional(),
-  image_avif_path: z.string().optional(),
-  image_variants: z.array(productImageVariantSchema).optional(),
-  thumbnail_path: z.string().optional(),
-  thumbnail_variants: z.array(productImageVariantSchema).optional(),
-  order: z.number().int().optional(),
-  is_archived: z.boolean().optional(),
-});
+export const productSchema = z
+  .object({
+    name: z.string().min(1, 'El nombre del producto es obligatorio'),
+    description: z.string().optional(),
+    price: z.number().nonnegative().optional(),
+    discount: z.number().nonnegative().optional(),
+    stock: z.boolean().optional(),
+    category: z.string().min(1, 'La categoría es obligatoria'),
+    brand: z.string().optional(),
+    image_path: z.string().optional(),
+    image_avif_path: z.string().optional(),
+    image_variants: z.array(productImageVariantSchema).optional(),
+    thumbnail_path: z.string().optional(),
+    thumbnail_variants: z.array(productImageVariantSchema).optional(),
+    order: z.number().int().optional(),
+    is_archived: z.boolean().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      typeof data.discount === 'number' &&
+      typeof data.price === 'number' &&
+      data.discount > data.price
+    ) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['discount'],
+        message: `Discount (${data.discount}) cannot exceed price (${data.price})`,
+      });
+    }
+  });
 
 export const productCatalogSchema = z.object({
   version: z.string().optional(),
