@@ -1,19 +1,81 @@
-import { test, expect } from 'vitest';
-import { writeFileSync, readFileSync, mkdirSync, rmSync, unlinkSync } from 'node:fs';
+import { test, expect, vi, beforeEach } from 'vitest';
+import { writeFileSync, readFileSync, mkdirSync, rmSync, existsSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { ProductRepository } from '../../src/server/repositories/productRepository.ts';
 import { IdempotencyStore } from '../../src/server/services/idempotencyStore.ts';
 import { AtomicWriter } from '../../src/server/services/atomicWriter.ts';
-import { ProductService } from '../../src/domain/products/productService.ts';
 import type { ProductCatalog } from '../../src/shared/schemas/product.ts';
 import { AuditLogger } from '../../src/server/services/auditLogger.ts';
+import { createApp } from '../../src/server/app.ts';
+import { RecoveryJournal } from '../../src/server/services/recoveryJournal.ts';
+import { runDoctor } from '../../src/server/services/doctor.ts';
+import { CREDENTIAL_HEADER } from '../../src/server/security/launchCredential.ts';
+import type { FastifyInstance } from 'fastify';
+
+// `renameSync` on `node:fs` can't be spied on directly (ESM named exports
+// aren't configurable), so the second-rename failure used by the full
+// end-to-end failure-path test below is simulated by mocking the whole
+// module and wrapping just that one export.
+const { renameState } = vi.hoisted(() => ({
+  renameState: { failAtCall: null as number | null, callCount: 0 },
+}));
+
+vi.mock('node:fs', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:fs')>();
+  return {
+    ...actual,
+    renameSync: (...args: Parameters<typeof actual.renameSync>) => {
+      renameState.callCount += 1;
+      if (renameState.failAtCall !== null && renameState.callCount === renameState.failAtCall) {
+        throw new Error('simulated rename failure');
+      }
+      return actual.renameSync(...args);
+    },
+  };
+});
+
+beforeEach(() => {
+  renameState.failAtCall = null;
+  renameState.callCount = 0;
+});
 
 function createTempDir(): string {
   const dir = resolve(tmpdir(), `cm-fail-${Date.now()}-${Math.random().toString(36).slice(2)}`);
   mkdirSync(dir, { recursive: true });
   mkdirSync(resolve(dir, 'data'), { recursive: true });
   return dir;
+}
+
+function getCredential(app: FastifyInstance): string {
+  const cred = (app as unknown as { launchCredential?: string }).launchCredential;
+  return typeof cred === 'string' ? cred : '';
+}
+
+function setupFullRepo(dir: string): void {
+  mkdirSync(resolve(dir, 'astro-poc', 'src', 'data'), { recursive: true });
+  writeFileSync(
+    resolve(dir, 'data', 'product_data.json'),
+    JSON.stringify({ version: 'test', last_updated: '', rev: 0, products: [] })
+  );
+  writeFileSync(
+    resolve(dir, 'data', 'category_registry.json'),
+    JSON.stringify({ nav_groups: [], categories: [] })
+  );
+  writeFileSync(
+    resolve(dir, 'astro-poc', 'src', 'data', 'storefront-experience.json'),
+    JSON.stringify({
+      trustBar: { highlights: [], statusItems: [] },
+      home: {
+        primaryCategories: [],
+        secondaryCategories: [],
+        fallbackQuickPicks: [],
+        featuredStaples: [],
+      },
+      bundles: [],
+      companionRules: [],
+    })
+  );
 }
 
 test('writeCatalog preserves source on IO failure', async () => {
@@ -143,7 +205,6 @@ test('AtomicWriter creates backups on every write', () => {
     expect(result2.success).toBe(true);
     expect(result2.backedUp).toBe(true);
 
-    const { readdirSync } = require('node:fs');
     const files = readdirSync(resolve(dir, 'data')).filter((f: string) => f.includes('backup_'));
     expect(files.length).toBeGreaterThanOrEqual(1);
   } finally {
@@ -165,6 +226,70 @@ test('AtomicWriter verifies written JSON', () => {
 
     const raw = readFileSync(dataFile, 'utf-8');
     expect(() => JSON.parse(raw)).not.toThrow();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// Plan 078, Step 4: the full failure path through a real HTTP request --
+// not just AtomicWriter in isolation. A product write whose second rename
+// fails must: respond 500, leave the canonical catalog file readable with
+// its previous content (GET /products still works), record the failure in
+// the recovery journal, and be visible to doctor as recoveryNeeded.
+test('POST /products with a failing second rename: 500 response, catalog survives, journal and doctor see it', async () => {
+  const dir = createTempDir();
+  try {
+    setupFullRepo(dir);
+
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const credential = getCredential(app);
+
+    const dataFile = resolve(dir, 'data', 'product_data.json');
+    const previousContent = readFileSync(dataFile, 'utf-8');
+
+    // Call 1 = target -> backup (must succeed). Call 2 = tmp -> target --
+    // the one this test simulates failing.
+    renameState.failAtCall = 2;
+
+    const writeResponse = await app.inject({
+      method: 'POST',
+      url: '/api/v1/products',
+      headers: {
+        'content-type': 'application/json',
+        host: '127.0.0.1:3000',
+        origin: 'http://127.0.0.1:3000',
+        'sec-fetch-site': 'same-origin',
+        [CREDENTIAL_HEADER]: credential,
+      },
+      payload: {
+        command_id: 'fail-second-rename',
+        payload: { name: 'Rename Failure', price: 500, category: 'x' },
+      },
+    });
+
+    expect(writeResponse.statusCode).toBe(500);
+
+    // The canonical file must still exist with its previous content -- no
+    // window where it's absent.
+    expect(existsSync(dataFile)).toBe(true);
+    expect(readFileSync(dataFile, 'utf-8')).toBe(previousContent);
+
+    // GET /products must keep working -- loadCatalog() doesn't throw.
+    const readResponse = await app.inject({ method: 'GET', url: '/api/v1/products' });
+    expect(readResponse.statusCode).toBe(200);
+    expect(readResponse.json<{ total: number }>().total).toBe(0);
+
+    await app.close();
+
+    // The journal recorded the failure and doctor surfaces it.
+    const journal = new RecoveryJournal(dir);
+    const unrecovered = journal.getUnrecoveredFailures();
+    expect(unrecovered).toHaveLength(1);
+    expect(unrecovered[0].targetFile).toBe('product_data.json');
+
+    const report = runDoctor(dir);
+    expect(report.recoveryNeeded).toBe(true);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
