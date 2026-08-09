@@ -93,6 +93,8 @@ export class StorefrontRepository {
 
     const tmpPath = `${this.experiencePath}.tmp`;
     const backupPath = `${this.experiencePath}.backup_${uniqueTimestamp()}`;
+    const bundlesTmp = `${this.bundlesPath}.tmp`;
+    const bundlesBackupPath = `${this.bundlesPath}.backup_${uniqueTimestamp()}`;
 
     try {
       mkdirSync(dirname(this.experiencePath), { recursive: true });
@@ -106,20 +108,42 @@ export class StorefrontRepository {
 
       // Also write bundles separately (unconditionally, so clearing all
       // bundles persists [] instead of leaving a stale file behind — plan 081).
-      const bundlesTmp = `${this.bundlesPath}.tmp`;
       writeFileSync(bundlesTmp, JSON.stringify(result.data.bundles, null, 2), {
         encoding: 'utf-8',
         flush: true,
       });
       if (existsSync(this.bundlesPath)) {
-        renameSync(this.bundlesPath, `${this.bundlesPath}.backup_${uniqueTimestamp()}`);
+        renameSync(this.bundlesPath, bundlesBackupPath);
       }
       renameSync(bundlesTmp, this.bundlesPath);
 
       return { ok: true };
     } catch (err) {
+      // Restore is single-file (each file's own rename gap), not
+      // transactional across both files — cross-file rollback is plan 063
+      // territory. If the bundles rename is what failed, the experience
+      // file from this write is left in place rather than rolled back.
+      try {
+        if (!existsSync(this.experiencePath) && existsSync(backupPath)) {
+          renameSync(backupPath, this.experiencePath);
+        }
+      } catch {
+        /* restoration is best-effort */
+      }
+      try {
+        if (!existsSync(this.bundlesPath) && existsSync(bundlesBackupPath)) {
+          renameSync(bundlesBackupPath, this.bundlesPath);
+        }
+      } catch {
+        /* restoration is best-effort */
+      }
       try {
         unlinkSync(tmpPath);
+      } catch {
+        /* ignore */
+      }
+      try {
+        unlinkSync(bundlesTmp);
       } catch {
         /* ignore */
       }

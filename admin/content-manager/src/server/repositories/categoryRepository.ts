@@ -90,6 +90,13 @@ export class CategoryRepository {
       return { ok: true };
     } catch (err) {
       try {
+        if (!existsSync(this.registryPath) && existsSync(backupPath)) {
+          renameSync(backupPath, this.registryPath);
+        }
+      } catch {
+        /* restoration is best-effort */
+      }
+      try {
         unlinkSync(tmpPath);
       } catch {
         /* ignore */

@@ -1,9 +1,36 @@
-import { test, expect } from 'vitest';
+import { test, expect, vi, beforeEach } from 'vitest';
 import { ProductRepository } from '../../src/server/repositories/productRepository.ts';
 import { CategoryRepository } from '../../src/server/repositories/categoryRepository.ts';
-import { writeFileSync, mkdirSync, rmSync } from 'node:fs';
+import { writeFileSync, mkdirSync, rmSync, readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
+
+// `renameSync` on `node:fs` can't be spied on directly (ESM named exports
+// aren't configurable), so the second-rename failure used by the
+// restore-on-failure tests below is simulated by mocking the whole module
+// and wrapping just that one export.
+const { renameState } = vi.hoisted(() => ({
+  renameState: { failAtCall: null as number | null, callCount: 0 },
+}));
+
+vi.mock('node:fs', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:fs')>();
+  return {
+    ...actual,
+    renameSync: (...args: Parameters<typeof actual.renameSync>) => {
+      renameState.callCount += 1;
+      if (renameState.failAtCall !== null && renameState.callCount === renameState.failAtCall) {
+        throw new Error('simulated rename failure');
+      }
+      return actual.renameSync(...args);
+    },
+  };
+});
+
+beforeEach(() => {
+  renameState.failAtCall = null;
+  renameState.callCount = 0;
+});
 
 function createTempDir(): string {
   const dir = resolve(
@@ -191,7 +218,7 @@ test('ProductRepository getAll does not mutate data', () => {
     // Accessing items shouldn't change the file
     void result.items;
 
-    const after = require('node:fs').readFileSync(dataFile, 'utf-8');
+    const after = readFileSync(dataFile, 'utf-8');
     expect(after).toBe(original);
   } finally {
     rmSync(dir, { recursive: true, force: true });
@@ -263,7 +290,7 @@ test('CategoryRepository does not mutate data on read', () => {
     const repo = new CategoryRepository({ repoRoot: dir });
     void repo.load();
 
-    const after = require('node:fs').readFileSync(registryFile, 'utf-8');
+    const after = readFileSync(registryFile, 'utf-8');
     expect(after).toBe(original);
   } finally {
     rmSync(dir, { recursive: true, force: true });
@@ -273,7 +300,6 @@ test('CategoryRepository does not mutate data on read', () => {
 // Plan 081: clearing all storefront bundles must persist [] instead of
 // leaving the stale standalone bundles file behind.
 import { StorefrontRepository } from '../../src/server/repositories/storefrontRepository.ts';
-import { existsSync, readFileSync } from 'node:fs';
 
 const experienceWithBundles = (bundles: unknown[]) => ({
   trustBar: { highlights: [], statusItems: [] },
@@ -334,6 +360,77 @@ test('StorefrontRepository still persists a non-empty bundles file', () => {
 
     const persisted = JSON.parse(readFileSync(bundlesFile, 'utf-8'));
     expect(persisted).toEqual([bundle]);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// Plan 078: CategoryRepository.write() has its own inline atomic-rename
+// implementation (not built on AtomicWriter) with the identical rename gap —
+// target -> backup, then tmp -> target. This proves the restore-on-failure
+// fix applied to that inline implementation.
+test('CategoryRepository.write restores the previous registry when the tmp -> target rename fails', () => {
+  const dir = createTempDir();
+  try {
+    mkdirSync(resolve(dir, 'data'), { recursive: true });
+    const registryFile = resolve(dir, 'data', 'category_registry.json');
+    writeFileSync(registryFile, JSON.stringify(validCategories), 'utf-8');
+
+    const repo = new CategoryRepository({ repoRoot: dir });
+    const previousContent = readFileSync(registryFile, 'utf-8');
+
+    // Call 1 is `target -> backup` (must succeed so the restore has
+    // something to restore from). Call 2 is `tmp -> target` — the one this
+    // test simulates failing.
+    renameState.failAtCall = 2;
+
+    const result = repo.write({
+      nav_groups: validCategories.nav_groups,
+      categories: [
+        ...validCategories.categories,
+        { id: 'c3', key: 'cat3', slug: 'cat-3', active: true, sort_order: 2 },
+      ],
+    });
+
+    expect(result.ok).toBe(false);
+    expect(existsSync(registryFile)).toBe(true);
+    expect(readFileSync(registryFile, 'utf-8')).toBe(previousContent);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// Plan 078: same rename-gap pattern, duplicated a third time in
+// StorefrontRepository.write() for the experience file (single-file
+// restore only — the experience/bundles pair isn't transactional; see the
+// comment in storefrontRepository.ts).
+test('StorefrontRepository.write restores the previous experience file when its tmp -> target rename fails', () => {
+  const dir = createTempDir();
+  try {
+    mkdirSync(resolve(dir, 'astro-poc', 'src', 'data'), { recursive: true });
+    const experienceFile = resolve(dir, 'astro-poc', 'src', 'data', 'storefront-experience.json');
+    const repo = new StorefrontRepository({ repoRoot: dir });
+
+    const first = repo.write(experienceWithBundles([]));
+    expect(first.ok).toBe(true);
+    const previousContent = readFileSync(experienceFile, 'utf-8');
+
+    // Call 1 = experience `target -> backup` (must succeed). Call 2 =
+    // experience `tmp -> target` — the one this test simulates failing.
+    renameState.callCount = 0;
+    renameState.failAtCall = 2;
+
+    const validBundle = {
+      id: 'combo-1',
+      title: 'Combo Único',
+      description: 'Un combo',
+      items: [{ category: 'cat1', name: 'Producto A' }],
+    };
+    const result = repo.write(experienceWithBundles([validBundle]));
+
+    expect(result.ok).toBe(false);
+    expect(existsSync(experienceFile)).toBe(true);
+    expect(readFileSync(experienceFile, 'utf-8')).toBe(previousContent);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
