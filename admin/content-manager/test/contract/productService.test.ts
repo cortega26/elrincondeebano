@@ -34,6 +34,7 @@ test('ProductService.create adds a product', () => {
     name: 'Nuevo Producto',
     price: 5000,
     description: 'Descripción de prueba',
+    category: 'cat1',
   });
 
   expect(result.ok).toBe(true);
@@ -59,14 +60,14 @@ test('ProductService.create assigns sequential order', () => {
     rev: 1,
     discount: 0,
     stock: false,
-    category: '',
+    category: 'cat1',
     image_path: '',
     image_avif_path: '',
     is_archived: false,
     field_last_modified: {},
   });
 
-  const result = service.create(catalog, { name: 'Second', price: 200 });
+  const result = service.create(catalog, { name: 'Second', price: 200, category: 'cat1' });
   expect(result.product!.order).toBe(6);
 });
 
@@ -136,7 +137,7 @@ test('ProductService.edit rejects stale revision', () => {
     price: 100,
     discount: 0,
     stock: true,
-    category: '',
+    category: 'cat1',
     image_path: '',
     image_avif_path: '',
     order: 0,
@@ -169,7 +170,7 @@ test('ProductService.edit rejects discount > price', () => {
     price: 100,
     discount: 0,
     stock: true,
-    category: '',
+    category: 'cat1',
     image_path: '',
     image_avif_path: '',
     order: 0,
@@ -225,7 +226,7 @@ test('ProductService.edit archives a product', () => {
     price: 100,
     discount: 0,
     stock: true,
-    category: '',
+    category: 'cat1',
     image_path: '',
     image_avif_path: '',
     order: 0,
@@ -258,7 +259,7 @@ test('ProductService.edit preserves identity on rename', () => {
     price: 1000,
     discount: 0,
     stock: true,
-    category: '',
+    category: 'cat1',
     image_path: '',
     image_avif_path: '',
     order: 0,

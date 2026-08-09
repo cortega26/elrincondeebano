@@ -77,7 +77,9 @@ test('POST /api/v1/import/apply creates new products', async () => {
       method: 'POST',
       url: '/api/v1/import/apply',
       headers: credHeaders(app),
-      payload: { products: [{ name: 'Imported', description: 'New', price: 999 }] },
+      payload: {
+        products: [{ name: 'Imported', description: 'New', price: 999, category: 'x' }],
+      },
     });
     expect(res.statusCode).toBe(200);
 
@@ -117,6 +119,7 @@ test('POST /api/v1/import/apply updates existing products', async () => {
             description: existing.items[0].description,
             price: 1000,
             discount: 100,
+            category: 'x',
           },
         ],
       },

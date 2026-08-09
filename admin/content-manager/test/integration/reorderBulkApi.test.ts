@@ -67,7 +67,7 @@ test('POST /api/v1/products/reorder assigns new order values', async () => {
         method: 'POST',
         url: '/api/v1/products',
         headers: credHeaders(app1),
-        payload: { command_id: `create-${name}`, payload: { name, price: 1000 } },
+        payload: { command_id: `create-${name}`, payload: { name, price: 1000, category: 'cat1' } },
       });
       const body = res.json<{ product: { id: string } }>();
       ids.push(body.product.id);
@@ -111,7 +111,7 @@ test('POST /api/v1/products/bulk/preview shows discount changes', async () => {
         method: 'POST',
         url: '/api/v1/products',
         headers: credHeaders(app),
-        payload: { command_id: `create-${name}`, payload: { name, price: 1000 } },
+        payload: { command_id: `create-${name}`, payload: { name, price: 1000, category: 'cat1' } },
       });
       ids.push(res.json<{ product: { id: string } }>().product.id);
     }
@@ -153,7 +153,7 @@ test('POST /api/v1/products/bulk/apply applies changes', async () => {
         method: 'POST',
         url: '/api/v1/products',
         headers: credHeaders(app),
-        payload: { command_id: `create-${name}`, payload: { name, price: 1000 } },
+        payload: { command_id: `create-${name}`, payload: { name, price: 1000, category: 'cat1' } },
       });
       ids.push(res.json<{ product: { id: string } }>().product.id);
     }
@@ -193,13 +193,16 @@ test('POST /api/v1/products/bulk/apply set_stock toggles', async () => {
     const app = createApp({ repoRoot: dir, enableWrites: true });
     await app.ready();
 
-    let ids: string[] = [];
+    const ids: string[] = [];
     for (const name of ['P1', 'P2']) {
       const res = await app.inject({
         method: 'POST',
         url: '/api/v1/products',
         headers: credHeaders(app),
-        payload: { command_id: `create-${name}`, payload: { name, price: 1000, stock: true } },
+        payload: {
+          command_id: `create-${name}`,
+          payload: { name, price: 1000, stock: true, category: 'cat1' },
+        },
       });
       ids.push(res.json<{ product: { id: string } }>().product.id);
     }
@@ -231,7 +234,7 @@ test('POST /api/v1/products/bulk/apply set_category updates category', async () 
     const app = createApp({ repoRoot: dir, enableWrites: true });
     await app.ready();
 
-    let ids: string[] = [];
+    const ids: string[] = [];
     for (const name of ['P1', 'P2']) {
       const res = await app.inject({
         method: 'POST',

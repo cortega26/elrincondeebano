@@ -64,6 +64,13 @@ export const productSchema = productReadSchema.superRefine((data, ctx) => {
       message: `Discount (${data.discount}) cannot exceed price (${data.price})`,
     });
   }
+  if (data.category.trim().length === 0) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['category'],
+      message: 'La categoría es obligatoria',
+    });
+  }
 });
 
 export type Product = z.infer<typeof productSchema>;

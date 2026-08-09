@@ -126,7 +126,7 @@ test('POST /api/v1/products creates a product when writes enabled', async () => 
       headers: ch,
       payload: {
         command_id: 'cmd-create-1',
-        payload: { name: 'Nuevo', price: 5000, description: 'Creado vía API' },
+        payload: { name: 'Nuevo', price: 5000, description: 'Creado vía API', category: 'cat1' },
       },
     });
 
@@ -202,7 +202,7 @@ test('PATCH /api/v1/products/:id updates a product', async () => {
       headers: ch1,
       payload: {
         command_id: 'cmd-create',
-        payload: { name: 'Editable', price: 3000, stock: true },
+        payload: { name: 'Editable', price: 3000, stock: true, category: 'cat1' },
       },
     });
     const created = createRes.json<{
@@ -253,7 +253,10 @@ test('PATCH /api/v1/products/:id returns 409 for stale revision', async () => {
       method: 'POST',
       url: '/api/v1/products',
       headers: credHeaders(app1),
-      payload: { command_id: 'cmd-a', payload: { name: 'Conflict Test', price: 1000 } },
+      payload: {
+        command_id: 'cmd-a',
+        payload: { name: 'Conflict Test', price: 1000, category: 'cat1' },
+      },
     });
     const {
       product: { id },
@@ -288,7 +291,10 @@ test('POST /api/v1/products with same command_id is idempotent', async () => {
     await app.ready();
     const ch = credHeaders(app);
 
-    const payload = { command_id: 'cmd-idem', payload: { name: 'Idempotent', price: 1000 } };
+    const payload = {
+      command_id: 'cmd-idem',
+      payload: { name: 'Idempotent', price: 1000, category: 'cat1' },
+    };
 
     const res1 = await app.inject({
       method: 'POST',
@@ -330,7 +336,7 @@ test('PATCH /api/v1/products/:id rejects a price lowered below the existing disc
       headers: credHeaders(app1),
       payload: {
         command_id: 'cmd-create-discounted',
-        payload: { name: 'Con descuento', price: 1000, discount: 800 },
+        payload: { name: 'Con descuento', price: 1000, discount: 800, category: 'cat1' },
       },
     });
     expect(createRes.statusCode).toBe(201);

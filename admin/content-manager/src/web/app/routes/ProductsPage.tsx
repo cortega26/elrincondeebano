@@ -1055,9 +1055,16 @@ function ProductForm({
   useEffect(() => {
     client
       .getCategories()
-      .then((res) => setCategories(res.categories))
+      .then((res) => {
+        setCategories(res.categories);
+        // New products must always start with a real category — there is no
+        // "Sin categoría" option, so default to the first one available.
+        if (!product && res.categories.length > 0) {
+          setCategory((current) => current || res.categories[0].key);
+        }
+      })
       .catch(() => {});
-  }, []);
+  }, [product]);
 
   useEffect(() => {
     fetch('/api/v1/media')
@@ -1160,15 +1167,14 @@ function ProductForm({
           />
         </label>
         <label>
-          Categoría
-          <br />
+          Categoría *<br />
           {categories.length > 0 ? (
             <select
+              required
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               style={{ width: '100%', padding: '0.25rem' }}
             >
-              <option value="">Sin categoría</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.key}>
                   {c.display_name?.default ?? c.key}
@@ -1177,6 +1183,7 @@ function ProductForm({
             </select>
           ) : (
             <input
+              required
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               style={{ width: '100%', padding: '0.25rem' }}

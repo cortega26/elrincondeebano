@@ -2,7 +2,7 @@ import { test, expect } from 'vitest';
 import { ProductRepository } from '../../src/server/repositories/productRepository.ts';
 import { ProductService } from '../../src/domain/products/productService.ts';
 import { IdempotencyStore } from '../../src/server/services/idempotencyStore.ts';
-import { writeFileSync, readFileSync, mkdirSync, rmSync, cpSync } from 'node:fs';
+import { writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -88,6 +88,7 @@ test('Write shadow: create product and verify persistence', async () => {
     name: 'Shadow Product',
     price: 9999,
     description: 'Created during write shadow test',
+    category: 'cat1',
   });
 
   expect(result.ok).toBe(true);
@@ -116,7 +117,6 @@ test('Write shadow: edit product and verify revision change', async () => {
 
   const catalog = repo.loadCatalog();
   const firstProduct = catalog.products[0];
-  const originalName = firstProduct.name;
   const originalRev = firstProduct.rev;
   const catalogRev = catalog.rev;
 
@@ -179,8 +179,6 @@ test('Write shadow: reorder products', async () => {
 
   const catalog = repo.loadCatalog();
   if (catalog.products.length < 2) return;
-
-  const originalOrder = catalog.products.map((p) => p.name);
 
   const ids = catalog.products.map((p) => p.id!).filter(Boolean);
   if (ids.length < 2) return;
@@ -272,7 +270,7 @@ test('Write shadow: idempotent command ID', async () => {
   const catalog = repo.loadCatalog();
   const baseRev = catalog.rev;
 
-  const result = service.create(catalog, { name: 'Idempotent Test', price: 500 });
+  service.create(catalog, { name: 'Idempotent Test', price: 500, category: 'cat1' });
   catalog.rev += 1;
 
   const writeResult1 = await repo.writeCatalog(catalog, 'dup-cmd', baseRev);

@@ -69,6 +69,30 @@ test('productSchema (write, strict) allows discount === price', () => {
     description: 'x',
     price: 100,
     discount: 100,
+    category: 'cat1',
+  });
+  expect(result.success).toBe(true);
+});
+
+test('productSchema (write, strict) rejects an empty category', () => {
+  const result = productSchema.safeParse({
+    name: 'x',
+    description: 'x',
+    price: 100,
+    category: '',
+  });
+  expect(result.success).toBe(false);
+  if (!result.success) {
+    expect(result.error.issues.some((i) => i.path.join('.') === 'category')).toBe(true);
+  }
+});
+
+test('productReadSchema (read, lenient) accepts an empty category — legacy data must still load', () => {
+  const result = productReadSchema.safeParse({
+    name: 'x',
+    description: 'x',
+    price: 100,
+    category: '',
   });
   expect(result.success).toBe(true);
 });
@@ -92,6 +116,7 @@ test('productSchema preserves unknown forward-compatible fields', () => {
     name: 'Test',
     description: 'Test',
     price: 1000,
+    category: 'cat1',
     brand: 'BrandX',
     thumbnail_path: 'assets/thumbs/x.webp',
   };

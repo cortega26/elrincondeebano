@@ -19,7 +19,7 @@ function makeProduct(id: string, price: number, discount = 0, rev = 1) {
     price,
     discount,
     stock: true,
-    category: '',
+    category: 'test-category',
     image_path: '',
     image_avif_path: '',
     order: 0,
