@@ -45,7 +45,7 @@ frontera de escritura y la verificación del estado real sobre esa base.
 | [075](075-fail-closed-build-contract-tests.md)         | Tests de contrato de build fail-closed                          | P1       | S      | —          | DONE — `316924a` (2026-08-03)                       |
 | [076](076-fix-backup-id-collision.md)                  | IDs de backup únicos (flake de CI + pérdida de datos)           | P1       | S      | 070        | DONE — (2026-08-08)                                 |
 | [077](077-fix-bulk-undo-snapshot.md)                   | Undo bulk con snapshot de valores previos siempre               | P1       | S      | 070        | DONE — (2026-08-08)                                 |
-| [078](078-close-atomic-writer-recovery-gap.md)         | Restore-on-failure del AtomicWriter + journal conectado         | P1       | M      | 070        | TODO                                                |
+| [078](078-close-atomic-writer-recovery-gap.md)         | Restore-on-failure del AtomicWriter + journal conectado         | P1       | M      | 070        | DONE — `180b023`..`eb85e13` (2026-08-09)            |
 | [079](079-align-cutover-docs-with-evidence.md)         | Docs de cutover/onboarding alineadas con la evidencia           | P1       | S–M    | 070        | DONE — `68850f1` (2026-08-03)                       |
 | [080](080-harden-category-concurrency-and-id-paths.md) | Concurrencia optimista de categorías + IDs contenidos           | P2       | M      | 070, 071   | TODO                                                |
 | [081](081-fix-empty-bundles-persistence.md)            | Persistir bundles vacíos (stale storefront-bundles.json)        | P2       | S      | 070        | DONE — `158c327` (2026-08-03)                       |
