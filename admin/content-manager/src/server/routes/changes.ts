@@ -121,7 +121,12 @@ export async function changesRoutes(
       }
 
       const conflicts: Conflict[] = [];
-      let noConflicts = 0;
+      const newProducts: Array<Record<string, unknown>> = [];
+      // Full parsed incoming object per conflicted product, keyed by the
+      // matched existing product's id. The client needs this to build a
+      // schema-valid apply payload — individual diff rows only carry one
+      // field each, and productSchema requires the whole object.
+      const incomingById: Record<string, Record<string, unknown>> = {};
 
       const existingProducts = repos.products.loadCatalog().products;
       const existingMap = new Map<string, (typeof existingProducts)[0]>();
@@ -171,6 +176,7 @@ export async function changesRoutes(
             }
           }
           if (diffs.length > 0) {
+            incomingById[existing.id ?? ''] = p;
             for (const diff of diffs) {
               conflicts.push({
                 product_name: existing.name,
@@ -184,14 +190,16 @@ export async function changesRoutes(
             }
           }
         } else {
-          noConflicts++;
+          newProducts.push(p);
         }
       }
 
       return {
         conflicts,
-        no_conflicts: noConflicts,
+        no_conflicts: newProducts.length,
         total_conflicts: conflicts.length,
+        new_products: newProducts,
+        incoming_by_id: incomingById,
       };
     } catch (err) {
       return reply.status(400).send({
