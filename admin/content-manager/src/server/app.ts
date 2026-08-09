@@ -7,6 +7,7 @@ import { ProductRepository } from './repositories/productRepository.ts';
 import { CategoryRepository } from './repositories/categoryRepository.ts';
 import { StorefrontRepository } from './repositories/storefrontRepository.ts';
 import { PersistentIdempotencyStore } from './services/persistentIdempotencyStore.ts';
+import { RecoveryJournal } from './services/recoveryJournal.ts';
 import { ProductService } from '../domain/products/productService.ts';
 import { CategoryService } from '../domain/categories/categoryService.ts';
 import { MediaRepository } from './repositories/mediaRepository.ts';
@@ -82,8 +83,13 @@ export function createApp(opts?: AppOptions): FastifyInstance {
 
   const app = Fastify(fastifyOpts);
 
+  // Only ProductRepository is wired to the journal: it's the only
+  // repository built on AtomicWriter. CategoryRepository and
+  // StorefrontRepository have their own inline write() implementations
+  // (see plan 078) and are out of scope for journal wiring.
+  const recoveryJournal = new RecoveryJournal(repoRoot);
   const repos = {
-    products: new ProductRepository({ repoRoot }, idempotencyStore),
+    products: new ProductRepository({ repoRoot, recoveryJournal }, idempotencyStore),
     categories: new CategoryRepository({ repoRoot }),
     storefront: new StorefrontRepository({ repoRoot }),
   };
@@ -100,6 +106,7 @@ export function createApp(opts?: AppOptions): FastifyInstance {
   const git = new GitAdapter(repoRoot);
 
   app.decorate('repos', repos);
+  app.decorate('recoveryJournal', recoveryJournal);
   app.decorate('media', media);
   app.decorate('enableWrites', enableWrites);
   app.decorate('launchCredential', launchCredential);

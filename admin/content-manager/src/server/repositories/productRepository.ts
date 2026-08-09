@@ -7,10 +7,12 @@ import { createIssue } from '../../shared/schemas/validation.ts';
 import { AtomicWriter } from '../services/atomicWriter.ts';
 import { MutationLock } from '../services/mutationLock.ts';
 import type { PersistentIdempotencyStore } from '../services/persistentIdempotencyStore.ts';
+import type { RecoveryJournal } from '../services/recoveryJournal.ts';
 
 export interface ProductRepositoryConfig {
   repoRoot: string;
   dataFile?: string;
+  recoveryJournal?: RecoveryJournal;
 }
 
 const DEFAULT_PRODUCT_FILE = 'data/product_data.json';
@@ -25,7 +27,7 @@ export class ProductRepository {
     const dataFile = config.dataFile ?? DEFAULT_PRODUCT_FILE;
     this.filePath = resolve(config.repoRoot, dataFile);
     this.lock = new MutationLock();
-    this.writer = new AtomicWriter(this.filePath);
+    this.writer = new AtomicWriter(this.filePath, config.recoveryJournal);
     this.idempotencyStore = idempotencyStore;
   }
 

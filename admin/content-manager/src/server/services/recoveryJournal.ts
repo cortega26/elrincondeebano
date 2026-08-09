@@ -80,4 +80,39 @@ export class RecoveryJournal {
 
     return pending;
   }
+
+  // Unlike getPendingRecoveries() (crash-mid-write: a 'started' entry with
+  // no matching 'completed'/'failed' for the same commandId), this looks
+  // for explicit failures that were never superseded by a later successful
+  // write of the same file. Each write has a fresh commandId, so a failure
+  // is matched against the most recent event for its targetFile, not its
+  // own commandId.
+  getUnrecoveredFailures(): RecoveryEntry[] {
+    if (!existsSync(this.journalPath)) {
+      return [];
+    }
+
+    const lines = readFileSync(this.journalPath, 'utf-8').split('\n').filter(Boolean);
+    const entries: RecoveryEntry[] = lines.map((line) => JSON.parse(line) as RecoveryEntry);
+
+    const lastFailureByFile = new Map<string, number>();
+    const lastCompletedIndexByFile = new Map<string, number>();
+
+    entries.forEach((entry, index) => {
+      if (entry.status === 'failed') {
+        lastFailureByFile.set(entry.targetFile, index);
+      } else if (entry.status === 'completed') {
+        lastCompletedIndexByFile.set(entry.targetFile, index);
+      }
+    });
+
+    const unrecovered: RecoveryEntry[] = [];
+    for (const [targetFile, failureIndex] of lastFailureByFile) {
+      const completedIndex = lastCompletedIndexByFile.get(targetFile);
+      if (completedIndex === undefined || completedIndex < failureIndex) {
+        unrecovered.push(entries[failureIndex]);
+      }
+    }
+    return unrecovered;
+  }
 }
