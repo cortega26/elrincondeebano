@@ -1,4 +1,4 @@
-# ADR 0008: Catalog data authority and write-path matrix
+# ADR 0009: Catalog data authority and write-path matrix
 
 - Date: 2026-07-15
 - Status: Accepted

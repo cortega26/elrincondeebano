@@ -1,7 +1,7 @@
 # Streamlit/SQLite Admin Archive Notice
 
 - Date: 2026-07-16
-- Decision: ADR 0008 (Catalog Data Authority)
+- Decision: ADR 0009 (Catalog Data Authority)
 
 ## What is retired
 
@@ -10,7 +10,7 @@ The Streamlit-based web admin (`admin/web/app.py`) and its SQLite store
 
 ## Why
 
-ADR 0008 named `data/product_data.json` as the single authoritative product catalog
+ADR 0009 named `data/product_data.json` as the single authoritative product catalog
 and declared `data/storefront.db` a non-authoritative prototype artifact.
 
 The TypeScript Content Manager (`admin/content-manager/`) now serves as the
