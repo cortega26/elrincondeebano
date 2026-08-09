@@ -1,5 +1,7 @@
 import { createApp } from './app.ts';
 import { resolve } from 'node:path';
+import { checkStartupRecovery } from './services/recoveryCheck.ts';
+import type { RecoveryJournal } from './services/recoveryJournal.ts';
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '127.0.0.1';
@@ -26,6 +28,23 @@ const launchCredential = process.env.ADMIN_CREDENTIAL || undefined;
 const repoRoot = process.env.REPO_ROOT || resolve(process.cwd(), '..', '..');
 
 const app = createApp({ repoRoot, enableWrites, logger: true, launchCredential });
+
+const skipRecoveryCheck = process.env.ADMIN_SKIP_RECOVERY_CHECK === '1';
+const recoveryJournal = (app as unknown as { recoveryJournal: RecoveryJournal }).recoveryJournal;
+const recovery = checkStartupRecovery(recoveryJournal, repoRoot, {
+  enableWrites,
+  skipCheck: skipRecoveryCheck,
+});
+if (recovery.message) {
+  console.warn(recovery.message);
+}
+if (recovery.blocked) {
+  console.error(
+    'Refusing to start in operator mode with an unrecovered write failure. ' +
+      'Resolve it (see backup candidates above) or set ADMIN_SKIP_RECOVERY_CHECK=1.'
+  );
+  process.exit(1);
+}
 
 async function start(): Promise<void> {
   try {

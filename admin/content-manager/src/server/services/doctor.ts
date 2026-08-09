@@ -1,6 +1,7 @@
 import { existsSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { readFileSync } from 'node:fs';
+import { RecoveryJournal } from './recoveryJournal.ts';
 
 export interface DoctorReport {
   timestamp: string;
@@ -147,7 +148,23 @@ export function runDoctor(repoRoot: string): DoctorReport {
     }
   }
 
-  const recoveryNeeded = tmpCount > 0;
+  // Stale .tmp files (interrupted before any rename) and unrecovered
+  // journal failures (interrupted mid-rename, or a rename that threw and
+  // couldn't restore) are two different symptoms of the same underlying
+  // problem; either one means recovery is needed.
+  const journal = new RecoveryJournal(repoRoot);
+  const unrecoveredFailures = journal.getUnrecoveredFailures();
+  if (unrecoveredFailures.length > 0) {
+    addCheck(
+      'recovery-journal',
+      'error',
+      `${unrecoveredFailures.length} unrecovered write failure(s): ${unrecoveredFailures.map((f) => f.targetFile).join(', ')}`
+    );
+  } else {
+    addCheck('recovery-journal', 'ok', 'No unrecovered write failures');
+  }
+
+  const recoveryNeeded = tmpCount > 0 || unrecoveredFailures.length > 0;
 
   const ok = checks.filter((c) => c.status === 'ok').length;
   const warn = checks.filter((c) => c.status === 'warn').length;
