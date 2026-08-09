@@ -15,12 +15,16 @@ interface PreviewResponse {
   conflicts: ConflictEntry[];
   no_conflicts: number;
   total_conflicts: number;
+  new_products: Array<Record<string, unknown>>;
+  incoming_by_id: Record<string, Record<string, unknown>>;
 }
 
 export function ImportPage(): React.ReactElement {
   const [input, setInput] = useState('');
   const [conflicts, setConflicts] = useState<ConflictEntry[]>([]);
   const [noConflicts, setNoConflicts] = useState(0);
+  const [newProducts, setNewProducts] = useState<Array<Record<string, unknown>>>([]);
+  const [incomingById, setIncomingById] = useState<Record<string, Record<string, unknown>>>({});
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
@@ -59,6 +63,8 @@ export function ImportPage(): React.ReactElement {
       const data = (await response.json()) as PreviewResponse;
       setConflicts(data.conflicts);
       setNoConflicts(data.no_conflicts);
+      setNewProducts(data.new_products);
+      setIncomingById(data.incoming_by_id);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -77,30 +83,40 @@ export function ImportPage(): React.ReactElement {
     setResult(null);
     setLoading(true);
     try {
-      const resolved = conflicts.filter((c) => c.resolved);
-      if (resolved.length === 0) {
-        setError('No hay conflictos resueltos para aplicar');
+      // Only fields explicitly resolved to "use_incoming" are sent as
+      // resolutions — the server applies exactly those fields from the full
+      // incoming object and leaves everything else (including "keep_local"
+      // fields) untouched.
+      const useIncoming = conflicts.filter((c) => c.resolved && c.resolution === 'use_incoming');
+
+      if (useIncoming.length === 0 && newProducts.length === 0) {
+        setError('No hay cambios para aplicar');
         setLoading(false);
         return;
       }
 
-      // Build products to apply from resolved conflicts
-      const productMap = new Map<string, Record<string, unknown>>();
-      for (const c of resolved) {
-        if (!productMap.has(c.product_id)) {
-          productMap.set(c.product_id, { id: c.product_id });
-        }
-        const entry = productMap.get(c.product_id)!;
-        if (c.resolution === 'use_incoming') {
-          entry[c.field] = c.incoming_value;
-        }
-        // "keep_local" means we skip that field (no change)
-      }
+      // The server requires a schema-valid full product object per entry
+      // (a partial { id, field } object always fails validation) — send the
+      // full incoming object captured at preview time for every conflicted
+      // product being changed, plus every no-conflict (new) product as-is.
+      const conflictedIds = [...new Set(useIncoming.map((c) => c.product_id))];
+      const conflictedProducts = conflictedIds
+        .map((id) => incomingById[id])
+        .filter((p): p is Record<string, unknown> => Boolean(p));
+
+      const resolutions = useIncoming.map((c) => ({
+        product_id: c.product_id,
+        field: c.field,
+        resolution: 'incoming' as const,
+      }));
 
       const response = await fetchWithCredential('/api/v1/import/apply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ products: [...productMap.values()] }),
+        body: JSON.stringify({
+          products: [...conflictedProducts, ...newProducts],
+          resolutions,
+        }),
       });
 
       if (!response.ok) {
@@ -112,11 +128,18 @@ export function ImportPage(): React.ReactElement {
         return;
       }
 
-      const data = (await response.json()) as { created: number; updated: number };
-      const pending = conflicts.filter((c) => !c.resolved).length;
+      const data = (await response.json()) as {
+        applied: number;
+        skipped: number;
+        errors?: string[];
+      };
       setResult(
-        `${conflicts.length} conflictos totales, ${resolved.length} resueltos, ${pending} pendientes. Creados: ${data.created}, Actualizados: ${data.updated}`
+        `Aplicados: ${data.applied}, omitidos: ${data.skipped}` +
+          (data.errors?.length ? `, errores: ${data.errors.length}` : '')
       );
+      if (data.errors && data.errors.length > 0) {
+        setError(data.errors[0]);
+      }
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -126,6 +149,9 @@ export function ImportPage(): React.ReactElement {
 
   const resolvedCount = conflicts.filter((c) => c.resolved).length;
   const pendingCount = conflicts.filter((c) => !c.resolved).length;
+  const applyCount =
+    conflicts.filter((c) => c.resolved && c.resolution === 'use_incoming').length +
+    newProducts.length;
 
   return (
     <main role="main" aria-label="Importar catálogo">
@@ -158,9 +184,9 @@ export function ImportPage(): React.ReactElement {
         <button onClick={handlePreview} disabled={loading || !input.trim()}>
           Vista previa
         </button>
-        {conflicts.length > 0 && (
-          <button onClick={handleApply} disabled={loading || resolvedCount === 0}>
-            Aplicar resueltos
+        {(conflicts.length > 0 || newProducts.length > 0) && (
+          <button onClick={handleApply} disabled={loading || applyCount === 0}>
+            Aplicar
           </button>
         )}
       </div>
@@ -173,7 +199,7 @@ export function ImportPage(): React.ReactElement {
       {result && <p style={{ color: '#2e7d32' }}>{result}</p>}
       {loading && <p>Cargando…</p>}
 
-      {conflicts.length > 0 && (
+      {(conflicts.length > 0 || newProducts.length > 0) && (
         <div style={{ marginBottom: '1rem' }}>
           <p>
             <strong>{noConflicts}</strong> productos sin conflictos (creaciones),{' '}
@@ -181,52 +207,54 @@ export function ImportPage(): React.ReactElement {
             <strong>{resolvedCount}</strong> resueltos, <strong>{pendingCount}</strong> pendientes
           </p>
 
-          <table
-            aria-label="Conflictos de importación"
-            style={{ width: '100%', borderCollapse: 'collapse' }}
-          >
-            <thead>
-              <tr>
-                <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Producto</th>
-                <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Campo</th>
-                <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Valor actual</th>
-                <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Valor entrante</th>
-                <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Resolución</th>
-              </tr>
-            </thead>
-            <tbody>
-              {conflicts.map((c, i) => (
-                <tr
-                  key={`${c.product_id}-${c.field}-${i}`}
-                  style={{ borderBottom: '1px solid var(--color-border)' }}
-                >
-                  <td style={{ padding: '0.25rem 0.5rem' }}>{c.product_name}</td>
-                  <td style={{ padding: '0.25rem 0.5rem' }}>{c.field}</td>
-                  <td style={{ padding: '0.25rem 0.5rem' }}>{String(c.local_value)}</td>
-                  <td style={{ padding: '0.25rem 0.5rem' }}>{String(c.incoming_value)}</td>
-                  <td style={{ padding: '0.25rem 0.5rem' }}>
-                    {c.field === 'validation' ? (
-                      <span style={{ color: '#c62828' }}>Error: {String(c.incoming_value)}</span>
-                    ) : (
-                      <select
-                        value={c.resolution ?? ''}
-                        onChange={(e) =>
-                          handleResolution(
-                            i,
-                            e.currentTarget.value as 'keep_local' | 'use_incoming'
-                          )
-                        }
-                      >
-                        <option value="">Elegir…</option>
-                        <option value="keep_local">Mantener local</option>
-                        <option value="use_incoming">Usar entrante</option>
-                      </select>
-                    )}
-                  </td>
+          {conflicts.length > 0 && (
+            <table
+              aria-label="Conflictos de importación"
+              style={{ width: '100%', borderCollapse: 'collapse' }}
+            >
+              <thead>
+                <tr>
+                  <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Producto</th>
+                  <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Campo</th>
+                  <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Valor actual</th>
+                  <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Valor entrante</th>
+                  <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Resolución</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {conflicts.map((c, i) => (
+                  <tr
+                    key={`${c.product_id}-${c.field}-${i}`}
+                    style={{ borderBottom: '1px solid var(--color-border)' }}
+                  >
+                    <td style={{ padding: '0.25rem 0.5rem' }}>{c.product_name}</td>
+                    <td style={{ padding: '0.25rem 0.5rem' }}>{c.field}</td>
+                    <td style={{ padding: '0.25rem 0.5rem' }}>{String(c.local_value)}</td>
+                    <td style={{ padding: '0.25rem 0.5rem' }}>{String(c.incoming_value)}</td>
+                    <td style={{ padding: '0.25rem 0.5rem' }}>
+                      {c.field === 'validation' ? (
+                        <span style={{ color: '#c62828' }}>Error: {String(c.incoming_value)}</span>
+                      ) : (
+                        <select
+                          value={c.resolution ?? ''}
+                          onChange={(e) =>
+                            handleResolution(
+                              i,
+                              e.currentTarget.value as 'keep_local' | 'use_incoming'
+                            )
+                          }
+                        >
+                          <option value="">Elegir…</option>
+                          <option value="keep_local">Mantener local</option>
+                          <option value="use_incoming">Usar entrante</option>
+                        </select>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       )}
     </main>
