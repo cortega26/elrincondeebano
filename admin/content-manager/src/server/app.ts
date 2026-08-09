@@ -227,7 +227,14 @@ export function createApp(opts?: AppOptions): FastifyInstance {
     }
 
     if (origin !== undefined) {
-      const expectedOrigin = `${request.protocol}://${request.hostname}`;
+      // Use the raw Host header, not request.hostname: Fastify's hostname
+      // getter strips the port (and un-brackets IPv6), but a browser's
+      // Origin header always includes the port for non-default ports and
+      // keeps IPv6 brackets — reconstructing from hostname alone rejected
+      // every real same-origin request on any non-default port (this admin
+      // app defaults to :3000). The Host header was already validated
+      // against the loopback allowlist above, so it's safe to reuse as-is.
+      const expectedOrigin = `${request.protocol}://${request.headers.host}`;
       if (origin !== expectedOrigin) {
         return reply.status(403).send({
           error: { code: 'FORBIDDEN', message: 'Invalid origin' },
