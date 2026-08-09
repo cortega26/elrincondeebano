@@ -62,6 +62,13 @@ export class AtomicWriter {
 
       return { success: true, backedUp, verified: true };
     } catch (err) {
+      try {
+        if (!existsSync(this.targetPath) && existsSync(backupPath)) {
+          renameSync(backupPath, this.targetPath);
+        }
+      } catch {
+        /* restoration is best-effort; the journal entry is the fallback */
+      }
       this.cleanup();
       this.recoveryJournal?.failOperation('atomic-write', fileName, commandId);
 
