@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-import subprocess
+import subprocess  # nosec B404 - git child processes, args are fixed, no shell
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -82,7 +82,7 @@ class GitSync:
         """Run a git command and return the CompletedProcess."""
         work_dir = str(cwd or self._repo_root)
         try:
-            return subprocess.run(
+            return subprocess.run(  # nosec B603 - fixed "git <args>" argv, no shell
                 ["git"] + list(args),
                 cwd=work_dir,
                 capture_output=capture,
@@ -385,7 +385,7 @@ class GitSync:
 def detect_repo_root() -> Optional[Path]:
     """Auto-detect git repository root from cwd."""
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607 - fixed git argv, no shell
             ["git", "rev-parse", "--show-toplevel"],
             capture_output=True,
             text=True,

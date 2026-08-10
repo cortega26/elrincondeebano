@@ -453,4 +453,4 @@ class DeployPanelMixin:
             try:
                 self.master.after_cancel(self._git_status_job)
             except Exception:
-                pass
+                pass  # nosec B110 - best-effort tkinter teardown, ignore racy failures

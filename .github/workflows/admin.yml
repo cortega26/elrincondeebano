@@ -58,7 +58,7 @@ jobs:
       - name: Run security scan (bandit)
         run: |
           # Focus on shipped application code; tests intentionally use pytest asserts and fixtures.
-          python -m bandit -q -r . -x tests,./tests,.pytest_cache,./.pytest_cache,__pycache__,./__pycache__,.venv-ci-admin,./.venv-ci-admin
+          python -m bandit -q -r . -x tests,./tests,.pytest_cache,./.pytest_cache,__pycache__,./__pycache__,.venv-ci-admin,./.venv-ci-admin,.venv,./.venv
 
       - name: Run tests
         run: |
@@ -135,7 +135,7 @@ jobs:
         run: npx playwright test -c playwright.config.ts
 
       - name: Certification report
-        run: node --import tsx scripts/certification-report.ts
+        run: node --import tsx scripts/certification-report.ts --ci
 
       - name: Upload E2E artifacts on failure
         if: failure()

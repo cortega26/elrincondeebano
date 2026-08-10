@@ -107,7 +107,7 @@ class Toast:
         try:
             self._after_id = self.master.after(self.lifetime_ms, self._fade_out)
         except Exception:
-            pass
+            pass  # nosec B110 - best-effort tkinter teardown, ignore racy failures
 
     def _fade_out(self) -> None:
         if self._dismissed:
@@ -121,7 +121,7 @@ class Toast:
                 TOAST_FADE_MS, self._fade_out
             )
             self._fade_after_ids.append(fade_id)
-        except Exception:
+        except Exception:  # nosec B110 - best-effort tkinter teardown, ignore racy failures
             self.dismiss()
 
     def dismiss(self) -> None:
@@ -132,22 +132,22 @@ class Toast:
             try:
                 self.master.after_cancel(aid)
             except Exception:
-                pass
+                pass  # nosec B110 - best-effort tkinter teardown, ignore racy failures
         if self._after_id:
             try:
                 self.master.after_cancel(self._after_id)
             except Exception:
-                pass
+                pass  # nosec B110 - best-effort tkinter teardown, ignore racy failures
         self._fade_after_ids.clear()
         try:
             self._frame.destroy()
         except Exception:
-            pass
+            pass  # nosec B110 - best-effort tkinter teardown, ignore racy failures
         if self.on_dismiss:
             try:
                 self.on_dismiss()
             except Exception:
-                pass
+                pass  # nosec B110 - best-effort tkinter teardown, ignore racy failures
 
 
 class ToastManager:

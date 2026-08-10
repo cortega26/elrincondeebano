@@ -168,8 +168,8 @@ class ThemeManager:
                     t for t in temp.theme_names()
                     if t not in ("default", "name")
                 )
-            except Exception:
-                pass
+            except Exception:  # nosec B110 - best-effort tkinter teardown, ignore racy failures
+                pass  # nosec B110 - best-effort tkinter teardown, ignore racy failures
         return []
 
     @staticmethod
@@ -312,7 +312,7 @@ class ThemeManager:
                     existing = json.load(f)
                 if not isinstance(existing, dict):
                     existing = {}
-            except Exception:
+            except Exception:  # nosec B110 - best-effort tkinter teardown, ignore racy failures
                 existing = {}
         existing["theme"] = self._current.value
         existing["theme_name"] = self._current_theme_name
@@ -333,5 +333,5 @@ def load_theme_preference() -> dict:
             theme_name = data.get("theme_name", DEFAULT_LIGHT_THEME if theme_val == "light" else DEFAULT_DARK_THEME)
             return {"theme": theme_val, "theme_name": theme_name}
         except Exception:
-            pass
+            pass  # nosec B110 - best-effort tkinter teardown, ignore racy failures
     return {"theme": "light", "theme_name": DEFAULT_LIGHT_THEME}

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 import os
-import subprocess
+import subprocess  # nosec B404 - npm/git child processes, args are fixed, no shell
 import threading
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -115,7 +115,7 @@ class DeployPipeline:
     ) -> subprocess.CompletedProcess:
         """Run an npm script with shared environment."""
         try:
-            return subprocess.run(
+            return subprocess.run(  # nosec B603 B607 - fixed "npm run <script>" argv, no shell
                 ["npm", "run", script],
                 cwd=str(self.repo_root),
                 capture_output=True,

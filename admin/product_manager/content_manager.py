@@ -44,7 +44,7 @@ except ModuleNotFoundError as exc:
 
     if venv_python.exists():
         if sys.executable != str(venv_python.resolve()):
-            os.execv(str(venv_python), [str(venv_python), __file__] + sys.argv[1:])
+            os.execv(str(venv_python), [str(venv_python), __file__] + sys.argv[1:])  # nosec B606 - re-exec into the project venv, no shell
 
         guidance = [
             "The venv interpreter failed to import dependencies.",
