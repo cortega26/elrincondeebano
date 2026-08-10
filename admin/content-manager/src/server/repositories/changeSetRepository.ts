@@ -9,6 +9,7 @@ import {
 import { resolve } from 'node:path';
 import type { ChangeSet } from '../../shared/schemas/changeSet.ts';
 import { changeSetSchema } from '../../shared/schemas/changeSet.ts';
+import { isSafeId } from '../../shared/identity.ts';
 
 export class ChangeSetRepository {
   private readonly dir: string;
@@ -19,11 +20,13 @@ export class ChangeSetRepository {
   }
 
   save(cs: ChangeSet): void {
+    if (!isSafeId(cs.id)) return;
     const path = resolve(this.dir, `${cs.id}.json`);
     writeFileSync(path, JSON.stringify(cs, null, 2), { encoding: 'utf-8', flush: true });
   }
 
   load(id: string): ChangeSet | null {
+    if (!isSafeId(id)) return null;
     const path = resolve(this.dir, `${id}.json`);
     if (!existsSync(path)) return null;
 
@@ -53,6 +56,7 @@ export class ChangeSetRepository {
   }
 
   delete(id: string): boolean {
+    if (!isSafeId(id)) return false;
     const path = resolve(this.dir, `${id}.json`);
     if (!existsSync(path)) return false;
     try {

@@ -9,6 +9,7 @@ import {
 import { resolve } from 'node:path';
 import type { Conflict, ConflictFilter } from '../../shared/schemas/conflict.ts';
 import { conflictSchema } from '../../shared/schemas/conflict.ts';
+import { isSafeId } from '../../shared/identity.ts';
 
 export class ConflictRepository {
   private readonly dir: string;
@@ -19,11 +20,13 @@ export class ConflictRepository {
   }
 
   save(conflict: Conflict): void {
+    if (!isSafeId(conflict.id)) return;
     const path = resolve(this.dir, `${conflict.id}.json`);
     writeFileSync(path, JSON.stringify(conflict, null, 2), { encoding: 'utf-8', flush: true });
   }
 
   load(id: string): Conflict | null {
+    if (!isSafeId(id)) return null;
     const path = resolve(this.dir, `${id}.json`);
     if (!existsSync(path)) return null;
 
@@ -56,6 +59,7 @@ export class ConflictRepository {
   }
 
   delete(id: string): boolean {
+    if (!isSafeId(id)) return false;
     const path = resolve(this.dir, `${id}.json`);
     if (!existsSync(path)) return false;
     try {

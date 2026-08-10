@@ -42,3 +42,19 @@ export function isUuidV7(value: string): boolean {
   }
   return true;
 }
+
+/**
+ * Rejects ids that could escape a directory when interpolated into a path.
+ * Generated ids (cs-<ts>-<rand>, timestamps, uuids) all satisfy the regex.
+ */
+export function isSafeId(id: string): boolean {
+  return (
+    typeof id === 'string' &&
+    id.length > 0 &&
+    id.length <= 128 &&
+    !id.includes('/') &&
+    !id.includes('\\') &&
+    !id.includes('..') &&
+    /^[A-Za-z0-9._-]+$/.test(id)
+  );
+}

@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { existsSync, mkdirSync, readdirSync, statSync, copyFileSync } from 'node:fs';
 import { resolve, basename } from 'node:path';
 import { uniqueTimestamp } from '../services/uniqueTimestamp.ts';
+import { isSafeId } from '../../shared/identity.ts';
 
 const BACKUP_FILES = [
   'data/product_data.json',
@@ -83,6 +84,11 @@ export async function backupRoutes(
     }
 
     const { id } = request.params as { id: string };
+    if (!isSafeId(id)) {
+      return reply.status(400).send({
+        error: { code: 'INVALID_ID', message: `Invalid backup id "${id}"` },
+      });
+    }
     const backupDir = resolve(backupsDir, id);
 
     if (!existsSync(backupDir)) {

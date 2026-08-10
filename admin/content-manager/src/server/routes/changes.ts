@@ -3,6 +3,7 @@ import type { Repositories } from './catalog.ts';
 import { ChangeSetRepository } from '../repositories/changeSetRepository.ts';
 import { changeSetSchema, generateChangeSetId } from '../../shared/schemas/changeSet.ts';
 import { productSchema } from '../../shared/schemas/product.ts';
+import { isSafeId } from '../../shared/identity.ts';
 
 export async function changesRoutes(
   app: FastifyInstance,
@@ -45,6 +46,11 @@ export async function changesRoutes(
 
   app.patch('/change-sets/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
+    if (!isSafeId(id)) {
+      return reply.status(400).send({
+        error: { code: 'INVALID_ID', message: `Invalid change-set id "${id}"` },
+      });
+    }
     const existing = changeSets.load(id);
     if (!existing) {
       return reply
@@ -75,6 +81,11 @@ export async function changesRoutes(
 
   app.post('/change-sets/:id/discard', async (request, reply) => {
     const { id } = request.params as { id: string };
+    if (!isSafeId(id)) {
+      return reply.status(400).send({
+        error: { code: 'INVALID_ID', message: `Invalid change-set id "${id}"` },
+      });
+    }
     const existing = changeSets.load(id);
     if (!existing) {
       return reply

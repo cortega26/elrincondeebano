@@ -7,6 +7,7 @@ import { conflictFilterSchema } from '../../shared/schemas/conflict.ts';
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { syncConfigSchema, type SyncConfig } from '../adapters/syncAdapter.ts';
+import { isSafeId } from '../../shared/identity.ts';
 
 export async function conflictsRoutes(
   app: FastifyInstance,
@@ -45,6 +46,11 @@ export async function conflictsRoutes(
 
   app.post('/conflicts/:id/resolve', async (request, reply) => {
     const { id } = request.params as { id: string };
+    if (!isSafeId(id)) {
+      return reply.status(400).send({
+        error: { code: 'INVALID_ID', message: `Invalid conflict id "${id}"` },
+      });
+    }
     const body = (request.body ?? {}) as {
       field?: string;
       resolution?: 'local' | 'server' | 'manual';
@@ -95,6 +101,11 @@ export async function conflictsRoutes(
 
   app.post('/conflicts/:id/retry', async (request, reply) => {
     const { id } = request.params as { id: string };
+    if (!isSafeId(id)) {
+      return reply.status(400).send({
+        error: { code: 'INVALID_ID', message: `Invalid conflict id "${id}"` },
+      });
+    }
 
     const conflict = conflicts.load(id);
     if (!conflict) {
