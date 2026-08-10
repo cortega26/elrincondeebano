@@ -5,12 +5,9 @@ import type { StorefrontRepository } from '../repositories/storefrontRepository.
 import { ProductService } from '../../domain/products/productService.ts';
 import type { CommandEnvelope } from '../../shared/commands/envelope.ts';
 import type { CategoryService } from '../../domain/categories/categoryService.ts';
-import type {
-  CreateCategoryInput,
-  CreateNavGroupInput,
-} from '../../domain/categories/categoryService.ts';
+import type { CreateCategoryInput } from '../../domain/categories/categoryService.ts';
 import type { Subcategory } from '../../shared/schemas/category.ts';
-import { subcategorySchema } from '../../shared/schemas/category.ts';
+import { subcategorySchema, navGroupRecordSchema } from '../../shared/schemas/category.ts';
 
 export interface Repositories {
   products: ProductRepository;
@@ -468,8 +465,18 @@ export async function categoryRoutes(
       });
     }
 
+    const parsed = navGroupRecordSchema.safeParse(request.body ?? {});
+    if (!parsed.success) {
+      return reply.status(400).send({
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: parsed.error.issues.map((i) => i.message).join('; '),
+        },
+      });
+    }
+
     const registry = repos.categories.load();
-    const result = categoryService.addNavGroup(registry, request.body as CreateNavGroupInput);
+    const result = categoryService.addNavGroup(registry, parsed.data);
     if (!result.ok) {
       return reply.status(409).send({ error: { code: 'CONFLICT', message: result.error } });
     }

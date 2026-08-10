@@ -404,6 +404,19 @@ test('publication commit contains only owned paths', async () => {
   }
 });
 
+test('gitAdapter.stage fails closed on an empty pathspec', async () => {
+  const dir = createTempRepo();
+  try {
+    const git = new GitAdapter(dir);
+    const result = await git.stage([]);
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('at least one path');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test('gitAdapter.commitWithPaths commits only the given paths even when others are staged', async () => {
   const dir = createTempRepo();
   try {

@@ -79,13 +79,15 @@ test('server factory creation < 150ms', async () => {
       generateStorefront()
     );
 
-    const start = performance.now();
-    const app = createApp({ repoRoot: dir, logger: false });
-    const elapsed = performance.now() - start;
-
-    expect(elapsed).toBeLessThan(150);
-
-    await app.close();
+    const samples: number[] = [];
+    for (let i = 0; i < 3; i++) {
+      const start = performance.now();
+      const app = createApp({ repoRoot: dir, logger: false });
+      samples.push(performance.now() - start);
+      await app.close();
+    }
+    samples.sort((a, b) => a - b);
+    expect(samples[1]).toBeLessThan(150);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

@@ -45,7 +45,7 @@ export async function conflictsRoutes(
 
   app.post('/conflicts/:id/resolve', async (request, reply) => {
     const { id } = request.params as { id: string };
-    const body = request.body as {
+    const body = (request.body ?? {}) as {
       field?: string;
       resolution?: 'local' | 'server' | 'manual';
       manual_value?: unknown;

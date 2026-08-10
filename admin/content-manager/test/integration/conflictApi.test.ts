@@ -64,7 +64,6 @@ test('GET /api/v1/conflicts returns empty list when no conflicts exist', async (
 test('GET /api/v1/conflicts returns saved conflicts', async () => {
   const dir = createTempDir();
   try {
-    const conflictService = new ConflictService();
     const repo = new ConflictRepository(dir);
     const conflict = createTestConflict();
     repo.save(conflict);
@@ -96,7 +95,6 @@ test('GET /api/v1/conflicts returns saved conflicts', async () => {
 test('POST /api/v1/conflicts/:id/resolve resolves a field', async () => {
   const dir = createTempDir();
   try {
-    const conflictService = new ConflictService();
     const repo = new ConflictRepository(dir);
     const conflict = createTestConflict();
     repo.save(conflict);
@@ -130,7 +128,6 @@ test('POST /api/v1/conflicts/:id/resolve resolves a field', async () => {
 test('POST /api/v1/conflicts/:id/resolve adds resolution audit log', async () => {
   const dir = createTempDir();
   try {
-    const conflictService = new ConflictService();
     const repo = new ConflictRepository(dir);
     const conflict = createTestConflict();
     repo.save(conflict);
@@ -184,10 +181,30 @@ test('POST /api/v1/conflicts/:id/resolve returns 404 for missing conflict', asyn
   }
 });
 
-test('POST /api/v1/conflicts/:id/resolve returns 409 when conflict is resolved', async () => {
+test('POST /api/v1/conflicts/:id/resolve returns 400 when no body is sent', async () => {
   const dir = createTempDir();
   try {
-    const conflictService = new ConflictService();
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/conflicts/nonexistent/resolve',
+      headers: credHeaders(app),
+    });
+
+    expect(response.statusCode).toBe(400);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('POST /api/v1/conflicts/:id/resolve returns 409 when conflict is resolved', async () => {
+  const dir = createTempDir();
+  const conflictService = new ConflictService();
+  try {
     const repo = new ConflictRepository(dir);
     const conflict = createTestConflict();
     conflictService.resolveField(conflict, 'name', 'local');
@@ -215,7 +232,6 @@ test('POST /api/v1/conflicts/:id/resolve returns 409 when conflict is resolved',
 test('POST /api/v1/conflicts/:id/retry transitions to retrying', async () => {
   const dir = createTempDir();
   try {
-    const conflictService = new ConflictService();
     const repo = new ConflictRepository(dir);
     const conflict = createTestConflict();
     repo.save(conflict);
@@ -240,9 +256,9 @@ test('POST /api/v1/conflicts/:id/retry transitions to retrying', async () => {
 });
 
 test('POST /api/v1/conflicts/:id/retry returns 409 for resolved conflict', async () => {
+  const conflictService = new ConflictService();
   const dir = createTempDir();
   try {
-    const conflictService = new ConflictService();
     const repo = new ConflictRepository(dir);
     const conflict = createTestConflict();
     conflictService.resolveField(conflict, 'name', 'local');
@@ -269,8 +285,8 @@ test('POST /api/v1/conflicts/:id/retry returns 409 for resolved conflict', async
 test('GET /api/v1/conflicts?status=unresolved filters correctly', async () => {
   const dir = createTempDir();
   try {
-    const conflictService = new ConflictService();
     const repo = new ConflictRepository(dir);
+    const conflictService = new ConflictService();
 
     const c1 = createTestConflict();
     repo.save(c1);
@@ -312,7 +328,6 @@ test('GET /api/v1/conflicts?status=unresolved filters correctly', async () => {
 test('GET /api/v1/conflicts reading does NOT mutate any conflict fields', async () => {
   const dir = createTempDir();
   try {
-    const conflictService = new ConflictService();
     const repo = new ConflictRepository(dir);
     const conflict = createTestConflict();
     repo.save(conflict);
@@ -375,7 +390,6 @@ test('GET /api/v1/sync/status returns sync config', async () => {
 test('POST /api/v1/conflicts/:id/resolve with manual value stores it in field', async () => {
   const dir = createTempDir();
   try {
-    const conflictService = new ConflictService();
     const repo = new ConflictRepository(dir);
     const conflict = createTestConflict();
     repo.save(conflict);

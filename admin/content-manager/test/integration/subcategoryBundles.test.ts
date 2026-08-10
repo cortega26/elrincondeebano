@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest';
 import { createApp } from '../../src/server/app.ts';
-import { writeFileSync, mkdirSync, rmSync } from 'node:fs';
+import { writeFileSync, mkdirSync, rmSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { CREDENTIAL_HEADER } from '../../src/server/security/launchCredential.ts';
@@ -282,6 +282,32 @@ test('PUT bundles returns 405 when writes disabled', async () => {
     });
 
     expect(response.statusCode).toBe(405);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('POST nav-groups returns 400 and does not corrupt the registry when body is missing', async () => {
+  const dir = createTempDir();
+  try {
+    setupDir(dir);
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/nav-groups',
+      headers: credHeaders(app),
+    });
+
+    expect(response.statusCode).toBe(400);
+
+    const registry = JSON.parse(
+      readFileSync(resolve(dir, 'data', 'category_registry.json'), 'utf-8')
+    ) as { nav_groups: unknown[] };
+    expect(registry.nav_groups).toHaveLength(0);
 
     await app.close();
   } finally {

@@ -64,7 +64,10 @@ export class GitAdapter {
   }
 
   async stage(paths: string[]): Promise<GitResult> {
-    return this.run(['add', ...paths]);
+    if (paths.length === 0) {
+      return { success: false, error: 'stage requires at least one path', exitCode: -1 };
+    }
+    return this.run(['add', '--', ...paths]);
   }
 
   async commit(message: string): Promise<GitResult> {
