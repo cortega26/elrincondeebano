@@ -30,7 +30,7 @@ class PreferencesDialog(tk.Toplevel):
 
     def setup_dialog(self) -> None:
         """Set up the preferences dialog."""
-        self.geometry("450x350")
+        self.geometry("450x380")
         self.resizable(False, False)
         self.transient(self._parent)
         self.wait_visibility()
@@ -48,16 +48,37 @@ class PreferencesDialog(tk.Toplevel):
         )
         font_spin.grid(row=0, column=1, padx=10, pady=10, sticky=tk.W)
         
-        ttk.Label(main_frame, text="Habilitar Animaciones:").grid(
+        ttk.Label(main_frame, text="Familia de Fuente:").grid(
             row=1, column=0, padx=10, pady=10, sticky=tk.W
+        )
+        font_options = [
+            "Inter, Roboto, Ubuntu, DejaVu Sans, Segoe UI, sans-serif",
+            "DejaVu Sans",
+            "DejaVu Sans Mono",
+            "Ubuntu",
+            "Inter",
+            "Roboto",
+            "Liberation Sans",
+            "sans-serif",
+        ]
+        current_family = self.ui_config.font_family or font_options[0]
+        self.font_family_var = tk.StringVar(value=current_family)
+        font_combo = ttk.Combobox(
+            main_frame, textvariable=self.font_family_var, values=font_options, width=35,
+            state="readonly",
+        )
+        font_combo.grid(row=1, column=1, padx=10, pady=10, sticky=tk.W)
+        
+        ttk.Label(main_frame, text="Habilitar Animaciones:").grid(
+            row=2, column=0, padx=10, pady=10, sticky=tk.W
         )
         self.anim_var = tk.BooleanVar(value=self.ui_config.enable_animations)
         ttk.Checkbutton(main_frame, variable=self.anim_var).grid(
-            row=1, column=1, padx=10, pady=10, sticky=tk.W
+            row=2, column=1, padx=10, pady=10, sticky=tk.W
         )
         
         button_frame = ttk.Frame(main_frame)
-        button_frame.grid(row=2, column=0, columnspan=2, pady=30)
+        button_frame.grid(row=3, column=0, columnspan=2, pady=30)
         
         ttk.Button(button_frame, text="Guardar", command=self.save_preferences, style="Accent.TButton").pack(
             side=tk.LEFT, padx=10
@@ -70,6 +91,7 @@ class PreferencesDialog(tk.Toplevel):
         """Save preferences to configuration."""
         try:
             self.ui_config.font_size = self.font_var.get()
+            self.ui_config.font_family = self.font_family_var.get()
             self.ui_config.enable_animations = self.anim_var.get()
             config_path = Path.home() / ".product_manager" / "config.json"
             config_path.parent.mkdir(parents=True, exist_ok=True)
@@ -86,6 +108,7 @@ class PreferencesDialog(tk.Toplevel):
                 existing.update(
                     {
                         "font_size": self.ui_config.font_size,
+                        "font_family": self.ui_config.font_family,
                         "enable_animations": self.ui_config.enable_animations,
                         "window_size": self.ui_config.window_size,
                         "locale": self.ui_config.locale,

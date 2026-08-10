@@ -24,6 +24,7 @@ class UIConfig:
     # pylint: disable=too-few-public-methods
 
     font_size: int = 10
+    font_family: str = ""
     window_size: tuple[int, int] = (1000, 600)
     enable_animations: bool = True
     locale: str = "es"

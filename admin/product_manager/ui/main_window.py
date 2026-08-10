@@ -88,10 +88,22 @@ class MainWindow(DragDropMixin, BulkOperationsMixin, ImportExportMixin, DeployPa
             dark_mode=False,
         )
 
-        self._theme_manager = ThemeManager(master)
+        self._theme_manager = ThemeManager(
+            master,
+            font_size=self.config.font_size,
+            font_family=self.config.font_family,
+        )
         saved_prefs = load_theme_preference()
         saved_theme = AppTheme(saved_prefs["theme"])
         saved_theme_name = saved_prefs.get("theme_name")
+        saved_font_size = saved_prefs.get("font_size")
+        saved_font_family = saved_prefs.get("font_family")
+        if saved_font_size and saved_font_size != self.config.font_size:
+            self._theme_manager.set_font_size(saved_font_size)
+            self.config.font_size = saved_font_size
+        if saved_font_family and saved_font_family != self.config.font_family:
+            self._theme_manager.set_font_family(saved_font_family)
+            self.config.font_family = saved_font_family
         if saved_theme_name:
             self._theme_manager.set_theme(saved_theme, theme_name=saved_theme_name)
         else:
@@ -127,7 +139,6 @@ class MainWindow(DragDropMixin, BulkOperationsMixin, ImportExportMixin, DeployPa
         self.storefront_bundle_service = self._create_storefront_bundle_service()
         self.featured_staples_service = self._create_featured_staples_service()
 
-        self._configure_styles()
         self.setup_gui()
         self.bind_shortcuts()
         # Configure drag & drop after treeview has been created in setup_treeview()
@@ -147,101 +158,6 @@ class MainWindow(DragDropMixin, BulkOperationsMixin, ImportExportMixin, DeployPa
             project_root / "astro-poc" / "src" / "data" / "storefront-experience.json"
         )
         return FeaturedStaplesService(experience_path)
-
-    def _configure_styles(self) -> None:
-        """Configure application styles."""
-        style = ttk.Style()
-        theme = "clam" if "clam" in style.theme_names() else "alt"
-        style.theme_use(theme)
-
-        # Colors - Modern Linux Palette (Mint-Y/Adwaita inspired)
-        bg_color = "#f6f5f4"  # Very light gray
-        fg_color = "#2e3436"  # Dark charcoal
-        accent_color = "#3584e4"  # Adwaita Blue (classic)
-        secondary_accent = "#41855a"  # Mint Green
-        header_bg = "#ebebeb"
-        border_color = "#c0c0c0"  # Slightly darker for better contours
-
-        # Font Stack
-        font_stack = ("Inter", "Roboto", "Ubuntu", "DejaVu Sans", "Segoe UI", "sans-serif")
-        base_font = (font_stack, 10)
-        bold_font = (font_stack, 10, "bold")
-
-        style.configure(
-            ".", background=bg_color, foreground=fg_color, font=base_font
-        )
-        style.configure("TFrame", background=bg_color)
-        style.configure("TLabel", background=bg_color, foreground=fg_color)
-        
-        # Modern Button Style with clearer contours
-        style.configure(
-            "TButton", 
-            padding=8, 
-            relief="flat", 
-            background="#e8e8e7",
-            borderwidth=1,
-            bordercolor=border_color,
-            lightcolor="#ffffff",
-            darkcolor=border_color
-        )
-        style.map(
-            "TButton",
-            background=[("active", "#dfdfde"), ("disabled", "#f0f0f0")],
-            foreground=[("disabled", "#909090")],
-            bordercolor=[("active", "#a0a0a0")]
-        )
-
-        # Entry and Combobox styles with defined contours
-        style.configure(
-            "TEntry",
-            fieldbackground="white",
-            bordercolor=border_color,
-            lightcolor=border_color,
-            darkcolor=border_color,
-            padding=5
-        )
-        style.configure(
-            "TCombobox",
-            fieldbackground="white",
-            bordercolor=border_color,
-            lightcolor=border_color,
-            darkcolor=border_color,
-            padding=5
-        )
-
-        # Treeview Styles - Increased legibility
-        style.configure(
-            "Treeview",
-            background="white",
-            fieldbackground="white",
-            foreground=fg_color,
-            rowheight=32,
-            font=base_font,
-            borderwidth=1,
-            relief="flat"
-        )
-        style.configure(
-            "Treeview.Heading",
-            font=bold_font,
-            background=header_bg,
-            foreground=fg_color,
-            relief="flat",
-            padding=5
-        )
-        style.map(
-            "Treeview",
-            background=[("selected", accent_color)],
-            foreground=[("selected", "white")],
-        )
-
-        # Custom styles for specific widgets
-        style.configure("Accent.TButton", background=secondary_accent, foreground="white", bordercolor="#36704b")
-        style.map("Accent.TButton", background=[("active", "#36704b")])
-
-        # Toolbars and Wrappers
-        style.configure("Toolbar.TFrame", background=bg_color, borderwidth=1, relief="flat")
-        style.configure("Status.TFrame", background="#eeeeee")
-        style.configure("InputWrapper.TFrame", background="white", borderwidth=1, relief="solid")
 
     def _load_config(self) -> UIConfig:
         """Load UI configuration from file."""
@@ -291,6 +207,7 @@ class MainWindow(DragDropMixin, BulkOperationsMixin, ImportExportMixin, DeployPa
         self._capture_column_widths()
         payload = {
             "font_size": self.config.font_size,
+            "font_family": self.config.font_family,
             "enable_animations": self.config.enable_animations,
             "window_size": self.config.window_size,
             "locale": self.config.locale,
@@ -1882,6 +1799,17 @@ class MainWindow(DragDropMixin, BulkOperationsMixin, ImportExportMixin, DeployPa
 
         def on_preferences_saved():
             self.config = self._load_config()
+            changed = False
+            if self.config.font_size != self._theme_manager.font_size:
+                self._theme_manager.set_font_size(self.config.font_size)
+                changed = True
+            if self.config.font_family != self._theme_manager.font_family:
+                self._theme_manager.set_font_family(self.config.font_family)
+                changed = True
+            if changed:
+                self._theme_manager.save_preference()
+                self.master.update_idletasks()
+                self.refresh_products()
 
         PreferencesDialog(self.master, self.config, on_save=on_preferences_saved)
 

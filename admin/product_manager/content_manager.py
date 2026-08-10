@@ -478,7 +478,7 @@ class ProductManager:
 
             # Initialize Tk (use ttkbootstrap Window if available)
             try:
-                import ttkbootstrap  # noqa: F811
+                import ttkbootstrap  # type: ignore  # noqa: F811
                 root = ttkbootstrap.Window()
             except ImportError:
                 root = tk.Tk()

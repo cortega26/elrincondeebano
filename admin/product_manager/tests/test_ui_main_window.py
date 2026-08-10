@@ -208,6 +208,7 @@ class TestConfigLoadSave:
             window = MainWindow.__new__(MainWindow)
             window.config = MagicMock()
             window.config.font_size = 12
+            window.config.font_family = "sans-serif"
             window.config.enable_animations = True
             window.config.window_size = (800, 600)
             window.config.locale = "es"

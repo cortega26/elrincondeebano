@@ -75,10 +75,12 @@ DEFAULT_DARK_THEME = "darkly"
 class ThemeManager:
     """Central theme manager powered by ttkbootstrap with fallback to clam."""
 
-    def __init__(self, root: tk.Tk, *, style: Any = None):
+    def __init__(self, root: tk.Tk, *, style: Any = None, font_size: int = 11, font_family: str = ""):
         self._root = root
         self._current: AppTheme = AppTheme.LIGHT
         self._current_theme_name = DEFAULT_LIGHT_THEME
+        self._font_size = font_size
+        self._font_family = font_family or "Inter, Roboto, Ubuntu, DejaVu Sans, Segoe UI, sans-serif"
 
         if style is not None and _ttkbootstrap_available:
             self._style = style
@@ -98,6 +100,7 @@ class ThemeManager:
 
         self._configure_menu_colors(dark=False)
         self._configure_custom_styles()
+        self._apply_font()
 
     # ------------------------------------------------------------------
     #  Properties
@@ -135,6 +138,7 @@ class ThemeManager:
 
         self._configure_menu_colors(dark=is_dark)
         self._configure_custom_styles()
+        self._apply_font()
         self._root.configure(bg=self._style.colors.bg if self._has_bootstrap else self._root.cget("bg"))
 
     def toggle_theme(self, *, theme_name: Optional[str] = None) -> AppTheme:
@@ -184,6 +188,36 @@ class ThemeManager:
         """Configure custom ttk style names for semantic buttons."""
         if not self._has_bootstrap:
             return
+
+    def _apply_font(self) -> None:
+        """Apply the current font size and family to all themed widgets."""
+        font = (self._font_family, self._font_size)
+        bold_font = (self._font_family, self._font_size, "bold")
+
+        try:
+            self._style.configure(".", font=font)
+            self._style.configure("Treeview.Heading", font=bold_font)
+            self._style.configure("Treeview", rowheight=max(28, self._font_size * 2 + 8))
+        except tk.TclError:
+            pass
+
+    def set_font_size(self, size: int) -> None:
+        """Change the font size and re-apply to all widgets."""
+        self._font_size = max(8, min(24, size))
+        self._apply_font()
+
+    def set_font_family(self, family: str) -> None:
+        """Change the font family and re-apply to all widgets."""
+        self._font_family = family
+        self._apply_font()
+
+    @property
+    def font_size(self) -> int:
+        return self._font_size
+
+    @property
+    def font_family(self) -> str:
+        return self._font_family
 
     def _configure_menu_colors(self, dark: bool) -> None:
         pal = PALETTE_DARK if dark else PALETTE
@@ -258,10 +292,10 @@ class ThemeManager:
             window.configure(bg=p.toolbar_bg)
 
     def get_font(self) -> Tuple[Any, ...]:
-        return (11,)
+        return (self._font_family, self._font_size)
 
     def get_font_family(self) -> str:
-        return "Inter, Roboto, Ubuntu, DejaVu Sans, Segoe UI, sans-serif"
+        return self._font_family
 
     # ------------------------------------------------------------------
     #  Persistence
@@ -282,6 +316,8 @@ class ThemeManager:
                 existing = {}
         existing["theme"] = self._current.value
         existing["theme_name"] = self._current_theme_name
+        existing["font_size"] = self._font_size
+        existing["font_family"] = self._font_family
         with open(config_path, "w", encoding="utf-8") as f:
             json.dump(existing, f, indent=2, ensure_ascii=False)
 
