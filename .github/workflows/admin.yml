@@ -48,7 +48,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt -c requirements.lock.txt
+          pip install -r requirements.txt -r requirements-dev.txt -c requirements.lock.txt
           python -m pip check
 
       - name: Run static analysis (ruff)
@@ -87,7 +87,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest ruff
+          pip install "pytest==9.1.1" "ruff==0.15.8"
           pip install -r web/requirements.txt -c web/requirements.lock.txt
           python -m pip check
 
