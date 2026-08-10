@@ -72,6 +72,14 @@ export class GitAdapter {
   }
 
   async commitWithPaths(paths: string[], message: string): Promise<GitResult> {
+    if (paths.length === 0) {
+      return {
+        success: false,
+        error:
+          'commitWithPaths requires at least one path (empty pathspec would commit all staged files)',
+        exitCode: -1,
+      };
+    }
     return this.run(['commit', '-m', message, '--', ...paths]);
   }
 

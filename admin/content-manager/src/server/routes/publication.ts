@@ -86,7 +86,7 @@ export async function publicationRoutes(
       });
     }
 
-    const body = request.body as {
+    const body = (request.body ?? {}) as {
       commitMessage?: string;
       push?: boolean;
     };

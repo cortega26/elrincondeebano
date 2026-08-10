@@ -291,6 +291,30 @@ test('GET /api/v1/jobs/:id returns 404 for unknown job', async () => {
   }
 });
 
+test('POST /api/v1/publications schedules a job without a request body', async () => {
+  const dir = createTempRepo();
+  try {
+    setupData(dir);
+
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/publications',
+      headers: credHeaders(app),
+    });
+
+    expect(response.statusCode).toBe(200);
+    const body = response.json<{ job_id: string; status: string }>();
+    expect(body.status).toBe('scheduled');
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test('publication fails when an unrelated file is already staged', async () => {
   const dir = createTempRepo();
   try {
@@ -406,6 +430,68 @@ test('gitAdapter.commitWithPaths commits only the given paths even when others a
       encoding: 'utf-8',
     });
     expect(remaining).toContain('notes.txt');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('gitAdapter.commitWithPaths with a directory path commits only that subtree', async () => {
+  const dir = createTempRepo();
+  try {
+    mkdirSync(resolve(dir, 'assets', 'images'), { recursive: true });
+    mkdirSync(resolve(dir, 'assets', 'images', 'nested'), { recursive: true });
+    mkdirSync(resolve(dir, 'assets', 'other'), { recursive: true });
+    writeFileSync(resolve(dir, 'assets', 'images', 'a.png'), 'a');
+    writeFileSync(resolve(dir, 'assets', 'images', 'nested', 'b.png'), 'b');
+    writeFileSync(resolve(dir, 'assets', 'other', 'c.png'), 'c');
+    execFileSync('git', ['add', '-A'], { cwd: dir, encoding: 'utf-8' });
+
+    const git = new GitAdapter(dir);
+    const result = await git.commitWithPaths(['assets/images/'], 'scoped-dir');
+
+    expect(result.success).toBe(true);
+
+    const committed = execFileSync('git', ['show', '--name-only', '--format=', 'HEAD'], {
+      cwd: dir,
+      encoding: 'utf-8',
+    })
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean);
+    expect(committed).toContain('assets/images/a.png');
+    expect(committed).toContain('assets/images/nested/b.png');
+    expect(committed).not.toContain('assets/other/c.png');
+
+    const remaining = execFileSync('git', ['status', '--porcelain'], {
+      cwd: dir,
+      encoding: 'utf-8',
+    });
+    expect(remaining).toContain('c.png');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('gitAdapter.commitWithPaths fails closed on an empty pathspec', async () => {
+  const dir = createTempRepo();
+  try {
+    writeFileSync(resolve(dir, 'data', 'product_data.json'), '{"products":[]}');
+    writeFileSync(resolve(dir, 'notes.txt'), 'scratch');
+    execFileSync('git', ['add', '-A'], { cwd: dir, encoding: 'utf-8' });
+
+    const git = new GitAdapter(dir);
+    const result = await git.commitWithPaths([], 'scoped');
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('at least one path');
+
+    let logError: unknown = null;
+    try {
+      execFileSync('git', ['log', '--oneline'], { cwd: dir, encoding: 'utf-8' });
+    } catch (err) {
+      logError = err;
+    }
+    expect(logError).not.toBeNull();
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
