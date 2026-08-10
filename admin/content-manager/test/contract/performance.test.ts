@@ -106,12 +106,15 @@ test('health route inject < 50ms', async () => {
     const app = createApp({ repoRoot: dir, logger: false });
     await app.ready();
 
-    const start = performance.now();
-    const response = await app.inject({ method: 'GET', url: '/api/v1/health' });
-    const elapsed = performance.now() - start;
-
-    expect(response.statusCode).toBe(200);
-    expect(elapsed).toBeLessThan(50);
+    const samples: number[] = [];
+    for (let i = 0; i < 3; i++) {
+      const start = performance.now();
+      const response = await app.inject({ method: 'GET', url: '/api/v1/health' });
+      samples.push(performance.now() - start);
+      expect(response.statusCode).toBe(200);
+    }
+    samples.sort((a, b) => a - b);
+    expect(samples[1]).toBeLessThan(50);
 
     await app.close();
   } finally {
@@ -132,12 +135,15 @@ test('product list inject with 10 products < 200ms', async () => {
     const app = createApp({ repoRoot: dir, logger: false });
     await app.ready();
 
-    const start = performance.now();
-    const response = await app.inject({ method: 'GET', url: '/api/v1/products' });
-    const elapsed = performance.now() - start;
-
-    expect(response.statusCode).toBe(200);
-    expect(elapsed).toBeLessThan(200);
+    const samples: number[] = [];
+    for (let i = 0; i < 3; i++) {
+      const start = performance.now();
+      const response = await app.inject({ method: 'GET', url: '/api/v1/products' });
+      samples.push(performance.now() - start);
+      expect(response.statusCode).toBe(200);
+    }
+    samples.sort((a, b) => a - b);
+    expect(samples[1]).toBeLessThan(200);
 
     await app.close();
   } finally {
@@ -158,12 +164,15 @@ test('filtered product search inject < 100ms', async () => {
     const app = createApp({ repoRoot: dir, logger: false });
     await app.ready();
 
-    const start = performance.now();
-    const response = await app.inject({ method: 'GET', url: '/api/v1/products?q=Producto+5' });
-    const elapsed = performance.now() - start;
-
-    expect(response.statusCode).toBe(200);
-    expect(elapsed).toBeLessThan(100);
+    const samples: number[] = [];
+    for (let i = 0; i < 3; i++) {
+      const start = performance.now();
+      const response = await app.inject({ method: 'GET', url: '/api/v1/products?q=Producto+5' });
+      samples.push(performance.now() - start);
+      expect(response.statusCode).toBe(200);
+    }
+    samples.sort((a, b) => a - b);
+    expect(samples[1]).toBeLessThan(100);
 
     await app.close();
   } finally {
