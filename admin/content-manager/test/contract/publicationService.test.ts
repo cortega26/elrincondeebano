@@ -118,14 +118,66 @@ test('runPreflight handles both conflicts and unknown branch', () => {
   expect(result.errors.length).toBeGreaterThanOrEqual(2);
 });
 
-test('runPreflight returns all three checks always', () => {
+test('runPreflight returns all four checks always', () => {
   const manifest = createDefaultManifest();
   const changes = makeGitChanges();
   const result = runPreflight(manifest, changes);
 
-  expect(result.checks).toHaveLength(3);
+  expect(result.checks).toHaveLength(4);
   const names = result.checks.map((c) => c.name).sort();
-  expect(names).toEqual(['branch', 'dirty-check', 'no-conflicts']);
+  expect(names).toEqual(['branch', 'dirty-check', 'no-conflicts', 'no-unrelated-staged']);
+});
+
+test('runPreflight fails on unrelated staged file', () => {
+  const manifest = createDefaultManifest();
+  const changes = makeGitChanges({ staged: ['data/idempotency.json'] });
+  const result = runPreflight(manifest, changes);
+
+  expect(result.ok).toBe(false);
+  expect(result.errors).toContain('Unrelated staged file: data/idempotency.json');
+
+  const check = result.checks.find((c) => c.name === 'no-unrelated-staged');
+  expect(check!.status).toBe('fail');
+  expect(check!.message).toContain('1 unrelated staged file');
+});
+
+test('runPreflight passes when only owned paths are staged', () => {
+  const manifest = createDefaultManifest();
+  const changes = makeGitChanges({
+    staged: [
+      'data/product_data.json',
+      'data/category_registry.json',
+      'astro-poc/src/data/storefront-bundles.json',
+    ],
+  });
+  const result = runPreflight(manifest, changes);
+
+  expect(result.ok).toBe(true);
+
+  const check = result.checks.find((c) => c.name === 'no-unrelated-staged');
+  expect(check!.status).toBe('pass');
+});
+
+test('runPreflight covers staged files under assets/images/ prefix', () => {
+  const manifest = createDefaultManifest();
+  const changes = makeGitChanges({
+    staged: ['assets/images/product-a.jpg', 'assets/images/nested/b.png'],
+  });
+  const result = runPreflight(manifest, changes);
+
+  expect(result.ok).toBe(true);
+
+  const check = result.checks.find((c) => c.name === 'no-unrelated-staged');
+  expect(check!.status).toBe('pass');
+});
+
+test('runPreflight does not treat assets/images-evil as covered by assets/images/', () => {
+  const manifest = createDefaultManifest();
+  const changes = makeGitChanges({ staged: ['assets/images-evil/x.png'] });
+  const result = runPreflight(manifest, changes);
+
+  expect(result.ok).toBe(false);
+  expect(result.errors).toContain('Unrelated staged file: assets/images-evil/x.png');
 });
 
 test('createDefaultManifest has expected structure', () => {

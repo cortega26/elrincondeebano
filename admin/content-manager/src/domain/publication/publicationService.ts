@@ -32,7 +32,7 @@ export function createDefaultManifest(): PublicationManifest {
 }
 
 export function runPreflight(
-  _manifest: PublicationManifest,
+  manifest: PublicationManifest,
   gitChanges: Awaited<
     ReturnType<typeof import('../../server/adapters/gitAdapter.ts').GitAdapter.prototype.getChanges>
   >
@@ -57,6 +57,24 @@ export function runPreflight(
     warnings.push('Repository has uncommitted changes.');
   } else {
     checks.push({ name: 'dirty-check', status: 'pass', message: 'Working tree clean' });
+  }
+
+  const unrelatedStaged = gitChanges.staged.filter((f) => {
+    return !manifest.ownedPaths.some((p) => f === p || f.startsWith(p.replace(/\/?$/, '/')));
+  });
+  if (unrelatedStaged.length > 0) {
+    errors.push(...unrelatedStaged.map((f) => `Unrelated staged file: ${f}`));
+    checks.push({
+      name: 'no-unrelated-staged',
+      status: 'fail',
+      message: `${unrelatedStaged.length} unrelated staged file(s)`,
+    });
+  } else {
+    checks.push({
+      name: 'no-unrelated-staged',
+      status: 'pass',
+      message: 'No unrelated staged files',
+    });
   }
 
   if (!gitChanges.branch || gitChanges.branch === '?') {

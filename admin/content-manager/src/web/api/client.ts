@@ -341,23 +341,20 @@ export class ContentManagerClient {
     return this.request<GitStatusResponse>('/git/status');
   }
 
-  async previewPublication(
-    manifest?: Record<string, unknown>
-  ): Promise<PublicationPreviewResponse> {
+  async previewPublication(): Promise<PublicationPreviewResponse> {
     return this.request<PublicationPreviewResponse>('/publications/preview', {
       method: 'POST',
-      body: JSON.stringify({ manifest }),
+      body: JSON.stringify({}),
     });
   }
 
   async publish(
-    manifest?: Record<string, unknown>,
     commitMessage?: string,
     push?: boolean
   ): Promise<{ job_id: string; status: string }> {
     return this.request<{ job_id: string; status: string }>('/publications', {
       method: 'POST',
-      body: JSON.stringify({ manifest, commitMessage, push }),
+      body: JSON.stringify({ commitMessage, push }),
     });
   }
 

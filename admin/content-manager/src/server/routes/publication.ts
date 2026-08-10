@@ -6,7 +6,6 @@ import type { ProductService } from '../../domain/products/productService.ts';
 import {
   createDefaultManifest,
   runPreflight,
-  type PublicationManifest,
 } from '../../domain/publication/publicationService.ts';
 import { ValidationAdapter } from '../adapters/validationAdapter.ts';
 import { RecoveryJournal } from '../services/publicationRecovery.ts';
@@ -88,14 +87,11 @@ export async function publicationRoutes(
     }
 
     const body = request.body as {
-      manifest?: PublicationManifest;
       commitMessage?: string;
       push?: boolean;
     };
 
-    const manifest = body.manifest
-      ? { ...createDefaultManifest(), ...body.manifest }
-      : createDefaultManifest();
+    const manifest = createDefaultManifest();
     const commitMessage = body.commitMessage ?? manifest.commitMessage;
     const push = body.push ?? false;
 
@@ -147,7 +143,7 @@ export async function publicationRoutes(
       jobRunner.updateProgress(jobId, 50);
       checkCancel();
 
-      const commitResult = await git.commit(commitMessage);
+      const commitResult = await git.commitWithPaths(manifest.ownedPaths, commitMessage);
       checkCancel();
       if (!commitResult.success) {
         throw new Error(`Commit failed: ${commitResult.error ?? 'unknown error'}`);

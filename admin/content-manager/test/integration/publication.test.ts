@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execFileSync } from 'node:child_process';
 import { CREDENTIAL_HEADER } from '../../src/server/security/launchCredential.ts';
+import { GitAdapter } from '../../src/server/adapters/gitAdapter.ts';
 import type { FastifyInstance } from 'fastify';
 
 function credHeaders(app: FastifyInstance): Record<string, string> {
@@ -43,6 +44,13 @@ function setupData(dir: string): void {
     })
   );
   writeFileSync(
+    resolve(dir, 'data', 'categories.json'),
+    JSON.stringify({
+      nav_groups: [],
+      categories: [],
+    })
+  );
+  writeFileSync(
     resolve(dir, 'astro-poc', 'src', 'data', 'storefront-experience.json'),
     JSON.stringify({
       trustBar: { highlights: [], statusItems: [] },
@@ -56,6 +64,12 @@ function setupData(dir: string): void {
       companionRules: [],
     })
   );
+  writeFileSync(
+    resolve(dir, 'astro-poc', 'src', 'data', 'storefront-bundles.json'),
+    JSON.stringify({ bundles: [] })
+  );
+  mkdirSync(resolve(dir, 'assets', 'images'), { recursive: true });
+  writeFileSync(resolve(dir, 'assets', 'images', '.gitkeep'), '');
 }
 
 test('GET /api/v1/git/status returns branch and dirty flag', async () => {
@@ -272,6 +286,126 @@ test('GET /api/v1/jobs/:id returns 404 for unknown job', async () => {
     expect(response.statusCode).toBe(404);
 
     await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('publication fails when an unrelated file is already staged', async () => {
+  const dir = createTempRepo();
+  try {
+    setupData(dir);
+    writeFileSync(
+      resolve(dir, 'data', 'product_data.json'),
+      JSON.stringify({ version: 'test', last_updated: '', rev: 0, products: [] })
+    );
+    writeFileSync(resolve(dir, 'notes.txt'), 'scratch');
+    execFileSync('git', ['add', 'notes.txt'], { cwd: dir, encoding: 'utf-8' });
+
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/publications',
+      payload: { commitMessage: 'should fail', push: false },
+      headers: { 'content-type': 'application/json', ...credHeaders(app) },
+    });
+    expect(response.statusCode).toBe(200);
+    const { job_id } = response.json<{ job_id: string }>();
+
+    let job;
+    for (let i = 0; i < 50; i++) {
+      const jr = await app.inject({ method: 'GET', url: `/api/v1/jobs/${job_id}` });
+      job = jr.json<{ status: string; error?: string }>();
+      if (job.status === 'completed' || job.status === 'failed') break;
+      await new Promise((r) => setTimeout(r, 100));
+    }
+
+    expect(job!.status).toBe('failed');
+    expect(job!.error).toContain('Unrelated staged file: notes.txt');
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('publication commit contains only owned paths', async () => {
+  const dir = createTempRepo();
+  try {
+    setupData(dir);
+    writeFileSync(
+      resolve(dir, 'data', 'product_data.json'),
+      JSON.stringify({ version: 'test', last_updated: '', rev: 0, products: [] })
+    );
+    writeFileSync(resolve(dir, 'notes.txt'), 'scratch');
+
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/publications',
+      payload: { commitMessage: 'scoped commit', push: false },
+      headers: { 'content-type': 'application/json', ...credHeaders(app) },
+    });
+    expect(response.statusCode).toBe(200);
+    const { job_id } = response.json<{ job_id: string }>();
+
+    let job;
+    for (let i = 0; i < 50; i++) {
+      const jr = await app.inject({ method: 'GET', url: `/api/v1/jobs/${job_id}` });
+      job = jr.json<{ status: string; error?: string }>();
+      if (job.status === 'completed' || job.status === 'failed') break;
+      await new Promise((r) => setTimeout(r, 100));
+    }
+
+    expect(job!.status).toBe('completed');
+
+    const files = execFileSync('git', ['show', '--name-only', '--format=', 'HEAD'], {
+      cwd: dir,
+      encoding: 'utf-8',
+    })
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean);
+
+    expect(files).toContain('data/product_data.json');
+    expect(files).not.toContain('notes.txt');
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('gitAdapter.commitWithPaths commits only the given paths even when others are staged', async () => {
+  const dir = createTempRepo();
+  try {
+    writeFileSync(resolve(dir, 'data', 'product_data.json'), '{"products":[]}');
+    writeFileSync(resolve(dir, 'notes.txt'), 'scratch');
+    execFileSync('git', ['add', '-A'], { cwd: dir, encoding: 'utf-8' });
+
+    const git = new GitAdapter(dir);
+    const result = await git.commitWithPaths(['data/product_data.json'], 'scoped');
+
+    expect(result.success).toBe(true);
+
+    const committed = execFileSync('git', ['show', '--name-only', '--format=', 'HEAD'], {
+      cwd: dir,
+      encoding: 'utf-8',
+    })
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean);
+    expect(committed).toEqual(['data/product_data.json']);
+
+    const remaining = execFileSync('git', ['status', '--porcelain'], {
+      cwd: dir,
+      encoding: 'utf-8',
+    });
+    expect(remaining).toContain('notes.txt');
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

@@ -71,6 +71,10 @@ export class GitAdapter {
     return this.run(['commit', '-m', message]);
   }
 
+  async commitWithPaths(paths: string[], message: string): Promise<GitResult> {
+    return this.run(['commit', '-m', message, '--', ...paths]);
+  }
+
   async push(remote = 'origin', branch?: string): Promise<GitResult> {
     const args = ['push'];
     if (remote) args.push(remote);
