@@ -1,4 +1,15 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+// The launch-credential prompt (plan 071) covers the UI with a modal until a
+// value is saved. Read-only browsing works without a real credential, so the
+// smoke tests mimic the operator gesture with a placeholder value.
+async function dismissCredentialPrompt(page: Page): Promise<void> {
+  const input = page.getByPlaceholder('x-admin-credential');
+  if (await input.isVisible()) {
+    await input.fill('e2e-smoke');
+    await page.getByRole('button', { name: 'Guardar' }).click();
+  }
+}
 
 test('health endpoint returns ok', async ({ request }) => {
   const response = await request.get('http://127.0.0.1:3000/api/v1/health');
@@ -93,6 +104,7 @@ test('bootstrap endpoint returns config without serving the launch credential', 
 test('navigation links work between pages', async ({ page }) => {
   await page.goto('/media');
   await expect(page.locator('h1')).toContainText('Medios');
+  await dismissCredentialPrompt(page);
   await page.locator("nav a[href='/categories']").click();
   await expect(page.locator('h1')).toContainText('Categorías');
   await page.locator("nav a[href='/products']").click();
