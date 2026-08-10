@@ -1,6 +1,6 @@
 {
-  "version": "20260614-174050",
-  "last_updated": "2026-06-14T17:40:50.693830",
+  "version": "20260715-142139",
+  "last_updated": "2026-07-15T14:21:39.945171",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -1675,7 +1675,7 @@
       "description": "Botella de 1,5L",
       "price": 2800,
       "discount": 800,
-      "stock": true,
+      "stock": false,
       "category": "Aguas",
       "image_path": "assets/images/aguas/Shweppes - Agua Tonica 1,5L.webp",
       "image_avif_path": "assets/images/aguas/Shweppes - Agua Tonica 1,5L.avif",
@@ -2058,7 +2058,7 @@
       "name": "Benedictino • Agua gasificada 2,5L",
       "description": "Envase desechable",
       "price": 2200,
-      "discount": 200,
+      "discount": 0,
       "stock": true,
       "category": "Aguas",
       "image_path": "assets/images/aguas/Agua con gas 2,5L Benedictino.webp",
@@ -2070,7 +2070,7 @@
       "name": "Benedictino • Agua sin gas 2,5L",
       "description": "Envase desechable",
       "price": 2200,
-      "discount": 200,
+      "discount": 0,
       "stock": true,
       "category": "Aguas",
       "image_path": "assets/images/aguas/Agua sin gas 2,5L Benedictino.webp",
@@ -2088,7 +2088,7 @@
       "image_path": "assets/images/bebidas/Coca Cola 2L desechable.webp",
       "image_avif_path": "assets/images/bebidas/Coca Cola 2L desechable.avif",
       "order": 173,
-      "is_archived": false
+      "is_archived": true
     },
     {
       "name": "Coca-Cola 2L",
