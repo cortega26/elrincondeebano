@@ -401,7 +401,10 @@ export async function categoryRoutes(
     const result = categoryService.edit(registry, id, request.body ?? {});
 
     if (!result.ok) {
-      return reply.status(409).send({ error: { code: 'CONFLICT', message: result.error } });
+      const code = result.error?.includes('not found') ? 'NOT_FOUND' : 'CONFLICT';
+      return reply.status(code === 'NOT_FOUND' ? 404 : 409).send({
+        error: { code, message: result.error },
+      });
     }
 
     const wrote = await repos.categories.write(registry, readBaseRevision(request.body));
