@@ -35,7 +35,9 @@ function setupRegistry(dir: string, rev: number): void {
           nav_group: 'g1',
           sort_order: 0,
           active: true,
-          subcategories: [],
+          subcategories: [
+            { id: 's1', title: 'S1', product_key: 's1', slug: 's1', order: 0, enabled: true },
+          ],
         },
       ],
     })
@@ -199,6 +201,67 @@ test('change-set id is immutable: rename and traversal ids in PATCH body return 
     const items = list.json<{ items: Array<{ id: string }> }>().items;
     expect(items).toHaveLength(1);
     expect(items[0].id).toBe(id);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('category reorder with fresh base_revision succeeds, stale returns 409', async () => {
+  const dir = createTempDir();
+  try {
+    setupRegistry(dir, 0);
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    const fresh = await app.inject({
+      method: 'POST',
+      url: '/api/v1/categories/reorder',
+      headers: credHeaders(app),
+      payload: { ordered_ids: ['cat1'], base_revision: 0 },
+    });
+    expect(fresh.statusCode).toBe(200);
+    expect(fresh.json<{ rev: number }>().rev).toBe(1);
+
+    const stale = await app.inject({
+      method: 'POST',
+      url: '/api/v1/categories/reorder',
+      headers: credHeaders(app),
+      payload: { ordered_ids: ['cat1'], base_revision: 0 },
+    });
+    expect(stale.statusCode).toBe(409);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('subcategory reorder with fresh base_revision succeeds, stale returns 409', async () => {
+  const dir = createTempDir();
+  try {
+    setupRegistry(dir, 0);
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    const payload = { ordered_ids: ['s1'], base_revision: 0 };
+    const fresh = await app.inject({
+      method: 'POST',
+      url: '/api/v1/categories/cat1/subcategories/reorder',
+      headers: credHeaders(app),
+      payload,
+    });
+    expect(fresh.statusCode).toBe(200);
+    expect(fresh.json<{ rev: number }>().rev).toBe(1);
+
+    const stale = await app.inject({
+      method: 'POST',
+      url: '/api/v1/categories/cat1/subcategories/reorder',
+      headers: credHeaders(app),
+      payload,
+    });
+    expect(stale.statusCode).toBe(409);
 
     await app.close();
   } finally {
