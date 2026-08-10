@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { ContentManagerClient, ApiRequestError } from '../../api/client.ts';
 import type { CategoryResponse } from '../../api/client.ts';
 import type { CategoryRecord, Subcategory } from '../../../shared/schemas/category.ts';
@@ -180,10 +181,10 @@ export function CategoriesPage(): React.ReactElement {
         aria-label="Navegación principal"
         style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}
       >
-        <a href="/products">Productos</a>
-        <a href="/categories" aria-current="page">
+        <Link to="/products">Productos</Link>
+        <Link to="/categories" aria-current="page">
           Categorías
-        </a>
+        </Link>
       </nav>
 
       {feedback && (

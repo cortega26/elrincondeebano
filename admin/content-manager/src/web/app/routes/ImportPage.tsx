@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { fetchWithCredential } from '../credentialStore.ts';
 
 interface ConflictEntry {
@@ -160,12 +161,12 @@ export function ImportPage(): React.ReactElement {
         aria-label="Navegación principal"
         style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}
       >
-        <a href="/products">Productos</a>
-        <a href="/categories">Categorías</a>
-        <a href="/media">Medios</a>
-        <a href="/import" aria-current="page">
+        <Link to="/products">Productos</Link>
+        <Link to="/categories">Categorías</Link>
+        <Link to="/media">Medios</Link>
+        <Link to="/import" aria-current="page">
           Importar
-        </a>
+        </Link>
       </nav>
 
       <div style={{ marginBottom: '1rem' }}>
