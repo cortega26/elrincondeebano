@@ -17,9 +17,13 @@ ADMIN_DIR = Path(__file__).resolve().parent.parent
 if str(ADMIN_DIR) not in sys.path:
     sys.path.insert(0, str(ADMIN_DIR))
 
-from product_manager.data_store import Bundle, BundleItem, DataStore, Product  # noqa: E402
-
 from admin.web.config import ASTRO_DATA_DIR, DATA_DIR, DB_PATH  # noqa: E402
+from product_manager.data_store import (  # noqa: E402
+    Bundle,
+    BundleItem,
+    DataStore,
+    Product,
+)
 
 
 def get_store(db_path=None):
@@ -38,7 +42,7 @@ def render_admin_ui():
 
     @st.cache_resource
     def _cached_store():
-        return DataStore(db_path) if (db_path := DB_PATH) else DataStore(db_path)
+        return DataStore(DB_PATH)
 
     store = _cached_store()
 
@@ -255,7 +259,7 @@ def render_admin_ui():
                     store.export_to_json(ASTRO_DATA_DIR)
                     st.success(f"✅ Datos exportados a `{ASTRO_DATA_DIR}`")
                     st.info("Ejecuta `npm run build` para reconstruir el sitio.")
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001 - surface any export failure in the UI
                     st.error(f"Error al exportar: {e}")
 
         with col2:
@@ -263,7 +267,7 @@ def render_admin_ui():
                 try:
                     store.export_to_json(DATA_DIR)
                     st.success(f"✅ Datos exportados a `{DATA_DIR}`")
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001 - surface any export failure in the UI
                     st.error(f"Error al exportar: {e}")
 
         st.divider()
@@ -275,7 +279,7 @@ def render_admin_ui():
                 st.success(f"✅ {count} productos importados a SQLite.")
             except FileNotFoundError as e:
                 st.error(str(e))
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001 - surface any import failure in the UI
                 st.error(f"Error al importar: {e}")
 
 
