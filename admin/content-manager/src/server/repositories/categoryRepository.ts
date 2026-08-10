@@ -12,6 +12,7 @@ import { categoryRegistrySchema } from '../../shared/schemas/category.ts';
 import type { ValidationIssue } from '../../shared/schemas/validation.ts';
 import { createIssue } from '../../shared/schemas/validation.ts';
 import { uniqueTimestamp } from '../services/uniqueTimestamp.ts';
+import { MutationLock } from '../services/mutationLock.ts';
 
 export interface CategoryRepositoryConfig {
   repoRoot: string;
@@ -25,6 +26,7 @@ const DEFAULT_LEGACY = 'data/categories.json';
 export class CategoryRepository {
   private readonly registryPath: string;
   private readonly legacyPath: string;
+  private readonly lock = new MutationLock();
 
   constructor(config: CategoryRepositoryConfig) {
     this.registryPath = resolve(config.repoRoot, config.registryFile ?? DEFAULT_REGISTRY);
@@ -67,41 +69,65 @@ export class CategoryRepository {
     return result.data;
   }
 
-  write(registry: CategoryRegistry): { ok: boolean; error?: string } {
-    const result = categoryRegistrySchema.safeParse(registry);
-    if (!result.success) {
-      return { ok: false, error: result.error.issues.map((i) => i.message).join('; ') };
-    }
-
-    const tmpPath = `${this.registryPath}.tmp`;
-    const backupPath = `${this.registryPath}.backup_${uniqueTimestamp()}`;
-
+  async write(
+    registry: CategoryRegistry,
+    baseRevision: number
+  ): Promise<{ ok: boolean; error?: string; statusCode: number; rev: number }> {
+    const release = await this.lock.acquire();
     try {
-      mkdirSync(dirname(this.registryPath), { recursive: true });
-
-      const json = JSON.stringify(result.data, null, 2);
-      writeFileSync(tmpPath, json, { encoding: 'utf-8', flush: true });
-
-      if (existsSync(this.registryPath)) {
-        renameSync(this.registryPath, backupPath);
+      const current = this.load();
+      if (current.rev !== baseRevision) {
+        return {
+          ok: false,
+          error: `Stale category registry revision: expected ${baseRevision}, got ${current.rev}`,
+          statusCode: 409,
+          rev: current.rev,
+        };
       }
 
-      renameSync(tmpPath, this.registryPath);
-      return { ok: true };
-    } catch (err) {
+      registry.rev = current.rev + 1;
+      const result = categoryRegistrySchema.safeParse(registry);
+      if (!result.success) {
+        return {
+          ok: false,
+          error: result.error.issues.map((i) => i.message).join('; '),
+          statusCode: 500,
+          rev: registry.rev,
+        };
+      }
+
+      const tmpPath = `${this.registryPath}.tmp`;
+      const backupPath = `${this.registryPath}.backup_${uniqueTimestamp()}`;
+
       try {
-        if (!existsSync(this.registryPath) && existsSync(backupPath)) {
-          renameSync(backupPath, this.registryPath);
+        mkdirSync(dirname(this.registryPath), { recursive: true });
+
+        const json = JSON.stringify(result.data, null, 2);
+        writeFileSync(tmpPath, json, { encoding: 'utf-8', flush: true });
+
+        if (existsSync(this.registryPath)) {
+          renameSync(this.registryPath, backupPath);
         }
-      } catch {
-        /* restoration is best-effort */
+
+        renameSync(tmpPath, this.registryPath);
+        return { ok: true, statusCode: 200, rev: registry.rev };
+      } catch (err) {
+        try {
+          if (!existsSync(this.registryPath) && existsSync(backupPath)) {
+            renameSync(backupPath, this.registryPath);
+          }
+        } catch {
+          /* restoration is best-effort */
+        }
+        try {
+          unlinkSync(tmpPath);
+        } catch {
+          /* ignore */
+        }
+        return { ok: false, error: (err as Error).message, statusCode: 500, rev: registry.rev };
       }
-      try {
-        unlinkSync(tmpPath);
-      } catch {
-        /* ignore */
-      }
-      return { ok: false, error: (err as Error).message };
+    } finally {
+      release();
     }
   }
 

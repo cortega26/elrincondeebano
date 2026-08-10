@@ -36,6 +36,7 @@ export const navGroupRecordSchema = z.object({
 export type NavGroupRecord = z.infer<typeof navGroupRecordSchema>;
 
 export const categoryRegistrySchema = z.object({
+  rev: z.number().int().nonnegative().default(0),
   nav_groups: z.array(navGroupRecordSchema).default([]),
   categories: z.array(categoryRecordSchema).default([]),
 });

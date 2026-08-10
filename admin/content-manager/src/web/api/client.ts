@@ -38,6 +38,7 @@ export interface ProductResponse extends Product {
 }
 
 export interface CategoryResponse {
+  rev: number;
   nav_groups: CategoryRegistry['nav_groups'];
   categories: CategoryRegistry['categories'];
 }
@@ -59,6 +60,16 @@ export interface ApiError {
     message: string;
     details?: Array<{ field?: string; code: string; message: string }>;
   };
+}
+
+export class ApiRequestError extends Error {
+  public readonly status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'ApiRequestError';
+    this.status = status;
+  }
 }
 
 export interface GitStatusResponse {
@@ -131,8 +142,9 @@ export class ContentManagerClient {
 
     if (!response.ok) {
       const body = await response.json().catch(() => ({}));
-      throw new Error(
-        (body as ApiError).error?.message ?? `HTTP ${response.status}: ${response.statusText}`
+      throw new ApiRequestError(
+        (body as ApiError).error?.message ?? `HTTP ${response.status}: ${response.statusText}`,
+        response.status
       );
     }
 
@@ -172,79 +184,107 @@ export class ContentManagerClient {
     return this.request<CategoryResponse>('/categories');
   }
 
-  async createCategory(data: {
-    id: string;
-    key: string;
-    slug: string;
-    display_name?: { default?: string };
-    nav_group?: string;
-    sort_order?: number;
-  }): Promise<unknown> {
-    return this.request('/categories', { method: 'POST', body: JSON.stringify(data) });
+  async createCategory(
+    data: {
+      id: string;
+      key: string;
+      slug: string;
+      display_name?: { default?: string };
+      nav_group?: string;
+      sort_order?: number;
+    },
+    baseRevision: number
+  ): Promise<unknown> {
+    return this.request('/categories', {
+      method: 'POST',
+      body: JSON.stringify({ ...data, base_revision: baseRevision }),
+    });
   }
 
-  async updateCategory(id: string, changes: Record<string, unknown>): Promise<unknown> {
+  async updateCategory(
+    id: string,
+    changes: Record<string, unknown>,
+    baseRevision: number
+  ): Promise<unknown> {
     return this.request(`/categories/${encodeURIComponent(id)}`, {
       method: 'PATCH',
-      body: JSON.stringify(changes),
+      body: JSON.stringify({ ...changes, base_revision: baseRevision }),
     });
   }
 
-  async deleteCategory(id: string): Promise<void> {
-    await this.request(`/categories/${encodeURIComponent(id)}`, { method: 'DELETE' });
+  async deleteCategory(id: string, baseRevision: number): Promise<void> {
+    await this.request(`/categories/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      body: JSON.stringify({ base_revision: baseRevision }),
+    });
   }
 
-  async reorderCategories(orderedIds: string[]): Promise<unknown> {
+  async reorderCategories(orderedIds: string[], baseRevision: number): Promise<unknown> {
     return this.request('/categories/reorder', {
       method: 'POST',
-      body: JSON.stringify({ ordered_ids: orderedIds }),
+      body: JSON.stringify({ ordered_ids: orderedIds, base_revision: baseRevision }),
     });
   }
 
-  async createNavGroup(data: {
-    id: string;
-    display_name?: { default?: string };
-    sort_order?: number;
-  }): Promise<unknown> {
-    return this.request('/nav-groups', { method: 'POST', body: JSON.stringify(data) });
+  async createNavGroup(
+    data: {
+      id: string;
+      display_name?: { default?: string };
+      sort_order?: number;
+    },
+    baseRevision: number
+  ): Promise<unknown> {
+    return this.request('/nav-groups', {
+      method: 'POST',
+      body: JSON.stringify({ ...data, base_revision: baseRevision }),
+    });
   }
 
-  async deleteNavGroup(id: string): Promise<void> {
-    await this.request(`/nav-groups/${encodeURIComponent(id)}`, { method: 'DELETE' });
+  async deleteNavGroup(id: string, baseRevision: number): Promise<void> {
+    await this.request(`/nav-groups/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      body: JSON.stringify({ base_revision: baseRevision }),
+    });
   }
 
   async createSubcategory(
     categoryId: string,
-    data: { id: string; title: string; product_key: string; slug: string }
+    data: { id: string; title: string; product_key: string; slug: string },
+    baseRevision: number
   ): Promise<unknown> {
     return this.request(`/categories/${encodeURIComponent(categoryId)}/subcategories`, {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify({ ...data, base_revision: baseRevision }),
     });
   }
 
   async updateSubcategory(
     categoryId: string,
     subId: string,
-    changes: Record<string, unknown>
+    changes: Record<string, unknown>,
+    baseRevision: number
   ): Promise<unknown> {
     return this.request(
       `/categories/${encodeURIComponent(categoryId)}/subcategories/${encodeURIComponent(subId)}`,
-      { method: 'PATCH', body: JSON.stringify(changes) }
+      { method: 'PATCH', body: JSON.stringify({ ...changes, base_revision: baseRevision }) }
     );
   }
 
-  async deleteSubcategory(categoryId: string, subId: string): Promise<void> {
+  async deleteSubcategory(categoryId: string, subId: string, baseRevision: number): Promise<void> {
     await this.request(
       `/categories/${encodeURIComponent(categoryId)}/subcategories/${encodeURIComponent(subId)}`,
-      { method: 'DELETE' }
+      { method: 'DELETE', body: JSON.stringify({ base_revision: baseRevision }) }
     );
   }
 
-  async reorderSubcategories(categoryId: string, orderedIds: string[]): Promise<unknown> {
+  async reorderSubcategories(
+    categoryId: string,
+    orderedIds: string[],
+    baseRevision: number
+  ): Promise<unknown> {
     return this.request(`/categories/${encodeURIComponent(categoryId)}/subcategories/reorder`, {
       method: 'POST',
-      body: JSON.stringify({ ordered_ids: orderedIds }),
+      body: JSON.stringify({ ordered_ids: orderedIds, base_revision: baseRevision }),
     });
   }
 

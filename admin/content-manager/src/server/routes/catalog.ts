@@ -331,9 +331,14 @@ export async function categoryRoutes(
   productService: ProductService,
   categoryService: CategoryService
 ): Promise<void> {
+  function readBaseRevision(body: unknown): number {
+    return ((body ?? {}) as { base_revision?: number }).base_revision ?? 0;
+  }
+
   app.get('/categories', async () => {
     const registry = repos.categories.load();
     return {
+      rev: registry.rev,
       nav_groups: registry.nav_groups ?? [],
       categories: registry.categories ?? [],
     };
@@ -371,12 +376,17 @@ export async function categoryRoutes(
       return reply.status(409).send({ error: { code: 'CONFLICT', message: result.error } });
     }
 
-    const wrote = repos.categories.write(registry);
+    const wrote = await repos.categories.write(registry, readBaseRevision(request.body));
     if (!wrote.ok) {
-      return reply.status(500).send({ error: { code: 'INTERNAL_ERROR', message: wrote.error } });
+      return reply.status(wrote.statusCode).send({
+        error: {
+          code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
+          message: wrote.error,
+        },
+      });
     }
 
-    return reply.status(201).send(result.category);
+    return reply.status(201).send({ ...result.category, rev: wrote.rev });
   });
 
   app.patch('/categories/:id', async (request, reply) => {
@@ -394,12 +404,17 @@ export async function categoryRoutes(
       return reply.status(409).send({ error: { code: 'CONFLICT', message: result.error } });
     }
 
-    const wrote = repos.categories.write(registry);
+    const wrote = await repos.categories.write(registry, readBaseRevision(request.body));
     if (!wrote.ok) {
-      return reply.status(500).send({ error: { code: 'INTERNAL_ERROR', message: wrote.error } });
+      return reply.status(wrote.statusCode).send({
+        error: {
+          code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
+          message: wrote.error,
+        },
+      });
     }
 
-    return result.category;
+    return { ...result.category, rev: wrote.rev };
   });
 
   app.delete('/categories/:id', async (request, reply) => {
@@ -425,9 +440,14 @@ export async function categoryRoutes(
         .send({ error: { code, message: result.error } });
     }
 
-    const wrote = repos.categories.write(registry);
+    const wrote = await repos.categories.write(registry, readBaseRevision(request.body));
     if (!wrote.ok) {
-      return reply.status(500).send({ error: { code: 'INTERNAL_ERROR', message: wrote.error } });
+      return reply.status(wrote.statusCode).send({
+        error: {
+          code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
+          message: wrote.error,
+        },
+      });
     }
 
     return reply.status(204).send();
@@ -450,12 +470,17 @@ export async function categoryRoutes(
     const registry = repos.categories.load();
     categoryService.reorder(registry, body.ordered_ids);
 
-    const wrote = repos.categories.write(registry);
+    const wrote = await repos.categories.write(registry, readBaseRevision(body));
     if (!wrote.ok) {
-      return reply.status(500).send({ error: { code: 'INTERNAL_ERROR', message: wrote.error } });
+      return reply.status(wrote.statusCode).send({
+        error: {
+          code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
+          message: wrote.error,
+        },
+      });
     }
 
-    return { status: 'ok', reordered: body.ordered_ids.length };
+    return { status: 'ok', reordered: body.ordered_ids.length, rev: wrote.rev };
   });
 
   app.post('/nav-groups', async (request, reply) => {
@@ -481,12 +506,17 @@ export async function categoryRoutes(
       return reply.status(409).send({ error: { code: 'CONFLICT', message: result.error } });
     }
 
-    const wrote = repos.categories.write(registry);
+    const wrote = await repos.categories.write(registry, readBaseRevision(request.body));
     if (!wrote.ok) {
-      return reply.status(500).send({ error: { code: 'INTERNAL_ERROR', message: wrote.error } });
+      return reply.status(wrote.statusCode).send({
+        error: {
+          code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
+          message: wrote.error,
+        },
+      });
     }
 
-    return reply.status(201).send(result.group);
+    return reply.status(201).send({ ...result.group, rev: wrote.rev });
   });
 
   app.delete('/nav-groups/:id', async (request, reply) => {
@@ -507,9 +537,14 @@ export async function categoryRoutes(
         .send({ error: { code, message: result.error } });
     }
 
-    const wrote = repos.categories.write(registry);
+    const wrote = await repos.categories.write(registry, readBaseRevision(request.body));
     if (!wrote.ok) {
-      return reply.status(500).send({ error: { code: 'INTERNAL_ERROR', message: wrote.error } });
+      return reply.status(wrote.statusCode).send({
+        error: {
+          code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
+          message: wrote.error,
+        },
+      });
     }
 
     return reply.status(204).send();
@@ -580,9 +615,14 @@ export async function categoryRoutes(
     category.subcategories.push(result.data);
     category.subcategories.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-    const wrote = repos.categories.write(registry);
+    const wrote = await repos.categories.write(registry, readBaseRevision(request.body));
     if (!wrote.ok) {
-      return reply.status(500).send({ error: { code: 'INTERNAL_ERROR', message: wrote.error } });
+      return reply.status(wrote.statusCode).send({
+        error: {
+          code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
+          message: wrote.error,
+        },
+      });
     }
 
     return reply.status(201).send(result.data);
@@ -628,9 +668,14 @@ export async function categoryRoutes(
     category.subcategories = subcategories.map((s) => (s.id === subId ? result.data : s));
     category.subcategories.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-    const wrote = repos.categories.write(registry);
+    const wrote = await repos.categories.write(registry, readBaseRevision(request.body));
     if (!wrote.ok) {
-      return reply.status(500).send({ error: { code: 'INTERNAL_ERROR', message: wrote.error } });
+      return reply.status(wrote.statusCode).send({
+        error: {
+          code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
+          message: wrote.error,
+        },
+      });
     }
 
     return result.data;
@@ -663,9 +708,14 @@ export async function categoryRoutes(
       });
     }
 
-    const wrote = repos.categories.write(registry);
+    const wrote = await repos.categories.write(registry, readBaseRevision(request.body));
     if (!wrote.ok) {
-      return reply.status(500).send({ error: { code: 'INTERNAL_ERROR', message: wrote.error } });
+      return reply.status(wrote.statusCode).send({
+        error: {
+          code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
+          message: wrote.error,
+        },
+      });
     }
 
     return reply.status(204).send();
@@ -705,12 +755,17 @@ export async function categoryRoutes(
     }
     category.subcategories = subcategories.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-    const wrote = repos.categories.write(registry);
+    const wrote = await repos.categories.write(registry, readBaseRevision(request.body));
     if (!wrote.ok) {
-      return reply.status(500).send({ error: { code: 'INTERNAL_ERROR', message: wrote.error } });
+      return reply.status(wrote.statusCode).send({
+        error: {
+          code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
+          message: wrote.error,
+        },
+      });
     }
 
-    return { status: 'ok', reordered: orderedIds.length };
+    return { status: 'ok', reordered: orderedIds.length, rev: wrote.rev };
   });
 }
 

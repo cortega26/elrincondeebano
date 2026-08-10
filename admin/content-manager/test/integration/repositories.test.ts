@@ -369,7 +369,7 @@ test('StorefrontRepository still persists a non-empty bundles file', () => {
 // implementation (not built on AtomicWriter) with the identical rename gap —
 // target -> backup, then tmp -> target. This proves the restore-on-failure
 // fix applied to that inline implementation.
-test('CategoryRepository.write restores the previous registry when the tmp -> target rename fails', () => {
+test('CategoryRepository.write restores the previous registry when the tmp -> target rename fails', async () => {
   const dir = createTempDir();
   try {
     mkdirSync(resolve(dir, 'data'), { recursive: true });
@@ -384,15 +384,19 @@ test('CategoryRepository.write restores the previous registry when the tmp -> ta
     // test simulates failing.
     renameState.failAtCall = 2;
 
-    const result = repo.write({
-      nav_groups: validCategories.nav_groups,
-      categories: [
-        ...validCategories.categories,
-        { id: 'c3', key: 'cat3', slug: 'cat-3', active: true, sort_order: 2 },
-      ],
-    });
+    const result = await repo.write(
+      {
+        nav_groups: validCategories.nav_groups,
+        categories: [
+          ...validCategories.categories,
+          { id: 'c3', key: 'cat3', slug: 'cat-3', active: true, sort_order: 2 },
+        ],
+      },
+      0
+    );
 
     expect(result.ok).toBe(false);
+    expect(result.statusCode).toBe(500);
     expect(existsSync(registryFile)).toBe(true);
     expect(readFileSync(registryFile, 'utf-8')).toBe(previousContent);
   } finally {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ContentManagerClient } from '../../api/client.ts';
+import { ContentManagerClient, ApiRequestError } from '../../api/client.ts';
 import type { CategoryResponse } from '../../api/client.ts';
 import type { CategoryRecord, Subcategory } from '../../../shared/schemas/category.ts';
 
@@ -37,50 +37,65 @@ export function CategoriesPage(): React.ReactElement {
     void load();
   }, []);
 
+  function handleMutationError(err: unknown): void {
+    if (err instanceof ApiRequestError && err.status === 409) {
+      setError('La categoría cambió; recarga y reintenta');
+      void load();
+    } else {
+      setError((err as Error).message);
+    }
+  }
+
   async function handleDelete(id: string): Promise<void> {
     try {
-      await client.deleteCategory(id);
+      await client.deleteCategory(id, data?.rev ?? 0);
       setFeedback('Categoría eliminada ✓');
       await load();
     } catch (err) {
-      setError((err as Error).message);
+      handleMutationError(err);
     }
   }
 
   async function handleDeleteGroup(id: string): Promise<void> {
     try {
-      await client.deleteNavGroup(id);
+      await client.deleteNavGroup(id, data?.rev ?? 0);
       setFeedback('Grupo eliminado ✓');
       await load();
     } catch (err) {
-      setError((err as Error).message);
+      handleMutationError(err);
     }
   }
 
   async function handleSave(form: Record<string, unknown>): Promise<void> {
     try {
       if (editing) {
-        await client.updateCategory(editing.id, form);
+        await client.updateCategory(editing.id, form, data?.rev ?? 0);
       } else {
-        await client.createCategory(form as { id: string; key: string; slug: string });
+        await client.createCategory(
+          form as { id: string; key: string; slug: string },
+          data?.rev ?? 0
+        );
       }
       setEditing(null);
       setAdding(false);
       setFeedback(editing ? 'Categoría actualizada ✓' : 'Categoría creada ✓');
       await load();
     } catch (err) {
-      setError((err as Error).message);
+      handleMutationError(err);
     }
   }
 
   async function handleSaveGroup(form: Record<string, unknown>): Promise<void> {
     try {
-      await client.createNavGroup(form as { id: string; display_name?: { default?: string } });
+      await client.createNavGroup(
+        form as { id: string; display_name?: { default?: string } },
+        data?.rev ?? 0
+      );
       setAddingGroup(false);
       setFeedback('Grupo creado ✓');
       await load();
     } catch (err) {
-      setError((err as Error).message);
+      handleMutationError(err);
     }
   }
 
@@ -88,13 +103,14 @@ export function CategoriesPage(): React.ReactElement {
     try {
       await client.createSubcategory(
         categoryId,
-        form as { id: string; title: string; product_key: string; slug: string }
+        form as { id: string; title: string; product_key: string; slug: string },
+        data?.rev ?? 0
       );
       setAddingSub(null);
       setFeedback('Subcategoría creada ✓');
       await load();
     } catch (err) {
-      setError((err as Error).message);
+      handleMutationError(err);
     }
   }
 
@@ -104,22 +120,22 @@ export function CategoriesPage(): React.ReactElement {
     changes: Record<string, unknown>
   ): Promise<void> {
     try {
-      await client.updateSubcategory(categoryId, subId, changes);
+      await client.updateSubcategory(categoryId, subId, changes, data?.rev ?? 0);
       setEditingSub(null);
       setFeedback('Subcategoría actualizada ✓');
       await load();
     } catch (err) {
-      setError((err as Error).message);
+      handleMutationError(err);
     }
   }
 
   async function handleDeleteSub(categoryId: string, subId: string): Promise<void> {
     try {
-      await client.deleteSubcategory(categoryId, subId);
+      await client.deleteSubcategory(categoryId, subId, data?.rev ?? 0);
       setFeedback('Subcategoría eliminada ✓');
       await load();
     } catch (err) {
-      setError((err as Error).message);
+      handleMutationError(err);
     }
   }
 

@@ -137,10 +137,14 @@ test('DELETE /api/v1/categories/:categoryId/subcategories/:subId removes it', as
     const app2 = createApp({ repoRoot: dir, enableWrites: true });
     await app2.ready();
 
+    const listRes = await app2.inject({ method: 'GET', url: '/api/v1/categories' });
+    const rev = listRes.json<{ rev: number }>().rev;
+
     const deleteRes = await app2.inject({
       method: 'DELETE',
       url: '/api/v1/categories/cat1/subcategories/sub-del',
       headers: credHeaders(app2),
+      payload: { base_revision: rev },
     });
     expect(deleteRes.statusCode).toBe(204);
 
