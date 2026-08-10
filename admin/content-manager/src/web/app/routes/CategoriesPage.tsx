@@ -37,10 +37,10 @@ export function CategoriesPage(): React.ReactElement {
     void load();
   }, []);
 
-  function handleMutationError(err: unknown): void {
+  async function handleMutationError(err: unknown): Promise<void> {
     if (err instanceof ApiRequestError && err.status === 409) {
+      await load();
       setError('La categoría cambió; recarga y reintenta');
-      void load();
     } else {
       setError((err as Error).message);
     }
@@ -52,7 +52,7 @@ export function CategoriesPage(): React.ReactElement {
       setFeedback('Categoría eliminada ✓');
       await load();
     } catch (err) {
-      handleMutationError(err);
+      await handleMutationError(err);
     }
   }
 
@@ -62,7 +62,7 @@ export function CategoriesPage(): React.ReactElement {
       setFeedback('Grupo eliminado ✓');
       await load();
     } catch (err) {
-      handleMutationError(err);
+      await handleMutationError(err);
     }
   }
 
@@ -81,7 +81,7 @@ export function CategoriesPage(): React.ReactElement {
       setFeedback(editing ? 'Categoría actualizada ✓' : 'Categoría creada ✓');
       await load();
     } catch (err) {
-      handleMutationError(err);
+      await handleMutationError(err);
     }
   }
 
@@ -95,7 +95,7 @@ export function CategoriesPage(): React.ReactElement {
       setFeedback('Grupo creado ✓');
       await load();
     } catch (err) {
-      handleMutationError(err);
+      await handleMutationError(err);
     }
   }
 
@@ -110,7 +110,7 @@ export function CategoriesPage(): React.ReactElement {
       setFeedback('Subcategoría creada ✓');
       await load();
     } catch (err) {
-      handleMutationError(err);
+      await handleMutationError(err);
     }
   }
 
@@ -125,7 +125,7 @@ export function CategoriesPage(): React.ReactElement {
       setFeedback('Subcategoría actualizada ✓');
       await load();
     } catch (err) {
-      handleMutationError(err);
+      await handleMutationError(err);
     }
   }
 
@@ -135,7 +135,7 @@ export function CategoriesPage(): React.ReactElement {
       setFeedback('Subcategoría eliminada ✓');
       await load();
     } catch (err) {
-      handleMutationError(err);
+      await handleMutationError(err);
     }
   }
 

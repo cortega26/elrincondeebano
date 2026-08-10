@@ -168,6 +168,44 @@ test('traversal ids in change-set/conflict/backup routes return 400', async () =
   }
 });
 
+test('change-set id is immutable: rename and traversal ids in PATCH body return 400', async () => {
+  const dir = createTempDir();
+  try {
+    setupRegistry(dir, 0);
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    const create = await app.inject({
+      method: 'POST',
+      url: '/api/v1/change-sets',
+      headers: credHeaders(app),
+      payload: {},
+    });
+    expect(create.statusCode).toBe(201);
+    const id = create.json<{ id: string }>().id;
+
+    for (const evil of ['evil-renamed', '../../x', '..%2F..%2Fdata%2Fx']) {
+      const res = await app.inject({
+        method: 'PATCH',
+        url: `/api/v1/change-sets/${id}`,
+        headers: credHeaders(app),
+        payload: { id: evil },
+      });
+      expect(res.statusCode, `PATCH id=${evil}`).toBe(400);
+      expect(res.json<{ error: { code: string } }>().error.code).toBe('INVALID_ID');
+    }
+
+    const list = await app.inject({ method: 'GET', url: '/api/v1/change-sets' });
+    const items = list.json<{ items: Array<{ id: string }> }>().items;
+    expect(items).toHaveLength(1);
+    expect(items[0].id).toBe(id);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test('repositories never touch the filesystem with an unsafe id', async () => {
   const dir = createTempDir();
   try {

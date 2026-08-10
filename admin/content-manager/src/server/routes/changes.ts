@@ -59,6 +59,12 @@ export async function changesRoutes(
     }
 
     const body = request.body as Record<string, unknown>;
+    if (body.id !== undefined && body.id !== id) {
+      return reply.status(400).send({
+        error: { code: 'INVALID_ID', message: 'Change-set id is immutable' },
+      });
+    }
+
     const updated = {
       ...existing,
       ...body,
