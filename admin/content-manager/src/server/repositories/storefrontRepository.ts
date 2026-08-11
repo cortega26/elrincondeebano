@@ -119,19 +119,20 @@ export class StorefrontRepository {
 
       return { ok: true };
     } catch (err) {
-      // Restore is single-file (each file's own rename gap), not
-      // transactional across both files — cross-file rollback is plan 063
-      // territory. If the bundles rename is what failed, the experience
-      // file from this write is left in place rather than rolled back.
+      // Plan 066 step 2: transactional rollback across BOTH files — the
+      // experience and the bundle projection must never diverge. Restore
+      // each prior file (removing any partially-written successor).
       try {
-        if (!existsSync(this.experiencePath) && existsSync(backupPath)) {
+        if (existsSync(backupPath)) {
+          if (existsSync(this.experiencePath)) unlinkSync(this.experiencePath);
           renameSync(backupPath, this.experiencePath);
         }
       } catch {
         /* restoration is best-effort */
       }
       try {
-        if (!existsSync(this.bundlesPath) && existsSync(bundlesBackupPath)) {
+        if (existsSync(bundlesBackupPath)) {
+          if (existsSync(this.bundlesPath)) unlinkSync(this.bundlesPath);
           renameSync(bundlesBackupPath, this.bundlesPath);
         }
       } catch {

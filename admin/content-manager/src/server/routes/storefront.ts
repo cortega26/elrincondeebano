@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import type { Repositories } from './catalog.ts';
+import { validateStorefrontCuration } from '../../domain/storefront/storefrontValidation.ts';
 
 export async function storefrontMutRoutes(
   app: FastifyInstance,
@@ -30,6 +31,19 @@ export async function storefrontMutRoutes(
 
       const existing = repos.storefront.load();
       existing.bundles = body.bundles as typeof existing.bundles;
+
+      // Plan 066 step 1: strict invariants + product reference checks.
+      const catalog = repos.products.loadCatalog();
+      const validated = validateStorefrontCuration(existing, catalog.products);
+      if (!validated.ok) {
+        return reply.status(422).send({
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: validated.issues.map((i) => i.message).join('; '),
+            details: validated.issues,
+          },
+        });
+      }
 
       const wrote = repos.storefront.write(existing);
       if (!wrote.ok) {
@@ -62,6 +76,19 @@ export async function storefrontMutRoutes(
       }
       if (body.secondaryCategories) {
         existing.home.secondaryCategories = body.secondaryCategories;
+      }
+
+      // Featured staples reference real products (plan 066 step 1/4).
+      const catalog = repos.products.loadCatalog();
+      const validated = validateStorefrontCuration(existing, catalog.products);
+      if (!validated.ok) {
+        return reply.status(422).send({
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: validated.issues.map((i) => i.message).join('; '),
+            details: validated.issues,
+          },
+        });
       }
 
       const wrote = repos.storefront.write(existing);
