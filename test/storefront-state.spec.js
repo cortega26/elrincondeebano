@@ -221,6 +221,21 @@ describe('storefront-state cart primitives', () => {
       expect(cart.map((item) => item.id)).toEqual(['p1', 'p2']);
     });
 
+    it('preserves discounts so repeated orders keep their effective total', () => {
+      const cart = hydrateCartFromOrder({
+        items: [
+          { id: 'p1', name: 'Leche', category: 'L', price: 1200, discount: 300, quantity: 2 },
+          { id: 'p2', name: 'Pan', category: 'P', price: 800, discount: 0, quantity: 1 },
+        ],
+      });
+
+      expect(cart.map((item) => ({ id: item.id, discount: item.discount }))).toEqual([
+        { id: 'p1', discount: 300 },
+        { id: 'p2', discount: 0 },
+      ]);
+      expect(getCartState(cart)).toEqual({ totalItems: 3, totalAmount: 2600 });
+    });
+
     it('returns an empty cart for invalid saved orders', () => {
       expect(hydrateCartFromOrder(null)).toEqual([]);
       expect(hydrateCartFromOrder({ items: null })).toEqual([]);

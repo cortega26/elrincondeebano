@@ -101,6 +101,7 @@ export function hydrateCartFromOrder(order: unknown): CartItem[] {
       name: item.name,
       category: item.category,
       price: item.price,
+      discount: item.discount,
       image: item.image,
       quantity: item.quantity,
     }))

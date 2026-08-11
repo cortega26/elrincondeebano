@@ -26,32 +26,32 @@ los que siguen pendientes se confirman aquí como TODO con evidencia de la brech
 
 <!-- markdownlint-disable MD060 -->
 
-| Plan | Estado verificado | Evidencia de la brecha                                                                                                          |
-| ---- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| 024  | DONE              | Runner único Vitest (2026-08-11): `run-all.js` eliminado, 15 script-tests legacy convertidos a suites, coverage unificado       |
-| 026  | DONE              | Carrito compartido catálogo-autoritativo (2026-08-11): payload mínimo versionado, `hydrateSharedCart` con resolución DOM amplia |
-| 027  | TODO              | `hydrateCartFromOrder` (storefront-state.ts:92-107) sigue sin mapear `discount`                                                 |
-| 030  | TODO              | `server/productStore.js:315-320` sigue `writeFile` directo en ambos archivos; sin manifest/recovery                             |
-| 031  | TODO              | `@astrojs/partytown` sigue en `astro.config.mjs` y deps; barrel completo de Bootstrap + `globalThis.bootstrap`                  |
-| 038  | TODO              | Sin ADR de funnel privado en `docs/adr/`                                                                                        |
-| 040  | TODO              | `bulk_operations_mixin.py` sigue construyendo `Product(...)` parcial ×5                                                         |
-| 041  | TODO              | `product_form.py:767` sigue moviendo media inmediatamente en `_on_category_change`                                              |
-| 042  | TODO              | `main_window.py:1430` sigue `products.pop(start_index)` (índice visible)                                                        |
-| 043  | TODO              | `main_window.py:795` sigue llamando `consume_conflicts()` para mostrar                                                          |
-| 044  | TODO              | Modelo rechaza `discount > price`; formularios rechazan `>=` (fronteras distintas)                                              |
-| 045  | TODO              | `deploy.py:249` sigue `success = True` incondicional; sin manifest/preflight                                                    |
-| 046  | TODO              | `deploy_panel.py` sigue síncrono; `AsyncOperation` (components.py) sin uso en el panel                                          |
-| 047  | TODO              | `main_window.py:81,162-180` sigue leyendo `~/.product_manager/config.json`                                                      |
-| 049  | TODO              | `data_store.py` sigue presente sin callers                                                                                      |
-| 060  | TODO              | Preview sin binding durable (ID/hash/base-rev); sin CSV ni UX de archivo                                                        |
-| 061  | TODO              | Sin filtros min/max, duplicate, Git pull, prefs/shortcuts en TS; doctor CLI-only                                                |
-| 063  | TODO              | `/media/generate` sigue `acknowledged`; upload directo sin staging/sniffing                                                     |
-| 064  | TODO              | `syncAdapter` sigue 501 para push/pull                                                                                          |
-| 066  | TODO              | Sin editor de featured; schema de bundles sin invariantes (empty/unique/refs)                                                   |
-| 067  | TODO              | Solo `atomicWriter` pruna backups; categorías/storefront sin retención                                                          |
-| 069  | TODO              | Terminal: Python sigue activo como fallback; depende de 056–068                                                                 |
-| 082  | PARTIAL           | `npm audit --omit=dev` ya 0 HIGH; falta retirar `test-web` y `admin/web`                                                        |
-| 083  | TODO              | Sin `categoryService` contract tests ni route tests de mutación; `ensureDiscountToggle` sigue siendo copia                      |
+| Plan | Estado verificado | Evidencia de la brecha                                                                                                                                        |
+| ---- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 024  | DONE              | Runner único Vitest (2026-08-11): `run-all.js` eliminado, 15 script-tests legacy convertidos a suites, coverage unificado                                     |
+| 026  | DONE              | Carrito compartido catálogo-autoritativo (2026-08-11): payload mínimo versionado, `hydrateSharedCart` con resolución DOM amplia                               |
+| 027  | DONE              | Rollback persist-first (2026-08-11): `hydrateCartFromOrder` conserva discount, repeat/vaciar/mark-sent solo mutan tras `saveCart` OK; e2e con fault injection |
+| 030  | TODO              | `server/productStore.js:315-320` sigue `writeFile` directo en ambos archivos; sin manifest/recovery                                                           |
+| 031  | TODO              | `@astrojs/partytown` sigue en `astro.config.mjs` y deps; barrel completo de Bootstrap + `globalThis.bootstrap`                                                |
+| 038  | TODO              | Sin ADR de funnel privado en `docs/adr/`                                                                                                                      |
+| 040  | TODO              | `bulk_operations_mixin.py` sigue construyendo `Product(...)` parcial ×5                                                                                       |
+| 041  | TODO              | `product_form.py:767` sigue moviendo media inmediatamente en `_on_category_change`                                                                            |
+| 042  | TODO              | `main_window.py:1430` sigue `products.pop(start_index)` (índice visible)                                                                                      |
+| 043  | TODO              | `main_window.py:795` sigue llamando `consume_conflicts()` para mostrar                                                                                        |
+| 044  | TODO              | Modelo rechaza `discount > price`; formularios rechazan `>=` (fronteras distintas)                                                                            |
+| 045  | TODO              | `deploy.py:249` sigue `success = True` incondicional; sin manifest/preflight                                                                                  |
+| 046  | TODO              | `deploy_panel.py` sigue síncrono; `AsyncOperation` (components.py) sin uso en el panel                                                                        |
+| 047  | TODO              | `main_window.py:81,162-180` sigue leyendo `~/.product_manager/config.json`                                                                                    |
+| 049  | TODO              | `data_store.py` sigue presente sin callers                                                                                                                    |
+| 060  | TODO              | Preview sin binding durable (ID/hash/base-rev); sin CSV ni UX de archivo                                                                                      |
+| 061  | TODO              | Sin filtros min/max, duplicate, Git pull, prefs/shortcuts en TS; doctor CLI-only                                                                              |
+| 063  | TODO              | `/media/generate` sigue `acknowledged`; upload directo sin staging/sniffing                                                                                   |
+| 064  | TODO              | `syncAdapter` sigue 501 para push/pull                                                                                                                        |
+| 066  | TODO              | Sin editor de featured; schema de bundles sin invariantes (empty/unique/refs)                                                                                 |
+| 067  | TODO              | Solo `atomicWriter` pruna backups; categorías/storefront sin retención                                                                                        |
+| 069  | TODO              | Terminal: Python sigue activo como fallback; depende de 056–068                                                                                               |
+| 082  | PARTIAL           | `npm audit --omit=dev` ya 0 HIGH; falta retirar `test-web` y `admin/web`                                                                                      |
+| 083  | TODO              | Sin `categoryService` contract tests ni route tests de mutación; `ensureDiscountToggle` sigue siendo copia                                                    |
 
 <!-- markdownlint-enable MD060 -->
 
@@ -656,7 +656,7 @@ además `cd admin/product_manager && python -m ruff check . && python -m pytest`
 | Plan | Título                                     | Priority | Effort | Depends on      | Status                                                                                                                    |
 | ---- | ------------------------------------------ | -------- | ------ | --------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | 026  | Canonicalizar carritos compartidos         | P1       | M      | 025             | DONE — payload versionado `{version:1, items:[{id,quantity}]}`, hidratación desde catálogo, e2e link forjado (2026-08-11) |
-| 027  | Preservar descuentos y rollback de carrito | P1       | M      | 025             | TODO                                                                                                                      |
+| 027  | Preservar descuentos y rollback de carrito | P1       | M      | 025             | DONE — descuentos en reorden, persist-first en repeat/vaciar/mark-sent con toast de error (2026-08-11)                    |
 | 031  | Retirar Partytown y reducir Bootstrap JS   | P2       | M      | 025             | TODO                                                                                                                      |
 | 035  | Consolidar builds duplicados de CI         | P2       | M      | —               | DONE — CI consolidado en job único `build-and-check` con par de determinismo y artefacto compartido (2026-08-10)          |
 | 019  | Reducir Bootstrap CSS                      | P2       | M      | 031 recomendado | DONE                                                                                                                      |
