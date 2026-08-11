@@ -17,9 +17,10 @@ pass); the remaining row — `parity-preferences` — has no direct TS equivalen
 persisted preferences) and stays operator-signed, alongside the two manual
 rows (acceptance walkthrough and rollback drill). The full gate
 (`npm run admin:certify`, which requires `untested == 0`) is reached once
-those rows are signed. Closing that remaining gap is tracked by plans
-056–069 (Auditoría 6) and the Wave 4 gate of the Auditoría 7 queue; this
-document must be revisited when plan 069 lands.
+those rows are signed. Plans 056–068 (Auditoría 6) are DONE; the only
+remaining gate is plan 069 (cutover comprobado y retiro reversible de
+Python), which re-verifies this document from current-SHA evidence. Status
+reconciled 2026-08-11.
 
 > The certification/parity reports are **local evidence artifacts**, generated
 > by `npm run admin:certify` / `admin:parity` (they are not committed — the
@@ -42,9 +43,16 @@ npm run admin:start   # Production start
 ### Step 2: Archive Python compatibility evidence
 
 ```bash
-npm run admin:certify   # Generate certification report
-npm run admin:parity    # Verify Python/TS output equivalence
+npm run admin:certify              # Generate certification report
+npm run admin:parity               # Verify Python/TS output equivalence
+node --import tsx scripts/rollback-drill.ts   # Failure/rollback drill evidence
+node --import tsx scripts/acceptance-sign.ts "<maintainer>"  # Signed acceptance
 ```
+
+`admin:certify` reports READY only when every row is evidenced: the two manual
+rows (operator acceptance and rollback drills) are resolved from
+`reports/certification/evidence/operator-acceptance.json` and
+`rollback-drill.json` (plan 069 Steps 3–4).
 
 ### Step 3: Verify standalone operation
 

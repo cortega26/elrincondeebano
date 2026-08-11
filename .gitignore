@@ -87,6 +87,16 @@ output.txt
 product_data.backup_*
 # Atomic-writer backups of the canonical storefront files (plan 081)
 astro-poc/src/data/*.backup_*
+# Atomic-writer backups of the canonical catalog files (plan 069/076)
+data/*.backup_*
+# Content Manager durable runtime state (plans 059/062/063/067): regenerated
+# by the manager on every write; never committed.
+data/change-sets/
+data/media-intents/
+data/import-previews/
+data/idempotency.json
+data/recovery-journal*.json
+data/recovery-journal.ndjson
 .qodo
 node_modules/
 text_files/

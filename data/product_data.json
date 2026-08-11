@@ -1,7 +1,7 @@
 {
   "version": "20260810-211137",
-  "last_updated": "2026-08-10T21:11:37.448201",
-  "rev": 0,
+  "last_updated": "2026-08-11T20:13:13.608Z",
+  "rev": 2,
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -14,7 +14,7 @@
       "image_avif_path": "assets/images/limpieza_y_aseo/Nova Clásica 2x14m.avif",
       "order": 0,
       "is_archived": false,
-      "rev": 0,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2025-11-24T19:47:04.614Z",
@@ -23,7 +23,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-85a5ce9ab474"
     },
     {
       "name": "Mont Blanc • Harina sin polvos",
@@ -52,7 +53,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-10accebab2cb"
     },
     {
       "name": "Coca-Cola 3L",
@@ -81,7 +83,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-71a74c6c3c0b"
     },
     {
       "name": "Cousiño-Macul • Carmenere Reserva, Chivilingo",
@@ -103,7 +106,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-386cbf2d85c4"
     },
     {
       "name": "Benedictino • Agua gasificada 2L",
@@ -125,7 +129,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-af2232a65745"
     },
     {
       "name": "Misiones de Rengo • Sauvignon Blanc",
@@ -139,7 +144,8 @@
       "order": 7,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-7f8285b72e7a"
     },
     {
       "name": "Líder • Tortilla Grande Mexicana",
@@ -161,7 +167,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-fefcce65df3f"
     },
     {
       "name": "Great Value • Mostaza Clásica",
@@ -197,7 +204,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-9683e21866f8"
     },
     {
       "name": "Sprite 3L",
@@ -219,7 +227,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-1a1010494c8f"
     },
     {
       "name": "Líder • Salame Italiano",
@@ -233,7 +242,8 @@
       "order": 12,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-f6fbbb911fae"
     },
     {
       "name": "Queso Llanero 1Kg",
@@ -247,7 +257,8 @@
       "order": 13,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-e78eec278633"
     },
     {
       "name": "Iansa • Azúcar Blanca",
@@ -269,7 +280,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-4fb6da2aea33"
     },
     {
       "name": "Coca-Cola Zero 3L",
@@ -298,7 +310,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-743354cf94bc"
     },
     {
       "name": "Misiones de Rengo • Merlot",
@@ -320,7 +333,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-db30d7657439"
     },
     {
       "name": "Kross • Cerveza Golden Pale Ale",
@@ -342,7 +356,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-8c729b699a27"
     },
     {
       "name": "Crunchis Queso Marco Polo 160g",
@@ -356,7 +371,8 @@
       "order": 18,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-7ea769099a7d"
     },
     {
       "name": "McKay • Galletas de Coco",
@@ -385,7 +401,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-f8d9b71c0cc5"
     },
     {
       "name": "Líder • Salsa de tomate",
@@ -414,7 +431,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-2e296cf3dd38"
     },
     {
       "name": "McKay • Galletas Niza",
@@ -443,7 +461,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-b1b9bebc0468"
     },
     {
       "name": "McKay • Galletas de Mantequilla",
@@ -465,7 +484,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-70b06efbb796"
     },
     {
       "name": "Mantequilla Kumey 250g",
@@ -487,7 +507,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-4e6c6b402ab5"
     },
     {
       "name": "Easy Clean Lavanda L",
@@ -509,7 +530,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-f66b280a1fcc"
     },
     {
       "name": "Cousiño-Macul • Red Blend Reserva, Chivilingo",
@@ -523,7 +545,8 @@
       "order": 25,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-120baacee6f6"
     },
     {
       "name": "Espumante Rosé • Misiones de Rengo",
@@ -559,7 +582,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-328d958eb833"
     },
     {
       "name": "Espumante Demisec • Misiones de Rengo",
@@ -595,7 +619,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-7e3e83089448"
     },
     {
       "name": "Espumante Brut • Misiones de Rengo",
@@ -638,7 +663,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-5767e133379a"
     },
     {
       "name": "Espumante Brut • Undurraga",
@@ -688,7 +714,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-15bd11edf605"
     },
     {
       "name": "Pisco Especial 35° • Alto del Carmen",
@@ -710,7 +737,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-0eb99cfd0f90"
     },
     {
       "name": "Pisco Especial 35° g • Alto del Carmen",
@@ -732,7 +760,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-e6f2fa553f78"
     },
     {
       "name": "Corona • Cerveza Lager",
@@ -768,7 +797,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-38b81ce337ae"
     },
     {
       "name": "Tocino Ahumado La Preferida",
@@ -782,7 +812,8 @@
       "order": 33,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-16da92653b90"
     },
     {
       "name": "Leche Semidescremada Deslactosada",
@@ -804,7 +835,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-a5d0f1ae0ebc"
     },
     {
       "name": "Pepita de Oro • Aceite de Oliva Extra Virgen",
@@ -833,7 +865,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-a8b114216534"
     },
     {
       "name": "El Peñón • Café Gourmet",
@@ -862,7 +895,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-eb48c811d445"
     },
     {
       "name": "Becker • Cerveza Lager",
@@ -898,7 +932,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-ae116b054031"
     },
     {
       "name": "Coors • Cerveza Lager",
@@ -920,7 +955,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-a99cd1cc52ce"
     },
     {
       "name": "Coors • Cerveza Lager",
@@ -942,7 +978,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-db49fcb84b0e"
     },
     {
       "name": "Cristal • Cerveza Lager",
@@ -964,7 +1001,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-99ae4ca1c47f"
     },
     {
       "name": "Heineken • Cerveza Lager",
@@ -986,7 +1024,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-16fab19dfe4c"
     },
     {
       "name": "Royal Guard • Cerveza Lager",
@@ -1008,7 +1047,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-a9fa2c67f826"
     },
     {
       "name": "Stella Artois • Cerveza Lager",
@@ -1030,7 +1070,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-8a8a6c22f494"
     },
     {
       "name": "Stones • Cerveza Lemon",
@@ -1052,7 +1093,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-8b5a59ff1bd3"
     },
     {
       "name": "Crema de Leche Surlat",
@@ -1081,7 +1123,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-ea8a83b76ffb"
     },
     {
       "name": "PAN • Harina de Maiz",
@@ -1117,7 +1160,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-e7bec89f0c9c"
     },
     {
       "name": "Nescafé • Café Fina Selección",
@@ -1139,7 +1183,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-06a0e4d08b84"
     },
     {
       "name": "Queso Crema Rafulco",
@@ -1153,7 +1198,8 @@
       "order": 48,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-e292073732a3"
     },
     {
       "name": "Queso Gauda La Vaquita",
@@ -1167,7 +1213,8 @@
       "order": 49,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-2095e6b24f7d"
     },
     {
       "name": "Chuleta Ahumada con hueso x Kg",
@@ -1196,7 +1243,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-69493d5af3f9"
     },
     {
       "name": "PF • Jamón de Pierna Acaramelado",
@@ -1225,7 +1273,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-a7fb0e9c912d"
     },
     {
       "name": "Salame La Preferida",
@@ -1239,7 +1288,8 @@
       "order": 53,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-26902dffcb4b"
     },
     {
       "name": "Sprite Zero 2L",
@@ -1261,7 +1311,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-5d814c98f30a"
     },
     {
       "name": "Fanta 3L",
@@ -1283,7 +1334,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-16d70e314aec"
     },
     {
       "name": "Fanta Zero 2L",
@@ -1305,7 +1357,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-52d94c36df60"
     },
     {
       "name": "Concha y Toro • Deep Carmenere, Diablo",
@@ -1327,7 +1380,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-17146c061200"
     },
     {
       "name": "Misiones de Rengo • Cabernet Sauvignon",
@@ -1341,7 +1395,8 @@
       "order": 58,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-4af7b1f4bf88"
     },
     {
       "name": "Misiones de Rengo • Carmenere",
@@ -1355,7 +1410,8 @@
       "order": 59,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-3f440834fee4"
     },
     {
       "name": "Santa Rita • Cabernet Sauvignon, Gran 120",
@@ -1369,7 +1425,8 @@
       "order": 60,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-aad6df7111a3"
     },
     {
       "name": "San Pedro • Merlot, Gato",
@@ -1383,7 +1440,8 @@
       "order": 61,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-1d35d48cd42e"
     },
     {
       "name": "San Pedro • Cabernet Sauvignon, Gato",
@@ -1397,7 +1455,8 @@
       "order": 62,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-28b42fb8a17d"
     },
     {
       "name": "Concha y Toro • Ensamblaje Devil's Collection, Casillero del Diablo",
@@ -1411,7 +1470,8 @@
       "order": 63,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-7074cf17e641"
     },
     {
       "name": "Concha y Toro • Carmenere Reserva Privada, Casillero del Diablo",
@@ -1425,7 +1485,8 @@
       "order": 64,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-7155d761ca69"
     },
     {
       "name": "Concha y Toro • Cabernet Sauvignon Reserva Privada, Casillero del Diablo",
@@ -1447,7 +1508,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-485a8889d35b"
     },
     {
       "name": "Kunstmann • Cerveza Torobayo",
@@ -1469,7 +1531,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-c789a1982665"
     },
     {
       "name": "Budweiser • Cerveza Lager",
@@ -1491,7 +1554,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-554e69721080"
     },
     {
       "name": "Paños Wypall X50",
@@ -1505,7 +1569,8 @@
       "order": 68,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-ec0b990ff840"
     },
     {
       "name": "Paños Wypall X75",
@@ -1519,7 +1584,8 @@
       "order": 69,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-9b70388aa251"
     },
     {
       "name": "Pisco Reservado 40° • Alto del Carmen",
@@ -1548,7 +1614,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-7864ad202688"
     },
     {
       "name": "Pisco Envejecido Barricas de Selección 40° • Alto del Carmen",
@@ -1562,7 +1629,8 @@
       "order": 71,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-6d049fafbf91"
     },
     {
       "name": "Pisco Especial 35° • Artesanos del Cochiguaz",
@@ -1584,7 +1652,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-dad7f9aede01"
     },
     {
       "name": "San Pedro • Carmenere Gran Reserva 2023, Castillo de Molina",
@@ -1598,7 +1667,8 @@
       "order": 73,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-bfdf7bd6411d"
     },
     {
       "name": "Santa Rita • Carmere Secret Reserve",
@@ -1612,7 +1682,8 @@
       "order": 74,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-90ab2c87b07c"
     },
     {
       "name": "Misiones de Rengo • Rosé",
@@ -1626,7 +1697,8 @@
       "order": 75,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-975db535c95d"
     },
     {
       "name": "Pisco Reservado 40° • Malpaso",
@@ -1640,7 +1712,8 @@
       "order": 76,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-676013bbe80a"
     },
     {
       "name": "Pisco Añejado en Roble 46° • Mistral",
@@ -1662,7 +1735,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-e77f0879ee99"
     },
     {
       "name": "Austral • Cerveza Calafate Ale",
@@ -1698,7 +1772,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-df670a8c6416"
     },
     {
       "name": "Miller • Cerveza Lager",
@@ -1720,7 +1795,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-e9d054b1a559"
     },
     {
       "name": "Misiones de Rengo • Cabernet Sauvignon Reserva",
@@ -1734,7 +1810,8 @@
       "order": 80,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-f514e883700a"
     },
     {
       "name": "Misiones de Rengo • Carmenere Reserva",
@@ -1748,7 +1825,8 @@
       "order": 81,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-af1d9464a490"
     },
     {
       "name": "Concha y Toro • Cabernet Sauvignon Reserva Especial, Casillero del Diablo",
@@ -1762,7 +1840,8 @@
       "order": 82,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-0cdedb38b3c1"
     },
     {
       "name": "Concha y Toro • Merlot Reserva Especial, Casillero del Diablo",
@@ -1776,7 +1855,8 @@
       "order": 83,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-f3011a92737b"
     },
     {
       "name": "Misiones de Rengo • Cabernet Sauvignon Gran Reserva Black 2022",
@@ -1790,7 +1870,8 @@
       "order": 84,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-690f41549c82"
     },
     {
       "name": "Misiones de Rengo • Carmenere Gran Reserva Black 2022",
@@ -1812,7 +1893,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-f313285c2f9c"
     },
     {
       "name": "Cousiño-Macul • Cabernet Sauvignon Reserva, Chivilingo",
@@ -1826,7 +1908,8 @@
       "order": 86,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-31caf3931b14"
     },
     {
       "name": "Pisco Sour Limón Zero 14° • Secreto Peruano",
@@ -1840,7 +1923,8 @@
       "order": 87,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-b02a0ad85f13"
     },
     {
       "name": "Soprole • Jugo de Naranja",
@@ -1862,7 +1946,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-f326ba411905"
     },
     {
       "name": "Soprole • Jugo de Durazno",
@@ -1884,7 +1969,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-665b60ea0dc6"
     },
     {
       "name": "Our Finest • Chocolate amargo 90% cacao",
@@ -1913,7 +1999,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-ed5e02360893"
     },
     {
       "name": "Doritos • Tortillas Maíz Queso",
@@ -1935,7 +2022,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-4498f840ae22"
     },
     {
       "name": "Papas Caseras Marco Polo 200g",
@@ -1949,7 +2037,8 @@
       "order": 92,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-9ba31f03aa74"
     },
     {
       "name": "Papas Rústicas Sal de Mar Marco Polo 150g",
@@ -1963,7 +2052,8 @@
       "order": 93,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-f8b2e5067ea1"
     },
     {
       "name": "Pirulín grande",
@@ -1992,7 +2082,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-106972426a9d"
     },
     {
       "name": "Nestlé • Súper 8, pack de 4 unidades",
@@ -2014,7 +2105,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-b8123fea6626"
     },
     {
       "name": "Mario Bros",
@@ -2036,7 +2128,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-f68eceadefe1"
     },
     {
       "name": "Luigi",
@@ -2058,7 +2151,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-280caa9900f8"
     },
     {
       "name": "Yoshi",
@@ -2080,7 +2174,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-bf46293f3da2"
     },
     {
       "name": "Peach",
@@ -2102,7 +2197,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-daa432ca1219"
     },
     {
       "name": "Bowser",
@@ -2124,7 +2220,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-1927d56a8029"
     },
     {
       "name": "Donkey Kong",
@@ -2146,7 +2243,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-60ba2a911dff"
     },
     {
       "name": "Leche Condensada Parmalat",
@@ -2168,7 +2266,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-b1b826ad9e7f"
     },
     {
       "name": "Toalla Papel Nova Clásica XL",
@@ -2182,7 +2281,8 @@
       "order": 103,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-0c3b880e98a5"
     },
     {
       "name": "Toalla Papel Favorita Estilo",
@@ -2211,7 +2311,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-60d3ea8e27a0"
     },
     {
       "name": "UNO",
@@ -2233,7 +2334,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-d3c73361e8a1"
     },
     {
       "name": "Nescafé • Café Tradición",
@@ -2255,7 +2357,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-7f8ae3797b96"
     },
     {
       "name": "Queso Llanero 1/4Kg",
@@ -2269,7 +2372,8 @@
       "order": 107,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-1a7725631afd"
     },
     {
       "name": "Leche Entera",
@@ -2291,7 +2395,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-4637419cf4de"
     },
     {
       "name": "Líder • Atún Lomitos en Agua",
@@ -2327,7 +2432,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-b6f9d6b2f355"
     },
     {
       "name": "Líder • Aceite de Maravilla",
@@ -2349,7 +2455,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-b3f585654fa8"
     },
     {
       "name": "Mix de Papas Terra 120g",
@@ -2363,7 +2470,8 @@
       "order": 111,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-6d8bd8de9296"
     },
     {
       "name": "Bolsas biodegradables para mascotas",
@@ -2377,7 +2485,8 @@
       "order": 112,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-1dc2411f5813"
     },
     {
       "name": "Líder • Maíz Curagua (cabritas/cotufas)",
@@ -2406,7 +2515,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-9d08a76c367c"
     },
     {
       "name": "Great Value • Chocolate con Avellanas",
@@ -2428,7 +2538,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-913004f753cf"
     },
     {
       "name": "Corona • Cerveza sin Alcohol",
@@ -2471,7 +2582,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-6fc66c89797e"
     },
     {
       "name": "Royal Guard • Cerveza sin Alcohol",
@@ -2507,7 +2619,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-9d4f46c01689"
     },
     {
       "name": "OMO Ultraconcentrado 500mL",
@@ -2529,7 +2642,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-2bd74ac4350a"
     },
     {
       "name": "Papas Corte Americano Marco Polo 170g",
@@ -2543,7 +2657,8 @@
       "order": 118,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-2c90badf789c"
     },
     {
       "name": "Sprite 2L",
@@ -2565,7 +2680,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-d86ceb9215fb"
     },
     {
       "name": "Sprite Zero 3L",
@@ -2587,7 +2703,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-563bf9128edf"
     },
     {
       "name": "Vital • Agua sin gas 1,6L",
@@ -2609,7 +2726,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-2b2562dc2847"
     },
     {
       "name": "Vital • Agua sin gas 2,5L",
@@ -2631,7 +2749,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-11ace1ca52bc"
     },
     {
       "name": "Chocolate con Avellanas Milka",
@@ -2645,7 +2764,8 @@
       "order": 123,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-a2d1ca29173a"
     },
     {
       "name": "Nabisco • Galletas Oreo Original",
@@ -2667,7 +2787,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-1dbb1d32482e"
     },
     {
       "name": "Costa • Galletas Choco Chips",
@@ -2689,7 +2810,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-cc62f4f2773d"
     },
     {
       "name": "Papas Orégano Lay's 140g",
@@ -2703,7 +2825,8 @@
       "order": 126,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-3f2bc5e80ead"
     },
     {
       "name": "Papas Jamón Serrano 140g",
@@ -2717,7 +2840,8 @@
       "order": 127,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-f5542102f9e4"
     },
     {
       "name": "Tocino Ahumado PF",
@@ -2739,7 +2863,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-9ad509ec3531"
     },
     {
       "name": "Coca-Cola 2L",
@@ -2761,7 +2886,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-380be586b05d"
     },
     {
       "name": "Coca-Cola Zero 2L",
@@ -2790,7 +2916,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-6aebc9d629e1"
     },
     {
       "name": "Fanta 2L",
@@ -2812,7 +2939,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-f6fbf4d86ad2"
     },
     {
       "name": "Pollo Pechuga deshuesada Congelada Seara",
@@ -2834,7 +2962,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-7afcbc0ec5d3"
     },
     {
       "name": "Concha y Toro • Carmenere Reserva, Casillero del Diablo",
@@ -2856,7 +2985,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-bca48e239692"
     },
     {
       "name": "Concha y Toro • Cabernet Sauvignon Reserva, Casillero del Diablo",
@@ -2870,7 +3000,8 @@
       "order": 134,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-ee4cc7c9b08e"
     },
     {
       "name": "Concha y Toro • Merlot Reserva, Casillero del Diablo",
@@ -2892,7 +3023,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-0487b124a1a7"
     },
     {
       "name": "Concha y Toro • Cabernet Sauvignon, Diablo",
@@ -2906,7 +3038,8 @@
       "order": 136,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-a8ca51175853"
     },
     {
       "name": "Concha y Toro • Purple Malbec, Diablo",
@@ -2920,7 +3053,8 @@
       "order": 137,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-bece76dda39b"
     },
     {
       "name": "Powerade Rojo",
@@ -2934,7 +3068,8 @@
       "order": 138,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {},
+      "id": "p-ee814acf0abe"
     },
     {
       "name": "Costa • Galletas de Chocolate",
@@ -2970,7 +3105,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-f7db2db7d295"
     },
     {
       "name": "Canada Dry • Agua Tónica 1,5L",
@@ -2992,7 +3128,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-9d4e30b33d56"
     },
     {
       "name": "Benedictino • Agua sin gas 2L",
@@ -3021,7 +3158,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-de279080d4f5"
     },
     {
       "name": "Gatorade • Bebida Isotónica Cool Blue",
@@ -3050,7 +3188,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-2fdb2287eb38"
     },
     {
       "name": "Shweppes • Agua Tónica",
@@ -3072,7 +3211,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-5249ffadbb0f"
     },
     {
       "name": "Gatorade • Bebida Isotónica Frutas Tropicales",
@@ -3094,7 +3234,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-a55233a0406d"
     },
     {
       "name": "Gatorade • Bebida Isotónica Limón",
@@ -3123,7 +3264,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-7e9075045a17"
     },
     {
       "name": "Lay's • Papas Sabor Crema y Cebolla",
@@ -3145,7 +3287,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-0b1402e68bb5"
     },
     {
       "name": "Lay's • Papas sabor Original",
@@ -3167,7 +3310,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-59c67e743257"
     },
     {
       "name": "Lay's • Papas sabor Queso",
@@ -3189,7 +3333,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-e6f520a85ea6"
     },
     {
       "name": "Marco Polo • Papas Onduladas",
@@ -3211,7 +3356,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-79e36db8823e"
     },
     {
       "name": "Marco Polo • Papas Lisas",
@@ -3247,7 +3393,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-f4218c65261f"
     },
     {
       "name": "Marco Polo • Maní Salado",
@@ -3269,7 +3416,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-01c84643b256"
     },
     {
       "name": "Marco Polo • Maní sin Sal",
@@ -3291,7 +3439,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-58e7888c7427"
     },
     {
       "name": "Great Value • Chocolate con Almendras",
@@ -3313,7 +3462,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-1d357569163a"
     },
     {
       "name": "Hershey's • Chocolate Cookies and Creme",
@@ -3335,7 +3485,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-bb329fcff001"
     },
     {
       "name": "Hershey's • Chocolate con Leche",
@@ -3357,7 +3508,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-76dc7c2abd3e"
     },
     {
       "name": "Heyshey's • Chocolate Extra Cremoso",
@@ -3386,7 +3538,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-68eb165d9e68"
     },
     {
       "name": "Robinson Crusoe • Atún Lomitos en Agua",
@@ -3422,7 +3575,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-44a316053339"
     },
     {
       "name": "Líder • Cacao Amargo",
@@ -3493,7 +3647,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-9977e1fda900"
     },
     {
       "name": "Malloa • Salsa Italiana",
@@ -3564,7 +3719,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-a3fe68c660c4"
     },
     {
       "name": "Mr. Big • Bebida Energética",
@@ -3593,7 +3749,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-7601d497d0bd"
     },
     {
       "name": "Score • Bebida Energética Mango",
@@ -3615,7 +3772,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-bb7ddd92ffa0"
     },
     {
       "name": "Score • Bebida Energética Guaraná",
@@ -3644,7 +3802,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-252cc18678ff"
     },
     {
       "name": "Austral • Cerveza Calafate Ale",
@@ -3715,7 +3874,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-c9ed299d678b"
     },
     {
       "name": "Stones • Cerveza Berry",
@@ -3737,7 +3897,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-37ed3d92a061"
     },
     {
       "name": "Stones • Cerveza Mango",
@@ -3773,7 +3934,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-957acd5857da"
     },
     {
       "name": "Doritos • Tortillas Maíz Queso",
@@ -3795,7 +3957,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-9a0b878db757"
     },
     {
       "name": "Selección • Chips de Plátano Frito",
@@ -3817,7 +3980,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-60276150305d"
     },
     {
       "name": "Marco Polo • Papas Rústicas Sal de Mar",
@@ -3839,7 +4003,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-1c3f0d266d73"
     },
     {
       "name": "Marco Polo • Tortilla Vegetal Kraks Sal de Mar",
@@ -3861,7 +4026,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-928dbd000b3b"
     },
     {
       "name": "Costa • Galletas de Mantequilla",
@@ -3883,7 +4049,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-c9653c84cb03"
     },
     {
       "name": "Nescafé • Café Dolca",
@@ -3912,7 +4079,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-6e4123271ce5"
     },
     {
       "name": "Lobos • Sal Fina",
@@ -3983,7 +4151,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-7c1b9a231e03"
     },
     {
       "name": "La Romana • Arroz",
@@ -4054,7 +4223,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-e584bbfb8505"
     },
     {
       "name": "Costa • Galletas Brownie Chips",
@@ -4076,7 +4246,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-37efd59bbb3a"
     },
     {
       "name": "Benedictino • Agua gasificada 2,5L",
@@ -4098,7 +4269,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-01925bdf1ce1"
     },
     {
       "name": "Benedictino • Agua sin gas 2,5L",
@@ -4120,7 +4292,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-0c6650a313d9"
     },
     {
       "name": "Cola-Cola 2L",
@@ -4191,7 +4364,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-2604ee3cadd7"
     },
     {
       "name": "Coca-Cola 2L",
@@ -4220,7 +4394,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-b260f2ca343d"
     },
     {
       "name": "Coca-Cola Zero 2L",
@@ -4249,7 +4424,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-fb5be1a990dc"
     },
     {
       "name": "Miraflores • Aceite de Maravilla",
@@ -4320,7 +4496,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-b8815e84303a"
     },
     {
       "name": "Nescafé • Café Dolca",
@@ -4391,7 +4568,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-5c0264c079ae"
     },
     {
       "name": "Espumante Demisec • Undurraga",
@@ -4462,7 +4640,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-fc0b54e7dda6"
     },
     {
       "name": "Espumante Sweet • Undurraga",
@@ -4533,7 +4712,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-7a38a85d2d5d"
     },
     {
       "name": "Espumante Brut Bri Sparkling • Undurraga",
@@ -4604,7 +4784,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-1166c1445508"
     },
     {
       "name": "Valdivieso • Espumante Brut Limited",
@@ -4675,7 +4856,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-dde111cd8a40"
     },
     {
       "name": "OMO • Detergente Líquido Piel Sensible",
@@ -4746,7 +4928,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-ec8a5d86e092"
     },
     {
       "name": "Darmax  • Lomo Ahumado sin hueso",
@@ -4817,7 +5000,8 @@
           "base_rev": 0,
           "changeset_id": null
         }
-      }
+      },
+      "id": "p-63c7020fc6fd"
     }
   ]
 }

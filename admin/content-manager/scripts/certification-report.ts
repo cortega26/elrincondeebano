@@ -1,4 +1,4 @@
-import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { writeFileSync, mkdirSync, existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { execSync } from 'node:child_process';
 
@@ -439,7 +439,45 @@ for (const row of resolvedParityRows) {
   console.log(`  ${icon} ${row.id}: ${row.status}`);
 }
 
-const allRows = [...executedRows, ...resolvedParityRows, ...manualRows];
+// Plan 069 Step 4: the manual rows become pass only when signed acceptance
+// and drill evidence exist for the current release candidate; otherwise the
+// gate reports READY only for the automated surface.
+let maintainerSignature: string | null = null;
+const resolvedManualRows = manualRows.map((row) => {
+  if (row.id === 'manual-rollback-drill') {
+    const drillPath = resolve(reportDir, 'evidence', 'rollback-drill.json');
+    if (existsSync(drillPath)) {
+      const drill = JSON.parse(readFileSync(drillPath, 'utf-8')) as { status?: string };
+      if (drill.status === 'pass') {
+        return {
+          ...row,
+          status: 'pass' as const,
+          details: 'Rollback drills evidence: reports/certification/evidence/rollback-drill.json',
+        };
+      }
+    }
+    return { ...row, status: 'manual' as const };
+  }
+  const acceptancePath = resolve(reportDir, 'evidence', 'operator-acceptance.json');
+  if (existsSync(acceptancePath)) {
+    const acceptance = JSON.parse(readFileSync(acceptancePath, 'utf-8')) as {
+      status?: string;
+      maintainer?: string;
+      signed_at?: string;
+    };
+    if (acceptance.status === 'signed') {
+      maintainerSignature = `${acceptance.maintainer ?? 'operator'}@${acceptance.signed_at ?? ''}`;
+      return {
+        ...row,
+        status: 'pass' as const,
+        details:
+          'Signed operator acceptance: reports/certification/evidence/operator-acceptance.json',
+      };
+    }
+  }
+  return { ...row, status: 'manual' as const };
+});
+const allRows = [...executedRows, ...resolvedParityRows, ...resolvedManualRows];
 const passCount = allRows.filter((r) => r.status === 'pass').length;
 const failCount = allRows.filter((r) => r.status === 'fail').length;
 const untestedCount = allRows.filter((r) => r.status === 'untested').length;
@@ -462,11 +500,12 @@ const report: CertificationReport = {
   exit_gate: {
     // In CI the parity rows are untested by design (operator-signed during the
     // migration, see docs/operations/CUTOVER.md), so the gate only fails on
-    // automated check failures.
-    ready: ciMode ? failCount === 0 : failCount === 0 && untestedCount === 0,
+    // automated check failures. Locally, plan 069 Step 4: READY requires the
+    // manual rows (operator acceptance, rollback drills) to be signed too.
+    ready: ciMode ? failCount === 0 : failCount === 0 && untestedCount === 0 && manualCount === 0,
     all_automated_pass: failCount === 0,
     zero_stale_evidence: ciMode ? failCount === 0 : stalenessCount === 0,
-    maintainer_signature: null,
+    maintainer_signature: maintainerSignature,
   },
   commands: {
     admin_validate: 'npm run admin:validate',

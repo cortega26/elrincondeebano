@@ -122,10 +122,10 @@ export function ProductsPage(): React.ReactElement {
       let cmp: number;
       switch (sortField) {
         case 'name':
-          cmp = (a.name ?? '').localeCompare(b.name ?? '', 'es-MX');
+          cmp = (a.name ?? '').localeCompare(b.name ?? '', 'es-CL');
           break;
         case 'category':
-          cmp = (a.category ?? '').localeCompare(b.category ?? '', 'es-MX');
+          cmp = (a.category ?? '').localeCompare(b.category ?? '', 'es-CL');
           break;
         case 'price':
           cmp = a.price - b.price;
@@ -886,7 +886,7 @@ export function ProductsPage(): React.ReactElement {
                 </td>
                 <td style={{ padding: '0.25rem 0.5rem' }}>{product.category || '—'}</td>
                 <td style={{ padding: '0.25rem 0.5rem', textAlign: 'right' }}>
-                  ${product.price.toLocaleString('es-MX')}
+                  ${product.price.toLocaleString('es-CL')}
                 </td>
                 <td style={{ padding: '0.25rem 0.5rem', textAlign: 'right' }}>
                   {product.discount > 0 ? `${product.discount_percentage}%` : '—'}
@@ -1010,7 +1010,7 @@ export function ProductsPage(): React.ReactElement {
               )}
               <h3 style={{ margin: '0 0 0.25rem', fontSize: '0.95rem' }}>{product.name}</h3>
               <p style={{ margin: '0.25rem 0', fontSize: '1.1rem', fontWeight: 'bold' }}>
-                ${product.price.toLocaleString('es-MX')}
+                ${product.price.toLocaleString('es-CL')}
               </p>
               {product.discount > 0 && (
                 <span
@@ -1053,13 +1053,13 @@ export function ProductsPage(): React.ReactElement {
             <dt>Descripción:</dt>
             <dd>{selected.description || '—'}</dd>
             <dt>Precio:</dt>
-            <dd>${selected.price.toLocaleString('es-MX')}</dd>
+            <dd>${selected.price.toLocaleString('es-CL')}</dd>
             <dt>Descuento:</dt>
             <dd>
-              ${selected.discount.toLocaleString('es-MX')} ({selected.discount_percentage}%)
+              ${selected.discount.toLocaleString('es-CL')} ({selected.discount_percentage}%)
             </dd>
             <dt>Precio final:</dt>
-            <dd>${selected.discounted_price.toLocaleString('es-MX')}</dd>
+            <dd>${selected.discounted_price.toLocaleString('es-CL')}</dd>
             <dt>Stock:</dt>
             <dd>{selected.stock ? 'Disponible' : 'Agotado'}</dd>
             <dt>Categoría:</dt>
@@ -1170,7 +1170,7 @@ function ProductForm({
         setMediaItems(
           (d.items as Array<{ path: string; name: string; status: string; productName?: string }>)
             .filter((item) => item.status === 'active' || item.status === 'orphan')
-            .sort((a, b) => a.name.localeCompare(b.name, 'es-MX'))
+            .sort((a, b) => a.name.localeCompare(b.name, 'es-CL'))
         )
       )
       .catch(() => {});

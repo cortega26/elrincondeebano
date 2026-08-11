@@ -12,14 +12,14 @@ const stages = [
     args: ['run', 'typecheck'],
   },
   {
-    name: 'test',
-    command: 'npm',
-    args: ['test'],
-  },
-  {
     name: 'build',
     command: 'npm',
     args: ['run', 'build'],
+  },
+  {
+    name: 'test',
+    command: 'npm',
+    args: ['test'],
   },
   {
     name: 'guardrails:assets',
