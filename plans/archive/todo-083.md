@@ -9,10 +9,10 @@ export del módulo (clausura de `createCatalogManager`) — se testea vía
 - [x] Drift check + re-leer rutas/servicio actuales (080 landed)
 - [x] Confirmar gaps reales: sin contract tests (0 %), sin route tests de
       create/edit/delete-in-use/nav-groups, sin 401 de categorías, copy-test
-- [ ] Step 1: `test/contract/categoryService.test.ts` (create/edit/remove/reorder/nav-groups)
-- [ ] Step 2: `test/integration/categoryMutationApi.test.ts` (rutas + 401 + delete-in-use)
-- [ ] Step 3: `test/ensureDiscountToggle.test.js` → testea el módulo real vía `bindFilterEvents`
-- [ ] Verificar: vitest del workspace (foco + suite), `npm run admin:typecheck`
-- [ ] Verificar: `npm test` root exit 0; coverage `domain/categories` > 0
-- [ ] Commit por archivo (rama `advisor/083-*`)
-- [ ] `plans/README.md`: fila 083 → DONE + `git mv` a `archive/`
+- [x] Step 1: `test/contract/categoryService.test.ts` (create/edit/remove/reorder/nav-groups)
+- [x] Step 2: `test/integration/categoryMutationApi.test.ts` (rutas + 401 + delete-in-use)
+- [x] Step 3: `test/ensureDiscountToggle.test.js` → testea el módulo real vía `bindFilterEvents`
+- [x] Verificar: vitest del workspace (foco + suite), `npm run admin:typecheck`
+- [x] Verificar: `npm test` root exit 0; coverage `domain/categories` > 0
+- [x] Commit por archivo (rama `advisor/083-*`)
+- [x] `plans/README.md`: fila 083 → DONE + `git mv` a `archive/`
