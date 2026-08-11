@@ -2,10 +2,11 @@ import { test, expect, beforeAll, afterAll } from 'vitest';
 import Fastify from 'fastify';
 import type { FastifyInstance } from 'fastify';
 import { createApp } from '../../src/server/app.ts';
-import { writeFileSync, mkdirSync, rmSync, readFileSync } from 'node:fs';
+import { writeFileSync, mkdirSync, rmSync, readFileSync, utimesSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { CREDENTIAL_HEADER } from '../../src/server/security/launchCredential.ts';
+import { SyncQueueRepository } from '../../src/server/repositories/syncQueueRepository.ts';
 
 // Plan 064: remote sync against a fake local server only — never a real
 // endpoint or token.
@@ -75,8 +76,8 @@ function setup(dir: string): void {
 
 let fakeRemote: FastifyInstance | null = null;
 let fakeRemoteBase = '';
-let fakeRemoteMode: 'ok' | 'conflict' | 'auth' | 'rate-limit' | 'server-error' | 'bad-schema' =
-  'ok';
+let fakeRemoteMode:
+  'ok' | 'conflict' | 'auth' | 'rate-limit' | 'server-error' | 'bad-schema' | 'bad-product' = 'ok';
 let pullPayload: Record<string, unknown> = { changes: [], to_rev: 1 };
 
 async function startFakeRemote(): Promise<string> {
@@ -100,6 +101,14 @@ async function startFakeRemote(): Promise<string> {
     }
     if (fakeRemoteMode === 'bad-schema') {
       return reply.status(200).send({ unexpected: 'shape' });
+    }
+    if (fakeRemoteMode === 'bad-product') {
+      // Remote ack with a poisoned product body: local apply must reject it.
+      return reply.status(200).send({
+        product: { id: 'existing-1', name: 'Existing', price: 'abc', stock: true },
+        rev: 2,
+        conflicts: [],
+      });
     }
     return reply.status(200).send({
       product: { id: 'existing-1', name: 'Existing', price: 900 },
@@ -303,6 +312,189 @@ test('pull applies remote changes and advances the cursor exactly once', async (
     expect(again.json<{ pulled: number }>().pulled).toBe(0);
 
     await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// ── plan 086: sync integrity ─────────────────────────────────────────────────
+
+test('pull twice with different changes lands BOTH writes on disk', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+    await enableSync(app, fakeRemoteBase);
+
+    // First pull: a brand-new remote product.
+    pullPayload = {
+      changes: [
+        {
+          product_snapshot: { name: 'Remote A', price: 1234, category: 'x', stock: true },
+          rev: 1,
+          product_id: 'remote-1',
+        },
+      ],
+      to_rev: 2,
+    };
+    let now = await app.inject({ method: 'POST', url: '/api/v1/sync/now', headers: ch });
+    expect(now.json<{ pulled: number }>().pulled).toBe(1);
+
+    // Second pull: an update to an EXISTING product. Regression guard for
+    // the fixed command_id collision: before plan 086 the second distinct
+    // pull was shadowed by the cached 'sync-pull' idempotency entry.
+    pullPayload = {
+      changes: [
+        {
+          product_snapshot: { name: 'Existing', price: 777, category: 'x', stock: true },
+          rev: 2,
+          product_id: 'existing-1',
+        },
+      ],
+      to_rev: 3,
+    };
+    now = await app.inject({ method: 'POST', url: '/api/v1/sync/now', headers: ch });
+    const body = now.json<{ pulled: number; pull_error: string | null }>();
+    expect(body.pulled).toBe(1);
+    expect(body.pull_error).toBeNull();
+
+    const catalog = JSON.parse(readFileSync(resolve(dir, 'data', 'product_data.json'), 'utf8'));
+    expect(catalog.products.find((p: { id: string }) => p.id === 'remote-1')?.price).toBe(1234);
+    expect(catalog.products.find((p: { id: string }) => p.id === 'existing-1')?.price).toBe(777);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('pull with an invalid snapshot is rejected: catalog intact, cursor unchanged', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+    await enableSync(app, fakeRemoteBase);
+
+    const revBefore = JSON.parse(
+      readFileSync(resolve(dir, 'data', 'product_data.json'), 'utf8')
+    ).rev;
+
+    pullPayload = {
+      changes: [
+        {
+          product_snapshot: { name: 'Poisoned', price: 'abc', category: 'x', stock: true },
+          rev: 1,
+          product_id: 'poisoned-1',
+        },
+      ],
+      to_rev: 2,
+    };
+    const now = await app.inject({ method: 'POST', url: '/api/v1/sync/now', headers: ch });
+    const body = now.json<{ pulled: number; pull_error: string | null }>();
+    expect(body.pulled).toBe(0);
+    expect(body.pull_error).not.toBeNull();
+
+    const catalog = JSON.parse(readFileSync(resolve(dir, 'data', 'product_data.json'), 'utf8'));
+    expect(catalog.products.some((p: { id: string }) => p.id === 'poisoned-1')).toBe(false);
+    expect(catalog.rev).toBe(revBefore);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('push whose local apply fails stays errored with retry, never synced', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+    await enableSync(app, fakeRemoteBase);
+    fakeRemoteMode = 'bad-product';
+
+    await app.inject({
+      method: 'PATCH',
+      url: '/api/v1/products/existing-1',
+      headers: ch,
+      payload: { command_id: 'cmd-bad-apply', base_revision: 1, payload: { price: 910 } },
+    });
+
+    const now = await app.inject({ method: 'POST', url: '/api/v1/sync/now', headers: ch });
+    const body = now.json<{ pushed: number; push_failed: number }>();
+    expect(body.pushed).toBe(0);
+    expect(body.push_failed).toBe(1);
+
+    const status = (await app.inject({ method: 'GET', url: '/api/v1/sync/status' })).json<{
+      sync: { queue: { error: number } };
+    }>();
+    expect(status.sync.queue.error).toBe(1);
+
+    // The local catalog was not corrupted by the remote ack.
+    const catalog = JSON.parse(readFileSync(resolve(dir, 'data', 'product_data.json'), 'utf8'));
+    expect(catalog.products.find((p: { id: string }) => p.id === 'existing-1')?.price).toBe(910);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('stale queue lock is reclaimed; fresh lock still blocks processing', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  const lockPath = resolve(dir, 'data', '.sync-queue.lock');
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+    await enableSync(app, fakeRemoteBase);
+    fakeRemoteMode = 'ok';
+
+    await app.inject({
+      method: 'PATCH',
+      url: '/api/v1/products/existing-1',
+      headers: ch,
+      payload: { command_id: 'cmd-lock-1', base_revision: 1, payload: { price: 915 } },
+    });
+
+    // Fresh lock: processing is blocked (single-consumer guarantee).
+    writeFileSync(lockPath, '99999');
+    let now = await app.inject({ method: 'POST', url: '/api/v1/sync/now', headers: ch });
+    expect(now.json<{ pushed: number }>().pushed).toBe(0);
+
+    // Stale lock (older than the TTL): reclaimed and processing resumes.
+    const stale = new Date(Date.now() - 6 * 60 * 1000);
+    utimesSync(lockPath, stale, stale);
+    now = await app.inject({ method: 'POST', url: '/api/v1/sync/now', headers: ch });
+    expect(now.json<{ pushed: number }>().pushed).toBe(1);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('SyncQueueRepository lock TTL: fresh blocks, stale reclaims (unit)', async () => {
+  const dir = createTempDir();
+  mkdirSync(resolve(dir, 'data'), { recursive: true });
+  const repo = new SyncQueueRepository(dir);
+  const lockPath = resolve(dir, 'data', '.sync-queue.lock');
+  try {
+    writeFileSync(lockPath, '12345');
+    expect(repo.acquireLock()).toBe(false);
+
+    const stale = new Date(Date.now() - 6 * 60 * 1000);
+    utimesSync(lockPath, stale, stale);
+    expect(repo.acquireLock()).toBe(true);
+    repo.releaseLock();
+    expect(repo.acquireLock()).toBe(true);
+    repo.releaseLock();
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
