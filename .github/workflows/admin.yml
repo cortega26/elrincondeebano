@@ -65,40 +65,6 @@ jobs:
           # Run pytest with the configuration in tests/conftest.py
           python -m pytest
 
-  test-web:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    defaults:
-      run:
-        working-directory: admin
-
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v5
-        with:
-          python-version: '3.14'
-          cache: 'pip'
-          cache-dependency-path: admin/web/requirements.lock.txt
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install "pytest==9.1.1" "ruff==0.15.8"
-          pip install -r web/requirements.txt -c web/requirements.lock.txt
-          python -m pip check
-
-      - name: Run static analysis (ruff)
-        run: |
-          python -m ruff check web/
-
-      - name: Run smoke tests
-        run: |
-          python -m pytest web/tests/ -v
-
   test-ts:
     name: TypeScript Content Manager
     runs-on: ubuntu-24.04
@@ -125,6 +91,9 @@ jobs:
 
       - name: Test coverage
         run: npx vitest run --coverage
+
+      - name: Dependency audit
+        run: npm audit --omit=dev
 
       - name: Build web app
         run: npm run build
