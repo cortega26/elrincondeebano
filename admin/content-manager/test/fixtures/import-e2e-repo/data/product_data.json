@@ -1,0 +1,37 @@
+{
+  "version": "e2e-import-fixture",
+  "last_updated": "2026-08-11T00:00:00.000Z",
+  "rev": 1,
+  "products": [
+    {
+      "id": "e2e-cafe",
+      "name": "Café de Grano",
+      "description": "Tostado medio",
+      "price": 4500,
+      "discount": 500,
+      "stock": true,
+      "category": "bebidas",
+      "image_path": "",
+      "image_avif_path": "",
+      "order": 0,
+      "is_archived": false,
+      "rev": 1,
+      "field_last_modified": {}
+    },
+    {
+      "id": "e2e-agua",
+      "name": "Agua Mineral",
+      "description": "Sin gas",
+      "price": 1000,
+      "discount": 0,
+      "stock": false,
+      "category": "bebidas",
+      "image_path": "",
+      "image_avif_path": "",
+      "order": 1,
+      "is_archived": false,
+      "rev": 1,
+      "field_last_modified": {}
+    }
+  ]
+}

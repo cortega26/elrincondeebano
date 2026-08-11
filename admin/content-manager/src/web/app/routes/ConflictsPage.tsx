@@ -81,11 +81,10 @@ export function ConflictsPage(): React.ReactElement {
     setLoading(true);
     setError(null);
     try {
-      const baseUrl = 'http://127.0.0.1:3000';
       const searchParams = new URLSearchParams();
       if (activeTab) searchParams.set('status', activeTab);
       const qs = searchParams.toString();
-      const url = `${baseUrl}/api/v1/conflicts${qs ? `?${qs}` : ''}`;
+      const url = `/api/v1/conflicts${qs ? `?${qs}` : ''}`;
       const response = await fetch(url, { headers: { 'Content-Type': 'application/json' } });
       if (!response.ok) {
         const body = await response.json().catch(() => ({}));
@@ -139,13 +138,12 @@ export function ConflictsPage(): React.ReactElement {
     }
 
     try {
-      const baseUrl = 'http://127.0.0.1:3000';
       const body: Record<string, unknown> = { field, resolution: fr.resolution };
       if (fr.resolution === 'manual' && fr.manualValue) {
         body.manual_value = fr.manualValue;
       }
       const response = await fetchWithCredential(
-        `${baseUrl}/api/v1/conflicts/${encodeURIComponent(conflictId)}/resolve`,
+        `/api/v1/conflicts/${encodeURIComponent(conflictId)}/resolve`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -169,9 +167,8 @@ export function ConflictsPage(): React.ReactElement {
 
   async function handleRetry(conflictId: string): Promise<void> {
     try {
-      const baseUrl = 'http://127.0.0.1:3000';
       const response = await fetchWithCredential(
-        `${baseUrl}/api/v1/conflicts/${encodeURIComponent(conflictId)}/retry`,
+        `/api/v1/conflicts/${encodeURIComponent(conflictId)}/retry`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

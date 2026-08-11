@@ -19,6 +19,9 @@ export default defineConfig({
     {
       name: 'chromium-desktop',
       use: { ...devices['Desktop Chrome'] },
+      // The import workflow e2e runs against its own temp-repo webServer
+      // (playwright.import.config.ts) so it never touches the real catalog.
+      testIgnore: '**/import-export.spec.ts',
     },
   ],
   webServer: {

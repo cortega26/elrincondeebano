@@ -1,6 +1,12 @@
-import type { Product } from '../../shared/schemas/product.ts';
+import type { Product, ProductCatalog } from '../../shared/schemas/product.ts';
 import type { CategoryRegistry } from '../../shared/schemas/category.ts';
 import type { StorefrontExperience, StorefrontBundle } from '../../shared/schemas/storefront.ts';
+import type {
+  ImportPreviewResponse,
+  ImportApplyResponse,
+  ImportResolution,
+  CsvExportQuery,
+} from '../../shared/schemas/importExport.ts';
 import { getCredentialValue } from '../app/credentialStore.ts';
 
 export interface PaginatedResponse<T> {
@@ -112,8 +118,15 @@ export interface JobResponse {
 export class ContentManagerClient {
   private readonly baseUrl: string;
 
-  constructor(baseUrl = 'http://127.0.0.1:3000') {
-    this.baseUrl = baseUrl.replace(/\/$/, '');
+  constructor(baseUrl?: string) {
+    // Derive the API base from the page origin when running in the browser so
+    // the UI works on any port (e.g. the isolated e2e server); keep the
+    // historical default for non-browser contexts.
+    this.baseUrl = (
+      baseUrl ??
+      (typeof window !== 'undefined' ? window.location.origin : undefined) ??
+      'http://127.0.0.1:3000'
+    ).replace(/\/$/, '');
   }
 
   private async request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -383,6 +396,39 @@ export class ContentManagerClient {
 
   async getGitStatus(): Promise<GitStatusResponse> {
     return this.request<GitStatusResponse>('/git/status');
+  }
+
+  // ── Lossless catalog interchange (plan 060) ────────────────────────────────
+
+  async importPreview(payload: unknown): Promise<ImportPreviewResponse> {
+    return this.request<ImportPreviewResponse>('/import/preview', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async importApply(
+    previewId: string,
+    resolutions: ImportResolution[]
+  ): Promise<ImportApplyResponse> {
+    return this.request<ImportApplyResponse>('/import/apply', {
+      method: 'POST',
+      body: JSON.stringify({ preview_id: previewId, resolutions }),
+    });
+  }
+
+  async exportJson(): Promise<ProductCatalog> {
+    return this.request<ProductCatalog>('/export');
+  }
+
+  async exportCsv(query: CsvExportQuery = {}): Promise<Response> {
+    const params = new URLSearchParams();
+    if (query.q) params.set('q', query.q);
+    if (query.category) params.set('category', query.category);
+    if (query.archived) params.set('archived', query.archived);
+    if (query.out_of_stock) params.set('out_of_stock', query.out_of_stock);
+    const qs = params.toString();
+    return fetch(`${this.baseUrl}/api/v1/export.csv${qs ? `?${qs}` : ''}`);
   }
 
   async previewPublication(): Promise<PublicationPreviewResponse> {
