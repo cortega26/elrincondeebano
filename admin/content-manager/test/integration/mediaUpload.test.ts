@@ -48,7 +48,7 @@ function smallImageBase64(): string {
   return 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==';
 }
 
-test('POST /api/v1/media/upload with valid base64 data creates file on disk', async () => {
+test('POST /api/v1/media/upload with valid base64 data stages the file (never canonical)', async () => {
   const dir = resolve(tmpdir(), `cm-upload-${Date.now()}-${Math.random().toString(36).slice(2)}`);
   setup(dir);
 
@@ -68,12 +68,22 @@ test('POST /api/v1/media/upload with valid base64 data creates file on disk', as
     });
 
     expect(res.statusCode).toBe(201);
-    const body = res.json<{ status: string; targetPath: string }>();
-    expect(body.status).toBe('uploaded');
+    const body = res.json<{
+      status: string;
+      targetPath: string;
+      staged_file?: string;
+      sha256?: string;
+    }>();
+    expect(body.status).toBe('staged');
     expect(body.targetPath).toBe('assets/images/test-upload.png');
+    expect(body.staged_file).toBeDefined();
+    expect(body.sha256).toMatch(/^[0-9a-f]{64}$/);
 
-    const fullPath = resolve(dir, 'assets', 'images', 'test-upload.png');
-    expect(existsSync(fullPath)).toBe(true);
+    // Plan 063: upload never writes canonical paths — only staging.
+    const canonical = resolve(dir, 'assets', 'images', 'test-upload.png');
+    expect(existsSync(canonical)).toBe(false);
+    const staged = resolve(dir, 'data', '.media-staging', body.staged_file!);
+    expect(existsSync(staged)).toBe(true);
 
     await app.close();
   } finally {

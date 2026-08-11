@@ -144,7 +144,7 @@ export function createApp(opts?: AppOptions): FastifyInstance {
 
   app.register(
     async function (instance) {
-      await mediaMutRoutes(instance, repos, media);
+      await mediaMutRoutes(instance, repos, media, repoRoot);
     },
     { prefix: '/api/v1' }
   );
