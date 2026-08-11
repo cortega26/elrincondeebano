@@ -128,7 +128,7 @@ try {
   result.ok = false;
 }
 
-const categoryPath = resolve(repoRoot, 'data', 'categories', 'category-registry.json');
+const categoryPath = resolve(repoRoot, 'data', 'category_registry.json');
 const goldenCategoryPath = resolve(
   repoRoot,
   'plans',
