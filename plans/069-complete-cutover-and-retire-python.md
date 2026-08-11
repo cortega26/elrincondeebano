@@ -6,7 +6,7 @@
 > claims must be generated from real status, not aspiration.
 >
 > **Drift check (run first)**:
-> `git diff --stat 30dbab7..HEAD -- docs admin/content-manager admin/product_manager .github/workflows package.json plans/README.md plans/055-progress.md`
+> `git diff --stat 30dbab7..HEAD -- docs admin/content-manager admin/product_manager .github/workflows package.json plans/README.md plans/archive/055-progress.md`
 
 ## Status
 
@@ -30,7 +30,7 @@ failure recovery, and clean-clone rehearsal prove it is unnecessary.
 
 - `docs/operations/CUTOVER.md:8-23` claims full functionality/21-of-21 and names TS
   startup as canonical.
-- `plans/055-progress.md` marks phases 6–12 TODO despite live code claiming later work.
+- `plans/archive/055-progress.md` marks phases 6–12 TODO despite live code claiming later work.
 - `docs/onboarding/BOOTSTRAP.md:21` describes only root/Astro workspaces.
 - `.github/workflows/admin.yml` tests Python/Tk and retired `admin/web`, not TS.
 - `plans/README.md` records Plan 055 only through Phase 2 in its current top-level row.

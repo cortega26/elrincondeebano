@@ -59,7 +59,7 @@ Verified facts:
 - `reports/parity/parity-2026-07-16T16-10-34-672Z.json` — `product_count_ts: 9,
 product_count_py: 9, category_count_ts: 0, category_count_py: 0, warnings:
 ["Python golden category file not found"]`.
-- `plans/055-progress.md` — phases 6-12 TODO.
+- `plans/archive/055-progress.md` — phases 6-12 TODO.
 - `docs/adr/README.md:27` — ADR 0008 "Proposed".
 - `docs/archive/streamlit-retirement-notice.md:4` — "Decision: ADR 0008" and
   `:16-17` says the TS manager "now serves as the replacement".

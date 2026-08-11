@@ -68,7 +68,7 @@ Verified facts (all reproduced via `git status`, `git ls-files`, and reads):
   from before the workspace was added (mtime 2026-07-15 16:39, matching commit
   98b19f1). `npm ci` never reads it, but it must not be committed.
 - Untracked migration record to include in the same commit:
-  `plans/026-…069-*.md` + `plans/055-progress.md` + `plans/fixtures/`,
+  `plans/026-…069-*.md` + `plans/archive/055-progress.md` + `plans/fixtures/`,
   `docs/operations/CUTOVER.md`, `docs/adr/0008-catalog-data-authority.md`,
   `docs/archive/streamlit-retirement-notice.md`, `data/archive/` (review
   contents first — if `data/archive/` holds catalog snapshots, keep it).
@@ -99,7 +99,7 @@ Verified facts (all reproduced via `git status`, `git ls-files`, and reads):
 **In scope** (the only things this commit may touch):
 
 - `admin/content-manager/` (whole directory — source, configs, tests)
-- `plans/026-*.md` … `plans/069-*.md`, `plans/055-progress.md`, `plans/fixtures/`
+- `plans/026-*.md` … `plans/069-*.md`, `plans/archive/055-progress.md`, `plans/fixtures/`
 - `docs/operations/CUTOVER.md`, `docs/adr/0008-catalog-data-authority.md`,
   `docs/archive/streamlit-retirement-notice.md`, `docs/adr/README.md`
   (the one-line ADR 0008 index entry is already modified — include it)
