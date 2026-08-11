@@ -215,16 +215,40 @@ export class ProductService {
         };
       }
       product.discount = params.changes.discount;
+      product.rev += 1;
+      product.field_last_modified.discount = {
+        ts: now,
+        by: 'admin',
+        rev: product.rev,
+        base_rev: params.baseRevision,
+        changeset_id: null,
+      };
       changedFields.push('discount');
     }
 
     if (params.changes.stock !== undefined && params.changes.stock !== product.stock) {
       product.stock = params.changes.stock;
+      product.rev += 1;
+      product.field_last_modified.stock = {
+        ts: now,
+        by: 'admin',
+        rev: product.rev,
+        base_rev: params.baseRevision,
+        changeset_id: null,
+      };
       changedFields.push('stock');
     }
 
     if (params.changes.category !== undefined && params.changes.category !== product.category) {
       product.category = params.changes.category;
+      product.rev += 1;
+      product.field_last_modified.category = {
+        ts: now,
+        by: 'admin',
+        rev: product.rev,
+        base_rev: params.baseRevision,
+        changeset_id: null,
+      };
       changedFields.push('category');
     }
 
@@ -233,6 +257,14 @@ export class ProductService {
       params.changes.image_path !== product.image_path
     ) {
       product.image_path = params.changes.image_path;
+      product.rev += 1;
+      product.field_last_modified.image_path = {
+        ts: now,
+        by: 'admin',
+        rev: product.rev,
+        base_rev: params.baseRevision,
+        changeset_id: null,
+      };
       changedFields.push('image_path');
     }
 
@@ -241,6 +273,14 @@ export class ProductService {
       params.changes.image_avif_path !== product.image_avif_path
     ) {
       product.image_avif_path = params.changes.image_avif_path;
+      product.rev += 1;
+      product.field_last_modified.image_avif_path = {
+        ts: now,
+        by: 'admin',
+        rev: product.rev,
+        base_rev: params.baseRevision,
+        changeset_id: null,
+      };
       changedFields.push('image_avif_path');
     }
 
@@ -250,6 +290,13 @@ export class ProductService {
     ) {
       product.is_archived = params.changes.is_archived;
       product.rev += 1;
+      product.field_last_modified.is_archived = {
+        ts: now,
+        by: 'admin',
+        rev: product.rev,
+        base_rev: params.baseRevision,
+        changeset_id: null,
+      };
       changedFields.push('is_archived');
     }
 

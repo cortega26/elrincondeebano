@@ -280,3 +280,45 @@ test('ProductService.edit preserves identity on rename', () => {
   expect(result.product!.name).toBe('New Name');
   expect(result.product!.description).toBe('New Description');
 });
+
+test('ProductService.edit advances rev and field metadata for discount-only edits (plan 059)', () => {
+  const service = new ProductService();
+  service.enable();
+  const catalog = makeCatalog(10);
+  catalog.products.push({
+    id: 'descuentable-1',
+    name: 'Descuentable',
+    description: '',
+    price: 1000,
+    discount: 0,
+    stock: true,
+    category: 'x',
+    image_path: '',
+    image_avif_path: '',
+    order: 0,
+    is_archived: false,
+    rev: 1,
+    field_last_modified: {},
+  });
+
+  const result = service.edit(catalog, {
+    entityId: 'descuentable-1',
+    baseRevision: 1,
+    changes: { discount: 200 },
+  });
+  expect(result.ok).toBe(true);
+  const product = catalog.products[0];
+  expect(product.rev).toBe(2);
+  expect(product.field_last_modified.discount?.rev).toBe(2);
+  expect(product.field_last_modified.discount?.base_rev).toBe(1);
+
+  // Stock-only edits also advance rev (same fix).
+  const stockEdit = service.edit(catalog, {
+    entityId: 'descuentable-1',
+    baseRevision: 2,
+    changes: { stock: false },
+  });
+  expect(stockEdit.ok).toBe(true);
+  expect(catalog.products[0].rev).toBe(3);
+  expect(catalog.products[0].field_last_modified.stock?.rev).toBe(3);
+});

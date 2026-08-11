@@ -40,7 +40,7 @@ test('history page loads', async ({ page }) => {
 
 test('bundles page loads', async ({ page }) => {
   await page.goto('/bundles');
-  await expect(page.locator('h1')).toContainText('Combos');
+  await expect(page.locator('h1')).toContainText('Vitrina');
 });
 
 test('import page loads', async ({ page }) => {
