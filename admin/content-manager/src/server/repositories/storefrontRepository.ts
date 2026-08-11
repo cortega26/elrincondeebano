@@ -16,6 +16,7 @@ import {
 import type { ValidationIssue } from '../../shared/schemas/validation.ts';
 import { createIssue } from '../../shared/schemas/validation.ts';
 import { uniqueTimestamp } from '../services/uniqueTimestamp.ts';
+import { pruneFileBackups } from '../services/backupPolicy.ts';
 
 export interface StorefrontRepositoryConfig {
   repoRoot: string;
@@ -105,6 +106,9 @@ export class StorefrontRepository {
         renameSync(this.experiencePath, backupPath);
       }
       renameSync(tmpPath, this.experiencePath);
+
+      // Plan 067 step 2: bounded retention for adjacent file backups.
+      pruneFileBackups(dirname(this.experiencePath), 'storefront-experience.json', 10);
 
       // Also write bundles separately (unconditionally, so clearing all
       // bundles persists [] instead of leaving a stale file behind — plan 081).

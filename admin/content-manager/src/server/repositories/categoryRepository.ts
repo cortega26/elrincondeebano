@@ -12,6 +12,7 @@ import { categoryRegistrySchema } from '../../shared/schemas/category.ts';
 import type { ValidationIssue } from '../../shared/schemas/validation.ts';
 import { createIssue } from '../../shared/schemas/validation.ts';
 import { uniqueTimestamp } from '../services/uniqueTimestamp.ts';
+import { pruneFileBackups } from '../services/backupPolicy.ts';
 import { MutationLock } from '../services/mutationLock.ts';
 
 export interface CategoryRepositoryConfig {
@@ -110,6 +111,10 @@ export class CategoryRepository {
         }
 
         renameSync(tmpPath, this.registryPath);
+
+        // Plan 067 step 2: bounded retention for adjacent file backups.
+        pruneFileBackups(dirname(this.registryPath), 'category_registry.json', 10);
+
         return { ok: true, statusCode: 200, rev: registry.rev };
       } catch (err) {
         try {

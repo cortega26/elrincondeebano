@@ -37,7 +37,10 @@ interface ChangeSet {
 interface BackupEntry {
   id: string;
   timestamp: string;
-  files: string[];
+  files: Array<{ name: string; size: number }>;
+  backup_class?: string;
+  protected_reason?: string;
+  cleanup_warning?: string;
 }
 
 const ACTION_LABEL: Record<string, string> = {
@@ -85,14 +88,14 @@ export function HistoryPage(): React.ReactElement {
     void load();
   }, [load]);
 
-  const post = async (url: string): Promise<boolean> => {
+  const post = async (url: string, payload?: Record<string, unknown>): Promise<boolean> => {
     setBusy(true);
     setError(null);
     setFeedback(null);
     try {
       const res = await fetchWithCredential(url, {
         method: 'POST',
-        body: JSON.stringify({}),
+        body: JSON.stringify(payload ?? {}),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
@@ -164,6 +167,35 @@ export function HistoryPage(): React.ReactElement {
     void post(`/api/v1/change-sets/${id}/redo`).then((ok) => {
       if (ok) setFeedback('Change set de redo creado — revisa y aplica');
     });
+  };
+
+  const [prunePreview, setPrunePreview] = useState<Array<{ id: string; reason: string }>>([]);
+
+  const loadPrunePreview = async (): Promise<void> => {
+    setError(null);
+    try {
+      const res = await fetchWithCredential('/api/v1/backup/prune-preview', { method: 'POST' });
+      if (!res.ok) return;
+      const data = (await res.json()) as { prunable: Array<{ id: string; reason: string }> };
+      setPrunePreview(data.prunable);
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  };
+
+  const handlePrune = async (): Promise<void> => {
+    if (prunePreview.length === 0) return;
+    if (
+      !window.confirm(
+        `Eliminar ${prunePreview.length} backup(s) según la política de retención? Los puntos protegidos no se tocan.`
+      )
+    ) {
+      setPrunePreview([]);
+      return;
+    }
+    const ok = await post('/api/v1/backup/prune', { ids: prunePreview.map((p) => p.id) });
+    setPrunePreview([]);
+    if (ok) setFeedback('Backups limpiados según política ✓');
   };
 
   const handleRestore = async (): Promise<void> => {
@@ -266,30 +298,67 @@ export function HistoryPage(): React.ReactElement {
         <h2>Backups ({backups.length})</h2>
         {backups.length === 0 && <p style={{ color: '#6c757d' }}>No hay backups.</p>}
         {backups.length > 0 && (
-          <table aria-label="Backups" style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr>
-                <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Id</th>
-                <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Archivos</th>
-                <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {backups.map((b) => (
-                <tr key={b.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                  <td style={{ padding: '0.25rem 0.5rem' }}>
-                    <code>{b.id}</code>
-                  </td>
-                  <td style={{ padding: '0.25rem 0.5rem' }}>{b.files.join(', ')}</td>
-                  <td style={{ padding: '0.25rem 0.5rem' }}>
-                    <button onClick={() => setRestoreTarget(b)} disabled={busy}>
-                      Restaurar…
-                    </button>
-                  </td>
+          <>
+            <table aria-label="Backups" style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr>
+                  <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Id</th>
+                  <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Clase</th>
+                  <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Archivos</th>
+                  <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Protección</th>
+                  <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Acciones</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {backups.map((b) => (
+                  <tr key={b.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                    <td style={{ padding: '0.25rem 0.5rem' }}>
+                      <code>{b.id}</code>
+                      {b.cleanup_warning && (
+                        <div style={{ fontSize: '0.8rem', color: '#e65100' }}>
+                          {b.cleanup_warning}
+                        </div>
+                      )}
+                    </td>
+                    <td style={{ padding: '0.25rem 0.5rem' }}>{b.backup_class ?? '—'}</td>
+                    <td style={{ padding: '0.25rem 0.5rem' }}>
+                      {b.files
+                        .map((f) => `${f.name} (${Math.round(f.size / 1024)} KB)`)
+                        .join(', ') || '—'}
+                    </td>
+                    <td style={{ padding: '0.25rem 0.5rem' }}>{b.protected_reason ?? '—'}</td>
+                    <td style={{ padding: '0.25rem 0.5rem' }}>
+                      <button onClick={() => setRestoreTarget(b)} disabled={busy}>
+                        Restaurar…
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div
+              style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}
+            >
+              <button onClick={() => void loadPrunePreview()} disabled={busy}>
+                Previsualizar limpieza
+              </button>
+              {prunePreview.length > 0 && (
+                <span style={{ fontSize: '0.9rem', color: '#6c757d' }}>
+                  {prunePreview.length} elegibles:{' '}
+                  {prunePreview
+                    .slice(0, 3)
+                    .map((p) => p.id)
+                    .join(', ')}
+                  {prunePreview.length > 3 ? '…' : ''}
+                </span>
+              )}
+              {prunePreview.length > 0 && (
+                <button onClick={() => void handlePrune()} disabled={busy}>
+                  Confirmar limpieza
+                </button>
+              )}
+            </div>
+          </>
         )}
 
         {restoreTarget && (

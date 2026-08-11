@@ -1,8 +1,8 @@
 import type { FastifyInstance } from 'fastify';
-import { existsSync, mkdirSync, readdirSync, statSync, copyFileSync } from 'node:fs';
-import { resolve, basename } from 'node:path';
-import { uniqueTimestamp } from '../services/uniqueTimestamp.ts';
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { isSafeId } from '../../shared/identity.ts';
+import { BackupManager } from '../services/backupManager.ts';
 
 const BACKUP_FILES = [
   'data/product_data.json',
@@ -11,67 +11,64 @@ const BACKUP_FILES = [
   'astro-poc/src/data/storefront-experience.json',
 ];
 
-export interface BackupEntry {
-  id: string;
-  timestamp: string;
-  files: Array<{ name: string; size: number }>;
-}
-
 export async function backupRoutes(
   app: FastifyInstance,
   repoRoot: string,
   enableWrites: boolean
 ): Promise<void> {
-  const backupsDir = resolve(repoRoot, 'data', 'backups');
-
-  function listBackups(): BackupEntry[] {
-    if (!existsSync(backupsDir)) return [];
-    const entries: BackupEntry[] = [];
-    const dirs = readdirSync(backupsDir, { withFileTypes: true });
-    for (const d of dirs) {
-      if (!d.isDirectory()) continue;
-      const backupPath = resolve(backupsDir, d.name);
-      const files: Array<{ name: string; size: number }> = [];
-      const fileEntries = readdirSync(backupPath, { withFileTypes: true });
-      for (const f of fileEntries) {
-        if (!f.isFile()) continue;
-        const fp = resolve(backupPath, f.name);
-        files.push({ name: f.name, size: statSync(fp).size });
-      }
-      entries.push({ id: d.name, timestamp: d.name, files });
-    }
-    return entries.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
-  }
+  const manager = new BackupManager(repoRoot);
 
   app.post('/backup', async (_request, reply) => {
-    try {
-      const timestamp = uniqueTimestamp();
-      const backupDir = resolve(backupsDir, timestamp);
-      mkdirSync(backupDir, { recursive: true });
-
-      const backedUp: string[] = [];
-      for (const file of BACKUP_FILES) {
-        const srcPath = resolve(repoRoot, file);
-        if (!existsSync(srcPath)) continue;
-        const destPath = resolve(backupDir, basename(file));
-        copyFileSync(srcPath, destPath);
-        backedUp.push(file);
-      }
-
-      return {
-        backup_id: timestamp,
-        files: backedUp,
-        timestamp: new Date().toISOString(),
-      };
-    } catch (err) {
+    // Plan 067 step 2: verified creation with policy-driven pruning.
+    const created = await manager.createBackup(BACKUP_FILES, 'manual', 'manual');
+    if (!created.ok) {
       return reply.status(500).send({
-        error: { code: 'INTERNAL_ERROR', message: (err as Error).message },
+        error: { code: 'INTERNAL_ERROR', message: created.error },
       });
     }
+    return {
+      backup_id: created.id,
+      timestamp: new Date().toISOString(),
+      files: BACKUP_FILES.filter((f) => existsSync(resolve(repoRoot, f))),
+    };
   });
 
-  app.get('/backup', async () => {
-    return { backups: listBackups() };
+  // Index-driven, paginated listing — no synchronous per-file stat.
+  app.get('/backup', async (request) => {
+    const query = request.query as { page?: string; limit?: string };
+    const page = Math.max(1, Number(query.page) || 1);
+    const limit = Math.min(200, Math.max(1, Number(query.limit) || 50));
+    return { backups: manager.list(page, limit) };
+  });
+
+  app.post('/backup/prune-preview', async () => {
+    return manager.prunePreview();
+  });
+
+  app.post('/backup/prune', async (request, reply) => {
+    const body = request.body as { ids?: string[] };
+    if (!body?.ids || !Array.isArray(body.ids)) {
+      return reply.status(400).send({
+        error: { code: 'BAD_REQUEST', message: 'Expected { ids: [...] }' },
+      });
+    }
+    if (body.ids.some((id) => !isSafeId(id))) {
+      return reply.status(400).send({
+        error: { code: 'INVALID_ID', message: 'Invalid backup id' },
+      });
+    }
+    const result = await manager.prune(body.ids);
+    if (!result.ok && result.pruned === 0) {
+      return reply.status(409).send({
+        error: { code: 'PROTECTED_BACKUP', message: result.error ?? 'Prune rejected' },
+      });
+    }
+    return { status: 'pruned', pruned: result.pruned, warning: result.error ?? null };
+  });
+
+  app.post('/backup/reconcile', async () => {
+    const result = manager.reconcile();
+    return { status: 'reconciled', added: result.added, removed: result.removed };
   });
 
   app.post('/backup/:id/restore', async (request, reply) => {
@@ -89,7 +86,7 @@ export async function backupRoutes(
         error: { code: 'INVALID_ID', message: `Invalid backup id "${id}"` },
       });
     }
-    const backupDir = resolve(backupsDir, id);
+    const backupDir = resolve(repoRoot, 'data', 'backups', id);
 
     if (!existsSync(backupDir)) {
       return reply.status(404).send({
@@ -98,33 +95,31 @@ export async function backupRoutes(
     }
 
     try {
-      const snapshotTimestamp = uniqueTimestamp();
-      const snapshotDir = resolve(backupsDir, `pre-restore-${snapshotTimestamp}`);
-      mkdirSync(snapshotDir, { recursive: true });
+      // Pre-restore snapshot goes through the same verified, pruned pipeline.
+      const snapshot = await manager.createBackup(
+        BACKUP_FILES,
+        'pre-restore',
+        `before-restore-${id}`
+      );
+      if (!snapshot.ok) {
+        return reply.status(500).send({
+          error: { code: 'INTERNAL_ERROR', message: snapshot.error },
+        });
+      }
 
       for (const file of BACKUP_FILES) {
         const srcPath = resolve(repoRoot, file);
         if (!existsSync(srcPath)) continue;
-        const destPath = resolve(snapshotDir, basename(file));
-        copyFileSync(srcPath, destPath);
-      }
-
-      const restored: string[] = [];
-      const backupFiles = readdirSync(backupDir, { withFileTypes: true });
-      for (const f of backupFiles) {
-        if (!f.isFile()) continue;
-        const backupFilePath = resolve(backupDir, f.name);
-        const matching = BACKUP_FILES.find((bf) => basename(bf) === f.name);
-        if (matching) {
-          const targetPath = resolve(repoRoot, matching);
-          copyFileSync(backupFilePath, targetPath);
-          restored.push(matching);
-        }
+        const backupFile = resolve(backupDir, file.split('/').pop() ?? '');
+        if (!existsSync(backupFile)) continue;
+        const { copyFileSync } = await import('node:fs');
+        copyFileSync(backupFile, srcPath);
       }
 
       return {
         status: 'restored',
-        files: restored,
+        backup_id: id,
+        pre_restore_snapshot: snapshot.id,
       };
     } catch (err) {
       return reply.status(500).send({

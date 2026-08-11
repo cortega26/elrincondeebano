@@ -19,13 +19,14 @@ export default defineConfig({
     {
       name: 'chromium-desktop',
       use: { ...devices['Desktop Chrome'] },
-      // The import/change-set/media workflows run against their own
-      // temp-repo webServers (playwright.*.config.ts) so they never touch
-      // the real catalog — keep them out of the default suite.
+      // The import/change-set/media/storefront workflows run against their
+      // own temp-repo webServers (playwright.*.config.ts) so they never
+      // touch the real catalog — keep them out of the default suite.
       testIgnore: [
         '**/import-export.spec.ts',
         '**/change-set.spec.ts',
         '**/media-workbench.spec.ts',
+        '**/storefront.spec.ts',
       ],
     },
   ],

@@ -123,12 +123,15 @@ test('GET /api/v1/backup lists available backups', async () => {
 
     expect(listRes.statusCode).toBe(200);
     const body = listRes.json<{
-      backups: Array<{ id: string; files: Array<{ name: string; size: number }> }>;
+      backups: {
+        entries: Array<{ id: string; files: Array<{ name: string; size: number }> }>;
+        total: number;
+      };
     }>();
-    expect(body.backups.length).toBeGreaterThanOrEqual(1);
+    expect(body.backups.total).toBeGreaterThanOrEqual(1);
 
     const created = createRes.json<{ backup_id: string }>();
-    const found = body.backups.find((b) => b.id === created.backup_id);
+    const found = body.backups.entries.find((b) => b.id === created.backup_id);
     expect(found).toBeDefined();
     expect(found!.files.length).toBeGreaterThanOrEqual(2);
 
@@ -212,9 +215,9 @@ test('POST /api/v1/backup/:id/restore restores files and creates pre-restore sna
     });
 
     expect(restoreRes.statusCode).toBe(200);
-    const body = restoreRes.json<{ status: string; files: string[] }>();
+    const body = restoreRes.json<{ status: string; pre_restore_snapshot: string }>();
     expect(body.status).toBe('restored');
-    expect(body.files.length).toBeGreaterThanOrEqual(2);
+    expect(body.pre_restore_snapshot).toMatch(/^pre-restore-/);
 
     const productContent = readFileSync(resolve(dir, 'data', 'product_data.json'), 'utf-8');
     const parsed = JSON.parse(productContent);
@@ -310,8 +313,8 @@ test('multiple backups are independent', async () => {
     expect(existsSync(resolve(backupsDir, id2))).toBe(true);
 
     const listRes = await app.inject({ method: 'GET', url: '/api/v1/backup' });
-    const body = listRes.json<{ backups: Array<{ id: string }> }>();
-    expect(body.backups.length).toBeGreaterThanOrEqual(2);
+    const body = listRes.json<{ backups: { entries: Array<{ id: string }>; total: number } }>();
+    expect(body.backups.total).toBeGreaterThanOrEqual(2);
 
     await app.close();
   } finally {
