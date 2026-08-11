@@ -1426,7 +1426,11 @@ function markOrderAsSent() {
     return;
   }
 
-  saveCart([]);
+  if (!saveCart([])) {
+    showCartSaveError();
+    return;
+  }
+
   saveStoredJson(STORAGE_SENT_KEY, Date.now());
   updateBadge([], { animate: true });
   renderCart([]);
@@ -1725,9 +1729,14 @@ function initStorefront() {
     if (!order || !Array.isArray(order.items) || order.items.length === 0) {
       return;
     }
-    cart = hydrateCartFromOrder(order);
+    const nextCart = hydrateCartFromOrder(order);
 
-    saveCart(cart);
+    if (!saveCart(nextCart)) {
+      showCartSaveError();
+      return;
+    }
+
+    cart = nextCart;
     updateBadge(cart, { animate: true });
     renderCart(cart, { animateTotal: true });
     renderCompanionSuggestions(cart, companionRules);
@@ -1884,8 +1893,11 @@ function initStorefront() {
     if (emptyBtn) {
       event.preventDefault();
       if (globalThis.confirm('¿Quieres vaciar el carrito completo?')) {
+        if (!saveCart([])) {
+          showCartSaveError();
+          return;
+        }
         cart = [];
-        saveCart(cart);
         updateBadge(cart, { animate: true });
         renderCart(cart, { animateTotal: true });
         syncAllActionAreas(cart);

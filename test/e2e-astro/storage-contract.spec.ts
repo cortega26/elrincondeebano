@@ -98,3 +98,158 @@ test('repeat-order flow keeps canonical last-order state usable after reload', a
   expect(persistedState.lastOrder?.payment).toBe('Efectivo');
   expect(Array.isArray(persistedState.lastOrder?.items)).toBe(true);
 });
+
+// ─── Plan 027: rollback discipline for destructive cart actions ──────────────
+
+async function completeOrderFlow(page: Page, productId: string) {
+  await page.locator(`.category-strip .add-to-cart-btn[data-id="${productId}"]`).first().click();
+  await page.locator('#cart-icon').click();
+  await page.locator('#cartOffcanvas').waitFor({ state: 'visible' });
+  await page.locator('#payment-cash').check();
+  await page.locator('#submit-cart').click();
+  await page.locator('#order-confirm-dialog').waitFor({ state: 'visible' });
+  await page.locator('#order-confirm-send').click();
+  await page.locator('#order-confirm-dialog').waitFor({ state: 'hidden', timeout: 10000 });
+  await page.waitForFunction(() => {
+    const lastOrder = JSON.parse(localStorage.getItem('astro-poc-last-order') || 'null');
+    return Array.isArray(lastOrder?.items) && lastOrder.items.length > 0;
+  });
+}
+
+function breakStorageWrites(page: Page) {
+  return page.evaluate(() => {
+    const proto = Storage.prototype;
+    (window as any).__restoreStorageWrites = () => {
+      proto.setItem = (window as any).__originalStorageSetItem;
+    };
+    (window as any).__originalStorageSetItem = proto.setItem;
+    proto.setItem = function (key: string, value: string) {
+      if (key === 'astro-poc-cart') {
+        throw new DOMException('QuotaExceededError', 'QuotaExceededError');
+      }
+      return (window as any).__originalStorageSetItem.call(this, key, value);
+    };
+  });
+}
+
+function restoreStorageWrites(page: Page) {
+  return page.evaluate(() => (window as any).__restoreStorageWrites?.());
+}
+
+test('repeat-order write failure keeps cart, badge and storage unchanged', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await waitForReady(page);
+  await page.evaluate(() => localStorage.clear());
+  await page.reload({ waitUntil: 'networkidle' });
+  await waitForReady(page);
+
+  const productId = await page
+    .locator('.category-strip .add-to-cart-btn')
+    .first()
+    .getAttribute('data-id');
+  expect(productId).toBeTruthy();
+
+  await page.evaluate(() => {
+    window.open = () => null;
+  });
+  await completeOrderFlow(page, productId!);
+  await page.reload({ waitUntil: 'networkidle' });
+  await waitForReady(page);
+
+  const badgeBefore = await page.locator('#cart-count').textContent();
+  await breakStorageWrites(page);
+
+  await page.locator('[data-repeat-last-order]').first().click();
+
+  await expect(page.locator('#cart-save-error')).toBeVisible();
+  await expect(page.locator('#cart-count')).toHaveText(badgeBefore!);
+  const cartAfter = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('astro-poc-cart') || '[]')
+  );
+  expect(cartAfter.length).toBe(1);
+  expect(cartAfter[0].id).toBe(productId);
+
+  await restoreStorageWrites(page);
+});
+
+test('empty-cart write failure keeps cart, badge and storage unchanged', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await waitForReady(page);
+  await page.evaluate(() => localStorage.clear());
+  await page.reload({ waitUntil: 'networkidle' });
+  await waitForReady(page);
+
+  const productId = await page
+    .locator('.category-strip .add-to-cart-btn')
+    .first()
+    .getAttribute('data-id');
+  expect(productId).toBeTruthy();
+
+  await page.locator(`.category-strip .add-to-cart-btn[data-id="${productId}"]`).first().click();
+  await page.waitForFunction(() => {
+    const cart = JSON.parse(localStorage.getItem('astro-poc-cart') || '[]');
+    return cart.length === 1;
+  });
+
+  const badgeBefore = await page.locator('#cart-count').textContent();
+  await page.evaluate(() => {
+    window.confirm = () => true;
+  });
+  await breakStorageWrites(page);
+
+  await page.locator('#cart-icon').click();
+  await page.locator('#cartOffcanvas').waitFor({ state: 'visible' });
+  await page.locator('.cart-note-toggle').click();
+  await page.locator('#empty-cart').click();
+
+  await expect(page.locator('#cart-save-error')).toBeVisible();
+  await expect(page.locator('#cart-count')).toHaveText(badgeBefore!);
+  const cartAfter = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('astro-poc-cart') || '[]')
+  );
+  expect(cartAfter.length).toBe(1);
+  expect(cartAfter[0].id).toBe(productId);
+
+  await restoreStorageWrites(page);
+});
+
+test('mark-sent write failure keeps cart, badge and sent marker unchanged', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await waitForReady(page);
+  await page.evaluate(() => localStorage.clear());
+  await page.reload({ waitUntil: 'networkidle' });
+  await waitForReady(page);
+
+  const productId = await page
+    .locator('.category-strip .add-to-cart-btn')
+    .first()
+    .getAttribute('data-id');
+  expect(productId).toBeTruthy();
+
+  await page.evaluate(() => {
+    window.open = () => null;
+  });
+  await completeOrderFlow(page, productId!);
+
+  await page.locator('#order-mark-sent').waitFor({ state: 'visible' });
+  const badgeBefore = await page.locator('#cart-count').textContent();
+  const sentBefore = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('astro-poc-order-last-sent-at') || '0')
+  );
+
+  await breakStorageWrites(page);
+  await page.locator('#order-mark-sent').click();
+
+  await expect(page.locator('#cart-save-error')).toBeVisible();
+  await expect(page.locator('#cart-count')).toHaveText(badgeBefore!);
+  const sentAfter = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('astro-poc-order-last-sent-at') || '0')
+  );
+  expect(sentAfter).toBe(sentBefore);
+  const cartAfter = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('astro-poc-cart') || '[]')
+  );
+  expect(cartAfter.length).toBe(1);
+
+  await restoreStorageWrites(page);
+});
