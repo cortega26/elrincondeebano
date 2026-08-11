@@ -10,10 +10,10 @@ create y no tiene campo AVIF.
 - [x] Step 1: create con todos los campos (discount + image + avif)
 - [x] Step 1: duplicate (create-from-copy, identidad fresca, confirmación de nombre)
 - [x] Step 1: tests integración (filtros, full-field create, duplicate)
-- [ ] Step 2: git pull seguro (preflight dirty/conflicted + `pull --rebase` + refresh)
-- [ ] Step 2: tests temp-repo (success, no-op, dirty, conflicted)
-- [ ] Step 3: doctor como API + UI + redacción de secretos
-- [ ] Step 4: preferencias persistidas + shortcuts + ayuda
-- [ ] E2E operator (filtros URL, duplicate, pull, doctor, prefs)
-- [ ] Verificar: admin:test/typecheck/build, npm test, e2e
-- [ ] README fila 061 → DONE + archivar
+- [x] Step 2: git pull seguro (preflight dirty/conflicted + `pull --rebase` + refresh)
+- [x] Step 2: tests temp-repo (success, no-op, dirty, conflicted)
+- [x] Step 3: doctor como API + UI + redacción de secretos
+- [x] Step 4: preferencias persistidas + shortcuts + ayuda
+- [x] E2E operator (filtros URL, duplicate, pull, doctor, prefs)
+- [x] Verificar: admin:test/typecheck/build, npm test, e2e
+- [x] README fila 061 → DONE + archivar
