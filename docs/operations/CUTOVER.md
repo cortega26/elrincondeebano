@@ -9,14 +9,15 @@ The TypeScript Content Manager (`admin/content-manager/`) is functional for the
 covered workflows and its automated certification checks are green: `Admin
 Tools CI` runs typecheck, vitest, coverage, build, shadow-read, parity, E2E
 smoke (15 tests) and doctor on every `admin/**` change, and the certification
-report gates on those checks (`npm run certify -- --ci`). 17 of the 20 parity
+report gates on those checks (`npm run certify -- --ci`). 19 of the 20 parity
 rows are auto-verified against the unit/integration suite (the report maps
 each scenario to its covering test files and requires the full vitest run to
-pass); the remaining three — `parity-export`, `parity-sync` and
-`parity-preferences` — have no automated TS coverage and stay operator-signed,
-alongside the two manual rows (acceptance walkthrough and rollback drill). The
-full gate (`npm run admin:certify`, which requires `untested == 0`) is reached
-once those rows are signed. Closing that remaining gap is tracked by plans
+pass); the remaining row — `parity-preferences` — has no direct TS equivalent
+(the web app uses system theme and native browser shortcuts rather than
+persisted preferences) and stays operator-signed, alongside the two manual
+rows (acceptance walkthrough and rollback drill). The full gate
+(`npm run admin:certify`, which requires `untested == 0`) is reached once
+those rows are signed. Closing that remaining gap is tracked by plans
 056–069 (Auditoría 6) and the Wave 4 gate of the Auditoría 7 queue; this
 document must be revisited when plan 069 lands.
 

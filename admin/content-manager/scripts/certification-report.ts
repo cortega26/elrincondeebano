@@ -328,6 +328,8 @@ const PARITY_TEST_COVERAGE: Record<string, string[]> = {
     'test/contract/conflictService.test.ts',
   ],
   'parity-history': ['test/integration/api.test.ts', 'test/contract/changeSet.test.ts'],
+  'parity-export': ['test/integration/api.test.ts'],
+  'parity-sync': ['test/integration/conflictApi.test.ts', 'test/integration/writeBoundary.test.ts'],
   'parity-publication': [
     'test/integration/publication.test.ts',
     'test/integration/publicationAdvanced.test.ts',

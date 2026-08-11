@@ -279,3 +279,29 @@ test('Read-only requests do not mutate files', async () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('GET /api/v1/export returns the full catalog for manual export', async () => {
+  const dir = createTempDir();
+  try {
+    writeFileSync(resolve(dir, 'data', 'product_data.json'), JSON.stringify(validCatalog));
+    writeFileSync(resolve(dir, 'data', 'category_registry.json'), JSON.stringify(validCategories));
+    writeFileSync(
+      resolve(dir, 'astro-poc', 'src', 'data', 'storefront-experience.json'),
+      JSON.stringify(validStorefront)
+    );
+
+    const app = createApp({ repoRoot: dir, logger: false });
+    await app.ready();
+
+    const response = await app.inject({ method: 'GET', url: '/api/v1/export' });
+    expect(response.statusCode).toBe(200);
+    const body = response.json();
+    expect(body.version).toBe(validCatalog.version);
+    expect(body.products).toHaveLength(validCatalog.products.length);
+    expect(body.products[0].name).toBe('Producto A');
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
