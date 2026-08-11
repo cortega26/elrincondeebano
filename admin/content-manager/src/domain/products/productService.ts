@@ -497,6 +497,24 @@ export class ProductService {
         }
       }
       product.rev += 1;
+      // Plan 059: bulk mutations record the same revision metadata as
+      // single edits so history/undo stay consistent across paths.
+      const field =
+        operation.action === 'set_stock'
+          ? 'stock'
+          : operation.action === 'set_category'
+            ? 'category'
+            : operation.action === 'set_discount_percent' ||
+                operation.action === 'set_discount_fixed'
+              ? 'discount'
+              : 'price';
+      product.field_last_modified[field] = {
+        ts: now,
+        by: 'bulk',
+        rev: product.rev,
+        base_rev: product.rev - 1,
+        changeset_id: null,
+      };
     }
 
     catalog.rev += 1;

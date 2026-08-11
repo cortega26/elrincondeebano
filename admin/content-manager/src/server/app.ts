@@ -287,26 +287,50 @@ export function createApp(opts?: AppOptions): FastifyInstance {
       '.json': 'application/json',
       '.png': 'image/png',
       '.svg': 'image/svg+xml',
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.webp': 'image/webp',
+      '.avif': 'image/avif',
+      '.gif': 'image/gif',
+      '.ico': 'image/x-icon',
     };
 
     app.get('/*', async (request, reply) => {
-      const urlPath = request.url.split('?')[0] ?? '/';
+      const rawPath = request.url.split('?')[0] ?? '/';
+      // Plan 071/audit fix: request.url is raw (percent-encoded) — the SPA
+      // emits image srcs with spaces/unicode (e.g. "Nova Clásica 2x14m.webp"),
+      // which arrive here encoded; resolve against the decoded path or every
+      // image 404s into the SPA fallback.
+      let urlPath = rawPath;
+      try {
+        urlPath = decodeURIComponent(rawPath);
+      } catch {
+        // Malformed encoding: keep the raw path.
+      }
       if (urlPath.startsWith('/api/')) return reply.callNotFound();
 
       if (urlPath.startsWith('/assets/')) {
-        const assetPath = resolve(repoRoot, `.${urlPath}`);
-        if (existsSync(assetPath)) {
-          try {
-            const ext = assetPath.includes('.') ? `.${assetPath.split('.').pop() ?? ''}` : '';
-            const contentType = mimeTypes[ext] ?? 'application/octet-stream';
-            const content = readFileSync(assetPath);
-            return reply.header('Content-Type', contentType).send(content);
-          } catch {
-            return reply
-              .status(404)
-              .send({ error: { code: 'NOT_FOUND', message: 'Asset not found' } });
+        // SPA bundles live in dist/web/assets; media images live at the repo
+        // root assets/. Resolve in that order so the built app loads while
+        // images with spaces/unicode still serve decoded.
+        const candidates = [resolve(webDist, `.${urlPath}`), resolve(repoRoot, `.${urlPath}`)];
+        for (const assetPath of candidates) {
+          if (existsSync(assetPath)) {
+            try {
+              const ext = assetPath.includes('.') ? `.${assetPath.split('.').pop() ?? ''}` : '';
+              const contentType = mimeTypes[ext] ?? 'application/octet-stream';
+              const content = readFileSync(assetPath);
+              return reply.header('Content-Type', contentType).send(content);
+            } catch {
+              return reply
+                .status(404)
+                .send({ error: { code: 'NOT_FOUND', message: 'Asset not found' } });
+            }
           }
         }
+        // Never fall back to the SPA for missing assets — a broken image
+        // should 404, not return HTML.
+        return reply.status(404).send({ error: { code: 'NOT_FOUND', message: 'Asset not found' } });
       }
 
       let filePath = resolve(webDist, urlPath === '/' ? 'index.html' : `.${urlPath}`);

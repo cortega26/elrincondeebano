@@ -54,20 +54,6 @@ In operator mode the launch credential comes from `ADMIN_CREDENTIAL` or is
 printed once in the startup log (plan 071); the UI prompts for it on first use.
 See `admin/content-manager/README.md` and `.env.example`.
 
-## Optional: Python fallback (desktop manager, transition window only)
-
-The Tkinter manager (`admin/product_manager/`) is the fallback during the
-transition window (plan 069); prefer the TypeScript manager above.
-
-1. `cd admin/product_manager`.
-2. `python -m venv .venv`.
-3. Activate the venv for your shell.
-4. `python -m pip install --upgrade pip`.
-5. `python -m pip install pytest pytest-mock`.
-6. Run one of:
-   - `python gui.py` (UI)
-   - `python -m pytest` (tests)
-
 ## Notes
 
 - `npm test` runs node:test, then Vitest.

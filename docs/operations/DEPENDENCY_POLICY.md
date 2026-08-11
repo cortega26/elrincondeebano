@@ -5,8 +5,7 @@
 This policy covers:
 
 1. Node.js dependencies (`package.json` and `package-lock.json`)
-2. Python admin tooling dependencies (`admin/product_manager/requirements.txt` + `admin/product_manager/requirements.lock.txt`)
-3. GitHub Actions dependencies (`.github/workflows/*.yml`)
+2. GitHub Actions dependencies (`.github/workflows/*.yml`)
 
 ## Update cadence
 
@@ -34,13 +33,6 @@ For Node changes:
 6. `npm run test:e2e` (smoke subset is acceptable when full run is expensive)
 7. `npm run lighthouse:audit` when the dependency affects rendering, bundling,
    image processing, routing, or critical fetch behavior
-
-For Python admin changes:
-
-1. `python -m pip install -r requirements.txt -c requirements.lock.txt` in `admin/product_manager`
-2. `python -m pip check` in `admin/product_manager`
-3. `python -m pytest` in `admin/product_manager`
-4. `pip-audit` result attached when dependency graph changes
 
 For workflow changes:
 

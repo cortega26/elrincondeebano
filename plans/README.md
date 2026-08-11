@@ -1,10 +1,10 @@
 # Implementation Plans
 
-Índice de los planes de implementación (001–085). Generados por `/improve deep`
-en siete auditorías (2026-06-14 → 2026-08-03) y ampliados por la directiva de
-migración del 2026-07-15 (plan 055). La Auditoría 4 estaba deliberadamente
-limitada a `admin/product_manager/`. El histórico completo (auditorías 1–4,
-pipelines por stages, decisiones rechazadas) vive en
+Índice de los planes de implementación (001–097). Generados por `/improve deep`
+en ocho auditorías (2026-06-14 → 2026-08-11) y ampliados por la directiva de
+migración del 2026-07-15 (plan 055). La Auditoría 8 (2026-08-11) audita el
+release candidate del Content Manager TS y mantiene el retiro de Python
+(plan 069) en HOLD hasta cerrar sus P0. El histórico completo vive en
 [`archive/README-history.md`](archive/README-history.md).
 
 | Auditoría | Fecha      | Commit    | Planes  |
@@ -16,6 +16,7 @@ pipelines por stages, decisiones rechazadas) vive en
 | 5         | 2026-07-15 | `30dbab7` | 055     |
 | 6         | 2026-07-16 | `30dbab7` | 056–069 |
 | 7         | 2026-08-03 | `30dbab7` | 070–085 |
+| 8         | 2026-08-11 | `cefdd9f` | 086–097 |
 
 **Status values**: `TODO | IN PROGRESS | PARTIAL | DONE | BLOCKED (reason) |
 REJECTED (rationale)`, más `SUPERSEDED`/`ABSORBED` (reemplazados por el plan
@@ -31,14 +32,23 @@ conditions, y actualizar su fila al terminar.
 
 ## Estado actual — 2026-08-11
 
+- **Auditoría 8 (086–097)**: nueva. El release candidate del Content Manager TS
+  (`cefdd9f`) pasó una auditoría profunda que encontró blockers de integridad
+  (sync, change-set, OG, scope de bulk/reorder) y gaps de paridad vs Python.
+  El retiro de Python (069) se completó el 2026-08-11; la cola de la
+  Auditoría 8 sigue abierta (086 DONE, 087–097 TODO).
 - **Auditoría 7 (070–085)**: completa. 082 y 083 `DONE` el 2026-08-11;
   la cola se cierra y el saldo pendiente pasa a la Auditoría 6.
-- **Auditoría 6 (056–069)**: cola principal hacia el gate terminal **069**
-  (retiro de Python). `DONE`: 056–068 (057, 059 y 068 cerrados el 2026-08-11). `TODO`: 069 (gate terminal).
-- **Residuales**: 030, 031, 038 (Auditoría 3) y 040–047, 049 (Auditoría 4,
-  Python — supeditados al cutover).
-- Los planes 024, 026 y 027 se marcaron `DONE` el 2026-08-11; sus archivos
-  están en `plans/archive/`.
+- **Auditoría 6 (056–069)**: completa. **069 `DONE` el 2026-08-11**: retiro
+  reversible de Python ejecutado (commit `chore(admin): retire Python
+fallback`; tag `v1.x-python-final` en `cefdd9f`; `git revert` o `git
+checkout v1.x-python-final -- admin/product_manager/` como rollback). El
+  manager Python/Tkinter ya no está en el árbol activo.
+- **Residuales**: 030, 031, 038 (Auditoría 3) siguen TODO. 040–047 y 049
+  (Auditoría 4, Python) quedaron `SUPERSEDED` al retirar Python: sus
+  capacidades fueron migradas al Content Manager TS (plan 055 + 056–068).
+- Los planes 024, 026, 027 y 069 se marcaron `DONE` el 2026-08-11; sus
+  archivos están en `plans/archive/`.
 
 ---
 
@@ -307,7 +317,7 @@ finding quedó descartado.
 | [066](archive/066-build-safe-storefront-curation.md)         | Curación estructurada y segura del storefront    | P1       | L      | 057, 062, 065      | DONE — `45d2651` (2026-08-11): invariantes estrictos en todos los write boundaries (campos no vacíos, ids/refs únicos, refs a productos reales no archivados), write transaccional experiencia+proyección (rollback de AMBOS ante fallo, test de inyección), BundlesPage estructurada (form tipado, picker con búsqueda, duplicate/reorder, destacados + categorías), preservación exacta de subtrees ajenos; e2e aislado (:3104)                                                                                                                               |
 | [067](archive/067-bound-backups-and-event-loop-work.md)      | Retención acotada y listing no bloqueante        | P2       | M      | 057, 062           | DONE — `15dd7ac` (2026-08-11): política por clase (auto 10 / manual 20 / pre-restore 5) protegiendo el más reciente y referenciados por recovery; BackupManager con creación verificada (hash), pruning post-éxito con warnings visibles, listing paginado index-driven (sin stat por archivo, fixture de 2000 entradas), prune preview/confirmación (protegidos → 409), reconciliación explícita; writers de categorías/storefront con retención acotada; UI con clase/protección/warnings                                                                     |
 | [068](archive/068-reconcile-content-manager-dependencies.md) | Contrato limpio de dependencias/lockfile         | P2       | S      | 056                | DONE — `8aae54a` (2026-08-11): `@playwright/test` 1.62.1 alineado en el lock del workspace                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |     |
-| [069](069-complete-cutover-and-retire-python.md)             | Cutover comprobado y retiro reversible de Python | P1       | L      | 056–068            | TODO — terminal; Python sigue activo como fallback (AGENTS.md)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| [069](069-complete-cutover-and-retire-python.md)             | Cutover comprobado y retiro reversible de Python | P1       | L      | 056–068            | DONE — 2026-08-11 (branch `migration/069-content-manager-cutover`): certificación 30/30 READY con aceptación firmada, clean-clone ×2 sin diferencias, drills 8/8; Steps 1–5; Step 6 (retiro) commiteado como `chore(admin): retire Python fallback`; tag `v1.x-python-final` en `cefdd9f`; rollback: `git revert` o `git checkout v1.x-python-final -- admin/product_manager/`                                                                                                                                                                                  |
 
 Status values: `TODO | IN PROGRESS | DONE | BLOCKED (reason) | REJECTED (rationale)`.
 
@@ -361,6 +371,73 @@ implementation from another plan.
 
 ---
 
+## Cola vigente — Auditoría 8: release candidate del Content Manager TS (post-plan 069)
+
+Auditoría profunda del 2026-08-11 (4 subagentes + verificación empírica:
+probes de traversal, sync pull, change-set apply, intents OG, filtro de
+descuento, cap de 50) sobre el release candidate `cefdd9f`. El retiro de
+Python (plan 069) se ejecutó el mismo día de forma revertible; los blockers
+P0 (086–089) se cerraron/continúan sobre el árbol post-retiro.
+
+### Finding coverage matrix (Auditoría 8)
+
+| Finding (resumido)                                                                    | Plan             |
+| ------------------------------------------------------------------------------------- | ---------------- |
+| F1 pull sync colisiona con command_id fijo (pérdida silenciosa)                       | 086              |
+| F2 change-set apply sin allowlist (rev/order/id/field_last_modified inyectables)      | 087              |
+| F3 push marca synced antes de aplicar local; snapshot sin validación zod; lock stale  | 086              |
+| F4 reorder/bulk con scope de página invisible; bulk miente conteos; undo prematuro    | 088              |
+| F5 intents OG inaplicables (output canónico fuera de staging → 422 siempre)           | 089              |
+| F6 route policy incompleta (9 rutas); error envelope filtra paths; containment prefix | 090              |
+| F7 export UI ausente; filtro descuento inexistente; imágenes sin fallback; confirms   | 091              |
+| F8 arch/perf: description sin rev, sharp sin declarar, sin cache, N+1s, 3 patrones    | 092              |
+| F9 UX: sin nav persistente, sin tokens, feedback ×3, dialogs sin trap, contraste      | 093              |
+| F10 god module ProductsPage 1467 líneas; guards copiados; errores por string-match    | 094              |
+| F11 parity: purge, inline editing, revert por producto, galería AVIF                  | 095              |
+| F12 parity: delete con reasignación, bundle price, nav-groups, OG lifecycle, picker   | 096              |
+| F13 parity: auto-sync, shortcuts, multi-select bulk, undo/redo, relocation, history   | 097              |
+| F14 path traversal — **refutado empíricamente** (8 variantes; Fastify normaliza)      | hardening en 090 |
+
+### Orden de ejecución y estado
+
+<!-- markdownlint-disable MD060 -->
+
+| Plan                                                  | Título                                                                                  | Priority | Effort | Depends on    | Status                                                                                                                                                                                                                         |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------- | -------- | ------ | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [086](086-fix-sync-integrity.md)                      | Integridad de sync (pull collision, synced prematuro, snapshot sin validar, lock stale) | P0       | M      | —             | DONE — 2026-08-11: command_id derivado por contenido, synced solo tras apply local, snapshot validado con productSchema, lock TTL 5 min; +5 tests (el de doble pull caza el bug original); 472 tests, e2e 19/19, certify 30/30 |
+| [087](087-change-set-field-allowlist.md)              | Allowlist de campos en change-set apply                                                 | P0       | S      | —             | TODO                                                                                                                                                                                                                           |
+| [088](088-bulk-reorder-scope-pagination.md)           | Scope real de bulk/reorder + paginación visible                                         | P0       | M      | —             | TODO                                                                                                                                                                                                                           |
+| [089](089-fix-og-media-workbench.md)                  | Workbench OG aplicable (staging honesto)                                                | P0       | S      | —             | TODO                                                                                                                                                                                                                           |
+| [090](090-security-posture-route-policy-errors.md)    | Route policy completa + error envelope + contención                                     | P1       | S–M    | —             | TODO                                                                                                                                                                                                                           |
+| [091](091-catalog-ux-gaps-exports-discount-images.md) | Export UI, filtro descuento, imágenes robustas, confirms                                | P1       | M      | 088           | TODO                                                                                                                                                                                                                           |
+| [092](092-architecture-performance-quick-wins.md)     | Quick wins arch/perf (rev, sharp, cache, N+1, patrones)                                 | P1       | M      | —             | TODO                                                                                                                                                                                                                           |
+| [093](093-ux-foundations-nav-tokens-feedback.md)      | Fundamentos UX (nav, tokens, feedback, a11y)                                            | P1       | M–L    | 088, 091      | TODO                                                                                                                                                                                                                           |
+| [094](094-refactor-products-page.md)                  | Refactor ProductsPage (split en hooks/components)                                       | P2       | L      | 088, 091, 093 | TODO                                                                                                                                                                                                                           |
+| [095](095-catalog-parity-purge-inline-revert-avif.md) | Purge, inline editing, revert por producto, galería AVIF                                | P2       | M      | 087, 088      | TODO                                                                                                                                                                                                                           |
+| [096](096-categories-storefront-parity.md)            | Delete con reasignación, bundle price, nav-groups, OG                                   | P2       | M      | 088, 090, 089 | TODO                                                                                                                                                                                                                           |
+| [097](097-operator-parity-batch.md)                   | Auto-sync, shortcuts, bulk selección, undo/redo, relocation, history                    | P2       | L      | 086, 088      | TODO                                                                                                                                                                                                                           |
+
+<!-- markdownlint-enable MD060 -->
+
+Regla: los P0 (086–089) se priorizan sobre el resto; 086 habilita 097,
+089 habilita 096 (OG lifecycle), 088 habilita 091/093/094/095/096/097.
+El retiro de Python (069) ya está ejecutado y es revertible.
+
+### Considerado y rechazado (Auditoría 8)
+
+- **Path traversal en el static handler** (`app.ts:298-349`) — **refutado
+  empíricamente de nuevo**: 8 variantes (`..`, `%2e%2e`, `%2f`, dobles) contra
+  servidor vivo devuelven 404/SPA; Fastify normaliza antes del handler.
+  Queda como hardening defensivo dentro del plan 090 (contención post-resolve).
+- **Credential impresa en stdout al arrancar** (`start.ts:57-60`) — por diseño
+  (plan 071), loopback; nota de awareness.
+- **Zod `z.string().url()` deprecado** (`syncAdapter.ts:5`) — cosmético, sin
+  fecha de remoción.
+- **Bulk/purge sin restore** — purge es irreversible por diseño (history +
+  backup automático como evidencia).
+
+---
+
 ## Cola vigente — Auditoría 3 (residual)
 
 El grueso de la Auditoría 3 está `DONE` (025–029, 032–037, 019, 024, 026, 027,
@@ -381,25 +458,26 @@ final de la cola es `npm run validate:release`.
 ## Auditoría 4 — residual Python (Content Manager Tk)
 
 > El plan 055 reemplazó como destino los planes 050–052 y 054
-> (`SUPERSEDED`/`ABSORBED`); 039 y 048 están `DONE`. Los fixes 040–047 pueden
-> aterrizar en Python sólo cuando reduzcan riesgo antes del cutover; el gate
-> terminal es el plan 069 (retiro de Python). Histórico completo (waves, gates
-> por wave, política de rollback, gate de aceptación) en
-> [`archive/README-history.md`](archive/README-history.md).
+> (`SUPERSEDED`/`ABSORBED`); 039 y 048 están `DONE`. Los planes 040–047 y 049
+> quedaron `SUPERSEDED` el 2026-08-11: con el retiro de Python (plan 069) sus
+> capacidades viven en el Content Manager TS (plan 055 + 056–068). Histórico
+> completo (waves, gates por wave, política de rollback, gate de aceptación)
+> en [`archive/README-history.md`](archive/README-history.md).
 
-Todos los cambios de implementación quedan limitados a `admin/product_manager/`.
+Todos los cambios de implementación de estos planes eran limitados a
+`admin/product_manager/` (retirado; frontera de rollback `v1.x-python-final`).
 
-| Plan                                                    | Título                                      | Priority | Effort | Depends on           | Status               |
-| ------------------------------------------------------- | ------------------------------------------- | -------- | ------ | -------------------- | -------------------- |
-| [040](040-preserve-product-state-in-bulk-operations.md) | Preservar metadata en operaciones masivas   | P1       | S      | 039                  | TODO                 |
-| [041](041-stage-media-mutations-until-save.md)          | Hacer transaccionales los cambios de medios | P1       | M      | 039                  | TODO                 |
-| [042](042-reorder-products-by-identity.md)              | Reordenar por identidad real                | P1       | S      | 039                  | TODO                 |
-| [043](043-preserve-sync-conflicts.md)                   | Preservar conflictos hasta resolución       | P1       | S      | 039                  | TODO                 |
-| [044](044-unify-discount-invariant.md)                  | Unificar invariante de descuentos           | P2       | S      | 039; 040 recomendado | TODO                 |
-| [045](045-make-publication-safe-and-truthful.md)        | Publicación acotada, preflighted y veraz    | P1       | M      | 039                  | TODO                 |
-| [046](046-run-git-operations-off-ui-thread.md)          | Ejecutar Git fuera del hilo Tk              | P1       | M      | 039, 045             | TODO                 |
-| [047](047-centralize-product-manager-configuration.md)  | Centralizar configuración tipada            | P1       | M      | 039                  | TODO                 |
-| [049](049-retire-dormant-sqlite-store.md)               | Retirar store SQLite dormido                | P3       | S      | 036                  | UNBLOCKED — ADR 0008 |
+| Plan                                                    | Título                                      | Priority | Effort | Depends on           | Status                                                         |
+| ------------------------------------------------------- | ------------------------------------------- | -------- | ------ | -------------------- | -------------------------------------------------------------- |
+| [040](040-preserve-product-state-in-bulk-operations.md) | Preservar metadata en operaciones masivas   | P1       | S      | 039                  | SUPERSEDED — cubierto por TS (059: bulk con revisión/metadata) |
+| [041](041-stage-media-mutations-until-save.md)          | Hacer transaccionales los cambios de medios | P1       | M      | 039                  | SUPERSEDED — cubierto por TS (063: media workbench)            |
+| [042](042-reorder-products-by-identity.md)              | Reordenar por identidad real                | P1       | S      | 039                  | SUPERSEDED — cubierto por TS (059: reorder por identidad)      |
+| [043](043-preserve-sync-conflicts.md)                   | Preservar conflictos hasta resolución       | P1       | S      | 039                  | SUPERSEDED — cubierto por TS (064: conflictos durables)        |
+| [044](044-unify-discount-invariant.md)                  | Unificar invariante de descuentos           | P2       | S      | 039; 040 recomendado | SUPERSEDED — cubierto por TS (074: discount ≤ price)           |
+| [045](045-make-publication-safe-and-truthful.md)        | Publicación acotada, preflighted y veraz    | P1       | M      | 039                  | SUPERSEDED — cubierto por TS (058/072: publication scoped)     |
+| [046](046-run-git-operations-off-ui-thread.md)          | Ejecutar Git fuera del hilo Tk              | P1       | M      | 039, 045             | SUPERSEDED — cubierto por TS (job runner + Git no bloqueante)  |
+| [047](047-centralize-product-manager-configuration.md)  | Centralizar configuración tipada            | P1       | M      | 039                  | SUPERSEDED — cubierto por TS (057: credential/env + settings)  |
+| [049](049-retire-dormant-sqlite-store.md)               | Retirar store SQLite dormido                | P3       | S      | 036                  | SUPERSEDED — SQLite retirado con Python (ADR 0009)             |
 
 Gate residual: pytest + ruff desde `admin/product_manager/` (equivalente al job
 de CI en `admin.yml`).

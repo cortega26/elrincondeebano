@@ -146,9 +146,8 @@
 ## Content Manager (modo offline)
 
 - **Canónico (TypeScript):** `admin/content-manager/`. Ejecuta `npm run admin:dev` desde la raíz del repo (o `npm run admin:start` en producción). Modos: `ADMIN_MODE=operator` (escribe) o `read-only` (por defecto). La credencial de lanzamiento se define con `ADMIN_CREDENTIAL` o se imprime una generada en el arranque en modo operator (plan 071); la UI la pide al primer uso. Detalles: `admin/content-manager/README.md` y `.env.example`.
-- **Fallback (Python/Tkinter):** `admin/product_manager/` — solo durante la ventana de transición (plan 069).
 - **Fuente de verdad:** `data/product_data.json` versionado en Git. No existe API remota por defecto.
-- **Configuración (fallback Python):** `sync.enabled` se mantiene en `false` y `sync.api_base` vacío (`admin/product_manager/content_manager.py:44-69`).
+- **Configuración de sync:** se mantiene en `false` por defecto (`sync.enabled`) y `sync.api_base` vacío; el override va en `config.json` del operador, nunca en el repo.
 - **Ejecución:** abre la app → realiza ediciones → guarda. Los cambios quedan en el archivo del repo y se suben vía commit/push.
 - **Sincronización remota opcional:** habilítala sólo si hay un backend disponible. Crea un override (`config.json`) con `sync.enabled: true` y `sync.api_base` apuntando al endpoint. Mientras no haya backend, deja esos valores en blanco para evitar colas pendientes.
 - **Campos normalizados obligatorios (size):**
@@ -188,7 +187,6 @@ Fallback sin `node` en PATH: `npx -y node@24 "C:\Program Files\nodejs\node_modul
 | Type & Lint Guardian    | `npm run format`                                                                                                    | Cada PR                              | Código formateado                                  |
 | Type & Lint Guardian    | `npm run guardrails:assets`                                                                                         | PRs con cambios en imágenes/catálogo | Sin assets huérfanos nuevos                        |
 | Security / Supply Chain | `npm audit --omit=dev`                                                                                              | Mensual o ante cambios de deps       | Sin vulns altas/críticas                           |
-| Security / Supply Chain | `pip-audit -r admin/product_manager/requirements.lock.txt`                                                          | Cambios en tooling Python            | Sin vulns altas/críticas                           |
 | Security / Supply Chain | `npm run security:secret-scan`                                                                                      | Cada PR/push                         | Sin credenciales en versión                        |
 | Security / Supply Chain | `semgrep scan --config p/default --config p/secrets --metrics=off --sarif --output reports/semgrep/results.sarif .` | CI o reproducción local              | SARIF generado y subido                            |
 | Test Sentinel           | `npm ci && npm test`                                                                                                | Tras modificaciones                  | Todas las pruebas pasan                            |
@@ -206,10 +204,10 @@ Fallback sin `node` en PATH: `npx -y node@24 "C:\Program Files\nodejs\node_modul
 - **`Secret Scan`** (`.github/workflows/secret-scan.yml`) — push/PR, cron semanal. Ejecuta `npm run security:secret-scan`.
 - **`Continuous Integration`** (`.github/workflows/ci.yml`) — push/PR a `main` (excluye `admin/**`). Node 24.x: lint root + Astro, build, guardrails, unit tests, E2E, smoke, Lighthouse.
 - **`Quality Gates`** (`.github/workflows/quality-gates.yml`) — push/PR a `main`, cron semanal y manual. Verifica complejidad, vulnerabilidades, scripts shell, workflows y Markdown.
-- **`Security Audits`** (`.github/workflows/security-audit.yml`) — cron semanal / manual. Node 24.x en las superficies npm; `pip-audit` para el tooling Python.
+- **`Security Audits`** (`.github/workflows/security-audit.yml`) — cron semanal / manual. Node 24.x en las superficies npm; `npm audit --omit=dev`.
 - **`Post-Deploy Canary`** (`.github/workflows/post-deploy-canary.yml`) — PR a `main`, `workflow_run` post-deploy. Live probe en GitHub-hosted `ubuntu-24.04`; modo estricto de headers en `/` y `/pages/bebidas.html`.
 - **`Live Contract Monitor`** (`.github/workflows/live-contract-monitor.yml`) — cron diario. GitHub-hosted `ubuntu-24.04`. Abre/actualiza issue si falla el baseline de headers.
-- **`Admin Tools CI`** (`.github/workflows/admin.yml`) — cambios en `admin/**`. Python 3.14: `product_manager` con ruff/pylint/bandit/mypy/pytest desde `requirements-dev.txt`; `web/` con ruff y smoke tests; Content Manager TS con lint, typecheck, vitest, coverage, build y E2E Playwright, cerrado por el certification report (`--ci`: gatea solo los checks automatizados; las filas de paridad las firma el mantenedor, ver `CUTOVER.md`).
+- **`Admin Tools CI`** (`.github/workflows/admin.yml`) — cambios en `admin/**`. Content Manager TS con lint, typecheck, vitest, coverage, build, E2E Playwright (smoke + import + changes + media + storefront), drills de rollback y `npm audit --omit=dev`, cerrado por el certification report (`--ci`: gatea solo los checks automatizados; las filas de paridad y los drills las firma el mantenedor, ver `CUTOVER.md`).
 
 ## Playbooks
 

@@ -58,7 +58,6 @@ jobs:
             --exclude-rule javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring \
             --exclude-rule problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server \
             --exclude-rule python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected \
-            --exclude admin/product_manager/.venv-ci-admin \
             .
 
       - name: Generate Markdown report

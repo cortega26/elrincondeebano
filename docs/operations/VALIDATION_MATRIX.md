@@ -24,16 +24,15 @@ release readiness.
 The root `typecheck` and `test` gates cover the **whole monorepo**: the
 storefront (`astro-poc/`), the legacy tree, and the TypeScript Content Manager
 (`admin/content-manager/` — its workspace typecheck and vitest suite run as
-part of the root scripts). The Python fallback (`admin/product_manager/`)
-stays separate: validate it with `python -m pytest admin/product_manager/tests`.
+part of the root scripts).
 
 `npm run validate:release` runs the release stages explicitly defined in
 `tools/validate-release.mjs`:
 
 1. `npm run lint`
 2. `npm run typecheck`
-3. `npm test`
-4. `npm run build`
+3. `npm run build`
+4. `npm test`
 5. `npm run guardrails:assets`
 6. `npm run test:e2e`
 7. `npm run monitor:share-preview`

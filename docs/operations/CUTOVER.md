@@ -1,109 +1,72 @@
-# Cutover Plan — TypeScript Content Manager
+# Cutover — TypeScript Content Manager (completado)
 
-- Plan: 055 Phase 12
-- Date: 2026-07-16
+- Plan: 055 Phase 12 → plan 069 (gate terminal)
+- Cutover completado: 2026-08-11
+- Frontera de rollback: tag `v1.x-python-final`
 
-## Current state
+## Estado actual
 
-The TypeScript Content Manager (`admin/content-manager/`) is functional for the
-covered workflows and its automated certification checks are green: `Admin
-Tools CI` runs typecheck, vitest, coverage, build, shadow-read, parity, E2E
-smoke (15 tests) and doctor on every `admin/**` change, and the certification
-report gates on those checks (`npm run certify -- --ci`). 19 of the 20 parity
-rows are auto-verified against the unit/integration suite (the report maps
-each scenario to its covering test files and requires the full vitest run to
-pass); the remaining row — `parity-preferences` — has no direct TS equivalent
-(the web app uses system theme and native browser shortcuts rather than
-persisted preferences) and stays operator-signed, alongside the two manual
-rows (acceptance walkthrough and rollback drill). The full gate
-(`npm run admin:certify`, which requires `untested == 0`) is reached once
-those rows are signed. Closing that remaining gap is tracked by plans
-056–069 (Auditoría 6) and the Wave 4 gate of the Auditoría 7 queue; this
-document must be revisited when plan 069 lands.
+El Content Manager TypeScript (`admin/content-manager/`) es la única
+aplicación de administración activa del repositorio. El fallback
+Python/Tkinter (`admin/product_manager/`) fue retirado de forma reversible
+(plan 069, Step 6): su último commit con código activo está taggeado como
+`v1.x-python-final` y el commit de retiro es revertible con `git revert`.
 
-> The certification/parity reports are **local evidence artifacts**, generated
-> by `npm run admin:certify` / `admin:parity` (they are not committed — the
-> root `.gitignore` excludes `reports/`). The exact filenames above are the
-> newest ones present at audit time; re-run the commands to regenerate them.
+La certificación del release candidate se registra en
+`reports/certification/certification-<ts>.json` (artefacto local, no
+versionado — `.gitignore` excluye `reports/`). El gate `npm run admin:certify`
+reporta READY solo cuando las 30 filas están evidenciadas:
 
-The Python Tkinter manager (`admin/product_manager/`) remains the active read
-fallback during the transition window (plan 069).
+- 8 checks automatizados (typecheck, unit+integration, coverage, build,
+  shadow-read, parity, e2e-smoke, doctor), re-ejecutados sobre el SHA actual.
+- 16 filas de paridad mapeadas a las suites de test que las ejercitan.
+- 2 filas manuales resueltas desde
+  `reports/certification/evidence/operator-acceptance.json` (aceptación
+  firmada del maintainer) y `rollback-drill.json` (8 drills de fallo/rollback
+  sobre repos temporales desechables).
 
-## Cutover steps
+`Admin Tools CI` (`.github/workflows/admin.yml`) corre lint, typecheck,
+vitest, coverage, build, E2E Playwright (smoke + import + change-sets +
+media + storefront), drills de rollback y `npm audit --omit=dev`, cerrados
+por el certification report en modo `--ci`.
 
-### Step 1: Make TypeScript the canonical entry point
+## Verificación de clean-clone (plan 069 Step 2)
 
-```bash
-# New canonical command
-npm run admin:dev     # Start TypeScript Content Manager in dev mode
-npm run admin:start   # Production start
-```
-
-### Step 2: Archive Python compatibility evidence
+Desde un clone limpio del repo (con el estado del release candidate):
 
 ```bash
-npm run admin:certify   # Generate certification report
-npm run admin:parity    # Verify Python/TS output equivalence
-```
-
-### Step 3: Verify standalone operation
-
-```bash
-# From a clean clone:
 npm ci
 npm run admin:validate   # typecheck + test + build + parity
-npm run admin:start      # verify server starts
-npm run build            # verify storefront still builds
+npm run admin:certify    # 30/30 READY (aceptación firmada + drills)
+npm run validate         # lint + typecheck + selectors + build + test + guardrails
+npm run validate:release # añade e2e storefront + monitor share-preview
 ```
 
-### Step 4: Fallback window (1 week minimum)
+Dos corridas consecutivas en 2026-08-11: cero diferencias sin explicar,
+sin reparación manual de JSON/filesystem.
 
-During this period:
+## Rollback (retiro reversible)
 
-- Python manager remains runnable as fallback
-- Operators use TypeScript manager for all active work
-- Any Python-only operations are identified and migrated
-- Review diffs between Python and TypeScript output
-
-### Step 5: Python Tk retirement (after fallback window + approval)
-
-After maintainer approval:
-
-- Remove `admin/product_manager/` from the active tree
-- Tag the last commit with Python as `v1.x-python-final`
-- Remove Python-specific CI jobs and dependencies
-- Update all documentation to reference only the TypeScript manager
-
-## Rollback instructions
-
-### Before Python deletion
+El commit de retiro de Python es un commit aislado y revertible:
 
 ```bash
-# Revert to Python as canonical entry
-git revert <python-retirement-commit>
-npm run admin:start  # still works (no Python needed for validate)
-python admin/product_manager/content_manager.py  # fallback manager
-```
-
-### After Python deletion (within fallback window)
-
-```bash
-# Restore Python from the tagged release
+# Restaurar el fallback Python desde el tag
 git checkout v1.x-python-final -- admin/product_manager/
-# Reinstall Python dependencies
 cd admin/product_manager && python -m venv .venv && .venv/bin/pip install -r requirements.txt
-# Verify Python manager works
 .venv/bin/python content_manager.py
+
+# O revertir el commit de retiro completo
+git revert <python-retirement-commit>
 ```
 
-### No reverse data migration needed
+No se requiere migración inversa de datos: el manager TS escribe el mismo
+formato canónico `data/product_data.json` que Python.
 
-The TypeScript manager writes to the same canonical `data/product_data.json`
-format as Python. No schema downgrade or data transformation is required to
-roll back.
+## Operación canónica
 
-## Post-cutover
+- `npm run admin:dev` — desarrollo.
+- `npm run admin:start` — arranque de producción (`ADMIN_MODE=operator`).
+- `npm run admin:doctor` — diagnóstico con remedios.
+- `npm run admin:certify` / `admin:parity` — evidencia de certificación.
 
-- `npm run admin:start` is the canonical documented entry point
-- No documentation or CI path references Python/Tk as active
-- `data/backups/` contains pre-cutover snapshots for recovery
+`data/backups/` contiene snapshots pre-cutover para recuperación.

@@ -332,7 +332,7 @@ export function ConflictsPage(): React.ReactElement {
                 rev {conflict.base_revision}
               </span>
               <span style={{ fontSize: '0.75rem', color: '#6c757d' }}>
-                {new Date(conflict.created_at).toLocaleString('es-MX')}
+                {new Date(conflict.created_at).toLocaleString('es-CL')}
               </span>
             </div>
 
@@ -507,7 +507,7 @@ export function ConflictsPage(): React.ReactElement {
                     {conflict.resolution_audit.map((entry, i) => (
                       <tr key={i} style={{ borderBottom: '1px solid #f5f5f5' }}>
                         <td style={{ padding: '0.15rem 0.5rem' }}>
-                          {new Date(entry.timestamp).toLocaleString('es-MX')}
+                          {new Date(entry.timestamp).toLocaleString('es-CL')}
                         </td>
                         <td style={{ padding: '0.15rem 0.5rem' }}>{entry.field}</td>
                         <td style={{ padding: '0.15rem 0.5rem' }}>{entry.from}</td>

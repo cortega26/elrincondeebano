@@ -12,21 +12,26 @@
 
 ## Overall status
 
-| Phase | Title                                             | Status   |
-| ----- | ------------------------------------------------- | -------- |
-| **0** | Authority, inventory, frozen compatibility corpus | **DONE** |
-| **1** | Workspace and TypeScript 7                        | **DONE** |
-| **2** | Shared schemas and read-only repositories         | **DONE** |
-| **3** | Stable identities and mutation kernel             | **DONE** |
-| **4** | Product workspace, bulk, and reorder              | **DONE** |
-| **5** | Categories and storefront                         | **DONE** |
-| 6     | Transactional media                               | TODO     |
-| 7     | Durable change sets, import, history              | TODO     |
-| 8     | Sync and actionable conflicts                     | TODO     |
-| 9     | Safe validation, Git, and publication             | TODO     |
-| 10    | Full parity, hardening, operator acceptance       | TODO     |
-| 11    | Shadow operation and write certification          | TODO     |
-| 12    | Cutover and Python retirement                     | TODO     |
+> Fases 6–12 reconciliadas el 2026-08-11 (plan 069, Step 1): las fases 6–11 se
+> ejecutaron vía los planes de la Auditoría 6 (056–068), no por ramas de fase
+> propias; el estado del código vivo y la certificación mandan. La fase 12 es el
+> gate terminal, en ejecución por el plan 069.
+
+| Phase | Title                                             | Status                                                              |
+| ----- | ------------------------------------------------- | ------------------------------------------------------------------- |
+| **0** | Authority, inventory, frozen compatibility corpus | **DONE**                                                            |
+| **1** | Workspace and TypeScript 7                        | **DONE**                                                            |
+| **2** | Shared schemas and read-only repositories         | **DONE**                                                            |
+| **3** | Stable identities and mutation kernel             | **DONE**                                                            |
+| **4** | Product workspace, bulk, and reorder              | **DONE**                                                            |
+| **5** | Categories and storefront                         | **DONE**                                                            |
+| 6     | Transactional media                               | DONE — plan 063 (workbench transaccional de media)                  |
+| 7     | Durable change sets, import, history              | DONE — planes 060, 062 (interchange + change control center)        |
+| 8     | Sync and actionable conflicts                     | DONE — planes 058, 064 (sync durable + conflictos accionables)      |
+| 9     | Safe validation, Git, and publication             | DONE — planes 058, 061, 072, 080 (publication/paths, Git pull, IDs) |
+| 10    | Full parity, hardening, operator acceptance       | DONE — planes 056, 057, 061, 065 (paridad cero diffs, operador)     |
+| 11    | Shadow operation and write certification          | DONE — planes 056 (certificación ejecutable), 060 (preview durable) |
+| 12    | Cutover and Python retirement                     | IN PROGRESS — plan 069 (gate terminal)                              |
 
 ---
 

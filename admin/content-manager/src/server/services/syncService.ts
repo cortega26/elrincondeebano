@@ -8,7 +8,8 @@ import {
   type Conflict,
 } from '../../shared/schemas/conflict.ts';
 import type { Repositories } from '../routes/catalog.ts';
-import type { ProductCatalog } from '../../shared/schemas/product.ts';
+import { productSchema, type ProductCatalog } from '../../shared/schemas/product.ts';
+import { createHash } from 'node:crypto';
 
 // Durable remote sync engine (plan 064). Python-parity semantics:
 // - queue entries with attempts/backoff/terminal state, atomic persistence
@@ -120,18 +121,32 @@ export class SyncService {
         });
 
         if (result.ok) {
-          entry.status = 'synced';
-          entry.last_error = undefined;
-          entry.next_retry_at = null;
           const body = result.body as
             { product?: Record<string, unknown>; rev?: number } | undefined;
           if (body?.product) {
-            await this.applyServerSnapshot(
+            // Plan 086: the entry is only synced when the server snapshot
+            // also applies locally — a remote ack without a local write must
+            // not drop the update (queue evidence preserved for retry).
+            const applied = await this.applyServerSnapshot(
               body.product,
               body.rev ?? entry.base_rev,
-              entry.product_id
+              entry.product_id,
+              `sync-push-${entry.changeset_id}`
             );
+            if (!applied) {
+              entry.status = 'error';
+              entry.last_error = 'Local apply failed after remote ack';
+              const config = this.adapter.getConfig();
+              entry.next_retry_at = new Date(
+                Date.now() + this.retryDelay(entry.attempts, config.poll_interval) * 1000
+              ).toISOString();
+              failed += 1;
+              continue;
+            }
           }
+          entry.status = 'synced';
+          entry.last_error = undefined;
+          entry.next_retry_at = null;
           pushed += 1;
         } else if (result.conflicts && result.conflicts.length > 0) {
           // 409/412: durable conflict — the queue evidence is preserved.
@@ -236,26 +251,47 @@ export class SyncService {
     }
 
     let applied = 0;
+    let failedApply = 0;
     for (const change of changes) {
       const snapshot = change['product_snapshot'] as Record<string, unknown> | undefined;
-      if (!snapshot) continue;
+      if (!snapshot) {
+        failedApply += 1;
+        continue;
+      }
       const productId = change['product_id'] as string | undefined;
       const rev = change['rev'] as number | undefined;
       if (await this.applyServerSnapshot(snapshot, rev ?? sinceRev, productId)) {
         applied += 1;
+      } else {
+        failedApply += 1;
       }
     }
 
-    this.lastPullResult = { at: new Date().toISOString(), ok: true };
-    return { applied, cursor: this.repos.products.loadCatalog().rev };
+    const ok = failedApply === 0;
+    this.lastPullResult = {
+      at: new Date().toISOString(),
+      ok,
+      error: ok ? undefined : `${failedApply} change(s) could not be applied`,
+    };
+    return {
+      applied,
+      cursor: this.repos.products.loadCatalog().rev,
+      error: ok ? undefined : `${failedApply} change(s) could not be applied`,
+    };
   }
 
   // Upserts a server snapshot into the local catalog with a single
   // revision-guarded write; the catalog revision acts as the pull cursor.
+  // Plan 086: the write command id is content-derived (base revision + hash
+  // of the snapshot) so distinct pulls never collide in the idempotency
+  // store, while an identical retry stays idempotent. The merged product is
+  // validated against productSchema before persisting — a poisoned remote
+  // snapshot can never corrupt the canonical catalog.
   private async applyServerSnapshot(
     snapshot: Record<string, unknown>,
     rev: number,
-    lookupProductId?: string
+    lookupProductId?: string,
+    commandId?: string
   ): Promise<boolean> {
     const catalog = this.repos.products.loadCatalog();
     const existing = lookupProductId
@@ -275,22 +311,31 @@ export class SyncService {
         (existing as unknown as Record<string, unknown>)[field] = value;
       }
       existing.rev = Math.max(existing.rev, rev);
+      if (!productSchema.safeParse(existing).success) return false;
     } else {
       const id = lookupProductId ?? String(snapshot['id'] ?? '');
       if (!id) return false;
-      catalog.products.push({
+      const candidate = {
         ...(snapshot as unknown as ProductCatalog['products'][number]),
         id,
         rev: Math.max(0, rev),
         order: catalog.products.length,
         field_last_modified: {},
-      });
+      };
+      if (!productSchema.safeParse(candidate).success) return false;
+      catalog.products.push(candidate);
     }
 
     catalog.rev += 1;
     catalog.last_updated = new Date().toISOString();
     const baseRev = catalog.rev - 1;
-    const write = await this.repos.products.writeCatalog(catalog, 'sync-pull', baseRev);
+    const writeCommandId =
+      commandId ??
+      `sync-pull-${baseRev}-${createHash('sha256')
+        .update(JSON.stringify(snapshot))
+        .digest('hex')
+        .slice(0, 16)}`;
+    const write = await this.repos.products.writeCatalog(catalog, writeCommandId, baseRev);
     return write.ok;
   }
 }

@@ -1,9 +1,0 @@
-# Runtime dependencies for the Content Manager GUI.
-# Install together with the dev-and-tooling requirements and the version lock:
-#   pip install -r requirements.txt -r requirements-dev.txt -c requirements.lock.txt
-# For a production-only environment (no testing/linting toolchain):
-#   pip install -r requirements.txt -c requirements.lock.txt
-portalocker
-pillow-heif
-pillow-avif-plugin
-ttkbootstrap

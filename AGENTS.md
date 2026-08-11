@@ -6,9 +6,10 @@ Runtime: Node 24.x únicamente (`engines: >=24 <25`, Volta 24.0.0).
 
 **Content Manager**: la aplicación canónica es `admin/content-manager/`
 (TypeScript: Fastify + React + Vite + TS7). El manager Python/Tkinter
-(`admin/product_manager/`) es fallback durante la transición; el plan 069 lo
-retira tras certificación. El prototipo Streamlit (`admin/web/`) está retirado
-(aunque los archivos persisten).
+(`admin/product_manager/`) fue retirado de forma reversible el 2026-08-11
+(plan 069; frontera de rollback: tag `v1.x-python-final`, el commit de retiro
+es revertible). El prototipo Streamlit (`admin/web/`) está retirado (aunque
+los archivos persisten).
 
 ## Estructura (npm workspaces)
 
@@ -16,10 +17,8 @@ retira tras certificación. El prototipo Streamlit (`admin/web/`) está retirado
   (sin framework de UI), salida en `astro-poc/dist/`. `npm run build` lo
   construye; el deploy es GitHub Pages + Cloudflare edge (ADR 0004).
 - **`admin/content-manager/`** — Content Manager TS. Todo se maneja con
-  `npm run admin:*` (dev, build, test, parity, shadow-read, certify, doctor).
-- **`admin/product_manager/`** — fallback Python/Tkinter. Python 3.12+;
-  CI (`admin.yml`) corre ruff/mypy/pytest desde ese directorio con
-  `requirements-dev.txt`. No lo toques salvo que el TS esté roto.
+  `npm run admin:*` (dev, build, test, parity, shadow-read, certify, doctor,
+  drills de rollback con `scripts/rollback-drill.ts`).
 - **`data/` + `assets/`** — catálogo autoritativo (ADR 0009). El admin escribe
   en el repo; el storefront lo consume en build. Cualquier cambio de catálogo,
   taxonomía o assets obliga a `guardrails:assets`.

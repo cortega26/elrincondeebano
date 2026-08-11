@@ -5,6 +5,7 @@ import {
   mkdirSync,
   renameSync,
   unlinkSync,
+  statSync,
 } from 'node:fs';
 import { resolve } from 'node:path';
 import { z } from 'zod';
@@ -33,6 +34,11 @@ export function generateChangesetId(): string {
 }
 
 const MAX_QUEUE_ENTRIES = 1000;
+
+// Plan 086: a crashed process (kill -9, power loss) can leave the lock file
+// behind; after this TTL the lock is treated as stale and reclaimed. Must be
+// well above the worst-case duration of a single processOnce (today < 1s).
+const SYNC_LOCK_TTL_MS = 5 * 60 * 1000;
 
 export class SyncQueueRepository {
   private readonly path: string;
@@ -71,8 +77,19 @@ export class SyncQueueRepository {
   }
 
   // Single-consumer lock: returns true only if this process won the lock.
+  // A lock file older than SYNC_LOCK_TTL_MS is stale (crashed owner) and is
+  // reclaimed; the write still uses flag 'wx' so a concurrent acquirer keeps
+  // the single-consumer guarantee.
   acquireLock(): boolean {
-    if (existsSync(this.lockFile)) return false;
+    if (existsSync(this.lockFile)) {
+      try {
+        const mtime = statSync(this.lockFile).mtimeMs;
+        if (Date.now() - mtime <= SYNC_LOCK_TTL_MS) return false;
+        unlinkSync(this.lockFile);
+      } catch {
+        return false;
+      }
+    }
     try {
       writeFileSync(this.lockFile, String(process.pid), { encoding: 'utf-8', flag: 'wx' });
       return true;
