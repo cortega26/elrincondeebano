@@ -22,6 +22,7 @@ import { ConflictService } from '../domain/conflicts/conflictService.ts';
 import { ConflictRepository } from './repositories/conflictRepository.ts';
 import { conflictsRoutes } from './routes/conflicts.ts';
 import { SyncAdapter, syncConfigSchema, type SyncConfig } from './adapters/syncAdapter.ts';
+import { SyncService } from './services/syncService.ts';
 import { backupRoutes } from './routes/backup.ts';
 import { diagnosticsRoutes } from './routes/diagnostics.ts';
 import { existsSync, readFileSync } from 'node:fs';
@@ -102,6 +103,7 @@ export function createApp(opts?: AppOptions): FastifyInstance {
   const syncConfigPath = resolve(repoRoot, 'data', 'sync-config.json');
   const syncConfig = loadSyncConfig(syncConfigPath);
   const syncAdapter = new SyncAdapter(syncConfig);
+  const syncService = new SyncService(repoRoot, syncAdapter, repos);
 
   const jobRunner = new JobRunner();
   const git = new GitAdapter(repoRoot);
@@ -116,7 +118,7 @@ export function createApp(opts?: AppOptions): FastifyInstance {
 
   app.register(
     async function (instance) {
-      await productRoutes(instance, repos, productService);
+      await productRoutes(instance, repos, productService, syncService);
     },
     { prefix: '/api/v1' }
   );
@@ -158,7 +160,14 @@ export function createApp(opts?: AppOptions): FastifyInstance {
 
   app.register(
     async function (instance) {
-      await conflictsRoutes(instance, conflictService, conflicts, syncAdapter, syncConfigPath);
+      await conflictsRoutes(
+        instance,
+        conflictService,
+        conflicts,
+        syncAdapter,
+        syncConfigPath,
+        syncService
+      );
     },
     { prefix: '/api/v1' }
   );

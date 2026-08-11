@@ -41,7 +41,14 @@ export function ProductsPage(): React.ReactElement {
   const [sortField, setSortField] = useState<string>('order');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [categories, setCategories] = useState<CategoryRecord[]>([]);
-  const [syncStatus, setSyncStatus] = useState<{ enabled: boolean; api_base: string } | null>(null);
+  const [syncStatus, setSyncStatus] = useState<{
+    enabled: boolean;
+    api_base: string;
+    paused: boolean;
+    token_configured: boolean;
+    queue: { pending: number; error: number; total: number };
+    last_push: { ok: boolean; error?: string } | null;
+  } | null>(null);
   const [showSyncConfig, setShowSyncConfig] = useState(false);
   const [syncConfig, setSyncConfig] = useState({ enabled: true, api_base: '', api_token: '' });
   const undoStack = useRef<UndoEntry[]>([]);
@@ -87,6 +94,10 @@ export function ProductsPage(): React.ReactElement {
           api_base: string;
           poll_interval: number;
           pull_interval: number;
+          paused: boolean;
+          token_configured: boolean;
+          queue: { pending: number; error: number; total: number };
+          last_push: { ok: boolean; error?: string } | null;
         };
         setSyncStatus(s);
         setSyncConfig({
@@ -398,6 +409,17 @@ export function ProductsPage(): React.ReactElement {
           <span>
             Sync: {syncStatus.enabled ? 'Conectado' : 'Desactivado'} —{' '}
             {syncStatus.api_base || 'No configurado'}
+            {syncStatus.enabled && (
+              <>
+                {' '}
+                · cola {syncStatus.queue.pending} pend / {syncStatus.queue.error} err /{' '}
+                {syncStatus.queue.total} total
+                {syncStatus.paused ? ' · PAUSADO' : ''}
+                {syncStatus.last_push?.ok === false && (
+                  <span style={{ color: '#c62828' }}> · push falló</span>
+                )}
+              </>
+            )}
           </span>
           <button
             onClick={() => {
@@ -408,19 +430,32 @@ export function ProductsPage(): React.ReactElement {
             Configurar
           </button>
           {syncStatus.enabled && (
-            <button
-              onClick={() => {
-                fetchWithCredential('/api/v1/sync/now', { method: 'POST' })
-                  .then((r) => r.json())
-                  .then((d) =>
-                    setFeedback((d as { message?: string }).message ?? 'Sync solicitado')
-                  )
-                  .catch(() => setFeedback('Error al sincronizar'));
-              }}
-              style={{ padding: '0.15rem 0.5rem', fontSize: '0.8rem' }}
-            >
-              Sincronizar ahora
-            </button>
+            <>
+              <button
+                onClick={() => {
+                  const action = syncStatus.paused ? 'resume' : 'pause';
+                  fetchWithCredential(`/api/v1/sync/${action}`, { method: 'POST' })
+                    .then(() => window.location.reload())
+                    .catch(() => setFeedback('Error al cambiar pausa'));
+                }}
+                style={{ padding: '0.15rem 0.5rem', fontSize: '0.8rem' }}
+              >
+                {syncStatus.paused ? 'Reanudar' : 'Pausar'}
+              </button>
+              <button
+                onClick={() => {
+                  fetchWithCredential('/api/v1/sync/now', { method: 'POST' })
+                    .then((r) => r.json())
+                    .then((d) =>
+                      setFeedback((d as { message?: string }).message ?? 'Sync solicitado')
+                    )
+                    .catch(() => setFeedback('Error al sincronizar'));
+                }}
+                style={{ padding: '0.15rem 0.5rem', fontSize: '0.8rem' }}
+              >
+                Sincronizar ahora
+              </button>
+            </>
           )}
           {showSyncConfig && (
             <div
@@ -454,20 +489,20 @@ export function ProductsPage(): React.ReactElement {
                 placeholder="api_base"
                 style={{ padding: '0.15rem 0.25rem', fontSize: '0.8rem', width: '150px' }}
               />
-              <input
-                type="text"
-                value={syncConfig.api_token}
-                onChange={(e) => setSyncConfig({ ...syncConfig, api_token: e.target.value })}
-                placeholder="api_token"
-                style={{ padding: '0.15rem 0.25rem', fontSize: '0.8rem', width: '120px' }}
-              />
+              <span style={{ fontSize: '0.75rem', color: '#6c757d' }}>
+                Token: {syncStatus.token_configured ? 'configurado (env)' : 'falta SYNC_API_TOKEN'}
+              </span>
               <button
                 onClick={async () => {
                   try {
+                    // The token is never sent over the API (plan 057/064):
+                    // it comes only from SYNC_API_TOKEN.
+                    const { api_token: _ignored, ...configBody } = syncConfig;
+                    void _ignored;
                     const res = await fetchWithCredential('/api/v1/sync/config', {
                       method: 'PUT',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify(syncConfig),
+                      body: JSON.stringify(configBody),
                     });
                     if (!res.ok) {
                       const err = await res.json().catch(() => ({}));
@@ -476,10 +511,10 @@ export function ProductsPage(): React.ReactElement {
                           `HTTP ${res.status}`
                       );
                     }
-                    const updated = await res.json();
-                    setSyncStatus(updated as { enabled: boolean; api_base: string });
+                    await res.json();
                     setShowSyncConfig(false);
                     setFeedback('Configuración de sync guardada ✓');
+                    window.setTimeout(() => window.location.reload(), 300);
                   } catch (err) {
                     setError((err as Error).message);
                   }

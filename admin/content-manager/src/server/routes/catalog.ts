@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import type { ProductRepository } from '../repositories/productRepository.ts';
 import type { CategoryRepository } from '../repositories/categoryRepository.ts';
 import type { StorefrontRepository } from '../repositories/storefrontRepository.ts';
+import type { SyncService } from '../services/syncService.ts';
 import { ProductService } from '../../domain/products/productService.ts';
 import type { CommandEnvelope } from '../../shared/commands/envelope.ts';
 import type { CategoryService } from '../../domain/categories/categoryService.ts';
@@ -18,7 +19,8 @@ export interface Repositories {
 export async function productRoutes(
   app: FastifyInstance,
   repos: Repositories,
-  productService: ProductService
+  productService: ProductService,
+  syncService?: SyncService
 ): Promise<void> {
   app.get('/products', async (request) => {
     const query = request.query as Record<string, string | undefined>;
@@ -197,6 +199,20 @@ export async function productRoutes(
       return reply.status(writeResult.statusCode).send({
         error: { code: 'CONFLICT', message: writeResult.error },
       });
+    }
+
+    // Plan 064: queue the edit for remote sync when enabled (offline edit
+    // flow); the queue is idempotent and the adapter is configured or this
+    // is a no-op.
+    const changedFields = result.changedFields ?? [];
+    if (syncService && id && changedFields.length > 0 && result.product) {
+      const productRecord = result.product as unknown as Record<string, unknown>;
+      syncService.enqueue(
+        id,
+        envelope.base_revision ?? 0,
+        Object.fromEntries(changedFields.map((f) => [f, productRecord[f]])),
+        productRecord
+      );
     }
 
     return {
