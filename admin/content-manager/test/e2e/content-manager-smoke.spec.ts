@@ -35,7 +35,7 @@ test('media page loads', async ({ page }) => {
 
 test('history page loads', async ({ page }) => {
   await page.goto('/history');
-  await expect(page.locator('h1')).toContainText('Historial');
+  await expect(page.locator('h1')).toContainText('Cambios y recuperación');
 });
 
 test('bundles page loads', async ({ page }) => {
