@@ -179,6 +179,8 @@ export class ContentManagerClient {
     category?: string;
     archived?: boolean;
     out_of_stock?: boolean;
+    min_price?: number;
+    max_price?: number;
   }): Promise<PaginatedResponse<ProductResponse>> {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.set('page', String(params.page));
@@ -188,6 +190,8 @@ export class ContentManagerClient {
     if (params?.archived !== undefined) searchParams.set('archived', String(params.archived));
     if (params?.out_of_stock !== undefined)
       searchParams.set('out_of_stock', String(params.out_of_stock));
+    if (params?.min_price !== undefined) searchParams.set('min_price', String(params.min_price));
+    if (params?.max_price !== undefined) searchParams.set('max_price', String(params.max_price));
 
     const qs = searchParams.toString();
     return this.request<PaginatedResponse<ProductResponse>>(`/products${qs ? `?${qs}` : ''}`);
