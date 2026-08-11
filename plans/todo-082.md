@@ -11,5 +11,5 @@ vulnerabilities); falta retirar `test-web`/`admin/web` y gatear el workspace.
 - [x] Step 1: actualizar "Files affected" del retirement notice
 - [x] Step 4: añadir `npm audit --omit=dev` al job `test-ts`
 - [x] Step 5: verificación completa (admin:typecheck, admin:test, admin:build:web, parity)
-- [ ] Commit por concern (ci según rama del plan)
-- [ ] `plans/README.md`: fila 082 → DONE + `git mv` del plan a `archive/`
+- [x] Commit por concern (ci según rama del plan)
+- [x] `plans/README.md`: fila 082 → DONE + `git mv` del plan a `archive/`
