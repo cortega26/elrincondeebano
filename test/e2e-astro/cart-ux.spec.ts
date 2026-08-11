@@ -310,3 +310,74 @@ test('T10: missing payment blocks submit — button disabled, error text shown',
   const openCount = await page.evaluate(() => (window as any).__openCallCount || 0);
   expect(openCount).toBe(0);
 });
+
+// ─── T11: Shared cart URL is catalog-authoritative (plan 026) ─────────────────
+
+test('T11: forged legacy shared-cart link rehydrates from catalog only', async ({ page }) => {
+  await page.setViewportSize(MOBILE);
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await waitForReady(page);
+
+  const firstCard = page.locator('.category-strip .add-to-cart-btn').first();
+  const card = firstCard.locator('xpath=ancestor::*[@data-product-id][1]');
+  const productId = await card.getAttribute('data-product-id');
+  const catalogName = await card.getAttribute('data-product-name');
+  expect(productId).toBeTruthy();
+  expect(catalogName).toBeTruthy();
+
+  // Forged legacy link: full cart shape with attacker-controlled commercial fields.
+  const forged = [
+    {
+      id: productId,
+      name: 'PRODUCTO FORJADO',
+      category: 'Fake',
+      price: 1,
+      discount: 0,
+      image: 'fake.jpg',
+      quantity: 2,
+    },
+  ];
+  const encoded = Buffer.from(encodeURIComponent(JSON.stringify(forged))).toString('base64');
+
+  await page.evaluate(() => localStorage.clear());
+  await page.evaluate((enc) => {
+    window.location.hash = `#cart=${enc}`;
+  }, encoded);
+  await page.reload({ waitUntil: 'networkidle' });
+  await waitForReady(page);
+
+  const shortcut = page.locator('#mobile-cart-shortcut');
+  await expect(shortcut).toBeVisible({ timeout: 5000 });
+  await shortcut.click();
+
+  const offcanvas = page.locator('#cartOffcanvas');
+  await expect(offcanvas).toBeVisible({ timeout: 5000 });
+
+  const title = offcanvas.locator('.cart-item__title');
+  await expect(title).toHaveText(catalogName!);
+
+  const stored = await page.evaluate(() => {
+    for (let i = 0; i < localStorage.length; i += 1) {
+      const key = localStorage.key(i);
+      if (!key) continue;
+      const value = localStorage.getItem(key);
+      if (value && value.includes('"id"') && value.includes('"quantity"')) {
+        try {
+          const parsed = JSON.parse(value);
+          if (Array.isArray(parsed)) return parsed;
+        } catch {
+          // keep scanning
+        }
+      }
+    }
+    return null;
+  });
+
+  expect(stored).not.toBeNull();
+  expect(stored![0]).toMatchObject({
+    id: productId,
+    name: catalogName,
+  });
+  expect(stored![0].price).toBeGreaterThan(1);
+  expect(stored![0].name).not.toBe('PRODUCTO FORJADO');
+});

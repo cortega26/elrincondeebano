@@ -14,9 +14,11 @@ import {
   createCartItemFromProduct,
   getCartState,
   hydrateCartFromOrder,
+  hydrateSharedCart,
   normalizeId,
   parseNumber,
   sanitizeCart,
+  toSharedCartPayload,
 } from './storefront/storefront-state.js';
 
 const MAX_RECENT_ORDERS = 6;
@@ -189,7 +191,9 @@ function showCartSaveError() {
 // Carrito compartible por URL
 function encodeCart(cart) {
   try {
-    return btoa(encodeURIComponent(JSON.stringify(cart)));
+    const payload = toSharedCartPayload(cart);
+    if (!payload) return '';
+    return btoa(encodeURIComponent(JSON.stringify(payload)));
   } catch {
     return '';
   }
@@ -228,13 +232,15 @@ function loadCartFromUrl() {
   try {
     var raw = decodeCart(match[1]);
     if (!raw) return false;
-    var sanitized = sanitizeCart(raw);
-    if (sanitized.length === 0) return false;
+    var hydrated = hydrateSharedCart(raw, function (id) {
+      return getProductByIdFromSource(id) || getProductFromCard(getProductCardById(id));
+    });
+    if (hydrated.length === 0) return false;
 
     var currentCart = loadCart();
     if (currentCart.length > 0) return false;
 
-    if (!saveCart(sanitized)) {
+    if (!saveCart(hydrated)) {
       return false;
     }
     history.replaceState(null, '', globalThis.location.pathname + globalThis.location.search);
@@ -461,11 +467,18 @@ function getProductFromCard(card) {
 
   const name = card.dataset.productName || id;
   const category = card.dataset.productCategory || '';
-  const price = parseNumber(card.dataset.productFinalPrice, 0);
-  const image = card.querySelector('.product-thumb')?.getAttribute('src') || '';
+  const finalPrice = parseNumber(card.dataset.productFinalPrice, NaN);
+  const price = Number.isNaN(finalPrice)
+    ? Math.max(
+        0,
+        parseNumber(card.dataset.productPrice, 0) - parseNumber(card.dataset.productDiscount, 0)
+      )
+    : finalPrice;
+  const discount = parseNumber(card.dataset.productDiscount, 0);
+  const image = card.querySelector('.product-thumb, .strip-card__img')?.getAttribute('src') || '';
   const stock = card.dataset.productStock !== 'false';
 
-  return { id, name, category, price, image, stock };
+  return { id, name, category, price, discount, image, stock };
 }
 
 function getProductByIdFromSource(id) {

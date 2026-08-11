@@ -106,3 +106,101 @@ export function hydrateCartFromOrder(order: unknown): CartItem[] {
     }))
   );
 }
+
+/**
+ * Shared-cart URL payload contract. The hash is untrusted input, so links
+ * carry identity and quantity only; display and pricing fields are rehydrated
+ * from the current catalog on load (plan 026).
+ */
+export const SHARED_CART_VERSION = 1;
+
+export interface SharedCartItem {
+  id: string;
+  quantity: number;
+}
+
+export interface SharedCartPayload {
+  version: number;
+  items: SharedCartItem[];
+}
+
+export function toSharedCartPayload(cart: unknown): SharedCartPayload | null {
+  const merged = new Map<string, number>();
+  for (const item of sanitizeCart(cart)) {
+    const id = normalizeId(item.id);
+    if (!id) {
+      continue;
+    }
+    const quantity = clampQty((merged.get(id) ?? 0) + clampQty(item.quantity));
+    if (quantity > 0) {
+      merged.set(id, quantity);
+    }
+  }
+  if (merged.size === 0) {
+    return null;
+  }
+  return {
+    version: SHARED_CART_VERSION,
+    items: [...merged.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([id, quantity]) => ({ id, quantity })),
+  };
+}
+
+export function parseSharedCartPayload(payload: unknown): SharedCartItem[] {
+  let rawItems: unknown;
+  if (Array.isArray(payload)) {
+    // Legacy link: full cart items were stored; only identity and quantity
+    // are trusted. Every other legacy field (name/price/discount/image) is ignored.
+    rawItems = payload;
+  } else {
+    const obj = payload as Record<string, unknown> | null | undefined;
+    if (!obj || typeof obj !== 'object') {
+      return [];
+    }
+    if (obj.version !== SHARED_CART_VERSION) {
+      return [];
+    }
+    if (!Array.isArray(obj.items)) {
+      return [];
+    }
+    rawItems = obj.items;
+  }
+
+  const seen = new Set<string>();
+  const items: SharedCartItem[] = [];
+  for (const raw of rawItems as unknown[]) {
+    const entry = raw as Record<string, unknown> | null | undefined;
+    const id = normalizeId(entry?.id);
+    const quantity = clampQty(entry?.quantity);
+    if (!id || quantity <= 0 || seen.has(id)) {
+      continue;
+    }
+    seen.add(id);
+    items.push({ id, quantity });
+  }
+  return items;
+}
+
+export function hydrateSharedCart(
+  payload: unknown,
+  resolveProductById: (id: string) => unknown
+): CartItem[] {
+  const entries = parseSharedCartPayload(payload);
+  if (entries.length === 0 || typeof resolveProductById !== 'function') {
+    return [];
+  }
+
+  const items: CartItem[] = [];
+  for (const { id, quantity } of entries) {
+    const product = resolveProductById(id) as Record<string, unknown> | null | undefined;
+    if (!product || product.stock === false) {
+      continue;
+    }
+    const item = createCartItemFromProduct(product, quantity);
+    if (item) {
+      items.push(item);
+    }
+  }
+  return items;
+}
