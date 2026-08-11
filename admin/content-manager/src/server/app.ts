@@ -23,6 +23,7 @@ import { ConflictRepository } from './repositories/conflictRepository.ts';
 import { conflictsRoutes } from './routes/conflicts.ts';
 import { SyncAdapter, syncConfigSchema, type SyncConfig } from './adapters/syncAdapter.ts';
 import { backupRoutes } from './routes/backup.ts';
+import { diagnosticsRoutes } from './routes/diagnostics.ts';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
@@ -172,6 +173,13 @@ export function createApp(opts?: AppOptions): FastifyInstance {
   app.register(
     async function (instance) {
       await backupRoutes(instance, repoRoot, enableWrites);
+    },
+    { prefix: '/api/v1' }
+  );
+
+  app.register(
+    async function (instance) {
+      await diagnosticsRoutes(instance, repoRoot);
     },
     { prefix: '/api/v1' }
   );

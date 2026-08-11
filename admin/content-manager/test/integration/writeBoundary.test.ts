@@ -27,6 +27,7 @@ const MUTATION_PROBES: Probe[] = [
   { method: 'POST', url: '/api/v1/conflicts/does-not-exist/resolve' },
   { method: 'POST', url: '/api/v1/media/intents', payload: {} },
   { method: 'POST', url: '/api/v1/publications', payload: {} },
+  { method: 'POST', url: '/api/v1/git/pull' },
   { method: 'PUT', url: '/api/v1/sync/config', payload: {} },
 ];
 

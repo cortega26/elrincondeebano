@@ -122,6 +122,8 @@ export class ProductRepository {
       category?: string;
       archived?: boolean;
       out_of_stock?: boolean;
+      min_price?: number;
+      max_price?: number;
     }
   ): { items: Product[]; total: number } {
     const catalog = this.loadCatalog();
@@ -135,6 +137,13 @@ export class ProductRepository {
 
     if (filters?.out_of_stock === true) {
       products = products.filter((p) => !p.stock);
+    }
+
+    if (filters?.min_price !== undefined) {
+      products = products.filter((p) => p.price >= filters.min_price!);
+    }
+    if (filters?.max_price !== undefined) {
+      products = products.filter((p) => p.price <= filters.max_price!);
     }
 
     if (filters?.category) {

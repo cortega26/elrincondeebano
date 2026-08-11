@@ -51,6 +51,8 @@ export function ProductsPage(): React.ReactElement {
   const category = searchParams.get('category') ?? '';
   const archived = searchParams.get('archived') ?? '';
   const outOfStock = searchParams.get('out_of_stock') ?? '';
+  const minPrice = searchParams.get('min_price') ?? '';
+  const maxPrice = searchParams.get('max_price') ?? '';
 
   const load = async (): Promise<void> => {
     setLoading(true);
@@ -61,6 +63,8 @@ export function ProductsPage(): React.ReactElement {
         category: category || undefined,
         archived: archived === 'true' ? true : archived === 'false' ? false : undefined,
         out_of_stock: outOfStock === 'true' ? true : undefined,
+        min_price: minPrice ? Number(minPrice) : undefined,
+        max_price: maxPrice ? Number(maxPrice) : undefined,
       });
       setData(result);
     } catch (err) {
@@ -72,7 +76,7 @@ export function ProductsPage(): React.ReactElement {
 
   useEffect(() => {
     void load();
-  }, [q, category, archived, outOfStock]);
+  }, [q, category, archived, outOfStock, minPrice, maxPrice]);
 
   useEffect(() => {
     fetch('/api/v1/sync/status')
@@ -166,11 +170,36 @@ export function ProductsPage(): React.ReactElement {
         name: String(form.name ?? ''),
         price: Number(form.price ?? 0),
         description: String(form.description ?? ''),
+        discount: Number(form.discount ?? 0),
         stock: Boolean(form.stock),
         category: String(form.category ?? ''),
+        image_path: String(form.image_path ?? ''),
+        image_avif_path: String(form.image_avif_path ?? ''),
       });
       setCreating(false);
       setFeedback('Producto creado ✓');
+      await load();
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  }
+
+  async function handleDuplicate(product: ProductResponse): Promise<void> {
+    const suggested = `${product.name ?? 'Producto'} (copia)`;
+    const name = window.prompt('Nombre de la copia:', suggested)?.trim();
+    if (!name) return;
+    try {
+      await client.createProduct({
+        name,
+        price: product.price,
+        description: product.description ?? '',
+        discount: product.discount ?? 0,
+        stock: Boolean(product.stock),
+        category: product.category ?? '',
+        image_path: product.image_path ?? '',
+        image_avif_path: product.image_avif_path ?? '',
+      });
+      setFeedback(`Duplicado creado: ${name} ✓`);
       await load();
     } catch (err) {
       setError((err as Error).message);
@@ -515,6 +544,28 @@ export function ProductsPage(): React.ReactElement {
           />
         </label>
         <label>
+          Precio min:{' '}
+          <input
+            type="number"
+            min="0"
+            value={minPrice}
+            onChange={(e) => setParam('min_price', e.target.value)}
+            placeholder="0"
+            style={{ padding: '0.25rem 0.5rem', width: '90px' }}
+          />
+        </label>
+        <label>
+          Precio max:{' '}
+          <input
+            type="number"
+            min="0"
+            value={maxPrice}
+            onChange={(e) => setParam('max_price', e.target.value)}
+            placeholder="∞"
+            style={{ padding: '0.25rem 0.5rem', width: '90px' }}
+          />
+        </label>
+        <label>
           Categoría:{' '}
           <select
             value={category}
@@ -841,7 +892,17 @@ export function ProductsPage(): React.ReactElement {
                     >
                       Arch.
                     </button>
-                  )}
+                  )}{' '}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      void handleDuplicate(product);
+                    }}
+                    style={{ padding: '0.1rem 0.4rem', fontSize: '0.85rem' }}
+                    aria-label={`Duplicar ${product.name}`}
+                  >
+                    Dup.
+                  </button>
                 </td>
               </tr>
             ))}
@@ -1044,6 +1105,7 @@ function ProductForm({
   const [category, setCategory] = useState(product?.category ?? '');
   const [discount, setDiscount] = useState(String(product?.discount ?? '0'));
   const [imagePath, setImagePath] = useState(product?.image_path ?? '');
+  const [imageAvifPath, setImageAvifPath] = useState(product?.image_avif_path ?? '');
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState<CategoryRecord[]>([]);
   const [mediaItems, setMediaItems] = useState<
@@ -1090,7 +1152,9 @@ function ProductForm({
         changes.description = description;
         changes.stock = stock;
         changes.category = category;
+        changes.discount = Number(discount);
         if (imagePath) changes.image_path = imagePath;
+        if (imageAvifPath) changes.image_avif_path = imageAvifPath;
       } else {
         if (name !== product.name) changes.name = name;
         if (Number(price) !== product.price) changes.price = Number(price);
@@ -1099,6 +1163,8 @@ function ProductForm({
         if (category !== product.category) changes.category = category;
         if (Number(discount) !== product.discount) changes.discount = Number(discount);
         if (imagePath !== (product.image_path ?? '')) changes.image_path = imagePath;
+        if (imageAvifPath !== (product.image_avif_path ?? ''))
+          changes.image_avif_path = imageAvifPath;
       }
       await onSave(changes);
     } finally {
@@ -1224,6 +1290,18 @@ function ProductForm({
           >
             {showImagePicker ? 'Ocultar' : 'Explorar'}
           </button>
+        </label>
+        <label
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}
+        >
+          <strong>Imagen AVIF:</strong>
+          <input
+            type="text"
+            value={imageAvifPath}
+            onChange={(e) => setImageAvifPath(e.target.value)}
+            placeholder="assets/images/… (avif)"
+            style={{ flex: 1, padding: '0.25rem', fontSize: '0.85rem' }}
+          />
         </label>
 
         {imagePath && (

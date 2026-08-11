@@ -29,12 +29,28 @@ export async function productRoutes(
     const archived = query.archived !== undefined ? query.archived === 'true' : undefined;
     const out_of_stock =
       query.out_of_stock !== undefined ? query.out_of_stock === 'true' : undefined;
+    const min_price =
+      query.min_price !== undefined && query.min_price !== ''
+        ? Math.max(0, Number(query.min_price))
+        : undefined;
+    const max_price =
+      query.max_price !== undefined && query.max_price !== ''
+        ? Math.max(0, Number(query.max_price))
+        : undefined;
+    if (min_price !== undefined && !Number.isFinite(min_price)) {
+      return { page, limit, total: 0, items: [] };
+    }
+    if (max_price !== undefined && !Number.isFinite(max_price)) {
+      return { page, limit, total: 0, items: [] };
+    }
 
     const { items, total } = repos.products.getAll(page, limit, {
       q,
       category,
       archived,
       out_of_stock,
+      min_price,
+      max_price,
     });
 
     return {

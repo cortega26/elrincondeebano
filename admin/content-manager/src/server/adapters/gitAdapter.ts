@@ -19,6 +19,7 @@ export class GitAdapter {
     'add',
     'commit',
     'push',
+    'pull',
     'log',
   ]);
 
@@ -91,6 +92,12 @@ export class GitAdapter {
     if (remote) args.push(remote);
     if (branch) args.push(branch);
     return this.run(args);
+  }
+
+  // Fixed-argument `git pull --rebase` (plan 061): the browser can never pass
+  // remote/branch arguments; bounded by the execFile timeout (30s).
+  async pull(): Promise<GitResult> {
+    return this.run(['pull', '--rebase']);
   }
 
   async log(count = 5): Promise<GitResult> {
