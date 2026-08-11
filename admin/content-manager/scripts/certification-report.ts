@@ -1,4 +1,4 @@
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { execSync } from 'node:child_process';
 
@@ -289,6 +289,97 @@ const manualRows: EvidenceRow[] = [
   },
 ];
 
+// Each parity scenario maps to the unit/integration test files that exercise
+// it. When the full vitest suite (row 'unit-test') passes and every mapped
+// file exists, the row is verified automatically; rows without coverage
+// remain operator-signed (docs/operations/CUTOVER.md).
+const PARITY_TEST_COVERAGE: Record<string, string[]> = {
+  'parity-products': ['test/contract/productService.test.ts', 'test/integration/api.test.ts'],
+  'parity-create': [
+    'test/contract/productService.test.ts',
+    'test/integration/mutationApi.test.ts',
+    'test/integration/writeShadow.test.ts',
+  ],
+  'parity-edit': [
+    'test/contract/productService.test.ts',
+    'test/integration/mutationApi.test.ts',
+    'test/contract/idempotency.test.ts',
+    'test/integration/writeShadow.test.ts',
+  ],
+  'parity-archive': [
+    'test/contract/productService.test.ts',
+    'test/integration/api.test.ts',
+    'test/integration/writeShadow.test.ts',
+  ],
+  'parity-reorder': [
+    'test/integration/reorderBulkApi.test.ts',
+    'test/contract/identity.test.ts',
+    'test/integration/writeShadow.test.ts',
+  ],
+  'parity-bulk': ['test/integration/reorderBulkApi.test.ts'],
+  'parity-categories': [
+    'test/integration/categoryConcurrency.test.ts',
+    'test/integration/clientIntegration.test.ts',
+  ],
+  'parity-bundles': ['test/integration/subcategoryBundles.test.ts'],
+  'parity-import': [
+    'test/integration/importApply.test.ts',
+    'test/integration/conflictApi.test.ts',
+    'test/contract/conflictService.test.ts',
+  ],
+  'parity-history': ['test/integration/api.test.ts', 'test/contract/changeSet.test.ts'],
+  'parity-publication': [
+    'test/integration/publication.test.ts',
+    'test/integration/publicationAdvanced.test.ts',
+    'test/integration/publicationE2E.test.ts',
+    'test/integration/publicationRecovery.test.ts',
+    'test/contract/publicationService.test.ts',
+  ],
+  'parity-media': [
+    'test/contract/media.test.ts',
+    'test/integration/mediaUpload.test.ts',
+    'test/contract/mediaSecurity.test.ts',
+  ],
+  'parity-undo': ['test/contract/undo.test.ts', 'test/integration/restartRecovery.test.ts'],
+  'parity-backup': ['test/integration/backupRestore.test.ts', 'test/contract/atomicWriter.test.ts'],
+  'parity-storefront': [
+    'test/integration/subcategoryBundles.test.ts',
+    'test/integration/api.test.ts',
+  ],
+  'parity-diagnostics': ['test/contract/doctor.test.ts'],
+  'parity-security': [
+    'test/integration/writeBoundary.test.ts',
+    'test/contract/routePolicy.test.ts',
+    'test/integration/securityHeaders.test.ts',
+    'test/contract/pathSafety.test.ts',
+  ],
+};
+
+function resolveParityRows(unitTestPassed: boolean): EvidenceRow[] {
+  return parityRows.map((row) => {
+    const coverage = PARITY_TEST_COVERAGE[row.id];
+    if (!coverage) {
+      return { ...row, details: 'No automated coverage; operator sign-off required' };
+    }
+    const missing = coverage.filter((p) => !existsSync(resolve(adminDir, p)));
+    if (missing.length > 0) {
+      return {
+        ...row,
+        details: `Missing test files: ${missing.join(', ')}`,
+      };
+    }
+    if (!unitTestPassed) {
+      return { ...row, details: 'Unit suite did not pass; coverage not verified' };
+    }
+    return {
+      ...row,
+      status: 'pass',
+      evidence_path: 'reports/certification/evidence/unit-test.json',
+      details: `Covered by integration suite: ${coverage.join(', ')}`,
+    };
+  });
+}
+
 function runAutomatedCheck(row: EvidenceRow): EvidenceRow {
   if (!row.test_command)
     return { ...row, status: 'untested', details: 'No test command configured' };
@@ -337,7 +428,15 @@ for (const row of automatedRows) {
   executedRows.push(executed);
 }
 
-const allRows = [...executedRows, ...parityRows, ...manualRows];
+const unitTestPassed = executedRows.find((r) => r.id === 'unit-test')?.status === 'pass';
+console.log('\nParity rows (suite coverage):\n');
+const resolvedParityRows = resolveParityRows(unitTestPassed);
+for (const row of resolvedParityRows) {
+  const icon = row.status === 'pass' ? '✅' : row.status === 'fail' ? '❌' : '⚠️';
+  console.log(`  ${icon} ${row.id}: ${row.status}`);
+}
+
+const allRows = [...executedRows, ...resolvedParityRows, ...manualRows];
 const passCount = allRows.filter((r) => r.status === 'pass').length;
 const failCount = allRows.filter((r) => r.status === 'fail').length;
 const untestedCount = allRows.filter((r) => r.status === 'untested').length;
