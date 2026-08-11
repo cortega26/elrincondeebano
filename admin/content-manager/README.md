@@ -2,9 +2,9 @@
 
 Canonical admin application for product, category, storefront, media, import,
 conflict, history, and publication workflows. Fastify + React + Vite on
-TypeScript 7. Declared canonical in `AGENTS.md`; the Python/Tkinter manager
-(`admin/product_manager/`) is the fallback during the transition window
-(plan 069).
+TypeScript 7. Declared canonical in `AGENTS.md`; the Python/Tkinter fallback
+was retired on 2026-08-11 (plan 069, rollback boundary: tag
+`v1.x-python-final`).
 
 ## Run
 

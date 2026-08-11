@@ -35,16 +35,15 @@ conditions, y actualizar su fila al terminar.
 - **Auditoría 8 (086–097)**: nueva. El release candidate del Content Manager TS
   (`cefdd9f`) pasó una auditoría profunda que encontró blockers de integridad
   (sync, change-set, OG, scope de bulk/reorder) y gaps de paridad vs Python.
-  El **plan 069 está en HOLD** (retiro staged, no commiteado; tag
-  `v1.x-python-final` en `cefdd9f`) hasta cerrar los P0 (086–089).
+  El retiro de Python (069) se completó el 2026-08-11; la cola de la
+  Auditoría 8 sigue abierta (086 DONE, 087–097 TODO).
 - **Auditoría 7 (070–085)**: completa. 082 y 083 `DONE` el 2026-08-11;
   la cola se cierra y el saldo pendiente pasa a la Auditoría 6.
-- **Auditoría 6 (056–069)**: 056–068 `DONE`. **069 en HOLD** (Steps 1–5 DONE:
-  certificación 30/30 READY con aceptación firmada, dos clean-clone runs sin
-  diferencias, drills 8/8, CI+docs TS-canonical); Step 6 (retiro de Python)
-  esperando la Auditoría 8 (tag `v1.x-python-final` creado, retiro staged sin
-  commitear). El manager Python/Tkinter sigue disponible en el árbol activo
-  hasta el retiro.
+- **Auditoría 6 (056–069)**: completa. **069 `DONE` el 2026-08-11**: retiro
+  reversible de Python ejecutado (commit `chore(admin): retire Python
+fallback`; tag `v1.x-python-final` en `cefdd9f`; `git revert` o `git
+checkout v1.x-python-final -- admin/product_manager/` como rollback). El
+  manager Python/Tkinter ya no está en el árbol activo.
 - **Residuales**: 030, 031, 038 (Auditoría 3) siguen TODO. 040–047 y 049
   (Auditoría 4, Python) quedaron `SUPERSEDED` al retirar Python: sus
   capacidades fueron migradas al Content Manager TS (plan 055 + 056–068).
@@ -318,7 +317,7 @@ finding quedó descartado.
 | [066](archive/066-build-safe-storefront-curation.md)         | Curación estructurada y segura del storefront    | P1       | L      | 057, 062, 065      | DONE — `45d2651` (2026-08-11): invariantes estrictos en todos los write boundaries (campos no vacíos, ids/refs únicos, refs a productos reales no archivados), write transaccional experiencia+proyección (rollback de AMBOS ante fallo, test de inyección), BundlesPage estructurada (form tipado, picker con búsqueda, duplicate/reorder, destacados + categorías), preservación exacta de subtrees ajenos; e2e aislado (:3104)                                                                                                                               |
 | [067](archive/067-bound-backups-and-event-loop-work.md)      | Retención acotada y listing no bloqueante        | P2       | M      | 057, 062           | DONE — `15dd7ac` (2026-08-11): política por clase (auto 10 / manual 20 / pre-restore 5) protegiendo el más reciente y referenciados por recovery; BackupManager con creación verificada (hash), pruning post-éxito con warnings visibles, listing paginado index-driven (sin stat por archivo, fixture de 2000 entradas), prune preview/confirmación (protegidos → 409), reconciliación explícita; writers de categorías/storefront con retención acotada; UI con clase/protección/warnings                                                                     |
 | [068](archive/068-reconcile-content-manager-dependencies.md) | Contrato limpio de dependencias/lockfile         | P2       | S      | 056                | DONE — `8aae54a` (2026-08-11): `@playwright/test` 1.62.1 alineado en el lock del workspace                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |     |
-| [069](069-complete-cutover-and-retire-python.md)             | Cutover comprobado y retiro reversible de Python | P1       | L      | 056–068            | PARTIAL — Steps 1–5 DONE el 2026-08-11 (certificación 30/30 READY, clean-clone ×2, drills 8/8, CI+docs TS-canonical); Step 6 (retiro) en **HOLD por la Auditoría 8** (P0: 086–089). Tag `v1.x-python-final` en `cefdd9f`; retiro staged sin commitear                                                                                                                                                                                                                                                                                                           |
+| [069](069-complete-cutover-and-retire-python.md)             | Cutover comprobado y retiro reversible de Python | P1       | L      | 056–068            | DONE — 2026-08-11 (branch `migration/069-content-manager-cutover`): certificación 30/30 READY con aceptación firmada, clean-clone ×2 sin diferencias, drills 8/8; Steps 1–5; Step 6 (retiro) commiteado como `chore(admin): retire Python fallback`; tag `v1.x-python-final` en `cefdd9f`; rollback: `git revert` o `git checkout v1.x-python-final -- admin/product_manager/`                                                                                                                                                                                  |
 
 Status values: `TODO | IN PROGRESS | DONE | BLOCKED (reason) | REJECTED (rationale)`.
 
@@ -376,9 +375,9 @@ implementation from another plan.
 
 Auditoría profunda del 2026-08-11 (4 subagentes + verificación empírica:
 probes de traversal, sync pull, change-set apply, intents OG, filtro de
-descuento, cap de 50) sobre el release candidate `cefdd9f` antes del retiro de
-Python. El plan 069 quedó en **HOLD** (retiro staged, tag `v1.x-python-final`
-ya creado) hasta cerrar esta cola — P0s primero, orden de dependencias abajo.
+descuento, cap de 50) sobre el release candidate `cefdd9f`. El retiro de
+Python (plan 069) se ejecutó el mismo día de forma revertible; los blockers
+P0 (086–089) se cerraron/continúan sobre el árbol post-retiro.
 
 ### Finding coverage matrix (Auditoría 8)
 
@@ -420,9 +419,9 @@ ya creado) hasta cerrar esta cola — P0s primero, orden de dependencias abajo.
 
 <!-- markdownlint-enable MD060 -->
 
-Regla: los P0 (086–089) son blockers del retiro de Python; 086 habilita 097,
-089 habilita 096 (OG lifecycle), 088 habilita 091/093/094/095/096/097. El
-retiro (069) se reanuda al cerrar la cola P0 + verificación completa.
+Regla: los P0 (086–089) se priorizan sobre el resto; 086 habilita 097,
+089 habilita 096 (OG lifecycle), 088 habilita 091/093/094/095/096/097.
+El retiro de Python (069) ya está ejecutado y es revertible.
 
 ### Considerado y rechazado (Auditoría 8)
 
