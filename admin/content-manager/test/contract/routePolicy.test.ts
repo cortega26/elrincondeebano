@@ -1,10 +1,26 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { writeFileSync, mkdirSync, rmSync } from 'node:fs';
+import { writeFileSync, mkdirSync, rmSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { createApp } from '../../src/server/app.ts';
 import type { FastifyInstance } from 'fastify';
 import { classifyRoute, ROUTE_POLICY } from '../../src/server/security/routePolicy.ts';
+
+// Plan 090: the registration contract — every route declared in
+// src/server/routes/*.ts must be exactly declared in ROUTE_POLICY (no
+// fail-closed fallback), and every table entry must be registered (no
+// phantoms). Both directions fail this suite.
+function declaredRoutes(): Array<{ method: string; path: string }> {
+  const routesDir = resolve(process.cwd(), 'src', 'server', 'routes');
+  const declared: Array<{ method: string; path: string }> = [];
+  for (const file of readdirSync(routesDir).filter((f) => f.endsWith('.ts'))) {
+    const source = readFileSync(resolve(routesDir, file), 'utf8');
+    for (const match of source.matchAll(/app\.(get|post|put|patch|delete)\('([^']+)'/g)) {
+      declared.push({ method: match[1].toUpperCase(), path: `/api/v1${match[2]}` });
+    }
+  }
+  return declared;
+}
 
 // Guarantee test (plan 071 Step 2): every mutation route in the policy table
 // must actually be registered AND require the credential. A route that is
@@ -122,9 +138,27 @@ describe('ROUTE_POLICY table', () => {
   it('has no phantom preview entries that are really mutations', () => {
     const previews = ROUTE_POLICY.filter((e) => e.class === 'preview').map((e) => e.path);
     expect(previews.sort()).toEqual([
+      '/api/v1/backup/prune-preview',
       '/api/v1/import/preview',
       '/api/v1/products/bulk/preview',
       '/api/v1/publications/preview',
     ]);
+  });
+
+  it('every declared route is exactly declared — no fail-closed fallback', () => {
+    const declared = declaredRoutes();
+    expect(declared.length).toBeGreaterThan(40);
+    const undeclared = declared.filter((r) => !classifyRoute(r.method, r.path).exact);
+    expect(undeclared).toEqual([]);
+  });
+
+  it('every policy entry is registered — no phantom routes', () => {
+    const declared = new Set(declaredRoutes().map((r) => `${r.method} ${r.path}`));
+    const phantom = ROUTE_POLICY.filter((e) => !declared.has(`${e.method} ${e.path}`));
+    expect(phantom).toEqual([]);
+  });
+
+  it('diff is classified read (no write credential needed for a pure diff)', () => {
+    expect(classifyRoute('POST', '/api/v1/diff')).toEqual({ class: 'read', exact: true });
   });
 });

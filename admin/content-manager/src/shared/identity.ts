@@ -35,7 +35,6 @@ export function generateUuidV7(): string {
 export function generateProductId(): string {
   return generateUuidV7();
 }
-
 export function isUuidV7(value: string): boolean {
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)) {
     return false;
@@ -57,4 +56,19 @@ export function isSafeId(id: string): boolean {
     !id.includes('..') &&
     /^[A-Za-z0-9._-]+$/.test(id)
   );
+}
+
+// Plan 090: path-segment containment — true when `candidate` is strictly
+// inside `root`. Replaces string-prefix checks, which accept sibling
+// directories (e.g. data/.media-staging2/ passes a startsWith check on
+// data/.media-staging). Pure string logic (shared with the web bundle, no
+// node:path imports); posix-style paths.
+export function isContainedWithin(root: string, candidate: string): boolean {
+  const rootParts = root.split('/').filter((s) => s.length > 0);
+  const candParts = candidate.split('/').filter((s) => s.length > 0);
+  if (candParts.length < rootParts.length) return false;
+  for (let i = 0; i < rootParts.length; i++) {
+    if (rootParts[i] !== candParts[i]) return false;
+  }
+  return !candParts.slice(rootParts.length).some((s) => s === '..');
 }

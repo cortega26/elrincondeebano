@@ -327,3 +327,37 @@ test('health endpoint is exempt from security hooks', async () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+// ── plan 090: internal error details never reach the client ─────────────────
+
+test('internal errors return a generic message without filesystem paths', async () => {
+  const dir = resolve(tmpdir(), `cm-leak-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+  mkdirSync(resolve(dir, 'data'), { recursive: true });
+  mkdirSync(resolve(dir, 'astro-poc', 'src', 'data'), { recursive: true });
+  // Corrupt the catalog so loadCatalog throws with the file path embedded.
+  writeFileSync(resolve(dir, 'data', 'product_data.json'), '{ this is not valid json');
+  writeFileSync(
+    resolve(dir, 'data', 'category_registry.json'),
+    JSON.stringify({ nav_groups: [], categories: [] })
+  );
+  writeFileSync(
+    resolve(dir, 'astro-poc', 'src', 'data', 'storefront-experience.json'),
+    JSON.stringify({ trustBar: {}, home: {}, bundles: [] })
+  );
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    const res = await app.inject({ method: 'GET', url: '/api/v1/products' });
+    expect(res.statusCode).toBe(500);
+    const body = res.json<{ error: { code: string; message: string } }>();
+    expect(body.error.code).toBe('INTERNAL_ERROR');
+    expect(body.error.message).toBe('Internal server error');
+    expect(res.body).not.toContain('/home/');
+    expect(res.body).not.toContain(dir);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

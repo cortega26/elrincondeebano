@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { isSafeId } from '../../shared/identity.ts';
+import { HttpError } from '../../shared/errors/AppError.ts';
 import { BackupManager } from '../services/backupManager.ts';
 
 const BACKUP_FILES = [
@@ -122,9 +123,7 @@ export async function backupRoutes(
         pre_restore_snapshot: snapshot.id,
       };
     } catch (err) {
-      return reply.status(500).send({
-        error: { code: 'INTERNAL_ERROR', message: (err as Error).message },
-      });
+      throw new HttpError(500, 'INTERNAL_ERROR', 'Internal server error', (err as Error).message);
     }
   });
 }

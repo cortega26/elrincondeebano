@@ -1,5 +1,10 @@
 import { test, expect } from 'vitest';
-import { generateUuidV7, generateProductId, isUuidV7 } from '../../src/shared/identity.ts';
+import {
+  generateUuidV7,
+  generateProductId,
+  isUuidV7,
+  isContainedWithin,
+} from '../../src/shared/identity.ts';
 
 test('generateUuidV7 produces a valid UUIDv7', () => {
   const uuid = generateUuidV7();
@@ -29,4 +34,18 @@ test('isUuidV7 rejects invalid values', () => {
   expect(isUuidV7('not-a-uuid')).toBe(false);
   expect(isUuidV7('')).toBe(false);
   expect(isUuidV7('00000000-0000-0000-0000-000000000000')).toBe(false); // v0, not v7
+});
+
+// ── plan 090: path containment ───────────────────────────────────────────────
+
+test('isContainedWithin accepts descendants and rejects escapes', () => {
+  const root = '/repo/data/.media-staging';
+  expect(isContainedWithin(root, '/repo/data/.media-staging/file.webp')).toBe(true);
+  expect(isContainedWithin(root, '/repo/data/.media-staging')).toBe(true);
+  // Prefix collision: a sibling directory must NOT pass.
+  expect(isContainedWithin(root, '/repo/data/.media-staging2/file.webp')).toBe(false);
+  // Traversal and absolute escapes.
+  expect(isContainedWithin(root, '/repo/data/.media-staging/../../etc/passwd')).toBe(false);
+  expect(isContainedWithin(root, '/etc/passwd')).toBe(false);
+  expect(isContainedWithin(root, '/repo/other/file')).toBe(false);
 });

@@ -10,6 +10,7 @@
 - **Depends on**: —
 - **Category**: security
 - **Written against**: commit `cefdd9f`
+- **Executed**: DONE — 2026-08-11 (verification abajo)
 
 ## Why this matters
 
@@ -73,10 +74,18 @@ npm run admin:test && npm run admin:certify
 
 ## Done criteria
 
-- [ ] 9 rutas en ROUTE_POLICY + contrato de registro que falla ante rutas no declaradas.
-- [ ] `/diff` no exige credential de escritura.
-- [ ] Ninguna respuesta API contiene paths absolutos (test grep sobre bodies).
-- [ ] Contención por segmento en media y static; tests verdes.
+- [x] Rutas faltantes en ROUTE_POLICY (change-sets apply/undo/redo + GET :id, media run/apply/cancel, git/pull, sync pause/resume, backup prune/preview/reconcile, export.csv, diagnostics) + stale removidas (media/convert, media/generate) + contrato bidireccional (declaradas ↔ tabla, sin fallback).
+- [x] `/diff` reclasificado read (sin credential de escritura).
+- [x] Error envelope central (setErrorHandler): HttpError → code/mensaje público; internals → 500 genérico + log; 11 sitios que filtraban `err.message` convertidos; `sanitizeUserMessage` redacta paths/tokens; test de no-fuga.
+- [x] Contención por segmento (`isContainedWithin`, sin node:path para el bundle web) en media (6 sites) y static handler + rechazo de `..` decodificado; tests unitarios y de traversal.
+
+## Evidence (2026-08-11)
+
+- `routePolicy.ts`: 76 rutas declaradas cubiertas exactamente (contrato bidireccional en `routePolicy.test.ts` — enumeración de `src/server/routes/*.ts` vs tabla, ambos sentidos).
+- `app.ts`: `setErrorHandler` central (HttpError → público; 4xx Fastify → NOT_FOUND; ≥500 → genérico + `console.error` con details); rechazo de segmentos `..` en el path decodificado antes de resolver (defensa en profundidad — el router ya normaliza; verificado con inject que el 200 es SPA fallback, nunca el archivo externo).
+- `AppError.ts`: `HttpError` + `sanitizeUserMessage`; 11 sitios convertidos (500 → HttpError genérico con details; 400 → mensaje sanitizado).
+- `identity.ts`: `isContainedWithin` por segmentos (rechaza siblings `data/.media-staging2` y escapes); media.ts aplicado en creation/apply/discard (6 sites).
+- Tests: +8 — contrato bidireccional de rutas, diff-read, phantom previews, sanitizer unit, no-fuga de paths en 500, containment unit, traversal static (nunca sirve archivos externos). Suite: 493 tests, e2e 19/19 + media 2/2, certify 30/30, lint 0 errores.
 
 ## STOP conditions
 

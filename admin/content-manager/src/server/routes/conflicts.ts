@@ -9,6 +9,7 @@ import { dirname } from 'node:path';
 import { syncConfigSchema, isAllowedSyncUrl, type SyncConfig } from '../adapters/syncAdapter.ts';
 import type { SyncService } from '../services/syncService.ts';
 import { isSafeId } from '../../shared/identity.ts';
+import { HttpError } from '../../shared/errors/AppError.ts';
 
 export async function conflictsRoutes(
   app: FastifyInstance,
@@ -246,9 +247,7 @@ export async function conflictsRoutes(
 
       return reply.status(200).send(validated);
     } catch (err) {
-      return reply.status(500).send({
-        error: { code: 'INTERNAL_ERROR', message: (err as Error).message },
-      });
+      throw new HttpError(500, 'INTERNAL_ERROR', 'Internal server error', (err as Error).message);
     }
   });
 

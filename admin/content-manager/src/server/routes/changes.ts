@@ -21,6 +21,7 @@ import {
   type ImportValidationError,
 } from '../../shared/schemas/importExport.ts';
 import { isSafeId } from '../../shared/identity.ts';
+import { HttpError, sanitizeUserMessage } from '../../shared/errors/AppError.ts';
 import { createHash } from 'node:crypto';
 import {
   ChangeSetApplier,
@@ -604,9 +605,7 @@ export async function changesRoutes(
 
       return toPreviewResponse(preview);
     } catch (err) {
-      return reply.status(400).send({
-        error: { code: 'BAD_REQUEST', message: (err as Error).message },
-      });
+      throw new HttpError(400, 'BAD_REQUEST', sanitizeUserMessage((err as Error).message));
     }
   });
 
@@ -748,13 +747,11 @@ export async function changesRoutes(
         resulting_revision: catalog.rev,
       };
     } catch (err) {
-      return reply.status(400).send({
-        error: { code: 'BAD_REQUEST', message: (err as Error).message },
-      });
+      throw new HttpError(400, 'BAD_REQUEST', sanitizeUserMessage((err as Error).message));
     }
   });
 
-  app.post('/diff', async (request, reply) => {
+  app.post('/diff', async (request, _reply) => {
     try {
       const body = request.body as {
         before?: Record<string, unknown>;
@@ -814,9 +811,7 @@ export async function changesRoutes(
         storefront: [],
       };
     } catch (err) {
-      return reply.status(400).send({
-        error: { code: 'BAD_REQUEST', message: (err as Error).message },
-      });
+      throw new HttpError(400, 'BAD_REQUEST', sanitizeUserMessage((err as Error).message));
     }
   });
 

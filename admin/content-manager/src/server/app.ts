@@ -10,6 +10,8 @@ import { PersistentIdempotencyStore } from './services/persistentIdempotencyStor
 import { RecoveryJournal } from './services/recoveryJournal.ts';
 import { ProductService } from '../domain/products/productService.ts';
 import { CategoryService } from '../domain/categories/categoryService.ts';
+import { HttpError } from '../shared/errors/AppError.ts';
+import { isContainedWithin } from '../shared/identity.ts';
 import { MediaRepository } from './repositories/mediaRepository.ts';
 import { ChangeSetRepository } from './repositories/changeSetRepository.ts';
 import { mediaMutRoutes } from './routes/media.ts';
@@ -309,12 +311,25 @@ export function createApp(opts?: AppOptions): FastifyInstance {
       }
       if (urlPath.startsWith('/api/')) return reply.callNotFound();
 
+      // Plan 090: reject any decoded parent-segment before resolving —
+      // resolve() collapses `..` BEFORE a containment check could see it
+      // (verified via inject: /assets/%2e%2e/secret.txt resolved to the
+      // repo root and served the file).
+      if (urlPath.split('/').includes('..')) {
+        return reply.status(404).send({
+          error: { code: 'NOT_FOUND', message: 'Asset not found' },
+        });
+      }
+
       if (urlPath.startsWith('/assets/')) {
         // SPA bundles live in dist/web/assets; media images live at the repo
         // root assets/. Resolve in that order so the built app loads while
         // images with spaces/unicode still serve decoded.
         const candidates = [resolve(webDist, `.${urlPath}`), resolve(repoRoot, `.${urlPath}`)];
         for (const assetPath of candidates) {
+          // Plan 090: decoded paths must stay inside the serving root —
+          // containment by segment, not prefix.
+          if (!isContainedWithin(repoRoot, assetPath)) continue;
           if (existsSync(assetPath)) {
             try {
               const ext = assetPath.includes('.') ? `.${assetPath.split('.').pop() ?? ''}` : '';
@@ -334,7 +349,7 @@ export function createApp(opts?: AppOptions): FastifyInstance {
       }
 
       let filePath = resolve(webDist, urlPath === '/' ? 'index.html' : `.${urlPath}`);
-      if (!existsSync(filePath)) {
+      if (!isContainedWithin(webDist, filePath) || !existsSync(filePath)) {
         filePath = resolve(webDist, 'index.html');
       }
 
@@ -348,6 +363,24 @@ export function createApp(opts?: AppOptions): FastifyInstance {
       }
     });
   }
+
+  // Plan 090: central error envelope — HttpError carries its public
+  // code/message; everything else is logged with details and answered with a
+  // generic message (no operator paths, no stack traces).
+  app.setErrorHandler((err, _request, reply) => {
+    if (err instanceof HttpError) {
+      return reply.status(err.statusCode).send({ error: { code: err.code, message: err.message } });
+    }
+    const status = (err as { statusCode?: number }).statusCode ?? 500;
+    if (status < 500) {
+      // Fastify internals (e.g. route not found): no internal details.
+      return reply.status(status).send({ error: { code: 'NOT_FOUND', message: 'Not found' } });
+    }
+    console.error('[content-manager] unhandled error:', err);
+    return reply.status(500).send({
+      error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
+    });
+  });
 
   return app;
 }

@@ -11,7 +11,8 @@ import {
   MEDIA_UPLOAD_MAX_BYTES,
   type MediaIntent,
 } from '../../shared/schemas/mediaIntent.ts';
-import { isSafeId } from '../../shared/identity.ts';
+import { isSafeId, isContainedWithin } from '../../shared/identity.ts';
+import { HttpError, sanitizeUserMessage } from '../../shared/errors/AppError.ts';
 import { runAvifJob, runVariantJob, runCategoryOgJob } from '../services/mediaJobs.ts';
 
 // Magic-byte signatures per declared content type (plan 063 step 2).
@@ -155,9 +156,7 @@ export async function mediaMutRoutes(
         sha256,
       });
     } catch (err) {
-      return reply.status(400).send({
-        error: { code: 'BAD_REQUEST', message: (err as Error).message },
-      });
+      throw new HttpError(400, 'BAD_REQUEST', sanitizeUserMessage((err as Error).message));
     }
   });
 
@@ -195,7 +194,7 @@ export async function mediaMutRoutes(
     const stagedFile = body.staged_file;
     if (stagedFile) {
       const stagedPath = resolve(intents.stagingRoot, stagedFile);
-      if (!stagedPath.startsWith(intents.stagingRoot) || !existsSync(stagedPath)) {
+      if (!isContainedWithin(intents.stagingRoot, stagedPath) || !existsSync(stagedPath)) {
         return reply.status(400).send({
           error: { code: 'BAD_REQUEST', message: 'Staged file not found' },
         });
@@ -340,7 +339,7 @@ export async function mediaMutRoutes(
       });
     }
     for (const output of intent.outputs) {
-      if (output.startsWith(intents.stagingRoot) && existsSync(output)) {
+      if (isContainedWithin(intents.stagingRoot, output) && existsSync(output)) {
         try {
           unlinkSync(output);
         } catch {
@@ -348,7 +347,11 @@ export async function mediaMutRoutes(
         }
       }
     }
-    if (intent.source_path?.startsWith(intents.stagingRoot) && existsSync(intent.source_path)) {
+    if (
+      intent.source_path &&
+      isContainedWithin(intents.stagingRoot, intent.source_path) &&
+      existsSync(intent.source_path)
+    ) {
       try {
         unlinkSync(intent.source_path);
       } catch {
@@ -386,7 +389,7 @@ export async function mediaMutRoutes(
       if (intent.type === 'og' || intent.type === 'og-delete') {
         const canonicalRelative = intent.target_path ?? '';
         const canonicalPath = resolve(repoRoot, canonicalRelative);
-        if (!canonicalPath.startsWith(resolve(repoRoot, 'assets'))) {
+        if (!isContainedWithin(resolve(repoRoot, 'assets'), canonicalPath)) {
           return reply.status(422).send({
             error: { code: 'FORBIDDEN', message: `Unsafe canonical target: ${canonicalRelative}` },
           });
@@ -422,14 +425,14 @@ export async function mediaMutRoutes(
 
       // Promote staged outputs to canonical paths (validated targets).
       for (const output of intent.outputs) {
-        if (!output.startsWith(intents.stagingRoot) || !existsSync(output)) {
+        if (!isContainedWithin(intents.stagingRoot, output) || !existsSync(output)) {
           return reply.status(422).send({
             error: { code: 'MISSING_OUTPUT', message: `Output missing: ${output}` },
           });
         }
         const canonicalRelative = canonicalTargetFor(intent, output);
         const canonicalPath = resolve(repoRoot, canonicalRelative);
-        if (!canonicalPath.startsWith(resolve(repoRoot, 'assets'))) {
+        if (!isContainedWithin(resolve(repoRoot, 'assets'), canonicalPath)) {
           return reply.status(422).send({
             error: { code: 'FORBIDDEN', message: `Unsafe canonical target: ${canonicalRelative}` },
           });
@@ -497,9 +500,7 @@ export async function mediaMutRoutes(
           }
         }
       }
-      return reply.status(500).send({
-        error: { code: 'APPLY_FAILED', message: (err as Error).message },
-      });
+      throw new HttpError(500, 'APPLY_FAILED', 'Apply failed', (err as Error).message);
     }
   });
 }

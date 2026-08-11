@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest';
-import { DomainError } from '../../src/shared/errors/AppError.ts';
+import { DomainError, HttpError, sanitizeUserMessage } from '../../src/shared/errors/AppError.ts';
 import type { CommandEnvelope, CommandResult } from '../../src/shared/commands/envelope.ts';
 
 test('DomainError creates a typed error', () => {
@@ -59,4 +59,33 @@ test('CommandResult has correct shape for conflict', () => {
   expect(result.status).toBe('conflict');
   expect(result.conflicts).toHaveLength(1);
   expect(result.conflicts![0].field).toBe('price');
+});
+
+// ── plan 090: error sanitization ─────────────────────────────────────────────
+
+test('HttpError carries a public code/message and optional details', () => {
+  const error = new HttpError(
+    500,
+    'INTERNAL_ERROR',
+    'Internal server error',
+    '/home/secret/data.json'
+  );
+  expect(error).toBeInstanceOf(Error);
+  expect(error.statusCode).toBe(500);
+  expect(error.code).toBe('INTERNAL_ERROR');
+  expect(error.message).toBe('Internal server error');
+  expect(error.details).toBe('/home/secret/data.json');
+});
+
+test('sanitizeUserMessage strips filesystem paths and long tokens', () => {
+  expect(sanitizeUserMessage('Cannot read /home/carlos/x/data.json: ENOENT')).toBe(
+    'Cannot read [path] ENOENT'
+  );
+  expect(sanitizeUserMessage('Schema failed for C:\\Users\\carlos\\repo\\data.json')).not.toContain(
+    'Users'
+  );
+  expect(sanitizeUserMessage('token a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8g9h0')).not.toMatch(
+    /\b[A-Za-z0-9_-]{32,}\b/
+  );
+  expect(sanitizeUserMessage('normal message')).toBe('normal message');
 });

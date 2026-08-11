@@ -64,3 +64,37 @@ test('assets with spaces and unicode are served as real files', async () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('traversal variants never serve files outside the repo (plan 090)', async () => {
+  const dir = createTempDir();
+  try {
+    mkdirSync(resolve(dir, 'assets'), { recursive: true });
+    mkdirSync(resolve(dir, 'admin', 'content-manager', 'dist', 'web'), { recursive: true });
+    writeFileSync(
+      resolve(dir, 'admin', 'content-manager', 'dist', 'web', 'index.html'),
+      '<html>spa</html>'
+    );
+    writeFileSync(resolve(dir, 'secret.txt'), 'SECRET-DO-NOT-SERVE');
+
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    // The router normalizes `..` before the handler (SPA fallback 200) or the
+    // handler rejects it — either way the secret file must NEVER be served.
+    for (const url of [
+      '/assets/%2e%2e/secret.txt',
+      '/assets/../secret.txt',
+      '/assets/%2e%2e/%2e%2e/secret.txt',
+      '/%2e%2e/secret.txt',
+      '/assets/..%2fsecret.txt',
+    ]) {
+      const res = await app.inject({ method: 'GET', url });
+      expect([200, 404], url).toContain(res.statusCode);
+      expect(res.body, url).not.toContain('SECRET-DO-NOT-SERVE');
+    }
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import type { Repositories } from './catalog.ts';
 import { validateStorefrontCuration } from '../../domain/storefront/storefrontValidation.ts';
+import { HttpError, sanitizeUserMessage } from '../../shared/errors/AppError.ts';
 
 export async function storefrontMutRoutes(
   app: FastifyInstance,
@@ -52,9 +53,7 @@ export async function storefrontMutRoutes(
 
       return { status: 'ok', bundle_count: body.bundles.length };
     } catch (err) {
-      return reply.status(400).send({
-        error: { code: 'BAD_REQUEST', message: (err as Error).message },
-      });
+      throw new HttpError(400, 'BAD_REQUEST', sanitizeUserMessage((err as Error).message));
     }
   });
 
@@ -98,9 +97,7 @@ export async function storefrontMutRoutes(
 
       return { status: 'ok' };
     } catch (err) {
-      return reply.status(400).send({
-        error: { code: 'BAD_REQUEST', message: (err as Error).message },
-      });
+      throw new HttpError(400, 'BAD_REQUEST', sanitizeUserMessage((err as Error).message));
     }
   });
 }

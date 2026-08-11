@@ -58,20 +58,28 @@ export const ROUTE_POLICY: RoutePolicyEntry[] = [
   { method: 'GET', path: '/api/v1/media', class: 'read' },
   { method: 'GET', path: '/api/v1/media/validate', class: 'read' },
   { method: 'POST', path: '/api/v1/media/intents', class: 'mutation' },
+  { method: 'POST', path: '/api/v1/media/intents/:id/run', class: 'mutation' },
+  { method: 'POST', path: '/api/v1/media/intents/:id/apply', class: 'mutation' },
+  { method: 'POST', path: '/api/v1/media/intents/:id/cancel', class: 'mutation' },
   { method: 'DELETE', path: '/api/v1/media/intents/:id', class: 'mutation' },
-  { method: 'POST', path: '/api/v1/media/convert', class: 'mutation' },
-  { method: 'POST', path: '/api/v1/media/generate', class: 'mutation' },
   { method: 'POST', path: '/api/v1/media/upload', class: 'mutation' },
   // change sets + import/export + diff
   { method: 'GET', path: '/api/v1/change-sets', class: 'read' },
+  { method: 'GET', path: '/api/v1/change-sets/:id', class: 'read' },
   { method: 'POST', path: '/api/v1/change-sets', class: 'mutation' },
   { method: 'PATCH', path: '/api/v1/change-sets/:id', class: 'mutation' },
   { method: 'POST', path: '/api/v1/change-sets/:id/discard', class: 'mutation' },
+  { method: 'POST', path: '/api/v1/change-sets/:id/apply', class: 'mutation' },
+  { method: 'POST', path: '/api/v1/change-sets/:id/undo', class: 'mutation' },
+  { method: 'POST', path: '/api/v1/change-sets/:id/redo', class: 'mutation' },
   { method: 'GET', path: '/api/v1/export', class: 'read' },
+  { method: 'GET', path: '/api/v1/export.csv', class: 'read' },
   { method: 'POST', path: '/api/v1/import/preview', class: 'preview' },
   { method: 'POST', path: '/api/v1/import/apply', class: 'mutation' },
-  { method: 'POST', path: '/api/v1/diff', class: 'mutation' },
+  // Plan 090: diff is a pure read — no write-mode or credential required.
+  { method: 'POST', path: '/api/v1/diff', class: 'read' },
   { method: 'GET', path: '/api/v1/history', class: 'read' },
+  { method: 'GET', path: '/api/v1/diagnostics', class: 'read' },
   // conflicts + sync
   { method: 'GET', path: '/api/v1/conflicts', class: 'read' },
   { method: 'POST', path: '/api/v1/conflicts/:id/resolve', class: 'mutation' },
@@ -79,8 +87,11 @@ export const ROUTE_POLICY: RoutePolicyEntry[] = [
   { method: 'GET', path: '/api/v1/sync/status', class: 'read' },
   { method: 'PUT', path: '/api/v1/sync/config', class: 'mutation' },
   { method: 'POST', path: '/api/v1/sync/now', class: 'mutation' },
+  { method: 'POST', path: '/api/v1/sync/pause', class: 'mutation' },
+  { method: 'POST', path: '/api/v1/sync/resume', class: 'mutation' },
   // publication + jobs
   { method: 'GET', path: '/api/v1/git/status', class: 'read' },
+  { method: 'POST', path: '/api/v1/git/pull', class: 'mutation' },
   { method: 'POST', path: '/api/v1/publications/preview', class: 'preview' },
   { method: 'POST', path: '/api/v1/publications', class: 'mutation' },
   { method: 'GET', path: '/api/v1/publications/recovery', class: 'read' },
@@ -90,6 +101,9 @@ export const ROUTE_POLICY: RoutePolicyEntry[] = [
   { method: 'GET', path: '/api/v1/backup', class: 'read' },
   { method: 'POST', path: '/api/v1/backup', class: 'mutation' },
   { method: 'POST', path: '/api/v1/backup/:id/restore', class: 'mutation' },
+  { method: 'POST', path: '/api/v1/backup/prune-preview', class: 'preview' },
+  { method: 'POST', path: '/api/v1/backup/prune', class: 'mutation' },
+  { method: 'POST', path: '/api/v1/backup/reconcile', class: 'mutation' },
 ];
 
 export interface RouteMatch {
