@@ -1,6 +1,6 @@
 {
-  "version": "20260715-142139",
-  "last_updated": "2026-07-15T14:21:39.945171",
+  "version": "20260810-211137",
+  "last_updated": "2026-08-10T21:11:37.448201",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -245,7 +245,7 @@
     {
       "name": "Mantequilla Kumey 250g",
       "description": "Artesanal",
-      "price": 3200,
+      "price": 3500,
       "discount": 0,
       "stock": true,
       "category": "Lacteos",
@@ -522,7 +522,7 @@
       "name": "PAN • Harina de Maiz",
       "description": "Empaque de 1Kg",
       "price": 2500,
-      "discount": 0,
+      "discount": 100,
       "stock": true,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Harina-de-Maiz-blanca-PAN-1-kg.webp",

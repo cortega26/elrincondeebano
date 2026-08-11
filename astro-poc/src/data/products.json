@@ -1,6 +1,6 @@
 {
-  "version": "20260715-142139",
-  "last_updated": "2026-07-15T14:21:39.945171",
+  "version": "20260810-211137",
+  "last_updated": "2026-08-10T21:11:37.448201",
   "rev": 0,
   "products": [
     {
@@ -470,7 +470,7 @@
     {
       "name": "Mantequilla Kumey 250g",
       "description": "Artesanal",
-      "price": 3200,
+      "price": 3500,
       "discount": 0,
       "stock": true,
       "category": "Lacteos",
@@ -479,7 +479,15 @@
       "order": 23,
       "is_archived": false,
       "rev": 0,
-      "field_last_modified": {}
+      "field_last_modified": {
+        "price": {
+          "ts": "2026-08-11T01:11:03.625629Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      }
     },
     {
       "name": "Easy Clean Lavanda L",
@@ -1079,7 +1087,7 @@
       "name": "PAN • Harina de Maiz",
       "description": "Empaque de 1Kg",
       "price": 2500,
-      "discount": 0,
+      "discount": 100,
       "stock": true,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Harina-de-Maiz-blanca-PAN-1-kg.webp",
@@ -1089,14 +1097,21 @@
       "rev": 0,
       "field_last_modified": {
         "price": {
-          "ts": "2026-06-14T18:12:53.555178Z",
+          "ts": "2026-08-11T01:11:37.446960Z",
+          "by": "offline",
+          "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "discount": {
+          "ts": "2026-08-11T01:11:37.446960Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
         },
         "order": {
-          "ts": "2026-06-14T18:12:53.555178Z",
+          "ts": "2026-08-11T01:11:37.446960Z",
           "by": "offline",
           "rev": 0,
           "base_rev": 0,
