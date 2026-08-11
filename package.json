@@ -82,7 +82,8 @@
     "lighthouse:audit": "node tools/lighthouse-audit.mjs",
     "snapshot": "node tools/snapshot-site.mjs --tag dev",
     "prepare": "husky",
-    "test:e2e:media": "playwright test -c playwright.media.config.ts"
+    "test:e2e:media": "playwright test -c playwright.media.config.ts",
+    "test:e2e:storefront": "playwright test -c playwright.storefront.config.ts"
   },
   "keywords": [],
   "author": "",
