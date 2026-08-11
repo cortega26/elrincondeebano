@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest';
 import { createApp } from '../../src/server/app.ts';
-import { writeFileSync, mkdirSync, rmSync } from 'node:fs';
+import { writeFileSync, mkdirSync, rmSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { CREDENTIAL_HEADER } from '../../src/server/security/launchCredential.ts';
@@ -13,6 +13,10 @@ function getCredential(app: FastifyInstance): string {
 
 function credHeaders(app: FastifyInstance): Record<string, string> {
   return { [CREDENTIAL_HEADER]: getCredential(app) };
+}
+
+function createTempDir(): string {
+  return resolve(tmpdir(), `cm-import-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
 }
 
 function setup(dir: string): void {
@@ -66,111 +70,15 @@ function setup(dir: string): void {
   );
 }
 
-test('POST /api/v1/import/apply creates new products', async () => {
-  const dir = resolve(tmpdir(), `cm-import-${Date.now()}`);
+function readCatalogOnDisk(dir: string): { rev: number; products: Array<{ name: string }> } {
+  return JSON.parse(readFileSync(resolve(dir, 'data', 'product_data.json'), 'utf8'));
+}
+
+// ── preview ──────────────────────────────────────────────────────────────────
+
+test('POST /api/v1/import/preview binds input with hash, base rev and summary', async () => {
+  const dir = createTempDir();
   setup(dir);
-
-  try {
-    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
-    await app.ready();
-
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/v1/import/apply',
-      headers: credHeaders(app),
-      payload: {
-        products: [{ name: 'Imported', description: 'New', price: 999, category: 'x' }],
-      },
-    });
-    expect(res.statusCode).toBe(200);
-
-    const body = res.json<{ applied: number }>();
-    expect(body.applied).toBe(1);
-
-    const getRes = await app.inject({ method: 'GET', url: '/api/v1/products' });
-    const list = getRes.json<{ total: number }>();
-    expect(list.total).toBe(2);
-
-    await app.close();
-  } finally {
-    rmSync(dir, { recursive: true, force: true });
-  }
-});
-
-test('POST /api/v1/import/apply updates existing products', async () => {
-  const dir = resolve(tmpdir(), `cm-import-${Date.now()}`);
-  setup(dir);
-
-  try {
-    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
-    await app.ready();
-
-    const existing = (await app.inject({ method: 'GET', url: '/api/v1/products' })).json<{
-      items: Array<{ name: string; description: string }>;
-    }>();
-
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/v1/import/apply',
-      headers: credHeaders(app),
-      payload: {
-        products: [
-          {
-            name: existing.items[0].name,
-            description: existing.items[0].description,
-            price: 1000,
-            discount: 100,
-            category: 'x',
-          },
-        ],
-      },
-    });
-    expect(res.statusCode).toBe(200);
-
-    const body = res.json<{ applied: number }>();
-    expect(body.applied).toBe(1);
-
-    const getRes = await app.inject({ method: 'GET', url: '/api/v1/products' });
-    const list = getRes.json<{ items: Array<{ price: number }> }>();
-    expect(list.items[0].price).toBe(1000);
-
-    await app.close();
-  } finally {
-    rmSync(dir, { recursive: true, force: true });
-  }
-});
-
-test('POST /api/v1/import/apply rejects invalid products', async () => {
-  const dir = resolve(tmpdir(), `cm-import-${Date.now()}`);
-  setup(dir);
-
-  try {
-    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
-    await app.ready();
-
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/v1/import/apply',
-      headers: credHeaders(app),
-      payload: { products: [{ name: '', price: -1 }] },
-    });
-    expect(res.statusCode).toBe(200);
-
-    const body = res.json<{ errors?: string[]; applied: number; skipped: number }>();
-    expect(body.applied).toBe(0);
-    expect(body.skipped).toBe(0);
-    expect(body.errors?.length).toBeGreaterThan(0);
-
-    await app.close();
-  } finally {
-    rmSync(dir, { recursive: true, force: true });
-  }
-});
-
-test('POST /api/v1/import/preview returns full new_products objects, not just a count', async () => {
-  const dir = resolve(tmpdir(), `cm-import-${Date.now()}`);
-  setup(dir);
-
   try {
     const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
@@ -186,14 +94,24 @@ test('POST /api/v1/import/preview returns full new_products objects, not just a 
     expect(res.statusCode).toBe(200);
 
     const body = res.json<{
-      no_conflicts: number;
-      new_products: Array<{ name: string; price: number; category: string }>;
+      preview_id: string;
+      input_hash: string;
+      base_rev: number;
+      summary: {
+        additions: number;
+        updates: number;
+        unchanged: number;
+        invalid: number;
+        conflicts: number;
+      };
+      additions: Array<{ name: string; price: number; category: string }>;
     }>();
-    expect(body.no_conflicts).toBe(1);
-    expect(body.new_products).toHaveLength(1);
-    expect(body.new_products[0].name).toBe('Brand New');
-    expect(body.new_products[0].price).toBe(750);
-    expect(body.new_products[0].category).toBe('x');
+    expect(body.preview_id).toMatch(/^import-/);
+    expect(body.input_hash).toMatch(/^[0-9a-f]{64}$/);
+    expect(body.base_rev).toBe(0);
+    expect(body.summary.additions).toBe(1);
+    expect(body.additions).toHaveLength(1);
+    expect(body.additions[0].name).toBe('Brand New');
 
     await app.close();
   } finally {
@@ -201,18 +119,12 @@ test('POST /api/v1/import/preview returns full new_products objects, not just a 
   }
 });
 
-test('POST /api/v1/import/preview returns incoming_by_id for conflicted products', async () => {
-  const dir = resolve(tmpdir(), `cm-import-${Date.now()}`);
+test('preview reports conflicted products with full updates and per-field conflicts', async () => {
+  const dir = createTempDir();
   setup(dir);
-
   try {
     const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
-
-    const existing = (await app.inject({ method: 'GET', url: '/api/v1/products' })).json<{
-      items: Array<{ id: string; name: string; description: string }>;
-    }>();
-    const existingId = existing.items[0].id;
 
     const res = await app.inject({
       method: 'POST',
@@ -221,10 +133,16 @@ test('POST /api/v1/import/preview returns incoming_by_id for conflicted products
       payload: {
         products: [
           {
-            name: existing.items[0].name,
-            description: existing.items[0].description,
+            name: 'Existing',
+            description: 'Old',
             price: 1234,
+            discount: 0,
+            stock: true,
             category: 'x',
+            image_path: '',
+            image_avif_path: '',
+            order: 0,
+            is_archived: false,
           },
         ],
       },
@@ -232,12 +150,15 @@ test('POST /api/v1/import/preview returns incoming_by_id for conflicted products
     expect(res.statusCode).toBe(200);
 
     const body = res.json<{
+      summary: { conflicts: number; updates: number };
+      updates: Array<{ price: number }>;
       conflicts: Array<{ product_id: string; field: string }>;
-      incoming_by_id: Record<string, { price: number }>;
     }>();
-    expect(body.conflicts.some((c) => c.field === 'price')).toBe(true);
-    expect(body.incoming_by_id[existingId]).toBeDefined();
-    expect(body.incoming_by_id[existingId].price).toBe(1234);
+    expect(body.summary.updates).toBe(1);
+    expect(body.summary.conflicts).toBe(1);
+    expect(body.updates[0].price).toBe(1234);
+    expect(body.conflicts[0].field).toBe('price');
+    expect(body.conflicts[0].product_id).toBe('existing-1');
 
     await app.close();
   } finally {
@@ -245,117 +166,260 @@ test('POST /api/v1/import/preview returns incoming_by_id for conflicted products
   }
 });
 
-test('preview -> apply round trip: resolved conflict + new product, mixed in one apply', async () => {
-  const dir = resolve(tmpdir(), `cm-import-${Date.now()}`);
+test('preview reports invalid records as validation_errors without blocking', async () => {
+  const dir = createTempDir();
   setup(dir);
-
   try {
     const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
-    const existing = (await app.inject({ method: 'GET', url: '/api/v1/products' })).json<{
-      items: Array<{ id: string; name: string; description: string }>;
-    }>();
-    const existingId = existing.items[0].id;
-
-    const previewRes = await app.inject({
+    const res = await app.inject({
       method: 'POST',
       url: '/api/v1/import/preview',
       headers: credHeaders(app),
+      payload: { products: [{ name: '', price: -1 }] },
+    });
+    expect(res.statusCode).toBe(200);
+
+    const body = res.json<{
+      summary: { invalid: number };
+      validation_errors: Array<{ message: string }>;
+    }>();
+    expect(body.summary.invalid).toBe(1);
+    expect(body.validation_errors.length).toBeGreaterThan(0);
+    expect(body.validation_errors[0].message.length).toBeGreaterThan(0);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// ── apply ────────────────────────────────────────────────────────────────────
+
+test('apply: new-only import creates products atomically', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const preview = await app.inject({
+      method: 'POST',
+      url: '/api/v1/import/preview',
+      headers: ch,
+      payload: { products: [{ name: 'Imported', description: 'New', price: 999, category: 'x' }] },
+    });
+    const previewId = preview.json<{ preview_id: string }>().preview_id;
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/v1/import/apply',
+      headers: ch,
+      payload: { preview_id: previewId, resolutions: [] },
+    });
+    expect(res.statusCode).toBe(200);
+
+    const body = res.json<{
+      created: number;
+      updated: number;
+      skipped: number;
+      resulting_revision: number;
+    }>();
+    expect(body.created).toBe(1);
+    expect(body.updated).toBe(0);
+    expect(body.resulting_revision).toBe(1);
+
+    const onDisk = readCatalogOnDisk(dir);
+    expect(onDisk.rev).toBe(1);
+    expect(onDisk.products.some((p) => p.name === 'Imported')).toBe(true);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('apply: update-only with use_incoming resolution', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const preview = await app.inject({
+      method: 'POST',
+      url: '/api/v1/import/preview',
+      headers: ch,
       payload: {
         products: [
           {
-            name: existing.items[0].name,
-            description: existing.items[0].description,
-            price: 2000, // conflicts with the existing price of 500
+            name: 'Existing',
+            description: 'Old',
+            price: 1000,
+            discount: 0,
+            stock: true,
             category: 'x',
+            image_path: '',
+            image_avif_path: '',
+            order: 0,
+            is_archived: false,
+          },
+        ],
+      },
+    });
+    const p = preview.json<{
+      preview_id: string;
+      conflicts: Array<{ product_id: string; field: string }>;
+    }>();
+    const priceConflict = p.conflicts.find((c) => c.field === 'price')!;
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/v1/import/apply',
+      headers: ch,
+      payload: {
+        preview_id: p.preview_id,
+        resolutions: [
+          { product_id: priceConflict.product_id, field: 'price', resolution: 'use_incoming' },
+        ],
+      },
+    });
+    expect(res.statusCode).toBe(200);
+
+    const body = res.json<{ created: number; updated: number }>();
+    expect(body.created).toBe(0);
+    expect(body.updated).toBe(1);
+
+    const list = (await app.inject({ method: 'GET', url: '/api/v1/products' })).json<{
+      items: Array<{ id: string; price: number }>;
+    }>();
+    expect(list.items.find((i) => i.id === 'existing-1')?.price).toBe(1000);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('apply: keep-local-only skips all fields without writing', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const preview = await app.inject({
+      method: 'POST',
+      url: '/api/v1/import/preview',
+      headers: ch,
+      payload: {
+        products: [
+          {
+            name: 'Existing',
+            description: 'Old',
+            price: 777,
+            discount: 0,
+            stock: true,
+            category: 'x',
+            image_path: '',
+            image_avif_path: '',
+            order: 0,
+            is_archived: false,
+          },
+        ],
+      },
+    });
+    const p = preview.json<{
+      preview_id: string;
+      conflicts: Array<{ product_id: string; field: string }>;
+    }>();
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/v1/import/apply',
+      headers: ch,
+      payload: {
+        preview_id: p.preview_id,
+        resolutions: p.conflicts.map((c) => ({
+          product_id: c.product_id,
+          field: c.field,
+          resolution: 'keep_local' as const,
+        })),
+      },
+    });
+    expect(res.statusCode).toBe(200);
+
+    const body = res.json<{ created: number; updated: number; skipped: number }>();
+    expect(body.updated).toBe(0);
+    expect(body.skipped).toBe(1);
+    expect(readCatalogOnDisk(dir).rev).toBe(0); // no-op: no write
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('apply: mixed new + resolved update in a single bound apply', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const preview = await app.inject({
+      method: 'POST',
+      url: '/api/v1/import/preview',
+      headers: ch,
+      payload: {
+        products: [
+          {
+            name: 'Existing',
+            description: 'Old',
+            price: 2000,
+            discount: 0,
+            stock: true,
+            category: 'x',
+            image_path: '',
+            image_avif_path: '',
+            order: 0,
+            is_archived: false,
           },
           { name: 'Second New Product', description: '', price: 300, category: 'x' },
         ],
       },
     });
-    const preview = previewRes.json<{
+    const p = preview.json<{
+      preview_id: string;
       conflicts: Array<{ product_id: string; field: string }>;
-      new_products: Array<Record<string, unknown>>;
-      incoming_by_id: Record<string, Record<string, unknown>>;
     }>();
-    expect(preview.new_products).toHaveLength(1);
-    const priceConflict = preview.conflicts.find((c) => c.field === 'price');
-    expect(priceConflict).toBeDefined();
 
-    // Mirror exactly what ImportPage.handleApply now builds: the full
-    // incoming object for the resolved conflict, plus the new product as-is,
-    // with a resolutions array naming only the resolved field.
-    const applyRes = await app.inject({
-      method: 'POST',
-      url: '/api/v1/import/apply',
-      headers: credHeaders(app),
-      payload: {
-        products: [preview.incoming_by_id[existingId], ...preview.new_products],
-        resolutions: [{ product_id: existingId, field: 'price', resolution: 'incoming' }],
-      },
-    });
-    expect(applyRes.statusCode).toBe(200);
-    const applyBody = applyRes.json<{ applied: number; skipped: number }>();
-    expect(applyBody.applied).toBe(2); // price field + the new product
-
-    const getRes = await app.inject({ method: 'GET', url: '/api/v1/products' });
-    const list = getRes.json<{
-      total: number;
-      items: Array<{ id: string; name: string; price: number }>;
-    }>();
-    expect(list.total).toBe(2); // 1 pre-existing (updated in place) + 1 new
-    const updated = list.items.find((p) => p.id === existingId)!;
-    expect(updated.price).toBe(2000);
-    expect(list.items.some((p) => p.name === 'Second New Product')).toBe(true);
-
-    await app.close();
-  } finally {
-    rmSync(dir, { recursive: true, force: true });
-  }
-});
-
-test('resolutions protocol skips fields not explicitly resolved to incoming', async () => {
-  const dir = resolve(tmpdir(), `cm-import-${Date.now()}`);
-  setup(dir);
-
-  try {
-    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
-    await app.ready();
-
-    const existing = (await app.inject({ method: 'GET', url: '/api/v1/products' })).json<{
-      items: Array<{ id: string; name: string; description: string; price: number }>;
-    }>();
-    const existingId = existing.items[0].id;
-    const originalPrice = existing.items[0].price;
-
-    // Full incoming object differs on both price and stock, but only price
-    // is resolved to "incoming" — stock must stay at its local value.
     const res = await app.inject({
       method: 'POST',
       url: '/api/v1/import/apply',
-      headers: credHeaders(app),
+      headers: ch,
       payload: {
-        products: [
-          {
-            name: existing.items[0].name,
-            description: existing.items[0].description,
-            price: 999,
-            stock: false,
-            category: 'x',
-          },
-        ],
-        resolutions: [{ product_id: existingId, field: 'price', resolution: 'incoming' }],
+        preview_id: p.preview_id,
+        resolutions: [{ product_id: 'existing-1', field: 'price', resolution: 'use_incoming' }],
       },
     });
     expect(res.statusCode).toBe(200);
 
-    const getRes = await app.inject({ method: 'GET', url: '/api/v1/products' });
-    const list = getRes.json<{ items: Array<{ id: string; price: number; stock: boolean }> }>();
-    const updated = list.items.find((p) => p.id === existingId)!;
-    expect(updated.price).toBe(999);
-    expect(updated.price).not.toBe(originalPrice);
-    expect(updated.stock).toBe(true); // unchanged — "stock" was never resolved
+    const body = res.json<{ created: number; updated: number }>();
+    expect(body.created).toBe(1);
+    expect(body.updated).toBe(1);
+
+    const list = (await app.inject({ method: 'GET', url: '/api/v1/products' })).json<{
+      total: number;
+      items: Array<{ id: string; price: number }>;
+    }>();
+    expect(list.total).toBe(2);
+    expect(list.items.find((i) => i.id === 'existing-1')?.price).toBe(2000);
 
     await app.close();
   } finally {
@@ -363,8 +427,273 @@ test('resolutions protocol skips fields not explicitly resolved to incoming', as
   }
 });
 
+test('apply: no-op import returns zeros without bumping the revision', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const preview = await app.inject({
+      method: 'POST',
+      url: '/api/v1/import/preview',
+      headers: ch,
+      payload: {
+        products: [
+          {
+            name: 'Existing',
+            description: 'Old',
+            price: 500,
+            discount: 0,
+            stock: true,
+            category: 'x',
+            image_path: '',
+            image_avif_path: '',
+            order: 0,
+            is_archived: false,
+          },
+        ],
+      },
+    });
+    const p = preview.json<{ preview_id: string }>();
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/v1/import/apply',
+      headers: ch,
+      payload: { preview_id: p.preview_id, resolutions: [] },
+    });
+    expect(res.statusCode).toBe(200);
+    const body = res.json<{ created: number; updated: number; skipped: number }>();
+    expect(body.created).toBe(0);
+    expect(body.updated).toBe(0);
+    expect(body.skipped).toBe(0);
+    expect(readCatalogOnDisk(dir).rev).toBe(0);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('apply rejects an unknown preview id (404)', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/v1/import/apply',
+      headers: credHeaders(app),
+      payload: { preview_id: 'import-does-not-exist', resolutions: [] },
+    });
+    expect(res.statusCode).toBe(404);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('apply rejects unresolved conflicts (422) and tampered resolution fields are ignored', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const preview = await app.inject({
+      method: 'POST',
+      url: '/api/v1/import/preview',
+      headers: ch,
+      payload: {
+        products: [
+          {
+            name: 'Existing',
+            description: 'Old',
+            price: 999,
+            discount: 0,
+            stock: true,
+            category: 'x',
+            image_path: '',
+            image_avif_path: '',
+            order: 0,
+            is_archived: false,
+          },
+        ],
+      },
+    });
+    const p = preview.json<{ preview_id: string }>();
+
+    // Missing resolution for the price conflict.
+    const unresolved = await app.inject({
+      method: 'POST',
+      url: '/api/v1/import/apply',
+      headers: ch,
+      payload: { preview_id: p.preview_id, resolutions: [] },
+    });
+    expect(unresolved.statusCode).toBe(422);
+
+    // Resolution for a field that is not in the preview is dropped — the
+    // product must stay untouched.
+    const tampered = await app.inject({
+      method: 'POST',
+      url: '/api/v1/import/apply',
+      headers: ch,
+      payload: {
+        preview_id: p.preview_id,
+        resolutions: [
+          { product_id: 'existing-1', field: 'price', resolution: 'use_incoming' },
+          { product_id: 'existing-1', field: 'name', resolution: 'use_incoming' },
+        ],
+      },
+    });
+    expect(tampered.statusCode).toBe(200);
+    const list = (await app.inject({ method: 'GET', url: '/api/v1/products' })).json<{
+      items: Array<{ id: string; name: string }>;
+    }>();
+    const updated = list.items.find((i) => i.id === 'existing-1')!;
+    expect(updated.name).toBe('Existing'); // name field was not in the conflicts
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('apply rejects a stale base revision with 409 and leaves the catalog untouched', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const preview = await app.inject({
+      method: 'POST',
+      url: '/api/v1/import/preview',
+      headers: ch,
+      payload: { products: [{ name: 'Imported', description: '', price: 999, category: 'x' }] },
+    });
+    const previewId = preview.json<{ preview_id: string }>().preview_id;
+    const before = readCatalogOnDisk(dir);
+
+    // Bump the catalog revision between preview and apply.
+    await app.inject({
+      method: 'PATCH',
+      url: '/api/v1/products/existing-1',
+      headers: ch,
+      payload: { command_id: 'cmd-stale-import', base_revision: 1, payload: { price: 600 } },
+    });
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/v1/import/apply',
+      headers: ch,
+      payload: { preview_id: previewId, resolutions: [] },
+    });
+    expect(res.statusCode).toBe(409);
+    expect(res.json<{ error: { code: string } }>().error.code).toBe('CONFLICT');
+
+    // No import artifacts landed.
+    const after = readCatalogOnDisk(dir);
+    expect(after.products.some((p) => p.name === 'Imported')).toBe(false);
+    expect(after.rev).toBe(before.rev + 1); // only the PATCH write
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('preview survives a server restart and apply still works (durable preview)', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app1 = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app1.ready();
+    const preview = await app1.inject({
+      method: 'POST',
+      url: '/api/v1/import/preview',
+      headers: credHeaders(app1),
+      payload: {
+        products: [{ name: 'After Restart', description: '', price: 111, category: 'x' }],
+      },
+    });
+    const previewId = preview.json<{ preview_id: string }>().preview_id;
+    await app1.close();
+
+    const app2 = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app2.ready();
+    const res = await app2.inject({
+      method: 'POST',
+      url: '/api/v1/import/apply',
+      headers: credHeaders(app2),
+      payload: { preview_id: previewId, resolutions: [] },
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json<{ created: number }>().created).toBe(1);
+    await app2.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('import apply requires a credential (401)', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/v1/import/apply',
+      payload: { preview_id: 'import-any', resolutions: [] },
+    });
+    expect(res.statusCode).toBe(401);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('import routes are rejected in read-only mode (405)', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: false, logger: false });
+    await app.ready();
+
+    const preview = await app.inject({
+      method: 'POST',
+      url: '/api/v1/import/preview',
+      payload: { products: [] },
+    });
+    expect(preview.statusCode).toBe(405);
+
+    const apply = await app.inject({
+      method: 'POST',
+      url: '/api/v1/import/apply',
+      payload: { preview_id: 'import-any', resolutions: [] },
+    });
+    expect(apply.statusCode).toBe(405);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// ── change sets (unchanged from plan 073) ────────────────────────────────────
+
 test('POST /api/v1/change-sets/:id/discard rejects published', async () => {
-  const dir = resolve(tmpdir(), `cm-cs-${Date.now()}`);
+  const dir = createTempDir();
   setup(dir);
 
   try {
@@ -401,7 +730,7 @@ test('POST /api/v1/change-sets/:id/discard rejects published', async () => {
 });
 
 test('POST /api/v1/change-sets/:id/discard allows draft', async () => {
-  const dir = resolve(tmpdir(), `cm-cs-${Date.now()}`);
+  const dir = createTempDir();
   setup(dir);
 
   try {

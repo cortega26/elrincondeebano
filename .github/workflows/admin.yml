@@ -103,6 +103,9 @@ jobs:
       - name: E2E smoke tests
         run: npx playwright test -c playwright.config.ts
 
+      - name: E2E import workflow (isolated temp repo)
+        run: npx playwright test -c playwright.import.config.ts
+
       - name: Certification report
         run: node --import tsx scripts/certification-report.ts --ci
 

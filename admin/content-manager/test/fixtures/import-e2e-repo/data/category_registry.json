@@ -1,0 +1,14 @@
+{
+  "rev": 1,
+  "nav_groups": [{ "id": "g1", "sort_order": 0 }],
+  "categories": [
+    {
+      "id": "bebidas",
+      "key": "bebidas",
+      "slug": "bebidas",
+      "display_name": { "default": "Bebidas" },
+      "nav_group": "g1",
+      "sort_order": 0
+    }
+  ]
+}
