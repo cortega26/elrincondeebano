@@ -146,3 +146,4 @@ _products/
 .codegraph/daemon.pid
 .codegraph/*.lock
 data/storefront.db
+data/.media-staging/

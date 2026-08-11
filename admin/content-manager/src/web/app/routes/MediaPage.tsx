@@ -1,8 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { ContentManagerClient } from '../../api/client.ts';
-
-const client = new ContentManagerClient();
+import { fetchWithCredential } from '../credentialStore.ts';
 
 interface MediaEntry {
   path: string;
@@ -13,53 +11,213 @@ interface MediaEntry {
   productName?: string;
 }
 
+interface MediaIntent {
+  id: string;
+  type: string;
+  status: 'pending' | 'running' | 'succeeded' | 'failed' | 'cancelled' | 'applied';
+  progress: number;
+  target_path?: string;
+  product_id?: string;
+  category_slug?: string;
+  errors: string[];
+}
+
+interface CategoryEntry {
+  key: string;
+  slug: string;
+}
+
+interface ProductOption {
+  id: string;
+  name: string;
+}
+
+const STATUS_LABEL: Record<string, string> = {
+  pending: 'Pendiente',
+  running: 'Ejecutando',
+  succeeded: 'Listo',
+  failed: 'Falló',
+  cancelled: 'Cancelado',
+  applied: 'Aplicado',
+};
+
 export function MediaPage(): React.ReactElement {
   const [items, setItems] = useState<MediaEntry[]>([]);
+  const [intents, setIntents] = useState<MediaIntent[]>([]);
   const [summary, setSummary] = useState<Record<string, number>>({});
+  const [categories, setCategories] = useState<CategoryEntry[]>([]);
+  const [products, setProducts] = useState<ProductOption[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [uploadState, setUploadState] = useState<{
+    staged_file: string;
+    sha256: string;
+    size: number;
+    content_type: string;
+  } | null>(null);
+  const [targetPath, setTargetPath] = useState('');
+  const [productId, setProductId] = useState('');
+  const [intentType, setIntentType] = useState<'avif' | 'variant'>('avif');
+  const [ogCategory, setOgCategory] = useState('');
 
-  const load = async (): Promise<void> => {
+  const load = useCallback(async (): Promise<void> => {
     setLoading(true);
     setError(null);
     try {
-      const data = await client.getMedia();
+      const res = await fetch('/api/v1/media');
+      const data = (await res.json()) as {
+        items: MediaEntry[];
+        summary: Record<string, number>;
+        intents: MediaIntent[];
+      };
       setItems(data.items);
       setSummary(data.summary);
+      setIntents(data.intents);
     } catch (err) {
       setError((err as Error).message);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     void load();
-  }, []);
+    fetch('/api/v1/categories')
+      .then((r) => r.json())
+      .then((d) => setCategories(d.categories as CategoryEntry[]))
+      .catch(() => {});
+    fetch('/api/v1/products')
+      .then((r) => r.json())
+      .then((d) => setProducts(d.items as ProductOption[]))
+      .catch(() => {});
+  }, [load]);
+
+  const handleFile = async (file: File | undefined): Promise<void> => {
+    setError(null);
+    setFeedback(null);
+    setUploadState(null);
+    if (!file) return;
+
+    const base64 = await new Promise<string>((resolvePromise, reject) => {
+      const reader = new FileReader();
+      reader.onload = (): void => {
+        const result = String(reader.result ?? '');
+        resolvePromise(result.split(',')[1] ?? '');
+      };
+      reader.onerror = (): void => reject(new Error('No se pudo leer el archivo'));
+      reader.readAsDataURL(file);
+    });
+
+    const contentType =
+      file.type ||
+      (file.name.toLowerCase().endsWith('.png') ? 'image/png' : 'application/octet-stream');
+    const target = `assets/images/${file.name}`;
+    setTargetPath(target);
+    setFileName(file.name);
+
+    const res = await fetchWithCredential('/api/v1/media/upload', {
+      method: 'POST',
+      body: JSON.stringify({
+        data: base64,
+        targetPath: target,
+        content_type: contentType,
+      }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      setError((body as { error?: { message?: string } }).error?.message ?? `Error ${res.status}`);
+      return;
+    }
+    const body = (await res.json()) as {
+      staged_file: string;
+      sha256: string;
+      size: number;
+      content_type: string;
+    };
+    setUploadState(body);
+    setFeedback(
+      `Archivo ${file.name} inspeccionado y en staging (${Math.round(body.size / 1024)} KB)`
+    );
+  };
+
+  const createIntent = async (type: string, extra: Record<string, unknown> = {}): Promise<void> => {
+    setError(null);
+    setFeedback(null);
+    if (type === 'avif' || type === 'variant') {
+      if (!uploadState || !targetPath || !productId) {
+        setError('Sube un archivo, elige destino y producto');
+        return;
+      }
+    }
+    const res = await fetchWithCredential('/api/v1/media/intents', {
+      method: 'POST',
+      body: JSON.stringify({
+        type,
+        staged_file: uploadState?.staged_file,
+        target_path: targetPath,
+        product_id: productId,
+        ...extra,
+      }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      setError((body as { error?: { message?: string } }).error?.message ?? `Error ${res.status}`);
+      return;
+    }
+    setFeedback('Intent creado — ejecútalo para generar los derivados');
+    setUploadState(null);
+    setFileName(null);
+    void load();
+  };
+
+  const intentAction = async (
+    id: string,
+    action: 'run' | 'cancel' | 'discard' | 'apply'
+  ): Promise<void> => {
+    setError(null);
+    setFeedback(null);
+    const method = action === 'discard' ? 'DELETE' : 'POST';
+    const res = await fetchWithCredential(
+      `/api/v1/media/intents/${id}/${action === 'discard' ? '' : action}`,
+      {
+        method,
+        body: JSON.stringify({}),
+      }
+    );
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      setError((body as { error?: { message?: string } }).error?.message ?? `Error ${res.status}`);
+      return;
+    }
+    setFeedback(
+      `Intent ${action === 'apply' ? 'aplicado' : action === 'run' ? 'en ejecución' : action === 'discard' ? 'descartado' : 'cancelado'}`
+    );
+    if (action === 'run') {
+      // Poll until terminal.
+      const poll = async (): Promise<void> => {
+        const r = await fetch('/api/v1/media');
+        const d = (await r.json()) as { intents: MediaIntent[] };
+        const current = d.intents.find((i) => i.id === id);
+        if (current && ['succeeded', 'failed', 'cancelled'].includes(current.status)) {
+          await load();
+          return;
+        }
+        window.setTimeout(() => void poll(), 600);
+      };
+      void poll();
+    } else {
+      await load();
+    }
+  };
 
   const filtered = filter === 'all' ? items : items.filter((i) => i.status === filter);
 
-  if (error) {
-    return (
-      <main role="main" aria-label="Medios">
-        <h1>Medios</h1>
-        <p role="alert">{error}</p>
-        <button
-          onClick={() => {
-            setError(null);
-            void load();
-          }}
-        >
-          Reintentar
-        </button>
-      </main>
-    );
-  }
-
   return (
     <main role="main" aria-label="Medios">
-      <h1>Medios ({summary.total ?? 0} archivos)</h1>
+      <h1>Medios y derivados ({summary.total ?? 0} archivos)</h1>
       <nav
         aria-label="Navegación principal"
         style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}
@@ -71,118 +229,204 @@ export function MediaPage(): React.ReactElement {
         </Link>
       </nav>
 
-      {/* Summary cards */}
-      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-        {[
-          { key: 'active', label: 'Activos', color: '#e8f5e9' },
-          { key: 'orphans', label: 'Huérfanos', color: '#fff3e0' },
-          { key: 'missing', label: 'Faltantes', color: '#ffebee' },
-          { key: 'staged', label: 'Pendientes', color: '#e3f2fd' },
-          { key: 'generated', label: 'Generados', color: '#f3e5f5' },
-        ].map(({ key, label, color }) => (
-          <button
-            key={key}
-            onClick={() => setFilter(key)}
-            style={{
-              padding: '0.5rem 0.75rem',
-              background: filter === key ? color : '#f5f5f5',
-              border:
-                filter === key ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
-              borderRadius: 'var(--radius)',
-              cursor: 'pointer',
-              fontSize: '0.85rem',
-            }}
-          >
-            {label}: {summary[key] ?? 0}
-          </button>
-        ))}
-        {filter !== 'all' && (
-          <button
-            onClick={() => setFilter('all')}
-            style={{ padding: '0.5rem 0.75rem', fontSize: '0.85rem' }}
-          >
-            Mostrar todos
-          </button>
-        )}
-      </div>
-
+      {error && (
+        <p role="alert" style={{ color: '#c62828' }}>
+          {error}
+        </p>
+      )}
+      {feedback && (
+        <p role="status" style={{ color: '#2e7d32' }}>
+          {feedback}
+        </p>
+      )}
       {loading && <p>Cargando…</p>}
 
-      {!loading && filtered.length === 0 && <p>No se encontraron archivos con estado "{filter}"</p>}
+      <section aria-label="Subir y crear intent" style={{ marginBottom: '1.5rem' }}>
+        <h2>Ingesta y derivados</h2>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <label>
+            Archivo:{' '}
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/avif,image/gif"
+              onChange={(e) => void handleFile(e.currentTarget.files?.[0])}
+            />
+          </label>
+          {fileName && <span style={{ fontSize: '0.85rem', color: '#6c757d' }}>{fileName}</span>}
+          <label>
+            Destino:{' '}
+            <input
+              type="text"
+              value={targetPath}
+              onChange={(e) => setTargetPath(e.currentTarget.value)}
+              style={{ width: '220px', padding: '0.25rem' }}
+              aria-label="Ruta destino"
+            />
+          </label>
+          <label>
+            Producto:{' '}
+            <select
+              value={productId}
+              onChange={(e) => setProductId(e.currentTarget.value)}
+              aria-label="Producto destino"
+            >
+              <option value="">Elegir…</option>
+              {products.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Tipo:{' '}
+            <select
+              value={intentType}
+              onChange={(e) => setIntentType(e.currentTarget.value as 'avif' | 'variant')}
+              aria-label="Tipo de derivado"
+            >
+              <option value="avif">AVIF</option>
+              <option value="variant">Variant 480</option>
+            </select>
+          </label>
+          <button onClick={() => void createIntent(intentType)} disabled={loading}>
+            Crear intent
+          </button>
+        </div>
 
-      {filtered.length > 0 && (
+        <div style={{ marginTop: '0.75rem' }}>
+          <label>
+            OG de categoría:{' '}
+            <select
+              value={ogCategory}
+              onChange={(e) => setOgCategory(e.currentTarget.value)}
+              aria-label="Categoría OG"
+            >
+              <option value="">Elegir…</option>
+              {categories.map((c) => (
+                <option key={c.key} value={c.slug ?? c.key}>
+                  {c.key}
+                </option>
+              ))}
+            </select>
+          </label>{' '}
+          <button
+            onClick={() => void createIntent('og', { category_slug: ogCategory })}
+            disabled={!ogCategory || loading}
+          >
+            Generar OG
+          </button>{' '}
+          <button
+            onClick={() => void createIntent('og-delete', { category_slug: ogCategory })}
+            disabled={!ogCategory || loading}
+          >
+            Eliminar OG
+          </button>
+        </div>
+      </section>
+
+      <section aria-label="Intents" style={{ marginBottom: '1.5rem' }}>
+        <h2>Intents ({intents.length})</h2>
+        {intents.length === 0 && <p style={{ color: '#6c757d' }}>No hay intents.</p>}
+        {intents.length > 0 && (
+          <table
+            aria-label="Intents de medios"
+            style={{ width: '100%', borderCollapse: 'collapse' }}
+          >
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Intent</th>
+                <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Tipo</th>
+                <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Estado</th>
+                <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Progreso</th>
+                <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {intents.map((intent) => (
+                <tr key={intent.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                  <td style={{ padding: '0.25rem 0.5rem' }}>
+                    <code>{intent.id}</code>
+                    <div style={{ fontSize: '0.8rem', color: '#6c757d' }}>
+                      {intent.target_path ?? ''}
+                    </div>
+                    {intent.errors.length > 0 && (
+                      <div style={{ fontSize: '0.8rem', color: '#c62828' }}>
+                        {intent.errors.join('; ')}
+                      </div>
+                    )}
+                  </td>
+                  <td style={{ padding: '0.25rem 0.5rem' }}>{intent.type}</td>
+                  <td style={{ padding: '0.25rem 0.5rem' }}>
+                    {STATUS_LABEL[intent.status] ?? intent.status}
+                  </td>
+                  <td style={{ padding: '0.25rem 0.5rem' }}>
+                    <progress max={100} value={intent.progress} style={{ width: '80px' }} />
+                  </td>
+                  <td style={{ padding: '0.25rem 0.5rem' }}>
+                    {(intent.status === 'pending' ||
+                      intent.status === 'failed' ||
+                      intent.status === 'cancelled') && (
+                      <button onClick={() => void intentAction(intent.id, 'run')}>Ejecutar</button>
+                    )}{' '}
+                    {intent.status === 'running' && (
+                      <button onClick={() => void intentAction(intent.id, 'cancel')}>
+                        Cancelar
+                      </button>
+                    )}{' '}
+                    {intent.status === 'succeeded' && (
+                      <button onClick={() => void intentAction(intent.id, 'apply')}>Aplicar</button>
+                    )}{' '}
+                    {intent.status !== 'running' && (
+                      <button onClick={() => void intentAction(intent.id, 'discard')}>
+                        Descartar
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </section>
+
+      <section aria-label="Inventario">
+        <h2>Inventario</h2>
+        <label>
+          Estado:{' '}
+          <select value={filter} onChange={(e) => setFilter(e.currentTarget.value)}>
+            <option value="all">Todos</option>
+            <option value="active">Activos</option>
+            <option value="orphan">Huérfanos</option>
+            <option value="generated">Generados</option>
+            <option value="staged">Staging</option>
+            <option value="missing">Faltantes</option>
+          </select>
+        </label>
         <table
           aria-label="Inventario de medios"
-          style={{ width: '100%', borderCollapse: 'collapse' }}
+          style={{ width: '100%', borderCollapse: 'collapse', marginTop: '0.5rem' }}
         >
           <thead>
             <tr>
               <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Archivo</th>
-              <th style={{ textAlign: 'right', padding: '0.25rem 0.5rem' }}>Tamaño</th>
-              <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Ext</th>
-              <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Producto</th>
               <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Estado</th>
+              <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Producto</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map((item) => (
-              <tr key={item.path} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                <td
-                  style={{
-                    padding: '0.25rem 0.5rem',
-                    maxWidth: '300px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                  title={item.path}
-                >
-                  {item.path}
-                </td>
-                <td style={{ padding: '0.25rem 0.5rem', textAlign: 'right' }}>
-                  {item.status === 'missing' ? '—' : formatSize(item.size)}
-                </td>
-                <td style={{ padding: '0.25rem 0.5rem' }}>{item.ext}</td>
-                <td style={{ padding: '0.25rem 0.5rem' }}>{item.productName ?? '—'}</td>
+            {filtered.map((entry) => (
+              <tr key={entry.path} style={{ borderBottom: '1px solid var(--color-border)' }}>
                 <td style={{ padding: '0.25rem 0.5rem' }}>
-                  <StatusBadge status={item.status} />
+                  <code>{entry.path}</code>
                 </td>
+                <td style={{ padding: '0.25rem 0.5rem' }}>{entry.status}</td>
+                <td style={{ padding: '0.25rem 0.5rem' }}>{entry.productName ?? '—'}</td>
               </tr>
             ))}
           </tbody>
         </table>
-      )}
+      </section>
     </main>
   );
-}
-
-function StatusBadge({ status }: { status: string }): React.ReactElement {
-  const colors: Record<string, { bg: string; text: string }> = {
-    active: { bg: '#e8f5e9', text: '#2e7d32' },
-    orphan: { bg: '#fff3e0', text: '#e65100' },
-    missing: { bg: '#ffebee', text: '#c62828' },
-    staged: { bg: '#e3f2fd', text: '#1565c0' },
-    generated: { bg: '#f3e5f5', text: '#6a1b9a' },
-  };
-  const c = colors[status] ?? { bg: '#f5f5f5', text: '#616161' };
-  return (
-    <span
-      style={{
-        background: c.bg,
-        color: c.text,
-        padding: '0.1rem 0.4rem',
-        borderRadius: '10px',
-        fontSize: '0.8rem',
-        fontWeight: 500,
-      }}
-    >
-      {status}
-    </span>
-  );
-}
-
-function formatSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
