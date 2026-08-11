@@ -6,17 +6,16 @@
 ## Current state
 
 The TypeScript Content Manager (`admin/content-manager/`) is functional for the
-covered workflows, but certification is **in progress, not complete**. The
-newest certification report
-(`reports/certification/certification-2026-07-16T15-36-32-416Z.json`) records
-`summary: { total: 30, pass: 6, fail: 2, untested: 20, manual: 2 }` and its
-exit gate is not met (line coverage below threshold, e2e smoke failing). The
-parity report
-(`reports/parity/parity-2026-07-16T16-10-34-672Z.json`) samples 9 of 184
-products and its category row is missing ("Python golden category file not
-found"). Closing the gap is tracked by plans 056–069 (Auditoría 6) and the
-Wave 4 gate of the Auditoría 7 queue; this document must be revisited when
-plan 069 lands.
+covered workflows and its automated certification checks are green: `Admin
+Tools CI` runs typecheck, vitest, coverage, build, shadow-read, parity, E2E
+smoke (15 tests) and doctor on every `admin/**` change, and the certification
+report gates on those checks (`npm run certify -- --ci`). The parity rows
+(20 of 30) remain operator-signed artifacts of the migration: they are
+evaluated by the full gate (`npm run admin:certify`, which requires
+`untested == 0`) and are not expected to be green on a fresh runner. Closing
+that remaining gap is tracked by plans 056–069 (Auditoría 6) and the Wave 4
+gate of the Auditoría 7 queue; this document must be revisited when plan 069
+lands.
 
 > The certification/parity reports are **local evidence artifacts**, generated
 > by `npm run admin:certify` / `admin:parity` (they are not committed — the

@@ -209,7 +209,7 @@ Fallback sin `node` en PATH: `npx -y node@24 "C:\Program Files\nodejs\node_modul
 - **`Security Audits`** (`.github/workflows/security-audit.yml`) — cron semanal / manual. Node 24.x en las superficies npm; `pip-audit` para el tooling Python.
 - **`Post-Deploy Canary`** (`.github/workflows/post-deploy-canary.yml`) — PR a `main`, `workflow_run` post-deploy. Live probe en GitHub-hosted `ubuntu-24.04`; modo estricto de headers en `/` y `/pages/bebidas.html`.
 - **`Live Contract Monitor`** (`.github/workflows/live-contract-monitor.yml`) — cron diario. GitHub-hosted `ubuntu-24.04`. Abre/actualiza issue si falla el baseline de headers.
-- **`Admin Tools CI`** (`.github/workflows/admin.yml`) — cambios en `admin/**`. Python 3.12, pytest.
+- **`Admin Tools CI`** (`.github/workflows/admin.yml`) — cambios en `admin/**`. Python 3.14: `product_manager` con ruff/pylint/bandit/mypy/pytest desde `requirements-dev.txt`; `web/` con ruff y smoke tests; Content Manager TS con lint, typecheck, vitest, coverage, build y E2E Playwright, cerrado por el certification report (`--ci`: gatea solo los checks automatizados; las filas de paridad las firma el mantenedor, ver `CUTOVER.md`).
 
 ## Playbooks
 
