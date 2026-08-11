@@ -402,6 +402,10 @@ export class ContentManagerClient {
     return this.request<GitStatusResponse>('/git/status');
   }
 
+  async gitPull(): Promise<{ job_id: string; status: string }> {
+    return this.request<{ job_id: string; status: string }>('/git/pull', { method: 'POST' });
+  }
+
   // ── Lossless catalog interchange (plan 060) ────────────────────────────────
 
   async importPreview(payload: unknown): Promise<ImportPreviewResponse> {

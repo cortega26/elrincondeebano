@@ -50,6 +50,55 @@ export async function publicationRoutes(
     };
   });
 
+  // Safe repository pull (plan 061 step 2): fixed `git pull --rebase`, never
+  // browser-supplied remote/branch arguments. Refuses dirty or conflicted
+  // trees before scheduling; runs through the job runner for observability.
+  app.post('/git/pull', async (request, reply) => {
+    if (!productService.isEnabled) {
+      return reply.status(403).send({
+        error: { code: 'FORBIDDEN', message: 'Write operations are disabled' },
+      });
+    }
+
+    const changes = await git.getChanges();
+    if (changes.dirty) {
+      return reply.status(409).send({
+        error: {
+          code: 'DIRTY_TREE',
+          message: 'El árbol tiene cambios sin publicar. Publica o descarta antes de hacer pull.',
+        },
+      });
+    }
+    if (changes.hasConflicts) {
+      return reply.status(409).send({
+        error: {
+          code: 'CONFLICTED_TREE',
+          message: 'El árbol tiene conflictos sin resolver. Resuélvelos antes de hacer pull.',
+        },
+      });
+    }
+
+    const job = jobRunner.schedule<{ success: boolean; output?: string; error?: string }>(
+      'git-pull',
+      async () => {
+        const result = await git.pull();
+        if (result.success) {
+          return { success: true, output: result.output };
+        }
+        // A rebase conflict leaves git mid-operation — document recovery.
+        const recovery = /conflict|CONFLICT/i.test(result.error ?? '')
+          ? ' Conflicto durante el rebase: ejecuta `git rebase --abort` para recuperar.'
+          : '';
+        return {
+          success: false,
+          error: `${result.error ?? 'Git pull failed'}${recovery}`,
+        };
+      }
+    );
+
+    return { job_id: job.id, status: 'scheduled' };
+  });
+
   app.post('/publications/preview', async () => {
     const changes = await git.getChanges();
     const manifest = createDefaultManifest();

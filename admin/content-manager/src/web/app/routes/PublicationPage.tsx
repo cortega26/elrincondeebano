@@ -17,6 +17,7 @@ export function PublicationPage(): React.ReactElement {
   const [job, setJob] = useState<JobResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [pullStatus, setPullStatus] = useState<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const stopPolling = useCallback(() => {
@@ -109,6 +110,38 @@ export function PublicationPage(): React.ReactElement {
     }
   }
 
+  async function handleGitPull(): Promise<void> {
+    setError(null);
+    setPullStatus(null);
+    try {
+      const result = await client.gitPull();
+      const jobId = result.job_id;
+      const poll = async (): Promise<void> => {
+        try {
+          const jobState = await client.getJob(jobId);
+          if (jobState.status === 'completed') {
+            const output = (jobState.result as { output?: string } | undefined)?.output ?? '';
+            setPullStatus(output ? `Pull ✓ — ${output}` : 'Pull ✓');
+            await refreshGitStatus();
+          } else if (jobState.status === 'failed') {
+            const msg =
+              (jobState.result as { error?: string } | undefined)?.error ?? 'Pull fallido';
+            setPullStatus(msg);
+          } else if (jobState.status === 'cancelled') {
+            setPullStatus('Pull cancelado');
+          } else {
+            window.setTimeout(() => void poll(), 800);
+          }
+        } catch {
+          setPullStatus('Error consultando el pull');
+        }
+      };
+      void poll();
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  }
+
   return (
     <main role="main" aria-label="Publicación">
       <nav
@@ -167,10 +200,23 @@ export function PublicationPage(): React.ReactElement {
           }}
         >
           <h2 style={{ margin: 0 }}>Git Status</h2>
-          <button onClick={() => void refreshGitStatus()} style={{ padding: '0.25rem 0.75rem' }}>
-            Refresh
-          </button>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button onClick={() => void handleGitPull()} style={{ padding: '0.25rem 0.75rem' }}>
+              Git pull (rebase)
+            </button>
+            <button onClick={() => void refreshGitStatus()} style={{ padding: '0.25rem 0.75rem' }}>
+              Refresh
+            </button>
+          </div>
         </div>
+        {pullStatus && (
+          <p
+            role="status"
+            style={{ fontSize: '0.9rem', color: pullStatus.includes('✓') ? '#2e7d32' : '#e65100' }}
+          >
+            {pullStatus}
+          </p>
+        )}
         {gitStatus ? (
           <div>
             <p>
