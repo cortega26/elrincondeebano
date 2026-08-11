@@ -439,3 +439,36 @@ test('StorefrontRepository.write restores the previous experience file when its 
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+// ── plan 092: mtime cache ────────────────────────────────────────────────────
+
+test('loadCatalog caches by mtime+size and invalidates on write and external edit', async () => {
+  const dir = createTempDir();
+  writeFileSync(
+    resolve(dir, 'data', 'product_data.json'),
+    JSON.stringify({ version: 't', last_updated: '2026-07-15T00:00:00.000Z', rev: 0, products: [] })
+  );
+  try {
+    const repo = new ProductRepository({ repoRoot: dir });
+    const first = repo.loadCatalog();
+    expect(repo.loadCatalog()).toBe(first); // cached instance
+
+    // External edit (mtime/size change) invalidates the cache.
+    const catalogPath = resolve(dir, 'data', 'product_data.json');
+    const raw = JSON.parse(readFileSync(catalogPath, 'utf8'));
+    raw.last_updated = '2026-08-11T00:00:00.000Z';
+    writeFileSync(catalogPath, JSON.stringify(raw));
+    const afterExternal = repo.loadCatalog();
+    expect(afterExternal).not.toBe(first);
+    expect(afterExternal.last_updated).toBe('2026-08-11T00:00:00.000Z');
+
+    // A write invalidates eagerly: the next load reflects the new file.
+    const written = JSON.parse(JSON.stringify(afterExternal));
+    written.last_updated = '2026-08-11T01:00:00.000Z';
+    const result = await repo.writeCatalog(written, 'cache-test', written.rev);
+    expect(result.ok).toBe(true);
+    expect(repo.loadCatalog().last_updated).toBe('2026-08-11T01:00:00.000Z');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

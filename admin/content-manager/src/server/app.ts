@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import type { FastifyInstance, FastifyServerOptions } from 'fastify';
+import compress from '@fastify/compress';
 import { healthRoute } from './routes/health.ts';
 import { productRoutes, categoryRoutes } from './routes/catalog.ts';
 import { bootstrapRoute } from './routes/bootstrap.ts';
@@ -86,6 +87,9 @@ export function createApp(opts?: AppOptions): FastifyInstance {
   }
 
   const app = Fastify(fastifyOpts);
+
+  // Plan 092: gzip/deflate responses (API JSON + SPA assets).
+  app.register(compress, { threshold: 1024 });
 
   // Only ProductRepository is wired to the journal: it's the only
   // repository built on AtomicWriter. CategoryRepository and
@@ -335,7 +339,16 @@ export function createApp(opts?: AppOptions): FastifyInstance {
               const ext = assetPath.includes('.') ? `.${assetPath.split('.').pop() ?? ''}` : '';
               const contentType = mimeTypes[ext] ?? 'application/octet-stream';
               const content = readFileSync(assetPath);
-              return reply.header('Content-Type', contentType).send(content);
+              // Plan 092: hashed bundle filenames are immutable; media
+              // images are cacheable (revalidated by mtime on deploy).
+              const immutable = /-([A-Za-z0-9_-]{8,})\.[a-z0-9]+$/i.test(urlPath);
+              return reply
+                .header('Content-Type', contentType)
+                .header(
+                  'Cache-Control',
+                  immutable ? 'public, max-age=31536000, immutable' : 'public, max-age=600'
+                )
+                .send(content);
             } catch {
               return reply
                 .status(404)

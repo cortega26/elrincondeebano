@@ -2,6 +2,19 @@ import type { FastifyInstance } from 'fastify';
 import type { Repositories } from './catalog.ts';
 import { validateStorefrontCuration } from '../../domain/storefront/storefrontValidation.ts';
 import { HttpError, sanitizeUserMessage } from '../../shared/errors/AppError.ts';
+import { storefrontBundleSchema, productReferenceSchema } from '../../shared/schemas/storefront.ts';
+import { z } from 'zod';
+
+// Plan 092: zod at the boundary (the repo-wide winning pattern) — shape
+// validation before the invariant walker, which stays as the second layer.
+const bundlesWriteSchema = z.object({
+  bundles: z.array(storefrontBundleSchema),
+});
+const featuredWriteSchema = z.object({
+  featuredStaples: z.array(productReferenceSchema).optional(),
+  primaryCategories: z.array(z.string()).optional(),
+  secondaryCategories: z.array(z.string()).optional(),
+});
 
 export async function storefrontMutRoutes(
   app: FastifyInstance,
@@ -23,15 +36,19 @@ export async function storefrontMutRoutes(
 
   app.put('/storefront/bundles', async (request, reply) => {
     try {
-      const body = request.body as { bundles?: Array<Record<string, unknown>> };
-      if (!body?.bundles || !Array.isArray(body.bundles)) {
+      const parsed = bundlesWriteSchema.safeParse(request.body);
+      if (!parsed.success) {
         return reply.status(400).send({
-          error: { code: 'BAD_REQUEST', message: 'Expected { bundles: [...] }' },
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: parsed.error.issues.map((i) => i.message).join('; '),
+          },
         });
       }
+      const body = parsed.data;
 
       const existing = repos.storefront.load();
-      existing.bundles = body.bundles as typeof existing.bundles;
+      existing.bundles = body.bundles;
 
       // Plan 066 step 1: strict invariants + product reference checks.
       const catalog = repos.products.loadCatalog();
@@ -59,11 +76,16 @@ export async function storefrontMutRoutes(
 
   app.put('/storefront/featured', async (request, reply) => {
     try {
-      const body = request.body as {
-        featuredStaples?: Array<{ category: string; name: string }>;
-        primaryCategories?: string[];
-        secondaryCategories?: string[];
-      };
+      const parsed = featuredWriteSchema.safeParse(request.body);
+      if (!parsed.success) {
+        return reply.status(400).send({
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: parsed.error.issues.map((i) => i.message).join('; '),
+          },
+        });
+      }
+      const body = parsed.data;
 
       const existing = repos.storefront.load();
 

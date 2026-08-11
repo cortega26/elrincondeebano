@@ -1,4 +1,4 @@
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { Product, ProductCatalog } from '../../shared/schemas/product.ts';
 import { productCatalogSchema } from '../../shared/schemas/product.ts';
@@ -22,6 +22,10 @@ export class ProductRepository {
   private readonly lock: MutationLock;
   private readonly writer: AtomicWriter;
   private idempotencyStore?: PersistentIdempotencyStore;
+  // Plan 092: mtime+size-keyed cache — every request used to re-read and
+  // re-validate the whole catalog. Keyed on the file stat so external edits
+  // (git pull, editor) invalidate automatically; writes invalidate eagerly.
+  private cache: { key: string; catalog: ProductCatalog } | null = null;
 
   constructor(config: ProductRepositoryConfig, idempotencyStore?: PersistentIdempotencyStore) {
     const dataFile = config.dataFile ?? DEFAULT_PRODUCT_FILE;
@@ -37,6 +41,12 @@ export class ProductRepository {
 
   loadCatalog(): ProductCatalog {
     this.ensureFileExists();
+
+    const stat = statSync(this.filePath);
+    const cacheKey = `${stat.mtimeMs}:${stat.size}`;
+    if (this.cache?.key === cacheKey) {
+      return this.cache.catalog;
+    }
 
     let raw: string;
     try {
@@ -62,6 +72,7 @@ export class ProductRepository {
       throw new Error(`Schema validation failed for ${this.filePath}: ${message}`);
     }
 
+    this.cache = { key: cacheKey, catalog: result.data };
     return result.data;
   }
 
@@ -70,6 +81,9 @@ export class ProductRepository {
     commandId: string,
     baseRevision: number
   ): Promise<{ ok: boolean; error?: string; statusCode: number }> {
+    // Plan 092: invalidate before the in-lock revision check so it always
+    // sees the on-disk state, never the mutated in-memory catalog.
+    this.cache = null;
     if (this.idempotencyStore?.has(commandId)) {
       const cached = this.idempotencyStore.get(commandId)!;
       return {
@@ -251,11 +265,4 @@ export class ProductRepository {
   getFilePath(): string {
     return this.filePath;
   }
-}
-
-export function createProductRepository(
-  config: ProductRepositoryConfig,
-  idempotencyStore?: PersistentIdempotencyStore
-): ProductRepository {
-  return new ProductRepository(config, idempotencyStore);
 }

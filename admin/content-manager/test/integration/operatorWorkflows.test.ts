@@ -40,8 +40,8 @@ function setup(dir: string): void {
           discount: 500,
           stock: true,
           category: 'bebidas',
-          image_path: '/img/cafe.jpg',
-          image_avif_path: '/img/cafe.avif',
+          image_path: 'assets/images/cafe.jpg',
+          image_avif_path: 'assets/images/cafe.avif',
           order: 0,
           is_archived: false,
           rev: 1,
@@ -164,8 +164,8 @@ test('POST /api/v1/products persists every editable field', async () => {
           discount: 300,
           stock: true,
           category: 'bebidas',
-          image_path: '/img/te.png',
-          image_avif_path: '/img/te.avif',
+          image_path: 'assets/images/te.png',
+          image_avif_path: 'assets/images/te.avif',
         },
       },
     });
@@ -181,8 +181,8 @@ test('POST /api/v1/products persists every editable field', async () => {
       };
     }>().product;
     expect(created.discount).toBe(300);
-    expect(created.image_path).toBe('/img/te.png');
-    expect(created.image_avif_path).toBe('/img/te.avif');
+    expect(created.image_path).toBe('assets/images/te.png');
+    expect(created.image_avif_path).toBe('assets/images/te.avif');
     expect(created.rev).toBe(1);
 
     await app.close();

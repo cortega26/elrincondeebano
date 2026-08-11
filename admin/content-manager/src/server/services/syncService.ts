@@ -252,18 +252,37 @@ export class SyncService {
 
     let applied = 0;
     let failedApply = 0;
-    for (const change of changes) {
-      const snapshot = change['product_snapshot'] as Record<string, unknown> | undefined;
-      if (!snapshot) {
-        failedApply += 1;
-        continue;
+    if (changes.length > 0) {
+      // Plan 092: batch the whole pull into one catalog load and one write
+      // (was one load + one write per change); all-or-nothing on the write.
+      const catalog = this.repos.products.loadCatalog();
+      for (const change of changes) {
+        const snapshot = change['product_snapshot'] as Record<string, unknown> | undefined;
+        if (!snapshot) {
+          failedApply += 1;
+          continue;
+        }
+        const productId = change['product_id'] as string | undefined;
+        const rev = change['rev'] as number | undefined;
+        if (this.mergeSnapshotIntoCatalog(catalog, snapshot, rev ?? sinceRev, productId)) {
+          applied += 1;
+        } else {
+          failedApply += 1;
+        }
       }
-      const productId = change['product_id'] as string | undefined;
-      const rev = change['rev'] as number | undefined;
-      if (await this.applyServerSnapshot(snapshot, rev ?? sinceRev, productId)) {
-        applied += 1;
-      } else {
-        failedApply += 1;
+      if (applied > 0) {
+        catalog.rev += 1;
+        catalog.last_updated = new Date().toISOString();
+        const baseRev = catalog.rev - 1;
+        const commandId = `sync-pull-${baseRev}-${createHash('sha256')
+          .update(JSON.stringify(changes))
+          .digest('hex')
+          .slice(0, 16)}`;
+        const write = await this.repos.products.writeCatalog(catalog, commandId, baseRev);
+        if (!write.ok) {
+          applied = 0;
+          failedApply = changes.length;
+        }
       }
     }
 
@@ -280,20 +299,15 @@ export class SyncService {
     };
   }
 
-  // Upserts a server snapshot into the local catalog with a single
-  // revision-guarded write; the catalog revision acts as the pull cursor.
-  // Plan 086: the write command id is content-derived (base revision + hash
-  // of the snapshot) so distinct pulls never collide in the idempotency
-  // store, while an identical retry stays idempotent. The merged product is
-  // validated against productSchema before persisting — a poisoned remote
-  // snapshot can never corrupt the canonical catalog.
-  private async applyServerSnapshot(
+  // Merges one server snapshot into an in-memory catalog. Validated against
+  // productSchema — a poisoned remote snapshot can never corrupt the
+  // canonical catalog (plan 086). The caller owns the single write.
+  private mergeSnapshotIntoCatalog(
+    catalog: ProductCatalog,
     snapshot: Record<string, unknown>,
     rev: number,
-    lookupProductId?: string,
-    commandId?: string
-  ): Promise<boolean> {
-    const catalog = this.repos.products.loadCatalog();
+    lookupProductId?: string
+  ): boolean {
     const existing = lookupProductId
       ? catalog.products.find((p) => p.id === lookupProductId)
       : undefined;
@@ -311,20 +325,36 @@ export class SyncService {
         (existing as unknown as Record<string, unknown>)[field] = value;
       }
       existing.rev = Math.max(existing.rev, rev);
-      if (!productSchema.safeParse(existing).success) return false;
-    } else {
-      const id = lookupProductId ?? String(snapshot['id'] ?? '');
-      if (!id) return false;
-      const candidate = {
-        ...(snapshot as unknown as ProductCatalog['products'][number]),
-        id,
-        rev: Math.max(0, rev),
-        order: catalog.products.length,
-        field_last_modified: {},
-      };
-      if (!productSchema.safeParse(candidate).success) return false;
-      catalog.products.push(candidate);
+      return productSchema.safeParse(existing).success;
     }
+
+    const id = lookupProductId ?? String(snapshot['id'] ?? '');
+    if (!id) return false;
+    const candidate = {
+      ...(snapshot as unknown as ProductCatalog['products'][number]),
+      id,
+      rev: Math.max(0, rev),
+      order: catalog.products.length,
+      field_last_modified: {},
+    };
+    if (!productSchema.safeParse(candidate).success) return false;
+    catalog.products.push(candidate);
+    return true;
+  }
+
+  // Upserts a server snapshot into the local catalog with a single
+  // revision-guarded write; the catalog revision acts as the pull cursor.
+  // Plan 086: the write command id is content-derived (base revision + hash
+  // of the snapshot) so distinct pulls never collide in the idempotency
+  // store, while an identical retry stays idempotent.
+  private async applyServerSnapshot(
+    snapshot: Record<string, unknown>,
+    rev: number,
+    lookupProductId?: string,
+    commandId?: string
+  ): Promise<boolean> {
+    const catalog = this.repos.products.loadCatalog();
+    if (!this.mergeSnapshotIntoCatalog(catalog, snapshot, rev, lookupProductId)) return false;
 
     catalog.rev += 1;
     catalog.last_updated = new Date().toISOString();

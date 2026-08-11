@@ -82,10 +82,6 @@ export class StorefrontRepository {
     return this.load().bundles;
   }
 
-  getFeaturedStaples(): StorefrontExperience['home']['featuredStaples'] {
-    return this.load().home.featuredStaples;
-  }
-
   write(experience: StorefrontExperience): { ok: boolean; error?: string } {
     const result = storefrontExperienceSchema.safeParse(experience);
     if (!result.success) {
@@ -222,10 +218,4 @@ export class StorefrontRepository {
   getFilePath(): string {
     return this.experiencePath;
   }
-}
-
-export function createStorefrontRepository(
-  config: StorefrontRepositoryConfig
-): StorefrontRepository {
-  return new StorefrontRepository(config);
 }

@@ -177,6 +177,16 @@ export class ProductService {
       params.changes.description !== product.description
     ) {
       product.description = params.changes.description;
+      // Plan 092: description edits must record the same revision metadata
+      // as every other field — history/undo depend on it.
+      product.rev += 1;
+      product.field_last_modified.description = {
+        ts: now,
+        by: 'admin',
+        rev: product.rev,
+        base_rev: params.baseRevision,
+        changeset_id: null,
+      };
       changedFields.push('description');
     }
 

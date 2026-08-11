@@ -152,10 +152,6 @@ export class CategoryRepository {
     return categories.find((c) => c.key.toLowerCase() === normalized) as never;
   }
 
-  countProductsInCategory(_categoryId: string): number {
-    return 0; // Product-count check requires product repo cross-reference — deferred to domain
-  }
-
   validate(): ValidationIssue[] {
     const issues: ValidationIssue[] = [];
     const sourcePath = existsSync(this.registryPath) ? this.registryPath : this.legacyPath;

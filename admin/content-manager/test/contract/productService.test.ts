@@ -322,3 +322,34 @@ test('ProductService.edit advances rev and field metadata for discount-only edit
   expect(catalog.products[0].rev).toBe(3);
   expect(catalog.products[0].field_last_modified.stock?.rev).toBe(3);
 });
+
+// ── plan 092: description edits record revision metadata ─────────────────────
+
+test('ProductService.edit description-only advances rev and field_last_modified', () => {
+  const catalog = makeCatalog(1);
+  const service = new ProductService();
+  service.enable();
+  const created = service.create(catalog, {
+    name: 'Con Descripción',
+    price: 1000,
+    description: 'Vieja',
+    category: 'cat1',
+  });
+  expect(created.ok).toBe(true);
+  const product = created.product!;
+  const baseRev = product.rev;
+
+  const result = service.edit(catalog, {
+    entityId: product.id!,
+    baseRevision: baseRev,
+    changes: { description: 'Descripción nueva' },
+  });
+  expect(result.ok).toBe(true);
+  expect(result.product!.rev).toBe(baseRev + 1);
+  expect(result.product!.field_last_modified.description).toMatchObject({
+    by: 'admin',
+    rev: baseRev + 1,
+    base_rev: baseRev,
+  });
+  expect(result.product!.field_last_modified.price).toBeUndefined();
+});

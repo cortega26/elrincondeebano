@@ -919,19 +919,3 @@ export async function categoryRoutes(
     return { status: 'ok', reordered: orderedIds.length, rev: wrote.rev };
   });
 }
-
-export async function storefrontRoutes(app: FastifyInstance, repos: Repositories): Promise<void> {
-  app.get('/storefront/bundles', async () => {
-    return { bundles: repos.storefront.getBundles() };
-  });
-
-  app.get('/storefront/featured', async () => {
-    const experience = repos.storefront.load();
-    return {
-      featuredStaples: experience.home.featuredStaples,
-      primaryCategories: experience.home.primaryCategories,
-      secondaryCategories: experience.home.secondaryCategories,
-      trustBar: experience.trustBar,
-    };
-  });
-}

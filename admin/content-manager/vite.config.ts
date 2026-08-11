@@ -19,7 +19,9 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, 'dist/web'),
     emptyOutDir: true,
-    sourcemap: true,
+    // Plan 092: no public sourcemaps — they shipped the full sources to any
+    // localhost caller. Dev debugging uses the vite dev server when needed.
+    sourcemap: false,
     target: 'es2024',
     rollupOptions: {
       input: path.resolve(__dirname, 'src/web/index.html'),

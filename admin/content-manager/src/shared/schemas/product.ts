@@ -20,8 +20,23 @@ export const productReadSchema = z.object({
   discount: z.number().int().nonnegative().default(0),
   stock: z.boolean().default(false),
   category: z.string().max(50).default(''),
-  image_path: z.string().default(''),
-  image_avif_path: z.string().default(''),
+  image_path: z
+    .string()
+    .default('')
+    // Plan 092: product media must live under assets/images/ with a known
+    // extension — anything else breaks the storefront build or serves the
+    // SPA fallback as an image.
+    .refine(
+      (v) => v === '' || /^assets\/images\/.+\.(?:webp|jpg|jpeg|png|avif|gif)$/i.test(v),
+      'image_path debe estar bajo assets/images/ con extensión webp/jpg/png/avif/gif'
+    ),
+  image_avif_path: z
+    .string()
+    .default('')
+    .refine(
+      (v) => v === '' || /^assets\/images\/.+\.avif$/i.test(v),
+      'image_avif_path debe ser .avif'
+    ),
   order: z.number().int().default(0),
   is_archived: z.boolean().default(false),
   rev: z.number().int().nonnegative().default(0),

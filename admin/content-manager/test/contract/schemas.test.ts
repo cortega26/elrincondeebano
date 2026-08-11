@@ -216,3 +216,37 @@ test('storefrontExperienceSchema rejects missing trustBar', () => {
   const result = storefrontExperienceSchema.safeParse({});
   expect(result.success).toBe(false);
 });
+
+// ── plan 092: image path validation ──────────────────────────────────────────
+
+test('productSchema validates image paths', () => {
+  const base = {
+    name: 'X',
+    description: '',
+    price: 1000,
+    discount: 0,
+    stock: true,
+    category: 'cat1',
+    is_archived: false,
+    rev: 1,
+    field_last_modified: {},
+  };
+  expect(productSchema.safeParse({ ...base, image_path: 'assets/images/a.webp' }).success).toBe(
+    true
+  );
+  expect(productSchema.safeParse({ ...base, image_path: 'assets/images/a b.webp' }).success).toBe(
+    true
+  );
+  expect(productSchema.safeParse({ ...base, image_path: 'images/a.webp' }).success).toBe(false);
+  expect(productSchema.safeParse({ ...base, image_path: 'assets/a.webp' }).success).toBe(false);
+  expect(productSchema.safeParse({ ...base, image_path: 'assets/images/a.txt' }).success).toBe(
+    false
+  );
+  expect(productSchema.safeParse({ ...base, image_path: '' }).success).toBe(true);
+  expect(
+    productSchema.safeParse({ ...base, image_avif_path: 'assets/images/a.avif' }).success
+  ).toBe(true);
+  expect(
+    productSchema.safeParse({ ...base, image_avif_path: 'assets/images/a.webp' }).success
+  ).toBe(false);
+});

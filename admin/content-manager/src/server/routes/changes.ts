@@ -686,14 +686,15 @@ export async function changesRoutes(
         created += 1;
       }
 
+      // Plan 092: index updates once per apply instead of find-per-update.
+      const byId = new Map(catalog.products.map((e) => [e.id, e]));
+      const byIdentity = new Map(
+        catalog.products.map((e) => [normalizeImportIdentity(e.name, e.description), e])
+      );
       for (const incoming of preview.updates) {
         const existing = incoming.id
-          ? catalog.products.find((e) => e.id === incoming.id)
-          : catalog.products.find(
-              (e) =>
-                normalizeImportIdentity(e.name, e.description) ===
-                normalizeImportIdentity(incoming.name, incoming.description)
-            );
+          ? byId.get(incoming.id)
+          : byIdentity.get(normalizeImportIdentity(incoming.name, incoming.description));
         if (!existing) {
           errors.push(`Product "${incoming.name}" no longer exists in the catalog`);
           continue;
@@ -836,9 +837,11 @@ export async function changesRoutes(
 
     // Durable append-only log (plan 062 step 4): one row per recorded op with
     // exact before/after evidence.
+    // Plan 092: name lookup map once per request instead of find-per-op.
+    const productNameById = new Map(products.map((p) => [p.id, p.name]));
     const logRows = history.load().flatMap((entry) =>
       entry.ops.map((op) => ({
-        product_name: products.find((p) => p.id === op.product_id)?.name ?? op.product_id ?? '?',
+        product_name: productNameById.get(op.product_id ?? '') ?? op.product_id ?? '?',
         product_id: op.product_id ?? '',
         field: `change-set:${entry.kind}:${op.action}`,
         timestamp: entry.timestamp,

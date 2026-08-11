@@ -40,8 +40,8 @@ function setup(dir: string): void {
           discount: 500,
           stock: true,
           category: 'bebidas',
-          image_path: '/img/cafe.jpg',
-          image_avif_path: '/img/cafe.avif',
+          image_path: 'assets/images/cafe.jpg',
+          image_avif_path: 'assets/images/cafe.avif',
           order: 0,
           is_archived: false,
           rev: 2,
@@ -180,7 +180,9 @@ test('GET /api/v1/export.csv matches the Python column contract', async () => {
 
     const cafe = lines.find((l) => l.startsWith('Café de Grano'))!;
     expect(cafe).toContain('"Tostado medio, ""aroma intenso"""');
-    expect(cafe).toMatch(/,4500,500,True,bebidas,\/img\/cafe\.jpg,\/img\/cafe\.avif,0$/);
+    expect(cafe).toMatch(
+      /,4500,500,True,bebidas,assets\/images\/cafe\.jpg,assets\/images\/cafe\.avif,0$/
+    );
 
     const agua = lines.find((l) => l.startsWith('Agua Mineral'))!;
     expect(agua).toMatch(/,1000,0,False,bebidas,,,1$/);

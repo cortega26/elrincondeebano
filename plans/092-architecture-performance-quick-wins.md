@@ -10,6 +10,7 @@
 - **Depends on**: —
 - **Category**: architecture / performance
 - **Written against**: commit `cefdd9f`
+- **Executed**: DONE — 2026-08-11 (verification abajo)
 
 ## Why this matters
 
@@ -100,13 +101,24 @@ Por paso: tests de contrato/integración indicados + regresión de `performance.
 
 ## Done criteria
 
-- [ ] Edit description avanza rev/metadata; history lo muestra.
-- [ ] `sharp` declarado; `npm ci` aislado del workspace funciona.
-- [ ] Cache mtime activo con invalidación correcta (perf test mejora).
-- [ ] Headers immutable para hashes, no-cache para html, sin sourcemap público, compress activo.
-- [ ] N+1s eliminados (history/import/pull).
-- [ ] Storefront PUT y demás boundaries con zod; código muerto borrado (grep 0).
-- [ ] `image_path` validado con prefijo/extensiones; parity verde.
+- [x] Edit description avanza rev/metadata (field_last_modified + rev); test.
+- [x] `sharp` declarado en el workspace admin (^0.35.3); `npm ci` limpio.
+- [x] Cache mtime+size en productRepository con invalidación eager en writes y por stat externo; test.
+- [x] Headers immutable para bundles hasheados, max-age=600 para media, sin sourcemaps públicos, `@fastify/compress` activo.
+- [x] N+1s eliminados: history (map por id), import apply (maps id+identity), pull de sync (batch 1 load + 1 write, all-or-nothing).
+- [x] Storefront PUTs con zod en el boundary (bundles/featured schemas; walker invariantes como 2ª capa); código muerto borrado: api.ts completo, storefrontRoutes sin registrar, factories createProductRepository/createStorefrontRepository, countProductsInCategory stub, getFeaturedStaples.
+- [x] `image_path`/`image_avif_path` validados (assets/images/ + extensiones; fixtures de tests legacy `/img/` actualizados); parity 0 diffs.
+
+## Evidence (2026-08-11)
+
+- productService: branch description alineado (rev + field_last_modified.description).
+- productRepository: cache `{mtimeMs}:{size}` con invalidación al inicio de writeCatalog (el rev check siempre ve disco); 63 archivos de tests verdes sin bypass flag necesario.
+- app.ts: compress registrado; cache-control por clase de asset; vite sourcemap:false (dist sin .map).
+- changes.ts: maps de lookup; syncService: mergeSnapshotIntoCatalog + pull en un write (command id derivado del batch).
+- storefront.ts: bundlesWriteSchema/featuredWriteSchema.
+- Muerto borrado: 5 símbolos + api.ts (6 exports sin uso) + storefrontRoutes no registrada.
+- Fixtures legacy `/img/...` → `assets/images/...` en exportApi/operatorWorkflows (3 archivos de test ajustados).
+- Tests: +4 (description rev, cache invalidation, image path schema, más el parity). Suite: 498 tests, e2e 19/19, certify 30/30, lint 0 errores.
 
 ## STOP conditions
 
