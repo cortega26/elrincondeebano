@@ -6,7 +6,8 @@ import type { ConflictFilter } from '../../shared/schemas/conflict.ts';
 import { conflictFilterSchema } from '../../shared/schemas/conflict.ts';
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
-import { syncConfigSchema, type SyncConfig } from '../adapters/syncAdapter.ts';
+import { syncConfigSchema, isAllowedSyncUrl, type SyncConfig } from '../adapters/syncAdapter.ts';
+import type { SyncService } from '../services/syncService.ts';
 import { isSafeId } from '../../shared/identity.ts';
 
 export async function conflictsRoutes(
@@ -14,7 +15,8 @@ export async function conflictsRoutes(
   conflictService: ConflictService,
   conflicts: ConflictRepository,
   syncAdapter: SyncAdapter,
-  syncConfigPath: string
+  syncConfigPath: string,
+  syncService: SyncService
 ): Promise<void> {
   app.get('/conflicts', async (request, _reply) => {
     const query = request.query as Record<string, string>;
@@ -135,6 +137,18 @@ export async function conflictsRoutes(
   app.get('/sync/status', async () => {
     const config = syncAdapter.getConfig();
     const tokenEnv = process.env.SYNC_API_TOKEN;
+    const queue = syncService.getQueue();
+    const counts = {
+      pending: queue.filter((e) => e.status === 'pending').length,
+      synced: queue.filter((e) => e.status === 'synced').length,
+      error: queue.filter((e) => e.status === 'error').length,
+      total: queue.length,
+    };
+    const nextAttempt = queue
+      .map((e) => (e.next_retry_at ? new Date(e.next_retry_at).getTime() : null))
+      .filter((v): v is number => v !== null)
+      .sort((a, b) => a - b)[0];
+    const results = syncService.getLastResults();
     return {
       sync: {
         enabled: config.enabled,
@@ -142,10 +156,15 @@ export async function conflictsRoutes(
         token_configured: !!tokenEnv,
         poll_interval: config.poll_interval,
         pull_interval: config.pull_interval,
+        paused: syncService.isPaused(),
+        queue: counts,
+        next_attempt: nextAttempt ? new Date(nextAttempt).toISOString() : null,
+        last_push: results.lastPush,
+        last_pull: results.lastPull,
       },
       capabilities: {
-        push: 'not_implemented',
-        pull: 'not_implemented',
+        push: 'implemented',
+        pull: 'implemented',
       },
     };
   });
@@ -203,11 +222,11 @@ export async function conflictsRoutes(
 
       const validated = validation.data;
 
-      if (validated.api_base && !validated.api_base.startsWith('https://')) {
+      if (validated.api_base && !isAllowedSyncUrl(validated.api_base)) {
         return reply.status(400).send({
           error: {
             code: 'VALIDATION_ERROR',
-            message: 'api_base must use HTTPS for remote hosts (https://…)',
+            message: 'api_base must use HTTPS (or HTTP for localhost/loopback only)',
           },
         });
       }
@@ -219,6 +238,12 @@ export async function conflictsRoutes(
         flush: true,
       });
 
+      // Plan 064 step 5: reconfigure the live adapter — no restart needed.
+      syncAdapter.setConfig(validated);
+      if (!validated.enabled) {
+        syncService.setPaused(false);
+      }
+
       return reply.status(200).send(validated);
     } catch (err) {
       return reply.status(500).send({
@@ -227,14 +252,27 @@ export async function conflictsRoutes(
     }
   });
 
-  app.post('/sync/now', async (request, reply) => {
-    const result = await syncAdapter.pushChanges({});
+  app.post('/sync/pause', async (_request, reply) => {
+    syncService.setPaused(true);
+    return reply.status(200).send({ status: 'paused' });
+  });
 
-    return reply.status(result.status).send({
-      ok: result.ok,
-      status: result.status,
-      body: result.body,
-      message: result.ok ? 'Sync triggered' : 'Sync not available — see contract',
+  app.post('/sync/resume', async (_request, reply) => {
+    syncService.setPaused(false);
+    return reply.status(200).send({ status: 'resumed' });
+  });
+
+  app.post('/sync/now', async (_request, reply) => {
+    const pushed = await syncService.processOnce();
+    const pulled = await syncService.pullOnce();
+    return reply.status(200).send({
+      ok: true,
+      message: 'Sync completed',
+      pushed: pushed.pushed,
+      push_failed: pushed.failed,
+      pulled: pulled.applied,
+      cursor: pulled.cursor,
+      pull_error: pulled.error ?? null,
     });
   });
 }

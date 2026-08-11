@@ -372,14 +372,20 @@ test('GET /api/v1/sync/status returns sync config', async () => {
     expect(response.statusCode).toBe(200);
 
     const body = response.json<{
-      sync: { enabled: boolean; poll_interval: number; pull_interval: number };
+      sync: {
+        enabled: boolean;
+        poll_interval: number;
+        pull_interval: number;
+        queue: { total: number };
+      };
       capabilities: { push: string; pull: string };
     }>();
     expect(body.sync.enabled).toBe(false);
     expect(body.sync.poll_interval).toBe(60);
     expect(body.sync.pull_interval).toBe(300);
-    expect(body.capabilities.push).toBe('not_implemented');
-    expect(body.capabilities.pull).toBe('not_implemented');
+    expect(body.sync.queue.total).toBe(0);
+    expect(body.capabilities.push).toBe('implemented');
+    expect(body.capabilities.pull).toBe('implemented');
 
     await app.close();
   } finally {
