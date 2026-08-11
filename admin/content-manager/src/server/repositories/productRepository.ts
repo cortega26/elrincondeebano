@@ -124,6 +124,9 @@ export class ProductRepository {
       out_of_stock?: boolean;
       min_price?: number;
       max_price?: number;
+      discounted_only?: boolean;
+      min_discount?: number;
+      max_discount?: number;
     }
   ): { items: Product[]; total: number } {
     const catalog = this.loadCatalog();
@@ -144,6 +147,20 @@ export class ProductRepository {
     }
     if (filters?.max_price !== undefined) {
       products = products.filter((p) => p.price <= filters.max_price!);
+    }
+
+    // Plan 091: discount filters operate on the same derived percentage the
+    // storefront displays (discount / price * 100).
+    const discountPercent = (p: Product): number =>
+      p.price > 0 ? (p.discount / p.price) * 100 : 0;
+    if (filters?.discounted_only === true) {
+      products = products.filter((p) => discountPercent(p) > 0);
+    }
+    if (filters?.min_discount !== undefined) {
+      products = products.filter((p) => discountPercent(p) >= filters.min_discount!);
+    }
+    if (filters?.max_discount !== undefined) {
+      products = products.filter((p) => discountPercent(p) <= filters.max_discount!);
     }
 
     if (filters?.category) {

@@ -329,6 +329,7 @@ export function BundlesPage(): React.ReactElement {
               </button>
               <button
                 onClick={() => {
+                  if (!window.confirm('¿Eliminar este combo del bundle?')) return;
                   setBundles((prev) => prev.filter((_, i) => i !== index));
                   setDirty(true);
                 }}

@@ -305,3 +305,75 @@ test('GET /api/v1/export returns the full catalog for manual export', async () =
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+// ── plan 091: discount filters ───────────────────────────────────────────────
+
+test('GET /api/v1/products discount filters (discounted_only, min/max %)', async () => {
+  const dir = createTempDir();
+  try {
+    writeFileSync(resolve(dir, 'data', 'product_data.json'), JSON.stringify(validCatalog));
+    writeFileSync(resolve(dir, 'data', 'category_registry.json'), JSON.stringify(validCategories));
+    writeFileSync(
+      resolve(dir, 'astro-poc', 'src', 'data', 'storefront-experience.json'),
+      JSON.stringify(validStorefront)
+    );
+
+    const app = createApp({ repoRoot: dir, logger: false });
+    await app.ready();
+
+    // Fixture: Producto A 1000/0 (0%), Producto B 2000/500 (25%).
+    let res = await app.inject({ method: 'GET', url: '/api/v1/products?discounted_only=true' });
+    expect(res.json<{ total: number; items: Array<{ name: string }> }>().total).toBe(1);
+
+    res = await app.inject({ method: 'GET', url: '/api/v1/products?min_discount=20' });
+    expect(res.json<{ total: number }>().total).toBe(1);
+    expect(res.json<{ items: Array<{ name: string }> }>().items[0].name).toBe('Producto B');
+
+    res = await app.inject({ method: 'GET', url: '/api/v1/products?max_discount=10' });
+    expect(res.json<{ total: number }>().total).toBe(1);
+    expect(res.json<{ items: Array<{ name: string }> }>().items[0].name).toBe('Producto A');
+
+    res = await app.inject({
+      method: 'GET',
+      url: '/api/v1/products?min_discount=20&max_discount=30',
+    });
+    expect(res.json<{ total: number }>().total).toBe(1);
+
+    res = await app.inject({ method: 'GET', url: '/api/v1/products?min_discount=90' });
+    expect(res.json<{ total: number }>().total).toBe(0);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('GET /api/v1/export.csv applies the discount filters', async () => {
+  const dir = createTempDir();
+  try {
+    writeFileSync(resolve(dir, 'data', 'product_data.json'), JSON.stringify(validCatalog));
+    writeFileSync(resolve(dir, 'data', 'category_registry.json'), JSON.stringify(validCategories));
+    writeFileSync(
+      resolve(dir, 'astro-poc', 'src', 'data', 'storefront-experience.json'),
+      JSON.stringify(validStorefront)
+    );
+
+    const app = createApp({ repoRoot: dir, logger: false });
+    await app.ready();
+
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/v1/export.csv?discounted_only=true&min_discount=20',
+    });
+    expect(res.statusCode).toBe(200);
+    const text = res.body;
+    const rows = text.trim().split('\n');
+    expect(rows.length).toBe(2); // header + Producto B
+    expect(text).toContain('Producto B');
+    expect(text).not.toContain('Producto A');
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

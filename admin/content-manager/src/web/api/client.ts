@@ -16,6 +16,9 @@ export type ProductFilters = {
   out_of_stock?: boolean;
   min_price?: number;
   max_price?: number;
+  discounted_only?: boolean;
+  min_discount?: number;
+  max_discount?: number;
 };
 
 export interface PaginatedResponse<T> {
@@ -190,6 +193,9 @@ export class ContentManagerClient {
     out_of_stock?: boolean;
     min_price?: number;
     max_price?: number;
+    discounted_only?: boolean;
+    min_discount?: number;
+    max_discount?: number;
   }): Promise<PaginatedResponse<ProductResponse>> {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.set('page', String(params.page));
@@ -201,6 +207,12 @@ export class ContentManagerClient {
       searchParams.set('out_of_stock', String(params.out_of_stock));
     if (params?.min_price !== undefined) searchParams.set('min_price', String(params.min_price));
     if (params?.max_price !== undefined) searchParams.set('max_price', String(params.max_price));
+    if (params?.discounted_only !== undefined)
+      searchParams.set('discounted_only', String(params.discounted_only));
+    if (params?.min_discount !== undefined)
+      searchParams.set('min_discount', String(params.min_discount));
+    if (params?.max_discount !== undefined)
+      searchParams.set('max_discount', String(params.max_discount));
 
     const qs = searchParams.toString();
     return this.request<PaginatedResponse<ProductResponse>>(`/products${qs ? `?${qs}` : ''}`);
@@ -444,6 +456,9 @@ export class ContentManagerClient {
     if (query.category) params.set('category', query.category);
     if (query.archived) params.set('archived', query.archived);
     if (query.out_of_stock) params.set('out_of_stock', query.out_of_stock);
+    if (query.discounted_only) params.set('discounted_only', query.discounted_only);
+    if (query.min_discount) params.set('min_discount', query.min_discount);
+    if (query.max_discount) params.set('max_discount', query.max_discount);
     const qs = params.toString();
     return fetch(`${this.baseUrl}/api/v1/export.csv${qs ? `?${qs}` : ''}`);
   }

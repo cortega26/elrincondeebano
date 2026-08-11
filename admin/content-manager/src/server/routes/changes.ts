@@ -470,7 +470,8 @@ export async function changesRoutes(
         },
       });
     }
-    const { q, category, archived, out_of_stock } = query.data;
+    const { q, category, archived, out_of_stock, discounted_only, min_discount, max_discount } =
+      query.data;
 
     let products = repos.products.loadCatalog().products;
     if (q) {
@@ -487,6 +488,20 @@ export async function changesRoutes(
     }
     if (out_of_stock !== undefined) {
       products = products.filter((p) => p.stock === (out_of_stock !== 'true'));
+    }
+    // Plan 091: discount filters mirror GET /products (percent of price).
+    const discountPercent = (p: (typeof products)[number]): number =>
+      p.price > 0 ? (p.discount / p.price) * 100 : 0;
+    if (discounted_only === 'true') {
+      products = products.filter((p) => discountPercent(p) > 0);
+    }
+    if (min_discount !== undefined) {
+      const min = Number(min_discount);
+      if (Number.isFinite(min)) products = products.filter((p) => discountPercent(p) >= min);
+    }
+    if (max_discount !== undefined) {
+      const max = Number(max_discount);
+      if (Number.isFinite(max)) products = products.filter((p) => discountPercent(p) <= max);
     }
 
     const escapeCsv = (value: unknown): string => {

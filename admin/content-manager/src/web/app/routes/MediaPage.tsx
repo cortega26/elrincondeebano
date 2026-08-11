@@ -383,7 +383,17 @@ export function MediaPage(): React.ReactElement {
                       <button onClick={() => void intentAction(intent.id, 'apply')}>Aplicar</button>
                     )}{' '}
                     {intent.status !== 'running' && (
-                      <button onClick={() => void intentAction(intent.id, 'discard')}>
+                      <button
+                        onClick={() => {
+                          if (
+                            window.confirm(
+                              `¿Descartar el intent ${intent.id}? Solo se elimina staging.`
+                            )
+                          ) {
+                            void intentAction(intent.id, 'discard');
+                          }
+                        }}
+                      >
                         Descartar
                       </button>
                     )}

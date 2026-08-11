@@ -10,6 +10,7 @@
 - **Depends on**: 088 (paginación comparte la barra de filtros)
 - **Category**: functionality / UX
 - **Written against**: commit `cefdd9f`
+- **Executed**: DONE — 2026-08-11 (verification abajo)
 
 ## Why this matters
 
@@ -84,11 +85,18 @@ npm run admin:test && npm run admin:certify
 
 ## Done criteria
 
-- [ ] Filtro descuento (solo-descuento + min/max %) en API y UI; sort de % consistente.
-- [ ] Badge de filtros activos + limpiar.
-- [ ] Export JSON/CSV desde UI con filtros aplicados.
-- [ ] Imagen rota → placeholder; sin requests de HTML-como-imagen.
-- [ ] Todos los deletes destructivos confirman.
+- [x] Filtro descuento (solo-descuento + min/max %) en API y UI; sort de % consistente (por discount_percentage).
+- [x] Badge "Filtros activos: N" + Limpiar.
+- [x] Export JSON/CSV desde UI con filtros aplicados (CSV con los nuevos filtros).
+- [x] Imagen rota → placeholder (ProductImage); getImageUrl sin ramas muertas.
+- [x] Todos los deletes destructivos confirman (categorías, nav-groups, subcategorías, combos de bundle, discard de intent).
+
+## Evidence (2026-08-11)
+
+- API: `productRepository.getAll` + `GET /products` aceptan `discounted_only`/`min_discount`/`max_discount` (porcentaje derivado, 0-100, NaN → vacío); `csvExportQuerySchema` + `/export.csv` aplican los mismos filtros; `parseBulkFilters` (scope=all) los incluye.
+- UI (ProductsPage): checkbox "Solo descuento" + inputs "Dto. mín %/máx %"; sort de la columna % por `discount_percentage` (antes CLP); badge de filtros activos con Limpiar; botones ⬇ JSON/⬇ CSV con los filtros activos (blob + download); `ProductImage` (components/) con placeholder + `normalizeImagePath`; confirms en CategoriesPage (3), BundlesPage (combos), MediaPage (discard).
+- Tests: +2 API (filtros descuento unit por rango, CSV filtrado) + 2 e2e scope (filtro descuento + Limpiar, export CSV con filtros — el fixture ahora tiene 5 productos con 10% de descuento en cat-b). Nota e2e: `check()` falla por race del re-render de React Router (el estado SÍ cambia: URL + checked confirmados con click()); se usa click + toBeChecked.
+- Suite: 495 tests, e2e scope 7/7 + smoke 19/19, certify 30/30, lint 0 errores.
 
 ## STOP conditions
 

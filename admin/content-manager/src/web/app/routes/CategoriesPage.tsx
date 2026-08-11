@@ -48,6 +48,7 @@ export function CategoriesPage(): React.ReactElement {
   }
 
   async function handleDelete(id: string): Promise<void> {
+    if (!window.confirm(`¿Eliminar la categoría "${id}"?`)) return;
     try {
       await client.deleteCategory(id, data?.rev ?? 0);
       setFeedback('Categoría eliminada ✓');
@@ -58,6 +59,7 @@ export function CategoriesPage(): React.ReactElement {
   }
 
   async function handleDeleteGroup(id: string): Promise<void> {
+    if (!window.confirm(`¿Eliminar el grupo de navegación "${id}"?`)) return;
     try {
       await client.deleteNavGroup(id, data?.rev ?? 0);
       setFeedback('Grupo eliminado ✓');
@@ -131,6 +133,7 @@ export function CategoriesPage(): React.ReactElement {
   }
 
   async function handleDeleteSub(categoryId: string, subId: string): Promise<void> {
+    if (!window.confirm(`¿Eliminar la subcategoría "${subId}"?`)) return;
     try {
       await client.deleteSubcategory(categoryId, subId, data?.rev ?? 0);
       setFeedback('Subcategoría eliminada ✓');

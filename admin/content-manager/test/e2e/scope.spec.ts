@@ -108,3 +108,43 @@ test('reorder is disabled while a filter or pagination subset is active', async 
   await expect(page.getByText('Mostrando 1–50 de 80')).toBeVisible();
   await expect(reorder).toBeDisabled();
 });
+
+// ── plan 091: discount filters, clear, export ────────────────────────────────
+
+test('discount filter narrows the view and Limpiar restores it', async ({ page }) => {
+  await page.getByLabel('Categoría:').selectOption('cat-b');
+  await expect(page.getByText('Mostrando 1–10 de 10')).toBeVisible();
+
+  // 5 of cat-b's 10 products have a 10% discount.
+  await page.getByLabel('Solo descuento').click();
+  await expect(page.getByLabel('Solo descuento')).toBeChecked();
+  await expect(page.getByText('Mostrando 1–5 de 5')).toBeVisible();
+
+  // Min % filter keeps only the 10% discounted subset.
+  await page.getByLabel('Dto. mín %:').fill('5');
+  await expect(page.getByText('Mostrando 1–5 de 5')).toBeVisible();
+  await page.getByLabel('Dto. mín %:').fill('50');
+  await expect(page.getByText('No se encontraron productos.')).toBeVisible();
+
+  // Limpiar resets every filter (and pagination).
+  await page.getByRole('button', { name: 'Limpiar' }).click();
+  await expect(page.getByText('Mostrando 1–50 de 80')).toBeVisible();
+  await expect(page.getByLabel('Solo descuento')).not.toBeChecked();
+});
+
+test('CSV export downloads with the active filters', async ({ page }) => {
+  await page.getByLabel('Categoría:').selectOption('cat-b');
+  await page.getByLabel('Solo descuento').click();
+  await expect(page.getByLabel('Solo descuento')).toBeChecked();
+  await expect(page.getByText('Mostrando 1–5 de 5')).toBeVisible();
+
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: '⬇ CSV' }).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toMatch(/^productos-\d{4}-\d{2}-\d{2}\.csv$/);
+
+  const stream = await download.createReadStream();
+  let text = '';
+  for await (const chunk of stream) text += chunk.toString();
+  expect(text.trim().split('\n')).toHaveLength(6); // header + 5 discounted
+});

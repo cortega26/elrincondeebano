@@ -5,15 +5,14 @@ import type { PaginatedResponse, ProductFilters, ProductResponse } from '../../a
 import type { CategoryRecord } from '../../../shared/schemas/category.ts';
 import { fetchWithCredential } from '../credentialStore.ts';
 import { buildUndoEntry, computeUndoActions } from './undo.ts';
+import { ProductImage } from '../components/ProductImage.tsx';
 import type { UndoEntry } from './undo.ts';
 
 const client = new ContentManagerClient();
 
+// Media-picker thumbnails only (they hide on error individually); display
+// sites use the ProductImage component (plan 091).
 function getImageUrl(mediaPath: string): string {
-  if (!mediaPath) return '';
-  if (mediaPath.startsWith('assets/images/')) {
-    return '/' + mediaPath;
-  }
   return '/' + mediaPath;
 }
 
@@ -62,6 +61,9 @@ export function ProductsPage(): React.ReactElement {
   const outOfStock = searchParams.get('out_of_stock') ?? '';
   const minPrice = searchParams.get('min_price') ?? '';
   const maxPrice = searchParams.get('max_price') ?? '';
+  const discountedOnly = searchParams.get('discounted_only') ?? '';
+  const minDiscount = searchParams.get('min_discount') ?? '';
+  const maxDiscount = searchParams.get('max_discount') ?? '';
   const page = Math.max(1, Number(searchParams.get('page') ?? '1') || 1);
   const PAGE_LIMIT = 50;
 
@@ -72,7 +74,23 @@ export function ProductsPage(): React.ReactElement {
     out_of_stock: outOfStock === 'true' ? true : undefined,
     min_price: minPrice ? Number(minPrice) : undefined,
     max_price: maxPrice ? Number(maxPrice) : undefined,
+    discounted_only: discountedOnly === 'true' ? true : undefined,
+    min_discount: minDiscount ? Number(minDiscount) : undefined,
+    max_discount: maxDiscount ? Number(maxDiscount) : undefined,
   };
+
+  // Plan 091: how many filters are active (for the indicator + limpiar).
+  const activeFilterCount = [
+    q,
+    category,
+    archived,
+    outOfStock,
+    minPrice,
+    maxPrice,
+    discountedOnly,
+    minDiscount,
+    maxDiscount,
+  ].filter((v) => v !== '').length;
 
   const load = async (): Promise<void> => {
     // Plan 088: monotonic request id — a slow older response must never
@@ -97,7 +115,18 @@ export function ProductsPage(): React.ReactElement {
   useEffect(() => {
     const timer = setTimeout(() => void load(), 250);
     return () => clearTimeout(timer);
-  }, [q, category, archived, outOfStock, minPrice, maxPrice, page]);
+  }, [
+    q,
+    category,
+    archived,
+    outOfStock,
+    minPrice,
+    maxPrice,
+    discountedOnly,
+    minDiscount,
+    maxDiscount,
+    page,
+  ]);
 
   useEffect(() => {
     fetch('/api/v1/sync/status')
@@ -145,7 +174,9 @@ export function ProductsPage(): React.ReactElement {
           cmp = a.price - b.price;
           break;
         case 'discount':
-          cmp = a.discount - b.discount;
+          // Plan 091: the column displays %, so the sort must compare the
+          // derived percentage, not the CLP amount.
+          cmp = (a.discount_percentage ?? 0) - (b.discount_percentage ?? 0);
           break;
         case 'order':
         default:
@@ -183,6 +214,69 @@ export function ProductsPage(): React.ReactElement {
     }
     if (key !== 'page') next.delete('page');
     setSearchParams(next);
+  }
+
+  // Plan 091: reset every catalog filter (keeps page/sort) via one click.
+  function clearFilters(): void {
+    const next = new URLSearchParams(searchParams);
+    for (const key of [
+      'q',
+      'category',
+      'archived',
+      'out_of_stock',
+      'min_price',
+      'max_price',
+      'discounted_only',
+      'min_discount',
+      'max_discount',
+    ]) {
+      next.delete(key);
+    }
+    next.delete('page');
+    setSearchParams(next);
+  }
+
+  // Plan 091: export the current filtered view as JSON or CSV.
+  function handleExport(kind: 'json' | 'csv'): void {
+    if (!data) return;
+    const stamp = new Date().toISOString().slice(0, 10);
+    if (kind === 'json') {
+      void client.exportJson().then((catalog) => {
+        const blob = new Blob([JSON.stringify(catalog, null, 2)], {
+          type: 'application/json',
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `productos-${stamp}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        setFeedback('Export JSON descargado ✓');
+      });
+    } else {
+      void client
+        .exportCsv({
+          q: q || undefined,
+          category: category || undefined,
+          archived: archived === 'true' ? 'true' : archived === 'false' ? 'false' : undefined,
+          out_of_stock: outOfStock === 'true' ? 'true' : undefined,
+          discounted_only: discountedOnly === 'true' ? 'true' : undefined,
+          min_discount: minDiscount || undefined,
+          max_discount: maxDiscount || undefined,
+        })
+        .then(async (res) => {
+          if (!res.ok) throw new Error(`Export falló (${res.status})`);
+          const blob = await res.blob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `productos-${stamp}.csv`;
+          a.click();
+          URL.revokeObjectURL(url);
+          setFeedback('Export CSV descargado ✓');
+        })
+        .catch((err) => setError((err as Error).message));
+    }
   }
 
   function handleSort(field: string): void {
@@ -721,6 +815,38 @@ export function ProductsPage(): React.ReactElement {
           Sin stock
         </label>
         <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+          <input
+            type="checkbox"
+            checked={discountedOnly === 'true'}
+            onChange={(e) => setFilterParam('discounted_only', e.target.checked ? 'true' : '')}
+          />
+          Solo descuento
+        </label>
+        <label>
+          Dto. mín %:{' '}
+          <input
+            type="number"
+            min="0"
+            max="100"
+            value={minDiscount}
+            onChange={(e) => setFilterParam('min_discount', e.target.value)}
+            placeholder="0"
+            style={{ padding: '0.25rem 0.5rem', width: '70px' }}
+          />
+        </label>
+        <label>
+          Dto. máx %:{' '}
+          <input
+            type="number"
+            min="0"
+            max="100"
+            value={maxDiscount}
+            onChange={(e) => setFilterParam('max_discount', e.target.value)}
+            placeholder="100"
+            style={{ padding: '0.25rem 0.5rem', width: '70px' }}
+          />
+        </label>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
           <select
             value={archived}
             onChange={(e) => setFilterParam('archived', e.target.value)}
@@ -741,6 +867,38 @@ export function ProductsPage(): React.ReactElement {
           style={{ padding: '0.25rem 0.75rem' }}
         >
           ✓ Validar
+        </button>
+        {activeFilterCount > 0 && (
+          <span
+            style={{
+              background: '#e3f2fd',
+              padding: '0.15rem 0.5rem',
+              borderRadius: 'var(--radius)',
+              fontSize: '0.85rem',
+            }}
+          >
+            Filtros activos: {activeFilterCount}{' '}
+            <button
+              onClick={clearFilters}
+              style={{ padding: '0.05rem 0.4rem', fontSize: '0.8rem', marginLeft: '0.25rem' }}
+            >
+              Limpiar
+            </button>
+          </span>
+        )}
+        <button
+          onClick={() => void handleExport('json')}
+          style={{ padding: '0.25rem 0.75rem' }}
+          title="Exportar catálogo completo en JSON"
+        >
+          ⬇ JSON
+        </button>
+        <button
+          onClick={() => void handleExport('csv')}
+          style={{ padding: '0.25rem 0.75rem' }}
+          title="Exportar productos filtrados en CSV"
+        >
+          ⬇ CSV
         </button>
         <button
           onClick={() => setCreating(true)}
@@ -1133,13 +1291,12 @@ export function ProductsPage(): React.ReactElement {
               }}
             >
               {product.image_path ? (
-                <img
-                  src={getImageUrl(product.image_path)}
+                <ProductImage
+                  mediaPath={product.image_path}
                   alt={product.name}
                   style={{
                     width: '100%',
                     height: '120px',
-                    objectFit: 'cover',
                     borderRadius: 'var(--radius)',
                   }}
                 />
@@ -1228,26 +1385,20 @@ export function ProductsPage(): React.ReactElement {
           </dl>
           {selected.image_path && (
             <div style={{ marginTop: '0.5rem' }}>
-              <img
-                src={getImageUrl(selected.image_path)}
+              <ProductImage
+                mediaPath={selected.image_path}
                 alt={selected.name}
-                style={{
-                  width: '100%',
-                  maxHeight: '200px',
-                  objectFit: 'contain',
-                  borderRadius: 'var(--radius)',
-                }}
+                style={{ width: '100%', maxHeight: '200px', borderRadius: 'var(--radius)' }}
               />
               {selected.image_avif_path && (
                 <div style={{ marginTop: '0.25rem', fontSize: '0.8rem', color: '#6c757d' }}>
                   AVIF:{' '}
-                  <img
-                    src={getImageUrl(selected.image_avif_path)}
+                  <ProductImage
+                    mediaPath={selected.image_avif_path}
                     alt={selected.name + ' (AVIF)'}
                     style={{
                       width: '60px',
                       height: '60px',
-                      objectFit: 'cover',
                       borderRadius: '3px',
                       verticalAlign: 'middle',
                       marginLeft: '0.25rem',
@@ -1492,18 +1643,14 @@ function ProductForm({
 
         {imagePath && (
           <div style={{ marginTop: '0.25rem' }}>
-            <img
-              src={getImageUrl(imagePath)}
+            <ProductImage
+              mediaPath={imagePath}
               alt="Previsualización"
               style={{
                 maxWidth: '200px',
                 maxHeight: '100px',
-                objectFit: 'contain',
                 borderRadius: '3px',
                 border: '1px solid var(--color-border)',
-              }}
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
               }}
             />
           </div>
@@ -1589,8 +1736,8 @@ function ProductForm({
         <div style={{ marginTop: '0.5rem' }}>
           <strong>Imagen actual:</strong>{' '}
           {product.image_path ? (
-            <img
-              src={getImageUrl(product.image_path)}
+            <ProductImage
+              mediaPath={product.image_path}
               alt={product.name}
               style={{
                 maxWidth: '200px',
