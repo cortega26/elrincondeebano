@@ -27,6 +27,7 @@ export default defineConfig({
         '**/change-set.spec.ts',
         '**/media-workbench.spec.ts',
         '**/storefront.spec.ts',
+        '**/scope.spec.ts',
       ],
     },
   ],

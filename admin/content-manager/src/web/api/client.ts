@@ -9,6 +9,15 @@ import type {
 } from '../../shared/schemas/importExport.ts';
 import { getCredentialValue } from '../app/credentialStore.ts';
 
+export type ProductFilters = {
+  q?: string;
+  category?: string;
+  archived?: boolean;
+  out_of_stock?: boolean;
+  min_price?: number;
+  max_price?: number;
+};
+
 export interface PaginatedResponse<T> {
   page: number;
   limit: number;
@@ -484,7 +493,8 @@ export class ContentManagerClient {
   async bulkPreview(
     action: string,
     value: number | boolean | string,
-    productIds: string[]
+    productIds: string[],
+    scope?: { scope: 'all'; filters?: ProductFilters }
   ): Promise<{
     command_id: string;
     status: string;
@@ -504,7 +514,7 @@ export class ContentManagerClient {
         command_id: crypto.randomUUID(),
         action,
         value,
-        product_ids: productIds,
+        ...(scope ? { scope: scope.scope, filters: scope.filters } : { product_ids: productIds }),
       }),
     });
   }
@@ -512,7 +522,8 @@ export class ContentManagerClient {
   async bulkApply(
     action: string,
     value: number | boolean | string,
-    productIds: string[]
+    productIds: string[],
+    scope?: { scope: 'all'; filters?: ProductFilters }
   ): Promise<{
     command_id: string;
     status: string;
@@ -532,7 +543,7 @@ export class ContentManagerClient {
         command_id: crypto.randomUUID(),
         action,
         value,
-        product_ids: productIds,
+        ...(scope ? { scope: scope.scope, filters: scope.filters } : { product_ids: productIds }),
       }),
     });
   }

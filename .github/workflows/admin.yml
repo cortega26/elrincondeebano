@@ -74,6 +74,9 @@ jobs:
       - name: E2E storefront curation (isolated temp repo)
         run: npx playwright test -c playwright.storefront.config.ts
 
+      - name: E2E pagination/bulk/reorder scope (isolated temp repo)
+        run: npx playwright test -c playwright.scope.config.ts
+
       - name: Certification report
         run: node --import tsx scripts/certification-report.ts --ci
 

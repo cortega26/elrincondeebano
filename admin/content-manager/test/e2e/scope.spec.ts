@@ -1,0 +1,110 @@
+import { test, expect, type Page } from '@playwright/test';
+
+// Pagination and bulk/reorder scope e2e (plan 088) against the isolated
+// 80-product fixture (playwright.scope.config.ts, :3102).
+
+async function dismissCredentialPrompt(page: Page): Promise<void> {
+  const input = page.getByPlaceholder('x-admin-credential');
+  if (await input.isVisible()) {
+    await input.fill('e2e-scope');
+    await page.getByRole('button', { name: 'Guardar' }).click();
+  }
+}
+
+test.beforeEach(async ({ page }) => {
+  await page.goto('/products');
+  await dismissCredentialPrompt(page);
+  await expect(page.locator('h1')).toContainText('Productos');
+});
+
+test('pagination: shows X–Y de N and navigates pages', async ({ page }) => {
+  await expect(page.getByText('Mostrando 1–50 de 80')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Siguiente →' }).click();
+  await expect(page.getByText('Mostrando 51–80 de 80')).toBeVisible();
+  await expect(page.getByText('Página 2 de 2')).toBeVisible();
+
+  await page.getByRole('button', { name: '← Anterior' }).click();
+  await expect(page.getByText('Mostrando 1–50 de 80')).toBeVisible();
+});
+
+test('filter change resets to page 1 and shrinks scope', async ({ page }) => {
+  await page.getByRole('button', { name: 'Siguiente →' }).click();
+  await expect(page.getByText('Mostrando 51–80 de 80')).toBeVisible();
+
+  await page.getByLabel('Categoría:').selectOption('cat-b');
+  await expect(page.getByText('Mostrando 1–10 de 10')).toBeVisible();
+  await expect(page.getByText('Página 1 de 1')).not.toBeVisible();
+});
+
+test('bulk apply with a subset asks for scope; accept applies to ALL matching', async ({
+  page,
+  request,
+}) => {
+  // Filter to cat-a (60 matching): the page shows 50, total is 60.
+  await page.getByLabel('Categoría:').selectOption('cat-a');
+  await expect(page.getByText('Mostrando 1–50 de 60')).toBeVisible();
+
+  await page.getByLabel('Acción masiva').selectOption('set_stock');
+  await page.getByLabel('Ámbito de la operación masiva').selectOption('all');
+  await page.getByRole('button', { name: 'Vista previa' }).click();
+  await expect(page.getByText(/Cambios \(/)).toBeVisible();
+
+  page.once('dialog', (dialog) => dialog.accept());
+  await page.getByRole('button', { name: 'Aplicar' }).click();
+  await expect(page.getByText(/Aplicado: 60 productos modificados/)).toBeVisible();
+
+  const res = await request.get('http://127.0.0.1:3102/api/v1/products?category=cat-a&limit=200');
+  const body = await res.json();
+  expect(body.total).toBe(60);
+  expect(body.items.every((p: { stock: boolean }) => p.stock)).toBe(true);
+
+  // cat-b products were not touched by the scoped apply.
+  const resB = await request.get('http://127.0.0.1:3102/api/v1/products?category=cat-b&limit=200');
+  const bodyB = await resB.json();
+  expect(bodyB.items.every((p: { stock: boolean }) => !p.stock)).toBe(true);
+});
+
+test('bulk apply cancel keeps the visible page only', async ({ page, request }) => {
+  // Test 3 flipped cat-a stock to true for all 60; this test flips the
+  // visible page back to false and cancels the "all" scope.
+  await page.getByLabel('Categoría:').selectOption('cat-a');
+  await expect(page.getByText('Mostrando 1–50 de 60')).toBeVisible();
+
+  await page.getByLabel('Acción masiva').selectOption('set_stock');
+  await page.getByLabel('Valor de stock').selectOption('false');
+  await page.getByLabel('Ámbito de la operación masiva').selectOption('page');
+  await page.getByRole('button', { name: 'Vista previa' }).click();
+  await expect(page.getByText(/Cambios \(/)).toBeVisible();
+
+  // Cancel the scope confirm: only the visible 50 are applied. (Only this
+  // one dialog appears — the page-level confirm is skipped because a
+  // preview is already showing.)
+  page.once('dialog', (dialog) => dialog.dismiss());
+  await page.getByRole('button', { name: 'Aplicar' }).click();
+  await expect(page.getByText(/Aplicado: 50 productos modificados/)).toBeVisible();
+
+  const res = await request.get('http://127.0.0.1:3102/api/v1/products?category=cat-a&limit=200');
+  const body = await res.json();
+  expect(body.items.filter((p: { stock: boolean }) => !p.stock)).toHaveLength(50);
+  expect(body.items.filter((p: { stock: boolean }) => p.stock)).toHaveLength(10);
+});
+
+test('reorder is disabled while a filter or pagination subset is active', async ({ page }) => {
+  const reorder = page.getByRole('button', { name: '⇅ Reordenar' });
+
+  // Pagination active (80 products, page 1): disabled.
+  await expect(page.getByText('Mostrando 1–50 de 80')).toBeVisible();
+  await expect(reorder).toBeDisabled();
+
+  // Any active filter (even one whose matches fit one page, like cat-b)
+  // means the visible set is a subset of the catalog: disabled.
+  await page.getByLabel('Categoría:').selectOption('cat-b');
+  await expect(page.getByText('Mostrando 1–10 de 10')).toBeVisible();
+  await expect(reorder).toBeDisabled();
+
+  // Clearing the filter returns to the paginated view: still disabled.
+  await page.getByLabel('Categoría:').selectOption('');
+  await expect(page.getByText('Mostrando 1–50 de 80')).toBeVisible();
+  await expect(reorder).toBeDisabled();
+});

@@ -22,6 +22,53 @@ export async function productRoutes(
   productService: ProductService,
   syncService?: SyncService
 ): Promise<void> {
+  // Plan 088: bulk operations target either an explicit id list or every
+  // product matching the same filters as GET /products (scope: 'all').
+  type BulkFilters = {
+    q?: string;
+    category?: string;
+    archived?: boolean;
+    out_of_stock?: boolean;
+    min_price?: number;
+    max_price?: number;
+  };
+
+  function parseBulkFilters(raw: unknown): BulkFilters {
+    const f = (raw ?? {}) as Record<string, unknown>;
+    const minPrice = f.min_price !== undefined ? Number(f.min_price) : undefined;
+    const maxPrice = f.max_price !== undefined ? Number(f.max_price) : undefined;
+    return {
+      q: typeof f.q === 'string' && f.q.trim() ? f.q.trim() : undefined,
+      category: typeof f.category === 'string' && f.category.trim() ? f.category.trim() : undefined,
+      archived: f.archived !== undefined ? f.archived === true : undefined,
+      out_of_stock: f.out_of_stock !== undefined ? f.out_of_stock === true : undefined,
+      min_price:
+        minPrice !== undefined && Number.isFinite(minPrice) ? Math.max(0, minPrice) : undefined,
+      max_price:
+        maxPrice !== undefined && Number.isFinite(maxPrice) ? Math.max(0, maxPrice) : undefined,
+    };
+  }
+
+  function resolveBulkIds(body: { product_ids?: string[]; scope?: string; filters?: unknown }): {
+    ids: string[];
+    error?: { code: string; message: string };
+  } {
+    if (body.scope === 'all') {
+      const all = repos.products.getAll(1, Number.MAX_SAFE_INTEGER, parseBulkFilters(body.filters));
+      const ids = all.items.filter((p) => p.id).map((p) => p.id!);
+      if (ids.length === 0) {
+        return { ids: [], error: { code: 'NO_MATCHES', message: 'No products match the filters' } };
+      }
+      return { ids };
+    }
+    if (!body.product_ids?.length) {
+      return {
+        ids: [],
+        error: { code: 'BAD_REQUEST', message: 'Missing product_ids or scope=all' },
+      };
+    }
+    return { ids: body.product_ids };
+  }
   app.get('/products', async (request) => {
     const query = request.query as Record<string, string | undefined>;
     const page = Math.max(1, Number(query.page) || 1);
@@ -241,6 +288,24 @@ export async function productRoutes(
     const catalog = repos.products.loadCatalog();
     const baseRev = catalog.rev;
 
+    // Plan 088: reorder must cover the FULL catalog — a partial id list
+    // (visible page under filters/pagination) would compact the visible
+    // orders to 0..N and scramble the global order.
+    if (body.ordered_ids.length !== catalog.products.length) {
+      return reply.status(409).send({
+        error: {
+          code: 'REORDER_SCOPE_AMBIGUOUS',
+          message: `Reorder requires the full catalog (${catalog.products.length} products), got ${body.ordered_ids.length}. Clear filters and pagination first.`,
+        },
+      });
+    }
+    const uniqueIds = new Set(body.ordered_ids);
+    if (uniqueIds.size !== body.ordered_ids.length) {
+      return reply.status(400).send({
+        error: { code: 'BAD_REQUEST', message: 'ordered_ids contains duplicates' },
+      });
+    }
+
     const result = productService.reorder(catalog, body.ordered_ids);
     if (!result.ok) {
       return reply.status(400).send({
@@ -275,11 +340,20 @@ export async function productRoutes(
       action?: string;
       value?: number | boolean | string;
       product_ids?: string[];
+      scope?: string;
+      filters?: unknown;
     };
 
-    if (!body?.command_id || !body?.action || !body?.product_ids?.length) {
+    if (!body?.command_id || !body?.action) {
       return reply.status(400).send({
-        error: { code: 'BAD_REQUEST', message: 'Missing command_id, action, or product_ids' },
+        error: { code: 'BAD_REQUEST', message: 'Missing command_id or action' },
+      });
+    }
+
+    const resolved = resolveBulkIds(body);
+    if (resolved.error) {
+      return reply.status(resolved.error.code === 'NO_MATCHES' ? 422 : 400).send({
+        error: { code: resolved.error.code, message: resolved.error.message },
       });
     }
 
@@ -287,7 +361,7 @@ export async function productRoutes(
     const result = productService.bulkPreview(catalog, {
       action: body.action as 'set_discount_percent',
       value: body.value as number,
-      product_ids: body.product_ids,
+      product_ids: resolved.ids,
     });
 
     if (!result.ok) {
@@ -317,11 +391,20 @@ export async function productRoutes(
       action?: string;
       value?: number | boolean | string;
       product_ids?: string[];
+      scope?: string;
+      filters?: unknown;
     };
 
-    if (!body?.command_id || !body?.action || !body?.product_ids?.length) {
+    if (!body?.command_id || !body?.action) {
       return reply.status(400).send({
-        error: { code: 'BAD_REQUEST', message: 'Missing command_id, action, or product_ids' },
+        error: { code: 'BAD_REQUEST', message: 'Missing command_id or action' },
+      });
+    }
+
+    const resolved = resolveBulkIds(body);
+    if (resolved.error) {
+      return reply.status(resolved.error.code === 'NO_MATCHES' ? 422 : 400).send({
+        error: { code: resolved.error.code, message: resolved.error.message },
       });
     }
 
@@ -331,7 +414,7 @@ export async function productRoutes(
     const result = productService.bulkApply(catalog, {
       action: body.action as 'set_discount_percent',
       value: body.value as number,
-      product_ids: body.product_ids,
+      product_ids: resolved.ids,
     });
 
     if (!result.ok) {

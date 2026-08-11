@@ -465,6 +465,7 @@ export class ProductService {
     const idSet = new Set(operation.product_ids);
     const products = catalog.products.filter((p) => p.id && idSet.has(p.id));
     const now = new Date().toISOString();
+    let changed = 0;
 
     for (const product of products) {
       switch (operation.action) {
@@ -515,11 +516,14 @@ export class ProductService {
         base_rev: product.rev - 1,
         changeset_id: null,
       };
+      // Plan 088: count only products actually mutated — skips (discount >
+      // price, price <= 0, empty category) must not inflate the report.
+      changed += 1;
     }
 
     catalog.rev += 1;
     catalog.last_updated = now;
 
-    return { ok: true, changed: products.length, changes: preview.changes };
+    return { ok: true, changed, changes: preview.changes };
   }
 }

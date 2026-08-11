@@ -1,0 +1,44 @@
+{
+  "rev": 1,
+  "nav_groups": [
+    {
+      "id": "g1",
+      "display_name": {
+        "default": "Grupo"
+      },
+      "sort_order": 0
+    }
+  ],
+  "categories": [
+    {
+      "id": "cat-a",
+      "key": "cat-a",
+      "slug": "categoria-a",
+      "display_name": {
+        "default": "Categoría A"
+      },
+      "nav_group": "g1",
+      "sort_order": 0
+    },
+    {
+      "id": "cat-b",
+      "key": "cat-b",
+      "slug": "categoria-b",
+      "display_name": {
+        "default": "Categoría B"
+      },
+      "nav_group": "g1",
+      "sort_order": 1
+    },
+    {
+      "id": "cat-c",
+      "key": "cat-c",
+      "slug": "categoria-c",
+      "display_name": {
+        "default": "Categoría C"
+      },
+      "nav_group": "g1",
+      "sort_order": 2
+    }
+  ]
+}

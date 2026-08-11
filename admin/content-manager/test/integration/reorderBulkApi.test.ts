@@ -263,3 +263,189 @@ test('POST /api/v1/products/bulk/apply set_category updates category', async () 
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+// ── plan 088: scope honesty ──────────────────────────────────────────────────
+
+test('reorder with a partial id list is rejected (409 REORDER_SCOPE_AMBIGUOUS)', async () => {
+  const dir = createTempDir();
+  try {
+    setup(dir);
+    const app = createApp({ repoRoot: dir, enableWrites: true });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const ids: string[] = [];
+    for (const name of ['A', 'B', 'C']) {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/v1/products',
+        headers: ch,
+        payload: { command_id: `create-${name}`, payload: { name, price: 1000, category: 'cat1' } },
+      });
+      ids.push(res.json<{ product: { id: string } }>().product.id);
+    }
+
+    // Only 2 of 3 ids: the visible-page scenario — must not scramble order.
+    const partial = await app.inject({
+      method: 'POST',
+      url: '/api/v1/products/reorder',
+      headers: ch,
+      payload: { command_id: 'reorder-partial', ordered_ids: [ids[1], ids[0]] },
+    });
+    expect(partial.statusCode).toBe(409);
+    expect(partial.json().error.code).toBe('REORDER_SCOPE_AMBIGUOUS');
+
+    // Duplicates in the full list are also rejected.
+    const dupes = await app.inject({
+      method: 'POST',
+      url: '/api/v1/products/reorder',
+      headers: ch,
+      payload: { command_id: 'reorder-dupes', ordered_ids: [ids[0], ids[0], ids[1]] },
+    });
+    expect(dupes.statusCode).toBe(400);
+
+    // Full list still works.
+    const full = await app.inject({
+      method: 'POST',
+      url: '/api/v1/products/reorder',
+      headers: ch,
+      payload: { command_id: 'reorder-full', ordered_ids: [ids[2], ids[1], ids[0]] },
+    });
+    expect(full.statusCode).toBe(200);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('bulk apply with scope=all + filters targets every matching product', async () => {
+  const dir = createTempDir();
+  try {
+    setup(dir);
+    const app = createApp({ repoRoot: dir, enableWrites: true });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    for (const [name, category] of [
+      ['Alpha', 'cat1'],
+      ['Beta', 'cat1'],
+      ['Gamma', 'cat2'],
+    ] as const) {
+      await app.inject({
+        method: 'POST',
+        url: '/api/v1/products',
+        headers: ch,
+        payload: { command_id: `create-${name}`, payload: { name, price: 1000, category } },
+      });
+    }
+
+    const applyRes = await app.inject({
+      method: 'POST',
+      url: '/api/v1/products/bulk/apply',
+      headers: ch,
+      payload: {
+        command_id: 'bulk-all-1',
+        action: 'set_stock',
+        value: true,
+        scope: 'all',
+        filters: { category: 'cat1' },
+      },
+    });
+    expect(applyRes.statusCode).toBe(200);
+    const body = applyRes.json<{ changed: number; changes: Array<{ product_id: string }> }>();
+    expect(body.changed).toBe(2);
+    expect(body.changes).toHaveLength(2);
+
+    const list = (await app.inject({ method: 'GET', url: '/api/v1/products?limit=10' })).json<{
+      items: Array<{ name: string; stock: boolean }>;
+    }>();
+    const byName = Object.fromEntries(list.items.map((p) => [p.name, p.stock]));
+    expect(byName['Alpha']).toBe(true);
+    expect(byName['Beta']).toBe(true);
+    expect(byName['Gamma']).toBe(false);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('bulk apply fails closed when a discount exceeds a price — nothing is written', async () => {
+  const dir = createTempDir();
+  try {
+    setup(dir);
+    const app = createApp({ repoRoot: dir, enableWrites: true });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const ids: string[] = [];
+    for (const [name, price] of [
+      ['Cheap', 100],
+      ['Pricy', 1000],
+    ] as const) {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/v1/products',
+        headers: ch,
+        payload: { command_id: `create-${name}`, payload: { name, price, category: 'cat1' } },
+      });
+      ids.push(res.json<{ product: { id: string } }>().product.id);
+    }
+
+    // Discount 500 exceeds Cheap's price (100): the whole bulk is rejected
+    // (plan 074 invariant) — no partial write, honest failure.
+    const applyRes = await app.inject({
+      method: 'POST',
+      url: '/api/v1/products/bulk/apply',
+      headers: ch,
+      payload: {
+        command_id: 'bulk-skip-1',
+        action: 'set_discount_fixed',
+        value: 500,
+        product_ids: ids,
+      },
+    });
+    expect(applyRes.statusCode).toBe(400);
+    expect(String(applyRes.json().error.message)).toContain('exceeds price');
+
+    const list = (await app.inject({ method: 'GET', url: '/api/v1/products?limit=10' })).json<{
+      items: Array<{ name: string; discount: number }>;
+    }>();
+    const byName = Object.fromEntries(list.items.map((p) => [p.name, p.discount]));
+    expect(byName['Cheap']).toBe(0);
+    expect(byName['Pricy']).toBe(0);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('bulk apply scope=all with no matching products is 422 NO_MATCHES', async () => {
+  const dir = createTempDir();
+  try {
+    setup(dir);
+    const app = createApp({ repoRoot: dir, enableWrites: true });
+    await app.ready();
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/v1/products/bulk/apply',
+      headers: credHeaders(app),
+      payload: {
+        command_id: 'bulk-none-1',
+        action: 'set_stock',
+        value: true,
+        scope: 'all',
+        filters: { category: 'nonexistent' },
+      },
+    });
+    expect(res.statusCode).toBe(422);
+    expect(res.json().error.code).toBe('NO_MATCHES');
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

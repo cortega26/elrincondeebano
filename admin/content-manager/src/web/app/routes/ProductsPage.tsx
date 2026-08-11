@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ContentManagerClient } from '../../api/client.ts';
-import type { PaginatedResponse, ProductResponse } from '../../api/client.ts';
+import type { PaginatedResponse, ProductFilters, ProductResponse } from '../../api/client.ts';
 import type { CategoryRecord } from '../../../shared/schemas/category.ts';
 import { fetchWithCredential } from '../credentialStore.ts';
 import { buildUndoEntry, computeUndoActions } from './undo.ts';
@@ -36,6 +36,7 @@ export function ProductsPage(): React.ReactElement {
   const [bulkPreview, setBulkPreview] = useState<BulkChange[] | null>(null);
   const [bulkAction, setBulkAction] = useState<string>('set_discount_percent');
   const [bulkValue, setBulkValue] = useState<string>('10');
+  const [bulkScope, setBulkScope] = useState<'page' | 'all'>('page');
   const [feedback, setFeedback] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'table' | 'gallery'>('table');
   const [sortField, setSortField] = useState<string>('order');
@@ -53,6 +54,7 @@ export function ProductsPage(): React.ReactElement {
   const [syncConfig, setSyncConfig] = useState({ enabled: true, api_base: '', api_token: '' });
   const undoStack = useRef<UndoEntry[]>([]);
   const dragIndex = useRef<number | null>(null);
+  const requestSeq = useRef(0);
 
   const q = searchParams.get('q') ?? '';
   const category = searchParams.get('category') ?? '';
@@ -60,30 +62,42 @@ export function ProductsPage(): React.ReactElement {
   const outOfStock = searchParams.get('out_of_stock') ?? '';
   const minPrice = searchParams.get('min_price') ?? '';
   const maxPrice = searchParams.get('max_price') ?? '';
+  const page = Math.max(1, Number(searchParams.get('page') ?? '1') || 1);
+  const PAGE_LIMIT = 50;
+
+  const filters: ProductFilters = {
+    q: q || undefined,
+    category: category || undefined,
+    archived: archived === 'true' ? true : archived === 'false' ? false : undefined,
+    out_of_stock: outOfStock === 'true' ? true : undefined,
+    min_price: minPrice ? Number(minPrice) : undefined,
+    max_price: maxPrice ? Number(maxPrice) : undefined,
+  };
 
   const load = async (): Promise<void> => {
+    // Plan 088: monotonic request id — a slow older response must never
+    // overwrite a newer filter/page result.
+    const seq = ++requestSeq.current;
     setLoading(true);
     setError(null);
     try {
-      const result = await client.getProducts({
-        q: q || undefined,
-        category: category || undefined,
-        archived: archived === 'true' ? true : archived === 'false' ? false : undefined,
-        out_of_stock: outOfStock === 'true' ? true : undefined,
-        min_price: minPrice ? Number(minPrice) : undefined,
-        max_price: maxPrice ? Number(maxPrice) : undefined,
-      });
+      const result = await client.getProducts({ ...filters, page, limit: PAGE_LIMIT });
+      if (seq !== requestSeq.current) return;
       setData(result);
     } catch (err) {
+      if (seq !== requestSeq.current) return;
       setError((err as Error).message);
     } finally {
-      setLoading(false);
+      if (seq === requestSeq.current) setLoading(false);
     }
   };
 
+  // Plan 088: debounce keystroke filters (q/price) and reset to page 1 on
+  // any filter change; page changes load immediately.
   useEffect(() => {
-    void load();
-  }, [q, category, archived, outOfStock, minPrice, maxPrice]);
+    const timer = setTimeout(() => void load(), 250);
+    return () => clearTimeout(timer);
+  }, [q, category, archived, outOfStock, minPrice, maxPrice, page]);
 
   useEffect(() => {
     fetch('/api/v1/sync/status')
@@ -143,13 +157,31 @@ export function ProductsPage(): React.ReactElement {
     return items;
   }, [data, sortField, sortDir]);
 
-  function setParam(key: string, value: string): void {
+  // Plan 088: reorder (button and drag) is only safe on the FULL catalog in
+  // catalog order — with any filter active the "matching" set is a subset
+  // (the server rejects partial reorders with 409), under pagination the
+  // visible set is a page, and under any other sort the drag index would
+  // target the wrong row.
+  const filtersActive = Boolean(q || category || outOfStock || minPrice || maxPrice || archived);
+  const canReorder =
+    !!data &&
+    !filtersActive &&
+    data.total <= data.items.length &&
+    sortField === 'order' &&
+    sortDir === 'asc';
+  const pageStart = data ? (data.page - 1) * data.limit + 1 : 0;
+  const pageEnd = data ? Math.min(data.page * data.limit, data.total) : 0;
+
+  // Plan 088: filter changes reset pagination to page 1 — a filter result
+  // never renders from a stale page. Page navigation itself is preserved.
+  function setFilterParam(key: string, value: string): void {
     const next = new URLSearchParams(searchParams);
     if (value) {
       next.set(key, value);
     } else {
       next.delete(key);
     }
+    if (key !== 'page') next.delete('page');
     setSearchParams(next);
   }
 
@@ -254,7 +286,12 @@ export function ProductsPage(): React.ReactElement {
           : bulkAction === 'set_category'
             ? bulkValue
             : Number(bulkValue);
-      const result = await client.bulkPreview(bulkAction, val, ids);
+      const result = await client.bulkPreview(
+        bulkAction,
+        val,
+        ids,
+        bulkScope === 'all' ? { scope: 'all', filters } : undefined
+      );
       setBulkPreview(result.changes);
       setFeedback(`Vista previa: ${result.changes.length} cambios`);
     } catch (err) {
@@ -274,25 +311,67 @@ export function ProductsPage(): React.ReactElement {
             ? bulkValue
             : Number(bulkValue);
 
-      const snapshotProducts = data.items
-        .filter((p): p is ProductResponse & { id: string } => Boolean(p.id))
-        .map((p) => ({
-          id: p.id,
-          price: p.price,
-          discount: p.discount,
-          stock: p.stock,
-          category: p.category,
-        }));
-      const entry = buildUndoEntry({
-        action: bulkAction,
-        value: val,
-        productIds: ids,
-        products: snapshotProducts,
-        preview: bulkPreview,
-      });
+      // Plan 088: with filters/pagination active the visible page is a
+      // subset — ask the operator explicitly before touching anything.
+      let scope: 'page' | 'all' = 'page';
+      if (data.total > data.items.length) {
+        const applyAll = window.confirm(
+          `Hay ${data.total} productos que coinciden y solo se muestran ${data.items.length}.\n\nAceptar = aplicar a TODOS (${data.total}).\nCancelar = aplicar solo a la página visible (${data.items.length}).`
+        );
+        scope = applyAll ? 'all' : 'page';
+        if (scope === 'page' && bulkPreview === null) {
+          // Safety: without a preview the operator never sees the blast radius.
+          if (
+            !window.confirm(
+              `Aplicar ${bulkAction} a los ${data.items.length} productos visibles de esta página?`
+            )
+          ) {
+            return;
+          }
+        }
+      } else if (bulkPreview === null) {
+        if (!window.confirm(`Aplicar ${bulkAction} a los ${data.items.length} productos?`)) {
+          return;
+        }
+      }
+
+      const result = await client.bulkApply(
+        bulkAction,
+        val,
+        ids,
+        scope === 'all' ? { scope: 'all', filters } : undefined
+      );
+
+      // Plan 088: the undo entry is recorded ONLY after a successful apply.
+      // For scope=all the server's changes array carries the exact old
+      // values of every mutated product — the honest snapshot.
+      const affectedIds = scope === 'all' ? result.changes.map((c) => c.product_id) : ids;
+      const entry =
+        scope === 'all'
+          ? buildUndoEntry({
+              action: bulkAction,
+              value: val,
+              productIds: affectedIds,
+              products: [],
+              preview: result.changes,
+            })
+          : buildUndoEntry({
+              action: bulkAction,
+              value: val,
+              productIds: ids,
+              products: data.items
+                .filter((p): p is ProductResponse & { id: string } => Boolean(p.id))
+                .map((p) => ({
+                  id: p.id,
+                  price: p.price,
+                  discount: p.discount,
+                  stock: p.stock,
+                  category: p.category,
+                })),
+              preview: bulkPreview,
+            });
       undoStack.current.push(entry);
 
-      const result = await client.bulkApply(bulkAction, val, ids);
       setBulkPreview(null);
       setFeedback(`Aplicado: ${result.changed} productos modificados ✓`);
       await load();
@@ -302,7 +381,7 @@ export function ProductsPage(): React.ReactElement {
   }
 
   async function handleReorder(): Promise<void> {
-    if (!data) return;
+    if (!data || !canReorder) return;
     const ids = data.items.filter((p) => p.id).map((p) => p.id!);
     if (ids.length === 0) return;
     try {
@@ -350,6 +429,7 @@ export function ProductsPage(): React.ReactElement {
 
   function handleDrop(e: React.DragEvent<HTMLTableRowElement>, dropIndex: number): void {
     e.preventDefault();
+    if (!canReorder) return;
     if (dragIndex.current === null || dragIndex.current === dropIndex || !data) return;
 
     const items = [...data.items];
@@ -368,6 +448,7 @@ export function ProductsPage(): React.ReactElement {
       })
       .catch((err) => {
         setError((err as Error).message);
+        void load();
       });
   }
 
@@ -391,6 +472,22 @@ export function ProductsPage(): React.ReactElement {
   return (
     <main role="main" aria-label="Productos">
       <h1>Productos{data ? ` (${data.total})` : ''}</h1>
+
+      {/* Plan 088: visible pagination scope — the operator always knows how
+          much of the catalog the current view covers. */}
+      {data && data.total > 0 && (
+        <p style={{ margin: '0 0 0.5rem', fontSize: '0.85rem', color: '#495057' }}>
+          Mostrando {pageStart}–{pageEnd} de {data.total}{' '}
+          {data.total > data.items.length && (
+            <button
+              onClick={() => setFilterParam('page', '1')}
+              style={{ padding: '0.1rem 0.5rem', fontSize: '0.8rem', marginLeft: '0.5rem' }}
+            >
+              Primera página
+            </button>
+          )}
+        </p>
+      )}
 
       {syncStatus && (
         <div
@@ -573,7 +670,7 @@ export function ProductsPage(): React.ReactElement {
           <input
             type="search"
             value={q}
-            onChange={(e) => setParam('q', e.target.value)}
+            onChange={(e) => setFilterParam('q', e.target.value)}
             placeholder="Nombre, descripción…"
             style={{ padding: '0.25rem 0.5rem', width: '200px' }}
           />
@@ -584,7 +681,7 @@ export function ProductsPage(): React.ReactElement {
             type="number"
             min="0"
             value={minPrice}
-            onChange={(e) => setParam('min_price', e.target.value)}
+            onChange={(e) => setFilterParam('min_price', e.target.value)}
             placeholder="0"
             style={{ padding: '0.25rem 0.5rem', width: '90px' }}
           />
@@ -595,7 +692,7 @@ export function ProductsPage(): React.ReactElement {
             type="number"
             min="0"
             value={maxPrice}
-            onChange={(e) => setParam('max_price', e.target.value)}
+            onChange={(e) => setFilterParam('max_price', e.target.value)}
             placeholder="∞"
             style={{ padding: '0.25rem 0.5rem', width: '90px' }}
           />
@@ -604,7 +701,7 @@ export function ProductsPage(): React.ReactElement {
           Categoría:{' '}
           <select
             value={category}
-            onChange={(e) => setParam('category', e.target.value)}
+            onChange={(e) => setFilterParam('category', e.target.value)}
             style={{ padding: '0.25rem 0.5rem', minWidth: '140px' }}
           >
             <option value="">Todas</option>
@@ -619,14 +716,14 @@ export function ProductsPage(): React.ReactElement {
           <input
             type="checkbox"
             checked={outOfStock === 'true'}
-            onChange={(e) => setParam('out_of_stock', e.target.checked ? 'true' : '')}
+            onChange={(e) => setFilterParam('out_of_stock', e.target.checked ? 'true' : '')}
           />
           Sin stock
         </label>
         <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
           <select
             value={archived}
-            onChange={(e) => setParam('archived', e.target.value)}
+            onChange={(e) => setFilterParam('archived', e.target.value)}
             style={{ padding: '0.25rem' }}
           >
             <option value="">Todos</option>
@@ -672,7 +769,15 @@ export function ProductsPage(): React.ReactElement {
       >
         <select
           value={bulkAction}
-          onChange={(e) => setBulkAction(e.target.value)}
+          onChange={(e) => {
+            // Plan 088: the value control changes shape with the action —
+            // reset it so a stale value (e.g. a price '10' becoming the
+            // stock toggle) can never silently flip semantics.
+            setBulkAction(e.target.value);
+            if (e.target.value === 'set_stock') setBulkValue('true');
+            else if (e.target.value === 'set_category') setBulkValue('');
+            else setBulkValue('10');
+          }}
           style={{ padding: '0.25rem' }}
           aria-label="Acción masiva"
         >
@@ -687,6 +792,7 @@ export function ProductsPage(): React.ReactElement {
             value={bulkValue}
             onChange={(e) => setBulkValue(e.target.value)}
             style={{ padding: '0.25rem' }}
+            aria-label="Valor de stock"
           >
             <option value="true">Con stock</option>
             <option value="false">Sin stock</option>
@@ -700,6 +806,23 @@ export function ProductsPage(): React.ReactElement {
             style={{ padding: '0.25rem 0.5rem', width: '100px' }}
           />
         )}
+        {/* Plan 088: bulk scope is explicit when the view is a subset */}
+        {data && data.total > data.items.length && (
+          <label
+            style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.85rem' }}
+          >
+            Ámbito:
+            <select
+              value={bulkScope}
+              onChange={(e) => setBulkScope(e.target.value as 'page' | 'all')}
+              style={{ padding: '0.25rem' }}
+              aria-label="Ámbito de la operación masiva"
+            >
+              <option value="page">Página ({data.items.length})</option>
+              <option value="all">Todos los que coinciden ({data.total})</option>
+            </select>
+          </label>
+        )}
         <button onClick={() => void handleBulkPreview()} style={{ padding: '0.25rem 0.75rem' }}>
           Vista previa
         </button>
@@ -708,8 +831,13 @@ export function ProductsPage(): React.ReactElement {
         </button>
         <button
           onClick={() => void handleReorder()}
-          style={{ padding: '0.25rem 0.75rem', marginLeft: 'auto' }}
-          title="Reordenar por orden actual"
+          disabled={!canReorder}
+          style={{ padding: '0.25rem 0.75rem', marginLeft: 'auto', opacity: canReorder ? 1 : 0.5 }}
+          title={
+            canReorder
+              ? 'Reordenar por orden actual'
+              : 'Reorder requiere catálogo completo sin filtros y orden por defecto'
+          }
         >
           ⇅ Reordenar
         </button>
@@ -863,7 +991,7 @@ export function ProductsPage(): React.ReactElement {
                 }}
                 tabIndex={0}
                 role="row"
-                draggable
+                draggable={canReorder}
                 aria-grabbed="false"
                 onDragStart={(e) => handleDragStart(e, idx)}
                 onDragOver={handleDragOver}
@@ -943,6 +1071,29 @@ export function ProductsPage(): React.ReactElement {
             ))}
           </tbody>
         </table>
+      )}
+
+      {/* Plan 088: pagination controls */}
+      {data && data.total > data.items.length && (
+        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', alignItems: 'center' }}>
+          <button
+            onClick={() => setFilterParam('page', String(page - 1))}
+            disabled={page <= 1}
+            style={{ padding: '0.25rem 0.75rem' }}
+          >
+            ← Anterior
+          </button>
+          <span style={{ fontSize: '0.85rem' }}>
+            Página {page} de {Math.max(1, Math.ceil(data.total / data.limit))}
+          </span>
+          <button
+            onClick={() => setFilterParam('page', String(page + 1))}
+            disabled={pageEnd >= data.total}
+            style={{ padding: '0.25rem 0.75rem' }}
+          >
+            Siguiente →
+          </button>
+        </div>
       )}
 
       {/* Gallery view */}

@@ -1,0 +1,14 @@
+{
+  "trustBar": {
+    "highlights": [],
+    "statusItems": []
+  },
+  "home": {
+    "primaryCategories": [],
+    "secondaryCategories": [],
+    "fallbackQuickPicks": [],
+    "featuredStaples": []
+  },
+  "bundles": [],
+  "companionRules": []
+}

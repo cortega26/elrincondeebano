@@ -10,6 +10,7 @@
 - **Depends on**: —
 - **Category**: data integrity / UX
 - **Written against**: commit `cefdd9f`
+- **Executed**: DONE — 2026-08-11 (verification abajo)
 
 ## Why this matters
 
@@ -76,10 +77,19 @@ npm run admin:test && npm run admin:certify
 
 ## Done criteria
 
-- [ ] Paginación funcional y visible ("X–Y de N"); filtros resetean a página 1.
-- [ ] Bulk muestra scope real y confirma antes de aplicar; `changed` cuenta real; undo solo tras éxito.
-- [ ] Reorder parcial rechazado (409) o explícitamente confirmado; drag-drop correcto bajo sort.
-- [ ] Suite completa verde.
+- [x] Paginación funcional y visible ("X–Y de N"); filtros resetean a página 1.
+- [x] Bulk muestra scope real y confirma antes de aplicar; `changed` cuenta real; undo solo tras éxito.
+- [x] Reorder parcial rechazado (409 REORDER_SCOPE_AMBIGUOUS); drag-drop y botón deshabilitados con filtros/paginación/sort.
+- [x] Suite completa verde.
+
+## Evidence (2026-08-11)
+
+- UI (ProductsPage): paginación URL `page` con Prev/Next + "Mostrando X–Y de N" + Primera página; debounce 250ms + request-id (race guard); setFilterParam resetea página; ámbito de bulk explícito (Página / Todos los que coinciden) con confirm de scope (total > visible); undo pusheado SOLO tras apply OK (scope=all usa los old_values del server); reorder deshabilitado con filtros activos/paginación/sort no-por-defecto (canReorder); drag-drop guardado.
+- Servidor: reorder parcial → 409 `REORDER_SCOPE_AMBIGUOUS` (duplicados → 400); bulk con `scope: all` + `filters` (resolver sobre getAll sin cap); `changed` cuenta mutados reales (no products.length); 422 `NO_MATCHES` si el filtro no casa.
+- Cliente: bulkPreview/bulkApply aceptan scope/filters.
+- Tests: +4 API (reorder parcial/dupes/full, scope=all+filtros, fail-closed discount>price sin escritura parcial, NO_MATCHES) + e2e aislado nuevo (fixture 80 productos, `playwright.scope.config.ts` :3102, 5 casos: paginación, reset de filtro, bulk accept-all, bulk cancel-page, reorder disabled) + CI admin.yml.
+- Bugs reales encontrados durante el e2e: bulkValue stale al cambiar de acción (set_stock con '10' → false silencioso) — reset al cambiar acción; canReorder sin check de filtros activos (filtro con matches ≤ página habilitaba reorder → 409 en server).
+- Suite: 481 tests, e2e scope 5/5 + smoke 19/19, certify 30/30, lint 0 errores.
 
 ## STOP conditions
 
