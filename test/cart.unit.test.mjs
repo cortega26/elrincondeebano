@@ -1,4 +1,5 @@
-import { describe, it, beforeEach, mock } from 'node:test';
+/* eslint-disable complexity, max-lines-per-function -- pre-existing legacy test style (plan 024 migration) */
+import { describe, it, beforeEach, vi } from 'vitest';
 import assert from 'node:assert/strict';
 import { JSDOM } from 'jsdom';
 import { createCartManager } from '../src/js/modules/cart.mjs';
@@ -72,8 +73,8 @@ describe('Cart Manager', () => {
       },
     };
 
-    mockUpdateProductDisplay = mock.fn();
-    mockShowErrorMessage = mock.fn();
+    mockUpdateProductDisplay = vi.fn();
+    mockShowErrorMessage = vi.fn();
 
     cartManager = createCartManager({
       createSafeElement,

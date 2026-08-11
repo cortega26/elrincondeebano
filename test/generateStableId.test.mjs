@@ -1,7 +1,7 @@
-const assert = require('assert');
-const { setBaseGlobals } = require('./helpers/dom-globals');
+import assert from 'assert';
+import { setBaseGlobals } from './helpers/dom-globals.js';
 
-(async () => {
+test('generateStableId', async () => {
   setBaseGlobals();
   const { generateStableId } = await import('../src/js/script.mjs');
 
@@ -19,9 +19,4 @@ const { setBaseGlobals } = require('./helpers/dom-globals');
     generateStableId(prodB),
     'different products should yield different ids'
   );
-
-  console.log('All tests passed');
-})().catch((err) => {
-  console.error(err);
-  process.exit(1);
 });

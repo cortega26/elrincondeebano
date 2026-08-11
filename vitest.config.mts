@@ -8,7 +8,7 @@ export default defineConfig({
         url: 'https://localhost/',
       },
     },
-    include: ['test/**/*.spec.{js,mjs,ts}'],
+    include: ['test/**/*.{spec,test}.{js,mjs,ts}'],
     exclude: ['test/e2e/**', 'test/e2e-astro/**', 'test/run-all.js', 'node_modules'],
     globals: true,
     coverage: {

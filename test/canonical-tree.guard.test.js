@@ -3,7 +3,6 @@
 // Tests for tools/guardrails/canonical-tree.mjs — the plan 070 regression
 // guards (canonical tree tracked, no committed reports, no stray lockfile,
 // hook concurrency flag).
-const { test } = require('node:test');
 const assert = require('node:assert');
 const { execFileSync, execSync } = require('node:child_process');
 const path = require('node:path');

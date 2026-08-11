@@ -1,6 +1,6 @@
+/* eslint-disable max-params -- pre-existing legacy test style (plan 024 migration) */
 'use strict';
 
-const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const os = require('node:os');

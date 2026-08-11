@@ -1,7 +1,6 @@
 'use strict';
 
 const fs = require('node:fs');
-const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const manifest = JSON.parse(fs.readFileSync('docs/repo/ACTIVE_SURFACES.json', 'utf8'));

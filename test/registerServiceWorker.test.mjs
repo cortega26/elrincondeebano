@@ -1,6 +1,7 @@
-const assert = require('assert');
+import assert from 'assert';
 
-(async () => {
+// eslint-disable-next-line max-lines-per-function -- legacy script-style suite converted as one flow (plan 024)
+test('register service worker', async () => {
   const originalSetInterval = global.setInterval;
   const originalSetTimeout = global.setTimeout;
   global.setInterval = () => 0;
@@ -236,6 +237,4 @@ const assert = require('assert');
 
   global.setInterval = originalSetInterval;
   global.setTimeout = originalSetTimeout;
-
-  console.log('registerServiceWorker tests passed');
-})();
+});

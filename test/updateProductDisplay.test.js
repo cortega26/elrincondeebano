@@ -1,4 +1,4 @@
-const test = require('node:test');
+/* eslint-disable complexity -- pre-existing legacy test style (plan 024 migration) */
 const assert = require('node:assert');
 const { JSDOM } = require('jsdom');
 
@@ -141,28 +141,26 @@ function getDisplayedNames() {
   );
 }
 
-test('updateProductDisplay incremental flow', async (t) => {
-  await t.test('initial render limits to first batch', () => {
-    updateProductDisplay();
-    assert.deepStrictEqual(getDisplayedNames(), ['Banana', 'Apple']);
-    const loadMoreButton = document.getElementById('catalog-load-more');
-    assert.strictEqual(loadMoreButton.classList.contains('d-none'), false);
-  });
+test('updateProductDisplay: initial render limits to first batch', () => {
+  updateProductDisplay();
+  assert.deepStrictEqual(getDisplayedNames(), ['Banana', 'Apple']);
+  const loadMoreButton = document.getElementById('catalog-load-more');
+  assert.strictEqual(loadMoreButton.classList.contains('d-none'), false);
+});
 
-  await t.test('load more appends additional products', () => {
-    loadMore();
-    assert.deepStrictEqual(getDisplayedNames(), ['Banana', 'Apple', 'Cherry', 'Date']);
-  });
+test('updateProductDisplay: load more appends additional products', () => {
+  loadMore();
+  assert.deepStrictEqual(getDisplayedNames(), ['Banana', 'Apple', 'Cherry', 'Date']);
+});
 
-  await t.test('filtering resets visible batch', () => {
-    updateProductDisplay({ keyword: 'che' });
-    assert.deepStrictEqual(getDisplayedNames(), ['Cherry']);
-    const loadMoreButton = document.getElementById('catalog-load-more');
-    assert.strictEqual(loadMoreButton.classList.contains('d-none'), true);
-  });
+test('updateProductDisplay: filtering resets visible batch', () => {
+  updateProductDisplay({ keyword: 'che' });
+  assert.deepStrictEqual(getDisplayedNames(), ['Cherry']);
+  const loadMoreButton = document.getElementById('catalog-load-more');
+  assert.strictEqual(loadMoreButton.classList.contains('d-none'), true);
+});
 
-  await t.test('discount-only filter respects incremental flow', () => {
-    updateProductDisplay({ discountOnly: true });
-    assert.deepStrictEqual(getDisplayedNames(), ['Banana']);
-  });
+test('updateProductDisplay: discount-only filter respects incremental flow', () => {
+  updateProductDisplay({ discountOnly: true });
+  assert.deepStrictEqual(getDisplayedNames(), ['Banana']);
 });

@@ -1,4 +1,3 @@
-const test = require('node:test');
 const assert = require('node:assert');
 const { createModuleLoader } = require('./helpers/module-loader');
 const { setupDom, teardownDom, wait } = require('./helpers/dom-test-utils');

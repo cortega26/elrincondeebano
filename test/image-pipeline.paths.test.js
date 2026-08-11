@@ -1,4 +1,3 @@
-const test = require('node:test');
 const assert = require('node:assert/strict');
 const { readRepoFile } = require('./helpers/repo-files.js');
 

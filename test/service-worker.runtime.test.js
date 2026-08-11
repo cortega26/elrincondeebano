@@ -1,4 +1,3 @@
-const test = require('node:test');
 const assert = require('node:assert');
 const path = require('node:path');
 
@@ -83,7 +82,11 @@ const loadServiceWorkerRuntime = ({ fetchImpl, cachesImpl, origin = 'https://exa
   global.self = self;
   global.caches = cachesImpl;
   global.fetch = fetchImpl;
-  global.crypto = { randomUUID: () => 'uuid-1' };
+  Object.defineProperty(global, 'crypto', {
+    value: { randomUUID: () => 'uuid-1' },
+    configurable: true,
+    writable: true,
+  });
 
   delete require.cache[SERVICE_WORKER_PATH];
   require(SERVICE_WORKER_PATH);

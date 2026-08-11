@@ -68,7 +68,7 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/setup-node-and-deps
       - name: Verify canary contract tests
-        run: node --test test/post-deploy-canary.test.js test/live-contract-monitor.test.js
+        run: npx vitest run --environment node test/post-deploy-canary.test.js test/live-contract-monitor.test.js
 
   artifact-canary:
     if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}

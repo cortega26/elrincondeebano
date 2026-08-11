@@ -34,13 +34,14 @@ module.exports = [
       sonarjs,
     },
     languageOptions: {
-      ecmaVersion: 2021,
+      ecmaVersion: 2022,
       sourceType: 'module',
       globals: {
         ...globals.browser,
         ...globals.node,
         ...globals.es2021,
         after: 'readonly',
+        afterAll: 'readonly',
         afterEach: 'readonly',
         before: 'readonly',
         beforeEach: 'readonly',

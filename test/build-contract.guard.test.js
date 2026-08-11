@@ -4,7 +4,6 @@
 // fail-closed semantics. A future edit that flips them back to t.skip()
 // (silently skipping the contract when astro-poc/dist is absent) fails this
 // test — fix the file, never weaken this guard.
-const { test } = require('node:test');
 const assert = require('node:assert');
 const fs = require('node:fs');
 const path = require('node:path');

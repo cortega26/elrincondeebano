@@ -1,4 +1,3 @@
-const test = require('node:test');
 const assert = require('node:assert');
 const { setupAppDom, teardownAppDom } = require('./helpers/dom-test-utils');
 
@@ -14,11 +13,13 @@ test('logPerformanceMetrics reports unavailable metrics when Performance API dat
   const { logPerformanceMetrics } = await import('../src/js/script.mjs');
   const events = [];
 
-  const originalPerformance = global.window.performance;
-  global.window.performance = {
-    getEntriesByType: () => [],
-    timing: {},
-  };
+  Object.defineProperty(global.window, 'performance', {
+    value: {
+      getEntriesByType: () => [],
+      timing: {},
+    },
+    configurable: true,
+  });
 
   logPerformanceMetrics(undefined, (level, message, meta = {}) => {
     events.push({ level, message, meta });
@@ -36,7 +37,7 @@ test('logPerformanceMetrics reports unavailable metrics when Performance API dat
     },
   ]);
 
-  global.window.performance = originalPerformance;
+  delete global.window.performance;
 
   teardownAppDom();
 });
