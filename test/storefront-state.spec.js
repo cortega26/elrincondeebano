@@ -1,14 +1,19 @@
+/* eslint-disable max-lines-per-function -- suite-level describe block (plan 026) */
 import { describe, expect, it } from 'vitest';
 import {
   MAX_CART_ITEM_QTY,
+  SHARED_CART_VERSION,
   clampQty,
   createCartItemFromProduct,
   getCartState,
   hydrateCartFromOrder,
+  hydrateSharedCart,
   normalizeCartItem,
   normalizeId,
   parseNumber,
+  parseSharedCartPayload,
   sanitizeCart,
+  toSharedCartPayload,
 } from '../astro-poc/src/scripts/storefront/storefront-state.js';
 
 describe('storefront-state cart primitives', () => {
@@ -220,6 +225,147 @@ describe('storefront-state cart primitives', () => {
       expect(hydrateCartFromOrder(null)).toEqual([]);
       expect(hydrateCartFromOrder({ items: null })).toEqual([]);
       expect(hydrateCartFromOrder({})).toEqual([]);
+    });
+  });
+
+  describe('toSharedCartPayload', () => {
+    it('serializes identity and quantity only, omitting commercial fields', () => {
+      const payload = toSharedCartPayload([
+        {
+          id: 'p1',
+          name: 'Leche',
+          category: 'Lacteos',
+          price: 1500,
+          discount: 300,
+          image: 'leche.jpg',
+          quantity: 2,
+        },
+      ]);
+
+      expect(payload).toEqual({
+        version: SHARED_CART_VERSION,
+        items: [{ id: 'p1', quantity: 2 }],
+      });
+      expect(JSON.stringify(payload)).not.toContain('Leche');
+      expect(JSON.stringify(payload)).not.toContain('1500');
+      expect(JSON.stringify(payload)).not.toContain('discount');
+      expect(JSON.stringify(payload)).not.toContain('leche.jpg');
+    });
+
+    it('merges duplicate ids deterministically and clamps quantities', () => {
+      const payload = toSharedCartPayload([
+        { id: 'b', price: 500, quantity: 1 },
+        { id: 'a', price: 800, quantity: 999 },
+        { id: 'b', price: 0, quantity: 2 },
+      ]);
+
+      expect(payload.items).toEqual([
+        { id: 'a', quantity: MAX_CART_ITEM_QTY },
+        { id: 'b', quantity: 3 },
+      ]);
+    });
+
+    it('returns null for empty or invalid carts', () => {
+      expect(toSharedCartPayload([])).toBeNull();
+      expect(toSharedCartPayload(null)).toBeNull();
+      expect(toSharedCartPayload([{ id: '', quantity: 1 }])).toBeNull();
+    });
+  });
+
+  describe('parseSharedCartPayload', () => {
+    it('parses versioned payloads with capped and deduplicated items', () => {
+      const items = parseSharedCartPayload({
+        version: SHARED_CART_VERSION,
+        items: [
+          { id: 'p1', quantity: 1 },
+          { id: 'p2', quantity: 999 },
+          { id: 'p1', quantity: 3 },
+          { id: 'p3', quantity: 0 },
+          { id: '', quantity: 5 },
+        ],
+      });
+
+      expect(items).toEqual([
+        { id: 'p1', quantity: 1 },
+        { id: 'p2', quantity: MAX_CART_ITEM_QTY },
+      ]);
+    });
+
+    it('reads legacy array links by id and quantity only', () => {
+      const items = parseSharedCartPayload([
+        { id: 'p1', name: 'Fake', price: 1, discount: 2, image: 'x.jpg', quantity: 2 },
+        { id: 'p2', name: 'Also Fake', price: 9999, quantity: 1 },
+      ]);
+
+      expect(items).toEqual([
+        { id: 'p1', quantity: 2 },
+        { id: 'p2', quantity: 1 },
+      ]);
+    });
+
+    it('rejects malformed, non-array and unsupported-version payloads', () => {
+      expect(parseSharedCartPayload(null)).toEqual([]);
+      expect(parseSharedCartPayload('[]')).toEqual([]);
+      expect(parseSharedCartPayload({})).toEqual([]);
+      expect(parseSharedCartPayload({ version: 2, items: [{ id: 'p1', quantity: 1 }] })).toEqual(
+        []
+      );
+      expect(parseSharedCartPayload({ version: SHARED_CART_VERSION, items: 'nope' })).toEqual([]);
+    });
+  });
+
+  describe('hydrateSharedCart', () => {
+    const catalog = new Map([
+      ['p1', { id: 'p1', name: 'Leche', category: 'Lacteos', price: 1500, image: 'l.jpg' }],
+      ['p2', { id: 'p2', name: 'Pan', category: 'Panaderia', price: 800, discount: 100 }],
+      ['gone', null],
+      ['soldout', { id: 'soldout', name: 'Agotado', price: 100, stock: false }],
+    ]);
+    const resolve = (id) => catalog.get(id) ?? null;
+
+    it('rehydrates items from catalog values, ignoring forged commercial fields', () => {
+      const items = hydrateSharedCart(
+        {
+          version: SHARED_CART_VERSION,
+          items: [
+            { id: 'p1', name: 'Fake', price: 999999, discount: 0, quantity: 2 },
+            { id: 'p2', quantity: 1 },
+          ],
+        },
+        resolve
+      );
+
+      expect(items).toEqual([
+        expect.objectContaining({ id: 'p1', name: 'Leche', price: 1500, quantity: 2 }),
+        expect.objectContaining({ id: 'p2', name: 'Pan', price: 800, discount: 100, quantity: 1 }),
+      ]);
+    });
+
+    it('drops missing and out-of-stock products', () => {
+      const items = hydrateSharedCart(
+        {
+          version: SHARED_CART_VERSION,
+          items: [
+            { id: 'p1', quantity: 1 },
+            { id: 'gone', quantity: 1 },
+            { id: 'soldout', quantity: 1 },
+          ],
+        },
+        resolve
+      );
+
+      expect(items.map((item) => item.id)).toEqual(['p1']);
+    });
+
+    it('returns an empty cart for invalid payloads or missing resolver', () => {
+      expect(hydrateSharedCart(null, resolve)).toEqual([]);
+      expect(hydrateSharedCart({ version: 99, items: [] }, resolve)).toEqual([]);
+      expect(hydrateSharedCart([{ id: 'p1', quantity: 1 }], null)).toEqual([]);
+    });
+
+    it('supports legacy array links through the same catalog hydration', () => {
+      const items = hydrateSharedCart([{ id: 'p1', price: 1, quantity: 2 }], resolve);
+      expect(items).toEqual([expect.objectContaining({ id: 'p1', price: 1500, quantity: 2 })]);
     });
   });
 });
