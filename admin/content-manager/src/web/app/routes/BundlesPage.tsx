@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import { fetchWithCredential } from '../credentialStore.ts';
 
 interface ProductRef {
@@ -218,16 +217,6 @@ export function BundlesPage(): React.ReactElement {
   return (
     <main role="main" aria-label="Vitrina">
       <h1>Vitrina</h1>
-      <nav
-        aria-label="Navegación principal"
-        style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}
-      >
-        <Link to="/products">Productos</Link>
-        <Link to="/categories">Categorías</Link>
-        <Link to="/bundles" aria-current="page">
-          Vitrina
-        </Link>
-      </nav>
 
       {error && (
         <p role="alert" style={{ color: '#c62828' }}>

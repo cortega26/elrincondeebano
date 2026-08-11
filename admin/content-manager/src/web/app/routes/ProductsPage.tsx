@@ -6,6 +6,7 @@ import type { CategoryRecord } from '../../../shared/schemas/category.ts';
 import { fetchWithCredential } from '../credentialStore.ts';
 import { buildUndoEntry, computeUndoActions } from './undo.ts';
 import { ProductImage } from '../components/ProductImage.tsx';
+import { Feedback } from '../components/Feedback.tsx';
 import type { UndoEntry } from './undo.ts';
 
 const client = new ContentManagerClient();
@@ -28,6 +29,9 @@ export function ProductsPage(): React.ReactElement {
   const [searchParams, setSearchParams] = useSearchParams();
   const [data, setData] = useState<PaginatedResponse<ProductResponse> | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Plan 093: operation errors render inline (never destroy the page/form);
+  // `error` is reserved for initial-load failures.
+  const [opError, setOpError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<ProductResponse | null>(null);
   const [editing, setEditing] = useState<ProductResponse | null>(null);
@@ -275,7 +279,7 @@ export function ProductsPage(): React.ReactElement {
           URL.revokeObjectURL(url);
           setFeedback('Export CSV descargado ✓');
         })
-        .catch((err) => setError((err as Error).message));
+        .catch((err) => setOpError((err as Error).message));
     }
   }
 
@@ -297,7 +301,7 @@ export function ProductsPage(): React.ReactElement {
       setFeedback('Producto actualizado ✓');
       await load();
     } catch (err) {
-      setError((err as Error).message);
+      setOpError((err as Error).message);
     }
   }
 
@@ -317,7 +321,7 @@ export function ProductsPage(): React.ReactElement {
       setFeedback('Producto creado ✓');
       await load();
     } catch (err) {
-      setError((err as Error).message);
+      setOpError((err as Error).message);
     }
   }
 
@@ -339,7 +343,7 @@ export function ProductsPage(): React.ReactElement {
       setFeedback(`Duplicado creado: ${name} ✓`);
       await load();
     } catch (err) {
-      setError((err as Error).message);
+      setOpError((err as Error).message);
     }
   }
 
@@ -352,7 +356,7 @@ export function ProductsPage(): React.ReactElement {
       setFeedback('Producto archivado ✓');
       await load();
     } catch (err) {
-      setError((err as Error).message);
+      setOpError((err as Error).message);
     }
   }
 
@@ -365,7 +369,7 @@ export function ProductsPage(): React.ReactElement {
       setFeedback('Producto restaurado ✓');
       await load();
     } catch (err) {
-      setError((err as Error).message);
+      setOpError((err as Error).message);
     }
   }
 
@@ -389,7 +393,7 @@ export function ProductsPage(): React.ReactElement {
       setBulkPreview(result.changes);
       setFeedback(`Vista previa: ${result.changes.length} cambios`);
     } catch (err) {
-      setError((err as Error).message);
+      setOpError((err as Error).message);
     }
   }
 
@@ -470,7 +474,7 @@ export function ProductsPage(): React.ReactElement {
       setFeedback(`Aplicado: ${result.changed} productos modificados ✓`);
       await load();
     } catch (err) {
-      setError((err as Error).message);
+      setOpError((err as Error).message);
     }
   }
 
@@ -483,7 +487,7 @@ export function ProductsPage(): React.ReactElement {
       setFeedback('Productos reordenados ✓');
       await load();
     } catch (err) {
-      setError((err as Error).message);
+      setOpError((err as Error).message);
     }
   }
 
@@ -507,7 +511,7 @@ export function ProductsPage(): React.ReactElement {
       setFeedback('Operación deshecha ✓');
       await load();
     } catch (err) {
-      setError((err as Error).message);
+      setOpError((err as Error).message);
     }
   }
 
@@ -541,7 +545,7 @@ export function ProductsPage(): React.ReactElement {
         void load();
       })
       .catch((err) => {
-        setError((err as Error).message);
+        setOpError((err as Error).message);
         void load();
       });
   }
@@ -707,7 +711,7 @@ export function ProductsPage(): React.ReactElement {
                     setFeedback('Configuración de sync guardada ✓');
                     window.setTimeout(() => window.location.reload(), 300);
                   } catch (err) {
-                    setError((err as Error).message);
+                    setOpError((err as Error).message);
                   }
                 }}
                 style={{ padding: '0.15rem 0.5rem', fontSize: '0.8rem' }}
@@ -726,26 +730,15 @@ export function ProductsPage(): React.ReactElement {
       )}
 
       {/* Feedback */}
+      {opError && (
+        <Feedback kind="error" onDismiss={() => setOpError(null)}>
+          {opError}
+        </Feedback>
+      )}
       {feedback && (
-        <div
-          role="status"
-          aria-live="polite"
-          style={{
-            background: '#e8f5e9',
-            padding: '0.5rem',
-            marginBottom: '0.5rem',
-            borderRadius: 'var(--radius)',
-          }}
-        >
+        <Feedback kind="success" onDismiss={() => setFeedback(null)}>
           {feedback}
-          <button
-            onClick={() => setFeedback(null)}
-            style={{ marginLeft: '0.5rem', background: 'none', border: 'none', cursor: 'pointer' }}
-            aria-label="Cerrar"
-          >
-            ×
-          </button>
-        </div>
+        </Feedback>
       )}
 
       {/* Filters */}
@@ -1068,6 +1061,9 @@ export function ProductsPage(): React.ReactElement {
                   cursor: 'pointer',
                   userSelect: 'none',
                 }}
+                aria-sort={
+                  sortField === 'name' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'
+                }
                 onClick={() => handleSort('name')}
               >
                 Nombre{sortField === 'name' ? (sortDir === 'asc' ? ' ▲' : ' ▼') : ''}
@@ -1083,6 +1079,13 @@ export function ProductsPage(): React.ReactElement {
                   cursor: 'pointer',
                   userSelect: 'none',
                 }}
+                aria-sort={
+                  sortField === 'category'
+                    ? sortDir === 'asc'
+                      ? 'ascending'
+                      : 'descending'
+                    : 'none'
+                }
                 onClick={() => handleSort('category')}
               >
                 Cat.{sortField === 'category' ? (sortDir === 'asc' ? ' ▲' : ' ▼') : ''}
@@ -1095,6 +1098,9 @@ export function ProductsPage(): React.ReactElement {
                   cursor: 'pointer',
                   userSelect: 'none',
                 }}
+                aria-sort={
+                  sortField === 'price' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'
+                }
                 onClick={() => handleSort('price')}
               >
                 Precio{sortField === 'price' ? (sortDir === 'asc' ? ' ▲' : ' ▼') : ''}
@@ -1107,6 +1113,13 @@ export function ProductsPage(): React.ReactElement {
                   cursor: 'pointer',
                   userSelect: 'none',
                 }}
+                aria-sort={
+                  sortField === 'discount'
+                    ? sortDir === 'asc'
+                      ? 'ascending'
+                      : 'descending'
+                    : 'none'
+                }
                 onClick={() => handleSort('discount')}
               >
                 Dto.{sortField === 'discount' ? (sortDir === 'asc' ? ' ▲' : ' ▼') : ''}

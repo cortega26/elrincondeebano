@@ -10,6 +10,7 @@
 - **Depends on**: 088 (paginación/bulk tocan la misma página), 091 (confirm deletes ya cubiertos allí)
 - **Category**: UX/UI
 - **Written against**: commit `cefdd9f`
+- **Executed**: DONE — 2026-08-11 (verification abajo)
 
 ## Why this matters
 
@@ -90,12 +91,21 @@ npm run admin:test && npm run admin:typecheck && npm run admin:certify && npx pl
 
 ## Done criteria
 
-- [ ] Tokens + estilos base visibles en todas las páginas; contraste AA en muted text; densidad funcional; alto contraste real.
-- [ ] Nav persistente con 11 rutas, labels alineados, shortcuts completos.
-- [ ] Un solo componente `Feedback` en uso; errores de operación no destruyen forms.
-- [ ] Dialogs con trap/Escape/aria-modal; sort con `aria-sort` y keyboard.
-- [ ] Sin strings en inglés en PublicationPage/MediaPage/ConflictsPage.
-- [ ] Tests a11y comportamentales verdes.
+- [x] Tokens + estilos base (botones/inputs con min-height, focus-visible, disabled, .btn--primary/.btn--danger, --color-muted ≥4.5:1); densidad funcional; alto contraste sube muted.
+- [x] Nav persistente con 11 rutas + aria-current; 7 navs por página eliminadas (incl. MediaPage que la auditoría omitió); shortcuts g h/b/u/f completos.
+- [x] Componente `Feedback` único (status/alert, auto-dismiss success, persistente error); errores de operación inline (opError) — ya no destruyen forms en ProductsPage (15 setError divididos).
+- [x] `useDialog` (focus trap + Escape + aria-modal) en CredentialPrompt; `aria-sort` en los 4 headers ordenables.
+- [x] i18n es: PublicationPage (9 strings), MediaPage (10 estados de inventario), ConflictsPage ya estaba en español.
+- [x] Tests a11y comportamentales (nav persistente, shortcuts, trap de dialog, aria-sort) + estáticos actualizados (role status vive en Feedback).
+
+## Evidence (2026-08-11)
+
+- global.css: tokens (`--color-muted` #495057 AA, `--control-min-height`, radius, hover/disabled/focus-visible, [data-density] real, alto contraste real).
+- App.tsx: AppNav persistente (NAV_ITEMS, NavLink + aria-current) en Layout; GOTO_MAP con h/b/f.
+- components/: Feedback.tsx + useDialog.ts (trap Tab cíclico, Escape, focus-return solo si el opener sigue conectado — el remount de React rompía el retorno).
+- ProductsPage: opError separado del load error; 15 setError → setOpError (operaciones); feedback/error renderizan con Feedback.
+- 7 navs de página eliminadas; el smoke `navigation links work` exigía selector único (se rompió con la nav duplicada de MediaPage — era la 7ª).
+- Tests: +4 e2e UX (nav+aria-current, shortcuts g h/b/u, trap/Escape del dialog, aria-sort) + estáticos actualizados. Suite: 499 tests, e2e 19/19 + scope 11/11, certify 30/30, lint 0 errores.
 
 ## STOP conditions
 

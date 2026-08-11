@@ -1,10 +1,18 @@
 :root {
   --color-bg: #f8f9fa;
   --color-text: #212529;
+  --color-muted: #495057;
   --color-primary: #2e7d32;
+  --color-primary-hover: #1b5e20;
+  --color-danger: #c62828;
   --color-border: #dee2e6;
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --radius: 4px;
+  --control-min-height: 28px;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
 }
 
 *,
@@ -56,20 +64,95 @@ nav a:hover {
   text-decoration: underline;
 }
 
+nav a[aria-current='page'] {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 p {
-  color: #6c757d;
+  color: var(--color-muted);
+}
+
+/* Plan 093: base control styling — the app previously rendered raw UA
+   buttons/inputs with ~200 inline styles and no focus/disabled affordance. */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  min-height: var(--control-min-height);
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: #fff;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--color-primary);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+input,
+select,
+textarea {
+  min-height: var(--control-min-height);
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.btn--primary {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.btn--danger {
+  color: var(--color-danger);
+}
+
+/* Plan 093: density preference actually changes row/cell padding. */
+[data-density='compact'] table th,
+[data-density='compact'] table td {
+  padding-top: 0.1rem;
+  padding-bottom: 0.1rem;
 }
 
 /* Preferences (plan 061 step 4) */
 [data-theme='dark'] {
   --color-bg: #1e1e1e;
   --color-text: #e9ecef;
+  --color-muted: #adb5bd;
   --color-primary: #66bb6a;
   --color-border: #495057;
 }
 
 [data-high-contrast='true'] {
   --color-border: #000;
+  --color-muted: #212529;
+}
+
+[data-high-contrast='true'][data-theme='dark'] {
+  --color-muted: #f8f9fa;
 }
 
 [data-reduce-motion='true'] *,

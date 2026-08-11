@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import { fetchWithCredential } from '../credentialStore.ts';
 
 interface HistoryEntry {
@@ -223,16 +222,6 @@ export function HistoryPage(): React.ReactElement {
   return (
     <main role="main" aria-label="Cambios y recuperación">
       <h1>Cambios y recuperación</h1>
-      <nav
-        aria-label="Navegación principal"
-        style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}
-      >
-        <Link to="/products">Productos</Link>
-        <Link to="/publish">Publicación</Link>
-        <Link to="/history" aria-current="page">
-          Cambios y recuperación
-        </Link>
-      </nav>
 
       {error && (
         <p role="alert" style={{ color: '#c62828' }}>

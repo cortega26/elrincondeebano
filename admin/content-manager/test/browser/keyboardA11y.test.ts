@@ -4,6 +4,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const componentsDir = resolve(__dirname, '../../src/web/app/components');
 const productsPath = resolve(__dirname, '../../src/web/app/routes/ProductsPage.tsx');
 const categoriesPath = resolve(__dirname, '../../src/web/app/routes/CategoriesPage.tsx');
 
@@ -51,9 +52,11 @@ test('ProductsPage source contains draggable', () => {
   expect(source).toContain('draggable');
 });
 
-test("ProductsPage source contains role='status'", () => {
+test("ProductsPage source contains role='status' (via Feedback, plan 093)", () => {
   const source = readSource(productsPath);
-  expect(source).toContain('role="status"');
+  expect(source).toContain('Feedback');
+  const feedbackSource = readSource(componentsDir + '/Feedback.tsx');
+  expect(feedbackSource).toContain("role={kind === 'error' ? 'alert' : 'status'}");
 });
 
 test('ProductsPage source contains aria-label for buttons', () => {
@@ -84,4 +87,10 @@ test("CategoriesPage source contains aria-label='Grupos de navegación'", () => 
 test("CategoriesPage source contains role='status'", () => {
   const source = readSource(categoriesPath);
   expect(source).toContain('role="status"');
+});
+
+test('Feedback component provides the single status/alert pattern', () => {
+  const source = readSource(componentsDir + '/Feedback.tsx');
+  expect(source).toContain('role');
+  expect(source).toContain('aria-label');
 });

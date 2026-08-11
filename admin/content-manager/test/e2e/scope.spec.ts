@@ -148,3 +148,70 @@ test('CSV export downloads with the active filters', async ({ page }) => {
   for await (const chunk of stream) text += chunk.toString();
   expect(text.trim().split('\n')).toHaveLength(6); // header + 5 discounted
 });
+
+// ── plan 093: UX foundations (nav, shortcuts, dialog) ────────────────────────
+
+test('persistent nav reaches every tool and marks the active route', async ({ page }) => {
+  const nav = page.getByRole('navigation', { name: 'Navegación principal' });
+  await expect(nav.getByRole('link', { name: 'Productos' })).toHaveAttribute(
+    'aria-current',
+    'page'
+  );
+
+  await nav.getByRole('link', { name: 'Vitrina' }).click();
+  await expect(page.locator('h1')).toContainText('Vitrina');
+  await expect(nav.getByRole('link', { name: 'Vitrina' })).toHaveAttribute('aria-current', 'page');
+
+  await nav.getByRole('link', { name: 'Cambios y recuperación' }).click();
+  await expect(page.locator('h1')).toContainText('Cambios y recuperación');
+});
+
+test('g-key shortcuts navigate to history, bundles and publish', async ({ page }) => {
+  await page.keyboard.press('g');
+  await page.keyboard.press('h');
+  await expect(page.locator('h1')).toContainText('Cambios y recuperación');
+
+  await page.keyboard.press('g');
+  await page.keyboard.press('b');
+  await expect(page.locator('h1')).toContainText('Vitrina');
+
+  await page.keyboard.press('g');
+  await page.keyboard.press('u');
+  await expect(page.locator('h1')).toContainText('Publicación');
+});
+
+test('credential dialog traps focus and closes with Escape', async ({ page }) => {
+  // Reopen the prompt via the floating button.
+  await page.getByRole('button', { name: 'Credencial ✓' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Launch credential' });
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toHaveAttribute('aria-modal', 'true');
+
+  // Focus lands on the input on open; Tab cycles input -> Guardar -> input.
+  await expect(page.getByPlaceholder('x-admin-credential')).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: 'Guardar' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByPlaceholder('x-admin-credential')).toBeFocused();
+
+  // Escape closes; focus is not left on a removed node — Tab keeps moving
+  // through real focusable elements (floating button first, then nav).
+  await page.keyboard.press('Escape');
+  await expect(dialog).not.toBeVisible();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: 'Credencial ✓' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('Tab');
+  await expect(
+    page.getByRole('navigation', { name: 'Navegación principal' }).getByRole('link').first()
+  ).toBeFocused();
+});
+
+test('sortable columns expose aria-sort state', async ({ page }) => {
+  const nameHeader = page.locator('th', { hasText: 'Nombre' });
+  await expect(nameHeader).toHaveAttribute('aria-sort', 'none');
+  await nameHeader.click();
+  await expect(nameHeader).toHaveAttribute('aria-sort', 'ascending');
+  await nameHeader.click();
+  await expect(nameHeader).toHaveAttribute('aria-sort', 'descending');
+});

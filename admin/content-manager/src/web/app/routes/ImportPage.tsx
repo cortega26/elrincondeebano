@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { fetchWithCredential } from '../credentialStore.ts';
 import type {
   ImportPreviewResponse,
@@ -172,17 +171,6 @@ export function ImportPage(): React.ReactElement {
   return (
     <main role="main" aria-label="Importar catálogo">
       <h1>Importar catálogo</h1>
-      <nav
-        aria-label="Navegación principal"
-        style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}
-      >
-        <Link to="/products">Productos</Link>
-        <Link to="/categories">Categorías</Link>
-        <Link to="/media">Medios</Link>
-        <Link to="/import" aria-current="page">
-          Importar
-        </Link>
-      </nav>
 
       <div style={{ marginBottom: '1rem' }}>
         <label htmlFor="import-file" style={{ display: 'block', marginBottom: '0.25rem' }}>

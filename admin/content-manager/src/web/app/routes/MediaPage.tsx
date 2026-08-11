@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import { fetchWithCredential } from '../credentialStore.ts';
 
 interface MediaEntry {
@@ -31,6 +30,20 @@ interface ProductOption {
   id: string;
   name: string;
 }
+
+const MEDIA_STATUS_LABEL: Record<string, string> = {
+  active: 'Activo',
+  orphan: 'Huérfano',
+  generated: 'Generado',
+  staged: 'Staging',
+  missing: 'Faltante',
+  pending: 'Pendiente',
+  running: 'Ejecutando',
+  succeeded: 'Listo',
+  failed: 'Falló',
+  cancelled: 'Cancelado',
+  applied: 'Aplicado',
+};
 
 const STATUS_LABEL: Record<string, string> = {
   pending: 'Pendiente',
@@ -223,16 +236,6 @@ export function MediaPage(): React.ReactElement {
   return (
     <main role="main" aria-label="Medios">
       <h1>Medios y derivados ({summary.total ?? 0} archivos)</h1>
-      <nav
-        aria-label="Navegación principal"
-        style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}
-      >
-        <Link to="/products">Productos</Link>
-        <Link to="/categories">Categorías</Link>
-        <Link to="/media" aria-current="page">
-          Medios
-        </Link>
-      </nav>
 
       {error && (
         <p role="alert" style={{ color: '#c62828' }}>
@@ -435,7 +438,9 @@ export function MediaPage(): React.ReactElement {
                 <td style={{ padding: '0.25rem 0.5rem' }}>
                   <code>{entry.path}</code>
                 </td>
-                <td style={{ padding: '0.25rem 0.5rem' }}>{entry.status}</td>
+                <td style={{ padding: '0.25rem 0.5rem' }}>
+                  {MEDIA_STATUS_LABEL[entry.status] ?? entry.status}
+                </td>
                 <td style={{ padding: '0.25rem 0.5rem' }}>{entry.productName ?? '—'}</td>
               </tr>
             ))}

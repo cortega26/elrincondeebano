@@ -1,4 +1,10 @@
-import { createBrowserRouter, RouterProvider, useNavigate, Outlet } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  RouterProvider,
+  useNavigate,
+  Outlet,
+  NavLink,
+} from 'react-router-dom';
 import { useEffect } from 'react';
 import { ProductsPage } from './routes/ProductsPage.tsx';
 import { CategoriesPage } from './routes/CategoriesPage.tsx';
@@ -84,11 +90,31 @@ const GOTO_MAP: Record<string, string> = {
   p: '/products',
   c: '/categories',
   m: '/media',
+  h: '/history',
+  b: '/bundles',
   i: '/import',
+  f: '/conflicts',
   u: '/publish',
   d: '/diagnostics',
   s: '/settings',
+  '?': '/help',
 };
+
+// Plan 093: one persistent top navigation — previously every page shipped
+// its own partial nav subset (ProductsPage had none).
+const NAV_ITEMS: Array<{ to: string; label: string }> = [
+  { to: '/products', label: 'Productos' },
+  { to: '/categories', label: 'Categorías' },
+  { to: '/bundles', label: 'Vitrina' },
+  { to: '/media', label: 'Medios' },
+  { to: '/import', label: 'Importar' },
+  { to: '/conflicts', label: 'Conflictos' },
+  { to: '/history', label: 'Cambios y recuperación' },
+  { to: '/publish', label: 'Publicación' },
+  { to: '/diagnostics', label: 'Diagnósticos' },
+  { to: '/settings', label: 'Ajustes' },
+  { to: '/help', label: 'Ayuda' },
+];
 
 function ShortcutLayer(): null {
   const navigate = useNavigate();
@@ -131,6 +157,15 @@ function Layout(): React.ReactElement {
   return (
     <>
       <ShortcutLayer />
+      <nav aria-label="Navegación principal">
+        {NAV_ITEMS.map((item) => (
+          <NavLink key={item.to} to={item.to} end={item.to === '/products'}>
+            {({ isActive }) => (
+              <span aria-current={isActive ? 'page' : undefined}>{item.label}</span>
+            )}
+          </NavLink>
+        ))}
+      </nav>
       <Outlet />
     </>
   );

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { getCredentialValue, setCredential } from './credentialStore.ts';
+import { useDialog } from './components/useDialog.ts';
 
 // The launch credential is operator-supplied (plan 071): ADMIN_CREDENTIAL env
 // or the startup log. This prompt is the UI entry point for it; mutations
@@ -7,6 +8,8 @@ import { getCredentialValue, setCredential } from './credentialStore.ts';
 export function CredentialPrompt(): React.ReactElement {
   const [value, setValue] = useState('');
   const [saved, setSaved] = useState(Boolean(getCredentialValue()));
+  const isOpen = !saved;
+  const dialogRef = useDialog(isOpen, () => setSaved(true));
 
   function save(): void {
     setCredential(value);
@@ -28,6 +31,10 @@ export function CredentialPrompt(): React.ReactElement {
         }}
       >
         <div
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="credential-prompt-title"
           style={{
             background: 'var(--color-bg)',
             border: '1px solid var(--color-border)',
@@ -36,10 +43,12 @@ export function CredentialPrompt(): React.ReactElement {
             width: 'min(420px, 90vw)',
           }}
         >
-          <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Launch credential</h2>
+          <h2 id="credential-prompt-title" style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>
+            Launch credential
+          </h2>
           <p style={{ marginBottom: '0.75rem' }}>
-            Write operations require the launch credential shown in the server
-            startup log (or set via ADMIN_CREDENTIAL).
+            Write operations require the launch credential shown in the server startup log (or set
+            via ADMIN_CREDENTIAL).
           </p>
           <input
             type="password"

@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import {
   loadPreferences,
   savePreferences,
@@ -27,17 +26,6 @@ export function SettingsPage(): React.ReactElement {
 
   return (
     <main role="main" aria-label="Preferencias">
-      <nav
-        aria-label="Navegación principal"
-        style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}
-      >
-        <Link to="/products">Productos</Link>
-        <Link to="/publish">Publicación</Link>
-        <Link to="/settings" aria-current="page">
-          Preferencias
-        </Link>
-      </nav>
-
       <h1>Preferencias</h1>
 
       <form

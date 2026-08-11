@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import { ContentManagerClient } from '../../api/client.ts';
 import type {
   GitStatusResponse,
@@ -144,20 +143,6 @@ export function PublicationPage(): React.ReactElement {
 
   return (
     <main role="main" aria-label="Publicación">
-      <nav
-        aria-label="Navegación principal"
-        style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}
-      >
-        <Link to="/">Productos</Link>
-        <Link to="/categories">Categorías</Link>
-        <Link to="/media">Media</Link>
-        <Link to="/history">Historial</Link>
-        <Link to="/bundles">Bundles</Link>
-        <Link to="/import">Importar</Link>
-        <Link to="/conflicts">Conflictos</Link>
-        <Link to="/publish">Publicación</Link>
-      </nav>
-
       <h1>Publicación</h1>
 
       {error && (
@@ -286,7 +271,9 @@ export function PublicationPage(): React.ReactElement {
               )}
           </div>
         ) : (
-          <p style={{ color: '#6c757d' }}>Click "Preview" or "Refresh" to load Git status.</p>
+          <p style={{ color: '#6c757d' }}>
+            Haz clic en "Vista previa" o "Actualizar" para cargar el estado de Git.
+          </p>
         )}
       </section>
 
