@@ -1,6 +1,19 @@
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { runDoctor } from '../src/server/services/doctor.ts';
 
-const repoRoot = process.env.REPO_ROOT ?? process.cwd();
+// The CLI runs from the workspace dir by default (npm -w); resolve the repo
+// root as the workspace parent unless REPO_ROOT overrides it.
+function resolveRepoRoot(): string {
+  if (process.env.REPO_ROOT) return process.env.REPO_ROOT;
+  const candidates = [process.cwd(), resolve(process.cwd(), '..', '..')];
+  for (const candidate of candidates) {
+    if (existsSync(resolve(candidate, 'data', 'product_data.json'))) return candidate;
+  }
+  return candidates[1] ?? process.cwd();
+}
+
+const repoRoot = resolveRepoRoot();
 const report = runDoctor(repoRoot);
 
 console.log('=== Content Manager Doctor ===');

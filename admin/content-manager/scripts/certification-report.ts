@@ -348,7 +348,8 @@ const PARITY_TEST_COVERAGE: Record<string, string[]> = {
     'test/integration/subcategoryBundles.test.ts',
     'test/integration/api.test.ts',
   ],
-  'parity-diagnostics': ['test/contract/doctor.test.ts'],
+  'parity-diagnostics': ['test/contract/doctor.test.ts', 'test/integration/diagnostics.test.ts'],
+  'parity-preferences': ['test/contract/preferences.test.ts', 'test/e2e/operator.spec.ts'],
   'parity-security': [
     'test/integration/writeBoundary.test.ts',
     'test/contract/routePolicy.test.ts',
