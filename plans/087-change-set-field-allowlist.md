@@ -10,6 +10,7 @@
 - **Depends on**: —
 - **Category**: data integrity / change sets
 - **Written against**: commit `cefdd9f`
+- **Executed**: DONE — 2026-08-11 (verification abajo)
 
 ## Why this matters
 
@@ -87,9 +88,16 @@ npm run admin:test && npm run admin:certify
 
 ## Done criteria
 
-- [ ] Ops con claves fuera del allowlist se rechazan (422) y no mutan nada.
-- [ ] Estado post-apply inválido según schema detiene la escritura.
-- [ ] Flujos legítimos de edit/undo/redo siguen verdes (suite integrada).
+- [x] Ops con claves fuera del allowlist se rechazan (422) y no mutan nada.
+- [x] Estado post-apply inválido según schema detiene la escritura (ya existía — 422 VALIDATION_ERROR; verificado con test).
+- [x] Flujos legítimos de edit/undo/redo siguen verdes (suite integrada).
+
+## Evidence (2026-08-11)
+
+- `changeSetApplier.ts`: `EDITABLE_PRODUCT_FIELDS` (9 campos) exportado como única fuente de verdad + `forbiddenOpFields()`; guard en `apply()` para create (allowlist ∪ id) y edit (allowlist estricto) → 422 `INVALID_OP_FIELD`.
+- `changes.ts`: validación del mismo allowlist en `POST /change-sets` y `PATCH /change-sets/:id` (PATCH puede reemplazar product_ops).
+- Tests: +5 — unit (superficie editable exacta, forbiddenOpFields), integración (POST 6 casos inyectando rev/order/id/field_last_modified/slug/create-rev → 422 y catálogo intacto; create con id explícito → 201; PATCH reemplazo → 422; apply sobre change set escrito directo en disco con `rev` → 422, producto sin mutar — prueba de poder verificada revirtiendo el guard: 200 ≠ 422).
+- Suite: 477 tests verdes, e2e admin 19/19 + storefront 44/44, `admin:certify` 30/30 READY, lint 0 errores.
 
 ## STOP conditions
 

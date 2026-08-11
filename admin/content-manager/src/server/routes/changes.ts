@@ -26,7 +26,22 @@ import {
   ChangeSetApplier,
   buildInverseChangeSet,
   buildRedoChangeSet,
+  forbiddenOpFields,
+  CREATE_EXTRA_FIELDS,
 } from '../services/changeSetApplier.ts';
+
+// Plan 087: collects every forbidden data key across all product ops of a
+// change set (create ops may carry 'id').
+function forbiddenOpFieldsInChangeSet(cs: {
+  product_ops: Array<{ action: string; data: Record<string, unknown> }>;
+}): string[] {
+  const forbidden: string[] = [];
+  for (const op of cs.product_ops) {
+    const extra = op.action === 'create' ? CREATE_EXTRA_FIELDS : undefined;
+    forbidden.push(...forbiddenOpFields(op.data, extra));
+  }
+  return [...new Set(forbidden)];
+}
 
 // Python parity: identity is `normalized_name::normalized_description`
 // (import_export_mixin / models.identity_key). Python collapses whitespace
@@ -132,6 +147,18 @@ export async function changesRoutes(
       });
     }
 
+    // Plan 087: reject ops carrying server-owned fields at the boundary
+    // (the applier re-checks the same allowlist as defense in depth).
+    const invalidFields = forbiddenOpFieldsInChangeSet(result.data);
+    if (invalidFields.length > 0) {
+      return reply.status(422).send({
+        error: {
+          code: 'INVALID_OP_FIELD',
+          message: `Invalid field(s) in change-set op: ${invalidFields.join(', ')} — server-owned fields are not editable`,
+        },
+      });
+    }
+
     changeSets.save(result.data);
     return reply.status(201).send(result.data);
   });
@@ -199,6 +226,17 @@ export async function changesRoutes(
         error: {
           code: 'VALIDATION_ERROR',
           message: result.error.issues.map((i) => i.message).join('; '),
+        },
+      });
+    }
+
+    // Plan 087: same allowlist guard as POST — PATCH can replace product_ops.
+    const invalidFields = forbiddenOpFieldsInChangeSet(result.data);
+    if (invalidFields.length > 0) {
+      return reply.status(422).send({
+        error: {
+          code: 'INVALID_OP_FIELD',
+          message: `Invalid field(s) in change-set op: ${invalidFields.join(', ')} — server-owned fields are not editable`,
         },
       });
     }

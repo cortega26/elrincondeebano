@@ -8,6 +8,37 @@ export type ApplyResult =
   | { ok: true; applied: number; resulting_revision: number; ops: ChangeSetOp[] }
   | { ok: false; statusCode: number; code: string; error: string };
 
+// Plan 087: change-set op data may only carry editable product fields.
+// Server-owned fields (rev/order/id/field_last_modified and forward-compat
+// keys like sku/slug/brand) are never writable through op.data — crafted ops
+// must not be able to reset revisions, scramble order, or detach identity.
+// Single source of truth for the route boundary validation and the applier
+// guard (same code, defense in depth).
+export const EDITABLE_PRODUCT_FIELDS = [
+  'name',
+  'description',
+  'price',
+  'discount',
+  'stock',
+  'category',
+  'image_path',
+  'image_avif_path',
+  'is_archived',
+] as const;
+export const EDITABLE_PRODUCT_FIELD_SET: ReadonlySet<string> = new Set(EDITABLE_PRODUCT_FIELDS);
+
+// 'id' is only allow-listed for create ops (server-assigned otherwise).
+export const CREATE_EXTRA_FIELDS: ReadonlySet<string> = new Set(['id']);
+
+export function forbiddenOpFields(
+  data: Record<string, unknown>,
+  extraAllowed: ReadonlySet<string> = new Set()
+): string[] {
+  return Object.keys(data).filter(
+    (key) => !EDITABLE_PRODUCT_FIELD_SET.has(key) && !extraAllowed.has(key)
+  );
+}
+
 // Applies change-set product operations exactly once, recording before/after
 // values and per-entity revision evidence (plan 062 step 3). Stale base
 // revisions fail the whole apply — nothing is partially written.
@@ -26,6 +57,15 @@ export class ChangeSetApplier {
 
       switch (op.action) {
         case 'create': {
+          const forbidden = forbiddenOpFields(op.data, CREATE_EXTRA_FIELDS);
+          if (forbidden.length > 0) {
+            return {
+              ok: false,
+              statusCode: 422,
+              code: 'INVALID_OP_FIELD',
+              error: `Invalid field(s) in change-set op: ${forbidden.join(', ')} — server-owned fields are not editable`,
+            };
+          }
           const parsed = productSchema.safeParse(op.data);
           if (!parsed.success) {
             return {
@@ -75,6 +115,15 @@ export class ChangeSetApplier {
 
           const before: Record<string, unknown> = {};
           if (op.action === 'edit') {
+            const forbidden = forbiddenOpFields(op.data);
+            if (forbidden.length > 0) {
+              return {
+                ok: false,
+                statusCode: 422,
+                code: 'INVALID_OP_FIELD',
+                error: `Invalid field(s) in change-set op: ${forbidden.join(', ')} — server-owned fields are not editable`,
+              };
+            }
             for (const [field, value] of Object.entries(op.data)) {
               before[field] = (product as unknown as Record<string, unknown>)[field];
               (product as unknown as Record<string, unknown>)[field] = value;

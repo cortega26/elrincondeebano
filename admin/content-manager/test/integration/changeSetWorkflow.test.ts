@@ -498,3 +498,157 @@ test('history records applied change sets with before/after evidence and survive
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+// ── plan 087: field allowlist ────────────────────────────────────────────────
+
+test('POST /change-sets rejects ops with server-owned fields (422 INVALID_OP_FIELD)', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const cases: Array<Record<string, unknown>> = [
+      { action: 'edit', product_id: 'existing-1', data: { price: 600, rev: 0 } },
+      { action: 'edit', product_id: 'existing-1', data: { price: 600, order: 5 } },
+      { action: 'edit', product_id: 'existing-1', data: { price: 600, id: 'stolen-id' } },
+      {
+        action: 'edit',
+        product_id: 'existing-1',
+        data: {
+          price: 600,
+          field_last_modified: {
+            price: { ts: 'x', by: 'x', rev: 0, base_rev: 0, changeset_id: null },
+          },
+        },
+      },
+      { action: 'edit', product_id: 'existing-1', data: { price: 600, slug: 'crafted' } },
+      { action: 'create', data: { name: 'X', price: 100, category: 'x', rev: 99 } },
+    ];
+
+    for (const op of cases) {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/v1/change-sets',
+        headers: ch,
+        payload: { product_ops: [op] },
+      });
+      expect(res.statusCode, JSON.stringify(op)).toBe(422);
+      expect(res.json().error.code).toBe('INVALID_OP_FIELD');
+    }
+
+    // Nothing was persisted and the catalog is untouched.
+    const catalog = readCatalog(dir);
+    expect(catalog.products.find((p) => p.id === 'existing-1')?.price).toBe(500);
+    expect(catalog.products.find((p) => p.id === 'existing-1')?.rev).toBe(1);
+
+    // Create ops may still carry an explicit id.
+    const ok = await app.inject({
+      method: 'POST',
+      url: '/api/v1/change-sets',
+      headers: ch,
+      payload: {
+        product_ops: [
+          {
+            action: 'create',
+            data: { id: 'explicit-1', name: 'N', price: 100, category: 'x', stock: true },
+          },
+        ],
+      },
+    });
+    expect(ok.statusCode).toBe(201);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('PATCH /change-sets rejects replaced product_ops with forbidden fields', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const created = await app.inject({
+      method: 'POST',
+      url: '/api/v1/change-sets',
+      headers: ch,
+      payload: {
+        product_ops: [{ action: 'edit', product_id: 'existing-1', data: { price: 600 } }],
+      },
+    });
+    expect(created.statusCode).toBe(201);
+    const id = created.json<{ id: string }>().id;
+
+    const bad = await app.inject({
+      method: 'PATCH',
+      url: `/api/v1/change-sets/${id}`,
+      headers: ch,
+      payload: {
+        product_ops: [{ action: 'edit', product_id: 'existing-1', data: { price: 600, rev: 0 } }],
+      },
+    });
+    expect(bad.statusCode).toBe(422);
+    expect(bad.json().error.code).toBe('INVALID_OP_FIELD');
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('apply rejects a stored change set carrying forbidden fields (applier guard)', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    // Bypass the route validation by writing the change set straight to the
+    // durable store (defense-in-depth test of the applier guard).
+    const csId = 'cs-drill-allowlist';
+    mkdirSync(resolve(dir, 'data', 'change-sets'), { recursive: true });
+    writeFileSync(
+      resolve(dir, 'data', 'change-sets', `${csId}.json`),
+      JSON.stringify({
+        id: csId,
+        status: 'validated',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        product_ops: [
+          {
+            action: 'edit',
+            product_id: 'existing-1',
+            data: { price: 600, rev: 0 },
+            base_revision: 1,
+          },
+        ],
+        category_ops: [],
+        validation_evidence: null,
+        publication_result: null,
+      })
+    );
+
+    const res = await app.inject({
+      method: 'POST',
+      url: `/api/v1/change-sets/${csId}/apply`,
+      headers: ch,
+    });
+    expect(res.statusCode).toBe(422);
+    expect(res.json().error.code).toBe('INVALID_OP_FIELD');
+
+    // The product was not mutated — price and rev are intact.
+    const catalog = readCatalog(dir);
+    expect(catalog.products.find((p) => p.id === 'existing-1')?.price).toBe(500);
+    expect(catalog.products.find((p) => p.id === 'existing-1')?.rev).toBe(1);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
