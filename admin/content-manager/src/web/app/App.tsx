@@ -1,19 +1,20 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { ProductsPage } from "./routes/ProductsPage.tsx";
-import { CategoriesPage } from "./routes/CategoriesPage.tsx";
-import { MediaPage } from "./routes/MediaPage.tsx";
-import { HistoryPage } from "./routes/HistoryPage.tsx";
-import { BundlesPage } from "./routes/BundlesPage.tsx";
-import { ImportPage } from "./routes/ImportPage.tsx";
-import { ConflictsPage } from "./routes/ConflictsPage.tsx";
-import { NotFoundPage } from "./routes/NotFoundPage.tsx";
-import { PublicationPage } from "./routes/PublicationPage.tsx";
-import { RouteErrorPage } from "./RouteErrorPage.tsx";
-import { CredentialPrompt } from "./CredentialPrompt.tsx";
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { ProductsPage } from './routes/ProductsPage.tsx';
+import { CategoriesPage } from './routes/CategoriesPage.tsx';
+import { MediaPage } from './routes/MediaPage.tsx';
+import { HistoryPage } from './routes/HistoryPage.tsx';
+import { BundlesPage } from './routes/BundlesPage.tsx';
+import { ImportPage } from './routes/ImportPage.tsx';
+import { ConflictsPage } from './routes/ConflictsPage.tsx';
+import { NotFoundPage } from './routes/NotFoundPage.tsx';
+import { PublicationPage } from './routes/PublicationPage.tsx';
+import { DiagnosticsPage } from './routes/DiagnosticsPage.tsx';
+import { RouteErrorPage } from './RouteErrorPage.tsx';
+import { CredentialPrompt } from './CredentialPrompt.tsx';
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     errorElement: <RouteErrorPage />,
     children: [
       {
@@ -21,39 +22,43 @@ const router = createBrowserRouter([
         element: <ProductsPage />,
       },
       {
-        path: "products",
+        path: 'products',
         element: <ProductsPage />,
       },
       {
-        path: "categories",
+        path: 'categories',
         element: <CategoriesPage />,
       },
       {
-        path: "media",
+        path: 'media',
         element: <MediaPage />,
       },
       {
-        path: "history",
+        path: 'history',
         element: <HistoryPage />,
       },
       {
-        path: "bundles",
+        path: 'bundles',
         element: <BundlesPage />,
       },
       {
-        path: "import",
+        path: 'import',
         element: <ImportPage />,
       },
       {
-        path: "conflicts",
+        path: 'conflicts',
         element: <ConflictsPage />,
       },
       {
-        path: "publish",
+        path: 'publish',
         element: <PublicationPage />,
       },
       {
-        path: "*",
+        path: 'diagnostics',
+        element: <DiagnosticsPage />,
+      },
+      {
+        path: '*',
         element: <NotFoundPage />,
       },
     ],

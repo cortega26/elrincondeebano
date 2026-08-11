@@ -7,16 +7,43 @@ export interface DoctorReport {
   timestamp: string;
   nodeVersion: string;
   repoRoot: string;
-  checks: Array<{ name: string; status: 'ok' | 'warn' | 'error'; message: string }>;
+  checks: Array<{
+    name: string;
+    status: 'ok' | 'warn' | 'error';
+    message: string;
+    remediation?: string;
+  }>;
   summary: { ok: number; warn: number; error: number };
   recoveryNeeded: boolean;
 }
 
-export function runDoctor(repoRoot: string): DoctorReport {
-  const checks: Array<{ name: string; status: 'ok' | 'warn' | 'error'; message: string }> = [];
+// Plan 061 step 3: diagnostics must never leak secrets or machine-specific
+// paths. The report is the only carrier (UI + downloadable evidence), so the
+// redaction happens on the report itself: repoRoot -> basename, token-like
+// values -> [REDACTED], credential-in-URL -> [REDACTED].
+export function redactDoctorReport(report: DoctorReport): DoctorReport {
+  const scrub = (value: string): string =>
+    value
+      .replace(/https?:\/\/[^\s/@]+@/g, 'https://[REDACTED]@')
+      .replace(/\b[A-Za-z0-9_-]{32,}\b/g, '[REDACTED]');
 
-  function addCheck(name: string, status: 'ok' | 'warn' | 'error', message: string): void {
-    checks.push({ name, status, message });
+  return {
+    ...report,
+    repoRoot: report.repoRoot.split('/').slice(-1)[0] ?? report.repoRoot,
+    checks: report.checks.map((check) => ({ ...check, message: scrub(check.message) })),
+  };
+}
+
+export function runDoctor(repoRoot: string): DoctorReport {
+  const checks: DoctorReport['checks'] = [];
+
+  function addCheck(
+    name: string,
+    status: 'ok' | 'warn' | 'error',
+    message: string,
+    remediation?: string
+  ): void {
+    checks.push({ name, status, message, remediation });
   }
 
   // Node version
@@ -24,8 +51,9 @@ export function runDoctor(repoRoot: string): DoctorReport {
   const majorVersion = Number(nodeVersion.replace('v', '').split('.')[0]);
   addCheck('node-version', majorVersion >= 24 ? 'ok' : 'warn', `Node ${nodeVersion}`);
 
-  // Repo root
-  addCheck('repo-root', existsSync(repoRoot) ? 'ok' : 'error', repoRoot);
+  // Repo root — never expose the absolute path in the report (plan 061).
+  const repoBasename = repoRoot.split('/').slice(-1)[0] ?? repoRoot;
+  addCheck('repo-root', existsSync(repoRoot) ? 'ok' : 'error', repoBasename);
 
   // Product data
   const productFile = resolve(repoRoot, 'data', 'product_data.json');
@@ -39,7 +67,12 @@ export function runDoctor(repoRoot: string): DoctorReport {
       addCheck('product-data', 'error', (err as Error).message);
     }
   } else {
-    addCheck('product-data', 'error', 'product_data.json not found');
+    addCheck(
+      'product-data',
+      'error',
+      'product_data.json not found',
+      'Copia product_data.json al directorio data/'
+    );
   }
 
   // Category registry
@@ -101,7 +134,12 @@ export function runDoctor(repoRoot: string): DoctorReport {
   if (existsSync(dataDir)) {
     const tmpFiles = readdirSync(dataDir).filter((f: string) => f.endsWith('.tmp'));
     tmpCount = tmpFiles.length;
-    addCheck('tmp-files', tmpCount > 0 ? 'warn' : 'ok', `${tmpCount} stale .tmp files`);
+    addCheck(
+      'tmp-files',
+      tmpCount > 0 ? 'warn' : 'ok',
+      `${tmpCount} stale .tmp files`,
+      tmpCount > 0 ? 'Elimina los archivos .tmp obsoletos de data/' : undefined
+    );
   }
 
   // Idempotency journal
@@ -122,7 +160,14 @@ export function runDoctor(repoRoot: string): DoctorReport {
   // Change-sets directory (count JSON files)
   if (existsSync(csDir)) {
     const csFiles = readdirSync(csDir).filter((f: string) => f.endsWith('.json'));
-    addCheck('change-sets', csFiles.length > 0 ? 'warn' : 'ok', `${csFiles.length} change sets`);
+    addCheck(
+      'change-sets',
+      csFiles.length > 0 ? 'warn' : 'ok',
+      `${csFiles.length} change sets`,
+      csFiles.length > 0
+        ? 'Hay change sets pendientes: revísalos en la página de conflictos/historial'
+        : undefined
+    );
   }
 
   // Product data valid JSON with non-empty products array
@@ -158,7 +203,8 @@ export function runDoctor(repoRoot: string): DoctorReport {
     addCheck(
       'recovery-journal',
       'error',
-      `${unrecoveredFailures.length} unrecovered write failure(s): ${unrecoveredFailures.map((f) => f.targetFile).join(', ')}`
+      `${unrecoveredFailures.length} unrecovered write failure(s): ${unrecoveredFailures.map((f) => f.targetFile).join(', ')}`,
+      'Revisa el journal de recovery o restaura desde un backup (ver RUNBOOK / ROLLBACK)'
     );
   } else {
     addCheck('recovery-journal', 'ok', 'No unrecovered write failures');
