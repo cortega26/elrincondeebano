@@ -72,11 +72,13 @@ export function HistoryPage(): React.ReactElement {
       ]);
       const history = (await historyRes.json()) as { entries: HistoryEntry[] };
       const csData = (await csRes.json()) as { items: ChangeSet[] };
-      const backupData = (await backupRes.json()) as { backups: BackupEntry[] };
+      const backupData = (await backupRes.json()) as {
+        backups: { entries: BackupEntry[]; total: number };
+      };
       setEntries(history.entries);
       setSummary(history);
       setChangeSets(csData.items);
-      setBackups(backupData.backups);
+      setBackups(backupData.backups.entries);
     } catch (err) {
       setError((err as Error).message);
     } finally {
