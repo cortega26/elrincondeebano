@@ -59,3 +59,22 @@ nav a:hover {
 p {
   color: #6c757d;
 }
+
+/* Preferences (plan 061 step 4) */
+[data-theme='dark'] {
+  --color-bg: #1e1e1e;
+  --color-text: #e9ecef;
+  --color-primary: #66bb6a;
+  --color-border: #495057;
+}
+
+[data-high-contrast='true'] {
+  --color-border: #000;
+}
+
+[data-reduce-motion='true'] *,
+[data-reduce-motion='true'] *::before,
+[data-reduce-motion='true'] *::after {
+  animation: none !important;
+  transition: none !important;
+}
