@@ -24,6 +24,12 @@ updates:
           - '*'
         update-types:
           - 'major'
+    ignore:
+      # typescript-eslint peers typescript <6.1.0; a TS7 bump breaks npm ci
+      # (ERESOLVE). Re-enable when typescript-eslint publishes TS7 support.
+      - dependency-name: 'typescript'
+        update-types:
+          - 'version-update:semver-major'
   - package-ecosystem: 'npm'
     directory: '/astro-poc'
     schedule:
@@ -49,6 +55,11 @@ updates:
           - '*'
         update-types:
           - 'major'
+    ignore:
+      # Same rationale as the root npm config: typescript-eslint peers <6.1.0.
+      - dependency-name: 'typescript'
+        update-types:
+          - 'version-update:semver-major'
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
