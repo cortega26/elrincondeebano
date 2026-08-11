@@ -1,10 +1,10 @@
-const assert = require('assert');
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
-const http = require('http');
+import assert from 'assert';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
+import http from 'http';
 
-(async () => {
+test('static server security', async () => {
   const mod = await import('../tools/lighthouse-audit.mjs');
   const { createStaticServer, getMimeType } = mod;
 
@@ -41,7 +41,7 @@ const http = require('http');
     if (server) await new Promise((resolve) => server.close(resolve));
     fs.rmSync(tmpRoot, { recursive: true, force: true });
   }
-})();
+});
 
 function httpGet(url) {
   return httpRequest(url, 'GET');

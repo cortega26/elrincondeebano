@@ -1,4 +1,4 @@
-const test = require('node:test');
+/* eslint-disable max-lines-per-function, sonarjs/no-identical-functions -- pre-existing legacy test style (plan 024 migration) */
 const assert = require('node:assert');
 const { JSDOM } = require('jsdom');
 

@@ -11,7 +11,11 @@ function createModuleLoader(baseDir, options = {}) {
     if (transform) {
       code = transform(code);
     }
-    code = code.replace(/export\s+(async\s+)?function\s+(\w+)/g, 'exports.$2 = $1function $2');
+    const functionExports = [];
+    code = code.replace(/export\s+(async\s+)?function\s+(\w+)/g, (_match, asyncKw, name) => {
+      functionExports.push(name);
+      return `${asyncKw ?? ''}function ${name}`;
+    });
     code = code.replace(/export\s+\{([^}]+)\};?/g, (_match, names) => {
       return names
         .split(',')
@@ -20,6 +24,9 @@ function createModuleLoader(baseDir, options = {}) {
         .map((name) => `exports.${name} = ${name};`)
         .join('\n');
     });
+    if (functionExports.length > 0) {
+      code += `\n${functionExports.map((name) => `exports.${name} = ${name};`).join('\n')}\n`;
+    }
     const exports = {};
     if (importMap) {
       const wrapper = new Function(

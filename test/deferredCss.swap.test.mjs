@@ -1,7 +1,7 @@
-const assert = require('assert');
-const { JSDOM } = require('jsdom');
+import assert from 'assert';
+import { JSDOM } from 'jsdom';
 
-(async () => {
+test('deferred CSS swap', async () => {
   const dom = new JSDOM(
     '<!DOCTYPE html><html><head>\
     <link rel="stylesheet" href="a.css" media="print" data-defer>\
@@ -21,6 +21,4 @@ const { JSDOM } = require('jsdom');
     assert.strictEqual(l.media, 'all', 'media should be switched to all');
     assert.ok(!l.hasAttribute('data-defer'), 'data-defer should be removed');
   }
-
-  console.log('deferredCss.swap.test.js passed');
-})();
+});

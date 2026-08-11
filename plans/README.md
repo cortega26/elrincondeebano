@@ -26,32 +26,32 @@ los que siguen pendientes se confirman aquí como TODO con evidencia de la brech
 
 <!-- markdownlint-disable MD060 -->
 
-| Plan | Estado verificado | Evidencia de la brecha                                                                                                                           |
-| ---- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 024  | TODO              | `test` sigue corriendo `test/run-all.js`; `test:coverage` usa `c8`; `vitest.config.mts` no incluye `.test.js`; `stryker` sigue muteando `src/js` |
-| 026  | TODO              | `storefront.js:192` sigue base64 del carrito completo; sin payload versionado `{version, items:[{id,quantity}]}` ni `hydrateSharedCart`          |
-| 027  | TODO              | `hydrateCartFromOrder` (storefront-state.ts:92-107) sigue sin mapear `discount`                                                                  |
-| 030  | TODO              | `server/productStore.js:315-320` sigue `writeFile` directo en ambos archivos; sin manifest/recovery                                              |
-| 031  | TODO              | `@astrojs/partytown` sigue en `astro.config.mjs` y deps; barrel completo de Bootstrap + `globalThis.bootstrap`                                   |
-| 038  | TODO              | Sin ADR de funnel privado en `docs/adr/`                                                                                                         |
-| 040  | TODO              | `bulk_operations_mixin.py` sigue construyendo `Product(...)` parcial ×5                                                                          |
-| 041  | TODO              | `product_form.py:767` sigue moviendo media inmediatamente en `_on_category_change`                                                               |
-| 042  | TODO              | `main_window.py:1430` sigue `products.pop(start_index)` (índice visible)                                                                         |
-| 043  | TODO              | `main_window.py:795` sigue llamando `consume_conflicts()` para mostrar                                                                           |
-| 044  | TODO              | Modelo rechaza `discount > price`; formularios rechazan `>=` (fronteras distintas)                                                               |
-| 045  | TODO              | `deploy.py:249` sigue `success = True` incondicional; sin manifest/preflight                                                                     |
-| 046  | TODO              | `deploy_panel.py` sigue síncrono; `AsyncOperation` (components.py) sin uso en el panel                                                           |
-| 047  | TODO              | `main_window.py:81,162-180` sigue leyendo `~/.product_manager/config.json`                                                                       |
-| 049  | TODO              | `data_store.py` sigue presente sin callers                                                                                                       |
-| 060  | TODO              | Preview sin binding durable (ID/hash/base-rev); sin CSV ni UX de archivo                                                                         |
-| 061  | TODO              | Sin filtros min/max, duplicate, Git pull, prefs/shortcuts en TS; doctor CLI-only                                                                 |
-| 063  | TODO              | `/media/generate` sigue `acknowledged`; upload directo sin staging/sniffing                                                                      |
-| 064  | TODO              | `syncAdapter` sigue 501 para push/pull                                                                                                           |
-| 066  | TODO              | Sin editor de featured; schema de bundles sin invariantes (empty/unique/refs)                                                                    |
-| 067  | TODO              | Solo `atomicWriter` pruna backups; categorías/storefront sin retención                                                                           |
-| 069  | TODO              | Terminal: Python sigue activo como fallback; depende de 056–068                                                                                  |
-| 082  | PARTIAL           | `npm audit --omit=dev` ya 0 HIGH; falta retirar `test-web` y `admin/web`                                                                         |
-| 083  | TODO              | Sin `categoryService` contract tests ni route tests de mutación; `ensureDiscountToggle` sigue siendo copia                                       |
+| Plan | Estado verificado | Evidencia de la brecha                                                                                                                  |
+| ---- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| 024  | DONE              | Runner único Vitest (2026-08-11): `run-all.js` eliminado, 15 script-tests legacy convertidos a suites, coverage unificado               |
+| 026  | TODO              | `storefront.js:192` sigue base64 del carrito completo; sin payload versionado `{version, items:[{id,quantity}]}` ni `hydrateSharedCart` |
+| 027  | TODO              | `hydrateCartFromOrder` (storefront-state.ts:92-107) sigue sin mapear `discount`                                                         |
+| 030  | TODO              | `server/productStore.js:315-320` sigue `writeFile` directo en ambos archivos; sin manifest/recovery                                     |
+| 031  | TODO              | `@astrojs/partytown` sigue en `astro.config.mjs` y deps; barrel completo de Bootstrap + `globalThis.bootstrap`                          |
+| 038  | TODO              | Sin ADR de funnel privado en `docs/adr/`                                                                                                |
+| 040  | TODO              | `bulk_operations_mixin.py` sigue construyendo `Product(...)` parcial ×5                                                                 |
+| 041  | TODO              | `product_form.py:767` sigue moviendo media inmediatamente en `_on_category_change`                                                      |
+| 042  | TODO              | `main_window.py:1430` sigue `products.pop(start_index)` (índice visible)                                                                |
+| 043  | TODO              | `main_window.py:795` sigue llamando `consume_conflicts()` para mostrar                                                                  |
+| 044  | TODO              | Modelo rechaza `discount > price`; formularios rechazan `>=` (fronteras distintas)                                                      |
+| 045  | TODO              | `deploy.py:249` sigue `success = True` incondicional; sin manifest/preflight                                                            |
+| 046  | TODO              | `deploy_panel.py` sigue síncrono; `AsyncOperation` (components.py) sin uso en el panel                                                  |
+| 047  | TODO              | `main_window.py:81,162-180` sigue leyendo `~/.product_manager/config.json`                                                              |
+| 049  | TODO              | `data_store.py` sigue presente sin callers                                                                                              |
+| 060  | TODO              | Preview sin binding durable (ID/hash/base-rev); sin CSV ni UX de archivo                                                                |
+| 061  | TODO              | Sin filtros min/max, duplicate, Git pull, prefs/shortcuts en TS; doctor CLI-only                                                        |
+| 063  | TODO              | `/media/generate` sigue `acknowledged`; upload directo sin staging/sniffing                                                             |
+| 064  | TODO              | `syncAdapter` sigue 501 para push/pull                                                                                                  |
+| 066  | TODO              | Sin editor de featured; schema de bundles sin invariantes (empty/unique/refs)                                                           |
+| 067  | TODO              | Solo `atomicWriter` pruna backups; categorías/storefront sin retención                                                                  |
+| 069  | TODO              | Terminal: Python sigue activo como fallback; depende de 056–068                                                                         |
+| 082  | PARTIAL           | `npm audit --omit=dev` ya 0 HIGH; falta retirar `test-web` y `admin/web`                                                                |
+| 083  | TODO              | Sin `categoryService` contract tests ni route tests de mutación; `ensureDiscountToggle` sigue siendo copia                              |
 
 <!-- markdownlint-enable MD060 -->
 
@@ -676,10 +676,10 @@ una migración de datos.
 
 ### Wave D — Convergence and optional direction
 
-| Plan | Título                               | Priority | Effort | Depends on   | Status |
-| ---- | ------------------------------------ | -------- | ------ | ------------ | ------ |
-| 024  | Unificar test runners bajo Vitest    | P2       | M      | 025–030, 033 | TODO   |
-| 038  | Spike de medición privada del funnel | P3       | S      | 037          | TODO   |
+| Plan | Título                               | Priority | Effort | Depends on   | Status                                                                                              |
+| ---- | ------------------------------------ | -------- | ------ | ------------ | --------------------------------------------------------------------------------------------------- |
+| 024  | Unificar test runners bajo Vitest    | P2       | M      | 025–030, 033 | DONE — vitest único (407 root + 381 admin), `run-all.js` eliminado, coverage unificado (2026-08-11) |
+| 038  | Spike de medición privada del funnel | P3       | S      | 037          | TODO                                                                                                |
 
 **Final gate**: `npm run validate:release`.
 
@@ -841,32 +841,32 @@ Cada gate es acumulativo: el gate del Stage N incluye todos los checks de los ga
 
 ## Tabla maestra
 
-| #   | Plan                          | Stage | Effort | Risk | Archivos principales                                      | Status |
-| --- | ----------------------------- | ----- | ------ | ---- | --------------------------------------------------------- | ------ |
-| 013 | Astro version drift           | 0     | S      | MED  | `node_modules/`, `vendor/`                                | DONE   |
-| 023 | DX tooling                    | 1     | S      | LOW  | `package.json`, `.husky/`                                 | DONE   |
-| 016 | Preference guards             | 1     | S      | LOW  | `storefront.js:348`                                       | DONE   |
-| 009 | Logger consolidation          | 1     | S      | LOW  | `logger.mts` → `logger.ts`                                | DONE   |
-| 015 | Parking API hardening         | 2     | S      | LOW  | `parking-reservation.js`                                  | DONE   |
-| 003 | innerHTML + CSP nonce         | 2     | S      | LOW  | `storefront.js:~266`, `csp.js`                            | DONE   |
-| 014 | Cart splice rollback          | 2     | S      | LOW  | `storefront.js:1608`                                      | DONE   |
-| 017 | JSON escape helper            | 2     | S      | LOW  | `.astro` files, `serialization.ts`                        | DONE   |
-| 018 | Quick perf wins               | 3     | S      | LOW  | `global.css`, `storefront.js`, `catalog.ts`, `turbo.json` | DONE   |
-| 004 | Build-time caching ⚠️         | 3     | S      | LOW  | `catalog.ts`, `BaseLayout.astro`                          | DONE   |
-| 006 | SW cache TTL                  | 3     | S      | LOW  | `service-worker.js`                                       | DONE   |
-| 008 | DX legacy fixes               | 3     | S      | LOW  | `eslint`, `.editorconfig`                                 | DONE   |
-| 011 | Dependency hygiene            | 3     | S      | LOW  | `node_modules/`, `vendor/`                                | DONE   |
-| 020 | Observability consolidation   | 4     | M      | MED  | `observability.mjs` → `.js`                               | DONE   |
-| 021 | Card helpers extract          | 4     | M      | LOW  | `ProductCard*.astro`, helper                              | DONE   |
-| 002 | Parking race condition        | 4     | M      | MED  | `parking-reservation.js`                                  | DONE   |
-| 001 | Cart bugs comprehensive       | 4     | M      | MED  | `storefront.js` multi, `*-state.ts`, `*-contract.ts`      | DONE   |
-| 019 | Bootstrap CSS reduction       | 4     | M      | MED  | `BaseLayout.astro`, `global.css`, `.scss`                 | DONE   |
-| 007 | Duplicates + spike cleanup ⚠️ | 5     | M      | LOW  | `catalog.ts`, `formatting.ts`, `storefront.js`, `tools/`  | DONE   |
-| 012 | Unify CSP policies            | 5     | M      | MED  | `csp.js`, `security-header-policy.mjs`, worker            | DONE   |
-| 022 | Types from Zod + dead code    | 5     | M      | LOW  | `catalog.ts`, `data-schemas.ts`, `src/js/`                | DONE   |
-| 005 | Client DOM optimization       | 6     | M      | MED  | `storefront.js`, `catalog-view.js`, `personalization.js`  | DONE   |
-| 010 | Lib unit tests                | 6     | M      | LOW  | `test/` (new files)                                       | DONE   |
-| 024 | Unify test runners            | 6     | M      | MED  | `vitest.config.mts`, `test/run-all.js`, `test/*.test.js`  | TODO   |
+| #   | Plan                          | Stage | Effort | Risk | Archivos principales                                      | Status            |
+| --- | ----------------------------- | ----- | ------ | ---- | --------------------------------------------------------- | ----------------- |
+| 013 | Astro version drift           | 0     | S      | MED  | `node_modules/`, `vendor/`                                | DONE              |
+| 023 | DX tooling                    | 1     | S      | LOW  | `package.json`, `.husky/`                                 | DONE              |
+| 016 | Preference guards             | 1     | S      | LOW  | `storefront.js:348`                                       | DONE              |
+| 009 | Logger consolidation          | 1     | S      | LOW  | `logger.mts` → `logger.ts`                                | DONE              |
+| 015 | Parking API hardening         | 2     | S      | LOW  | `parking-reservation.js`                                  | DONE              |
+| 003 | innerHTML + CSP nonce         | 2     | S      | LOW  | `storefront.js:~266`, `csp.js`                            | DONE              |
+| 014 | Cart splice rollback          | 2     | S      | LOW  | `storefront.js:1608`                                      | DONE              |
+| 017 | JSON escape helper            | 2     | S      | LOW  | `.astro` files, `serialization.ts`                        | DONE              |
+| 018 | Quick perf wins               | 3     | S      | LOW  | `global.css`, `storefront.js`, `catalog.ts`, `turbo.json` | DONE              |
+| 004 | Build-time caching ⚠️         | 3     | S      | LOW  | `catalog.ts`, `BaseLayout.astro`                          | DONE              |
+| 006 | SW cache TTL                  | 3     | S      | LOW  | `service-worker.js`                                       | DONE              |
+| 008 | DX legacy fixes               | 3     | S      | LOW  | `eslint`, `.editorconfig`                                 | DONE              |
+| 011 | Dependency hygiene            | 3     | S      | LOW  | `node_modules/`, `vendor/`                                | DONE              |
+| 020 | Observability consolidation   | 4     | M      | MED  | `observability.mjs` → `.js`                               | DONE              |
+| 021 | Card helpers extract          | 4     | M      | LOW  | `ProductCard*.astro`, helper                              | DONE              |
+| 002 | Parking race condition        | 4     | M      | MED  | `parking-reservation.js`                                  | DONE              |
+| 001 | Cart bugs comprehensive       | 4     | M      | MED  | `storefront.js` multi, `*-state.ts`, `*-contract.ts`      | DONE              |
+| 019 | Bootstrap CSS reduction       | 4     | M      | MED  | `BaseLayout.astro`, `global.css`, `.scss`                 | DONE              |
+| 007 | Duplicates + spike cleanup ⚠️ | 5     | M      | LOW  | `catalog.ts`, `formatting.ts`, `storefront.js`, `tools/`  | DONE              |
+| 012 | Unify CSP policies            | 5     | M      | MED  | `csp.js`, `security-header-policy.mjs`, worker            | DONE              |
+| 022 | Types from Zod + dead code    | 5     | M      | LOW  | `catalog.ts`, `data-schemas.ts`, `src/js/`                | DONE              |
+| 005 | Client DOM optimization       | 6     | M      | MED  | `storefront.js`, `catalog-view.js`, `personalization.js`  | DONE              |
+| 010 | Lib unit tests                | 6     | M      | LOW  | `test/` (new files)                                       | DONE              |
+| 024 | Unify test runners            | 6     | M      | MED  | `vitest.config.mts`, `test/run-all.js`, `test/*.test.js`  | DONE — 2026-08-11 |
 
 Status: TODO | IN PROGRESS | DONE | BLOCKED | REJECTED
 

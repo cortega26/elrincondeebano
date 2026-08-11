@@ -1,7 +1,7 @@
-const assert = require('assert');
-const { addTimestamp, isCacheFresh, CACHE_CONFIG } = require('../service-worker.js');
+import assert from 'assert';
+import { addTimestamp, isCacheFresh, CACHE_CONFIG } from '../service-worker.js';
 
-(async () => {
+test('service worker utils', async () => {
   const resp = new Response('data');
   const stamped = await addTimestamp(resp.clone(), 'static');
   assert.ok(stamped.headers.get('sw-timestamp'), 'timestamp should be added');
@@ -34,6 +34,4 @@ const { addTimestamp, isCacheFresh, CACHE_CONFIG } = require('../service-worker.
     'product cache should be stale'
   );
   Date.now = originalNow;
-
-  console.log('All tests passed');
-})();
+});

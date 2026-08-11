@@ -1,4 +1,3 @@
-const test = require('node:test');
 const assert = require('node:assert');
 const { invalidateCache, invalidateAllCaches, CACHE_CONFIG } = require('../service-worker.js');
 

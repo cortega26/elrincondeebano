@@ -1,6 +1,6 @@
+/* eslint-disable max-lines-per-function -- pre-existing legacy test style (plan 024 migration) */
 'use strict';
 
-const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const { expectAsyncReject, withMockedFetch } = require('./helpers/network-harness.js');

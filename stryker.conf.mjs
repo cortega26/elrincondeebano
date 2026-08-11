@@ -6,9 +6,9 @@ const config = {
   testRunner: 'vitest',
   coverageAnalysis: 'perTest',
   mutate: [
-    'src/js/script.mjs',
-    'src/js/modules/**/*.mjs',
-    '!src/js/utils/logger.ts', // Skip logger for now to keep it fast
+    'astro-poc/src/lib/**/*.ts',
+    'astro-poc/src/scripts/storefront/**/*.{js,ts}',
+    '!astro-poc/src/lib/data-schemas.ts', // Zod schema contracts — keep fast
   ],
   vitest: {
     configFile: 'vitest.config.mts',

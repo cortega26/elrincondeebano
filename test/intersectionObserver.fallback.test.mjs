@@ -1,7 +1,7 @@
-const assert = require('assert');
-const { JSDOM } = require('jsdom');
+import assert from 'assert';
+import { JSDOM } from 'jsdom';
 
-(async () => {
+test('intersection observer fallback', async () => {
   // Build a minimal DOM that exercises setupDeferredLoading + lazyLoadImages paths
   const html = `<!DOCTYPE html>
   <html><body>
@@ -52,6 +52,4 @@ const { JSDOM } = require('jsdom');
     img && !img.classList.contains('lazyload'),
     'image should be upgraded eagerly without IO'
   );
-
-  console.log('intersectionObserver.fallback.test.js passed');
-})();
+});
