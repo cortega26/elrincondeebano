@@ -2,7 +2,13 @@ import type { FastifyInstance } from 'fastify';
 import type { Repositories } from './catalog.ts';
 import { ChangeSetRepository } from '../repositories/changeSetRepository.ts';
 import { PreviewRepository } from '../repositories/previewRepository.ts';
-import { changeSetSchema, generateChangeSetId } from '../../shared/schemas/changeSet.ts';
+import { HistoryRepository } from '../repositories/historyRepository.ts';
+import {
+  changeSetSchema,
+  generateChangeSetId,
+  isValidTransition,
+  type ChangeSetStatus,
+} from '../../shared/schemas/changeSet.ts';
 import { productSchema } from '../../shared/schemas/product.ts';
 import type { Product } from '../../shared/schemas/product.ts';
 import {
@@ -16,6 +22,11 @@ import {
 } from '../../shared/schemas/importExport.ts';
 import { isSafeId } from '../../shared/identity.ts';
 import { createHash } from 'node:crypto';
+import {
+  ChangeSetApplier,
+  buildInverseChangeSet,
+  buildRedoChangeSet,
+} from '../services/changeSetApplier.ts';
 
 // Python parity: identity is `normalized_name::normalized_description`
 // (import_export_mixin / models.identity_key). Python collapses whitespace
@@ -73,9 +84,27 @@ export async function changesRoutes(
   repoRoot: string
 ): Promise<void> {
   const previews = new PreviewRepository(repoRoot);
+  const history = new HistoryRepository(repoRoot);
+  const applier = new ChangeSetApplier(repos);
 
   app.get('/change-sets', async () => {
     return { items: changeSets.listAll() };
+  });
+
+  app.get('/change-sets/:id', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    if (!isSafeId(id)) {
+      return reply.status(400).send({
+        error: { code: 'INVALID_ID', message: `Invalid change-set id "${id}"` },
+      });
+    }
+    const cs = changeSets.load(id);
+    if (!cs) {
+      return reply
+        .status(404)
+        .send({ error: { code: 'NOT_FOUND', message: 'Change set not found' } });
+    }
+    return cs;
   });
 
   app.post('/change-sets', async (request, reply) => {
@@ -128,6 +157,36 @@ export async function changesRoutes(
       });
     }
 
+    // Plan 062 step 1: status transitions are explicit and validated — no
+    // arbitrary status assignment via PATCH.
+    const allowedPatchFields = [
+      'status',
+      'product_ops',
+      'category_ops',
+      'validation_evidence',
+      'publication_result',
+    ];
+    const unknownFields = Object.keys(body).filter((key) => !allowedPatchFields.includes(key));
+    if (unknownFields.length > 0) {
+      return reply.status(400).send({
+        error: {
+          code: 'INVALID_FIELD',
+          message: `Unsupported change-set field(s): ${unknownFields.join(', ')}`,
+        },
+      });
+    }
+
+    if (body.status !== undefined && body.status !== existing.status) {
+      if (!isValidTransition(existing.status, body.status as ChangeSetStatus)) {
+        return reply.status(409).send({
+          error: {
+            code: 'ILLEGAL_TRANSITION',
+            message: `Illegal change-set transition: ${existing.status} -> ${String(body.status)}`,
+          },
+        });
+      }
+    }
+
     const updated = {
       ...existing,
       ...body,
@@ -171,7 +230,190 @@ export async function changesRoutes(
     existing.status = 'discarded';
     existing.updated_at = new Date().toISOString();
     changeSets.save(existing);
+    history.append({
+      id: `h-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      timestamp: new Date().toISOString(),
+      kind: 'change-set-discarded',
+      change_set_id: existing.id,
+      summary: {
+        product_ids: existing.product_ops.map((op) => op.product_id ?? ''),
+      },
+      ops: existing.product_ops,
+    });
     return { status: 'discarded' };
+  });
+
+  // Apply a validated change set exactly once (plan 062 step 3): runs the
+  // operation engine with per-entity revision checks, records before/after
+  // evidence, and writes the catalog once through the revision-guarded path.
+  app.post('/change-sets/:id/apply', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    if (!isSafeId(id)) {
+      return reply.status(400).send({
+        error: { code: 'INVALID_ID', message: `Invalid change-set id "${id}"` },
+      });
+    }
+    const cs = changeSets.load(id);
+    if (!cs) {
+      return reply
+        .status(404)
+        .send({ error: { code: 'NOT_FOUND', message: 'Change set not found' } });
+    }
+    if (cs.status !== 'validated') {
+      return reply.status(409).send({
+        error: {
+          code: 'ILLEGAL_TRANSITION',
+          message: `Change set must be validated before apply (status: ${cs.status})`,
+        },
+      });
+    }
+
+    cs.status = 'publishing';
+    cs.updated_at = new Date().toISOString();
+    changeSets.save(cs);
+
+    const result = await applier.apply(cs);
+    if (!result.ok) {
+      cs.status = 'failed';
+      cs.updated_at = new Date().toISOString();
+      changeSets.save(cs);
+      return reply.status(result.statusCode).send({
+        error: { code: result.code, message: result.error },
+      });
+    }
+
+    cs.product_ops = result.ops;
+    cs.status = 'published';
+    cs.updated_at = new Date().toISOString();
+    cs.publication_result = {
+      applied: result.applied,
+      resulting_revision: result.resulting_revision,
+    };
+    changeSets.save(cs);
+
+    const counts = { created: 0, updated: 0, archived: 0, restored: 0 };
+    for (const op of result.ops) {
+      if (op.action === 'create') counts.created += 1;
+      else if (op.action === 'edit') counts.updated += 1;
+      else if (op.action === 'archive') counts.archived += 1;
+      else counts.restored += 1;
+    }
+    history.append({
+      id: `h-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      timestamp: new Date().toISOString(),
+      kind: 'change-set-applied',
+      change_set_id: cs.id,
+      source_change_set_id: cs.source_change_set_id,
+      summary: {
+        ...counts,
+        product_ids: result.ops.map((op) => op.product_id ?? ''),
+      },
+      ops: result.ops,
+    });
+
+    return {
+      status: 'applied',
+      applied: result.applied,
+      resulting_revision: result.resulting_revision,
+      change_set_id: cs.id,
+    };
+  });
+
+  // Undo (plan 062 step 4): a new validated change set built from the exact
+  // recorded before values. Stale inverses fail at apply with explanation.
+  app.post('/change-sets/:id/undo', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    if (!isSafeId(id)) {
+      return reply.status(400).send({
+        error: { code: 'INVALID_ID', message: `Invalid change-set id "${id}"` },
+      });
+    }
+    const cs = changeSets.load(id);
+    if (!cs) {
+      return reply
+        .status(404)
+        .send({ error: { code: 'NOT_FOUND', message: 'Change set not found' } });
+    }
+    if (cs.status !== 'published') {
+      return reply.status(409).send({
+        error: {
+          code: 'ILLEGAL_TRANSITION',
+          message: `Only published change sets can be undone (status: ${cs.status})`,
+        },
+      });
+    }
+
+    const inverseId = generateChangeSetId();
+    const built = buildInverseChangeSet(cs, inverseId, new Date().toISOString());
+    if (!built.ok) {
+      return reply.status(422).send({
+        error: { code: 'UNSUPPORTED_OP', message: built.error },
+      });
+    }
+    changeSets.save(built.changeSet);
+    history.append({
+      id: `h-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      timestamp: new Date().toISOString(),
+      kind: 'undo',
+      change_set_id: inverseId,
+      source_change_set_id: cs.id,
+      summary: {
+        product_ids: cs.product_ops.map((op) => op.product_id ?? ''),
+      },
+      ops: built.changeSet.product_ops,
+    });
+    return { status: 'created', undo_change_set_id: inverseId, change_set: built.changeSet };
+  });
+
+  // Redo: reapplies the original change set semantics via a new forward
+  // change set (inverse of the inverse).
+  app.post('/change-sets/:id/redo', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    if (!isSafeId(id)) {
+      return reply.status(400).send({
+        error: { code: 'INVALID_ID', message: `Invalid change-set id "${id}"` },
+      });
+    }
+    const cs = changeSets.load(id);
+    if (!cs) {
+      return reply
+        .status(404)
+        .send({ error: { code: 'NOT_FOUND', message: 'Change set not found' } });
+    }
+    if (cs.status !== 'published' || !cs.source_change_set_id) {
+      return reply.status(409).send({
+        error: {
+          code: 'ILLEGAL_TRANSITION',
+          message: 'Redo requires a published inverse change set (source_change_set_id)',
+        },
+      });
+    }
+
+    const source = changeSets.load(cs.source_change_set_id);
+    if (!source) {
+      return reply.status(404).send({
+        error: {
+          code: 'NOT_FOUND',
+          message: `Source change set "${cs.source_change_set_id}" not found`,
+        },
+      });
+    }
+
+    const redoId = generateChangeSetId();
+    const redo = buildRedoChangeSet(source, cs, redoId, new Date().toISOString());
+    changeSets.save(redo);
+    history.append({
+      id: `h-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      timestamp: new Date().toISOString(),
+      kind: 'redo',
+      change_set_id: redoId,
+      source_change_set_id: cs.id,
+      summary: {
+        product_ids: cs.product_ops.map((op) => op.product_id ?? ''),
+      },
+      ops: redo.product_ops,
+    });
+    return { status: 'created', redo_change_set_id: redoId, change_set: redo };
   });
 
   app.get('/export', async () => {
@@ -544,7 +786,26 @@ export async function changesRoutes(
     const catalog = repos.products.loadCatalog();
     const products = catalog.products;
 
-    const historyEntries = products
+    // Durable append-only log (plan 062 step 4): one row per recorded op with
+    // exact before/after evidence.
+    const logRows = history.load().flatMap((entry) =>
+      entry.ops.map((op) => ({
+        product_name: products.find((p) => p.id === op.product_id)?.name ?? op.product_id ?? '?',
+        product_id: op.product_id ?? '',
+        field: `change-set:${entry.kind}:${op.action}`,
+        timestamp: entry.timestamp,
+        rev: op.resulting_revision,
+        by: 'change-set',
+        before: op.before,
+        after: op.after,
+        change_set_id: entry.change_set_id,
+        source_change_set_id: entry.source_change_set_id,
+      }))
+    );
+
+    // Legacy rows reconstructed from current field_last_modified metadata
+    // (pre-change-set mutations).
+    const legacyRows = products
       .filter((p) => Object.keys(p.field_last_modified).length > 0)
       .flatMap((p) =>
         Object.entries(p.field_last_modified).map(([field, meta]) => ({
@@ -552,10 +813,16 @@ export async function changesRoutes(
           product_id: p.id,
           field,
           timestamp: meta.ts,
-          by: meta.by,
           rev: meta.rev,
+          by: meta.by,
+          before: undefined,
+          after: undefined,
+          change_set_id: undefined,
+          source_change_set_id: undefined,
         }))
-      )
+      );
+
+    const entries = [...logRows, ...legacyRows]
       .sort((a, b) => (b.timestamp ?? '').localeCompare(a.timestamp ?? ''))
       .slice(0, 100);
 
@@ -564,7 +831,7 @@ export async function changesRoutes(
       products_with_history: new Set(
         products.filter((p) => Object.keys(p.field_last_modified).length > 0).map((p) => p.id)
       ).size,
-      entries: historyEntries,
+      entries,
       catalog_version: catalog.version,
       catalog_last_updated: catalog.last_updated,
     };
