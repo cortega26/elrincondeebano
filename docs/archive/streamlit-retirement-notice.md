@@ -18,11 +18,11 @@ replacement for all admin workflows.
 
 ## Files affected
 
-| File/Dir                              | Action                  | Rationale                                                    |
-| ------------------------------------- | ----------------------- | ------------------------------------------------------------ |
-| `admin/web/`                          | Archive                 | Streamlit prototype, replaced by Content Manager             |
-| `data/storefront.db`                  | Delete from active tree | Non-authoritative prototype store                            |
-| `admin/product_manager/data_store.py` | Keep (archived)         | SKU-based model, no active consumers; retained for reference |
+| File/Dir                              | Action                  | Rationale                                                                                                                             |
+| ------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `admin/web/`                          | Archived 2026-08-11     | Streamlit prototype, replaced by Content Manager; copy in `_archive/admin-web/` (gitignored), `test-web` job removed from `admin.yml` |
+| `data/storefront.db`                  | Delete from active tree | Non-authoritative prototype store                                                                                                     |
+| `admin/product_manager/data_store.py` | Keep (archived)         | SKU-based model, no active consumers; retained for reference                                                                          |
 
 ## What remains active
 
