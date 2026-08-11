@@ -157,7 +157,12 @@ export function MediaPage(): React.ReactElement {
       body: JSON.stringify({
         type,
         staged_file: uploadState?.staged_file,
-        target_path: targetPath,
+        // Plan 089: OG intents target the category's canonical OG asset;
+        // the shared upload-destination input does not apply to them.
+        target_path:
+          type === 'og' || type === 'og-delete'
+            ? `assets/images/og/categories/${String(extra.category_slug ?? '')}.png`
+            : targetPath,
         product_id: productId,
         ...extra,
       }),

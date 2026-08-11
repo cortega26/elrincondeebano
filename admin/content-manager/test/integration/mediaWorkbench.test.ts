@@ -361,3 +361,172 @@ test('cancel marks a pending/running intent as cancelled', async () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+// ── plan 089: category OG intents ────────────────────────────────────────────
+
+const OG_CANONICAL_REL = 'assets/images/og/categories/bebidas.png';
+
+function writeIntentState(dir: string, intentId: string, patch: Record<string, unknown>): void {
+  const intentPath = resolve(dir, 'data', 'media-intents', `${intentId}.json`);
+  const current = JSON.parse(readFileSync(intentPath, 'utf8'));
+  writeFileSync(intentPath, JSON.stringify({ ...current, ...patch }, null, 2));
+}
+
+test('og intent creation carries the canonical category target (plan 089)', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const created = await app.inject({
+      method: 'POST',
+      url: '/api/v1/media/intents',
+      headers: ch,
+      payload: { type: 'og', target_path: OG_CANONICAL_REL, category_slug: 'bebidas' },
+    });
+    expect(created.statusCode).toBe(201);
+    const intent = created.json<{ id: string; type: string; target_path: string }>();
+    expect(intent.type).toBe('og');
+    expect(intent.target_path).toBe(OG_CANONICAL_REL);
+
+    // og-delete requires the same shape.
+    const deleted = await app.inject({
+      method: 'POST',
+      url: '/api/v1/media/intents',
+      headers: ch,
+      payload: { type: 'og-delete', target_path: OG_CANONICAL_REL, category_slug: 'bebidas' },
+    });
+    expect(deleted.statusCode).toBe(201);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('og intent apply verifies the canonical image and transitions to applied', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    mkdirSync(resolve(dir, 'assets', 'images', 'og', 'categories'), { recursive: true });
+    writeFileSync(resolve(dir, OG_CANONICAL_REL), 'FAKE-OG-PNG');
+
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const created = await app.inject({
+      method: 'POST',
+      url: '/api/v1/media/intents',
+      headers: ch,
+      payload: { type: 'og', target_path: OG_CANONICAL_REL, category_slug: 'bebidas' },
+    });
+    const intentId = created.json<{ id: string }>().id;
+
+    // White-box: the real run spawns tools.category_og (python3); the apply
+    // contract is what plan 089 fixes, so set the intent to the post-run
+    // state directly.
+    writeIntentState(dir, intentId, {
+      status: 'succeeded',
+      outputs: [resolve(dir, OG_CANONICAL_REL)],
+    });
+
+    const apply = await app.inject({
+      method: 'POST',
+      url: `/api/v1/media/intents/${intentId}/apply`,
+      headers: ch,
+    });
+    expect(apply.statusCode).toBe(200);
+    expect(apply.json<{ status: string; canonical: string }>().status).toBe('applied');
+
+    // The canonical file was not renamed/promoted — it stays byte-identical.
+    expect(readFileSync(resolve(dir, OG_CANONICAL_REL), 'utf8')).toBe('FAKE-OG-PNG');
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('og apply fails closed when the canonical image is missing (422 MISSING_OUTPUT)', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const created = await app.inject({
+      method: 'POST',
+      url: '/api/v1/media/intents',
+      headers: ch,
+      payload: { type: 'og', target_path: OG_CANONICAL_REL, category_slug: 'bebidas' },
+    });
+    const intentId = created.json<{ id: string }>().id;
+    writeIntentState(dir, intentId, { status: 'succeeded', outputs: [] });
+
+    const apply = await app.inject({
+      method: 'POST',
+      url: `/api/v1/media/intents/${intentId}/apply`,
+      headers: ch,
+    });
+    expect(apply.statusCode).toBe(422);
+    expect(apply.json().error.code).toBe('MISSING_OUTPUT');
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('og-delete apply verifies the canonical image is gone; rejects when present', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    // Case 1: canonical absent → apply succeeds (the delete already ran).
+    const created = await app.inject({
+      method: 'POST',
+      url: '/api/v1/media/intents',
+      headers: ch,
+      payload: { type: 'og-delete', target_path: OG_CANONICAL_REL, category_slug: 'bebidas' },
+    });
+    const intentId = created.json<{ id: string }>().id;
+    writeIntentState(dir, intentId, { status: 'succeeded', outputs: [] });
+    let apply = await app.inject({
+      method: 'POST',
+      url: `/api/v1/media/intents/${intentId}/apply`,
+      headers: ch,
+    });
+    expect(apply.statusCode).toBe(200);
+    expect(apply.json<{ status: string }>().status).toBe('applied');
+
+    // Case 2: canonical still present → fail closed.
+    mkdirSync(resolve(dir, 'assets', 'images', 'og', 'categories'), { recursive: true });
+    writeFileSync(resolve(dir, OG_CANONICAL_REL), 'FAKE-OG-PNG');
+    const created2 = await app.inject({
+      method: 'POST',
+      url: '/api/v1/media/intents',
+      headers: ch,
+      payload: { type: 'og-delete', target_path: OG_CANONICAL_REL, category_slug: 'bebidas' },
+    });
+    const intentId2 = created2.json<{ id: string }>().id;
+    writeIntentState(dir, intentId2, { status: 'succeeded', outputs: [] });
+    apply = await app.inject({
+      method: 'POST',
+      url: `/api/v1/media/intents/${intentId2}/apply`,
+      headers: ch,
+    });
+    expect(apply.statusCode).toBe(422);
+    expect(apply.json().error.code).toBe('OUTPUT_STILL_PRESENT');
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

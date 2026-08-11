@@ -10,6 +10,7 @@
 - **Depends on**: —
 - **Category**: media / correctness
 - **Written against**: commit `cefdd9f`
+- **Executed**: DONE — 2026-08-11 (verification abajo)
 
 ## Why this matters
 
@@ -75,9 +76,17 @@ npm run admin:test && npx playwright test -c playwright.media.config.ts && npm r
 
 ## Done criteria
 
-- [ ] Intent OG: run → apply → `applied` con validación del canónico.
-- [ ] og-delete: apply verifica ausencia del canónico.
-- [ ] Intents avif/variant siguen verdes (suite + e2e media).
+- [x] Intent OG: run → apply → `applied` con validación del canónico.
+- [x] og-delete: apply verifica ausencia del canónico.
+- [x] Intents avif/variant siguen verdes (suite + e2e media).
+
+## Evidence (2026-08-11)
+
+- `mediaJobs.ts`: `MediaJobResult.output_kind` ('staged' | 'canonical'); `runCategoryOgJob` marca `canonical` (el tool escribe el canónico en run).
+- `media.ts` apply: branch OG/og-delete ANTES del promote — valida el canónico (`assets` containment, existe para og / ausente para og-delete → 422 `MISSING_OUTPUT`/`OUTPUT_STILL_PRESENT` fail-closed) y transiciona a `applied` sin renombrar; respuesta con `canonical`.
+- `MediaPage.tsx`: los intents OG se crean con `target_path = assets/images/og/categories/<slug>.png` (antes mandaba `''` del input compartido → 400 — la creación nunca funcionó desde la UI).
+- Tests +4 (mediaWorkbench): creación og/og-delete con target canónico, apply og con canónico presente → applied (archivo byte-idéntico, sin promote), apply og sin canónico → 422, og-delete con/ sin canónico → 200/422. Prueba de poder verificada (sin el branch: 422 ≠ 200).
+- Suite: 485 tests, e2e media 2/2 + smoke 19/19, certify 30/30 READY, lint 0 errores.
 
 ## STOP conditions
 

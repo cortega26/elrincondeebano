@@ -380,6 +380,46 @@ export async function mediaMutRoutes(
 
     const promoted: Array<{ staged: string; canonical: string }> = [];
     try {
+      // Plan 089: the canonical OG tool writes/deletes the canonical asset
+      // at run time (no staging) — apply is a no-op state transition that
+      // verifies the expected canonical state instead of promoting files.
+      if (intent.type === 'og' || intent.type === 'og-delete') {
+        const canonicalRelative = intent.target_path ?? '';
+        const canonicalPath = resolve(repoRoot, canonicalRelative);
+        if (!canonicalPath.startsWith(resolve(repoRoot, 'assets'))) {
+          return reply.status(422).send({
+            error: { code: 'FORBIDDEN', message: `Unsafe canonical target: ${canonicalRelative}` },
+          });
+        }
+        const exists = existsSync(canonicalPath);
+        if (intent.type === 'og' && !exists) {
+          return reply.status(422).send({
+            error: {
+              code: 'MISSING_OUTPUT',
+              message: `OG image was not generated: ${canonicalRelative}`,
+            },
+          });
+        }
+        if (intent.type === 'og-delete' && exists) {
+          return reply.status(422).send({
+            error: {
+              code: 'OUTPUT_STILL_PRESENT',
+              message: `OG image is still present: ${canonicalRelative}`,
+            },
+          });
+        }
+        intent.status = 'applied';
+        intent.updated_at = new Date().toISOString();
+        intent.completed_at = new Date().toISOString();
+        intents.save(intent);
+        return {
+          status: 'applied',
+          intent_id: id,
+          promoted: 0,
+          canonical: canonicalRelative,
+        };
+      }
+
       // Promote staged outputs to canonical paths (validated targets).
       for (const output of intent.outputs) {
         if (!output.startsWith(intents.stagingRoot) || !existsSync(output)) {

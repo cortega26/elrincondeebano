@@ -21,6 +21,10 @@ export type MediaJobInput = {
 export interface MediaJobResult {
   ok: boolean;
   outputs: string[]; // staged output paths (absolute)
+  // Plan 089: 'canonical' jobs (category OG) write the canonical asset at
+  // run time — apply verifies the canonical state instead of promoting
+  // staged files. Default is 'staged'.
+  output_kind?: 'staged' | 'canonical';
   error?: string;
 }
 
@@ -137,6 +141,7 @@ export async function runCategoryOgJob(
   }
   return {
     ok: true,
+    output_kind: 'canonical',
     outputs: [resolve(input.repoRoot, 'assets', 'images', 'og', 'categories', `${slug}.png`)],
   };
 }
