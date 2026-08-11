@@ -708,13 +708,17 @@ test('POST /api/v1/change-sets/:id/discard rejects published', async () => {
     });
     const cs = create.json<{ id: string }>();
 
-    // Manually set to published via patch
-    await app.inject({
-      method: 'PATCH',
-      url: `/api/v1/change-sets/${cs.id}`,
-      headers: credHeaders(app),
-      payload: { status: 'published' },
-    });
+    // Walk the legal transition chain up to published (plan 062: no
+    // arbitrary status assignment).
+    for (const status of ['validating', 'validated', 'publishing', 'published']) {
+      const hop = await app.inject({
+        method: 'PATCH',
+        url: `/api/v1/change-sets/${cs.id}`,
+        headers: credHeaders(app),
+        payload: { status },
+      });
+      expect(hop.statusCode).toBe(200);
+    }
 
     const discard = await app.inject({
       method: 'POST',
