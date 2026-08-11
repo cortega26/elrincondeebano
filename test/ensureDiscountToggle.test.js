@@ -1,49 +1,49 @@
 const assert = require('node:assert');
 const { JSDOM } = require('jsdom');
 
-test('ensureDiscountToggle inserts a single toggle', () => {
+const createSafeElement = (tag, attributes = {}, children = []) => {
+  const element = document.createElement(tag);
+  Object.entries(attributes).forEach(([key, value]) => {
+    if (key === 'text') {
+      element.textContent = value;
+    } else {
+      element.setAttribute(key, value);
+    }
+  });
+  children.forEach((child) => {
+    if (typeof child === 'string') {
+      element.appendChild(document.createTextNode(child));
+    } else {
+      element.appendChild(child);
+    }
+  });
+  return element;
+};
+
+function setupDom() {
   const dom = new JSDOM(
     '<!DOCTYPE html><section aria-label="Opciones de filtrado"><div class="row"></div></section>'
   );
   global.window = dom.window;
   global.document = dom.window.document;
+}
 
-  function ensureDiscountToggle() {
-    const toggle = document.getElementById('filter-discount');
-    if (toggle) return toggle;
+test('ensureDiscountToggle (real module) inserts a single toggle', async () => {
+  setupDom();
 
-    const filterSection = document.querySelector(
-      'section[aria-label*="filtrado"], section[aria-label*="Opciones de filtrado"]'
-    );
-    const filterSectionRow = filterSection ? filterSection.querySelector('.row') : null;
-    if (!filterSectionRow) return null;
+  const { createCatalogManager } = await import('../src/js/modules/catalog-manager.mjs');
+  assert.equal(typeof createCatalogManager, 'function', 'real module must be importable');
 
-    const col = document.createElement('div');
-    col.className = 'col-12 mt-2';
-    const formCheck = document.createElement('div');
-    formCheck.className = 'form-check form-switch';
-    const input = document.createElement('input');
-    input.className = 'form-check-input';
-    input.type = 'checkbox';
-    input.id = 'filter-discount';
-    input.setAttribute('aria-label', 'Mostrar solo productos con descuento');
-    const label = document.createElement('label');
-    label.className = 'form-check-label';
-    label.htmlFor = 'filter-discount';
-    label.textContent = 'Solo productos con descuento';
-    formCheck.appendChild(input);
-    formCheck.appendChild(label);
-    col.appendChild(formCheck);
-    filterSectionRow.appendChild(col);
-    return input;
-  }
+  const manager = createCatalogManager({ createSafeElement });
+  manager.bindFilterEvents({ log: () => {}, onUserInteraction: () => {} });
 
-  const first = ensureDiscountToggle();
-  assert.ok(first, 'toggle should be created');
-  assert.ok(document.getElementById('filter-discount'));
+  const first = document.getElementById('filter-discount');
+  assert.ok(first, 'toggle should be created by the real module');
+  assert.equal(first.getAttribute('aria-label'), 'Mostrar solo productos con descuento');
   assert.strictEqual(document.querySelectorAll('#filter-discount').length, 1);
 
-  const second = ensureDiscountToggle();
+  manager.bindFilterEvents({ log: () => {}, onUserInteraction: () => {} });
+  const second = document.getElementById('filter-discount');
   assert.strictEqual(second, first, 'should return existing toggle');
   assert.strictEqual(
     document.querySelectorAll('#filter-discount').length,
