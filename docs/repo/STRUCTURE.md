@@ -110,7 +110,7 @@ Manual/specialized scripts are kept for targeted maintenance tasks and should no
   - Supplemental/manual Playwright: `test/e2e/*.spec.ts`.
   - Archived legacy storefront checks live under `_archive/legacy-storefront/tests/` and are outside the active assurance path.
 - Documentation:
-  - Prompt checkpoints: `docs/audit/prompt-<N>-<topic>-YYYYMMDD.md`.
+  - Prompt checkpoints (archived once completed): `plans/archive/prompt-<N>-<topic>-YYYYMMDD.md`.
   - ADR files: `docs/adr/NNNN-topic.md`.
 
 ## Import/path conventions

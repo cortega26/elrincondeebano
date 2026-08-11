@@ -18,6 +18,43 @@ los planes DONE se conservan como registro.
 | 6         | 2026-07-16 | `30dbab7` | 056–069 |
 | 7         | 2026-08-03 | `30dbab7` | 070–085 |
 
+## Reconciliación con el estado del repo — 2026-08-10
+
+Verificación manual de cada plan TODO contra el código vivo. Los planes ya
+ejecutados (implícita o parcialmente) se marcan `DONE`/`PARTIAL` en sus tablas;
+los que siguen pendientes se confirman aquí como TODO con evidencia de la brecha.
+
+<!-- markdownlint-disable MD060 -->
+
+| Plan | Estado verificado | Evidencia de la brecha                                                                                                                           |
+| ---- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 024  | TODO              | `test` sigue corriendo `test/run-all.js`; `test:coverage` usa `c8`; `vitest.config.mts` no incluye `.test.js`; `stryker` sigue muteando `src/js` |
+| 026  | TODO              | `storefront.js:192` sigue base64 del carrito completo; sin payload versionado `{version, items:[{id,quantity}]}` ni `hydrateSharedCart`          |
+| 027  | TODO              | `hydrateCartFromOrder` (storefront-state.ts:92-107) sigue sin mapear `discount`                                                                  |
+| 030  | TODO              | `server/productStore.js:315-320` sigue `writeFile` directo en ambos archivos; sin manifest/recovery                                              |
+| 031  | TODO              | `@astrojs/partytown` sigue en `astro.config.mjs` y deps; barrel completo de Bootstrap + `globalThis.bootstrap`                                   |
+| 038  | TODO              | Sin ADR de funnel privado en `docs/adr/`                                                                                                         |
+| 040  | TODO              | `bulk_operations_mixin.py` sigue construyendo `Product(...)` parcial ×5                                                                          |
+| 041  | TODO              | `product_form.py:767` sigue moviendo media inmediatamente en `_on_category_change`                                                               |
+| 042  | TODO              | `main_window.py:1430` sigue `products.pop(start_index)` (índice visible)                                                                         |
+| 043  | TODO              | `main_window.py:795` sigue llamando `consume_conflicts()` para mostrar                                                                           |
+| 044  | TODO              | Modelo rechaza `discount > price`; formularios rechazan `>=` (fronteras distintas)                                                               |
+| 045  | TODO              | `deploy.py:249` sigue `success = True` incondicional; sin manifest/preflight                                                                     |
+| 046  | TODO              | `deploy_panel.py` sigue síncrono; `AsyncOperation` (components.py) sin uso en el panel                                                           |
+| 047  | TODO              | `main_window.py:81,162-180` sigue leyendo `~/.product_manager/config.json`                                                                       |
+| 049  | TODO              | `data_store.py` sigue presente sin callers                                                                                                       |
+| 060  | TODO              | Preview sin binding durable (ID/hash/base-rev); sin CSV ni UX de archivo                                                                         |
+| 061  | TODO              | Sin filtros min/max, duplicate, Git pull, prefs/shortcuts en TS; doctor CLI-only                                                                 |
+| 063  | TODO              | `/media/generate` sigue `acknowledged`; upload directo sin staging/sniffing                                                                      |
+| 064  | TODO              | `syncAdapter` sigue 501 para push/pull                                                                                                           |
+| 066  | TODO              | Sin editor de featured; schema de bundles sin invariantes (empty/unique/refs)                                                                    |
+| 067  | TODO              | Solo `atomicWriter` pruna backups; categorías/storefront sin retención                                                                           |
+| 069  | TODO              | Terminal: Python sigue activo como fallback; depende de 056–068                                                                                  |
+| 082  | PARTIAL           | `npm audit --omit=dev` ya 0 HIGH; falta retirar `test-web` y `admin/web`                                                                         |
+| 083  | TODO              | Sin `categoryService` contract tests ni route tests de mutación; `ensureDiscountToggle` sigue siendo copia                                       |
+
+<!-- markdownlint-enable MD060 -->
+
 Cada executor debe leer el plan completo antes de empezar, respetar sus STOP conditions, y actualizar su fila al terminar.
 
 ---
@@ -35,24 +72,28 @@ frontera de escritura y la verificación del estado real sobre esa base.
 
 ### Orden de ejecución y estado
 
-| Plan                                                   | Título                                                          | Priority | Effort | Depends on | Status                                              |
-| ------------------------------------------------------ | --------------------------------------------------------------- | -------- | ------ | ---------- | --------------------------------------------------- |
-| [070](070-commit-canonical-content-manager.md)         | Commit del Content Manager canónico y del registro de migración | P0       | M      | —          | DONE — `27d6c0e` (2026-08-03)                       |
-| [071](071-enforce-write-boundary.md)                   | Frontera de escritura: clasificación de rutas, bootstrap y Host | P0       | M      | 070        | DONE — `ad7b303` (2026-08-03)                       |
-| [072](072-make-publication-commit-scoped.md)           | Publicación commit scoped a ownedPaths + no-unrelated-staged    | P1       | M      | 070, 071   | DONE — 2026-08-10                                   |
-| [073](073-fix-lossless-import-apply.md)                | Import aplica productos nuevos y reporta conteos reales         | P1       | M      | 070        | DONE — `df0d74c`, `62c8e2b`, `653b84f` (2026-08-09) |
-| [074](074-enforce-discount-invariant-schemas.md)       | Invariante discount ≤ price en todos los write boundaries       | P1       | S–M    | 070        | DONE — `7f545f7`, `4a16c6d`, `2a0d926` (2026-08-09) |
-| [075](075-fail-closed-build-contract-tests.md)         | Tests de contrato de build fail-closed                          | P1       | S      | —          | DONE — `316924a` (2026-08-03)                       |
-| [076](076-fix-backup-id-collision.md)                  | IDs de backup únicos (flake de CI + pérdida de datos)           | P1       | S      | 070        | DONE — (2026-08-08)                                 |
-| [077](077-fix-bulk-undo-snapshot.md)                   | Undo bulk con snapshot de valores previos siempre               | P1       | S      | 070        | DONE — (2026-08-08)                                 |
-| [078](078-close-atomic-writer-recovery-gap.md)         | Restore-on-failure del AtomicWriter + journal conectado         | P1       | M      | 070        | DONE — `180b023`..`eb85e13` (2026-08-09)            |
-| [079](079-align-cutover-docs-with-evidence.md)         | Docs de cutover/onboarding alineadas con la evidencia           | P1       | S–M    | 070        | DONE — `68850f1` (2026-08-03)                       |
-| [080](080-harden-category-concurrency-and-id-paths.md) | Concurrencia optimista de categorías + IDs contenidos           | P2       | M      | 070, 071   | DONE — 2026-08-10                                   |
-| [081](081-fix-empty-bundles-persistence.md)            | Persistir bundles vacíos (stale storefront-bundles.json)        | P2       | S      | 070        | DONE — `158c327` (2026-08-03)                       |
-| [082](082-resolve-admin-ci-and-dep-audits.md)          | CI admin alineada al retiro + npm audit HIGHs                   | P1       | M      | 070, 076   | TODO                                                |
-| [083](083-characterize-category-mutation-boundary.md)  | Tests de caracterización categorías + ensureDiscountToggle real | P2       | M      | 070, 080   | TODO                                                |
-| [084](084-unify-monorepo-validation-and-lint.md)       | validate/typecheck del monorepo + lint de .tsx                  | P2       | S      | 070        | DONE — `5552137` (2026-08-03)                       |
-| [085](085-add-parking-degraded-mode.md)                | Modo degradado de parking con datos externos caídos             | P2       | S      | —          | DONE — `d49dbf2` (2026-08-03)                       |
+<!-- markdownlint-disable MD060 -->
+
+| Plan                                                           | Título                                                          | Priority | Effort | Depends on | Status                                                                                                                                             |
+| -------------------------------------------------------------- | --------------------------------------------------------------- | -------- | ------ | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [070](archive/070-commit-canonical-content-manager.md)         | Commit del Content Manager canónico y del registro de migración | P0       | M      | —          | DONE — `27d6c0e` (2026-08-03)                                                                                                                      |
+| [071](archive/071-enforce-write-boundary.md)                   | Frontera de escritura: clasificación de rutas, bootstrap y Host | P0       | M      | 070        | DONE — `ad7b303` (2026-08-03)                                                                                                                      |
+| [072](archive/072-make-publication-commit-scoped.md)           | Publicación commit scoped a ownedPaths + no-unrelated-staged    | P1       | M      | 070, 071   | DONE — 2026-08-10                                                                                                                                  |
+| [073](archive/073-fix-lossless-import-apply.md)                | Import aplica productos nuevos y reporta conteos reales         | P1       | M      | 070        | DONE — `df0d74c`, `62c8e2b`, `653b84f` (2026-08-09)                                                                                                |
+| [074](archive/074-enforce-discount-invariant-schemas.md)       | Invariante discount ≤ price en todos los write boundaries       | P1       | S–M    | 070        | DONE — `7f545f7`, `4a16c6d`, `2a0d926` (2026-08-09)                                                                                                |
+| [075](archive/075-fail-closed-build-contract-tests.md)         | Tests de contrato de build fail-closed                          | P1       | S      | —          | DONE — `316924a` (2026-08-03)                                                                                                                      |
+| [076](archive/076-fix-backup-id-collision.md)                  | IDs de backup únicos (flake de CI + pérdida de datos)           | P1       | S      | 070        | DONE — (2026-08-08)                                                                                                                                |
+| [077](archive/077-fix-bulk-undo-snapshot.md)                   | Undo bulk con snapshot de valores previos siempre               | P1       | S      | 070        | DONE — (2026-08-08)                                                                                                                                |
+| [078](archive/078-close-atomic-writer-recovery-gap.md)         | Restore-on-failure del AtomicWriter + journal conectado         | P1       | M      | 070        | DONE — `180b023`..`eb85e13` (2026-08-09)                                                                                                           |
+| [079](archive/079-align-cutover-docs-with-evidence.md)         | Docs de cutover/onboarding alineadas con la evidencia           | P1       | S–M    | 070        | DONE — `68850f1` (2026-08-03)                                                                                                                      |
+| [080](archive/080-harden-category-concurrency-and-id-paths.md) | Concurrencia optimista de categorías + IDs contenidos           | P2       | M      | 070, 071   | DONE — 2026-08-10                                                                                                                                  |
+| [081](archive/081-fix-empty-bundles-persistence.md)            | Persistir bundles vacíos (stale storefront-bundles.json)        | P2       | S      | 070        | DONE — `158c327` (2026-08-03)                                                                                                                      |
+| [082](082-resolve-admin-ci-and-dep-audits.md)                  | CI admin alineada al retiro + npm audit HIGHs                   | P1       | M      | 070, 076   | PARTIAL — `npm audit --omit=dev` 0 HIGH (2026-08-10); `test-web` job y `admin/web` sin retirar                                                     |
+| [083](083-characterize-category-mutation-boundary.md)          | Tests de caracterización categorías + ensureDiscountToggle real | P2       | M      | 070, 080   | TODO — verificado 2026-08-10: sin `categoryService` contract, sin route tests de mutación de categorías, `ensureDiscountToggle` sigue siendo copia |
+| [084](archive/084-unify-monorepo-validation-and-lint.md)       | validate/typecheck del monorepo + lint de .tsx                  | P2       | S      | 070        | DONE — `5552137` (2026-08-03)                                                                                                                      |
+| [085](archive/085-add-parking-degraded-mode.md)                | Modo degradado de parking con datos externos caídos             | P2       | S      | —          | DONE — `d49dbf2` (2026-08-03)                                                                                                                      |
+
+<!-- markdownlint-enable MD060 -->
 
 ### Dependency graph
 
@@ -229,22 +270,22 @@ finding quedó descartado.
 
 ### Orden de ejecución y estado
 
-| Plan                                                  | Título                                           | Priority | Effort | Depends on         | Status |
-| ----------------------------------------------------- | ------------------------------------------------ | -------- | ------ | ------------------ | ------ |
-| [056](056-make-certification-executable.md)           | Certificación ejecutable y CI real               | P0       | L      | —                  | TODO   |
-| [057](057-enforce-local-control-plane-security.md)    | Boundary local autenticado y write mode único    | P0       | L      | 056                | TODO   |
-| [058](058-harden-publication-and-repository-paths.md) | Publication/path containment fail-closed         | P0       | M      | 057                | TODO   |
-| [059](059-restore-catalog-mutation-invariants.md)     | Invariantes de catálogo, revision e idempotencia | P1       | L      | 056, 057           | TODO   |
-| [060](060-build-lossless-import-export.md)            | Import/export lossless ligado a preview          | P1       | L      | 056, 057, 059      | TODO   |
-| [061](061-complete-operator-workflows.md)             | Paridad de workflows diarios del operador        | P2       | L      | 056, 057, 059, 060 | TODO   |
-| [062](062-enforce-change-sets-history-recovery.md)    | Change sets, history, undo y recovery durables   | P1       | L      | 057, 058, 059, 060 | TODO   |
-| [063](063-build-transactional-media-workbench.md)     | Workbench transaccional de media/assets          | P1       | L      | 057, 058, 062      | TODO   |
-| [064](064-port-durable-remote-sync.md)                | Sync remoto durable y autenticado                | P1       | L      | 057, 059, 062      | TODO   |
-| [065](065-converge-canonical-content-contracts.md)    | Contrato canónico Python/TS/Astro                | P1       | L      | 056, 059           | TODO   |
-| [066](066-build-safe-storefront-curation.md)          | Curación estructurada y segura del storefront    | P1       | L      | 057, 062, 065      | TODO   |
-| [067](067-bound-backups-and-event-loop-work.md)       | Retención acotada y listing no bloqueante        | P2       | M      | 057, 062           | TODO   |
-| [068](068-reconcile-content-manager-dependencies.md)  | Contrato limpio de dependencias/lockfile         | P2       | S      | 056                | TODO   |
-| [069](069-complete-cutover-and-retire-python.md)      | Cutover comprobado y retiro reversible de Python | P1       | L      | 056–068            | TODO   |
+| Plan                                                  | Título                                           | Priority | Effort | Depends on         | Status                                                                                                                                                                                  |
+| ----------------------------------------------------- | ------------------------------------------------ | -------- | ------ | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [056](056-make-certification-executable.md)           | Certificación ejecutable y CI real               | P0       | L      | —                  | DONE — evidence-based (`test_command` + evidence paths), E2E con servidor propio, job `test-ts` en CI con `--ci` (2026-08-10)                                                           |
+| [057](057-enforce-local-control-plane-security.md)    | Boundary local autenticado y write mode único    | P0       | L      | 056                | PARTIAL — Steps 1–3 vía 071 + Step 4 (sync secrets por `SYNC_API_TOKEN`, `token_configured`, API rechaza `api_token`); falta el test de proceso-spawned de `start.ts`                   |
+| [058](058-harden-publication-and-repository-paths.md) | Publication/path containment fail-closed         | P0       | M      | 057                | DONE — `no-unrelated-staged` enforced, `git add --`, `isSafeId` en change-sets/conflicts, recovery journal (slices de 072/080 + journal de publicación)                                 |
+| [059](059-restore-catalog-mutation-invariants.md)     | Invariantes de catálogo, revision e idempotencia | P1       | L      | 056, 057           | PARTIAL — revision guard, `PersistentIdempotencyStore`, reorder global, guard category-in-use, bulk preview/apply; edit de discount no avanza `rev`/`field_last_modified`               |
+| [060](060-build-lossless-import-export.md)            | Import/export lossless ligado a preview          | P1       | L      | 056, 057, 059      | TODO — verificado 2026-08-10: preview sin binding (ID/hash/base-rev), sin CSV/UX de archivo (073 arregló el flujo actual)                                                               |
+| [061](061-complete-operator-workflows.md)             | Paridad de workflows diarios del operador        | P2       | L      | 056, 057, 059, 060 | TODO — verificado 2026-08-10: sin filtros min/max, duplicate, Git pull, prefs/shortcuts en TS; doctor es CLI                                                                            |
+| [062](062-enforce-change-sets-history-recovery.md)    | Change sets, history, undo y recovery durables   | P1       | L      | 057, 058, 059, 060 | PARTIAL — state machine + discard + `isSafeId`; history sigue leyendo `field_last_modified`, mutaciones no pasan por drafts, undo/redo sin persistencia                                 |
+| [063](063-build-transactional-media-workbench.md)     | Workbench transaccional de media/assets          | P1       | L      | 057, 058, 062      | TODO — verificado 2026-08-10: `/media/generate` sigue `acknowledged`, upload escribe directo sin staging/sniffing                                                                       |
+| [064](064-port-durable-remote-sync.md)                | Sync remoto durable y autenticado                | P1       | L      | 057, 059, 062      | TODO — verificado 2026-08-10: `syncAdapter` sigue devolviendo 501 para push/pull                                                                                                        |
+| [065](065-converge-canonical-content-contracts.md)    | Contrato canónico Python/TS/Astro                | P1       | L      | 056, 059           | DONE — `admin:parity` cero diferencias, schemas read/write, goldens en `plans/fixtures/055`, ADR 0009 (2026-08-10)                                                                      |
+| [066](066-build-safe-storefront-curation.md)          | Curación estructurada y segura del storefront    | P1       | L      | 057, 062, 065      | TODO — verificado 2026-08-10: sin editor featured, schema sin invariantes (empty/unique/refs)                                                                                           |
+| [067](067-bound-backups-and-event-loop-work.md)       | Retención acotada y listing no bloqueante        | P2       | M      | 057, 062           | TODO — verificado 2026-08-10: solo `atomicWriter` pruna; categorías/storefront sin retención; listing síncrono                                                                          |
+| [068](068-reconcile-content-manager-dependencies.md)  | Contrato limpio de dependencias/lockfile         | P2       | S      | 056                | PARTIAL — `fastify-tsconfig` fuera del lock, `npm audit` 0, `playwright` justificado (peer de `@vitest/browser-playwright`); lock de `@playwright/test` desalineado (1.61.1 vs ^1.62.1) |
+| [069](069-complete-cutover-and-retire-python.md)      | Cutover comprobado y retiro reversible de Python | P1       | L      | 056–068            | TODO — terminal; Python sigue activo como fallback (AGENTS.md)                                                                                                                          |
 
 Status values: `TODO | IN PROGRESS | DONE | BLOCKED (reason) | REJECTED (rationale)`.
 
@@ -387,10 +428,10 @@ the conflict center.
 
 ### Wave 0 — Baseline and reproducibility
 
-| Plan                                                    | Título                               | Priority | Effort | Depends on | Status |
-| ------------------------------------------------------- | ------------------------------------ | -------- | ------ | ---------- | ------ |
-| [039](039-characterize-product-manager-ui.md)           | Caracterizar workflows UI headlessly | P1       | M      | —          | DONE   |
-| [048](048-lock-product-manager-runtime-dependencies.md) | Bloquear dependencias runtime        | P2       | S      | —          | DONE   |
+| Plan                                                            | Título                               | Priority | Effort | Depends on | Status |
+| --------------------------------------------------------------- | ------------------------------------ | -------- | ------ | ---------- | ------ |
+| [039](archive/039-characterize-product-manager-ui.md)           | Caracterizar workflows UI headlessly | P1       | M      | —          | DONE   |
+| [048](archive/048-lock-product-manager-runtime-dependencies.md) | Bloquear dependencias runtime        | P2       | S      | —          | DONE   |
 
 Run 039 first on the branch that will carry UI work. Plan 048 is file-disjoint
 from 039 and can run concurrently, but reconcile it with completed plan 034:
@@ -458,9 +499,9 @@ configuration path.
 
 ### Wave 3 — Typed architecture seam
 
-| Plan                                             | Título                                            | Priority | Effort | Depends on | Status           |
-| ------------------------------------------------ | ------------------------------------------------- | -------- | ------ | ---------- | ---------------- |
-| [050](050-decompose-ui-into-typed-presenters.md) | Extraer presenters tipados y adelgazar MainWindow | P1       | L      | 039–047    | SUPERSEDED — 055 |
+| Plan                                                     | Título                                            | Priority | Effort | Depends on | Status           |
+| -------------------------------------------------------- | ------------------------------------------------- | -------- | ------ | ---------- | ---------------- |
+| [050](archive/050-decompose-ui-into-typed-presenters.md) | Extraer presenters tipados y adelgazar MainWindow | P1       | L      | 039–047    | SUPERSEDED — 055 |
 
 This is intentionally after behavior fixes. It is a sequence of feature slices,
 not a big-bang rewrite: catalog state, mixin orchestration, forms, then final
@@ -481,12 +522,12 @@ while implicit mixin contracts remain.
 
 ### Wave 4 — New operator workflow
 
-| Plan                                                | Título                                    | Priority | Effort | Depends on                     | Status           |
-| --------------------------------------------------- | ----------------------------------------- | -------- | ------ | ------------------------------ | ---------------- |
-| [051](051-design-staged-content-changes.md)         | Introducir change sets durables           | P2       | L      | 041, 045, 047, 050             | SUPERSEDED — 055 |
-| [052](052-build-task-oriented-content-workspace.md) | Reconstruir workspace orientado a tareas  | P2       | L      | 039–051                        | SUPERSEDED — 055 |
-| [053](053-design-stable-content-identities.md)      | Diseñar/migrar identidades estables       | P2       | L      | 036, 039, 043, 050             | ABSORBED — 055   |
-| [054](054-build-actionable-conflict-center.md)      | Construir centro de conflictos accionable | P2       | L      | 043, 050, 052; 053 recomendado | SUPERSEDED — 055 |
+| Plan                                                        | Título                                    | Priority | Effort | Depends on                     | Status           |
+| ----------------------------------------------------------- | ----------------------------------------- | -------- | ------ | ------------------------------ | ---------------- |
+| [051](archive/051-design-staged-content-changes.md)         | Introducir change sets durables           | P2       | L      | 041, 045, 047, 050             | SUPERSEDED — 055 |
+| [052](archive/052-build-task-oriented-content-workspace.md) | Reconstruir workspace orientado a tareas  | P2       | L      | 039–051                        | SUPERSEDED — 055 |
+| [053](archive/053-design-stable-content-identities.md)      | Diseñar/migrar identidades estables       | P2       | L      | 036, 039, 043, 050             | ABSORBED — 055   |
+| [054](archive/054-build-actionable-conflict-center.md)      | Construir centro de conflictos accionable | P2       | L      | 043, 050, 052; 053 recomendado | SUPERSEDED — 055 |
 
 Plan 051 creates the application-owned draft/review/publish state machine. Plan
 052 then redesigns the UI around that workflow. Plan 053 is a high-risk schema
@@ -523,7 +564,7 @@ retires it.
 | 045 | Safe publication    | bug       | P1       | M      | HIGH | deploy/Git/deploy panel           | TODO                          |
 | 046 | Async Git UI        | perf      | P1       | M      | MED  | deploy panel/task runner          | TODO                          |
 | 047 | Central config      | tech-debt | P1       | M      | MED  | bootstrap/main/dialog/theme       | TODO                          |
-| 048 | Runtime lock        | migration | P2       | S      | LOW  | requirements files                | TODO                          |
+| 048 | Runtime lock        | migration | P2       | S      | LOW  | requirements files                | DONE                          |
 | 049 | Retire SQLite store | tech-debt | P3       | S      | LOW  | `data_store.py`                   | UNBLOCKED — ADR 0008 accepted |
 | 050 | Typed presenters    | tech-debt | P1       | L      | HIGH | UI/category GUI                   | TODO                          |
 | 051 | Staged change sets  | direction | P2       | L      | HIGH | new domain + services             | TODO                          |
@@ -612,13 +653,13 @@ además `cd admin/product_manager && python -m ruff check . && python -m pytest`
 
 ### Wave B — Storefront and CI improvements
 
-| Plan | Título                                     | Priority | Effort | Depends on      | Status |
-| ---- | ------------------------------------------ | -------- | ------ | --------------- | ------ |
-| 026  | Canonicalizar carritos compartidos         | P1       | M      | 025             | TODO   |
-| 027  | Preservar descuentos y rollback de carrito | P1       | M      | 025             | TODO   |
-| 031  | Retirar Partytown y reducir Bootstrap JS   | P2       | M      | 025             | TODO   |
-| 035  | Consolidar builds duplicados de CI         | P2       | M      | —               | TODO   |
-| 019  | Reducir Bootstrap CSS                      | P2       | M      | 031 recomendado | DONE   |
+| Plan | Título                                     | Priority | Effort | Depends on      | Status                                                                                                           |
+| ---- | ------------------------------------------ | -------- | ------ | --------------- | ---------------------------------------------------------------------------------------------------------------- |
+| 026  | Canonicalizar carritos compartidos         | P1       | M      | 025             | TODO                                                                                                             |
+| 027  | Preservar descuentos y rollback de carrito | P1       | M      | 025             | TODO                                                                                                             |
+| 031  | Retirar Partytown y reducir Bootstrap JS   | P2       | M      | 025             | TODO                                                                                                             |
+| 035  | Consolidar builds duplicados de CI         | P2       | M      | —               | DONE — CI consolidado en job único `build-and-check` con par de determinismo y artefacto compartido (2026-08-10) |
+| 019  | Reducir Bootstrap CSS                      | P2       | M      | 031 recomendado | DONE                                                                                                             |
 
 **Gate**: `npm run validate` más los E2E focalizados de cada plan.
 

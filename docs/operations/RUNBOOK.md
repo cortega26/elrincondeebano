@@ -246,7 +246,7 @@ Fallback sin `node` en PATH: `npx -y node@24 "C:\Program Files\nodejs\node_modul
 1. **Cambio pequeño** — plan efímero en la descripción del PR.
 2. **Trabajo complejo** — crear `docs/audit/plan-YYYYMMDD-<slug>.md` con objetivo, pasos `[ ]`/`[x]`, decisiones y deuda técnica.
 3. Versionar el plan junto al código.
-4. Al cerrar, mover a `docs/audit/completed/` y referenciar el SHA del merge.
+4. Al cerrar, mover a `plans/archive/` y referenciar el SHA del merge.
 
 ### Auditoría del repositorio
 
