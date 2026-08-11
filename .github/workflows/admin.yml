@@ -106,6 +106,9 @@ jobs:
       - name: E2E import workflow (isolated temp repo)
         run: npx playwright test -c playwright.import.config.ts
 
+      - name: E2E change-set control center (isolated temp repo)
+        run: npx playwright test -c playwright.changes.config.ts
+
       - name: Certification report
         run: node --import tsx scripts/certification-report.ts --ci
 

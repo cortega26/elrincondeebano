@@ -19,7 +19,8 @@
     "shadow-read": "node --import tsx scripts/shadow-read.ts",
     "certify": "node --import tsx scripts/certification-report.ts",
     "doctor": "node --import tsx scripts/doctor.ts",
-    "test:e2e:import": "playwright test -c playwright.import.config.ts"
+    "test:e2e:import": "playwright test -c playwright.import.config.ts",
+    "test:e2e:changes": "playwright test -c playwright.changes.config.ts"
   },
   "dependencies": {
     "fastify": "^5.10.0",
