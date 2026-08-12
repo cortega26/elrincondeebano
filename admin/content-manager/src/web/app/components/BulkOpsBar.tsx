@@ -21,25 +21,31 @@ export function BulkOpsBar({
   bulkPreview,
   canReorder,
   undoCount,
+  redoCount,
+  selectionCount,
   onPreview,
   onApply,
   onReorder,
   onUndo,
+  onRedo,
 }: {
   data: PaginatedResponse<ProductResponse> | null;
   bulkAction: string;
   setBulkAction: (v: string) => void;
   bulkValue: string;
   setBulkValue: (v: string) => void;
-  bulkScope: 'page' | 'all';
-  setBulkScope: (v: 'page' | 'all') => void;
+  bulkScope: 'page' | 'all' | 'selection';
+  setBulkScope: (v: 'page' | 'all' | 'selection') => void;
   bulkPreview: BulkChange[] | null;
   canReorder: boolean;
   undoCount: number;
+  redoCount: number;
+  selectionCount: number;
   onPreview: () => void;
   onApply: () => void;
   onReorder: () => void;
   onUndo: () => void;
+  onRedo: () => void;
 }): React.ReactElement {
   return (
     <>
@@ -91,8 +97,9 @@ export function BulkOpsBar({
             style={{ padding: '0.25rem 0.5rem', width: '100px' }}
           />
         )}
-        {/* Plan 088: bulk scope is explicit when the view is a subset */}
-        {data && data.total > data.items.length && (
+        {/* Plan 088/097: bulk scope is explicit when the view is a subset
+            or a checkbox selection is active */}
+        {data && (data.total > data.items.length || selectionCount > 0) && (
           <label
             style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.85rem' }}
           >
@@ -105,6 +112,7 @@ export function BulkOpsBar({
             >
               <option value="page">Página ({data.items.length})</option>
               <option value="all">Todos los que coinciden ({data.total})</option>
+              <option value="selection">Selección ({selectionCount})</option>
             </select>
           </label>
         )}
@@ -132,7 +140,16 @@ export function BulkOpsBar({
             style={{ padding: '0.25rem 0.75rem' }}
             title="Deshacer última operación masiva"
           >
-            ↩ Deshacer
+            ↩ Deshacer ({undoCount})
+          </button>
+        )}
+        {redoCount > 0 && (
+          <button
+            onClick={() => void onRedo()}
+            style={{ padding: '0.25rem 0.75rem' }}
+            title="Rehacer la operación deshecha"
+          >
+            ↪ Rehacer ({redoCount})
           </button>
         )}
       </div>

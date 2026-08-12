@@ -4,6 +4,12 @@ import { writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 
+import { CREDENTIAL_HEADER } from '../../src/server/security/launchCredential.ts';
+
+function credHeaders(app: { launchCredential?: string }): Record<string, string> {
+  return { [CREDENTIAL_HEADER]: app.launchCredential ?? '' };
+}
+
 function createTempDir(): string {
   const dir = resolve(tmpdir(), `cm-api-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
   mkdirSync(dir, { recursive: true });
@@ -371,6 +377,61 @@ test('GET /api/v1/export.csv applies the discount filters', async () => {
     expect(rows.length).toBe(2); // header + Producto B
     expect(text).toContain('Producto B');
     expect(text).not.toContain('Producto A');
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// ── plan 097: history cap per product + import history entry ────────────────
+
+test('history caps at 20 rows per product', async () => {
+  const dir = createTempDir();
+  try {
+    writeFileSync(resolve(dir, 'data', 'product_data.json'), JSON.stringify(validCatalog));
+    writeFileSync(resolve(dir, 'data', 'category_registry.json'), JSON.stringify(validCategories));
+    writeFileSync(
+      resolve(dir, 'astro-poc', 'src', 'data', 'storefront-experience.json'),
+      JSON.stringify(validStorefront)
+    );
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    // The fixture products have no ids — create one via the API.
+    const created = await app.inject({
+      method: 'POST',
+      url: '/api/v1/products',
+      headers: ch,
+      payload: {
+        command_id: 'cap-create',
+        payload: { name: 'Cap Target', price: 500, category: 'cat1' },
+      },
+    });
+    expect(created.statusCode).toBe(201);
+    const target = created.json<{ product: { id: string; rev: number } }>().product;
+
+    // 25 sequential PATCHes on the same product (legacy field_last_modified rows).
+    for (let i = 0; i < 25; i++) {
+      const res = await app.inject({
+        method: 'PATCH',
+        url: `/api/v1/products/${target.id}`,
+        headers: ch,
+        payload: {
+          command_id: `cap-${i}`,
+          base_revision: target.rev + i,
+          payload: { description: `v${i}` },
+        },
+      });
+      expect(res.statusCode).toBe(200);
+    }
+
+    const history = (await app.inject({ method: 'GET', url: '/api/v1/history' })).json<{
+      entries: Array<{ product_id: string }>;
+    }>();
+    const productRows = history.entries.filter((e) => e.product_id === target.id);
+    expect(productRows.length).toBeLessThanOrEqual(20);
 
     await app.close();
   } finally {

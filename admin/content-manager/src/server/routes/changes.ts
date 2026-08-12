@@ -758,6 +758,21 @@ export async function changesRoutes(
         });
       }
 
+      history.append({
+        id: `h-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        timestamp: new Date().toISOString(),
+        kind: 'import-applied',
+        change_set_id: `import-${preview_id}`,
+        summary: {
+          created,
+          updated,
+          product_ids: [...preview.additions, ...preview.updates]
+            .map((p) => (p.id ?? '') as string)
+            .filter(Boolean),
+        },
+        ops: [],
+      });
+
       return {
         status: 'ok' as const,
         created,
@@ -1036,9 +1051,17 @@ export async function changesRoutes(
         }))
       );
 
-    const entries = [...logRows, ...legacyRows]
-      .sort((a, b) => (b.timestamp ?? '').localeCompare(a.timestamp ?? ''))
-      .slice(0, 100);
+    // Plan 097: cap 20 rows per product (Python parity: 20/product) instead
+    // of a global 100 — older per-product detail no longer disappears first.
+    const sortedAll = [...logRows, ...legacyRows].sort((a, b) =>
+      (b.timestamp ?? '').localeCompare(a.timestamp ?? '')
+    );
+    const perProduct = new Map<string, number>();
+    const entries = sortedAll.filter((e) => {
+      const count = (perProduct.get(e.product_id ?? '') ?? 0) + 1;
+      perProduct.set(e.product_id ?? '', count);
+      return count <= 20;
+    });
 
     return {
       total_products: products.length,

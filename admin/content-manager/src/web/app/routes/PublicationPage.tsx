@@ -49,6 +49,12 @@ export function PublicationPage(): React.ReactElement {
   );
 
   useEffect(() => {
+    // Plan 097: git status refreshes every 30s while the page is open.
+    const timer = setInterval(() => void refreshGitStatus().catch(() => {}), 30_000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
     return () => {
       stopPolling();
     };

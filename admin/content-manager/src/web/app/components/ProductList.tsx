@@ -66,6 +66,9 @@ export function ProductList({
   onDragOver,
   onDrop,
   selected,
+  selectedIds,
+  onToggleSelect,
+  onSelectPage,
   onSelect,
   onEdit,
   onDuplicate,
@@ -85,6 +88,9 @@ export function ProductList({
   onDragOver: (e: React.DragEvent<HTMLTableRowElement>) => void;
   onDrop: (e: React.DragEvent<HTMLTableRowElement>, index: number) => void;
   selected: ProductResponse | null;
+  selectedIds: Set<string>;
+  onToggleSelect: (id: string, checked: boolean) => void;
+  onSelectPage: (checked: boolean) => void;
   onSelect: (p: ProductResponse | null) => void;
   onEdit: (p: ProductResponse) => void;
   onDuplicate: (p: ProductResponse) => void;
@@ -130,6 +136,14 @@ export function ProductList({
         >
           <thead>
             <tr>
+              <th scope="col" style={{ padding: '0.25rem 0.5rem', width: '2rem' }}>
+                <input
+                  type="checkbox"
+                  aria-label="Seleccionar página"
+                  checked={selectedIds.size > 0 && selectedIds.size === sortedItems.length}
+                  onChange={(e) => onSelectPage(e.target.checked)}
+                />
+              </th>
               <th
                 scope="col"
                 style={{
@@ -245,6 +259,17 @@ export function ProductList({
                 onDragOver={onDragOver}
                 onDrop={(e) => onDrop(e, idx)}
               >
+                <td
+                  style={{ padding: '0.25rem 0.5rem', width: '2rem' }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(product.id ?? '')}
+                    onChange={(e) => onToggleSelect(product.id ?? '', e.target.checked)}
+                    aria-label={`Seleccionar ${product.name}`}
+                  />
+                </td>
                 <td style={{ padding: '0.25rem 0.5rem' }}>
                   {product.name}
                   {product.is_archived ? ' (arch.)' : ''}

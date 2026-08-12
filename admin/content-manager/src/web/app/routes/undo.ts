@@ -103,3 +103,26 @@ export function computeUndoActions(
 
   return actions;
 }
+
+// ── plan 097: multi-level undo/redo with session persistence ────────────────
+
+export const MAX_UNDO_LEVELS = 20;
+
+export function loadStack(key: string): UndoEntry[] {
+  try {
+    const raw = window.sessionStorage.getItem(key);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as UndoEntry[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveStack(key: string, entries: UndoEntry[]): void {
+  try {
+    window.sessionStorage.setItem(key, JSON.stringify(entries.slice(-MAX_UNDO_LEVELS)));
+  } catch {
+    // Session storage full/blocked: the in-memory stack still works.
+  }
+}

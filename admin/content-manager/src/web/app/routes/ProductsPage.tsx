@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { ContentManagerClient } from '../../api/client.ts';
 import type { ProductResponse } from '../../api/client.ts';
 import type { CategoryRecord } from '../../../shared/schemas/category.ts';
-import { buildUndoEntry, computeUndoActions } from './undo.ts';
+import { buildUndoEntry, computeUndoActions, loadStack, saveStack } from './undo.ts';
 import { ProductForm } from '../components/ProductForm.tsx';
 import { useProductsQuery } from '../components/useProductsQuery.ts';
 import { SyncStatusPanel } from '../components/SyncStatusPanel.tsx';
@@ -48,12 +48,13 @@ export function ProductsPage(): React.ReactElement {
   // `loadError` (from the query hook) is reserved for initial-load failures.
   const [opError, setOpError] = useState<string | null>(null);
   const [selected, setSelected] = useState<ProductResponse | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [editing, setEditing] = useState<ProductResponse | null>(null);
   const [creating, setCreating] = useState(false);
   const [bulkPreview, setBulkPreview] = useState<BulkChange[] | null>(null);
   const [bulkAction, setBulkAction] = useState<string>('set_discount_percent');
   const [bulkValue, setBulkValue] = useState<string>('10');
-  const [bulkScope, setBulkScope] = useState<'page' | 'all'>('page');
+  const [bulkScope, setBulkScope] = useState<'page' | 'all' | 'selection'>('page');
   const [feedback, setFeedback] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'table' | 'gallery'>('table');
   const [sortField, setSortField] = useState<string>('order');
@@ -69,31 +70,40 @@ export function ProductsPage(): React.ReactElement {
   } | null>(null);
   const [showSyncConfig, setShowSyncConfig] = useState(false);
   const [syncConfig, setSyncConfig] = useState({ enabled: true, api_base: '', api_token: '' });
-  const undoStack = useRef<UndoEntry[]>([]);
+  const undoStack = useRef<UndoEntry[]>(loadStack('cm-undo-stack'));
+  const redoStack = useRef<UndoEntry[]>(loadStack('cm-redo-stack'));
   const dragIndex = useRef<number | null>(null);
+  const selectedRef = useRef<ProductResponse | null>(null);
+  selectedRef.current = selected;
 
   useEffect(() => {
-    fetch('/api/v1/sync/status')
-      .then((r) => r.json())
-      .then((d) => {
-        const s = d.sync as {
-          enabled: boolean;
-          api_base: string;
-          poll_interval: number;
-          pull_interval: number;
-          paused: boolean;
-          token_configured: boolean;
-          queue: { pending: number; error: number; total: number };
-          last_push: { ok: boolean; error?: string } | null;
-        };
-        setSyncStatus(s);
-        setSyncConfig({
-          enabled: s.enabled,
-          api_base: s.api_base ?? '',
-          api_token: '',
-        });
-      })
-      .catch(() => {});
+    const refresh = (): void => {
+      fetch('/api/v1/sync/status')
+        .then((r) => r.json())
+        .then((d) => {
+          const s = d.sync as {
+            enabled: boolean;
+            api_base: string;
+            poll_interval: number;
+            pull_interval: number;
+            paused: boolean;
+            token_configured: boolean;
+            queue: { pending: number; error: number; total: number };
+            last_push: { ok: boolean; error?: string } | null;
+          };
+          setSyncStatus(s);
+          setSyncConfig({
+            enabled: s.enabled,
+            api_base: s.api_base ?? '',
+            api_token: '',
+          });
+        })
+        .catch(() => {});
+    };
+    refresh();
+    // Plan 097: 30s polling while the page is visible.
+    const timer = setInterval(refresh, 30_000);
+    return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
@@ -101,6 +111,43 @@ export function ProductsPage(): React.ReactElement {
       .getCategories()
       .then((res) => setCategories(res.categories))
       .catch(() => {});
+  }, []);
+
+  // Plan 097: shortcut-driven actions (Ctrl+E/D, Del, Ctrl+F) + ?new=1.
+  const openNew = new URLSearchParams(window.location.search).get('new');
+  useEffect(() => {
+    if (openNew === '1') {
+      setCreating(true);
+      // replaceState keeps the URL clean without a remount.
+      const url = new URL(window.location.href);
+      url.searchParams.delete('new');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, [openNew]);
+
+  useEffect(() => {
+    const onEdit = (): void => {
+      if (selectedRef.current) setEditing(selectedRef.current);
+    };
+    const onDuplicate = (): void => {
+      if (selectedRef.current) void handleDuplicate(selectedRef.current);
+    };
+    const onArchive = (): void => {
+      if (selectedRef.current) void handleArchive(selectedRef.current.id!, selectedRef.current.rev);
+    };
+    const onFocusSearch = (): void => {
+      document.getElementById('product-search')?.focus();
+    };
+    window.addEventListener('cm-edit-selected', onEdit);
+    window.addEventListener('cm-duplicate-selected', onDuplicate);
+    window.addEventListener('cm-archive-selected', onArchive);
+    window.addEventListener('cm-focus-search', onFocusSearch);
+    return () => {
+      window.removeEventListener('cm-edit-selected', onEdit);
+      window.removeEventListener('cm-duplicate-selected', onDuplicate);
+      window.removeEventListener('cm-archive-selected', onArchive);
+      window.removeEventListener('cm-focus-search', onFocusSearch);
+    };
   }, []);
 
   const filtersActive = Boolean(q || category || outOfStock || minPrice || maxPrice || archived);
@@ -275,7 +322,10 @@ export function ProductsPage(): React.ReactElement {
 
   async function handleBulkPreview(): Promise<void> {
     if (!data) return;
-    const ids = data.items.filter((p) => p.id).map((p) => p.id!);
+    const ids =
+      bulkScope === 'selection'
+        ? [...selectedIds]
+        : data.items.filter((p) => p.id).map((p) => p.id!);
     if (ids.length === 0) return;
     try {
       const val =
@@ -299,7 +349,10 @@ export function ProductsPage(): React.ReactElement {
 
   async function handleBulkApply(): Promise<void> {
     if (!data) return;
-    const ids = data.items.filter((p) => p.id).map((p) => p.id!);
+    const ids =
+      bulkScope === 'selection'
+        ? [...selectedIds]
+        : data.items.filter((p) => p.id).map((p) => p.id!);
     if (ids.length === 0) return;
     try {
       const val =
@@ -309,10 +362,15 @@ export function ProductsPage(): React.ReactElement {
             ? bulkValue
             : Number(bulkValue);
 
-      // Plan 088: with filters/pagination active the visible page is a
+      // Plan 088/097: with filters/pagination active the visible page is a
       // subset — ask the operator explicitly before touching anything.
-      let scope: 'page' | 'all' = 'page';
-      if (data.total > data.items.length) {
+      // A checkbox selection (scope=selection) applies to exactly those ids.
+      let scope: 'page' | 'all' | 'selection' = bulkScope === 'selection' ? 'selection' : 'page';
+      if (scope === 'selection') {
+        if (!window.confirm(`Aplicar ${bulkAction} a los ${ids.length} productos seleccionados?`)) {
+          return;
+        }
+      } else if (data.total > data.items.length) {
         const applyAll = window.confirm(
           `Hay ${data.total} productos que coinciden y solo se muestran ${data.items.length}.\n\nAceptar = aplicar a TODOS (${data.total}).\nCancelar = aplicar solo a la página visible (${data.items.length}).`
         );
@@ -369,9 +427,31 @@ export function ProductsPage(): React.ReactElement {
               preview: bulkPreview,
             });
       undoStack.current.push(entry);
+      redoStack.current = [];
+      saveStack('cm-undo-stack', undoStack.current);
+      saveStack('cm-redo-stack', redoStack.current);
 
       setBulkPreview(null);
+      if (scope === 'selection') setSelectedIds(new Set());
       setFeedback(`Aplicado: ${result.changed} productos modificados ✓`);
+      await reload();
+    } catch (err) {
+      setOpError((err as Error).message);
+    }
+  }
+
+  async function handleRedo(): Promise<void> {
+    const entry = redoStack.current.pop();
+    if (!entry || entry.perProductOldValues.length === 0) return;
+    undoStack.current.push(entry);
+    saveStack('cm-undo-stack', undoStack.current);
+    saveStack('cm-redo-stack', redoStack.current);
+    try {
+      // Plan 097: redo re-applies the original bulk action to the recorded
+      // product ids with fresh revisions.
+      const result = await client.bulkApply(entry.action, entry.value, entry.product_ids);
+      setBulkPreview(null);
+      setFeedback(`Rehecho: ${result.changed} productos modificados ✓`);
       await reload();
     } catch (err) {
       setOpError((err as Error).message);
@@ -394,6 +474,9 @@ export function ProductsPage(): React.ReactElement {
   async function handleUndo(): Promise<void> {
     const entry = undoStack.current.pop();
     if (!entry || entry.perProductOldValues.length === 0) return;
+    redoStack.current.push(entry);
+    saveStack('cm-undo-stack', undoStack.current);
+    saveStack('cm-redo-stack', redoStack.current);
 
     try {
       // Fetch fresh revisions right before undoing — data.items may already be
@@ -536,10 +619,13 @@ export function ProductsPage(): React.ReactElement {
         bulkPreview={bulkPreview}
         canReorder={canReorder}
         undoCount={undoStack.current.length}
+        redoCount={redoStack.current.length}
+        selectionCount={selectedIds.size}
         onPreview={handleBulkPreview}
         onApply={handleBulkApply}
         onReorder={handleReorder}
         onUndo={handleUndo}
+        onRedo={handleRedo}
       />
 
       {/* Loading */}
@@ -559,6 +645,20 @@ export function ProductsPage(): React.ReactElement {
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         selected={selected}
+        selectedIds={selectedIds}
+        onToggleSelect={(id, checked) => {
+          setSelectedIds((prev) => {
+            const next = new Set(prev);
+            if (checked) next.add(id);
+            else next.delete(id);
+            return next;
+          });
+        }}
+        onSelectPage={(checked) => {
+          setSelectedIds(
+            checked ? new Set((data?.items ?? []).filter((p) => p.id).map((p) => p.id!)) : new Set()
+          );
+        }}
         onSelect={setSelected}
         onEdit={setEditing}
         onDuplicate={handleDuplicate}

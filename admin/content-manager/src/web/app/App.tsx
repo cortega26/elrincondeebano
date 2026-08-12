@@ -136,6 +136,46 @@ function ShortcutLayer(): null {
         navigate('/help');
         return;
       }
+      // Plan 097: CRUD shortcuts (guarded against typing contexts above).
+      if (event.ctrlKey && !event.altKey && !event.metaKey) {
+        switch (event.key.toLowerCase()) {
+          case 'n':
+            event.preventDefault();
+            navigate('/products?new=1');
+            return;
+          case 'e':
+            event.preventDefault();
+            window.dispatchEvent(new CustomEvent('cm-edit-selected'));
+            return;
+          case 'd':
+            event.preventDefault();
+            window.dispatchEvent(new CustomEvent('cm-duplicate-selected'));
+            return;
+          case 'f':
+            event.preventDefault();
+            window.dispatchEvent(new CustomEvent('cm-focus-search'));
+            return;
+          case 'p':
+            if (event.shiftKey) {
+              event.preventDefault();
+              navigate('/publish');
+              return;
+            }
+            break;
+          case 'c':
+            if (event.shiftKey) {
+              event.preventDefault();
+              navigate('/publish?commit=1');
+              return;
+            }
+            break;
+        }
+      }
+      if (event.key === 'Delete' || event.key === 'Del') {
+        // Archive the selected product (never purge via a key).
+        window.dispatchEvent(new CustomEvent('cm-archive-selected'));
+        return;
+      }
       if (event.key.toLowerCase() === 'g') {
         gPressed = true;
         return;

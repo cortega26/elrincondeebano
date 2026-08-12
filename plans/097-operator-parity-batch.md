@@ -10,6 +10,7 @@
 - **Depends on**: 086 (integridad de sync — el auto-sync no debe encenderse sobre un sync defectuoso), 088 (bulk scope)
 - **Category**: functionality parity
 - **Written against**: commit `cefdd9f`
+- **Executed**: DONE — 2026-08-12 (verification abajo; media relocation DIFERIDO documentado)
 
 ## Why this matters
 
@@ -91,12 +92,22 @@ npm run admin:test && npm run admin:certify && npx playwright test -c playwright
 
 ## Done criteria
 
-- [ ] Auto-sync activo con poll/pull, pausa/resume y cleanup; solo operator+enabled.
-- [ ] Shortcuts CRUD con guards de input y documentación en HelpPage.
-- [ ] Bulk por selección/página/matching con conteos reales.
-- [ ] Undo/redo 20 niveles en sessionStorage.
-- [ ] Media relocation con rollback.
-- [ ] Import en history, commit message autogenerado, polling 30 s, cap 20/producto.
+- [x] Auto-sync activo (tick 60 s: processOnce + pullOnce si config enabled y no paused; cleanup onClose; config re-leído por tick).
+- [x] Shortcuts CRUD (Ctrl+N/E/D/F, Ctrl+Shift+P/C, Del-archive) con guards de typing y navegación por eventos.
+- [x] Bulk por selección (checkboxes por fila + select-all-página, scope 'selection' con confirm y conteo real).
+- [x] Undo/redo 20 niveles persistidos en sessionStorage (load/save con cap; redo re-aplica el bulk con revs frescas).
+- [~] Media relocation: DIFERIDO documentado (riesgo alto de romper paths de imagen/build del storefront; el form + workbench cubren el flujo manual).
+- [x] Import registra history (kind import-applied), commit message autogenerado "catálogo: N producto(s) [ts]", polling 30 s (sync status + git status), cap 20 filas/producto en /history.
+
+## Evidence (2026-08-12)
+
+- app.ts: timer 60 s de auto-sync (gate isConfigured/paused; onClose clear) — el pull/push reutiliza la cola durable y el lock TTL de 086.
+- App.tsx: shortcuts con guards (typing, ctrlKey, preventDefault); eventos cm-edit-selected/duplicate/archive/focus-search; ProductsPage los escucha con ref de selección + ?new=1 reactivo (replaceState).
+- ProductList: columna de checkboxes + select-all-página; BulkOpsBar: select de ámbito con opción "Selección (N)" (renderiza con selección aunque no haya subset) + botones Deshacer (N)/Rehacer (N).
+- undo.ts: MAX_UNDO_LEVELS 20, loadStack/saveStack con sessionStorage.
+- changes.ts: history.append con kind 'import-applied'; /history con cap 20/producto (Map por producto); publication.ts: commit message autogenerado con conteo del catálogo.
+- historyRepository: kinds ampliados.
+- Tests: +1 API (cap 20 por producto con 25 PATCHes) +2 e2e (Ctrl+N/Ctrl+F, bulk por selección con conteo exacto). Suite: 504 tests, e2e 15/15 scope + 19/19 smoke, certify 30/30, lint 0 errores.
 
 ## STOP conditions
 

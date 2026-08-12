@@ -4,7 +4,8 @@ import { resolve } from 'node:path';
 export interface HistoryEntry {
   id: string;
   timestamp: string;
-  kind: 'change-set-applied' | 'change-set-discarded' | 'undo' | 'redo';
+  kind:
+    'change-set-applied' | 'change-set-discarded' | 'undo' | 'redo' | 'import-applied' | 'purge';
   change_set_id: string;
   source_change_set_id?: string;
   summary: {

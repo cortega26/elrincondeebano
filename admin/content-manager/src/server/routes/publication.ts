@@ -141,7 +141,10 @@ export async function publicationRoutes(
     };
 
     const manifest = createDefaultManifest();
-    const commitMessage = body.commitMessage ?? manifest.commitMessage;
+    const productCount = repos.products.loadCatalog().products.length;
+    const commitMessage =
+      body.commitMessage ??
+      `catálogo: ${productCount} producto(s) [${new Date().toISOString().slice(0, 16)}]`;
     const push = body.push ?? false;
 
     const job = jobRunner.schedule<PublicationJobResult>('publication', async () => {

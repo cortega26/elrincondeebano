@@ -250,3 +250,40 @@ test('inline price edit saves with Enter', async ({ page, request }) => {
   const body = await res.json();
   expect(body.items.find((p: { name: string }) => p.name === 'Producto B 1')?.price).toBe(1234);
 });
+
+// ── plan 097: shortcuts + selection ──────────────────────────────────────────
+
+test('Ctrl+N opens the create form; Ctrl+F focuses search', async ({ page }) => {
+  await page.keyboard.press('Control+n');
+  await expect(page.getByLabel(/Nombre/)).toBeVisible();
+  await page.keyboard.press('Escape');
+  await page.locator('h1').click();
+  await page.keyboard.press('Control+f');
+  await expect(page.getByPlaceholder('Nombre, descripción…')).toBeFocused();
+});
+
+test('bulk with checkbox selection applies to exactly the selected ids', async ({
+  page,
+  request,
+}) => {
+  await page.getByLabel('Categoría:').selectOption('cat-c');
+  await expect(page.getByText('Mostrando 1–10 de 10')).toBeVisible();
+
+  await page.getByRole('checkbox', { name: 'Seleccionar Producto C 1', exact: true }).check();
+  await page.getByRole('checkbox', { name: 'Seleccionar Producto C 2', exact: true }).check();
+
+  await page.getByLabel('Acción masiva').selectOption('set_stock');
+  await page.getByLabel('Valor de stock').selectOption('true');
+  await page.getByLabel('Ámbito de la operación masiva').selectOption('selection');
+  await page.getByRole('button', { name: 'Vista previa' }).click();
+  await expect(page.getByText(/Cambios \(2\)/)).toBeVisible();
+
+  page.once('dialog', (d) => d.accept());
+  await page.getByRole('button', { name: 'Aplicar' }).click();
+  await expect(page.getByText(/Aplicado: 2 productos modificados/)).toBeVisible();
+
+  const res = await request.get('http://127.0.0.1:3102/api/v1/products?category=cat-c&limit=200');
+  const body = await res.json();
+  const stocked = body.items.filter((p: { name: string; stock: boolean }) => p.stock);
+  expect(stocked).toHaveLength(2);
+});
