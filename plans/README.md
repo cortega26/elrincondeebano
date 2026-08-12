@@ -35,62 +35,40 @@ conditions, y actualizar su fila al terminar.
 
 ## Estado actual — 2026-08-11
 
-- **Auditoría 8 (086–097)**: nueva. El release candidate del Content Manager TS
-  (`cefdd9f`) pasó una auditoría profunda que encontró blockers de integridad
-  (sync, change-set, OG, scope de bulk/reorder) y gaps de paridad vs Python.
-  El retiro de Python (069) se completó el 2026-08-11; la cola de la
-  Auditoría 8 sigue abierta (086 DONE, 087–097 TODO).
-- **Auditoría 7 (070–085)**: completa. 082 y 083 `DONE` el 2026-08-11;
-  la cola se cierra y el saldo pendiente pasa a la Auditoría 6.
-- **Auditoría 6 (056–069)**: completa. **069 `DONE` el 2026-08-11**: retiro
-  reversible de Python ejecutado (commit `chore(admin): retire Python
-fallback`; tag `v1.x-python-final` en `cefdd9f`; `git revert` o `git
-checkout v1.x-python-final -- admin/product_manager/` como rollback). El
-  manager Python/Tkinter ya no está en el árbol activo.
-- **Residuales**: 030, 031, 038 (Auditoría 3) siguen TODO. 040–047 y 049
-  (Auditoría 4, Python) quedaron `SUPERSEDED` al retirar Python: sus
-  capacidades fueron migradas al Content Manager TS (plan 055 + 056–068).
-- Los planes 024, 026, 027 y 069 se marcaron `DONE` el 2026-08-11; sus
-  archivos están en `plans/archive/`.
+- **Auditoría 8 (086–097)**: completa el 2026-08-12 — 086–097 DONE y
+  archivados; gates finales (`npm run validate` y `validate:release`) verdes.
+  Ítems diferidos documentados en planes cerrados: search/filtro/expand de
+  categorías y OG lifecycle automático (096), media relocation (097).
+- **Auditoría 7 (070–085)**: completa el 2026-08-11 (todos DONE, archivados).
+- **Auditoría 6 (056–069)**: completa el 2026-08-11 (todos DONE, archivados).
+  Retiro reversible de Python ejecutado (tag `v1.x-python-final` en
+  `cefdd9f`; rollback: `git revert` o `git checkout v1.x-python-final --
+admin/product_manager/`).
+- **Residuales de Auditoría 3 (030, 031, 038)**: DONE el 2026-08-12 y
+  archivados — la cola de planes TODO está vacía. 040–047 y 049 (Auditoría
+  4, Python) quedaron `SUPERSEDED` al retirar Python (capacidades migradas
+  al Content Manager TS).
+- Los planes archivados se conservan como registro en las tablas de este
+  README (regla de archivo enforceada por `tools/check-plan-archive.mjs`).
 
 ---
 
-## Reconciliación con el estado del repo — 2026-08-10
+## Reconciliación final — 2026-08-12
 
-Verificación manual de cada plan TODO contra el código vivo. Los planes ya
-ejecutados (implícita o parcialmente) se marcan `DONE`/`PARTIAL` en sus tablas;
-los que siguen pendientes se confirman aquí como TODO con evidencia de la brecha.
+La cola de planes TODO quedó vacía. Tabla de reconciliación histórica
+(2026-08-10) sustituida: los planes 030/031/038 (Auditoría 3) se ejecutaron
+el 2026-08-12 (durabilidad del ProductStore, retiro de Partytown/Bootstrap
+barrel, spike de funnel → ADR 0010) y los planes 056–085 (Auditorías 6 y 7)
+cerraron con sus evidencias en las tablas de cola. 040–047 y 049 quedaron
+SUPERSEDED con el retiro de Python (069).
 
-<!-- markdownlint-disable MD060 -->
+Pendientes documentados (ítems diferidos de planes cerrados):
 
-| Plan | Estado verificado | Evidencia de la brecha                                                                                                                                        |
-| ---- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 024  | DONE              | Runner único Vitest (2026-08-11): `run-all.js` eliminado, 15 script-tests legacy convertidos a suites, coverage unificado                                     |
-| 026  | DONE              | Carrito compartido catálogo-autoritativo (2026-08-11): payload mínimo versionado, `hydrateSharedCart` con resolución DOM amplia                               |
-| 027  | DONE              | Rollback persist-first (2026-08-11): `hydrateCartFromOrder` conserva discount, repeat/vaciar/mark-sent solo mutan tras `saveCart` OK; e2e con fault injection |
-| 030  | TODO              | `server/productStore.js:315-320` sigue `writeFile` directo en ambos archivos; sin manifest/recovery                                                           |
-| 031  | TODO              | `@astrojs/partytown` sigue en `astro.config.mjs` y deps; barrel completo de Bootstrap + `globalThis.bootstrap`                                                |
-| 038  | TODO              | Sin ADR de funnel privado en `docs/adr/`                                                                                                                      |
-| 040  | TODO              | `bulk_operations_mixin.py` sigue construyendo `Product(...)` parcial ×5                                                                                       |
-| 041  | TODO              | `product_form.py:767` sigue moviendo media inmediatamente en `_on_category_change`                                                                            |
-| 042  | TODO              | `main_window.py:1430` sigue `products.pop(start_index)` (índice visible)                                                                                      |
-| 043  | TODO              | `main_window.py:795` sigue llamando `consume_conflicts()` para mostrar                                                                                        |
-| 044  | TODO              | Modelo rechaza `discount > price`; formularios rechazan `>=` (fronteras distintas)                                                                            |
-| 045  | TODO              | `deploy.py:249` sigue `success = True` incondicional; sin manifest/preflight                                                                                  |
-| 046  | TODO              | `deploy_panel.py` sigue síncrono; `AsyncOperation` (components.py) sin uso en el panel                                                                        |
-| 047  | TODO              | `main_window.py:81,162-180` sigue leyendo `~/.product_manager/config.json`                                                                                    |
-| 049  | TODO              | `data_store.py` sigue presente sin callers                                                                                                                    |
-| 060  | TODO              | Preview sin binding durable (ID/hash/base-rev); sin CSV ni UX de archivo                                                                                      |
-| 061  | TODO              | Sin filtros min/max, duplicate, Git pull, prefs/shortcuts en TS; doctor CLI-only                                                                              |
-| 063  | TODO              | `/media/generate` sigue `acknowledged`; upload directo sin staging/sniffing                                                                                   |
-| 064  | TODO              | `syncAdapter` sigue 501 para push/pull                                                                                                                        |
-| 066  | TODO              | Sin editor de featured; schema de bundles sin invariantes (empty/unique/refs)                                                                                 |
-| 067  | TODO              | Solo `atomicWriter` pruna backups; categorías/storefront sin retención                                                                                        |
-| 069  | TODO              | Terminal: Python sigue activo como fallback; depende de 056–068                                                                                               |
-| 082  | PARTIAL           | `npm audit --omit=dev` ya 0 HIGH; falta retirar `test-web` y `admin/web`                                                                                      |
-| 083  | TODO              | Sin `categoryService` contract tests ni route tests de mutación; `ensureDiscountToggle` sigue siendo copia                                                    |
-
-<!-- markdownlint-enable MD060 -->
+| Ítem                                          | Origen | Estado                                              |
+| --------------------------------------------- | ------ | --------------------------------------------------- |
+| Search/filtro/expand de categorías            | 096    | Pendiente (UI menor)                                |
+| OG lifecycle automático en CRUD de categorías | 096    | Pendiente (el workbench manual cubre la generación) |
+| Media relocation al cambiar categoría         | 097    | Pendiente (riesgo alto en paths de imagen/build)    |
 
 ---
 

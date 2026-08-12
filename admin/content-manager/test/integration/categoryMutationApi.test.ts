@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest';
 import { createApp } from '../../src/server/app.ts';
-import { writeFileSync, mkdirSync, rmSync, readFileSync } from 'node:fs';
+import { writeFileSync, mkdirSync, rmSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import type { FastifyInstance } from 'fastify';
@@ -453,6 +453,49 @@ test('PATCH /api/v1/nav-groups/:id edits label and active', async () => {
       payload: { evil: true },
     });
     expect(unknown.statusCode).toBe(400);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// ── plan 096 deferred: automatic OG lifecycle ────────────────────────────────
+
+test('category create triggers the OG intent lifecycle without blocking the write', async () => {
+  const dir = createTempDir();
+  setupData(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const created = await app.inject({
+      method: 'POST',
+      url: '/api/v1/categories',
+      headers: ch,
+      payload: {
+        id: 'og-cat',
+        key: 'og-cat',
+        slug: 'og-cat',
+        display_name: { default: 'OG Cat' },
+        base_revision: 5,
+      },
+    });
+    expect(created.statusCode).toBe(201);
+
+    // The OG lifecycle runs fire-and-forget: an intent appears for the slug.
+    await new Promise((r) => setTimeout(r, 1500));
+    const intentsDir = resolve(dir, 'data', 'media-intents');
+    const files = readdirSync(intentsDir).filter((f) => f.endsWith('.json'));
+    expect(files.length).toBeGreaterThan(0);
+    const intent = JSON.parse(readFileSync(resolve(intentsDir, files[0]), 'utf8'));
+    expect(intent.type).toBe('og');
+    expect(intent.category_slug).toBe('og-cat');
+    // In CI/tests the canonical tool (python3 + tools.category_og) may be
+    // unavailable — the intent records the failure visibly instead of
+    // blocking the category operation.
+    expect(['applied', 'failed']).toContain(intent.status);
 
     await app.close();
   } finally {

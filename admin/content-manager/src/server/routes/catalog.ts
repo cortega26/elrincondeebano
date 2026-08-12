@@ -9,6 +9,8 @@ import type { CategoryService } from '../../domain/categories/categoryService.ts
 import type { CreateCategoryInput } from '../../domain/categories/categoryService.ts';
 import type { Subcategory } from '../../shared/schemas/category.ts';
 import { subcategorySchema, navGroupRecordSchema } from '../../shared/schemas/category.ts';
+import { ensureCategoryOgAssets } from '../services/categoryOgLifecycle.ts';
+import { relocateProductMedia, rollbackMediaRelocation } from '../services/mediaRelocation.ts';
 
 // Plan 094: single write-mode guard — was copy-pasted into every mutation
 // route (15 blocks with identical 403 semantics).
@@ -32,7 +34,8 @@ export async function productRoutes(
   app: FastifyInstance,
   repos: Repositories,
   productService: ProductService,
-  syncService?: SyncService
+  syncService: SyncService | undefined,
+  repoRoot: string
 ): Promise<void> {
   // Plan 088: bulk operations target either an explicit id list or every
   // product matching the same filters as GET /products (scope: 'all').
@@ -257,6 +260,13 @@ export async function productRoutes(
     const catalog = repos.products.loadCatalog();
     const baseRev = catalog.rev;
 
+    // Plan 097: media relocation — capture the previous category before the
+    // edit so image files can follow the product to its new subdirectory.
+    const previous = catalog.products.find((p) => p.id === id);
+    const previousCategory = previous?.category ?? '';
+    const previousImagePath = previous?.image_path ?? '';
+    const previousAvifPath = previous?.image_avif_path ?? '';
+
     const result = productService.edit(catalog, {
       entityId: id,
       baseRevision: envelope.base_revision ?? 0,
@@ -283,6 +293,45 @@ export async function productRoutes(
       return reply.status(writeResult.statusCode).send({
         error: { code: 'CONFLICT', message: writeResult.error },
       });
+    }
+
+    // Plan 097: relocate media when the category changed — the image files
+    // follow the product to assets/images/<newCategory>/. Any failure rolls
+    // back the moves and keeps the ORIGINAL paths (the edit itself stands);
+    // the moved paths are committed with a second revision-guarded write.
+    const newCategory = result.product?.category ?? '';
+    if (previousCategory && newCategory && previousCategory !== newCategory && result.product) {
+      const reloc = await relocateProductMedia(repoRoot, result.product, {
+        previousCategory,
+        previousImagePath,
+        previousAvifPath,
+        newCategory,
+      });
+      if (reloc.moved.length > 0) {
+        const updated = JSON.parse(JSON.stringify(catalog));
+        const target = updated.products.find(
+          (p: { id?: string; sku?: string }) => p.id === id || p.sku === id
+        );
+        if (target) {
+          target.image_path = reloc.newImagePath;
+          target.image_avif_path = reloc.newAvifPath;
+          updated.rev += 1;
+          updated.last_updated = new Date().toISOString();
+          const baseAfterReloc = updated.rev - 1;
+          const secondWrite = await repos.products.writeCatalog(
+            updated,
+            `${envelope.command_id}-reloc`,
+            baseAfterReloc
+          );
+          if (secondWrite.ok) {
+            Object.assign(result.product, target);
+          } else {
+            rollbackMediaRelocation(reloc.moved);
+          }
+        } else {
+          rollbackMediaRelocation(reloc.moved);
+        }
+      }
     }
 
     // Plan 064: queue the edit for remote sync when enabled (offline edit
@@ -469,8 +518,17 @@ export async function categoryRoutes(
   app: FastifyInstance,
   repos: Repositories,
   productService: ProductService,
-  categoryService: CategoryService
+  categoryService: CategoryService,
+  repoRoot: string
 ): Promise<void> {
+  // Plan 096: automatic OG regeneration on category writes — fire and
+  // forget; failures land in a failed media intent (visible in the
+  // workbench) and never block the category operation.
+  function scheduleCategoryOg(slug: string | undefined, operation: 'generate' | 'delete'): void {
+    if (!slug) return;
+    void ensureCategoryOgAssets(repoRoot, slug, operation);
+  }
+
   function readBaseRevision(body: unknown): number {
     return ((body ?? {}) as { base_revision?: number }).base_revision ?? 0;
   }
@@ -522,6 +580,7 @@ export async function categoryRoutes(
       });
     }
 
+    scheduleCategoryOg(result.category?.slug || result.category?.key, 'generate');
     return reply.status(201).send({ ...result.category, rev: wrote.rev });
   });
 
@@ -550,6 +609,7 @@ export async function categoryRoutes(
       });
     }
 
+    scheduleCategoryOg(result.category?.slug || result.category?.key, 'generate');
     return { ...result.category, rev: wrote.rev };
   });
 
@@ -628,6 +688,7 @@ export async function categoryRoutes(
       });
     }
 
+    scheduleCategoryOg(id, 'delete');
     return reply.status(200).send({ status: 'deleted', reassigned: usage.length });
   });
 

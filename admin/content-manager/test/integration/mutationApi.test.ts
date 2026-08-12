@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest';
 import { createApp } from '../../src/server/app.ts';
-import { writeFileSync, mkdirSync, rmSync } from 'node:fs';
+import { writeFileSync, mkdirSync, rmSync, readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import type { FastifyInstance } from 'fastify';
@@ -385,6 +385,70 @@ test('GET /api/v1/products still loads a legacy catalog with discount > price', 
     const body = response.json<{ items: Array<{ discount: number; price: number }> }>();
     expect(body.items[0].discount).toBe(300);
     expect(body.items[0].price).toBe(100);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// ── plan 097 deferred: media relocation on category change ───────────────────
+
+test('PATCH category relocates image files and updates the paths', async () => {
+  const dir = createTempDir();
+  setupDir(dir);
+  try {
+    mkdirSync(resolve(dir, 'assets', 'images', 'oldcat'), { recursive: true });
+    mkdirSync(resolve(dir, 'assets', 'images', 'newcat'), { recursive: true });
+    writeFileSync(resolve(dir, 'assets', 'images', 'oldcat', 'foto.webp'), 'FAKE-WEBP');
+    writeFileSync(resolve(dir, 'assets', 'images', 'oldcat', 'foto.avif'), 'FAKE-AVIF');
+
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    // Create the product via the API (the fixture products have no ids).
+    const created = await app.inject({
+      method: 'POST',
+      url: '/api/v1/products',
+      headers: ch,
+      payload: {
+        command_id: 'reloc-create',
+        payload: {
+          name: 'Reloc Target',
+          price: 1000,
+          category: 'oldcat',
+          image_path: 'assets/images/oldcat/foto.webp',
+          image_avif_path: 'assets/images/oldcat/foto.avif',
+        },
+      },
+    });
+    expect(created.statusCode).toBe(201);
+    const pid = created.json<{ product: { id: string } }>().product.id;
+
+    const patched = await app.inject({
+      method: 'PATCH',
+      url: `/api/v1/products/${pid}`,
+      headers: ch,
+      payload: {
+        command_id: 'reloc-move',
+        base_revision: 1,
+        payload: { category: 'newcat' },
+      },
+    });
+    expect(patched.statusCode).toBe(200);
+    const body = patched.json<{
+      product: { image_path: string; image_avif_path: string };
+    }>();
+    expect(body.product.image_path).toBe('assets/images/newcat/foto.webp');
+    expect(body.product.image_avif_path).toBe('assets/images/newcat/foto.avif');
+
+    expect(existsSync(resolve(dir, 'assets', 'images', 'oldcat', 'foto.webp'))).toBe(false);
+    expect(existsSync(resolve(dir, 'assets', 'images', 'newcat', 'foto.webp'))).toBe(true);
+    expect(readFileSync(resolve(dir, 'assets', 'images', 'newcat', 'foto.webp'), 'utf8')).toBe(
+      'FAKE-WEBP'
+    );
+    expect(existsSync(resolve(dir, 'assets', 'images', 'newcat', 'foto.avif'))).toBe(true);
 
     await app.close();
   } finally {

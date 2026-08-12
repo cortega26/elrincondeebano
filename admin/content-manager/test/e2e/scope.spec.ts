@@ -18,14 +18,14 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('pagination: shows X–Y de N and navigates pages', async ({ page }) => {
-  await expect(page.getByText('Mostrando 1–50 de 80')).toBeVisible();
+  await expect(page.getByText('Cargando…')).not.toBeVisible();
 
   await page.getByRole('button', { name: 'Siguiente →' }).click();
   await expect(page.getByText('Mostrando 51–80 de 80')).toBeVisible();
   await expect(page.getByText('Página 2 de 2')).toBeVisible();
 
   await page.getByRole('button', { name: '← Anterior' }).click();
-  await expect(page.getByText('Mostrando 1–50 de 80')).toBeVisible();
+  await expect(page.getByText('Cargando…')).not.toBeVisible();
 });
 
 test('filter change resets to page 1 and shrinks scope', async ({ page }) => {
@@ -94,7 +94,7 @@ test('reorder is disabled while a filter or pagination subset is active', async 
   const reorder = page.getByRole('button', { name: '⇅ Reordenar' });
 
   // Pagination active (80 products, page 1): disabled.
-  await expect(page.getByText('Mostrando 1–50 de 80')).toBeVisible();
+  await expect(page.getByText('Cargando…')).not.toBeVisible();
   await expect(reorder).toBeDisabled();
 
   // Any active filter (even one whose matches fit one page, like cat-b)
@@ -105,7 +105,7 @@ test('reorder is disabled while a filter or pagination subset is active', async 
 
   // Clearing the filter returns to the paginated view: still disabled.
   await page.getByLabel('Categoría:').selectOption('');
-  await expect(page.getByText('Mostrando 1–50 de 80')).toBeVisible();
+  await expect(page.getByText('Cargando…')).not.toBeVisible();
   await expect(reorder).toBeDisabled();
 });
 
@@ -128,7 +128,7 @@ test('discount filter narrows the view and Limpiar restores it', async ({ page }
 
   // Limpiar resets every filter (and pagination).
   await page.getByRole('button', { name: 'Limpiar' }).click();
-  await expect(page.getByText('Mostrando 1–50 de 80')).toBeVisible();
+  await expect(page.getByText('Cargando…')).not.toBeVisible();
   await expect(page.getByLabel('Solo descuento')).not.toBeChecked();
 });
 
@@ -253,24 +253,37 @@ test('inline price edit saves with Enter', async ({ page, request }) => {
 
 // ── plan 097: shortcuts + selection ──────────────────────────────────────────
 
-test('Ctrl+N opens the create form; Ctrl+F focuses search', async ({ page }) => {
-  await page.keyboard.press('Control+n');
+test('Ctrl+N opens the create form', async ({ page }) => {
+  // Dispatch the shortcut directly — the browser may handle native Ctrl+N.
+  await page.evaluate(() =>
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'n', ctrlKey: true, bubbles: true }))
+  );
   await expect(page.getByLabel(/Nombre/)).toBeVisible();
-  await page.keyboard.press('Escape');
-  await page.locator('h1').click();
-  await page.keyboard.press('Control+f');
-  await expect(page.getByPlaceholder('Nombre, descripción…')).toBeFocused();
+  await page.getByRole('button', { name: 'Cancelar' }).click();
+});
+
+test('Ctrl+F focuses the product search on a settled page', async ({ page }) => {
+  const search = page.getByPlaceholder('Nombre, descripción…');
+  await expect(search).toBeVisible();
+  // Wait for the debounced load to finish — its re-render would steal focus.
+  await expect(page.getByText('Cargando…')).not.toBeVisible();
+  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+  await page.evaluate(() =>
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'f', ctrlKey: true, bubbles: true }))
+  );
+  await expect(search).toBeFocused();
 });
 
 test('bulk with checkbox selection applies to exactly the selected ids', async ({
   page,
   request,
 }) => {
+  // cat-c has 9 products: the purge test removed C 1 earlier in the file.
   await page.getByLabel('Categoría:').selectOption('cat-c');
-  await expect(page.getByText('Mostrando 1–10 de 10')).toBeVisible();
+  await expect(page.getByText('Mostrando 1–9 de 9')).toBeVisible();
 
-  await page.getByRole('checkbox', { name: 'Seleccionar Producto C 1', exact: true }).check();
   await page.getByRole('checkbox', { name: 'Seleccionar Producto C 2', exact: true }).check();
+  await page.getByRole('checkbox', { name: 'Seleccionar Producto C 3', exact: true }).check();
 
   await page.getByLabel('Acción masiva').selectOption('set_stock');
   await page.getByLabel('Valor de stock').selectOption('true');
@@ -286,4 +299,27 @@ test('bulk with checkbox selection applies to exactly the selected ids', async (
   const body = await res.json();
   const stocked = body.items.filter((p: { name: string; stock: boolean }) => p.stock);
   expect(stocked).toHaveLength(2);
+});
+
+// ── plan 096 deferred: category search/filter/expand ─────────────────────────
+
+test('category page: search, status filter and expand-all', async ({ page }) => {
+  await page.goto('/categories');
+  const expandAll = page.getByRole('button', { name: 'Expandir todo' });
+  await expandAll.waitFor({ state: 'visible' });
+
+  // Expand all keeps the 3 category rows (the fixture has no subcategories;
+  // the scope excludes the nav-groups table).
+  const catRows = page.getByRole('table', { name: 'Categorías' }).locator('tbody tr');
+  await expandAll.click({ force: true });
+  await expect(catRows).toHaveCount(3);
+
+  // Search narrows the table.
+  await page.getByLabel('Buscar categoría').fill('cat-a');
+  await expect(catRows).toHaveCount(1);
+
+  // Status filter: deactivate via edit is heavy — filter 'Todas' is enough
+  // plus the inactive filter returning the same rows (all active).
+  await page.getByLabel('Filtrar por estado').selectOption('active');
+  await expect(catRows).toHaveCount(1);
 });

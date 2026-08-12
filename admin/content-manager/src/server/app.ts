@@ -137,14 +137,14 @@ export function createApp(opts?: AppOptions): FastifyInstance {
 
   app.register(
     async function (instance) {
-      await productRoutes(instance, repos, productService, syncService);
+      await productRoutes(instance, repos, productService, syncService, repoRoot);
     },
     { prefix: '/api/v1' }
   );
 
   app.register(
     async function (instance) {
-      await categoryRoutes(instance, repos, productService, categoryService);
+      await categoryRoutes(instance, repos, productService, categoryService, repoRoot);
     },
     { prefix: '/api/v1' }
   );

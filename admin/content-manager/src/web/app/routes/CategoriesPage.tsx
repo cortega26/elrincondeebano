@@ -14,6 +14,9 @@ export function CategoriesPage(): React.ReactElement {
   const [addingGroup, setAddingGroup] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  // Plan 096: category search + status filter.
+  const [categorySearch, setCategorySearch] = useState('');
+  const [categoryStatus, setCategoryStatus] = useState('all');
   const [addingSub, setAddingSub] = useState<string | null>(null);
   const [editingSub, setEditingSub] = useState<{
     categoryId: string;
@@ -196,11 +199,67 @@ export function CategoriesPage(): React.ReactElement {
   }
 
   const categories = data?.categories ?? [];
+  // Plan 096: derived — search by name/key/slug, status filter.
+  const filteredCategories = categories.filter((cat) => {
+    if (categoryStatus === 'active' && cat.active === false) return false;
+    if (categoryStatus === 'inactive' && cat.active !== false) return false;
+    const needle = categorySearch.toLowerCase().trim();
+    if (!needle) return true;
+    return (
+      (cat.display_name?.default ?? '').toLowerCase().includes(needle) ||
+      (cat.key ?? '').toLowerCase().includes(needle) ||
+      (cat.slug ?? '').toLowerCase().includes(needle)
+    );
+  });
   const groups = data?.nav_groups ?? [];
 
   return (
     <main role="main" aria-label="Categorías">
-      <h1>Categorías ({categories.length})</h1>
+      <h1>Categorías ({filteredCategories.length})</h1>
+
+      {/* Plan 096: search + status filter + expand/collapse all */}
+      <div
+        style={{
+          display: 'flex',
+          gap: '0.5rem',
+          marginBottom: '0.75rem',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+        }}
+      >
+        <input
+          type="search"
+          value={categorySearch}
+          onChange={(e) => setCategorySearch(e.currentTarget.value)}
+          placeholder="Buscar por nombre, key o slug…"
+          style={{ padding: '0.25rem 0.5rem', width: '220px' }}
+          aria-label="Buscar categoría"
+        />
+        <select
+          value={categoryStatus}
+          onChange={(e) => setCategoryStatus(e.currentTarget.value)}
+          aria-label="Filtrar por estado"
+          style={{ padding: '0.25rem' }}
+        >
+          <option value="all">Todas</option>
+          <option value="active">Activas</option>
+          <option value="inactive">Inactivas</option>
+        </select>
+        <button
+          onClick={() => {
+            setExpandedCategories(new Set(categories.map((c) => c.id)));
+          }}
+          style={{ padding: '0.25rem 0.75rem', fontSize: '0.85rem' }}
+        >
+          Expandir todo
+        </button>
+        <button
+          onClick={() => setExpandedCategories(new Set())}
+          style={{ padding: '0.25rem 0.75rem', fontSize: '0.85rem' }}
+        >
+          Colapsar todo
+        </button>
+      </div>
 
       {/* Navigation */}
 
@@ -352,7 +411,7 @@ export function CategoriesPage(): React.ReactElement {
               </tr>
             </thead>
             <tbody>
-              {categories.map((cat) => (
+              {filteredCategories.map((cat) => (
                 <React.Fragment key={cat.id}>
                   <tr key={cat.id}>
                     <td style={{ padding: '0.25rem' }}>

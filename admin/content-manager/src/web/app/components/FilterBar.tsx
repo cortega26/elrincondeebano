@@ -56,6 +56,7 @@ export function FilterBar({
         Buscar:{' '}
         <input
           type="search"
+          id="product-search"
           value={q}
           onChange={(e) => setFilterParam('q', e.target.value)}
           placeholder="Nombre, descripción…"
