@@ -566,3 +566,72 @@ test('concurrent catalog edits do not leak into each other (plan 105)', async ()
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('batch-update applies all ops in one write and rejects stale batches atomically (plan 121)', async () => {
+  const dir = createTempDir();
+  setupDir(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const mk = async (name: string) => {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/v1/products',
+        headers: ch,
+        payload: { command_id: `mk-${name}`, payload: { name, price: 1000, category: 'cat1' } },
+      });
+      expect(res.statusCode).toBe(201);
+      return res.json<{ product: { id: string; rev: number } }>().product;
+    };
+    const a = await mk('Batch A');
+    const b = await mk('Batch B');
+
+    const ok = await app.inject({
+      method: 'POST',
+      url: '/api/v1/products/batch-update',
+      headers: ch,
+      payload: {
+        command_id: 'batch-ok',
+        updates: [
+          { id: a.id, rev: a.rev, patch: { price: 2000 } },
+          { id: b.id, rev: b.rev, patch: { stock: true } },
+        ],
+      },
+    });
+    expect(ok.statusCode).toBe(200);
+    const okBody = ok.json<{ applied: number; resulting_revision: number }>();
+    expect(okBody.applied).toBe(2);
+
+    const ga = await app.inject({ method: 'GET', url: `/api/v1/products/${a.id}` });
+    const gb = await app.inject({ method: 'GET', url: `/api/v1/products/${b.id}` });
+    expect(ga.json<{ price: number }>().price).toBe(2000);
+    expect(gb.json<{ stock: boolean }>().stock).toBe(true);
+
+    // Stale rev in ANY op aborts the whole batch with no partial writes.
+    const stale = await app.inject({
+      method: 'POST',
+      url: '/api/v1/products/batch-update',
+      headers: ch,
+      payload: {
+        command_id: 'batch-stale',
+        updates: [
+          { id: a.id, rev: a.rev, patch: { price: 9999 } },
+          { id: b.id, rev: 999, patch: { price: 8888 } },
+        ],
+      },
+    });
+    expect(stale.statusCode).toBe(409);
+    expect(
+      stale.json<{ error: { details: string[] } }>().error.details.some((d) => d.includes('stale'))
+    ).toBe(true);
+
+    const after = await app.inject({ method: 'GET', url: `/api/v1/products/${a.id}` });
+    expect(after.json<{ price: number }>().price).toBe(2000);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

@@ -91,7 +91,7 @@ Batch 2 — perf/deps/DX/seguridad (112–126):
 | [118](118-bootstrap-deep-imports.md)                          | Deep imports de Bootstrap (quitar monolith)                | P2        | M        | —          | TODO            |
 | [119](119-image-payload-optimization.md)                      | Imágenes: LCP-only priority + variant faltante + huérfanos | P2        | M        | —          | TODO            |
 | [120](archive/120-catalog-view-keys-and-companion-map.md)     | Precomputar sort keys + mapa companion                     | P3        | S        | —          | DONE 2026-08-12 |
-| [121](121-batch-undo-endpoint.md)                             | Endpoint de batch-undo (1 write por undo)                  | P3        | M        | 099        | TODO            |
+| [121](archive/121-batch-undo-endpoint.md)                     | Endpoint de batch-undo (1 write por undo)                  | P3        | M        | 099        | DONE 2026-08-12 |
 | [122](122-eslint-shared-base.md)                              | Base ESLint compartida (triplicación)                      | P3        | M        | —          | TODO            |
 | [123](123-playwright-shared-base.md)                          | Base Playwright compartida (6 configs)                     | P3        | M        | —          | TODO            |
 | [124](124-admin-dev-watch-mode.md)                            | Watch mode para admin dev (server + HMR)                   | P3        | M        | —          | TODO            |

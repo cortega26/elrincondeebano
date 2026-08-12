@@ -508,9 +508,9 @@ export function ProductsPage(): React.ReactElement {
           })
         );
         const actions = computeUndoActions(entry, currentProducts);
-        for (const action of actions) {
-          await client.updateProduct(action.id, action.rev, action.patch);
-        }
+        // Plan 121: one batch call = one catalog write (was N sequential
+        // full-catalog rewrites). All-or-nothing with a single rev guard.
+        await client.batchUpdateProducts(actions);
         setFeedback('Operación deshecha ✓');
         await reload();
       });

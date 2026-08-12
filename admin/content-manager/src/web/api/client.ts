@@ -511,6 +511,37 @@ export class ContentManagerClient {
     });
   }
 
+  async batchUpdateProducts(
+    updates: Array<{
+      id: string;
+      rev: number;
+      patch: {
+        name?: string;
+        description?: string;
+        price?: number;
+        discount?: number;
+        stock?: boolean;
+        category?: string;
+        image_path?: string;
+        image_avif_path?: string;
+        is_archived?: boolean;
+      };
+    }>
+  ): Promise<{ command_id: string; status: string; resulting_revision: number; applied: number }> {
+    return this.request<{
+      command_id: string;
+      status: string;
+      resulting_revision: number;
+      applied: number;
+    }>('/products/batch-update', {
+      method: 'POST',
+      body: JSON.stringify({
+        command_id: crypto.randomUUID(),
+        updates,
+      }),
+    });
+  }
+
   async reorderProducts(orderedIds: string[]): Promise<{
     command_id: string;
     status: string;

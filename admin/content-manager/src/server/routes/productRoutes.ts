@@ -331,6 +331,99 @@ export async function productRoutes(
     };
   });
 
+  // Plan 121: batch update — undo/redo applies many per-product patches in
+  // ONE catalog write (was N sequential full-catalog rewrites). All ops are
+  // validated against fresh state before anything mutates; the whole batch
+  // commits under a single revision guard (all-or-nothing).
+  app.post('/products/batch-update', async (request, reply) => {
+    if (!requireWriteMode(reply, productService)) return;
+
+    const envelope = request.body as {
+      command_id?: string;
+      updates?: Array<{ id: string; rev: number; patch: Record<string, unknown> }>;
+    };
+    if (
+      !envelope?.command_id ||
+      !Array.isArray(envelope.updates) ||
+      envelope.updates.length === 0
+    ) {
+      return reply.status(400).send({
+        error: { code: 'BAD_REQUEST', message: 'Missing command_id or updates array' },
+      });
+    }
+
+    const catalog = repos.products.loadCatalog();
+    const baseRev = catalog.rev;
+
+    // Validate every op first (prospective check per product, plan 100/121):
+    // a stale rev aborts the whole batch with the offending ids listed.
+    const ops: Array<{
+      id: string;
+      baseRevision: number;
+      changes: Record<string, unknown>;
+    }> = [];
+    const stale: string[] = [];
+    for (const update of envelope.updates) {
+      const product = catalog.products.find((pr) => pr.id === update.id || pr.sku === update.id);
+      if (!product) {
+        stale.push(`${update.id}:NOT_FOUND`);
+        continue;
+      }
+      if (product.rev !== update.rev) {
+        stale.push(`${update.id}:stale`);
+        continue;
+      }
+      ops.push({ id: update.id, baseRevision: update.rev, changes: update.patch ?? {} });
+    }
+    if (stale.length > 0) {
+      return reply.status(409).send({
+        error: {
+          code: 'CONFLICT',
+          message: `Stale revisions for: ${stale.join(', ')}`,
+          details: stale,
+        },
+      });
+    }
+
+    const changedFields: string[][] = [];
+    for (const op of ops) {
+      const result = productService.edit(catalog, {
+        entityId: op.id,
+        baseRevision: op.baseRevision,
+        changes: op.changes,
+      });
+      if (!result.ok) {
+        return reply.status(result.statusCode).send({
+          error: {
+            code:
+              result.statusCode === 409
+                ? 'CONFLICT'
+                : result.statusCode === 404
+                  ? 'NOT_FOUND'
+                  : 'VALIDATION_ERROR',
+            message: result.error,
+          },
+        });
+      }
+      changedFields.push(result.changedFields ?? []);
+    }
+
+    const writeResult = await repos.products.writeCatalog(catalog, envelope.command_id, baseRev);
+    if (!writeResult.ok) {
+      return reply.status(writeResult.statusCode).send({
+        error: { code: 'CONFLICT', message: writeResult.error },
+      });
+    }
+
+    return {
+      command_id: envelope.command_id,
+      status: 'ok',
+      resulting_revision: catalog.rev,
+      applied: ops.length,
+      changed_fields: changedFields.flat(),
+    };
+  });
+
   app.post('/products/reorder', async (request, reply) => {
     if (!requireWriteMode(reply, productService)) return;
 
