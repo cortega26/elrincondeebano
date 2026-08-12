@@ -12,6 +12,7 @@
 - **Depends on**: none
 - **Category**: bug
 - **Planned at**: commit `877f179`, 2026-07-14
+- **Executed**: DONE — 2026-08-12 (verification abajo)
 
 ## Why this matters
 
@@ -78,10 +79,17 @@ Create table-driven fault points for temp state write, temp log write, manifest 
 
 ## Done criteria
 
-- [ ] Every simulated interruption recovers to complete old or new state.
-- [ ] Failed commits do not mutate published memory/idempotency state.
-- [ ] Direct target `writeFile` calls are gone.
-- [ ] Existing API behavior and full gate remain green.
+- [x] Every simulated interruption recovers to complete old or new state (7 boundaries de fault-injection).
+- [x] Failed commits do not mutate published memory/idempotency state (retry no-sirve-cache-falsa).
+- [x] Direct target `writeFile` calls gone del commit path (solo tmps + manifest + renames).
+- [x] Existing API behavior y full gate verdes.
+
+## Evidence (2026-08-12)
+
+- server/productStore.js: adapter fs inyectable (`options.fs`, defaults fs/promises); helpers de instancia (`_ensureDir`/`_readJson`); protocolo `_commit` (tmps → manifest staged → validación de par con rev compartida → backups → manifest renamed → install → cleanup); `_recoverTransaction` determinista (par nuevo desde fuentes completas — tmps o targets según fase — si valida; si no, par viejo desde backups; nunca adivina entre revisiones); `_cleanupStaleTxnFiles`; `applyPatch` staged en clones (`nextState`/`nextChangeLog`) y publica memoria + caché de idempotencia SOLO tras el commit durable (incluye el path no-op).
+- Bug real encontrado por el fault-injection: el recovery original fallaba cuando el primer tmp ya estaba instalado (stateTmp desapareció) y el log quedaba dividido — corregido ensamblando el par nuevo desde fuentes existentes (tmps primero, targets después).
+- test/product-store.durability.test.js (10 tests): 7 límites de interrupción (write tmps/manifest, rename backups, rename installs) → fresh instance recupera par completo con rev 0 o 1 y sigue operativa; cache falsa no publicada; no-op durable con cache sobrevive restart; sin writeFile directo al target en el commit.
+- Gates: 428 root + 504 admin tests, build con validación de artefactos, lint + typecheck verdes.
 
 ## STOP conditions
 

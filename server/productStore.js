@@ -176,24 +176,6 @@ class AsyncLock {
   }
 }
 
-function ensureDir(filePath) {
-  return fs.mkdir(path.dirname(filePath), { recursive: true });
-}
-
-async function readJson(filePath, fallback) {
-  try {
-    const raw = await fs.readFile(filePath, 'utf8');
-    return JSON.parse(raw);
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      await ensureDir(filePath);
-      await fs.writeFile(filePath, JSON.stringify(fallback, null, 2));
-      return JSON.parse(JSON.stringify(fallback));
-    }
-    throw error;
-  }
-}
-
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
@@ -244,15 +226,195 @@ class ProductStore {
     this.dataPath = options.dataPath || path.join(rootDir, 'data', 'product_data.json');
     this.changeLogPath =
       options.changeLogPath || path.join(rootDir, 'data', 'product_changes.json');
+    // Plan 030: injectable filesystem adapter (readFile/writeFile/rename/
+    // unlink/mkdir/access) — defaults to node:fs/promises. Tests inject a
+    // faulting wrapper; never exposed through HTTP.
+    this._fs = options.fs || fs;
     this.lock = new AsyncLock();
     this._state = null;
     this._changeLog = null;
+  }
+
+  _ensureDir(filePath) {
+    return this._fs.mkdir(path.dirname(filePath), { recursive: true });
+  }
+
+  async _readJson(filePath, fallback) {
+    try {
+      const raw = await this._fs.readFile(filePath, 'utf8');
+      return JSON.parse(raw);
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        await this._ensureDir(filePath);
+        await this._fs.writeFile(filePath, JSON.stringify(fallback, null, 2));
+        return JSON.parse(JSON.stringify(fallback));
+      }
+      throw error;
+    }
+  }
+
+  // ── Plan 030: recoverable two-file commit protocol ─────────────────────────
+  // Same-directory temp files + a transaction manifest. Recovery (on a fresh
+  // ProductStore load) always yields the COMPLETE old pair or the COMPLETE
+  // new pair — never a split or invalid JSON. Protocol:
+  //   1. write+flush both .txn-tmp payloads
+  //   2. write manifest { phase: 'staged' }
+  //   3. validate both tmps parse and share the expected revision
+  //   4. rename targets to .txn-backup
+  //   5. write manifest { phase: 'renamed' }
+  //   6. rename tmps onto targets
+  //   7. delete manifest + backups + tmps
+  async _commit(nextState, nextChangeLog) {
+    const t = this._txnPaths();
+    const f = this._fs;
+    const rev = nextState.rev;
+    const statePayload = JSON.stringify(nextState, null, 2);
+    const logPayload = JSON.stringify(nextChangeLog, null, 2);
+
+    await this._ensureDir(this.dataPath);
+
+    await f.writeFile(t.stateTmp, statePayload, 'utf8');
+    await f.writeFile(t.logTmp, logPayload, 'utf8');
+    await f.writeFile(t.manifest, JSON.stringify({ phase: 'staged', rev }, null, 2), 'utf8');
+
+    const parsedState = JSON.parse(await f.readFile(t.stateTmp, 'utf8'));
+    const parsedLog = JSON.parse(await f.readFile(t.logTmp, 'utf8'));
+    if (parsedState.rev !== rev || parsedLog.latest_rev !== rev) {
+      // Abandon cleanly: the old targets were never touched.
+      await f.unlink(t.stateTmp).catch(() => {});
+      await f.unlink(t.logTmp).catch(() => {});
+      await f.unlink(t.manifest).catch(() => {});
+      throw new Error(
+        `Transaction revision mismatch (state=${parsedState.rev}, log=${parsedLog.latest_rev}, expected=${rev})`
+      );
+    }
+
+    await f.rename(this.dataPath, t.stateBackup).catch((e) => {
+      if (e.code !== 'ENOENT') throw e;
+    });
+    await f.rename(this.changeLogPath, t.logBackup).catch((e) => {
+      if (e.code !== 'ENOENT') throw e;
+    });
+    await f.writeFile(t.manifest, JSON.stringify({ phase: 'renamed', rev }, null, 2), 'utf8');
+
+    await f.rename(t.stateTmp, this.dataPath);
+    await f.rename(t.logTmp, this.changeLogPath);
+
+    await f.unlink(t.manifest).catch(() => {});
+    await f.unlink(t.stateBackup).catch(() => {});
+    await f.unlink(t.logBackup).catch(() => {});
+  }
+
+  _txnPaths() {
+    const dir = path.dirname(this.dataPath);
+    return {
+      dir,
+      manifest: path.join(dir, '.product-txn.json'),
+      stateTmp: `${this.dataPath}.txn-tmp`,
+      stateBackup: `${this.dataPath}.txn-backup`,
+      logTmp: `${this.changeLogPath}.txn-tmp`,
+      logBackup: `${this.changeLogPath}.txn-backup`,
+    };
+  }
+
+  async _exists(filePath) {
+    try {
+      await this._fs.access(filePath);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  // Deterministic recovery: after any interruption the store must end with
+  // the COMPLETE old pair or the COMPLETE new pair — never a split. The new
+  // pair is assembled from whatever complete sources exist (tmps first, then
+  // targets — a crash mid-install may have already replaced one target), and
+  // the old pair from the backups. If the new pair validates (shared
+  // revision), it wins; otherwise the old pair is restored. Never guesses
+  // between conflicting valid revisions.
+  async _recoverTransaction() {
+    const t = this._txnPaths();
+    const f = this._fs;
+    let manifest;
+    try {
+      manifest = JSON.parse(await f.readFile(t.manifest, 'utf8'));
+    } catch (error) {
+      if (error.code === 'ENOENT') return;
+      throw error;
+    }
+
+    const parseValid = async (stateSource, logSource) => {
+      try {
+        const s = JSON.parse(await f.readFile(stateSource, 'utf8'));
+        const l = JSON.parse(await f.readFile(logSource, 'utf8'));
+        return s.rev === l.latest_rev && s.rev === manifest.rev;
+      } catch {
+        return false;
+      }
+    };
+
+    if (manifest.phase === 'staged') {
+      // No renames happened yet — the old targets are complete. Complete the
+      // commit from the tmps if they validate, else keep the old pair.
+      if (await parseValid(t.stateTmp, t.logTmp)) {
+        await f.rename(this.dataPath, t.stateBackup).catch((e) => {
+          if (e.code !== 'ENOENT') throw e;
+        });
+        await f.rename(this.changeLogPath, t.logBackup).catch((e) => {
+          if (e.code !== 'ENOENT') throw e;
+        });
+        await f.rename(t.stateTmp, this.dataPath).catch(() => {});
+        await f.rename(t.logTmp, this.changeLogPath).catch(() => {});
+      }
+    } else {
+      // phase 'renamed': backups exist and the crash may have happened mid
+      // install (one target already replaced). Assemble the new pair from
+      // whatever complete sources exist; the old pair from the backups.
+      const stateSource = (await this._exists(t.stateTmp)) ? t.stateTmp : this.dataPath;
+      const logSource = (await this._exists(t.logTmp)) ? t.logTmp : this.changeLogPath;
+      if (await parseValid(stateSource, logSource)) {
+        if (stateSource !== this.dataPath) {
+          await f.rename(stateSource, this.dataPath).catch(() => {});
+        }
+        if (logSource !== this.changeLogPath) {
+          await f.rename(logSource, this.changeLogPath).catch(() => {});
+        }
+      } else {
+        if (await this._exists(t.stateBackup)) {
+          await f.rename(t.stateBackup, this.dataPath).catch(() => {});
+        }
+        if (await this._exists(t.logBackup)) {
+          await f.rename(t.logBackup, this.changeLogPath).catch(() => {});
+        }
+      }
+    }
+
+    await f.unlink(t.manifest).catch(() => {});
+    await f.unlink(t.stateBackup).catch(() => {});
+    await f.unlink(t.logBackup).catch(() => {});
+    await f.unlink(t.stateTmp).catch(() => {});
+    await f.unlink(t.logTmp).catch(() => {});
+  }
+
+  // Stale temps with no manifest are crash leftovers from an abandoned
+  // commit — clean them (plan 030 step 3).
+  async _cleanupStaleTxnFiles() {
+    const t = this._txnPaths();
+    if (await this._exists(t.manifest)) return;
+    for (const stale of [t.stateTmp, t.stateBackup, t.logTmp, t.logBackup]) {
+      await this._fs.unlink(stale).catch(() => {});
+    }
   }
 
   async _loadState() {
     if (this._state && this._changeLog) {
       return;
     }
+    // Plan 030: recover any interrupted transaction and clean stale temps
+    // before reading — a fresh instance must never see a split pair.
+    await this._recoverTransaction();
+    await this._cleanupStaleTxnFiles();
     const defaults = {
       version: null,
       last_updated: null,
@@ -264,7 +426,7 @@ class ProductStore {
       changes: [],
       changesets: {},
     };
-    this._state = await readJson(this.dataPath, defaults);
+    this._state = await this._readJson(this.dataPath, defaults);
     if (typeof this._state.rev !== 'number') {
       this._state.rev = 0;
     }
@@ -298,7 +460,7 @@ class ProductStore {
       }
     }
 
-    this._changeLog = await readJson(this.changeLogPath, changeDefaults);
+    this._changeLog = await this._readJson(this.changeLogPath, changeDefaults);
     if (!Array.isArray(this._changeLog.changes)) {
       this._changeLog.changes = [];
     }
@@ -311,13 +473,13 @@ class ProductStore {
   }
 
   async _saveState() {
-    await ensureDir(this.dataPath);
-    await fs.writeFile(this.dataPath, JSON.stringify(this._state, null, 2));
+    await this._ensureDir(this.dataPath);
+    await this._fs.writeFile(this.dataPath, JSON.stringify(this._state, null, 2));
   }
 
   async _saveChangeLog() {
-    await ensureDir(this.changeLogPath);
-    await fs.writeFile(this.changeLogPath, JSON.stringify(this._changeLog, null, 2));
+    await this._ensureDir(this.changeLogPath);
+    await this._fs.writeFile(this.changeLogPath, JSON.stringify(this._changeLog, null, 2));
   }
 
   async listProducts() {
@@ -335,22 +497,22 @@ class ProductStore {
     });
   }
 
-  _pruneCaches() {
-    const changeKeys = Object.keys(this._changeLog.changesets);
+  _pruneCaches(log = this._changeLog) {
+    const changeKeys = Object.keys(log.changesets);
     if (changeKeys.length > CHANGESET_CACHE_LIMIT) {
       const sorted = changeKeys
         .map((key) => ({
           key,
-          rev: this._changeLog.changesets[key].rev ?? Number.MAX_SAFE_INTEGER,
+          rev: log.changesets[key].rev ?? Number.MAX_SAFE_INTEGER,
         }))
         .sort((a, b) => a.rev - b.rev);
       const toRemove = sorted.slice(0, changeKeys.length - CHANGESET_CACHE_LIMIT);
       for (const { key } of toRemove) {
-        delete this._changeLog.changesets[key];
+        delete log.changesets[key];
       }
     }
-    if (this._changeLog.changes.length > CHANGE_LOG_LIMIT) {
-      this._changeLog.changes.splice(0, this._changeLog.changes.length - CHANGE_LOG_LIMIT);
+    if (log.changes.length > CHANGE_LOG_LIMIT) {
+      log.changes.splice(0, log.changes.length - CHANGE_LOG_LIMIT);
     }
   }
 
@@ -403,14 +565,20 @@ class ProductStore {
         return clone(cached.response);
       }
 
-      const idx = this._state.products.findIndex((item) => matchesProductId(item, productId));
+      // Plan 030 step 2: stage on clones — the published in-memory state and
+      // the idempotency cache are only replaced after the durable commit
+      // succeeds, so a failed commit never leaves a false-success cache.
+      const nextState = clone(this._state);
+      const nextChangeLog = clone(this._changeLog);
+
+      const idx = nextState.products.findIndex((item) => matchesProductId(item, productId));
       if (idx === -1) {
         const error = new Error('Product not found');
         error.statusCode = 404;
         throw error;
       }
 
-      const product = clone(this._state.products[idx]);
+      const product = clone(nextState.products[idx]);
       this._ensureProductFields(product);
 
       const now = nowIso(timestamp);
@@ -515,7 +683,7 @@ class ProductStore {
           product.field_last_modified[field] = {
             ts: now,
             by: source,
-            rev: this._state.rev + 1,
+            rev: nextState.rev + 1,
             base_rev: baseRev,
             changeset_id: changesetId,
           };
@@ -540,41 +708,43 @@ class ProductStore {
       if (!acceptedFields.length && !conflicts.length) {
         const response = {
           product,
-          rev: this._state.rev,
+          rev: nextState.rev,
           accepted_fields: [],
           conflicts: [],
-          last_updated: this._state.last_updated,
-          version: this._state.version,
+          last_updated: nextState.last_updated,
+          version: nextState.version,
         };
-        this._changeLog.changesets[changesetId] = { rev: this._state.rev, response };
-        this._pruneCaches();
-        await this._saveChangeLog();
+        nextChangeLog.changesets[changesetId] = { rev: nextState.rev, response };
+        this._pruneCaches(nextChangeLog);
+        await this._commit(nextState, nextChangeLog);
+        this._state = nextState;
+        this._changeLog = nextChangeLog;
         return clone(response);
       }
 
       if (acceptedFields.length) {
-        this._state.rev += 1;
-        product.rev = this._state.rev;
-        this._state.last_updated = now;
-        this._state.version = now.replace(/[-:TZ.]/g, '').slice(0, 15);
-        this._state.products[idx] = product;
+        nextState.rev += 1;
+        product.rev = nextState.rev;
+        nextState.last_updated = now;
+        nextState.version = now.replace(/[-:TZ.]/g, '').slice(0, 15);
+        nextState.products[idx] = product;
       }
 
       const response = {
         product,
-        rev: this._state.rev,
+        rev: nextState.rev,
         accepted_fields: acceptedFields,
         conflicts,
-        last_updated: this._state.last_updated,
-        version: this._state.version,
+        last_updated: nextState.last_updated,
+        version: nextState.version,
       };
 
-      this._changeLog.changesets[changesetId] = { rev: this._state.rev, response };
+      nextChangeLog.changesets[changesetId] = { rev: nextState.rev, response };
 
       if (acceptedFields.length) {
-        this._changeLog.latest_rev = this._state.rev;
-        this._changeLog.changes.push({
-          rev: this._state.rev,
+        nextChangeLog.latest_rev = nextState.rev;
+        nextChangeLog.changes.push({
+          rev: nextState.rev,
           timestamp: now,
           product_id: productId,
           source,
@@ -587,15 +757,18 @@ class ProductStore {
             reason: metaPayload.reason,
           })),
           conflicts,
-          last_updated: this._state.last_updated,
-          version: this._state.version,
+          last_updated: nextState.last_updated,
+          version: nextState.version,
           product_snapshot: clone(product),
         });
       }
 
-      this._pruneCaches();
-      await this._saveState();
-      await this._saveChangeLog();
+      this._pruneCaches(nextChangeLog);
+      await this._commit(nextState, nextChangeLog);
+      // Plan 030 step 2/4: publish memory + idempotency cache only after the
+      // durable commit succeeded.
+      this._state = nextState;
+      this._changeLog = nextChangeLog;
       return clone(response);
     });
   }

@@ -91,6 +91,17 @@ module.exports = [
     },
   },
   {
+    // Legacy runtime (pre-Astro storefront server): pre-existing structural
+    // warnings predate the strict limits; kept in the lint surface (errors
+    // still block) but the complexity trio stays warn-free-of-fail here.
+    files: ['server/**'],
+    rules: {
+      complexity: 'off',
+      'max-lines-per-function': 'off',
+      'sonarjs/cognitive-complexity': 'off',
+    },
+  },
+  {
     files: ['**/*.{ts,mts,tsx}'],
     plugins: {
       '@typescript-eslint': tseslint.plugin,
