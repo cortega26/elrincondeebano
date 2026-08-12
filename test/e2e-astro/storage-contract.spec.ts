@@ -277,11 +277,14 @@ test('plan 117: shared-cart link with a non-empty cart shows feedback and keeps 
   await page.reload({ waitUntil: 'networkidle' });
   await page.waitForFunction(() => (window as any).__APP_READY__ === true, { timeout: 15_000 });
 
-  // The refusal is visible and the existing cart is untouched (qty stays 1).
+  // The refusal is visible and the existing cart is untouched (qty stays 1):
+  // the badge proves the cart survived the reload (the shortcut's own
+  // visibility is covered by the cart suites — avoid the boot race here).
   await expect(page.locator('#shared-cart-refused')).toBeVisible();
-  const shortcut = page.locator('#mobile-cart-shortcut');
-  await expect(shortcut).toBeVisible();
-  await shortcut.click();
+  await expect(page.locator('#cart-count')).toHaveText('1', { timeout: 10_000 });
+  // Open via the navbar cart button — the mobile shortcut has a delayed
+  // reveal timer (boot race); the navbar button opens instantly.
+  await page.locator('#cart-icon').click();
   const offcanvas = page.locator('#cartOffcanvas');
   await expect(offcanvas).toBeVisible();
   await expect(offcanvas.locator('.item-quantity')).toHaveText('1');
