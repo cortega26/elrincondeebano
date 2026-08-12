@@ -78,7 +78,29 @@ dependencias: bugs primero (098–105), tests (106–109), retiro de superficie
 | [110](110-retire-dead-e2e-surface.md)                          | Scripts e2e muertos + 8 specs legacy                | P1        | S        | —          | TODO   |
 | [111](111-retire-legacy-sync-server-and-python-surface.md)     | Retirar sync API legacy + superficie Python         | P1        | S        | 108        | TODO   |
 
-Batch 2 (perf/deps/DX/seguridad) se documentará al escribir sus planes.
+Batch 2 — perf/deps/DX/seguridad (112–126):
+
+| Plan                                                  | Título                                                     | Prioridad | Esfuerzo | Depends on | Estado |
+| ----------------------------------------------------- | ---------------------------------------------------------- | --------- | -------- | ---------- | ------ |
+| [112](112-fix-claude-md-drift.md)                     | CLAUDE.md stale (run-all.js, Astro 6)                      | P1        | S        | —          | TODO   |
+| [113](113-dependency-hygiene.md)                      | Deps muertas + playwright skew + decisión TS 7             | P2        | S        | —          | TODO   |
+| [114](114-split-catalog-routes-module.md)             | Split de catalog.ts (1028 líneas)                          | P2        | M        | —          | TODO   |
+| [115](115-unify-admin-data-fetching.md)               | Unificar fetch en ContentManagerClient                     | P2        | M        | —          | TODO   |
+| [116](116-extract-storefront-cart-module.md)          | Extraer módulo de carrito de storefront.js                 | P3        | L        | —          | TODO   |
+| [117](117-complete-storefront-storage-abstraction.md) | Storage: favorites + shared-cart feedback                  | P3        | S        | —          | TODO   |
+| [118](118-bootstrap-deep-imports.md)                  | Deep imports de Bootstrap (quitar monolith)                | P2        | M        | —          | TODO   |
+| [119](119-image-payload-optimization.md)              | Imágenes: LCP-only priority + variant faltante + huérfanos | P2        | M        | —          | TODO   |
+| [120](120-catalog-view-keys-and-companion-map.md)     | Precomputar sort keys + mapa companion                     | P3        | S        | —          | TODO   |
+| [121](121-batch-undo-endpoint.md)                     | Endpoint de batch-undo (1 write por undo)                  | P3        | M        | 099        | TODO   |
+| [122](122-eslint-shared-base.md)                      | Base ESLint compartida (triplicación)                      | P3        | M        | —          | TODO   |
+| [123](123-playwright-shared-base.md)                  | Base Playwright compartida (6 configs)                     | P3        | M        | —          | TODO   |
+| [124](124-admin-dev-watch-mode.md)                    | Watch mode para admin dev (server + HMR)                   | P3        | M        | —          | TODO   |
+| [125](125-admin-security-hardening.md)                | IDs criptográficos + credential en archivo 0600            | P2        | S        | —          | TODO   |
+| [126](126-assert-destructive-confirm-dialogs.md)      | Asertar dialogs destructivos en e2e                        | P3        | S        | —          | TODO   |
+
+Orden de ejecución recomendado: 098 → 100 → 101 → 107 → 099 → 121 → 102 →
+103 → 104 → 105 → 106 → 108 → 111 → 109 → 110 → 112 → 113 → 114 → 115 →
+117 → 118 → 119 → 120 → 122 → 123 → 124 → 125 → 126 → 116 (el L al final).
 
 ---
 
