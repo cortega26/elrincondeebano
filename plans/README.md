@@ -88,7 +88,7 @@ Batch 2 — perf/deps/DX/seguridad (112–126):
 | [115](115-unify-admin-data-fetching.md)                       | Unificar fetch en ContentManagerClient                     | P2        | M        | —          | TODO            |
 | [116](116-extract-storefront-cart-module.md)                  | Extraer módulo de carrito de storefront.js                 | P3        | L        | —          | TODO            |
 | [117](archive/117-complete-storefront-storage-abstraction.md) | Storage: favorites + shared-cart feedback                  | P3        | S        | —          | DONE 2026-08-12 |
-| [118](118-bootstrap-deep-imports.md)                          | Deep imports de Bootstrap (quitar monolith)                | P2        | M        | —          | TODO            |
+| [118](archive/118-bootstrap-deep-imports.md)                  | Deep imports de Bootstrap (quitar monolith)                | P2        | M        | —          | DONE 2026-08-12 |
 | [119](119-image-payload-optimization.md)                      | Imágenes: LCP-only priority + variant faltante + huérfanos | P2        | M        | —          | TODO            |
 | [120](archive/120-catalog-view-keys-and-companion-map.md)     | Precomputar sort keys + mapa companion                     | P3        | S        | —          | DONE 2026-08-12 |
 | [121](archive/121-batch-undo-endpoint.md)                     | Endpoint de batch-undo (1 write por undo)                  | P3        | M        | 099        | DONE 2026-08-12 |

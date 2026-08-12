@@ -1,9 +1,14 @@
-// Plan 031: the bare import registers the Bootstrap data APIs the markup
-// relies on (collapse toggler, dropdowns, the injected dismissible alert
-// banner); Offcanvas is used programmatically. The barrel namespace and the
-// globalThis.bootstrap exposure are gone.
-import 'bootstrap';
-import { Offcanvas } from 'bootstrap';
+// Plan 031 + 118: deep imports register ONLY the Bootstrap data APIs the
+// markup relies on (collapse toggler, dropdowns, the injected dismissible
+// alert banner) plus the programmatic Offcanvas — the full monolith
+// (carousel/scrollspy/tooltip/modal + Popper) is excluded from the bundle.
+// The barrel namespace and the globalThis.bootstrap exposure are gone.
+import 'bootstrap/js/dist/collapse.js';
+import 'bootstrap/js/dist/dropdown.js';
+import 'bootstrap/js/dist/alert.js';
+// CJS interop: dist modules export the class as module.exports
+// (named imports come back undefined through Vite's interop).
+import Offcanvas from 'bootstrap/js/dist/offcanvas.js';
 import { createCatalogViewController } from './storefront/catalog-view.js';
 import { createObservabilityModule } from './storefront/observability.js';
 import { createPersonalizationEngine } from './storefront/personalization.js';
