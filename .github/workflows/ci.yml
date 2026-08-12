@@ -33,6 +33,9 @@ jobs:
       - name: Lint repository
         run: npm run lint
 
+      - name: Check plan archive rule (DONE plans must be in plans/archive/)
+        run: node tools/check-plan-archive.mjs
+
       - name: Lint images
         run: npm run lint:images
 

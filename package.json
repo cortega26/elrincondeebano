@@ -75,7 +75,7 @@
     "monitor:live-browser-contract": "node tools/live-browser-contract.mjs --base-url https://www.elrincondeebano.com --timeout-ms 15000 --report reports/live-contract/browser.json",
     "cloudflare:whoami": "npx wrangler whoami",
     "cloudflare:deploy:edge-security-headers": "npx wrangler deploy --config infra/cloudflare/edge-security-headers/wrangler.toml",
-    "validate": "npm run lint && npm run typecheck && npm run check:e2e-selectors && npm run build && npm test && npm run guardrails:assets",
+    "validate": "npm run lint && npm run typecheck && npm run check:e2e-selectors && npm run build && npm test && npm run check:plans && npm run guardrails:assets",
     "validate:release": "node tools/validate-release.mjs",
     "certify:migration:prepare": "node -e \"const fs=require('fs'); ['build-determinism-a','build-determinism-b'].forEach((p)=>fs.rmSync(p,{recursive:true,force:true}));\"",
     "certify:migration": "npm run certify:migration:prepare && npm run lint && npm run typecheck && npm run build && npm test && npm run test:e2e",
@@ -83,7 +83,8 @@
     "snapshot": "node tools/snapshot-site.mjs --tag dev",
     "prepare": "husky",
     "test:e2e:media": "playwright test -c playwright.media.config.ts",
-    "test:e2e:storefront": "playwright test -c playwright.storefront.config.ts"
+    "test:e2e:storefront": "playwright test -c playwright.storefront.config.ts",
+    "check:plans": "node tools/check-plan-archive.mjs"
   },
   "keywords": [],
   "author": "",
@@ -160,6 +161,10 @@
       "prettier --write"
     ],
     "*.{json,md,css,html}": [
+      "prettier --write"
+    ],
+    "plans/**/*.md": [
+      "node tools/check-plan-archive.mjs",
       "prettier --write"
     ]
   }

@@ -69,6 +69,11 @@ Cambios pequeños (S-effort) usan el flujo ligero habitual. Para planes y tareas
 M+, el trío spec/todo/tests es obligatorio. No preguntar aclaraciones que la
 spec y los tests resuelvan.
 
+0. **Regla de archivo fija**: un plan solo se marca `DONE` cuando su archivo
+   ya está en `plans/archive/` (mismo commit, `git mv`). El checker
+   `node tools/check-plan-archive.mjs` falla si un plan DONE está en la raíz
+   de `plans/` — corre en `npm run validate`, lint-staged y CI. No aplicar
+   `git mv` hacia afuera de `archive/`.
 1. **Spec primero.** Para trabajo en `plans/`, el plan ES la spec. Para tareas
    sin plan, escribir `spec.md` en la carpeta del plan + `todo.md` con
    sub-tareas verificables. El `spec.md`/`todo.md` de raíz son históricos del
