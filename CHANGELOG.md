@@ -3,10 +3,20 @@
 All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
-## [Unreleased]
+## [1.5.0] - 2026-08-12
 
 ### Added
 
+- Content Manager TypeScript (Fastify + React + Vite, TS7) como aplicación
+  canónica del admin — planes 055–097 (búsqueda, filtros, bulk con revisión,
+  workbench de medios, publicación acotada, conflictos durables, reorder por
+  identidad, OG lifecycle en CRUD de productos y categorías, media
+  relocation, scope E2E).
+- Prototipo Streamlit retirado y `admin/product_manager/` (Python/Tkinter)
+  retirado de forma reversible (tag `v1.x-python-final`), plan 069.
+- Storefront: ProductStore durable con commit recuperable de dos archivos y
+  recovery determinista (plan 030); retiro de Partytown y Bootstrap explícito
+  (plan 031); ADR 0010 (medición privada del funnel, plan 038); upgrade Astro 7.
 - Canonical `docs/onboarding/BOOTSTRAP.md` cold-start guide for the dual-root repo.
 - `docs/repo/ACTIVE_SURFACES.json` plus a contract test to keep key runtime/docs/workflow entry points from drifting.
 
@@ -14,6 +24,10 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 - Standardized the active repo baseline on Node 24.x across configs, workflows, tests, and operational docs.
 - Added dedicated `astro-poc` linting to the canonical `npm run lint` path.
+- Fix: cart offcanvas se cerraba sin ocultarse visualmente (estilos inline
+  heredados pisaban el `visibility:hidden` de Bootstrap) — 3 E2E de
+  storefront en verde tras eliminar el hack (91bea36).
+- Gate de release (`npm run validate:release`) en verde sobre `main`.
 
 ## [1.4.0] - 2026-04-13
 
