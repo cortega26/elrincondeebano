@@ -53,6 +53,7 @@ test('delete-last bundle persists [] in the projection Astro loads', async ({ pa
 
   await page.goto(`${BASE}/bundles`);
   await dismissCredentialPrompt(page);
+  page.once('dialog', (dialog) => void dialog.accept());
   await page.getByRole('button', { name: 'Eliminar combo 1' }).click();
   await page.getByRole('button', { name: 'Guardar combos' }).click();
   await expect(page.getByRole('status')).toContainText('guardados');
