@@ -53,6 +53,35 @@ admin/product_manager/`).
 
 ---
 
+## Auditoría 9 — 2026-08-12 (`/improve deep`, commit `ccb921f`)
+
+Auditoría completa (8 categorías, subagentes paralelos) sobre el árbol post
+release v1.5.0. Todos los hallazgos con evidencia verificada; los net-positivos
+se convirtieron en planes 098+. Orden de ejecución recomendado por
+dependencias: bugs primero (098–105), tests (106–109), retiro de superficie
+(110–111), luego el batch 2 (112+).
+
+| Plan                                                           | Título                                              | Prioridad | Esfuerzo | Depends on | Estado |
+| -------------------------------------------------------------- | --------------------------------------------------- | --------- | -------- | ---------- | ------ |
+| [098](098-fix-cart-subtotal-discount-fast-path.md)             | Subtotal del carrito ignora descuento (fast path)   | P1        | S        | —          | TODO   |
+| [099](099-fix-undo-redo-stack-semantics.md)                    | Undo/redo corrompen las pilas al fallar             | P1        | M        | —          | TODO   |
+| [100](100-harden-media-relocation-paths.md)                    | Path traversal vía `category` en mediaRelocation    | P1        | S        | —          | TODO   |
+| [101](101-fix-reorder-gating-under-discount-filters.md)        | Reorder habilitado con filtros → 409 garantizado    | P1        | S        | —          | TODO   |
+| [102](102-fix-bulk-apply-noop-revs.md)                         | bulkApply cuenta no-ops como modificados            | P2        | S        | —          | TODO   |
+| [103](103-harden-media-intent-runner.md)                       | Intent runner sin catch → estado atascado           | P2        | S        | —          | TODO   |
+| [104](104-storefront-routes-error-classification.md)           | PUT storefront convierte 500 en 400                 | P2        | S        | —          | TODO   |
+| [105](105-isolate-catalog-snapshots-per-request.md)            | Catálogo mutable compartido → falsos 409            | P1        | M        | —          | TODO   |
+| [106](106-test-category-og-lifecycle.md)                       | Cero tests en categoryOgLifecycle                   | P1        | M        | —          | TODO   |
+| [107](107-storefront-cart-e2e-hardening.md)                    | E2E: dismiss del offcanvas + subtotal con descuento | P1        | S        | 098        | TODO   |
+| [108](108-port-durability-fault-injection-to-atomic-writer.md) | Portar fault-injection a AtomicWriter               | P2        | M        | —          | TODO   |
+| [109](109-fix-scope-spec-order-dependence.md)                  | scope.spec orden-dependiente (fixture compartido)   | P2        | S        | —          | TODO   |
+| [110](110-retire-dead-e2e-surface.md)                          | Scripts e2e muertos + 8 specs legacy                | P1        | S        | —          | TODO   |
+| [111](111-retire-legacy-sync-server-and-python-surface.md)     | Retirar sync API legacy + superficie Python         | P1        | S        | 108        | TODO   |
+
+Batch 2 (perf/deps/DX/seguridad) se documentará al escribir sus planes.
+
+---
+
 ## Reconciliación final — 2026-08-12
 
 La cola de planes TODO quedó vacía. Tabla de reconciliación histórica
