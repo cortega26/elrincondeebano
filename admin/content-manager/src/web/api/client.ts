@@ -180,10 +180,6 @@ export class ContentManagerClient {
     return response.json() as Promise<T>;
   }
 
-  async bootstrap(): Promise<BootstrapResponse> {
-    return this.request<BootstrapResponse>('/bootstrap');
-  }
-
   async getProducts(params?: {
     page?: number;
     limit?: number;
@@ -264,13 +260,6 @@ export class ContentManagerClient {
     });
   }
 
-  async reorderCategories(orderedIds: string[], baseRevision: number): Promise<unknown> {
-    return this.request('/categories/reorder', {
-      method: 'POST',
-      body: JSON.stringify({ ordered_ids: orderedIds, base_revision: baseRevision }),
-    });
-  }
-
   async updateNavGroup(
     id: string,
     baseRevision: number,
@@ -333,14 +322,14 @@ export class ContentManagerClient {
     );
   }
 
-  async reorderSubcategories(
-    categoryId: string,
-    orderedIds: string[],
-    baseRevision: number
-  ): Promise<unknown> {
-    return this.request(`/categories/${encodeURIComponent(categoryId)}/subcategories/reorder`, {
-      method: 'POST',
-      body: JSON.stringify({ ordered_ids: orderedIds, base_revision: baseRevision }),
+  async updateFeatured(featured: {
+    featuredStaples: Array<Record<string, unknown>>;
+    primaryCategories: string[];
+    secondaryCategories: string[];
+  }): Promise<unknown> {
+    return this.request('/storefront/featured', {
+      method: 'PUT',
+      body: JSON.stringify(featured),
     });
   }
 
@@ -368,6 +357,15 @@ export class ContentManagerClient {
       staged: number;
       missing: number;
     };
+    intents: Array<{
+      id: string;
+      type: string;
+      status: 'pending' | 'running' | 'succeeded' | 'failed' | 'cancelled' | 'applied';
+      target_path?: string;
+      progress: number;
+      errors: string[];
+      category_slug?: string;
+    }>;
   }> {
     return this.request('/media');
   }

@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { fetchWithCredential } from '../credentialStore.ts';
+import { ContentManagerClient } from '../../api/client.ts';
+
+const client = new ContentManagerClient();
 import type {
   ImportPreviewResponse,
   ImportApplyResponse,
@@ -69,22 +71,9 @@ export function ImportPage(): React.ReactElement {
 
       const products = (parsed as Record<string, unknown>)?.products ?? parsed;
 
-      const response = await fetchWithCredential('/api/v1/import/preview', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ products }),
-      });
-
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        setError(
-          (err as { error?: { message?: string } }).error?.message ?? `Error ${response.status}`
-        );
-        setLoading(false);
-        return;
-      }
-
-      setPreview((await response.json()) as ImportPreviewResponse);
+      // Plan 115: typed client.
+      const previewData = await client.importPreview({ products });
+      setPreview(previewData as ImportPreviewResponse);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -126,23 +115,11 @@ export function ImportPage(): React.ReactElement {
           resolution: resolutions[c.product_id][c.field],
         }));
 
-      const response = await fetchWithCredential('/api/v1/import/apply', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ preview_id: preview.preview_id, resolutions: resolutionList }),
-      });
-
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        setError(
-          (err as { error?: { message?: string } }).error?.message ?? `Error ${response.status}`
-        );
-        setApprovalPending(false);
-        setLoading(false);
-        return;
-      }
-
-      const data = (await response.json()) as ImportApplyResponse;
+      // Plan 115: typed client.
+      const data = (await client.importApply(
+        preview.preview_id,
+        resolutionList
+      )) as ImportApplyResponse;
       setResult(data);
       setPreview(null);
       setResolutions({});

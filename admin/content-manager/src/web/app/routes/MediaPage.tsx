@@ -1,5 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
+import { ContentManagerClient } from '../../api/client.ts';
+// Plan 115 exception: the workbench mutations (upload, intents) keep the
+// credential helper until they get client methods of their own.
 import { fetchWithCredential } from '../credentialStore.ts';
+
+const client = new ContentManagerClient();
 
 interface MediaEntry {
   path: string;
@@ -80,12 +85,8 @@ export function MediaPage(): React.ReactElement {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/v1/media');
-      const data = (await res.json()) as {
-        items: MediaEntry[];
-        summary: Record<string, number>;
-        intents: MediaIntent[];
-      };
+      // Plan 115: typed client for the media inventory read.
+      const data = await client.getMedia();
       setItems(data.items);
       setSummary(data.summary);
       setIntents(data.intents);

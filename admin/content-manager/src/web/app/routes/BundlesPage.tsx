@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fetchWithCredential } from '../credentialStore.ts';
+import { ContentManagerClient } from '../../api/client.ts';
 
 interface ProductRef {
   category: string;
@@ -26,6 +26,8 @@ interface ProductOption {
   category: string;
 }
 
+const client = new ContentManagerClient();
+
 function newBundle(): Bundle {
   return { id: '', title: '', description: '', items: [] };
 }
@@ -51,20 +53,19 @@ export function BundlesPage(): React.ReactElement {
     setLoading(true);
     setError(null);
     try {
-      const [bundlesRes, featuredRes, categoriesRes, productsRes] = await Promise.all([
-        fetch('/api/v1/storefront/bundles'),
-        fetch('/api/v1/storefront/featured'),
-        fetch('/api/v1/categories'),
-        fetch('/api/v1/products?limit=200'),
+      // Plan 115: all reads go through the typed client.
+      const [bundlesData, featuredData, categoriesData, productsData] = await Promise.all([
+        client.getBundles(),
+        client.getFeatured(),
+        client.getCategories(),
+        client.getProducts({ limit: 200 }),
       ]);
-      const bundlesData = (await bundlesRes.json()) as { bundles: Bundle[] };
-      const featuredData = (await featuredRes.json()) as FeaturedData;
-      const categoriesData = (await categoriesRes.json()) as { categories: Array<{ key: string }> };
-      const productsData = (await productsRes.json()) as { items: ProductOption[] };
       setBundles(bundlesData.bundles);
       setFeatured(featuredData);
       setCategories(categoriesData.categories);
-      setProducts(productsData.items);
+      setProducts(
+        productsData.items.map((p) => ({ id: p.id!, name: p.name, category: p.category }))
+      );
       setDirty(false);
     } catch (err) {
       setError((err as Error).message);
@@ -81,17 +82,7 @@ export function BundlesPage(): React.ReactElement {
     setError(null);
     setFeedback(null);
     try {
-      const res = await fetchWithCredential('/api/v1/storefront/bundles', {
-        method: 'PUT',
-        body: JSON.stringify({ bundles }),
-      });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        setError(
-          (body as { error?: { message?: string } }).error?.message ?? `Error ${res.status}`
-        );
-        return;
-      }
+      await client.updateBundles(bundles as never);
       setFeedback('Bundles guardados ✓');
       setDirty(false);
     } catch (err) {
@@ -103,21 +94,7 @@ export function BundlesPage(): React.ReactElement {
     setError(null);
     setFeedback(null);
     try {
-      const res = await fetchWithCredential('/api/v1/storefront/featured', {
-        method: 'PUT',
-        body: JSON.stringify({
-          featuredStaples: featured.featuredStaples,
-          primaryCategories: featured.primaryCategories,
-          secondaryCategories: featured.secondaryCategories,
-        }),
-      });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        setError(
-          (body as { error?: { message?: string } }).error?.message ?? `Error ${res.status}`
-        );
-        return;
-      }
+      await client.updateFeatured(featured as never);
       setFeedback('Destacados guardados ✓');
       setDirty(false);
     } catch (err) {
