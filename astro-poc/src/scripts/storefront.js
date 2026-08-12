@@ -1,4 +1,9 @@
-import * as bootstrap from 'bootstrap';
+// Plan 031: the bare import registers the Bootstrap data APIs the markup
+// relies on (collapse toggler, dropdowns, the injected dismissible alert
+// banner); Offcanvas is used programmatically. The barrel namespace and the
+// globalThis.bootstrap exposure are gone.
+import 'bootstrap';
+import { Offcanvas } from 'bootstrap';
 import { createCatalogViewController } from './storefront/catalog-view.js';
 import { createObservabilityModule } from './storefront/observability.js';
 import { createPersonalizationEngine } from './storefront/personalization.js';
@@ -26,7 +31,6 @@ const MAX_PERSONALIZED_ITEMS = 4;
 const MOBILE_CART_SHORTCUT_REVEAL_DELAY_MS = 280;
 
 if (typeof window !== 'undefined') {
-  globalThis.bootstrap = bootstrap;
   globalThis.__APP_READY__ = false;
   globalThis.__STOREFRONT_RUNTIME_CONTRACT__ = STOREFRONT_RUNTIME_CONTRACT;
   window.__STOREFRONT_RUNTIME_CONTRACT__ = STOREFRONT_RUNTIME_CONTRACT;
@@ -1138,11 +1142,8 @@ function openCartOffcanvas() {
   if (!offcanvasElement) {
     return;
   }
-  if (globalThis.bootstrap?.Offcanvas) {
-    const instance = globalThis.bootstrap.Offcanvas.getOrCreateInstance(offcanvasElement);
-    instance.show();
-    return;
-  }
+  const instance = Offcanvas.getOrCreateInstance(offcanvasElement);
+  instance.show();
   setCartOffcanvasState(true);
   offcanvasElement.classList.add('show');
   offcanvasElement.style.visibility = 'visible';

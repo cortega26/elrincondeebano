@@ -52,9 +52,7 @@ function getScriptTags(html) {
 
 function getExecutableScriptTags(html) {
   return getScriptTags(html).filter(
-    (tag) =>
-      !/\btype=["']application\/(?:json|ld\+json)["']/i.test(tag) &&
-      !/\btype=["']text\/partytown(?:-x)?["']/i.test(tag)
+    (tag) => !/\btype=["']application\/(?:json|ld\+json)["']/i.test(tag)
   );
 }
 
@@ -94,19 +92,12 @@ test('Astro storefront output keeps the executable script surface minimal', (t) 
       `${distCase.label} should keep at least one self-hosted Astro module entrypoint`
     );
 
-    // Partytown requiere un snippet inline para arrancar el web worker.
-    // Cualquier otro script inline ejecutable debe justificarse.
+    // Cualquier script inline ejecutable debe justificarse.
     const inlineExec = getInlineExecutableScripts(html);
-    const nonPartytownInline = inlineExec.filter((match) => {
-      const start = Math.max(0, match.index - 10);
-      const end = Math.min(html.length, match.index + 300);
-      const surrounding = html.substring(start, end);
-      return !/\/~partytown\//.test(surrounding);
-    });
     assert.equal(
-      nonPartytownInline.length,
+      inlineExec.length,
       0,
-      `${distCase.label} should not emit inline executable scripts beyond Partytown setup (got ${nonPartytownInline.length})`
+      `${distCase.label} should not emit inline executable scripts (got ${inlineExec.length})`
     );
     assert.ok(
       !/cdn\.jsdelivr\.net/i.test(html),

@@ -12,6 +12,7 @@
 - **Depends on**: `plans/025-characterize-active-checkout.md`
 - **Category**: perf
 - **Planned at**: commit `877f179`, 2026-07-14
+- **Executed**: DONE — 2026-08-12 (verification abajo)
 
 ## Why this matters
 
@@ -70,10 +71,17 @@ Use existing cart/parity E2E. Add the smallest regression assertion necessary fo
 
 ## Done criteria
 
-- [ ] Partytown dependency, output and CSP exception are gone.
-- [ ] Full Bootstrap namespace/global is gone; required four plugins work.
-- [ ] Main JS size decreases and evidence is recorded.
-- [ ] Build, E2E, lint, typecheck and unit tests pass.
+- [x] Partytown dependency, output y CSP exception eliminados (0 refs en dist/src/config; lock anidado stale de astro-poc eliminado — el root lock manda).
+- [x] Barrel/globalThis.bootstrap eliminados; los cuatro plugins requeridos funcionan (Collapse/Dropdown/Alert vía data-API del módulo, Offcanvas programático).
+- [x] Main JS menor al baseline: 126 589 → 126 304 raw / 37 637 → 37 515 gzip (medido pre/post).
+- [x] Build, E2E storefront 41/41 + focalizados 17/17, lint, typecheck y unit tests verdes.
+
+## Evidence (2026-08-12)
+
+- astro.config.mjs: integration + forward dataLayer eliminados; @astrojs/partytown fuera de package.json; test/csp.policy.hardening.test.js sin excepciones partytown (inline executable = 0 estricto).
+- storefront.js: `import 'bootstrap'` (side effect: registra las data-APIs de Collapse/Dropdown/Alert) + `import { Offcanvas } from 'bootstrap'` (uso programático en openCartOffcanvas); `globalThis.bootstrap` eliminado.
+- astro-poc/package-lock.json (nested) eliminado: npm no lo regenera (el root lock es el modelo documentado, 0 refs partytown); su versión stale listaba la dependencia retirada.
+- Gates: build con contrato de artefactos, E2E storefront 41/41, root 428 + admin 504 tests, lint/typecheck verdes.
 
 ## STOP conditions
 

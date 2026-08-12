@@ -1,6 +1,6 @@
+/* global URL */
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
-import partytown from '@astrojs/partytown';
 
 export default defineConfig({
   output: 'static',
@@ -33,11 +33,6 @@ export default defineConfig({
           return null;
         }
         return item;
-      },
-    }),
-    partytown({
-      config: {
-        forward: ['dataLayer.push'],
       },
     }),
   ],
