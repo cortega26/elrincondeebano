@@ -1145,9 +1145,6 @@ function openCartOffcanvas() {
   const instance = Offcanvas.getOrCreateInstance(offcanvasElement);
   instance.show();
   setCartOffcanvasState(true);
-  offcanvasElement.classList.add('show');
-  offcanvasElement.style.visibility = 'visible';
-  offcanvasElement.style.transform = 'none';
 }
 
 function createCatalogController() {
