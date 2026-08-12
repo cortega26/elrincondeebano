@@ -91,3 +91,67 @@ test('preview values are preferred over the current-product fallback', () => {
     { product_id: 'p1', field: 'discount', old_value: 250 },
   ]);
 });
+
+// ── plan 099: stack semantics — entries move ONLY on success ────────────────
+
+import { moveEntryOnSuccess } from '../../src/web/app/routes/undo.ts';
+
+const makeEntry = (id: string) => ({
+  id,
+  perProductOldValues: [{ product_id: 'p', field: 'stock' as const, old_value: true }],
+});
+
+test('moveEntryOnSuccess pushes to the target stack after a successful operation', async () => {
+  const source = { current: [makeEntry('e1')] };
+  const target = { current: [] as Array<{ id: string }> };
+
+  await moveEntryOnSuccess(source, target, async () => {});
+
+  expect(source.current).toHaveLength(0);
+  expect(target.current.map((e) => e.id)).toEqual(['e1']);
+});
+
+test('moveEntryOnSuccess restores the entry to the source stack on failure', async () => {
+  const source = { current: [makeEntry('e1')] };
+  const target = { current: [] as Array<{ id: string }> };
+
+  await expect(
+    moveEntryOnSuccess(source, target, async () => {
+      throw new Error('409 stale revision');
+    })
+  ).rejects.toThrow('409 stale revision');
+
+  expect(source.current.map((e) => e.id)).toEqual(['e1']);
+  expect(target.current).toHaveLength(0);
+});
+
+test('moveEntryOnSuccess keeps the failure entry retryable (idempotent retry)', async () => {
+  const source = { current: [makeEntry('e1')] };
+  const target = { current: [] as Array<{ id: string }> };
+  let calls = 0;
+
+  const op = async () => {
+    calls += 1;
+    if (calls === 1) throw new Error('network');
+  };
+
+  await expect(moveEntryOnSuccess(source, target, op)).rejects.toThrow('network');
+  await moveEntryOnSuccess(source, target, op);
+
+  expect(calls).toBe(2);
+  expect(source.current).toHaveLength(0);
+  expect(target.current.map((e) => e.id)).toEqual(['e1']);
+});
+
+test('moveEntryOnSuccess is a no-op on an empty source stack', async () => {
+  const source = { current: [] as Array<{ id: string }> };
+  const target = { current: [] as Array<{ id: string }> };
+  let ran = false;
+
+  await moveEntryOnSuccess(source, target, async () => {
+    ran = true;
+  });
+
+  expect(ran).toBe(false);
+  expect(target.current).toHaveLength(0);
+});

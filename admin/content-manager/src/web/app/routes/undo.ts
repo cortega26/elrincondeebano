@@ -126,3 +126,32 @@ export function saveStack(key: string, entries: UndoEntry[]): void {
     // Session storage full/blocked: the in-memory stack still works.
   }
 }
+
+// ── plan 099: stack semantics — entries move ONLY on success ─────────────────
+
+export interface StackRef<T> {
+  current: T[];
+}
+
+/**
+ * Runs an operation on the entry popped from `source`. On success the entry
+ * is pushed to `target`; on failure it is restored to `source` so the
+ * operator can retry — a failed undo/redo must never lose the entry or move
+ * it to the opposite stack (where "redo" would re-apply the very change the
+ * operator wanted to undo).
+ */
+export async function moveEntryOnSuccess<T>(
+  source: StackRef<T>,
+  target: StackRef<T>,
+  operation: (entry: T) => Promise<void>
+): Promise<void> {
+  const entry = source.current.pop();
+  if (entry === undefined) return;
+  try {
+    await operation(entry);
+    target.current.push(entry);
+  } catch (err) {
+    source.current.push(entry);
+    throw err;
+  }
+}

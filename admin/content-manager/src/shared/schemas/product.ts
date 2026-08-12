@@ -19,7 +19,16 @@ export const productReadSchema = z.object({
   price: z.number().int().positive('El precio debe ser mayor que cero').max(1_000_000),
   discount: z.number().int().nonnegative().default(0),
   stock: z.boolean().default(false),
-  category: z.string().max(50).default(''),
+  category: z
+    .string()
+    .max(50)
+    // Plan 100: category keys become filesystem path segments
+    // (assets/images/<category>/) — forbid path separators and traversal.
+    .regex(
+      /^[A-Za-z0-9À-ÿ ._'&()-]*$/,
+      "La categoría solo puede contener letras, números, espacios, y ._'-&()"
+    )
+    .default(''),
   image_path: z
     .string()
     .default('')

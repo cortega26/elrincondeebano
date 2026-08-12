@@ -120,6 +120,11 @@ test('discount filter narrows the view and Limpiar restores it', async ({ page }
   await expect(page.getByLabel('Solo descuento')).toBeChecked();
   await expect(page.getByText('Mostrando 1–5 de 5')).toBeVisible();
 
+  // Plan 101: any discount filter disables reorder (server requires the
+  // full catalog — 409 REORDER_SCOPE_AMBIGUOUS otherwise).
+  const reorder = page.getByRole('button', { name: '⇅ Reordenar' });
+  await expect(reorder).toBeDisabled();
+
   // Min % filter keeps only the 10% discounted subset.
   await page.getByLabel('Dto. mín %:').fill('5');
   await expect(page.getByText('Mostrando 1–5 de 5')).toBeVisible();
@@ -267,6 +272,10 @@ test('Ctrl+F focuses the product search on a settled page', async ({ page }) => 
   await expect(search).toBeVisible();
   // Wait for the debounced load to finish — its re-render would steal focus.
   await expect(page.getByText('Cargando…')).not.toBeVisible();
+  // The load may still commit its final transition after Cargando disappears
+  // (React deferred render): give it one debounce cycle so the input node is
+  // stable before focusing (focus is lost when the node is replaced).
+  await page.waitForTimeout(350);
   await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
   await page.evaluate(() =>
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'f', ctrlKey: true, bubbles: true }))

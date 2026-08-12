@@ -4,7 +4,7 @@
 // the image tree.
 
 import { renameSync, mkdirSync, existsSync, readdirSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
+import { resolve, dirname, sep } from 'node:path';
 
 export interface RelocationResult {
   moved: Array<{ from: string; to: string }>;
@@ -37,6 +37,10 @@ export function relocateProductMedia(
     const to = resolve(repoRoot, toRelative);
     if (to === from) return relativePath;
     if (existsSync(to)) return relativePath;
+    // Plan 100: never rename outside the image tree — the category key is
+    // the only variable segment and it must stay under assets/images/.
+    const assetsRoot = resolve(repoRoot, 'assets/images') + sep;
+    if (!to.startsWith(assetsRoot)) return relativePath;
     mkdirSync(dirname(to), { recursive: true });
     renameSync(from, to);
     moved.push({ from, to });

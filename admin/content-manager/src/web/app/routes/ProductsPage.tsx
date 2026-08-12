@@ -2,7 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { ContentManagerClient } from '../../api/client.ts';
 import type { ProductResponse } from '../../api/client.ts';
 import type { CategoryRecord } from '../../../shared/schemas/category.ts';
-import { buildUndoEntry, computeUndoActions, loadStack, saveStack } from './undo.ts';
+import {
+  buildUndoEntry,
+  computeUndoActions,
+  loadStack,
+  saveStack,
+  moveEntryOnSuccess,
+} from './undo.ts';
 import { ProductForm } from '../components/ProductForm.tsx';
 import { useProductsQuery } from '../components/useProductsQuery.ts';
 import { SyncStatusPanel } from '../components/SyncStatusPanel.tsx';
@@ -150,7 +156,19 @@ export function ProductsPage(): React.ReactElement {
     };
   }, []);
 
-  const filtersActive = Boolean(q || category || outOfStock || minPrice || maxPrice || archived);
+  const filtersActive = Boolean(
+    q ||
+    category ||
+    outOfStock ||
+    minPrice ||
+    maxPrice ||
+    archived ||
+    // Plan 101: discount filters also gate reorder — the server requires
+    // the FULL catalog (409 REORDER_SCOPE_AMBIGUOUS otherwise).
+    discountedOnly === 'true' ||
+    minDiscount !== '' ||
+    maxDiscount !== ''
+  );
   const canReorder =
     !!data &&
     !filtersActive &&
@@ -441,19 +459,22 @@ export function ProductsPage(): React.ReactElement {
   }
 
   async function handleRedo(): Promise<void> {
-    const entry = redoStack.current.pop();
-    if (!entry || entry.perProductOldValues.length === 0) return;
-    undoStack.current.push(entry);
-    saveStack('cm-undo-stack', undoStack.current);
-    saveStack('cm-redo-stack', redoStack.current);
     try {
-      // Plan 097: redo re-applies the original bulk action to the recorded
-      // product ids with fresh revisions.
-      const result = await client.bulkApply(entry.action, entry.value, entry.product_ids);
-      setBulkPreview(null);
-      setFeedback(`Rehecho: ${result.changed} productos modificados ✓`);
-      await reload();
+      // Plan 099: the entry moves stacks only after the operation succeeds —
+      // a failed redo must stay in the redo stack for retry.
+      await moveEntryOnSuccess(redoStack, undoStack, async (entry) => {
+        // Plan 097: redo re-applies the original bulk action to the recorded
+        // product ids with fresh revisions.
+        const result = await client.bulkApply(entry.action, entry.value, entry.product_ids);
+        setBulkPreview(null);
+        setFeedback(`Rehecho: ${result.changed} productos modificados ✓`);
+        await reload();
+      });
+      saveStack('cm-undo-stack', undoStack.current);
+      saveStack('cm-redo-stack', redoStack.current);
     } catch (err) {
+      saveStack('cm-undo-stack', undoStack.current);
+      saveStack('cm-redo-stack', redoStack.current);
       setOpError((err as Error).message);
     }
   }
@@ -472,28 +493,32 @@ export function ProductsPage(): React.ReactElement {
   }
 
   async function handleUndo(): Promise<void> {
-    const entry = undoStack.current.pop();
-    if (!entry || entry.perProductOldValues.length === 0) return;
-    redoStack.current.push(entry);
-    saveStack('cm-undo-stack', undoStack.current);
-    saveStack('cm-redo-stack', redoStack.current);
-
     try {
-      // Fetch fresh revisions right before undoing — data.items may already be
-      // stale (a prior undo item in this same entry, or the apply itself).
-      const currentProducts = await Promise.all(
-        entry.perProductOldValues.map(async (item) => {
-          const product = await client.getProduct(item.product_id);
-          return { id: item.product_id, rev: product.rev ?? 0 };
-        })
-      );
-      const actions = computeUndoActions(entry, currentProducts);
-      for (const action of actions) {
-        await client.updateProduct(action.id, action.rev, action.patch);
-      }
-      setFeedback('Operación deshecha ✓');
-      await reload();
+      // Plan 099: the entry moves stacks only after the operation succeeds —
+      // a failed undo (404/409/network) must stay in the undo stack for
+      // retry; re-applying the action from the redo stack would be the
+      // OPPOSITE of what the operator asked for.
+      await moveEntryOnSuccess(undoStack, redoStack, async (entry) => {
+        // Fetch fresh revisions right before undoing — data.items may already
+        // be stale (a prior undo item in this same entry, or the apply).
+        const currentProducts = await Promise.all(
+          entry.perProductOldValues.map(async (item) => {
+            const product = await client.getProduct(item.product_id);
+            return { id: item.product_id, rev: product.rev ?? 0 };
+          })
+        );
+        const actions = computeUndoActions(entry, currentProducts);
+        for (const action of actions) {
+          await client.updateProduct(action.id, action.rev, action.patch);
+        }
+        setFeedback('Operación deshecha ✓');
+        await reload();
+      });
+      saveStack('cm-undo-stack', undoStack.current);
+      saveStack('cm-redo-stack', redoStack.current);
     } catch (err) {
+      saveStack('cm-undo-stack', undoStack.current);
+      saveStack('cm-redo-stack', redoStack.current);
       setOpError((err as Error).message);
     }
   }

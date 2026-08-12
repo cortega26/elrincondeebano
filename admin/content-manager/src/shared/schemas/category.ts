@@ -14,8 +14,23 @@ export type Subcategory = z.infer<typeof subcategorySchema>;
 
 export const categoryRecordSchema = z.object({
   id: z.string().min(1),
-  key: z.string().min(1),
-  slug: z.string(),
+  key: z
+    .string()
+    .min(1)
+    // Plan 100: keys become filesystem path segments (assets/images/<key>/)
+    // and URL segments — forbid path separators and traversal.
+    .regex(
+      /^[A-Za-z0-9À-ÿ ._'&()-]+$/,
+      "La clave de categoría solo puede contener letras, números, espacios, y ._'-&()"
+    ),
+  slug: z
+    .string()
+    // Plan 100: slugs become OG-image file names
+    // (assets/images/og/categories/<slug>.og_v3.jpg).
+    .regex(
+      /^[A-Za-z0-9._-]*$/,
+      'El slug solo puede contener letras, números, puntos, guiones y guiones bajos'
+    ),
   display_name: z.object({ default: z.string().optional() }).optional(),
   nav_group: z.string().optional(),
   active: z.boolean().optional(),

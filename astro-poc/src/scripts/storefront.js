@@ -471,13 +471,10 @@ function getProductFromCard(card) {
 
   const name = card.dataset.productName || id;
   const category = card.dataset.productCategory || '';
-  const finalPrice = parseNumber(card.dataset.productFinalPrice, NaN);
-  const price = Number.isNaN(finalPrice)
-    ? Math.max(
-        0,
-        parseNumber(card.dataset.productPrice, 0) - parseNumber(card.dataset.productDiscount, 0)
-      )
-    : finalPrice;
+  // Store the ORIGINAL price: the cart pipeline (getCartState, renders,
+  // WhatsApp summary) computes effectivePrice = price - discount everywhere,
+  // so a final price here would double-apply the discount.
+  const price = parseNumber(card.dataset.productPrice, 0);
   const discount = parseNumber(card.dataset.productDiscount, 0);
   const image = card.querySelector('.product-thumb, .strip-card__img')?.getAttribute('src') || '';
   const stock = card.dataset.productStock !== 'false';
@@ -941,7 +938,8 @@ function renderCart(cart, { animateTotal = false, changedItemId = null } = {}) {
       }
       const subtotalSpan = existingEl.querySelector('.cart-item__subtotal');
       if (subtotalSpan) {
-        subtotalSpan.textContent = `Subtotal: ${formatCurrency(cartItem.price * cartItem.quantity)}`;
+        const effectivePrice = Math.max(0, cartItem.price - (cartItem.discount || 0));
+        subtotalSpan.textContent = `Subtotal: ${formatCurrency(effectivePrice * cartItem.quantity)}`;
       }
       // Update total and sync state
       const { totalAmount } = getCartState(cart);

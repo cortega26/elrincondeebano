@@ -455,3 +455,47 @@ test('PATCH category relocates image files and updates the paths', async () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('PATCH product rejects category with path traversal (plan 100)', async () => {
+  const dir = createTempDir();
+  setupDir(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const created = await app.inject({
+      method: 'POST',
+      url: '/api/v1/products',
+      headers: ch,
+      payload: {
+        command_id: 'traversal-create',
+        payload: { name: 'Traversal Target', price: 1000, category: 'okcat' },
+      },
+    });
+    expect(created.statusCode).toBe(201);
+    const pid = created.json<{ product: { id: string } }>().product.id;
+
+    const patched = await app.inject({
+      method: 'PATCH',
+      url: `/api/v1/products/${pid}`,
+      headers: ch,
+      payload: {
+        command_id: 'traversal-move',
+        base_revision: 1,
+        payload: { category: '../../../../../../tmp/escaped' },
+      },
+    });
+    expect(patched.statusCode).toBe(422);
+
+    const product = await app.inject({
+      method: 'GET',
+      url: `/api/v1/products/${pid}`,
+    });
+    expect(product.json<{ category: string }>().category).toBe('okcat');
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

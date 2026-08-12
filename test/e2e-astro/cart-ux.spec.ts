@@ -381,3 +381,46 @@ test('T11: forged legacy shared-cart link rehydrates from catalog only', async (
   expect(stored![0].price).toBeGreaterThan(1);
   expect(stored![0].name).not.toBe('PRODUCTO FORJADO');
 });
+
+test('T12: cart subtotal uses the discounted price when adjusting quantity', async ({ page }) => {
+  await page.setViewportSize(MOBILE);
+  // Pepita de Oro: price 12900, discount 1000 -> effective 11900 (Despensa).
+  await page.goto('/despensa/', { waitUntil: 'networkidle' });
+  await waitForReady(page);
+
+  const addBtn = page.locator(`.add-to-cart-btn[data-id="p-a8b114216534"]`);
+  await expect(addBtn).toBeVisible();
+  await addBtn.click();
+  await page.waitForTimeout(150);
+
+  const shortcut = page.locator('#mobile-cart-shortcut');
+  await expect(shortcut).toBeVisible({ timeout: 5_000 });
+  await shortcut.click();
+
+  const offcanvas = page.locator('#cartOffcanvas');
+  await expect(offcanvas).toBeVisible({ timeout: 5_000 });
+
+  const increaseBtn = offcanvas.locator('[data-action="increase"]');
+  await expect(increaseBtn).toBeVisible();
+  await increaseBtn.click();
+  await page.waitForTimeout(150);
+
+  // Unitario line uses the discounted price and the subtotal matches it x2.
+  await expect(offcanvas.locator('.cart-item__price-line')).toHaveText('Unitario: $11.900');
+  await expect(offcanvas.locator('.cart-item__subtotal')).toHaveText('Subtotal: $23.800');
+});
+
+test('T13: cart offcanvas closes via continue-shopping and the close button', async ({ page }) => {
+  const offcanvas = await seedCartAndOpen(page, 1);
+
+  // Path that regressed in 91bea36: continue-shopping must fully hide the drawer.
+  await offcanvas.locator('#continue-shopping').click();
+  await expect(offcanvas).toBeHidden({ timeout: 5_000 });
+
+  // Reopen and close via the X (data-bs-dismiss="offcanvas").
+  const shortcut = page.locator('#mobile-cart-shortcut');
+  await shortcut.click();
+  await expect(offcanvas).toBeVisible({ timeout: 5_000 });
+  await offcanvas.locator('.btn-close').click();
+  await expect(offcanvas).toBeHidden({ timeout: 5_000 });
+});

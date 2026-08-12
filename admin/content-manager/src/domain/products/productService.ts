@@ -1,5 +1,5 @@
 import type { Product, ProductCatalog } from '../../shared/schemas/product.ts';
-import { productSchema } from '../../shared/schemas/product.ts';
+import { productSchema, productReadSchema } from '../../shared/schemas/product.ts';
 import { generateProductId } from '../../shared/identity.ts';
 
 export interface CreateProductInput {
@@ -158,6 +158,20 @@ export class ProductService {
 
     const now = new Date().toISOString();
     const changedFields: string[] = [];
+
+    // Plan 100: validate field-level constraints on the prospective product
+    // BEFORE mutating — a rejected edit must leave the (possibly shared)
+    // catalog object untouched. Cross-field invariants (discount vs price)
+    // stay in the bespoke guards below and the final productSchema check.
+    const definedChanges = Object.fromEntries(
+      Object.entries(params.changes).filter(([, value]) => value !== undefined)
+    );
+    const prospective = { ...product, ...definedChanges };
+    const prospectiveValidation = productReadSchema.safeParse(prospective);
+    if (!prospectiveValidation.success) {
+      const messages = prospectiveValidation.error.issues.map((i) => i.message).join('; ');
+      return { ok: false, error: messages, statusCode: 422 };
+    }
 
     if (params.changes.name !== undefined && params.changes.name !== product.name) {
       product.name = params.changes.name;
