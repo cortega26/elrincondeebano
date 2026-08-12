@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import type { GitAdapter } from '../adapters/gitAdapter.ts';
 import { JobRunner } from '../services/jobRunner.ts';
-import type { Repositories } from './catalog.ts';
+import type { Repositories } from './helpers.ts';
 import type { ProductService } from '../../domain/products/productService.ts';
 import {
   createDefaultManifest,

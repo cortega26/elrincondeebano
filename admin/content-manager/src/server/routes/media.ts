@@ -2,7 +2,7 @@ import { writeFileSync, renameSync, existsSync, mkdirSync, unlinkSync } from 'no
 import { dirname, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
-import type { Repositories } from './catalog.ts';
+import type { Repositories } from './helpers.ts';
 import { MediaRepository } from '../repositories/mediaRepository.ts';
 import { MediaIntentRepository } from '../repositories/mediaIntentRepository.ts';
 import {

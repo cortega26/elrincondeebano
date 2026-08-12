@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import type { Repositories } from './catalog.ts';
+import type { Repositories } from './helpers.ts';
 
 // Bootstrap is a public (unauthenticated) informational endpoint: capabilities,
 // revision and counts only. The launch credential is deliberately NOT served

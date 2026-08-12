@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import type { Repositories } from './catalog.ts';
+import type { Repositories } from './helpers.ts';
 import { ChangeSetRepository } from '../repositories/changeSetRepository.ts';
 import { PreviewRepository } from '../repositories/previewRepository.ts';
 import { HistoryRepository } from '../repositories/historyRepository.ts';
@@ -11,7 +11,7 @@ import {
 } from '../../shared/schemas/changeSet.ts';
 import { productSchema } from '../../shared/schemas/product.ts';
 import type { ChangeSet } from '../../shared/schemas/changeSet.ts';
-import { requireWriteMode } from './catalog.ts';
+import { requireWriteMode } from './helpers.ts';
 import type { ProductService } from '../../domain/products/productService.ts';
 import type { Product } from '../../shared/schemas/product.ts';
 import {

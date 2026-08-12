@@ -2,7 +2,7 @@ import type { ChangeSetOp } from '../../shared/schemas/changeSet.ts';
 import type { ChangeSet } from '../../shared/schemas/changeSet.ts';
 import { productSchema } from '../../shared/schemas/product.ts';
 import { generateProductId } from '../../shared/identity.ts';
-import type { Repositories } from '../../server/routes/catalog.ts';
+import type { Repositories } from '../../server/routes/helpers.ts';
 
 export type ApplyResult =
   | { ok: true; applied: number; resulting_revision: number; ops: ChangeSetOp[] }

@@ -7,7 +7,7 @@ import {
   generateConflictId,
   type Conflict,
 } from '../../shared/schemas/conflict.ts';
-import type { Repositories } from '../routes/catalog.ts';
+import type { Repositories } from '../routes/helpers.ts';
 import { productSchema, type ProductCatalog } from '../../shared/schemas/product.ts';
 import { createHash } from 'node:crypto';
 

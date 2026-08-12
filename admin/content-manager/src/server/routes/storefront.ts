@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import type { Repositories } from './catalog.ts';
+import type { Repositories } from './helpers.ts';
 import { validateStorefrontCuration } from '../../domain/storefront/storefrontValidation.ts';
 import { storefrontBundleSchema, productReferenceSchema } from '../../shared/schemas/storefront.ts';
 import { z } from 'zod';
