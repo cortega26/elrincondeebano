@@ -3,6 +3,7 @@ import astro from 'eslint-plugin-astro';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import sonarjs from 'eslint-plugin-sonarjs';
+import { sonarRules, unusedVarsRules, scriptsExemptionRules } from '../config/eslint-base.mjs';
 
 export default [
   {
@@ -31,22 +32,8 @@ export default [
       },
     },
     rules: {
-      'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': [
-        'error',
-        {
-          argsIgnorePattern: '^_',
-          caughtErrors: 'none',
-          varsIgnorePattern: '^_',
-        },
-      ],
-      complexity: ['warn', 10],
-      'max-depth': ['warn', 4],
-      'max-lines-per-function': ['warn', { max: 80, skipBlankLines: true, skipComments: true }],
-      'max-params': ['warn', 4],
-      'sonarjs/cognitive-complexity': ['warn', 15],
-      'sonarjs/no-identical-functions': 'warn',
-      'sonarjs/no-duplicate-string': 'warn',
+      ...unusedVarsRules,
+      ...sonarRules,
     },
   },
   {
@@ -80,10 +67,7 @@ export default [
   {
     files: ['scripts/**'],
     rules: {
-      complexity: 'off',
-      'max-lines-per-function': 'off',
-      'sonarjs/cognitive-complexity': 'off',
-      'sonarjs/no-duplicate-string': 'off',
+      ...scriptsExemptionRules,
     },
   },
   {
