@@ -61,22 +61,22 @@ se convirtieron en planes 098+. Orden de ejecución recomendado por
 dependencias: bugs primero (098–105), tests (106–109), retiro de superficie
 (110–111), luego el batch 2 (112+).
 
-| Plan                                                            | Título                                              | Prioridad | Esfuerzo | Depends on | Estado          |
-| --------------------------------------------------------------- | --------------------------------------------------- | --------- | -------- | ---------- | --------------- |
-| [098](archive/098-fix-cart-subtotal-discount-fast-path.md)      | Subtotal del carrito ignora descuento (fast path)   | P1        | S        | —          | DONE 2026-08-12 |
-| [099](archive/099-fix-undo-redo-stack-semantics.md)             | Undo/redo corrompen las pilas al fallar             | P1        | M        | —          | DONE 2026-08-12 |
-| [100](archive/100-harden-media-relocation-paths.md)             | Path traversal vía `category` en mediaRelocation    | P1        | S        | —          | DONE 2026-08-12 |
-| [101](archive/101-fix-reorder-gating-under-discount-filters.md) | Reorder habilitado con filtros → 409 garantizado    | P1        | S        | —          | DONE 2026-08-12 |
-| [102](archive/102-fix-bulk-apply-noop-revs.md)                  | bulkApply cuenta no-ops como modificados            | P2        | S        | —          | DONE 2026-08-12 |
-| [103](archive/103-harden-media-intent-runner.md)                | Intent runner sin catch → estado atascado           | P2        | S        | —          | DONE 2026-08-12 |
-| [104](archive/104-storefront-routes-error-classification.md)    | PUT storefront convierte 500 en 400                 | P2        | S        | —          | DONE 2026-08-12 |
-| [105](archive/105-isolate-catalog-snapshots-per-request.md)     | Catálogo mutable compartido → falsos 409            | P1        | M        | —          | DONE 2026-08-12 |
-| [106](archive/106-test-category-og-lifecycle.md)                | Cero tests en categoryOgLifecycle                   | P1        | M        | —          | DONE 2026-08-12 |
-| [107](archive/107-storefront-cart-e2e-hardening.md)             | E2E: dismiss del offcanvas + subtotal con descuento | P1        | S        | 098        | DONE 2026-08-12 |
-| [108](108-port-durability-fault-injection-to-atomic-writer.md)  | Portar fault-injection a AtomicWriter               | P2        | M        | —          | TODO            |
-| [109](109-fix-scope-spec-order-dependence.md)                   | scope.spec orden-dependiente (fixture compartido)   | P2        | S        | —          | TODO            |
-| [110](110-retire-dead-e2e-surface.md)                           | Scripts e2e muertos + 8 specs legacy                | P1        | S        | —          | TODO            |
-| [111](111-retire-legacy-sync-server-and-python-surface.md)      | Retirar sync API legacy + superficie Python         | P1        | S        | 108        | TODO            |
+| Plan                                                                   | Título                                              | Prioridad | Esfuerzo | Depends on | Estado          |
+| ---------------------------------------------------------------------- | --------------------------------------------------- | --------- | -------- | ---------- | --------------- |
+| [098](archive/098-fix-cart-subtotal-discount-fast-path.md)             | Subtotal del carrito ignora descuento (fast path)   | P1        | S        | —          | DONE 2026-08-12 |
+| [099](archive/099-fix-undo-redo-stack-semantics.md)                    | Undo/redo corrompen las pilas al fallar             | P1        | M        | —          | DONE 2026-08-12 |
+| [100](archive/100-harden-media-relocation-paths.md)                    | Path traversal vía `category` en mediaRelocation    | P1        | S        | —          | DONE 2026-08-12 |
+| [101](archive/101-fix-reorder-gating-under-discount-filters.md)        | Reorder habilitado con filtros → 409 garantizado    | P1        | S        | —          | DONE 2026-08-12 |
+| [102](archive/102-fix-bulk-apply-noop-revs.md)                         | bulkApply cuenta no-ops como modificados            | P2        | S        | —          | DONE 2026-08-12 |
+| [103](archive/103-harden-media-intent-runner.md)                       | Intent runner sin catch → estado atascado           | P2        | S        | —          | DONE 2026-08-12 |
+| [104](archive/104-storefront-routes-error-classification.md)           | PUT storefront convierte 500 en 400                 | P2        | S        | —          | DONE 2026-08-12 |
+| [105](archive/105-isolate-catalog-snapshots-per-request.md)            | Catálogo mutable compartido → falsos 409            | P1        | M        | —          | DONE 2026-08-12 |
+| [106](archive/106-test-category-og-lifecycle.md)                       | Cero tests en categoryOgLifecycle                   | P1        | M        | —          | DONE 2026-08-12 |
+| [107](archive/107-storefront-cart-e2e-hardening.md)                    | E2E: dismiss del offcanvas + subtotal con descuento | P1        | S        | 098        | DONE 2026-08-12 |
+| [108](archive/108-port-durability-fault-injection-to-atomic-writer.md) | Portar fault-injection a AtomicWriter               | P2        | M        | —          | DONE 2026-08-12 |
+| [109](archive/109-fix-scope-spec-order-dependence.md)                  | scope.spec orden-dependiente (fixture compartido)   | P2        | S        | —          | DONE 2026-08-12 |
+| [110](archive/110-retire-dead-e2e-surface.md)                          | Scripts e2e muertos + 8 specs legacy                | P1        | S        | —          | DONE 2026-08-12 |
+| [111](archive/111-retire-legacy-sync-server-and-python-surface.md)     | Retirar sync API legacy + superficie Python         | P1        | S        | 108        | DONE 2026-08-12 |
 
 Batch 2 — perf/deps/DX/seguridad (112–126):
 
@@ -520,8 +520,8 @@ Todos los cambios de implementación de estos planes eran limitados a
 | [047](047-centralize-product-manager-configuration.md)  | Centralizar configuración tipada            | P1       | M      | 039                  | SUPERSEDED — cubierto por TS (057: credential/env + settings)  |
 | [049](049-retire-dormant-sqlite-store.md)               | Retirar store SQLite dormido                | P3       | S      | 036                  | SUPERSEDED — SQLite retirado con Python (ADR 0009)             |
 
-Gate residual: pytest + ruff desde `admin/product_manager/` (equivalente al job
-de CI en `admin.yml`).
+Gate residual: retirado con la superficie Python (plan 111) — el CI del
+admin es TypeScript (`admin.yml` → `admin/content-manager/`).
 
 ---
 

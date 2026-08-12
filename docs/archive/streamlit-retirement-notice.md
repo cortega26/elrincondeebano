@@ -26,9 +26,11 @@ replacement for all admin workflows.
 
 ## What remains active
 
-The Python Tkinter Content Manager (`admin/product_manager/`) remains active as
-the fallback during the transition window. It will be retired in Phase 12.2 after
-the agreed fallback window expires and maintainer approval is recorded.
+Actual outcome (updated 2026-08-12, plan 069/111): the Python Tkinter manager
+was retired on 2026-08-11 (`chore(admin): retire Python fallback`, tag
+`v1.x-python-final`). The TypeScript Content Manager
+(`admin/content-manager/`) is canonical; rollback via
+`git checkout v1.x-python-final -- admin/product_manager/`.
 
 ## Rollback
 

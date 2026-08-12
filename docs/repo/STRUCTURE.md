@@ -18,25 +18,25 @@ The canonical production build is always `npm run build` from the repo root — 
 
 ## Directory reference
 
-| Directory    | Role                                                                                                                          |
-| ------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| `astro-poc/` | **Active production storefront.** Astro app; `npm run build` outputs to `astro-poc/dist/`.                                    |
-| `src/js/`    | Legacy root JS modules type-checked via `tsconfig.typecheck.json`. Not shipped directly.                                      |
-| `data/`      | Shared build inputs: `product_data.json`, `categories.json`, `category_registry.json`. Read by preflight and the Astro build. |
-| `assets/`    | Source images, fonts, CSS. Processed by preflight image pipelines before the Astro build consumes them.                       |
-| `tools/`     | Build-time and CI scripts (image generation, guardrails, preflight, live-contract monitors). Not shipped to the browser.      |
-| `scripts/`   | Operator helpers: local dev server, smoke checklist, CI utilities.                                                            |
-| `test/`      | Unit tests (`*.test.js` via node:test), Vitest specs (`*.spec.{js,ts}`), and Playwright E2E (`test/e2e-astro/`).              |
-| `static/`    | Static files copied verbatim into `astro-poc/dist/` by the build.                                                             |
-| `config/`    | Shared config inputs consumed by tooling (e.g., `category_og_icon_map.json`).                                                 |
-| `infra/`     | Cloudflare Workers config (`wrangler.toml`) for edge security headers. Not part of the static build.                          |
-| `admin/`     | Python-based desktop product manager. Separate venv; CI via `admin.yml`.                                                      |
-| `reports/`   | Generated evidence; ignored by default, with selected baselines committed explicitly.                                         |
-| `build/`     | Legacy asset manifest artifact. Not used by the Astro build path.                                                             |
-| `output/`    | Playwright trace/report output. Not committed.                                                                                |
-| `coverage/`  | Test coverage output. Not committed.                                                                                          |
-| `_archive/`  | Dead code preserved for reference only. Never imported or built.                                                              |
-| `_products/` | Raw product data backups. Not part of any build or test.                                                                      |
+| Directory    | Role                                                                                                                                                                                   |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `astro-poc/` | **Active production storefront.** Astro app; `npm run build` outputs to `astro-poc/dist/`.                                                                                             |
+| `src/js/`    | Legacy root JS modules type-checked via `tsconfig.typecheck.json`. Not shipped directly.                                                                                               |
+| `data/`      | Shared build inputs: `product_data.json`, `categories.json`, `category_registry.json`. Read by preflight and the Astro build.                                                          |
+| `assets/`    | Source images, fonts, CSS. Processed by preflight image pipelines before the Astro build consumes them.                                                                                |
+| `tools/`     | Build-time and CI scripts (image generation, guardrails, preflight, live-contract monitors). Not shipped to the browser.                                                               |
+| `scripts/`   | Operator helpers: local dev server, smoke checklist, CI utilities.                                                                                                                     |
+| `test/`      | Unit tests (`*.test.js` via node:test), Vitest specs (`*.spec.{js,ts}`), and Playwright E2E (`test/e2e-astro/`).                                                                       |
+| `static/`    | Static files copied verbatim into `astro-poc/dist/` by the build.                                                                                                                      |
+| `config/`    | Shared config inputs consumed by tooling (e.g., `category_og_icon_map.json`).                                                                                                          |
+| `infra/`     | Cloudflare Workers config (`wrangler.toml`) for edge security headers. Not part of the static build.                                                                                   |
+| `admin/`     | TypeScript Content Manager (Fastify + React + Vite): admin canónico; CI vía `admin.yml` (working-dir `admin/content-manager/`). El manager Python/Tkinter fue retirado (plan 069/111). |
+| `reports/`   | Generated evidence; ignored by default, with selected baselines committed explicitly.                                                                                                  |
+| `build/`     | Legacy asset manifest artifact. Not used by the Astro build path.                                                                                                                      |
+| `output/`    | Playwright trace/report output. Not committed.                                                                                                                                         |
+| `coverage/`  | Test coverage output. Not committed.                                                                                                                                                   |
+| `_archive/`  | Dead code preserved for reference only. Never imported or built.                                                                                                                       |
+| `_products/` | Raw product data backups. Not part of any build or test.                                                                                                                               |
 
 ## Data flow
 
@@ -81,7 +81,7 @@ config/ ─────────────────┘                  
 ### Operator scripts (`scripts/`)
 
 - Canonical: `dev-server.mjs`, `smoke-checklist.mjs`, `check-css-order.mjs`.
-- Specialized/manual: `run-cypress.mjs`, `python_quality.ps1`, `fix_python_lint.ps1`, `sarif_to_md.py`, `image_to_webp_converter3.py`.
+- Specialized/manual: `sarif_to_md.py`.
 
 Manual/specialized scripts are kept for targeted maintenance tasks and should not be added to CI gates without explicit RFC/ADR.
 
@@ -107,7 +107,7 @@ Manual/specialized scripts are kept for targeted maintenance tasks and should no
 - Tests:
   - Unit/integration: `test/*.test.js` or `test/*.spec.js`.
   - E2E Playwright (active): `test/e2e-astro/*.spec.ts`.
-  - Supplemental/manual Playwright: `test/e2e/*.spec.ts`.
+
   - Archived legacy storefront checks live under `_archive/legacy-storefront/tests/` and are outside the active assurance path.
 - Documentation:
   - Prompt checkpoints (archived once completed): `plans/archive/prompt-<N>-<topic>-YYYYMMDD.md`.

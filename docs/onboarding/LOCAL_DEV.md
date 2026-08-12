@@ -5,7 +5,7 @@ This guide provides a short, repeatable setup for contributors.
 ## Requirements
 
 - Node.js 24.x. Keep in sync with `.nvmrc`, `.tool-versions`, and Volta.
-- Python 3.12 for admin tooling (optional).
+- (opcional) Python 3 para la generación de OG images vía `tools/category_og` — no es parte del admin.
 - Git.
 
 ## First run (site)
@@ -56,6 +56,6 @@ See `admin/content-manager/README.md` and `.env.example`.
 
 ## Notes
 
-- `npm test` runs node:test, then Vitest.
+- `npm test` runs the root Vitest suite, then the admin Vitest suite (`vitest run && npm run admin:test`).
 - Active storefront checks read from `astro-poc/dist/`; run `npm run build` after Astro, data, or shared asset changes.
 - `npm run build` is the only supported storefront build path for local verification.

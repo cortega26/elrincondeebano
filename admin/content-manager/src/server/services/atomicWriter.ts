@@ -20,13 +20,39 @@ export interface WriteResult {
   error?: string;
 }
 
+// Plan 108: injectable fs seam for fault-injection tests — production uses
+// the real node:fs (default).
+export interface AtomicFs {
+  mkdirSync: typeof mkdirSync;
+  writeFileSync: typeof writeFileSync;
+  readFileSync: typeof readFileSync;
+  renameSync: typeof renameSync;
+  unlinkSync: typeof unlinkSync;
+  existsSync: typeof existsSync;
+  readdirSync: typeof readdirSync;
+  statSync: typeof statSync;
+}
+
+export const NODE_FS: AtomicFs = {
+  mkdirSync,
+  writeFileSync,
+  readFileSync,
+  renameSync,
+  unlinkSync,
+  existsSync,
+  readdirSync,
+  statSync,
+};
+
 export class AtomicWriter {
   private readonly targetPath: string;
   private readonly recoveryJournal?: RecoveryJournal;
+  private readonly fs: AtomicFs;
 
-  constructor(targetPath: string, recoveryJournal?: RecoveryJournal) {
+  constructor(targetPath: string, recoveryJournal?: RecoveryJournal, fs: AtomicFs = NODE_FS) {
     this.targetPath = targetPath;
     this.recoveryJournal = recoveryJournal;
+    this.fs = fs;
   }
 
   write(data: ProductCatalog, commandId?: string, backupCount = 5): WriteResult {
@@ -37,23 +63,23 @@ export class AtomicWriter {
     try {
       this.recoveryJournal?.startOperation('atomic-write', fileName, commandId);
 
-      mkdirSync(dirname(this.targetPath), { recursive: true });
+      this.fs.mkdirSync(dirname(this.targetPath), { recursive: true });
 
       const json = JSON.stringify(data, null, 2);
 
-      writeFileSync(tmpPath, json, { encoding: 'utf-8', flush: true });
+      this.fs.writeFileSync(tmpPath, json, { encoding: 'utf-8', flush: true });
 
-      const written = readFileSync(tmpPath, 'utf-8');
+      const written = this.fs.readFileSync(tmpPath, 'utf-8');
       JSON.parse(written);
 
-      const backedUp = existsSync(this.targetPath);
+      const backedUp = this.fs.existsSync(this.targetPath);
       if (backedUp) {
-        renameSync(this.targetPath, backupPath);
+        this.fs.renameSync(this.targetPath, backupPath);
       }
 
-      renameSync(tmpPath, this.targetPath);
+      this.fs.renameSync(tmpPath, this.targetPath);
 
-      const verified = readFileSync(this.targetPath, 'utf-8');
+      const verified = this.fs.readFileSync(this.targetPath, 'utf-8');
       JSON.parse(verified);
 
       this.pruneBackups(backupCount);
@@ -63,8 +89,8 @@ export class AtomicWriter {
       return { success: true, backedUp, verified: true };
     } catch (err) {
       try {
-        if (!existsSync(this.targetPath) && existsSync(backupPath)) {
-          renameSync(backupPath, this.targetPath);
+        if (!this.fs.existsSync(this.targetPath) && this.fs.existsSync(backupPath)) {
+          this.fs.renameSync(backupPath, this.targetPath);
         }
       } catch {
         /* restoration is best-effort; the journal entry is the fallback */
@@ -90,18 +116,19 @@ export class AtomicWriter {
       const dir = dirname(this.targetPath);
       const prefix = `${this.targetPath.split('/').pop()}.backup_`;
 
-      const backups = readdirSync(dir)
+      const backups = this.fs
+        .readdirSync(dir)
         .filter((f: string) => f.startsWith(prefix))
         .map((f: string) => resolve(dir, f))
         .sort((a: string, b: string) => {
-          return statSync(b).mtimeMs - statSync(a).mtimeMs;
+          return this.fs.statSync(b).mtimeMs - this.fs.statSync(a).mtimeMs;
         });
 
       while (backups.length > maxBackups) {
         const oldest = backups.pop();
         if (oldest) {
           try {
-            unlinkSync(oldest);
+            this.fs.unlinkSync(oldest);
           } catch {
             /* ignore */
           }
@@ -114,7 +141,7 @@ export class AtomicWriter {
 
   private cleanup(): void {
     try {
-      unlinkSync(`${this.targetPath}.tmp`);
+      this.fs.unlinkSync(`${this.targetPath}.tmp`);
     } catch {
       /* ignore */
     }

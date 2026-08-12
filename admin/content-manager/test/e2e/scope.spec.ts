@@ -224,19 +224,29 @@ test('sortable columns expose aria-sort state', async ({ page }) => {
 // ── plan 095: purge + inline editing ─────────────────────────────────────────
 
 test('purge removes a product permanently after confirm', async ({ page, request }) => {
+  // Plan 109: derive counts from the API — no dependency on other tests
+  // mutating the shared fixture (shard/reorder safe).
+  const before = await (
+    await request.get('http://127.0.0.1:3102/api/v1/products?category=cat-c&limit=200')
+  ).json();
+  const totalBefore = before.total as number;
+
   await page.getByLabel('Categoría:').selectOption('cat-c');
-  await expect(page.getByText('Mostrando 1–10 de 10')).toBeVisible();
+  await expect(page.getByText(`Mostrando 1–${totalBefore} de ${totalBefore}`)).toBeVisible();
 
   page.once('dialog', (d) => d.accept());
   await page
     .getByRole('button', { name: 'Eliminar definitivamente Producto C 1', exact: true })
     .click();
   await expect(page.getByText('Producto eliminado definitivamente ✓')).toBeVisible();
-  await expect(page.getByText('Mostrando 1–9 de 9')).toBeVisible();
+  await expect(
+    page.getByText(`Mostrando 1–${totalBefore - 1} de ${totalBefore - 1}`)
+  ).toBeVisible();
 
-  const res = await request.get('http://127.0.0.1:3102/api/v1/products?category=cat-c&limit=200');
-  const body = await res.json();
-  expect(body.total).toBe(9);
+  const after = await (
+    await request.get('http://127.0.0.1:3102/api/v1/products?category=cat-c&limit=200')
+  ).json();
+  expect(after.total).toBe(totalBefore - 1);
 });
 
 test('inline price edit saves with Enter', async ({ page, request }) => {
@@ -287,9 +297,13 @@ test('bulk with checkbox selection applies to exactly the selected ids', async (
   page,
   request,
 }) => {
-  // cat-c has 9 products: the purge test removed C 1 earlier in the file.
+  // Plan 109: derive the count from the API — order-independent.
+  const before = await (
+    await request.get('http://127.0.0.1:3102/api/v1/products?category=cat-c&limit=200')
+  ).json();
+  const total = before.total as number;
   await page.getByLabel('Categoría:').selectOption('cat-c');
-  await expect(page.getByText('Mostrando 1–9 de 9')).toBeVisible();
+  await expect(page.getByText(`Mostrando 1–${total} de ${total}`)).toBeVisible();
 
   await page.getByRole('checkbox', { name: 'Seleccionar Producto C 2', exact: true }).check();
   await page.getByRole('checkbox', { name: 'Seleccionar Producto C 3', exact: true }).check();
@@ -306,8 +320,12 @@ test('bulk with checkbox selection applies to exactly the selected ids', async (
 
   const res = await request.get('http://127.0.0.1:3102/api/v1/products?category=cat-c&limit=200');
   const body = await res.json();
-  const stocked = body.items.filter((p: { name: string; stock: boolean }) => p.stock);
-  expect(stocked).toHaveLength(2);
+  // The two SELECTED products are the only ones that must be stocked — no
+  // total-count assertion that depends on other tests' mutations.
+  const byName = (name: string) =>
+    body.items.find((p: { name: string; stock: boolean }) => p.name === name);
+  expect(byName('Producto C 2')?.stock).toBe(true);
+  expect(byName('Producto C 3')?.stock).toBe(true);
 });
 
 // ── plan 096 deferred: category search/filter/expand ─────────────────────────

@@ -44,9 +44,10 @@ los archivos persisten).
 
 - `node test/run-all.js` ya no existe: el plan 024 unificó todo en Vitest.
   `CLAUDE.md` está desactualizado en este punto; **AGENTS.md manda**.
-- `test/e2e/` y `npm run test:e2e:visual` están obsoletos (`visual-regression.spec.ts`
-  ya no existe y ningún config apunta a `test/e2e/`). No agregues specs ahí;
-  la suite E2E viva vive en `test/e2e-astro/`.
+- `test/e2e/` fue retirado (plan 110): los scripts `test:e2e:visual*`,
+  `test:e2e:media` y `test:e2e:storefront` fueron eliminados del manifest.
+  La suite E2E viva vive en `test/e2e-astro/` (storefront) y
+  `admin/content-manager/test/e2e/` (admin).
 - Pre-commit: husky + lint-staged (ESLint + Prettier, `--concurrent false`).
   Nunca uses `--no-verify`.
 - ESLint root aplica sonarjs con límites estrictos (p. ej. `max-lines-per-function`

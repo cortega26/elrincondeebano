@@ -74,39 +74,39 @@ Typecheck scope is declared in [tsconfig.typecheck.json](../../tsconfig.typechec
 
 ## Test layer map
 
-| Layer              | Runner         | File pattern                         | Invoked by                |
-| ------------------ | -------------- | ------------------------------------ | ------------------------- |
-| Unit / spec        | Vitest (jsdom) | `test/**/*.spec.{js,mjs,ts}`         | `npm test`                |
-| Legacy integration | node:test      | `test/**/*.test.js`                  | `npm test`                |
-| Contract           | Vitest         | `test/*.contract.test.js`            | `npm test`                |
-| Guardrail          | Vitest         | `test/*.guardrail.test.js`           | `npm test`                |
-| Build metadata     | Vitest         | `test/*.build-metadata.test.js`      | `npm test`                |
-| E2E — Astro        | Playwright     | `test/e2e-astro/**/*.spec.ts`        | `npm run test:e2e`        |
-| Mutation           | Stryker        | `test/cart.spec.js` et al.           | `npx stryker run`         |
-| Visual regression  | Playwright     | `test/e2e/visual-regression.spec.ts` | `npm run test:e2e:visual` |
+| Layer              | Runner         | File pattern                                             | Invoked by         |
+| ------------------ | -------------- | -------------------------------------------------------- | ------------------ |
+| Unit / spec        | Vitest (jsdom) | `test/**/*.spec.{js,mjs,ts}`                             | `npm test`         |
+| Legacy integration | node:test      | `test/**/*.test.js`                                      | `npm test`         |
+| Contract           | Vitest         | `test/*.contract.test.js`                                | `npm test`         |
+| Guardrail          | Vitest         | `test/*.guardrail.test.js`                               | `npm test`         |
+| Build metadata     | Vitest         | `test/*.build-metadata.test.js`                          | `npm test`         |
+| E2E — Astro        | Playwright     | `test/e2e-astro/**/*.spec.ts`                            | `npm run test:e2e` |
+| Mutation           | Stryker        | `test/cart.spec.js` et al.                               | `npx stryker run`  |
+| Visual regression  | Playwright     | retirado (plan 110) — la suite viva es `test/e2e-astro/` | —                  |
 
-`npm test` = `node test/run-all.js && vitest run` (legacy suite first, then Vitest).
+`npm test` = `vitest run && npm run admin:test` (root + admin Vitest suites).
 
 ---
 
 ## CI/CD workflow map
 
-| Workflow file                          | Trigger                                   | Primary purpose                                |
-| -------------------------------------- | ----------------------------------------- | ---------------------------------------------- |
-| `static.yml`                           | push `main`, manual                       | Build Astro + deploy to GitHub Pages           |
-| `ci.yml`                               | push/PR `main`                            | Lint → build → tests → guardrails → lighthouse |
-| `quality-gates.yml`                    | push/PR `main`                            | Shell, workflow, Markdown, and quality linting |
-| `images.yml`                           | push `assets/images/originals/**`, manual | Generate image variants, auto-commit           |
-| `semgrep.yml`                          | push/PR `main`, weekly cron, manual       | SAST scan → SARIF → Code Scanning              |
-| `secret-scan.yml`                      | push/PR, weekly cron, manual              | Credential scan on versioned files             |
-| `security-audit.yml`                   | weekly cron, manual                       | `npm audit`/`pip-audit` supply-chain checks    |
-| `admin.yml`                            | changes in `admin/**`                     | Python pytest for admin tooling                |
-| `post-deploy-canary.yml`               | PR `main`, post-deploy, manual            | Canary contract + live probe                   |
-| `live-contract-monitor.yml`            | daily cron, manual                        | Live site health + security headers check      |
-| `dependency-review.yml`                | PR                                        | Supply chain review                            |
-| `product-data-guard.yml`               | changes in `data/product_data.json`       | Product data contract validation               |
-| `rollback.yml`                         | manual                                    | Orchestrated rollback                          |
-| `cloudflare-edge-security-headers.yml` | manual                                    | Deploy Cloudflare Workers security headers     |
+| Workflow file                          | Trigger                                   | Primary purpose                                                                                         |
+| -------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `static.yml`                           | push `main`, manual                       | Build Astro + deploy to GitHub Pages                                                                    |
+| `ci.yml`                               | push/PR `main`                            | Lint → build → tests → guardrails → lighthouse                                                          |
+| `quality-gates.yml`                    | push/PR `main`                            | Shell, workflow, Markdown, and quality linting                                                          |
+| `images.yml`                           | push `assets/images/originals/**`, manual | Generate image variants, auto-commit                                                                    |
+| `semgrep.yml`                          | push/PR `main`, weekly cron, manual       | SAST scan → SARIF → Code Scanning                                                                       |
+| `secret-scan.yml`                      | push/PR, weekly cron, manual              | Credential scan on versioned files                                                                      |
+| `security-audit.yml`                   | weekly cron, manual                       | `npm audit`/`pip-audit` supply-chain checks                                                             |
+| `admin.yml`                            | changes in `admin/**`                     | Content Manager TS: install, lint, typecheck, vitest, build, e2e (working-dir `admin/content-manager/`) |
+| `post-deploy-canary.yml`               | PR `main`, post-deploy, manual            | Canary contract + live probe                                                                            |
+| `live-contract-monitor.yml`            | daily cron, manual                        | Live site health + security headers check                                                               |
+| `dependency-review.yml`                | PR                                        | Supply chain review                                                                                     |
+| `product-data-guard.yml`               | changes in `data/product_data.json`       | Product data contract validation                                                                        |
+| `rollback.yml`                         | manual                                    | Orchestrated rollback                                                                                   |
+| `cloudflare-edge-security-headers.yml` | manual                                    | Deploy Cloudflare Workers security headers                                                              |
 
 **Note:** Live probes use **GitHub-hosted `ubuntu-24.04`** runners. Cloudflare challenge behaviour was resolved by the 2026-07 migration away from self-hosted runners (ADR-0004 superseding note).
 
