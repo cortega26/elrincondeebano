@@ -67,11 +67,11 @@ dependencias: bugs primero (098–105), tests (106–109), retiro de superficie
 | [099](archive/099-fix-undo-redo-stack-semantics.md)             | Undo/redo corrompen las pilas al fallar             | P1        | M        | —          | DONE 2026-08-12 |
 | [100](archive/100-harden-media-relocation-paths.md)             | Path traversal vía `category` en mediaRelocation    | P1        | S        | —          | DONE 2026-08-12 |
 | [101](archive/101-fix-reorder-gating-under-discount-filters.md) | Reorder habilitado con filtros → 409 garantizado    | P1        | S        | —          | DONE 2026-08-12 |
-| [102](102-fix-bulk-apply-noop-revs.md)                          | bulkApply cuenta no-ops como modificados            | P2        | S        | —          | TODO            |
-| [103](103-harden-media-intent-runner.md)                        | Intent runner sin catch → estado atascado           | P2        | S        | —          | TODO            |
-| [104](104-storefront-routes-error-classification.md)            | PUT storefront convierte 500 en 400                 | P2        | S        | —          | TODO            |
-| [105](105-isolate-catalog-snapshots-per-request.md)             | Catálogo mutable compartido → falsos 409            | P1        | M        | —          | TODO            |
-| [106](106-test-category-og-lifecycle.md)                        | Cero tests en categoryOgLifecycle                   | P1        | M        | —          | TODO            |
+| [102](archive/102-fix-bulk-apply-noop-revs.md)                  | bulkApply cuenta no-ops como modificados            | P2        | S        | —          | DONE 2026-08-12 |
+| [103](archive/103-harden-media-intent-runner.md)                | Intent runner sin catch → estado atascado           | P2        | S        | —          | DONE 2026-08-12 |
+| [104](archive/104-storefront-routes-error-classification.md)    | PUT storefront convierte 500 en 400                 | P2        | S        | —          | DONE 2026-08-12 |
+| [105](archive/105-isolate-catalog-snapshots-per-request.md)     | Catálogo mutable compartido → falsos 409            | P1        | M        | —          | DONE 2026-08-12 |
+| [106](archive/106-test-category-og-lifecycle.md)                | Cero tests en categoryOgLifecycle                   | P1        | M        | —          | DONE 2026-08-12 |
 | [107](archive/107-storefront-cart-e2e-hardening.md)             | E2E: dismiss del offcanvas + subtotal con descuento | P1        | S        | 098        | DONE 2026-08-12 |
 | [108](108-port-durability-fault-injection-to-atomic-writer.md)  | Portar fault-injection a AtomicWriter               | P2        | M        | —          | TODO            |
 | [109](109-fix-scope-spec-order-dependence.md)                   | scope.spec orden-dependiente (fixture compartido)   | P2        | S        | —          | TODO            |
