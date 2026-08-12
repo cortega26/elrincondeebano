@@ -379,6 +379,12 @@ descuento, cap de 50) sobre el release candidate `cefdd9f`. El retiro de
 Python (plan 069) se ejecutó el mismo día de forma revertible; los blockers
 P0 (086–089) se cerraron/continúan sobre el árbol post-retiro.
 
+**Cola cerrada el 2026-08-12**: 086–097 todos DONE. Gates finales en verde:
+`npm run validate` y `npm run validate:release` (exit 0) sobre `main`
+(`172972e`). Ítems documentados como diferidos: search/filtro/expand de
+categorías (096), OG lifecycle automático (096, el workbench lo cubre) y
+media relocation (097).
+
 ### Finding coverage matrix (Auditoría 8)
 
 | Finding (resumido)                                                                    | Plan             |
