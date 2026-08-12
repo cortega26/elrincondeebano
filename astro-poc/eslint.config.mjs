@@ -69,7 +69,7 @@ export default [
     },
   },
   {
-    files: ['astro.config.mjs'],
+    files: ['**/astro.config.mjs'],
     languageOptions: {
       globals: {
         ...globals.node,
