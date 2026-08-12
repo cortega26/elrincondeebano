@@ -233,6 +233,33 @@ export function ProductsPage(): React.ReactElement {
     }
   }
 
+  async function handleInlineSave(
+    id: string,
+    rev: number,
+    field: 'price' | 'discount' | 'stock',
+    value: number | boolean
+  ): Promise<void> {
+    try {
+      await client.updateProduct(id, rev, { [field]: value });
+      setFeedback(field === 'stock' ? 'Stock actualizado ✓' : `${field} actualizado ✓`);
+      await reload();
+    } catch (err) {
+      setOpError((err as Error).message);
+      await reload();
+    }
+  }
+
+  async function handlePurge(id: string, rev: number): Promise<void> {
+    try {
+      await client.deleteProduct(id, rev);
+      setSelected(null);
+      setFeedback('Producto eliminado definitivamente ✓');
+      await reload();
+    } catch (err) {
+      setOpError((err as Error).message);
+    }
+  }
+
   async function handleRestore(id: string, rev: number): Promise<void> {
     const product = data?.items.find((p) => p.id === id);
     if (!window.confirm(`¿Restaurar ${product?.name ?? 'producto'}?`)) return;
@@ -537,6 +564,8 @@ export function ProductsPage(): React.ReactElement {
         onDuplicate={handleDuplicate}
         onArchive={handleArchive}
         onRestore={handleRestore}
+        onPurge={handlePurge}
+        onInlineSave={handleInlineSave}
         onClearPreview={() => setBulkPreview(null)}
       />
 

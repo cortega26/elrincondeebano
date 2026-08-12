@@ -93,6 +93,35 @@ export class ChangeSetApplier {
           break;
         }
 
+        case 'purge': {
+          // Plan 095: hard delete with full before-evidence for audit.
+          if (!product) {
+            return {
+              ok: false,
+              statusCode: 404,
+              code: 'NOT_FOUND',
+              error: `Product "${op.product_id ?? '?'}" not found`,
+            };
+          }
+          if (op.base_revision !== undefined && product.rev !== op.base_revision) {
+            return {
+              ok: false,
+              statusCode: 409,
+              code: 'STALE_REVISION',
+              error: `Product "${product.name}" changed since the change set was built (rev ${product.rev} != ${op.base_revision})`,
+            };
+          }
+          const before = { ...product } as unknown as Record<string, unknown>;
+          catalog.products = catalog.products.filter((p) => p.id !== product.id);
+          ops.push({
+            ...op,
+            before,
+            after: { purged: true },
+            resulting_revision: product.rev,
+          });
+          break;
+        }
+
         case 'edit':
         case 'archive':
         case 'restore': {
@@ -188,6 +217,20 @@ export function buildInverseChangeSet(
   const inverseOps: ChangeSetOp[] = [];
   for (const op of cs.product_ops) {
     const productId = op.product_id;
+    if (op.action === 'purge') {
+      // Plan 095: undo of a purge recreates the product from the recorded
+      // before-evidence (same identity, fresh rev).
+      const before = (op.before ?? {}) as Record<string, unknown>;
+      inverseOps.push({
+        action: 'create',
+        data: { ...before, id: productId },
+        before: {},
+        after: {},
+        base_revision: op.resulting_revision,
+        idempotency_key: `inverse-${op.idempotency_key ?? op.product_id ?? 'x'}`,
+      });
+      continue;
+    }
     if (op.action === 'create') {
       inverseOps.push({
         action: 'archive',

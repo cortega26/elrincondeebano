@@ -17,7 +17,7 @@ export type ChangeSetStatus = z.infer<typeof changeSetStatusSchema>;
 // never approximated. All new fields are optional so existing draft files
 // keep loading (migration-safe: they gain empty before/after).
 export const changeSetOpSchema = z.object({
-  action: z.enum(['create', 'edit', 'archive', 'restore']),
+  action: z.enum(['create', 'edit', 'archive', 'restore', 'purge']),
   product_id: z.string().optional(),
   data: z.record(z.string(), z.unknown()),
   base_revision: z.number().int().nonnegative().optional(),

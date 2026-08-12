@@ -10,6 +10,9 @@ import {
   type ChangeSetStatus,
 } from '../../shared/schemas/changeSet.ts';
 import { productSchema } from '../../shared/schemas/product.ts';
+import type { ChangeSet } from '../../shared/schemas/changeSet.ts';
+import { requireWriteMode } from './catalog.ts';
+import type { ProductService } from '../../domain/products/productService.ts';
 import type { Product } from '../../shared/schemas/product.ts';
 import {
   importApplyRequestSchema,
@@ -97,7 +100,8 @@ export async function changesRoutes(
   app: FastifyInstance,
   repos: Repositories,
   changeSets: ChangeSetRepository,
-  repoRoot: string
+  repoRoot: string,
+  productService: ProductService
 ): Promise<void> {
   const previews = new PreviewRepository(repoRoot);
   const history = new HistoryRepository(repoRoot);
@@ -829,6 +833,165 @@ export async function changesRoutes(
     } catch (err) {
       throw new HttpError(400, 'BAD_REQUEST', sanitizeUserMessage((err as Error).message));
     }
+  });
+
+  // Plan 095: hard delete (purge) — a change-set op with full before
+  // evidence, applied through the same engine as every other mutation.
+  app.delete('/products/:id', async (request, reply) => {
+    if (!requireWriteMode(reply, productService)) return;
+    const { id } = request.params as { id: string };
+    if (!isSafeId(id)) {
+      return reply.status(400).send({
+        error: { code: 'INVALID_ID', message: `Invalid product id "${id}"` },
+      });
+    }
+    const body = request.body as { base_revision?: number } | undefined;
+    const catalog = repos.products.loadCatalog();
+    const product = catalog.products.find((p) => p.id === id);
+    if (!product) {
+      return reply
+        .status(404)
+        .send({ error: { code: 'NOT_FOUND', message: `Product "${id}" not found` } });
+    }
+
+    const csId = generateChangeSetId();
+    const now = new Date().toISOString();
+    const cs: ChangeSet = {
+      id: csId,
+      status: 'validated',
+      created_at: now,
+      updated_at: now,
+      product_ops: [
+        {
+          action: 'purge',
+          product_id: id,
+          data: {},
+          base_revision: body?.base_revision ?? product.rev,
+          before: {},
+          after: {},
+        },
+      ],
+      category_ops: [],
+      validation_evidence: { kind: 'purge', source_change_set_id: null },
+      publication_result: null,
+    };
+
+    const result = await applier.apply(cs);
+    if (!result.ok) {
+      return reply.status(result.statusCode).send({
+        error: { code: result.code, message: result.error },
+      });
+    }
+
+    history.append({
+      id: `h-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      timestamp: new Date().toISOString(),
+      kind: 'change-set-applied',
+      change_set_id: csId,
+      summary: { product_ids: [id] },
+      ops: result.ops,
+    });
+
+    return {
+      status: 'purged',
+      command_id: body?.base_revision !== undefined ? csId : undefined,
+      resulting_revision: result.resulting_revision,
+    };
+  });
+
+  // Plan 095: revert a product to a recorded change-set revision — applies
+  // the inverse (before-values) as a rev-guarded edit change set.
+  app.post('/history/:productId/revert', async (request, reply) => {
+    if (!requireWriteMode(reply, productService)) return;
+    const { productId } = request.params as { productId: string };
+    if (!isSafeId(productId)) {
+      return reply.status(400).send({
+        error: { code: 'INVALID_ID', message: `Invalid product id "${productId}"` },
+      });
+    }
+    const body = request.body as { to_rev?: number } | undefined;
+    const toRev = body?.to_rev;
+    if (toRev === undefined || !Number.isInteger(toRev) || toRev < 0) {
+      return reply.status(400).send({
+        error: { code: 'BAD_REQUEST', message: 'Missing or invalid to_rev' },
+      });
+    }
+
+    // Plan 095: to_rev names the revision to restore — the op that
+    // transitioned AWAY from it (base_revision === toRev) provides the exact
+    // before-state; the op that produced it provides its after-state.
+    let targetOp:
+      | {
+          product_id?: string;
+          action: string;
+          before: Record<string, unknown>;
+          after: Record<string, unknown>;
+          base_revision?: number;
+          resulting_revision?: number;
+        }
+      | undefined;
+    let restoreFromAfter = false;
+    for (const entry of history.load()) {
+      for (const op of entry.ops) {
+        if (op.product_id !== productId) continue;
+        if (op.base_revision === toRev && op.action === 'edit') {
+          targetOp = op;
+          restoreFromAfter = false;
+          break;
+        }
+        if (op.resulting_revision === toRev && op.action === 'edit') {
+          targetOp = op;
+          restoreFromAfter = true;
+        }
+      }
+      if (targetOp && !restoreFromAfter) break;
+    }
+    if (!targetOp) {
+      return reply.status(422).send({
+        error: {
+          code: 'NOT_REVERTIBLE',
+          message: 'No hay snapshot reversible para esa revisión (solo ediciones de change set).',
+        },
+      });
+    }
+
+    const current = repos.products.loadCatalog().products.find((p) => p.id === productId);
+    if (!current) {
+      return reply
+        .status(404)
+        .send({ error: { code: 'NOT_FOUND', message: `Product "${productId}" not found` } });
+    }
+
+    const csId = generateChangeSetId();
+    const now = new Date().toISOString();
+    const cs: ChangeSet = {
+      id: csId,
+      status: 'validated',
+      created_at: now,
+      updated_at: now,
+      product_ops: [
+        {
+          action: 'edit',
+          product_id: productId,
+          data: (restoreFromAfter ? targetOp.after : targetOp.before) as Record<string, unknown>,
+          base_revision: current.rev,
+          before: {},
+          after: {},
+          idempotency_key: `revert-${csId}`,
+        },
+      ],
+      category_ops: [],
+      validation_evidence: { kind: 'revert', source_change_set_id: null },
+      publication_result: null,
+    };
+
+    const result = await applier.apply(cs);
+    if (!result.ok) {
+      return reply.status(result.statusCode).send({
+        error: { code: result.code, message: result.error },
+      });
+    }
+    return { status: 'reverted', resulting_revision: result.resulting_revision };
   });
 
   app.get('/history', async () => {

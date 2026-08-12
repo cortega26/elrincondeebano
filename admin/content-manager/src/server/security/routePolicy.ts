@@ -21,6 +21,7 @@ export const ROUTE_POLICY: RoutePolicyEntry[] = [
   { method: 'GET', path: '/api/v1/products/revision', class: 'read' },
   { method: 'POST', path: '/api/v1/products', class: 'mutation' },
   { method: 'PATCH', path: '/api/v1/products/:id', class: 'mutation' },
+  { method: 'DELETE', path: '/api/v1/products/:id', class: 'mutation' },
   { method: 'POST', path: '/api/v1/products/reorder', class: 'mutation' },
   { method: 'POST', path: '/api/v1/products/bulk/preview', class: 'preview' },
   { method: 'POST', path: '/api/v1/products/bulk/apply', class: 'mutation' },
@@ -79,6 +80,7 @@ export const ROUTE_POLICY: RoutePolicyEntry[] = [
   // Plan 090: diff is a pure read — no write-mode or credential required.
   { method: 'POST', path: '/api/v1/diff', class: 'read' },
   { method: 'GET', path: '/api/v1/history', class: 'read' },
+  { method: 'POST', path: '/api/v1/history/:productId/revert', class: 'mutation' },
   { method: 'GET', path: '/api/v1/diagnostics', class: 'read' },
   // conflicts + sync
   { method: 'GET', path: '/api/v1/conflicts', class: 'read' },

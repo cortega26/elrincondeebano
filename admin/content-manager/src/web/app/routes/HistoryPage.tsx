@@ -156,6 +156,33 @@ export function HistoryPage(): React.ReactElement {
     }
   };
 
+  const handleRevert = async (productId: string, rev: number, name: string): Promise<void> => {
+    if (!window.confirm(`¿Revertir "${name}" al estado de la revisión ${rev}?`)) return;
+    setBusy(true);
+    try {
+      const res = await fetchWithCredential(
+        `/api/v1/history/${encodeURIComponent(productId)}/revert`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to_rev: rev }),
+        }
+      );
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(
+          (body as { error?: { message?: string } }).error?.message ?? `HTTP ${res.status}`
+        );
+      }
+      setFeedback('Producto revertido ✓');
+      await load();
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const handleUndo = (id: string): void => {
     if (!window.confirm('Crear un change set inverso para deshacer este cambio?')) return;
     void post(`/api/v1/change-sets/${id}/undo`).then((ok) => {
@@ -396,6 +423,7 @@ export function HistoryPage(): React.ReactElement {
                 <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Antes → Después</th>
                 <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Fecha</th>
                 <th style={{ textAlign: 'right', padding: '0.25rem 0.5rem' }}>Rev</th>
+                <th style={{ padding: '0.25rem 0.5rem' }}>Acción</th>
               </tr>
             </thead>
             <tbody>
@@ -448,6 +476,21 @@ export function HistoryPage(): React.ReactElement {
                   </td>
                   <td style={{ padding: '0.25rem 0.5rem' }}>{e.timestamp ?? '—'}</td>
                   <td style={{ padding: '0.25rem 0.5rem', textAlign: 'right' }}>{e.rev ?? '—'}</td>
+                  <td style={{ padding: '0.25rem 0.5rem' }}>
+                    {e.product_id && e.rev !== undefined && e.before !== undefined && (
+                      <button
+                        onClick={() => {
+                          if (e.product_id && e.rev !== undefined)
+                            void handleRevert(e.product_id, e.rev, e.product_name);
+                        }}
+                        disabled={busy}
+                        style={{ padding: '0.1rem 0.4rem', fontSize: '0.8rem' }}
+                        title={`Restaurar "${e.product_name}" al estado de la rev ${e.rev}`}
+                      >
+                        Revertir
+                      </button>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

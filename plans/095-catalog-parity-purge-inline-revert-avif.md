@@ -10,6 +10,7 @@
 - **Depends on**: 087 (allowlist change-set — el purge/revert debe respetarlo), 088 (paginación — el inline editing opera en la página visible)
 - **Category**: functionality parity
 - **Written against**: commit `cefdd9f`
+- **Executed**: DONE — 2026-08-11/12 (verification abajo)
 
 ## Why this matters
 
@@ -72,10 +73,19 @@ npm run admin:test && npm run admin:certify && npx playwright test -c playwright
 
 ## Done criteria
 
-- [ ] Purge elimina con history/backup/confirm; archive intacto.
-- [ ] Revert por producto restaura exacto, con guards de rev y history append-only.
-- [ ] Inline editing funcional con keyboard y manejo de 409.
-- [ ] Galería AVIF-first con fallback.
+- [x] Purge elimina con before-evidence completa en history + confirm explícito; archive intacto; 404/409 rev-guarded.
+- [x] Revert por producto restaura exacto (before del op que transicionó DESDE to_rev / after del que lo produjo), con guards de rev y 422 NOT_REVERTIBLE honesto.
+- [x] Inline editing (doble-clic price/discount, toggle stock) con Enter/Escape y rev-guard.
+- [x] Galería AVIF-first (`image_avif_path || image_path`, fallback del ProductImage).
+
+## Evidence (2026-08-11/12)
+
+- changeSet.ts: acción `purge`; applier: branch purge (before completo, filtra del catálogo); buildInverseChangeSet: inverso de purge = create con before (recreate con identidad); redo natural.
+- changes.ts: `DELETE /products/:id` (purge change set aplicado por el applier + history.append) y `POST /history/:productId/revert` (busca el op con base_revision===to_rev → before, o resulting_revision===to_rev → after; base_revision del revert = rev actual → 409 si el producto se movió).
+- routePolicy: DELETE /products/:id + POST /history/:productId/revert registradas (el contrato bidireccional las exigió).
+- UI: botón "Elim." con confirm en ProductList; Revertir por fila con before en HistoryPage; InlineNumberCell (price/discount) + toggle de stock; galería AVIF-first.
+- client: deleteProduct.
+- Tests: +2 API (purge con 404/409, revert con semántica corregida) +2 e2e (purge con confirm, inline edit Enter). Suite: 501 tests, e2e 13/13 + 19/19, certify 30/30, lint 0 errores.
 
 ## STOP conditions
 

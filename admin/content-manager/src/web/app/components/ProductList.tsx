@@ -1,6 +1,59 @@
 // Plan 094: table + gallery views extracted from ProductsPage.
+import { useState } from 'react';
 import type { PaginatedResponse, ProductResponse } from '../../api/client.ts';
 import { ProductImage } from './ProductImage.tsx';
+
+// Plan 095: double-click a numeric cell to edit it inline; Enter saves
+// (rev-guarded PATCH), Escape cancels.
+function InlineNumberCell({
+  value,
+  onSave,
+  display,
+}: {
+  value: number;
+  onSave: (value: number) => Promise<void>;
+  display: string;
+}): React.ReactElement {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(String(value));
+
+  if (!editing) {
+    return (
+      <span
+        onDoubleClick={() => {
+          setDraft(String(value));
+          setEditing(true);
+        }}
+        title="Doble clic para editar"
+        style={{ cursor: 'text' }}
+      >
+        {display}
+      </span>
+    );
+  }
+  return (
+    <input
+      type="number"
+      value={draft}
+      autoFocus
+      onChange={(e) => setDraft(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          const parsed = Number(draft);
+          if (Number.isFinite(parsed)) {
+            void onSave(parsed);
+          }
+          setEditing(false);
+        } else if (e.key === 'Escape') {
+          setEditing(false);
+        }
+      }}
+      onBlur={() => setEditing(false)}
+      style={{ width: '90px', padding: '0.1rem 0.25rem', textAlign: 'right' }}
+      aria-label="Editar valor"
+    />
+  );
+}
 
 export function ProductList({
   data,
@@ -18,6 +71,8 @@ export function ProductList({
   onDuplicate,
   onArchive,
   onRestore,
+  onPurge,
+  onInlineSave,
   onClearPreview,
 }: {
   data: PaginatedResponse<ProductResponse> | null;
@@ -35,6 +90,13 @@ export function ProductList({
   onDuplicate: (p: ProductResponse) => void;
   onArchive: (id: string, rev: number) => void;
   onRestore: (id: string, rev: number) => void;
+  onPurge: (id: string, rev: number) => void;
+  onInlineSave: (
+    id: string,
+    rev: number,
+    field: 'price' | 'discount' | 'stock',
+    value: number | boolean
+  ) => Promise<void>;
   onClearPreview: () => void;
 }): React.ReactElement {
   const sortedItems = [...(data?.items ?? [])].sort((a, b) => {
@@ -200,13 +262,37 @@ export function ProductList({
                 </td>
                 <td style={{ padding: '0.25rem 0.5rem' }}>{product.category || '—'}</td>
                 <td style={{ padding: '0.25rem 0.5rem', textAlign: 'right' }}>
-                  ${product.price.toLocaleString('es-CL')}
+                  <InlineNumberCell
+                    value={product.price}
+                    display={`$${product.price.toLocaleString('es-CL')}`}
+                    onSave={(v) => onInlineSave(product.id!, product.rev, 'price', v)}
+                  />
                 </td>
                 <td style={{ padding: '0.25rem 0.5rem', textAlign: 'right' }}>
-                  {product.discount > 0 ? `${product.discount_percentage}%` : '—'}
+                  <InlineNumberCell
+                    value={product.discount}
+                    display={product.discount > 0 ? `${product.discount_percentage}%` : '—'}
+                    onSave={(v) => onInlineSave(product.id!, product.rev, 'discount', v)}
+                  />
                 </td>
                 <td style={{ padding: '0.25rem 0.5rem', textAlign: 'center' }}>
-                  {product.stock ? '✓' : '✗'}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      void onInlineSave(product.id!, product.rev, 'stock', !product.stock);
+                    }}
+                    style={{
+                      padding: '0.1rem 0.4rem',
+                      fontSize: '0.85rem',
+                      border: 'none',
+                      background: 'transparent',
+                      cursor: 'pointer',
+                    }}
+                    title="Clic para cambiar stock"
+                    aria-label={`Cambiar stock de ${product.name}`}
+                  >
+                    {product.stock ? '✓' : '✗'}
+                  </button>
                 </td>
                 <td style={{ padding: '0.25rem 0.5rem', whiteSpace: 'nowrap' }}>
                   <button
@@ -251,6 +337,27 @@ export function ProductList({
                     aria-label={`Duplicar ${product.name}`}
                   >
                     Dup.
+                  </button>{' '}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Plan 095: hard delete is permanent — explicit confirm.
+                      if (
+                        window.confirm(
+                          `¿Eliminar DEFINITIVAMENTE "${product.name}"? No se puede deshacer.`
+                        )
+                      ) {
+                        void onPurge(product.id!, product.rev);
+                      }
+                    }}
+                    style={{
+                      padding: '0.1rem 0.4rem',
+                      fontSize: '0.85rem',
+                      color: 'var(--color-danger)',
+                    }}
+                    aria-label={`Eliminar definitivamente ${product.name}`}
+                  >
+                    Elim.
                   </button>
                 </td>
               </tr>
@@ -297,7 +404,7 @@ export function ProductList({
             >
               {product.image_path ? (
                 <ProductImage
-                  mediaPath={product.image_path}
+                  mediaPath={product.image_avif_path || product.image_path}
                   alt={product.name}
                   style={{
                     width: '100%',

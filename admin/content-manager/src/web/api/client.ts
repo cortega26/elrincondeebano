@@ -388,6 +388,13 @@ export class ContentManagerClient {
     });
   }
 
+  async deleteProduct(id: string, rev: number): Promise<{ status: string }> {
+    return this.request<{ status: string }>(`/products/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      body: JSON.stringify({ base_revision: rev }),
+    });
+  }
+
   async updateProduct(
     id: string,
     baseRevision: number,

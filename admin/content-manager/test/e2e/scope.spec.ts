@@ -215,3 +215,38 @@ test('sortable columns expose aria-sort state', async ({ page }) => {
   await nameHeader.click();
   await expect(nameHeader).toHaveAttribute('aria-sort', 'descending');
 });
+
+// ── plan 095: purge + inline editing ─────────────────────────────────────────
+
+test('purge removes a product permanently after confirm', async ({ page, request }) => {
+  await page.getByLabel('Categoría:').selectOption('cat-c');
+  await expect(page.getByText('Mostrando 1–10 de 10')).toBeVisible();
+
+  page.once('dialog', (d) => d.accept());
+  await page
+    .getByRole('button', { name: 'Eliminar definitivamente Producto C 1', exact: true })
+    .click();
+  await expect(page.getByText('Producto eliminado definitivamente ✓')).toBeVisible();
+  await expect(page.getByText('Mostrando 1–9 de 9')).toBeVisible();
+
+  const res = await request.get('http://127.0.0.1:3102/api/v1/products?category=cat-c&limit=200');
+  const body = await res.json();
+  expect(body.total).toBe(9);
+});
+
+test('inline price edit saves with Enter', async ({ page, request }) => {
+  // Independent of the purge test: use cat-b (untouched), Producto B 1 is
+  // p-061 (price $1.061).
+  await page.getByLabel('Categoría:').selectOption('cat-b');
+  await expect(page.getByText('Mostrando 1–10 de 10')).toBeVisible();
+
+  const cell = page.getByText('$1.061', { exact: true }).first();
+  await cell.dblclick();
+  await page.getByLabel('Editar valor').fill('1234');
+  await page.keyboard.press('Enter');
+  await expect(page.getByText(/Precio actualizado ✓|price actualizado ✓/)).toBeVisible();
+
+  const res = await request.get('http://127.0.0.1:3102/api/v1/products?category=cat-b&limit=200');
+  const body = await res.json();
+  expect(body.items.find((p: { name: string }) => p.name === 'Producto B 1')?.price).toBe(1234);
+});

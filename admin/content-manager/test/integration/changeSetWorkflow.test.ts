@@ -652,3 +652,111 @@ test('apply rejects a stored change set carrying forbidden fields (applier guard
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+// ── plan 095: purge + revert ─────────────────────────────────────────────────
+
+test('DELETE /products/:id purges with before-evidence and refuses stale rev', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const del = await app.inject({
+      method: 'DELETE',
+      url: '/api/v1/products/existing-1',
+      headers: ch,
+      payload: { base_revision: 1 },
+    });
+    expect(del.statusCode).toBe(200);
+    expect(del.json<{ status: string }>().status).toBe('purged');
+
+    const catalog = readCatalog(dir);
+    expect(catalog.products.some((p) => p.id === 'existing-1')).toBe(false);
+
+    // Purged product cannot be purged again.
+    const again = await app.inject({
+      method: 'DELETE',
+      url: '/api/v1/products/existing-1',
+      headers: ch,
+      payload: { base_revision: 2 },
+    });
+    expect(again.statusCode).toBe(404);
+
+    // Stale revision refuses the purge (rev-guarded through the applier).
+    await app.inject({
+      method: 'DELETE',
+      url: '/api/v1/products/existing-1',
+      headers: ch,
+      payload: { base_revision: 1 },
+    });
+    // already purged — recreate to test stale rev
+    const create = await app.inject({
+      method: 'POST',
+      url: '/api/v1/products',
+      headers: ch,
+      payload: { command_id: 'recreate-1', payload: { name: 'Fresh', price: 1000, category: 'x' } },
+    });
+    const id = create.json<{ product: { id: string } }>().product.id;
+    const stale = await app.inject({
+      method: 'DELETE',
+      url: `/api/v1/products/${id}`,
+      headers: ch,
+      payload: { base_revision: 999 },
+    });
+    expect(stale.statusCode).toBe(409);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('POST /history/:id/revert restores before-values with rev guards', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    // One change-set edit: price 500 -> 900 (rev 1 -> 2).
+    const { id } = await createValidatedCs(app, [
+      { action: 'edit', product_id: 'existing-1', data: { price: 900 }, base_revision: 1 },
+    ]);
+    const apply = await app.inject({
+      method: 'POST',
+      url: `/api/v1/change-sets/${id}/apply`,
+      headers: ch,
+    });
+    expect(apply.statusCode).toBe(200);
+    let catalog = readCatalog(dir);
+    expect(catalog.products.find((p) => p.id === 'existing-1')?.price).toBe(900);
+
+    // Revert to rev 1 (the state before the edit).
+    const revert = await app.inject({
+      method: 'POST',
+      url: '/api/v1/history/existing-1/revert',
+      headers: ch,
+      payload: { to_rev: 1 },
+    });
+    expect(revert.statusCode).toBe(200);
+    catalog = readCatalog(dir);
+    expect(catalog.products.find((p) => p.id === 'existing-1')?.price).toBe(500);
+
+    // Revert to an unknown revision is not revertible.
+    const bad = await app.inject({
+      method: 'POST',
+      url: '/api/v1/history/existing-1/revert',
+      headers: ch,
+      payload: { to_rev: 42 },
+    });
+    expect(bad.statusCode).toBe(422);
+    expect(bad.json().error.code).toBe('NOT_REVERTIBLE');
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
