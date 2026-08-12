@@ -254,10 +254,13 @@ export class ContentManagerClient {
     });
   }
 
-  async deleteCategory(id: string, baseRevision: number): Promise<void> {
+  async deleteCategory(id: string, baseRevision: number, reassignTo?: string): Promise<void> {
     await this.request(`/categories/${encodeURIComponent(id)}`, {
       method: 'DELETE',
-      body: JSON.stringify({ base_revision: baseRevision }),
+      body: JSON.stringify({
+        base_revision: baseRevision,
+        ...(reassignTo ? { reassign_to: reassignTo } : {}),
+      }),
     });
   }
 
@@ -265,6 +268,17 @@ export class ContentManagerClient {
     return this.request('/categories/reorder', {
       method: 'POST',
       body: JSON.stringify({ ordered_ids: orderedIds, base_revision: baseRevision }),
+    });
+  }
+
+  async updateNavGroup(
+    id: string,
+    baseRevision: number,
+    changes: { display_name?: { default?: string }; active?: boolean; sort_order?: number }
+  ): Promise<Record<string, unknown>> {
+    return this.request(`/nav-groups/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ ...changes, base_revision: baseRevision }),
     });
   }
 

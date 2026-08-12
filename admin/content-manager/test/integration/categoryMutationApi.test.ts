@@ -210,7 +210,9 @@ test('DELETE /api/v1/categories/:id is blocked while products use the category',
       payload: { base_revision: 5 },
     });
     expect(inUse.statusCode).toBe(409);
-    expect(inUse.json<{ error: { message: string } }>().error.message).toContain('in use');
+    expect(inUse.json<{ error: { message: string; code: string } }>().error.message).toContain(
+      'en uso'
+    );
 
     // Remove the product usage, then the delete succeeds
     writeFileSync(
@@ -229,7 +231,8 @@ test('DELETE /api/v1/categories/:id is blocked while products use the category',
       headers: ch,
       payload: { base_revision: 5 },
     });
-    expect(ok.statusCode).toBe(204);
+    expect(ok.statusCode).toBe(200);
+    expect(ok.json<{ status: string }>().status).toBe('deleted');
     expect(readRegistry(dir).categories.some((c) => c.id === 'cat1')).toBe(false);
 
     const gone = await app.inject({
@@ -351,6 +354,106 @@ test('category mutations are rejected in read-only mode (405)', async () => {
     });
 
     expect(res.statusCode).toBe(405);
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// ── plan 096: reassign delete + nav-group edit ───────────────────────────────
+
+test('DELETE /api/v1/categories/:id reassigns products and deletes', async () => {
+  const dir = createTempDir();
+  setupData(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    // Products referencing cat1 (fixture has one in cat1); cat2 is the
+    // reassignment target — create it first.
+    const cat2 = await app.inject({
+      method: 'POST',
+      url: '/api/v1/categories',
+      headers: ch,
+      payload: {
+        id: 'cat2',
+        key: 'cat2',
+        slug: 'cat2',
+        display_name: { default: 'Cat 2' },
+        base_revision: 5,
+      },
+    });
+    expect(cat2.statusCode).toBe(201);
+
+    const del = await app.inject({
+      method: 'DELETE',
+      url: '/api/v1/categories/cat1',
+      headers: ch,
+      payload: { reassign_to: 'cat2', base_revision: 6 },
+    });
+    expect(del.statusCode).toBe(200);
+    expect(del.json<{ status: string; reassigned: number }>().status).toBe('deleted');
+    expect(del.json<{ reassigned: number }>().reassigned).toBeGreaterThan(0);
+
+    const catalog = JSON.parse(readFileSync(resolve(dir, 'data', 'product_data.json'), 'utf8'));
+    for (const p of catalog.products) {
+      expect(p.category).not.toBe('cat1');
+    }
+    const registry = readRegistry(dir);
+    expect(registry.categories.some((c: { id: string }) => c.id === 'cat1')).toBe(false);
+
+    // Reassign to a missing target is rejected.
+    const bad = await app.inject({
+      method: 'DELETE',
+      url: '/api/v1/categories/cat2',
+      headers: ch,
+      payload: { reassign_to: 'nope', base_revision: 6 },
+    });
+    expect(bad.statusCode).toBe(422);
+    expect(bad.json().error.code).toBe('REASSIGN_TARGET_NOT_FOUND');
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('PATCH /api/v1/nav-groups/:id edits label and active', async () => {
+  const dir = createTempDir();
+  setupData(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const created = await app.inject({
+      method: 'POST',
+      url: '/api/v1/nav-groups',
+      headers: ch,
+      payload: { id: 'g-edit', display_name: { default: 'Viejo' }, base_revision: 5 },
+    });
+    expect(created.statusCode).toBe(201);
+
+    const patched = await app.inject({
+      method: 'PATCH',
+      url: '/api/v1/nav-groups/g-edit',
+      headers: ch,
+      payload: { display_name: { default: 'Nuevo' }, active: false, base_revision: 6 },
+    });
+    expect(patched.statusCode).toBe(200);
+    const body = patched.json<{ display_name: { default: string }; active: boolean }>();
+    expect(body.display_name.default).toBe('Nuevo');
+    expect(body.active).toBe(false);
+
+    const unknown = await app.inject({
+      method: 'PATCH',
+      url: '/api/v1/nav-groups/g-edit',
+      headers: ch,
+      payload: { evil: true },
+    });
+    expect(unknown.statusCode).toBe(400);
+
     await app.close();
   } finally {
     rmSync(dir, { recursive: true, force: true });

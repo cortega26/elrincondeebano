@@ -33,6 +33,7 @@ export const ROUTE_POLICY: RoutePolicyEntry[] = [
   { method: 'DELETE', path: '/api/v1/categories/:id', class: 'mutation' },
   { method: 'POST', path: '/api/v1/categories/reorder', class: 'mutation' },
   { method: 'POST', path: '/api/v1/nav-groups', class: 'mutation' },
+  { method: 'PATCH', path: '/api/v1/nav-groups/:id', class: 'mutation' },
   { method: 'DELETE', path: '/api/v1/nav-groups/:id', class: 'mutation' },
   { method: 'POST', path: '/api/v1/categories/:categoryId/subcategories', class: 'mutation' },
   {

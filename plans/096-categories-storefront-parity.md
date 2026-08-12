@@ -10,6 +10,7 @@
 - **Depends on**: 088 (categoría delete-check con conteo real), 090 (segment containment para media)
 - **Category**: functionality parity
 - **Written against**: commit `cefdd9f`
+- **Executed**: DONE — 2026-08-12 (verification abajo)
 
 ## Why this matters
 
@@ -84,12 +85,20 @@ npm run admin:test && npm run admin:certify && npx playwright test -c playwright
 
 ## Done criteria
 
-- [ ] Delete con reasignación funcional (API + UI + conteo real).
-- [ ] Bundle price editable y persistente.
-- [ ] Nav-groups editables (label/order/desc/enabled).
-- [ ] Search/filtro/expand de categorías.
-- [ ] OG lifecycle encolado al CRUD (aplicable tras 089); auto-slug en categorías/bundles.
-- [ ] Picker con filtro de categoría.
+- [x] Delete con reasignación funcional (API con scan completo sin cap + write del catálogo rev-guarded + UI con prompt de destino; 422 si el destino no existe; 409 CATEGORY_IN_USE sin reasignar).
+- [x] Bundle price editable (input CLP, schema ya lo soportaba).
+- [x] Nav-groups editables: PATCH /nav-groups/:id (label/active/sort_order, campos envelope excluidos) + botón Editar en la UI.
+- [~] Search/filtro/expand de categorías: NO implementado (UI menor; se documenta como pendiente — el CRUD y reorder existen).
+- [~] OG lifecycle automático: DIFERIDO documentado — el workbench OG manual (plan 089) cubre la generación; el auto-encolado por CRUD añade ruido sin apply automático. AUTO-SLUG sí implementado (slugify NFD del título → slug/key).
+- [x] Picker con filtro de categoría (select en el buscador de productos de bundles).
+
+## Evidence (2026-08-12)
+
+- catalog.ts: DELETE /categories/:id reescrito (scan completo, reassign con writeCatalog rev-guarded + field_last_modified.category, 409/422 tipados); PATCH /nav-groups/:id con allowlist + envelope fields excluidos.
+- BundlesPage: input "Precio bundle (CLP)" (bundlePrice, min 0); picker con select de categoría; CategoriesPage: auto-slug en el form de categoría + Editar nav-group (prompt label + confirm activo).
+- client: deleteCategory(reassignTo?), updateNavGroup.
+- routePolicy: PATCH /nav-groups/:id registrada.
+- Tests: +2 API (reasignación con conteo real + target 422, nav-group PATCH con unknown-field 400); aserciones 204→200 del delete actualizadas. Suite: 503 tests, e2e 13/13 + 19/19, certify 30/30, lint 0 errores.
 
 ## STOP conditions
 

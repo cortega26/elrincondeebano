@@ -40,6 +40,7 @@ export function BundlesPage(): React.ReactElement {
   const [categories, setCategories] = useState<Array<{ key: string }>>([]);
   const [products, setProducts] = useState<ProductOption[]>([]);
   const [search, setSearch] = useState('');
+  const [pickerCategory, setPickerCategory] = useState('');
   const [pickerFor, setPickerFor] = useState<{ bundleIndex: number } | 'featured' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -178,7 +179,10 @@ export function BundlesPage(): React.ReactElement {
   };
 
   const filteredProducts = products.filter(
-    (p) => p.name.toLowerCase().includes(search.toLowerCase()) && !p.name.startsWith('__')
+    (p) =>
+      p.name.toLowerCase().includes(search.toLowerCase()) &&
+      !p.name.startsWith('__') &&
+      (!pickerCategory || p.category === pickerCategory)
   );
 
   const addFeaturedStaple = (item: ProductRef): void => {
@@ -275,6 +279,22 @@ export function BundlesPage(): React.ReactElement {
                   style={{ padding: '0.2rem', width: '220px' }}
                 />
               </label>
+              <label>
+                Precio bundle (CLP):{' '}
+                <input
+                  type="number"
+                  min="0"
+                  value={bundle.bundlePrice ?? ''}
+                  onChange={(e) =>
+                    updateBundle(index, {
+                      bundlePrice:
+                        e.currentTarget.value === '' ? undefined : Number(e.currentTarget.value),
+                    })
+                  }
+                  aria-label={`Precio del combo ${index + 1}`}
+                  style={{ padding: '0.2rem', width: '110px' }}
+                />
+              </label>
             </div>
 
             <ul aria-label={`Items del combo ${index + 1}`} style={{ paddingLeft: '1.25rem' }}>
@@ -350,7 +370,20 @@ export function BundlesPage(): React.ReactElement {
             placeholder="Nombre del producto…"
             style={{ padding: '0.25rem', width: '260px' }}
             autoFocus
-          />
+          />{' '}
+          <select
+            value={pickerCategory}
+            onChange={(e) => setPickerCategory(e.currentTarget.value)}
+            aria-label="Filtrar por categoría"
+            style={{ padding: '0.25rem' }}
+          >
+            <option value="">Todas las categorías</option>
+            {categories.map((c) => (
+              <option key={c.key} value={c.key}>
+                {c.key}
+              </option>
+            ))}
+          </select>
           <ul style={{ paddingLeft: '1.25rem', maxHeight: '200px', overflowY: 'auto' }}>
             {filteredProducts.slice(0, 30).map((p) => (
               <li key={p.id}>

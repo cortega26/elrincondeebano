@@ -47,10 +47,34 @@ export function CategoriesPage(): React.ReactElement {
   }
 
   async function handleDelete(id: string): Promise<void> {
-    if (!window.confirm(`¿Eliminar la categoría "${id}"?`)) return;
+    // Plan 096: offer reassignment for categories in use — the server
+    // rejects the plain delete with CATEGORY_IN_USE otherwise.
+    const reassignTo =
+      window
+        .prompt(
+          `Eliminar la categoría "${id}". Si está en uso, escribe el ID de la categoría destino para reasignar sus productos (vacío = bloquear si está en uso):`
+        )
+        ?.trim() ?? '';
     try {
-      await client.deleteCategory(id, data?.rev ?? 0);
-      setFeedback('Categoría eliminada ✓');
+      await client.deleteCategory(id, data?.rev ?? 0, reassignTo || undefined);
+      setFeedback(
+        reassignTo
+          ? `Categoría eliminada, productos reasignados a ${reassignTo} ✓`
+          : 'Categoría eliminada ✓'
+      );
+      await load();
+    } catch (err) {
+      await handleMutationError(err);
+    }
+  }
+
+  async function handleUpdateGroup(
+    id: string,
+    changes: { display_name?: { default?: string }; active?: boolean }
+  ): Promise<void> {
+    try {
+      await client.updateNavGroup(id, data?.rev ?? 0, changes);
+      setFeedback('Grupo actualizado ✓');
       await load();
     } catch (err) {
       await handleMutationError(err);
@@ -247,6 +271,25 @@ export function CategoriesPage(): React.ReactElement {
                     {g.active !== false ? '✓' : '✗'}
                   </td>
                   <td style={{ padding: '0.25rem' }}>
+                    <button
+                      style={{ fontSize: '0.8rem', padding: '0.1rem 0.3rem' }}
+                      onClick={() => {
+                        // Plan 096: rename label, toggle active, reorder.
+                        const label = window
+                          .prompt('Nombre del grupo:', g.display_name?.default ?? g.id)
+                          ?.trim();
+                        if (label === undefined) return;
+                        const active = window.confirm(
+                          '¿Grupo activo? (Aceptar = sí, Cancelar = no)'
+                        );
+                        void handleUpdateGroup(g.id, {
+                          display_name: { default: label || g.id },
+                          active,
+                        });
+                      }}
+                    >
+                      Editar
+                    </button>{' '}
                     <button
                       style={{ fontSize: '0.8rem', padding: '0.1rem 0.3rem' }}
                       onClick={() => {
@@ -543,7 +586,27 @@ function CategoryForm({
           ) : (
             <input
               value={form[f] ?? ''}
-              onChange={(e) => setForm((prev) => ({ ...prev, [f]: e.target.value }))}
+              onChange={(e) => {
+                const value = e.target.value;
+                setForm((prev) => {
+                  const next = { ...prev, [f]: value };
+                  // Plan 096: auto-slug from the title when the fields are
+                  // still empty (slugify: lowercase, no accents, dashes).
+                  if (f === 'display_name') {
+                    const slug = value
+                      .toLowerCase()
+                      .normalize('NFD')
+                      .replace(/[\u0300-\u036f]/g, '')
+                      .replace(/[^a-z0-9]+/g, '-')
+                      .replace(/^-+|-+$/g, '');
+                    if (slug) {
+                      if (!next.slug) next.slug = slug;
+                      if (!next.key) next.key = slug;
+                    }
+                  }
+                  return next;
+                });
+              }}
               style={{ padding: '0.15rem 0.3rem', width: f === 'display_name' ? '180px' : '100px' }}
             />
           )}
