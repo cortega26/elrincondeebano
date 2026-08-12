@@ -78,3 +78,13 @@ Target size: <= 400 net lines excluding lockfile churn.
 1. Revert dependency commit (`git revert <sha>`) if regression appears.
 2. Re-run baseline gates (`lint`, `test`, `build`, `e2e smoke`) after revert.
 3. Document incident and add regression test before re-attempting upgrade.
+
+## Decisión TypeScript (plan 113, 2026-08-12)
+
+El repo convive con dos majors de TypeScript: root/astro-poc en `^6.0.3` y
+`admin/content-manager` en `^7.0.2`. La toolchain (typescript-eslint peer
+`<6.1.0`, @astrojs/check peer `^5||^6`) no soporta TS 7 todavía, así que la
+alineación total está bloqueada upstream. Decisión deliberada: mantener el
+skew hasta que typescript-eslint/@astrojs/check soporten TS 7; el lint de
+admin parsea con la API de TS 6 (dedupe) mientras `admin:typecheck` usa su
+propio `tsc` 7 — re-evaluar en cada major de la toolchain.

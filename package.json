@@ -21,7 +21,6 @@
     "admin:doctor": "npm -w admin/content-manager run doctor",
     "admin:validate": "npm run admin:typecheck && npm run admin:test && npm run admin:build && npm run admin:parity",
     "bootstrap": "npm ci",
-    "turbo": "turbo",
     "changeset": "changeset",
     "fonts": "node tools/fetch-fonts.mjs",
     "categories:sync": "node tools/sync-category-catalog.js",
@@ -111,16 +110,13 @@
     "jsdom": "^30.0.1",
     "lighthouse": "^13.4.0",
     "lint-staged": "^17.3.0",
-    "pa11y-ci": "^4.1.1",
     "prettier": "^3.9.6",
     "sass-embedded": "^1.100.0",
     "sharp": "^0.35.3",
-    "turbo": "^2.10.8",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.66.0",
     "undici": "^8.10.0",
-    "vitest": "^4.0.16",
-    "ws": "^8.21.2"
+    "vitest": "^4.0.16"
   },
   "engines": {
     "node": ">=24 <25"

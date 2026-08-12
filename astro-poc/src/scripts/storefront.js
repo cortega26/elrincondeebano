@@ -170,9 +170,10 @@ function loadCart() {
 }
 
 function saveCart(cart) {
-  const saved = storefrontStorage.saveJson('cart', sanitizeCart(cart));
+  const sanitized = sanitizeCart(cart);
+  const saved = storefrontStorage.saveJson('cart', sanitized);
   try {
-    var serialized = JSON.stringify(cart);
+    var serialized = JSON.stringify(sanitized);
     globalThis.localStorage?.setItem('cart', serialized);
   } catch (_e) {
     /* ignorar error de quota en la key legacy */
@@ -242,7 +243,25 @@ function loadCartFromUrl() {
     if (hydrated.length === 0) return false;
 
     var currentCart = loadCart();
-    if (currentCart.length > 0) return false;
+    if (currentCart.length > 0) {
+      // Plan 117: never refuse silently — the link looks broken otherwise.
+      var existing = document.getElementById('shared-cart-refused');
+      if (!existing) {
+        var toast = createElement('div', {
+          className:
+            'alert alert-warning alert-dismissible fade show position-fixed bottom-0 end-0 m-3',
+          attrs: {
+            id: 'shared-cart-refused',
+            role: 'alert',
+            style: 'z-index: 9999; max-width: 400px;',
+          },
+        });
+        toast.innerHTML =
+          '<strong>Enlace de carrito no aplicado.</strong> Ya tienes productos en tu carrito.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>';
+        document.body.appendChild(toast);
+      }
+      return false;
+    }
 
     if (!saveCart(hydrated)) {
       return false;
@@ -257,11 +276,8 @@ function loadCartFromUrl() {
 
 // Notificaciones de stock
 function getFavorites() {
-  try {
-    return JSON.parse(globalThis.localStorage.getItem('astro-poc-favorites') || '[]');
-  } catch (e) {
-    return [];
-  }
+  // Plan 117: route through the storage abstraction (safe-parse, slot key).
+  return storefrontStorage.loadJson('favorites', []);
 }
 
 function checkStockNotifications() {
@@ -729,6 +745,19 @@ function getCompanionProducts(cart, companionRules) {
   const suggested = [];
   const seen = new Set();
 
+  // Plan 120: the category->product map is rule-invariant — build it once
+  // per call (was rebuilt inside the rules loop on every cart interaction).
+  var productByKey = new Map();
+  getProductCardMap().forEach(function (card) {
+    var product = getProductFromCard(card);
+    if (product && product.stock !== false) {
+      var key = normalizeSearchText(product.category) + '::' + normalizeSearchText(product.name);
+      if (!productByKey.has(key)) {
+        productByKey.set(key, product);
+      }
+    }
+  });
+
   companionRules.forEach((rule) => {
     const sourceCategories = Array.isArray(rule?.sourceCategories) ? rule.sourceCategories : [];
     const applies = sourceCategories.some((category) =>
@@ -739,17 +768,6 @@ function getCompanionProducts(cart, companionRules) {
     }
 
     const targets = Array.isArray(rule?.targets) ? rule.targets : [];
-    var productByKey = new Map();
-    getProductCardMap().forEach(function (card) {
-      var product = getProductFromCard(card);
-      if (product && product.stock !== false) {
-        var key = normalizeSearchText(product.category) + '::' + normalizeSearchText(product.name);
-        if (!productByKey.has(key)) {
-          productByKey.set(key, product);
-        }
-      }
-    });
-
     targets.forEach(function (target) {
       var key =
         normalizeSearchText(target?.category || '') +

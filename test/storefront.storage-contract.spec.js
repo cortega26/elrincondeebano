@@ -104,3 +104,23 @@ describe('storefront storage contract', () => {
     expect(JSON.parse(storage.getItem(STOREFRONT_STORAGE_KEYS.recoveryDismissed))).toBe(456);
   });
 });
+
+describe('plan 117: favorites slot', () => {
+  it('loads favorites through the abstraction with safe-parse', () => {
+    const storage = createStorefrontStorage({
+      storage: createMemoryStorage({ 'astro-poc-favorites': '[{"id":"p1"}]' }),
+    });
+    expect(storage.loadJson('favorites', [])).toEqual([{ id: 'p1' }]);
+  });
+
+  it('returns the fallback on corrupt favorites JSON', () => {
+    const storage = createStorefrontStorage({
+      storage: createMemoryStorage({ 'astro-poc-favorites': '{not-json' }),
+    });
+    expect(storage.loadJson('favorites', [])).toEqual([]);
+  });
+
+  it('declares the favorites slot in the runtime contract', () => {
+    expect(STOREFRONT_STORAGE_KEYS.favorites).toBe('astro-poc-favorites');
+  });
+});

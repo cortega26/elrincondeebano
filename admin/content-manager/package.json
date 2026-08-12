@@ -39,7 +39,7 @@
     "@vitejs/plugin-react": "^6.0.3",
     "@vitest/browser-playwright": "^4.1.10",
     "@vitest/coverage-v8": "^4.1.10",
-    "playwright": "^1.61.1",
+    "playwright": "^1.62.1",
     "tsx": "^4.21.0",
     "typescript": "^7.0.2",
     "vite": "^8.1.4",

@@ -8,6 +8,9 @@ export const STOREFRONT_STORAGE_KEYS = Object.freeze({
   substitutionPreference: 'astro-poc-substitution-preference',
   orderLastSentAt: 'astro-poc-order-last-sent-at',
   recoveryDismissed: 'astro-poc-recovery-dismissed',
+  // Plan 117: favorites used to bypass the abstraction via a magic string;
+  // now a first-class slot (same key, safe-parse via loadJson).
+  favorites: 'astro-poc-favorites',
 });
 
 export const STOREFRONT_STORAGE_ALIASES: Record<StorefrontStorageSlot, string[]> = Object.freeze({
@@ -20,6 +23,7 @@ export const STOREFRONT_STORAGE_ALIASES: Record<StorefrontStorageSlot, string[]>
   substitutionPreference: [],
   orderLastSentAt: [],
   recoveryDismissed: [],
+  favorites: [],
 });
 
 export const STOREFRONT_RUNTIME_CONTRACT = Object.freeze({

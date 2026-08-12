@@ -41,47 +41,51 @@ export function createCatalogViewController({
     const keyword = normalizeSearchText(searchInput?.value || '');
     const discountOnly = !!discountCheckbox?.checked;
 
-    const sortedProducts = [...products].sort((a, b) => {
-      const aOrder = parseNumber(a.dataset.productOrder, 0);
-      const bOrder = parseNumber(b.dataset.productOrder, 0);
-      const aName = normalizeSearchText(a.dataset.productName || '');
-      const bName = normalizeSearchText(b.dataset.productName || '');
-      const aPrice = parseNumber(a.dataset.productFinalPrice, 0);
-      const bPrice = parseNumber(b.dataset.productFinalPrice, 0);
-
-      switch (sortValue) {
-        case 'name-asc':
-          return aName.localeCompare(bName, 'es');
-        case 'name-desc':
-          return bName.localeCompare(aName, 'es');
-        case 'price-asc':
-          return aPrice - bPrice;
-        case 'price-desc':
-          return bPrice - aPrice;
-        default:
-          return aOrder - bOrder;
-      }
-    });
-
-    const reorderFragment = document.createDocumentFragment();
-    sortedProducts.forEach((item) => reorderFragment.appendChild(item));
-    container.appendChild(reorderFragment);
-
-    const matchingProducts = [];
-    sortedProducts.forEach((item) => {
-      const searchText = normalizeSearchText(
+    // Plan 120: precompute the sort/search keys ONCE per updateView —
+    // never inside the comparator (O(n log n) string work per keystroke).
+    const keyed = products.map((item) => ({
+      item,
+      order: parseNumber(item.dataset.productOrder, 0),
+      name: normalizeSearchText(item.dataset.productName || ''),
+      price: parseNumber(item.dataset.productFinalPrice, 0),
+      searchText: normalizeSearchText(
         item.dataset.productSearchText ||
           [
             item.dataset.productName || '',
             item.dataset.productDescription || '',
             item.dataset.productCategory || '',
           ].join(' ')
-      );
-      const hasDiscount = parseNumber(item.dataset.productDiscount, 0) > 0;
-      const keywordMatch = !keyword || searchText.includes(keyword);
+      ),
+    }));
+
+    const sortedProducts = keyed
+      .sort((a, b) => {
+        switch (sortValue) {
+          case 'name-asc':
+            return a.name.localeCompare(b.name, 'es');
+          case 'name-desc':
+            return b.name.localeCompare(a.name, 'es');
+          case 'price-asc':
+            return a.price - b.price;
+          case 'price-desc':
+            return b.price - a.price;
+          default:
+            return a.order - b.order;
+        }
+      })
+      .map((k) => k.item);
+
+    const reorderFragment = document.createDocumentFragment();
+    sortedProducts.forEach((item) => reorderFragment.appendChild(item));
+    container.appendChild(reorderFragment);
+
+    const matchingProducts = [];
+    keyed.forEach((k) => {
+      const hasDiscount = parseNumber(k.item.dataset.productDiscount, 0) > 0;
+      const keywordMatch = !keyword || k.searchText.includes(keyword);
       const discountMatch = !discountOnly || hasDiscount;
       if (keywordMatch && discountMatch) {
-        matchingProducts.push(item);
+        matchingProducts.push(k.item);
       }
     });
 

@@ -253,3 +253,36 @@ test('mark-sent write failure keeps cart, badge and sent marker unchanged', asyn
 
   await restoreStorageWrites(page);
 });
+test('plan 117: shared-cart link with a non-empty cart shows feedback and keeps the cart', async ({
+  page,
+}) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await page.waitForFunction(() => (window as any).__APP_READY__ === true, { timeout: 15_000 });
+
+  // Seed a real cart item.
+  const addBtn = page.locator('.category-strip .add-to-cart-btn').first();
+  await addBtn.click();
+  await page.waitForTimeout(200);
+
+  // Forge a shared-cart link for the same product.
+  const card = addBtn.locator('xpath=ancestor::*[@data-product-id][1]');
+  const productId = await card.getAttribute('data-product-id');
+  const forged = [
+    { id: productId, name: 'X', category: 'X', price: 1, discount: 0, image: '', quantity: 2 },
+  ];
+  const encoded = Buffer.from(encodeURIComponent(JSON.stringify(forged))).toString('base64');
+  await page.evaluate((enc) => {
+    window.location.hash = `#cart=${enc}`;
+  }, encoded);
+  await page.reload({ waitUntil: 'networkidle' });
+  await page.waitForFunction(() => (window as any).__APP_READY__ === true, { timeout: 15_000 });
+
+  // The refusal is visible and the existing cart is untouched (qty stays 1).
+  await expect(page.locator('#shared-cart-refused')).toBeVisible();
+  const shortcut = page.locator('#mobile-cart-shortcut');
+  await expect(shortcut).toBeVisible();
+  await shortcut.click();
+  const offcanvas = page.locator('#cartOffcanvas');
+  await expect(offcanvas).toBeVisible();
+  await expect(offcanvas.locator('.item-quantity')).toHaveText('1');
+});
