@@ -37,8 +37,8 @@ conditions, y actualizar su fila al terminar.
 
 - **Auditoría 8 (086–097)**: completa el 2026-08-12 — 086–097 DONE y
   archivados; gates finales (`npm run validate` y `validate:release`) verdes.
-  Ítems diferidos documentados en planes cerrados: search/filtro/expand de
-  categorías y OG lifecycle automático (096), media relocation (097).
+  Ítems diferidos cerrados el 2026-08-12 (`ff277fe`): search/filtro/expand de
+  categorías, OG lifecycle automático (096) y media relocation (097).
 - **Auditoría 7 (070–085)**: completa el 2026-08-11 (todos DONE, archivados).
 - **Auditoría 6 (056–069)**: completa el 2026-08-11 (todos DONE, archivados).
   Retiro reversible de Python ejecutado (tag `v1.x-python-final` en
@@ -64,11 +64,14 @@ SUPERSEDED con el retiro de Python (069).
 
 Pendientes documentados (ítems diferidos de planes cerrados):
 
-| Ítem                                          | Origen | Estado                                              |
-| --------------------------------------------- | ------ | --------------------------------------------------- |
-| Search/filtro/expand de categorías            | 096    | Pendiente (UI menor)                                |
-| OG lifecycle automático en CRUD de categorías | 096    | Pendiente (el workbench manual cubre la generación) |
-| Media relocation al cambiar categoría         | 097    | Pendiente (riesgo alto en paths de imagen/build)    |
+| Ítem                                          | Origen | Estado                                             |
+| --------------------------------------------- | ------ | -------------------------------------------------- |
+| Search/filtro/expand de categorías            | 096    | DONE 2026-08-12 (ui en CategoriesPage + scope e2e) |
+| OG lifecycle automático en CRUD de categorías | 096    | DONE 2026-08-12 (`categoryOgLifecycle.ts`)         |
+| Media relocation al cambiar categoría         | 097    | DONE 2026-08-12 (`mediaRelocation.ts`)             |
+
+Cierre de diferidos: `ff277fe` (gates: vitest 506/506, e2e 19/19, scope e2e
+16/16 ×3, lint, certify). Rollback: `git revert ff277fe`.
 
 ---
 
