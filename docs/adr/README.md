@@ -26,6 +26,7 @@ Create or update an ADR when a change:
 | `0007` | Accepted | `npm run validate:release` is the canonical release-validation contract.                                                                                                                                                                                                 |
 | `0008` | Accepted | Live production must satisfy the edge security contract; fix production, not the contract.                                                                                                                                                                               |
 | `0009` | Accepted | `data/product_data.json` is the single authoritative product catalog. All write-path ownership documented; synced copies and the TS Content Manager write paths identified. Executed by the Streamlit retirement notice (`docs/archive/streamlit-retirement-notice.md`). |
+| `0010` | Proposed | Contrato provider-neutral de medición privada del funnel (spike 038): 5 eventos, matriz de propiedades permitidas/prohibidas sin PII, retención 90 días, consentimiento explícito; go/no-go pendiente del owner (default no-go).                                         |
 
 ## Maintenance notes
 

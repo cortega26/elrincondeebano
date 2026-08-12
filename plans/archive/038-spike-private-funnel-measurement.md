@@ -12,6 +12,7 @@
 - **Depends on**: `plans/037-converge-runtime-documentation.md`
 - **Category**: direction
 - **Planned at**: commit `877f179`, 2026-07-14
+- **Executed**: DONE — 2026-08-12 (spike; verificación abajo)
 
 ## Why this matters
 
@@ -68,10 +69,17 @@ No runtime tests in this spike. Validate source inventory and markdown. Any late
 
 ## Done criteria
 
-- [ ] Every current active event is inventoried.
-- [ ] Forbidden data and retention/consent ownership are explicit.
-- [ ] ADR records go/no-go and provider-neutral event contract.
-- [ ] No production/runtime/dependency change occurred.
+- [x] Cada evento activo inventariado (5: whatsapp_checkout_submit, mobile_merchandising_toggle, mobile_cart_shortcut_click, home_hero_primary_cta_click, mobile_add_to_cart); emisores legacy (src/js/main.js) excluidos.
+- [x] Datos prohibidos + retención (90 días) + dueño de consentimiento explícitos en la matriz del ADR.
+- [x] ADR 0010 registra go/no-go (condicional Plausible custom events; default no-go hasta confirmación del owner) + contrato provider-neutral.
+- [x] Cero cambios de runtime/producción/dependencias (solo docs: ADR + índice).
+
+## Evidence (2026-08-12)
+
+- docs/adr/0010-private-funnel-measurement.md: inventario con veredicto por evento (2 rechazados/coarsed: hero CTA destination → slug canónico; add_to_cart → conteo sin id/name/price), matriz de propiedades permitidas/prohibidas, política (retención 90 días, sampling 10 %, dedup, no-op como contrato anti-bloqueo), comparación de 3 opciones y contrato provider-neutral.
+- docs/adr/README.md: fila 0010 (Proposed).
+- markdownlint: 0 issues (fila alineada con la tabla existente).
+- Sin cambios en astro-poc/src, BaseLayout ni dependencias.
 
 ## STOP conditions
 
