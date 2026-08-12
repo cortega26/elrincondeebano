@@ -31,5 +31,13 @@ export default defineConfig({
     port: 5173,
     strictPort: false,
     host: '127.0.0.1',
+    // Plan 124: dev loop — `npm run admin:dev` (API :3000, tsx --watch) +
+    // `npm run admin:dev:web` (vite :5173, HMR) proxies API calls.
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:3000',
+        changeOrigin: true,
+      },
+    },
   },
 });

@@ -94,7 +94,7 @@ Batch 2 — perf/deps/DX/seguridad (112–126):
 | [121](archive/121-batch-undo-endpoint.md)                     | Endpoint de batch-undo (1 write por undo)                  | P3        | M        | 099        | DONE 2026-08-12 |
 | [122](archive/122-eslint-shared-base.md)                      | Base ESLint compartida (triplicación)                      | P3        | M        | —          | DONE 2026-08-12 |
 | [123](archive/123-playwright-shared-base.md)                  | Base Playwright compartida (6 configs)                     | P3        | M        | —          | DONE 2026-08-12 |
-| [124](124-admin-dev-watch-mode.md)                            | Watch mode para admin dev (server + HMR)                   | P3        | M        | —          | TODO            |
+| [124](archive/124-admin-dev-watch-mode.md)                    | Watch mode para admin dev (server + HMR)                   | P3        | M        | —          | DONE 2026-08-12 |
 | [125](archive/125-admin-security-hardening.md)                | IDs criptográficos + credential en archivo 0600            | P2        | S        | —          | DONE 2026-08-12 |
 | [126](archive/126-assert-destructive-confirm-dialogs.md)      | Asertar dialogs destructivos en e2e                        | P3        | S        | —          | DONE 2026-08-12 |
 

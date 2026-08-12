@@ -11,7 +11,8 @@ was retired on 2026-08-11 (plan 069, rollback boundary: tag
 From the repo root:
 
 ```bash
-npm run admin:dev      # dev server (Vite + API) on http://127.0.0.1:3000
+npm run admin:dev      # API dev server (:3000, tsx --watch — reinicia en cambios de src/server)
+npm run admin:dev:web  # SPA dev server (Vite :5173, HMR — proxy /api a :3000). Plan 124.
 npm run admin:start    # production server (serves dist/web if built)
 npm run admin:validate # typecheck + test + build + parity
 npm run admin:test     # vitest suite (contract + integration)
