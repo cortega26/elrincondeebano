@@ -75,7 +75,7 @@ config/ ─────────────────┘                  
 
 ### Canonical build scripts (`tools/`)
 
-- Image pipeline: `generate-images.mjs`, `rewrite-images.mjs`, `lint-images.mjs`, `generate-image-variants.js`.
+- Image pipeline: `generate-images.mjs`, `rewrite-images.mjs`, `lint-images.mjs`, `gap-fill-image-variants.js` (plan 119).
 - Guardrails and checks: `preflight.js`, `check-determinism-paths.mjs`, `validate-category-registry.js`, `prune-backups.js`.
 
 ### Operator scripts (`scripts/`)
