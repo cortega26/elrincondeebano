@@ -1,4 +1,4 @@
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyReply } from 'fastify';
 import type { ProductRepository } from '../repositories/productRepository.ts';
 import type { CategoryRepository } from '../repositories/categoryRepository.ts';
 import type { StorefrontRepository } from '../repositories/storefrontRepository.ts';
@@ -9,6 +9,18 @@ import type { CategoryService } from '../../domain/categories/categoryService.ts
 import type { CreateCategoryInput } from '../../domain/categories/categoryService.ts';
 import type { Subcategory } from '../../shared/schemas/category.ts';
 import { subcategorySchema, navGroupRecordSchema } from '../../shared/schemas/category.ts';
+
+// Plan 094: single write-mode guard — was copy-pasted into every mutation
+// route (15 blocks with identical 403 semantics).
+export function requireWriteMode(reply: FastifyReply, productService: ProductService): boolean {
+  if (!productService.isEnabled) {
+    reply
+      .status(403)
+      .send({ error: { code: 'FORBIDDEN', message: 'Write operations are disabled' } });
+    return false;
+  }
+  return true;
+}
 
 export interface Repositories {
   products: ProductRepository;
@@ -170,11 +182,7 @@ export async function productRoutes(
   });
 
   app.post('/products', async (request, reply) => {
-    if (!productService.isEnabled) {
-      return reply.status(403).send({
-        error: { code: 'FORBIDDEN', message: 'Write operations are disabled' },
-      });
-    }
+    if (!requireWriteMode(reply, productService)) return;
 
     const envelope = request.body as CommandEnvelope<{
       name: string;
@@ -225,11 +233,7 @@ export async function productRoutes(
   });
 
   app.patch('/products/:id', async (request, reply) => {
-    if (!productService.isEnabled) {
-      return reply.status(403).send({
-        error: { code: 'FORBIDDEN', message: 'Write operations are disabled' },
-      });
-    }
+    if (!requireWriteMode(reply, productService)) return;
 
     const { id } = request.params as { id: string };
     const envelope = request.body as CommandEnvelope<{
@@ -305,11 +309,7 @@ export async function productRoutes(
   });
 
   app.post('/products/reorder', async (request, reply) => {
-    if (!productService.isEnabled) {
-      return reply.status(403).send({
-        error: { code: 'FORBIDDEN', message: 'Write operations are disabled' },
-      });
-    }
+    if (!requireWriteMode(reply, productService)) return;
 
     const body = request.body as { command_id?: string; ordered_ids?: string[] };
     if (!body?.command_id || !body?.ordered_ids || !Array.isArray(body.ordered_ids)) {
@@ -362,11 +362,7 @@ export async function productRoutes(
   });
 
   app.post('/products/bulk/preview', async (request, reply) => {
-    if (!productService.isEnabled) {
-      return reply.status(403).send({
-        error: { code: 'FORBIDDEN', message: 'Write operations are disabled' },
-      });
-    }
+    if (!requireWriteMode(reply, productService)) return;
 
     const body = request.body as {
       command_id?: string;
@@ -413,11 +409,7 @@ export async function productRoutes(
   });
 
   app.post('/products/bulk/apply', async (request, reply) => {
-    if (!productService.isEnabled) {
-      return reply.status(403).send({
-        error: { code: 'FORBIDDEN', message: 'Write operations are disabled' },
-      });
-    }
+    if (!requireWriteMode(reply, productService)) return;
 
     const body = request.body as {
       command_id?: string;
@@ -504,11 +496,7 @@ export async function categoryRoutes(
   });
 
   app.post('/categories', async (request, reply) => {
-    if (!productService.isEnabled) {
-      return reply.status(403).send({
-        error: { code: 'FORBIDDEN', message: 'Write operations are disabled' },
-      });
-    }
+    if (!requireWriteMode(reply, productService)) return;
 
     const registry = repos.categories.load();
     const body = request.body as CreateCategoryInput;
@@ -538,20 +526,17 @@ export async function categoryRoutes(
   });
 
   app.patch('/categories/:id', async (request, reply) => {
-    if (!productService.isEnabled) {
-      return reply.status(403).send({
-        error: { code: 'FORBIDDEN', message: 'Write operations are disabled' },
-      });
-    }
+    if (!requireWriteMode(reply, productService)) return;
 
     const { id } = request.params as { id: string };
     const registry = repos.categories.load();
     const result = categoryService.edit(registry, id, request.body ?? {});
 
     if (!result.ok) {
-      const code = result.error?.includes('not found') ? 'NOT_FOUND' : 'CONFLICT';
-      return reply.status(code === 'NOT_FOUND' ? 404 : 409).send({
-        error: { code, message: result.error },
+      // Plan 094: typed code from the service — never string-match messages.
+      const status = result.code === 'NOT_FOUND' ? 404 : result.code === 'CONFLICT' ? 409 : 422;
+      return reply.status(status).send({
+        error: { code: result.code ?? 'VALIDATION_ERROR', message: result.error },
       });
     }
 
@@ -569,11 +554,7 @@ export async function categoryRoutes(
   });
 
   app.delete('/categories/:id', async (request, reply) => {
-    if (!productService.isEnabled) {
-      return reply.status(403).send({
-        error: { code: 'FORBIDDEN', message: 'Write operations are disabled' },
-      });
-    }
+    if (!requireWriteMode(reply, productService)) return;
 
     const { id } = request.params as { id: string };
     const registry = repos.categories.load();
@@ -585,10 +566,10 @@ export async function categoryRoutes(
 
     const result = categoryService.remove(registry, id, productUsage);
     if (!result.ok) {
-      const code = result.error?.includes('in use') ? 'CONFLICT' : 'NOT_FOUND';
-      return reply
-        .status(code === 'CONFLICT' ? 409 : 404)
-        .send({ error: { code, message: result.error } });
+      // Plan 094: typed code from the service.
+      return reply.status(result.code === 'NOT_FOUND' ? 404 : 409).send({
+        error: { code: result.code ?? 'CONFLICT', message: result.error },
+      });
     }
 
     const wrote = await repos.categories.write(registry, readBaseRevision(request.body));
@@ -605,11 +586,7 @@ export async function categoryRoutes(
   });
 
   app.post('/categories/reorder', async (request, reply) => {
-    if (!productService.isEnabled) {
-      return reply.status(403).send({
-        error: { code: 'FORBIDDEN', message: 'Write operations are disabled' },
-      });
-    }
+    if (!requireWriteMode(reply, productService)) return;
 
     const body = request.body as { ordered_ids?: string[] };
     if (!body?.ordered_ids?.length) {
@@ -635,11 +612,7 @@ export async function categoryRoutes(
   });
 
   app.post('/nav-groups', async (request, reply) => {
-    if (!productService.isEnabled) {
-      return reply.status(403).send({
-        error: { code: 'FORBIDDEN', message: 'Write operations are disabled' },
-      });
-    }
+    if (!requireWriteMode(reply, productService)) return;
 
     const parsed = navGroupRecordSchema.safeParse(request.body ?? {});
     if (!parsed.success) {
@@ -671,21 +644,17 @@ export async function categoryRoutes(
   });
 
   app.delete('/nav-groups/:id', async (request, reply) => {
-    if (!productService.isEnabled) {
-      return reply.status(403).send({
-        error: { code: 'FORBIDDEN', message: 'Write operations are disabled' },
-      });
-    }
+    if (!requireWriteMode(reply, productService)) return;
 
     const { id } = request.params as { id: string };
     const registry = repos.categories.load();
     const result = categoryService.removeNavGroup(registry, id);
 
     if (!result.ok) {
-      const code = result.error?.includes('has') ? 'CONFLICT' : 'NOT_FOUND';
-      return reply
-        .status(code === 'CONFLICT' ? 409 : 404)
-        .send({ error: { code, message: result.error } });
+      // Plan 094: typed code from the service.
+      return reply.status(result.code === 'NOT_FOUND' ? 404 : 409).send({
+        error: { code: result.code ?? 'CONFLICT', message: result.error },
+      });
     }
 
     const wrote = await repos.categories.write(registry, readBaseRevision(request.body));
@@ -702,11 +671,7 @@ export async function categoryRoutes(
   });
 
   app.post('/categories/:categoryId/subcategories', async (request, reply) => {
-    if (!productService.isEnabled) {
-      return reply.status(403).send({
-        error: { code: 'FORBIDDEN', message: 'Write operations are disabled' },
-      });
-    }
+    if (!requireWriteMode(reply, productService)) return;
 
     const { categoryId } = request.params as { categoryId: string };
     const body = request.body as {
@@ -780,11 +745,7 @@ export async function categoryRoutes(
   });
 
   app.patch('/categories/:categoryId/subcategories/:subId', async (request, reply) => {
-    if (!productService.isEnabled) {
-      return reply.status(403).send({
-        error: { code: 'FORBIDDEN', message: 'Write operations are disabled' },
-      });
-    }
+    if (!requireWriteMode(reply, productService)) return;
 
     const { categoryId, subId } = request.params as { categoryId: string; subId: string };
     const body = request.body as Record<string, unknown>;
@@ -833,11 +794,7 @@ export async function categoryRoutes(
   });
 
   app.delete('/categories/:categoryId/subcategories/:subId', async (request, reply) => {
-    if (!productService.isEnabled) {
-      return reply.status(403).send({
-        error: { code: 'FORBIDDEN', message: 'Write operations are disabled' },
-      });
-    }
+    if (!requireWriteMode(reply, productService)) return;
 
     const { categoryId, subId } = request.params as { categoryId: string; subId: string };
 
@@ -873,11 +830,7 @@ export async function categoryRoutes(
   });
 
   app.post('/categories/:categoryId/subcategories/reorder', async (request, reply) => {
-    if (!productService.isEnabled) {
-      return reply.status(403).send({
-        error: { code: 'FORBIDDEN', message: 'Write operations are disabled' },
-      });
-    }
+    if (!requireWriteMode(reply, productService)) return;
 
     const { categoryId } = request.params as { categoryId: string };
     const body = request.body as { ordered_ids?: string[] };

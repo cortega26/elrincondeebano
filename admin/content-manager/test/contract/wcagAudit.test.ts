@@ -2,10 +2,15 @@ import { test, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const srcDir = resolve(__dirname, '..', '..', 'src', 'web', 'app', 'routes');
+const routesDir = resolve(__dirname, '..', '..', 'src', 'web', 'app', 'routes');
+const componentsDir = resolve(__dirname, '..', '..', 'src', 'web', 'app', 'components');
 
 function readSource(filename: string): string {
-  return readFileSync(resolve(srcDir, filename), 'utf-8');
+  return readFileSync(resolve(routesDir, filename), 'utf-8');
+}
+
+function readComponent(filename: string): string {
+  return readFileSync(resolve(componentsDir, filename), 'utf-8');
 }
 
 test('WCAG 1.3.1: ProductsPage has main landmark with accessible label', () => {
@@ -37,7 +42,7 @@ test('WCAG 2.4.3: No positive tabindex values (focus order must follow DOM)', ()
 });
 
 test('WCAG 4.1.2: Product actions have accessible names', () => {
-  const src = readSource('ProductsPage.tsx');
+  const src = readSource('ProductsPage.tsx') + readComponent('ProductList.tsx');
   // Verify at least one button has aria-label
   expect(src).toContain('aria-label=');
   // Verify archive/restore buttons are labeled
@@ -55,7 +60,7 @@ test('WCAG 4.1.3: Error messages use role=alert or aria-live', () => {
 });
 
 test('WCAG 1.3.2: Table headers use scope attribute', () => {
-  const src = readSource('ProductsPage.tsx');
+  const src = readComponent('ProductList.tsx');
   expect(src).toContain('scope="col"');
   expect(src).toContain('aria-label="Lista de productos"');
 });

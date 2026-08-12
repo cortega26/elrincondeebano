@@ -23,21 +23,31 @@ export interface CreateNavGroupInput {
   active?: boolean;
 }
 
+// Plan 094: typed error codes — routes map code → HTTP status, never
+// string-matching messages.
+export type CategoryServiceErrorCode = 'NOT_FOUND' | 'CONFLICT' | 'VALIDATION_ERROR';
+
+export interface CategoryServiceResult {
+  ok: boolean;
+  error?: string;
+  code?: CategoryServiceErrorCode;
+}
+
 export class CategoryService {
   create(
     registry: CategoryRegistry,
     input: CreateCategoryInput
-  ): { ok: boolean; error?: string; category?: CategoryRecord } {
+  ): CategoryServiceResult & { category?: CategoryRecord } {
     const categories = registry.categories ?? [];
 
     if (categories.some((c) => c.id === input.id)) {
-      return { ok: false, error: `Category "${input.id}" already exists` };
+      return { ok: false, code: 'CONFLICT', error: `Category "${input.id}" already exists` };
     }
     if (categories.some((c) => c.key === input.key)) {
-      return { ok: false, error: `Category key "${input.key}" already exists` };
+      return { ok: false, code: 'CONFLICT', error: `Category key "${input.key}" already exists` };
     }
     if (categories.some((c) => c.slug === input.slug)) {
-      return { ok: false, error: `Category slug "${input.slug}" already exists` };
+      return { ok: false, code: 'CONFLICT', error: `Category slug "${input.slug}" already exists` };
     }
 
     const category: CategoryRecord = {
@@ -53,7 +63,11 @@ export class CategoryService {
 
     const result = categoryRecordSchema.safeParse(category);
     if (!result.success) {
-      return { ok: false, error: result.error.issues.map((i) => i.message).join('; ') };
+      return {
+        ok: false,
+        code: 'VALIDATION_ERROR',
+        error: result.error.issues.map((i) => i.message).join('; '),
+      };
     }
 
     registry.categories = [...categories, result.data];
@@ -64,11 +78,11 @@ export class CategoryService {
     registry: CategoryRegistry,
     id: string,
     changes: Partial<CreateCategoryInput>
-  ): { ok: boolean; error?: string; category?: CategoryRecord } {
+  ): CategoryServiceResult & { category?: CategoryRecord } {
     const categories = registry.categories ?? [];
     const idx = categories.findIndex((c) => c.id === id);
     if (idx === -1) {
-      return { ok: false, error: `Category "${id}" not found` };
+      return { ok: false, code: 'NOT_FOUND', error: `Category "${id}" not found` };
     }
 
     const existing = categories[idx];
@@ -78,14 +92,18 @@ export class CategoryService {
       changes.key !== existing.key &&
       categories.some((c) => c.key === changes.key)
     ) {
-      return { ok: false, error: `Category key "${changes.key}" already in use` };
+      return { ok: false, code: 'CONFLICT', error: `Category key "${changes.key}" already in use` };
     }
     if (
       changes.slug &&
       changes.slug !== existing.slug &&
       categories.some((c) => c.slug === changes.slug)
     ) {
-      return { ok: false, error: `Category slug "${changes.slug}" already in use` };
+      return {
+        ok: false,
+        code: 'CONFLICT',
+        error: `Category slug "${changes.slug}" already in use`,
+      };
     }
 
     const updated: CategoryRecord = {
@@ -101,7 +119,11 @@ export class CategoryService {
 
     const result = categoryRecordSchema.safeParse(updated);
     if (!result.success) {
-      return { ok: false, error: result.error.issues.map((i) => i.message).join('; ') };
+      return {
+        ok: false,
+        code: 'VALIDATION_ERROR',
+        error: result.error.issues.map((i) => i.message).join('; '),
+      };
     }
 
     registry.categories = registry.categories!.map((c) => (c.id === id ? result.data : c));
@@ -112,10 +134,11 @@ export class CategoryService {
     registry: CategoryRegistry,
     id: string,
     productsUsingCategory: number
-  ): { ok: boolean; error?: string } {
+  ): CategoryServiceResult {
     if (productsUsingCategory > 0) {
       return {
         ok: false,
+        code: 'CONFLICT',
         error: `Category is in use by ${productsUsingCategory} products. Reassign them first.`,
       };
     }
@@ -123,14 +146,14 @@ export class CategoryService {
     const categories = registry.categories ?? [];
     const idx = categories.findIndex((c) => c.id === id);
     if (idx === -1) {
-      return { ok: false, error: `Category "${id}" not found` };
+      return { ok: false, code: 'NOT_FOUND', error: `Category "${id}" not found` };
     }
 
     registry.categories = categories.filter((c) => c.id !== id);
     return { ok: true };
   }
 
-  reorder(registry: CategoryRegistry, orderedIds: string[]): { ok: boolean; error?: string } {
+  reorder(registry: CategoryRegistry, orderedIds: string[]): CategoryServiceResult {
     const categories = registry.categories ?? [];
     for (let i = 0; i < orderedIds.length; i++) {
       const cat = categories.find((c) => c.id === orderedIds[i]);
@@ -144,10 +167,10 @@ export class CategoryService {
   addNavGroup(
     registry: CategoryRegistry,
     input: CreateNavGroupInput
-  ): { ok: boolean; error?: string; group?: NavGroupRecord } {
+  ): CategoryServiceResult & { group?: NavGroupRecord } {
     const groups = registry.nav_groups ?? [];
     if (groups.some((g) => g.id === input.id)) {
-      return { ok: false, error: `Nav group "${input.id}" already exists` };
+      return { ok: false, code: 'CONFLICT', error: `Nav group "${input.id}" already exists` };
     }
 
     const group: NavGroupRecord = {
@@ -159,23 +182,28 @@ export class CategoryService {
 
     const result = navGroupRecordSchema.safeParse(group);
     if (!result.success) {
-      return { ok: false, error: result.error.issues.map((i) => i.message).join('; ') };
+      return {
+        ok: false,
+        code: 'VALIDATION_ERROR',
+        error: result.error.issues.map((i) => i.message).join('; '),
+      };
     }
 
     registry.nav_groups = [...groups, result.data];
     return { ok: true, group: result.data };
   }
 
-  removeNavGroup(registry: CategoryRegistry, id: string): { ok: boolean; error?: string } {
+  removeNavGroup(registry: CategoryRegistry, id: string): CategoryServiceResult {
     const groups = registry.nav_groups ?? [];
     if (!groups.some((g) => g.id === id)) {
-      return { ok: false, error: `Nav group "${id}" not found` };
+      return { ok: false, code: 'NOT_FOUND', error: `Nav group "${id}" not found` };
     }
 
     const categoriesInGroup = (registry.categories ?? []).filter((c) => c.nav_group === id);
     if (categoriesInGroup.length > 0) {
       return {
         ok: false,
+        code: 'CONFLICT',
         error: `Nav group has ${categoriesInGroup.length} categories. Reassign them first.`,
       };
     }

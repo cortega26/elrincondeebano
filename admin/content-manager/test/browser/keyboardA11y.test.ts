@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const componentsDir = resolve(__dirname, '../../src/web/app/components');
 const productsPath = resolve(__dirname, '../../src/web/app/routes/ProductsPage.tsx');
+const productListPath = resolve(__dirname, '../../src/web/app/components/ProductList.tsx');
 const categoriesPath = resolve(__dirname, '../../src/web/app/routes/CategoriesPage.tsx');
 
 function readSource(filePath: string): string {
@@ -22,8 +23,8 @@ test("ProductsPage source contains aria-label='Productos'", () => {
   expect(source).toContain('aria-label="Productos"');
 });
 
-test("ProductsPage source contains aria-label='Lista de productos'", () => {
-  const source = readSource(productsPath);
+test("ProductList source contains aria-label='Lista de productos'", () => {
+  const source = readSource(productListPath);
   expect(source).toContain('aria-label="Lista de productos"');
 });
 
@@ -37,18 +38,18 @@ test('ProductsPage source contains aria-live', () => {
   expect(source).toContain('aria-live');
 });
 
-test("ProductsPage source contains role='row'", () => {
-  const source = readSource(productsPath);
+test("ProductList source contains role='row'", () => {
+  const source = readSource(productListPath);
   expect(source).toContain('role="row"');
 });
 
-test('ProductsPage source contains aria-grabbed', () => {
-  const source = readSource(productsPath);
+test('ProductList source contains aria-grabbed', () => {
+  const source = readSource(productListPath);
   expect(source).toContain('aria-grabbed');
 });
 
-test('ProductsPage source contains draggable', () => {
-  const source = readSource(productsPath);
+test('ProductList source contains draggable', () => {
+  const source = readSource(productListPath);
   expect(source).toContain('draggable');
 });
 
