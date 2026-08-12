@@ -1,5 +1,6 @@
 import { createApp } from './app.ts';
 import { resolve } from 'node:path';
+import { writeFileSync, mkdirSync } from 'node:fs';
 import { checkStartupRecovery } from './services/recoveryCheck.ts';
 import type { RecoveryJournal } from './services/recoveryJournal.ts';
 
@@ -55,9 +56,19 @@ async function start(): Promise<void> {
         console.log('Write mode enabled — launch credential from ADMIN_CREDENTIAL environment');
       } else {
         const generated = (app as unknown as { launchCredential?: string }).launchCredential;
-        console.log(
-          `Write mode enabled — generated launch credential: ${generated ?? '(unknown)'}`
-        );
+        // Plan 125: never print the credential to stdout (logs/CI capture it
+        // and a leaked credential is burned with no rotation). Deliver it in
+        // a gitignored 0600 file and log only the path.
+        if (generated) {
+          const credentialPath = resolve(repoRoot, 'data', '.admin-credential');
+          mkdirSync(resolve(repoRoot, 'data'), { recursive: true });
+          writeFileSync(credentialPath, generated, { encoding: 'utf-8', mode: 0o600, flush: true });
+          console.log(
+            `Write mode enabled — generated launch credential written to ${credentialPath} (0600)`
+          );
+        } else {
+          console.log('Write mode enabled — generated launch credential unavailable');
+        }
       }
     } else {
       console.log('Read-only mode — mutations are rejected');

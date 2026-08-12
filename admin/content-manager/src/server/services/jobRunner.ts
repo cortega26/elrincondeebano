@@ -17,7 +17,7 @@ export class JobRunner {
   private shutdownRequested = false;
 
   schedule<T>(type: string, fn: () => Promise<T>): Job<T> {
-    const id = `job-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    const id = `job-${Date.now()}-${globalThis.crypto.randomUUID().slice(0, 6)}`;
 
     const job: Job<T> = {
       id,

@@ -58,5 +58,5 @@ export const conflictFilterSchema = z.object({
 export type ConflictFilter = z.infer<typeof conflictFilterSchema>;
 
 export function generateConflictId(): string {
-  return `conflict-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  return `conflict-${Date.now()}-${globalThis.crypto.randomUUID().slice(0, 8)}`;
 }

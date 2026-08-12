@@ -62,7 +62,7 @@ function productKey(p: { id?: string; name: string; description: string }): stri
 }
 
 function generatePreviewId(): string {
-  return `import-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  return `import-${Date.now()}-${globalThis.crypto.randomUUID().slice(0, 8)}`;
 }
 
 const IMPORT_COMPARE_FIELDS = [
@@ -274,7 +274,7 @@ export async function changesRoutes(
     existing.updated_at = new Date().toISOString();
     changeSets.save(existing);
     history.append({
-      id: `h-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      id: `h-${Date.now()}-${globalThis.crypto.randomUUID().slice(0, 6)}`,
       timestamp: new Date().toISOString(),
       kind: 'change-set-discarded',
       change_set_id: existing.id,
@@ -342,7 +342,7 @@ export async function changesRoutes(
       else counts.restored += 1;
     }
     history.append({
-      id: `h-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      id: `h-${Date.now()}-${globalThis.crypto.randomUUID().slice(0, 6)}`,
       timestamp: new Date().toISOString(),
       kind: 'change-set-applied',
       change_set_id: cs.id,
@@ -395,7 +395,7 @@ export async function changesRoutes(
     }
     changeSets.save(built.changeSet);
     history.append({
-      id: `h-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      id: `h-${Date.now()}-${globalThis.crypto.randomUUID().slice(0, 6)}`,
       timestamp: new Date().toISOString(),
       kind: 'undo',
       change_set_id: inverseId,
@@ -446,7 +446,7 @@ export async function changesRoutes(
     const redo = buildRedoChangeSet(source, cs, redoId, new Date().toISOString());
     changeSets.save(redo);
     history.append({
-      id: `h-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      id: `h-${Date.now()}-${globalThis.crypto.randomUUID().slice(0, 6)}`,
       timestamp: new Date().toISOString(),
       kind: 'redo',
       change_set_id: redoId,
@@ -759,7 +759,7 @@ export async function changesRoutes(
       }
 
       history.append({
-        id: `h-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        id: `h-${Date.now()}-${globalThis.crypto.randomUUID().slice(0, 6)}`,
         timestamp: new Date().toISOString(),
         kind: 'import-applied',
         change_set_id: `import-${preview_id}`,
@@ -899,7 +899,7 @@ export async function changesRoutes(
     }
 
     history.append({
-      id: `h-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      id: `h-${Date.now()}-${globalThis.crypto.randomUUID().slice(0, 6)}`,
       timestamp: new Date().toISOString(),
       kind: 'change-set-applied',
       change_set_id: csId,

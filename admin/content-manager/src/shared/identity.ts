@@ -6,19 +6,23 @@ export function generateUuidV7(): string {
   const tLo = ms % 0x100000000;
   const ts = tHi.toString(16).padStart(4, '0') + tLo.toString(16).padStart(8, '0');
 
+  // Plan 125: crypto random for the 74 random bits (was Math.random — these
+  // ids gate unauthenticated read endpoints). getRandomValues works in
+  // Node 24 and browsers (secure contexts); the UUIDv7 layout is unchanged.
+  const rand = new Uint8Array(11);
+  globalThis.crypto.getRandomValues(rand);
+
   // rand_a: 12 bits = 3 hex chars
-  const randA = ((Math.random() * 0x1000) >>> 0).toString(16).padStart(3, '0');
+  const randA = (((rand[0] << 4) | (rand[1] >> 4)) & 0xfff).toString(16).padStart(3, '0');
 
-  // Variant byte (10xxxxxx) + low 6 bits of rand_b: 4 hex chars
-  // Top 2 bits = 10, next 6 bits = random
-  const variantByte = 0x80 + ((Math.random() * 0x40) >>> 0);
-  const randBLow = (Math.random() * 0x100) >>> 0;
+  // Variant byte (10xxxxxx) + 8 random bits: 4 hex chars
+  const variantByte = 0x80 | (rand[1] & 0x3f);
   const variantPair =
-    variantByte.toString(16).padStart(2, '0') + randBLow.toString(16).padStart(2, '0');
+    variantByte.toString(16).padStart(2, '0') + rand[2].toString(16).padStart(2, '0');
 
-  // Remaining random: 62 bits = ~16 hex chars (4 groups of 4)
-  const randRemaining = Array.from({ length: 4 }, () =>
-    ((Math.random() * 0x10000) >>> 0).toString(16).padStart(4, '0')
+  // Remaining random: 64 bits = 16 hex chars
+  const randRemaining = Array.from({ length: 8 }, (_, i) =>
+    rand[3 + i].toString(16).padStart(2, '0')
   ).join('');
 
   const hex = ts + '7' + randA + variantPair + randRemaining;

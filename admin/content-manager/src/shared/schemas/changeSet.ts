@@ -65,5 +65,5 @@ export function isValidTransition(from: ChangeSetStatus, to: ChangeSetStatus): b
 }
 
 export function generateChangeSetId(): string {
-  return `cs-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  return `cs-${Date.now()}-${globalThis.crypto.randomUUID().slice(0, 8)}`;
 }

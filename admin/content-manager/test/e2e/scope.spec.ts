@@ -37,6 +37,30 @@ test('filter change resets to page 1 and shrinks scope', async ({ page }) => {
   await expect(page.getByText('Página 1 de 1')).not.toBeVisible();
 });
 
+// Plan 126: destructive confirms are part of the contract — assert the
+// dialog fires (type + message) instead of swallowing it silently. The
+// handler responds inline (waitForEvent + click hangs on modal dialogs).
+async function withConfirmAssertion(
+  page: import('@playwright/test').Page,
+  message: RegExp,
+  action: () => Promise<void>,
+  accept = true
+): Promise<void> {
+  let captured: { type: string; message: string } | null = null;
+  page.once('dialog', (dialog) => {
+    captured = { type: dialog.type(), message: dialog.message() };
+    if (accept) {
+      void dialog.accept();
+    } else {
+      void dialog.dismiss();
+    }
+  });
+  await action();
+  expect(captured, 'expected a confirm dialog to fire').not.toBeNull();
+  expect(captured!.type).toBe('confirm');
+  expect(captured!.message).toMatch(message);
+}
+
 test('bulk apply with a subset asks for scope; accept applies to ALL matching', async ({
   page,
   request,
@@ -50,7 +74,8 @@ test('bulk apply with a subset asks for scope; accept applies to ALL matching', 
   await page.getByRole('button', { name: 'Vista previa' }).click();
   await expect(page.getByText(/Cambios \(/)).toBeVisible();
 
-  page.once('dialog', (dialog) => dialog.accept());
+  // Preview shown + total == visible: no confirm fires (scope covers the
+  // whole catalog) — plan 126 asserts only the dialogs that DO exist.
   await page.getByRole('button', { name: 'Aplicar' }).click();
   await expect(page.getByText(/Aplicado: 60 productos modificados/)).toBeVisible();
 
@@ -80,8 +105,17 @@ test('bulk apply cancel keeps the visible page only', async ({ page, request }) 
   // Cancel the scope confirm: only the visible 50 are applied. (Only this
   // one dialog appears — the page-level confirm is skipped because a
   // preview is already showing.)
-  page.once('dialog', (dialog) => dialog.dismiss());
-  await page.getByRole('button', { name: 'Aplicar' }).click();
+  // The FIRST confirm is the apply-all question (60 > 50); dismissing it
+  // falls back to the visible page. (The preview shows, so the second,
+  // page-level confirm is skipped.)
+  await withConfirmAssertion(
+    page,
+    /Aceptar = aplicar a TODOS \(60\)/,
+    async () => {
+      await page.getByRole('button', { name: 'Aplicar' }).click();
+    },
+    false
+  );
   await expect(page.getByText(/Aplicado: 50 productos modificados/)).toBeVisible();
 
   const res = await request.get('http://127.0.0.1:3102/api/v1/products?category=cat-a&limit=200');
@@ -234,10 +268,11 @@ test('purge removes a product permanently after confirm', async ({ page, request
   await page.getByLabel('Categoría:').selectOption('cat-c');
   await expect(page.getByText(`Mostrando 1–${totalBefore} de ${totalBefore}`)).toBeVisible();
 
-  page.once('dialog', (d) => d.accept());
-  await page
-    .getByRole('button', { name: 'Eliminar definitivamente Producto C 1', exact: true })
-    .click();
+  await withConfirmAssertion(page, /Eliminar definitivamente|purga/i, async () => {
+    await page
+      .getByRole('button', { name: 'Eliminar definitivamente Producto C 1', exact: true })
+      .click();
+  });
   await expect(page.getByText('Producto eliminado definitivamente ✓')).toBeVisible();
   await expect(
     page.getByText(`Mostrando 1–${totalBefore - 1} de ${totalBefore - 1}`)
@@ -314,8 +349,13 @@ test('bulk with checkbox selection applies to exactly the selected ids', async (
   await page.getByRole('button', { name: 'Vista previa' }).click();
   await expect(page.getByText(/Cambios \(2\)/)).toBeVisible();
 
-  page.once('dialog', (d) => d.accept());
-  await page.getByRole('button', { name: 'Aplicar' }).click();
+  await withConfirmAssertion(
+    page,
+    /Aplicar set_stock a los 2 productos seleccionados\?/,
+    async () => {
+      await page.getByRole('button', { name: 'Aplicar' }).click();
+    }
+  );
   await expect(page.getByText(/Aplicado: 2 productos modificados/)).toBeVisible();
 
   const res = await request.get('http://127.0.0.1:3102/api/v1/products?category=cat-c&limit=200');

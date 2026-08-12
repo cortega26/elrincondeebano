@@ -30,7 +30,7 @@ export const syncQueueEntrySchema = z.object({
 export type SyncQueueEntry = z.infer<typeof syncQueueEntrySchema>;
 
 export function generateChangesetId(): string {
-  return `cs-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  return `cs-${Date.now()}-${globalThis.crypto.randomUUID().slice(0, 8)}`;
 }
 
 const MAX_QUEUE_ENTRIES = 1000;

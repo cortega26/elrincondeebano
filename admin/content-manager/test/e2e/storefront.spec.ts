@@ -53,8 +53,16 @@ test('delete-last bundle persists [] in the projection Astro loads', async ({ pa
 
   await page.goto(`${BASE}/bundles`);
   await dismissCredentialPrompt(page);
-  page.once('dialog', (dialog) => void dialog.accept());
+  // Plan 126: the destructive confirm is part of the contract.
+  let captured: { type: string; message: string } | null = null;
+  page.once('dialog', (dialog) => {
+    captured = { type: dialog.type(), message: dialog.message() };
+    void dialog.accept();
+  });
   await page.getByRole('button', { name: 'Eliminar combo 1' }).click();
+  expect(captured, 'expected a confirm dialog to fire').not.toBeNull();
+  expect(captured!.type).toBe('confirm');
+  expect(captured!.message).toMatch(/Eliminar/);
   await page.getByRole('button', { name: 'Guardar combos' }).click();
   await expect(page.getByRole('status')).toContainText('guardados');
 

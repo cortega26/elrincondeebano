@@ -93,6 +93,7 @@ data/change-sets/
 data/media-intents/
 data/import-previews/
 data/idempotency.json
+data/.admin-credential
 data/recovery-journal*.json
 data/recovery-journal.ndjson
 .qodo

@@ -29,7 +29,7 @@ export const mediaIntentSchema = z.object({
 export type MediaIntent = z.infer<typeof mediaIntentSchema>;
 
 export function generateMediaIntentId(): string {
-  return `intent-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  return `intent-${Date.now()}-${globalThis.crypto.randomUUID().slice(0, 8)}`;
 }
 
 export const MEDIA_UPLOAD_MAX_BYTES = 10 * 1024 * 1024;
