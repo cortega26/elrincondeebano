@@ -451,7 +451,11 @@ test('loadCatalog caches by mtime+size and invalidates on write and external edi
   try {
     const repo = new ProductRepository({ repoRoot: dir });
     const first = repo.loadCatalog();
-    expect(repo.loadCatalog()).toBe(first); // cached instance
+    // Plan 105: cache hits return private copies — content-equal, never the
+    // same reference (in-place mutations must not leak across requests).
+    const second = repo.loadCatalog();
+    expect(second).toEqual(first);
+    expect(second).not.toBe(first);
 
     // External edit (mtime/size change) invalidates the cache.
     const catalogPath = resolve(dir, 'data', 'product_data.json');

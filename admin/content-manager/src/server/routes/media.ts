@@ -270,30 +270,43 @@ export async function mediaMutRoutes(
         isCancelled: () => intent.cancel_requested,
       };
 
-      let result;
-      if (intent.type === 'avif') {
-        result = await runAvifJob(input);
-      } else if (intent.type === 'variant') {
-        result = await runVariantJob(input);
-      } else {
-        result = await runCategoryOgJob(input, intent.type === 'og' ? 'generate' : 'delete');
-      }
+      try {
+        let result;
+        if (intent.type === 'avif') {
+          result = await runAvifJob(input);
+        } else if (intent.type === 'variant') {
+          result = await runVariantJob(input);
+        } else {
+          result = await runCategoryOgJob(input, intent.type === 'og' ? 'generate' : 'delete');
+        }
 
-      if (intent.cancel_requested) {
-        update({ status: 'cancelled', progress: 0, completed_at: new Date().toISOString() });
-      } else if (result.ok) {
-        update({
-          status: 'succeeded',
-          progress: 100,
-          outputs: result.outputs,
-          completed_at: new Date().toISOString(),
-        });
-      } else {
-        update({
-          status: 'failed',
-          errors: [result.error ?? 'Job failed'],
-          completed_at: new Date().toISOString(),
-        });
+        if (intent.cancel_requested) {
+          update({ status: 'cancelled', progress: 0, completed_at: new Date().toISOString() });
+        } else if (result.ok) {
+          update({
+            status: 'succeeded',
+            progress: 100,
+            outputs: result.outputs,
+            completed_at: new Date().toISOString(),
+          });
+        } else {
+          update({
+            status: 'failed',
+            errors: [result.error ?? 'Job failed'],
+            completed_at: new Date().toISOString(),
+          });
+        }
+      } catch (err) {
+        // Plan 103: a persistence/job failure must mark the intent failed —
+        // never leave it stuck in `running` (which blocks run/discard and
+        // crashes the process with an unhandled rejection).
+        const message = err instanceof Error ? err.message : String(err);
+        try {
+          update({ status: 'failed', errors: [message], completed_at: new Date().toISOString() });
+        } catch {
+          // The failure path itself failing must not produce a new
+          // unhandled rejection.
+        }
       }
     })();
 

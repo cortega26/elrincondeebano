@@ -502,3 +502,47 @@ test('category create triggers the OG intent lifecycle without blocking the writ
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('POST category schedules an OG intent (plan 096/106)', async () => {
+  const dir = createTempDir();
+  try {
+    setupData(dir);
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/v1/categories',
+      headers: credHeaders(app),
+      payload: {
+        id: 'cat-og',
+        key: 'ogcat',
+        slug: 'ogcat',
+        display_name: { default: 'OG Cat' },
+        base_revision: 5,
+      },
+    });
+    expect(res.statusCode).toBe(201);
+
+    // The OG intent is durable in data/media-intents/ (the job itself may
+    // fail in the test env — creation + shape is the contract here; the
+    // state machine is covered by the contract suite).
+    const intentsDir = resolve(dir, 'data', 'media-intents');
+    let files: string[] = [];
+    for (let i = 0; i < 20 && files.length === 0; i += 1) {
+      await new Promise((r) => setTimeout(r, 100));
+      files = readdirSync(intentsDir);
+    }
+    expect(files.length).toBeGreaterThan(0);
+    const intent = JSON.parse(readFileSync(resolve(intentsDir, files[0]), 'utf8')) as {
+      type: string;
+      category_slug: string;
+    };
+    expect(intent.type).toBe('og');
+    expect(intent.category_slug).toBe('ogcat');
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

@@ -487,7 +487,13 @@ export class ProductService {
     }
 
     const idSet = new Set(operation.product_ids);
-    const products = catalog.products.filter((p) => p.id && idSet.has(p.id));
+    // Plan 102: apply only the products the preview actually changed — a
+    // no-op (same discount %, same stock, delta 0) must not bump rev or
+    // inflate the report; preview count and applied count stay identical.
+    const changedIds = new Set(preview.changes.map((c) => c.product_id));
+    const products = catalog.products.filter(
+      (p) => p.id && idSet.has(p.id) && changedIds.has(p.id)
+    );
     const now = new Date().toISOString();
     let changed = 0;
 

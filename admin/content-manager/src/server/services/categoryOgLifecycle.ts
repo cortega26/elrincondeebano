@@ -14,7 +14,10 @@ import { resolve } from 'node:path';
 export async function ensureCategoryOgAssets(
   repoRoot: string,
   slug: string,
-  operation: 'generate' | 'delete'
+  operation: 'generate' | 'delete',
+  // Plan 106: injectable seam for tests — production callers keep the
+  // default python3-backed runner.
+  runner: typeof runCategoryOgJob = runCategoryOgJob
 ): Promise<{ ok: boolean; error?: string }> {
   try {
     const intents = new MediaIntentRepository(repoRoot);
@@ -47,7 +50,7 @@ export async function ensureCategoryOgAssets(
       isCancelled: () => intent.cancel_requested,
     };
 
-    const result = await runCategoryOgJob(input, operation === 'generate' ? 'generate' : 'delete');
+    const result = await runner(input, operation === 'generate' ? 'generate' : 'delete');
     if (!result.ok) {
       intent.status = 'failed';
       intent.errors = [result.error ?? 'OG job failed'];
@@ -81,6 +84,19 @@ export async function ensureCategoryOgAssets(
     intents.save(intent);
     return { ok: true };
   } catch (error) {
+    // Plan 106: an unexpected failure must still land the intent in a
+    // terminal state — 'running' blocks run/discard in the workbench.
+    try {
+      const intent = new MediaIntentRepository(repoRoot).listAll().at(-1);
+      if (intent) {
+        intent.status = 'failed';
+        intent.errors = [(error as Error).message];
+        intent.completed_at = new Date().toISOString();
+        new MediaIntentRepository(repoRoot).save(intent);
+      }
+    } catch {
+      // Best-effort: the error return below is the primary contract.
+    }
     return { ok: false, error: (error as Error).message };
   }
 }

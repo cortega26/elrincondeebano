@@ -499,3 +499,70 @@ test('PATCH product rejects category with path traversal (plan 100)', async () =
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('concurrent catalog edits do not leak into each other (plan 105)', async () => {
+  const dir = createTempDir();
+  setupDir(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const mk = async (name: string) => {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/v1/products',
+        headers: ch,
+        payload: { command_id: `mk-${name}`, payload: { name, price: 1000, category: 'cat1' } },
+      });
+      expect(res.statusCode).toBe(201);
+      return res.json<{ product: { id: string } }>().product.id;
+    };
+    const a = await mk('Concurrent A');
+    const b = await mk('Concurrent B');
+
+    const [ra, rb] = await Promise.all([
+      app.inject({
+        method: 'PATCH',
+        url: `/api/v1/products/${a}`,
+        headers: ch,
+        payload: { command_id: 'conc-a', base_revision: 1, payload: { price: 2000 } },
+      }),
+      app.inject({
+        method: 'PATCH',
+        url: `/api/v1/products/${b}`,
+        headers: ch,
+        payload: { command_id: 'conc-b', base_revision: 1, payload: { price: 3000 } },
+      }),
+    ]);
+
+    // Exactly one succeeds; the loser gets 409 AND its edit is not on disk
+    // (pre-plan-105 the shared cache wrote both edits under one command).
+    console.log(
+      'STATUSES',
+      ra.statusCode,
+      rb.statusCode,
+      ra.body.slice(0, 120),
+      rb.body.slice(0, 120)
+    );
+    // Contract: a 200 means the edit is on disk; a 409 means it is NOT —
+    // pre-plan-105 a concurrent loser got 409 while its edit was silently
+    // merged into the winner's write. (Requests may serialize: both 200 is
+    // valid — each re-reads fresh state at its write time.)
+    const okA = ra.statusCode === 200;
+    const okB = rb.statusCode === 200;
+    expect([ra.statusCode, rb.statusCode].sort()).toEqual([200, okA === okB ? 200 : 409]);
+    const readBack = async (id: string) => {
+      const res = await app.inject({ method: 'GET', url: `/api/v1/products/${id}` });
+      return res.json<{ price: number }>().price;
+    };
+    if (okA) expect(await readBack(a)).toBe(2000);
+    else expect(await readBack(a)).toBe(1000);
+    if (okB) expect(await readBack(b)).toBe(3000);
+    else expect(await readBack(b)).toBe(1000);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

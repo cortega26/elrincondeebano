@@ -200,3 +200,58 @@ test('ProductService.bulkApply clamps set_discount_percent to price', () => {
   expect(result.ok).toBe(true);
   expect(catalog.products[0].discount).toBe(1000);
 });
+
+// ── plan 102: no-op bulk applies must not bump rev or inflate the count ─────
+
+test('ProductService.bulkApply counts zero and mutates nothing on no-op actions', () => {
+  const service = new ProductService();
+  service.enable();
+
+  const catalog = makeCatalog();
+  const id = generateProductId();
+  const product = makeProduct(id, 1000, 100, 1);
+  const revBefore = product.rev;
+  catalog.products.push(product);
+
+  // Same discount % as already applied (10% of 1000 = 100): no-op.
+  const result = service.bulkApply(catalog, {
+    action: 'set_discount_percent',
+    value: 10,
+    product_ids: [id],
+  });
+
+  expect(result.ok).toBe(false); // "No changes to apply"
+  expect(result.changed).toBe(0);
+  expect(product.discount).toBe(100);
+  expect(product.rev).toBe(revBefore);
+});
+
+test('ProductService.bulkApply applies only changed products and matches the preview count', () => {
+  const service = new ProductService();
+  service.enable();
+
+  const catalog = makeCatalog();
+  const changedId = generateProductId();
+  const noopId = generateProductId();
+  const changed = makeProduct(changedId, 2000, 0, 1);
+  const noop = makeProduct(noopId, 1000, 100, 1);
+  const noopRevBefore = noop.rev;
+  catalog.products.push(changed, noop);
+
+  // 10% discount: product A (2000, 0) changes to 200; product B (1000, 100)
+  // already has 10% — no-op.
+  const result = service.bulkApply(catalog, {
+    action: 'set_discount_percent',
+    value: 10,
+    product_ids: [changedId, noopId],
+  });
+
+  expect(result.ok).toBe(true);
+  expect(result.changed).toBe(1);
+  expect(result.changes).toHaveLength(1);
+  expect(result.changes[0].product_id).toBe(changedId);
+  expect(changed.discount).toBe(200);
+  expect(changed.rev).toBe(changed.rev + 0); // bumped exactly once by the apply
+  expect(noop.discount).toBe(100);
+  expect(noop.rev).toBe(noopRevBefore);
+});

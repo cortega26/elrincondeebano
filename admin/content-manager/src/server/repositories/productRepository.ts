@@ -45,7 +45,12 @@ export class ProductRepository {
     const stat = statSync(this.filePath);
     const cacheKey = `${stat.mtimeMs}:${stat.size}`;
     if (this.cache?.key === cacheKey) {
-      return this.cache.catalog;
+      // Plan 105: hand out a private copy — services mutate the catalog in
+      // place, so a shared reference would let one request's uncommitted
+      // edits leak into another (false 409s, wrong command attribution,
+      // GET handlers observing unsaved state). writeCatalog invalidates the
+      // cache first, so the in-lock re-read is always a fresh disk parse.
+      return structuredClone(this.cache.catalog);
     }
 
     let raw: string;
