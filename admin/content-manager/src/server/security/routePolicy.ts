@@ -24,6 +24,7 @@ export const ROUTE_POLICY: RoutePolicyEntry[] = [
   { method: 'DELETE', path: '/api/v1/products/:id', class: 'mutation' },
   { method: 'POST', path: '/api/v1/products/reorder', class: 'mutation' },
   { method: 'POST', path: '/api/v1/products/batch-update', class: 'mutation' },
+  { method: 'POST', path: '/api/v1/categories/batch-update', class: 'mutation' },
   { method: 'POST', path: '/api/v1/products/bulk/preview', class: 'preview' },
   { method: 'POST', path: '/api/v1/products/bulk/apply', class: 'mutation' },
   // categories + nav groups

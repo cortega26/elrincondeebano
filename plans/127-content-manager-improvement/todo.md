@@ -22,10 +22,10 @@ individuales por ítem (rollback `git revert <sha>`).
 
 ## Fase 2 — Robustez de dominio y contrato
 
-- [ ] F2.1 Undo/redo de categorías
-  - [ ] `buildCategoryUndoEntry` + stack con `moveEntryOnSuccess`.
-  - [ ] Batch endpoint de categorías (patrón 121) + route policy.
-  - [ ] Tests de componente del stack + integración + e2e scope.
+- [x] F2.1 Undo/redo de categorías
+  - [x] `buildCategoryUndoEntry` + stack con `moveEntryOnSuccess`.
+  - [x] Batch endpoint de categorías (patrón 121) + route policy.
+  - [x] Tests de componente del stack + integración + e2e scope.
 - [ ] F2.2 Versionado de esquema del catálogo
   - [ ] `schema_version` en el catálogo + registry de migraciones.
   - [ ] Hook en `loadCatalog` y en preflight del storefront.

@@ -1,7 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ContentManagerClient, ApiRequestError } from '../../api/client.ts';
 import type { CategoryResponse } from '../../api/client.ts';
 import type { CategoryRecord, Subcategory } from '../../../shared/schemas/category.ts';
+import {
+  buildCategoryUndoEntry,
+  loadStack,
+  saveStack,
+  moveEntryOnSuccess,
+  CATEGORY_UNDO_KEY,
+  CATEGORY_REDO_KEY,
+  type CategoryUndoEntry,
+} from './categoryUndo.ts';
 
 const client = new ContentManagerClient();
 
@@ -22,6 +31,10 @@ export function CategoriesPage(): React.ReactElement {
     categoryId: string;
     subcategory: Subcategory;
   } | null>(null);
+  // Plan 127 F2.1: undo/redo stacks for category record operations.
+  const undoStack = useRef<CategoryUndoEntry[]>(loadStack(CATEGORY_UNDO_KEY));
+  const redoStack = useRef<CategoryUndoEntry[]>(loadStack(CATEGORY_REDO_KEY));
+  const [stackVersion, setStackVersion] = useState(0);
 
   const load = async (): Promise<void> => {
     setLoading(true);
@@ -39,6 +52,74 @@ export function CategoriesPage(): React.ReactElement {
   useEffect(() => {
     void load();
   }, []);
+
+  function categoryRecordById(id: string): CategoryRecord | undefined {
+    return data?.categories?.find((c) => c.id === id) ?? undefined;
+  }
+
+  function syncStackState(): void {
+    saveStack(CATEGORY_UNDO_KEY, undoStack.current);
+    saveStack(CATEGORY_REDO_KEY, redoStack.current);
+    setStackVersion((v) => v + 1);
+  }
+
+  // Plan 127 F2.1: undo/redo for category record operations (create,
+  // update, delete+reassign). The record snapshot is restored via the batch
+  // endpoint; reassigned products stay under the target (documented).
+  async function handleUndoCategory(): Promise<void> {
+    try {
+      await moveEntryOnSuccess(undoStack, redoStack, async (entry) => {
+        const baseRev = data?.rev ?? 0;
+        if (entry.op === 'create') {
+          await client.batchUpdateCategories(
+            [{ type: 'delete', category: { id: entry.id } }],
+            baseRev
+          );
+        } else if (entry.previous) {
+          await client.batchUpdateCategories(
+            [{ type: 'upsert', category: entry.previous }],
+            baseRev
+          );
+        }
+        setFeedback('Operación de categoría deshecha ✓');
+        await load();
+      });
+      syncStackState();
+    } catch (err) {
+      syncStackState();
+      await handleMutationError(err);
+    }
+  }
+
+  async function handleRedoCategory(): Promise<void> {
+    try {
+      await moveEntryOnSuccess(redoStack, undoStack, async (entry) => {
+        const baseRev = data?.rev ?? 0;
+        if (entry.op === 'create') {
+          const previous = entry.previous;
+          if (previous) {
+            await client.batchUpdateCategories([{ type: 'upsert', category: previous }], baseRev);
+          }
+        } else if (entry.op === 'delete') {
+          await client.batchUpdateCategories(
+            [{ type: 'delete', category: { id: entry.id } }],
+            baseRev
+          );
+        } else if (entry.previous) {
+          await client.batchUpdateCategories(
+            [{ type: 'upsert', category: entry.previous }],
+            baseRev
+          );
+        }
+        setFeedback('Operación de categoría rehecha ✓');
+        await load();
+      });
+      syncStackState();
+    } catch (err) {
+      syncStackState();
+      await handleMutationError(err);
+    }
+  }
 
   async function handleMutationError(err: unknown): Promise<void> {
     if (err instanceof ApiRequestError && err.status === 409) {
@@ -58,8 +139,16 @@ export function CategoriesPage(): React.ReactElement {
           `Eliminar la categoría "${id}". Si está en uso, escribe el ID de la categoría destino para reasignar sus productos (vacío = bloquear si está en uso):`
         )
         ?.trim() ?? '';
+    const previousRecord = categoryRecordById(id);
     try {
       await client.deleteCategory(id, data?.rev ?? 0, reassignTo || undefined);
+      if (previousRecord) {
+        undoStack.current.push(
+          buildCategoryUndoEntry('delete', id, previousRecord, reassignTo || undefined)
+        );
+        redoStack.current = [];
+        syncStackState();
+      }
       setFeedback(
         reassignTo
           ? `Categoría eliminada, productos reasignados a ${reassignTo} ✓`
@@ -98,12 +187,22 @@ export function CategoriesPage(): React.ReactElement {
   async function handleSave(form: Record<string, unknown>): Promise<void> {
     try {
       if (editing) {
+        const previousRecord = categoryRecordById(editing.id);
         await client.updateCategory(editing.id, form, data?.rev ?? 0);
+        if (previousRecord) {
+          undoStack.current.push(buildCategoryUndoEntry('update', editing.id, previousRecord));
+          redoStack.current = [];
+          syncStackState();
+        }
       } else {
+        const created = form as unknown as CategoryRecord;
         await client.createCategory(
-          form as { id: string; key: string; slug: string },
+          { id: created.id, key: created.key, slug: created.slug },
           data?.rev ?? 0
         );
+        undoStack.current.push(buildCategoryUndoEntry('create', created.id, created));
+        redoStack.current = [];
+        syncStackState();
       }
       setEditing(null);
       setAdding(false);
@@ -185,6 +284,21 @@ export function CategoriesPage(): React.ReactElement {
     return (
       <main role="main" aria-label="Categorías">
         <h1>Categorías</h1>
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
+          <button
+            onClick={() => void handleUndoCategory()}
+            disabled={undoStack.current.length === 0}
+          >
+            ↩ Deshacer categoría
+          </button>
+          <button
+            onClick={() => void handleRedoCategory()}
+            disabled={redoStack.current.length === 0}
+          >
+            ↪ Rehacer categoría
+          </button>
+          {stackVersion >= 0 && null}
+        </div>
         <p role="alert">{error}</p>
         <button
           onClick={() => {
@@ -365,6 +479,15 @@ export function CategoriesPage(): React.ReactElement {
         )}
       </section>
 
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
+        <button onClick={() => void handleUndoCategory()} disabled={undoStack.current.length === 0}>
+          ↩ Deshacer categoría
+        </button>
+        <button onClick={() => void handleRedoCategory()} disabled={redoStack.current.length === 0}>
+          ↪ Rehacer categoría
+        </button>
+        {stackVersion >= 0 && null}
+      </div>
       {/* Categories */}
       <section aria-label="Categorías">
         <h2>

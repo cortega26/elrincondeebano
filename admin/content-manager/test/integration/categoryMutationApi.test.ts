@@ -546,3 +546,106 @@ test('POST category schedules an OG intent (plan 096/106)', async () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('batch-update upserts and deletes category records in one write (plan 127 F2.1)', async () => {
+  const dir = createTempDir();
+  try {
+    setupData(dir);
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const revBefore = (await app.inject({ method: 'GET', url: '/api/v1/categories' })).json<{
+      rev: number;
+    }>().rev;
+
+    const ok = await app.inject({
+      method: 'POST',
+      url: '/api/v1/categories/batch-update',
+      headers: ch,
+      payload: {
+        command_id: 'batch-cat-1',
+        base_revision: revBefore,
+        ops: [
+          {
+            type: 'upsert',
+            category: {
+              id: 'undo-1',
+              key: 'undokey',
+              slug: 'undo-slug',
+              display_name: { default: 'Undo' },
+              active: true,
+              sort_order: 99,
+            },
+          },
+        ],
+      },
+    });
+    expect(ok.statusCode).toBe(200);
+    expect(ok.json<{ applied: number }>().applied).toBe(1);
+
+    const after = (await app.inject({ method: 'GET', url: '/api/v1/categories' })).json<{
+      categories: Array<{ id: string }>;
+      rev: number;
+    }>();
+    expect(after.categories.some((c) => c.id === 'undo-1')).toBe(true);
+    expect(after.rev).toBe(revBefore + 1);
+
+    // Delete it back in the same batch pattern.
+    const del = await app.inject({
+      method: 'POST',
+      url: '/api/v1/categories/batch-update',
+      headers: ch,
+      payload: {
+        command_id: 'batch-cat-2',
+        base_revision: after.rev,
+        ops: [{ type: 'delete', category: { id: 'undo-1' } }],
+      },
+    });
+    expect(del.statusCode).toBe(200);
+    const final = (await app.inject({ method: 'GET', url: '/api/v1/categories' })).json<{
+      categories: Array<{ id: string }>;
+    }>();
+    expect(final.categories.some((c) => c.id === 'undo-1')).toBe(false);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('batch-update is all-or-nothing on a stale registry revision (plan 127 F2.1)', async () => {
+  const dir = createTempDir();
+  try {
+    setupData(dir);
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const stale = await app.inject({
+      method: 'POST',
+      url: '/api/v1/categories/batch-update',
+      headers: ch,
+      payload: {
+        command_id: 'batch-stale',
+        base_revision: 999,
+        ops: [
+          {
+            type: 'upsert',
+            category: { id: 'never-1', key: 'never', slug: 'never' },
+          },
+        ],
+      },
+    });
+    expect(stale.statusCode).toBe(409);
+
+    const after = (await app.inject({ method: 'GET', url: '/api/v1/categories' })).json<{
+      categories: Array<{ id: string }>;
+    }>();
+    expect(after.categories.some((c) => c.id === 'never-1')).toBe(false);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

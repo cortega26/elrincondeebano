@@ -3,7 +3,11 @@ import { ProductService } from '../../domain/products/productService.ts';
 import type { CategoryService } from '../../domain/categories/categoryService.ts';
 import type { CreateCategoryInput } from '../../domain/categories/categoryService.ts';
 import type { Subcategory } from '../../shared/schemas/category.ts';
-import { subcategorySchema, navGroupRecordSchema } from '../../shared/schemas/category.ts';
+import {
+  subcategorySchema,
+  navGroupRecordSchema,
+  categoryRecordSchema,
+} from '../../shared/schemas/category.ts';
 import { ensureCategoryOgAssets } from '../services/categoryOgLifecycle.ts';
 import { requireWriteMode, type Repositories } from './helpers.ts';
 export async function categoryRoutes(
@@ -182,6 +186,92 @@ export async function categoryRoutes(
 
     scheduleCategoryOg(id, 'delete');
     return reply.status(200).send({ status: 'deleted', reassigned: usage.length });
+  });
+
+  // Plan 127 F2.1: batch category operations for undo/redo — upsert or
+  // delete records under ONE registry write with a single revision guard
+  // (mirrors the product batch-update endpoint, plan 121). All ops are
+  // validated before anything mutates; all-or-nothing.
+  app.post('/categories/batch-update', async (request, reply) => {
+    if (!requireWriteMode(reply, productService)) return;
+
+    const envelope = request.body as {
+      command_id?: string;
+      base_revision?: number;
+      ops?: Array<{ type: 'upsert' | 'delete'; category?: unknown }>;
+    };
+    if (!envelope?.command_id || !Array.isArray(envelope.ops) || envelope.ops.length === 0) {
+      return reply.status(400).send({
+        error: { code: 'BAD_REQUEST', message: 'Missing command_id or ops array' },
+      });
+    }
+
+    const registry = repos.categories.load();
+    const baseRev = readBaseRevision(envelope);
+
+    // Validate every op first.
+    const parsedOps: Array<{ type: 'upsert' | 'delete'; category?: unknown }> = [];
+    for (const op of envelope.ops) {
+      if (op.type === 'upsert') {
+        const parsed = categoryRecordSchema.safeParse(op.category);
+        if (!parsed.success) {
+          return reply.status(422).send({
+            error: {
+              code: 'VALIDATION_ERROR',
+              message: parsed.error.issues.map((i) => i.message).join('; '),
+            },
+          });
+        }
+        parsedOps.push({ type: 'upsert', category: parsed.data });
+      } else if (op.type === 'delete') {
+        const id = (op.category as { id?: string } | undefined)?.id;
+        if (!id || !registry.categories?.some((c) => c.id === id)) {
+          return reply.status(404).send({
+            error: { code: 'NOT_FOUND', message: `Category "${id ?? ''}" not found` },
+          });
+        }
+        parsedOps.push({ type: 'delete', category: op.category });
+      } else {
+        return reply.status(422).send({
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: `Unknown op type: ${String((op as { type?: string }).type)}`,
+          },
+        });
+      }
+    }
+
+    // Apply.
+    for (const op of parsedOps) {
+      if (op.type === 'upsert') {
+        const result = categoryService.upsert(registry, op.category as never);
+        if (!result.ok) {
+          return reply.status(result.code === 'NOT_FOUND' ? 404 : 409).send({
+            error: { code: result.code ?? 'CONFLICT', message: result.error },
+          });
+        }
+      } else {
+        const id = (op.category as { id: string }).id;
+        const result = categoryService.remove(registry, id, 0);
+        if (!result.ok) {
+          return reply.status(result.code === 'NOT_FOUND' ? 404 : 409).send({
+            error: { code: result.code ?? 'CONFLICT', message: result.error },
+          });
+        }
+      }
+    }
+
+    const wrote = await repos.categories.write(registry, baseRev);
+    if (!wrote.ok) {
+      return reply.status(wrote.statusCode).send({
+        error: {
+          code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
+          message: wrote.error,
+        },
+      });
+    }
+
+    return { command_id: envelope.command_id, status: 'ok', applied: parsedOps.length };
   });
 
   app.post('/categories/reorder', async (request, reply) => {

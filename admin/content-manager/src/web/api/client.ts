@@ -222,6 +222,24 @@ export class ContentManagerClient {
     return this.request<CategoryResponse>('/categories');
   }
 
+  // Plan 127 F2.1: batch category ops for undo/redo (one registry write).
+  async batchUpdateCategories(
+    ops: Array<{ type: 'upsert' | 'delete'; category?: Record<string, unknown> }>,
+    baseRevision: number
+  ): Promise<{ command_id: string; status: string; applied: number }> {
+    return this.request<{ command_id: string; status: string; applied: number }>(
+      '/categories/batch-update',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          command_id: crypto.randomUUID(),
+          base_revision: baseRevision,
+          ops,
+        }),
+      }
+    );
+  }
+
   async createCategory(
     data: {
       id: string;

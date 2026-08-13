@@ -28,6 +28,16 @@ const { mockApi } = vi.hoisted(() => {
     updateFeatured: vi.fn(),
     importPreview: vi.fn(),
     importApply: vi.fn(),
+    createCategory: vi.fn(),
+    updateCategory: vi.fn(),
+    deleteCategory: vi.fn(),
+    batchUpdateCategories: vi.fn(),
+    createNavGroup: vi.fn(),
+    updateNavGroup: vi.fn(),
+    deleteNavGroup: vi.fn(),
+    createSubcategory: vi.fn(),
+    updateSubcategory: vi.fn(),
+    deleteSubcategory: vi.fn(),
   };
   return { mockApi };
 });
@@ -50,6 +60,16 @@ vi.mock('@web/api/client.ts', () => {
     updateFeatured = mockApi.updateFeatured;
     importPreview = mockApi.importPreview;
     importApply = mockApi.importApply;
+    createCategory = mockApi.createCategory;
+    updateCategory = mockApi.updateCategory;
+    deleteCategory = mockApi.deleteCategory;
+    batchUpdateCategories = mockApi.batchUpdateCategories;
+    createNavGroup = mockApi.createNavGroup;
+    updateNavGroup = mockApi.updateNavGroup;
+    deleteNavGroup = mockApi.deleteNavGroup;
+    createSubcategory = mockApi.createSubcategory;
+    updateSubcategory = mockApi.updateSubcategory;
+    deleteSubcategory = mockApi.deleteSubcategory;
   }
   return { ContentManagerClient: MockContentManagerClient };
 });

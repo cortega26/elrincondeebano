@@ -74,6 +74,44 @@ export class CategoryService {
     return { ok: true, category: result.data };
   }
 
+  // Plan 127 F2.1: create-or-replace by id — the undo path for category
+  // operations (restore a deleted record, revert an edit in place).
+  upsert(
+    registry: CategoryRegistry,
+    category: CategoryRecord
+  ): CategoryServiceResult & { category?: CategoryRecord } {
+    const parsed = categoryRecordSchema.safeParse(category);
+    if (!parsed.success) {
+      return {
+        ok: false,
+        code: 'VALIDATION_ERROR',
+        error: parsed.error.issues.map((i) => i.message).join('; '),
+      };
+    }
+    const categories = registry.categories ?? [];
+    const idx = categories.findIndex((c) => c.id === parsed.data.id);
+    if (idx === -1) {
+      if (categories.some((c) => c.key === parsed.data.key)) {
+        return {
+          ok: false,
+          code: 'CONFLICT',
+          error: `Category key "${parsed.data.key}" already in use`,
+        };
+      }
+      if (categories.some((c) => c.slug === parsed.data.slug)) {
+        return {
+          ok: false,
+          code: 'CONFLICT',
+          error: `Category slug "${parsed.data.slug}" already in use`,
+        };
+      }
+      registry.categories = [...categories, parsed.data];
+    } else {
+      registry.categories = categories.map((c) => (c.id === parsed.data.id ? parsed.data : c));
+    }
+    return { ok: true, category: parsed.data };
+  }
+
   edit(
     registry: CategoryRegistry,
     id: string,
