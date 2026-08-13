@@ -106,9 +106,9 @@ Orden de ejecución recomendado: 098 → 100 → 101 → 107 → 099 → 121 →
 
 ## Auditoría 9 cerrada — Plan 127 (master roadmap del Content Manager)
 
-| Plan                                           | Título                                                                                         | Prioridad | Esfuerzo | Depende de           | Estado |
-| ---------------------------------------------- | ---------------------------------------------------------------------------------------------- | --------- | -------- | -------------------- | ------ |
-| [127](127-content-manager-improvement/spec.md) | Roadmap de mejora del Content Manager TS (3 fases: fundaciones → dominio/contrato → operación) | P1        | L        | Auditoría 9 completa | TODO   |
+| Plan                                                   | Título                                                                                         | Prioridad | Esfuerzo | Depende de           | Estado |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------- | --------- | -------- | -------------------- | ------ |
+| [127](archive/127-content-manager-improvement/spec.md) | Roadmap de mejora del Content Manager TS (3 fases: fundaciones → dominio/contrato → operación) | P1        | L        | Auditoría 9 completa | DONE   |
 
 Espec en `plans/127-content-manager-improvement/spec.md`; sub-tareas
 verificables en `plans/127-content-manager-improvement/todo.md`. Cada ítem
