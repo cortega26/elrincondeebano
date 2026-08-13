@@ -26,10 +26,10 @@ individuales por ítem (rollback `git revert <sha>`).
   - [x] `buildCategoryUndoEntry` + stack con `moveEntryOnSuccess`.
   - [x] Batch endpoint de categorías (patrón 121) + route policy.
   - [x] Tests de componente del stack + integración + e2e scope.
-- [ ] F2.2 Versionado de esquema del catálogo
-  - [ ] `schema_version` en el catálogo + registry de migraciones.
-  - [ ] Hook en `loadCatalog` y en preflight del storefront.
-  - [ ] Test de migración 1→2 idempotente y atómico.
+- [x] F2.2 Versionado de esquema del catálogo
+  - [x] `schema_version` en el catálogo + registry de migraciones.
+  - [x] Hook en `loadCatalog` y en preflight del storefront.
+  - [x] Test de migración 1→2 idempotente y atómico.
 - [ ] F2.3 OpenAPI desde zod
   - [ ] `openapi.json` generado (herramienta evaluada contra DEPENDENCY_POLICY).
   - [ ] Test de contrato: rutas del client ⊆ OpenAPI, shapes compatibles.

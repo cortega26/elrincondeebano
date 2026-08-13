@@ -24,7 +24,7 @@
     "changeset": "changeset",
     "fonts": "node tools/fetch-fonts.mjs",
     "categories:sync": "node tools/sync-category-catalog.js",
-    "preflight": "npm run categories:sync && npm run images:logo && npm run images:avif && npm run images:og:home && npm run images:og:overrides && npm run images:og:categories && npm run images:og:parking && npm run images:og:clean-overrides && node tools/gap-fill-image-variants.js && node tools/preflight.js",
+    "preflight": "npm run categories:sync && npm run images:logo && npm run images:avif && npm run images:og:home && npm run images:og:overrides && npm run images:og:categories && npm run images:og:parking && npm run images:og:clean-overrides && node tools/gap-fill-image-variants.js && node admin/content-manager/scripts/migrate-catalog.mjs && node tools/preflight.js",
     "build": "npm run preflight && npm -w astro-poc run build",
     "build:fast": "npm -w astro-poc run build",
     "dev": "npm -w astro-poc run dev",

@@ -5,6 +5,7 @@ import { productCatalogSchema } from '../../shared/schemas/product.ts';
 import type { ValidationIssue } from '../../shared/schemas/validation.ts';
 import { createIssue } from '../../shared/schemas/validation.ts';
 import { AtomicWriter } from '../services/atomicWriter.ts';
+import { migrateCatalog, type CatalogMigration } from '../services/catalogMigrations.ts';
 import { MutationLock } from '../services/mutationLock.ts';
 import type { PersistentIdempotencyStore } from '../services/persistentIdempotencyStore.ts';
 import type { RecoveryJournal } from '../services/recoveryJournal.ts';
@@ -13,6 +14,9 @@ export interface ProductRepositoryConfig {
   repoRoot: string;
   dataFile?: string;
   recoveryJournal?: RecoveryJournal;
+  /** Plan 127 F2.2: injectable migration registry (tests register fake
+   * upgrades; production uses the built-in one). */
+  catalogMigrations?: CatalogMigration[];
 }
 
 const DEFAULT_PRODUCT_FILE = 'data/product_data.json';
@@ -22,6 +26,7 @@ export class ProductRepository {
   private readonly lock: MutationLock;
   private readonly writer: AtomicWriter;
   private idempotencyStore?: PersistentIdempotencyStore;
+  private readonly catalogMigrations?: CatalogMigration[];
   // Plan 092: mtime+size-keyed cache — every request used to re-read and
   // re-validate the whole catalog. Keyed on the file stat so external edits
   // (git pull, editor) invalidate automatically; writes invalidate eagerly.
@@ -33,6 +38,7 @@ export class ProductRepository {
     this.lock = new MutationLock();
     this.writer = new AtomicWriter(this.filePath, config.recoveryJournal);
     this.idempotencyStore = idempotencyStore;
+    this.catalogMigrations = config.catalogMigrations;
   }
 
   setIdempotencyStore(store: PersistentIdempotencyStore): void {
@@ -69,12 +75,26 @@ export class ProductRepository {
       throw new Error(`Invalid JSON in ${this.filePath}`);
     }
 
-    const result = productCatalogSchema.safeParse(parsed);
+    // Plan 127 F2.2: run schema migrations BEFORE validation — the catalog
+    // is the system of record, so old-shape data upgrades in place.
+    const { catalog: migrated, migrated: didMigrate } = migrateCatalog(
+      parsed,
+      this.catalogMigrations
+    );
+
+    const result = productCatalogSchema.safeParse(migrated);
     if (!result.success) {
       const message = result.error.issues
         .map((i) => `${i.path.join('.')}: ${i.message}`)
         .join('; ');
       throw new Error(`Schema validation failed for ${this.filePath}: ${message}`);
+    }
+
+    if (didMigrate) {
+      // Persist the migration atomically (idempotent — the version marker
+      // prevents re-running). Revision semantics are untouched.
+      this.writer.write(result.data, 'catalog-migration', 1);
+      this.cache = null;
     }
 
     this.cache = { key: cacheKey, catalog: result.data };

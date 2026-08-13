@@ -476,3 +476,47 @@ test('loadCatalog caches by mtime+size and invalidates on write and external edi
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+// ── plan 127 F2.2: schema migrations in loadCatalog ─────────────────────────
+
+test('loadCatalog migrates an old-shape catalog and persists it atomically', async () => {
+  const dir = createTempDir();
+  const catalogPath = resolve(dir, 'data', 'product_data.json');
+  mkdirSync(resolve(dir, 'data'), { recursive: true });
+  writeFileSync(
+    catalogPath,
+    JSON.stringify({
+      version: 'v0',
+      last_updated: '2026-01-01T00:00:00.000Z',
+      rev: 1,
+      schema_version: 0,
+      products: [],
+    })
+  );
+  try {
+    const fakeMigration = [
+      {
+        from: 0,
+        // Schema-visible change: the v0 shape used version 'v0' — v1 uses
+        // 'v1' (zod strips unknown props, so mutate a schema field).
+        migrate: (catalog: Record<string, unknown>) => {
+          catalog.version = 'v1';
+        },
+      },
+    ];
+    const repo = new ProductRepository({ repoRoot: dir, catalogMigrations: fakeMigration });
+
+    const loaded = repo.loadCatalog();
+    expect(loaded.version).toBe('v1');
+    expect(loaded.schema_version).toBe(1);
+
+    // The migration was persisted: a FRESH repository (no injected
+    // registry) reads the migrated shape without re-running.
+    const fresh = new ProductRepository({ repoRoot: dir });
+    const second = fresh.loadCatalog();
+    expect(second.schema_version).toBe(1);
+    expect(second.version).toBe('v1');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

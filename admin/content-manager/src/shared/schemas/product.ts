@@ -103,6 +103,9 @@ export const productCatalogSchema = z.object({
   version: z.string(),
   last_updated: z.string(),
   rev: z.number().int().nonnegative().default(0),
+  // Plan 127 F2.2: schema version drives the migration registry. Existing
+  // data without the field is version 1 (the current shape).
+  schema_version: z.number().int().nonnegative().default(1),
   products: z.array(productReadSchema),
 });
 
