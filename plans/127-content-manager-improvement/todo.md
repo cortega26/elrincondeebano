@@ -43,9 +43,9 @@ individuales por ítem (rollback `git revert <sha>`).
 - [ ] F3.1 Publicación programada
   - [ ] `publish_at` en change-sets + scheduler + cancel en UI.
   - [ ] Test de integración con clock inyectado.
-- [ ] F3.2 Observabilidad
-  - [ ] `x-request-id` (hook onRequest) + log estructurado JSON en el error handler.
-  - [ ] Test: 500 inyectado → request-id en respuesta y log.
+- [x] F3.2 Observabilidad
+  - [x] `x-request-id` (hook onRequest) + log estructurado JSON en el error handler.
+  - [x] Test: 500 inyectado → request-id en respuesta y log.
 - [x] F3.3 Recovery proactivo
   - [x] Banner global cuando `getPendingRecoveries() > 0`.
   - [x] Test de componente + smoke.

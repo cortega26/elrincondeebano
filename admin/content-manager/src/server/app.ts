@@ -84,6 +84,9 @@ export function createApp(opts?: AppOptions): FastifyInstance {
   };
   if (opts?.logger === false) {
     fastifyOpts.logger = false;
+  } else if (opts?.logger && typeof opts.logger === 'object') {
+    // Plan 127 F3.2: tests inject a pino options object (level + stream).
+    fastifyOpts.logger = opts.logger;
   } else {
     fastifyOpts.logger = { level: 'info' };
   }
@@ -397,7 +400,16 @@ export function createApp(opts?: AppOptions): FastifyInstance {
   // Plan 090: central error envelope — HttpError carries its public
   // code/message; everything else is logged with details and answered with a
   // generic message (no operator paths, no stack traces).
-  app.setErrorHandler((err, _request, reply) => {
+  // Plan 127 F3.2: every response carries the request id (Fastify's pino
+  // reqId) so operators can correlate UI errors with the server log.
+  app.addHook('onRequest', async (request, reply) => {
+    reply.header('x-request-id', request.id);
+  });
+
+  // Plan 090: central error envelope — HttpError carries its public
+  // code/message; everything else is logged (structured, with the request
+  // id) and answered with a generic message.
+  app.setErrorHandler((err, request, reply) => {
     if (err instanceof HttpError) {
       return reply.status(err.statusCode).send({ error: { code: err.code, message: err.message } });
     }
@@ -406,7 +418,14 @@ export function createApp(opts?: AppOptions): FastifyInstance {
       // Fastify internals (e.g. route not found): no internal details.
       return reply.status(status).send({ error: { code: 'NOT_FOUND', message: 'Not found' } });
     }
-    console.error('[content-manager] unhandled error:', err);
+    request.log.error(
+      {
+        err,
+        route: request.routeOptions?.url ?? request.url,
+        req_id: request.id,
+      },
+      'unhandled error'
+    );
     return reply.status(500).send({
       error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
     });
