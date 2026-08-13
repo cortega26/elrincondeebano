@@ -67,7 +67,7 @@ function setup(dir: string): void {
       encoding: 'utf-8',
       timeout: 5000,
     });
-  } catch (err) {
+  } catch {
     // Git might not be available or may fail
   }
 }

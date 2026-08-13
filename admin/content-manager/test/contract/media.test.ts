@@ -79,7 +79,7 @@ test('MediaRepository.getInventory scans files', () => {
     writeFileSync(resolve(assetsDir, 'orphan.png'), 'fake');
 
     const repo = new MediaRepository({ repoRoot: dir });
-    const { items, summary } = repo.getInventory([
+    const { items } = repo.getInventory([
       {
         name: 'P1',
         description: '',

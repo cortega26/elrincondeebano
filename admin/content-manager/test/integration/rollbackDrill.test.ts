@@ -1,6 +1,5 @@
 import { test, expect } from 'vitest';
 import { writeFileSync, mkdirSync, rmSync, readFileSync } from 'node:fs';
-import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { RecoveryJournal } from '../../src/server/services/publicationRecovery.ts';

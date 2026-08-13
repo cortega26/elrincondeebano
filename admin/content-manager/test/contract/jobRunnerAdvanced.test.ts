@@ -4,8 +4,6 @@ import { JobRunner } from '../../src/server/services/jobRunner.ts';
 test('cancel during a running job marks it failed/cancelled', async () => {
   const runner = new JobRunner();
 
-  let delayedFn: (() => void) | null = null;
-
   const job = runner.schedule<string>('test-cancel', () => {
     return new Promise((resolve, reject) => {
       // Simulate work that checks cancel flag
@@ -37,7 +35,7 @@ test('shutdown cancels a running job', async () => {
   const runner = new JobRunner();
 
   const job = runner.schedule<string>('test-shutdown', () => {
-    return new Promise((resolve) => {
+    return new Promise(() => {
       // Never resolves — shutdown should cancel it
     });
   });

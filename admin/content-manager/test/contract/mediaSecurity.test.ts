@@ -5,7 +5,7 @@ import {
   getMediaExtension,
 } from '../../src/shared/schemas/media.ts';
 import { MediaRepository } from '../../src/server/repositories/mediaRepository.ts';
-import { writeFileSync, mkdirSync, rmSync, symlinkSync } from 'node:fs';
+import { mkdirSync, rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 

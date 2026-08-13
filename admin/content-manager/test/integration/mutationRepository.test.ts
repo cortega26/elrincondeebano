@@ -1,10 +1,9 @@
 import { test, expect } from 'vitest';
-import { writeFileSync, readFileSync, mkdirSync, rmSync } from 'node:fs';
+import { writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { ProductRepository } from '../../src/server/repositories/productRepository.ts';
 import { IdempotencyStore } from '../../src/server/services/idempotencyStore.ts';
-import { ProductService } from '../../src/domain/products/productService.ts';
 import type { ProductCatalog } from '../../src/shared/schemas/product.ts';
 
 function createTempDir(): string {
@@ -212,7 +211,7 @@ test('Atomic write creates backup files', async () => {
     catalog.products[0].name = 'Updated';
     await repo.writeCatalog(catalog, 'cmd-backup', 5);
 
-    const { readdirSync } = require('node:fs');
+    const { readdirSync } = await import('node:fs');
     const dataDir = resolve(dir, 'data');
     const files = readdirSync(dataDir) as string[];
     const backups = files.filter((f: string) => f.includes('backup_'));

@@ -2,7 +2,7 @@ import { test, expect } from 'vitest';
 import { ConflictService } from '../../src/domain/conflicts/conflictService.ts';
 import type { Conflict } from '../../src/shared/schemas/conflict.ts';
 
-function makeTestConflict(overrides?: Partial<Conflict>): Conflict {
+function makeTestConflict(): Conflict {
   const service = new ConflictService();
   return service.createConflict({
     entity_type: 'product',

@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest';
 import { PersistentIdempotencyStore } from '../../src/server/services/persistentIdempotencyStore.ts';
-import { mkdirSync, rmSync, existsSync } from 'node:fs';
+import { mkdirSync, rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 
