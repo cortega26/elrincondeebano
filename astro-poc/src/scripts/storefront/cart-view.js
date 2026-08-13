@@ -14,8 +14,6 @@ export function createCartViewController({
   syncMobileCartShortcut,
   shareCart,
   isOrderJustSent,
-  renderCompanionSuggestions,
-  companionRules,
 } = {}) {
   function renderCart(cart, { animateTotal = false, changedItemId = null } = {}) {
     const cartContainer = container || document.getElementById('cart-items');
@@ -71,131 +69,152 @@ export function createCartViewController({
           return;
         }
       }
+      // New item: fall through to full render
     }
 
     cartContainer.replaceChildren();
 
     if (cart.length === 0) {
-      const emptyMsg = createElement('div', {
-        className: 'alert alert-info mb-0 cart-empty-message',
-        attrs: { role: 'status' },
-        text: 'Tu carrito está vacío. Agrega productos antes de realizar el pedido.',
+      if (isOrderJustSent()) {
+        const sentWrapper = createElement('div', { className: 'cart-post-send' });
+        const sentIcon = createElement('div', { className: 'cart-post-send__icon' });
+        sentIcon.innerHTML =
+          '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+        const sentTitle = createElement('h3', {
+          className: 'cart-post-send__title',
+          text: '¡Pedido enviado!',
+        });
+        const sentBody = createElement('div', { className: 'cart-post-send__body' });
+        const sentP1 = document.createElement('p');
+        sentP1.textContent =
+          'Recibirás una respuesta por WhatsApp para confirmar el horario de entrega dentro del edificio.';
+        const sentP2 = document.createElement('p');
+        sentP2.textContent =
+          'Si no recibes respuesta en 30 minutos, escríbenos directamente al mismo chat.';
+        sentBody.appendChild(sentP1);
+        sentBody.appendChild(sentP2);
+        sentWrapper.appendChild(sentIcon);
+        sentWrapper.appendChild(sentTitle);
+        sentWrapper.appendChild(sentBody);
+        cartContainer.appendChild(sentWrapper);
+      } else {
+        const emptyMessage = createElement('div', {
+          className: 'alert alert-info mb-0 cart-empty-message',
+          text: 'Tu carrito está vacío. Agrega productos antes de realizar el pedido.',
+          attrs: {
+            role: 'status',
+            tabindex: '-1',
+          },
+        });
+        cartContainer.appendChild(emptyMessage);
+      }
+    } else {
+      const fragment = document.createDocumentFragment();
+      cart.forEach((item) => {
+        const line = createElement('div', {
+          className: 'cart-item',
+          attrs: { 'data-id': item.id },
+        });
+
+        const thumbWrapper = createElement('div', { className: 'cart-item-thumb flex-shrink-0' });
+        const thumb = createElement('img', {
+          className: 'cart-item-thumb-img',
+          attrs: {
+            src: item.image,
+            alt: item.name,
+            loading: 'lazy',
+            decoding: 'async',
+          },
+        });
+        thumbWrapper.appendChild(thumb);
+
+        const content = createElement('div', { className: 'cart-item-content flex-grow-1' });
+        const name = createElement('div', {
+          className: 'fw-bold cart-item__title',
+          text: item.name,
+        });
+        content.appendChild(name);
+
+        const effectivePrice = Math.max(0, item.price - (item.discount || 0));
+        const meta = createElement('div', { className: 'cart-item__meta' });
+        meta.appendChild(
+          createElement('span', {
+            className: 'cart-item__price-line',
+            text: `Unitario: ${formatCurrency(effectivePrice)}`,
+          })
+        );
+        meta.appendChild(
+          createElement('span', {
+            className: 'cart-item__subtotal',
+            text: `Subtotal: ${formatCurrency(effectivePrice * item.quantity)}`,
+          })
+        );
+        content.appendChild(meta);
+
+        const qtyRow = createElement('div', {
+          className: 'cart-qty-row',
+          attrs: { role: 'group', 'aria-label': 'Selección de cantidad' },
+        });
+
+        const decreaseBtn = createElement('button', {
+          className: 'quantity-btn cart-item-qty-btn',
+          text: '-',
+          attrs: {
+            type: 'button',
+            'data-action': 'decrease',
+            'data-id': item.id,
+            'aria-label': 'Disminuir cantidad',
+          },
+        });
+        const quantity = createElement('span', {
+          className: 'quantity-value item-quantity',
+          text: String(item.quantity),
+          attrs: { 'aria-label': 'Cantidad', 'aria-live': 'polite', 'aria-atomic': 'true' },
+        });
+        const increaseBtn = createElement('button', {
+          className: 'quantity-btn cart-item-qty-btn',
+          text: '+',
+          attrs: {
+            type: 'button',
+            'data-action': 'increase',
+            'data-id': item.id,
+            'aria-label': 'Aumentar cantidad',
+          },
+        });
+
+        qtyRow.appendChild(decreaseBtn);
+        qtyRow.appendChild(quantity);
+        qtyRow.appendChild(increaseBtn);
+
+        const removeBtn = createElement('button', {
+          className: 'remove-item cart-item__remove',
+          attrs: {
+            type: 'button',
+            'data-id': item.id,
+            'aria-label': `Eliminar ${item.name ?? 'producto'} del carrito`,
+          },
+        });
+        removeBtn.innerHTML =
+          '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg>' +
+          '<span aria-hidden="true">Quitar</span>';
+
+        const actions = createElement('div', { className: 'cart-item__actions' });
+        actions.appendChild(qtyRow);
+        actions.appendChild(removeBtn);
+        content.appendChild(actions);
+
+        line.appendChild(thumbWrapper);
+        line.appendChild(content);
+        fragment.appendChild(line);
       });
-      cartContainer.appendChild(emptyMsg);
-      const { totalAmount } = getCartState(cart);
-      cartTotalElement.textContent = `Total: ${formatCurrency(totalAmount)}`;
-      syncCheckoutState(cart, totalAmount);
-      syncMobileCartShortcut(cart, totalAmount);
-      return;
-    }
+      cartContainer.appendChild(fragment);
 
-    const fragment = document.createDocumentFragment();
-
-    cart.forEach((item) => {
-      const row = createElement('div', {
-        className: 'cart-item',
-        attrs: { 'data-id': item.id },
-      });
-
-      const thumbWrapper = createElement('div', { className: 'cart-item__thumb-wrapper' });
-      const thumb = createElement('img', {
-        className: 'cart-item__thumb',
-        attrs: {
-          src: item.image || '',
-          alt: item.name || 'Producto',
-          loading: 'lazy',
-          decoding: 'async',
-        },
-      });
-      thumbWrapper.appendChild(thumb);
-
-      const content = createElement('div', { className: 'cart-item-content flex-grow-1' });
-      const name = createElement('div', { className: 'fw-bold cart-item__title', text: item.name });
-      content.appendChild(name);
-
-      const effectivePrice = Math.max(0, item.price - (item.discount || 0));
-      const meta = createElement('div', { className: 'cart-item__meta' });
-      meta.appendChild(
-        createElement('span', {
-          className: 'cart-item__price-line',
-          text: `Unitario: ${formatCurrency(effectivePrice)}`,
-        })
-      );
-      meta.appendChild(
-        createElement('span', {
-          className: 'cart-item__subtotal',
-          text: `Subtotal: ${formatCurrency(effectivePrice * item.quantity)}`,
-        })
-      );
-      content.appendChild(meta);
-
-      const qtyRow = createElement('div', {
-        className: 'cart-qty-row',
-        attrs: { role: 'group', 'aria-label': 'Selección de cantidad' },
-      });
-
-      const decreaseBtn = createElement('button', {
-        className: 'quantity-btn',
-        attrs: {
-          type: 'button',
-          'data-action': 'decrease',
-          'data-id': item.id,
-          'aria-label': `Disminuir cantidad de ${item.name}`,
-        },
-        text: '−',
-      });
-      const qtyValue = createElement('span', {
-        className: 'quantity-value item-quantity',
-        attrs: { 'data-id': item.id, 'aria-live': 'polite', 'aria-atomic': 'true' },
-        text: String(item.quantity),
-      });
-      const increaseBtn = createElement('button', {
-        className: 'quantity-btn',
-        attrs: {
-          type: 'button',
-          'data-action': 'increase',
-          'data-id': item.id,
-          'aria-label': `Aumentar cantidad de ${item.name}`,
-        },
-        text: '+',
-      });
-      qtyRow.appendChild(decreaseBtn);
-      qtyRow.appendChild(qtyValue);
-      qtyRow.appendChild(increaseBtn);
-      content.appendChild(qtyRow);
-
-      const removeBtn = createElement('button', {
-        className: 'cart-item__remove',
-        attrs: {
-          type: 'button',
-          'data-action': 'remove',
-          'data-id': item.id,
-          'aria-label': `Quitar ${item.name} del carrito`,
-        },
-      });
-      removeBtn.innerHTML =
-        '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
-
-      row.appendChild(thumbWrapper);
-      row.appendChild(content);
-      row.appendChild(removeBtn);
-
-      fragment.appendChild(row);
-    });
-
-    cartContainer.appendChild(fragment);
-
-    if (typeof renderCompanionSuggestions === 'function') {
-      renderCompanionSuggestions(cart, companionRules);
-    }
-
-    if (cart.length > 1 && !isOrderJustSent()) {
-      const shareRow = createElement('div', { className: 'cart-share-row' });
-      const shareText = createElement('span', { text: 'Comparte tu carrito con un enlace:' });
+      // Share cart button
+      const shareRow = createElement('div', { className: 'cart-share-row mt-2' });
       const shareBtn = createElement('button', {
-        className: 'btn btn-outline-primary btn-sm',
-        attrs: { type: 'button', 'data-action': 'share-cart' },
+        className: 'btn btn-outline-secondary btn-sm w-100',
         text: 'Compartir carrito',
+        attrs: { type: 'button', 'aria-label': 'Copiar enlace del carrito para compartir' },
       });
       shareBtn.addEventListener('click', function () {
         shareCart(cart);
@@ -204,7 +223,6 @@ export function createCartViewController({
           shareBtn.textContent = 'Compartir carrito';
         }, 2000);
       });
-      shareRow.appendChild(shareText);
       shareRow.appendChild(shareBtn);
       cartContainer.appendChild(shareRow);
     }
@@ -217,6 +235,5 @@ export function createCartViewController({
     syncCheckoutState(cart, totalAmount);
     syncMobileCartShortcut(cart, totalAmount);
   }
-
   return { renderCart };
 }
