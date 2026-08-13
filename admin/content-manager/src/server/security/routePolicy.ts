@@ -14,6 +14,7 @@ export interface RoutePolicyEntry {
 export const ROUTE_POLICY: RoutePolicyEntry[] = [
   // health + bootstrap (no credential)
   { method: 'GET', path: '/api/v1/health', class: 'read' },
+  { method: 'GET', path: '/api/v1/openapi.json', class: 'read' },
   { method: 'GET', path: '/api/v1/bootstrap', class: 'read' },
   // products
   { method: 'GET', path: '/api/v1/products', class: 'read' },

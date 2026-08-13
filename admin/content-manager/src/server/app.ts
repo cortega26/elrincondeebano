@@ -5,6 +5,7 @@ import { healthRoute } from './routes/health.ts';
 import { productRoutes } from './routes/productRoutes.ts';
 import { categoryRoutes } from './routes/categoryRoutes.ts';
 import { bootstrapRoute } from './routes/bootstrap.ts';
+import { openapiRoute } from './routes/openapi.ts';
 import { ProductRepository } from './repositories/productRepository.ts';
 import { CategoryRepository } from './repositories/categoryRepository.ts';
 import { StorefrontRepository } from './repositories/storefrontRepository.ts';
@@ -135,6 +136,8 @@ export function createApp(opts?: AppOptions): FastifyInstance {
   app.decorate('launchCredential', launchCredential);
 
   app.register(healthRoute, { prefix: '/api/v1' });
+
+  app.register(openapiRoute, { prefix: '/api/v1' });
 
   app.register(
     async function (instance) {

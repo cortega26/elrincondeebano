@@ -30,9 +30,9 @@ individuales por ítem (rollback `git revert <sha>`).
   - [x] `schema_version` en el catálogo + registry de migraciones.
   - [x] Hook en `loadCatalog` y en preflight del storefront.
   - [x] Test de migración 1→2 idempotente y atómico.
-- [ ] F2.3 OpenAPI desde zod
-  - [ ] `openapi.json` generado (herramienta evaluada contra DEPENDENCY_POLICY).
-  - [ ] Test de contrato: rutas del client ⊆ OpenAPI, shapes compatibles.
+- [x] F2.3 OpenAPI desde zod
+  - [x] `openapi.json` generado (herramienta evaluada contra DEPENDENCY_POLICY).
+  - [x] Test de contrato: rutas del client ⊆ OpenAPI, shapes compatibles.
 - [ ] F2.4 Media batch
   - [ ] Endpoint batch de intents (run/cancel/apply) con progreso agregado.
   - [ ] UI: selección múltiple en MediaPage.
