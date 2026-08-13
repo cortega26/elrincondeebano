@@ -22,11 +22,24 @@ if (!VALID_MODES.has(mode)) {
 const enableWrites = mode === 'operator';
 
 // The launch credential is never served over HTTP (plan 071): the operator
-// sets ADMIN_CREDENTIAL, or createApp generates one which start logs exactly
-// once below. Mirror this contract in .env.example (plan 079).
-const launchCredential = process.env.ADMIN_CREDENTIAL || undefined;
+// sets ADMIN_CREDENTIAL, or the admin reads/creates the credential file
+// (data/.admin-credential, 0600 — plan 125). Mirror this in .env.example.
+// Plan 127 F3.5: the file is the rotation channel — replace it and restart
+// to rotate (the old value stops authenticating).
+import { existsSync, readFileSync } from 'node:fs';
 
 const repoRoot = process.env.REPO_ROOT || resolve(process.cwd(), '..', '..');
+
+function resolveLaunchCredential(): string | undefined {
+  if (process.env.ADMIN_CREDENTIAL) return process.env.ADMIN_CREDENTIAL;
+  const credentialPath = resolve(repoRoot, 'data', '.admin-credential');
+  if (existsSync(credentialPath)) {
+    return readFileSync(credentialPath, 'utf-8').trim();
+  }
+  return undefined;
+}
+
+const launchCredential = resolveLaunchCredential();
 
 const app = createApp({ repoRoot, enableWrites, logger: true, launchCredential });
 
@@ -54,11 +67,12 @@ async function start(): Promise<void> {
     if (enableWrites) {
       if (launchCredential) {
         console.log('Write mode enabled — launch credential from ADMIN_CREDENTIAL environment');
-      } else {
+      } else if (!existsSync(resolve(repoRoot, 'data', '.admin-credential'))) {
         const generated = (app as unknown as { launchCredential?: string }).launchCredential;
         // Plan 125: never print the credential to stdout (logs/CI capture it
         // and a leaked credential is burned with no rotation). Deliver it in
-        // a gitignored 0600 file and log only the path.
+        // a gitignored 0600 file and log only the path. If the file already
+        // exists (rotation, plan 127 F3.5) nothing is rewritten.
         if (generated) {
           const credentialPath = resolve(repoRoot, 'data', '.admin-credential');
           mkdirSync(resolve(repoRoot, 'data'), { recursive: true });

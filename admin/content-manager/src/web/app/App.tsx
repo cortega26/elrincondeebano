@@ -6,6 +6,7 @@ import {
   NavLink,
 } from 'react-router-dom';
 import { useEffect } from 'react';
+import { RecoveryBanner } from './components/RecoveryBanner.tsx';
 import { ProductsPage } from './routes/ProductsPage.tsx';
 import { CategoriesPage } from './routes/CategoriesPage.tsx';
 import { MediaPage } from './routes/MediaPage.tsx';
@@ -196,6 +197,7 @@ function ShortcutLayer(): null {
 function Layout(): React.ReactElement {
   return (
     <>
+      <RecoveryBanner />
       <ShortcutLayer />
       <nav aria-label="Navegación principal">
         {NAV_ITEMS.map((item) => (

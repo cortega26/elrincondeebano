@@ -21,7 +21,8 @@
     "doctor": "node --import tsx scripts/doctor.ts",
     "test:e2e:import": "playwright test -c playwright.import.config.ts",
     "test:e2e:changes": "playwright test -c playwright.changes.config.ts",
-    "dev:web": "vite"
+    "dev:web": "vite",
+    "rotate-credential": "node scripts/rotate-credential.mjs"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^9.1.0",

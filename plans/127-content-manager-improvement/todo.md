@@ -46,15 +46,15 @@ individuales por ítem (rollback `git revert <sha>`).
 - [ ] F3.2 Observabilidad
   - [ ] `x-request-id` (hook onRequest) + log estructurado JSON en el error handler.
   - [ ] Test: 500 inyectado → request-id en respuesta y log.
-- [ ] F3.3 Recovery proactivo
-  - [ ] Banner global cuando `getPendingRecoveries() > 0`.
-  - [ ] Test de componente + smoke.
+- [x] F3.3 Recovery proactivo
+  - [x] Banner global cuando `getPendingRecoveries() > 0`.
+  - [x] Test de componente + smoke.
 - [ ] F3.4 SSE sync
   - [ ] `/api/v1/sync/events` + suscripción del panel (polling como fallback).
   - [ ] Test de integración SSE.
-- [ ] F3.5 Rotación de credential
-  - [ ] `admin:rotate-credential` (0600, invalida anterior).
-  - [ ] Test del script con repo temp.
+- [x] F3.5 Rotación de credential
+  - [x] `admin:rotate-credential` (0600, invalida anterior).
+  - [x] Test del script con repo temp.
 - [ ] F3.6 Benchmark de snapshots (opcional)
   - [ ] `tools/bench-catalog-snapshot.mjs` + resultado en `reports/`.
 
