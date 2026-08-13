@@ -38,7 +38,11 @@ export function useProductsQuery(): {
 
   const q = searchParams.get('q') ?? '';
   const category = searchParams.get('category') ?? '';
-  const archived = searchParams.get('archived') ?? '';
+  // Fix (verificación 2026-08-13): the default list shows ACTIVE products
+  // only — archived items stay visible under the 'Archivados' filter. The
+  // previous default ('') included archived products in the operator's main
+  // list, so archiving read as "delete didn't work".
+  const archived = searchParams.get('archived') ?? 'false';
   const outOfStock = searchParams.get('out_of_stock') ?? '';
   const minPrice = searchParams.get('min_price') ?? '';
   const maxPrice = searchParams.get('max_price') ?? '';
@@ -139,7 +143,7 @@ export function useProductsQuery(): {
     data,
     loading,
     loadError,
-    reload: () => void load(),
+    reload: () => load(),
     q,
     category,
     archived,

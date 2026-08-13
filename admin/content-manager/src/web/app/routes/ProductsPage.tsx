@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { ContentManagerClient } from '../../api/client.ts';
+import { ContentManagerClient, ApiRequestError } from '../../api/client.ts';
 import type { ProductResponse } from '../../api/client.ts';
 import type { CategoryRecord } from '../../../shared/schemas/category.ts';
 import {
@@ -192,7 +192,10 @@ export function ProductsPage(): React.ReactElement {
     outOfStock ||
     minPrice ||
     maxPrice ||
-    archived ||
+    // The default view hides archived products (archived='false' is the
+    // implicit baseline, not a user filter); only the explicit 'Archivados'
+    // view gates reorder.
+    archived === 'true' ||
     // Plan 101: discount filters also gate reorder — the server requires
     // the FULL catalog (409 REORDER_SCOPE_AMBIGUOUS otherwise).
     discountedOnly === 'true' ||
@@ -315,11 +318,39 @@ export function ProductsPage(): React.ReactElement {
     }
   }
 
-  async function handleArchive(id: string, rev: number): Promise<void> {
+  // Fix (verificación 2026-08-13): a stale revision (another edit/sync
+  // bumped the product) made purge/archive/restore fail with a 409 that the
+  // operator could miss — the product simply stayed. Reload and retry once
+  // with the fresh revision (the operator's intent is explicit).
+  async function withFreshRev(
+    id: string,
+    op: (freshRev: number) => Promise<unknown>
+  ): Promise<void> {
+    try {
+      await op(data?.items.find((p) => p.id === id)?.rev ?? 0);
+    } catch (err) {
+      if (err instanceof ApiRequestError && err.status === 409) {
+        await reload();
+        const fresh = data?.items.find((p) => p.id === id);
+        if (!fresh) {
+          // The product is gone (e.g. purged elsewhere) — the view is fresh.
+          setOpError('El producto cambió; la lista se recargó.');
+          return;
+        }
+        await op(fresh.rev);
+        return;
+      }
+      throw err;
+    }
+  }
+
+  async function handleArchive(id: string, _rev: number): Promise<void> {
     const product = data?.items.find((p) => p.id === id);
     if (!window.confirm(`¿Archivar ${product?.name ?? 'producto'}?`)) return;
     try {
-      await client.updateProduct(id, rev, { is_archived: true });
+      await withFreshRev(id, (freshRev) =>
+        client.updateProduct(id, freshRev, { is_archived: true })
+      );
       setSelected(null);
       setFeedback('Producto archivado ✓');
       await reload();
@@ -344,9 +375,9 @@ export function ProductsPage(): React.ReactElement {
     }
   }
 
-  async function handlePurge(id: string, rev: number): Promise<void> {
+  async function handlePurge(id: string, _rev: number): Promise<void> {
     try {
-      await client.deleteProduct(id, rev);
+      await withFreshRev(id, (freshRev) => client.deleteProduct(id, freshRev));
       setSelected(null);
       setFeedback('Producto eliminado definitivamente ✓');
       await reload();
@@ -355,11 +386,13 @@ export function ProductsPage(): React.ReactElement {
     }
   }
 
-  async function handleRestore(id: string, rev: number): Promise<void> {
+  async function handleRestore(id: string, _rev: number): Promise<void> {
     const product = data?.items.find((p) => p.id === id);
     if (!window.confirm(`¿Restaurar ${product?.name ?? 'producto'}?`)) return;
     try {
-      await client.updateProduct(id, rev, { is_archived: false });
+      await withFreshRev(id, (freshRev) =>
+        client.updateProduct(id, freshRev, { is_archived: false })
+      );
       setSelected(null);
       setFeedback('Producto restaurado ✓');
       await reload();
