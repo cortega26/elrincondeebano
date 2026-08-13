@@ -330,14 +330,22 @@ export function ProductsPage(): React.ReactElement {
       await op(data?.items.find((p) => p.id === id)?.rev ?? 0);
     } catch (err) {
       if (err instanceof ApiRequestError && err.status === 409) {
-        await reload();
-        const fresh = data?.items.find((p) => p.id === id);
-        if (!fresh) {
+        // The stale row's rev no longer matches — refetch the product
+        // directly (the list closure is stale until re-render) and retry
+        // once with the fresh revision. The operator's intent is explicit.
+        let fresh: ProductResponse | null = null;
+        try {
+          fresh = await client.getProduct(id);
+        } catch {
           // The product is gone (e.g. purged elsewhere) — the view is fresh.
+        }
+        if (!fresh) {
           setOpError('El producto cambió; la lista se recargó.');
+          await reload();
           return;
         }
         await op(fresh.rev);
+        await reload();
         return;
       }
       throw err;
