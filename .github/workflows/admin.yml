@@ -61,23 +61,20 @@ jobs:
 
       - uses: ./.github/actions/setup-playwright
 
-      - name: E2E smoke tests
+      - name: E2E smoke tests (operator suite)
         run: npx playwright test -c playwright.config.ts
 
-      - name: E2E import workflow (isolated temp repo)
-        run: npx playwright test -c playwright.import.config.ts
-
-      - name: E2E change-set control center (isolated temp repo)
-        run: npx playwright test -c playwright.changes.config.ts
-
-      - name: E2E media workbench (isolated temp repo)
-        run: npx playwright test -c playwright.media.config.ts
-
-      - name: E2E storefront curation (isolated temp repo)
-        run: npx playwright test -c playwright.storefront.config.ts
-
-      - name: E2E pagination/bulk/reorder scope (isolated temp repo)
-        run: npx playwright test -c playwright.scope.config.ts
+      # Plan 127 F1.3: the temp-repo suites run in parallel — each config
+      # owns its port (3101-3104/3102) and repo fixture, so the matrix is
+      # safe; scope.spec is order-independent (plan 109).
+      - name: E2E matrix (isolated temp repos)
+        run: |
+          npx playwright test -c playwright.import.config.ts &
+          npx playwright test -c playwright.changes.config.ts &
+          npx playwright test -c playwright.media.config.ts &
+          npx playwright test -c playwright.storefront.config.ts &
+          npx playwright test -c playwright.scope.config.ts &
+          wait
 
       - name: Certification report
         run: node --import tsx scripts/certification-report.ts --ci
