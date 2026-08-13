@@ -5,17 +5,17 @@ individuales por ítem (rollback `git revert <sha>`).
 
 ## Fase 1 — Fundaciones de calidad
 
-- [ ] F1.1 Harness de tests de componentes
-  - [ ] Dependencias: `@testing-library/react`, `@testing-library/jest-dom`, `jsdom` (devDeps, alineadas con la política de deps).
-  - [ ] `vitest.config.ts`: `test.web` con `environment: 'jsdom'` (o `// @vitest-environment jsdom` por archivo).
-  - [ ] `test/web/harness.tsx`: renderer de página con `vi.mock('../../src/web/api/client')`.
-  - [ ] Test de humo: `<ProductsPage/>` renderiza el filtro Categoría.
-  - [ ] Portar las 4 aserciones de confirm (plan 126) a nivel componente.
-  - [ ] Verificación: `npm run admin:test` verde (nueva suite incluida).
-- [ ] F1.2 Lint del árbol completo
-  - [ ] Corregir los 14 errores (7 archivos: SettingsPage + suites de test).
-  - [ ] `admin.yml`: paso `npx eslint . --config eslint.config.mjs`.
-  - [ ] Verificación: 0 errores en `src` y `test`; CI verde.
+- [x] F1.1 Harness de tests de componentes
+  - [x] Dependencias: `@testing-library/react`, `@testing-library/jest-dom`, `jsdom` (devDeps, alineadas con la política de deps).
+  - [x] `vitest.config.ts`: `test.web` con `environment: 'jsdom'` (o `// @vitest-environment jsdom` por archivo).
+  - [x] `test/web/harness.tsx`: renderer de página con `vi.mock('../../src/web/api/client')`.
+  - [x] Test de humo: `<ProductsPage/>` renderiza el filtro Categoría.
+  - [x] Portar las 4 aserciones de confirm (plan 126) a nivel componente.
+  - [x] Verificación: `npm run admin:test` verde (nueva suite incluida).
+- [x] F1.2 Lint del árbol completo
+  - [x] Corregir los 14 errores (7 archivos: SettingsPage + suites de test).
+  - [x] `admin.yml`: paso `npx eslint . --config eslint.config.mjs`.
+  - [x] Verificación: 0 errores en `src` y `test`; CI verde.
 - [ ] F1.3 E2E admin en paralelo
   - [ ] `admin.yml`: matriz de configs (5 temp-repo en paralelo; operator suite aparte).
   - [ ] Verificación: run completo verde, wall-clock < 1.5 min.
