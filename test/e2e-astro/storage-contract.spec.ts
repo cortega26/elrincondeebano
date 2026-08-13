@@ -256,6 +256,8 @@ test('mark-sent write failure keeps cart, badge and sent marker unchanged', asyn
 test('plan 117: shared-cart link with a non-empty cart shows feedback and keeps the cart', async ({
   page,
 }) => {
+  // The mobile shortcut only renders in the mobile breakpoint.
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/', { waitUntil: 'networkidle' });
   await page.waitForFunction(() => (window as any).__APP_READY__ === true, { timeout: 15_000 });
 
@@ -282,9 +284,11 @@ test('plan 117: shared-cart link with a non-empty cart shows feedback and keeps 
   // visibility is covered by the cart suites — avoid the boot race here).
   await expect(page.locator('#shared-cart-refused')).toBeVisible();
   await expect(page.locator('#cart-count')).toHaveText('1', { timeout: 10_000 });
-  // Open via the navbar cart button — the mobile shortcut has a delayed
-  // reveal timer (boot race); the navbar button opens instantly.
-  await page.locator('#cart-icon').click();
+  // The shortcut reveals synchronously (follow-up fix); dismiss the
+  // refusal toast first — it overlaps the shortcut's bottom-right area.
+  await page.locator('#shared-cart-refused .btn-close').click();
+  await expect(page.locator('#shared-cart-refused')).not.toBeVisible();
+  await page.locator('#mobile-cart-shortcut').click();
   const offcanvas = page.locator('#cartOffcanvas');
   await expect(offcanvas).toBeVisible();
   await expect(offcanvas.locator('.item-quantity')).toHaveText('1');

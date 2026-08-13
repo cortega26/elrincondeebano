@@ -36,7 +36,6 @@ import {
 
 const MAX_RECENT_ORDERS = 6;
 const MAX_PERSONALIZED_ITEMS = 4;
-const MOBILE_CART_SHORTCUT_REVEAL_DELAY_MS = 280;
 
 if (typeof window !== 'undefined') {
   globalThis.__APP_READY__ = false;
@@ -131,17 +130,6 @@ const observability = createObservabilityModule({ log });
 const cartUiState = {
   isOffcanvasOpen: false,
 };
-let mobileCartShortcutRevealTimeoutId = 0;
-
-function clearMobileCartShortcutRevealTimeout() {
-  if (!mobileCartShortcutRevealTimeoutId) {
-    return;
-  }
-
-  globalThis.clearTimeout(mobileCartShortcutRevealTimeoutId);
-  mobileCartShortcutRevealTimeoutId = 0;
-}
-
 function setCartOffcanvasState(nextOpen) {
   const isOpen = Boolean(nextOpen);
   cartUiState.isOffcanvasOpen = isOpen;
@@ -841,7 +829,6 @@ function syncMobileCartShortcut(cart, totalAmount) {
   const shouldHide = isEmpty || cartUiState.isOffcanvasOpen;
 
   if (isEmpty) {
-    clearMobileCartShortcutRevealTimeout();
     shortcut.classList.add('is-hidden');
     shortcut.setAttribute('aria-hidden', 'true');
     shortcut.textContent = 'Ver pedido';
@@ -856,7 +843,6 @@ function syncMobileCartShortcut(cart, totalAmount) {
   );
 
   if (shouldHide) {
-    clearMobileCartShortcutRevealTimeout();
     shortcut.classList.add('is-hidden');
     shortcut.setAttribute('aria-hidden', 'true');
     return;
@@ -867,17 +853,12 @@ function syncMobileCartShortcut(cart, totalAmount) {
     return;
   }
 
-  clearMobileCartShortcutRevealTimeout();
-  mobileCartShortcutRevealTimeoutId = globalThis.setTimeout(() => {
-    mobileCartShortcutRevealTimeoutId = 0;
-
-    if (cartUiState.isOffcanvasOpen || shortcut.textContent === 'Ver pedido') {
-      return;
-    }
-
-    shortcut.classList.remove('is-hidden');
-    shortcut.setAttribute('aria-hidden', 'false');
-  }, MOBILE_CART_SHORTCUT_REVEAL_DELAY_MS);
+  // Follow-up (Auditoría 9): the deferred reveal (280ms timer) was
+  // re-armed on every re-sync, so a non-empty cart could keep the shortcut
+  // hidden indefinitely (and e2e raced it). Reveal synchronously — the
+  // offcanvas-open guard above is the only case that keeps it hidden.
+  shortcut.classList.remove('is-hidden');
+  shortcut.setAttribute('aria-hidden', 'false');
 }
 
 // Plan 116: renderCart/order-submit moved to storefront/*.js modules — the
