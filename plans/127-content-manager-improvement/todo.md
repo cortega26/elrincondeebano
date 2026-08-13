@@ -16,9 +16,9 @@ individuales por ítem (rollback `git revert <sha>`).
   - [x] Corregir los 14 errores (7 archivos: SettingsPage + suites de test).
   - [x] `admin.yml`: paso `npx eslint . --config eslint.config.mjs`.
   - [x] Verificación: 0 errores en `src` y `test`; CI verde.
-- [ ] F1.3 E2E admin en paralelo
-  - [ ] `admin.yml`: matriz de configs (5 temp-repo en paralelo; operator suite aparte).
-  - [ ] Verificación: run completo verde, wall-clock < 1.5 min.
+- [x] F1.3 E2E admin en paralelo
+  - [x] `admin.yml`: matriz de configs (5 temp-repo en paralelo; operator suite aparte).
+  - [x] Verificación: run completo verde, wall-clock < 1.5 min.
 
 ## Fase 2 — Robustez de dominio y contrato
 

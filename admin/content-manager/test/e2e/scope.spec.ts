@@ -74,9 +74,11 @@ test('bulk apply with a subset asks for scope; accept applies to ALL matching', 
   await page.getByRole('button', { name: 'Vista previa' }).click();
   await expect(page.getByText(/Cambios \(/)).toBeVisible();
 
-  // Preview shown + total == visible: no confirm fires (scope covers the
-  // whole catalog) — plan 126 asserts only the dialogs that DO exist.
-  await page.getByRole('button', { name: 'Aplicar' }).click();
+  // 60 matching > 50 visible: the scope confirm fires — accepting applies
+  // to ALL matching (plan 126 asserts the dialog, not just swallows it).
+  await withConfirmAssertion(page, /Aceptar = aplicar a TODOS \(60\)/, async () => {
+    await page.getByRole('button', { name: 'Aplicar' }).click();
+  });
   await expect(page.getByText(/Aplicado: 60 productos modificados/)).toBeVisible();
 
   const res = await request.get('http://127.0.0.1:3102/api/v1/products?category=cat-a&limit=200');
