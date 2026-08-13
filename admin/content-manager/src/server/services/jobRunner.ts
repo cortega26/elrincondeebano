@@ -10,11 +10,29 @@ export interface Job<T = unknown> {
   cancelRequested: boolean;
 }
 
+export interface JobClock {
+  now(): number;
+  schedule(cb: () => void, delayMs: number): unknown;
+  clear(handle: unknown): void;
+}
+
 export class JobRunner {
   private jobs = new Map<string, Job>();
   private queue: Array<{ job: Job; fn: () => Promise<unknown> }> = [];
   private processing = false;
   private shutdownRequested = false;
+  private timers = new Map<string, unknown>();
+  // Plan 127 F3.1: injectable clock (tests use a manual one) — defaults to
+  // the real setTimeout/Date.now.
+  private readonly clock: JobClock;
+
+  constructor(clock?: JobClock) {
+    this.clock = clock ?? {
+      now: () => Date.now(),
+      schedule: (cb, ms) => setTimeout(cb, ms),
+      clear: (h) => clearTimeout(h as NodeJS.Timeout),
+    };
+  }
 
   schedule<T>(type: string, fn: () => Promise<T>): Job<T> {
     const id = `job-${Date.now()}-${globalThis.crypto.randomUUID().slice(0, 6)}`;
@@ -38,6 +56,40 @@ export class JobRunner {
     return job;
   }
 
+  scheduleAt<T>(type: string, fn: () => Promise<T>, when: Date): Job<T> {
+    const job: Job<T> = {
+      id: `job-${Date.now()}-${globalThis.crypto.randomUUID().slice(0, 6)}`,
+      type,
+      status: 'pending',
+      progress: 0,
+      cancelRequested: false,
+    };
+    this.jobs.set(job.id, job);
+
+    const delay = Math.max(0, when.getTime() - this.clock.now());
+    if (delay === 0) {
+      this.queue.push({ job, fn: async () => fn() });
+      setImmediate(() => {
+        void this.processQueue();
+      });
+      return job;
+    }
+
+    const timer = this.clock.schedule(() => {
+      this.timers.delete(job.id);
+      // The operator may have cancelled while waiting.
+      if (job.cancelRequested) {
+        job.status = 'cancelled';
+        job.completed_at = new Date().toISOString();
+        return;
+      }
+      this.queue.push({ job, fn: async () => fn() });
+      void this.processQueue();
+    }, delay);
+    this.timers.set(job.id, timer);
+    return job;
+  }
+
   getJob<T>(id: string): Job<T> | undefined {
     return this.jobs.get(id) as Job<T> | undefined;
   }
@@ -52,6 +104,11 @@ export class JobRunner {
     if (job.status === 'pending') {
       job.status = 'cancelled';
       job.completed_at = new Date().toISOString();
+      const timer = this.timers.get(id);
+      if (timer !== undefined) {
+        this.clock.clear(timer);
+        this.timers.delete(id);
+      }
     }
 
     return true;

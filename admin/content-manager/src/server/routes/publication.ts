@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import type { GitAdapter } from '../adapters/gitAdapter.ts';
-import { JobRunner } from '../services/jobRunner.ts';
+import { JobRunner, type Job } from '../services/jobRunner.ts';
 import type { Repositories } from './helpers.ts';
 import type { ProductService } from '../../domain/products/productService.ts';
 import {
@@ -138,6 +138,7 @@ export async function publicationRoutes(
     const body = (request.body ?? {}) as {
       commitMessage?: string;
       push?: boolean;
+      publishAt?: string;
     };
 
     const manifest = createDefaultManifest();
@@ -147,7 +148,22 @@ export async function publicationRoutes(
       `catálogo: ${productCount} producto(s) [${new Date().toISOString().slice(0, 16)}]`;
     const push = body.push ?? false;
 
-    const job = jobRunner.schedule<PublicationJobResult>('publication', async () => {
+    // Plan 127 F3.1: scheduled publication — publishAt must be a future
+    // ISO timestamp; the job stays pending until then and is cancellable.
+    let publishAt: Date | undefined;
+    if (body.publishAt) {
+      publishAt = new Date(body.publishAt);
+      if (Number.isNaN(publishAt.getTime()) || publishAt.getTime() <= Date.now()) {
+        return reply.status(422).send({
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'publishAt debe ser una fecha futura en formato ISO',
+          },
+        });
+      }
+    }
+
+    const jobFn = async (): Promise<PublicationJobResult> => {
       const jobId = job.id;
       const recovery = new RecoveryJournal(repoRoot);
       const validation = new ValidationAdapter();
@@ -232,9 +248,16 @@ export async function publicationRoutes(
       recovery.clear();
 
       return { commit: commitSha, pushed: push };
-    });
+    };
 
-    return { job_id: job.id, status: 'scheduled' };
+    let job: Job<PublicationJobResult>;
+    if (publishAt) {
+      job = jobRunner.scheduleAt<PublicationJobResult>('publication', jobFn, publishAt);
+    } else {
+      job = jobRunner.schedule<PublicationJobResult>('publication', jobFn);
+    }
+
+    return { job_id: job.id, status: publishAt ? 'scheduled' : 'scheduled' };
   });
 
   app.get('/publications/recovery', async () => {

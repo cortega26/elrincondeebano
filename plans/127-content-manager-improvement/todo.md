@@ -40,9 +40,9 @@ individuales por ítem (rollback `git revert <sha>`).
 
 ## Fase 3 — Operación y producto
 
-- [ ] F3.1 Publicación programada
-  - [ ] `publish_at` en change-sets + scheduler + cancel en UI.
-  - [ ] Test de integración con clock inyectado.
+- [x] F3.1 Publicación programada
+  - [x] `publish_at` en change-sets + scheduler + cancel en UI.
+  - [x] Test de integración con clock inyectado.
 - [x] F3.2 Observabilidad
   - [x] `x-request-id` (hook onRequest) + log estructurado JSON en el error handler.
   - [x] Test: 500 inyectado → request-id en respuesta y log.

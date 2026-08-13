@@ -509,3 +509,60 @@ test('gitAdapter.commitWithPaths fails closed on an empty pathspec', async () =>
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('publication with publishAt in the future schedules a pending job (plan 127 F3.1)', async () => {
+  const dir = resolve(tmpdir(), `pub-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`);
+  mkdirSync(resolve(dir, 'data'), { recursive: true });
+  mkdirSync(resolve(dir, 'assets', 'images'), { recursive: true });
+  mkdirSync(resolve(dir, 'astro-poc', 'src', 'data'), { recursive: true });
+  setupData(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    const future = new Date(Date.now() + 60_000).toISOString();
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/v1/publications',
+      headers: { 'content-type': 'application/json', ...credHeaders(app) },
+      payload: { commitMessage: 'scheduled-test', publishAt: future },
+    });
+    expect(res.statusCode).toBe(200);
+    const body = res.json<{ job_id: string; status: string }>();
+    expect(body.status).toBe('scheduled');
+    expect(body.job_id).toBeTruthy();
+
+    // The job is still pending right away (not executed).
+    const job = await app.inject({ method: 'GET', url: `/api/v1/jobs/${body.job_id}` });
+    expect(job.json<{ status: string }>().status).toBe('pending');
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('publication with a past publishAt is rejected (plan 127 F3.1)', async () => {
+  const dir = resolve(tmpdir(), `pub-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`);
+  mkdirSync(resolve(dir, 'data'), { recursive: true });
+  mkdirSync(resolve(dir, 'assets', 'images'), { recursive: true });
+  mkdirSync(resolve(dir, 'astro-poc', 'src', 'data'), { recursive: true });
+  setupData(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    const past = new Date(Date.now() - 5_000).toISOString();
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/v1/publications',
+      headers: { 'content-type': 'application/json', ...credHeaders(app) },
+      payload: { commitMessage: 'x', publishAt: past },
+    });
+    expect(res.statusCode).toBe(422);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

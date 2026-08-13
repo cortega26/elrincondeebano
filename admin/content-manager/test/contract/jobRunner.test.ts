@@ -165,3 +165,94 @@ test('getPendingCount returns number of queued jobs', async () => {
   // getPendingCount should be >= 0 (may be 0, 1, or 2 depending on timing)
   expect(runner.getPendingCount()).toBeGreaterThanOrEqual(0);
 });
+
+// ── plan 127 F3.1: scheduled jobs (scheduleAt) ──────────────────────────────
+
+function manualClock() {
+  let now = 1_000_000;
+  const timers: Array<{ at: number; cb: () => void }> = [];
+  const clock: JobClock = {
+    now: () => now,
+    schedule: (cb, ms) => {
+      const t = { at: now + ms, cb };
+      timers.push(t);
+      return t;
+    },
+    clear: (handle) => {
+      const idx = timers.indexOf(handle as { at: number; cb: () => void });
+      if (idx >= 0) timers.splice(idx, 1);
+    },
+  };
+  const advance = (ms: number): void => {
+    now += ms;
+    for (const t of [...timers]) {
+      if (t.at <= now) {
+        timers.splice(timers.indexOf(t), 1);
+        t.cb();
+      }
+    }
+  };
+  return { clock, advance, timers };
+}
+
+test('scheduleAt runs the job only after the target time', async () => {
+  const { clock, advance } = manualClock();
+  const runner = new JobRunner(clock);
+  let ran = false;
+  const job = runner.scheduleAt<string>(
+    'scheduled',
+    async () => {
+      ran = true;
+      return 'done';
+    },
+    new Date(clock.now() + 5_000)
+  );
+
+  expect(job.status).toBe('pending');
+  advance(4_000);
+  expect(ran).toBe(false);
+
+  advance(1_000);
+  await new Promise((r) => setTimeout(r, 0));
+  expect(ran).toBe(true);
+});
+
+test('cancelJob before the target time cancels without running', async () => {
+  const { clock, advance } = manualClock();
+  const runner = new JobRunner(clock);
+  let ran = false;
+  const job = runner.scheduleAt<string>(
+    'scheduled',
+    async () => {
+      ran = true;
+      return 'nope';
+    },
+    new Date(clock.now() + 60_000)
+  );
+
+  expect(runner.cancelJob(job.id)).toBe(true);
+  expect(job.status).toBe('cancelled');
+
+  advance(120_000);
+  await new Promise((r) => setTimeout(r, 0));
+  expect(ran).toBe(false);
+});
+
+test('scheduleAt with a past time runs immediately', async () => {
+  const { clock, advance } = manualClock();
+  const runner = new JobRunner(clock);
+  let ran = false;
+  const job = runner.scheduleAt<string>(
+    'scheduled',
+    async () => {
+      ran = true;
+      return 'now';
+    },
+    new Date(clock.now() - 1)
+  );
+
+  expect(job.status).toBe('pending');
+  advance(0);
+  await new Promise((r) => setTimeout(r, 0));
+  expect(ran).toBe(true);
+});
