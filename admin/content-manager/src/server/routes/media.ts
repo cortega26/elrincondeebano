@@ -254,6 +254,16 @@ export async function mediaMutRoutes(
     intent.updated_at = new Date().toISOString();
     intents.save(intent);
 
+    startIntentJob(intent, intents, repoRoot);
+
+    return { status: 'started', intent_id: intent.id };
+  });
+
+  function startIntentJob(
+    intent: MediaIntent,
+    intents: MediaIntentRepository,
+    repoRoot: string
+  ): void {
     const update = (patch: Partial<MediaIntent>): void => {
       Object.assign(intent, patch, { updated_at: new Date().toISOString() });
       intents.save(intent);
@@ -309,9 +319,7 @@ export async function mediaMutRoutes(
         }
       }
     })();
-
-    return { status: 'started', intent_id: intent.id };
-  });
+  }
 
   app.post('/media/intents/:id/cancel', async (request, reply) => {
     const { id } = request.params as { id: string };
@@ -335,6 +343,86 @@ export async function mediaMutRoutes(
     intent.updated_at = new Date().toISOString();
     intents.save(intent);
     return { status: 'cancelling', intent_id: id };
+  });
+
+  // Plan 127 F2.4: batch intent operations (run/cancel/discard) — validates
+  // every id first, then applies each with the same guards as the single
+  // routes; per-id skips are reported (never a partial silent failure).
+  app.post('/media/intents/batch', async (request, reply) => {
+    const body = request.body as {
+      action?: 'run' | 'cancel' | 'discard';
+      ids?: string[];
+    };
+    if (
+      !body?.action ||
+      !['run', 'cancel', 'discard'].includes(body.action) ||
+      !Array.isArray(body.ids) ||
+      body.ids.length === 0
+    ) {
+      return reply.status(400).send({
+        error: { code: 'BAD_REQUEST', message: 'Missing action (run|cancel|discard) or ids array' },
+      });
+    }
+
+    const missing = body.ids.filter((id) => !intents.load(id));
+    if (missing.length > 0) {
+      return reply.status(404).send({
+        error: { code: 'NOT_FOUND', message: 'Some intents not found', details: missing },
+      });
+    }
+
+    let applied = 0;
+    const skipped: Array<{ id: string; reason: string }> = [];
+    for (const id of body.ids) {
+      const intent = intents.load(id)!;
+      if (body.action === 'run') {
+        if (intent.status === 'running') {
+          skipped.push({ id, reason: 'ALREADY_RUNNING' });
+          continue;
+        }
+        intent.status = 'running';
+        intent.cancel_requested = false;
+        intent.errors = [];
+        intent.progress = 0;
+        intent.updated_at = new Date().toISOString();
+        intents.save(intent);
+        startIntentJob(intent, intents, repoRoot);
+      } else if (body.action === 'cancel') {
+        if (intent.status === 'succeeded' || intent.status === 'failed') {
+          skipped.push({ id, reason: 'ALREADY_FINISHED' });
+          continue;
+        }
+        if (intent.status === 'pending') {
+          intent.status = 'cancelled';
+          intent.completed_at = new Date().toISOString();
+        } else {
+          intent.cancel_requested = true;
+        }
+        intent.updated_at = new Date().toISOString();
+        intents.save(intent);
+      } else {
+        // discard: staging only, never canonical assets; running intents
+        // are refused (the single route's contract).
+        if (intent.status === 'running') {
+          skipped.push({ id, reason: 'RUNNING' });
+          continue;
+        }
+        if (intent.staged_file) {
+          try {
+            const stagedPath = resolve(intents.stagingRoot, intent.staged_file);
+            if (isContainedWithin(intents.stagingRoot, stagedPath) && existsSync(stagedPath)) {
+              unlinkSync(stagedPath);
+            }
+          } catch {
+            /* best-effort staging cleanup */
+          }
+        }
+        intents.delete(id);
+      }
+      applied += 1;
+    }
+
+    return { status: 'ok', action: body.action, applied, skipped };
   });
 
   // Discard removes staging only — never canonical assets.

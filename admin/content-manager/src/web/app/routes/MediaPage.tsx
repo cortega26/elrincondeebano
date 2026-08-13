@@ -69,6 +69,8 @@ export function MediaPage(): React.ReactElement {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
+  // Plan 127 F2.4: multi-select for batch intent operations.
+  const [selectedIntents, setSelectedIntents] = useState<Set<string>>(new Set());
   const [fileName, setFileName] = useState<string | null>(null);
   const [uploadState, setUploadState] = useState<{
     staged_file: string;
@@ -232,6 +234,51 @@ export function MediaPage(): React.ReactElement {
     }
   };
 
+  const handleBatch = async (action: 'run' | 'cancel' | 'discard'): Promise<void> => {
+    const ids = [...selectedIntents];
+    if (ids.length === 0) return;
+    setError(null);
+    setFeedback(null);
+    const res = await fetchWithCredential('/api/v1/media/intents/batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, ids }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      setError((body as { error?: { message?: string } }).error?.message ?? `Error ${res.status}`);
+      return;
+    }
+    const body = (await res.json()) as {
+      applied: number;
+      skipped: Array<{ id: string; reason: string }>;
+    };
+    setFeedback(
+      `Batch ${action}: ${body.applied} aplicados` +
+        (body.skipped.length > 0 ? `, ${body.skipped.length} omitidos` : '') +
+        ' ✓'
+    );
+    setSelectedIntents(new Set());
+    await load();
+  };
+
+  const toggleIntent = (id: string, checked: boolean): void => {
+    setSelectedIntents((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  };
+
+  const statusCounts = (): Record<string, number> => {
+    const counts: Record<string, number> = {};
+    for (const intent of intents) {
+      counts[intent.status] = (counts[intent.status] ?? 0) + 1;
+    }
+    return counts;
+  };
+
   const filtered = filter === 'all' ? items : items.filter((i) => i.status === filter);
 
   return (
@@ -336,6 +383,38 @@ export function MediaPage(): React.ReactElement {
 
       <section aria-label="Intents" style={{ marginBottom: '1.5rem' }}>
         <h2>Intents ({intents.length})</h2>
+        {intents.length > 0 && (
+          <p style={{ fontSize: '0.85rem', color: '#6c757d' }}>
+            {Object.entries(statusCounts())
+              .map(([status, count]) => `${status}: ${count}`)
+              .join(' · ')}
+          </p>
+        )}
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
+          <span style={{ alignSelf: 'center', fontSize: '0.9rem' }}>
+            {selectedIntents.size} seleccionados
+          </span>
+          <button onClick={() => void handleBatch('run')} disabled={selectedIntents.size === 0}>
+            Ejecutar seleccionados
+          </button>
+          <button onClick={() => void handleBatch('cancel')} disabled={selectedIntents.size === 0}>
+            Cancelar seleccionados
+          </button>
+          <button
+            onClick={() => {
+              if (
+                window.confirm(
+                  `¿Descartar ${selectedIntents.size} intents seleccionados? Solo se elimina staging.`
+                )
+              ) {
+                void handleBatch('discard');
+              }
+            }}
+            disabled={selectedIntents.size === 0}
+          >
+            Descartar seleccionados
+          </button>
+        </div>
         {intents.length === 0 && <p style={{ color: '#6c757d' }}>No hay intents.</p>}
         {intents.length > 0 && (
           <table
@@ -344,6 +423,18 @@ export function MediaPage(): React.ReactElement {
           >
             <thead>
               <tr>
+                <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>
+                  <input
+                    type="checkbox"
+                    aria-label="Seleccionar todos los intents"
+                    checked={intents.length > 0 && selectedIntents.size === intents.length}
+                    onChange={(e) => {
+                      setSelectedIntents(
+                        e.target.checked ? new Set(intents.map((i) => i.id)) : new Set()
+                      );
+                    }}
+                  />
+                </th>
                 <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Intent</th>
                 <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Tipo</th>
                 <th style={{ textAlign: 'left', padding: '0.25rem 0.5rem' }}>Estado</th>
@@ -354,6 +445,14 @@ export function MediaPage(): React.ReactElement {
             <tbody>
               {intents.map((intent) => (
                 <tr key={intent.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                  <td style={{ padding: '0.25rem 0.5rem' }}>
+                    <input
+                      type="checkbox"
+                      aria-label={`Seleccionar intent ${intent.id}`}
+                      checked={selectedIntents.has(intent.id)}
+                      onChange={(e) => toggleIntent(intent.id, e.target.checked)}
+                    />
+                  </td>
                   <td style={{ padding: '0.25rem 0.5rem' }}>
                     <code>{intent.id}</code>
                     <div style={{ fontSize: '0.8rem', color: '#6c757d' }}>

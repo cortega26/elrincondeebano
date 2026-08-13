@@ -33,10 +33,10 @@ individuales por ítem (rollback `git revert <sha>`).
 - [x] F2.3 OpenAPI desde zod
   - [x] `openapi.json` generado (herramienta evaluada contra DEPENDENCY_POLICY).
   - [x] Test de contrato: rutas del client ⊆ OpenAPI, shapes compatibles.
-- [ ] F2.4 Media batch
-  - [ ] Endpoint batch de intents (run/cancel/apply) con progreso agregado.
-  - [ ] UI: selección múltiple en MediaPage.
-  - [ ] e2e `playwright.media.config.ts`.
+- [x] F2.4 Media batch
+  - [x] Endpoint batch de intents (run/cancel/apply) con progreso agregado.
+  - [x] UI: selección múltiple en MediaPage.
+  - [x] e2e `playwright.media.config.ts`.
 
 ## Fase 3 — Operación y producto
 

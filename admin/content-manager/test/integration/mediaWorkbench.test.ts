@@ -530,3 +530,83 @@ test('og-delete apply verifies the canonical image is gone; rejects when present
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('batch intent ops: cancel pending + discard, skip finished (plan 127 F2.4)', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const create = async (id: string, type = 'og') => {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/v1/media/intents',
+        headers: ch,
+        payload: {
+          type,
+          target_path: `assets/images/og/categories/${id}.png`,
+          category_slug: id,
+        },
+      });
+      expect(res.statusCode).toBe(201);
+      return res.json<{ id: string }>().id;
+    };
+    const a = await create('batch-a');
+    const b = await create('batch-b');
+    const c = await create('batch-c');
+
+    // Cancel all three (pending -> cancelled).
+    const cancel = await app.inject({
+      method: 'POST',
+      url: '/api/v1/media/intents/batch',
+      headers: ch,
+      payload: { action: 'cancel', ids: [a, b, c] },
+    });
+    expect(cancel.statusCode).toBe(200);
+    expect(cancel.json<{ applied: number; skipped: unknown[] }>()).toMatchObject({
+      applied: 3,
+      skipped: [],
+    });
+
+    // Cancel again: now they are cancelled — the single-route contract
+    // allows cancelling cancelled intents (only succeeded/failed skip).
+    const cancelAgain = await app.inject({
+      method: 'POST',
+      url: '/api/v1/media/intents/batch',
+      headers: ch,
+      payload: { action: 'cancel', ids: [a, b, c] },
+    });
+    expect(cancelAgain.statusCode).toBe(200);
+    expect(cancelAgain.json<{ applied: number }>().applied).toBe(3);
+
+    // Discard all: rows gone.
+    const discard = await app.inject({
+      method: 'POST',
+      url: '/api/v1/media/intents/batch',
+      headers: ch,
+      payload: { action: 'discard', ids: [a, b, c] },
+    });
+    expect(discard.statusCode).toBe(200);
+    expect(discard.json<{ applied: number }>().applied).toBe(3);
+
+    const after = (await app.inject({ method: 'GET', url: '/api/v1/media' })).json<{
+      intents: Array<{ id: string }>;
+    }>();
+    expect(after.intents.some((i) => i.id === a || i.id === b || i.id === c)).toBe(false);
+
+    // Unknown ids -> 404 before anything is applied.
+    const missing = await app.inject({
+      method: 'POST',
+      url: '/api/v1/media/intents/batch',
+      headers: ch,
+      payload: { action: 'run', ids: ['does-not-exist'] },
+    });
+    expect(missing.statusCode).toBe(404);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
