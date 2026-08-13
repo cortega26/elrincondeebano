@@ -49,9 +49,9 @@ individuales por ítem (rollback `git revert <sha>`).
 - [x] F3.3 Recovery proactivo
   - [x] Banner global cuando `getPendingRecoveries() > 0`.
   - [x] Test de componente + smoke.
-- [ ] F3.4 SSE sync
-  - [ ] `/api/v1/sync/events` + suscripción del panel (polling como fallback).
-  - [ ] Test de integración SSE.
+- [x] F3.4 SSE sync
+  - [x] `/api/v1/sync/events` + suscripción del panel (polling como fallback).
+  - [x] Test de integración SSE.
 - [x] F3.5 Rotación de credential
   - [x] `admin:rotate-credential` (0600, invalida anterior).
   - [x] Test del script con repo temp.

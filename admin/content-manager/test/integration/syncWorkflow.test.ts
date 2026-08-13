@@ -6,6 +6,7 @@ import { writeFileSync, mkdirSync, rmSync, readFileSync, utimesSync } from 'node
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { CREDENTIAL_HEADER } from '../../src/server/security/launchCredential.ts';
+import http from 'node:http';
 import { SyncQueueRepository } from '../../src/server/repositories/syncQueueRepository.ts';
 
 // Plan 064: remote sync against a fake local server only — never a real
@@ -584,6 +585,46 @@ test('sync status never exposes the token and redirects are rejected', async () 
     await redirectApp.ready();
     await app.close();
     await redirectApp.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('GET /api/v1/sync/events streams the sync status over SSE (plan 127 F3.4)', async () => {
+  const dir = createTempDir();
+  try {
+    setup(dir);
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    await app.listen({ port: 0, host: '127.0.0.1' });
+    const address = app.server.address() as { port: number };
+
+    // Read the first SSE frames over a real HTTP connection, then close it.
+    const chunks = await new Promise<string>((resolve, reject) => {
+      const req = http.get(
+        { host: '127.0.0.1', port: address.port, path: '/api/v1/sync/events' },
+        (res) => {
+          let data = '';
+          res.setEncoding('utf8');
+          res.on('data', (chunk: string) => {
+            data += chunk;
+            if (data.includes('data: {') && data.includes('retry: 5000')) {
+              req.destroy();
+              resolve(data);
+            }
+          });
+          res.on('error', reject);
+        }
+      );
+      req.on('error', reject);
+      setTimeout(() => reject(new Error('SSE stream timeout')), 3000);
+    });
+
+    expect(chunks).toContain('data: {');
+    expect(chunks).toContain('"queue"');
+    expect(chunks).toContain('retry: 5000');
+
+    await app.close();
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

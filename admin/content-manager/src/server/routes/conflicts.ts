@@ -135,7 +135,7 @@ export async function conflictsRoutes(
     return conflict;
   });
 
-  app.get('/sync/status', async () => {
+  const buildSyncStatus = (): Record<string, unknown> => {
     const config = syncAdapter.getConfig();
     const tokenEnv = process.env.SYNC_API_TOKEN;
     const queue = syncService.getQueue();
@@ -168,6 +168,41 @@ export async function conflictsRoutes(
         pull: 'implemented',
       },
     };
+  };
+
+  app.get('/sync/status', async () => {
+    return buildSyncStatus();
+  });
+
+  // Plan 127 F3.4: SSE stream for the sync status — the panel subscribes
+  // here instead of polling every 30s. The server pushes the status every
+  // 5s (cheap single-user) plus a heartbeat comment to keep the connection
+  // alive; the client falls back to polling on error.
+  app.get('/sync/events', async (request, reply) => {
+    reply.raw.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      Connection: 'keep-alive',
+      'X-Accel-Buffering': 'no',
+    });
+    reply.raw.write('retry: 5000\n\n');
+
+    const send = (): void => {
+      reply.raw.write(`data: ${JSON.stringify(buildSyncStatus())}\n\n`);
+    };
+
+    send();
+    const pushTimer = setInterval(send, 5_000);
+    const heartbeat = setInterval(() => {
+      reply.raw.write(': ping\n\n');
+    }, 25_000);
+
+    request.raw.on('close', () => {
+      clearInterval(pushTimer);
+      clearInterval(heartbeat);
+    });
+
+    return reply;
   });
 
   app.put('/sync/config', async (request, reply) => {

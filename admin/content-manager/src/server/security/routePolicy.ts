@@ -92,6 +92,7 @@ export const ROUTE_POLICY: RoutePolicyEntry[] = [
   { method: 'POST', path: '/api/v1/conflicts/:id/resolve', class: 'mutation' },
   { method: 'POST', path: '/api/v1/conflicts/:id/retry', class: 'mutation' },
   { method: 'GET', path: '/api/v1/sync/status', class: 'read' },
+  { method: 'GET', path: '/api/v1/sync/events', class: 'read' },
   { method: 'PUT', path: '/api/v1/sync/config', class: 'mutation' },
   { method: 'POST', path: '/api/v1/sync/now', class: 'mutation' },
   { method: 'POST', path: '/api/v1/sync/pause', class: 'mutation' },

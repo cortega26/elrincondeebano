@@ -107,9 +107,39 @@ export function ProductsPage(): React.ReactElement {
         .catch(() => {});
     };
     refresh();
-    // Plan 097: 30s polling while the page is visible.
+    // Plan 127 F3.4: subscribe to the sync SSE stream when available; the
+    // 30s polling stays as the fallback (EventSource errors, unsupported).
+    let source: EventSource | null = null;
+    try {
+      source = new EventSource('/api/v1/sync/events');
+      source.addEventListener('message', (event) => {
+        const d = JSON.parse(event.data) as {
+          sync: {
+            enabled: boolean;
+            api_base: string;
+            poll_interval: number;
+            pull_interval: number;
+            paused: boolean;
+            token_configured: boolean;
+            queue: { pending: number; error: number; total: number };
+            last_push: { ok: boolean; error?: string } | null;
+          };
+        };
+        setSyncStatus(d.sync);
+        setSyncConfig({ enabled: d.sync.enabled, api_base: d.sync.api_base ?? '', api_token: '' });
+      });
+      source.onerror = () => {
+        source?.close();
+        source = null;
+      };
+    } catch {
+      // EventSource unavailable — polling fallback below covers it.
+    }
     const timer = setInterval(refresh, 30_000);
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timer);
+      source?.close();
+    };
   }, []);
 
   useEffect(() => {
