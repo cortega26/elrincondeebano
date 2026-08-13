@@ -10,6 +10,9 @@ import 'bootstrap/js/dist/alert.js';
 // (named imports come back undefined through Vite's interop).
 import Offcanvas from 'bootstrap/js/dist/offcanvas.js';
 import { createCatalogViewController } from './storefront/catalog-view.js';
+import { createCartViewController } from './storefront/cart-view.js';
+import { createOrderSubmitController } from './storefront/order-submit.js';
+import { createRecoveryBannerController } from './storefront/recovery-banner.js';
 import { createObservabilityModule } from './storefront/observability.js';
 import { createPersonalizationEngine } from './storefront/personalization.js';
 import { syncStorefrontServiceWorkerVersion } from './storefront/service-worker-sync.js';
@@ -393,69 +396,6 @@ function loadSubstitutionPreference() {
 
 function saveSubstitutionPreference(value) {
   storefrontStorage.saveJson('substitutionPreference', value);
-}
-
-function initServiceOnboarding() {
-  const dialog = document.getElementById('service-guide-dialog');
-  if (!(dialog instanceof HTMLElement)) {
-    return;
-  }
-
-  const triggerSelector = '[data-service-dialog-trigger]';
-  const closeSelector = '[data-service-dialog-close]';
-
-  const openDialog = () => {
-    if (typeof dialog.showModal === 'function') {
-      if (!dialog.hasAttribute('open')) {
-        dialog.showModal();
-      }
-    } else {
-      dialog.setAttribute('open', '');
-    }
-
-    dialog.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('service-dialog-open');
-  };
-
-  const closeDialog = () => {
-    if (typeof dialog.close === 'function' && dialog.hasAttribute('open')) {
-      dialog.close();
-    } else {
-      dialog.removeAttribute('open');
-    }
-
-    dialog.setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('service-dialog-open');
-  };
-
-  document.querySelectorAll(triggerSelector).forEach((trigger) => {
-    trigger.addEventListener('click', (event) => {
-      event.preventDefault();
-      openDialog();
-    });
-  });
-
-  dialog.querySelectorAll(closeSelector).forEach((control) => {
-    control.addEventListener('click', () => {
-      closeDialog();
-    });
-  });
-
-  dialog.addEventListener('close', () => {
-    dialog.setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('service-dialog-open');
-  });
-
-  dialog.addEventListener('cancel', () => {
-    dialog.setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('service-dialog-open');
-  });
-
-  dialog.addEventListener('click', (event) => {
-    if (event.target === dialog) {
-      closeDialog();
-    }
-  });
 }
 
 function getProductCardById(id) {
@@ -940,223 +880,16 @@ function syncMobileCartShortcut(cart, totalAmount) {
   }, MOBILE_CART_SHORTCUT_REVEAL_DELAY_MS);
 }
 
-function renderCart(cart, { animateTotal = false, changedItemId = null } = {}) {
-  const container = document.getElementById('cart-items');
-  const totalElement = document.getElementById('cart-total');
-
-  if (!(container instanceof HTMLElement) || !(totalElement instanceof HTMLElement)) {
-    return;
-  }
-
-  // Targeted update for a single changed item when the cart already has items rendered
-  if (changedItemId && container.querySelector('.cart-item')) {
-    const cartItem = cart.find((item) => item.id === changedItemId);
-    const existingEl = container.querySelector(`.cart-item[data-id="${changedItemId}"]`);
-
-    // Quantity update for existing item
-    if (cartItem && existingEl) {
-      const qtySpan = existingEl.querySelector('.item-quantity');
-      if (qtySpan) {
-        qtySpan.textContent = String(cartItem.quantity);
-      }
-      const subtotalSpan = existingEl.querySelector('.cart-item__subtotal');
-      if (subtotalSpan) {
-        const effectivePrice = Math.max(0, cartItem.price - (cartItem.discount || 0));
-        subtotalSpan.textContent = `Subtotal: ${formatCurrency(effectivePrice * cartItem.quantity)}`;
-      }
-      // Update total and sync state
-      const { totalAmount } = getCartState(cart);
-      totalElement.textContent = `Total: ${formatCurrency(totalAmount)}`;
-      if (animateTotal) {
-        triggerTransientClass(totalElement, 'cart-total-bump');
-      }
-      syncCheckoutState(cart, totalAmount);
-      syncMobileCartShortcut(cart, totalAmount);
-      return;
-    }
-
-    // Item removed (quantity to 0)
-    if (!cartItem && existingEl) {
-      existingEl.remove();
-      // If no items left, also remove share row and fall through to empty state
-      const shareRow = container.querySelector('.cart-share-row');
-      if (shareRow && !container.querySelector('.cart-item')) {
-        shareRow.remove();
-        // Fall through to show empty state
-      } else {
-        const { totalAmount } = getCartState(cart);
-        totalElement.textContent = `Total: ${formatCurrency(totalAmount)}`;
-        if (animateTotal) {
-          triggerTransientClass(totalElement, 'cart-total-bump');
-        }
-        syncCheckoutState(cart, totalAmount);
-        syncMobileCartShortcut(cart, totalAmount);
-        return;
-      }
-    }
-    // New item: fall through to full render
-  }
-
-  container.replaceChildren();
-
-  if (cart.length === 0) {
-    if (isOrderJustSent()) {
-      const sentWrapper = createElement('div', { className: 'cart-post-send' });
-      const sentIcon = createElement('div', { className: 'cart-post-send__icon' });
-      sentIcon.innerHTML =
-        '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
-      const sentTitle = createElement('h3', {
-        className: 'cart-post-send__title',
-        text: '¡Pedido enviado!',
-      });
-      const sentBody = createElement('div', { className: 'cart-post-send__body' });
-      const sentP1 = document.createElement('p');
-      sentP1.textContent =
-        'Recibirás una respuesta por WhatsApp para confirmar el horario de entrega dentro del edificio.';
-      const sentP2 = document.createElement('p');
-      sentP2.textContent =
-        'Si no recibes respuesta en 30 minutos, escríbenos directamente al mismo chat.';
-      sentBody.appendChild(sentP1);
-      sentBody.appendChild(sentP2);
-      sentWrapper.appendChild(sentIcon);
-      sentWrapper.appendChild(sentTitle);
-      sentWrapper.appendChild(sentBody);
-      container.appendChild(sentWrapper);
-    } else {
-      const emptyMessage = createElement('div', {
-        className: 'alert alert-info mb-0 cart-empty-message',
-        text: 'Tu carrito está vacío. Agrega productos antes de realizar el pedido.',
-        attrs: {
-          role: 'status',
-          tabindex: '-1',
-        },
-      });
-      container.appendChild(emptyMessage);
-    }
-  } else {
-    const fragment = document.createDocumentFragment();
-    cart.forEach((item) => {
-      const line = createElement('div', {
-        className: 'cart-item',
-        attrs: { 'data-id': item.id },
-      });
-
-      const thumbWrapper = createElement('div', { className: 'cart-item-thumb flex-shrink-0' });
-      const thumb = createElement('img', {
-        className: 'cart-item-thumb-img',
-        attrs: {
-          src: item.image,
-          alt: item.name,
-          loading: 'lazy',
-          decoding: 'async',
-        },
-      });
-      thumbWrapper.appendChild(thumb);
-
-      const content = createElement('div', { className: 'cart-item-content flex-grow-1' });
-      const name = createElement('div', { className: 'fw-bold cart-item__title', text: item.name });
-      content.appendChild(name);
-
-      const effectivePrice = Math.max(0, item.price - (item.discount || 0));
-      const meta = createElement('div', { className: 'cart-item__meta' });
-      meta.appendChild(
-        createElement('span', {
-          className: 'cart-item__price-line',
-          text: `Unitario: ${formatCurrency(effectivePrice)}`,
-        })
-      );
-      meta.appendChild(
-        createElement('span', {
-          className: 'cart-item__subtotal',
-          text: `Subtotal: ${formatCurrency(effectivePrice * item.quantity)}`,
-        })
-      );
-      content.appendChild(meta);
-
-      const qtyRow = createElement('div', {
-        className: 'cart-qty-row',
-        attrs: { role: 'group', 'aria-label': 'Selección de cantidad' },
-      });
-
-      const decreaseBtn = createElement('button', {
-        className: 'quantity-btn cart-item-qty-btn',
-        text: '-',
-        attrs: {
-          type: 'button',
-          'data-action': 'decrease',
-          'data-id': item.id,
-          'aria-label': 'Disminuir cantidad',
-        },
-      });
-      const quantity = createElement('span', {
-        className: 'quantity-value item-quantity',
-        text: String(item.quantity),
-        attrs: { 'aria-label': 'Cantidad', 'aria-live': 'polite', 'aria-atomic': 'true' },
-      });
-      const increaseBtn = createElement('button', {
-        className: 'quantity-btn cart-item-qty-btn',
-        text: '+',
-        attrs: {
-          type: 'button',
-          'data-action': 'increase',
-          'data-id': item.id,
-          'aria-label': 'Aumentar cantidad',
-        },
-      });
-
-      qtyRow.appendChild(decreaseBtn);
-      qtyRow.appendChild(quantity);
-      qtyRow.appendChild(increaseBtn);
-
-      const removeBtn = createElement('button', {
-        className: 'remove-item cart-item__remove',
-        attrs: {
-          type: 'button',
-          'data-id': item.id,
-          'aria-label': `Eliminar ${item.name ?? 'producto'} del carrito`,
-        },
-      });
-      removeBtn.innerHTML =
-        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg>' +
-        '<span aria-hidden="true">Quitar</span>';
-
-      const actions = createElement('div', { className: 'cart-item__actions' });
-      actions.appendChild(qtyRow);
-      actions.appendChild(removeBtn);
-      content.appendChild(actions);
-
-      line.appendChild(thumbWrapper);
-      line.appendChild(content);
-      fragment.appendChild(line);
-    });
-    container.appendChild(fragment);
-
-    // Share cart button
-    const shareRow = createElement('div', { className: 'cart-share-row mt-2' });
-    const shareBtn = createElement('button', {
-      className: 'btn btn-outline-secondary btn-sm w-100',
-      text: 'Compartir carrito',
-      attrs: { type: 'button', 'aria-label': 'Copiar enlace del carrito para compartir' },
-    });
-    shareBtn.addEventListener('click', function () {
-      shareCart(cart);
-      shareBtn.textContent = '¡Enlace copiado!';
-      globalThis.setTimeout(function () {
-        shareBtn.textContent = 'Compartir carrito';
-      }, 2000);
-    });
-    shareRow.appendChild(shareBtn);
-    container.appendChild(shareRow);
-  }
-
-  const { totalAmount } = getCartState(cart);
-  totalElement.textContent = `Total: ${formatCurrency(totalAmount)}`;
-  if (animateTotal) {
-    triggerTransientClass(totalElement, 'cart-total-bump');
-  }
-  syncCheckoutState(cart, totalAmount);
-  syncMobileCartShortcut(cart, totalAmount);
-}
+// Plan 116: renderCart/order-submit moved to storefront/*.js modules — the
+// controllers are built in initStorefront and bound here so callers stay
+// unchanged (storefront.js remains the composition root).
+let renderCart = () => {};
+let submitCartOrder = () => {};
+let buildWhatsAppMessageText = () => '';
+let markOrderAsSent = () => {};
+let showRecoveryBanner = () => {};
+let hideRecoveryBanner = () => {};
+let shouldShowRecoveryBanner = () => false;
 
 function openCartOffcanvas() {
   const offcanvasElement = document.getElementById('cartOffcanvas');
@@ -1210,11 +943,9 @@ function hydrateProfilePersistence() {
 
 // --- Order Confirmation Flow ---
 
-let pendingOrderData = null;
-
 const STORAGE_SENT_KEY = 'orderLastSentAt';
-const STORAGE_RECOVERY_KEY = 'recoveryDismissed';
-const RECOVERY_BANNER_TTL_MS = 3600000; // 1 hour
+// --- Order Confirmation Flow ---
+
 const SENT_STATE_TTL_MS = 86400000; // 24 hours
 
 function getStoredJson(key, fallback) {
@@ -1232,108 +963,6 @@ function isOrderJustSent() {
 
 function clearLastOrderSentAt() {
   saveStoredJson(STORAGE_SENT_KEY, 0);
-}
-
-function isRecoveryBannerDismissed() {
-  const dismissedAt = getStoredJson(STORAGE_RECOVERY_KEY, 0);
-  return dismissedAt > 0 && Date.now() - dismissedAt < RECOVERY_BANNER_TTL_MS;
-}
-
-function buildOrderConfirmSummary(
-  cart,
-  totalAmount,
-  selectedPayment,
-  substitutionPreference,
-  deliveryNote
-) {
-  const container = document.getElementById('order-confirm-summary');
-  if (!container) {
-    return;
-  }
-
-  container.replaceChildren();
-
-  cart.forEach((item) => {
-    const effectivePrice = Math.max(0, item.price - (item.discount || 0));
-    const subtotal = effectivePrice * item.quantity;
-    const row = createElement('div', { className: 'order-confirm__summary-row' });
-    const info = createElement('div', { className: 'order-confirm__summary-item' });
-    info.appendChild(
-      createElement('div', { className: 'order-confirm__summary-item-name', text: item.name })
-    );
-    info.appendChild(
-      createElement('div', {
-        className: 'order-confirm__summary-item-meta',
-        text: `${item.quantity} × ${formatCurrency(effectivePrice)}`,
-      })
-    );
-    const total = createElement('span', {
-      className: 'order-confirm__summary-item-total',
-      text: formatCurrency(subtotal),
-    });
-    row.appendChild(info);
-    row.appendChild(total);
-    container.appendChild(row);
-  });
-
-  const totalRow = createElement('div', { className: 'order-confirm__summary-total-row' });
-  totalRow.appendChild(createElement('span', { text: 'Total' }));
-  totalRow.appendChild(
-    createElement('span', {
-      className: 'order-confirm__summary-total-amount',
-      text: formatCurrency(totalAmount),
-    })
-  );
-  container.appendChild(totalRow);
-
-  const metaDiv = createElement('div', { className: 'order-confirm__summary-meta' });
-  const addMetaLine = (label, value) => {
-    const line = document.createElement('div');
-    const strong = document.createElement('strong');
-    strong.textContent = label;
-    line.appendChild(strong);
-    line.appendChild(document.createTextNode(value));
-    metaDiv.appendChild(line);
-  };
-  addMetaLine('Pago: ', selectedPayment);
-  if (deliveryNote) {
-    addMetaLine('Nota: ', `“${deliveryNote}”`);
-  }
-  addMetaLine('Stock: ', substitutionPreference);
-  container.appendChild(metaDiv);
-}
-
-function buildWhatsAppMessageText(
-  cart,
-  totalAmount,
-  selectedPayment,
-  substitutionPreference,
-  deliveryNote
-) {
-  const lines = [];
-  lines.push('🛒 *Nuevo Pedido - El Rincón de Ébano*');
-  lines.push('');
-
-  cart.forEach((item) => {
-    const effectivePrice = Math.max(0, item.price - (item.discount || 0));
-    const subtotal = effectivePrice * item.quantity;
-    lines.push(`*${item.name}*`);
-    lines.push(
-      `   ${item.quantity} × $${effectivePrice.toLocaleString('es-CL')} = $${subtotal.toLocaleString('es-CL')}`
-    );
-    lines.push('');
-  });
-
-  lines.push('_ _ _ _ _ _ _ _ _ _ _ _ _ _ _');
-  lines.push('');
-  lines.push(`*Total:* $${totalAmount.toLocaleString('es-CL')}`);
-  lines.push(`*Pago:* ${selectedPayment}`);
-  lines.push(`*Stock:* ${substitutionPreference}`);
-  if (deliveryNote) {
-    lines.push(`📝 *Nota:* ${deliveryNote}`);
-  }
-
-  return lines.join('\n');
 }
 
 function showOrderConfirmationDialog() {
@@ -1404,118 +1033,6 @@ function hidePostSubmitToast() {
   }
   toast.classList.add('is-hidden');
   toast.setAttribute('aria-hidden', 'true');
-}
-
-// --- Cart Recovery Banner ---
-
-function showRecoveryBanner() {
-  const banner = document.getElementById('cart-recovery');
-  if (!banner) {
-    return;
-  }
-  banner.classList.remove('is-hidden');
-  banner.setAttribute('aria-hidden', 'false');
-}
-
-function hideRecoveryBanner() {
-  const banner = document.getElementById('cart-recovery');
-  if (!banner) {
-    return;
-  }
-  banner.classList.add('is-hidden');
-  banner.setAttribute('aria-hidden', 'true');
-}
-
-function shouldShowRecoveryBanner(cart) {
-  if (!Array.isArray(cart) || cart.length === 0) {
-    return false;
-  }
-  if (isOrderJustSent()) {
-    return false;
-  }
-  if (isRecoveryBannerDismissed()) {
-    return false;
-  }
-  return true;
-}
-
-function markOrderAsSent() {
-  const cart = loadCart();
-  if (cart.length === 0) {
-    return;
-  }
-
-  if (!saveCart([])) {
-    showCartSaveError();
-    return;
-  }
-
-  saveStoredJson(STORAGE_SENT_KEY, Date.now());
-  updateBadge([], { animate: true });
-  renderCart([]);
-  syncAllActionAreas([]);
-  hidePostSubmitToast();
-}
-
-function submitCartOrder(cart) {
-  if (!Array.isArray(cart) || cart.length === 0) {
-    return;
-  }
-
-  const paymentError = document.getElementById('payment-error');
-  if (paymentError) {
-    paymentError.textContent = '';
-  }
-  const selectedPayment = getSelectedPaymentValue();
-  if (!selectedPayment) {
-    if (paymentError) {
-      paymentError.textContent = 'Selecciona un método de pago antes de enviar el pedido.';
-    }
-    const firstPayment = document.querySelector('input[name="paymentMethod"]');
-    firstPayment?.focus();
-    return;
-  }
-
-  const { totalAmount } = getCartState(cart);
-  const profile = readProfileForm();
-  const substitutionPreference = getSelectedSubstitutionPreference();
-
-  saveProfile(profile);
-  savePreferredPayment(selectedPayment);
-  saveSubstitutionPreference(substitutionPreference);
-
-  const message = buildWhatsAppMessageText(
-    cart,
-    totalAmount,
-    selectedPayment,
-    substitutionPreference,
-    profile.deliveryNote
-  );
-
-  pendingOrderData = {
-    message,
-    cart,
-    totalAmount,
-    selectedPayment,
-    profile,
-    substitutionPreference,
-  };
-
-  buildOrderConfirmSummary(
-    cart,
-    totalAmount,
-    selectedPayment,
-    substitutionPreference,
-    profile.deliveryNote
-  );
-  buildWhatsAppPreview(
-    cart,
-    totalAmount,
-    selectedPayment,
-    substitutionPreference,
-    profile.deliveryNote
-  );
-  showOrderConfirmationDialog();
 }
 
 function buildWhatsAppPreview(
@@ -1601,6 +1118,49 @@ function initStorefront() {
   const initialProfile = loadProfile();
   const lastOrder = loadLastOrder();
   const catalogController = createCatalogController();
+  const cartViewController = createCartViewController({
+    createElement,
+    formatCurrency,
+    getCartState,
+    triggerTransientClass,
+    syncCheckoutState,
+    syncMobileCartShortcut,
+    shareCart,
+    isOrderJustSent,
+    renderCompanionSuggestions,
+    companionRules,
+  });
+  renderCart = cartViewController.renderCart;
+  const orderSubmitController = createOrderSubmitController({
+    createElement,
+    formatCurrency,
+    getCartState,
+    getSelectedPaymentValue,
+    readProfileForm,
+    getSelectedSubstitutionPreference,
+    saveProfile,
+    savePreferredPayment,
+    saveSubstitutionPreference,
+    buildWhatsAppPreview,
+    showOrderConfirmationDialog,
+  });
+  submitCartOrder = orderSubmitController.submitCartOrder;
+  buildWhatsAppMessageText = orderSubmitController.buildWhatsAppMessageText;
+  const recoveryBannerController = createRecoveryBannerController({
+    storefrontStorage,
+    loadCart,
+    saveCart,
+    updateBadge,
+    renderCart,
+    syncAllActionAreas,
+    showCartSaveError,
+    hidePostSubmitToast,
+    isOrderJustSent,
+  });
+  markOrderAsSent = recoveryBannerController.markOrderAsSent;
+  showRecoveryBanner = recoveryBannerController.showRecoveryBanner;
+  hideRecoveryBanner = recoveryBannerController.hideRecoveryBanner;
+  shouldShowRecoveryBanner = recoveryBannerController.shouldShowRecoveryBanner;
   const cartOffcanvas = document.getElementById('cartOffcanvas');
 
   const syncCartShortcutState = () => {
@@ -1842,8 +1402,7 @@ function initStorefront() {
     const dismissRecoveryBtn = target.closest('#cart-recovery-dismiss');
     if (dismissRecoveryBtn) {
       event.preventDefault();
-      hideRecoveryBanner();
-      saveStoredJson(STORAGE_RECOVERY_KEY, Date.now());
+      recoveryBannerController.dismissRecoveryBanner();
       return;
     }
 
@@ -1934,8 +1493,7 @@ function initStorefront() {
     const confirmSendBtn = target.closest('#order-confirm-send');
     if (confirmSendBtn) {
       event.preventDefault();
-      const pending = pendingOrderData;
-      pendingOrderData = null;
+      const pending = orderSubmitController.takePendingOrder();
       executeSendOrder(pending);
       return;
     }
@@ -1958,7 +1516,7 @@ function initStorefront() {
     if (orderConfirmClose) {
       event.preventDefault();
       closeOrderConfirmationDialog();
-      pendingOrderData = null;
+      orderSubmitController.takePendingOrder();
     }
   };
 
@@ -2042,7 +1600,7 @@ function initStorefront() {
   }
 
   renderPersonalizedProducts();
-  initServiceOnboarding();
+  recoveryBannerController.initServiceOnboarding();
 
   // Order confirmation dialog events
   const orderConfirmDialog = document.getElementById('order-confirm-dialog');
@@ -2050,17 +1608,17 @@ function initStorefront() {
     orderConfirmDialog.addEventListener('close', () => {
       orderConfirmDialog.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('service-dialog-open');
-      pendingOrderData = null;
+      orderSubmitController.takePendingOrder();
     });
     orderConfirmDialog.addEventListener('cancel', () => {
       orderConfirmDialog.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('service-dialog-open');
-      pendingOrderData = null;
+      orderSubmitController.takePendingOrder();
     });
     orderConfirmDialog.addEventListener('click', (event) => {
       if (event.target === orderConfirmDialog) {
         closeOrderConfirmationDialog();
-        pendingOrderData = null;
+        orderSubmitController.takePendingOrder();
       }
     });
   }

@@ -86,7 +86,7 @@ Batch 2 — perf/deps/DX/seguridad (112–126):
 | [113](archive/113-dependency-hygiene.md)                      | Deps muertas + playwright skew + decisión TS 7             | P2        | S        | —          | DONE 2026-08-12 |
 | [114](archive/114-split-catalog-routes-module.md)             | Split de catalog.ts (1028 líneas)                          | P2        | M        | —          | DONE 2026-08-12 |
 | [115](archive/115-unify-admin-data-fetching.md)               | Unificar fetch en ContentManagerClient                     | P2        | M        | —          | DONE 2026-08-12 |
-| [116](116-extract-storefront-cart-module.md)                  | Extraer módulo de carrito de storefront.js                 | P3        | L        | —          | TODO            |
+| [116](archive/116-extract-storefront-cart-module.md)          | Extraer módulo de carrito de storefront.js                 | P3        | L        | —          | DONE 2026-08-12 |
 | [117](archive/117-complete-storefront-storage-abstraction.md) | Storage: favorites + shared-cart feedback                  | P3        | S        | —          | DONE 2026-08-12 |
 | [118](archive/118-bootstrap-deep-imports.md)                  | Deep imports de Bootstrap (quitar monolith)                | P2        | M        | —          | DONE 2026-08-12 |
 | [119](archive/119-image-payload-optimization.md)              | Imágenes: LCP-only priority + variant faltante + huérfanos | P2        | M        | —          | DONE 2026-08-12 |
