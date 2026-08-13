@@ -22,7 +22,8 @@
     "test:e2e:import": "playwright test -c playwright.import.config.ts",
     "test:e2e:changes": "playwright test -c playwright.changes.config.ts",
     "dev:web": "vite",
-    "rotate-credential": "node scripts/rotate-credential.mjs"
+    "rotate-credential": "node scripts/rotate-credential.mjs",
+    "bench:catalog": "node scripts/bench-catalog-snapshot.mjs"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^9.1.0",

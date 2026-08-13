@@ -55,11 +55,11 @@ individuales por ítem (rollback `git revert <sha>`).
 - [x] F3.5 Rotación de credential
   - [x] `admin:rotate-credential` (0600, invalida anterior).
   - [x] Test del script con repo temp.
-- [ ] F3.6 Benchmark de snapshots (opcional)
-  - [ ] `tools/bench-catalog-snapshot.mjs` + resultado en `reports/`.
+- [x] F3.6 Benchmark de snapshots (opcional)
+  - [x] `tools/bench-catalog-snapshot.mjs` + resultado en `reports/`.
 
 ## Cierre
 
-- [ ] Filas de `plans/README.md` actualizadas (plan 127 y sus planes de trabajo).
-- [ ] Métricas de la sección 6 del spec re-medidas.
-- [ ] `npm run validate:release` verde; CI verde.
+- [x] Filas de `plans/README.md` actualizadas (plan 127 y sus planes de trabajo).
+- [x] Métricas de la sección 6 del spec re-medidas.
+- [x] `npm run validate:release` verde; CI verde.
