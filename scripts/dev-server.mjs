@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { createReadStream } from 'node:fs';
-import { stat } from 'node:fs/promises';
+import { realpath, stat } from 'node:fs/promises';
 import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,8 +36,16 @@ function resolvePath(urlPath) {
   if (pathname.endsWith('/')) {
     pathname = path.join(pathname, 'index.html');
   }
+  // Plan 132: reject any decoded parent segment before resolving —
+  // path.join() collapses `..` BEFORE a containment check could see it
+  // (mirrors src/server/app.ts, Plan 090).
+  if (pathname.split('/').includes('..')) {
+    return null;
+  }
   const resolved = path.join(rootDir, pathname);
-  if (!resolved.startsWith(rootDir)) {
+  // Boundary-aware containment by segment, not string prefix (matches
+  // src/shared/identity.ts isContainedWithin convention).
+  if (resolved !== rootDir && !resolved.startsWith(rootDir + path.sep)) {
     return null;
   }
   return resolved;
@@ -69,6 +77,15 @@ const server = http.createServer(async (req, res) => {
 
     const fileStat = await stat(filePath).catch(() => null);
     if (!fileStat || fileStat.isDirectory()) {
+      sendNotFound(res);
+      return;
+    }
+
+    // Plan 132: stat() follows symlinks — realpath the file and re-apply the
+    // containment check so links that point outside rootDir return 404
+    // instead of streaming out-of-tree content.
+    const realPath = await realpath(filePath);
+    if (realPath !== rootDir && !realPath.startsWith(rootDir + path.sep)) {
       sendNotFound(res);
       return;
     }
