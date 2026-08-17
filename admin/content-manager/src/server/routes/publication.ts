@@ -172,82 +172,91 @@ export async function publicationRoutes(
         if (job.cancelRequested) throw new Error('Publication cancelled by operator');
       };
 
-      jobRunner.updateProgress(jobId, 10);
-      checkCancel();
-
-      const gitChanges = await git.getChanges();
-      checkCancel();
-      const preflight = runPreflight(manifest, gitChanges);
-      if (!preflight.ok) {
-        throw new Error(`Preflight failed: ${preflight.errors.join('; ')}`);
-      }
-
-      const validations = await validation.runAllValidations(repoRoot);
-      checkCancel();
-      const failedValidations = validations.filter((v) => v.status === 'fail');
-      if (failedValidations.length > 0) {
-        throw new Error(
-          `${failedValidations.length} validations failed: ${failedValidations.map((v) => v.step).join(', ')}`
-        );
-      }
-
-      jobRunner.updateProgress(jobId, 30);
-      checkCancel();
-
-      recovery.save({
-        current_job_id: jobId,
-        current_step: 'stage',
-        commit_made: false,
-        staged_paths: manifest.ownedPaths,
-        timestamp: new Date().toISOString(),
-      });
-
-      const stageResult = await git.stage(manifest.ownedPaths);
-      checkCancel();
-      if (!stageResult.success) {
-        throw new Error(`Stage failed: ${stageResult.error ?? 'unknown error'}`);
-      }
-
-      jobRunner.updateProgress(jobId, 50);
-      checkCancel();
-
-      const commitResult = await git.commitWithPaths(manifest.ownedPaths, commitMessage);
-      checkCancel();
-      if (!commitResult.success) {
-        throw new Error(`Commit failed: ${commitResult.error ?? 'unknown error'}`);
-      }
-
-      const logResult = await git.log(1);
-      checkCancel();
-      const commitSha =
-        logResult.success && logResult.output ? logResult.output.split(' ')[0] : 'unknown';
-
-      recovery.save({
-        current_job_id: jobId,
-        current_step: push ? 'push' : 'done',
-        commit_made: true,
-        commit_sha: commitSha,
-        staged_paths: manifest.ownedPaths,
-        timestamp: new Date().toISOString(),
-      });
-
-      jobRunner.updateProgress(jobId, 70);
-      checkCancel();
-
-      if (push) {
-        const pushResult = await git.push();
+      try {
+        jobRunner.updateProgress(jobId, 10);
         checkCancel();
-        if (!pushResult.success) {
+
+        const gitChanges = await git.getChanges();
+        checkCancel();
+        const preflight = runPreflight(manifest, gitChanges);
+        if (!preflight.ok) {
+          throw new Error(`Preflight failed: ${preflight.errors.join('; ')}`);
+        }
+
+        const validations = await validation.runAllValidations(repoRoot);
+        checkCancel();
+        const failedValidations = validations.filter((v) => v.status === 'fail');
+        if (failedValidations.length > 0) {
           throw new Error(
-            `Push failed (commit: ${commitSha}): ${pushResult.error ?? 'unknown error'}`
+            `${failedValidations.length} validations failed: ${failedValidations.map((v) => v.step).join(', ')}`
           );
         }
+
+        jobRunner.updateProgress(jobId, 30);
+        checkCancel();
+
+        recovery.save({
+          current_job_id: jobId,
+          current_step: 'stage',
+          commit_made: false,
+          staged_paths: manifest.ownedPaths,
+          timestamp: new Date().toISOString(),
+        });
+
+        const stageResult = await git.stage(manifest.ownedPaths);
+        checkCancel();
+        if (!stageResult.success) {
+          throw new Error(`Stage failed: ${stageResult.error ?? 'unknown error'}`);
+        }
+
+        jobRunner.updateProgress(jobId, 50);
+        checkCancel();
+
+        const commitResult = await git.commitWithPaths(manifest.ownedPaths, commitMessage);
+        checkCancel();
+        if (!commitResult.success) {
+          throw new Error(`Commit failed: ${commitResult.error ?? 'unknown error'}`);
+        }
+
+        const logResult = await git.log(1);
+        checkCancel();
+        const commitSha =
+          logResult.success && logResult.output ? logResult.output.split(' ')[0] : 'unknown';
+
+        recovery.save({
+          current_job_id: jobId,
+          current_step: push ? 'push' : 'done',
+          commit_made: true,
+          commit_sha: commitSha,
+          staged_paths: manifest.ownedPaths,
+          timestamp: new Date().toISOString(),
+        });
+
+        jobRunner.updateProgress(jobId, 70);
+        checkCancel();
+
+        if (push) {
+          const pushResult = await git.push();
+          checkCancel();
+          if (!pushResult.success) {
+            throw new Error(
+              `Push failed (commit: ${commitSha}): ${pushResult.error ?? 'unknown error'}`
+            );
+          }
+        }
+
+        jobRunner.updateProgress(jobId, 100);
+        recovery.clear();
+
+        return { commit: commitSha, pushed: push };
+      } catch (err) {
+        // Plan 130 CORR-03: a handled failure or cancellation must clear the
+        // recovery journal before propagating — only a real crash (process
+        // death, which never reaches this catch) may keep it for manual
+        // recovery. clear() ignores errors, so this never masks the cause.
+        recovery.clear();
+        throw err;
       }
-
-      jobRunner.updateProgress(jobId, 100);
-      recovery.clear();
-
-      return { commit: commitSha, pushed: push };
     };
 
     let job: Job<PublicationJobResult>;
