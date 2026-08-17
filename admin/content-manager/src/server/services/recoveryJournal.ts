@@ -22,13 +22,19 @@ export class RecoveryJournal {
     appendFileSync(this.journalPath, JSON.stringify(entry) + '\n', { encoding: 'utf-8' });
   }
 
-  startOperation(operation: string, targetFile: string, commandId?: string): void {
+  startOperation(
+    operation: string,
+    targetFile: string,
+    commandId?: string,
+    backupPath?: string
+  ): void {
     this.append({
       timestamp: new Date().toISOString(),
       operation,
       targetFile,
       status: 'started',
       commandId,
+      backupPath,
     });
   }
 

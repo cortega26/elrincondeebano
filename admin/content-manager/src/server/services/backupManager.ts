@@ -14,6 +14,16 @@ import { resolve, basename } from 'node:path';
 import { selectPrunable, type BackupClass, type BackupEntryMeta } from './backupPolicy.ts';
 import { uniqueTimestamp } from './uniqueTimestamp.ts';
 
+// A line of data/recovery-journal.ndjson, read defensively (fields optional
+// so a malformed/foreign entry never breaks the prune path).
+interface JournalEntry {
+  operation?: string;
+  targetFile?: string;
+  commandId?: string;
+  status?: string;
+  backupPath?: string;
+}
+
 // Centralized backup creation/listing/pruning (plan 067 steps 2-3): verified
 // creation (hash), atomic metadata index (no per-file stat on the request
 // path), explicit prune preview/confirmation, and explicit reconciliation.
@@ -177,21 +187,54 @@ export class BackupManager {
   private recoveryReferencedIds(): Set<string> {
     const referenced = new Set<string>();
     try {
-      const journalPath = resolve(this.repoRoot, 'data', 'recovery-journal.json');
+      const journalPath = resolve(this.repoRoot, 'data', 'recovery-journal.ndjson');
       if (!existsSync(journalPath)) return referenced;
-      const parsed = JSON.parse(readFileSync(journalPath, 'utf-8'));
-      const pending = Array.isArray(parsed) ? parsed : (parsed.entries ?? []);
-      for (const entry of pending) {
-        const path: string | undefined = entry?.backupPath;
-        if (path) {
-          const id = path.split('/').pop() ?? '';
-          if (id) referenced.add(id);
-        }
+
+      const entries = this.readJournalEntries(journalPath);
+      const finished = this.finishedJournalKeys(entries);
+
+      for (const entry of entries) {
+        const key = this.journalKey(entry);
+        if (entry.status !== 'started' || key === null || finished.has(key)) continue;
+        if (!entry.backupPath) continue;
+        const id = entry.backupPath.split('/').pop() ?? '';
+        if (id) referenced.add(id);
       }
     } catch {
       // Journal unreadable — conservative: nothing referenced.
     }
     return referenced;
+  }
+
+  private readJournalEntries(journalPath: string): JournalEntry[] {
+    const lines = readFileSync(journalPath, 'utf-8').split('\n').filter(Boolean);
+    const entries: JournalEntry[] = [];
+    for (const line of lines) {
+      try {
+        entries.push(JSON.parse(line));
+      } catch {
+        // Malformed line — skip it, never fail the prune for a bad journal.
+      }
+    }
+    return entries;
+  }
+
+  private finishedJournalKeys(entries: JournalEntry[]): Set<string> {
+    const finished = new Set<string>();
+    for (const entry of entries) {
+      const key = this.journalKey(entry);
+      if (key !== null && entry.status !== 'started') finished.add(key);
+    }
+    return finished;
+  }
+
+  private journalKey(
+    entry: Pick<JournalEntry, 'operation' | 'targetFile' | 'commandId'>
+  ): string | null {
+    if (typeof entry.operation !== 'string' || typeof entry.targetFile !== 'string') {
+      return null;
+    }
+    return `${entry.operation}::${entry.targetFile}::${entry.commandId ?? ''}`;
   }
 
   // ── explicit reconciliation (index vs disk drift) ──────────────────────────
