@@ -105,11 +105,14 @@ export function CategoriesPage(): React.ReactElement {
             [{ type: 'delete', category: { id: entry.id } }],
             baseRev
           );
-        } else if (entry.previous) {
-          await client.batchUpdateCategories(
-            [{ type: 'upsert', category: entry.previous }],
-            baseRev
-          );
+        } else if (entry.op === 'update') {
+          // Plan 129: redo re-applies the POST-update snapshot. Legacy
+          // entries (before the fix) have no `next` — fall back to
+          // `previous` to keep the old behavior.
+          const record = entry.next ?? entry.previous;
+          if (record) {
+            await client.batchUpdateCategories([{ type: 'upsert', category: record }], baseRev);
+          }
         }
         setFeedback('Operación de categoría rehecha ✓');
         await load();
@@ -144,7 +147,10 @@ export function CategoriesPage(): React.ReactElement {
       await client.deleteCategory(id, data?.rev ?? 0, reassignTo || undefined);
       if (previousRecord) {
         undoStack.current.push(
-          buildCategoryUndoEntry('delete', id, previousRecord, reassignTo || undefined)
+          buildCategoryUndoEntry('delete', id, {
+            previous: previousRecord,
+            reassignedTo: reassignTo || undefined,
+          })
         );
         redoStack.current = [];
         syncStackState();
@@ -190,7 +196,21 @@ export function CategoriesPage(): React.ReactElement {
         const previousRecord = categoryRecordById(editing.id);
         await client.updateCategory(editing.id, form, data?.rev ?? 0);
         if (previousRecord) {
-          undoStack.current.push(buildCategoryUndoEntry('update', editing.id, previousRecord));
+          // Plan 129: the redo entry must carry the post-edit snapshot, not
+          // just the pre-edit one. The post-state is the previous record with
+          // the submitted (defined) changes applied — mirrors the server's
+          // PATCH merge, so untouched fields (description, subcategories)
+          // survive a redo.
+          const nextRecord = {
+            ...previousRecord,
+            ...Object.fromEntries(Object.entries(form).filter(([, v]) => v !== undefined)),
+          } as unknown as CategoryRecord;
+          undoStack.current.push(
+            buildCategoryUndoEntry('update', editing.id, {
+              previous: previousRecord,
+              next: nextRecord,
+            })
+          );
           redoStack.current = [];
           syncStackState();
         }
@@ -200,7 +220,7 @@ export function CategoriesPage(): React.ReactElement {
           { id: created.id, key: created.key, slug: created.slug },
           data?.rev ?? 0
         );
-        undoStack.current.push(buildCategoryUndoEntry('create', created.id, created));
+        undoStack.current.push(buildCategoryUndoEntry('create', created.id, { previous: created }));
         redoStack.current = [];
         syncStackState();
       }
