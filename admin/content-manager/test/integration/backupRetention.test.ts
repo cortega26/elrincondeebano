@@ -160,6 +160,53 @@ test('prune preview lists only prunable ids and prune rejects protected ones', a
   }
 });
 
+test('pending recovery journal entries protect the referenced backup from pruning', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    // 15 auto entries, limit 10 -> the 5 oldest (auto-0..auto-4) are prunable.
+    const entries = Array.from({ length: 15 }, (_, i) =>
+      entry(`auto-${i}`, 'auto', `2026-08-11T${String(10 + i).padStart(2, '0')}:00:00`)
+    );
+    writeFileSync(resolve(dir, 'data', 'backups-index.json'), JSON.stringify({ backups: entries }));
+
+    const journalPath = resolve(dir, 'data', 'recovery-journal.ndjson');
+    const started = {
+      timestamp: '2026-08-11T12:00:00.000Z',
+      operation: 'atomic-write',
+      targetFile: 'product_data.json',
+      status: 'started',
+      commandId: 'cmd-1',
+      backupPath: resolve(dir, 'data', 'backups', 'auto-0'),
+    };
+    writeFileSync(journalPath, JSON.stringify(started) + '\n');
+
+    const manager = new BackupManager(dir);
+
+    // The pending 'started' entry (no terminal entry) protects auto-0.
+    const rejected = await manager.prune(['auto-0']);
+    expect(rejected.ok).toBe(false);
+    expect(rejected.pruned).toBe(0);
+
+    // A matching 'completed' entry releases the protection: auto-0 is prunable.
+    const completed = {
+      timestamp: '2026-08-11T12:00:01.000Z',
+      operation: 'atomic-write',
+      targetFile: 'product_data.json',
+      status: 'completed',
+      commandId: 'cmd-1',
+    };
+    writeFileSync(journalPath, JSON.stringify(started) + '\n' + JSON.stringify(completed) + '\n');
+
+    const pruned = await manager.prune(['auto-0']);
+    expect(pruned.ok).toBe(true);
+    expect(pruned.pruned).toBe(1);
+    expect(manager.list().entries.some((e) => e.id === 'auto-0')).toBe(false);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 // ── bounded, index-driven listing (step 3) ───────────────────────────────────
 
 test('listing is index-driven: thousands of entries page without per-file stat', async () => {

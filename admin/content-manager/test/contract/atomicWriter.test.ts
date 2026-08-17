@@ -105,7 +105,12 @@ test('AtomicWriter calls the recovery journal on start/complete and on failure',
     const catalog: ProductCatalog = { version: 'v1', last_updated: '', rev: 1, products: [] };
     const result = writer.write(catalog, 'cmd-1');
     expect(result.success).toBe(true);
-    expect(journal.startOperation).toHaveBeenCalledWith('atomic-write', 'catalog.json', 'cmd-1');
+    expect(journal.startOperation).toHaveBeenCalledWith(
+      'atomic-write',
+      'catalog.json',
+      'cmd-1',
+      expect.stringMatching(/^.*catalog\.json\.backup_/)
+    );
     expect(journal.completeOperation).toHaveBeenCalledWith('atomic-write', 'catalog.json', 'cmd-1');
     expect(journal.failOperation).not.toHaveBeenCalled();
 

@@ -61,7 +61,7 @@ export class AtomicWriter {
     const fileName = this.targetPath.split('/').pop() ?? 'unknown';
 
     try {
-      this.recoveryJournal?.startOperation('atomic-write', fileName, commandId);
+      this.recoveryJournal?.startOperation('atomic-write', fileName, commandId, backupPath);
 
       this.fs.mkdirSync(dirname(this.targetPath), { recursive: true });
 

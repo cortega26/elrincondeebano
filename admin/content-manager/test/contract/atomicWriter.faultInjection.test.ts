@@ -3,6 +3,7 @@ import { mkdirSync, rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { AtomicWriter, NODE_FS, type AtomicFs } from '../../src/server/services/atomicWriter.ts';
+import { RecoveryJournal } from '../../src/server/services/recoveryJournal.ts';
 import type { ProductCatalog } from '../../src/shared/schemas/product.ts';
 
 // Plan 108: port of the plan-030 fault-injection boundaries (previously only
@@ -175,6 +176,39 @@ test('interruption during the first write (no baseline) still heals', () => {
     expect(healed.success).toBe(true);
     const finalState = JSON.parse(NODE_FS.readFileSync(dataFile, 'utf-8')) as { rev: number };
     expect(finalState.rev).toBe(5);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('journal started entry records the backupPath used for the rename', () => {
+  const dir = createTempDir();
+  try {
+    const dataFile = resolve(dir, 'data', 'catalog.json');
+    mkdirSync(resolve(dir, 'data'), { recursive: true });
+    const journal = new RecoveryJournal(dir);
+    const writer = new AtomicWriter(dataFile, journal);
+
+    const first = writer.write(catalog(1));
+    expect(first.success).toBe(true);
+
+    // Second write backs up the first version: the backup rename happens.
+    const second = writer.write(catalog(2));
+    expect(second.success).toBe(true);
+    expect(second.backedUp).toBe(true);
+
+    const entries = NODE_FS.readFileSync(resolve(dir, 'data', 'recovery-journal.ndjson'), 'utf-8')
+      .split('\n')
+      .filter(Boolean)
+      .map((line) => JSON.parse(line) as { status: string; backupPath?: string });
+
+    const started = entries.filter((e) => e.status === 'started');
+    expect(started.length).toBe(2);
+
+    const lastStarted = started[started.length - 1];
+    expect(lastStarted.backupPath).toBeDefined();
+    expect(lastStarted.backupPath?.startsWith(`${dataFile}.backup_`)).toBe(true);
+    expect(NODE_FS.existsSync(lastStarted.backupPath as string)).toBe(true);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
