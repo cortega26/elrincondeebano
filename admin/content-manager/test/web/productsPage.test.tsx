@@ -2,7 +2,7 @@
 // Plan 127 F1.1: component smoke tests for ProductsPage — the UI layer that
 // previously only had e2e coverage (bugs 099/101/126 lived here).
 
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
@@ -150,6 +150,47 @@ describe('ProductsPage (component)', () => {
 
     await waitFor(() => {
       expect(mockApi.reorderProducts).toHaveBeenCalledWith(['v1', 'v2', 'v3', 'v4']);
+    });
+  });
+
+  test('drag-and-drop reorder appends archived ids to the reordered visible ids (plan 128)', async () => {
+    const visible = [1, 2, 3, 4].map((n) => ({
+      ...productA,
+      id: `v${n}`,
+      name: `Visible ${n}`,
+      order: n - 1,
+    }));
+    const archived = [5, 6].map((n) => ({
+      ...productA,
+      id: `a${n}`,
+      name: `Archivado ${n}`,
+      order: n - 1,
+      is_archived: true,
+    }));
+    mockApi.getProducts.mockImplementation((params?: { archived?: boolean }) => {
+      if (params?.archived === true) {
+        return Promise.resolve({ items: archived, total: archived.length, page: 1, pageSize: 50 });
+      }
+      return Promise.resolve({ items: visible, total: visible.length, page: 1, pageSize: 50 });
+    });
+    mockApi.reorderProducts.mockClear();
+
+    renderWithRouter(<ProductsPage />);
+    await waitFor(() => {
+      expect(screen.getByText('Visible 1')).toBeInTheDocument();
+    });
+
+    const rows = screen.getAllByRole('row');
+    // rows[0] is the table header row; visible products are rows[1..4].
+    const dataTransfer = { setData: () => {}, dropEffect: '' };
+    fireEvent.dragStart(rows[1], { dataTransfer });
+    fireEvent.dragOver(rows[3], { dataTransfer });
+    fireEvent.drop(rows[3], { dataTransfer });
+
+    // Dragging v1 onto row index 2 reorders the visible items to
+    // [v2, v3, v1, v4]; the archived ids are appended after them.
+    await waitFor(() => {
+      expect(mockApi.reorderProducts).toHaveBeenCalledWith(['v2', 'v3', 'v1', 'v4', 'a5', 'a6']);
     });
   });
 });
