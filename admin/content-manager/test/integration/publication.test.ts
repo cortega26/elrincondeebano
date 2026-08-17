@@ -566,3 +566,173 @@ test('publication with a past publishAt is rejected (plan 127 F3.1)', async () =
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+// ── plan 130 CORR-03: handled failure/cancellation clears the recovery journal ──
+
+async function pollJob(
+  app: FastifyInstance,
+  jobId: string,
+  attempts = 50
+): Promise<{ status: string; progress?: number; error?: string }> {
+  let job: { status: string; progress?: number; error?: string } = { status: 'pending' };
+  for (let i = 0; i < attempts; i++) {
+    const jr = await app.inject({ method: 'GET', url: `/api/v1/jobs/${jobId}` });
+    job = jr.json<{ status: string; progress?: number; error?: string }>();
+    if (job.status === 'completed' || job.status === 'failed' || job.status === 'cancelled') break;
+    await new Promise((r) => setTimeout(r, 100));
+  }
+  return job;
+}
+
+async function pendingRecovery(app: FastifyInstance): Promise<boolean> {
+  const res = await app.inject({ method: 'GET', url: '/api/v1/publications/recovery' });
+  expect(res.statusCode).toBe(200);
+  return res.json<{ pending_recovery: boolean }>().pending_recovery;
+}
+
+test('publication that fails preflight leaves no pending recovery (plan 130)', async () => {
+  const dir = createTempRepo();
+  try {
+    setupData(dir);
+    writeFileSync(resolve(dir, 'notes.txt'), 'scratch');
+    execFileSync('git', ['add', 'notes.txt'], { cwd: dir, encoding: 'utf-8' });
+
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/publications',
+      payload: { commitMessage: 'should fail', push: false },
+      headers: { 'content-type': 'application/json', ...credHeaders(app) },
+    });
+    expect(response.statusCode).toBe(200);
+    const { job_id } = response.json<{ job_id: string }>();
+
+    const job = await pollJob(app, job_id);
+    expect(job.status).toBe('failed');
+    expect(job.error).toContain('Unrelated staged file: notes.txt');
+    expect(await pendingRecovery(app)).toBe(false);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('publication that fails after the journal write clears recovery (plan 130)', async () => {
+  const dir = createTempRepo();
+  try {
+    setupData(dir);
+
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    // push: true with no remote configured fails at the push step, which runs
+    // only after the recovery journal has been written (stage + commit steps).
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/publications',
+      payload: { commitMessage: 'push fails', push: true },
+      headers: { 'content-type': 'application/json', ...credHeaders(app) },
+    });
+    expect(response.statusCode).toBe(200);
+    const { job_id } = response.json<{ job_id: string }>();
+
+    const job = await pollJob(app, job_id);
+    expect(job.status).toBe('failed');
+    expect(job.error).toContain('Push failed');
+    expect(await pendingRecovery(app)).toBe(false);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('cancelling a scheduled publication before it runs leaves no pending recovery (plan 130)', async () => {
+  const dir = createTempRepo();
+  try {
+    setupData(dir);
+
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    const future = new Date(Date.now() + 60_000).toISOString();
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/v1/publications',
+      payload: { commitMessage: 'scheduled-cancel', publishAt: future },
+      headers: { 'content-type': 'application/json', ...credHeaders(app) },
+    });
+    expect(res.statusCode).toBe(200);
+    const { job_id } = res.json<{ job_id: string }>();
+
+    const cancelRes = await app.inject({
+      method: 'POST',
+      url: `/api/v1/jobs/${job_id}/cancel`,
+      headers: credHeaders(app),
+    });
+    expect(cancelRes.statusCode).toBe(200);
+    expect(cancelRes.json<{ status: string }>().status).toBe('cancelled');
+
+    expect(await pendingRecovery(app)).toBe(false);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('cancelling a running publication clears recovery (plan 130)', async () => {
+  const dir = createTempRepo();
+  try {
+    setupData(dir);
+    // Slow the git stage step (the first step after the journal write) so the
+    // cancellation lands mid-run, after recovery.save() has run.
+    for (let i = 0; i < 1500; i++) {
+      writeFileSync(resolve(dir, 'assets', 'images', `slow-${i}.bin`), 'x');
+    }
+
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/publications',
+      payload: { commitMessage: 'cancel mid-run', push: false },
+      headers: { 'content-type': 'application/json', ...credHeaders(app) },
+    });
+    expect(response.statusCode).toBe(200);
+    const { job_id } = response.json<{ job_id: string }>();
+
+    // Wait until the job is running and past the journal write (progress >= 30).
+    let cancelled = false;
+    for (let i = 0; i < 400; i++) {
+      const jr = await app.inject({ method: 'GET', url: `/api/v1/jobs/${job_id}` });
+      const job = jr.json<{ status: string; progress: number }>();
+      if (job.status === 'completed' || job.status === 'failed' || job.status === 'cancelled')
+        break;
+      if (job.progress >= 30) {
+        const cancelRes = await app.inject({
+          method: 'POST',
+          url: `/api/v1/jobs/${job_id}/cancel`,
+          headers: credHeaders(app),
+        });
+        cancelled = cancelRes.statusCode === 200;
+        break;
+      }
+      await new Promise((r) => setTimeout(r, 5));
+    }
+
+    expect(cancelled).toBe(true);
+
+    const job = await pollJob(app, job_id, 200);
+    expect(['cancelled', 'failed']).toContain(job.status);
+    expect(await pendingRecovery(app)).toBe(false);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
