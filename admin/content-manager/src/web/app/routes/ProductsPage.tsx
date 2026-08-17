@@ -29,6 +29,20 @@ interface BulkChange {
   new_value: number | boolean | string;
 }
 
+// Plan 128: the reorder endpoint requires the FULL catalog id list (409
+// REORDER_SCOPE_AMBIGUOUS otherwise). The default view hides archived
+// products, so fetch them and append their ids in server order — archived
+// products land at the end of the new global order (index N..N+k). With no
+// archived products the payload is unchanged.
+async function reorderWithFullCatalog(
+  client: ContentManagerClient,
+  visibleIds: string[]
+): Promise<void> {
+  const archivedResult = await client.getProducts({ archived: true, page: 1, limit: 200 });
+  const archivedIds = archivedResult.items.filter((p) => p.id).map((p) => p.id!);
+  await client.reorderProducts([...visibleIds, ...archivedIds]);
+}
+
 export function ProductsPage(): React.ReactElement {
   const {
     data,
@@ -555,7 +569,7 @@ export function ProductsPage(): React.ReactElement {
     const ids = data.items.filter((p) => p.id).map((p) => p.id!);
     if (ids.length === 0) return;
     try {
-      await client.reorderProducts(ids);
+      await reorderWithFullCatalog(client, ids);
       setFeedback('Productos reordenados ✓');
       await reload();
     } catch (err) {
@@ -617,8 +631,7 @@ export function ProductsPage(): React.ReactElement {
     // Plan 094: no optimistic splice (the hook owns data) — the reorder API
     // is localhost-fast; reload reflects the new order.
     const ids = items.filter((p) => p.id).map((p) => p.id!);
-    client
-      .reorderProducts(ids)
+    void reorderWithFullCatalog(client, ids)
       .then(() => {
         setFeedback('Productos reordenados ✓');
         void reload();
