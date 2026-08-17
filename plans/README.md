@@ -1,10 +1,10 @@
 # Implementation Plans
 
-Índice de los planes de implementación (001–097). Generados por `/improve deep`
-en ocho auditorías (2026-06-14 → 2026-08-11) y ampliados por la directiva de
-migración del 2026-07-15 (plan 055). La Auditoría 8 (2026-08-11) audita el
-release candidate del Content Manager TS y mantiene el retiro de Python
-(plan 069) en HOLD hasta cerrar sus P0. El histórico completo vive en
+Índice de los planes de implementación (001–127). Generados por `/improve deep`
+en nueve auditorías (2026-06-14 → 2026-08-12) y ampliados por la directiva de
+migración del 2026-07-15 (plan 055) y el master roadmap del Content Manager
+TS (plan 127). El retiro de Python (plan 069) se ejecutó el 2026-08-11 de
+forma revertible. El histórico completo vive en
 [`archive/README-history.md`](archive/README-history.md).
 
 | Auditoría | Fecha      | Commit    | Planes  |
@@ -17,6 +17,7 @@ release candidate del Content Manager TS y mantiene el retiro de Python
 | 6         | 2026-07-16 | `30dbab7` | 056–069 |
 | 7         | 2026-08-03 | `30dbab7` | 070–085 |
 | 8         | 2026-08-11 | `cefdd9f` | 086–097 |
+| 9         | 2026-08-12 | `ccb921f` | 098–126 |
 
 **Status values**: `TODO | IN PROGRESS | PARTIAL | DONE | BLOCKED (reason) |
 REJECTED (rationale)`, más `SUPERSEDED`/`ABSORBED` (reemplazados por el plan
@@ -26,19 +27,29 @@ hoja de ruta).
 **Regla de archivo (fija e inevitable, 2026-08-12)**: al marcar un plan
 `DONE`, su archivo se mueve a `plans/archive/` EN EL MISMO CAMBIO (git mv);
 los DONE recientes se conservan como registro en las tablas de este README.
-Está enforced mecánicamente por `node tools/check-plan-archive.mjs` (falla si
-un plan DONE está fuera de `archive/` o un link no resuelve): corre en
-`npm run validate`, en lint-staged (`plans/**/*.md`) y en CI (`ci.yml`).
+Los planes `SUPERSEDED`/`ABSORBED` también viven en `archive/` (precedente
+050–054, 040–049 y 055); en la raíz solo queda la cola activa (`README.md`).
+Está enforced mecánicamente por
+`node tools/check-plan-archive.mjs` (falla si un plan DONE está fuera de
+`archive/` o un link no resuelve): corre en `npm run validate`, en
+lint-staged (`plans/**/*.md`) y en CI (`ci.yml`).
 
 Cada executor debe leer el plan completo antes de empezar, respetar sus STOP
 conditions, y actualizar su fila al terminar.
 
-## Estado actual — 2026-08-11
+## Estado actual — 2026-08-13
 
+- **Plan 127 (master roadmap del Content Manager)**: DONE el 2026-08-13 —
+  las 3 fases (F1.1–F3.6, 50 ítems) verificadas, archivado en
+  `plans/archive/127-content-manager-improvement/`; gates finales
+  (`validate` + `validate:release`) verdes (`ee20b0f6`).
+- **Auditoría 9 (098–126)**: completa el 2026-08-12 — todos DONE y
+  archivados (bugs 098–105, tests 106–109, retiros de superficie 110–111,
+  batch 2 112–126).
 - **Auditoría 8 (086–097)**: completa el 2026-08-12 — 086–097 DONE y
-  archivados; gates finales (`npm run validate` y `validate:release`) verdes.
-  Ítems diferidos cerrados el 2026-08-12 (`ff277fe`): search/filtro/expand de
-  categorías, OG lifecycle automático (096) y media relocation (097).
+  archivados; gates finales verdes. Ítems diferidos cerrados el 2026-08-12
+  (`ff277fe`): search/filtro/expand de categorías, OG lifecycle automático
+  (096) y media relocation (097).
 - **Auditoría 7 (070–085)**: completa el 2026-08-11 (todos DONE, archivados).
 - **Auditoría 6 (056–069)**: completa el 2026-08-11 (todos DONE, archivados).
   Retiro reversible de Python ejecutado (tag `v1.x-python-final` en
@@ -50,6 +61,87 @@ admin/product_manager/`).
   al Content Manager TS).
 - Los planes archivados se conservan como registro en las tablas de este
   README (regla de archivo enforceada por `tools/check-plan-archive.mjs`).
+
+---
+
+## Auditoría 10 — 2026-08-17 (`/improve deep`, commit `ee20b0f6`)
+
+Auditoría completa (8 categorías, 8 subagentes paralelos) sobre el árbol post-cierre
+del plan 127. Hallazgos vetados contra fuente (cada plan cita el código leído por el
+advisor, no el reporte del subagente). Todos los hallazgos net-positivos se convirtieron
+en planes 128–167 (bugs/seguridad → tests → perf → tech-debt → deps → docs → dirección).
+Regresión detectada: el reorder se rompió con el fix del 2026-08-13 ("default list excludes
+archived", `db6f00ca`) — plan 128. El drift de docs es el batch más grande desde 112.
+
+| Plan                                                                | Título                                                                 | Prioridad | Esfuerzo | Depende de | Estado                                                                                                                                |
+| ------------------------------------------------------------------- | ---------------------------------------------------------------------- | --------- | -------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| [128](archive/128-fix-reorder-with-archived-products.md)            | Reorder roto con productos archivados (regresión)                      | P1        | S        | —          | DONE — 2026-08-17 (`ca74544a`, worktree `advisor/128-fix-reorder-with-archived-products`; merge pendiente de decisión del maintainer) |
+| [129](archive/129-fix-category-redo-snapshot.md)                    | Category redo re-aplica el snapshot pre-edición                        | P1        | S        | —          | DONE — 2026-08-17 (`cb8ef36b`, worktree `advisor/129-fix-category-redo-snapshot`; merge pendiente de decisión del maintainer)         |
+| [130](archive/130-clear-publication-recovery-on-handled-failure.md) | Limpiar journal de publicación en fallo/cancelación                    | P1        | S        | —          | DONE — 2026-08-17 (`a0a1eecf`, worktree `advisor/130-clear-publication-recovery`; merge pendiente de decisión del maintainer)         |
+| [131](archive/131-fix-backup-recovery-journal.md)                   | Backup recovery-protection lee el journal equivocado                   | P1        | S        | —          | DONE — 2026-08-17 (`a30fb860`, worktree `advisor/131-fix-backup-recovery-journal`; merge pendiente de decisión del maintainer)        |
+| [132](archive/132-harden-dev-server-path-containment.md)            | dev-server: contención por segmentos + symlinks                        | P1        | S        | —          | DONE — 2026-08-17 (`7188d630`, worktree `advisor/132-harden-dev-server-path-containment`; merge pendiente de decisión del maintainer) |
+| [133](133-align-openapi-with-routes.md)                             | OpenAPI alineado con las rutas reales                                  | P2        | S        | —          | TODO                                                                                                                                  |
+| [134](134-enforce-category-in-use-guard-on-batch-delete.md)         | Guard CATEGORY_IN_USE en batch delete (undo de create)                 | P1        | S-M      | —          | TODO                                                                                                                                  |
+| [135](135-complete-git-conflict-detection.md)                       | Detección completa de conflictos git + ahead/behind                    | P2        | S        | —          | TODO                                                                                                                                  |
+| [136](136-admin-shutdown-and-sync-interval-hygiene.md)              | Shutdown: timers de jobs + catch del sync interval                     | P2        | S        | —          | TODO                                                                                                                                  |
+| [137](137-sw-cache-version-only-on-success.md)                      | SW: version de cache solo en éxito de invalidación                     | P2        | S        | —          | TODO                                                                                                                                  |
+| [138](138-media-batch-discard-and-target-validation.md)             | Media: discard batch limpia outputs + targets raster                   | P2        | S-M      | —          | TODO                                                                                                                                  |
+| [139](139-sync-surface-hardening.md)                                | Superficie sync: cap de SSE + config 0600 + gitignore                  | P2        | S        | —          | TODO                                                                                                                                  |
+| [140](140-storefront-money-math-tests.md)                           | Tests unitarios del dinero (cart + order submit)                       | P1        | M        | —          | TODO                                                                                                                                  |
+| [141](141-withfreshrev-409-retry-test.md)                           | Component-test del retry 409 (withFreshRev)                            | P1        | S        | —          | TODO                                                                                                                                  |
+| [142](142-rescope-a11y-suites.md)                                   | Re-scope de las suites a11y (source-string → honestas)                 | P2        | S        | —          | TODO                                                                                                                                  |
+| [143](143-recovery-banner-test-coverage.md)                         | Cobertura RecoveryBanner + cart-recovery del storefront                | P2        | S        | —          | TODO                                                                                                                                  |
+| [144](144-remove-timing-flakiness.md)                               | Eliminar flakiness de timing (thresholds + sleeps reales)              | P2        | S        | —          | TODO                                                                                                                                  |
+| [145](145-dev-tool-reconciliation.md)                               | Reconciliar dev-tools: decisión stryker + changesets 3.0               | P2        | S-M      | 140        | TODO                                                                                                                                  |
+| [146](146-sw-stale-while-revalidate.md)                             | SW stale-while-revalidate para assets estáticos                        | P2        | S-M      | 137        | TODO                                                                                                                                  |
+| [147](147-sync-queue-cache-and-prune.md)                            | Sync queue: cache de lecturas + prune de entradas terminales           | P2        | S-M      | —          | TODO                                                                                                                                  |
+| [148](148-media-inventory-cache.md)                                 | Cache del inventario de media (mtime-keyed)                            | P2        | S        | —          | TODO                                                                                                                                  |
+| [149](149-storefront-interaction-perf.md)                           | Perf de interacción storefront (companion cache + reorder gating)      | P2        | S        | —          | TODO                                                                                                                                  |
+| [150](150-memoize-admin-stable-data.md)                             | Memoizar datos estables del admin (OpenAPI, storefront)                | P2        | S        | —          | TODO                                                                                                                                  |
+| [151](151-finish-client-unification.md)                             | Completar plan 115: 11 fetch sueltos → ContentManagerClient            | P2        | S        | —          | TODO                                                                                                                                  |
+| [152](152-repository-base-class.md)                                 | Base compartida de repositorios JSON + writer atómico multi-target     | P2        | M        | —          | TODO                                                                                                                                  |
+| [153](153-consolidate-route-orchestration.md)                       | Consolidar orquestación de rutas (helper catalog-command)              | P2        | M        | 128, 141   | TODO                                                                                                                                  |
+| [154](154-unify-validation-layers.md)                               | Unificar las 4 capas de validación en zod canónico                     | P3        | L        | —          | TODO                                                                                                                                  |
+| [155](155-retire-src-js-zombie-surface.md)                          | Retirar src/js zombie (extraer funciones vivas primero)                | P2        | M        | 140        | TODO                                                                                                                                  |
+| [156](156-image-pipeline-consolidation.md)                          | Consolidar pipeline de imágenes + portar renderer OG a Node            | P3        | L        | —          | TODO                                                                                                                                  |
+| [157](157-remove-vestigial-surfaces.md)                             | Remover superficies vestigiales (cypress, panel, config Python muerta) | P2        | S        | —          | TODO                                                                                                                                  |
+| [158](158-split-changes-routes.md)                                  | Split de changes.ts (1.076 líneas) en 3 módulos                        | P3        | M        | —          | TODO                                                                                                                                  |
+| [159](159-remove-inert-overrides.md)                                | Quitar overrides inertes de astro-poc                                  | P3        | S        | —          | TODO                                                                                                                                  |
+| [160](160-vendored-anymatch-drift-guard.md)                         | Guard de drift dir↔tgz del anymatch vendoreado                         | P3        | M        | —          | TODO                                                                                                                                  |
+| [161](161-fix-docs-config-drift.md)                                 | Batch de drift docs/config (9 ítems DX + DEP-04)                       | P2        | S-M      | —          | TODO                                                                                                                                  |
+| [162](162-scheduled-publication-ui.md)                              | UI de publicación programada (terminar F3.1)                           | P3        | M        | 133        | TODO                                                                                                                                  |
+| [163](163-generated-typed-client-spike.md)                          | Spike: cliente tipado generado del OpenAPI/zod                         | P3        | M        | 133        | TODO                                                                                                                                  |
+| [164](164-build-preview-job-spike.md)                               | Spike: job "build + preview" dentro del admin                          | P3        | M        | —          | TODO                                                                                                                                  |
+| [165](165-rescope-parity-gate.md)                                   | Re-scope del gate de parity Python → regresión de round-trip           | P2        | S        | —          | TODO                                                                                                                                  |
+| [166](166-whatsapp-notify-on-out-of-stock.md)                       | WhatsApp "Avísame cuando vuelva" en tarjetas AGOTADO                   | P3        | S        | —          | TODO                                                                                                                                  |
+
+### Dependencias (Auditoría 10)
+
+- **140 antes de 145 y 155**: stryker y el retiro de `src/js` necesitan la cobertura de dinero en los módulos vivos.
+- **128 y 141 antes de 153**: el fix de reorder y el test del retry 409 pinean el contrato que 153 consolida.
+- **137 antes de 146**: el SWR solo es seguro con el versionado de cache fiable.
+- **133 antes de 162 y 163**: las shape-assertions del OpenAPI habilitan el cliente/UI.
+- Dos planes no editan el mismo archivo en paralelo (regla de la casa): 149 y 140 tocan `storefront.js`-side pero en archivos distintos; 155 y 140 también (155 depende de 140 por orden).
+
+### Orden de ejecución recomendado
+
+128 → 129 → 130 → 131 → 132 → 134 → 140 → 141 → 133 → 135 → 136 → 137 → 146 → 138 → 139 → 142 → 143 → 144 → 147 → 148 → 149 → 150 → 151 → 152 → 153 → 157 → 158 → 159 → 160 → 161 → 145 → 165 → 155 → 162 → 166 → 163 → 164 → 167 → 154 → 156 (los L al final).
+
+### Considerados y rechazados (Auditoría 10)
+
+- **Autenticar las lecturas del admin (SEC-03, parte)**: rechazado — la clasificación read de los GETs es por diseño (control plane loopback-local); gatear las lecturas rompería el UI sin un cambio cliente equivalente. Sí se aceptó el cap de conexiones SSE + perms del config (plan 139).
+- **structuredClone del catálogo por request (PERF-07)**: rechazado — es la garantía de aislamiento por request del plan 105; no se cachea.
+- **Path traversal en el servidor estático del admin (app.ts)**: refutado empíricamente en Auditoría 7; no re-reportado. El dev-server (`scripts/dev-server.mjs`) SÍ es un caso real → plan 132.
+- **`service-worker.js` raíz vs `astro-poc/public`**: no es finding — sync-data.mjs lo copia en build; byte-idénticos.
+- **`test/e2e-astro` vs admin e2e**: no son duplicados (storefront UX vs admin API/UI).
+- **TS 6 vs 7 (root vs admin)**: decisión documentada del plan 113, aún vigente (peers de typescript-eslint/@astrojs/check bloquean TS 7 en root).
+- **Bootstrap/@popperjs**: mantenimiento congelado por diseño.
+- **`.coverage`/`coverage/`, `.mypy_cache`/`.ruff_cache`/`.pytest_cache`**: no commiteados, gitignored; los artefactos Python reaparecen porque `tools/category_og` corre en preflight → plan 156 los elimina de raíz.
+- **`reports/bench-catalog-snapshot.json`**: 0.393 ms para 184 productos — sin problema de costo; idea de alerta de drift descartada.
+
+### Alcance no auditado (Auditoría 10)
+
+E2E completo (requiere build), comportamiento en vivo del sitio, internals de `tools/category_og/*.py` (solo la interfaz de spawn), cuerpos de `.github/actions/*` composites, `_archive/` (intencional). Los hallazgos LOW-confidence sin plan ("investigar") no se reportaron.
 
 ---
 
@@ -106,14 +198,15 @@ Orden de ejecución recomendado: 098 → 100 → 101 → 107 → 099 → 121 →
 
 ## Auditoría 9 cerrada — Plan 127 (master roadmap del Content Manager)
 
-| Plan                                                   | Título                                                                                         | Prioridad | Esfuerzo | Depende de           | Estado |
-| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------- | --------- | -------- | -------------------- | ------ |
-| [127](archive/127-content-manager-improvement/spec.md) | Roadmap de mejora del Content Manager TS (3 fases: fundaciones → dominio/contrato → operación) | P1        | L        | Auditoría 9 completa | DONE   |
+| Plan                                                   | Título                                                                                         | Prioridad | Esfuerzo | Depende de           | Estado                         |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------- | --------- | -------- | -------------------- | ------------------------------ |
+| [127](archive/127-content-manager-improvement/spec.md) | Roadmap de mejora del Content Manager TS (3 fases: fundaciones → dominio/contrato → operación) | P1        | L        | Auditoría 9 completa | DONE — 2026-08-13 (`ee20b0f6`) |
 
-Espec en `plans/127-content-manager-improvement/spec.md`; sub-tareas
-verificables en `plans/127-content-manager-improvement/todo.md`. Cada ítem
-(F1.1…F3.6) se ejecuta como plan de trabajo propio con su commit y
-rollback. Métricas objetivo en la sección 6 del spec.
+Espec en `plans/archive/127-content-manager-improvement/spec.md`; sub-tareas
+verificables en `plans/archive/127-content-manager-improvement/todo.md`
+(50 ítems, F1.1…F3.6, todos verificados). Cada ítem (F1.1…F3.6) se ejecuta
+como plan de trabajo propio con su commit y rollback. Métricas objetivo en la
+sección 6 del spec.
 
 ---
 
@@ -303,22 +396,20 @@ el nuevo se ejecuta primero y el viejo se actualiza en el mismo cambio (sus
 
 ---
 
-## Directiva vigente — Migración paralela del Content Manager
+## Directiva cumplida — Migración paralela del Content Manager
 
-| Plan                                                    | Título                                         | Priority | Effort | Depends on | Status                                                                           |
-| ------------------------------------------------------- | ---------------------------------------------- | -------- | ------ | ---------- | -------------------------------------------------------------------------------- |
-| [055](055-build-parallel-typescript-content-manager.md) | TypeScript 7 + Fastify + React Content Manager | P1       | XL     | 036, 039   | RECONCILED — follow-up execution roadmap 056–069; Python fallback remains active |
+| Plan                                                            | Título                                         | Priority | Effort | Depends on | Status                                                                   |
+| --------------------------------------------------------------- | ---------------------------------------------- | -------- | ------ | ---------- | ------------------------------------------------------------------------ |
+| [055](archive/055-build-parallel-typescript-content-manager.md) | TypeScript 7 + Fastify + React Content Manager | P1       | XL     | 036, 039   | CUMPLIDA — roadmap de ejecución 056–069 DONE; Python retirado (plan 069) |
 
-El plan 055 autoriza una aplicación paralela y reemplaza como destino los planes
+El plan 055 autorizó la aplicación paralela y reemplazó como destino los planes
 050–052 y 054 orientados a Tkinter. Sus requisitos de seguridad y workflow se
-conservan como criterios de aceptación TypeScript, junto con los findings 040–047
-y la migración de identidad 053. Python/Tkinter sigue siendo el fallback hasta que
-las fases de shadow, certificación y aprobación explícita del plan 055 terminen.
-
-No se debe ejecutar un rediseño visual completo en Tk y, en paralelo, otro en React.
-Los fixes de pérdida de datos o publicación que protejan el periodo de transición
-pueden seguir aterrizando en Python; las abstracciones exclusivas de Tk quedan
-supeditadas al plan 055.
+conservaron como criterios de aceptación TypeScript, junto con los findings
+040–047 y la migración de identidad 053. El cutover se completó (plan 069,
+certificación 30/30) y Python/Tkinter se retiró de forma reversible
+(tag `v1.x-python-final`). El roadmap vigente del Content Manager es el
+plan 127 (master roadmap, 3 fases). Progreso fase a fase en
+`plans/archive/055-progress.md`.
 
 ---
 
@@ -514,24 +605,25 @@ final de la cola es `npm run validate:release`.
 > El plan 055 reemplazó como destino los planes 050–052 y 054
 > (`SUPERSEDED`/`ABSORBED`); 039 y 048 están `DONE`. Los planes 040–047 y 049
 > quedaron `SUPERSEDED` el 2026-08-11: con el retiro de Python (plan 069) sus
-> capacidades viven en el Content Manager TS (plan 055 + 056–068). Histórico
+> capacidades viven en el Content Manager TS (plan 055 + 056–068). Todos ellos
+> están archivados en `plans/archive/` (040–049 el 2026-08-13). Histórico
 > completo (waves, gates por wave, política de rollback, gate de aceptación)
 > en [`archive/README-history.md`](archive/README-history.md).
 
 Todos los cambios de implementación de estos planes eran limitados a
 `admin/product_manager/` (retirado; frontera de rollback `v1.x-python-final`).
 
-| Plan                                                    | Título                                      | Priority | Effort | Depends on           | Status                                                         |
-| ------------------------------------------------------- | ------------------------------------------- | -------- | ------ | -------------------- | -------------------------------------------------------------- |
-| [040](040-preserve-product-state-in-bulk-operations.md) | Preservar metadata en operaciones masivas   | P1       | S      | 039                  | SUPERSEDED — cubierto por TS (059: bulk con revisión/metadata) |
-| [041](041-stage-media-mutations-until-save.md)          | Hacer transaccionales los cambios de medios | P1       | M      | 039                  | SUPERSEDED — cubierto por TS (063: media workbench)            |
-| [042](042-reorder-products-by-identity.md)              | Reordenar por identidad real                | P1       | S      | 039                  | SUPERSEDED — cubierto por TS (059: reorder por identidad)      |
-| [043](043-preserve-sync-conflicts.md)                   | Preservar conflictos hasta resolución       | P1       | S      | 039                  | SUPERSEDED — cubierto por TS (064: conflictos durables)        |
-| [044](044-unify-discount-invariant.md)                  | Unificar invariante de descuentos           | P2       | S      | 039; 040 recomendado | SUPERSEDED — cubierto por TS (074: discount ≤ price)           |
-| [045](045-make-publication-safe-and-truthful.md)        | Publicación acotada, preflighted y veraz    | P1       | M      | 039                  | SUPERSEDED — cubierto por TS (058/072: publication scoped)     |
-| [046](046-run-git-operations-off-ui-thread.md)          | Ejecutar Git fuera del hilo Tk              | P1       | M      | 039, 045             | SUPERSEDED — cubierto por TS (job runner + Git no bloqueante)  |
-| [047](047-centralize-product-manager-configuration.md)  | Centralizar configuración tipada            | P1       | M      | 039                  | SUPERSEDED — cubierto por TS (057: credential/env + settings)  |
-| [049](049-retire-dormant-sqlite-store.md)               | Retirar store SQLite dormido                | P3       | S      | 036                  | SUPERSEDED — SQLite retirado con Python (ADR 0009)             |
+| Plan                                                            | Título                                      | Priority | Effort | Depends on           | Status                                                         |
+| --------------------------------------------------------------- | ------------------------------------------- | -------- | ------ | -------------------- | -------------------------------------------------------------- |
+| [040](archive/040-preserve-product-state-in-bulk-operations.md) | Preservar metadata en operaciones masivas   | P1       | S      | 039                  | SUPERSEDED — cubierto por TS (059: bulk con revisión/metadata) |
+| [041](archive/041-stage-media-mutations-until-save.md)          | Hacer transaccionales los cambios de medios | P1       | M      | 039                  | SUPERSEDED — cubierto por TS (063: media workbench)            |
+| [042](archive/042-reorder-products-by-identity.md)              | Reordenar por identidad real                | P1       | S      | 039                  | SUPERSEDED — cubierto por TS (059: reorder por identidad)      |
+| [043](archive/043-preserve-sync-conflicts.md)                   | Preservar conflictos hasta resolución       | P1       | S      | 039                  | SUPERSEDED — cubierto por TS (064: conflictos durables)        |
+| [044](archive/044-unify-discount-invariant.md)                  | Unificar invariante de descuentos           | P2       | S      | 039; 040 recomendado | SUPERSEDED — cubierto por TS (074: discount ≤ price)           |
+| [045](archive/045-make-publication-safe-and-truthful.md)        | Publicación acotada, preflighted y veraz    | P1       | M      | 039                  | SUPERSEDED — cubierto por TS (058/072: publication scoped)     |
+| [046](archive/046-run-git-operations-off-ui-thread.md)          | Ejecutar Git fuera del hilo Tk              | P1       | M      | 039, 045             | SUPERSEDED — cubierto por TS (job runner + Git no bloqueante)  |
+| [047](archive/047-centralize-product-manager-configuration.md)  | Centralizar configuración tipada            | P1       | M      | 039                  | SUPERSEDED — cubierto por TS (057: credential/env + settings)  |
+| [049](archive/049-retire-dormant-sqlite-store.md)               | Retirar store SQLite dormido                | P3       | S      | 036                  | SUPERSEDED — SQLite retirado con Python (ADR 0009)             |
 
 Gate residual: retirado con la superficie Python (plan 111) — el CI del
 admin es TypeScript (`admin.yml` → `admin/content-manager/`).
