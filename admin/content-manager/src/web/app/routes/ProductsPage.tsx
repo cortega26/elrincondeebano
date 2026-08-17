@@ -555,7 +555,14 @@ export function ProductsPage(): React.ReactElement {
     const ids = data.items.filter((p) => p.id).map((p) => p.id!);
     if (ids.length === 0) return;
     try {
-      await client.reorderProducts(ids);
+      // Plan 128: the reorder endpoint requires the FULL catalog id list
+      // (409 REORDER_SCOPE_AMBIGUOUS otherwise). The default view hides
+      // archived products, so fetch them and append their ids in server
+      // order — archived products land at the end of the new global order
+      // (index N..N+k). With no archived products the payload is unchanged.
+      const archivedResult = await client.getProducts({ archived: true, page: 1, limit: 200 });
+      const archivedIds = archivedResult.items.filter((p) => p.id).map((p) => p.id!);
+      await client.reorderProducts([...ids, ...archivedIds]);
       setFeedback('Productos reordenados ✓');
       await reload();
     } catch (err) {

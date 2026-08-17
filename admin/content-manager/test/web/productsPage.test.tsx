@@ -89,4 +89,67 @@ describe('ProductsPage (component)', () => {
     expect(screen.queryByText(/Aplicado:/)).not.toBeInTheDocument();
     confirmSpy.mockRestore();
   });
+
+  test('reorder appends archived ids so the payload covers the full catalog (plan 128)', async () => {
+    const user = userEvent.setup();
+    const visible = [1, 2, 3, 4].map((n) => ({
+      ...productA,
+      id: `v${n}`,
+      name: `Visible ${n}`,
+      order: n - 1,
+    }));
+    const archived = [5, 6].map((n) => ({
+      ...productA,
+      id: `a${n}`,
+      name: `Archivado ${n}`,
+      order: n - 1,
+      is_archived: true,
+    }));
+    mockApi.getProducts.mockImplementation((params?: { archived?: boolean }) => {
+      if (params?.archived === true) {
+        return Promise.resolve({ items: archived, total: archived.length, page: 1, pageSize: 50 });
+      }
+      return Promise.resolve({ items: visible, total: visible.length, page: 1, pageSize: 50 });
+    });
+    mockApi.reorderProducts.mockClear();
+
+    renderWithRouter(<ProductsPage />);
+    await waitFor(() => {
+      expect(screen.getByText('Visible 1')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getAllByRole('button', { name: '⇅ Reordenar' })[0]);
+
+    await waitFor(() => {
+      expect(mockApi.reorderProducts).toHaveBeenCalledWith(['v1', 'v2', 'v3', 'v4', 'a5', 'a6']);
+    });
+  });
+
+  test('reorder sends only the visible ids when no archived products exist (plan 128)', async () => {
+    const user = userEvent.setup();
+    const visible = [1, 2, 3, 4].map((n) => ({
+      ...productA,
+      id: `v${n}`,
+      name: `Visible ${n}`,
+      order: n - 1,
+    }));
+    mockApi.getProducts.mockImplementation((params?: { archived?: boolean }) => {
+      if (params?.archived === true) {
+        return Promise.resolve({ items: [], total: 0, page: 1, pageSize: 50 });
+      }
+      return Promise.resolve({ items: visible, total: visible.length, page: 1, pageSize: 50 });
+    });
+    mockApi.reorderProducts.mockClear();
+
+    renderWithRouter(<ProductsPage />);
+    await waitFor(() => {
+      expect(screen.getByText('Visible 1')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getAllByRole('button', { name: '⇅ Reordenar' })[0]);
+
+    await waitFor(() => {
+      expect(mockApi.reorderProducts).toHaveBeenCalledWith(['v1', 'v2', 'v3', 'v4']);
+    });
+  });
 });
