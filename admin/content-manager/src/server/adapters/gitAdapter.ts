@@ -123,11 +123,24 @@ export class GitAdapter {
     const unstaged: string[] = [];
     const untracked: string[] = [];
 
+    let ahead = 0;
+    let behind = 0;
+    let hasConflicts = false;
+
     if (statusResult.success && statusResult.output) {
       for (const line of statusResult.output.split('\n')) {
+        if (!line) continue;
+        if (line.startsWith('##')) {
+          const aheadMatch = line.match(/ahead (\d+)/);
+          if (aheadMatch?.[1]) ahead = Number.parseInt(aheadMatch[1], 10);
+          const behindMatch = line.match(/behind (\d+)/);
+          if (behindMatch?.[1]) behind = Number.parseInt(behindMatch[1], 10);
+          continue;
+        }
         if (!line.trim()) continue;
         const status = line.substring(0, 2);
         const file = line.substring(3).trim();
+        if (/^[ADU][ADU] /.test(line)) hasConflicts = true;
         if (status.includes('M') || status.includes('A') || status.includes('D')) {
           if (status[0] !== ' ') staged.push(file);
           if (status[1] !== ' ') unstaged.push(file);
@@ -142,10 +155,9 @@ export class GitAdapter {
       staged,
       unstaged,
       untracked,
-      ahead: 0,
-      behind: 0,
-      hasConflicts:
-        (statusResult.output ?? '').includes('UU') || (statusResult.output ?? '').includes('DD'),
+      ahead,
+      behind,
+      hasConflicts,
     };
   }
 }
