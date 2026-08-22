@@ -762,11 +762,9 @@ test('plan 139: PUT /sync/config writes 0600 and no .tmp remains, and path is gi
     expect(statSync(configPath).mode & 0o777).toBe(0o600);
 
     // Verify the file is gitignored via the repo's .gitignore (not the temp dir)
-    // The worktree root is 3 levels up from admin/content-manager/test/integration
-    const repoRoot = resolve(process.cwd(), '..', '..', '..');
-    // When vitest runs with cwd admin/content-manager, process.cwd() is that dir;
-    // fallback to /tmp/wt139 if resolution does not contain .gitignore
-    const gitRoot = existsSync(resolve(repoRoot, '.gitignore')) ? repoRoot : '/tmp/wt139';
+    const gitRoot = execFileSync('git', ['rev-parse', '--show-toplevel'], {
+      encoding: 'utf-8',
+    }).trim();
     const ignored = execFileSync('git', ['check-ignore', 'data/sync-config.json'], {
       cwd: gitRoot,
       encoding: 'utf-8',
