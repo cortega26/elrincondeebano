@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function -- single describe groups related cache-version cases; splitting would reduce readability */
 import { describe, expect, it, vi } from 'vitest';
 import {
   getStorefrontCacheVersion,
@@ -112,7 +113,7 @@ describe('service worker storefront sync', () => {
       version: 'astro-poc-storefront:storage-v1:cache-v2',
       reason: 'message-failed',
     });
-    expect(storage.getItem(versionKey)).toBe('astro-poc-storefront:storage-v1:cache-v2');
+    expect(storage.getItem(versionKey)).toBe('astro-poc-storefront:storage-v1:cache-v1');
     expect(waitingWorker.postMessage).toHaveBeenCalledWith({ type: 'SKIP_WAITING' });
     expect(log).toHaveBeenCalledWith(
       'warn',
@@ -146,10 +147,12 @@ describe('service worker storefront sync', () => {
       invalidated: false,
       reason: 'message-failed',
     });
-    expect(storage.getItem(versionKey)).toBe('astro-poc-storefront:storage-v1:cache-v2');
+    expect(storage.getItem(versionKey)).toBe('astro-poc-storefront:storage-v1:cache-v1');
+    vi.useRealTimers();
   });
 
   it('records the first seen version without invalidating caches', async () => {
+    const versionKey = 'astro-poc-storefront:service-worker-cache-version';
     const storage = createMemoryStorage();
     const activeWorker = {
       postMessage: vi.fn(),
@@ -167,5 +170,6 @@ describe('service worker storefront sync', () => {
       reason: 'first-seen-version',
     });
     expect(activeWorker.postMessage).not.toHaveBeenCalled();
+    expect(storage.getItem(versionKey)).toBe('astro-poc-storefront:storage-v1:cache-v2');
   });
 });
