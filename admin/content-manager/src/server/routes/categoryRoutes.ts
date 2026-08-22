@@ -208,6 +208,10 @@ export async function categoryRoutes(
 
     const registry = repos.categories.load();
     const baseRev = readBaseRevision(envelope);
+    // Batch delete is strict: no reassign_to in batch. Undo-of-create on an
+    // in-use category is intentionally rejected — the operator must unassign
+    // products first (or use the single DELETE with reassign_to).
+    const catalog = repos.products.loadCatalog();
 
     // Validate every op first.
     const parsedOps: Array<{ type: 'upsert' | 'delete'; category?: unknown }> = [];
@@ -228,6 +232,15 @@ export async function categoryRoutes(
         if (!id || !registry.categories?.some((c) => c.id === id)) {
           return reply.status(404).send({
             error: { code: 'NOT_FOUND', message: `Category "${id ?? ''}" not found` },
+          });
+        }
+        const usage = catalog.products.filter((p) => p.category === id);
+        if (usage.length > 0) {
+          return reply.status(409).send({
+            error: {
+              code: 'CATEGORY_IN_USE',
+              message: `La categoría está en uso por ${usage.length} productos. Reasigna o borra primero.`,
+            },
           });
         }
         parsedOps.push({ type: 'delete', category: op.category });

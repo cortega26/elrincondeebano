@@ -649,3 +649,164 @@ test('batch-update is all-or-nothing on a stale registry revision (plan 127 F2.1
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+// ── plan 134: batch delete must enforce CATEGORY_IN_USE ──────────────────
+
+test('batch-update delete rejects an in-use category with 409 CATEGORY_IN_USE (plan 134)', async () => {
+  const dir = createTempDir();
+  try {
+    setupData(dir);
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const revBefore = (await app.inject({ method: 'GET', url: '/api/v1/categories' })).json<{
+      rev: number;
+    }>().rev;
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/v1/categories/batch-update',
+      headers: ch,
+      payload: {
+        command_id: 'batch-del-inuse',
+        base_revision: revBefore,
+        ops: [{ type: 'delete', category: { id: 'cat1' } }],
+      },
+    });
+    expect(res.statusCode).toBe(409);
+    const body = res.json<{ error: { code: string; message: string } }>();
+    expect(body.error.code).toBe('CATEGORY_IN_USE');
+    expect(body.error.message).toContain('en uso');
+    // Match the single-route message shape exactly: count + reassign hint.
+    expect(body.error.message).toContain('1 productos');
+    expect(body.error.message).toContain('Reasigna');
+
+    const after = (await app.inject({ method: 'GET', url: '/api/v1/categories' })).json<{
+      categories: Array<{ id: string }>;
+      rev: number;
+    }>();
+    expect(after.categories.some((c) => c.id === 'cat1')).toBe(true);
+    expect(after.rev).toBe(revBefore);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('batch-update delete succeeds for an unused category (plan 134)', async () => {
+  const dir = createTempDir();
+  try {
+    setupData(dir);
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const rev0 = (await app.inject({ method: 'GET', url: '/api/v1/categories' })).json<{
+      rev: number;
+    }>().rev;
+
+    const created = await app.inject({
+      method: 'POST',
+      url: '/api/v1/categories/batch-update',
+      headers: ch,
+      payload: {
+        command_id: 'batch-create-unused',
+        base_revision: rev0,
+        ops: [
+          {
+            type: 'upsert',
+            category: {
+              id: 'unused-1',
+              key: 'unusedkey',
+              slug: 'unused-slug',
+              display_name: { default: 'Unused' },
+              active: true,
+              sort_order: 50,
+            },
+          },
+        ],
+      },
+    });
+    expect(created.statusCode).toBe(200);
+
+    const rev1 = (await app.inject({ method: 'GET', url: '/api/v1/categories' })).json<{
+      rev: number;
+    }>().rev;
+
+    const del = await app.inject({
+      method: 'POST',
+      url: '/api/v1/categories/batch-update',
+      headers: ch,
+      payload: {
+        command_id: 'batch-del-unused',
+        base_revision: rev1,
+        ops: [{ type: 'delete', category: { id: 'unused-1' } }],
+      },
+    });
+    expect(del.statusCode).toBe(200);
+    expect(del.json<{ applied: number }>().applied).toBe(1);
+
+    const final = (await app.inject({ method: 'GET', url: '/api/v1/categories' })).json<{
+      categories: Array<{ id: string }>;
+    }>();
+    expect(final.categories.some((c) => c.id === 'unused-1')).toBe(false);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('batch-update is all-or-nothing when a mixed batch contains an in-use delete (plan 134)', async () => {
+  const dir = createTempDir();
+  try {
+    setupData(dir);
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const revBefore = (await app.inject({ method: 'GET', url: '/api/v1/categories' })).json<{
+      rev: number;
+    }>().rev;
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/v1/categories/batch-update',
+      headers: ch,
+      payload: {
+        command_id: 'batch-mixed-inuse',
+        base_revision: revBefore,
+        ops: [
+          {
+            type: 'upsert',
+            category: {
+              id: 'mixed-new',
+              key: 'mixedkey',
+              slug: 'mixed-slug',
+              display_name: { default: 'Mixed' },
+              active: true,
+              sort_order: 77,
+            },
+          },
+          { type: 'delete', category: { id: 'cat1' } },
+        ],
+      },
+    });
+    expect(res.statusCode).toBe(409);
+    expect(res.json<{ error: { code: string } }>().error.code).toBe('CATEGORY_IN_USE');
+
+    const after = (await app.inject({ method: 'GET', url: '/api/v1/categories' })).json<{
+      categories: Array<{ id: string }>;
+      rev: number;
+    }>();
+    expect(after.categories.some((c) => c.id === 'mixed-new')).toBe(false);
+    expect(after.categories.some((c) => c.id === 'cat1')).toBe(true);
+    expect(after.rev).toBe(revBefore);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
