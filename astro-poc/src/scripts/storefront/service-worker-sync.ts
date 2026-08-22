@@ -160,7 +160,9 @@ export async function syncStorefrontServiceWorkerVersion({
     registration.waiting.postMessage({ type: 'SKIP_WAITING' });
   }
 
-  storage.setItem(storageKey, targetVersion);
+  if (invalidated) {
+    storage.setItem(storageKey, targetVersion);
+  }
 
   if (typeof log === 'function') {
     log('info', 'service_worker_cache_version_synced', {
