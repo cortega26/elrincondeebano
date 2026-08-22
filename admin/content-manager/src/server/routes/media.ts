@@ -1,5 +1,5 @@
 import { writeFileSync, renameSync, existsSync, mkdirSync, unlinkSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { dirname, extname, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
 import type { Repositories } from './helpers.ts';
@@ -48,6 +48,39 @@ const EXTENSION_FOR_TYPE: Record<string, string> = {
 };
 
 const ALLOWED_TYPES = Object.keys(MAGIC_BYTES);
+
+function cleanupIntentFiles(intent: MediaIntent, stagingRoot: string): void {
+  for (const output of intent.outputs ?? []) {
+    if (isContainedWithin(stagingRoot, output) && existsSync(output)) {
+      try {
+        unlinkSync(output);
+      } catch {
+        // Best-effort cleanup
+      }
+    }
+  }
+  if (
+    intent.source_path &&
+    isContainedWithin(stagingRoot, intent.source_path) &&
+    existsSync(intent.source_path)
+  ) {
+    try {
+      unlinkSync(intent.source_path);
+    } catch {
+      // Best-effort cleanup
+    }
+  }
+  if (intent.staged_file) {
+    try {
+      const stagedPath = resolve(stagingRoot, intent.staged_file);
+      if (isContainedWithin(stagingRoot, stagedPath) && existsSync(stagedPath)) {
+        unlinkSync(stagedPath);
+      }
+    } catch {
+      // best-effort staging cleanup
+    }
+  }
+}
 
 export async function mediaMutRoutes(
   app: FastifyInstance,
@@ -182,6 +215,14 @@ export async function mediaMutRoutes(
     const pathCheck = media.validatePath(body.target_path);
     if (!pathCheck.ok) {
       return reply.status(400).send({ error: { code: 'BAD_REQUEST', message: pathCheck.error } });
+    }
+    if ((type === 'variant' || type === 'avif') && extname(body.target_path).toLowerCase() === '.svg') {
+      return reply.status(422).send({
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: `Raster intent target_path cannot be .svg (got .svg) — variant/avif jobs produce raster outputs and must target a raster extension`,
+        },
+      });
     }
     if (type === 'og' || type === 'og-delete') {
       if (!body.category_slug || !isSafeId(body.category_slug)) {
@@ -407,16 +448,7 @@ export async function mediaMutRoutes(
           skipped.push({ id, reason: 'RUNNING' });
           continue;
         }
-        if (intent.staged_file) {
-          try {
-            const stagedPath = resolve(intents.stagingRoot, intent.staged_file);
-            if (isContainedWithin(intents.stagingRoot, stagedPath) && existsSync(stagedPath)) {
-              unlinkSync(stagedPath);
-            }
-          } catch {
-            /* best-effort staging cleanup */
-          }
-        }
+        cleanupIntentFiles(intent, intents.stagingRoot);
         intents.delete(id);
       }
       applied += 1;
@@ -439,26 +471,7 @@ export async function mediaMutRoutes(
         error: { code: 'ALREADY_RUNNING', message: 'Cannot discard a running intent' },
       });
     }
-    for (const output of intent.outputs) {
-      if (isContainedWithin(intents.stagingRoot, output) && existsSync(output)) {
-        try {
-          unlinkSync(output);
-        } catch {
-          // Best-effort cleanup
-        }
-      }
-    }
-    if (
-      intent.source_path &&
-      isContainedWithin(intents.stagingRoot, intent.source_path) &&
-      existsSync(intent.source_path)
-    ) {
-      try {
-        unlinkSync(intent.source_path);
-      } catch {
-        // Best-effort cleanup
-      }
-    }
+    cleanupIntentFiles(intent, intents.stagingRoot);
     intents.delete(id);
     return { status: 'discarded', intent_id: id };
   });
