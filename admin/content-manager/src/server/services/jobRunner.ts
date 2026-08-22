@@ -172,6 +172,11 @@ export class JobRunner {
   async shutdown(): Promise<void> {
     this.shutdownRequested = true;
 
+    for (const handle of this.timers.values()) {
+      this.clock.clear(handle);
+    }
+    this.timers.clear();
+
     for (const [, job] of this.jobs) {
       if (job.status === 'pending') {
         job.status = 'cancelled';
