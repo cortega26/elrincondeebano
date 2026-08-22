@@ -19,6 +19,7 @@ const { mockApi } = vi.hoisted(() => {
     getMedia: vi.fn(),
     getProduct: vi.fn(),
     updateProduct: vi.fn(),
+    deleteProduct: vi.fn(),
     batchUpdateProducts: vi.fn(),
     bulkApply: vi.fn(),
     reorderProducts: vi.fn(),
@@ -42,7 +43,8 @@ const { mockApi } = vi.hoisted(() => {
   return { mockApi };
 });
 
-vi.mock('@web/api/client.ts', () => {
+vi.mock('@web/api/client.ts', async (importOriginal) => {
+  const actual = (await importOriginal()) as typeof import('@web/api/client.ts');
   class MockContentManagerClient {
     getProducts = mockApi.getProducts;
     getCategories = mockApi.getCategories;
@@ -51,6 +53,7 @@ vi.mock('@web/api/client.ts', () => {
     getMedia = mockApi.getMedia;
     getProduct = mockApi.getProduct;
     updateProduct = mockApi.updateProduct;
+    deleteProduct = mockApi.deleteProduct;
     batchUpdateProducts = mockApi.batchUpdateProducts;
     bulkApply = mockApi.bulkApply;
     reorderProducts = mockApi.reorderProducts;
@@ -71,7 +74,7 @@ vi.mock('@web/api/client.ts', () => {
     updateSubcategory = mockApi.updateSubcategory;
     deleteSubcategory = mockApi.deleteSubcategory;
   }
-  return { ContentManagerClient: MockContentManagerClient };
+  return { ...actual, ContentManagerClient: MockContentManagerClient };
 });
 
 export const productA = {

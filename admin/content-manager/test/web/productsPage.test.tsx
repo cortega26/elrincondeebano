@@ -8,8 +8,10 @@ import '@testing-library/jest-dom/vitest';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { renderWithRouter, flushPromises, mockApi, productA } from './harness.tsx';
 import { ProductsPage } from '@web/app/routes/ProductsPage.tsx';
+import { ApiRequestError } from '@web/api/client.ts';
 
 beforeEach(() => {
+  vi.clearAllMocks();
   mockApi.getProducts.mockResolvedValue({
     items: [productA],
     total: 1,
@@ -19,6 +21,9 @@ beforeEach(() => {
   mockApi.getCategories.mockResolvedValue({ categories: [] });
   mockApi.getGitStatus.mockResolvedValue({});
   mockApi.gitPull.mockResolvedValue({ job_id: 'j', status: 'ok' });
+  mockApi.getProduct.mockResolvedValue(productA);
+  mockApi.updateProduct.mockResolvedValue({ product: productA } as unknown as ReturnType<typeof mockApi.updateProduct>);
+  mockApi.deleteProduct.mockResolvedValue({ status: 'deleted' } as unknown as ReturnType<typeof mockApi.deleteProduct>);
 });
 
 describe('ProductsPage (component)', () => {
@@ -192,5 +197,68 @@ describe('ProductsPage (component)', () => {
     await waitFor(() => {
       expect(mockApi.reorderProducts).toHaveBeenCalledWith(['v2', 'v3', 'v1', 'v4', 'a5', 'a6']);
     });
+  });
+
+  test('withFreshRev retries archive on 409 with fresh rev (plan 141)', async () => {
+    const user = userEvent.setup();
+    const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
+    // stale rev 1, fresh rev 5
+    const freshProduct = { ...productA, rev: 5 };
+    mockApi.updateProduct
+      .mockRejectedValueOnce(new ApiRequestError('Conflict', 409))
+      .mockResolvedValueOnce({ product: freshProduct } as unknown as ReturnType<typeof mockApi.updateProduct>);
+    mockApi.getProduct.mockResolvedValueOnce(freshProduct);
+    // reload after retry will call getProducts again
+    mockApi.getProducts.mockResolvedValue({ items: [productA], total: 1, page: 1, pageSize: 50 });
+
+    renderWithRouter(<ProductsPage />);
+    await waitFor(() => expect(screen.getByText('Producto A')).toBeInTheDocument());
+
+    await user.click(screen.getByLabelText('Archivar Producto A'));
+
+    await waitFor(() => {
+      expect(mockApi.updateProduct).toHaveBeenCalledTimes(2);
+      expect(mockApi.updateProduct).toHaveBeenNthCalledWith(1, 'p1', 1, { is_archived: true });
+      expect(mockApi.updateProduct).toHaveBeenNthCalledWith(2, 'p1', 5, { is_archived: true });
+    });
+    expect(mockApi.getProduct).toHaveBeenCalledWith('p1');
+    // success feedback after retry
+    await waitFor(() => expect(screen.getByText('Producto archivado ✓')).toBeInTheDocument());
+    confirmSpy.mockRestore();
+  });
+
+  test('withFreshRev shows reload message when 409 refetch fails (plan 141)', async () => {
+    const user = userEvent.setup();
+    const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
+    mockApi.updateProduct.mockRejectedValueOnce(new ApiRequestError('Conflict', 409));
+    mockApi.getProduct.mockRejectedValueOnce(new Error('gone'));
+
+    renderWithRouter(<ProductsPage />);
+    await waitFor(() => expect(screen.getByText('Producto A')).toBeInTheDocument());
+
+    await user.click(screen.getByLabelText('Archivar Producto A'));
+
+    await waitFor(() => expect(screen.getByText('El producto cambió; la lista se recargó.')).toBeInTheDocument());
+    expect(mockApi.getProduct).toHaveBeenCalledWith('p1');
+    // no retry after refetch failure
+    expect(mockApi.updateProduct).toHaveBeenCalledTimes(1);
+    confirmSpy.mockRestore();
+  });
+
+  test('withFreshRev does not retry on non-409 error (plan 141)', async () => {
+    const user = userEvent.setup();
+    const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
+    mockApi.updateProduct.mockRejectedValueOnce(new ApiRequestError('Server error', 500));
+
+    renderWithRouter(<ProductsPage />);
+    await waitFor(() => expect(screen.getByText('Producto A')).toBeInTheDocument());
+
+    await user.click(screen.getByLabelText('Archivar Producto A'));
+
+    await waitFor(() => expect(mockApi.updateProduct).toHaveBeenCalledTimes(1));
+    expect(mockApi.getProduct).not.toHaveBeenCalled();
+    // error surfaces via opError (500 message), not the 409 reload message
+    expect(screen.queryByText('El producto cambió; la lista se recargó.')).not.toBeInTheDocument();
+    confirmSpy.mockRestore();
   });
 });
