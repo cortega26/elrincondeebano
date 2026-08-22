@@ -4,12 +4,15 @@ import type { ConflictRepository } from '../repositories/conflictRepository.ts';
 import type { SyncAdapter } from '../adapters/syncAdapter.ts';
 import type { ConflictFilter } from '../../shared/schemas/conflict.ts';
 import { conflictFilterSchema } from '../../shared/schemas/conflict.ts';
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync, renameSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { syncConfigSchema, isAllowedSyncUrl, type SyncConfig } from '../adapters/syncAdapter.ts';
 import type { SyncService } from '../services/syncService.ts';
 import { isSafeId } from '../../shared/identity.ts';
 import { HttpError } from '../../shared/errors/AppError.ts';
+
+let activeSseConnections = 0;
+const MAX_SSE_CONNECTIONS = 2;
 
 export async function conflictsRoutes(
   app: FastifyInstance,
@@ -179,6 +182,13 @@ export async function conflictsRoutes(
   // 5s (cheap single-user) plus a heartbeat comment to keep the connection
   // alive; the client falls back to polling on error.
   app.get('/sync/events', async (request, reply) => {
+    if (activeSseConnections >= MAX_SSE_CONNECTIONS) {
+      return reply.status(429).send({
+        error: { code: 'SSE_CONNECTIONS_LIMITED', message: 'Too many concurrent SSE connections' },
+      });
+    }
+    activeSseConnections += 1;
+
     reply.raw.writeHead(200, {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
@@ -197,10 +207,16 @@ export async function conflictsRoutes(
       reply.raw.write(': ping\n\n');
     }, 25_000);
 
-    request.raw.on('close', () => {
+    let closed = false;
+    const cleanup = (): void => {
+      if (closed) return;
+      closed = true;
       clearInterval(pushTimer);
       clearInterval(heartbeat);
-    });
+      activeSseConnections -= 1;
+    };
+    request.raw.on('close', cleanup);
+    reply.raw.on('close', cleanup);
 
     return reply;
   });
@@ -269,10 +285,13 @@ export async function conflictsRoutes(
 
       const dir = dirname(syncConfigPath);
       if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-      writeFileSync(syncConfigPath, JSON.stringify(validated, null, 2), {
+      const tmpPath = `${syncConfigPath}.tmp`;
+      writeFileSync(tmpPath, JSON.stringify(validated, null, 2), {
         encoding: 'utf-8',
+        mode: 0o600,
         flush: true,
       });
+      renameSync(tmpPath, syncConfigPath);
 
       // Plan 064 step 5: reconfigure the live adapter — no restart needed.
       syncAdapter.setConfig(validated);
