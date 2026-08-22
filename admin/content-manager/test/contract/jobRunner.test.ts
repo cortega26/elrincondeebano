@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest';
-import { JobRunner } from '../../src/server/services/jobRunner.ts';
+import { JobRunner, type JobClock } from '../../src/server/services/jobRunner.ts';
 
 test('schedule runs a job and returns result', async () => {
   const runner = new JobRunner();
@@ -255,4 +255,84 @@ test('scheduleAt with a past time runs immediately', async () => {
   advance(0);
   await new Promise((r) => setTimeout(r, 0));
   expect(ran).toBe(true);
+});
+
+test('shutdown clears scheduled timers so the callback never runs (plan 136)', async () => {
+  let clearCalls = 0;
+  let now = 1_000_000;
+  const timers: Array<{ at: number; cb: () => void }> = [];
+  const clock: JobClock = {
+    now: () => now,
+    schedule: (cb, ms) => {
+      const t = { at: now + ms, cb };
+      timers.push(t);
+      return t;
+    },
+    clear: (handle) => {
+      clearCalls += 1;
+      const idx = timers.indexOf(handle as { at: number; cb: () => void });
+      if (idx >= 0) timers.splice(idx, 1);
+    },
+  };
+  const runner = new JobRunner(clock);
+  let ran = false;
+  const job = runner.scheduleAt<string>(
+    'scheduled',
+    async () => {
+      ran = true;
+      return 'should-not-run';
+    },
+    new Date(now + 60_000)
+  );
+
+  expect(job.status).toBe('pending');
+  expect(timers.length).toBe(1);
+
+  await runner.shutdown();
+
+  expect(clearCalls).toBe(1);
+  expect(timers.length).toBe(0);
+  expect(job.status).toBe('cancelled');
+
+  // Advancing past the original due time must not run the callback.
+  now += 120_000;
+  for (const t of [...timers]) {
+    if (t.at <= now) {
+      timers.splice(timers.indexOf(t), 1);
+      t.cb();
+    }
+  }
+  await new Promise((r) => setTimeout(r, 0));
+  expect(ran).toBe(false);
+
+  // Idempotent: second shutdown does not throw and does not double-clear.
+  await runner.shutdown();
+  expect(clearCalls).toBe(1);
+});
+
+test('shutdown clears multiple scheduled timers', async () => {
+  let clearCalls = 0;
+  const now = 2_000_000;
+  const timers: Array<{ at: number; cb: () => void }> = [];
+  const clock: JobClock = {
+    now: () => now,
+    schedule: (cb, ms) => {
+      const t = { at: now + ms, cb };
+      timers.push(t);
+      return t;
+    },
+    clear: (handle) => {
+      clearCalls += 1;
+      const idx = timers.indexOf(handle as { at: number; cb: () => void });
+      if (idx >= 0) timers.splice(idx, 1);
+    },
+  };
+  const runner = new JobRunner(clock);
+  runner.scheduleAt('a', async () => 'a', new Date(now + 10_000));
+  runner.scheduleAt('b', async () => 'b', new Date(now + 20_000));
+  expect(timers.length).toBe(2);
+
+  await runner.shutdown();
+  expect(clearCalls).toBe(2);
+  expect(timers.length).toBe(0);
 });

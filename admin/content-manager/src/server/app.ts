@@ -116,20 +116,26 @@ export function createApp(opts?: AppOptions): FastifyInstance {
   const syncAdapter = new SyncAdapter(syncConfig);
   const syncService = new SyncService(repoRoot, syncAdapter, repos);
 
+  const jobRunner = new JobRunner();
+
   // Plan 097: background auto-sync — polls the queue (push) and pulls remote
   // changes while sync is enabled and not paused. The adapter config is
   // re-read each tick, so enabling/disabling via /sync/config takes effect
   // without a restart.
-  const syncTimer = setInterval(() => {
+  const syncTimer = setInterval(async () => {
     if (syncService.isPaused() || !syncAdapter.isConfigured) return;
-    void syncService.processOnce();
-    void syncService.pullOnce();
+    try {
+      await syncService.processOnce();
+      await syncService.pullOnce();
+    } catch (err) {
+      app.log.error({ err }, 'sync interval failed');
+    }
   }, 60_000);
   app.addHook('onClose', async () => {
     clearInterval(syncTimer);
+    await jobRunner.shutdown();
   });
 
-  const jobRunner = new JobRunner();
   const git = new GitAdapter(repoRoot);
 
   app.decorate('repos', repos);
