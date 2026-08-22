@@ -2,9 +2,18 @@ import { test, expect, beforeAll, afterAll } from 'vitest';
 import Fastify from 'fastify';
 import type { FastifyInstance } from 'fastify';
 import { createApp } from '../../src/server/app.ts';
-import { writeFileSync, mkdirSync, rmSync, readFileSync, utimesSync } from 'node:fs';
+import {
+  writeFileSync,
+  mkdirSync,
+  rmSync,
+  readFileSync,
+  utimesSync,
+  statSync,
+  existsSync,
+} from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
+import { execFileSync } from 'node:child_process';
 import { CREDENTIAL_HEADER } from '../../src/server/security/launchCredential.ts';
 import http from 'node:http';
 import { SyncQueueRepository } from '../../src/server/repositories/syncQueueRepository.ts';
@@ -623,6 +632,150 @@ test('GET /api/v1/sync/events streams the sync status over SSE (plan 127 F3.4)',
     expect(chunks).toContain('data: {');
     expect(chunks).toContain('"queue"');
     expect(chunks).toContain('retry: 5000');
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('plan 139: 3rd concurrent SSE connection gets 429 and cap releases on close', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+  await app.listen({ port: 0, host: '127.0.0.1' });
+  const { port } = app.server.address() as { port: number };
+
+  function openSse(): Promise<{ req: http.ClientRequest; res: http.IncomingMessage }> {
+    return new Promise((resolve, reject) => {
+      const req = http.get({ host: '127.0.0.1', port, path: '/api/v1/sync/events' }, (res) => {
+        resolve({ req, res });
+      });
+      req.on('error', reject);
+      setTimeout(() => reject(new Error('SSE open timeout')), 2000);
+    });
+  }
+
+  function requestSseStatus(): Promise<number> {
+    return new Promise((resolve, reject) => {
+      const req = http.get({ host: '127.0.0.1', port, path: '/api/v1/sync/events' }, (res) => {
+        let body = '';
+        res.setEncoding('utf8');
+        res.on('data', (chunk: string) => {
+          body += chunk;
+        });
+        res.on('end', () => resolve(res.statusCode ?? 0));
+        // For 429 the body will end quickly; for 200 it would hang — but we
+        // only use this helper for the 3rd connection which should be 429.
+        setTimeout(() => {
+          // If stream never ends (200), destroy and report status.
+          if (res.statusCode === 200) {
+            req.destroy();
+            resolve(200);
+          }
+        }, 500);
+        void body;
+      });
+      req.on('error', (err) => {
+        // http.get error after destroy is not expected for 429 path
+        if ((err as NodeJS.ErrnoException).code === 'ECONNRESET') resolve(0);
+        else reject(err);
+      });
+      setTimeout(() => reject(new Error('SSE status timeout')), 3000);
+    });
+  }
+
+  let c1: { req: http.ClientRequest; res: http.IncomingMessage } | null = null;
+  let c2: { req: http.ClientRequest; res: http.IncomingMessage } | null = null;
+  try {
+    c1 = await openSse();
+    expect(c1.res.statusCode).toBe(200);
+    expect(c1.res.headers['content-type']).toContain('text/event-stream');
+
+    c2 = await openSse();
+    expect(c2.res.statusCode).toBe(200);
+
+    // 3rd concurrent should be rejected with 429
+    const thirdStatus = await requestSseStatus();
+    expect(thirdStatus).toBe(429);
+
+    // Also verify the 429 payload code via inject fallback (same module counter)
+    // Close one connection and ensure a new one succeeds
+    c1.req.destroy();
+    // Wait for server to process close
+    await new Promise((r) => setTimeout(r, 200));
+
+    const c3 = await openSse();
+    expect(c3.res.statusCode).toBe(200);
+    c3.req.destroy();
+    await new Promise((r) => setTimeout(r, 100));
+
+    // Validate 429 body via direct inject on a new app instance would share
+    // the global counter — instead validate the JSON code via a raw http fetch
+    // with the cap exceeded. Re-fill the cap:
+    c1 = await openSse();
+    expect(c1.res.statusCode).toBe(200);
+    // c2 is still open (200), c1 newly opened (200) -> cap full again
+    const raw429 = await new Promise<{ status: number; body: string }>((resolve, reject) => {
+      const req = http.get({ host: '127.0.0.1', port, path: '/api/v1/sync/events' }, (res) => {
+        let body = '';
+        res.setEncoding('utf8');
+        res.on('data', (d: string) => (body += d));
+        res.on('end', () => resolve({ status: res.statusCode ?? 0, body }));
+      });
+      req.on('error', reject);
+      setTimeout(() => reject(new Error('429 body timeout')), 2000);
+    });
+    expect(raw429.status).toBe(429);
+    expect(raw429.body).toContain('SSE_CONNECTIONS_LIMITED');
+  } finally {
+    try {
+      c1?.req.destroy();
+    } catch (_e) {
+      void _e;
+    }
+    try {
+      c2?.req.destroy();
+    } catch (_e2) {
+      void _e2;
+    }
+    // Allow decrements to propagate before closing the server
+    await new Promise((r) => setTimeout(r, 200));
+    await app.close();
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('plan 139: PUT /sync/config writes 0600 and no .tmp remains, and path is gitignored', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    await enableSync(app, fakeRemoteBase);
+
+    const configPath = resolve(dir, 'data', 'sync-config.json');
+    const tmpPath = `${configPath}.tmp`;
+
+    expect(existsSync(configPath)).toBe(true);
+    expect(existsSync(tmpPath)).toBe(false);
+    expect(statSync(configPath).mode & 0o777).toBe(0o600);
+
+    // Verify the file is gitignored via the repo's .gitignore (not the temp dir)
+    // The worktree root is 3 levels up from admin/content-manager/test/integration
+    const repoRoot = resolve(process.cwd(), '..', '..', '..');
+    // When vitest runs with cwd admin/content-manager, process.cwd() is that dir;
+    // fallback to /tmp/wt139 if resolution does not contain .gitignore
+    const gitRoot = existsSync(resolve(repoRoot, '.gitignore')) ? repoRoot : '/tmp/wt139';
+    const ignored = execFileSync('git', ['check-ignore', 'data/sync-config.json'], {
+      cwd: gitRoot,
+      encoding: 'utf-8',
+    }).trim();
+    expect(ignored).toContain('data/sync-config.json');
+
+    // Also verify the .gitignore file itself contains the entry
+    const gitignore = readFileSync(resolve(gitRoot, '.gitignore'), 'utf-8');
+    expect(gitignore).toContain('data/sync-config.json');
 
     await app.close();
   } finally {

@@ -94,6 +94,7 @@ data/media-intents/
 data/import-previews/
 data/idempotency.json
 data/.admin-credential
+data/sync-config.json
 data/recovery-journal*.json
 data/recovery-journal.ndjson
 .qodo
