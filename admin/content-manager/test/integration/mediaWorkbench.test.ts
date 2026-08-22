@@ -610,3 +610,168 @@ test('batch intent ops: cancel pending + discard, skip finished (plan 127 F2.4)'
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('batch discard cleans outputs and staged file after successful avif (plan 138)', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const { staged_file } = await uploadStaged(app, PNG_B64, 'image/png');
+    const stagingRoot = resolve(dir, 'data', '.media-staging');
+    expect(existsSync(resolve(stagingRoot, staged_file))).toBe(true);
+
+    const created = await app.inject({
+      method: 'POST',
+      url: '/api/v1/media/intents',
+      headers: ch,
+      payload: {
+        type: 'avif',
+        staged_file,
+        target_path: 'assets/images/product.png',
+        product_id: 'existing-1',
+      },
+    });
+    expect(created.statusCode).toBe(201);
+    const intentId = created.json<{ id: string }>().id;
+
+    const run = await app.inject({
+      method: 'POST',
+      url: `/api/v1/media/intents/${intentId}/run`,
+      headers: ch,
+    });
+    expect(run.statusCode).toBe(200);
+    const finished = (await waitForIntent(app, intentId)) as {
+      status: string;
+      outputs: string[];
+      staged_file: string;
+      source_path: string;
+    };
+    expect(finished.status).toBe('succeeded');
+    expect(finished.outputs.length).toBeGreaterThan(0);
+    for (const out of finished.outputs) {
+      expect(existsSync(out)).toBe(true);
+    }
+    expect(existsSync(resolve(stagingRoot, staged_file))).toBe(true);
+
+    const batchDiscard = await app.inject({
+      method: 'POST',
+      url: '/api/v1/media/intents/batch',
+      headers: ch,
+      payload: { action: 'discard', ids: [intentId] },
+    });
+    expect(batchDiscard.statusCode).toBe(200);
+    expect(batchDiscard.json<{ applied: number }>().applied).toBe(1);
+
+    for (const out of finished.outputs) {
+      expect(existsSync(out)).toBe(false);
+    }
+    expect(existsSync(resolve(stagingRoot, staged_file))).toBe(false);
+    if (finished.source_path) {
+      expect(existsSync(finished.source_path)).toBe(false);
+    }
+
+    const after = (await app.inject({ method: 'GET', url: '/api/v1/media' })).json<{
+      intents: Array<{ id: string }>;
+    }>();
+    expect(after.intents.some((i) => i.id === intentId)).toBe(false);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('raster intents reject .svg targets with 422 VALIDATION_ERROR (plan 138)', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const { staged_file } = await uploadStaged(app, PNG_B64, 'image/png');
+
+    const variantSvg = await app.inject({
+      method: 'POST',
+      url: '/api/v1/media/intents',
+      headers: ch,
+      payload: {
+        type: 'variant',
+        staged_file,
+        target_path: 'assets/images/product.svg',
+        product_id: 'existing-1',
+      },
+    });
+    expect(variantSvg.statusCode).toBe(422);
+    expect(variantSvg.json<{ error: { code: string; message: string } }>().error.code).toBe(
+      'VALIDATION_ERROR',
+    );
+    expect(variantSvg.json<{ error: { message: string } }>().error.message).toMatch(/\.svg/i);
+
+    const avifSvg = await app.inject({
+      method: 'POST',
+      url: '/api/v1/media/intents',
+      headers: ch,
+      payload: {
+        type: 'avif',
+        staged_file,
+        target_path: 'assets/images/photo.SVG',
+        product_id: 'existing-1',
+      },
+    });
+    expect(avifSvg.statusCode).toBe(422);
+    expect(avifSvg.json<{ error: { code: string } }>().error.code).toBe('VALIDATION_ERROR');
+
+    // Raster rejection must not affect other valid raster extensions.
+    const variantOk = await app.inject({
+      method: 'POST',
+      url: '/api/v1/media/intents',
+      headers: ch,
+      payload: {
+        type: 'variant',
+        staged_file,
+        target_path: 'assets/images/product.png',
+        product_id: 'existing-1',
+      },
+    });
+    expect(variantOk.statusCode).toBe(201);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('og intents are not affected by raster svg validation (plan 138)', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const ogSvg = await app.inject({
+      method: 'POST',
+      url: '/api/v1/media/intents',
+      headers: ch,
+      payload: { type: 'og', target_path: OG_CANONICAL_REL, category_slug: 'bebidas' },
+    });
+    expect(ogSvg.statusCode).toBe(201);
+
+    const ogVariantSvg = await app.inject({
+      method: 'POST',
+      url: '/api/v1/media/intents',
+      headers: ch,
+      payload: { type: 'og', target_path: 'assets/images/og/categories/bebidas.svg', category_slug: 'bebidas' },
+    });
+    // OG should not be rejected for svg-like extensions (not a raster job).
+    expect(ogVariantSvg.statusCode).toBe(201);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
