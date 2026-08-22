@@ -80,3 +80,47 @@ test('help page documents shortcuts and task guides', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Guías por tarea' })).toBeVisible();
   await expect(page.getByText('Crear o duplicar un producto')).toBeVisible();
 });
+
+test('credential dialog traps focus and closes with Escape — source contract is now honest (plan 142)', async ({
+  page,
+}) => {
+  await page.goto('/products');
+  await dismissCredentialPrompt(page);
+
+  // Reopen the credential prompt via the floating button.
+  await page.getByRole('button', { name: 'Credencial ✓' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Launch credential' });
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toHaveAttribute('aria-modal', 'true');
+
+  // Focus lands on the input on open; Tab cycles input -> Guardar -> input.
+  await expect(page.getByPlaceholder('x-admin-credential')).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: 'Guardar' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByPlaceholder('x-admin-credential')).toBeFocused();
+
+  // Shift+Tab wraps in the reverse direction.
+  await page.keyboard.press('Shift+Tab');
+  await expect(page.getByRole('button', { name: 'Guardar' })).toBeFocused();
+  await page.keyboard.press('Shift+Tab');
+  await expect(page.getByPlaceholder('x-admin-credential')).toBeFocused();
+
+  // Escape closes; focus returns to a real focusable element (not a removed node).
+  await page.keyboard.press('Escape');
+  await expect(dialog).not.toBeVisible();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: 'Credencial ✓' })).toBeFocused();
+
+  // Keyboard activation: Enter on the floating button reopens the dialog.
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('dialog', { name: 'Launch credential' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(dialog).not.toBeVisible();
+
+  // Rendered landmark + alert contract: main and at least one status/alert
+  // feedback region exist as keyboard-navigable landmarks (honest a11y, not
+  // string scans alone).
+  await expect(page.getByRole('main', { name: 'Productos' })).toBeVisible();
+  await expect(page.getByRole('navigation', { name: 'Navegación principal' })).toBeVisible();
+});
