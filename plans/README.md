@@ -69,7 +69,7 @@ admin/product_manager/`).
 Auditoría completa (8 categorías, 8 subagentes paralelos) sobre el árbol post-cierre
 del plan 127. Hallazgos vetados contra fuente (cada plan cita el código leído por el
 advisor, no el reporte del subagente). Todos los hallazgos net-positivos se convirtieron
-en planes 128–167 (bugs/seguridad → tests → perf → tech-debt → deps → docs → dirección).
+en planes 128–168 (bugs/seguridad → tests → perf → tech-debt → deps → docs → dirección).
 Regresión detectada: el reorder se rompió con el fix del 2026-08-13 ("default list excludes
 archived", `db6f00ca`) — plan 128. El drift de docs es el batch más grande desde 112.
 
@@ -114,6 +114,8 @@ archived", `db6f00ca`) — plan 128. El drift de docs es el batch más grande de
 | [164](164-build-preview-job-spike.md)                               | Spike: job "build + preview" dentro del admin                          | P3        | M        | —          | TODO                                                                                                                         |
 | [165](165-rescope-parity-gate.md)                                   | Re-scope del gate de parity Python → regresión de round-trip           | P2        | S        | —          | TODO                                                                                                                         |
 | [166](166-whatsapp-notify-on-out-of-stock.md)                       | WhatsApp "Avísame cuando vuelva" en tarjetas AGOTADO                   | P3        | S        | —          | TODO                                                                                                                         |
+| [167](167-resolve-observability-dead-end.md)                        | Resolve observability dead end (ADR 0010 go/no-go)                     | P3        | M        | —          | TODO                                                                                                                         |
+| [168](168-dependabot-auto-merge-patch-only.md)                      | Auto-merge Dependabot patch PRs only when CI is green                  | P2        | S        | —          | TODO                                                                                                                         |
 
 ### Dependencias (Auditoría 10)
 
@@ -125,7 +127,7 @@ archived", `db6f00ca`) — plan 128. El drift de docs es el batch más grande de
 
 ### Orden de ejecución recomendado
 
-128 → 129 → 130 → 131 → 132 → 134 → 140 → 141 → 133 → 135 → 136 → 137 → 146 → 138 → 139 → 142 → 143 → 144 → 147 → 148 → 149 → 150 → 151 → 152 → 153 → 157 → 158 → 159 → 160 → 161 → 145 → 165 → 155 → 162 → 166 → 163 → 164 → 167 → 154 → 156 (los L al final).
+128 → 129 → 130 → 131 → 132 → 134 → 140 → 141 → 133 → 135 → 136 → 137 → 146 → 138 → 139 → 168 → 142 → 143 → 144 → 147 → 148 → 149 → 150 → 151 → 152 → 153 → 157 → 158 → 159 → 160 → 161 → 145 → 165 → 155 → 162 → 166 → 163 → 164 → 167 → 154 → 156 (los L al final).
 
 ### Considerados y rechazados (Auditoría 10)
 
