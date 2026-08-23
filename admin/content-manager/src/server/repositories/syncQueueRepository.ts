@@ -34,6 +34,7 @@ export function generateChangesetId(): string {
 }
 
 const MAX_QUEUE_ENTRIES = 1000;
+const MAX_ERROR_ENTRIES = 200;
 
 // Plan 086: a crashed process (kill -9, power loss) can leave the lock file
 // behind; after this TTL the lock is treated as stale and reclaimed. Must be
@@ -43,6 +44,10 @@ const SYNC_LOCK_TTL_MS = 5 * 60 * 1000;
 export class SyncQueueRepository {
   private readonly path: string;
   private readonly lockFile: string;
+  // Plan 147: mtime+size-keyed cache — every sync-status read paid full file
+  // read+parse+zod. Keyed on stat so external edits invalidate automatically;
+  // writes invalidate eagerly.
+  private cached: { mtimeMs: number; size: number; entries: SyncQueueEntry[] } | null = null;
 
   constructor(repoRoot: string) {
     const dir = resolve(repoRoot, 'data');
@@ -54,6 +59,10 @@ export class SyncQueueRepository {
   load(): SyncQueueEntry[] {
     if (!existsSync(this.path)) return [];
     try {
+      const stat = statSync(this.path);
+      if (this.cached && this.cached.mtimeMs === stat.mtimeMs && this.cached.size === stat.size) {
+        return this.cached.entries;
+      }
       const parsed = JSON.parse(readFileSync(this.path, 'utf-8'));
       const items = Array.isArray(parsed) ? parsed : parsed.queue;
       if (!Array.isArray(items)) return [];
@@ -62,6 +71,7 @@ export class SyncQueueRepository {
         const result = syncQueueEntrySchema.safeParse(item);
         if (result.success) entries.push(result.data);
       }
+      this.cached = { mtimeMs: stat.mtimeMs, size: stat.size, entries };
       return entries;
     } catch {
       return [];
@@ -69,11 +79,33 @@ export class SyncQueueRepository {
   }
 
   save(entries: SyncQueueEntry[]): void {
-    const trimmed = entries.slice(-MAX_QUEUE_ENTRIES);
+    // Plan 147 pruning policy:
+    // - synced: dropped entirely. The UI (SyncStatusPanel, ConflictsPage)
+    //   never renders synced-queue history; buildSyncStatus in
+    //   conflicts.ts only exposes counts (pending/synced/error/total) and
+    //   the SyncStatusPanel renders only pending/error/total. Once the
+    //   remote has acked a change (synced), keeping it has no consumer — it
+    //   only grows the file and the per-read zod cost. If the UI ever shows
+    //   recent syncs, change this to keep the last 50 synced (see plan 147).
+    // - error: kept but capped to most-recent 200 (retryable per plan 064;
+    //   a stuck remote must not grow the file forever).
+    // - pending: kept always (dedup in syncService.enqueue depends on it).
+    // Order of the surviving entries is preserved; final cap is
+    // MAX_QUEUE_ENTRIES (1000).
+    let pruned: SyncQueueEntry[];
+    const errorEntries = entries.filter((e) => e.status === 'error');
+    if (errorEntries.length > MAX_ERROR_ENTRIES) {
+      const keepErrors = new Set(errorEntries.slice(-MAX_ERROR_ENTRIES));
+      pruned = entries.filter((e) => e.status === 'pending' || keepErrors.has(e));
+    } else {
+      pruned = entries.filter((e) => e.status !== 'synced');
+    }
+    const trimmed = pruned.slice(-MAX_QUEUE_ENTRIES);
     const payload = JSON.stringify({ queue: trimmed }, null, 2);
     const tmpPath = `${this.path}.tmp`;
     writeFileSync(tmpPath, payload, { encoding: 'utf-8', flush: true });
     renameSync(tmpPath, this.path);
+    this.cached = null;
   }
 
   // Single-consumer lock: returns true only if this process won the lock.
