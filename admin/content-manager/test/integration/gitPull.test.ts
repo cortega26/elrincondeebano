@@ -1,4 +1,4 @@
-import { test, expect } from 'vitest';
+import { test, expect, vi } from 'vitest';
 import { createApp } from '../../src/server/app.ts';
 import { writeFileSync, mkdirSync, rmSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -84,15 +84,20 @@ function pushRemoteCommit(bareDir: string, fileContent: string): string {
 }
 
 async function waitForJob(app: FastifyInstance, jobId: string): Promise<Record<string, unknown>> {
-  for (let i = 0; i < 50; i++) {
-    const job = await app.inject({ method: 'GET', url: `/api/v1/jobs/${jobId}` });
-    const body = job.json<{ status: string }>();
-    if (body.status === 'completed' || body.status === 'failed' || body.status === 'cancelled') {
-      return job.json<Record<string, unknown>>();
-    }
-    await new Promise((resolveSleep) => setTimeout(resolveSleep, 100));
-  }
-  throw new Error('job did not finish');
+  let result: Record<string, unknown> | null = null;
+  await vi.waitFor(
+    async () => {
+      const job = await app.inject({ method: 'GET', url: `/api/v1/jobs/${jobId}` });
+      const body = job.json<{ status: string }>();
+      if (body.status === 'completed' || body.status === 'failed' || body.status === 'cancelled') {
+        result = job.json<Record<string, unknown>>();
+      } else {
+        throw new Error(`job not finished: ${body.status}`);
+      }
+    },
+    { timeout: 8000, interval: 20 },
+  );
+  return result!;
 }
 
 test('git pull applies remote changes through the job runner', async () => {

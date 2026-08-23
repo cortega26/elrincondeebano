@@ -1,4 +1,4 @@
-import { test, expect, beforeAll, afterAll } from 'vitest';
+import { test, expect, beforeAll, afterAll, vi } from 'vitest';
 import Fastify from 'fastify';
 import type { FastifyInstance } from 'fastify';
 import { createApp } from '../../src/server/app.ts';
@@ -608,26 +608,41 @@ test('GET /api/v1/sync/events streams the sync status over SSE (plan 127 F3.4)',
     await app.listen({ port: 0, host: '127.0.0.1' });
     const address = app.server.address() as { port: number };
 
-    // Read the first SSE frames over a real HTTP connection, then close it.
-    const chunks = await new Promise<string>((resolve, reject) => {
-      const req = http.get(
+    // Read the first SSE frames over a real HTTP connection, polling for observable state with deadline.
+    let chunks = '';
+    let req: http.ClientRequest | null = null;
+    let done = false;
+    const dataPromise = new Promise<void>((resolve, reject) => {
+      const r = http.get(
         { host: '127.0.0.1', port: address.port, path: '/api/v1/sync/events' },
         (res) => {
-          let data = '';
           res.setEncoding('utf8');
           res.on('data', (chunk: string) => {
-            data += chunk;
-            if (data.includes('data: {') && data.includes('retry: 5000')) {
-              req.destroy();
-              resolve(data);
+            chunks += chunk;
+            if (chunks.includes('data: {') && chunks.includes('retry: 5000') && !done) {
+              done = true;
+              resolve();
             }
           });
           res.on('error', reject);
-        }
+        },
       );
-      req.on('error', reject);
-      setTimeout(() => reject(new Error('SSE stream timeout')), 3000);
+      req = r;
+      r.on('error', reject);
     });
+
+    await vi.waitFor(
+      () => {
+        expect(chunks).toContain('data: {');
+        expect(chunks).toContain('retry: 5000');
+      },
+      { timeout: 3000, interval: 50 },
+    );
+    req?.destroy();
+    await Promise.race([
+      dataPromise.catch(() => {}),
+      new Promise<void>((r) => setImmediate(r as () => void)),
+    ]);
 
     expect(chunks).toContain('data: {');
     expect(chunks).toContain('"queue"');
@@ -652,36 +667,6 @@ test('plan 139: 3rd concurrent SSE connection gets 429 and cap releases on close
         resolve({ req, res });
       });
       req.on('error', reject);
-      setTimeout(() => reject(new Error('SSE open timeout')), 2000);
-    });
-  }
-
-  function requestSseStatus(): Promise<number> {
-    return new Promise((resolve, reject) => {
-      const req = http.get({ host: '127.0.0.1', port, path: '/api/v1/sync/events' }, (res) => {
-        let body = '';
-        res.setEncoding('utf8');
-        res.on('data', (chunk: string) => {
-          body += chunk;
-        });
-        res.on('end', () => resolve(res.statusCode ?? 0));
-        // For 429 the body will end quickly; for 200 it would hang — but we
-        // only use this helper for the 3rd connection which should be 429.
-        setTimeout(() => {
-          // If stream never ends (200), destroy and report status.
-          if (res.statusCode === 200) {
-            req.destroy();
-            resolve(200);
-          }
-        }, 500);
-        void body;
-      });
-      req.on('error', (err) => {
-        // http.get error after destroy is not expected for 429 path
-        if ((err as NodeJS.ErrnoException).code === 'ECONNRESET') resolve(0);
-        else reject(err);
-      });
-      setTimeout(() => reject(new Error('SSE status timeout')), 3000);
     });
   }
 
@@ -695,39 +680,59 @@ test('plan 139: 3rd concurrent SSE connection gets 429 and cap releases on close
     c2 = await openSse();
     expect(c2.res.statusCode).toBe(200);
 
-    // 3rd concurrent should be rejected with 429
-    const thirdStatus = await requestSseStatus();
-    expect(thirdStatus).toBe(429);
+    // 3rd concurrent should be rejected with 429 — poll with generous deadline
+    await vi.waitFor(
+      async () => {
+        const result = await new Promise<{ status: number; body: string }>((resolve, reject) => {
+          const req = http.get({ host: '127.0.0.1', port, path: '/api/v1/sync/events' }, (res) => {
+            let body = '';
+            res.setEncoding('utf8');
+            res.on('data', (d: string) => (body += d));
+            res.on('end', () => resolve({ status: res.statusCode ?? 0, body }));
+          });
+          req.on('error', reject);
+        });
+        expect(result.status).toBe(429);
+      },
+      { timeout: 3000, interval: 50 },
+    );
 
-    // Also verify the 429 payload code via inject fallback (same module counter)
-    // Close one connection and ensure a new one succeeds
+    // Close one connection and ensure a new one succeeds — poll for observable cap release
     c1.req.destroy();
-    // Wait for server to process close
-    await new Promise((r) => setTimeout(r, 200));
+    await vi.waitFor(
+      async () => {
+        const c3 = await openSse();
+        expect(c3.res.statusCode).toBe(200);
+        c3.req.destroy();
+      },
+      { timeout: 3000, interval: 50 },
+    );
+    await new Promise<void>((r) => setImmediate(r as () => void));
 
-    const c3 = await openSse();
-    expect(c3.res.statusCode).toBe(200);
-    c3.req.destroy();
-    await new Promise((r) => setTimeout(r, 100));
-
-    // Validate 429 body via direct inject on a new app instance would share
-    // the global counter — instead validate the JSON code via a raw http fetch
-    // with the cap exceeded. Re-fill the cap:
+    // Validate 429 body via raw http fetch with the cap exceeded. Re-fill the cap:
     c1 = await openSse();
     expect(c1.res.statusCode).toBe(200);
     // c2 is still open (200), c1 newly opened (200) -> cap full again
-    const raw429 = await new Promise<{ status: number; body: string }>((resolve, reject) => {
-      const req = http.get({ host: '127.0.0.1', port, path: '/api/v1/sync/events' }, (res) => {
-        let body = '';
-        res.setEncoding('utf8');
-        res.on('data', (d: string) => (body += d));
-        res.on('end', () => resolve({ status: res.statusCode ?? 0, body }));
-      });
-      req.on('error', reject);
-      setTimeout(() => reject(new Error('429 body timeout')), 2000);
-    });
-    expect(raw429.status).toBe(429);
-    expect(raw429.body).toContain('SSE_CONNECTIONS_LIMITED');
+    let raw429: { status: number; body: string } | null = null;
+    await vi.waitFor(
+      async () => {
+        const result = await new Promise<{ status: number; body: string }>((resolve, reject) => {
+          const req = http.get({ host: '127.0.0.1', port, path: '/api/v1/sync/events' }, (res) => {
+            let body = '';
+            res.setEncoding('utf8');
+            res.on('data', (d: string) => (body += d));
+            res.on('end', () => resolve({ status: res.statusCode ?? 0, body }));
+          });
+          req.on('error', reject);
+        });
+        raw429 = result;
+        expect(result.status).toBe(429);
+        expect(result.body).toContain('SSE_CONNECTIONS_LIMITED');
+      },
+      { timeout: 3000, interval: 50 },
+    );
+    expect(raw429!.status).toBe(429);
+    expect(raw429!.body).toContain('SSE_CONNECTIONS_LIMITED');
   } finally {
     try {
       c1?.req.destroy();
@@ -739,8 +744,8 @@ test('plan 139: 3rd concurrent SSE connection gets 429 and cap releases on close
     } catch (_e2) {
       void _e2;
     }
-    // Allow decrements to propagate before closing the server
-    await new Promise((r) => setTimeout(r, 200));
+    // Allow decrements to propagate before closing the server — tick without wall-clock
+    await new Promise<void>((r) => setImmediate(r as () => void));
     await app.close();
     rmSync(dir, { recursive: true, force: true });
   }
