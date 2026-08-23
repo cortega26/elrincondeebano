@@ -115,7 +115,7 @@ archived", `db6f00ca`) — plan 128. El drift de docs es el batch más grande de
 | [165](165-rescope-parity-gate.md)                                   | Re-scope del gate de parity Python → regresión de round-trip           | P2        | S        | —          | TODO                                                                                                                         |
 | [166](166-whatsapp-notify-on-out-of-stock.md)                       | WhatsApp "Avísame cuando vuelva" en tarjetas AGOTADO                   | P3        | S        | —          | TODO                                                                                                                         |
 | [167](167-resolve-observability-dead-end.md)                        | Resolve observability dead end (ADR 0010 go/no-go)                     | P3        | M        | —          | TODO                                                                                                                         |
-| [168](168-dependabot-auto-merge-patch-only.md)                      | Auto-merge Dependabot patch PRs only when CI is green                  | P2        | S        | —          | TODO                                                                                                                         |
+| [168](archive/168-dependabot-auto-merge-patch-only.md)              | Auto-merge Dependabot patch PRs only when CI is green                  | P2        | S        | —          | DONE — 2026-08-23 (`87e3115c`, worktree `advisor/168-dependabot-auto-merge-patch-only`; merged a main `f46d5c00`)            |
 
 ### Dependencias (Auditoría 10)
 
