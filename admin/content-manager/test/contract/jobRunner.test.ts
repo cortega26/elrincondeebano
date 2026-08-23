@@ -1,4 +1,4 @@
-import { test, expect } from 'vitest';
+import { test, expect, vi } from 'vitest';
 import { JobRunner, type JobClock } from '../../src/server/services/jobRunner.ts';
 
 test('schedule runs a job and returns result', async () => {
@@ -7,11 +7,16 @@ test('schedule runs a job and returns result', async () => {
   expect(job.type).toBe('test');
   expect(job.id).toBeTruthy();
 
-  await new Promise((resolve) => setTimeout(resolve, 50));
+  await vi.waitFor(
+    () => {
+      const retrieved = runner.getJob<string>(job.id);
+      expect(retrieved).toBeDefined();
+      expect(retrieved!.status).toBe('completed');
+    },
+    { timeout: 2000, interval: 10 },
+  );
 
   const retrieved = runner.getJob<string>(job.id);
-  expect(retrieved).toBeDefined();
-  expect(retrieved!.status).toBe('completed');
   expect(retrieved!.result).toBe('done');
   expect(retrieved!.progress).toBe(100);
 });
@@ -20,7 +25,10 @@ test('schedule records start and complete times', async () => {
   const runner = new JobRunner();
   const job = runner.schedule('test', async () => 'ok');
 
-  await new Promise((resolve) => setTimeout(resolve, 50));
+  await vi.waitFor(() => expect(runner.getJob(job.id)!.status).toBe('completed'), {
+    timeout: 2000,
+    interval: 10,
+  });
 
   const retrieved = runner.getJob(job.id);
   expect(retrieved!.started_at).toBeTruthy();
@@ -39,10 +47,12 @@ test('cancelJob cancels a pending job before it starts', async () => {
   const secondJob = runner.getJob(second.id);
   expect(secondJob!.status).toBe('cancelled');
 
-  await new Promise((resolve) => setTimeout(resolve, 50));
+  await vi.waitFor(() => expect(runner.getJob(first.id)!.status).toBe('completed'), {
+    timeout: 2000,
+    interval: 10,
+  });
 
   const firstJob = runner.getJob(first.id);
-  expect(firstJob!.status).toBe('completed');
   expect(firstJob!.result).toBe('first');
 });
 
@@ -50,7 +60,10 @@ test('cancelJob returns false for completed job', async () => {
   const runner = new JobRunner();
   const job = runner.schedule('test', async () => 'done');
 
-  await new Promise((resolve) => setTimeout(resolve, 50));
+  await vi.waitFor(() => expect(runner.getJob(job.id)!.status).toBe('completed'), {
+    timeout: 2000,
+    interval: 10,
+  });
 
   const cancelled = runner.cancelJob(job.id);
   expect(cancelled).toBe(false);
@@ -73,11 +86,20 @@ test('cancelJob returns false for unknown job', () => {
 test('shutdown cancels all pending jobs', async () => {
   const runner = new JobRunner();
 
+  let release!: () => void;
+  const gate = new Promise<void>((r) => {
+    release = r;
+  });
   const first = runner.schedule('test', async () => {
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await gate;
     return 'first';
   });
   const second = runner.schedule('test', async () => 'second');
+
+  await vi.waitFor(() => expect(runner.getJob(first.id)!.status).toBe('running'), {
+    timeout: 2000,
+    interval: 10,
+  });
 
   await runner.shutdown();
 
@@ -85,14 +107,19 @@ test('shutdown cancels all pending jobs', async () => {
   expect(runner.getJob(second.id)!.status).toBe('cancelled');
   // First job was already running; after shutdown with cancelRequested, it may complete or be cancelled
   expect(['completed', 'cancelled', 'running']).toContain(runner.getJob(first.id)!.status);
+
+  release();
+  await vi.waitFor(
+    () => expect(['completed', 'cancelled']).toContain(runner.getJob(first.id)!.status),
+    { timeout: 2000, interval: 10 },
+  );
 });
 
 test("shutdown doesn't cancel already completed jobs", async () => {
   const runner = new JobRunner();
   const job = runner.schedule('test', async () => 'done');
 
-  await new Promise((resolve) => setTimeout(resolve, 50));
-  expect(job.status).toBe('completed');
+  await vi.waitFor(() => expect(job.status).toBe('completed'), { timeout: 2000, interval: 10 });
 
   await runner.shutdown();
   expect(job.status).toBe('completed');
@@ -105,7 +132,7 @@ test('updateProgress updates job progress', async () => {
     return 'done';
   });
 
-  await new Promise((resolve) => setTimeout(resolve, 50));
+  await vi.waitFor(() => expect(job.status).toBe('completed'), { timeout: 2000, interval: 10 });
 
   expect(job.progress).toBe(100);
 });
@@ -142,28 +169,36 @@ test('failed job stores error', async () => {
     throw new Error('boom');
   });
 
-  await new Promise((resolve) => setTimeout(resolve, 50));
+  await vi.waitFor(() => expect(job.status).toBe('failed'), { timeout: 2000, interval: 10 });
 
-  expect(job.status).toBe('failed');
   expect(job.error).toBe('boom');
 });
 
 test('getPendingCount returns number of queued jobs', async () => {
   const runner = new JobRunner();
 
+  let release!: () => void;
+  const gate = new Promise<void>((r) => {
+    release = r;
+  });
   runner.schedule('test', async () => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await gate;
   });
 
   runner.schedule('test', async () => 'second');
   runner.schedule('test', async () => 'third');
 
-  // First job is running (or about to), others queued
-  // Give a small tick for setImmediate to process
-  await new Promise((r) => setTimeout(r, 10));
+  // Wait until the queue is observed (runner has started processing)
+  await vi.waitFor(
+    () => {
+      expect(runner.getPendingCount()).toBeGreaterThanOrEqual(0);
+    },
+    { timeout: 2000, interval: 10 },
+  );
 
-  // getPendingCount should be >= 0 (may be 0, 1, or 2 depending on timing)
   expect(runner.getPendingCount()).toBeGreaterThanOrEqual(0);
+  release();
+  await vi.waitFor(() => expect(runner.getPendingCount()).toBe(0), { timeout: 2000, interval: 10 });
 });
 
 // ── plan 127 F3.1: scheduled jobs (scheduleAt) ──────────────────────────────
@@ -205,7 +240,7 @@ test('scheduleAt runs the job only after the target time', async () => {
       ran = true;
       return 'done';
     },
-    new Date(clock.now() + 5_000)
+    new Date(clock.now() + 5_000),
   );
 
   expect(job.status).toBe('pending');
@@ -213,8 +248,7 @@ test('scheduleAt runs the job only after the target time', async () => {
   expect(ran).toBe(false);
 
   advance(1_000);
-  await new Promise((r) => setTimeout(r, 0));
-  expect(ran).toBe(true);
+  await vi.waitFor(() => expect(ran).toBe(true), { timeout: 1000, interval: 10 });
 });
 
 test('cancelJob before the target time cancels without running', async () => {
@@ -227,14 +261,16 @@ test('cancelJob before the target time cancels without running', async () => {
       ran = true;
       return 'nope';
     },
-    new Date(clock.now() + 60_000)
+    new Date(clock.now() + 60_000),
   );
 
   expect(runner.cancelJob(job.id)).toBe(true);
   expect(job.status).toBe('cancelled');
 
   advance(120_000);
-  await new Promise((r) => setTimeout(r, 0));
+  // Flush microtasks/setImmediate queue without wall-clock sleep
+  await new Promise<void>((r) => queueMicrotask(() => r()));
+  await new Promise<void>((r) => setImmediate(r as () => void));
   expect(ran).toBe(false);
 });
 
@@ -248,13 +284,12 @@ test('scheduleAt with a past time runs immediately', async () => {
       ran = true;
       return 'now';
     },
-    new Date(clock.now() - 1)
+    new Date(clock.now() - 1),
   );
 
   expect(job.status).toBe('pending');
   advance(0);
-  await new Promise((r) => setTimeout(r, 0));
-  expect(ran).toBe(true);
+  await vi.waitFor(() => expect(ran).toBe(true), { timeout: 1000, interval: 10 });
 });
 
 test('shutdown clears scheduled timers so the callback never runs (plan 136)', async () => {
@@ -282,7 +317,7 @@ test('shutdown clears scheduled timers so the callback never runs (plan 136)', a
       ran = true;
       return 'should-not-run';
     },
-    new Date(now + 60_000)
+    new Date(now + 60_000),
   );
 
   expect(job.status).toBe('pending');
@@ -302,7 +337,8 @@ test('shutdown clears scheduled timers so the callback never runs (plan 136)', a
       t.cb();
     }
   }
-  await new Promise((r) => setTimeout(r, 0));
+  await new Promise<void>((r) => queueMicrotask(() => r()));
+  await new Promise<void>((r) => setImmediate(r as () => void));
   expect(ran).toBe(false);
 
   // Idempotent: second shutdown does not throw and does not double-clear.
