@@ -295,7 +295,7 @@ export async function mediaMutRoutes(
     intent.updated_at = new Date().toISOString();
     intents.save(intent);
 
-    startIntentJob(intent, intents, repoRoot);
+    startIntentJob(intent, intents, repoRoot, media);
 
     return { status: 'started', intent_id: intent.id };
   });
@@ -303,7 +303,8 @@ export async function mediaMutRoutes(
   function startIntentJob(
     intent: MediaIntent,
     intents: MediaIntentRepository,
-    repoRoot: string
+    repoRoot: string,
+    mediaRepo: MediaRepository
   ): void {
     const update = (patch: Partial<MediaIntent>): void => {
       Object.assign(intent, patch, { updated_at: new Date().toISOString() });
@@ -340,6 +341,11 @@ export async function mediaMutRoutes(
             outputs: result.outputs,
             completed_at: new Date().toISOString(),
           });
+          // OG jobs write canonical assets at run time (not staging), so
+          // the media inventory (assets tree) changed — invalidate cache.
+          if (result.output_kind === 'canonical') {
+            mediaRepo.invalidate();
+          }
         } else {
           update({
             status: 'failed',
@@ -427,7 +433,7 @@ export async function mediaMutRoutes(
         intent.progress = 0;
         intent.updated_at = new Date().toISOString();
         intents.save(intent);
-        startIntentJob(intent, intents, repoRoot);
+        startIntentJob(intent, intents, repoRoot, media);
       } else if (body.action === 'cancel') {
         if (intent.status === 'succeeded' || intent.status === 'failed') {
           skipped.push({ id, reason: 'ALREADY_FINISHED' });
@@ -529,6 +535,7 @@ export async function mediaMutRoutes(
         intent.updated_at = new Date().toISOString();
         intent.completed_at = new Date().toISOString();
         intents.save(intent);
+        media.invalidate();
         return {
           status: 'applied',
           intent_id: id,
@@ -601,6 +608,7 @@ export async function mediaMutRoutes(
       intent.updated_at = new Date().toISOString();
       intent.completed_at = new Date().toISOString();
       intents.save(intent);
+      media.invalidate();
 
       return { status: 'applied', intent_id: id, promoted: promoted.length };
     } catch (err) {
@@ -614,6 +622,7 @@ export async function mediaMutRoutes(
           }
         }
       }
+      if (promoted.length > 0) media.invalidate();
       throw new HttpError(500, 'APPLY_FAILED', 'Apply failed', (err as Error).message);
     }
   });

@@ -18,13 +18,75 @@ const DEFAULT_ASSETS = 'assets/images';
 export class MediaRepository {
   private readonly assetsPath: string;
   private readonly repoRoot: string;
+  private cached: {
+    mtimeMs: number;
+    size: number;
+    items: MediaItem[];
+    summary: Record<string, number>;
+    productsKey: string;
+  } | null = null;
 
   constructor(config: MediaRepositoryConfig) {
     this.repoRoot = config.repoRoot;
     this.assetsPath = resolve(config.repoRoot, config.assetsDir ?? DEFAULT_ASSETS);
   }
 
+  invalidate(): void {
+    this.cached = null;
+  }
+
+  private computeProductsKey(products: Product[]): string {
+    const imagePaths = products.map((p) => p.image_path ?? '').sort().join('|');
+    const avifPaths = products.map((p) => p.image_avif_path ?? '').sort().join('|');
+    return `${products.length}:${imagePaths}:${avifPaths}`;
+  }
+
+  private getStamp(): { mtimeMs: number; size: number } | null {
+    try {
+      const stat = statSync(this.assetsPath);
+      let maxMtime = stat.mtimeMs;
+      let totalSize = stat.size;
+      // Detect nested adds/removes: directory mtime changes propagate only to
+      // the immediate parent. A file added deep in the tree updates its
+      // parent dir's mtime but not the root. We walk the directory tree
+      // (dirs only, not files) to collect the latest mtime — cheap: ~300 dirs
+      // vs ~4000 files for a full walk.
+      const stack: string[] = [this.assetsPath];
+      while (stack.length > 0) {
+        const dir = stack.pop()!;
+        let entries;
+        try {
+          entries = readdirSync(dir, { withFileTypes: true });
+        } catch {
+          continue;
+        }
+        for (const entry of entries) {
+          if (entry.isDirectory()) {
+            const full = resolve(dir, entry.name);
+            try {
+              const s = statSync(full);
+              if (s.mtimeMs > maxMtime) maxMtime = s.mtimeMs;
+              totalSize += s.size;
+              stack.push(full);
+            } catch {
+              // ignore unreadable
+            }
+          }
+        }
+      }
+      return { mtimeMs: maxMtime, size: totalSize };
+    } catch {
+      return null;
+    }
+  }
+
   getInventory(products: Product[]): { items: MediaItem[]; summary: Record<string, number> } {
+    const productsKey = this.computeProductsKey(products);
+    const stamp = this.getStamp();
+    if (stamp && this.cached && this.cached.mtimeMs === stamp.mtimeMs && this.cached.size === stamp.size && this.cached.productsKey === productsKey) {
+      return { items: this.cached.items, summary: this.cached.summary };
+    }
+
     const usedPaths = new Set<string>();
     const productByPath = new Map<string, string>();
 
@@ -83,15 +145,31 @@ export class MediaRepository {
       }
     }
 
+    // Single-pass summary instead of 4 .filter() passes.
+    let active = 0;
+    let orphans = 0;
+    let generated = 0;
+    let staged = 0;
+    let missing = 0;
+    for (const item of items) {
+      if (item.status === 'active') active += 1;
+      else if (item.status === 'orphan') orphans += 1;
+      else if (item.status === 'generated') generated += 1;
+      else if (item.status === 'staged') staged += 1;
+      else if (item.status === 'missing') missing += 1;
+    }
     const summary = {
       total: items.length,
-      active: items.filter((i) => i.status === 'active').length,
-      orphans: items.filter((i) => i.status === 'orphan').length,
-      generated: items.filter((i) => i.status === 'generated').length,
-      staged: items.filter((i) => i.status === 'staged').length,
-      missing: items.filter((i) => i.status === 'missing').length,
+      active,
+      orphans,
+      generated,
+      staged,
+      missing,
     };
 
+    if (stamp) {
+      this.cached = { mtimeMs: stamp.mtimeMs, size: stamp.size, productsKey, items, summary };
+    }
     return { items, summary };
   }
 
