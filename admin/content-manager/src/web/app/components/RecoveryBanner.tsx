@@ -5,6 +5,9 @@
 
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ContentManagerClient } from '../../api/client.ts';
+
+const client = new ContentManagerClient();
 
 interface DiagnosticsReport {
   recoveryNeeded?: boolean;
@@ -17,8 +20,7 @@ export function RecoveryBanner(): React.ReactElement | null {
     let cancelled = false;
     const check = async (): Promise<void> => {
       try {
-        const res = await fetch('/api/v1/diagnostics');
-        const report = (await res.json()) as DiagnosticsReport;
+        const report = (await client.getDiagnostics()) as DiagnosticsReport;
         if (!cancelled) setRecoveryNeeded(report.recoveryNeeded === true);
       } catch {
         // Diagnostics unavailable — keep the previous state.

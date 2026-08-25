@@ -127,6 +127,111 @@ export interface JobResponse {
   error?: string;
 }
 
+export interface DiagnosticsReport {
+  timestamp: string;
+  nodeVersion: string;
+  repoRoot: string;
+  checks: Array<{
+    name: string;
+    status: 'ok' | 'warn' | 'error';
+    message: string;
+    remediation?: string;
+  }>;
+  summary: { ok: number; warn: number; error: number };
+  recoveryNeeded: boolean;
+}
+
+export interface HistoryResponse {
+  total_products: number;
+  products_with_history: number;
+  entries: Array<{
+    product_name: string;
+    product_id?: string;
+    field: string;
+    timestamp?: string;
+    by?: string;
+    rev?: number;
+    before?: Record<string, unknown>;
+    after?: Record<string, unknown>;
+    change_set_id?: string;
+    source_change_set_id?: string;
+  }>;
+  catalog_version?: string;
+  catalog_last_updated?: string;
+}
+
+export interface ChangeSetResponse {
+  id: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  product_ops: Array<Record<string, unknown>>;
+  source_change_set_id?: string;
+}
+
+export interface BackupEntry {
+  id: string;
+  timestamp: string;
+  files: Array<{ name: string; size: number }>;
+  backup_class?: string;
+  protected_reason?: string;
+  cleanup_warning?: string;
+}
+
+export interface BackupsResponse {
+  backups: { entries: BackupEntry[]; total: number; page: number };
+}
+
+export interface SyncStatusResponse {
+  sync: {
+    enabled: boolean;
+    api_base: string | null;
+    poll_interval: number;
+    pull_interval: number;
+    paused: boolean;
+    token_configured: boolean;
+    queue: { pending: number; error: number; total: number; synced?: number };
+    next_attempt: string | null;
+    last_push: { ok: boolean; error?: string } | null;
+    last_pull: { ok: boolean; error?: string } | null;
+  };
+  capabilities: { push: string; pull: string };
+}
+
+export interface ConflictsResponse {
+  conflicts: Array<{
+    id: string;
+    status: string;
+    entity_type: string;
+    entity_id: string;
+    entity_name?: string;
+    base_revision: number;
+    local_snapshot: Record<string, unknown>;
+    server_snapshot: Record<string, unknown>;
+    fields: Array<{
+      field: string;
+      base_value: unknown;
+      local_value: unknown;
+      server_value: unknown;
+      resolution: string;
+      manual_value?: unknown;
+      resolved_at?: string;
+    }>;
+    created_at: string;
+    updated_at: string;
+    retry_count: number;
+    last_error?: string;
+    resolution_audit: Array<{ timestamp: string; field: string; from: string; to: string }>;
+  }>;
+  summary: {
+    unresolved: number;
+    retrying: number;
+    resolved: number;
+    failed: number;
+    total: number;
+  };
+}
+
 export class ContentManagerClient {
   private readonly baseUrl: string;
 
@@ -629,5 +734,40 @@ export class ContentManagerClient {
         ...(scope ? { scope: scope.scope, filters: scope.filters } : { product_ids: productIds }),
       }),
     });
+  }
+
+  async getDiagnostics(): Promise<DiagnosticsReport> {
+    return this.request<DiagnosticsReport>('/diagnostics');
+  }
+
+  async getHistory(): Promise<HistoryResponse> {
+    return this.request<HistoryResponse>('/history');
+  }
+
+  async getChangeSets(): Promise<{ items: ChangeSetResponse[] }> {
+    return this.request<{ items: ChangeSetResponse[] }>('/change-sets');
+  }
+
+  async getBackups(params?: { page?: number; limit?: number }): Promise<BackupsResponse> {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set('page', String(params.page));
+    if (params?.limit) searchParams.set('limit', String(params.limit));
+    const qs = searchParams.toString();
+    return this.request<BackupsResponse>('/backup' + (qs ? `?${qs}` : ''));
+  }
+
+  async getSyncStatus(): Promise<SyncStatusResponse> {
+    return this.request<SyncStatusResponse>('/sync/status');
+  }
+
+  async getConflicts(params?: {
+    status?: string;
+    entity_type?: string;
+  }): Promise<ConflictsResponse> {
+    const searchParams = new URLSearchParams();
+    if (params?.status) searchParams.set('status', params.status);
+    if (params?.entity_type) searchParams.set('entity_type', params.entity_type);
+    const qs = searchParams.toString();
+    return this.request<ConflictsResponse>('/conflicts' + (qs ? `?${qs}` : ''));
   }
 }

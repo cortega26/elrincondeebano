@@ -101,13 +101,13 @@ export function MediaPage(): React.ReactElement {
 
   useEffect(() => {
     void load();
-    fetch('/api/v1/categories')
-      .then((r) => r.json())
-      .then((d) => setCategories(d.categories as CategoryEntry[]))
+    client
+      .getCategories()
+      .then((d) => setCategories(d.categories as unknown as CategoryEntry[]))
       .catch(() => {});
-    fetch('/api/v1/products')
-      .then((r) => r.json())
-      .then((d) => setProducts(d.items as ProductOption[]))
+    client
+      .getProducts()
+      .then((d) => setProducts(d.items as unknown as ProductOption[]))
       .catch(() => {});
   }, [load]);
 
@@ -219,8 +219,7 @@ export function MediaPage(): React.ReactElement {
     if (action === 'run') {
       // Poll until terminal.
       const poll = async (): Promise<void> => {
-        const r = await fetch('/api/v1/media');
-        const d = (await r.json()) as { intents: MediaIntent[] };
+        const d = (await client.getMedia()) as unknown as { intents: MediaIntent[] };
         const current = d.intents.find((i) => i.id === id);
         if (current && ['succeeded', 'failed', 'cancelled'].includes(current.status)) {
           await load();

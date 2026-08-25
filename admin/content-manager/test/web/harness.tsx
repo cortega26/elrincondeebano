@@ -39,6 +39,12 @@ const { mockApi } = vi.hoisted(() => {
     createSubcategory: vi.fn(),
     updateSubcategory: vi.fn(),
     deleteSubcategory: vi.fn(),
+    getDiagnostics: vi.fn(),
+    getHistory: vi.fn(),
+    getChangeSets: vi.fn(),
+    getBackups: vi.fn(),
+    getSyncStatus: vi.fn(),
+    getConflicts: vi.fn(),
   };
   return { mockApi };
 });
@@ -73,6 +79,12 @@ vi.mock('@web/api/client.ts', async (importOriginal) => {
     createSubcategory = mockApi.createSubcategory;
     updateSubcategory = mockApi.updateSubcategory;
     deleteSubcategory = mockApi.deleteSubcategory;
+    getDiagnostics = mockApi.getDiagnostics;
+    getHistory = mockApi.getHistory;
+    getChangeSets = mockApi.getChangeSets;
+    getBackups = mockApi.getBackups;
+    getSyncStatus = mockApi.getSyncStatus;
+    getConflicts = mockApi.getConflicts;
   }
   return { ...actual, ContentManagerClient: MockContentManagerClient };
 });

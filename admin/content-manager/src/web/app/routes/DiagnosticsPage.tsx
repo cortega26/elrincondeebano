@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { ContentManagerClient } from '../../api/client.ts';
+
+const client = new ContentManagerClient();
 
 interface DiagnosticCheck {
   name: string;
@@ -32,12 +35,8 @@ export function DiagnosticsPage(): React.ReactElement {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/v1/diagnostics');
-      if (!response.ok) {
-        setError(`Error ${response.status}`);
-        return;
-      }
-      setReport((await response.json()) as DoctorReport);
+      const data = await client.getDiagnostics();
+      setReport(data as unknown as DoctorReport);
     } catch (err) {
       setError((err as Error).message);
     } finally {

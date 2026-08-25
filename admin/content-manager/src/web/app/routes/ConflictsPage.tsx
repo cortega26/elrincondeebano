@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { ContentManagerClient } from '../../api/client.ts';
 import { fetchWithCredential } from '../credentialStore.ts';
+
+const client = new ContentManagerClient();
 
 interface FieldConflict {
   field: string;
@@ -81,18 +84,9 @@ export function ConflictsPage(): React.ReactElement {
     setLoading(true);
     setError(null);
     try {
-      const searchParams = new URLSearchParams();
-      if (activeTab) searchParams.set('status', activeTab);
-      const qs = searchParams.toString();
-      const url = `/api/v1/conflicts${qs ? `?${qs}` : ''}`;
-      const response = await fetch(url, { headers: { 'Content-Type': 'application/json' } });
-      if (!response.ok) {
-        const body = await response.json().catch(() => ({}));
-        throw new Error(
-          (body as { error?: { message?: string } }).error?.message ?? `HTTP ${response.status}`
-        );
-      }
-      const result = (await response.json()) as ConflictsResponse;
+      const result = (await client.getConflicts(
+        activeTab ? { status: activeTab } : undefined
+      )) as unknown as ConflictsResponse;
       setData(result);
     } catch (err) {
       setError((err as Error).message);

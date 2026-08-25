@@ -1,5 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
+import { ContentManagerClient } from '../../api/client.ts';
 import { fetchWithCredential } from '../credentialStore.ts';
+
+const client = new ContentManagerClient();
 
 interface HistoryEntry {
   product_name: string;
@@ -64,20 +67,15 @@ export function HistoryPage(): React.ReactElement {
     setLoading(true);
     setError(null);
     try {
-      const [historyRes, csRes, backupRes] = await Promise.all([
-        fetch('/api/v1/history'),
-        fetch('/api/v1/change-sets'),
-        fetch('/api/v1/backup'),
+      const [history, csData, backupData] = await Promise.all([
+        client.getHistory(),
+        client.getChangeSets(),
+        client.getBackups(),
       ]);
-      const history = (await historyRes.json()) as { entries: HistoryEntry[] };
-      const csData = (await csRes.json()) as { items: ChangeSet[] };
-      const backupData = (await backupRes.json()) as {
-        backups: { entries: BackupEntry[]; total: number };
-      };
-      setEntries(history.entries);
-      setSummary(history);
-      setChangeSets(csData.items);
-      setBackups(backupData.backups.entries);
+      setEntries(history.entries as unknown as HistoryEntry[]);
+      setSummary(history as unknown as Record<string, unknown>);
+      setChangeSets(csData.items as unknown as ChangeSet[]);
+      setBackups(backupData.backups.entries as unknown as BackupEntry[]);
     } catch (err) {
       setError((err as Error).message);
     } finally {

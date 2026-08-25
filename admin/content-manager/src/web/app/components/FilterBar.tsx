@@ -1,4 +1,7 @@
 import type { CategoryRecord } from '../../../shared/schemas/category.ts';
+import { ContentManagerClient } from '../../api/client.ts';
+
+const client = new ContentManagerClient();
 
 // Plan 094: filter bar extracted from ProductsPage.
 
@@ -153,8 +156,8 @@ export function FilterBar({
       </label>
       <button
         onClick={() => {
-          fetch('/api/v1/products')
-            .then((r) => r.json())
+          client
+            .getProducts()
             .then((d) => setFeedback(`Sanity check: ${d.total} productos, sin errores`))
             .catch(() => setFeedback('Error al validar'));
         }}

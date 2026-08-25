@@ -332,6 +332,43 @@ export function buildOpenApi() {
     responses: jsonResponse(z.record(z.string(), z.unknown())),
   });
 
+  registry.registerPath({
+    method: 'get',
+    path: '/api/v1/diagnostics',
+    summary: 'Diagnostics report',
+    responses: jsonResponse(z.record(z.string(), z.unknown())),
+  });
+  registry.registerPath({
+    method: 'get',
+    path: '/api/v1/history',
+    summary: 'History entries',
+    responses: jsonResponse(z.record(z.string(), z.unknown())),
+  });
+  registry.registerPath({
+    method: 'get',
+    path: '/api/v1/change-sets',
+    summary: 'List change sets',
+    responses: jsonResponse(z.record(z.string(), z.unknown())),
+  });
+  registry.registerPath({
+    method: 'get',
+    path: '/api/v1/backup',
+    summary: 'List backups',
+    responses: jsonResponse(z.record(z.string(), z.unknown())),
+  });
+  registry.registerPath({
+    method: 'get',
+    path: '/api/v1/sync/status',
+    summary: 'Sync status',
+    responses: jsonResponse(z.record(z.string(), z.unknown())),
+  });
+  registry.registerPath({
+    method: 'get',
+    path: '/api/v1/conflicts',
+    summary: 'List conflicts',
+    responses: jsonResponse(z.record(z.string(), z.unknown())),
+  });
+
   return new OpenApiGeneratorV3(registry.definitions).generateDocument({
     openapi: '3.0.0',
     info: { title: 'El Rincón de Ébano Content Manager', version: '1.0.0' },
