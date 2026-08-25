@@ -43,20 +43,26 @@ export function createCatalogViewController({
 
     // Plan 120: precompute the sort/search keys ONCE per updateView —
     // never inside the comparator (O(n log n) string work per keystroke).
-    const keyed = products.map((item) => ({
-      item,
-      order: parseNumber(item.dataset.productOrder, 0),
-      name: normalizeSearchText(item.dataset.productName || ''),
-      price: parseNumber(item.dataset.productFinalPrice, 0),
-      searchText: normalizeSearchText(
-        item.dataset.productSearchText ||
-          [
-            item.dataset.productName || '',
-            item.dataset.productDescription || '',
-            item.dataset.productCategory || '',
-          ].join(' ')
-      ),
-    }));
+    // Plan 149: hoist name normalization so it's computed once and reused in
+    // searchText (was two normalizeSearchText per product).
+    const keyed = products.map((item) => {
+      const normalizedName = normalizeSearchText(item.dataset.productName || '');
+      return {
+        item,
+        order: parseNumber(item.dataset.productOrder, 0),
+        name: normalizedName,
+        price: parseNumber(item.dataset.productFinalPrice, 0),
+        searchText: item.dataset.productSearchText
+          ? normalizeSearchText(item.dataset.productSearchText)
+          : [
+              normalizedName,
+              normalizeSearchText(item.dataset.productDescription || ''),
+              normalizeSearchText(item.dataset.productCategory || ''),
+            ]
+              .join(' ')
+              .trim(),
+      };
+    });
 
     const sortedProducts = keyed
       .sort((a, b) => {
@@ -75,9 +81,12 @@ export function createCatalogViewController({
       })
       .map((k) => k.item);
 
-    const reorderFragment = document.createDocumentFragment();
-    sortedProducts.forEach((item) => reorderFragment.appendChild(item));
-    container.appendChild(reorderFragment);
+    const needsReorder = sortedProducts.some((item, index) => products[index] !== item);
+    if (needsReorder) {
+      const reorderFragment = document.createDocumentFragment();
+      sortedProducts.forEach((item) => reorderFragment.appendChild(item));
+      container.appendChild(reorderFragment);
+    }
 
     const matchingProducts = [];
     keyed.forEach((k) => {
