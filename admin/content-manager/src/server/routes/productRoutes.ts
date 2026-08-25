@@ -4,6 +4,7 @@ import { ProductService } from '../../domain/products/productService.ts';
 import type { CommandEnvelope } from '../../shared/commands/envelope.ts';
 import { relocateProductMedia, rollbackMediaRelocation } from '../services/mediaRelocation.ts';
 import { requireWriteMode, type Repositories } from './helpers.ts';
+import { runCatalogCommand } from './catalog-command.ts';
 export async function productRoutes(
   app: FastifyInstance,
   repos: Repositories,
@@ -178,34 +179,30 @@ export async function productRoutes(
       });
     }
 
-    const catalog = repos.products.loadCatalog();
-    const baseRev = catalog.rev;
+    let created: { product?: unknown; changedFields?: string[] } | undefined;
 
-    const result = productService.create(catalog, envelope.payload);
-
-    if (!result.ok) {
-      return reply.status(result.statusCode).send({
-        error: {
-          code: result.statusCode === 409 ? 'CONFLICT' : 'VALIDATION_ERROR',
-          message: result.error,
-        },
-      });
-    }
-
-    const writeResult = await repos.products.writeCatalog(catalog, envelope.command_id, baseRev);
-
-    if (!writeResult.ok) {
-      return reply.status(writeResult.statusCode).send({
-        error: { code: 'CONFLICT', message: writeResult.error },
-      });
-    }
-
-    return reply.status(201).send({
-      command_id: envelope.command_id,
-      status: 'ok',
-      resulting_revision: catalog.rev,
-      changed_fields: result.changedFields,
-      product: result.product,
+    return runCatalogCommand({
+      repos,
+      reply,
+      commandId: envelope.command_id,
+      successStatus: 201,
+      apply: (catalog) => {
+        const result = productService.create(catalog, envelope.payload);
+        if (!result.ok) {
+          return {
+            ok: false,
+            statusCode: result.statusCode,
+            code: result.statusCode === 409 ? 'CONFLICT' : 'VALIDATION_ERROR',
+            message: result.error ?? 'Validation failed',
+          };
+        }
+        created = result;
+        return { ok: true };
+      },
+      onSuccess: () => ({
+        changed_fields: (created as { changedFields?: string[] })?.changedFields,
+        product: (created as { product?: unknown })?.product,
+      }),
     });
   });
 
@@ -231,104 +228,120 @@ export async function productRoutes(
       });
     }
 
-    const catalog = repos.products.loadCatalog();
-    const baseRev = catalog.rev;
+    let previousCategory = '';
+    let previousImagePath = '';
+    let previousAvifPath = '';
+    let editResult: { ok: true; product?: unknown; changedFields?: string[] } | undefined;
 
-    // Plan 097: media relocation — capture the previous category before the
-    // edit so image files can follow the product to its new subdirectory.
-    const previous = catalog.products.find((p) => p.id === id);
-    const previousCategory = previous?.category ?? '';
-    const previousImagePath = previous?.image_path ?? '';
-    const previousAvifPath = previous?.image_avif_path ?? '';
+    return runCatalogCommand({
+      repos,
+      reply,
+      commandId: envelope.command_id,
+      apply: (catalog) => {
+        const previous = catalog.products.find((p) => p.id === id);
+        previousCategory = previous?.category ?? '';
+        previousImagePath = previous?.image_path ?? '';
+        previousAvifPath = previous?.image_avif_path ?? '';
 
-    const result = productService.edit(catalog, {
-      entityId: id,
-      baseRevision: envelope.base_revision ?? 0,
-      changes: envelope.payload ?? {},
-    });
+        const result = productService.edit(catalog, {
+          entityId: id,
+          baseRevision: envelope.base_revision ?? 0,
+          changes: envelope.payload ?? {},
+        });
 
-    if (!result.ok) {
-      return reply.status(result.statusCode).send({
-        error: {
-          code:
-            result.statusCode === 409
-              ? 'CONFLICT'
-              : result.statusCode === 404
-                ? 'NOT_FOUND'
-                : 'VALIDATION_ERROR',
-          message: result.error,
-        },
-      });
-    }
-
-    const writeResult = await repos.products.writeCatalog(catalog, envelope.command_id, baseRev);
-
-    if (!writeResult.ok) {
-      return reply.status(writeResult.statusCode).send({
-        error: { code: 'CONFLICT', message: writeResult.error },
-      });
-    }
-
-    // Plan 097: relocate media when the category changed — the image files
-    // follow the product to assets/images/<newCategory>/. Any failure rolls
-    // back the moves and keeps the ORIGINAL paths (the edit itself stands);
-    // the moved paths are committed with a second revision-guarded write.
-    const newCategory = result.product?.category ?? '';
-    if (previousCategory && newCategory && previousCategory !== newCategory && result.product) {
-      const reloc = await relocateProductMedia(repoRoot, result.product, {
-        previousCategory,
-        previousImagePath,
-        previousAvifPath,
-        newCategory,
-      });
-      if (reloc.moved.length > 0) {
-        const updated = JSON.parse(JSON.stringify(catalog));
-        const target = updated.products.find(
-          (p: { id?: string; sku?: string }) => p.id === id || p.sku === id
-        );
-        if (target) {
-          target.image_path = reloc.newImagePath;
-          target.image_avif_path = reloc.newAvifPath;
-          updated.rev += 1;
-          updated.last_updated = new Date().toISOString();
-          const baseAfterReloc = updated.rev - 1;
-          const secondWrite = await repos.products.writeCatalog(
-            updated,
-            `${envelope.command_id}-reloc`,
-            baseAfterReloc
-          );
-          if (secondWrite.ok) {
-            Object.assign(result.product, target);
-          } else {
-            rollbackMediaRelocation(reloc.moved);
-          }
-        } else {
-          rollbackMediaRelocation(reloc.moved);
+        if (!result.ok) {
+          return {
+            ok: false,
+            statusCode: result.statusCode,
+            code:
+              result.statusCode === 409
+                ? 'CONFLICT'
+                : result.statusCode === 404
+                  ? 'NOT_FOUND'
+                  : 'VALIDATION_ERROR',
+            message: result.error ?? 'Edit failed',
+          };
         }
-      }
-    }
 
-    // Plan 064: queue the edit for remote sync when enabled (offline edit
-    // flow); the queue is idempotent and the adapter is configured or this
-    // is a no-op.
-    const changedFields = result.changedFields ?? [];
-    if (syncService && id && changedFields.length > 0 && result.product) {
-      const productRecord = result.product as unknown as Record<string, unknown>;
-      syncService.enqueue(
-        id,
-        envelope.base_revision ?? 0,
-        Object.fromEntries(changedFields.map((f) => [f, productRecord[f]])),
-        productRecord
-      );
-    }
+        editResult = result as { ok: true; product?: unknown; changedFields?: string[] };
+        return { ok: true };
+      },
+      onSuccess: async (catalog) => {
+        const typedResult = editResult as unknown as {
+          product?: { category?: string; image_path?: string; image_avif_path?: string };
+          changedFields?: string[];
+        };
+        // Plan 097: relocate media when the category changed — the image files
+        // follow the product to assets/images/<newCategory>/. Any failure rolls
+        // back the moves and keeps the ORIGINAL paths (the edit itself stands);
+        // the moved paths are committed with a second revision-guarded write.
+        const newCategory = typedResult?.product?.category ?? '';
+        if (
+          previousCategory &&
+          newCategory &&
+          previousCategory !== newCategory &&
+          typedResult?.product
+        ) {
+          const reloc = await relocateProductMedia(
+            repoRoot,
+            typedResult.product as unknown as {
+              image_path?: string;
+              image_avif_path?: string;
+            },
+            {
+              previousCategory,
+              previousImagePath,
+              previousAvifPath,
+              newCategory,
+            }
+          );
+          if (reloc.moved.length > 0) {
+            const updated = JSON.parse(JSON.stringify(catalog));
+            const target = updated.products.find(
+              (p: { id?: string; sku?: string }) => p.id === id || p.sku === id
+            );
+            if (target) {
+              target.image_path = reloc.newImagePath;
+              target.image_avif_path = reloc.newAvifPath;
+              updated.rev += 1;
+              updated.last_updated = new Date().toISOString();
+              const baseAfterReloc = updated.rev - 1;
+              const secondWrite = await repos.products.writeCatalog(
+                updated,
+                `${envelope.command_id}-reloc`,
+                baseAfterReloc
+              );
+              if (secondWrite.ok) {
+                Object.assign(typedResult.product as object, target);
+              } else {
+                rollbackMediaRelocation(reloc.moved);
+              }
+            } else {
+              rollbackMediaRelocation(reloc.moved);
+            }
+          }
+        }
 
-    return {
-      command_id: envelope.command_id,
-      status: 'ok',
-      resulting_revision: catalog.rev,
-      changed_fields: result.changedFields,
-      product: result.product,
-    };
+        // Plan 064: queue the edit for remote sync when enabled (offline edit
+        // flow); the queue is idempotent and the adapter is configured or this
+        // is a no-op.
+        const changedFields = typedResult?.changedFields ?? [];
+        if (syncService && id && changedFields.length > 0 && typedResult?.product) {
+          const productRecord = typedResult.product as unknown as Record<string, unknown>;
+          syncService.enqueue(
+            id,
+            envelope.base_revision ?? 0,
+            Object.fromEntries(changedFields.map((f) => [f, productRecord[f]])),
+            productRecord
+          );
+        }
+
+        return {
+          changed_fields: typedResult?.changedFields,
+          product: typedResult?.product,
+        };
+      },
+    });
   });
 
   // Plan 121: batch update — undo/redo applies many per-product patches in
@@ -352,76 +365,74 @@ export async function productRoutes(
       });
     }
 
-    const catalog = repos.products.loadCatalog();
-    const baseRev = catalog.rev;
-
-    // Validate every op first (prospective check per product, plan 100/121):
-    // a stale rev aborts the whole batch with the offending ids listed.
-    const ops: Array<{
+    let ops: Array<{
       id: string;
       baseRevision: number;
       changes: Record<string, unknown>;
     }> = [];
-    const stale: string[] = [];
-    for (const update of envelope.updates) {
-      const product = catalog.products.find((pr) => pr.id === update.id || pr.sku === update.id);
-      if (!product) {
-        stale.push(`${update.id}:NOT_FOUND`);
-        continue;
-      }
-      if (product.rev !== update.rev) {
-        stale.push(`${update.id}:stale`);
-        continue;
-      }
-      ops.push({ id: update.id, baseRevision: update.rev, changes: update.patch ?? {} });
-    }
-    if (stale.length > 0) {
-      return reply.status(409).send({
-        error: {
-          code: 'CONFLICT',
-          message: `Stale revisions for: ${stale.join(', ')}`,
-          details: stale,
-        },
-      });
-    }
+    let changedFields: string[][] = [];
 
-    const changedFields: string[][] = [];
-    for (const op of ops) {
-      const result = productService.edit(catalog, {
-        entityId: op.id,
-        baseRevision: op.baseRevision,
-        changes: op.changes,
-      });
-      if (!result.ok) {
-        return reply.status(result.statusCode).send({
-          error: {
-            code:
-              result.statusCode === 409
-                ? 'CONFLICT'
-                : result.statusCode === 404
-                  ? 'NOT_FOUND'
-                  : 'VALIDATION_ERROR',
-            message: result.error,
-          },
-        });
-      }
-      changedFields.push(result.changedFields ?? []);
-    }
+    return runCatalogCommand({
+      repos,
+      reply,
+      commandId: envelope.command_id,
+      apply: (catalog) => {
+        ops = [];
+        const stale: string[] = [];
+        for (const update of envelope.updates!) {
+          const product = catalog.products.find(
+            (pr) => pr.id === update.id || pr.sku === update.id
+          );
+          if (!product) {
+            stale.push(`${update.id}:NOT_FOUND`);
+            continue;
+          }
+          if (product.rev !== update.rev) {
+            stale.push(`${update.id}:stale`);
+            continue;
+          }
+          ops.push({ id: update.id, baseRevision: update.rev, changes: update.patch ?? {} });
+        }
+        if (stale.length > 0) {
+          return {
+            ok: false,
+            statusCode: 409,
+            code: 'CONFLICT',
+            message: `Stale revisions for: ${stale.join(', ')}`,
+            details: stale,
+          };
+        }
 
-    const writeResult = await repos.products.writeCatalog(catalog, envelope.command_id, baseRev);
-    if (!writeResult.ok) {
-      return reply.status(writeResult.statusCode).send({
-        error: { code: 'CONFLICT', message: writeResult.error },
-      });
-    }
+        changedFields = [];
+        for (const op of ops) {
+          const result = productService.edit(catalog, {
+            entityId: op.id,
+            baseRevision: op.baseRevision,
+            changes: op.changes,
+          });
+          if (!result.ok) {
+            return {
+              ok: false,
+              statusCode: result.statusCode,
+              code:
+                result.statusCode === 409
+                  ? 'CONFLICT'
+                  : result.statusCode === 404
+                    ? 'NOT_FOUND'
+                    : 'VALIDATION_ERROR',
+              message: result.error ?? 'Edit failed',
+            };
+          }
+          changedFields.push(result.changedFields ?? []);
+        }
 
-    return {
-      command_id: envelope.command_id,
-      status: 'ok',
-      resulting_revision: catalog.rev,
-      applied: ops.length,
-      changed_fields: changedFields.flat(),
-    };
+        return { ok: true };
+      },
+      onSuccess: () => ({
+        applied: ops.length,
+        changed_fields: changedFields.flat(),
+      }),
+    });
   });
 
   app.post('/products/reorder', async (request, reply) => {
@@ -434,47 +445,51 @@ export async function productRoutes(
       });
     }
 
-    const catalog = repos.products.loadCatalog();
-    const baseRev = catalog.rev;
+    let reorderedCount = 0;
 
-    // Plan 088: reorder must cover the FULL catalog — a partial id list
-    // (visible page under filters/pagination) would compact the visible
-    // orders to 0..N and scramble the global order.
-    if (body.ordered_ids.length !== catalog.products.length) {
-      return reply.status(409).send({
-        error: {
-          code: 'REORDER_SCOPE_AMBIGUOUS',
-          message: `Reorder requires the full catalog (${catalog.products.length} products), got ${body.ordered_ids.length}. Clear filters and pagination first.`,
-        },
-      });
-    }
-    const uniqueIds = new Set(body.ordered_ids);
-    if (uniqueIds.size !== body.ordered_ids.length) {
-      return reply.status(400).send({
-        error: { code: 'BAD_REQUEST', message: 'ordered_ids contains duplicates' },
-      });
-    }
+    return runCatalogCommand({
+      repos,
+      reply,
+      commandId: body.command_id,
+      apply: (catalog) => {
+        // Plan 088: reorder must cover the FULL catalog — a partial id list
+        // (visible page under filters/pagination) would compact the visible
+        // orders to 0..N and scramble the global order.
+        if (body.ordered_ids!.length !== catalog.products.length) {
+          return {
+            ok: false,
+            statusCode: 409,
+            code: 'REORDER_SCOPE_AMBIGUOUS',
+            message: `Reorder requires the full catalog (${catalog.products.length} products), got ${body.ordered_ids!.length}. Clear filters and pagination first.`,
+          };
+        }
+        const uniqueIds = new Set(body.ordered_ids);
+        if (uniqueIds.size !== body.ordered_ids!.length) {
+          return {
+            ok: false,
+            statusCode: 400,
+            code: 'BAD_REQUEST',
+            message: 'ordered_ids contains duplicates',
+          };
+        }
 
-    const result = productService.reorder(catalog, body.ordered_ids);
-    if (!result.ok) {
-      return reply.status(400).send({
-        error: { code: 'BAD_REQUEST', message: result.error },
-      });
-    }
+        const result = productService.reorder(catalog, body.ordered_ids!);
+        if (!result.ok) {
+          return {
+            ok: false,
+            statusCode: 400,
+            code: 'BAD_REQUEST',
+            message: result.error ?? 'Reorder failed',
+          };
+        }
 
-    const writeResult = await repos.products.writeCatalog(catalog, body.command_id, baseRev);
-    if (!writeResult.ok) {
-      return reply.status(writeResult.statusCode).send({
-        error: { code: 'CONFLICT', message: writeResult.error },
-      });
-    }
-
-    return {
-      command_id: body.command_id,
-      status: 'ok',
-      resulting_revision: catalog.rev,
-      reordered: result.reordered,
-    };
+        reorderedCount = result.reordered;
+        return { ok: true };
+      },
+      onSuccess: () => ({
+        reordered: reorderedCount,
+      }),
+    });
   });
 
   app.post('/products/bulk/preview', async (request, reply) => {
@@ -549,34 +564,35 @@ export async function productRoutes(
       });
     }
 
-    const catalog = repos.products.loadCatalog();
-    const baseRev = catalog.rev;
+    let bulkResult: { changed: number; changes: unknown[] } | undefined;
 
-    const result = productService.bulkApply(catalog, {
-      action: body.action as 'set_discount_percent',
-      value: body.value as number,
-      product_ids: resolved.ids,
+    return runCatalogCommand({
+      repos,
+      reply,
+      commandId: body.command_id,
+      apply: (catalog) => {
+        const result = productService.bulkApply(catalog, {
+          action: body.action as 'set_discount_percent',
+          value: body.value as number,
+          product_ids: resolved.ids,
+        });
+
+        if (!result.ok) {
+          return {
+            ok: false,
+            statusCode: 400,
+            code: 'BAD_REQUEST',
+            message: result.error ?? 'Bulk apply failed',
+          };
+        }
+
+        bulkResult = result;
+        return { ok: true };
+      },
+      onSuccess: () => ({
+        changed: bulkResult!.changed,
+        changes: bulkResult!.changes,
+      }),
     });
-
-    if (!result.ok) {
-      return reply.status(400).send({
-        error: { code: 'BAD_REQUEST', message: result.error },
-      });
-    }
-
-    const writeResult = await repos.products.writeCatalog(catalog, body.command_id, baseRev);
-    if (!writeResult.ok) {
-      return reply.status(writeResult.statusCode).send({
-        error: { code: 'CONFLICT', message: writeResult.error },
-      });
-    }
-
-    return {
-      command_id: body.command_id,
-      status: 'ok',
-      resulting_revision: catalog.rev,
-      changed: result.changed,
-      changes: result.changes,
-    };
   });
 }
