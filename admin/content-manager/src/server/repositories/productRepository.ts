@@ -21,6 +21,12 @@ export interface ProductRepositoryConfig {
 
 const DEFAULT_PRODUCT_FILE = 'data/product_data.json';
 
+// Plan 152: ProductRepository remains on its own AtomicWriter + journal +
+// idempotency + structuredClone cache (load-bearing for plans 092/105).
+// New single-file JSON writers should extend JsonFileRepository<T> +
+// writeJsonFileAtomic (see jsonFileRepository.ts / atomicFileWriter.ts).
+// Rebasing ProductRepository onto the base is deferred to a follow-up.
+
 export class ProductRepository {
   private readonly filePath: string;
   private readonly lock: MutationLock;

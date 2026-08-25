@@ -1,19 +1,13 @@
-import {
-  readFileSync,
-  writeFileSync,
-  existsSync,
-  mkdirSync,
-  renameSync,
-  unlinkSync,
-} from 'node:fs';
-import { resolve, dirname } from 'node:path';
+import { readFileSync, existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { z } from 'zod';
 import type { CategoryRegistry } from '../../shared/schemas/category.ts';
 import { categoryRegistrySchema } from '../../shared/schemas/category.ts';
 import type { ValidationIssue } from '../../shared/schemas/validation.ts';
 import { createIssue } from '../../shared/schemas/validation.ts';
-import { uniqueTimestamp } from '../services/uniqueTimestamp.ts';
-import { pruneFileBackups } from '../services/backupPolicy.ts';
 import { MutationLock } from '../services/mutationLock.ts';
+import { JsonFileRepository } from './jsonFileRepository.ts';
+import { writeJsonFileAtomic } from '../services/atomicFileWriter.ts';
 
 export interface CategoryRepositoryConfig {
   repoRoot: string;
@@ -24,56 +18,46 @@ export interface CategoryRepositoryConfig {
 const DEFAULT_REGISTRY = 'data/category_registry.json';
 const DEFAULT_LEGACY = 'data/categories.json';
 
-export class CategoryRepository {
+export class CategoryRepository extends JsonFileRepository<CategoryRegistry> {
   private readonly registryPath: string;
   private readonly legacyPath: string;
   private readonly lock = new MutationLock();
 
   constructor(config: CategoryRepositoryConfig) {
+    super();
     this.registryPath = resolve(config.repoRoot, config.registryFile ?? DEFAULT_REGISTRY);
     this.legacyPath = resolve(config.repoRoot, config.legacyFile ?? DEFAULT_LEGACY);
   }
 
-  load(): CategoryRegistry {
-    let raw: string;
-    const sourcePath = existsSync(this.registryPath) ? this.registryPath : this.legacyPath;
+  override getFilePath(): string {
+    return existsSync(this.registryPath) ? this.registryPath : this.legacyPath;
+  }
 
-    if (!existsSync(sourcePath)) {
-      throw new Error(
-        `No category source found. Looked at: ${this.registryPath}, ${this.legacyPath}`
-      );
-    }
+  protected getSchema(): z.ZodType<CategoryRegistry> {
+    return categoryRegistrySchema;
+  }
 
-    try {
-      raw = readFileSync(sourcePath, 'utf-8');
-    } catch (err) {
-      throw new Error(`Cannot read categories from ${sourcePath}: ${(err as Error).message}`, {
-        cause: err,
-      });
-    }
+  protected override getMissingFileMessage(_filePath: string): string {
+    return `No category source found. Looked at: ${this.registryPath}, ${this.legacyPath}`;
+  }
 
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(raw);
-    } catch {
-      throw new Error('Invalid JSON in category source');
-    }
+  protected override getInvalidJsonMessage(_filePath: string): string {
+    return 'Invalid JSON in category source';
+  }
 
-    const result = categoryRegistrySchema.safeParse(parsed);
-    if (!result.success) {
-      const message = result.error.issues
-        .map((i) => `${i.path.join('.')}: ${i.message}`)
-        .join('; ');
-      throw new Error(`Schema validation failed for categories: ${message}`);
-    }
+  protected override getSchemaErrorPrefix(_filePath: string): string {
+    return 'Schema validation failed for categories';
+  }
 
-    return result.data;
+  protected override getReadErrorMessage(filePath: string, cause: Error): string {
+    return `Cannot read categories from ${filePath}: ${cause.message}`;
   }
 
   async write(
     registry: CategoryRegistry,
-    baseRevision: number
+    baseRevision: number,
   ): Promise<{ ok: boolean; error?: string; statusCode: number; rev: number }> {
+    this.invalidateCache();
     const release = await this.lock.acquire();
     try {
       const current = this.load();
@@ -97,38 +81,14 @@ export class CategoryRepository {
         };
       }
 
-      const tmpPath = `${this.registryPath}.tmp`;
-      const backupPath = `${this.registryPath}.backup_${uniqueTimestamp()}`;
-
       try {
-        mkdirSync(dirname(this.registryPath), { recursive: true });
-
-        const json = JSON.stringify(result.data, null, 2);
-        writeFileSync(tmpPath, json, { encoding: 'utf-8', flush: true });
-
-        if (existsSync(this.registryPath)) {
-          renameSync(this.registryPath, backupPath);
-        }
-
-        renameSync(tmpPath, this.registryPath);
-
-        // Plan 067 step 2: bounded retention for adjacent file backups.
-        pruneFileBackups(dirname(this.registryPath), 'category_registry.json', 10);
-
+        writeJsonFileAtomic(this.registryPath, result.data, {
+          maxBackups: 10,
+          filePrefix: 'category_registry.json',
+        });
+        this.invalidateCache();
         return { ok: true, statusCode: 200, rev: registry.rev };
       } catch (err) {
-        try {
-          if (!existsSync(this.registryPath) && existsSync(backupPath)) {
-            renameSync(backupPath, this.registryPath);
-          }
-        } catch {
-          /* restoration is best-effort */
-        }
-        try {
-          unlinkSync(tmpPath);
-        } catch {
-          /* ignore */
-        }
         return { ok: false, error: (err as Error).message, statusCode: 500, rev: registry.rev };
       }
     } finally {
@@ -145,7 +105,7 @@ export class CategoryRepository {
   }
 
   getByKey(
-    key: string
+    key: string,
   ): CategoryRegistry['categories'] extends Array<infer T> ? T | undefined : never {
     const normalized = (key ?? '').trim().toLowerCase();
     const categories = this.load().categories ?? [];
@@ -166,7 +126,7 @@ export class CategoryRepository {
           issues.push(
             createIssue('error', sourcePath, 'category', 'schema_violation', issue.message, {
               field: issue.path.join('.'),
-            })
+            }),
           );
         }
         return issues;
@@ -187,22 +147,19 @@ export class CategoryRepository {
               {
                 entity_id: cat.id,
                 field: 'slug',
-              }
-            )
+              },
+            ),
           );
         }
         slugs.set(cat.slug, i);
       }
     } catch (err) {
       issues.push(
-        createIssue('error', sourcePath, 'category', 'load_error', (err as Error).message)
+        createIssue('error', sourcePath, 'category', 'load_error', (err as Error).message),
       );
     }
 
     return issues;
   }
 
-  getFilePath(): string {
-    return existsSync(this.registryPath) ? this.registryPath : this.legacyPath;
-  }
 }
