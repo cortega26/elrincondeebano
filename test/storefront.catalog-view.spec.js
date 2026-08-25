@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function -- suite-level describe block (plan 149) */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { createCatalogViewController } from '../astro-poc/src/scripts/storefront/catalog-view.js';
@@ -153,4 +154,144 @@ describe('createCatalogViewController', () => {
       false
     );
   });
+
+  it('does not re-append nodes when the DOM order already matches (original sort, search, loadMore)', () => {
+    setupCatalogDom();
+
+    const container = document.getElementById('product-container');
+    const controller = createCatalogViewController({
+      container,
+      sortSelect: document.getElementById('sort-options'),
+      searchInput: document.getElementById('filter-keyword'),
+      discountCheckbox: document.getElementById('filter-discount'),
+      loadMoreButton: document.getElementById('catalog-load-more'),
+      resultsStatus: document.getElementById('catalog-results-status'),
+      emptyState: document.getElementById('catalog-empty-state'),
+      normalizeSearchText,
+      parseNumber,
+      pageSize: 2,
+    });
+    const appendSpy = vi.spyOn(container, 'appendChild');
+
+    controller.updateView();
+    expect(appendSpy).not.toHaveBeenCalled();
+
+    document.getElementById('filter-keyword').value = 'a';
+    controller.updateView();
+    expect(appendSpy).not.toHaveBeenCalled();
+
+    controller.loadMore();
+    expect(appendSpy).not.toHaveBeenCalled();
+    expect(document.querySelector('[data-product-id="p3"]').classList.contains('is-hidden')).toBe(
+      false
+    );
+
+    const orderedIds = Array.from(container.querySelectorAll('.producto')).map((element) =>
+      element.getAttribute('data-product-id')
+    );
+    expect(orderedIds).toEqual(['p1', 'p2', 'p3']);
+  });
+
+  it('re-appends only on an actual order change and restores server order when switching back to original', () => {
+    setupCatalogDom();
+
+    const container = document.getElementById('product-container');
+    const controller = createCatalogViewController({
+      container,
+      sortSelect: document.getElementById('sort-options'),
+      searchInput: document.getElementById('filter-keyword'),
+      discountCheckbox: document.getElementById('filter-discount'),
+      loadMoreButton: document.getElementById('catalog-load-more'),
+      resultsStatus: document.getElementById('catalog-results-status'),
+      emptyState: document.getElementById('catalog-empty-state'),
+      normalizeSearchText,
+      parseNumber,
+      pageSize: 2,
+    });
+    const appendSpy = vi.spyOn(container, 'appendChild');
+
+    controller.updateView();
+    expect(appendSpy).not.toHaveBeenCalled();
+
+    document.getElementById('sort-options').value = 'name-desc';
+    controller.updateView();
+    expect(appendSpy).toHaveBeenCalledTimes(1);
+    let orderedIds = Array.from(container.querySelectorAll('.producto')).map((element) =>
+      element.getAttribute('data-product-id')
+    );
+    expect(orderedIds).toEqual(['p2', 'p3', 'p1']);
+
+    document.getElementById('sort-options').value = 'original';
+    controller.updateView();
+    expect(appendSpy).toHaveBeenCalledTimes(2);
+    orderedIds = Array.from(container.querySelectorAll('.producto')).map((element) =>
+      element.getAttribute('data-product-id')
+    );
+    expect(orderedIds).toEqual(['p1', 'p2', 'p3']);
+  });
+
+  it('keeps filtering/hiding independent of the reorder gate and reports matches (original sort)', () => {
+    setupCatalogDom();
+
+    document.getElementById('filter-keyword').value = 'a';
+
+    const controller = createCatalogViewController({
+      container: document.getElementById('product-container'),
+      sortSelect: document.getElementById('sort-options'),
+      searchInput: document.getElementById('filter-keyword'),
+      discountCheckbox: document.getElementById('filter-discount'),
+      loadMoreButton: document.getElementById('catalog-load-more'),
+      resultsStatus: document.getElementById('catalog-results-status'),
+      emptyState: document.getElementById('catalog-empty-state'),
+      normalizeSearchText,
+      parseNumber,
+      pageSize: 1,
+    });
+
+    const state = controller.updateView();
+
+    expect(state).toEqual({ matchedCount: 2, visibleLimit: 1 });
+    expect(document.querySelector('[data-product-id="p2"]').classList.contains('is-hidden')).toBe(
+      true
+    );
+    expect(document.querySelector('[data-product-id="p1"]').classList.contains('is-hidden')).toBe(
+      false
+    );
+    expect(document.getElementById('catalog-results-status').textContent).toBe(
+      'Mostrando 2 productos para "a"'
+    );
+  });
+
+  it('produces byte-identical DOM for the default (original) sort path', () => {
+    setupCatalogDom();
+
+    const container = document.getElementById('product-container');
+    const before = container.innerHTML;
+    const controller = createCatalogViewController({
+      container,
+      sortSelect: document.getElementById('sort-options'),
+      searchInput: document.getElementById('filter-keyword'),
+      discountCheckbox: document.getElementById('filter-discount'),
+      loadMoreButton: document.getElementById('catalog-load-more'),
+      resultsStatus: document.getElementById('catalog-results-status'),
+      emptyState: document.getElementById('catalog-empty-state'),
+      normalizeSearchText,
+      parseNumber,
+      pageSize: 100,
+    });
+
+    controller.updateView();
+    expect(container.innerHTML).toBe(before);
+    controller.updateView();
+    expect(container.innerHTML).toBe(before);
+  });
 });
+
+// Plan 149 companion-cache note: getCompanionProducts/getCompanionProductMap live in
+// astro-poc/src/scripts/storefront.js, a side-effect ESM module with no exports
+// (verified: no `export` statements). It cannot be imported into the root unit suite
+// without executing initStorefront against a full production DOM (bootstrap wiring,
+// offcanvas, order dialog, matchMedia-dependent setup). The cache contract is
+// therefore enforced at the catalog boundary here: updateView's onViewUpdated resets
+// the product card caches, and the reorder gate above guarantees the DOM queries the
+// companion map relies on happen only when the view actually changes.

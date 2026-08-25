@@ -408,6 +408,22 @@ function getProductCardMap() {
   return productCardCache;
 }
 
+let companionProductCache = null;
+
+function getCompanionProductMap() {
+  if (companionProductCache) {
+    return companionProductCache;
+  }
+  companionProductCache = new Map();
+  getProductCardMap().forEach((card) => {
+    const product = getProductFromCard(card);
+    if (product && product.id) {
+      companionProductCache.set(product.id, product);
+    }
+  });
+  return companionProductCache;
+}
+
 function getProductFromCard(card) {
   if (!(card instanceof HTMLElement)) {
     return null;
@@ -681,8 +697,7 @@ function getCompanionProducts(cart, companionRules) {
   // Plan 120: the category->product map is rule-invariant — build it once
   // per call (was rebuilt inside the rules loop on every cart interaction).
   var productByKey = new Map();
-  getProductCardMap().forEach(function (card) {
-    var product = getProductFromCard(card);
+  getCompanionProductMap().forEach(function (product) {
     if (product && product.stock !== false) {
       var key = normalizeSearchText(product.category) + '::' + normalizeSearchText(product.name);
       if (!productByKey.has(key)) {
@@ -897,6 +912,7 @@ function createCatalogController() {
     parseNumber,
     onViewUpdated: () => {
       productCardCache = null;
+      companionProductCache = null;
     },
   });
 }
