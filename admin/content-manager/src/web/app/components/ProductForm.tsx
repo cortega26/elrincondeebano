@@ -45,8 +45,8 @@ export function ProductForm({
   }, [product]);
 
   useEffect(() => {
-    fetch('/api/v1/media')
-      .then((r) => r.json())
+    client
+      .getMedia()
       .then((d) =>
         setMediaItems(
           (d.items as Array<{ path: string; name: string; status: string; productName?: string }>)

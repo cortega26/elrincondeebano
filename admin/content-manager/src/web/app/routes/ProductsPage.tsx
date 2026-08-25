@@ -98,8 +98,8 @@ export function ProductsPage(): React.ReactElement {
 
   useEffect(() => {
     const refresh = (): void => {
-      fetch('/api/v1/sync/status')
-        .then((r) => r.json())
+      client
+        .getSyncStatus()
         .then((d) => {
           const s = d.sync as {
             enabled: boolean;

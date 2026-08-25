@@ -18,12 +18,47 @@ beforeEach(() => {
     page: 1,
     pageSize: 50,
   });
-  mockApi.getCategories.mockResolvedValue({ categories: [] });
-  mockApi.getGitStatus.mockResolvedValue({});
-  mockApi.gitPull.mockResolvedValue({ job_id: 'j', status: 'ok' });
-  mockApi.getProduct.mockResolvedValue(productA);
-  mockApi.updateProduct.mockResolvedValue({ product: productA } as unknown as ReturnType<typeof mockApi.updateProduct>);
-  mockApi.deleteProduct.mockResolvedValue({ status: 'deleted' } as unknown as ReturnType<typeof mockApi.deleteProduct>);
+  mockApi.getCategories.mockResolvedValue({ categories: [] } as unknown as Awaited<
+    ReturnType<typeof mockApi.getCategories>
+  >);
+  mockApi.getGitStatus.mockResolvedValue(
+    {} as unknown as Awaited<ReturnType<typeof mockApi.getGitStatus>>
+  );
+  mockApi.gitPull.mockResolvedValue({ job_id: 'j', status: 'ok' } as unknown as Awaited<
+    ReturnType<typeof mockApi.gitPull>
+  >);
+  mockApi.getProduct.mockResolvedValue(
+    productA as unknown as Awaited<ReturnType<typeof mockApi.getProduct>>
+  );
+  mockApi.updateProduct.mockResolvedValue({ product: productA } as unknown as ReturnType<
+    typeof mockApi.updateProduct
+  >);
+  mockApi.deleteProduct.mockResolvedValue({ status: 'deleted' } as unknown as ReturnType<
+    typeof mockApi.deleteProduct
+  >);
+  mockApi.getSyncStatus.mockResolvedValue({
+    sync: {
+      enabled: false,
+      api_base: null,
+      poll_interval: 60,
+      pull_interval: 300,
+      paused: false,
+      token_configured: false,
+      queue: { pending: 0, error: 0, total: 0 },
+      next_attempt: null,
+      last_push: null,
+      last_pull: null,
+    },
+    capabilities: { push: 'implemented', pull: 'implemented' },
+  } as unknown as Awaited<ReturnType<typeof mockApi.getSyncStatus>>);
+  mockApi.getDiagnostics.mockResolvedValue({ recoveryNeeded: false } as unknown as Awaited<
+    ReturnType<typeof mockApi.getDiagnostics>
+  >);
+  mockApi.getMedia.mockResolvedValue({
+    items: [],
+    summary: { total: 0, active: 0, orphans: 0, generated: 0, staged: 0, missing: 0 },
+    intents: [],
+  } as unknown as Awaited<ReturnType<typeof mockApi.getMedia>>);
 });
 
 describe('ProductsPage (component)', () => {
@@ -206,7 +241,9 @@ describe('ProductsPage (component)', () => {
     const freshProduct = { ...productA, rev: 5 };
     mockApi.updateProduct
       .mockRejectedValueOnce(new ApiRequestError('Conflict', 409))
-      .mockResolvedValueOnce({ product: freshProduct } as unknown as ReturnType<typeof mockApi.updateProduct>);
+      .mockResolvedValueOnce({ product: freshProduct } as unknown as ReturnType<
+        typeof mockApi.updateProduct
+      >);
     mockApi.getProduct.mockResolvedValueOnce(freshProduct);
     // reload after retry will call getProducts again
     mockApi.getProducts.mockResolvedValue({ items: [productA], total: 1, page: 1, pageSize: 50 });
@@ -238,7 +275,9 @@ describe('ProductsPage (component)', () => {
 
     await user.click(screen.getByLabelText('Archivar Producto A'));
 
-    await waitFor(() => expect(screen.getByText('El producto cambió; la lista se recargó.')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByText('El producto cambió; la lista se recargó.')).toBeInTheDocument()
+    );
     expect(mockApi.getProduct).toHaveBeenCalledWith('p1');
     // no retry after refetch failure
     expect(mockApi.updateProduct).toHaveBeenCalledTimes(1);
