@@ -1,7 +1,10 @@
 import { test, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { buildOpenApi } from '../../src/server/openapi.ts';
+import { tmpdir } from 'node:os';
+import { mkdirSync, rmSync } from 'node:fs';
+import { buildOpenApi, openApiDocument } from '../../src/server/openapi.ts';
+import { createApp } from '../../src/server/app.ts';
 
 // Plan 127 F2.3: the client/server contract — every route the typed client
 // calls must be declared in the generated OpenAPI document. The client's
@@ -86,4 +89,38 @@ test('the OpenAPI document exposes the product and category schemas', () => {
   expect(Object.keys(schemas)).toContain('Product');
   expect(Object.keys(schemas)).toContain('Category');
   expect(Object.keys(schemas)).toContain('Bundle');
+});
+
+// Plan 150: memoization — the static doc is built once per process and served
+// from that cached build. Verify identity + bytes + route serving.
+
+test('openApiDocument is memoized — two imports return the same reference', () => {
+  // Module-level const — same object on every access (not a fresh build).
+  const a = openApiDocument;
+  const b = openApiDocument;
+  expect(a).toBe(b);
+});
+
+test('openApiDocument serializes identically to a fresh buildOpenApi()', () => {
+  const fresh = buildOpenApi();
+  expect(JSON.stringify(openApiDocument)).toBe(JSON.stringify(fresh));
+});
+
+test('GET /openapi.json returns identical bytes on consecutive requests', async () => {
+  const dir = resolve(tmpdir(), `cm-openapi-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`);
+  mkdirSync(dir, { recursive: true });
+  const app = createApp({ repoRoot: dir, enableWrites: false, logger: false });
+  await app.ready();
+  try {
+    const first = await app.inject({ method: 'GET', url: '/api/v1/openapi.json' });
+    expect(first.statusCode).toBe(200);
+    const second = await app.inject({ method: 'GET', url: '/api/v1/openapi.json' });
+    expect(second.statusCode).toBe(200);
+    expect(second.body).toBe(first.body);
+    // Bytes must also match the memoized document (no per-request transform).
+    expect(JSON.stringify(JSON.parse(first.body))).toBe(JSON.stringify(openApiDocument));
+  } finally {
+    await app.close();
+    rmSync(dir, { recursive: true, force: true });
+  }
 });

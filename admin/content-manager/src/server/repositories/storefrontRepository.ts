@@ -5,6 +5,7 @@ import {
   mkdirSync,
   renameSync,
   unlinkSync,
+  statSync,
 } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { z } from 'zod';
@@ -30,6 +31,13 @@ const DEFAULT_BUNDLES = 'astro-poc/src/data/storefront-bundles.json';
 export class StorefrontRepository {
   private readonly experiencePath: string;
   private readonly bundlesPath: string;
+  // Plan 150: mtime+size-keyed cache for the experience file — same pattern
+  // as ProductRepository (plan 092) but WITHOUT structuredClone: callers do
+  // not mutate the returned experience in place (service builds a new object
+  // for writes). Cache hit returns the same object identity (asserted toBe).
+  // Invalidated eagerly on own writes; external edits (git pull) invalidate
+  // via stat change.
+  private cache: { key: string; data: StorefrontExperience } | null = null;
 
   constructor(config: StorefrontRepositoryConfig) {
     this.experiencePath = resolve(config.repoRoot, config.experienceFile ?? DEFAULT_EXPERIENCE);
@@ -38,6 +46,12 @@ export class StorefrontRepository {
 
   load(): StorefrontExperience {
     this.ensureFileExists();
+
+    const stat = statSync(this.experiencePath);
+    const cacheKey = `${stat.mtimeMs}:${stat.size}`;
+    if (this.cache?.key === cacheKey) {
+      return this.cache.data;
+    }
 
     let raw: string;
     try {
@@ -75,6 +89,7 @@ export class StorefrontRepository {
       throw new Error(`Schema validation failed for ${this.experiencePath}: ${message}`);
     }
 
+    this.cache = { key: cacheKey, data: result.data };
     return result.data;
   }
 
@@ -87,6 +102,10 @@ export class StorefrontRepository {
     if (!result.success) {
       return { ok: false, error: result.error.issues.map((i) => i.message).join('; ') };
     }
+
+    // Plan 150: invalidate before write so next load re-reads (mirrors
+    // ProductRepository.writeCatalog invalidation).
+    this.cache = null;
 
     const tmpPath = `${this.experiencePath}.tmp`;
     const backupPath = `${this.experiencePath}.backup_${uniqueTimestamp()}`;

@@ -338,3 +338,8 @@ export function buildOpenApi() {
     servers: [{ url: '/api/v1' }],
   });
 }
+
+// Plan 150: static document — built once per process. The generator is pure
+// (no request inputs) so memoizing is safe; if request-dependent inputs are
+// ever added, this MUST be revisited.
+export const openApiDocument = buildOpenApi();
