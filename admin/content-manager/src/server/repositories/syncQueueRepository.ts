@@ -1,14 +1,8 @@
-import {
-  readFileSync,
-  writeFileSync,
-  existsSync,
-  mkdirSync,
-  renameSync,
-  unlinkSync,
-  statSync,
-} from 'node:fs';
+import { readFileSync, existsSync, mkdirSync, statSync, writeFileSync, unlinkSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { z } from 'zod';
+import { JsonFileRepository } from './jsonFileRepository.ts';
+import { writeJsonFileAtomic } from '../services/atomicFileWriter.ts';
 
 // Durable sync queue (plan 064 step 2): atomic replace (tmp + rename),
 // bounded retention, restart-safe normalization. Python parity (sync.py):
@@ -41,29 +35,45 @@ const MAX_ERROR_ENTRIES = 200;
 // well above the worst-case duration of a single processOnce (today < 1s).
 const SYNC_LOCK_TTL_MS = 5 * 60 * 1000;
 
-export class SyncQueueRepository {
-  private readonly path: string;
+/**
+ * SyncQueueRepository now extends JsonFileRepository (plan 152) to share
+ * the mtime+size cache (key = `${filePath}:${mtimeMs}:${size}`) and the
+ * atomic writer (tmp+rename+backup+prune). The queue's pruning policy
+ * (synced dropped, error capped to 200, pending always kept, final cap
+ * 1000) is catalog-specific and stays in save() before delegating to the
+ * shared writer; the lenient per-entry filtering on load (invalid entries
+ * are dropped, malformed file returns []) is also preserved intentionally
+ * — strict throw would break restart-safe normalization.
+ */
+export class SyncQueueRepository extends JsonFileRepository<SyncQueueEntry[]> {
+  private readonly queuePath: string;
   private readonly lockFile: string;
-  // Plan 147: mtime+size-keyed cache — every sync-status read paid full file
-  // read+parse+zod. Keyed on stat so external edits invalidate automatically;
-  // writes invalidate eagerly.
-  private cached: { mtimeMs: number; size: number; entries: SyncQueueEntry[] } | null = null;
 
   constructor(repoRoot: string) {
+    super();
     const dir = resolve(repoRoot, 'data');
     mkdirSync(dir, { recursive: true });
-    this.path = resolve(dir, 'sync-queue.json');
+    this.queuePath = resolve(dir, 'sync-queue.json');
     this.lockFile = resolve(dir, '.sync-queue.lock');
   }
 
-  load(): SyncQueueEntry[] {
-    if (!existsSync(this.path)) return [];
+  override getFilePath(): string {
+    return this.queuePath;
+  }
+
+  protected getSchema(): z.ZodType<SyncQueueEntry[]> {
+    return z.array(syncQueueEntrySchema);
+  }
+
+  override load(): SyncQueueEntry[] {
+    if (!existsSync(this.queuePath)) return [];
     try {
-      const stat = statSync(this.path);
-      if (this.cached && this.cached.mtimeMs === stat.mtimeMs && this.cached.size === stat.size) {
-        return this.cached.entries;
+      const stat = statSync(this.queuePath);
+      const cacheKey = this.buildCacheKey(this.queuePath, stat);
+      if (this.cache?.key === cacheKey) {
+        return this.cache.data;
       }
-      const parsed = JSON.parse(readFileSync(this.path, 'utf-8'));
+      const parsed = JSON.parse(readFileSync(this.queuePath, 'utf-8'));
       const items = Array.isArray(parsed) ? parsed : parsed.queue;
       if (!Array.isArray(items)) return [];
       const entries: SyncQueueEntry[] = [];
@@ -71,7 +81,7 @@ export class SyncQueueRepository {
         const result = syncQueueEntrySchema.safeParse(item);
         if (result.success) entries.push(result.data);
       }
-      this.cached = { mtimeMs: stat.mtimeMs, size: stat.size, entries };
+      this.cache = { key: cacheKey, data: entries };
       return entries;
     } catch {
       return [];
@@ -101,11 +111,11 @@ export class SyncQueueRepository {
       pruned = entries.filter((e) => e.status !== 'synced');
     }
     const trimmed = pruned.slice(-MAX_QUEUE_ENTRIES);
-    const payload = JSON.stringify({ queue: trimmed }, null, 2);
-    const tmpPath = `${this.path}.tmp`;
-    writeFileSync(tmpPath, payload, { encoding: 'utf-8', flush: true });
-    renameSync(tmpPath, this.path);
-    this.cached = null;
+    this.invalidateCache();
+    // Use the shared atomic writer (plan 152) — maxBackups 0 preserves the
+    // historical no-backup behavior of the queue (a transient local queue,
+    // not a system of record like categories). The writer still does tmp+rename.
+    writeJsonFileAtomic(this.queuePath, { queue: trimmed }, { maxBackups: 0 });
   }
 
   // Single-consumer lock: returns true only if this process won the lock.
