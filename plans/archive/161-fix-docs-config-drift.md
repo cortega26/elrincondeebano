@@ -1,6 +1,6 @@
 # 161 — Fix the docs/config drift batch (commands, credential, ports, CI claims, dead config)
 
-- **Source**: Auditoría 10, DX-01..08 + DEP-04 · **Status**: TODO · **Priority**: P2 · **Effort**: S-M
+- **Source**: Auditoría 10, DX-01..08 + DEP-04 · **Status**: DONE · **Priority**: P2 · **Effort**: S-M
 - **Stamped against**: `ee20b0f6` (2026-08-17) · **Drift check**: `git diff --stat ee20b0f6..HEAD -- admin/content-manager/README.md docs/ README.md AGENTS.md CLAUDE.md scripts/smoke-checklist.mjs .pa11yci.json .github/actions/setup-node-and-deps/action.yml tools/inject-resource-hints.js package.json`
 
 ## Problem
