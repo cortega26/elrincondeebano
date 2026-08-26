@@ -1,6 +1,6 @@
 # 160 — Guard the vendored anymatch fork against dir↔tarball drift
 
-- **Source**: Auditoría 10, DEP-02 · **Status**: TODO · **Priority**: P3 · **Effort**: M
+- **Source**: Auditoría 10, DEP-02 · **Status**: DONE · **Priority**: P3 · **Effort**: M
 - **Stamped against**: `ee20b0f6` (2026-08-17) · **Drift check**: `git diff --stat ee20b0f6..HEAD -- astro-poc/vendor/anymatch/ tools/check-determinism-paths.mjs package.json`
 
 ## Problem
