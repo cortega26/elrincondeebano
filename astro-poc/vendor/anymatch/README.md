@@ -21,6 +21,10 @@ Only `package.json` was modified:
 
 Source code (`index.js`) is identical to upstream anymatch 3.1.3.
 
+## Editing (guarded by `check:determinism`)
+
+Edit the working copy (`index.js`, `index.d.ts`, `package.json`), then re-pack: `npm pack` (from this dir) and replace the tgz in the same commit. The `tools/check-vendor-tgz.mjs` guard compares extracted file contents (not raw tgz bytes) and fails on any drift — run `npm run check:determinism` to verify.
+
 ## Upstream
 
 - Package: https://www.npmjs.com/package/anymatch
