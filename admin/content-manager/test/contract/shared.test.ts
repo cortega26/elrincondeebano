@@ -1,18 +1,6 @@
 import { test, expect } from 'vitest';
-import { DomainError, HttpError, sanitizeUserMessage } from '../../src/shared/errors/AppError.ts';
+import { HttpError, sanitizeUserMessage } from '../../src/shared/errors/AppError.ts';
 import type { CommandEnvelope, CommandResult } from '../../src/shared/commands/envelope.ts';
-
-test('DomainError creates a typed error', () => {
-  const error = new DomainError('VALIDATION_ERROR', 'El nombre es obligatorio', {
-    field: 'name',
-  });
-
-  expect(error).toBeInstanceOf(Error);
-  expect(error.name).toBe('DomainError');
-  expect(error.code).toBe('VALIDATION_ERROR');
-  expect(error.message).toBe('El nombre es obligatorio');
-  expect(error.details).toEqual({ field: 'name' });
-});
 
 test('CommandEnvelope has correct shape', () => {
   const envelope: CommandEnvelope<{ name: string }> = {

@@ -7,24 +7,6 @@ export type StatusCode =
   | 'FORBIDDEN'
   | 'INTERNAL_ERROR';
 
-export interface AppError {
-  code: StatusCode;
-  message: string;
-  details?: unknown;
-}
-
-export class DomainError extends Error {
-  public readonly code: StatusCode;
-  public readonly details?: unknown;
-
-  constructor(code: StatusCode, message: string, details?: unknown) {
-    super(message);
-    this.name = 'DomainError';
-    this.code = code;
-    this.details = details;
-  }
-}
-
 // Plan 090: typed HTTP error for the central error handler. `details` may
 // carry internal information (absolute paths, stack context) — it is logged
 // server-side and never sent to the client.
