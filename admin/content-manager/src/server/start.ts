@@ -93,7 +93,11 @@ async function start(): Promise<void> {
   }
 }
 
+let shuttingDown = false;
+
 async function shutdown(signal: string): Promise<void> {
+  if (shuttingDown) return;
+  shuttingDown = true;
   app.log.info(`Received ${signal}. Shutting down...`);
   await app.close();
   process.exit(0);

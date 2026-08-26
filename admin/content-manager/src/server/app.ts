@@ -81,6 +81,9 @@ export function createApp(opts?: AppOptions): FastifyInstance {
 
   const fastifyOpts: FastifyServerOptions = {
     bodyLimit: 20 * 1024 * 1024,
+    // The local Admin is not a long-running public service: close browser
+    // keep-alive connections promptly so SIGINT/SIGTERM can finish.
+    forceCloseConnections: true,
   };
   if (opts?.logger === false) {
     fastifyOpts.logger = false;
