@@ -35,8 +35,8 @@ protection, plan 071).
 The credential is **never served over HTTP** (plan 071). Either:
 
 1. Set `ADMIN_CREDENTIAL` (recommended for scripts), or
-2. Start in operator mode without it — a credential is generated and printed
-   **once** in the startup log.
+2. Start in operator mode without it — a credential is generated and written
+   to `data/.admin-credential` (0600, gitignored; plan 125/127).
 
 The web UI prompts for the credential on first use (`CredentialPrompt`);
 mutations without it are rejected with `401`.

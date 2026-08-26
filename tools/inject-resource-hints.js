@@ -9,8 +9,6 @@ function generateResourceHints() {
   return `    <!-- Performance Resource Hints -->
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
-    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
 
     <!-- Preload critical assets -->
     <link rel="preload" href="/dist/css/critical.min.css" as="style" fetchpriority="high">

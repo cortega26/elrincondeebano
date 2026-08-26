@@ -68,8 +68,8 @@ export function createApp(opts?: AppOptions): FastifyInstance {
   const repoRoot = opts?.repoRoot ?? process.env.REPO_ROOT ?? process.cwd();
   const enableWrites = opts?.enableWrites ?? false;
   // The launch credential is never served over HTTP (see bootstrap.ts); the
-  // operator supplies it via ADMIN_CREDENTIAL or reads it from the startup
-  // log (start.ts prints it once in operator mode).
+  // operator supplies it via ADMIN_CREDENTIAL or it is read/generated via
+  // data/.admin-credential (0600, plan 125/127 — see start.ts).
   const launchCredential =
     opts?.launchCredential ?? process.env.ADMIN_CREDENTIAL ?? generateCredential();
 

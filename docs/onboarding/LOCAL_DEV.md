@@ -25,8 +25,10 @@ Open `http://127.0.0.1:8080/`.
 Option B: `serve`
 
 ```
-npx serve astro-poc/dist -l 4174
+npx serve astro-poc/dist -l 4173
 ```
+
+> Smoke preview uses `4173` by default (`SMOKE_BASE_URL`); any free port works if `SMOKE_BASE_URL` matches.
 
 ## Local runtime flags
 
@@ -50,9 +52,10 @@ npm run admin:dev      # dev server (http://127.0.0.1:3000)
 ADMIN_MODE=operator npm run admin:start   # production start, writes enabled
 ```
 
-In operator mode the launch credential comes from `ADMIN_CREDENTIAL` or is
-printed once in the startup log (plan 071); the UI prompts for it on first use.
-See `admin/content-manager/README.md` and `.env.example`.
+In operator mode the launch credential comes from `ADMIN_CREDENTIAL` or, if absent,
+is generated and written to `data/.admin-credential` (0600, gitignored; plan 125/127);
+the UI prompts for it on first use. See `admin/content-manager/README.md` and
+`.env.example`.
 
 ## Notes
 

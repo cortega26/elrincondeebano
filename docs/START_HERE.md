@@ -8,7 +8,7 @@ changes.
 
 1. Confirm the runtime baseline: Node 24.x.
 2. Follow [`docs/onboarding/BOOTSTRAP.md`](./onboarding/BOOTSTRAP.md).
-3. Use `npm run validate` for a fast local baseline.
+3. Use `npm run validate` for the local baseline (full slow build; for a fast loop use `npm run lint && npm run typecheck && npm test`).
 4. Use `npm run validate:release` before release or when a change touches
    shipped behavior.
 
@@ -28,14 +28,14 @@ changes.
 
 ## Canonical commands
 
-| Goal                     | Command                                       |
-| ------------------------ | --------------------------------------------- |
-| Fast local confidence    | `npm run validate`                            |
-| Full release gate        | `npm run validate:release`                    |
-| Build only               | `npm run build`                               |
-| Browser suite only       | `npm run test:e2e`                            |
-| Live share-preview probe | `npm run monitor:share-preview`               |
-| Markdown lint            | `npx markdownlint-cli2 'docs/**/*.md' '*.md'` |
+| Goal                     | Command                                                                                          |
+| ------------------------ | ------------------------------------------------------------------------------------------------ |
+| Local baseline           | `npm run validate` (full slow build; fast loop: `npm run lint && npm run typecheck && npm test`) |
+| Full release gate        | `npm run validate:release`                                                                       |
+| Build only               | `npm run build`                                                                                  |
+| Browser suite only       | `npm run test:e2e`                                                                               |
+| Live share-preview probe | `npm run monitor:share-preview`                                                                  |
+| Markdown lint            | `npx markdownlint-cli2 'docs/**/*.md' '*.md'`                                                    |
 
 ## Ground rules
 

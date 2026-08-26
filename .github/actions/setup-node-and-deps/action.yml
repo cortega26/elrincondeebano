@@ -21,7 +21,6 @@ runs:
         cache: 'npm'
         cache-dependency-path: |
           package-lock.json
-          astro-poc/package-lock.json
 
     - name: Set deterministic build environment
       shell: bash

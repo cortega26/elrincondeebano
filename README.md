@@ -7,15 +7,15 @@ and operational runbooks.
 
 ## At a glance
 
-| Area                         | Source of truth                                                                                                                                                               |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Production app               | [`astro-poc/`](./astro-poc/)                                                                                                                                                  |
-| Browser entry point          | [`astro-poc/src/scripts/storefront.js`](./astro-poc/src/scripts/storefront.js)                                                                                                |
-| Product and category data    | [`data/`](./data/)                                                                                                                                                            |
-| Admin Content Manager        | [`admin/content-manager/`](./admin/content-manager/README.md) (TypeScript; Python/Tkinter en `admin/product_manager/` es fallback durante la ventana de transición, plan 069) |
-| Source assets                | [`assets/`](./assets/)                                                                                                                                                        |
-| Build and validation tooling | [`tools/`](./tools/) and root [`package.json`](./package.json)                                                                                                                |
-| Contributor task router      | [`docs/START_HERE.md`](./docs/START_HERE.md)                                                                                                                                  |
+| Area                         | Source of truth                                                                                                                                           |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Production app               | [`astro-poc/`](./astro-poc/)                                                                                                                              |
+| Browser entry point          | [`astro-poc/src/scripts/storefront.js`](./astro-poc/src/scripts/storefront.js)                                                                            |
+| Product and category data    | [`data/`](./data/)                                                                                                                                        |
+| Admin Content Manager        | [`admin/content-manager/`](./admin/content-manager/README.md) (TypeScript; Python/Tkinter retired 2026-08-11, plan 069, rollback tag `v1.x-python-final`) |
+| Source assets                | [`assets/`](./assets/)                                                                                                                                    |
+| Build and validation tooling | [`tools/`](./tools/) and root [`package.json`](./package.json)                                                                                            |
+| Contributor task router      | [`docs/START_HERE.md`](./docs/START_HERE.md)                                                                                                              |
 
 The shipped artifact is a static Astro site in `astro-poc/dist/`. There is no
 required application server. The former Node/EJS storefront is an archived
@@ -45,14 +45,14 @@ npm run validate
 npm run validate:release
 ```
 
-| Command                    | Use it for                                                                        |
-| -------------------------- | --------------------------------------------------------------------------------- |
-| `npm run build`            | Canonical production build: preflight, generated assets, then Astro               |
-| `npm run build:fast`       | Code-only build: skip preflight (images/data unchanged). See "Fast build" below   |
-| `npm run validate`         | Local confidence: lint, types, selector guard, tests, build, and asset guardrails |
-| `npm run validate:release` | Ship gate: release stages plus browser tests and the live share-preview probe     |
-| `npm run test:e2e`         | Canonical Playwright suite in `test/e2e-astro/`                                   |
-| `npm run lighthouse:audit` | Performance evidence for rendering, navigation, bundle, or critical-fetch changes |
+| Command                    | Use it for                                                                                              |
+| -------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `npm run build`            | Canonical production build: preflight, generated assets, then Astro                                     |
+| `npm run build:fast`       | Code-only build: skip preflight (images/data unchanged). See "Fast build" below                         |
+| `npm run validate`         | Local baseline: lint → typecheck → check:e2e-selectors → build → test → check:plans → guardrails:assets |
+| `npm run validate:release` | Ship gate: e2e + live share-preview probe (audits run separately in `security-audit.yml`)               |
+| `npm run test:e2e`         | Canonical Playwright suite in `test/e2e-astro/`                                                         |
+| `npm run lighthouse:audit` | Performance evidence for rendering, navigation, bundle, or critical-fetch changes                       |
 
 Run `build` and `test:e2e` sequentially on Windows because both use generated
 Astro output. The release gate includes a live network probe and is therefore

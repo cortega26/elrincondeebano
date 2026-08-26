@@ -9,6 +9,7 @@
   },
   "scripts": {
     "admin:dev": "npm -w admin/content-manager run dev",
+    "admin:dev:web": "npm -w admin/content-manager run dev:web",
     "admin:build": "npm -w admin/content-manager run build",
     "admin:start": "npm -w admin/content-manager run start",
     "admin:typecheck": "npm -w admin/content-manager run typecheck",

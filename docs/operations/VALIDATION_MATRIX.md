@@ -5,10 +5,10 @@ release readiness.
 
 ## Validation tiers
 
-| Tier                   | Command                    | Purpose                                                                                   |
-| ---------------------- | -------------------------- | ----------------------------------------------------------------------------------------- |
-| Fast local baseline    | `npm run validate`         | Quick confidence for docs, focused code changes, and iterative work before opening a PR.  |
-| Canonical release gate | `npm run validate:release` | Full ship gate for changes that affect shipped behavior, release readiness, or CI gating. |
+| Tier                   | Command                    | Purpose                                                                                                                                                                                |
+| ---------------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Local baseline         | `npm run validate`         | Local baseline (runs the full slow build) for docs, focused code changes, and iterative work before opening a PR. For a fast loop use `npm run lint && npm run typecheck && npm test`. |
+| Canonical release gate | `npm run validate:release` | Full ship gate for changes that affect shipped behavior, release readiness, or CI gating.                                                                                              |
 
 ## Release gate contents
 
@@ -17,9 +17,10 @@ release readiness.
 1. `npm run lint`
 2. `npm run typecheck`
 3. `npm run check:e2e-selectors`
-4. `npm test`
-5. `npm run build`
-6. `npm run guardrails:assets`
+4. `npm run build`
+5. `npm test`
+6. `npm run check:plans`
+7. `npm run guardrails:assets`
 
 The root `typecheck` and `test` gates cover the **whole monorepo**: the
 storefront (`astro-poc/`), the legacy tree, and the TypeScript Content Manager
@@ -53,7 +54,10 @@ part of the root scripts).
 ## Notes
 
 - `npm run build` remains the only supported build path.
-- `npm run validate` is intentionally lighter than the release gate.
+- `npm run validate` runs the full slow build and is therefore not a fast loop;
+  it is still lighter than `validate:release` (which adds `test:e2e` and the live
+  `monitor:share-preview` probe). For a fast local loop use
+  `npm run lint && npm run typecheck && npm test`.
 - The local baseline owns `check:e2e-selectors`; the release runner currently
   defines its stages independently rather than invoking `npm run validate`.
 - `monitor:share-preview` is a live-network check against the deployed site.

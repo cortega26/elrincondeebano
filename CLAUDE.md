@@ -8,22 +8,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-| Command                         | Purpose                                                                                            |
-| ------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `npm run bootstrap`             | Full cold-start install (root + astro-poc)                                                         |
-| `npm run dev`                   | Start Astro dev server (runs in astro-poc/); el admin es `npm run admin:dev`                       |
-| `npm run build`                 | Preflight + Astro production build (output: astro-poc/dist/); usa `npm run build:fast` para iterar |
-| `npm test`                      | `vitest run` (root) + `npm run admin:test` (Content Manager)                                       |
-| `npm run test:e2e`              | Playwright E2E storefront (config: playwright.astro.config.ts; hace build completo primero)        |
-| `npm run typecheck`             | Cobertura total: legacy + astro (`astro check`) + `admin:typecheck`                                |
-| `npm run lint`                  | ESLint root + astro-poc; el admin se lint-ea en pre-commit y CI (`admin.yml`)                      |
-| `npm run format`                | Prettier write                                                                                     |
-| `npm run validate`              | Full local baseline: lint → typecheck → check:e2e-selectors → test → build → guardrails:assets     |
-| `npm run validate:release`      | Ship gate: validate + test:e2e + monitor:share-preview + security audit                            |
-| `npm run admin:certify`         | Gate del cutover del Content Manager (certification report)                                        |
-| `npm run guardrails`            | Orphan asset detection, secret scanning                                                            |
-| `npm run monitor:share-preview` | Live check for social preview unfurls                                                              |
-| `npm run lighthouse:audit`      | Performance audit                                                                                  |
+| Command                         | Purpose                                                                                                      |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `npm run bootstrap`             | Full cold-start install (root + astro-poc)                                                                   |
+| `npm run dev`                   | Start Astro dev server (runs in astro-poc/); el admin es `npm run admin:dev`                                 |
+| `npm run build`                 | Preflight + Astro production build (output: astro-poc/dist/); usa `npm run build:fast` para iterar           |
+| `npm test`                      | `vitest run` (root) + `npm run admin:test` (Content Manager)                                                 |
+| `npm run test:e2e`              | Playwright E2E storefront (config: playwright.astro.config.ts; hace build completo primero)                  |
+| `npm run typecheck`             | Cobertura total: legacy + astro (`astro check`) + `admin:typecheck`                                          |
+| `npm run lint`                  | ESLint root + astro-poc; el admin se lint-ea en pre-commit y CI (`admin.yml`)                                |
+| `npm run format`                | Prettier write                                                                                               |
+| `npm run validate`              | Full local baseline: lint → typecheck → check:e2e-selectors → build → test → check:plans → guardrails:assets |
+| `npm run validate:release`      | Ship gate: e2e + live share-preview probe (audits run separately in `security-audit.yml`)                    |
+| `npm run admin:certify`         | Gate del cutover del Content Manager (certification report)                                                  |
+| `npm run guardrails`            | Orphan asset detection, secret scanning                                                                      |
+| `npm run monitor:share-preview` | Live check for social preview unfurls                                                                        |
+| `npm run lighthouse:audit`      | Performance audit                                                                                            |
 
 ## Architecture
 

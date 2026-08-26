@@ -37,8 +37,8 @@ los archivos persisten).
 | `npm run typecheck`        | Único comando que cubre los tres paquetes: legacy + astro + admin.                                                                                                  |
 | `npm run lint`             | **NO cubre `admin/content-manager`** (root eslint lo ignora, igual que `astro-poc/`). El admin se lint-ea en pre-commit (lint-staged) y en CI `admin.yml`.          |
 | `npm run test:e2e`         | Playwright sobre `test/e2e-astro/` (config `playwright.astro.config.ts`). **Hace un build completo primero**; con `PLAYWRIGHT_SKIP_BUILD=1` reusa `astro-poc/dist`. |
-| `npm run validate`         | lint → typecheck → check:e2e-selectors → test → build → guardrails:assets.                                                                                          |
-| `npm run validate:release` | Gate de release (añade e2e + monitor:share-preview + security audit).                                                                                               |
+| `npm run validate`         | lint → typecheck → check:e2e-selectors → build → test → check:plans → guardrails:assets.                                                                            |
+| `npm run validate:release` | Gate de release (añade e2e + live share-preview probe; audits run separately in `security-audit.yml`).                                                              |
 | `npm run admin:certify`    | Gate del cutover del Content Manager (certification report).                                                                                                        |
 
 ## Gotchas

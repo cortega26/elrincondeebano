@@ -145,7 +145,7 @@
 
 ## Content Manager (modo offline)
 
-- **Canónico (TypeScript):** `admin/content-manager/`. Ejecuta `npm run admin:dev` desde la raíz del repo (o `npm run admin:start` en producción). Modos: `ADMIN_MODE=operator` (escribe) o `read-only` (por defecto). La credencial de lanzamiento se define con `ADMIN_CREDENTIAL` o se imprime una generada en el arranque en modo operator (plan 071); la UI la pide al primer uso. Detalles: `admin/content-manager/README.md` y `.env.example`.
+- **Canónico (TypeScript):** `admin/content-manager/`. Ejecuta `npm run admin:dev` desde la raíz del repo (o `npm run admin:start` en producción). Modos: `ADMIN_MODE=operator` (escribe) o `read-only` (por defecto). La credencial de lanzamiento se define con `ADMIN_CREDENTIAL` o, si no existe, se genera y escribe en `data/.admin-credential` (0600, gitignored; plan 125/127); la UI la pide al primer uso. Detalles: `admin/content-manager/README.md` y `.env.example`.
 - **Fuente de verdad:** `data/product_data.json` versionado en Git. No existe API remota por defecto.
 - **Configuración de sync:** se mantiene en `false` por defecto (`sync.enabled`) y `sync.api_base` vacío; el override va en `config.json` del operador, nunca en el repo.
 - **Ejecución:** abre la app → realiza ediciones → guarda. Los cambios quedan en el archivo del repo y se suben vía commit/push.
@@ -202,7 +202,7 @@ Fallback sin `node` en PATH: `npx -y node@24 "C:\Program Files\nodejs\node_modul
 - **`Optimize images`** (`.github/workflows/images.yml`) — cambios en `assets/images/originals/**`. Node 24.x; usa `npm ci` + `images:generate`, `images:rewrite`, `lint:images`. Auto-commitea solo a `refs/heads/<branch>`.
 - **`Semgrep Security Scan`** (`.github/workflows/semgrep.yml`) — push/PR a `main`, cron semanal. Instala desde `tools/requirements-semgrep.txt`; escanea con `p/default` + `p/secrets`; sube SARIF.
 - **`Secret Scan`** (`.github/workflows/secret-scan.yml`) — push/PR, cron semanal. Ejecuta `npm run security:secret-scan`.
-- **`Continuous Integration`** (`.github/workflows/ci.yml`) — push/PR a `main` (excluye `admin/**`). Node 24.x: lint root + Astro, build, guardrails, unit tests, E2E, smoke, Lighthouse.
+- **`Continuous Integration`** (`.github/workflows/ci.yml`) — push/PR a `main` (no paths filter; always validates `main` pushes). Node 24.x: lint root + Astro, build, guardrails, unit tests, E2E, smoke, Lighthouse.
 - **`Quality Gates`** (`.github/workflows/quality-gates.yml`) — push/PR a `main`, cron semanal y manual. Verifica complejidad, vulnerabilidades, scripts shell, workflows y Markdown.
 - **`Security Audits`** (`.github/workflows/security-audit.yml`) — cron semanal / manual. Node 24.x en las superficies npm; `npm audit --omit=dev`.
 - **`Post-Deploy Canary`** (`.github/workflows/post-deploy-canary.yml`) — PR a `main`, `workflow_run` post-deploy. Live probe en GitHub-hosted `ubuntu-24.04`; modo estricto de headers en `/` y `/pages/bebidas.html`.
@@ -235,8 +235,8 @@ Fallback sin `node` en PATH: `npx -y node@24 "C:\Program Files\nodejs\node_modul
 ### Ejecutar smoke manual guiado
 
 1. `npm run build`.
-2. Levantar preview: `npx serve astro-poc/dist -l 4174`.
-3. `npm run smoke:manual` — imprime checklist.
+2. Levantar preview: `npx serve astro-poc/dist -l 4173` (configurable via `SMOKE_BASE_URL`).
+3. `npm run smoke:manual` — imprime checklist (respeta `SMOKE_BASE_URL`).
 4. Completar con [`SMOKE_TEST`](./SMOKE_TEST.md); adjuntar evidencia en el PR.
 
 ### Gestionar planes de ejecución
