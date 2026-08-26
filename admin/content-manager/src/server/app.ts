@@ -18,7 +18,9 @@ import { isContainedWithin } from '../shared/identity.ts';
 import { MediaRepository } from './repositories/mediaRepository.ts';
 import { ChangeSetRepository } from './repositories/changeSetRepository.ts';
 import { mediaMutRoutes } from './routes/media.ts';
-import { changesRoutes } from './routes/changes.ts';
+import { changeSetRoutes } from './routes/changeSetRoutes.ts';
+import { historyRoutes } from './routes/historyRoutes.ts';
+import { importRoutes } from './routes/importRoutes.ts';
 import { storefrontMutRoutes } from './routes/storefront.ts';
 import { publicationRoutes } from './routes/publication.ts';
 import { JobRunner } from './services/jobRunner.ts';
@@ -188,7 +190,21 @@ export function createApp(opts?: AppOptions): FastifyInstance {
 
   app.register(
     async function (instance) {
-      await changesRoutes(instance, repos, changeSets, repoRoot, productService);
+      await changeSetRoutes(instance, repos, changeSets, repoRoot, productService);
+    },
+    { prefix: '/api/v1' }
+  );
+
+  app.register(
+    async function (instance) {
+      await importRoutes(instance, repos, changeSets, repoRoot, productService);
+    },
+    { prefix: '/api/v1' }
+  );
+
+  app.register(
+    async function (instance) {
+      await historyRoutes(instance, repos, changeSets, repoRoot, productService);
     },
     { prefix: '/api/v1' }
   );
