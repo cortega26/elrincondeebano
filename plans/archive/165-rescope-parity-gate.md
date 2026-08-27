@@ -1,6 +1,6 @@
 # 165 — Re-scope the Python "parity" gate to a schema round-trip regression
 
-- **Source**: Auditoría 10, TEST-07 + DIR-04 · **Status**: TODO · **Priority**: P2 · **Effort**: S
+- **Source**: Auditoría 10, TEST-07 + DIR-04 · **Status**: DONE · **Priority**: P2 · **Effort**: S
 - **Stamped against**: `ee20b0f6` (2026-08-17) · **Drift check**: `git diff --stat ee20b0f6..HEAD -- admin/content-manager/scripts/parity-report.ts admin/content-manager/scripts/certification-report.ts plans/fixtures/055/ admin/content-manager/package.json docs/operations/CUTOVER.md`
 
 ## Problem
