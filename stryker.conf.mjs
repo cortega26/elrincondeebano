@@ -5,10 +5,20 @@ const config = {
   reporters: ['html', 'clear-text', 'progress'],
   testRunner: 'vitest',
   coverageAnalysis: 'perTest',
+  ignorePatterns: [
+    '.claude',
+    '.tmp',
+    'reports',
+    'coverage',
+    'astro-poc/dist',
+    '.stryker-tmp',
+    '.codegraph',
+    '.git',
+  ],
   mutate: [
-    'astro-poc/src/lib/**/*.ts',
-    'astro-poc/src/scripts/storefront/**/*.{js,ts}',
-    '!astro-poc/src/lib/data-schemas.ts', // Zod schema contracts — keep fast
+    'astro-poc/src/scripts/storefront/cart-view.js',
+    'astro-poc/src/scripts/storefront/order-submit.js',
+    'astro-poc/src/scripts/storefront/storefront-state.ts',
   ],
   vitest: {
     configFile: 'vitest.config.mts',

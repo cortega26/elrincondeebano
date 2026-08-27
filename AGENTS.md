@@ -64,6 +64,7 @@ los archivos persisten).
 - **Los planes son artefactos de primera categoría.** Efímeros para cambios pequeños; versionados en `plans/` para trabajo complejo.
 - **Invariantes mecánicos > microgestión.** Los linters incluyen instrucciones de remediación en su mensaje de error.
 - **Entropía proactiva.** Doc-gardening recurrente mantiene docs alineados con el código.
+- **Dev-tools (plan 145):** `test:mutation` (Stryker 10.x, opt-in local, scoped to `cart-view.js`/`order-submit.js`/`storefront-state.ts` — baseline 55.74% mutation score, 90.91% en `storefront-state.ts`) wired; `@changesets/cli` en 3.x (wave-3 RFC per `DEPENDENCY_POLICY.md`).
 
 ## Método de trabajo (planes y tareas M+)
 
