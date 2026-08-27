@@ -1,6 +1,6 @@
 # 162 — Scheduled publication UI (finish plan 127 F3.1)
 
-- **Source**: Auditoría 10, DIR-01 · **Status**: TODO · **Priority**: P3 · **Effort**: M
+- **Source**: Auditoría 10, DIR-01 · **Status**: DONE · **Priority**: P3 · **Effort**: M
 - **Stamped against**: `ee20b0f6` (2026-08-17) · **Drift check**: `git diff --stat ee20b0f6..HEAD -- admin/content-manager/src/server/routes/publication.ts admin/content-manager/src/web/api/client.ts admin/content-manager/src/web/app/routes/PublicationPage.tsx admin/content-manager/src/server/services/jobRunner.ts admin/content-manager/src/server/openapi.ts`
 
 ## Problem
