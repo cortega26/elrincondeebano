@@ -16,6 +16,7 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test -c playwright.config.ts",
     "parity": "node --import tsx scripts/parity-report.ts",
+    "contract": "node --import tsx scripts/parity-report.ts",
     "shadow-read": "node --import tsx scripts/shadow-read.ts",
     "certify": "node --import tsx scripts/certification-report.ts",
     "doctor": "node --import tsx scripts/doctor.ts",

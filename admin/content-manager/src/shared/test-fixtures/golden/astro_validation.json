@@ -1,0 +1,88 @@
+{
+  "generated_at": "2026-07-15T21:29:54.164Z",
+  "schemas": {
+    "product": "productSchema",
+    "catalog": "productCatalogSchema",
+    "categoryRegistry": "categoryRegistrySchema",
+    "storefront": "storefrontExperienceSchema"
+  },
+  "results": {
+    "product_catalog": {
+      "status": "pass",
+      "product_count": 9,
+      "issues": [],
+      "per_product": [
+        {
+          "index": 0,
+          "name": "Producto Básico",
+          "valid": true,
+          "issues": []
+        },
+        {
+          "index": 1,
+          "name": "Producto Completo",
+          "valid": true,
+          "issues": []
+        },
+        {
+          "index": 2,
+          "name": "Producto Archivado",
+          "valid": true,
+          "issues": []
+        },
+        {
+          "index": 3,
+          "name": "Producto Sin Stock",
+          "valid": true,
+          "issues": []
+        },
+        {
+          "index": 4,
+          "name": "Producto Gratis",
+          "valid": true,
+          "issues": []
+        },
+        {
+          "index": 5,
+          "name": "Café 100% Arábica ☕",
+          "valid": true,
+          "issues": []
+        },
+        {
+          "index": 6,
+          "name": "Queso Añejo • Pieza 500g",
+          "valid": true,
+          "issues": []
+        },
+        {
+          "index": 7,
+          "name": "Jabón Artesanal Lavanda",
+          "valid": true,
+          "issues": []
+        },
+        {
+          "index": 8,
+          "name": "Miel Orgánica 250ml",
+          "valid": true,
+          "issues": []
+        }
+      ]
+    },
+    "category_registry": {
+      "status": "pass",
+      "nav_groups_count": 3,
+      "category_count": 4,
+      "issues": []
+    },
+    "storefront_experience": {
+      "status": "pass",
+      "bundle_count": 2,
+      "issues": []
+    }
+  },
+  "summary": {
+    "passed": 3,
+    "failed": 0,
+    "warnings": 0
+  }
+}

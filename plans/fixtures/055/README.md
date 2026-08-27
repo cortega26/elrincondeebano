@@ -46,8 +46,22 @@ These fixtures exercise every optional field, edge case, and Unicode scenario th
 
 ## Migration to workspace
 
-In Phase 1, these fixtures will be copied to `admin/content-manager/src/shared/test-fixtures/`.
-Until then, they serve as Phase 0 golden evidence.
+Phase 1 complete (plan 069 — Python retirement 2026-08-11). The canonical
+fixtures now live at `admin/content-manager/src/shared/test-fixtures/` (copied
+from this directory, including `golden/`). This directory is retained as
+historical evidence only — do not update the fixtures here.
+
+## Python parity superseded (plan 165)
+
+The former "Python parity" gate (comparing TS schemas against the Python
+golden `golden/python_roundtrip.json`) is superseded by the **schema round-trip
+regression** gate (`admin:contract` / `npm run admin:contract` →
+`admin/content-manager/scripts/parity-report.ts`). The Python app was retired
+in plan 069 (tag `v1.x-python-final`); the `python_*` goldens in `golden/` are
+historical snapshots retained for reference, not a live counterpart. Missing
+goldens now hard-fail the contract check (no warnings-only degradation). See
+`admin/content-manager/src/shared/test-fixtures/` for the canonical fixtures
+and `docs/operations/CUTOVER.md`.
 
 ## Golden generation
 

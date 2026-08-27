@@ -6,7 +6,7 @@ import { resolve } from 'node:path';
 import { execSync } from 'node:child_process';
 
 const repoRoot = resolve(process.cwd(), '..', '..');
-const reportDir = resolve(repoRoot, 'reports', 'parity');
+const reportDir = resolve(repoRoot, 'reports', 'contract');
 mkdirSync(reportDir, { recursive: true });
 
 function getCommitSha(): string {
@@ -26,18 +26,18 @@ interface FieldDiff {
   productName: string;
   field: string;
   tsValue: string;
-  pyValue: string;
+  contractValue: string;
 }
 
-interface ParityResult {
+interface ContractResult {
   commit_sha: string;
   timestamp: string;
   product_count_ts: number;
-  product_count_py: number;
+  product_count_contract: number;
   category_count_ts: number;
-  category_count_py: number;
+  category_count_contract: number;
   bundle_count_ts: number;
-  bundle_count_py: number;
+  bundle_count_contract: number;
   product_field_diffs: FieldDiff[];
   category_diffs: string[];
   storefront_diffs: string[];
@@ -45,15 +45,15 @@ interface ParityResult {
   ok: boolean;
 }
 
-const result: ParityResult = {
+const result: ContractResult = {
   commit_sha: getCommitSha(),
   timestamp: new Date().toISOString(),
   product_count_ts: 0,
-  product_count_py: 0,
+  product_count_contract: 0,
   category_count_ts: 0,
-  category_count_py: 0,
+  category_count_contract: 0,
   bundle_count_ts: 0,
-  bundle_count_py: 0,
+  bundle_count_contract: 0,
   product_field_diffs: [],
   category_diffs: [],
   storefront_diffs: [],
@@ -61,12 +61,22 @@ const result: ParityResult = {
   ok: true,
 };
 
-const fixturePath = resolve(repoRoot, 'plans', 'fixtures', '055', 'product_catalog.json');
+const fixturePath = resolve(
+  repoRoot,
+  'admin',
+  'content-manager',
+  'src',
+  'shared',
+  'test-fixtures',
+  'product_catalog.json'
+);
 const goldenProductPath = resolve(
   repoRoot,
-  'plans',
-  'fixtures',
-  '055',
+  'admin',
+  'content-manager',
+  'src',
+  'shared',
+  'test-fixtures',
   'golden',
   'python_roundtrip.json'
 );
@@ -91,11 +101,11 @@ try {
   if (existsSync(goldenProductPath)) {
     const goldenRaw = readFileSync(goldenProductPath, 'utf-8');
     const goldenProducts = JSON.parse(goldenRaw) as Array<Record<string, unknown>>;
-    result.product_count_py = goldenProducts.length;
+    result.product_count_contract = goldenProducts.length;
 
     if (goldenProducts.length !== tsProductResult.data.products.length) {
       console.error(
-        `❌ Product count: python=${goldenProducts.length} ts=${tsProductResult.data.products.length}`
+        `❌ Product count: contract=${goldenProducts.length} ts=${tsProductResult.data.products.length}`
       );
       result.ok = false;
     }
@@ -108,32 +118,37 @@ try {
       for (const key of keys) {
         if (IGNORED_FIELDS.has(key)) continue;
         const tsVal = JSON.stringify(ts[key]);
-        const pyVal = JSON.stringify(py[key]);
-        if (tsVal !== pyVal) {
+        const contractVal = JSON.stringify(py[key]);
+        if (tsVal !== contractVal) {
           result.product_field_diffs.push({
             productIndex: i,
             productName: String(ts.name ?? py['name'] ?? 'unknown'),
             field: key,
             tsValue: tsVal.length > 100 ? tsVal.slice(0, 100) + '…' : tsVal,
-            pyValue: pyVal.length > 100 ? pyVal.slice(0, 100) + '…' : pyVal,
+            contractValue: contractVal.length > 100 ? contractVal.slice(0, 100) + '…' : contractVal,
           });
         }
       }
     }
   } else {
-    result.warnings.push('Python golden product file not found — product parity not verified');
+    result.ok = false;
+    result.warnings.push(
+      'Schema contract golden product file not found — schema round-trip regression not verified (hard failure)'
+    );
   }
 } catch (err) {
-  result.warnings.push(`Product parity error: ${(err as Error).message}`);
+  result.warnings.push(`Schema round-trip product error: ${(err as Error).message}`);
   result.ok = false;
 }
 
 const categoryPath = resolve(repoRoot, 'data', 'category_registry.json');
 const goldenCategoryPath = resolve(
   repoRoot,
-  'plans',
-  'fixtures',
-  '055',
+  'admin',
+  'content-manager',
+  'src',
+  'shared',
+  'test-fixtures',
   'golden',
   'python_category_registry.json'
 );
@@ -150,20 +165,23 @@ try {
       const goldenCatList = Array.isArray(goldenCategories)
         ? goldenCategories
         : (goldenCategories.categories ?? []);
-      result.category_count_py = goldenCatList.length;
+      result.category_count_contract = goldenCatList.length;
 
-      if (result.category_count_ts !== result.category_count_py) {
+      if (result.category_count_ts !== result.category_count_contract) {
         result.category_diffs.push(
-          `Category count: ts=${result.category_count_ts} py=${result.category_count_py}`
+          `Category count: ts=${result.category_count_ts} contract=${result.category_count_contract}`
         );
         result.ok = false;
       }
     }
   } else {
-    result.warnings.push('Python golden category file not found');
+    result.ok = false;
+    result.warnings.push(
+      'Schema contract golden category file not found — schema round-trip regression not verified (hard failure)'
+    );
   }
 } catch (err) {
-  result.warnings.push(`Category parity error: ${(err as Error).message}`);
+  result.warnings.push(`Schema round-trip category error: ${(err as Error).message}`);
   result.ok = false;
 }
 
@@ -177,14 +195,14 @@ try {
     }
   }
 } catch {
-  result.warnings.push('Could not read storefront experience for parity check');
+  result.warnings.push('Could not read storefront experience for schema round-trip check');
 }
 
 if (result.product_field_diffs.length > 0) {
   console.error(`❌ ${result.product_field_diffs.length} product field mismatches:`);
   for (const d of result.product_field_diffs) {
     console.error(
-      `  [${d.productIndex}] ${d.productName}.${d.field}: ts=${d.tsValue} py=${d.pyValue}`
+      `  [${d.productIndex}] ${d.productName}.${d.field}: ts=${d.tsValue} contract=${d.contractValue}`
     );
   }
   result.ok = false;
@@ -202,12 +220,16 @@ if (result.storefront_diffs.length > 0) {
   result.ok = false;
 }
 
-const reportPath = resolve(reportDir, `parity-${result.timestamp.replace(/[:.]/g, '-')}.json`);
+const reportPath = resolve(reportDir, `contract-${result.timestamp.replace(/[:.]/g, '-')}.json`);
 writeFileSync(reportPath, JSON.stringify(result, null, 2));
 
-console.log(`\nProducts: ${result.product_count_ts} TS / ${result.product_count_py} Python`);
-console.log(`Categories: ${result.category_count_ts} TS / ${result.category_count_py} Python`);
-console.log(`Bundles: ${result.bundle_count_ts} TS / ${result.bundle_count_py} Python`);
+console.log(
+  `\nProducts: ${result.product_count_ts} TS / ${result.product_count_contract} contract`
+);
+console.log(
+  `Categories: ${result.category_count_ts} TS / ${result.category_count_contract} contract`
+);
+console.log(`Bundles: ${result.bundle_count_ts} TS / ${result.bundle_count_contract} contract`);
 console.log(`Product diffs: ${result.product_field_diffs.length}`);
 if (result.warnings.length > 0) {
   console.log(`Warnings: ${result.warnings.length}`);
@@ -215,9 +237,9 @@ if (result.warnings.length > 0) {
 }
 
 if (!result.ok) {
-  console.log('\n❌ Parity check FAILED');
+  console.log('\n❌ Schema round-trip regression check FAILED');
   process.exit(1);
 }
 
-console.log('\n✅ Parity check passed — zero unexplained differences');
+console.log('\n✅ Schema round-trip regression check passed — zero unexplained differences');
 process.exit(0);

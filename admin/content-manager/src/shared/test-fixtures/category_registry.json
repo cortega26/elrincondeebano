@@ -1,0 +1,64 @@
+{
+  "nav_groups": [
+    {
+      "id": "grupo-despensa",
+      "display_name": { "default": "Despensa" },
+      "active": true,
+      "sort_order": 0
+    },
+    {
+      "id": "grupo-bebidas",
+      "display_name": { "default": "Bebidas y Lácteos" },
+      "active": true,
+      "sort_order": 1
+    },
+    {
+      "id": "grupo-hogar",
+      "display_name": { "default": "Hogar" },
+      "active": true,
+      "sort_order": 2
+    }
+  ],
+  "categories": [
+    {
+      "id": "despensa",
+      "key": "Despensa",
+      "slug": "despensa",
+      "display_name": { "default": "Despensa" },
+      "nav_group": "grupo-despensa",
+      "active": true,
+      "sort_order": 0,
+      "description": "Productos básicos de despensa"
+    },
+    {
+      "id": "lacteos",
+      "key": "Lácteos",
+      "slug": "lacteos",
+      "display_name": { "default": "Lácteos" },
+      "nav_group": "grupo-bebidas",
+      "active": true,
+      "sort_order": 1,
+      "description": "Quesos, cremas y derivados lácteos"
+    },
+    {
+      "id": "bebidas",
+      "key": "Bebidas",
+      "slug": "bebidas",
+      "display_name": { "default": "Bebidas" },
+      "nav_group": "grupo-bebidas",
+      "active": true,
+      "sort_order": 2,
+      "description": "Café, tés y bebidas"
+    },
+    {
+      "id": "limpieza-y-aseo",
+      "key": "Limpieza y Aseo",
+      "slug": "limpieza-y-aseo",
+      "display_name": { "default": "Limpieza y Aseo" },
+      "nav_group": "grupo-hogar",
+      "active": true,
+      "sort_order": 0,
+      "description": "Productos de limpieza y aseo personal"
+    }
+  ]
+}

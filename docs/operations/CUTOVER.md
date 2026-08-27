@@ -18,12 +18,22 @@ versionado — `.gitignore` excluye `reports/`). El gate `npm run admin:certify`
 reporta READY solo cuando las 30 filas están evidenciadas:
 
 - 8 checks automatizados (typecheck, unit+integration, coverage, build,
-  shadow-read, parity, e2e-smoke, doctor), re-ejecutados sobre el SHA actual.
-- 16 filas de paridad mapeadas a las suites de test que las ejercitan.
+  shadow-read, contract — schema round-trip regression, formerly parity,
+  e2e-smoke, doctor), re-ejecutados sobre el SHA actual.
+- 16 filas de contrato (schema round-trip regression, formerly parity)
+  mapeadas a las suites de test que las ejercitan.
 - 2 filas manuales resueltas desde
   `reports/certification/evidence/operator-acceptance.json` (aceptación
   firmada del maintainer) y `rollback-drill.json` (8 drills de fallo/rollback
   sobre repos temporales desechables).
+
+> **Nota plan 165:** la antigua gate "Python parity" fue re-scopeada a
+> **schema round-trip regression** (`admin:contract` / `admin:parity` como alias
+> compat). La app Python fue retirada en plan 069 (tag `v1.x-python-final`);
+> los goldens `python_*` en `plans/fixtures/055/golden/` y su copia canónica en
+> `admin/content-manager/src/shared/test-fixtures/golden/` son snapshots
+> históricos — no existe contraparte viva. Un golden ausente ahora falla duro
+> (hard-fail) en lugar de degradar a warning.
 
 `Admin Tools CI` (`.github/workflows/admin.yml`) corre lint, typecheck,
 vitest, coverage, build, E2E Playwright (smoke + import + change-sets +
@@ -36,7 +46,7 @@ Desde un clone limpio del repo (con el estado del release candidate):
 
 ```bash
 npm ci
-npm run admin:validate   # typecheck + test + build + parity
+npm run admin:validate   # typecheck + test + build + contract (schema round-trip regression, alias parity)
 npm run admin:certify    # 30/30 READY (aceptación firmada + drills)
 npm run validate         # lint + typecheck + selectors + build + test + guardrails
 npm run validate:release # añade e2e storefront + monitor share-preview
@@ -67,6 +77,6 @@ formato canónico `data/product_data.json` que Python.
 - `npm run admin:dev` — desarrollo.
 - `npm run admin:start` — arranque de producción (`ADMIN_MODE=operator`).
 - `npm run admin:doctor` — diagnóstico con remedios.
-- `npm run admin:certify` / `admin:parity` — evidencia de certificación.
+- `npm run admin:certify` / `admin:contract` (`admin:parity` como alias compat) — evidencia de certificación (schema round-trip regression, formerly Python parity).
 
 `data/backups/` contiene snapshots pre-cutover para recuperación.

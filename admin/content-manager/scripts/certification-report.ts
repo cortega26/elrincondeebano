@@ -66,7 +66,7 @@ function readTestOutput(command: string, cwd: string): { ok: boolean; output: st
 const adminDir = resolve(repoRoot, 'admin', 'content-manager');
 const commitSha = getCommitSha();
 
-// --ci: gate only on the automated checks (parity rows are operator-signed).
+// --ci: gate only on the automated checks (contract rows are operator-signed).
 const ciMode = process.argv.includes('--ci');
 
 const automatedRows: EvidenceRow[] = [
@@ -106,11 +106,11 @@ const automatedRows: EvidenceRow[] = [
     evidence_path: 'reports/certification/evidence/shadow-read.json',
   },
   {
-    id: 'parity',
-    scenario: 'Parity report finds zero unexplained field mismatches',
+    id: 'contract',
+    scenario: 'Schema round-trip regression check finds zero unexplained field mismatches',
     status: 'untested',
-    test_command: 'npm run parity',
-    evidence_path: 'reports/certification/evidence/parity.json',
+    test_command: 'npm run contract',
+    evidence_path: 'reports/certification/evidence/contract.json',
     owner_plan: '065',
   },
   {
@@ -129,142 +129,142 @@ const automatedRows: EvidenceRow[] = [
   },
 ];
 
-const parityRows: EvidenceRow[] = [
+const contractRows: EvidenceRow[] = [
   {
-    id: 'parity-products',
+    id: 'contract-products',
     scenario: 'Browse, search, filter product catalog',
     status: 'untested',
     owner_plan: '059',
     python_equivalent: 'admin/product_manager/ui/main_window.py',
   },
   {
-    id: 'parity-create',
+    id: 'contract-create',
     scenario: 'Create product with all fields',
     status: 'untested',
     owner_plan: '059, 061',
     python_equivalent: 'admin/product_manager/ui/product_form.py',
   },
   {
-    id: 'parity-edit',
+    id: 'contract-edit',
     scenario: 'Edit product with revision tracking',
     status: 'untested',
     owner_plan: '059',
     python_equivalent: 'admin/product_manager/services.py',
   },
   {
-    id: 'parity-archive',
+    id: 'contract-archive',
     scenario: 'Archive and restore products',
     status: 'untested',
     owner_plan: '059',
     python_equivalent: 'admin/product_manager/ui/main_window.py',
   },
   {
-    id: 'parity-reorder',
+    id: 'contract-reorder',
     scenario: 'Global product reorder with identity',
     status: 'untested',
     owner_plan: '059',
     python_equivalent: 'admin/product_manager/ui/components.py',
   },
   {
-    id: 'parity-bulk',
+    id: 'contract-bulk',
     scenario: 'Bulk preview/apply across all filters',
     status: 'untested',
     owner_plan: '059',
     python_equivalent: 'admin/product_manager/ui/bulk_operations_mixin.py',
   },
   {
-    id: 'parity-categories',
+    id: 'contract-categories',
     scenario: 'Category CRUD with product safety',
     status: 'untested',
     owner_plan: '059',
     python_equivalent: 'admin/product_manager/category_gui.py',
   },
   {
-    id: 'parity-bundles',
+    id: 'contract-bundles',
     scenario: 'Bundle CRUD with product references',
     status: 'untested',
     owner_plan: '066',
     python_equivalent: 'admin/product_manager/ui/storefront_dialogs.py',
   },
   {
-    id: 'parity-import',
+    id: 'contract-import',
     scenario: 'Import preview and apply with conflict resolution',
     status: 'untested',
     owner_plan: '060',
     python_equivalent: 'admin/product_manager/ui/import_export_mixin.py',
   },
   {
-    id: 'parity-export',
+    id: 'contract-export',
     scenario: 'JSON/CSV export matching Python semantics',
     status: 'untested',
     owner_plan: '060',
     python_equivalent: 'admin/product_manager/ui/import_export_mixin.py',
   },
   {
-    id: 'parity-history',
+    id: 'contract-history',
     scenario: 'Audit trail with before/after snapshots',
     status: 'untested',
     owner_plan: '062',
     python_equivalent: 'admin/product_manager/history_store.py',
   },
   {
-    id: 'parity-sync',
+    id: 'contract-sync',
     scenario: 'Remote sync push/pull with conflicts',
     status: 'untested',
     owner_plan: '064',
     python_equivalent: 'admin/product_manager/sync.py',
   },
   {
-    id: 'parity-publication',
+    id: 'contract-publication',
     scenario: 'Preflight, commit, push with recovery',
     status: 'untested',
     owner_plan: '058',
     python_equivalent: 'admin/product_manager/deploy.py',
   },
   {
-    id: 'parity-media',
+    id: 'contract-media',
     scenario: 'Upload, transform, and apply media',
     status: 'untested',
     owner_plan: '063',
     python_equivalent: 'admin/product_manager/image_fallbacks.py',
   },
   {
-    id: 'parity-undo',
+    id: 'contract-undo',
     scenario: 'Durable undo/redo after restart',
     status: 'untested',
     owner_plan: '062',
     python_equivalent: 'admin/product_manager services undo',
   },
   {
-    id: 'parity-backup',
+    id: 'contract-backup',
     scenario: 'Bounded backup listing and restore',
     status: 'untested',
     owner_plan: '067',
     python_equivalent: 'admin/product_manager backup paths',
   },
   {
-    id: 'parity-storefront',
+    id: 'contract-storefront',
     scenario: 'Storefront curation with validation',
     status: 'untested',
     owner_plan: '066',
     python_equivalent: 'admin/product_manager/ui/storefront_dialogs.py',
   },
   {
-    id: 'parity-diagnostics',
+    id: 'contract-diagnostics',
     scenario: 'Doctor/integrity checks and repair',
     status: 'untested',
     owner_plan: '061',
     python_equivalent: 'admin/product_manager integrity checks',
   },
   {
-    id: 'parity-preferences',
+    id: 'contract-preferences',
     scenario: 'Persisted preferences and keyboard shortcuts',
     status: 'untested',
     owner_plan: '061',
     python_equivalent: 'admin/product_manager/ui/theme.py',
   },
   {
-    id: 'parity-security',
+    id: 'contract-security',
     scenario: 'Authenticated write boundary and token redaction',
     status: 'untested',
     owner_plan: '057',
@@ -289,68 +289,74 @@ const manualRows: EvidenceRow[] = [
   },
 ];
 
-// Each parity scenario maps to the unit/integration test files that exercise
+// Each contract scenario maps to the unit/integration test files that exercise
 // it. When the full vitest suite (row 'unit-test') passes and every mapped
 // file exists, the row is verified automatically; rows without coverage
 // remain operator-signed (docs/operations/CUTOVER.md).
-const PARITY_TEST_COVERAGE: Record<string, string[]> = {
-  'parity-products': ['test/contract/productService.test.ts', 'test/integration/api.test.ts'],
-  'parity-create': [
+const CONTRACT_TEST_COVERAGE: Record<string, string[]> = {
+  'contract-products': ['test/contract/productService.test.ts', 'test/integration/api.test.ts'],
+  'contract-create': [
     'test/contract/productService.test.ts',
     'test/integration/mutationApi.test.ts',
     'test/integration/writeShadow.test.ts',
   ],
-  'parity-edit': [
+  'contract-edit': [
     'test/contract/productService.test.ts',
     'test/integration/mutationApi.test.ts',
     'test/contract/idempotency.test.ts',
     'test/integration/writeShadow.test.ts',
   ],
-  'parity-archive': [
+  'contract-archive': [
     'test/contract/productService.test.ts',
     'test/integration/api.test.ts',
     'test/integration/writeShadow.test.ts',
   ],
-  'parity-reorder': [
+  'contract-reorder': [
     'test/integration/reorderBulkApi.test.ts',
     'test/contract/identity.test.ts',
     'test/integration/writeShadow.test.ts',
   ],
-  'parity-bulk': ['test/integration/reorderBulkApi.test.ts'],
-  'parity-categories': [
+  'contract-bulk': ['test/integration/reorderBulkApi.test.ts'],
+  'contract-categories': [
     'test/integration/categoryConcurrency.test.ts',
     'test/integration/clientIntegration.test.ts',
   ],
-  'parity-bundles': ['test/integration/subcategoryBundles.test.ts'],
-  'parity-import': [
+  'contract-bundles': ['test/integration/subcategoryBundles.test.ts'],
+  'contract-import': [
     'test/integration/importApply.test.ts',
     'test/integration/conflictApi.test.ts',
     'test/contract/conflictService.test.ts',
   ],
-  'parity-history': ['test/integration/api.test.ts', 'test/contract/changeSet.test.ts'],
-  'parity-export': ['test/integration/api.test.ts'],
-  'parity-sync': ['test/integration/conflictApi.test.ts', 'test/integration/writeBoundary.test.ts'],
-  'parity-publication': [
+  'contract-history': ['test/integration/api.test.ts', 'test/contract/changeSet.test.ts'],
+  'contract-export': ['test/integration/api.test.ts'],
+  'contract-sync': [
+    'test/integration/conflictApi.test.ts',
+    'test/integration/writeBoundary.test.ts',
+  ],
+  'contract-publication': [
     'test/integration/publication.test.ts',
     'test/integration/publicationAdvanced.test.ts',
     'test/integration/publicationE2E.test.ts',
     'test/integration/publicationRecovery.test.ts',
     'test/contract/publicationService.test.ts',
   ],
-  'parity-media': [
+  'contract-media': [
     'test/contract/media.test.ts',
     'test/integration/mediaUpload.test.ts',
     'test/contract/mediaSecurity.test.ts',
   ],
-  'parity-undo': ['test/contract/undo.test.ts', 'test/integration/restartRecovery.test.ts'],
-  'parity-backup': ['test/integration/backupRestore.test.ts', 'test/contract/atomicWriter.test.ts'],
-  'parity-storefront': [
+  'contract-undo': ['test/contract/undo.test.ts', 'test/integration/restartRecovery.test.ts'],
+  'contract-backup': [
+    'test/integration/backupRestore.test.ts',
+    'test/contract/atomicWriter.test.ts',
+  ],
+  'contract-storefront': [
     'test/integration/subcategoryBundles.test.ts',
     'test/integration/api.test.ts',
   ],
-  'parity-diagnostics': ['test/contract/doctor.test.ts', 'test/integration/diagnostics.test.ts'],
-  'parity-preferences': ['test/contract/preferences.test.ts', 'test/e2e/operator.spec.ts'],
-  'parity-security': [
+  'contract-diagnostics': ['test/contract/doctor.test.ts', 'test/integration/diagnostics.test.ts'],
+  'contract-preferences': ['test/contract/preferences.test.ts', 'test/e2e/operator.spec.ts'],
+  'contract-security': [
     'test/integration/writeBoundary.test.ts',
     'test/contract/routePolicy.test.ts',
     'test/integration/securityHeaders.test.ts',
@@ -358,9 +364,9 @@ const PARITY_TEST_COVERAGE: Record<string, string[]> = {
   ],
 };
 
-function resolveParityRows(unitTestPassed: boolean): EvidenceRow[] {
-  return parityRows.map((row) => {
-    const coverage = PARITY_TEST_COVERAGE[row.id];
+function resolveContractRows(unitTestPassed: boolean): EvidenceRow[] {
+  return contractRows.map((row) => {
+    const coverage = CONTRACT_TEST_COVERAGE[row.id];
     if (!coverage) {
       return { ...row, details: 'No automated coverage; operator sign-off required' };
     }
@@ -432,9 +438,9 @@ for (const row of automatedRows) {
 }
 
 const unitTestPassed = executedRows.find((r) => r.id === 'unit-test')?.status === 'pass';
-console.log('\nParity rows (suite coverage):\n');
-const resolvedParityRows = resolveParityRows(unitTestPassed);
-for (const row of resolvedParityRows) {
+console.log('\nContract rows (schema round-trip regression, suite coverage):\n');
+const resolvedContractRows = resolveContractRows(unitTestPassed);
+for (const row of resolvedContractRows) {
   const icon = row.status === 'pass' ? '✅' : row.status === 'fail' ? '❌' : '⚠️';
   console.log(`  ${icon} ${row.id}: ${row.status}`);
 }
@@ -477,7 +483,7 @@ const resolvedManualRows = manualRows.map((row) => {
   }
   return { ...row, status: 'manual' as const };
 });
-const allRows = [...executedRows, ...resolvedParityRows, ...resolvedManualRows];
+const allRows = [...executedRows, ...resolvedContractRows, ...resolvedManualRows];
 const passCount = allRows.filter((r) => r.status === 'pass').length;
 const failCount = allRows.filter((r) => r.status === 'fail').length;
 const untestedCount = allRows.filter((r) => r.status === 'untested').length;
@@ -498,7 +504,7 @@ const report: CertificationReport = {
   },
   evidence_rows: allRows,
   exit_gate: {
-    // In CI the parity rows are untested by design (operator-signed during the
+    // In CI the contract rows are untested by design (operator-signed during the
     // migration, see docs/operations/CUTOVER.md), so the gate only fails on
     // automated check failures. Locally, plan 069 Step 4: READY requires the
     // manual rows (operator acceptance, rollback drills) to be signed too.
@@ -513,7 +519,7 @@ const report: CertificationReport = {
     admin_typecheck: 'npm run admin:typecheck',
     admin_build: 'npm run admin:build',
     shadow_read: 'npm -w admin/content-manager run shadow-read',
-    parity: 'npm -w admin/content-manager run parity',
+    contract: 'npm -w admin/content-manager run contract',
     doctor: 'npm -w admin/content-manager run doctor',
   },
 };
