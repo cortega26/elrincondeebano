@@ -103,6 +103,7 @@ export const ROUTE_POLICY: RoutePolicyEntry[] = [
   { method: 'POST', path: '/api/v1/publications/preview', class: 'preview' },
   { method: 'POST', path: '/api/v1/publications', class: 'mutation' },
   { method: 'GET', path: '/api/v1/publications/recovery', class: 'read' },
+  { method: 'GET', path: '/api/v1/jobs', class: 'read' },
   { method: 'GET', path: '/api/v1/jobs/:id', class: 'read' },
   { method: 'POST', path: '/api/v1/jobs/:id/cancel', class: 'mutation' },
   // backup

@@ -5,6 +5,8 @@ export interface Job<T = unknown> {
   progress: number;
   started_at?: string;
   completed_at?: string;
+  /** ISO timestamp the job is scheduled to run (pending scheduled jobs only). */
+  scheduled_at?: string;
   error?: string;
   result?: T;
   cancelRequested: boolean;
@@ -62,6 +64,7 @@ export class JobRunner {
       type,
       status: 'pending',
       progress: 0,
+      scheduled_at: when.toISOString(),
       cancelRequested: false,
     };
     this.jobs.set(job.id, job);
@@ -92,6 +95,10 @@ export class JobRunner {
 
   getJob<T>(id: string): Job<T> | undefined {
     return this.jobs.get(id) as Job<T> | undefined;
+  }
+
+  listJobs(): Job[] {
+    return Array.from(this.jobs.values());
   }
 
   cancelJob(id: string): boolean {

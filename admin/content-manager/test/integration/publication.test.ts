@@ -736,3 +736,141 @@ test('cancelling a running publication clears recovery (plan 130)', async () => 
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+// ── plan 162: GET /jobs list + schedule/cancel flow ────────────────────────
+
+test('GET /api/v1/jobs lists pending scheduled jobs (plan 162)', async () => {
+  const dir = createTempRepo();
+  try {
+    setupData(dir);
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    const future = new Date(Date.now() + 60_000).toISOString();
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/v1/publications',
+      headers: { 'content-type': 'application/json', ...credHeaders(app) },
+      payload: { commitMessage: 'scheduled-list', publishAt: future },
+    });
+    expect(res.statusCode).toBe(200);
+    const { job_id } = res.json<{ job_id: string }>();
+
+    const list = await app.inject({ method: 'GET', url: '/api/v1/jobs' });
+    expect(list.statusCode).toBe(200);
+    const body = list.json<{
+      jobs: Array<{ id: string; status: string; scheduled_at?: string }>;
+    }>();
+    expect(Array.isArray(body.jobs)).toBe(true);
+    const found = body.jobs.find((j) => j.id === job_id);
+    expect(found).toBeDefined();
+    expect(found!.status).toBe('pending');
+    expect(found!.scheduled_at).toBeTruthy();
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('GET /api/v1/jobs returns empty when no pending jobs (plan 162)', async () => {
+  const dir = createTempRepo();
+  try {
+    setupData(dir);
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    const list = await app.inject({ method: 'GET', url: '/api/v1/jobs' });
+    expect(list.statusCode).toBe(200);
+    const body = list.json<{ jobs: unknown[] }>();
+    expect(body.jobs).toEqual([]);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('cancel a scheduled pending job via POST /jobs/:id/cancel prevents it from firing (plan 162)', async () => {
+  const dir = createTempRepo();
+  try {
+    setupData(dir);
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    const future = new Date(Date.now() + 60_000).toISOString();
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/v1/publications',
+      headers: { 'content-type': 'application/json', ...credHeaders(app) },
+      payload: { commitMessage: 'cancel-pending', publishAt: future },
+    });
+    expect(res.statusCode).toBe(200);
+    const { job_id } = res.json<{ job_id: string }>();
+
+    // Verify it appears in the list as pending.
+    const beforeCancel = await app.inject({ method: 'GET', url: '/api/v1/jobs' });
+    expect(
+      beforeCancel.json<{ jobs: Array<{ id: string }> }>().jobs.some((j) => j.id === job_id)
+    ).toBe(true);
+
+    const cancelRes = await app.inject({
+      method: 'POST',
+      url: `/api/v1/jobs/${job_id}/cancel`,
+      headers: credHeaders(app),
+    });
+    expect(cancelRes.statusCode).toBe(200);
+    expect(cancelRes.json<{ status: string }>().status).toBe('cancelled');
+
+    const after = await app.inject({ method: 'GET', url: `/api/v1/jobs/${job_id}` });
+    expect(after.json<{ status: string }>().status).toBe('cancelled');
+
+    // Wait a bit — a cancelled timer must not promote the job to running.
+    await new Promise((r) => setTimeout(r, 200));
+    const later = await app.inject({ method: 'GET', url: `/api/v1/jobs/${job_id}` });
+    expect(later.json<{ status: string }>().status).toBe('cancelled');
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('GET /api/v1/jobs does not include completed jobs (minimal surface, plan 162)', async () => {
+  const dir = createTempRepo();
+  try {
+    setupData(dir);
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    // Immediate publication completes quickly.
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/v1/publications',
+      headers: { 'content-type': 'application/json', ...credHeaders(app) },
+      payload: { commitMessage: 'immediate', push: false },
+    });
+    expect(res.statusCode).toBe(200);
+    const { job_id } = res.json<{ job_id: string }>();
+
+    // Wait until completed.
+    let status = 'pending';
+    for (let i = 0; i < 50; i++) {
+      const jr = await app.inject({ method: 'GET', url: `/api/v1/jobs/${job_id}` });
+      status = jr.json<{ status: string }>().status;
+      if (status === 'completed' || status === 'failed' || status === 'cancelled') break;
+      await new Promise((r) => setTimeout(r, 100));
+    }
+    expect(['completed', 'failed', 'cancelled']).toContain(status);
+
+    const list = await app.inject({ method: 'GET', url: '/api/v1/jobs' });
+    expect(list.statusCode).toBe(200);
+    const body = list.json<{ jobs: Array<{ id: string }> }>();
+    // Completed jobs are filtered out of the pending/running list.
+    expect(body.jobs.some((j) => j.id === job_id)).toBe(false);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

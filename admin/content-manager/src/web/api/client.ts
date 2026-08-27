@@ -123,6 +123,7 @@ export interface JobResponse {
   progress: number;
   started_at?: string;
   completed_at?: string;
+  scheduled_at?: string;
   result?: unknown;
   error?: string;
 }
@@ -614,16 +615,23 @@ export class ContentManagerClient {
 
   async publish(
     commitMessage?: string,
-    push?: boolean
+    push?: boolean,
+    publishAt?: string
   ): Promise<{ job_id: string; status: string }> {
+    const payload: Record<string, unknown> = { commitMessage, push };
+    if (publishAt) payload.publishAt = publishAt;
     return this.request<{ job_id: string; status: string }>('/publications', {
       method: 'POST',
-      body: JSON.stringify({ commitMessage, push }),
+      body: JSON.stringify(payload),
     });
   }
 
   async getJob(id: string): Promise<JobResponse> {
     return this.request<JobResponse>(`/jobs/${encodeURIComponent(id)}`);
+  }
+
+  async listJobs(): Promise<{ jobs: JobResponse[] }> {
+    return this.request<{ jobs: JobResponse[] }>('/jobs');
   }
 
   async cancelJob(id: string): Promise<JobResponse> {

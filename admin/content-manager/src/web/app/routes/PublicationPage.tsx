@@ -13,7 +13,9 @@ export function PublicationPage(): React.ReactElement {
   const [preview, setPreview] = useState<PublicationPreviewResponse | null>(null);
   const [commitMessage, setCommitMessage] = useState('chore(catalog): publication');
   const [pushAfterCommit, setPushAfterCommit] = useState(false);
+  const [publishAt, setPublishAt] = useState('');
   const [job, setJob] = useState<JobResponse | null>(null);
+  const [pendingJobs, setPendingJobs] = useState<JobResponse[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [pullStatus, setPullStatus] = useState<string | null>(null);
@@ -48,11 +50,26 @@ export function PublicationPage(): React.ReactElement {
     [stopPolling]
   );
 
+  const refreshPending = useCallback(async (): Promise<void> => {
+    try {
+      const res = await client.listJobs();
+      setPendingJobs(res.jobs);
+    } catch {
+      // Ignore — pending list is best-effort.
+    }
+  }, []);
+
   useEffect(() => {
     // Plan 097: git status refreshes every 30s while the page is open.
     const timer = setInterval(() => void refreshGitStatus().catch(() => {}), 30_000);
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    void refreshPending();
+    const timer = setInterval(() => void refreshPending().catch(() => {}), 5_000);
+    return () => clearInterval(timer);
+  }, [refreshPending]);
 
   useEffect(() => {
     return () => {
@@ -78,14 +95,17 @@ export function PublicationPage(): React.ReactElement {
     setError(null);
     setLoading(true);
     try {
-      const result = await client.publish(commitMessage, push);
+      const iso = publishAt ? new Date(publishAt).toISOString() : undefined;
+      const result = await client.publish(commitMessage, push, iso);
       setJob({
         id: result.job_id,
         type: 'publication',
         status: 'scheduled',
         progress: 0,
+        scheduled_at: iso,
       });
       pollJob(result.job_id);
+      void refreshPending();
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -100,6 +120,26 @@ export function PublicationPage(): React.ReactElement {
       const result = await client.cancelJob(job.id);
       setJob(result);
       stopPolling();
+      void refreshPending();
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  }
+
+  async function handleCancelPending(id: string): Promise<void> {
+    setError(null);
+    try {
+      await client.cancelJob(id);
+      void refreshPending();
+      if (job?.id === id) {
+        try {
+          const updated = await client.getJob(id);
+          setJob(updated);
+        } catch {
+          // ignore
+        }
+        stopPolling();
+      }
     } catch (err) {
       setError((err as Error).message);
     }
@@ -469,6 +509,37 @@ export function PublicationPage(): React.ReactElement {
           />
           Push after commit
         </label>
+        <div style={{ marginBottom: '0.75rem' }}>
+          <label>
+            Programar para (opcional):
+            <input
+              type="datetime-local"
+              aria-label="Fecha programada"
+              value={publishAt}
+              onChange={(e) => setPublishAt(e.target.value)}
+              style={{ width: '100%', padding: '0.25rem 0.5rem', marginTop: '0.25rem' }}
+            />
+          </label>
+          <p style={{ fontSize: '0.85rem', color: '#6c757d', margin: '0.25rem 0 0' }}>
+            Vacío = publicación inmediata. Con fecha, la publicación quedará programada y pendiente
+            hasta esa hora.
+          </p>
+          <p
+            role="note"
+            style={{
+              fontSize: '0.85rem',
+              color: '#856404',
+              background: '#fff3cd',
+              border: '1px solid #ffeaa7',
+              padding: '0.4rem 0.6rem',
+              borderRadius: 'var(--radius)',
+              marginTop: '0.5rem',
+            }}
+          >
+            Nota: el admin debe estar corriendo a la hora programada — las publicaciones programadas
+            son en memoria y no sobreviven a un reinicio.
+          </p>
+        </div>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           <button
             onClick={() => void handlePreview()}
@@ -491,20 +562,94 @@ export function PublicationPage(): React.ReactElement {
           >
             Commit + Push
           </button>
-          {job && job.status === 'running' && (
-            <button
-              onClick={() => void handleCancel()}
-              style={{
-                padding: '0.25rem 0.75rem',
-                background: '#ff5252',
-                color: '#fff',
-                border: 'none',
-              }}
-            >
-              Cancel
-            </button>
-          )}
+          {job &&
+            (job.status === 'running' ||
+              job.status === 'pending' ||
+              job.status === 'scheduled') && (
+              <button
+                onClick={() => void handleCancel()}
+                style={{
+                  padding: '0.25rem 0.75rem',
+                  background: '#ff5252',
+                  color: '#fff',
+                  border: 'none',
+                }}
+              >
+                Cancel
+              </button>
+            )}
         </div>
+      </section>
+
+      {/* Pending / scheduled jobs */}
+      <section
+        aria-label="Publicaciones programadas"
+        style={{
+          marginBottom: '1rem',
+          padding: '0.75rem',
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius)',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '0.5rem',
+          }}
+        >
+          <h2 style={{ margin: 0 }}>Programadas / pendientes</h2>
+          <button onClick={() => void refreshPending()} style={{ padding: '0.25rem 0.75rem' }}>
+            Actualizar
+          </button>
+        </div>
+        {pendingJobs.length === 0 ? (
+          <p style={{ color: '#6c757d', fontSize: '0.9rem' }}>No hay publicaciones programadas.</p>
+        ) : (
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {pendingJobs.map((pj) => (
+              <li
+                key={pj.id}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.4rem 0',
+                  borderBottom: '1px solid var(--color-border)',
+                  fontSize: '0.9rem',
+                }}
+              >
+                <span>
+                  <strong>{pj.id}</strong> · {pj.type} · {pj.status}
+                  {pj.scheduled_at && (
+                    <> · programada para {new Date(pj.scheduled_at).toLocaleString()}</>
+                  )}
+                  {pj.started_at && <> · inicio {new Date(pj.started_at).toLocaleString()}</>}
+                  {' · '}
+                  {pj.progress}%
+                </span>
+                {(pj.status === 'pending' || pj.status === 'running') && (
+                  <button
+                    onClick={() => void handleCancelPending(pj.id)}
+                    style={{
+                      padding: '0.2rem 0.6rem',
+                      background: '#ff5252',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: 'var(--radius)',
+                      fontSize: '0.85rem',
+                    }}
+                    aria-label={`Cancelar ${pj.id}`}
+                  >
+                    Cancelar
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       {/* Job progress */}

@@ -278,6 +278,23 @@ export async function publicationRoutes(
     };
   });
 
+  app.get('/jobs', async () => {
+    const jobs = jobRunner.listJobs();
+    return {
+      jobs: jobs
+        .filter((j) => j.status === 'pending' || j.status === 'running')
+        .map((j) => ({
+          id: j.id,
+          type: j.type,
+          status: j.status,
+          progress: j.progress,
+          started_at: j.started_at,
+          completed_at: j.completed_at,
+          scheduled_at: j.scheduled_at,
+        })),
+    };
+  });
+
   app.get('/jobs/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
     const job = jobRunner.getJob(id);
@@ -295,6 +312,7 @@ export async function publicationRoutes(
       progress: job.progress,
       started_at: job.started_at,
       completed_at: job.completed_at,
+      scheduled_at: job.scheduled_at,
       result: job.result,
       error: job.error,
     };
@@ -327,6 +345,7 @@ export async function publicationRoutes(
       progress: job?.progress ?? 0,
       started_at: job?.started_at,
       completed_at: job?.completed_at,
+      scheduled_at: job?.scheduled_at,
       error: job?.error,
     };
   });

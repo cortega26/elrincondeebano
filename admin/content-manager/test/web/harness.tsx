@@ -45,6 +45,11 @@ const { mockApi } = vi.hoisted(() => {
     getBackups: vi.fn(),
     getSyncStatus: vi.fn(),
     getConflicts: vi.fn(),
+    previewPublication: vi.fn(),
+    publish: vi.fn(),
+    getJob: vi.fn(),
+    listJobs: vi.fn(),
+    cancelJob: vi.fn(),
   };
   return { mockApi };
 });
@@ -85,6 +90,11 @@ vi.mock('@web/api/client.ts', async (importOriginal) => {
     getBackups = mockApi.getBackups;
     getSyncStatus = mockApi.getSyncStatus;
     getConflicts = mockApi.getConflicts;
+    previewPublication = mockApi.previewPublication;
+    publish = mockApi.publish;
+    getJob = mockApi.getJob;
+    listJobs = mockApi.listJobs;
+    cancelJob = mockApi.cancelJob;
   }
   return { ...actual, ContentManagerClient: MockContentManagerClient };
 });

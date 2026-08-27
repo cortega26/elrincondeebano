@@ -310,6 +310,19 @@ export function buildOpenApi() {
     method: 'post',
     path: '/api/v1/publications',
     summary: 'Create a publication',
+    request: {
+      body: {
+        content: {
+          'application/json': {
+            schema: z.object({
+              commitMessage: z.string().optional(),
+              push: z.boolean().optional(),
+              publishAt: z.string().optional(),
+            }),
+          },
+        },
+      },
+    },
     responses: jsonResponse(z.object({ job_id: z.string(), status: z.string() }), 'Created'),
   });
   registry.registerPath({
@@ -319,6 +332,26 @@ export function buildOpenApi() {
     responses: jsonResponse(z.record(z.string(), z.unknown())),
   });
 
+  registry.registerPath({
+    method: 'get',
+    path: '/api/v1/jobs',
+    summary: 'List pending/running jobs',
+    responses: jsonResponse(
+      z.object({
+        jobs: z.array(
+          z.object({
+            id: z.string(),
+            type: z.string(),
+            status: z.string(),
+            progress: z.number(),
+            started_at: z.string().optional(),
+            completed_at: z.string().optional(),
+            scheduled_at: z.string().optional(),
+          })
+        ),
+      })
+    ),
+  });
   registry.registerPath({
     method: 'get',
     path: '/api/v1/jobs/{id}',
