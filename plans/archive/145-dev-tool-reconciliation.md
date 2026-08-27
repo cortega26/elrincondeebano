@@ -1,6 +1,6 @@
 # 145 — Dev-tool reconciliation: stryker keep/drop decision + changesets 3.0
 
-- **Source**: Auditoría 10, TEST-04 + DEP-03 · **Status**: TODO · **Priority**: P2 · **Effort**: S-M
+- **Source**: Auditoría 10, TEST-04 + DEP-03 · **Status**: DONE · **Priority**: P2 · **Effort**: S-M
 - **Stamped against**: `ee20b0f6` (2026-08-17) · **Drift check**: `git diff --stat ee20b0f6..HEAD -- package.json stryker.conf.mjs .github/workflows/ .changeset/`
 
 ## Problem
