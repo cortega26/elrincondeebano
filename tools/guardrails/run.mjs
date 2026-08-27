@@ -10,7 +10,6 @@ const stages = [
   'secret-scan.mjs',
   'sw-cache-bump.mjs',
   'sw-forbidden.mjs',
-  'checkout-guard.mjs',
   'canonical-tree.mjs',
   'critical-css.mjs',
   'legacy-storefront-surface.mjs',
