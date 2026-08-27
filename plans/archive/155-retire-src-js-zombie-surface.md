@@ -1,6 +1,6 @@
 # 155 — Retire the root src/js zombie surface (extract live functions first)
 
-- **Source**: Auditoría 10, DEBT-04 · **Status**: TODO · **Priority**: P2 · **Effort**: M
+- **Source**: Auditoría 10, DEBT-04 · **Status**: DONE · **Priority**: P2 · **Effort**: M
 - **Stamped against**: `ee20b0f6` (2026-08-17) · **Drift check**: `git diff --stat ee20b0f6..HEAD -- src/js/ tsconfig.typecheck.json test/ tools/benchmarks/memoize-benchmark.mjs astro-poc/`
 
 ## Problem
