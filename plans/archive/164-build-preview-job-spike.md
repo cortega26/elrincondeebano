@@ -1,6 +1,6 @@
 # 164 — Spike: "Build + preview" job inside the admin
 
-- **Source**: Auditoría 10, DIR-03 · **Status**: TODO · **Priority**: P3 · **Effort**: M (spike)
+- **Source**: Auditoría 10, DIR-03 · **Status**: DONE · **Priority**: P3 · **Effort**: M (spike)
 - **Stamped against**: `ee20b0f6` (2026-08-17) · **Drift check**: `git diff --stat ee20b0f6..HEAD -- admin/content-manager/src/server/services/jobRunner.ts admin/content-manager/src/web/app/routes/PublicationPage.tsx docs/operations/RUNBOOK.md .github/pull_request_template.md`
 
 ## Problem
