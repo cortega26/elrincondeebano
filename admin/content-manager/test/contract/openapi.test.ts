@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { mkdirSync, rmSync } from 'node:fs';
+import { z } from 'zod';
 import { buildOpenApi, openApiDocument } from '../../src/server/openapi.ts';
 import { createApp } from '../../src/server/app.ts';
 
@@ -91,6 +92,110 @@ test('the OpenAPI document exposes the product and category schemas', () => {
   expect(Object.keys(schemas)).toContain('Bundle');
 });
 
+// Plan 163 fallback (extends plan 133): shape assertion so a missing request
+// field fails CI instead of becoming a silent 422. This is the permanent
+// guard whether the spike adopts a generated client or not. The full matrix
+// from plan 133 will replace this focused guard when its openapi.ts fixes
+// land, but this one field (publishAt) is the proven drift case.
+
+type JsonSchema = {
+  $ref?: string;
+  type?: string;
+  enum?: string[];
+  nullable?: boolean;
+  properties?: Record<string, JsonSchema>;
+  items?: JsonSchema;
+  required?: string[];
+  additionalProperties?: JsonSchema | boolean;
+  anyOf?: JsonSchema[];
+};
+
+function jsonSchemaToZod(schema: JsonSchema, components: Record<string, JsonSchema>): z.ZodType {
+  if (schema.$ref) {
+    const name = schema.$ref.split('/').pop() ?? '';
+    return jsonSchemaToZod(components[name] ?? {}, components);
+  }
+  if (schema.anyOf) {
+    return z.union(schema.anyOf.map((s) => jsonSchemaToZod(s, components)));
+  }
+  if (schema.enum) {
+    return z.enum(schema.enum as [string, ...string[]]);
+  }
+  if (schema.type === 'array') {
+    return z.array(jsonSchemaToZod(schema.items ?? {}, components));
+  }
+  if (schema.type === 'object' || schema.properties || schema.additionalProperties) {
+    if (!schema.properties) {
+      return z.record(z.string(), z.unknown());
+    }
+    const required = new Set(schema.required ?? []);
+    const shape: Record<string, z.ZodType> = {};
+    for (const [key, sub] of Object.entries(schema.properties)) {
+      const base = jsonSchemaToZod(sub, components);
+      shape[key] = required.has(key) ? base : base.optional();
+    }
+    const objectSchema = z.object(shape);
+    return schema.additionalProperties ? objectSchema.catchall(z.unknown()) : objectSchema;
+  }
+  if (schema.type === 'string') return z.string();
+  if (schema.type === 'number' || schema.type === 'integer') return z.number();
+  if (schema.type === 'boolean') return z.boolean();
+  return z.unknown();
+}
+
+test('POST /api/v1/publications request body is documented with publishAt and validates (plan 163 fallback)', () => {
+  const doc = buildOpenApi() as unknown as {
+    paths: Record<
+      string,
+      Record<
+        string,
+        { requestBody?: { content?: { 'application/json'?: { schema?: JsonSchema } } } }
+      >
+    >;
+    components: { schemas: Record<string, JsonSchema> };
+  };
+
+  const op = doc.paths['/api/v1/publications']?.post;
+  const schema = op?.requestBody?.content?.['application/json']?.schema;
+  expect(schema, 'POST /api/v1/publications must declare a requestBody schema').toBeDefined();
+
+  // The drift that recurred three times: publishAt omitted from doc or client.
+  const props = (schema as JsonSchema).properties ?? {};
+  expect(Object.keys(props), 'publications requestBody must declare publishAt').toEqual(
+    expect.arrayContaining(['commitMessage', 'push', 'publishAt'])
+  );
+  expect(props.publishAt?.type).toBe('string');
+
+  // The client must also forward publishAt (src check, not shape param).
+  const clientSrc = readFileSync(CLIENT_SOURCE, 'utf-8');
+  expect(clientSrc).toContain('publishAt');
+
+  // Runtime shape guard: fixtures that mirror what the client actually
+  // JSON.stringify's must validate against the documented schema.
+  const components = (doc.components?.schemas ?? {}) as Record<string, JsonSchema>;
+  const zodSchema = jsonSchemaToZod(schema as JsonSchema, components);
+
+  const fixtures: Array<{ name: string; payload: unknown }> = [
+    { name: 'minimal publish', payload: { commitMessage: 'release v2', push: true } },
+    {
+      name: 'scheduled publish',
+      payload: {
+        commitMessage: 'release v2',
+        push: false,
+        publishAt: new Date(Date.now() + 60_000).toISOString(),
+      },
+    },
+  ];
+
+  for (const { name, payload } of fixtures) {
+    const result = zodSchema.safeParse(payload);
+    expect(
+      result.success,
+      `${name} payload does not match documented schema: ${JSON.stringify(result.error?.issues)}`
+    ).toBe(true);
+  }
+});
+
 // Plan 150: memoization — the static doc is built once per process and served
 // from that cached build. Verify identity + bytes + route serving.
 
@@ -107,7 +212,10 @@ test('openApiDocument serializes identically to a fresh buildOpenApi()', () => {
 });
 
 test('GET /openapi.json returns identical bytes on consecutive requests', async () => {
-  const dir = resolve(tmpdir(), `cm-openapi-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`);
+  const dir = resolve(
+    tmpdir(),
+    `cm-openapi-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+  );
   mkdirSync(dir, { recursive: true });
   const app = createApp({ repoRoot: dir, enableWrites: false, logger: false });
   await app.ready();
