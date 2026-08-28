@@ -1,6 +1,6 @@
 # 163 — Spike: generate the typed API client from the OpenAPI/zod contract
 
-- **Source**: Auditoría 10, DIR-02 · **Status**: TODO · **Priority**: P3 · **Effort**: M (spike)
+- **Source**: Auditoría 10, DIR-02 · **Status**: DONE · **Priority**: P3 · **Effort**: M (spike)
 - **Stamped against**: `ee20b0f6` (2026-08-17) · **Drift check**: `git diff --stat ee20b0f6..HEAD -- admin/content-manager/src/web/api/client.ts admin/content-manager/src/server/openapi.ts admin/content-manager/test/contract/openapi.test.ts docs/operations/DEPENDENCY_POLICY.md`
 
 ## Problem
