@@ -1,6 +1,6 @@
 # 166 — WhatsApp "Avísame cuando vuelva" on out-of-stock cards
 
-- **Source**: Auditoría 10, DIR-05 · **Status**: TODO · **Priority**: P3 · **Effort**: S
+- **Source**: Auditoría 10, DIR-05 · **Status**: DONE · **Priority**: P3 · **Effort**: S
 - **Stamped against**: `ee20b0f6` (2026-08-17) · **Drift check**: `git diff --stat ee20b0f6..HEAD -- astro-poc/src/scripts/storefront/storefront-state.ts astro-poc/src/scripts/storefront.js astro-poc/src/components/ProductCard.astro astro-poc/src/components/ProductGrid.astro astro-poc/src/scripts/storefront/catalog-view.js docs/operations/RUNBOOK.md`
 
 ## Problem
