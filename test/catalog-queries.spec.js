@@ -24,10 +24,10 @@ describe('getProducts', () => {
     expect(archived.length).toBe(0);
   });
 
-  it('does not include out-of-stock products', () => {
+  it('includes out-of-stock products for notify-when-back (plan 166)', () => {
     const products = getProducts();
     const noStock = products.filter((p) => p.stock === false);
-    expect(noStock.length).toBe(0);
+    expect(noStock.length).toBeGreaterThan(0);
   });
 
   it('each product has a name and category', () => {

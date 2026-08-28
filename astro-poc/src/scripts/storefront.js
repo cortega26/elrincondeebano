@@ -1359,6 +1359,16 @@ function initStorefront() {
       return;
     }
 
+    const notifyWhenBack = target.closest('[data-notify-whatsapp]');
+    if (notifyWhenBack) {
+      const sku = notifyWhenBack.getAttribute('data-notify-sku') || '';
+      const name = notifyWhenBack.getAttribute('data-notify-name') || '';
+      trackAnalyticsEvent('notify_when_back', {
+        sku,
+        name,
+      });
+    }
+
     const heroCta = target.closest('[data-home-hero-cta]');
     if (heroCta) {
       const href = heroCta.getAttribute('href') || '';

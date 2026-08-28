@@ -1,6 +1,6 @@
 ---
 import type { ProductWithSku } from '../lib/catalog';
-import { formatCurrency } from '../lib/formatting';
+import { WHATSAPP_NUMBER, formatCurrency } from '../lib/formatting';
 import { computeProductCardData } from '../lib/product-card-helpers';
 
 export interface Props {
@@ -14,6 +14,9 @@ const { product, sku } = item;
 const { index = 0 } = Astro.props;
 const { compactMobile = false } = Astro.props;
 const isLikelyLcp = index === 0;
+const isAvailable = product.stock !== false;
+const notifyMessage = `Avísame cuando vuelva a estar disponible ${product.name} (${sku})`;
+const notifyHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(notifyMessage)}`;
 const card = computeProductCardData(product, index);
 const price = card.price;
 const discount = card.discount;
@@ -27,7 +30,7 @@ const hasAvifSource = typeof avifImage?.srcset === 'string' && avifImage.srcset.
 ---
 
 <article
-  class={`producto col-6 col-sm-6 col-md-4 col-lg-3 ${compactMobile ? 'producto--compact-mobile' : ''}`.trim()}
+  class={`producto col-6 col-sm-6 col-md-4 col-lg-3 ${isAvailable ? '' : 'agotado'} ${compactMobile ? 'producto--compact-mobile' : ''}`.trim()}
   data-product-id={sku}
   data-product-name={product.name}
   data-product-category={product.category}
@@ -93,16 +96,33 @@ const hasAvifSource = typeof avifImage?.srcset === 'string' && avifImage.srcset.
       </div>
 
       <div class="action-area mt-auto" data-pid={sku} role="group" aria-label={`Acciones para ${product.name}`}>
-        <button class="btn btn-primary add-to-cart-btn mt-2" type="button" data-id={sku} aria-label={`Agregar ${product.name} al carrito`}>
-          <span class="add-to-cart-btn__label">Agregar</span>
-          {compactMobile ? null : <span class="add-to-cart-btn__hint">al pedido</span>}
-        </button>
+        {isAvailable ? (
+          <>
+            <button class="btn btn-primary add-to-cart-btn mt-2" type="button" data-id={sku} aria-label={`Agregar ${product.name} al carrito`}>
+              <span class="add-to-cart-btn__label">Agregar</span>
+              {compactMobile ? null : <span class="add-to-cart-btn__hint">al pedido</span>}
+            </button>
 
-        <div class="quantity-control is-hidden" aria-live="polite" role="group" aria-label="Seleccionar cantidad">
-          <button class="quantity-btn" type="button" data-action="decrease" data-id={sku} aria-label="Disminuir cantidad">-</button>
-          <span class="quantity-value" data-id={sku} aria-live="polite" aria-atomic="true">1</span>
-          <button class="quantity-btn" type="button" data-action="increase" data-id={sku} aria-label="Aumentar cantidad">+</button>
-        </div>
+            <div class="quantity-control is-hidden" aria-live="polite" role="group" aria-label="Seleccionar cantidad">
+              <button class="quantity-btn" type="button" data-action="decrease" data-id={sku} aria-label="Disminuir cantidad">-</button>
+              <span class="quantity-value" data-id={sku} aria-live="polite" aria-atomic="true">1</span>
+              <button class="quantity-btn" type="button" data-action="increase" data-id={sku} aria-label="Aumentar cantidad">+</button>
+            </div>
+          </>
+        ) : (
+          <a
+            class="btn btn-outline-primary notify-when-back-btn mt-2"
+            href={notifyHref}
+            target="_blank"
+            rel="noopener"
+            data-notify-whatsapp
+            data-notify-sku={sku}
+            data-notify-name={product.name}
+            aria-label={`Avísame cuando vuelva ${product.name}`}
+          >
+            Avísame cuando vuelva
+          </a>
+        )}
       </div>
     </div>
   </div>
