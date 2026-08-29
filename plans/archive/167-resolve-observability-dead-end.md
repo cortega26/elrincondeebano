@@ -1,6 +1,6 @@
 # 167 — Resolve the storefront-observability dead end (ADR 0010 go/no-go)
 
-- **Source**: Auditoría 10, DIR-06 · **Status**: TODO · **Priority**: P3 · **Effort**: M (spike/decision)
+- **Source**: Auditoría 10, DIR-06 · **Status**: DONE · **Priority**: P3 · **Effort**: M (spike/decision)
 - **Stamped against**: `ee20b0f6` (2026-08-17) · **Drift check**: `git diff --stat ee20b0f6..HEAD -- astro-poc/src/scripts/storefront.js astro-poc/src/scripts/storefront/observability.js astro-poc/src/scripts/storefront/observability.ts astro-poc/src/lib/logger.ts docs/operations/OBSERVABILITY.md docs/adr/0010-private-funnel-measurement.md`
 
 ## Problem
