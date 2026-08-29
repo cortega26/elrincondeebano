@@ -80,21 +80,29 @@ test('product contract rejects invalid product fields and unknown categories', (
     result.errors.some((error) => error.includes('unknown category')),
     true
   );
+  // Plan 154: zod superset messages — Discount vs discount, image_path regex, stock boolean, field metadata
   assert.equal(
-    result.errors.some((error) => error.includes('discount cannot exceed price')),
+    result.errors.some((error) => error.toLowerCase().includes('cannot exceed price')),
     true
   );
   assert.equal(
-    result.errors.some((error) => error.includes('stock must be a boolean')),
+    result.errors.some(
+      (error) => error.includes('stock') && error.toLowerCase().includes('boolean')
+    ),
     true
   );
   assert.equal(
-    result.errors.some((error) => error.includes('image_path must be a safe local path')),
+    result.errors.some(
+      (error) =>
+        error.includes('image_path') &&
+        (error.includes('assets/images') || error.includes('safe local'))
+    ),
     true
   );
   assert.equal(
-    result.errors.some((error) =>
-      error.includes('field_last_modified.stock.ts must be an ISO date string')
+    result.errors.some(
+      (error) =>
+        error.includes('field_last_modified') && error.includes('ts must be an ISO date string')
     ),
     true
   );
