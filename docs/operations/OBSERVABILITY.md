@@ -24,7 +24,7 @@ parte de una regresión en producción:
 ### Inicialización
 
 - Módulo: `astro-poc/src/scripts/storefront/observability.js`
-- Arranque: `astro-poc/src/scripts/storefront.js` llama a `observability.initObservability({ enabled: true, slowEndpointMs: 1200 })` durante `initStorefront()`.
+- Arranque: `astro-poc/src/scripts/storefront.js` llama a `observability.initObservability({ enabled: false, slowEndpointMs: 1200 })` durante `initStorefront()` (ADR 0010 no-go 2026-08-27; `enabled:true` requiere collector first-party y tests §2).
 - Kill switch local: `localStorage.ebano-observability-disabled = "true"`.
 - La inicialización es idempotente: una segunda llamada devuelve el snapshot sin reinstalar listeners.
 
@@ -67,7 +67,7 @@ parte de una regresión en producción:
 
 ## Operación sugerida
 
-1. Revisar eventos `slow_endpoint_detected` y `web_vitals_snapshot` en logs del navegador/collector.
+1. Revisar eventos `slow_endpoint_detected` y `web_vitals_snapshot` en logs del navegador (ADR 0010 no-go: sin collector, colección deshabilitada por defecto — ver `storefront.js:1114`).
 2. Si aumenta error rate:
    - correlacionar con `runtime_error_before_app_ready` / `unhandled_js_error`.
 3. Ajustar umbral de latencia por entorno:

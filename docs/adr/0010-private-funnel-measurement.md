@@ -1,8 +1,8 @@
 # ADR 0010: Private funnel measurement contract (spike)
 
-- Status: Proposed — decisión de go/no-go pendiente de confirmación del owner del negocio (default: no-go)
-- Date: 2026-08-12
-- Plan: 038 (spike de medición privada del funnel)
+- Status: Decided — no-go (2026-08-27, plan 167). Default remains no-go until owner confirms collector.
+- Date: 2026-08-12 (spike) · Decision: 2026-08-27 (plan 167)
+- Plan: 038 (spike de medición privada del funnel) · 167 (go/no-go)
 - Scope: diseño/contrato únicamente — sin provider, sin transmisión, sin cookies, sin PII
 
 ## Context
@@ -95,6 +95,53 @@ mobile_add_to_cart: {}   // conteo únicamente
   propiedades nuevas como cambios de schema sensibles a privacidad.
 - La ausencia de analítica nunca bloquea checkout (no-op actual es el
   contrato).
+
+## Addendum — Decision 2026-08-27 (no-go, plan 167)
+
+- **Decision**: **no-go**. No se implementa endpoint agregado first-party ni
+  bridge a Plausible. La medición permanece como contrato provider-neutral
+  ( §4 ) sin transmisión.
+- **Evidence assembled (spike)**:
+  - Captura actual: `observability.initObservability({ enabled: true, slowEndpointMs: 1200 })`
+    en cada page load (`storefront.js:1103` pre-decision) → LCP/INP/CLS vía
+    `PerformanceObserver`, contadores `error`/`unhandledrejection`, y
+    `recordEndpointMetric` (buffer 50, solo `path`+método+status+duración,
+    umbral 1200 ms). Salida únicamente `log(...)` → `logger.ts:67-82`
+    → `console` del navegador; `OBSERVABILITY.md:70` indica revisar logs
+    del navegador sin collector existente.
+  - Umbrales de triage: `OBSERVABILITY.md:11-20` — LCP>2.5s, INP>200ms,
+    CLS>0.1, fetch crítico >1200 ms, incremento visible de error rate.
+  - Funnel: 6 emisores `trackAnalyticsEvent` en `storefront.js`
+    (`whatsapp_checkout_submit`, `mobile_merchandising_toggle`,
+    `mobile_cart_shortcut_click`, `notify_when_back` (plan 166),
+    `home_hero_primary_cta_click`, `mobile_add_to_cart`) → `window.__analyticsTrack`
+    nunca instalado → no-op seguro (`try/catch`).
+  - Operador: single operator (maintainer). Sin decisiones concretas que
+    cambiar con los datos ni responsable legal/privacidad distinto del owner.
+  - Costo go: endpoint first-party same-origin + tests de privacidad
+    (campos descartados antes de transmitir, checkout nunca bloqueado —
+    ADR §2) + operación. Costo no-go: flip `enabled:false`.
+  - Drift check `ee20b0f6..HEAD` (2026-08-27): solo `storefront.js` cambió
+    (+30 -2, cache de companion + `notify_when_back`); `observability.js`,
+    `logger.ts`, `OBSERVABILITY.md` y ADR sin cambios — problema vigente.
+  - **Collector check (STOP condition)**: `grep -r __analyticsTrack|beacon|collector`
+    sobre `astro-poc/`, `docs/`, `infra/` no reveló endpoint/collector fuera
+    del repo. Verificado 2026-08-27.
+- **Rationale**: recolectar datos que nadie lee es peor que no recolectar —
+  los umbrales crean expectativa de acción sin consumidor. El ADR ya
+  recomendaba default no-go hasta confirmación del owner; no hay evidencia
+  nueva que justifique el costo de consentimiento/operación para un operador
+  único sin métricas acordadas.
+- **Branch executed (no-go)**:
+  - `astro-poc/src/scripts/storefront.js:1103` → `enabled:false` (observability
+    deshabilita `PerformanceObserver` y contadores; `logger.ts` conservado).
+  - `trackAnalyticsEvent` API conservada con comentario de revisit (ADR 0010
+    §4); emisores retenidos como no-op inertes sin `__analyticsTrack` —
+    payload building no transmite (ver comentario en `storefront.js:50`).
+  - Re-enable documentado: instalar collector first-party o bridge
+    `__analyticsTrack` y volver a `enabled:true` + tests §2.
+- **Rollback**: `git revert <sha>` (cambio trivial).
+- **Refs**: plan 167, auditoría 10 DIR-06, `OBSERVABILITY.md`, `storefront.js:50,1103`.
 
 ## Referencias
 

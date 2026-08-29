@@ -47,6 +47,12 @@ if (typeof window !== 'undefined') {
   );
 }
 
+// ADR 0010 — Decision 2026-08-27: no-go (default). Funnel measurement remains
+// provider-neutral contract only; no collector is shipped in production.
+// trackAnalyticsEvent is retained as a safe no-op API for future revisit —
+// window.__analyticsTrack is never installed, so emitters below are inert
+// and no data is transmitted. Re-enable by installing a collector and
+// revisiting the ADR. See docs/adr/0010-private-funnel-measurement.md § Addendum.
 function trackAnalyticsEvent(eventName, properties = {}) {
   try {
     if (typeof window !== 'undefined' && typeof window.__analyticsTrack === 'function') {
@@ -1100,7 +1106,12 @@ async function registerServiceWorker() {
 }
 
 function initStorefront() {
-  observability.initObservability({ enabled: true, slowEndpointMs: 1200 });
+  // ADR 0010 no-go 2026-08-27: observability collection disabled by default.
+  // No collector exists; shipping enabled would create triage expectation
+  // (LCP>2.5s, INP>200ms, CLS>0.1, slowEndpointMs 1200) with no consumer.
+  // Local logging via logger.ts is kept. Re-enable by setting enabled:true
+  // only when a first-party endpoint or build-only aggregation is shipped.
+  observability.initObservability({ enabled: false, slowEndpointMs: 1200 });
   storefrontStorage.migrateLegacyState();
   const storefrontExperience = readStorefrontExperience();
   const companionRules = Array.isArray(storefrontExperience?.companionRules)
