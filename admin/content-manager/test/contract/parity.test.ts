@@ -38,9 +38,26 @@ test('TypeScript schema parses all fixture products', () => {
 
   expect(result.data.products.length).toBeGreaterThanOrEqual(1);
 
+  // Plan 154: productSchema is the WRITE strict schema — raster images without AVIF
+  // companion are rejected on write (they still load via productCatalogSchema's lenient
+  // read path, which uses productReadSchema). The fixture contains two such legacy
+  // products; they must parse on read but fail on strict write.
   for (const product of result.data.products) {
+    const readOk = result.success;
+    expect(readOk).toBe(true);
     const pr = productSchema.safeParse(product);
-    expect(pr.success).toBe(true);
+    const requiresAvif =
+      typeof product.image_path === 'string' &&
+      /\.(webp|png|jpe?g)$/i.test(product.image_path) &&
+      (!product.image_avif_path || String(product.image_avif_path).trim() === '');
+    if (requiresAvif) {
+      expect(pr.success).toBe(false);
+      if (!pr.success) {
+        expect(pr.error.issues.some((i) => i.path.join('.') === 'image_avif_path')).toBe(true);
+      }
+    } else {
+      expect(pr.success).toBe(true);
+    }
   }
 });
 

@@ -231,22 +231,108 @@ test('productSchema validates image paths', () => {
     rev: 1,
     field_last_modified: {},
   };
+  // Plan 154: raster images require AVIF companion — without it the write schema rejects
   expect(productSchema.safeParse({ ...base, image_path: 'assets/images/a.webp' }).success).toBe(
-    true
+    false
   );
   expect(productSchema.safeParse({ ...base, image_path: 'assets/images/a b.webp' }).success).toBe(
-    true
+    false
   );
+  // With AVIF companion, raster is accepted
+  expect(
+    productSchema.safeParse({
+      ...base,
+      image_path: 'assets/images/a.webp',
+      image_avif_path: 'assets/images/a.avif',
+    }).success
+  ).toBe(true);
+  expect(
+    productSchema.safeParse({
+      ...base,
+      image_path: 'assets/images/a b.webp',
+      image_avif_path: 'assets/images/a b.avif',
+    }).success
+  ).toBe(true);
   expect(productSchema.safeParse({ ...base, image_path: 'images/a.webp' }).success).toBe(false);
   expect(productSchema.safeParse({ ...base, image_path: 'assets/a.webp' }).success).toBe(false);
   expect(productSchema.safeParse({ ...base, image_path: 'assets/images/a.txt' }).success).toBe(
     false
   );
   expect(productSchema.safeParse({ ...base, image_path: '' }).success).toBe(true);
+  // Non-raster (avif itself) does not require companion
+  expect(productSchema.safeParse({ ...base, image_path: 'assets/images/a.avif' }).success).toBe(
+    true
+  );
   expect(
     productSchema.safeParse({ ...base, image_avif_path: 'assets/images/a.avif' }).success
   ).toBe(true);
   expect(
     productSchema.safeParse({ ...base, image_avif_path: 'assets/images/a.webp' }).success
+  ).toBe(false);
+});
+
+test('productSchema requires AVIF companion for raster images (plan 154)', () => {
+  const base = {
+    name: 'X',
+    description: '',
+    price: 1000,
+    stock: true,
+    category: 'cat1',
+    is_archived: false,
+    rev: 1,
+    field_last_modified: {},
+  };
+  const rasterWithoutAvif = productSchema.safeParse({
+    ...base,
+    image_path: 'assets/images/bebidas/Sin Stock.webp',
+    image_avif_path: '',
+  });
+  expect(rasterWithoutAvif.success).toBe(false);
+  if (!rasterWithoutAvif.success) {
+    expect(rasterWithoutAvif.error.issues.some((i) => i.path.join('.') === 'image_avif_path')).toBe(
+      true
+    );
+  }
+  const rasterWithAvif = productSchema.safeParse({
+    ...base,
+    image_path: 'assets/images/bebidas/Sin Stock.webp',
+    image_avif_path: 'assets/images/bebidas/Sin Stock.avif',
+  });
+  expect(rasterWithAvif.success).toBe(true);
+});
+
+test('fieldMetadataSchema enforces strict shape (plan 154)', () => {
+  const base = {
+    name: 'X',
+    description: '',
+    price: 1000,
+    category: 'cat1',
+    stock: true,
+    is_archived: false,
+    rev: 1,
+  };
+  // Valid metadata passes
+  expect(
+    productSchema.safeParse({
+      ...base,
+      field_last_modified: {
+        price: {
+          ts: '2026-07-15T00:00:00.000Z',
+          by: 'admin',
+          rev: 1,
+          base_rev: 0,
+          changeset_id: null,
+        },
+      },
+    }).success
+  ).toBe(true);
+  // Missing required ts/by/rev fails on write
+  expect(
+    productSchema.safeParse({
+      ...base,
+      field_last_modified: {
+        price: { ts: 'invalid', by: '', rev: -1 } as unknown as Record<string, unknown>,
+      },
+    }).success
   ).toBe(false);
 });

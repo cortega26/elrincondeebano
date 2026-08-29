@@ -1,12 +1,37 @@
 import { z } from 'zod';
 
 export const fieldMetadataSchema = z.object({
-  ts: z.string().optional(),
-  by: z.string().optional(),
-  rev: z.number().int().nonnegative().optional(),
-  base_rev: z.number().int().nonnegative().optional(),
-  changeset_id: z.string().nullable().optional(),
+  ts: z
+    .string()
+    .refine((v) => Number.isFinite(Date.parse(v)), { message: 'ts must be an ISO date string' }),
+  by: z.string().min(1, 'by must be a non-empty string'),
+  rev: z.number().int().nonnegative(),
+  base_rev: z.number().int().nonnegative().nullable().optional(),
+  changeset_id: z
+    .string()
+    .nullable()
+    .optional()
+    .refine((v) => v === undefined || v === null || v.trim().length > 0, {
+      message: 'changeset_id must be a non-empty string or null',
+    }),
 });
+
+const RASTER_IMAGE_EXTENSIONS = new Set(['.webp', '.png', '.jpg', '.jpeg']);
+
+function isSafeLocalAssetPath(value: string): boolean {
+  const normalized = value.trim();
+  if (/^https?:\/\//i.test(normalized)) return false;
+  if (normalized.includes('..') || normalized.includes('\\')) return false;
+  return true;
+}
+
+function requiresAvifCompanion(value: string): boolean {
+  if (!value || !isSafeLocalAssetPath(value)) return false;
+  const trimmed = value.trim();
+  if (!trimmed) return false;
+  const ext = trimmed.slice(trimmed.lastIndexOf('.')).toLowerCase();
+  return RASTER_IMAGE_EXTENSIONS.has(ext);
+}
 
 // Lenient per-product shape used on the READ path only (loadCatalog,
 // validate()): a legacy catalog file that already has discount > price must
@@ -80,6 +105,9 @@ export const productReadSchema = z.object({
 // Strict write schema: every create/edit/import write path must parse
 // through this, never productReadSchema — see product.ts's Reviewer focus
 // note in plan 074 for why the split must not silently drop this check.
+// Plan 154: zod is superset of tools/product-contract rules — AVIF companion
+// for raster images is enforced here so the admin and the build contract
+// agree (tools/utils/product-contract.js requiresAvifCompanion).
 export const productSchema = productReadSchema.superRefine((data, ctx) => {
   if (data.discount > data.price) {
     ctx.addIssue({
@@ -93,6 +121,13 @@ export const productSchema = productReadSchema.superRefine((data, ctx) => {
       code: 'custom',
       path: ['category'],
       message: 'La categoría es obligatoria',
+    });
+  }
+  if (requiresAvifCompanion(data.image_path) && !data.image_avif_path?.trim()) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['image_avif_path'],
+      message: 'image_avif_path is required for raster product images',
     });
   }
 });
