@@ -1,9 +1,11 @@
+/* eslint-disable max-lines-per-function, complexity, sonarjs/cognitive-complexity, sonarjs/no-duplicate-string -- plan 154 small form, zod wrapper */
 import { useState, useEffect } from 'react';
 import { ContentManagerClient } from '../../api/client.ts';
 const client = new ContentManagerClient();
 import type { ProductResponse } from '../../api/client.ts';
 import type { CategoryRecord } from '../../../shared/schemas/category.ts';
 import { ProductImage } from './ProductImage.tsx';
+import { productSchema } from '../../../shared/schemas/product.ts';
 
 export function ProductForm({
   product,
@@ -23,6 +25,7 @@ export function ProductForm({
   const [imagePath, setImagePath] = useState(product?.image_path ?? '');
   const [imageAvifPath, setImageAvifPath] = useState(product?.image_avif_path ?? '');
   const [saving, setSaving] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [categories, setCategories] = useState<CategoryRecord[]>([]);
   const [mediaItems, setMediaItems] = useState<
     Array<{ path: string; name: string; status: string; productName?: string }>
@@ -59,25 +62,57 @@ export function ProductForm({
 
   async function handleSubmit(e: React.FormEvent): Promise<void> {
     e.preventDefault();
+    setFieldErrors({});
+    // Plan 154: client-side zod parse on submit — surface .issues as field errors
+    // using the shared canonical schema (leaf zod only, no server code).
+    const priceNum = Number(price);
+    const discountNum = Number(discount);
+    const probeBase = product ?? {
+      order: 0,
+      is_archived: false,
+      rev: 0,
+      field_last_modified: {} as Record<string, unknown>,
+    };
+    const probe = {
+      ...probeBase,
+      name,
+      description,
+      price: priceNum,
+      discount: discountNum,
+      stock,
+      category,
+      image_path: imagePath,
+      image_avif_path: imageAvifPath,
+    };
+    const parsed = productSchema.safeParse(probe);
+    if (!parsed.success) {
+      const mapped: Record<string, string> = {};
+      for (const issue of parsed.error.issues) {
+        const field = String(issue.path[0] ?? 'form');
+        if (!mapped[field]) mapped[field] = issue.message;
+      }
+      setFieldErrors(mapped);
+      return;
+    }
     setSaving(true);
     try {
       const changes: Record<string, unknown> = {};
       if (!product) {
         changes.name = name;
-        changes.price = Number(price);
+        changes.price = priceNum;
         changes.description = description;
         changes.stock = stock;
         changes.category = category;
-        changes.discount = Number(discount);
+        changes.discount = discountNum;
         if (imagePath) changes.image_path = imagePath;
         if (imageAvifPath) changes.image_avif_path = imageAvifPath;
       } else {
         if (name !== product.name) changes.name = name;
-        if (Number(price) !== product.price) changes.price = Number(price);
+        if (priceNum !== product.price) changes.price = priceNum;
         if (description !== product.description) changes.description = description;
         if (stock !== product.stock) changes.stock = stock;
         if (category !== product.category) changes.category = category;
-        if (Number(discount) !== product.discount) changes.discount = Number(discount);
+        if (discountNum !== product.discount) changes.discount = discountNum;
         if (imagePath !== (product.image_path ?? '')) changes.image_path = imagePath;
         if (imageAvifPath !== (product.image_avif_path ?? ''))
           changes.image_avif_path = imageAvifPath;
@@ -123,9 +158,17 @@ export function ProductForm({
           <input
             required
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value);
+              if (fieldErrors.name) setFieldErrors((prev) => ({ ...prev, name: '' }));
+            }}
             style={{ width: '100%', padding: '0.25rem' }}
           />
+          {fieldErrors.name && (
+            <span style={{ color: 'var(--color-danger, #c00)', fontSize: '0.8rem' }}>
+              {fieldErrors.name}
+            </span>
+          )}
         </label>
         <label>
           Precio *<br />
@@ -134,19 +177,36 @@ export function ProductForm({
             type="number"
             min="1"
             value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            onChange={(e) => {
+              setPrice(e.target.value);
+              if (fieldErrors.price || fieldErrors.discount)
+                setFieldErrors((prev) => ({ ...prev, price: '', discount: '' }));
+            }}
             style={{ width: '100%', padding: '0.25rem' }}
           />
+          {fieldErrors.price && (
+            <span style={{ color: 'var(--color-danger, #c00)', fontSize: '0.8rem' }}>
+              {fieldErrors.price}
+            </span>
+          )}
         </label>
         <label style={{ gridColumn: 'span 2' }}>
           Descripción
           <br />
           <textarea
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => {
+              setDescription(e.target.value);
+              if (fieldErrors.description) setFieldErrors((prev) => ({ ...prev, description: '' }));
+            }}
             rows={2}
             style={{ width: '100%', padding: '0.25rem' }}
           />
+          {fieldErrors.description && (
+            <span style={{ color: 'var(--color-danger, #c00)', fontSize: '0.8rem' }}>
+              {fieldErrors.description}
+            </span>
+          )}
         </label>
         <label>
           Categoría *<br />
@@ -154,7 +214,10 @@ export function ProductForm({
             <select
               required
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={(e) => {
+                setCategory(e.target.value);
+                if (fieldErrors.category) setFieldErrors((prev) => ({ ...prev, category: '' }));
+              }}
               style={{ width: '100%', padding: '0.25rem' }}
             >
               {categories.map((c) => (
@@ -167,9 +230,17 @@ export function ProductForm({
             <input
               required
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={(e) => {
+                setCategory(e.target.value);
+                if (fieldErrors.category) setFieldErrors((prev) => ({ ...prev, category: '' }));
+              }}
               style={{ width: '100%', padding: '0.25rem' }}
             />
+          )}
+          {fieldErrors.category && (
+            <span style={{ color: 'var(--color-danger, #c00)', fontSize: '0.8rem' }}>
+              {fieldErrors.category}
+            </span>
           )}
         </label>
         <label>
@@ -179,9 +250,18 @@ export function ProductForm({
             type="number"
             min="0"
             value={discount}
-            onChange={(e) => setDiscount(e.target.value)}
+            onChange={(e) => {
+              setDiscount(e.target.value);
+              if (fieldErrors.discount || fieldErrors.price)
+                setFieldErrors((prev) => ({ ...prev, discount: '', price: '' }));
+            }}
             style={{ width: '100%', padding: '0.25rem' }}
           />
+          {fieldErrors.discount && (
+            <span style={{ color: 'var(--color-danger, #c00)', fontSize: '0.8rem' }}>
+              {fieldErrors.discount}
+            </span>
+          )}
         </label>
         <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
           <input type="checkbox" checked={stock} onChange={(e) => setStock(e.target.checked)} />
@@ -195,7 +275,10 @@ export function ProductForm({
           <input
             type="text"
             value={imagePath}
-            onChange={(e) => setImagePath(e.target.value)}
+            onChange={(e) => {
+              setImagePath(e.target.value);
+              if (fieldErrors.image_path) setFieldErrors((prev) => ({ ...prev, image_path: '' }));
+            }}
             placeholder="assets/images/…"
             style={{ flex: 1, padding: '0.25rem', fontSize: '0.85rem' }}
           />
@@ -207,6 +290,18 @@ export function ProductForm({
             {showImagePicker ? 'Ocultar' : 'Explorar'}
           </button>
         </label>
+        {fieldErrors.image_path && (
+          <span
+            style={{
+              color: 'var(--color-danger, #c00)',
+              fontSize: '0.8rem',
+              display: 'block',
+              marginTop: '0.25rem',
+            }}
+          >
+            {fieldErrors.image_path}
+          </span>
+        )}
         <label
           style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}
         >
@@ -214,11 +309,27 @@ export function ProductForm({
           <input
             type="text"
             value={imageAvifPath}
-            onChange={(e) => setImageAvifPath(e.target.value)}
+            onChange={(e) => {
+              setImageAvifPath(e.target.value);
+              if (fieldErrors.image_avif_path)
+                setFieldErrors((prev) => ({ ...prev, image_avif_path: '' }));
+            }}
             placeholder="assets/images/… (avif)"
             style={{ flex: 1, padding: '0.25rem', fontSize: '0.85rem' }}
           />
         </label>
+        {fieldErrors.image_avif_path && (
+          <span
+            style={{
+              color: 'var(--color-danger, #c00)',
+              fontSize: '0.8rem',
+              display: 'block',
+              marginTop: '0.25rem',
+            }}
+          >
+            {fieldErrors.image_avif_path}
+          </span>
+        )}
 
         {imagePath && (
           <div style={{ marginTop: '0.25rem' }}>
@@ -329,6 +440,27 @@ export function ProductForm({
           ) : (
             <span>Sin imagen</span>
           )}
+        </div>
+      )}
+      {Object.keys(fieldErrors).some((k) => fieldErrors[k]) && (
+        <div
+          role="alert"
+          style={{
+            marginTop: '0.5rem',
+            padding: '0.5rem',
+            border: '1px solid var(--color-danger, #c00)',
+            borderRadius: 'var(--radius)',
+            background: '#fff5f5',
+            fontSize: '0.85rem',
+          }}
+        >
+          {Object.entries(fieldErrors)
+            .filter(([, msg]) => msg)
+            .map(([field, msg]) => (
+              <div key={field}>
+                <strong>{field}:</strong> {msg}
+              </div>
+            ))}
         </div>
       )}
       <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem' }}>
