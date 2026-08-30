@@ -299,7 +299,9 @@ export function getProductDetailImageSource(imagePath: unknown): ResponsiveImage
 }
 
 export function getProducts(): ProductRecord[] {
-  return [...(catalog.products || [])].filter((product) => product && product.is_archived !== true);
+  return [...(catalog.products || [])].filter(
+    (product) => product && product.is_archived !== true && product.stock !== false
+  );
 }
 
 export function getProductsWithSku(): ProductWithSku[] {
