@@ -1,6 +1,6 @@
 # 156 — Consolidate the image pipeline + port the Python OG renderer to Node
 
-- **Source**: Auditoría 10, DEBT-06 + PERF-06 · **Status**: TODO · **Priority**: P3 · **Effort**: L
+- **Source**: Auditoría 10, DEBT-06 + PERF-06 · **Status**: DONE · **Priority**: P3 · **Effort**: L
 - **Stamped against**: `ee20b0f6` (2026-08-17) · **Drift check**: `git diff --stat ee20b0f6..HEAD -- tools/ package.json astro-poc/ astro-poc/scripts/ .github/workflows/static.yml`
 
 ## Problem
