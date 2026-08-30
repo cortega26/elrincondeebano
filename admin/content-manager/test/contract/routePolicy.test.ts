@@ -66,14 +66,33 @@ describe('registered mutation routes (guarantee)', () => {
 
   it('every mutation route in the table is registered and credential-gated', async () => {
     for (const url of mutationUrls) {
+      // Loopback bypass (2026-08-29, single-operator 127.0.0.1): mutations from
+      // loopback no longer require a credential — they proceed to the handler
+      // (400/422/etc) instead of 401. Non-loopback Host is blocked 403.
       const response = await app.inject({ method: 'POST', url, payload: {} });
-      expect(response.statusCode, `POST ${url} without credential`).toBe(401);
+      expect(response.statusCode, `POST ${url} without credential (loopback bypass)`).not.toBe(401);
+      const blocked = await app.inject({
+        method: 'POST',
+        url,
+        payload: {},
+        headers: { host: '192.168.1.10:3000' },
+      });
+      expect(
+        [401, 403].includes(blocked.statusCode),
+        `POST ${url} non-loopback should be blocked`
+      ).toBe(true);
     }
   });
 
   it('unlisted routes fail closed for write methods and stay readable for GET', async () => {
     const probe = await app.inject({ method: 'POST', url: '/api/v1/unlisted-probe' });
-    expect(probe.statusCode).toBe(401);
+    expect(probe.statusCode).not.toBe(401);
+    const probeBlocked = await app.inject({
+      method: 'POST',
+      url: '/api/v1/unlisted-probe',
+      headers: { host: '192.168.1.10:3000' },
+    });
+    expect([401, 403].includes(probeBlocked.statusCode)).toBe(true);
 
     const read = await app.inject({ method: 'GET', url: '/api/v1/unlisted-probe' });
     expect(read.statusCode).not.toBe(401);

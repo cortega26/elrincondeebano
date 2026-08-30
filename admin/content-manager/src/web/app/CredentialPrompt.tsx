@@ -1,13 +1,24 @@
 import { useState } from 'react';
-import { getCredentialValue, setCredential } from './credentialStore.ts';
+import { getCredentialValue, setCredential, isLoopbackHostname } from './credentialStore.ts';
 import { useDialog } from './components/useDialog.ts';
 
 // The launch credential is operator-supplied (plan 071): ADMIN_CREDENTIAL env
 // or the startup log. This prompt is the UI entry point for it; mutations
 // without a credential are rejected by the server with 401.
+// Loopback bypass (2026-08-29, plan 071 still loopback-only): no prompt when
+// accessed from 127.0.0.1 / localhost / ::1 — single-operator local PC.
+function isLoopbackWindow(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    return isLoopbackHostname(window.location.hostname);
+  } catch {
+    return false;
+  }
+}
+
 export function CredentialPrompt(): React.ReactElement {
   const [value, setValue] = useState('');
-  const [saved, setSaved] = useState(Boolean(getCredentialValue()));
+  const [saved, setSaved] = useState(() => isLoopbackWindow() || Boolean(getCredentialValue()));
   const isOpen = !saved;
   const dialogRef = useDialog(isOpen, () => setSaved(true));
 

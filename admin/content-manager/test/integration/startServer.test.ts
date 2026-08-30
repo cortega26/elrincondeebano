@@ -93,13 +93,16 @@ test(
       const body = (await health.json()) as { status: string };
       expect(body.status).toBe('ok');
 
-      // Mutations require the credential (spawned process, real gate).
+      // Loopback bypass (2026-08-29, single-operator): mutations from
+      // 127.0.0.1 no longer require a credential — the real gate now allows
+      // loopback without it (plan 071 still loopback-only via HOST + Host
+      // allowlist). Non-loopback would be blocked 403 before credential.
       const unauthorized = await fetch(`${listeningUrl}/api/v1/sync/now`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: '{}',
       });
-      expect(unauthorized.status).toBe(401);
+      expect(unauthorized.status).not.toBe(401);
 
       const authorized = await fetch(`${listeningUrl}/api/v1/sync/now`, {
         method: 'POST',

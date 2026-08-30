@@ -3,7 +3,22 @@
 // It is never fetched from the server — bootstrap no longer serves it.
 // Persisted to localStorage for single-operator localhost (plan 071 compliant)
 // so the operator is prompted only once; clear via "Credencial ✓" button or 401.
+// Loopback bypass (2026-08-29, plan 071 still loopback-only): no credential
+// prompt when accessed from 127.0.0.1 / localhost / ::1 (single-operator PC).
 const STORAGE_KEY = 'ebano-credential';
+
+export function isLoopbackHostname(hostname: string): boolean {
+  return hostname === '127.0.0.1' || hostname === 'localhost' || hostname === '::1';
+}
+
+export function isLoopback(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    return isLoopbackHostname(window.location.hostname);
+  } catch {
+    return false;
+  }
+}
 
 let _credential: string | null = null;
 

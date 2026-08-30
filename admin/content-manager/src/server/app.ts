@@ -38,6 +38,7 @@ import {
   generateCredential,
   validateCredential,
   extractCredential,
+  isLoopbackRequest,
 } from './security/launchCredential.ts';
 import { classifyRoute } from './security/routePolicy.ts';
 
@@ -259,6 +260,14 @@ export function createApp(opts?: AppOptions): FastifyInstance {
     }
 
     if (routeClass.class === 'mutation') {
+      // 127.0.0.1 bypass per operator single-PC, 2026-08-29, plan 071 still
+      // loopback-only — HOST is loopback-only (start.ts) and Host allowlist
+      // (onRequest) rejects non-loopback Host; this bypass skips the
+      // credential only for loopback requests (defense-in-depth retains the
+      // check for any non-loopback ip/host that somehow reaches this hook).
+      if (isLoopbackRequest(request.ip, request.headers.host as string | string[] | undefined)) {
+        return;
+      }
       const credential = extractCredential(
         request.headers as Record<string, string | string[] | undefined>
       );

@@ -643,19 +643,27 @@ test('preview survives a server restart and apply still works (durable preview)'
   }
 });
 
-test('import apply requires a credential (401)', async () => {
+test('import apply requires a credential (401) — non-loopback only; loopback bypasses', async () => {
   const dir = createTempDir();
   setup(dir);
   try {
     const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
-    const res = await app.inject({
+    const loopback = await app.inject({
       method: 'POST',
       url: '/api/v1/import/apply',
       payload: { preview_id: 'import-any', resolutions: [] },
     });
-    expect(res.statusCode).toBe(401);
+    // Loopback bypass (2026-08-29)
+    expect(loopback.statusCode).not.toBe(401);
+    const blocked = await app.inject({
+      method: 'POST',
+      url: '/api/v1/import/apply',
+      headers: { host: '192.168.1.10:3000' },
+      payload: { preview_id: 'import-any', resolutions: [] },
+    });
+    expect([401, 403].includes(blocked.statusCode)).toBe(true);
 
     await app.close();
   } finally {

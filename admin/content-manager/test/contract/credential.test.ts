@@ -46,6 +46,10 @@ test('a fresh app authenticates with the file credential, not the old value', as
   try {
     // start.ts reads the file; createApp consumes the resolved value — here
     // we assert the file is the source of truth for the auth check.
+    // Loopback bypass (2026-08-29, single-operator): loopback requests no
+    // longer require a credential, so we inject a non-loopback host to
+    // exercise the credential gate (defense-in-depth). The loopback case is
+    // explicitly allowed without credential.
     const app = createApp({
       repoRoot: repo,
       enableWrites: true,
@@ -61,13 +65,26 @@ test('a fresh app authenticates with the file credential, not the old value', as
     });
     expect(ok.statusCode).toBe(201);
 
-    const old = await app.inject({
+    const oldLoopback = await app.inject({
       method: 'POST',
       url: '/api/v1/products',
       headers: { 'x-admin-credential': 'cm-old-value', 'Content-Type': 'application/json' },
       payload: { command_id: 'rot-2', payload: { name: 'R2', price: 1, category: 'c' } },
     });
-    expect(old.statusCode).toBe(401);
+    // Loopback bypass allows even the old value
+    expect(oldLoopback.statusCode).not.toBe(401);
+
+    const oldNonLoopback = await app.inject({
+      method: 'POST',
+      url: '/api/v1/products',
+      headers: {
+        'x-admin-credential': 'cm-old-value',
+        'Content-Type': 'application/json',
+        host: '192.168.1.10:3000',
+      },
+      payload: { command_id: 'rot-3', payload: { name: 'R3', price: 1, category: 'c' } },
+    });
+    expect([401, 403].includes(oldNonLoopback.statusCode)).toBe(true);
     await app.close();
   } finally {
     rmSync(repo, { recursive: true, force: true });

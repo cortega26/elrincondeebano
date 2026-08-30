@@ -79,26 +79,51 @@ afterAll(async () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-test('mutation routes reject requests without a credential (401)', async () => {
+test('mutation routes reject requests without a credential (401) — non-loopback only; loopback bypasses', async () => {
   for (const probe of MUTATION_PROBES) {
-    const response = await operatorApp.inject({
+    // Loopback (default inject host localhost) bypasses credential per
+    // single-operator 127.0.0.1 (2026-08-29) — must not be 401.
+    const loopback = await operatorApp.inject({
       method: probe.method,
       url: probe.url,
       payload: probe.payload,
     });
-    expect(response.statusCode, `${probe.method} ${probe.url}`).toBe(401);
+    expect(loopback.statusCode, `${probe.method} ${probe.url} loopback`).not.toBe(401);
+    // Non-loopback Host is blocked by Host allowlist (403) — defense-in-depth
+    // retains a block for any non-loopback origin.
+    const blocked = await operatorApp.inject({
+      method: probe.method,
+      url: probe.url,
+      payload: probe.payload,
+      headers: { host: '192.168.1.10:3000' },
+    });
+    expect(
+      [401, 403].includes(blocked.statusCode),
+      `${probe.method} ${probe.url} non-loopback`
+    ).toBe(true);
   }
 });
 
-test('mutation routes reject requests with a wrong credential (401)', async () => {
+test('mutation routes reject requests with a wrong credential (401) — non-loopback only; loopback bypasses', async () => {
   for (const probe of MUTATION_PROBES) {
-    const response = await operatorApp.inject({
+    const loopback = await operatorApp.inject({
       method: probe.method,
       url: probe.url,
       payload: probe.payload,
       headers: { [CREDENTIAL_HEADER]: 'a'.repeat(credential.length) },
     });
-    expect(response.statusCode, `${probe.method} ${probe.url}`).toBe(401);
+    // Loopback bypass allows even a wrong credential
+    expect(loopback.statusCode, `${probe.method} ${probe.url} loopback wrong cred`).not.toBe(401);
+    const blocked = await operatorApp.inject({
+      method: probe.method,
+      url: probe.url,
+      payload: probe.payload,
+      headers: { [CREDENTIAL_HEADER]: 'a'.repeat(credential.length), host: '192.168.1.10:3000' },
+    });
+    expect(
+      [401, 403].includes(blocked.statusCode),
+      `${probe.method} ${probe.url} non-loopback wrong cred`
+    ).toBe(true);
   }
 });
 

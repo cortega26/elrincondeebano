@@ -320,20 +320,27 @@ test('DELETE /api/v1/nav-groups/:id is blocked in use and succeeds when unused',
   }
 });
 
-test('category mutations reject requests without a credential (401)', async () => {
+test('category mutations reject requests without a credential (401) — non-loopback only; loopback bypasses', async () => {
   const dir = createTempDir();
   try {
     setupData(dir);
     const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
-    const res = await app.inject({
+    const loopback = await app.inject({
       method: 'POST',
       url: '/api/v1/categories',
       payload: { id: 'cat2', key: 'snacks', slug: 'snacks', base_revision: 5 },
     });
-
-    expect(res.statusCode).toBe(401);
+    // Loopback bypass (2026-08-29) — no credential required for 127.0.0.1
+    expect(loopback.statusCode).not.toBe(401);
+    const blocked = await app.inject({
+      method: 'POST',
+      url: '/api/v1/categories',
+      headers: { host: '192.168.1.10:3000' },
+      payload: { id: 'cat2', key: 'snacks', slug: 'snacks', base_revision: 5 },
+    });
+    expect([401, 403].includes(blocked.statusCode)).toBe(true);
     await app.close();
   } finally {
     rmSync(dir, { recursive: true, force: true });
