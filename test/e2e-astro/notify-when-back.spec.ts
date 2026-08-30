@@ -6,7 +6,10 @@ async function waitForReady(page: import('@playwright/test').Page) {
   await page.waitForFunction(() => (window as any).__APP_READY__ === true, { timeout: 15_000 });
 }
 
-test('out-of-stock cards render WhatsApp notify link with correct wa.me href', async ({ page }) => {
+// TODO: re-enable when stock:false cards are shown again (plan 166) — currently hidden per operator request 2026-08-29
+test.skip('out-of-stock cards render WhatsApp notify link with correct wa.me href', async ({
+  page,
+}) => {
   // Aguas has 6 out-of-stock products (including Benedictino p-af2232a65745)
   await page.goto('/aguas/', { waitUntil: 'networkidle' });
   await waitForReady(page);
@@ -53,7 +56,10 @@ test('out-of-stock cards render WhatsApp notify link with correct wa.me href', a
   }
 });
 
-test('notify link is keyboard-focusable and fires analytics emitter on click', async ({ page }) => {
+// TODO: re-enable when stock:false cards are shown again
+test.skip('notify link is keyboard-focusable and fires analytics emitter on click', async ({
+  page,
+}) => {
   await page.goto('/aguas/', { waitUntil: 'networkidle' });
   await waitForReady(page);
 
