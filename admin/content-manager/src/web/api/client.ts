@@ -7,7 +7,7 @@ import type {
   ImportResolution,
   CsvExportQuery,
 } from '../../shared/schemas/importExport.ts';
-import { getCredentialValue } from '../app/credentialStore.ts';
+import { getCredentialValue, resetCredential } from '../app/credentialStore.ts';
 
 export type ProductFilters = {
   q?: string;
@@ -272,6 +272,13 @@ export class ContentManagerClient {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        try {
+          resetCredential();
+        } catch {
+          // ignore
+        }
+      }
       const body = await response.json().catch(() => ({}));
       throw new ApiRequestError(
         (body as ApiError).error?.message ?? `HTTP ${response.status}: ${response.statusText}`,
