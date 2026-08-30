@@ -1,9 +1,13 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import sharp from 'sharp';
+import {
+  GENERATE_IMAGE_WIDTHS as widths,
+  REPO_ROOT as repoRoot,
+  ensureDir,
+  writeBufferIfChanged,
+} from './utils/image-pipeline.mjs';
 
-const widths = [200, 400, 600, 800, 1200, 1600, 2000];
-const repoRoot = process.cwd();
 const srcRoot = path.join(repoRoot, 'assets', 'images', 'originals');
 const outRoot = path.join(repoRoot, 'assets', 'images', 'variants');
 
@@ -20,15 +24,40 @@ async function buildVariants(file) {
   const rel = path.relative(srcRoot, file);
   const base = path.basename(rel, path.extname(rel));
   const outDir = path.join(outRoot, path.dirname(rel));
-  fs.mkdirSync(outDir, { recursive: true });
+  ensureDir(outDir);
   const ext = path.extname(file).slice(1).toLowerCase() === 'png' ? 'png' : 'jpg';
+  // Single-decode then clone — decode once, clone per variant (plan 156 PERF fix)
+  const baseImage = sharp(file).withMetadata(false);
   for (const w of widths) {
-    const img = sharp(file)
-      .resize({ width: w, withoutEnlargement: true, fit: 'inside' })
-      .withMetadata(false);
-    await img.toFormat('avif', { cqLevel: 33 }).toFile(path.join(outDir, `${base}-${w}.avif`));
-    await img.toFormat('webp', { quality: 75 }).toFile(path.join(outDir, `${base}-${w}.webp`));
-    await img.toFormat(ext, { quality: 75 }).toFile(path.join(outDir, `${base}-${w}.${ext}`));
+    const outAvif = path.join(outDir, `${base}-${w}.avif`);
+    const outWebp = path.join(outDir, `${base}-${w}.webp`);
+    const outFallback = path.join(outDir, `${base}-${w}.${ext}`);
+
+    // skip-if-exists with byte-compare write (keeps outputs identical, avoids redundant encodes)
+    if (!fs.existsSync(outAvif)) {
+      const buf = await baseImage
+        .clone()
+        .resize({ width: w, withoutEnlargement: true, fit: 'inside' })
+        .toFormat('avif', { cqLevel: 33 })
+        .toBuffer();
+      writeBufferIfChanged(outAvif, buf);
+    }
+    if (!fs.existsSync(outWebp)) {
+      const buf = await baseImage
+        .clone()
+        .resize({ width: w, withoutEnlargement: true, fit: 'inside' })
+        .toFormat('webp', { quality: 75 })
+        .toBuffer();
+      writeBufferIfChanged(outWebp, buf);
+    }
+    if (!fs.existsSync(outFallback)) {
+      const buf = await baseImage
+        .clone()
+        .resize({ width: w, withoutEnlargement: true, fit: 'inside' })
+        .toFormat(ext, { quality: 75 })
+        .toBuffer();
+      writeBufferIfChanged(outFallback, buf);
+    }
   }
 }
 

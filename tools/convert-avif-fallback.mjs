@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
+import { ensureDir, writeBufferIfChanged } from './utils/image-pipeline.mjs';
 
 function parseArgs(argv) {
   const parsed = { src: '', dest: '', maxSize: 0 };
@@ -48,7 +48,7 @@ async function main() {
     );
   }
 
-  await mkdir(path.dirname(dest), { recursive: true });
+  ensureDir(path.dirname(dest));
 
   let pipeline = sharp(src).rotate();
   if (maxSize > 0) {
@@ -60,7 +60,8 @@ async function main() {
     });
   }
 
-  await applyOutputFormat(pipeline, dest).toFile(dest);
+  const buffer = await applyOutputFormat(pipeline, dest).toBuffer();
+  writeBufferIfChanged(dest, buffer);
 }
 
 main().catch((error) => {

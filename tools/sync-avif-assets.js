@@ -1,13 +1,21 @@
 'use strict';
 
+// Shared helpers per plan 156 — consolidate via tools/utils/image-pipeline.mjs
+// CJS tools share constants.js (single source with image-pipeline.mjs)
 const fs = require('node:fs');
 const path = require('node:path');
 const sharp = require('sharp');
+const {
+  REPO_ROOT,
+  CRITICAL_UI_ASSETS,
+  normalizeAssetPath,
+  supportsAvifConversion,
+  deriveAvifPath,
+  ensureDir,
+  writeBufferIfChanged,
+} = require('./utils/constants.js');
 
-const REPO_ROOT = path.resolve(__dirname, '..');
 const DEFAULT_PRODUCTS_JSON = path.join(REPO_ROOT, 'data', 'product_data.json');
-const SUPPORTED_RASTER_EXTENSIONS = new Set(['.avif', '.webp', '.png', '.jpg', '.jpeg']);
-const CRITICAL_UI_ASSETS = ['assets/images/web/logo.webp', 'assets/images/web/404.webp'];
 
 function resolveProductsJsonPath() {
   const override = process.env.PRODUCTS_JSON;
@@ -17,38 +25,8 @@ function resolveProductsJsonPath() {
   return DEFAULT_PRODUCTS_JSON;
 }
 
-function normalizeAssetPath(assetPath) {
-  if (typeof assetPath !== 'string') {
-    return '';
-  }
-  return assetPath.trim().replace(/^\/+/, '');
-}
-
-function supportsAvifConversion(assetPath) {
-  const normalized = normalizeAssetPath(assetPath);
-  if (!normalized) {
-    return false;
-  }
-  return SUPPORTED_RASTER_EXTENSIONS.has(path.extname(normalized).toLowerCase());
-}
-
-function deriveAvifPath(assetPath) {
-  const normalized = normalizeAssetPath(assetPath);
-  if (!normalized) {
-    return '';
-  }
-  if (!supportsAvifConversion(normalized)) {
-    return '';
-  }
-  const extension = path.extname(normalized);
-  if (extension.toLowerCase() === '.avif') {
-    return normalized;
-  }
-  return normalized.slice(0, -extension.length) + '.avif';
-}
-
 function ensureParentDir(filePath) {
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  ensureDir(path.dirname(filePath));
 }
 
 async function ensureAvifAsset({
@@ -78,8 +56,10 @@ async function ensureAvifAsset({
   }
 
   ensureParentDir(targetAbsolutePath);
-  await sharp(sourceAbsolutePath).avif({ quality, effort }).toFile(targetAbsolutePath);
-  return { generated: true, targetPath: normalizedTarget };
+  // Use shared helper's byte-compare write via buffer (deterministic, keeps outputs identical)
+  const buffer = await sharp(sourceAbsolutePath).avif({ quality, effort }).toBuffer();
+  const changed = writeBufferIfChanged(targetAbsolutePath, buffer);
+  return { generated: changed, targetPath: normalizedTarget };
 }
 
 async function syncProductCatalogAvif({

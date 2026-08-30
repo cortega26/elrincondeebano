@@ -1,11 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
-import { fileURLToPath } from 'node:url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const rootDir = path.resolve(__dirname, '..');
+import { REPO_ROOT as rootDir, ensureDir, writeBufferIfChanged } from './utils/image-pipeline.mjs';
 
 const SOURCE_PATH = path.join(rootDir, 'assets', 'images', 'og', 'logo.png');
 const OUTPUT_DIR = path.join(rootDir, 'assets', 'images', 'web');
@@ -75,18 +71,6 @@ function createIcoFromPngBuffer(pngBuffer, width, height) {
   return Buffer.concat([header, pngBuffer]);
 }
 
-function writeBufferIfChanged(targetPath, nextBuffer) {
-  if (fs.existsSync(targetPath)) {
-    const currentBuffer = fs.readFileSync(targetPath);
-    if (currentBuffer.equals(nextBuffer)) {
-      return false;
-    }
-  }
-
-  fs.writeFileSync(targetPath, nextBuffer);
-  return true;
-}
-
 async function renderTarget({ format, resize, formatOptions }) {
   let pipeline = sharp(SOURCE_PATH);
   if (resize) {
@@ -134,7 +118,7 @@ async function main() {
     throw new Error(`Missing logo source image: ${SOURCE_PATH}`);
   }
 
-  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+  ensureDir(OUTPUT_DIR);
 
   const rasterResults = await generateRasterAssets();
   const faviconResult = await generateFavicon();

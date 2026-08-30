@@ -6,14 +6,19 @@
 // image_path and records them in data/product_data.json (image_variants).
 'use strict';
 
+// Shared helpers per plan 156 — via tools/utils/image-pipeline.mjs
 const fs = require('node:fs');
 const path = require('node:path');
 const sharp = require('sharp');
+const {
+  REPO_ROOT,
+  GAP_FILL_WIDTHS: WIDTHS,
+  GAP_FILL_EXTENSIONS: VARIANT_EXTENSIONS,
+  ensureDir,
+  writeBufferIfChanged,
+} = require('./utils/constants.js');
 
-const REPO_ROOT = path.resolve(__dirname, '..');
 const PRODUCTS_JSON = path.join(REPO_ROOT, 'data', 'product_data.json');
-const WIDTHS = [200, 400, 600, 800, 1200];
-const VARIANT_EXTENSIONS = ['webp', 'avif'];
 
 function loadProducts() {
   const raw = JSON.parse(fs.readFileSync(PRODUCTS_JSON, 'utf-8'));
@@ -33,16 +38,17 @@ async function buildVariant(opts) {
   // derive the srcset from file presence, no width suffix allowed.
   const { source, variantsRoot, relDir, base, width, ext } = opts;
   const outDir = path.join(variantsRoot, `w${width}`, 'images', relDir);
-  fs.mkdirSync(outDir, { recursive: true });
+  ensureDir(outDir);
   const img = sharp(source)
     .resize({ width, withoutEnlargement: true, fit: 'inside' })
     .withMetadata(false);
   const out = path.join(outDir, `${base}.${ext}`);
-  if (ext === 'avif') {
-    await img.toFormat('avif', { cqLevel: 33 }).toFile(out);
-  } else {
-    await img.toFormat('webp', { quality: 75 }).toFile(out);
-  }
+  // Use shared byte-compare helper for determinism (keeps output byte-identical)
+  const buffer =
+    ext === 'avif'
+      ? await img.toFormat('avif', { cqLevel: 33 }).toBuffer()
+      : await img.toFormat('webp', { quality: 75 }).toBuffer();
+  writeBufferIfChanged(out, buffer);
 }
 
 async function run() {

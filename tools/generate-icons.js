@@ -3,6 +3,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { REPO_ROOT: rootDir, ensureDir, writeBufferIfChanged } = require('./utils/constants.js');
 
 async function ensureSharp() {
   try {
@@ -16,7 +17,6 @@ async function ensureSharp() {
 
 async function main() {
   const sharp = await ensureSharp();
-  const rootDir = path.resolve(__dirname, '..');
   const src = path.join(rootDir, 'assets/images/og/logo.png');
   const outDir = path.join(rootDir, 'assets/images/web');
   const targets = [
@@ -29,17 +29,19 @@ async function main() {
     process.exit(1);
   }
 
+  ensureDir(outDir);
   await Promise.all(
     targets.map(async (t) => {
       const dest = path.join(outDir, t.name);
-      await sharp(src)
+      const buffer = await sharp(src)
         .resize(t.size, t.size, {
           fit: 'contain',
           background: { r: 255, g: 255, b: 255, alpha: 0 },
         })
         .png({ compressionLevel: 9 })
-        .toFile(dest);
-      console.log(`Wrote ${dest}`);
+        .toBuffer();
+      const changed = writeBufferIfChanged(dest, buffer);
+      console.log(`${changed ? 'Wrote' : 'Unchanged'} ${dest}`);
     })
   );
 }
