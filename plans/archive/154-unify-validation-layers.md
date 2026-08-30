@@ -1,6 +1,6 @@
 # 154 — Unify the four parallel validation layers on canonical zod schemas
 
-- **Source**: Auditoría 10, DEBT-03 · **Status**: TODO · **Priority**: P3 · **Effort**: L
+- **Source**: Auditoría 10, DEBT-03 · **Status**: DONE · **Priority**: P3 · **Effort**: L
 - **Stamped against**: `ee20b0f6` (2026-08-17) · **Drift check**: `git diff --stat ee20b0f6..HEAD -- admin/content-manager/src/shared/schemas/ astro-poc/src/lib/data-schemas.ts tools/utils/product-contract.js admin/content-manager/src/web/`
 
 ## Problem
