@@ -18,9 +18,7 @@ const REQUIRED_HTTP_FILES = [
 ];
 
 const FORBIDDEN_HTTP_FILES = [
-  'e.html',
-  path.join('pages', 'e.html'),
-  path.join('c', 'e', 'index.html'),
+  // E category reactivated 2026-08-31 (3 baterías) — previously blocked when inactive
 ];
 function main() {
   if (!fs.existsSync(distRoot)) {

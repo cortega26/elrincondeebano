@@ -1,6 +1,6 @@
 {
-  "version": "20260810-211137",
-  "last_updated": "2026-08-11T20:13:13.608Z",
+  "version": "20260831-204136",
+  "last_updated": "2026-08-31T20:41:36.812Z",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -2208,6 +2208,42 @@
       "image_path": "assets/images/carnes_y_embutidos/Lomo-Ahumado-Darmax-500g.webp",
       "image_avif_path": "assets/images/carnes_y_embutidos/Lomo-Ahumado-Darmax-500g.avif",
       "order": 183,
+      "is_archived": false
+    },
+    {
+      "name": "Baterías AA AmazonBasics (el par)",
+      "description": "El par (2 unidades) — Alcalinas 1.5V",
+      "price": 3000,
+      "discount": 0,
+      "stock": true,
+      "category": "E",
+      "image_path": "assets/images/electronicos/Baterias AA AmazonBasics.webp",
+      "image_avif_path": "assets/images/electronicos/Baterias AA AmazonBasics.avif",
+      "order": 184,
+      "is_archived": false
+    },
+    {
+      "name": "Baterías AAA AmazonBasics (el par)",
+      "description": "El par (2 unidades) — Alcalinas 1.5V",
+      "price": 3000,
+      "discount": 0,
+      "stock": true,
+      "category": "E",
+      "image_path": "assets/images/electronicos/Baterias AAA AmazonBasics.webp",
+      "image_avif_path": "assets/images/electronicos/Baterias AAA AmazonBasics.avif",
+      "order": 185,
+      "is_archived": false
+    },
+    {
+      "name": "Baterías Duracell CR2032",
+      "description": "Pila botón litio 3V — unitaria",
+      "price": 2500,
+      "discount": 0,
+      "stock": true,
+      "category": "E",
+      "image_path": "assets/images/electronicos/Baterias Duracell CR2032.webp",
+      "image_avif_path": "assets/images/electronicos/Baterias Duracell CR2032.avif",
+      "order": 186,
       "is_archived": false
     }
   ]
