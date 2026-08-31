@@ -59,6 +59,7 @@ export function ProductsPage(): React.ReactElement {
     minDiscount,
     maxDiscount,
     page,
+    limit,
     filters,
     activeFilterCount,
     setFilterParam,
@@ -661,6 +662,23 @@ export function ProductsPage(): React.ReactElement {
       {data && data.total > 0 && (
         <p style={{ margin: '0 0 0.5rem', fontSize: '0.85rem', color: '#495057' }}>
           Mostrando {pageStart}–{pageEnd} de {data.total}{' '}
+          <label style={{ marginLeft: '0.75rem' }}>
+            Mostrar:{' '}
+            <select
+              value={String(limit) === String(Math.min(data.total, 500)) ? 'all' : String(limit)}
+              onChange={(e) => {
+                const v = e.target.value;
+                const nextLimit = v === 'all' ? String(Math.min(data.total, 500)) : v;
+                setFilterParam('limit', nextLimit);
+              }}
+              aria-label="Tamaño de página"
+              style={{ padding: '0.1rem 0.25rem' }}
+            >
+              <option value="50">50</option>
+              <option value="100">100</option>
+              <option value="all">Todos ({data.total})</option>
+            </select>
+          </label>
           {data.total > data.items.length && (
             <button
               onClick={() => setFilterParam('page', '1')}

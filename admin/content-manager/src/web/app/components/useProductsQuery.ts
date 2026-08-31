@@ -5,6 +5,7 @@ import type { PaginatedResponse, ProductFilters, ProductResponse } from '../../a
 
 const client = new ContentManagerClient();
 
+export const PAGE_SIZE_OPTIONS = [50, 100] as const;
 export const PAGE_LIMIT = 50;
 
 // Plan 094: URL-driven product query hook — owns filters, pagination,
@@ -25,6 +26,7 @@ export function useProductsQuery(): {
   minDiscount: string;
   maxDiscount: string;
   page: number;
+  limit: number;
   filters: ProductFilters;
   activeFilterCount: number;
   setFilterParam: (key: string, value: string) => void;
@@ -50,6 +52,10 @@ export function useProductsQuery(): {
   const minDiscount = searchParams.get('min_discount') ?? '';
   const maxDiscount = searchParams.get('max_discount') ?? '';
   const page = Math.max(1, Number(searchParams.get('page') ?? '1') || 1);
+  const limit = Math.min(
+    500,
+    Math.max(1, Number(searchParams.get('limit') ?? String(PAGE_LIMIT)) || PAGE_LIMIT)
+  );
 
   const filters: ProductFilters = {
     q: q || undefined,
@@ -82,7 +88,7 @@ export function useProductsQuery(): {
     setLoading(true);
     setLoadError(null);
     try {
-      const result = await client.getProducts({ ...filters, page, limit: PAGE_LIMIT });
+      const result = await client.getProducts({ ...filters, page, limit });
       if (seq !== requestSeq.current) return;
       setData(result);
     } catch (err) {
@@ -102,6 +108,7 @@ export function useProductsQuery(): {
     minDiscount,
     maxDiscount,
     page,
+    limit,
   ]);
 
   useEffect(() => {
@@ -154,6 +161,7 @@ export function useProductsQuery(): {
     minDiscount,
     maxDiscount,
     page,
+    limit,
     filters,
     activeFilterCount,
     setFilterParam,
