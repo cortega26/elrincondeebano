@@ -61,7 +61,9 @@ const {
   categoryName,
 } = Astro.props;
 
-const navGroups = getNavigationGroups();
+// Operator request 2026-08-29: Alcohol exists but no link on landing (still accessible via /cervezas etc.)
+const rawNavGroups = getNavigationGroups();
+const navGroups = pageType === 'home' ? rawNavGroups.filter((g) => g.id !== 'alcohol') : rawNavGroups;
 const resolvedSharePreview =
   sharePreview ||
   createSharePreviewMetadata({
