@@ -91,7 +91,9 @@ test('category route variants share catalog output while keeping route-specific 
 });
 
 test('disabled category route is not generated', async ({ page }) => {
-  const response = await page.goto('/pages/e.html', { waitUntil: 'networkidle' });
+  // E (Electrónicos) was re-activated in f459ed26 for battery products, so it now
+  // correctly returns 200. Use a still-disabled category (juegos) for this probe.
+  const response = await page.goto('/pages/juegos.html', { waitUntil: 'networkidle' });
   expect(response, 'disabled legacy category route should return a response').not.toBeNull();
   expect(response?.status()).toBe(404);
   await expect(page.locator('#category-heading')).toHaveCount(0);
