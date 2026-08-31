@@ -116,7 +116,7 @@ archived", `db6f00ca`) — plan 128. El drift de docs es el batch más grande de
 | [166](archive/166-whatsapp-notify-on-out-of-stock.md)               | WhatsApp "Avísame cuando vuelva" en tarjetas AGOTADO                   | P3        | S        | —          | DONE — 2026-08-27 (`ca21c4a6`, direct on main; review approved)                                                              |
 | [167](archive/167-resolve-observability-dead-end.md)                | Resolve observability dead end (ADR 0010 go/no-go)                     | P3        | M        | —          | DONE — 2026-08-28 (`283539e0`, direct on main; review approved)                                                              |
 | [168](archive/168-dependabot-auto-merge-patch-only.md)              | Auto-merge Dependabot patch PRs only when CI is green                  | P2        | S        | —          | DONE — 2026-08-23 (`87e3115c`, worktree `advisor/168-dependabot-auto-merge-patch-only`; merged a main `f46d5c00`)            |
-| [169](169-products-page-size-selector.md)                           | Selector de tamaño de página (50 / 100 / Todos)                        | P3        | S        | —          | TODO                                                                                                                         |
+| [169](archive/169-products-page-size-selector.md)                   | Selector de tamaño de página (50 / 100 / Todos)                        | P3        | S        | —          | DONE — 2026-08-31 (`e8eeff62`, advisor/169-products-page-size-selector; review approved)                                     |
 
 ### Dependencias (Auditoría 10)
 
