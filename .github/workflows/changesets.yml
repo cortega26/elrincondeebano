@@ -28,9 +28,7 @@ jobs:
         with:
           node-version: '24.x'
           cache: 'npm'
-          cache-dependency-path: |
-            package-lock.json
-            astro-poc/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -40,8 +38,8 @@ jobs:
       - name: Create Release Pull Request
         uses: changesets/action@8488615a623b1b9c987934bb89eae8af6a946ac1 # v2.1.1
         with:
-          commit: 'chore: version packages'
-          title: 'chore: version packages'
-          version: npx changeset version
+          commit-message: 'chore: version packages'
+          pr-title: 'chore: version packages'
+          version-script: 'npx changeset version'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
