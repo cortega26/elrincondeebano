@@ -353,7 +353,39 @@ if (!TEST_MODE) {
 
         const { cacheName, type } = getCacheKeyForRequest(url);
         const cache = await caches.open(cacheName);
-        const cached = await cache.match(req);
+        let cached = await cache.match(req);
+        const canCheckFreshness =
+          cached && cached.type !== 'opaque' && cached.type !== 'opaqueredirect';
+
+        if (cached && isNoStoreResponse(cached)) {
+          try {
+            await cache.delete(req);
+          } catch (error) {
+            console.warn('Failed to delete no-store cached response:', error);
+          }
+          cached = null;
+        } else if (cached && canCheckFreshness && isCacheFresh(cached, type)) {
+          const revalidate = fetch(req)
+            .then(async (resp) => {
+              if (resp && resp.ok && !isNoStoreResponse(resp)) {
+                try {
+                  const toCache = await addTimestamp(resp.clone(), type);
+                  await cache.put(req, toCache);
+                } catch (_) {
+                  void _;
+                }
+              }
+            })
+            .catch(() => {});
+          if (event.waitUntil) {
+            try {
+              event.waitUntil(revalidate);
+            } catch (_) {
+              void _;
+            }
+          }
+          return cached;
+        }
 
         let freshResponse;
         let networkError = false;
@@ -375,17 +407,10 @@ if (!TEST_MODE) {
         }
 
         if (cached) {
-          if (isNoStoreResponse(cached)) {
-            try {
-              await cache.delete(req);
-            } catch (error) {
-              console.warn('Failed to delete no-store cached response:', error);
-            }
-          } else {
-            const canCheckFreshness = cached.type !== 'opaque' && cached.type !== 'opaqueredirect';
-            if (networkError && canCheckFreshness && isCacheFresh(cached, type)) {
-              return cached;
-            }
+          const canCheckFreshnessFallback =
+            cached.type !== 'opaque' && cached.type !== 'opaqueredirect';
+          if (networkError && canCheckFreshnessFallback && isCacheFresh(cached, type)) {
+            return cached;
           }
         }
 
