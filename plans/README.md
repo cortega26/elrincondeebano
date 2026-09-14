@@ -64,6 +64,146 @@ admin/product_manager/`).
 
 ---
 
+## Auditoría 11 — 2026-09-14 (`/improve deep`, commit `0847089c`)
+
+Auditoría completa (9 categorías, 9 subagentes paralelos, profundidad
+"very thorough") sobre el árbol con los planes 128–169 DONE y archivados y
+el working tree sucio de la rama `advisor/b1-elrincon-remainder` (trabajo
+"Plan 013" a medio aterrizar: preflight-hash/run-parallel + cap de import +
+parking timeouts + caracterización de dinero). Hallazgos vetados contra
+fuente por el advisor (cada plan cita código leído por el advisor, no el
+reporte del subagente; correcciones de vetado documentadas abajo). Todos los
+hallazgos net-positivos se convirtieron en planes 170–214. Nota de
+honestidad: el advisor no ejecutó ningún comando de verificación durante el
+recon (Hard Rules prohíben installs/builds en el árbol del usuario) — todas
+las filas de comandos de los planes son `declared`, y el plan 170 establece
+el baseline verde antes que cualquier otro plan.
+
+| Plan                                          | Título                                                 | Prioridad | Esfuerzo | Depende de    | Estado |
+| --------------------------------------------- | ------------------------------------------------------ | --------- | -------- | ------------- | ------ |
+| [170](170-land-working-tree-baseline.md)      | Aterrizar el working tree sucio + baseline verde       | P0        | S        | —             | TODO   |
+| [171](171-catalog-cache-miss-isolation.md)    | Clone en cache-miss del catálogo (fuga plan 105)       | P1        | S        | 170           | TODO   |
+| [172](172-bulk-action-validation.md)          | Validar acciones/valores bulk + re-chequear mutados    | P1        | S        | 170           | TODO   |
+| [173](173-reorder-membership-scale.md)        | Reorder: membresía del set + escala (200/500 caps)     | P1        | S        | 170           | TODO   |
+| [174](174-undo-server-snapshots.md)           | Undo desde snapshots del servidor + tolerar purgados   | P2        | M        | 170           | TODO   |
+| [175](175-changeset-apply-robustness.md)      | Apply crash-safe + single-flight + idempotencia previa | P1        | M        | 170, 171      | TODO   |
+| [176](176-media-apply-outputs.md)             | Media apply: outputs vacíos + targets por output       | P2        | M        | 170           | TODO   |
+| [177](177-admin-feedback-papercuts.md)        | Badge filtros + sync-form + feedback export/share      | P2        | S        | 170           | TODO   |
+| [178](178-parking-stay-caps.md)               | Parking: cap 30 noches + dead end checkout             | P2        | S        | 170           | TODO   |
+| [179](179-cross-tab-cart-merge.md)            | Carrito cross-tab: merge en vez de last-writer-wins    | P3        | M        | 170           | TODO   |
+| [180](180-import-preview-hardening.md)        | Import preview: credential + pre-gate + prune          | P1        | S-M      | 170           | TODO   |
+| [181](181-state-machine-gaps.md)              | Cancel/quotepath/hash-gate/migration-lock              | P2        | S-M      | 170           | TODO   |
+| [182](182-loopback-bypass-ip-only.md)         | Bypass loopback solo-IP + matriz de credential         | P1        | S        | 170           | TODO   |
+| [183](183-credential-hygiene.md)              | Credenciales e2e efímeras + redacción credential/key   | P2        | S        | 170           | TODO   |
+| [184](184-security-investigate-batch.md)      | Batch investigate seguridad (7 ítems LOW)              | P3        | S        | 170           | TODO   |
+| [185](185-build-probe-memoization.md)         | Memoizar hashes OG + variant sets + hash streaming     | P2        | S-M      | 170           | TODO   |
+| [186](186-image-pipeline-gates-parallel.md)   | Gates + pool paralelo + layout único de imágenes       | P2        | M        | 170, 185      | TODO   |
+| [187](187-storefront-runtime-perf.md)         | Entrada acotada + payloads + hot-path maps             | P2        | M        | 170           | TODO   |
+| [188](188-admin-request-costs.md)             | Sync batch + lecturas + paginación + cache media       | P2        | M        | 170, 171      | TODO   |
+| [189](189-ci-build-cache-split.md)            | Un build compartido + caches + suites en paralelo      | P3        | M        | 170, 185      | TODO   |
+| [190](190-sw-fetch-investigate.md)            | Investigar fetch SW + builds inline en requests        | P3        | S        | 170           | TODO   |
+| [191](191-release-gate-ownership.md)          | Decidir ownership selectores/planes en release gate    | P2        | S        | 170           | TODO   |
+| [192](192-web-contract-coverage.md)           | Cobertura web: page-size, categorías, cliente, 409     | P1        | M        | 170           | TODO   |
+| [193](193-e2e-gate-flake-parity.md)           | Gate e2e sharded + flakes + parity + mutation + floors | P2        | M        | 170           | TODO   |
+| [194](194-write-path-unification.md)          | Unificar writes producto/categoría + table-drive edit  | P2        | M        | 170, 171, 175 | TODO   |
+| [195](195-shared-helper-dedup.md)             | Dedup undo/discount/normalización                      | P2        | M        | 170           | TODO   |
+| [196](196-writer-repository-consolidation.md) | Consolidar writers + cerrar migración JsonFileRepo     | P2        | M        | 170           | TODO   |
+| [197](197-client-fetch-layering.md)           | Split cliente + fetch único + ciclo de tipos           | P2        | M        | 170, 192      | TODO   |
+| [198](198-god-module-slice-1.md)              | Split categorías/media (slice 1) + remover muertos     | P3        | M        | 170, 192, 194 | TODO   |
+| [199](199-utils-lockstep-census.md)           | Censo utils/lockstep (decidir, no construir)           | P3        | S        | 170           | TODO   |
+| [200](200-manifest-hygiene.md)                | types-node, floors, pins, guard de rangos, Node 24     | P2        | S        | 170           | TODO   |
+| [201](201-drop-duplicate-deps.md)             | Quitar playwright pelado + undici                      | P2        | S        | 170           | TODO   |
+| [202](202-tsx-production-spike-native.md)     | Promover tsx + spike type-stripping nativo             | P2        | M        | 170           | TODO   |
+| [203](203-sass-use-anymatch-reeval.md)        | Sass @use + re-evaluar fork anymatch                   | P3        | M        | 170           | TODO   |
+| [204](204-env-format-versions.md)             | Env surface + format ignores + Node/ports              | P2        | S        | 170           | TODO   |
+| [205](205-contributor-docs-rewrite.md)        | Reescribir CONTRIBUTING/typecheck/CLAUDE               | P2        | S        | 170           | TODO   |
+| [206](206-dx-loops-matrix-logs.md)            | Fast loops + matriz e2e + logs observables             | P2        | M        | 170           | TODO   |
+| [207](207-entry-docs-drift.md)                | Drift docs de entrada (map, structure, priorities)     | P2        | M        | 170, 205      | TODO   |
+| [208](208-ops-adr-docs-drift.md)              | Drift docs ops/ADR (runbook, SW, índice, API)          | P2        | S        | 170           | TODO   |
+| [209](209-admin-lint-local.md)                | Lint local del admin + hueco lint-staged               | P2        | S        | 170           | TODO   |
+| [210](210-waitlist-spike.md)                  | Spike: re-habilitar waitlist WhatsApp                  | P3        | S        | 170           | TODO   |
+| [211](211-preview-build-route.md)             | Wirear job build+preview en publicación                | P3        | M        | 170, 198      | TODO   |
+| [212](212-durable-schedule-spike.md)          | Spike: publicación programada durable                  | P3        | M        | 170           | TODO   |
+| [213](213-csv-import-spike.md)                | Spike: import CSV round-trip                           | P3        | M        | 170, 180      | TODO   |
+| [214](214-incremental-typed-client.md)        | Spike: cliente tipado incremental                      | P3        | S-M      | 170, 192, 197 | TODO   |
+
+### Dependencias (Auditoría 11)
+
+- **170 antes de todo lo que toque sus 12 archivos** (en la práctica, antes
+  de casi todo: es el baseline; los demás planes llevan su drift check
+  contra `0847089c` más el SHA de aterrizaje de 170 para esos archivos).
+- **171 antes de 175, 188 y 194**: aislamiento del catálogo primero; el
+  resto construye sobre su contrato.
+- **175 antes de 194**: el helper generalizado debe incluir la reserva de
+  idempotencia desde el día uno.
+- **185 antes de 186 y 189**: memoización/medición primero; gates y CI
+  reutilizan sus números.
+- **192 antes de 197 y 214**: los pins del cliente preceden su split y su
+  codegen.
+- **194 antes de 198**: migrar rutas a helpers antes de partir archivos.
+- **180 antes de 213**: el cap/pre-gate condiciona el diseño del import CSV.
+- **197 antes de 214** (split antes que codegen); **198 coordina con 211 y
+  214** por los archivos prototype (quien aterrice primero gana, el otro
+  reconcilia); **205 antes de 207** y coordinado con 208/209 en filas
+  compartidas; **200-Step-5 coordina con 204-Step-3** (una sola historia
+  Node/ports); **186 coordina con 196** (write-if-changed vs atomicidad).
+
+### Orden de ejecución recomendado
+
+170 → 171 → 172 → 173 → 180 → 182 → 174 → 175 → 176 → 177 → 178 → 181 →
+183 → 184 → 185 → 186 → 187 → 188 → 191 → 192 → 193 → 194 → 195 → 196 →
+197 → 189 → 190 → 198 → 199 → 200 → 201 → 202 → 203 → 204 → 205 → 209 →
+207 → 208 → 206 → 210 → 211 → 212 → 213 → 214 (spikes/dirección al final).
+
+### Correcciones del vetado (lo que el advisor rechazó o reencuadró)
+
+- **TD-01 reencuadrado**: `runCatalogCommand` es específico del catálogo de
+  productos; las rutas de categorías usan `CategoryRepository` con su propio
+  guard de rev. El plan 194 generaliza el helper, no lo "adopta" a ciegas.
+- **TD-05 corregido**: `atomicFileWriter` y `storefrontRepository` YA
+  comparten `pruneFileBackups`; solo `AtomicWriter.pruneBackups` sigue
+  separado. El plan 196 verifica antes de fusionar.
+- **TD-13 reencuadrado**: el mismatch de layouts es `generate-images.mjs`
+  (`{base}-{w}.{ext}`) vs gap-fill+resolver (`w{W}/images/...` sin sufijo);
+  `image-pipeline.mjs` y gap-fill usan el MISMO layout. El plan 186 lo trata
+  así.
+- **PERF-02 matizado**: `VARIANT_EXISTS_CACHE` ya suaviza repeticiones
+  intra-proceso; queda el costo first-touch + cross-page. Plan 185.
+- **PERF-06 matizado**: el script de `BaseLayout` es módulo (deferred), no
+  bloqueante; el costo es parse del bundle + prefetch. Plan 187.
+- **PERF-11 matizado**: `pullOnce` ya batecha en un write (plan 092); quedan
+  3 loads, stringify O(n) en enqueue y `find` por cambio. Plan 188.
+- **TEST-02/DX-15 reencuadrado**: `VALIDATION_MATRIX` declara el split
+  intencional. El plan 191 es decisión-con-dueño, no defecto.
+- **SEC-08 matizado**: apex-como-target de primer nivel no verificado en el
+  monitor; el plan 184 lo prueba antes de proponer rutas edge.
+- **BaseLayout/START_HERE**: `build:fast` bendecido para código-only vs
+  "único path soportado" — el plan 206 lo documenta como regla de decisión,
+  no como defecto.
+- Rechazados por diseño (no re-auditar sin evidencia nueva): aislamiento
+  `structuredClone` por request (plan 105); lecturas admin sin credential
+  (control plane loopback-local); copias SW raíz vs public (build las
+  sincroniza); split TS6/TS7 (plan 113); Bootstrap/@popperjs congelados;
+  alerta bench-catalog (0.393 ms, sin costo); traversal en estático Fastify
+  (refutado empíricamente); majors Fastify/Vite/React/Zod/Vitest (todos al
+  día); bajar `bodyLimit` global (rompería media — plan 180 pre-gatea);
+  reescritura total del cliente tipado (spike 163 la rechazó); codegen para
+  lockstep (KISS — plan 199 decide con censo); suites sharded al default
+  (el aislamiento es el punto — plan 193 las gatea de otra forma); remover
+  `tsx` sin veredicto ADOPT (plan 202 spikea primero); doctor como gate de
+  CI (propuesto, no habilitado — plan 206).
+
+### Alcance no auditado (Auditoría 11)
+
+E2E vivo (requiere build), profiling con tráfico de producción (plan 190
+documenta el método), `npm audit` en modo read-only (no ejecutado — va por
+cuenta del checklist de PR), versiones upstream en vivo (astro 7.3.x, línea
+Sass 3.0: tomadas de docs, no verificadas contra registry), bytes internos
+de los `.tgz` vendoreados, `_archive/`, `docs/audit/`, cuerpos de
+`.github/actions/*` (lectura parcial), salida construida `dist/` del admin.
+
+---
+
 ## Auditoría 10 — 2026-08-17 (`/improve deep`, commit `ee20b0f6`)
 
 Auditoría completa (8 categorías, 8 subagentes paralelos) sobre el árbol post-cierre
