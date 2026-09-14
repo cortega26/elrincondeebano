@@ -47,7 +47,7 @@ Legend: ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE (archived) · 🛑 BLOCKED (rea
 | ---- | ---------------------------------------------- | -------------------------- | ------ | ------------------ |
 | L1   | [174](archive/174-undo-server-snapshots.md)    | Undo from server snapshots | M      | ✅ DONE (archived) |
 | L1   | [177](archive/177-admin-feedback-papercuts.md) | Admin feedback papercuts   | S      | ✅ DONE (archived) |
-| L2   | [176](176-media-apply-outputs.md)              | Media apply outputs        | M      | ⬜ TODO            |
+| L2   | [176](archive/176-media-apply-outputs.md)      | Media apply outputs        | M      | ✅ DONE (archived) |
 | L3   | [181](181-state-machine-gaps.md)               | State-machine gaps batch   | S-M    | ⬜ TODO            |
 | L3   | [185](185-build-probe-memoization.md)          | Build probe memoization    | S-M    | ⬜ TODO            |
 | L4   | [179](179-cross-tab-cart-merge.md)             | Cross-tab cart merge       | M      | ⬜ TODO            |

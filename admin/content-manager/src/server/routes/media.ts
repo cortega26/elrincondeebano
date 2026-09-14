@@ -216,7 +216,10 @@ export async function mediaMutRoutes(
     if (!pathCheck.ok) {
       return reply.status(400).send({ error: { code: 'BAD_REQUEST', message: pathCheck.error } });
     }
-    if ((type === 'variant' || type === 'avif') && extname(body.target_path).toLowerCase() === '.svg') {
+    if (
+      (type === 'variant' || type === 'avif') &&
+      extname(body.target_path).toLowerCase() === '.svg'
+    ) {
       return reply.status(422).send({
         error: {
           code: 'VALIDATION_ERROR',
@@ -544,6 +547,26 @@ export async function mediaMutRoutes(
         };
       }
 
+      // Plan 176: fail closed on output shapes the rest of apply cannot
+      // handle. Empty outputs would link the product to a file that was
+      // never promoted (outputs[0] ?? ''); multi-output intents do not exist
+      // (mediaJobs returns exactly one output on success), so more than one
+      // is a contract violation, not a batch to promote onto one path.
+      if (intent.outputs.length === 0) {
+        return reply.status(422).send({
+          error: { code: 'MISSING_OUTPUT', message: 'Intent has no outputs to promote' },
+        });
+      }
+      if (intent.outputs.length > 1) {
+        return reply.status(422).send({
+          error: {
+            code: 'MULTIPLE_OUTPUTS',
+            message: `Intent has ${intent.outputs.length} outputs; apply supports exactly one`,
+          },
+        });
+      }
+      const [primaryOutput] = intent.outputs;
+
       // Promote staged outputs to canonical paths (validated targets).
       for (const output of intent.outputs) {
         if (!isContainedWithin(intents.stagingRoot, output) || !existsSync(output)) {
@@ -572,7 +595,7 @@ export async function mediaMutRoutes(
         }
         const now = new Date().toISOString();
         if (intent.type === 'avif') {
-          product.image_avif_path = canonicalTargetFor(intent, intent.outputs[0] ?? '');
+          product.image_avif_path = canonicalTargetFor(intent, primaryOutput ?? '');
           product.field_last_modified.image_avif_path = {
             ts: now,
             by: 'media-workbench',
@@ -581,7 +604,7 @@ export async function mediaMutRoutes(
             changeset_id: null,
           };
         } else {
-          product.image_path = canonicalTargetFor(intent, intent.outputs[0] ?? '');
+          product.image_path = canonicalTargetFor(intent, primaryOutput ?? '');
           product.field_last_modified.image_path = {
             ts: now,
             by: 'media-workbench',
