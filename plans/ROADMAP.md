@@ -330,6 +330,16 @@ TODOs (re-verify excerpts); mirror everything in plans/ROADMAP.md §1.
 | D9  | 184 items 2/4/6 (CSV workflow, apex routes, session holder)       | Wave 2    | Record verdicts, no unilateral change |
 | D10 | 179: max-vs-sum merge semantics                                   | Wave 2    | Max (no double-count)                 |
 
+### Wave 0 outcomes (2026-09-14, owner)
+
+- **D1 → ADD**: `validate:release` gains both stages (plan 191 implements
+  outcome (a)).
+- **D2 → DEFERRED**: out-of-stock hiding stays in force; plan 210 records
+  "still deferred, re-confirm next quarter".
+- **D3 → INVESTIGATE**: plan 213 proceeds to gather workflow evidence
+  before any build decision.
+- D4–D10 remain open for their waves.
+
 ## 7. CI-proof batching (one window)
 
 These slices can only be proven with CI runs — implement on branches, prove
