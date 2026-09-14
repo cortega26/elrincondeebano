@@ -14,6 +14,78 @@ var BOOKINGS_CSV_URL =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQzPYJK56BihZqj2SDz39CcXt1G5ll7h2yNPFGbu_Y4gM8uax0otamO9Zh-SCMpDFCLk7isRRaJINYE/pub?gid=936239218&single=true&output=csv';
 var BOOKINGS_CACHE_KEY = 'astro-poc-parking-bookings';
 var BOOKINGS_CACHE_TTL = 300000;
+// Plan 013: bound external availability fetches so a hung endpoint degrades
+// instead of blocking the widget. Matches the repo's 15 s live-probe budget
+// with headroom (tools/* --timeout-ms 15000).
+var FETCH_TIMEOUT_MS = 8000;
+
+/* ── Fetch with timeout ─────────────────────────────────────── */
+
+function fetchWithTimeout(url, options) {
+  // Race guarantees settlement within FETCH_TIMEOUT_MS even if the
+  // underlying fetch ignores the abort signal; the abort still cancels
+  // real in-flight requests.
+  var controller = null;
+  var signal = null;
+  if (typeof AbortController !== 'undefined') {
+    controller = new AbortController();
+    signal = controller.signal;
+  }
+  var fetchOptions = options || {};
+  if (signal) fetchOptions.signal = signal;
+  var timeoutId;
+  var timeoutPromise = new Promise(function (_, reject) {
+    timeoutId = setTimeout(function () {
+      if (controller) controller.abort();
+      reject(new Error('[parking] Timeout tras ' + FETCH_TIMEOUT_MS + 'ms: ' + url));
+    }, FETCH_TIMEOUT_MS);
+  });
+  return Promise.race([fetch(url, fetchOptions), timeoutPromise]).then(
+    function (r) {
+      clearTimeout(timeoutId);
+      return r;
+    },
+    function (err) {
+      clearTimeout(timeoutId);
+      throw err;
+    }
+  );
+}
+
+/* ── Holiday Set + booking interval lookup ──────────────────── */
+// Plan 013: build O(1)/O(log n) structures once before the nightly loop
+// instead of per-night indexOf/linear scans. All pricing helpers accept
+// either the legacy array (tests, cached payloads) or the Set.
+
+function toHolidaySet(holidays) {
+  if (holidays && typeof holidays.has === 'function') return holidays;
+  return new Set(Array.isArray(holidays) ? holidays : []);
+}
+
+function hasHoliday(holidaySet, dateStr) {
+  return holidaySet.has(dateStr);
+}
+
+function createBookingLookup(bookings) {
+  // Sorted once before the nightly loop; per-night checks break early as
+  // soon as desde exceeds the night (ranges are [desde, hasta)).
+  var sorted = (Array.isArray(bookings) ? bookings : []).slice().sort(function (a, b) {
+    if (a.desde < b.desde) return -1;
+    if (a.desde > b.desde) return 1;
+    if (a.hasta < b.hasta) return -1;
+    if (a.hasta > b.hasta) return 1;
+    return 0;
+  });
+  return {
+    isBlocked: function (dateStr) {
+      for (var i = 0; i < sorted.length; i++) {
+        if (sorted[i].desde > dateStr) break;
+        if (dateStr < sorted[i].hasta) return true;
+      }
+      return false;
+    },
+  };
+}
 
 /* ── Holiday API ────────────────────────────────────────────── */
 
@@ -51,7 +123,7 @@ function fetchHolidays() {
   var cached = getCachedHolidays();
   if (cached) return Promise.resolve(cached);
 
-  return fetch(HOLIDAYS_API_URL)
+  return fetchWithTimeout(HOLIDAYS_API_URL)
     .then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
@@ -110,6 +182,8 @@ function parseBookingsCSV(csvText) {
 }
 
 function isNightBlocked(dateStr, bookings) {
+  if (bookings && typeof bookings.isBlocked === 'function') return bookings.isBlocked(dateStr);
+  if (!Array.isArray(bookings)) return false;
   for (var i = 0; i < bookings.length; i++) {
     if (dateStr >= bookings[i].desde && dateStr < bookings[i].hasta) return true;
   }
@@ -120,7 +194,7 @@ function fetchBookings() {
   var cached = getCachedBookings();
   if (cached) return Promise.resolve(cached);
 
-  return fetch(BOOKINGS_CSV_URL)
+  return fetchWithTimeout(BOOKINGS_CSV_URL)
     .then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.text();
@@ -139,14 +213,15 @@ function fetchBookings() {
 /* ── Pricing ────────────────────────────────────────────────── */
 
 function getNightPrice(date, holidays) {
+  var holidaySet = toHolidaySet(holidays);
   var dateStr = dateToISO(date);
   var dayOfWeek = date.getDay();
 
-  if (holidays.indexOf(dateStr) !== -1) return PRICE_HIGH;
+  if (hasHoliday(holidaySet, dateStr)) return PRICE_HIGH;
 
   var nextDay = new Date(date);
   nextDay.setDate(nextDay.getDate() + 1);
-  if (holidays.indexOf(dateToISO(nextDay)) !== -1) return PRICE_HIGH;
+  if (hasHoliday(holidaySet, dateToISO(nextDay))) return PRICE_HIGH;
 
   if (dayOfWeek === 5 || dayOfWeek === 6) return PRICE_HIGH;
 
@@ -154,25 +229,30 @@ function getNightPrice(date, holidays) {
 }
 
 function isDateHoliday(date, holidays) {
-  return holidays.indexOf(dateToISO(date)) !== -1;
+  return hasHoliday(toHolidaySet(holidays), dateToISO(date));
 }
 
 function isDateEveOfHoliday(date, holidays) {
   var nextDay = new Date(date);
   nextDay.setDate(nextDay.getDate() + 1);
-  return holidays.indexOf(dateToISO(nextDay)) !== -1;
+  return hasHoliday(toHolidaySet(holidays), dateToISO(nextDay));
 }
 
 function calculateBreakdown(checkIn, checkOut, holidays, bookings) {
   var nights = [];
   var current = new Date(checkIn.getTime());
+  // Plan 013: build lookup structures once — the per-night helpers then do
+  // O(1) Set probes / early-exit interval scans instead of linear scans.
+  var holidaySet = toHolidaySet(holidays);
+  var bookingLookup =
+    bookings && typeof bookings.isBlocked === 'function' ? bookings : createBookingLookup(bookings);
 
   while (current < checkOut) {
     var dateStr = dateToISO(current);
-    var price = getNightPrice(current, holidays);
-    var holiday = isDateHoliday(current, holidays);
-    var eve = !holiday && isDateEveOfHoliday(current, holidays);
-    var blocked = bookings && isNightBlocked(dateStr, bookings);
+    var price = getNightPrice(current, holidaySet);
+    var holiday = isDateHoliday(current, holidaySet);
+    var eve = !holiday && isDateEveOfHoliday(current, holidaySet);
+    var blocked = bookingLookup.isBlocked(dateStr);
 
     nights.push({
       date: new Date(current.getTime()),
@@ -520,8 +600,16 @@ function initParkingReservation() {
   var dataReady = false;
   var availabilityDataMissing = false;
 
-  // Degraded mode (plan 085): external availability sources failing must not
-  // block booking — the flow proceeds with an explicit warning instead.
+  // Degraded mode (plan 085, hardened plan 013): each availability source
+  // settles independently with a timeout — one endpoint slow/down resolves
+  // to unavailable without blocking the other, and the flow proceeds with
+  // the explicit availabilityDataMissing warning instead of no-op handlers.
+  var holidaysSettled = false;
+  var bookingsSettled = false;
+
+  function checkReady() {
+    if (holidaysSettled && bookingsSettled) dataReady = true;
+  }
   function fetchHolidaysSafe() {
     return fetchHolidays().catch(function () {
       console.warn('[parking] Feriados no disponibles; continuando sin verificar.');
@@ -535,13 +623,17 @@ function initParkingReservation() {
     });
   }
 
-  Promise.all([fetchHolidaysSafe(), fetchBookingsSafe()]).then(function (results) {
-    holidays = Array.isArray(results[0]) ? results[0] : results[0].dates || [];
-    bookings = Array.isArray(results[1]) ? results[1] : results[1].bookings || [];
-    availabilityDataMissing = results.some(function (r) {
-      return r && r.unavailable;
-    });
-    dataReady = true;
+  fetchHolidaysSafe().then(function (result) {
+    holidays = Array.isArray(result) ? result : result.dates || [];
+    if (result && result.unavailable) availabilityDataMissing = true;
+    holidaysSettled = true;
+    checkReady();
+  });
+  fetchBookingsSafe().then(function (result) {
+    bookings = Array.isArray(result) ? result : result.bookings || [];
+    if (result && result.unavailable) availabilityDataMissing = true;
+    bookingsSettled = true;
+    checkReady();
   });
 
   function onDateChangeGuarded() {
@@ -614,6 +706,10 @@ export {
   getCachedBookings,
   setCachedBookings,
   initParkingReservation,
+  fetchWithTimeout,
+  toHolidaySet,
+  createBookingLookup,
+  FETCH_TIMEOUT_MS,
   PRICE_REGULAR,
   PRICE_HIGH,
 };

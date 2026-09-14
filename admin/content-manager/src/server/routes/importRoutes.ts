@@ -9,6 +9,7 @@ import {
   importApplyRequestSchema,
   CSV_EXPORT_COLUMNS,
   csvExportQuerySchema,
+  MAX_IMPORT_BYTES,
 } from '../../shared/schemas/importExport.ts';
 import type {
   ImportFieldConflict,
@@ -125,6 +126,17 @@ export async function importRoutes(
       if (!Array.isArray(rawProducts)) {
         return reply.status(400).send({
           error: { code: 'BAD_REQUEST', message: "Expected a JSON object with 'products' array" },
+        });
+      }
+
+      // Plan 013: duplicate the client byte cap server-side — never trust the
+      // picker/textarea check alone. Measure the serialized payload.
+      if (Buffer.byteLength(JSON.stringify(rawProducts), 'utf8') > MAX_IMPORT_BYTES) {
+        return reply.status(413).send({
+          error: {
+            code: 'PAYLOAD_TOO_LARGE',
+            message: `Import payload exceeds the limit of ${Math.round(MAX_IMPORT_BYTES / 1024 / 1024)} MB`,
+          },
         });
       }
 

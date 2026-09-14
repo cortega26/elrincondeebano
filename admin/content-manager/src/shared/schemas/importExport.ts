@@ -5,6 +5,11 @@ import { productSchema } from './product.ts';
 // revision) to a durable preview id; apply accepts only the preview id plus
 // explicit field resolutions — never reconstructed product fragments.
 
+// Plan 013: single import-payload byte cap shared by the file picker,
+// the paste-JSON path, and the preview service. 5 MB — the largest real
+// catalog (data/product_data.json, ~148 KB / 187 products) fits comfortably.
+export const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
+
 export const importResolutionSchema = z.object({
   product_id: z.string().min(1),
   field: z.string().min(1),
