@@ -43,18 +43,18 @@ Legend: ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE (archived) · 🛑 BLOCKED (rea
 
 ### Wave 2 — Correctness cleanup + build perf
 
-| Lane | Plan                                        | Title                      | Effort | Status             |
-| ---- | ------------------------------------------- | -------------------------- | ------ | ------------------ |
-| L1   | [174](archive/174-undo-server-snapshots.md) | Undo from server snapshots | M      | ✅ DONE (archived) |
-| L1   | [177](177-admin-feedback-papercuts.md)      | Admin feedback papercuts   | S      | ⬜ TODO            |
-| L2   | [176](176-media-apply-outputs.md)           | Media apply outputs        | M      | ⬜ TODO            |
-| L3   | [181](181-state-machine-gaps.md)            | State-machine gaps batch   | S-M    | ⬜ TODO            |
-| L3   | [185](185-build-probe-memoization.md)       | Build probe memoization    | S-M    | ⬜ TODO            |
-| L4   | [179](179-cross-tab-cart-merge.md)          | Cross-tab cart merge       | M      | ⬜ TODO            |
-| L4   | [178](178-parking-stay-caps.md)             | Parking stay caps          | S      | ⬜ TODO            |
-| L5   | [187](187-storefront-runtime-perf.md)       | Storefront runtime perf    | M      | ⬜ TODO            |
-| L6   | [184](184-security-investigate-batch.md)    | Security investigate batch | S      | ⬜ TODO            |
-| L6   | [195](195-shared-helper-dedup.md)           | Shared helper dedup        | M      | ⬜ TODO            |
+| Lane | Plan                                           | Title                      | Effort | Status             |
+| ---- | ---------------------------------------------- | -------------------------- | ------ | ------------------ |
+| L1   | [174](archive/174-undo-server-snapshots.md)    | Undo from server snapshots | M      | ✅ DONE (archived) |
+| L1   | [177](archive/177-admin-feedback-papercuts.md) | Admin feedback papercuts   | S      | ✅ DONE (archived) |
+| L2   | [176](176-media-apply-outputs.md)              | Media apply outputs        | M      | ⬜ TODO            |
+| L3   | [181](181-state-machine-gaps.md)               | State-machine gaps batch   | S-M    | ⬜ TODO            |
+| L3   | [185](185-build-probe-memoization.md)          | Build probe memoization    | S-M    | ⬜ TODO            |
+| L4   | [179](179-cross-tab-cart-merge.md)             | Cross-tab cart merge       | M      | ⬜ TODO            |
+| L4   | [178](178-parking-stay-caps.md)                | Parking stay caps          | S      | ⬜ TODO            |
+| L5   | [187](187-storefront-runtime-perf.md)          | Storefront runtime perf    | M      | ⬜ TODO            |
+| L6   | [184](184-security-investigate-batch.md)       | Security investigate batch | S      | ⬜ TODO            |
+| L6   | [195](195-shared-helper-dedup.md)              | Shared helper dedup        | M      | ⬜ TODO            |
 
 ### Wave 3 — Server perf + structural debt
 

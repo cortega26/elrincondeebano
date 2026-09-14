@@ -224,11 +224,21 @@ function getShareableCartUrl(cart) {
 }
 
 function shareCart(cart) {
+  // Plan 177: report the clipboard outcome — resolves true on copy, false on
+  // failure/denial/unavailable API (callers label the button from this).
   const url = getShareableCartUrl(cart);
-  if (!url) return;
+  if (!url) return Promise.resolve(false);
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(url).catch(function () {});
+    return navigator.clipboard.writeText(url).then(
+      function () {
+        return true;
+      },
+      function () {
+        return false;
+      }
+    );
   }
+  return Promise.resolve(false);
 }
 
 function loadCartFromUrl() {

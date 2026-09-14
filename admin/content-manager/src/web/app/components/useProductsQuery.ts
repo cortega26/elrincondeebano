@@ -69,17 +69,13 @@ export function useProductsQuery(): {
     max_discount: maxDiscount ? Number(maxDiscount) : undefined,
   };
 
-  const activeFilterCount = [
-    q,
-    category,
-    archived,
-    outOfStock,
-    minPrice,
-    maxPrice,
-    discountedOnly,
-    minDiscount,
-    maxDiscount,
-  ].filter((v) => v !== '').length;
+  // Plan 177: archived='false' is the implicit baseline, not a user filter
+  // (matches filtersActive in ProductsPage) — counting it would pin the
+  // badge at 1 forever and Limpiar could never clear it.
+  const activeFilterCount =
+    [q, category, outOfStock, minPrice, maxPrice, discountedOnly, minDiscount, maxDiscount].filter(
+      (v) => v !== ''
+    ).length + (archived !== '' && archived !== 'false' ? 1 : 0);
 
   const load = useCallback(async (): Promise<void> => {
     // Plan 088: monotonic request id — a slow older response must never

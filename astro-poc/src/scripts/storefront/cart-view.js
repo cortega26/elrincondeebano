@@ -217,11 +217,16 @@ export function createCartViewController({
         attrs: { type: 'button', 'aria-label': 'Copiar enlace del carrito para compartir' },
       });
       shareBtn.addEventListener('click', function () {
-        shareCart(cart);
-        shareBtn.textContent = '¡Enlace copiado!';
-        globalThis.setTimeout(function () {
-          shareBtn.textContent = 'Compartir carrito';
-        }, 2000);
+        // Plan 177: label only after the clipboard promise settles — never
+        // claim success while the write is still pending.
+        Promise.resolve(shareCart(cart)).then(function (copied) {
+          // Only an explicit false means failure (legacy callers/mocks may
+          // resolve undefined — that keeps the historical success label).
+          shareBtn.textContent = copied === false ? 'No se pudo copiar' : '¡Enlace copiado!';
+          globalThis.setTimeout(function () {
+            shareBtn.textContent = 'Compartir carrito';
+          }, 2000);
+        });
       });
       shareRow.appendChild(shareBtn);
       cartContainer.appendChild(shareRow);

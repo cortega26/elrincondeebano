@@ -29,6 +29,8 @@ const { mockApi } = vi.hoisted(() => {
     updateFeatured: vi.fn(),
     importPreview: vi.fn(),
     importApply: vi.fn(),
+    exportJson: vi.fn(),
+    exportCsv: vi.fn(),
     createCategory: vi.fn(),
     updateCategory: vi.fn(),
     deleteCategory: vi.fn(),
@@ -74,6 +76,8 @@ vi.mock('@web/api/client.ts', async (importOriginal) => {
     updateFeatured = mockApi.updateFeatured;
     importPreview = mockApi.importPreview;
     importApply = mockApi.importApply;
+    exportJson = mockApi.exportJson;
+    exportCsv = mockApi.exportCsv;
     createCategory = mockApi.createCategory;
     updateCategory = mockApi.updateCategory;
     deleteCategory = mockApi.deleteCategory;

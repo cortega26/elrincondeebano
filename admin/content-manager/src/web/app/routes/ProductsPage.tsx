@@ -110,6 +110,11 @@ export function ProductsPage(): React.ReactElement {
   } | null>(null);
   const [showSyncConfig, setShowSyncConfig] = useState(false);
   const [syncConfig, setSyncConfig] = useState({ enabled: true, api_base: '', api_token: '' });
+  // Plan 177: the poll/SSE effect below must not reset the config form while
+  // the operator types — mirrored here because the effect runs once (ref so
+  // the subscription is never torn down by panel toggles).
+  const showSyncConfigRef = useRef(showSyncConfig);
+  showSyncConfigRef.current = showSyncConfig;
   const undoStack = useRef<UndoEntry[]>(loadStack('cm-undo-stack'));
   const redoStack = useRef<UndoEntry[]>(loadStack('cm-redo-stack'));
   const dragIndex = useRef<number | null>(null);
@@ -132,11 +137,15 @@ export function ProductsPage(): React.ReactElement {
             last_push: { ok: boolean; error?: string } | null;
           };
           setSyncStatus(s);
-          setSyncConfig({
-            enabled: s.enabled,
-            api_base: s.api_base ?? '',
-            api_token: '',
-          });
+          // Plan 177: never clobber the form the operator may be typing in —
+          // status keeps updating; the form only refreshes while closed.
+          if (!showSyncConfigRef.current) {
+            setSyncConfig({
+              enabled: s.enabled,
+              api_base: s.api_base ?? '',
+              api_token: '',
+            });
+          }
         })
         .catch(() => {});
     };
@@ -147,7 +156,7 @@ export function ProductsPage(): React.ReactElement {
     try {
       source = new EventSource('/api/v1/sync/events');
       source.addEventListener('message', (event) => {
-        const d = JSON.parse(event.data) as {
+        type SyncEventMessage = {
           sync: {
             enabled: boolean;
             api_base: string;
@@ -159,8 +168,21 @@ export function ProductsPage(): React.ReactElement {
             last_push: { ok: boolean; error?: string } | null;
           };
         };
+        let d: SyncEventMessage | null;
+        try {
+          d = JSON.parse(event.data) as SyncEventMessage;
+        } catch {
+          d = null; // Plan 177: malformed frame — ignore silently, no listener throw.
+        }
+        if (!d) return;
         setSyncStatus(d.sync);
-        setSyncConfig({ enabled: d.sync.enabled, api_base: d.sync.api_base ?? '', api_token: '' });
+        if (!showSyncConfigRef.current) {
+          setSyncConfig({
+            enabled: d.sync.enabled,
+            api_base: d.sync.api_base ?? '',
+            api_token: '',
+          });
+        }
       });
       source.onerror = () => {
         source?.close();
@@ -250,18 +272,23 @@ export function ProductsPage(): React.ReactElement {
     if (!data) return;
     const stamp = new Date().toISOString().slice(0, 10);
     if (kind === 'json') {
-      void client.exportJson().then((catalog) => {
-        const blob = new Blob([JSON.stringify(catalog, null, 2)], {
-          type: 'application/json',
-        });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `productos-${stamp}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-        setFeedback('Export JSON descargado ✓');
-      });
+      void client
+        .exportJson()
+        .then((catalog) => {
+          const blob = new Blob([JSON.stringify(catalog, null, 2)], {
+            type: 'application/json',
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `productos-${stamp}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+          setFeedback('Export JSON descargado ✓');
+        })
+        // Plan 177: mirror the CSV branch — a failed export must surface,
+        // never vanish as an unhandled rejection.
+        .catch((err) => setOpError((err as Error).message));
     } else {
       void client
         .exportCsv({
