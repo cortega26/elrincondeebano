@@ -522,33 +522,18 @@ export function ProductsPage(): React.ReactElement {
       );
 
       // Plan 088: the undo entry is recorded ONLY after a successful apply.
-      // For scope=all the server's changes array carries the exact old
-      // values of every mutated product — the honest snapshot.
-      const affectedIds = scope === 'all' ? result.changes.map((c) => c.product_id) : ids;
-      const entry =
-        scope === 'all'
-          ? buildUndoEntry({
-              action: bulkAction,
-              value: val,
-              productIds: affectedIds,
-              products: [],
-              preview: result.changes,
-            })
-          : buildUndoEntry({
-              action: bulkAction,
-              value: val,
-              productIds: ids,
-              products: data.items
-                .filter((p): p is ProductResponse & { id: string } => Boolean(p.id))
-                .map((p) => ({
-                  id: p.id,
-                  price: p.price,
-                  discount: p.discount,
-                  stock: p.stock,
-                  category: p.category,
-                })),
-              preview: bulkPreview,
-            });
+      // Plan 174: the server's changes array carries the exact old values of
+      // every mutated product — the honest snapshot for EVERY scope, not just
+      // scope=all. data.items (current page only) is never used: it silently
+      // drops cross-page selections and may already be stale.
+      const affectedIds = result.changes.map((c) => c.product_id);
+      const entry = buildUndoEntry({
+        action: bulkAction,
+        value: val,
+        productIds: affectedIds,
+        products: [],
+        preview: result.changes,
+      });
       undoStack.current.push(entry);
       redoStack.current = [];
       saveStack('cm-undo-stack', undoStack.current);
@@ -613,13 +598,27 @@ export function ProductsPage(): React.ReactElement {
       await moveEntryOnSuccess(undoStack, redoStack, async (entry) => {
         // Fetch fresh revisions right before undoing — data.items may already
         // be stale (a prior undo item in this same entry, or the apply).
-        const currentProducts = await Promise.all(
+        // Plan 174: one purged product must not block undoing the rest.
+        const settled = await Promise.allSettled(
           entry.perProductOldValues.map(async (item) => {
             const product = await client.getProduct(item.product_id);
             return { id: item.product_id, rev: product.rev ?? 0 };
           })
         );
+        const currentProducts = settled
+          .filter(
+            (r): r is PromiseFulfilledResult<{ id: string; rev: number }> =>
+              r.status === 'fulfilled'
+          )
+          .map((r) => r.value);
         const actions = computeUndoActions(entry, currentProducts);
+        if (actions.length === 0) {
+          // Nothing restorable (products were purged since) — report instead
+          // of hitting batch-update's non-empty guard with a confusing 400.
+          setFeedback('Nada que deshacer: los productos ya no existen');
+          await reload();
+          return;
+        }
         // Plan 121: one batch call = one catalog write (was N sequential
         // full-catalog rewrites). All-or-nothing with a single rev guard.
         await client.batchUpdateProducts(actions);
