@@ -9,6 +9,7 @@ import { migrateCatalog, type CatalogMigration } from '../services/catalogMigrat
 import { MutationLock } from '../services/mutationLock.ts';
 import type { PersistentIdempotencyStore } from '../services/persistentIdempotencyStore.ts';
 import type { RecoveryJournal } from '../services/recoveryJournal.ts';
+import type { CommandResult } from '../../shared/commands/envelope.ts';
 
 export interface ProductRepositoryConfig {
   repoRoot: string;
@@ -49,6 +50,14 @@ export class ProductRepository {
 
   setIdempotencyStore(store: PersistentIdempotencyStore): void {
     this.idempotencyStore = store;
+  }
+
+  // Plan 175: read-only idempotency probe so runCatalogCommand can return a
+  // recorded outcome WITHOUT re-running apply (no phantom products). No
+  // reservation primitive needed — the in-flight window is guarded by the
+  // caller's set, and writeCatalog re-checks under the mutation lock.
+  peekCommandResult(commandId: string): CommandResult | undefined {
+    return this.idempotencyStore?.get(commandId);
   }
 
   loadCatalog(): ProductCatalog {

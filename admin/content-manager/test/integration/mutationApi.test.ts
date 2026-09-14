@@ -310,7 +310,13 @@ test('POST /api/v1/products with same command_id is idempotent', async () => {
       headers: ch,
       payload,
     });
-    expect(res2.statusCode).toBe(201);
+    expect(res2.statusCode).toBe(200);
+    // Plan 175: replays return the recorded outcome WITHOUT re-running apply
+    // (previously 201 with an unpersisted phantom product). No phantom, no
+    // revision advance.
+    expect(res2.json().deduplicated).toBe(true);
+    expect(res2.json().resulting_revision).toBe(res1.json().resulting_revision);
+    expect(res2.json().product).toBeUndefined();
 
     // Only one product should have been created
     const listRes = await app.inject({ method: 'GET', url: '/api/v1/products' });

@@ -33,7 +33,7 @@ Legend: ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE (archived) · 🛑 BLOCKED (rea
 | Lane | Plan                                               | Title                                | Effort | Status             |
 | ---- | -------------------------------------------------- | ------------------------------------ | ------ | ------------------ |
 | L1   | [171](archive/171-catalog-cache-miss-isolation.md) | Cache-miss isolation leak            | S      | ✅ DONE (archived) |
-| L1   | [175](175-changeset-apply-robustness.md)           | Apply crash-safe + idempotency-first | M      | ⬜ TODO            |
+| L1   | [175](archive/175-changeset-apply-robustness.md)   | Apply crash-safe + idempotency-first | M      | ✅ DONE (archived) |
 | L2   | [172](172-bulk-action-validation.md)               | Bulk validation hardening            | S      | ⬜ TODO            |
 | L2   | [173](173-reorder-membership-scale.md)             | Reorder membership + scale           | S      | ⬜ TODO            |
 | L3   | [180](180-import-preview-hardening.md)             | Import preview hardening             | S-M    | ⬜ TODO            |

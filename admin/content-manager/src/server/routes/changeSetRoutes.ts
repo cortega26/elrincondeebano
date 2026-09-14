@@ -27,6 +27,11 @@ export async function changeSetRoutes(
   void productService;
   const history = new HistoryRepository(repoRoot);
   const applier = new ChangeSetApplier(repos);
+  // Plan 175: single-flight guard for apply — the validated→publishing
+  // window is synchronous today (no interleave possible in one process),
+  // but the guard keeps a second apply from ever running the mutation
+  // engine twice if that ever changes. Scoped per app instance.
+  const applyingChangeSets = new Set<string>();
 
   app.get('/change-sets', async () => {
     return { items: changeSets.listAll() };
@@ -232,11 +237,34 @@ export async function changeSetRoutes(
       });
     }
 
+    if (applyingChangeSets.has(id)) {
+      return reply.status(409).send({
+        error: { code: 'APPLY_IN_FLIGHT', message: `Change set "${id}" is already being applied` },
+      });
+    }
+    applyingChangeSets.add(id);
+
     cs.status = 'publishing';
     cs.updated_at = new Date().toISOString();
     changeSets.save(cs);
 
-    const result = await applier.apply(cs);
+    // Plan 175: a throw (or crash-shaped failure inside apply) must never
+    // strand the set in `publishing` — land it in `failed` so the operator
+    // can recover (PATCH publishing→failed is already a legal recovery
+    // transition, and failed→validating→validated retries the flow).
+    let result: Awaited<ReturnType<ChangeSetApplier['apply']>>;
+    try {
+      result = await applier.apply(cs);
+    } catch (err) {
+      cs.status = 'failed';
+      cs.updated_at = new Date().toISOString();
+      changeSets.save(cs);
+      return reply.status(500).send({
+        error: { code: 'APPLY_FAILED', message: (err as Error).message ?? 'Apply failed' },
+      });
+    } finally {
+      applyingChangeSets.delete(id);
+    }
     if (!result.ok) {
       cs.status = 'failed';
       cs.updated_at = new Date().toISOString();
