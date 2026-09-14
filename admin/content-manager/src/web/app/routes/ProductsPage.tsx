@@ -34,12 +34,31 @@ interface BulkChange {
 // products, so fetch them and append their ids in server order — archived
 // products land at the end of the new global order (index N..N+k). With no
 // archived products the payload is unchanged.
-async function reorderWithFullCatalog(
+type ProductQuery = NonNullable<Parameters<ContentManagerClient['getProducts']>[0]>;
+
+// Plan 173: page a filtered product query until exhausted (the server clamps
+// limit at 200). Single pagination loop shared by the archived fetch and the
+// clamped-view fetch below. Exported for unit tests.
+export async function fetchAllProductIds(
+  client: ContentManagerClient,
+  baseParams: ProductQuery
+): Promise<string[]> {
+  const ids: string[] = [];
+  const pageSize = 200;
+  for (let page = 1; ; page += 1) {
+    const result = await client.getProducts({ ...baseParams, page, limit: pageSize });
+    ids.push(...result.items.filter((p) => p.id).map((p) => p.id!));
+    if (result.items.length < pageSize) break;
+  }
+  return ids;
+}
+
+// Plan 173: exported for unit tests alongside fetchAllProductIds.
+export async function reorderWithFullCatalog(
   client: ContentManagerClient,
   visibleIds: string[]
 ): Promise<void> {
-  const archivedResult = await client.getProducts({ archived: true, page: 1, limit: 200 });
-  const archivedIds = archivedResult.items.filter((p) => p.id).map((p) => p.id!);
+  const archivedIds = await fetchAllProductIds(client, { archived: true });
   await client.reorderProducts([...visibleIds, ...archivedIds]);
 }
 
@@ -218,11 +237,11 @@ export function ProductsPage(): React.ReactElement {
     maxDiscount !== ''
   );
   const canReorder =
-    !!data &&
-    !filtersActive &&
-    data.total <= data.items.length &&
-    sortField === 'order' &&
-    sortDir === 'asc';
+    // Plan 101/173: reorder gates on filters + sort only. Fullness used to
+    // live here, but the 500-row UI clamp would otherwise kill reorder at
+    // scale — handleReorder pages through the same filters instead, and
+    // handleDrop keeps its own full-view guard (positional DnD is page-local).
+    !!data && !filtersActive && sortField === 'order' && sortDir === 'asc';
   const pageStart = data ? (data.page - 1) * data.limit + 1 : 0;
   const pageEnd = data ? Math.min(data.page * data.limit, data.total) : 0;
 
@@ -567,7 +586,14 @@ export function ProductsPage(): React.ReactElement {
 
   async function handleReorder(): Promise<void> {
     if (!data || !canReorder) return;
-    const ids = data.items.filter((p) => p.id).map((p) => p.id!);
+    // Plan 173: ensure the FULL filtered view even when the UI clamp keeps
+    // rows off-screen — page through the same filters (the server sorts by
+    // `order`, so page order is global order). Never reorder a partial view,
+    // and never raise the 500-row render cap for this.
+    let ids = data.items.filter((p) => p.id).map((p) => p.id!);
+    if (data.total > data.items.length) {
+      ids = await fetchAllProductIds(client, { ...filters });
+    }
     if (ids.length === 0) return;
     try {
       await reorderWithFullCatalog(client, ids);
@@ -621,8 +647,12 @@ export function ProductsPage(): React.ReactElement {
 
   function handleDrop(e: React.DragEvent<HTMLTableRowElement>, dropIndex: number): void {
     e.preventDefault();
-    if (!canReorder) return;
-    if (dragIndex.current === null || dragIndex.current === dropIndex || !data) return;
+    if (!canReorder || !data) return;
+    // Plan 173: positional drag-and-drop is only meaningful with every row
+    // rendered — a clamped/paged view cannot express the move. Use the
+    // reorder button (which pages through) instead.
+    if (data.total > data.items.length) return;
+    if (dragIndex.current === null || dragIndex.current === dropIndex) return;
 
     const items = [...data.items];
     const [draggedItem] = items.splice(dragIndex.current, 1);

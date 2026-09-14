@@ -512,6 +512,30 @@ export async function productRoutes(
             message: 'ordered_ids contains duplicates',
           };
         }
+        // Plan 173: length + duplicates is not enough — the id SET must equal
+        // the catalog id set, or unknown ids are silently skipped while
+        // missing products keep stale orders (duplicate `order` values, 200).
+        const catalogIds = new Set(catalog.products.map((p) => p.id));
+        if (catalog.products.some((p) => !p.id)) {
+          return {
+            ok: false,
+            statusCode: 400,
+            code: 'BAD_REQUEST',
+            message:
+              'Catalog contains products without ids — backfill stable ids before reordering',
+          };
+        }
+        if (
+          uniqueIds.size !== catalogIds.size ||
+          ![...uniqueIds].every((id) => catalogIds.has(id))
+        ) {
+          return {
+            ok: false,
+            statusCode: 400,
+            code: 'BAD_REQUEST',
+            message: 'ordered_ids must contain exactly the catalog id set (unknown or missing ids)',
+          };
+        }
 
         const result = productService.reorder(catalog, body.ordered_ids!);
         if (!result.ok) {
