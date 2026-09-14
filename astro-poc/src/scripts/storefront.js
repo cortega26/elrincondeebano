@@ -19,6 +19,7 @@ import { syncStorefrontServiceWorkerVersion } from './storefront/service-worker-
 import {
   createStorefrontStorage,
   STOREFRONT_RUNTIME_CONTRACT,
+  STOREFRONT_STORAGE_KEYS,
 } from './storefront/storage-contract.js';
 import { log } from '../lib/logger.js';
 import { WHATSAPP_NUMBER, formatCurrency } from '../lib/formatting.js';
@@ -28,6 +29,7 @@ import {
   getCartState,
   hydrateCartFromOrder,
   hydrateSharedCart,
+  mergeCarts,
   normalizeId,
   parseNumber,
   sanitizeCart,
@@ -1210,6 +1212,39 @@ function initStorefront() {
     cartOffcanvas.addEventListener('shown.bs.offcanvas', handleOpen);
     cartOffcanvas.addEventListener('hide.bs.offcanvas', handleClose);
     cartOffcanvas.addEventListener('hidden.bs.offcanvas', handleClose);
+  }
+
+  // Plan 179: cross-tab convergence — merge remote edits instead of
+  // last-writer-wins. Keys resolve through STOREFRONT_STORAGE_KEYS (the same
+  // source saveCart writes through), never a hardcoded duplicate. `storage`
+  // events do not fire in the originating tab, and the merged cart is only
+  // saved when it differs, so this cannot echo-loop.
+  const cartStorageKeys = new Set([STOREFRONT_STORAGE_KEYS.cart].flat().map((key) => String(key)));
+  const handleCrossTabCart = (event) => {
+    if (!event || event.key === null || !cartStorageKeys.has(event.key)) {
+      return;
+    }
+    let remote;
+    try {
+      remote = event.newValue ? JSON.parse(event.newValue) : [];
+    } catch {
+      return;
+    }
+    const merged = mergeCarts(cart, remote);
+    if (JSON.stringify(merged) === JSON.stringify(cart)) {
+      return;
+    }
+    cart = merged;
+    if (!saveCart(cart)) {
+      return;
+    }
+    updateBadge(cart, {});
+    renderCart(cart, {});
+    renderCompanionSuggestions(cart, companionRules);
+    syncAllActionAreas(cart);
+  };
+  if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+    window.addEventListener('storage', handleCrossTabCart);
   }
 
   const getQty = (id) => {
