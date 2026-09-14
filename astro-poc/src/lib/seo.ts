@@ -133,12 +133,38 @@ export function normalizeShareDescription(
   return `${normalized.slice(0, SHARE_DESCRIPTION_MAX_LENGTH - 3).trimEnd()}...`;
 }
 
-function versionTokenFromFile(assetPath: string, options?: SeoFileOptions): string | null {
+// Plan 185: content hashes memoized across pages — every page re-hashed the
+// same byte-identical OG files otherwise. Keyed on absolute path +
+// mtimeMs:size (same contract as the catalog cache); never path alone, or
+// stale ?v= URLs would ship and break cache-busting. Exported for unit tests.
+const versionTokenCache = new Map<string, string | null>();
+
+export function versionTokenFromFile(assetPath: string, options?: SeoFileOptions): string | null {
   const filePath = repoAssetPath(assetPath, options);
-  if (!fs.existsSync(filePath)) {
+  let cacheKey: string;
+  try {
+    const stat = fs.statSync(filePath);
+    if (!stat.isFile()) {
+      return null;
+    }
+    cacheKey = `${filePath}${stat.mtimeMs}:${stat.size}`;
+  } catch {
     return null;
   }
-  return crypto.createHash('sha1').update(fs.readFileSync(filePath)).digest('hex').slice(0, 12);
+  const cached = versionTokenCache.get(cacheKey);
+  if (cached !== undefined) {
+    return cached;
+  }
+  let token: string | null;
+  try {
+    token = crypto.createHash('sha1').update(fs.readFileSync(filePath)).digest('hex').slice(0, 12);
+  } catch {
+    // Raced away between stat and read (concurrent clean/checkout) — behave
+    // as if missing rather than crashing the build.
+    return null;
+  }
+  versionTokenCache.set(cacheKey, token);
+  return token;
 }
 
 function withVersionQuery(assetPath: string, versionToken: string | null): string {

@@ -106,15 +106,22 @@ describe('preflight-hash gate decisions', () => {
   it('a read race between stat and read forces a run instead of crashing (plan 181)', async () => {
     const mod = await import('../tools/preflight-hash.mjs');
     // Synchronous window: no other test can interleave while patched.
+    // Patch both read entry points so the test pins the contract (race ->
+    // null), not the implementation (buffered vs streaming reads).
     const fs = (await import('node:fs')).default;
-    const orig = fs.readFileSync;
+    const origReadFile = fs.readFileSync;
+    const origRead = fs.readSync;
     fs.readFileSync = () => {
+      throw new Error('EIO vanish');
+    };
+    fs.readSync = () => {
       throw new Error('EIO vanish');
     };
     try {
       expect(mod.hashInputFiles(['package.json'])).toBeNull();
     } finally {
-      fs.readFileSync = orig;
+      fs.readFileSync = origReadFile;
+      fs.readSync = origRead;
     }
   });
 

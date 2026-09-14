@@ -49,7 +49,7 @@ Legend: ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE (archived) · 🛑 BLOCKED (rea
 | L1   | [177](archive/177-admin-feedback-papercuts.md) | Admin feedback papercuts   | S      | ✅ DONE (archived) |
 | L2   | [176](archive/176-media-apply-outputs.md)      | Media apply outputs        | M      | ✅ DONE (archived) |
 | L3   | [181](archive/181-state-machine-gaps.md)       | State-machine gaps batch   | S-M    | ✅ DONE (archived) |
-| L3   | [185](185-build-probe-memoization.md)          | Build probe memoization    | S-M    | ⬜ TODO            |
+| L3   | [185](archive/185-build-probe-memoization.md)  | Build probe memoization    | S-M    | ✅ DONE (archived) |
 | L4   | [179](179-cross-tab-cart-merge.md)             | Cross-tab cart merge       | M      | ⬜ TODO            |
 | L4   | [178](178-parking-stay-caps.md)                | Parking stay caps          | S      | ⬜ TODO            |
 | L5   | [187](187-storefront-runtime-perf.md)          | Storefront runtime perf    | M      | ⬜ TODO            |

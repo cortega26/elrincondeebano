@@ -102,6 +102,18 @@ jobs:
 
       - uses: ./.github/actions/setup-node-and-deps
 
+      # Plan 185: restore preflight hash-gate state so unchanged-input image
+      # steps skip even on fresh runners. Safe by construction: each state
+      # entry stores its input hash, so a stale restore only misses (never
+      # wrongly skips).
+      - name: Restore preflight hash-gate state
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: reports/preflight-hashes
+          key: preflight-hashes-${{ hashFiles('package-lock.json', 'tools/**/*.mjs', 'tools/**/*.js', 'data/categories.json', 'data/product_data.json') }}
+          restore-keys: |
+            preflight-hashes-
+
       - name: Build project
         run: npm run build
 

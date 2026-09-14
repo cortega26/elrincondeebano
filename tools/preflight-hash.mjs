@@ -34,11 +34,27 @@ export function hashInputFiles(relativePaths) {
     if (!stat.isFile()) {
       return null;
     }
+    // Plan 185: stream large inputs instead of buffering whole files.
+    let fd;
     try {
-      hash.update(fs.readFileSync(abs));
+      fd = fs.openSync(abs, 'r');
+      const buf = Buffer.alloc(64 * 1024);
+      let bytesRead = fs.readSync(fd, buf, 0, buf.length, null);
+      while (bytesRead > 0) {
+        hash.update(buf.subarray(0, bytesRead));
+        bytesRead = fs.readSync(fd, buf, 0, buf.length, null);
+      }
     } catch {
-      // Raced away between stat and read: force a run.
+      // Raced away mid-read: force a run.
       return null;
+    } finally {
+      if (fd !== undefined) {
+        try {
+          fs.closeSync(fd);
+        } catch {
+          // Best-effort close.
+        }
+      }
     }
     hash.update('\0');
   }
