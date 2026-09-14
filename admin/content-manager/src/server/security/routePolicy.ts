@@ -80,7 +80,10 @@ export const ROUTE_POLICY: RoutePolicyEntry[] = [
   { method: 'POST', path: '/api/v1/change-sets/:id/redo', class: 'mutation' },
   { method: 'GET', path: '/api/v1/export', class: 'read' },
   { method: 'GET', path: '/api/v1/export.csv', class: 'read' },
-  { method: 'POST', path: '/api/v1/import/preview', class: 'preview' },
+  // Plan 180: import/preview persists a durable server-side record (unlike
+  // pure previews), so it is classed as a mutation — preview routes that
+  // persist state must always be classed `mutation`.
+  { method: 'POST', path: '/api/v1/import/preview', class: 'mutation' },
   { method: 'POST', path: '/api/v1/import/apply', class: 'mutation' },
   // Plan 090: diff is a pure read — no write-mode or credential required.
   { method: 'POST', path: '/api/v1/diff', class: 'read' },

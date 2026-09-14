@@ -27,6 +27,10 @@ import {
 } from './changes-common.ts';
 import type { ProductService } from '../../domain/products/productService.ts';
 
+// Plan 180: framing margin for the content-length pre-gate below — the JSON
+// envelope around the products array is bytes, not megabytes.
+const PREVIEW_LENGTH_MARGIN = 64 * 1024;
+
 export async function importRoutes(
   app: FastifyInstance,
   repos: Repositories,
@@ -38,7 +42,6 @@ export async function importRoutes(
   void productService;
   const previews = new PreviewRepository(repoRoot);
   const history = new HistoryRepository(repoRoot);
-
   app.get('/export', async () => {
     const catalog = repos.products.loadCatalog();
     return catalog;
@@ -120,6 +123,23 @@ export async function importRoutes(
 
   app.post('/import/preview', async (request, reply) => {
     try {
+      // Plan 180: fast reject on declared size before paying the second
+      // serialization plus the full preview build. The post-parse byte
+      // measurement below stays authoritative (content-length is
+      // client-controlled). Never lower the global bodyLimit for this —
+      // base64 media uploads need it.
+      const declaredLength = Number(request.headers['content-length']);
+      if (
+        Number.isFinite(declaredLength) &&
+        declaredLength > MAX_IMPORT_BYTES + PREVIEW_LENGTH_MARGIN
+      ) {
+        return reply.status(413).send({
+          error: {
+            code: 'PAYLOAD_TOO_LARGE',
+            message: `Import payload exceeds the limit of ${Math.round(MAX_IMPORT_BYTES / 1024 / 1024)} MB`,
+          },
+        });
+      }
       const body = request.body as Record<string, unknown>;
       const rawProducts = body?.products ?? body;
 
@@ -322,7 +342,9 @@ export async function importRoutes(
       }
 
       // No-op apply: nothing effective changed — do not bump the revision.
+      // The preview was still consumed, so prune it either way.
       if (created === 0 && updated === 0) {
+        previews.delete(preview_id);
         return {
           status: 'ok' as const,
           created: 0,
@@ -363,6 +385,11 @@ export async function importRoutes(
         },
         ops: [],
       });
+
+      // Plan 180: the preview is consumed by a successful apply — delete it
+      // so import-previews cannot grow without bound. Failed applies keep
+      // theirs (the operator may resolve conflicts and retry).
+      previews.delete(preview_id);
 
       return {
         status: 'ok' as const,

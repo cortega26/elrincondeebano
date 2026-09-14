@@ -127,6 +127,14 @@ describe('classifyRoute', () => {
     });
   });
 
+  it('classifies persisting previews as mutations', () => {
+    // Plan 180: POST /import/preview writes a durable preview record, so it
+    // requires the launch credential like any other mutation.
+    expect(classifyRoute('POST', '/api/v1/import/preview')).toEqual({
+      class: 'mutation',
+      exact: true,
+    });
+  });
   it('fails open to read only for unlisted GET', () => {
     expect(classifyRoute('GET', '/api/v1/unknown-thing')).toEqual({ class: 'read', exact: false });
   });
@@ -158,7 +166,6 @@ describe('ROUTE_POLICY table', () => {
     const previews = ROUTE_POLICY.filter((e) => e.class === 'preview').map((e) => e.path);
     expect(previews.sort()).toEqual([
       '/api/v1/backup/prune-preview',
-      '/api/v1/import/preview',
       '/api/v1/products/bulk/preview',
       '/api/v1/publications/preview',
     ]);
