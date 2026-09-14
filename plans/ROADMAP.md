@@ -3,7 +3,8 @@
 > Living document: scoreboard + backlog + assistant prompt library for the
 > whole batch. Status source of truth per plan stays `plans/README.md`
 > (this file mirrors it; update both when a plan lands).
-> Base commit: `0847089c` (2026-09-14). Branch: `advisor/b1-elrincon-remainder`.
+> Base commit: `0847089c` (2026-09-14). Landed on `main` as `4b526127`
+> (merge) + `4063eb68` (SW sync); Wave 0 executes on `main`.
 
 ## How to use this document
 
@@ -23,9 +24,9 @@ Legend: ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE (archived) · 🛑 BLOCKED (rea
 
 ### Wave 0 — Foundation (gate for everything)
 
-| Plan                                     | Title                              | Effort | Status  |
-| ---------------------------------------- | ---------------------------------- | ------ | ------- |
-| [170](170-land-working-tree-baseline.md) | Land working tree + green baseline | S      | ⬜ TODO |
+| Plan                                             | Title                              | Effort | Status             |
+| ------------------------------------------------ | ---------------------------------- | ------ | ------------------ |
+| [170](archive/170-land-working-tree-baseline.md) | Land working tree + green baseline | S      | ✅ DONE (archived) |
 
 ### Wave 1 — Protect the data (P1 bugs + auth)
 
