@@ -39,7 +39,7 @@ Legend: ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE (archived) · 🛑 BLOCKED (rea
 | L3   | [180](archive/180-import-preview-hardening.md)     | Import preview hardening             | S-M    | ✅ DONE (archived) |
 | L3   | [182](archive/182-loopback-bypass-ip-only.md)      | Loopback bypass IP-only              | S      | ✅ DONE (archived) |
 | L3   | [183](archive/183-credential-hygiene.md)           | Credential hygiene                   | S      | ✅ DONE (archived) |
-| L4   | [192](192-web-contract-coverage.md)                | Web contract coverage (pins)         | M      | ⬜ TODO            |
+| L4   | [192](archive/192-web-contract-coverage.md)        | Web contract coverage (pins)         | M      | ✅ DONE (archived) |
 
 ### Wave 2 — Correctness cleanup + build perf
 
