@@ -48,7 +48,12 @@ export function isLoopbackRequest(
   ip: string | undefined,
   hostHeader: string | string[] | undefined
 ): boolean {
-  return isLoopbackIp(ip) || isLoopbackHost(hostHeader);
+  // Plan 182: bypass requires a loopback SOURCE IP — the Host header is
+  // client-controlled and never sufficient on its own (a remote client
+  // presenting Host: localhost must be challenged, not bypassed).
+  // isLoopbackHost stays for the independent onRequest rejection layer.
+  void hostHeader;
+  return isLoopbackIp(ip);
 }
 
 export function isLoopbackHostname(hostname: string): boolean {

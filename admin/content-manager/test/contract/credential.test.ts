@@ -90,3 +90,77 @@ test('a fresh app authenticates with the file credential, not the old value', as
     rmSync(repo, { recursive: true, force: true });
   }
 });
+
+// Plan 182: the mutation bypass requires a loopback SOURCE IP — a loopback
+// Host header alone must never suffice (it is client-controlled). Each row
+// uses a fresh command_id so idempotency replay cannot mask the verdict.
+test('loopback bypass requires loopback source IP, never just loopback Host', async () => {
+  const repo = resolve(
+    tmpdir(),
+    `cm-bypass-matrix-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+  );
+  mkdirSync(resolve(repo, 'data'), { recursive: true });
+  writeFileSync(
+    resolve(repo, 'data', 'product_data.json'),
+    JSON.stringify({ version: 'v1', last_updated: '', rev: 0, products: [] })
+  );
+  const credential = 'cm-matrix-cred';
+  try {
+    const app = createApp({
+      repoRoot: repo,
+      enableWrites: true,
+      logger: false,
+      launchCredential: credential,
+    });
+    await app.ready();
+    let seq = 0;
+    const attempt = (opts: {
+      remoteAddress?: string;
+      headers?: Record<string, string>;
+      credentialValue?: string;
+    }) => {
+      seq += 1;
+      return app.inject({
+        method: 'POST',
+        url: '/api/v1/products',
+        ...(opts.remoteAddress ? { remoteAddress: opts.remoteAddress } : {}),
+        headers: {
+          'Content-Type': 'application/json',
+          ...(opts.headers ?? {}),
+          ...(opts.credentialValue ? { 'x-admin-credential': opts.credentialValue } : {}),
+        },
+        payload: {
+          command_id: `mx-${seq}`,
+          payload: { name: `M${seq}`, price: 100 + seq, category: 'c' },
+        },
+      });
+    };
+
+    // Loopback source, loopback host, no credential: bypass (operator flow).
+    expect((await attempt({})).statusCode).toBe(201);
+    // Loopback source, evil host: Host allowlist rejects independently.
+    expect((await attempt({ headers: { host: '192.168.1.10:3000' } })).statusCode).toBe(403);
+    // Remote source, loopback host, no credential: challenged, never bypassed.
+    expect((await attempt({ remoteAddress: '192.168.1.10' })).statusCode).toBe(401);
+    // Remote source, loopback host, valid credential: served.
+    expect(
+      (await attempt({ remoteAddress: '192.168.1.10', credentialValue: credential })).statusCode
+    ).toBe(201);
+    // Mapped loopback source is still loopback: bypass.
+    expect((await attempt({ remoteAddress: '::ffff:127.0.0.1' })).statusCode).toBe(201);
+    // Forwarded headers are untrusted (no trustProxy): spoofed loopback
+    // origin with a remote source must not bypass.
+    expect(
+      (
+        await attempt({
+          remoteAddress: '192.168.1.10',
+          headers: { 'x-forwarded-for': '127.0.0.1' },
+        })
+      ).statusCode
+    ).toBe(401);
+
+    await app.close();
+  } finally {
+    rmSync(repo, { recursive: true, force: true });
+  }
+});

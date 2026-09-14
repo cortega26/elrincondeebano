@@ -37,7 +37,7 @@ Legend: ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE (archived) · 🛑 BLOCKED (rea
 | L2   | [172](archive/172-bulk-action-validation.md)       | Bulk validation hardening            | S      | ✅ DONE (archived) |
 | L2   | [173](archive/173-reorder-membership-scale.md)     | Reorder membership + scale           | S      | ✅ DONE (archived) |
 | L3   | [180](archive/180-import-preview-hardening.md)     | Import preview hardening             | S-M    | ✅ DONE (archived) |
-| L3   | [182](182-loopback-bypass-ip-only.md)              | Loopback bypass IP-only              | S      | ⬜ TODO            |
+| L3   | [182](archive/182-loopback-bypass-ip-only.md)      | Loopback bypass IP-only              | S      | ✅ DONE (archived) |
 | L3   | [183](183-credential-hygiene.md)                   | Credential hygiene                   | S      | ⬜ TODO            |
 | L4   | [192](192-web-contract-coverage.md)                | Web contract coverage (pins)         | M      | ⬜ TODO            |
 
