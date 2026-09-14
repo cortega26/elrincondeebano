@@ -104,7 +104,10 @@ export class ProductRepository {
     }
 
     this.cache = { key: cacheKey, catalog: result.data };
-    return result.data;
+    // Plan 171: hand out a private copy here too — result.data is the exact
+    // object just cached above, so returning it would let one request's
+    // in-place mutations poison the cache (same guarantee as the hit path).
+    return structuredClone(result.data);
   }
 
   async writeCatalog(
