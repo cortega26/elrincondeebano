@@ -106,8 +106,10 @@ export class ProductRepository {
     }
 
     if (didMigrate) {
-      // Persist the migration atomically (idempotent — the version marker
-      // prevents re-running). Revision semantics are untouched.
+      // Plan 181 verdict: deliberately lock-free. The writer is fully
+      // synchronous (no in-process interleave possible) and MutationLock is
+      // non-reentrant — acquiring here would deadlock writeCatalog's in-lock
+      // re-read. Multi-process catalog writers are out of scope.
       this.writer.write(result.data, 'catalog-migration', 1);
       this.cache = null;
     }

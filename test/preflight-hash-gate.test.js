@@ -102,4 +102,29 @@ describe('preflight-hash gate decisions', () => {
     expect(missing.skip).toBe(false);
     expect(['inputs-changed', 'outputs-missing']).toContain(missing.reason);
   });
+
+  it('a read race between stat and read forces a run instead of crashing (plan 181)', async () => {
+    const mod = await import('../tools/preflight-hash.mjs');
+    // Synchronous window: no other test can interleave while patched.
+    const fs = (await import('node:fs')).default;
+    const orig = fs.readFileSync;
+    fs.readFileSync = () => {
+      throw new Error('EIO vanish');
+    };
+    try {
+      expect(mod.hashInputFiles(['package.json'])).toBeNull();
+    } finally {
+      fs.readFileSync = orig;
+    }
+  });
+
+  it('step names are confined to [A-Za-z0-9-_] (plan 181)', async () => {
+    const { assertSafeStepName, readStepState } = await import('../tools/preflight-hash.mjs');
+    expect(assertSafeStepName('images-logo')).toBe('images-logo');
+    expect(assertSafeStepName('images-og_home-2')).toBe('images-og_home-2');
+    expect(() => assertSafeStepName('../evil')).toThrow(/Invalid step name/);
+    expect(() => assertSafeStepName('a/b')).toThrow(/Invalid step name/);
+    expect(() => assertSafeStepName('')).toThrow(/Invalid step name/);
+    expect(() => readStepState('../evil')).toThrow(/Invalid step name/);
+  });
 });

@@ -104,7 +104,11 @@ export class JobRunner {
   cancelJob(id: string): boolean {
     const job = this.jobs.get(id);
     if (!job) return false;
-    if (job.status === 'completed' || job.status === 'cancelled') return false;
+    // Plan 181: terminal states cannot be cancelled — reporting success for
+    // a failed job is a lie the caller relays to the operator.
+    if (job.status === 'completed' || job.status === 'cancelled' || job.status === 'failed') {
+      return false;
+    }
 
     job.cancelRequested = true;
 

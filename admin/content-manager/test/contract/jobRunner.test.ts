@@ -13,7 +13,7 @@ test('schedule runs a job and returns result', async () => {
       expect(retrieved).toBeDefined();
       expect(retrieved!.status).toBe('completed');
     },
-    { timeout: 2000, interval: 10 },
+    { timeout: 2000, interval: 10 }
   );
 
   const retrieved = runner.getJob<string>(job.id);
@@ -83,6 +83,20 @@ test('cancelJob returns false for unknown job', () => {
   expect(runner.cancelJob('nonexistent')).toBe(false);
 });
 
+test('cancelJob returns false for failed job (plan 181)', async () => {
+  const runner = new JobRunner();
+  const job = runner.schedule('test', async () => {
+    throw new Error('boom');
+  });
+
+  await vi.waitFor(() => expect(runner.getJob(job.id)!.status).toBe('failed'), {
+    timeout: 2000,
+    interval: 10,
+  });
+
+  expect(runner.cancelJob(job.id)).toBe(false);
+});
+
 test('shutdown cancels all pending jobs', async () => {
   const runner = new JobRunner();
 
@@ -111,7 +125,7 @@ test('shutdown cancels all pending jobs', async () => {
   release();
   await vi.waitFor(
     () => expect(['completed', 'cancelled']).toContain(runner.getJob(first.id)!.status),
-    { timeout: 2000, interval: 10 },
+    { timeout: 2000, interval: 10 }
   );
 });
 
@@ -193,7 +207,7 @@ test('getPendingCount returns number of queued jobs', async () => {
     () => {
       expect(runner.getPendingCount()).toBeGreaterThanOrEqual(0);
     },
-    { timeout: 2000, interval: 10 },
+    { timeout: 2000, interval: 10 }
   );
 
   expect(runner.getPendingCount()).toBeGreaterThanOrEqual(0);
@@ -240,7 +254,7 @@ test('scheduleAt runs the job only after the target time', async () => {
       ran = true;
       return 'done';
     },
-    new Date(clock.now() + 5_000),
+    new Date(clock.now() + 5_000)
   );
 
   expect(job.status).toBe('pending');
@@ -261,7 +275,7 @@ test('cancelJob before the target time cancels without running', async () => {
       ran = true;
       return 'nope';
     },
-    new Date(clock.now() + 60_000),
+    new Date(clock.now() + 60_000)
   );
 
   expect(runner.cancelJob(job.id)).toBe(true);
@@ -284,7 +298,7 @@ test('scheduleAt with a past time runs immediately', async () => {
       ran = true;
       return 'now';
     },
-    new Date(clock.now() - 1),
+    new Date(clock.now() - 1)
   );
 
   expect(job.status).toBe('pending');
@@ -317,7 +331,7 @@ test('shutdown clears scheduled timers so the callback never runs (plan 136)', a
       ran = true;
       return 'should-not-run';
     },
-    new Date(now + 60_000),
+    new Date(now + 60_000)
   );
 
   expect(job.status).toBe('pending');

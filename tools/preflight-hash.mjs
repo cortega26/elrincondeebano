@@ -23,17 +23,39 @@ export function hashInputFiles(relativePaths) {
   for (const rel of sorted) {
     const abs = path.resolve(REPO_ROOT, rel);
     hash.update(rel + '\0');
-    if (!fs.existsSync(abs) || !fs.statSync(abs).isFile()) {
-      // Missing input: force a run (return null signals "unknown").
+    // Plan 181: stat+read in one guarded sequence — a file that vanishes
+    // mid-gate (concurrent checkout/clean) forces a run, never a crash.
+    let stat;
+    try {
+      stat = fs.statSync(abs);
+    } catch {
       return null;
     }
-    hash.update(fs.readFileSync(abs));
+    if (!stat.isFile()) {
+      return null;
+    }
+    try {
+      hash.update(fs.readFileSync(abs));
+    } catch {
+      // Raced away between stat and read: force a run.
+      return null;
+    }
     hash.update('\0');
   }
   return hash.digest('hex');
 }
 
+// Plan 181: step names become filenames — accept only a tight class so
+// `--step ../evil` cannot escape the state directory.
+export function assertSafeStepName(step) {
+  if (typeof step !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9-_]*$/.test(step)) {
+    throw new Error(`Invalid step name: ${JSON.stringify(step)} — use [A-Za-z0-9-_]`);
+  }
+  return step;
+}
+
 export function readStepState(step) {
+  assertSafeStepName(step);
   const file = path.join(STATE_DIR, `${step}.json`);
   try {
     return JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -43,6 +65,7 @@ export function readStepState(step) {
 }
 
 export function writeStepState(step, hash) {
+  assertSafeStepName(step);
   fs.mkdirSync(STATE_DIR, { recursive: true });
   fs.writeFileSync(
     path.join(STATE_DIR, `${step}.json`),
@@ -118,7 +141,13 @@ function main() {
     );
     process.exit(2);
   }
-  const decision = shouldSkipStep(opts.step, opts.inputs, opts.outputs);
+  let decision;
+  try {
+    decision = shouldSkipStep(opts.step, opts.inputs, opts.outputs);
+  } catch (err) {
+    console.error(`[hash-gate] ${(err && err.message) || String(err)}`);
+    process.exit(2);
+  }
   if (decision.skip) {
     console.log(`[hash-gate] ${opts.step}: inputs unchanged, skipping.`);
     process.exit(0);
