@@ -1,17 +1,18 @@
 import { test, expect, type Page } from '@playwright/test';
+import { e2eCredential } from './e2eCredential.ts';
 
 // Import workflow e2e (plan 060 step 3): runs against the import-e2e project
-// whose webServer serves a temp COPY of the fixture catalog on :3101 with
-// ADMIN_CREDENTIAL=e2e-import. Browser tests exercise uploaded files,
-// conflict resolutions, approval, downloads and reload persistence — the
-// real catalog is never touched.
+// whose webServer serves a temp COPY of the fixture catalog on :3101 with a
+// per-run ADMIN_CREDENTIAL (plan 183 — no committed default). Browser tests
+// exercise uploaded files, conflict resolutions, approval, downloads and
+// reload persistence — the real catalog is never touched.
 
 const IMPORT_URL = 'http://127.0.0.1:3101/import';
 
 async function dismissCredentialPrompt(page: Page): Promise<void> {
   const input = page.getByPlaceholder('x-admin-credential');
   if (await input.isVisible()) {
-    await input.fill('e2e-import');
+    await input.fill(e2eCredential());
     await page.getByRole('button', { name: 'Guardar' }).click();
   }
 }
@@ -141,7 +142,7 @@ test('stale preview is rejected with 409 and no partial apply', async ({ page })
   const current = await page.request.get('http://127.0.0.1:3101/api/v1/products/e2e-cafe');
   const currentBody = await current.json();
   const patched = await page.request.patch('http://127.0.0.1:3101/api/v1/products/e2e-cafe', {
-    headers: { 'Content-Type': 'application/json', 'x-admin-credential': 'e2e-import' },
+    headers: { 'Content-Type': 'application/json', 'x-admin-credential': e2eCredential() },
     data: {
       command_id: 'e2e-stale-setup',
       base_revision: currentBody.rev,

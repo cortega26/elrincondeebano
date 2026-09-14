@@ -1,7 +1,7 @@
 import { defineAdminConfig } from './playwright.base.ts';
 
 // Pagination and bulk/reorder scope e2e (plan 088): temp COPY of the
-// 80-product fixture on :3102 (ADMIN_CREDENTIAL=e2e-scope).
+// 80-product fixture on :3102 with a per-run ADMIN_CREDENTIAL (plan 183).
 export default defineAdminConfig({
   testMatch: '**/scope.spec.ts',
   port: 3102,

@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { e2eCredential } from './e2eCredential.ts';
 
 // Media workbench e2e (plan 063 step 5): upload -> intent -> run -> apply
 // through the UI against the temp fixture repo on :3103.
@@ -8,7 +9,7 @@ const BASE = 'http://127.0.0.1:3103';
 async function dismissCredentialPrompt(page: Page): Promise<void> {
   const input = page.getByPlaceholder('x-admin-credential');
   if (await input.isVisible()) {
-    await input.fill('e2e-import');
+    await input.fill(e2eCredential());
     await page.getByRole('button', { name: 'Guardar' }).click();
   }
 }
@@ -73,7 +74,7 @@ test('batch select -> cancel -> discard multiple intents (plan 127 F2.4)', async
   // Seed three pending OG intents via the API (no staged files needed).
   for (const seedSlug of ['batch-1', 'batch-2', 'batch-3']) {
     const res = await request.post(`${BASE}/api/v1/media/intents`, {
-      headers: { 'x-admin-credential': 'e2e-import', 'Content-Type': 'application/json' },
+      headers: { 'x-admin-credential': e2eCredential(), 'Content-Type': 'application/json' },
       data: {
         type: 'og',
         target_path: `assets/images/og/categories/${seedSlug}.png`,

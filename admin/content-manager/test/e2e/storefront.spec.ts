@@ -1,11 +1,12 @@
 import { test, expect, type Page } from '@playwright/test';
+import { e2eCredential } from './e2eCredential.ts';
 
 const BASE = 'http://127.0.0.1:3104';
 
 async function dismissCredentialPrompt(page: Page): Promise<void> {
   const input = page.getByPlaceholder('x-admin-credential');
   if (await input.isVisible()) {
-    await input.fill('e2e-import');
+    await input.fill(e2eCredential());
     await page.getByRole('button', { name: 'Guardar', exact: true }).click();
   }
 }
@@ -37,7 +38,7 @@ test('bundle create with product picker persists and survives reload', async ({ 
 
 test('delete-last bundle persists [] in the projection Astro loads', async ({ page }) => {
   const created = await page.request.put(`${BASE}/api/v1/storefront/bundles`, {
-    headers: { 'Content-Type': 'application/json', 'x-admin-credential': 'e2e-import' },
+    headers: { 'Content-Type': 'application/json', 'x-admin-credential': e2eCredential() },
     data: {
       bundles: [
         {

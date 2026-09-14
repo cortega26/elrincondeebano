@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { e2eCredential } from './e2eCredential.ts';
 
 // Pagination and bulk/reorder scope e2e (plan 088) against the isolated
 // 80-product fixture (playwright.scope.config.ts, :3102).
@@ -6,7 +7,7 @@ import { test, expect, type Page } from '@playwright/test';
 async function dismissCredentialPrompt(page: Page): Promise<void> {
   const input = page.getByPlaceholder('x-admin-credential');
   if (await input.isVisible()) {
-    await input.fill('e2e-scope');
+    await input.fill(e2eCredential());
     await page.getByRole('button', { name: 'Guardar' }).click();
   }
 }
