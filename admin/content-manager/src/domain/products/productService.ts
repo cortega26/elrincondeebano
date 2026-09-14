@@ -463,6 +463,15 @@ export class ProductService {
           }
           break;
         }
+        default: {
+          // Plan 172: unknown actions must fail loudly — falling through
+          // would return a misleading ok:true with zero changes.
+          return {
+            ok: false,
+            error: `Unknown bulk action "${String(operation.action)}"`,
+            changes: [],
+          };
+        }
       }
     }
 
@@ -472,18 +481,30 @@ export class ProductService {
   bulkApply(
     catalog: ProductCatalog,
     operation: BulkOperation
-  ): { ok: boolean; error?: string; changed: number; changes: BulkPreviewResult[] } {
+  ): {
+    ok: boolean;
+    error?: string;
+    changed: number;
+    skipped: number;
+    changes: BulkPreviewResult[];
+  } {
     if (!this.enabled) {
-      return { ok: false, error: 'Write operations are disabled', changed: 0, changes: [] };
+      return {
+        ok: false,
+        error: 'Write operations are disabled',
+        changed: 0,
+        skipped: 0,
+        changes: [],
+      };
     }
 
     const preview = this.bulkPreview(catalog, operation);
     if (!preview.ok) {
-      return { ok: false, error: preview.error, changed: 0, changes: [] };
+      return { ok: false, error: preview.error, changed: 0, skipped: 0, changes: [] };
     }
 
     if (preview.changes.length === 0) {
-      return { ok: false, error: 'No changes to apply', changed: 0, changes: [] };
+      return { ok: false, error: 'No changes to apply', changed: 0, skipped: 0, changes: [] };
     }
 
     const idSet = new Set(operation.product_ids);
@@ -496,8 +517,25 @@ export class ProductService {
     );
     const now = new Date().toISOString();
     let changed = 0;
+    let skipped = 0;
+
+    // Plan 172: the mutated scalar per action — resolved up front so a
+    // schema-rejected mutation can be reverted exactly (scalar + rev +
+    // history metadata) instead of persisting catalog-bricking state.
+    const field: 'price' | 'discount' | 'stock' | 'category' =
+      operation.action === 'set_stock'
+        ? 'stock'
+        : operation.action === 'set_category'
+          ? 'category'
+          : operation.action === 'set_discount_percent' || operation.action === 'set_discount_fixed'
+            ? 'discount'
+            : 'price';
 
     for (const product of products) {
+      const mutable = product as unknown as Record<typeof field, number | boolean | string>;
+      const prevScalar = mutable[field];
+      const prevRev = product.rev;
+      const prevMeta = product.field_last_modified[field];
       switch (operation.action) {
         case 'set_discount_percent':
           product.discount = Math.min(
@@ -526,19 +564,33 @@ export class ProductService {
           product.category = cat;
           break;
         }
+        default: {
+          return {
+            ok: false,
+            error: `Unknown bulk action "${String(operation.action)}"`,
+            changed,
+            skipped,
+            changes: [],
+          };
+        }
+      }
+      // Plan 172: never persist schema-invalid state (e.g. a NaN discount
+      // serializes to null and bricks the next catalog load) — revert the
+      // product exactly and report it as skipped instead of changed.
+      if (!productSchema.safeParse(product).success) {
+        mutable[field] = prevScalar;
+        product.rev = prevRev;
+        if (prevMeta === undefined) {
+          delete product.field_last_modified[field];
+        } else {
+          product.field_last_modified[field] = prevMeta;
+        }
+        skipped += 1;
+        continue;
       }
       product.rev += 1;
       // Plan 059: bulk mutations record the same revision metadata as
       // single edits so history/undo stay consistent across paths.
-      const field =
-        operation.action === 'set_stock'
-          ? 'stock'
-          : operation.action === 'set_category'
-            ? 'category'
-            : operation.action === 'set_discount_percent' ||
-                operation.action === 'set_discount_fixed'
-              ? 'discount'
-              : 'price';
       product.field_last_modified[field] = {
         ts: now,
         by: 'bulk',
@@ -554,6 +606,6 @@ export class ProductService {
     catalog.rev += 1;
     catalog.last_updated = now;
 
-    return { ok: true, changed, changes: preview.changes };
+    return { ok: true, changed, skipped, changes: preview.changes };
   }
 }

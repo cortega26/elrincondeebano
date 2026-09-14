@@ -34,7 +34,7 @@ Legend: ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE (archived) · 🛑 BLOCKED (rea
 | ---- | -------------------------------------------------- | ------------------------------------ | ------ | ------------------ |
 | L1   | [171](archive/171-catalog-cache-miss-isolation.md) | Cache-miss isolation leak            | S      | ✅ DONE (archived) |
 | L1   | [175](archive/175-changeset-apply-robustness.md)   | Apply crash-safe + idempotency-first | M      | ✅ DONE (archived) |
-| L2   | [172](172-bulk-action-validation.md)               | Bulk validation hardening            | S      | ⬜ TODO            |
+| L2   | [172](archive/172-bulk-action-validation.md)       | Bulk validation hardening            | S      | ✅ DONE (archived) |
 | L2   | [173](173-reorder-membership-scale.md)             | Reorder membership + scale           | S      | ⬜ TODO            |
 | L3   | [180](180-import-preview-hardening.md)             | Import preview hardening             | S-M    | ⬜ TODO            |
 | L3   | [182](182-loopback-bypass-ip-only.md)              | Loopback bypass IP-only              | S      | ⬜ TODO            |
