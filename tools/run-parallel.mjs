@@ -26,6 +26,40 @@ export function runCommandsParallel(commands) {
   );
 }
 
+// Plan 186: bounded worker pool for CPU-bound task functions (sharp
+// encodes). Unbounded Promise.all would spike peak memory/FDs; serial
+// `for await` pays the sum of all encodes. Results preserve input order;
+// a rejection fails fast (remaining tasks still settle, then it throws the
+// first error). Concurrency is clamped to >= 1.
+export async function runTasksBounded(taskFns, limit) {
+  const tasks = [...taskFns];
+  const bounded = Math.max(1, Math.floor(limit) || 1);
+  const results = new Array(tasks.length);
+  let next = 0;
+  let failed = null;
+
+  async function worker() {
+    while (next < tasks.length) {
+      const index = next;
+      next += 1;
+      try {
+        results[index] = await tasks[index]();
+      } catch (err) {
+        if (!failed) failed = err;
+        results[index] = undefined;
+      }
+    }
+  }
+
+  const workers = [];
+  for (let i = 0; i < Math.min(bounded, tasks.length); i += 1) {
+    workers.push(worker());
+  }
+  await Promise.all(workers);
+  if (failed) throw failed;
+  return results;
+}
+
 async function main() {
   const commands = process.argv.slice(2);
   if (commands.length === 0) {

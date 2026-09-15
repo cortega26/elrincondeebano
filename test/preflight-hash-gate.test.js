@@ -135,3 +135,53 @@ describe('preflight-hash gate decisions', () => {
     expect(() => readStepState('../evil')).toThrow(/Invalid step name/);
   });
 });
+
+describe('runTasksBounded worker pool (plan 186)', () => {
+  it('preserves input order and respects the concurrency bound', async () => {
+    const { runTasksBounded } = await import('../tools/run-parallel.mjs');
+    let inFlight = 0;
+    let maxInFlight = 0;
+    const tasks = Array.from({ length: 10 }, (_, i) => async () => {
+      inFlight += 1;
+      maxInFlight = Math.max(maxInFlight, inFlight);
+      await new Promise((resolve) => setTimeout(resolve, 5));
+      inFlight -= 1;
+      return i * 2;
+    });
+    const results = await runTasksBounded(tasks, 3);
+    expect(results).toEqual([0, 2, 4, 6, 8, 10, 12, 14, 16, 18]);
+    expect(maxInFlight).toBeLessThanOrEqual(3);
+    expect(maxInFlight).toBeGreaterThan(1);
+  });
+
+  it('fails fast with the first error after in-flight tasks settle', async () => {
+    const { runTasksBounded } = await import('../tools/run-parallel.mjs');
+    const settled = [];
+    const tasks = [
+      async () => {
+        settled.push('ok');
+        return 'ok';
+      },
+      async () => {
+        settled.push('boom');
+        throw new Error('boom');
+      },
+    ];
+    await expect(runTasksBounded(tasks, 2)).rejects.toThrow('boom');
+    expect(settled.sort()).toEqual(['boom', 'ok']);
+  });
+
+  it('handles empty lists and serial limit 1', async () => {
+    const { runTasksBounded } = await import('../tools/run-parallel.mjs');
+    expect(await runTasksBounded([], 4)).toEqual([]);
+    const order = [];
+    await runTasksBounded(
+      [1, 2, 3].map((n) => async () => {
+        order.push(n);
+        return n;
+      }),
+      1
+    );
+    expect(order).toEqual([1, 2, 3]);
+  });
+});

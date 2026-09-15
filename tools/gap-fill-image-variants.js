@@ -25,13 +25,6 @@ function loadProducts() {
   return { catalog: raw, products: raw.products };
 }
 
-function variantExists(variantsRoot, imagePath, width, ext) {
-  const rel = path.dirname(imagePath.replace(/^assets\/images\//, ''));
-  const base = path.basename(imagePath, path.extname(imagePath));
-  const file = path.join(variantsRoot, `w${width}`, 'images', rel, `${base}.${ext}`);
-  return fs.existsSync(file);
-}
-
 async function buildVariant(opts) {
   // Convention (plan 119): variants keep the ORIGINAL file name inside
   // w<width>/images/<category>/ — buildVariantAssetPath + publicAssetExists
@@ -58,9 +51,16 @@ async function run() {
   }
   const { products } = loadProducts();
   const variantsRoot = path.join(REPO_ROOT, 'assets', 'images', 'variants');
-  let filled = 0;
-  let updated = 0;
 
+  // Plan 186: shared variant-existence helper (was a local duplicate of
+  // image-pipeline.mjs) and a bounded pool for encodes (was one await at a
+  // time). Dynamic imports: this script is CJS, the helpers are ESM.
+  const { runTasksBounded } = await import('./run-parallel.mjs');
+  const { variantExists: sharedVariantExists } = await import('./utils/image-pipeline.mjs');
+  const os = require('node:os');
+
+  const tasks = [];
+  const builtByProduct = new Map();
   for (const product of products) {
     const imagePath = product.image_path || '';
     if (!imagePath.startsWith('assets/images/')) continue;
@@ -70,19 +70,31 @@ async function run() {
     const relDir = path.dirname(imagePath.replace(/^assets\/images\//, ''));
     const base = path.basename(imagePath, path.extname(imagePath));
     const missing = WIDTHS.filter(
-      (w) => !VARIANT_EXTENSIONS.some((ext) => variantExists(variantsRoot, imagePath, w, ext))
+      (w) => !VARIANT_EXTENSIONS.some((ext) => sharedVariantExists(variantsRoot, imagePath, w, ext))
     );
     if (missing.length === 0) continue;
 
     const built = [];
+    builtByProduct.set(imagePath, built);
     for (const w of missing) {
       for (const ext of VARIANT_EXTENSIONS) {
-        if (variantExists(variantsRoot, imagePath, w, ext)) continue;
-        await buildVariant({ source, variantsRoot, relDir, base, width: w, ext });
-        built.push(`${w}.${ext}`);
+        if (sharedVariantExists(variantsRoot, imagePath, w, ext)) continue;
+        const opts = { source, variantsRoot, relDir, base, width: w, ext };
+        tasks.push(async () => {
+          await buildVariant(opts);
+          built.push(`${w}.${ext}`);
+        });
       }
     }
+  }
+
+  await runTasksBounded(tasks, os.cpus().length);
+
+  let filled = 0;
+  let updated = 0;
+  for (const [imagePath, built] of builtByProduct) {
     if (built.length > 0) {
+      built.sort();
       filled += built.length;
       updated += 1;
       console.log(`[gap-fill] ${imagePath}: +${built.join(', ')}`);

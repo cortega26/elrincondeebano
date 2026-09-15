@@ -81,6 +81,14 @@ async function syncProductCatalogAvif({
     skippedProducts: 0,
   };
 
+  // Plan 186: bounded pool for the per-product encodes (was one await at a
+  // time — wall time was the sum of all encodes). Pure w.r.t. shared state:
+  // each task touches only its own product; mutations and stats apply
+  // sequentially below. A task failure still fails the run (first error,
+  // after in-flight tasks settle) — same exit contract as the serial loop.
+  const { runTasksBounded } = await import('./run-parallel.mjs');
+  const os = require('node:os');
+  const jobs = [];
   for (const product of products) {
     const imagePath = normalizeAssetPath(product?.image_path);
     if (!supportsAvifConversion(imagePath)) {
@@ -94,13 +102,25 @@ async function syncProductCatalogAvif({
       stats.skippedProducts += 1;
       continue;
     }
+    jobs.push({ product, currentAvifPath, targetAvifPath, imagePath });
+  }
 
-    const { generated } = await ensureAvifAsset({
-      repoRoot,
-      sourcePath: imagePath,
-      targetPath: targetAvifPath,
-      force,
-    });
+  const outcomes = await runTasksBounded(
+    jobs.map((job) => async () => ({
+      job,
+      result: await ensureAvifAsset({
+        repoRoot,
+        sourcePath: job.imagePath,
+        targetPath: job.targetAvifPath,
+        force,
+      }),
+    })),
+    os.cpus().length
+  );
+
+  for (const { job, result } of outcomes) {
+    const { product, currentAvifPath, targetAvifPath } = job;
+    const { generated } = result;
 
     if (product.image_avif_path !== targetAvifPath) {
       product.image_avif_path = targetAvifPath;
@@ -114,7 +134,18 @@ async function syncProductCatalogAvif({
     }
   }
 
-  fs.writeFileSync(productsJsonPath, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
+  // Plan 186: write-if-changed — an unconditional rewrite bumps the catalog
+  // mtime on every build and invalidates downstream mtime caches for nothing.
+  const serialized = `${JSON.stringify(payload, null, 2)}\n`;
+  let current = null;
+  try {
+    current = fs.readFileSync(productsJsonPath, 'utf8');
+  } catch {
+    // Missing/unreadable: fall through to the write below.
+  }
+  if (current !== serialized) {
+    fs.writeFileSync(productsJsonPath, serialized, 'utf8');
+  }
   return stats;
 }
 

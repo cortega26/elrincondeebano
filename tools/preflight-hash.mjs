@@ -8,6 +8,8 @@
 //   node tools/preflight-hash.mjs --step <name> --inputs <csv paths>
 //     [--outputs <csv paths>] -- <command> [args...]
 // Paths are relative to the repo root. State lives in reports/ (gitignored).
+// Inputs may be files (content-hashed, streamed) or directories (recursive
+// listing: names + mtime/size — membership and artwork edits invalidate).
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -23,13 +25,22 @@ export function hashInputFiles(relativePaths) {
   for (const rel of sorted) {
     const abs = path.resolve(REPO_ROOT, rel);
     hash.update(rel + '\0');
-    // Plan 181: stat+read in one guarded sequence — a file that vanishes
-    // mid-gate (concurrent checkout/clean) forces a run, never a crash.
+    // Plan 186: directories hash as listings (sorted names + mtime/size per
+    // entry, recursive, no content reads) — suitable for source trees whose
+    // membership or artwork changes must invalidate the gate (icons,
+    // override rasters). Any race or unreadable entry forces a run.
     let stat;
     try {
       stat = fs.statSync(abs);
     } catch {
       return null;
+    }
+    if (stat.isDirectory()) {
+      if (!hashDirectory(hash, abs)) {
+        return null;
+      }
+      hash.update('\0');
+      continue;
     }
     if (!stat.isFile()) {
       return null;
@@ -68,6 +79,42 @@ export function assertSafeStepName(step) {
     throw new Error(`Invalid step name: ${JSON.stringify(step)} — use [A-Za-z0-9-_]`);
   }
   return step;
+}
+
+// Plan 186: recursive directory listing hash (names + mtime + size, sorted).
+// Returns false when anything is unobservable (caller forces a run).
+// NOTE: metadata-only by design — content edits that preserve mtime+size
+// (cp -p, same-millisecond rewrites) do not invalidate. All current
+// directory inputs (artwork trees) change mtime on edit.
+function hashDirectory(hash, absDir) {
+  let entries;
+  try {
+    entries = fs.readdirSync(absDir, { withFileTypes: true });
+  } catch {
+    return false;
+  }
+  entries.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+  for (const entry of entries) {
+    hash.update(entry.name + '\0');
+    const full = path.join(absDir, entry.name);
+    if (entry.isDirectory()) {
+      if (!hashDirectory(hash, full)) {
+        return false;
+      }
+      continue;
+    }
+    let stat;
+    try {
+      stat = fs.statSync(full);
+    } catch {
+      return false;
+    }
+    if (!stat.isFile()) {
+      return false;
+    }
+    hash.update(`${stat.mtimeMs}:${stat.size}\0`);
+  }
+  return true;
 }
 
 export function readStepState(step) {

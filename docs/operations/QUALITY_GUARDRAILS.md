@@ -37,7 +37,7 @@ The following areas require extra caution and explicit rollback notes:
    `astro-poc/src/scripts/storefront/*.js`, `astro-poc/src/components/Navbar.astro`).
 4. Product catalog and inventory contracts (`data/product_data.json`,
    `data/categories.json`, `data/category_registry.json`).
-5. Images and asset pipeline (`tools/generate-images.mjs`,
+5. Images and asset pipeline (`tools/sync-avif-assets.js`,
    `tools/rewrite-images.mjs`, `tools/lint-images.mjs`).
 6. Service worker and caching (`service-worker.js`, `src/js/modules/pwa.js`,
    `src/js/modules/service-worker-manager.mjs`).
