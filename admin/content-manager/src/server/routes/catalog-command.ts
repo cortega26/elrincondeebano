@@ -10,6 +10,70 @@ export type CatalogCommandApplyResult<T = unknown> =
 // below, so ids can never leak into permanent rejection.
 const inflightCommands = new Set<string>();
 
+export type RegistryCommandApplyResult<T = unknown> =
+  { ok: true; data?: T } | { ok: false; statusCode: number; code: string; message: string };
+
+// Plan 194: revision-guarded write helper for registry-style stores
+// (categories today) that lack command idempotency. It owns exactly the
+// load → apply → revision-guarded write → typed-error-envelope sequence
+// that every category route hand-rolled; service validation, response
+// shapes, status codes, and side effects (OG scheduling) stay with the
+// route via apply/onSuccess. New mutation routes MUST use this (or
+// runCatalogCommand for catalog writes) instead of hand-rolling the write.
+export async function runRegistryCommand<R, T>(opts: {
+  reply: FastifyReply;
+  load: () => R;
+  getBaseRevision: () => number;
+  successStatus?: number;
+  apply: (registry: R) => RegistryCommandApplyResult<T> | Promise<RegistryCommandApplyResult<T>>;
+  write: (
+    registry: R,
+    baseRevision: number
+  ) => Promise<{ ok: boolean; error?: string; statusCode: number; rev: number }>;
+  onSuccess: (
+    registry: R,
+    data: T | undefined,
+    writeRev: number
+  ) => Record<string, unknown> | undefined | Promise<Record<string, unknown> | undefined>;
+}): Promise<unknown> {
+  const { reply, load, getBaseRevision, successStatus = 200, apply, write, onSuccess } = opts;
+
+  const registry = load();
+  // The base revision comes from the request body (immutable per request),
+  // so reading it here is identical to reading it after apply.
+  const baseRevision = getBaseRevision();
+
+  const result = await apply(registry);
+  if (!result.ok) {
+    const err = result as Extract<RegistryCommandApplyResult<T>, { ok: false }>;
+    return reply.status(err.statusCode).send({
+      error: { code: err.code, message: err.message },
+    });
+  }
+
+  const wrote = await write(registry, baseRevision);
+  if (!wrote.ok) {
+    return reply.status(wrote.statusCode).send({
+      error: {
+        code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
+        message: wrote.error,
+      },
+    });
+  }
+
+  const payload = await onSuccess(
+    registry,
+    (result as Extract<RegistryCommandApplyResult<T>, { ok: true }>).data,
+    wrote.rev
+  );
+  // Plan 194: undefined payload preserves historical empty responses
+  // (204 deletes) without a second send path.
+  if (payload === undefined) {
+    return reply.status(successStatus).send();
+  }
+  return reply.status(successStatus).send(payload);
+}
+
 export async function runCatalogCommand<T>(opts: {
   repos: Repositories;
   reply: FastifyReply;

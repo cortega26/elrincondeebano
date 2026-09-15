@@ -62,7 +62,7 @@ Legend: ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE (archived) · 🛑 BLOCKED (rea
 | ---- | --------------------------------------------------- | ----------------------------- | ------ | ------------------ |
 | L1   | [188](archive/188-admin-request-costs.md)           | Admin request costs           | M      | ✅ DONE (archived) |
 | L1   | [186](archive/186-image-pipeline-gates-parallel.md) | Image pipeline gates+parallel | M      | ✅ DONE (archived) |
-| L2   | [194](194-write-path-unification.md)                | Write-path unification        | M      | ⬜ TODO            |
+| L2   | [194](archive/194-write-path-unification.md)        | Write-path unification        | M      | ✅ DONE (archived) |
 | L3   | [196](196-writer-repository-consolidation.md)       | Writer/repo consolidation     | M      | ⬜ TODO            |
 | L3   | [197](197-client-fetch-layering.md)                 | Client split + fetch cores    | M      | ⬜ TODO            |
 
