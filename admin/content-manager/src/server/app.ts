@@ -328,9 +328,13 @@ export function createApp(opts?: AppOptions): FastifyInstance {
   });
 
   app.addHook('onSend', async (_request, reply, payload) => {
+    // Plan 184: align with the public-surface baseline — deny plugin
+    // execution and base-URL hijacking outright (no admin view uses
+    // <object> or <base>; DENY already covers framing).
     reply.header(
       'Content-Security-Policy',
-      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"
+      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; " +
+        "object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
     );
     reply.header('X-Content-Type-Options', 'nosniff');
     reply.header('X-Frame-Options', 'DENY');

@@ -21,11 +21,20 @@ export interface DoctorReport {
 // paths. The report is the only carrier (UI + downloadable evidence), so the
 // redaction happens on the report itself: repoRoot -> basename, token-like
 // values -> [REDACTED], credential-in-URL -> [REDACTED].
+// Plan 184: scrubSensitiveText is the shared value-level scrubber — job
+// results (preview builds) reuse it so every loopback-readable surface
+// applies the same rule.
+export function scrubSensitiveText(value: string, repoRoot: string): string {
+  const rootBase = repoRoot.split('/').slice(-1)[0] ?? repoRoot;
+  return value
+    .split(repoRoot)
+    .join(rootBase)
+    .replace(/https?:\/\/[^\s/@]+@/g, 'https://[REDACTED]@')
+    .replace(/\b[A-Za-z0-9_-]{32,}\b/g, '[REDACTED]');
+}
+
 export function redactDoctorReport(report: DoctorReport): DoctorReport {
-  const scrub = (value: string): string =>
-    value
-      .replace(/https?:\/\/[^\s/@]+@/g, 'https://[REDACTED]@')
-      .replace(/\b[A-Za-z0-9_-]{32,}\b/g, '[REDACTED]');
+  const scrub = (value: string): string => scrubSensitiveText(value, report.repoRoot);
 
   return {
     ...report,

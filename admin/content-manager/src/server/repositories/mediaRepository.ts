@@ -1,5 +1,6 @@
 import { readdirSync, statSync, existsSync } from 'node:fs';
 import { resolve, relative } from 'node:path';
+import { isContainedWithin } from '../../shared/identity.ts';
 import {
   isSafeMediaPath,
   isValidMediaExtension,
@@ -42,8 +43,14 @@ export class MediaRepository {
   }
 
   private computeProductsKey(products: Product[]): string {
-    const imagePaths = products.map((p) => p.image_path ?? '').sort().join('|');
-    const avifPaths = products.map((p) => p.image_avif_path ?? '').sort().join('|');
+    const imagePaths = products
+      .map((p) => p.image_path ?? '')
+      .sort()
+      .join('|');
+    const avifPaths = products
+      .map((p) => p.image_avif_path ?? '')
+      .sort()
+      .join('|');
     return `${products.length}:${imagePaths}:${avifPaths}`;
   }
 
@@ -89,7 +96,13 @@ export class MediaRepository {
   getInventory(products: Product[]): { items: MediaItem[]; summary: Record<string, number> } {
     const productsKey = this.computeProductsKey(products);
     const stamp = this.getStamp();
-    if (stamp && this.cached && this.cached.mtimeMs === stamp.mtimeMs && this.cached.size === stamp.size && this.cached.productsKey === productsKey) {
+    if (
+      stamp &&
+      this.cached &&
+      this.cached.mtimeMs === stamp.mtimeMs &&
+      this.cached.size === stamp.size &&
+      this.cached.productsKey === productsKey
+    ) {
       return { items: this.cached.items, summary: this.cached.summary };
     }
 
@@ -195,7 +208,10 @@ export class MediaRepository {
     }
 
     const absPath = resolve(this.repoRoot, normalized);
-    if (!absPath.startsWith(this.repoRoot)) {
+    // Plan 184: segment-aware containment — a string-prefix check would
+    // accept a sibling directory sharing the root prefix. (Latent: the
+    // allowlist above already blocks such shapes; this is the last line.)
+    if (!isContainedWithin(this.repoRoot, absPath)) {
       return { ok: false, error: `Path traversal detected: "${path}"` };
     }
 

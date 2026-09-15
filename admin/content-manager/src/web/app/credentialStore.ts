@@ -5,6 +5,11 @@
 // so the operator is prompted only once; clear via "Credencial ✓" button or 401.
 // Loopback bypass (2026-08-29, plan 071 still loopback-only): no credential
 // prompt when accessed from 127.0.0.1 / localhost / ::1 (single-operator PC).
+// Plan 184 accepted risk (owner-confirmed 2026-09-14): localStorage (not
+// session) persistence stands — a same-origin XSS could exfiltrate it, but
+// the admin is loopback-only with no third-party script surface. After any
+// suspected admin-origin XSS: rotate via the credential file channel and
+// clear stored copies.
 const STORAGE_KEY = 'ebano-credential';
 
 export function isLoopbackHostname(hostname: string): boolean {

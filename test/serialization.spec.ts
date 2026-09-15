@@ -29,4 +29,26 @@ describe('safeScriptJSON', () => {
     expect(safeScriptJSON('hello')).toBe('"hello"');
     expect(safeScriptJSON(42)).toBe('42');
   });
+
+  // Plan 184: hostile catalog strings must not break out of the inline
+  // script data blocks (index/combos experience JSON, JSON-LD). Inside a
+  // classic script block only a literal </script matters for breakout;
+  // comment and legacy-escape sequences are inert there — pinned here so a
+  // future "improvement" to the escaper cannot silently narrow it, and so
+  // any change that DOES let a breakout through fails loudly.
+  it('neutralizes every script-breakout shape in hostile catalog strings', () => {
+    const hostile = {
+      breakout: '</script><script>alert(document.domain)</script>',
+      upper: '</SCRIPT><SCRIPT>alert(1)</SCRIPT>',
+      split: '<\\/script>',
+      commentOpen: '<!--',
+      commentClose: '-->',
+      legacyCombo: '<!--<script>alert(1)</script>-->',
+      eventHandler: '<img src=x onerror=alert(1)>',
+      separators: 'a b c',
+    };
+    const result = safeScriptJSON(hostile);
+    expect(result.toLowerCase()).not.toContain('</script');
+    expect(JSON.parse(result)).toEqual(hostile);
+  });
 });

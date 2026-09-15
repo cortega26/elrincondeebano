@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import { resolve } from 'node:path';
 import type { Job, JobRunner } from './jobRunner.ts';
+import { scrubSensitiveText } from './doctor.ts';
 
 export interface PreviewBuildResult {
   success: boolean;
@@ -99,7 +100,9 @@ export async function runPreviewBuild(
           success: true,
           distPath,
           duration_ms: duration,
-          output: stdoutTruncated || stdout.slice(-2000),
+          // Plan 184: build logs embed absolute operator paths — scrub before
+          // persisting (GET /jobs/:id is an unauthenticated loopback read).
+          output: scrubSensitiveText(stdoutTruncated || stdout.slice(-2000), repoRoot),
         });
       } else {
         const msg = (
@@ -112,7 +115,7 @@ export async function runPreviewBuild(
           success: false,
           distPath,
           duration_ms: duration,
-          error: msg,
+          error: scrubSensitiveText(msg, repoRoot),
         });
       }
     });
@@ -123,7 +126,7 @@ export async function runPreviewBuild(
         success: false,
         distPath,
         duration_ms: Date.now() - start,
-        error: (err as Error).message.slice(0, 2000),
+        error: scrubSensitiveText((err as Error).message.slice(0, 2000), repoRoot),
       });
     });
   });

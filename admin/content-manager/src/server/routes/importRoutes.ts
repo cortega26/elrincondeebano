@@ -93,7 +93,16 @@ export async function importRoutes(
 
     const escapeCsv = (value: unknown): string => {
       const text = String(value ?? '');
-      return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+      // Plan 184: spreadsheet formula guard — the operator opens exports in
+      // formula-evaluating spreadsheets, so cells starting with a formula
+      // introducer (= + - @ tab CR) get a text-marker prefix. Quoting alone
+      // does NOT protect (quoted cells still evaluate). Benign cells starting
+      // with -/+ (e.g. "-5% off") gain an invisible marker — accepted cost.
+      const guarded =
+        text.length > 0 && ['=', '+', '-', '@', '\t', '\r'].includes(text[0] as string)
+          ? `'${text}`
+          : text;
+      return /[",\n\r]/.test(guarded) ? `"${guarded.replace(/"/g, '""')}"` : guarded;
     };
 
     // Python parity (import_export_mixin.export_filtered_csv): same columns in

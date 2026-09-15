@@ -97,6 +97,11 @@ test('CSP header exists on GET /api/v1/health', async () => {
     expect(response.headers['content-security-policy']).toContain("default-src 'self'");
     expect(response.headers['content-security-policy']).toContain("script-src 'self'");
     expect(response.headers['content-security-policy']).toContain("style-src 'self'");
+    // Plan 184: object/base/frame-ancestors denial (no admin view uses
+    // <object> or <base>; loopback-only exposure keeps this hardening-grade).
+    expect(response.headers['content-security-policy']).toContain("object-src 'none'");
+    expect(response.headers['content-security-policy']).toContain("base-uri 'self'");
+    expect(response.headers['content-security-policy']).toContain("frame-ancestors 'none'");
 
     await app.close();
   } finally {
