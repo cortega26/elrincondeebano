@@ -71,7 +71,7 @@ Legend: ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE (archived) · 🛑 BLOCKED (rea
 | Lane | Plan                                         | Title                        | Effort | Status             |
 | ---- | -------------------------------------------- | ---------------------------- | ------ | ------------------ |
 | L1   | [189](189-ci-build-cache-split.md)           | CI build/cache/split         | M      | ⬜ TODO            |
-| L1   | [190](190-sw-fetch-investigate.md)           | SW + job-queue investigate   | S      | ⬜ TODO            |
+| L1   | [190](archive/190-sw-fetch-investigate.md)   | SW + job-queue investigate   | S      | ✅ DONE (archived) |
 | L2   | [191](archive/191-release-gate-ownership.md) | Release-gate ownership       | S      | ✅ DONE (archived) |
 | L2   | [193](193-e2e-gate-flake-parity.md)          | E2E gate + flakes + parity   | M      | ⬜ TODO            |
 | L3   | [200](200-manifest-hygiene.md)               | Manifest hygiene             | S      | ⬜ TODO            |
