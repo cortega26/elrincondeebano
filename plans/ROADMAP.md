@@ -82,7 +82,7 @@ Legend: ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE (archived) · 🛑 BLOCKED (rea
 | L4   | [205](archive/205-contributor-docs-rewrite.md)    | Contributor docs rewrite     | S      | ✅ DONE (archived) |
 | L4   | [206](206-dx-loops-matrix-logs.md)                | DX loops + matrix + logs     | M      | ⬜ TODO            |
 | L4   | [207](archive/207-entry-docs-drift.md)            | Entry docs drift             | M      | ✅ DONE (archived) |
-| L4   | [208](208-ops-adr-docs-drift.md)                  | Ops/ADR docs drift           | S      | ⬜ TODO            |
+| L4   | [208](archive/208-ops-adr-docs-drift.md)          | Ops/ADR docs drift           | S      | ✅ DONE (archived) |
 | L4   | [209](209-admin-lint-local.md)                    | Admin lint local             | S      | ⬜ TODO            |
 
 ### Wave 5 — Structure slice + direction
