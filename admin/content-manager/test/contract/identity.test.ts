@@ -4,6 +4,7 @@ import {
   generateProductId,
   isUuidV7,
   isContainedWithin,
+  normalizeToken,
 } from '../../src/shared/identity.ts';
 
 test('generateUuidV7 produces a valid UUIDv7', () => {
@@ -48,4 +49,15 @@ test('isContainedWithin accepts descendants and rejects escapes', () => {
   expect(isContainedWithin(root, '/repo/data/.media-staging/../../etc/passwd')).toBe(false);
   expect(isContainedWithin(root, '/etc/passwd')).toBe(false);
   expect(isContainedWithin(root, '/repo/other/file')).toBe(false);
+});
+
+test('normalizeToken collapses whitespace, trims, and lowercases', () => {
+  // Plan 195: single implementation shared by import identity keys and the
+  // stable-id backfill.
+  expect(normalizeToken('  Arroz  integral ')).toBe('arroz integral');
+  expect(normalizeToken('a\t\nb  c')).toBe('a b c');
+  expect(normalizeToken('ÁÉÍ')).toBe('áéí');
+  expect(normalizeToken('')).toBe('');
+  expect(normalizeToken(undefined)).toBe('');
+  expect(normalizeToken(42)).toBe('');
 });

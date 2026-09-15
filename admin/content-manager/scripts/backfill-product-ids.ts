@@ -7,6 +7,9 @@
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
 import { resolve } from 'node:path';
+// Plan 195: identity token step shared with the import flow (single
+// implementation — backfill and import must resolve the same key).
+import { normalizeToken } from '../src/shared/identity.ts';
 
 function resolveRepoRoot(): string {
   if (process.env.REPO_ROOT) return process.env.REPO_ROOT;
@@ -17,16 +20,8 @@ function resolveRepoRoot(): string {
   return candidates[1] ?? process.cwd();
 }
 
-function normalizeIdentityPart(value: string): string {
-  return String(value ?? '')
-    .split(/\s+/)
-    .join(' ')
-    .trim()
-    .toLowerCase();
-}
-
 export function stableProductId(name: string, description: string): string {
-  const key = `${normalizeIdentityPart(name)}::${normalizeIdentityPart(description)}`;
+  const key = `${normalizeToken(name)}::${normalizeToken(description)}`;
   return `p-${createHash('sha1').update(key).digest('hex').slice(0, 12)}`;
 }
 

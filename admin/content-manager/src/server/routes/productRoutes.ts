@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import type { SyncService } from '../services/syncService.ts';
 import { ProductService } from '../../domain/products/productService.ts';
 import type { CommandEnvelope } from '../../shared/commands/envelope.ts';
+import { discountPercent2 } from '../../shared/discount.ts';
 import { relocateProductMedia, rollbackMediaRelocation } from '../services/mediaRelocation.ts';
 import { requireWriteMode, type Repositories } from './helpers.ts';
 import { runCatalogCommand } from './catalog-command.ts';
@@ -172,7 +173,7 @@ export async function productRoutes(
       items: items.map((p) => ({
         ...p,
         discounted_price: Math.max(0, p.price - p.discount),
-        discount_percentage: p.price > 0 ? Math.round((p.discount / p.price) * 10000) / 100 : 0,
+        discount_percentage: discountPercent2(p.price, p.discount),
       })),
     };
   });
@@ -190,8 +191,7 @@ export async function productRoutes(
     return {
       ...product,
       discounted_price: Math.max(0, product.price - product.discount),
-      discount_percentage:
-        product.price > 0 ? Math.round((product.discount / product.price) * 10000) / 100 : 0,
+      discount_percentage: discountPercent2(product.price, product.discount),
     };
   });
 

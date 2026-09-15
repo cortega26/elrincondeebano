@@ -54,7 +54,7 @@ Legend: ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE (archived) · 🛑 BLOCKED (rea
 | L4   | [178](archive/178-parking-stay-caps.md)          | Parking stay caps          | S      | ✅ DONE (archived) |
 | L5   | [187](archive/187-storefront-runtime-perf.md)    | Storefront runtime perf    | M      | ✅ DONE (archived) |
 | L6   | [184](archive/184-security-investigate-batch.md) | Security investigate batch | S      | ✅ DONE (archived) |
-| L6   | [195](195-shared-helper-dedup.md)                | Shared helper dedup        | M      | ⬜ TODO            |
+| L6   | [195](archive/195-shared-helper-dedup.md)        | Shared helper dedup        | M      | ✅ DONE (archived) |
 
 ### Wave 3 — Server perf + structural debt
 

@@ -210,6 +210,8 @@ export class ProductRepository {
 
     // Plan 091: discount filters operate on the same derived percentage the
     // storefront displays (discount / price * 100).
+    // Plan 195: deliberately the RAW ratio, not a rounded helper — rounding
+    // before comparison would flip boundary items between filter and display.
     const discountPercent = (p: Product): number =>
       p.price > 0 ? (p.discount / p.price) * 100 : 0;
     if (filters?.discounted_only === true) {
