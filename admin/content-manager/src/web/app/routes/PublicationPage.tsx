@@ -19,12 +19,21 @@ export function PublicationPage(): React.ReactElement {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [pullStatus, setPullStatus] = useState<string | null>(null);
+  const [previewJob, setPreviewJob] = useState<JobResponse | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const previewPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const stopPolling = useCallback(() => {
     if (pollRef.current !== null) {
       clearInterval(pollRef.current);
       pollRef.current = null;
+    }
+  }, []);
+
+  const stopPreviewPolling = useCallback(() => {
+    if (previewPollRef.current !== null) {
+      clearInterval(previewPollRef.current);
+      previewPollRef.current = null;
     }
   }, []);
 
@@ -74,8 +83,74 @@ export function PublicationPage(): React.ReactElement {
   useEffect(() => {
     return () => {
       stopPolling();
+      stopPreviewPolling();
     };
-  }, [stopPolling]);
+  }, [stopPolling, stopPreviewPolling]);
+
+  // Plan 211: build+preview block — trigger, 1s poll like publication
+  // jobs, open loopback preview, downloadable PR evidence. The disabled
+  // state reads server truth: the local job plus the polled pending list
+  // (a second build while running is 409 PREVIEW_BUSY server-side).
+  const pollPreviewJob = useCallback(
+    (jobId: string) => {
+      stopPreviewPolling();
+      previewPollRef.current = setInterval(async () => {
+        try {
+          const result = await client.getJob(jobId);
+          setPreviewJob(result);
+          if (
+            result.status === 'completed' ||
+            result.status === 'failed' ||
+            result.status === 'cancelled'
+          ) {
+            stopPreviewPolling();
+          }
+        } catch {
+          stopPreviewPolling();
+        }
+      }, 1000);
+    },
+    [stopPreviewPolling]
+  );
+
+  const previewBusyFromServer = pendingJobs.some(
+    (pj) => pj.type === 'build-preview' && (pj.status === 'pending' || pj.status === 'running')
+  );
+  const previewBusy =
+    previewBusyFromServer ||
+    (previewJob !== null &&
+      (previewJob.status === 'pending' ||
+        previewJob.status === 'running' ||
+        previewJob.status === 'scheduled'));
+
+  async function handlePreviewBuild(): Promise<void> {
+    setError(null);
+    try {
+      const result = await client.triggerPreviewBuild();
+      setPreviewJob({
+        id: result.job_id,
+        type: 'build-preview',
+        status: result.status,
+        progress: 0,
+      });
+      pollPreviewJob(result.job_id);
+      void refreshPending();
+    } catch (err) {
+      setError((err as Error).message);
+      void refreshPending();
+    }
+  }
+
+  function downloadPreviewEvidence(): void {
+    if (!previewJob) return;
+    const blob = new Blob([JSON.stringify(previewJob, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `preview-evidence-${previewJob.id}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
   async function handlePreview(): Promise<void> {
     setError(null);
@@ -579,6 +654,52 @@ export function PublicationPage(): React.ReactElement {
               </button>
             )}
         </div>
+      </section>
+
+      {/* Build + preview (plan 211) */}
+      <section
+        aria-label="Vista previa del build"
+        style={{
+          marginBottom: '1rem',
+          padding: '0.75rem',
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius)',
+        }}
+      >
+        <h2 style={{ margin: '0 0 0.5rem' }}>Vista previa del build</h2>
+        <p style={{ fontSize: '0.9rem', color: '#6c757d', margin: '0 0 0.75rem' }}>
+          Reconstruye el sitio en el servidor y sirve el resultado para revisión visual antes de
+          publicar. Requiere `PREVIEW_BUILD_ENABLED=1` en el servidor.
+        </p>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <button
+            onClick={() => void handlePreviewBuild()}
+            disabled={previewBusy}
+            style={{ padding: '0.25rem 0.75rem' }}
+          >
+            {previewBusy ? 'Reconstruyendo…' : 'Build + abrir vista previa'}
+          </button>
+          {previewBusy && <progress aria-label="Build en curso" />}
+          {previewJob?.status === 'completed' && (
+            <>
+              <a href="/api/v1/preview/" target="_blank" rel="noreferrer">
+                Abrir vista previa →
+              </a>
+              <button
+                onClick={() => void downloadPreviewEvidence()}
+                style={{ padding: '0.25rem 0.75rem' }}
+              >
+                Descargar evidencia
+              </button>
+            </>
+          )}
+        </div>
+        {previewJob && (
+          <p style={{ fontSize: '0.9rem', margin: '0.5rem 0 0' }}>
+            Job {previewJob.id} · {previewJob.status} · {previewJob.progress}%
+            {previewJob.status === 'failed' && previewJob.error ? ` · ${previewJob.error}` : ''}
+          </p>
+        )}
       </section>
 
       {/* Pending / scheduled jobs */}

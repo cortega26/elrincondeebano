@@ -5,6 +5,9 @@
 //
 // Plan 197 maintenance rule: new API methods go in their domain module +
 // use the core. New fetch wrappers are banned (point at plan 197).
+// Plan 214: new endpoints use the __generated__/openapi.d.ts wrapper pattern
+// from day one (types from the doc, facade signature unchanged); old methods
+// migrate opportunistically (touch-it-adopt-it), never in bulk.
 import type { ProductCatalog } from '../../shared/schemas/product.ts';
 import type {
   ImportPreviewResponse,
@@ -37,7 +40,12 @@ export type {
 } from './products.ts';
 export type { CategoryResponse } from './categories.ts';
 export type { FeaturedResponse, BundlesResponse } from './storefront.ts';
-export type { GitStatusResponse, PublicationPreviewResponse, JobResponse } from './publications.ts';
+export type {
+  GitStatusResponse,
+  PublicationPreviewResponse,
+  JobResponse,
+  PreviewBuildTrigger,
+} from './publications.ts';
 export type { DiagnosticsReport } from './system.ts';
 export type {
   BackupEntry,
@@ -313,6 +321,10 @@ export class ContentManagerClient {
 
   async cancelJob(id: string): Promise<publicationsApi.JobResponse> {
     return publicationsApi.cancelJob(this.invoke, id);
+  }
+
+  async triggerPreviewBuild(): Promise<publicationsApi.PreviewBuildTrigger> {
+    return publicationsApi.triggerPreviewBuild(this.invoke);
   }
 
   async batchUpdateProducts(

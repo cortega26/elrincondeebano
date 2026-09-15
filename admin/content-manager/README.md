@@ -65,4 +65,6 @@ See `.env.example` for the full variable list (`ADMIN_MODE`, `PORT`, `HOST`,
   every registered mutation route requires the launch credential
   (`routePolicy.test.ts`).
 - `test/integration/` — `app.inject` suites against a real temp repo.
-- `test/browser/` — Playwright keyboard/a11y specs; `test/e2e/` smoke specs.
+- `test/browser/` — Playwright keyboard/a11y specs; `test/e2e/` smoke specs
+  (the harnesses serve the locally built `dist/web` — run `npm run build:web`
+  first, or failures may reflect a stale bundle, not the source).

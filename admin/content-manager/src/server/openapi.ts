@@ -341,6 +341,13 @@ export function buildOpenApi() {
     summary: 'Publication preview',
     responses: jsonResponse(z.record(z.string(), z.unknown())),
   });
+  registry.registerPath({
+    // Plan 211: flag-gated build+preview trigger (mutation-class route).
+    method: 'post',
+    path: '/api/v1/preview/build',
+    summary: 'Trigger a preview build job',
+    responses: jsonResponse(z.object({ job_id: z.string(), status: z.string() }), 'Accepted'),
+  });
 
   registry.registerPath({
     method: 'get',

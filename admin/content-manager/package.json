@@ -21,6 +21,7 @@
     "shadow-read": "node --import tsx scripts/shadow-read.ts",
     "certify": "node --import tsx scripts/certification-report.ts",
     "doctor": "node --import tsx scripts/doctor.ts",
+    "codegen:openapi": "node --import tsx scripts/generate-openapi-types.mjs",
     "test:e2e:import": "playwright test -c playwright.import.config.ts",
     "test:e2e:changes": "playwright test -c playwright.changes.config.ts",
     "test:e2e:media": "playwright test -c playwright.media.config.ts",

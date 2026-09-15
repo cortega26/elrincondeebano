@@ -97,6 +97,24 @@ export async function previewRoutes(
   jobRunner: JobRunner
 ): Promise<void> {
   app.post('/preview/build', async (_request, reply) => {
+    // Plan 211: single-flight — a second build while one is pending/running
+    // gets 409 + the live job_id (the UI disables the button from the same
+    // truth via GET /jobs). The serial queue would silently hold it.
+    const live = jobRunner
+      .listJobs()
+      .find(
+        (job) =>
+          job.type === 'build-preview' && (job.status === 'pending' || job.status === 'running')
+      );
+    if (live) {
+      return reply.status(409).send({
+        error: {
+          code: 'PREVIEW_BUSY',
+          message: 'A preview build is already running',
+          job_id: live.id,
+        },
+      });
+    }
     const job = schedulePreviewBuild(jobRunner, repoRoot);
     return reply.status(202).send({ job_id: job.id, status: job.status });
   });

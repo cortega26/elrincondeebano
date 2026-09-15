@@ -10,13 +10,13 @@ This guide provides a short, repeatable setup for contributors.
 
 ## Ports (plan 204 — values are code defaults; change nothing here)
 
-| Service                                             | Default port | Override                               |
-| --------------------------------------------------- | ------------ | -------------------------------------- |
-| Storefront dev (`dev-server.mjs`)                   | 8080         | `PORT=... node scripts/dev-server.mjs` |
-| Storefront E2E (Playwright)                         | 8081         | `PORT` in `.env`                       |
-| Smoke/preview (`serve`, `SMOKE_BASE_URL`)           | 4173         | `SMOKE_BASE_URL`                       |
-| Admin Content Manager                               | 3000         | `PORT` (admin `start.ts`)              |
-| Admin E2E harnesses (import/scope/media/storefront) | 3101–3104    | per-config `PORT=`                     |
+| Service                                                     | Default port | Override                               |
+| ----------------------------------------------------------- | ------------ | -------------------------------------- |
+| Storefront dev (`dev-server.mjs`)                           | 8080         | `PORT=... node scripts/dev-server.mjs` |
+| Storefront E2E (Playwright)                                 | 8081         | `PORT` in `.env`                       |
+| Smoke/preview (`serve`, `SMOKE_BASE_URL`)                   | 4173         | `SMOKE_BASE_URL`                       |
+| Admin Content Manager                                       | 3000         | `PORT` (admin `start.ts`)              |
+| Admin E2E harnesses (import/changes/scope/media/storefront) | 3101–3105    | per-config `PORT=`                     |
 
 The E2E suites share one `PORT` variable — a collision with another project
 on :3000 breaks `admin:dev` with `EADDRINUSE` (stop the squatter or export

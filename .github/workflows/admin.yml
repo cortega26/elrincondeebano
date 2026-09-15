@@ -65,8 +65,8 @@ jobs:
         run: npx playwright test -c playwright.config.ts
 
       # Plan 127 F1.3: the temp-repo suites run in parallel — each config
-      # owns its port (3101 import, 3102 changes/scope, 3103 media, 3104
-      # storefront) and repo fixture. Plan 206: per-suite logs + wait -n
+      # owns its port (3101 import, 3102 changes, 3105 scope, 3103 media,
+      # 3104 storefront) and repo fixture. Plan 206: per-suite logs + wait -n
       # fail-closed collection — bare `wait` always exits 0 (proven
       # false-green 2026-09-15), so every PID is reaped explicitly and any
       # suite failure fails the step.

@@ -244,3 +244,25 @@ test('GET /openapi.json returns identical bytes on consecutive requests', async 
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+// Plan 214: generated-types freshness — the committed
+// src/web/api/__generated__/openapi.d.ts must match a fresh regen from the
+// single-source doc. Regen (never hand-edit) when this fires.
+test('generated openapi.d.ts is current with the served document', async () => {
+  const { execFileSync } = await import('node:child_process');
+  const { writeFileSync: writeFile } = await import('node:fs');
+  const committed = resolve(__dirname, '../../src/web/api/__generated__/openapi.d.ts');
+  const before = readFileSync(committed, 'utf8');
+  execFileSync(process.execPath, ['--import', 'tsx', 'scripts/generate-openapi-types.mjs'], {
+    cwd: resolve(__dirname, '../..'),
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  try {
+    const after = readFileSync(committed, 'utf8');
+    expect(after).toBe(before);
+  } finally {
+    writeFile(committed, before);
+  }
+  // Regen shells out to npx twice — generous budget under parallel load.
+}, 60_000);

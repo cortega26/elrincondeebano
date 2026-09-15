@@ -52,6 +52,7 @@ const { mockApi } = vi.hoisted(() => {
     getJob: vi.fn(),
     listJobs: vi.fn(),
     cancelJob: vi.fn(),
+    triggerPreviewBuild: vi.fn(),
   };
   return { mockApi };
 });
@@ -99,6 +100,7 @@ vi.mock('@web/api/client.ts', async (importOriginal) => {
     getJob = mockApi.getJob;
     listJobs = mockApi.listJobs;
     cancelJob = mockApi.cancelJob;
+    triggerPreviewBuild = mockApi.triggerPreviewBuild;
   }
   return { ...actual, ContentManagerClient: MockContentManagerClient };
 });

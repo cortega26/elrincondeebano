@@ -109,6 +109,14 @@ export const ROUTE_POLICY: RoutePolicyEntry[] = [
   { method: 'GET', path: '/api/v1/jobs', class: 'read' },
   { method: 'GET', path: '/api/v1/jobs/:id', class: 'read' },
   { method: 'POST', path: '/api/v1/jobs/:id/cancel', class: 'mutation' },
+  // Plan 211: preview builds. POST is a mutation, not a preview — it runs
+  // minutes of compute and rewrites astro-poc/dist (shared with the release
+  // artifact path), so plan 180's rule (persists state ⇒ mutation) applies;
+  // temp-dist being regenerable does not make the clobber safe. GETs are
+  // reads contained to the preview dist root (route-level containment).
+  { method: 'POST', path: '/api/v1/preview/build', class: 'mutation' },
+  { method: 'GET', path: '/api/v1/preview', class: 'read' },
+  { method: 'GET', path: '/api/v1/preview/*', class: 'read' },
   // backup
   { method: 'GET', path: '/api/v1/backup', class: 'read' },
   { method: 'POST', path: '/api/v1/backup', class: 'mutation' },
@@ -129,6 +137,15 @@ export function classifyRoute(method: string, url: string): RouteMatch {
   for (const entry of ROUTE_POLICY) {
     if (entry.method !== method) continue;
     if (entry.path === normalizedPath) return { class: entry.class, exact: true };
+
+    // Plan 211: wildcard entries (preview static assets) match by prefix.
+    if (entry.path.endsWith('/*')) {
+      const prefix = entry.path.slice(0, -2);
+      if (normalizedPath === prefix || normalizedPath.startsWith(`${prefix}/`)) {
+        return { class: entry.class, exact: true };
+      }
+      continue;
+    }
 
     const entryParts = entry.path.split('/');
     const urlParts = normalizedPath.split('/');

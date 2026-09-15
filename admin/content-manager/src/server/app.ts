@@ -23,6 +23,7 @@ import { historyRoutes } from './routes/historyRoutes.ts';
 import { importRoutes } from './routes/importRoutes.ts';
 import { storefrontMutRoutes } from './routes/storefront.ts';
 import { publicationRoutes } from './routes/publication.ts';
+import { previewRoutes } from './routes/previewRoutes.ts';
 import { JobRunner } from './services/jobRunner.ts';
 import { GitAdapter } from './adapters/gitAdapter.ts';
 import { ConflictService } from '../domain/conflicts/conflictService.ts';
@@ -230,6 +231,16 @@ export function createApp(opts?: AppOptions): FastifyInstance {
     },
     { prefix: '/api/v1' }
   );
+
+  // Plan 211: build+preview, flag-gated until the follow-up removes the flag.
+  if (process.env.PREVIEW_BUILD_ENABLED === '1') {
+    app.register(
+      async function (instance) {
+        await previewRoutes(instance, repoRoot, jobRunner);
+      },
+      { prefix: '/api/v1' }
+    );
+  }
 
   app.register(
     async function (instance) {
