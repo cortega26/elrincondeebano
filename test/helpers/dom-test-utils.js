@@ -1,9 +1,10 @@
 const { JSDOM } = require('jsdom');
-const { File } = require('undici');
+// Plan 201: native File global (Node 24-only runtime) — the shim dep is retired.
+const NativeFile = typeof File !== 'undefined' ? File : undefined;
 
 function ensureFileGlobal() {
-  if (typeof global.File === 'undefined') {
-    global.File = File;
+  if (typeof global.File === 'undefined' && NativeFile) {
+    global.File = NativeFile;
   }
 }
 

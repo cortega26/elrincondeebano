@@ -1,39 +1,29 @@
 'use strict';
 
 /**
- * Test-only bootstrap that fills in missing fetch/Web API globals when running
- * under Node.js versions that do not yet expose them by default (e.g. Node 20).
+ * Test-only bootstrap asserting the fetch/Web API globals exist natively.
  *
- * The shim only installs each global if it is absent to preserve the runtime's
- * native implementations on modern Node LTS releases (Node 24+ is the repo
- * baseline today).
+ * Node 24+ (the repo's only supported runtime, engines >=24 <25) ships
+ * fetch/Headers/Request/Response/FormData/File/Blob as globals, so the old
+ * third-party shim was dead code there (plan 201 retired the dependency). This
+ * file stays as the explicit contract point: if a global ever goes missing
+ * (exotic runner), the failure names it instead of surfacing as a cryptic
+ * ReferenceError deep in a test.
  */
-try {
-  const { fetch, Headers, Request, Response, FormData, File, Blob } = require('undici');
+const REQUIRED_WEB_GLOBALS = [
+  'fetch',
+  'Headers',
+  'Request',
+  'Response',
+  'FormData',
+  'File',
+  'Blob',
+];
 
-  const globalsToInstall = {
-    fetch,
-    Headers,
-    Request,
-    Response,
-    FormData,
-    File,
-    Blob,
-  };
-
-  for (const [name, implementation] of Object.entries(globalsToInstall)) {
-    if (!globalThis[name] && implementation) {
-      Object.defineProperty(globalThis, name, {
-        configurable: true,
-        enumerable: false,
-        writable: true,
-        value: implementation,
-      });
-    }
+for (const name of REQUIRED_WEB_GLOBALS) {
+  if (!globalThis[name]) {
+    process.emitWarning(`Web API global '${name}' is missing; tests expect the Node 24 native.`, {
+      code: 'TEST_WEB_API_MISSING',
+    });
   }
-} catch (error) {
-  process.emitWarning(`Failed to set up Web API test shims: ${error.message}`, {
-    code: 'TEST_WEB_API_SHIM',
-    detail: error.stack,
-  });
 }
