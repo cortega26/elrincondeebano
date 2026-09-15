@@ -325,6 +325,22 @@ function getDateFromInput(id) {
   return isNaN(d.getTime()) ? null : d;
 }
 
+// Plan 178: enforce the picker's min/max contract in code — typed or pasted
+// dates bypass the native picker caps, so compare against the attributes
+// directly (string comparison is exact for YYYY-MM-DD). Attribute-less
+// inputs (unit fixtures) are unconstrained.
+function isWithinAllowedRange(id) {
+  var el = document.getElementById(id);
+  if (!el || !el.value) return true;
+  if (el.min && el.value < el.min) return false;
+  if (el.max && el.value > el.max) return false;
+  return true;
+}
+
+function stayNights(checkIn, checkOut) {
+  return Math.round((checkOut.getTime() - checkIn.getTime()) / 86400000);
+}
+
 function renderBreakdown(breakdown) {
   var container = document.getElementById('parking-breakdown');
   var list = document.getElementById('parking-breakdown-list');
@@ -476,6 +492,22 @@ function onDateChange(holidays, bookings) {
     return;
   }
 
+  if (!isWithinAllowedRange('parking-checkin') || !isWithinAllowedRange('parking-checkout')) {
+    clearBreakdown();
+    setStatusMessage('Las fechas están fuera del rango permitido.', 'alert-warning');
+    validateForm();
+    return;
+  }
+
+  // Plan 178: cap the stay — without this a far-future checkout renders one
+  // DOM row per night plus a huge WhatsApp message (tab jank/hang).
+  if (stayNights(checkIn, checkOut) > MAX_NIGHTS) {
+    clearBreakdown();
+    setStatusMessage('La estadía máxima es de ' + MAX_NIGHTS + ' noches.', 'alert-warning');
+    validateForm();
+    return;
+  }
+
   setStatusMessage('', '');
   var breakdown = calculateBreakdown(checkIn, checkOut, holidays, bookings);
   renderBreakdown(breakdown);
@@ -533,6 +565,18 @@ function onSubmit(holidays, bookings, availabilityDataMissing) {
 
   if (!checkIn || !checkOut || checkOut <= checkIn) {
     setStatusMessage('Selecciona las fechas de llegada y salida.', 'alert-warning');
+    return;
+  }
+
+  if (!isWithinAllowedRange('parking-checkin') || !isWithinAllowedRange('parking-checkout')) {
+    setStatusMessage('Las fechas están fuera del rango permitido.', 'alert-warning');
+    return;
+  }
+
+  // Plan 178: same duration cap as the live preview — never build or send an
+  // unbounded breakdown.
+  if (stayNights(checkIn, checkOut) > MAX_NIGHTS) {
+    setStatusMessage('La estadía máxima es de ' + MAX_NIGHTS + ' noches.', 'alert-warning');
     return;
   }
 
@@ -646,6 +690,12 @@ function initParkingReservation() {
       var dayAfter = new Date(checkin.valueAsNumber);
       dayAfter.setDate(dayAfter.getDate() + 1);
       checkout.min = dateToISO(dayAfter);
+      // Plan 178: keep a selectable checkout when check-in lands on the last
+      // allowed day — min must never pass max. Extending max (instead of
+      // clamping check-in) preserves the operator's selection.
+      if (checkout.max && checkout.min > checkout.max) {
+        checkout.max = checkout.min;
+      }
       if (!checkout.value || checkout.valueAsNumber <= checkin.valueAsNumber) {
         checkout.value = '';
       }
@@ -709,6 +759,7 @@ export {
   fetchWithTimeout,
   toHolidaySet,
   createBookingLookup,
+  MAX_NIGHTS,
   FETCH_TIMEOUT_MS,
   PRICE_REGULAR,
   PRICE_HIGH,

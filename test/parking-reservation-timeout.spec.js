@@ -11,6 +11,7 @@ import {
   fetchWithTimeout,
   toHolidaySet,
   createBookingLookup,
+  MAX_NIGHTS,
   FETCH_TIMEOUT_MS,
   PRICE_REGULAR,
   PRICE_HIGH,
@@ -242,5 +243,82 @@ describe('quote math identical on fixtures (plan 013)', () => {
     const total = fromSets.reduce((sum, n) => sum + (n.isBlocked ? 0 : n.price), 0);
     const expected = fromArrays.reduce((sum, n) => sum + (n.isBlocked ? 0 : n.price), 0);
     expect(total).toBe(expected);
+  });
+});
+
+describe('stay caps (plan 178)', () => {
+  function fastEndpoints() {
+    globalThis.fetch = (url) => {
+      if (String(url).includes(HOLIDAYS_URL)) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+      }
+      return Promise.resolve({ ok: true, text: () => Promise.resolve('desde,hasta\n') });
+    };
+  }
+
+  function isoPlusDays(days) {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    return dateToISO(d);
+  }
+
+  async function initReady() {
+    fastEndpoints();
+    initParkingReservation();
+    await vi.advanceTimersByTimeAsync(0);
+  }
+
+  function statusText() {
+    return document.getElementById('parking-message').textContent;
+  }
+
+  it('rejects stays over MAX_NIGHTS without rendering or sending', async () => {
+    await initReady();
+    // Widen the picker cap to isolate the duration backstop from the range
+    // gate (in-range stays can only exceed MAX_NIGHTS past the picker edge).
+    document.getElementById('parking-checkout').max = isoPlusDays(60);
+    const { opened, restore } = captureOpenedUrls();
+    try {
+      submitWithDates(isoPlusDays(1), isoPlusDays(1 + MAX_NIGHTS + 1));
+      expect(statusText()).toContain('estadía máxima');
+      expect(document.getElementById('parking-breakdown-list').children.length).toBe(0);
+      expect(opened).toHaveLength(0);
+    } finally {
+      restore();
+    }
+  });
+
+  it('accepts exactly MAX_NIGHTS', async () => {
+    await initReady();
+    const { opened, restore } = captureOpenedUrls();
+    try {
+      submitWithDates(isoPlusDays(0), isoPlusDays(MAX_NIGHTS));
+      expect(opened).toHaveLength(1);
+    } finally {
+      restore();
+    }
+  });
+
+  it('rejects dates typed past the picker max', async () => {
+    await initReady();
+    const { opened, restore } = captureOpenedUrls();
+    try {
+      submitWithDates(isoPlusDays(1), isoPlusDays(MAX_NIGHTS + 5));
+      expect(statusText()).toContain('fuera del rango');
+      expect(opened).toHaveLength(0);
+    } finally {
+      restore();
+    }
+  });
+
+  it('keeps checkout selectable when check-in lands on the last allowed day', async () => {
+    await initReady();
+    const checkin = document.getElementById('parking-checkin');
+    const checkout = document.getElementById('parking-checkout');
+    checkin.value = isoPlusDays(MAX_NIGHTS);
+    checkin.dispatchEvent(new window.Event('change', { bubbles: true }));
+    await vi.advanceTimersByTimeAsync(0);
+    expect(checkout.min <= checkout.max).toBe(true);
+    expect(checkout.max).toBe(checkout.min);
   });
 });
