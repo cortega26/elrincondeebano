@@ -34,6 +34,11 @@ updates:
       - dependency-name: 'typescript'
         update-types:
           - 'version-update:semver-major'
+      # Plan 200: admin @types/node must stay on the Node-24 runtime line
+      # (engines >=24 <25) — v26 types admit APIs that throw at runtime.
+      - dependency-name: '@types/node'
+        update-types:
+          - 'version-update:semver-major'
   - package-ecosystem: 'npm'
     directory: '/astro-poc'
     schedule:
