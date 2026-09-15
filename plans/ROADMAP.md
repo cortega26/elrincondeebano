@@ -73,7 +73,7 @@ Legend: ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE (archived) · 🛑 BLOCKED (rea
 | L1   | [189](189-ci-build-cache-split.md)                | CI build/cache/split         | M      | ⬜ TODO            |
 | L1   | [190](archive/190-sw-fetch-investigate.md)        | SW + job-queue investigate   | S      | ✅ DONE (archived) |
 | L2   | [191](archive/191-release-gate-ownership.md)      | Release-gate ownership       | S      | ✅ DONE (archived) |
-| L2   | [193](193-e2e-gate-flake-parity.md)               | E2E gate + flakes + parity   | M      | ⬜ TODO            |
+| L2   | [193](archive/193-e2e-gate-flake-parity.md)       | E2E gate + flakes + parity   | M      | ✅ DONE (archived) |
 | L3   | [200](archive/200-manifest-hygiene.md)            | Manifest hygiene             | S      | ✅ DONE (archived) |
 | L3   | [201](archive/201-drop-duplicate-deps.md)         | Drop duplicate deps          | S      | ✅ DONE (archived) |
 | L3   | [202](archive/202-tsx-production-spike-native.md) | tsx promote + native spike   | M      | ✅ DONE (archived) |
