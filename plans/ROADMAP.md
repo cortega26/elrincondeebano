@@ -58,13 +58,13 @@ Legend: ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE (archived) · 🛑 BLOCKED (rea
 
 ### Wave 3 — Server perf + structural debt
 
-| Lane | Plan                                                | Title                         | Effort | Status             |
-| ---- | --------------------------------------------------- | ----------------------------- | ------ | ------------------ |
-| L1   | [188](archive/188-admin-request-costs.md)           | Admin request costs           | M      | ✅ DONE (archived) |
-| L1   | [186](archive/186-image-pipeline-gates-parallel.md) | Image pipeline gates+parallel | M      | ✅ DONE (archived) |
-| L2   | [194](archive/194-write-path-unification.md)        | Write-path unification        | M      | ✅ DONE (archived) |
-| L3   | [196](196-writer-repository-consolidation.md)       | Writer/repo consolidation     | M      | ⬜ TODO            |
-| L3   | [197](197-client-fetch-layering.md)                 | Client split + fetch cores    | M      | ⬜ TODO            |
+| Lane | Plan                                                  | Title                         | Effort | Status             |
+| ---- | ----------------------------------------------------- | ----------------------------- | ------ | ------------------ |
+| L1   | [188](archive/188-admin-request-costs.md)             | Admin request costs           | M      | ✅ DONE (archived) |
+| L1   | [186](archive/186-image-pipeline-gates-parallel.md)   | Image pipeline gates+parallel | M      | ✅ DONE (archived) |
+| L2   | [194](archive/194-write-path-unification.md)          | Write-path unification        | M      | ✅ DONE (archived) |
+| L3   | [196](archive/196-writer-repository-consolidation.md) | Writer/repo consolidation     | M      | ✅ DONE (archived) |
+| L3   | [197](197-client-fetch-layering.md)                   | Client split + fetch cores    | M      | ⬜ TODO            |
 
 ### Wave 4 — Toolchain, CI, DX, docs (highly parallel)
 

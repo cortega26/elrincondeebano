@@ -37,12 +37,14 @@ export class StorefrontRepository {
   // for writes). Cache hit returns the same object identity (asserted toBe).
   // Invalidated eagerly on own writes; external edits (git pull) invalidate
   // via stat change.
-  // Plan 152: StorefrontRepository intentionally stays on its two-file
+  // Plan 152 background: StorefrontRepository keeps its two-file
   // transactional write (experience + bundles) with rollback across both
   // files. That two-file atomicity does not map cleanly onto the single-file
-  // JsonFileRepository / writeJsonFileAtomic base, so migration is deferred.
-  // New single-file writers should use the base; future two-file support
-  // should extend the base with explicit multi-target handling.
+  // JsonFileRepository / writeJsonFileAtomic base.
+  // Plan 196 verdict: PERMANENTLY separate — pinned by the dual-write
+  // rollback test in storefrontCuration.test.ts. New single-file writers
+  // should use the base; future two-file support should extend the base
+  // with explicit multi-target handling.
   private cache: { key: string; data: StorefrontExperience } | null = null;
 
   constructor(config: StorefrontRepositoryConfig) {

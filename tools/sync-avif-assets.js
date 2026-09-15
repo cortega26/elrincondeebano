@@ -29,6 +29,32 @@ function ensureParentDir(filePath) {
   ensureDir(path.dirname(filePath));
 }
 
+// Plan 196: script-safe backup mirroring backupPolicy.pruneFileBackups
+// semantics (adjacent `<file>.backup_<ts>`, prefix match, newest-wins
+// retention). Runs only when the catalog bytes actually change, so a
+// no-op build never litters backups.
+function backupCatalogFile(productsJsonPath, currentBytes, maxBackups = 5) {
+  const dir = path.dirname(productsJsonPath);
+  const prefix = `${path.basename(productsJsonPath)}.backup_`;
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const backupPath = path.join(dir, `${prefix}${stamp}`);
+  fs.writeFileSync(backupPath, currentBytes, 'utf8');
+  const backups = fs
+    .readdirSync(dir)
+    .filter((f) => f.startsWith(prefix))
+    .map((f) => path.join(dir, f))
+    .sort((a, b) => fs.statSync(b).mtimeMs - fs.statSync(a).mtimeMs);
+  while (backups.length > maxBackups) {
+    const oldest = backups.pop();
+    try {
+      fs.unlinkSync(oldest);
+    } catch {
+      break;
+    }
+  }
+  return backupPath;
+}
+
 async function ensureAvifAsset({
   repoRoot = REPO_ROOT,
   sourcePath,
@@ -136,6 +162,9 @@ async function syncProductCatalogAvif({
 
   // Plan 186: write-if-changed — an unconditional rewrite bumps the catalog
   // mtime on every build and invalidates downstream mtime caches for nothing.
+  // Plan 196: backup + tmp-file + verify + rename (script-safe atomic write:
+  // a crash mid-write can never leave a torn product_data.json, and the
+  // pre-write bytes survive next to the file, bounded to the newest 5).
   const serialized = `${JSON.stringify(payload, null, 2)}\n`;
   let current = null;
   try {
@@ -144,7 +173,13 @@ async function syncProductCatalogAvif({
     // Missing/unreadable: fall through to the write below.
   }
   if (current !== serialized) {
-    fs.writeFileSync(productsJsonPath, serialized, 'utf8');
+    if (current !== null) {
+      backupCatalogFile(productsJsonPath, current);
+    }
+    const tmpPath = `${productsJsonPath}.tmp`;
+    fs.writeFileSync(tmpPath, serialized, 'utf8');
+    JSON.parse(fs.readFileSync(tmpPath, 'utf8'));
+    fs.renameSync(tmpPath, productsJsonPath);
   }
   return stats;
 }
