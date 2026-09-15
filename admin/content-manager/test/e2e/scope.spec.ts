@@ -127,12 +127,16 @@ test('bulk apply cancel keeps the visible page only', async ({ page, request }) 
   expect(body.items.filter((p: { stock: boolean }) => p.stock)).toHaveLength(10);
 });
 
-test('reorder is disabled while a filter or pagination subset is active', async ({ page }) => {
+test('reorder is enabled on the full paginated view, disabled with filters', async ({ page }) => {
   const reorder = page.getByRole('button', { name: '⇅ Reordenar' });
 
-  // Pagination active (80 products, page 1): disabled.
-  await expect(page.getByText('Cargando…')).not.toBeVisible();
-  await expect(reorder).toBeDisabled();
+  // Unfiltered paginated view (80 products, page 1): ENABLED — handleReorder
+  // pages through the same filters to submit the full id set, satisfying the
+  // server full-catalog guard (plan 173; the pre-173 fullness gate is gone).
+  // Wait for the loaded count (not just Cargando gone) so the assertion never
+  // reads the pre-data transient (plan 193 repair).
+  await expect(page.getByText('Mostrando 1–50 de 80')).toBeVisible();
+  await expect(reorder).toBeEnabled();
 
   // Any active filter (even one whose matches fit one page, like cat-b)
   // means the visible set is a subset of the catalog: disabled.
@@ -140,10 +144,10 @@ test('reorder is disabled while a filter or pagination subset is active', async 
   await expect(page.getByText('Mostrando 1–10 de 10')).toBeVisible();
   await expect(reorder).toBeDisabled();
 
-  // Clearing the filter returns to the paginated view: still disabled.
+  // Clearing the filter returns to the paginated view: enabled again.
   await page.getByLabel('Categoría:').selectOption('');
-  await expect(page.getByText('Cargando…')).not.toBeVisible();
-  await expect(reorder).toBeDisabled();
+  await expect(page.getByText('Mostrando 1–50 de 80')).toBeVisible();
+  await expect(reorder).toBeEnabled();
 });
 
 // ── plan 091: discount filters, clear, export ────────────────────────────────
