@@ -442,7 +442,11 @@ function getProductFromCard(card) {
   // so a final price here would double-apply the discount.
   const price = parseNumber(card.dataset.productPrice, 0);
   const discount = parseNumber(card.dataset.productDiscount, 0);
-  const image = card.querySelector('.product-thumb, .strip-card__img')?.getAttribute('src') || '';
+  // Plan 215: la página de detalle aporta .product-detail-image al mismo contrato.
+  const image =
+    card
+      .querySelector('.product-thumb, .strip-card__img, .product-detail-image')
+      ?.getAttribute('src') || '';
   const stock = card.dataset.productStock !== 'false';
 
   return { id, name, category, price, discount, image, stock };
@@ -861,6 +865,14 @@ function syncMobileCartShortcut(cart, totalAmount) {
   const { totalItems } = getCartState(cart);
   const isEmpty = totalItems <= 0;
   const shouldHide = isEmpty || cartUiState.isOffcanvasOpen;
+
+  // Plan 215: la barra de compra del detalle solo vive con carrito vacío
+  // y carrito cerrado — al agregar, cede la zona del pulgar al shortcut.
+  const detailBuyBar = document.querySelector('[data-detail-buy-bar]');
+  if (detailBuyBar instanceof HTMLElement) {
+    const showBuyBar = isEmpty && !cartUiState.isOffcanvasOpen;
+    detailBuyBar.classList.toggle('is-hidden', !showBuyBar);
+  }
 
   if (isEmpty) {
     shortcut.classList.add('is-hidden');
@@ -1658,6 +1670,13 @@ function initStorefront() {
     }
     catalogController.resetVisibleLimit();
     catalogController.updateView();
+  });
+
+  // Plan 215: el estado vacío reutiliza el Limpiar principal (resetea
+  // búsqueda + orden + ofertas y devuelve el foco al campo de búsqueda).
+  const emptyClearBtn = document.getElementById('catalog-empty-clear');
+  emptyClearBtn?.addEventListener('click', () => {
+    document.getElementById('filter-clear')?.click();
   });
 
   hydrateProfilePersistence();

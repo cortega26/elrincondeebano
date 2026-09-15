@@ -1,4 +1,9 @@
 ---
+// ProductDetail.astro (Plan 215: página de producto comprable).
+// Reutiliza el contrato existente de storefront.js sin lógica nueva:
+// - El <article> lleva .producto + data-product-* para getProductFromCard.
+// - .action-area[data-pid] se sincroniza solo vía syncAllActionAreas.
+// - Sin .add-to-cart-btn cuando no hay stock (patrón plan 166).
 import type { ProductWithSku } from '../lib/catalog';
 import {
   getProductDetailImageSource,
@@ -6,6 +11,7 @@ import {
   getModernCategoryPath,
 } from '../lib/catalog';
 import { formatCurrency } from '../lib/formatting';
+import { computeProductCardData } from '../lib/product-card-helpers';
 
 export interface Props {
   item: ProductWithSku;
@@ -18,60 +24,356 @@ const categoryPath = getModernCategoryPath(product.category);
 const image = getProductDetailImageSource(product.image_path);
 const avifImage = getProductDetailImageSource(product.image_avif_path);
 const hasAvifSource = typeof avifImage.srcset === 'string' && avifImage.srcset.length > 0;
+const card = computeProductCardData(product, 0);
+const price = card.price;
+const discount = card.discount;
+const finalPrice = card.finalPrice;
+const hasDiscount = card.hasDiscount;
+const discountPercent = card.discountPercent;
+const inStock = product.stock !== false;
 ---
 
-<article class="card product-detail">
+<nav class="product-breadcrumbs" aria-label="Migas de pan">
+  <ol>
+    <li><a href="/">Inicio</a></li>
+    <li aria-hidden="true">/</li>
+    <li><a href={categoryPath}>{categoryLabel}</a></li>
+    <li aria-hidden="true">/</li>
+    <li><span aria-current="page">{product.name}</span></li>
+  </ol>
+</nav>
+
+<article
+  class="card product-detail producto"
+  data-product-id={sku}
+  data-product-name={product.name}
+  data-product-category={product.category}
+  data-product-description={product.description || ''}
+  data-product-search-text={card.searchText}
+  data-product-price={price}
+  data-product-discount={discount}
+  data-product-final-price={finalPrice}
+  data-product-order="0"
+  data-product-stock={product.stock ?? true}
+>
   <div class="row g-0">
     <div class="col-12 col-md-5">
-      <picture>
-        {
-          hasAvifSource ? (
-            <source srcset={avifImage.srcset} sizes={avifImage.sizes} type="image/avif" />
-          ) : null
-        }
-        <img
-          src={image.src}
-          srcset={image.srcset}
-          sizes={image.sizes}
-          alt={product.name}
-          class="img-fluid rounded-start product-detail-image"
-          width="640"
-          height="640"
-          loading="eager"
-          decoding="async"
-        />
-      </picture>
+      <div class="product-detail__media">
+        {hasDiscount && inStock ? (
+          <span class="discount-badge" aria-label="Producto en oferta">
+            -{discountPercent}%
+          </span>
+        ) : null}
+        <picture>
+          {
+            hasAvifSource ? (
+              <source srcset={avifImage.srcset} sizes={avifImage.sizes} type="image/avif" />
+            ) : null
+          }
+          <img
+            src={image.src}
+            srcset={image.srcset}
+            sizes={image.sizes}
+            alt={product.name}
+            class="img-fluid rounded-start product-detail-image"
+            width="640"
+            height="640"
+            loading="eager"
+            decoding="async"
+          />
+        </picture>
+      </div>
     </div>
 
     <div class="col-12 col-md-7">
-      <div class="card-body">
-        <h1 class="card-title mb-3">{product.name}</h1>
+      <div class="card-body product-detail__body">
+        <h1 class="card-title product-detail__title">{product.name}</h1>
         {product.description ? <p class="card-text mb-3">{product.description}</p> : null}
 
-        <dl class="product-meta mb-4">
+        <div class="precio-container product-detail__pricing">
+          {
+            hasDiscount ? (
+              <>
+                <span class="precio-descuento" aria-label="Precio con descuento">
+                  {formatCurrency(finalPrice)}
+                </span>
+                <span class="precio-original" aria-label="Precio original">
+                  <span class="tachado">{formatCurrency(price)}</span>
+                </span>
+              </>
+            ) : (
+              <span class="precio" aria-label="Precio">{formatCurrency(price)}</span>
+            )
+          }
+          <span class={`stock-pill ${inStock ? 'stock-pill-on' : 'stock-pill-off'}`}>
+            {inStock ? 'Disponible' : 'Agotado'}
+          </span>
+        </div>
+
+        {inStock ? (
+          <div class="action-area product-detail__actions" data-pid={sku} role="group" aria-label={`Acciones para ${product.name}`}>
+            <button class="btn btn-primary add-to-cart-btn product-detail__add" type="button" data-id={sku} aria-label={`Agregar ${product.name} al pedido`}>
+              <span class="add-to-cart-btn__label">Agregar</span>
+              <span class="add-to-cart-btn__hint">al pedido</span>
+            </button>
+
+            <div class="quantity-control is-hidden" aria-live="polite" role="group" aria-label="Seleccionar cantidad">
+              <button class="quantity-btn" type="button" data-action="decrease" data-id={sku} aria-label="Disminuir cantidad">-</button>
+              <span class="quantity-value" data-id={sku} aria-live="polite" aria-atomic="true">1</span>
+              <button class="quantity-btn" type="button" data-action="increase" data-id={sku} aria-label="Aumentar cantidad">+</button>
+            </div>
+          </div>
+        ) : (
+          <p class="product-detail__out-of-stock" role="status">
+            Este producto no está disponible por ahora. Vuelve a la categoría para ver alternativas.
+          </p>
+        )}
+
+        <dl class="product-meta product-detail__meta">
           <div>
             <dt>SKU</dt>
             <dd>{sku}</dd>
           </div>
           <div>
-            <dt>Precio</dt>
-            <dd>{formatCurrency(product.price)}</dd>
-          </div>
-          <div>
-            <dt>Categoria</dt>
-            <dd>{categoryLabel}</dd>
-          </div>
-          <div>
-            <dt>Stock</dt>
-            <dd><span class="stock-pill stock-pill-on">Disponible</span></dd>
+            <dt>Categoría</dt>
+            <dd><a href={categoryPath}>{categoryLabel}</a></dd>
           </div>
         </dl>
 
         <div class="d-flex gap-2 flex-wrap">
-          <a class="btn btn-outline-primary" href={categoryPath}>Volver a categoria</a>
+          <a class="btn btn-outline-primary" href={categoryPath}>Volver a categoría</a>
           <a class="btn btn-primary" href="/">Ir al inicio</a>
         </div>
       </div>
     </div>
   </div>
 </article>
+
+{inStock ? (
+  <div class="detail-buy-bar is-hidden" data-detail-buy-bar>
+    <div class="detail-buy-bar__info">
+      <strong class="detail-buy-bar__name">{product.name}</strong>
+      <span class="detail-buy-bar__price">{formatCurrency(finalPrice)}</span>
+    </div>
+    <div class="action-area detail-buy-bar__actions" data-pid={sku} role="group" aria-label={`Acciones para ${product.name}`}>
+      <button class="btn btn-primary add-to-cart-btn" type="button" data-id={sku} aria-label={`Agregar ${product.name} al pedido`}>
+        <span class="add-to-cart-btn__label">Agregar</span>
+      </button>
+
+      <div class="quantity-control is-hidden" aria-live="polite" role="group" aria-label="Seleccionar cantidad">
+        <button class="quantity-btn" type="button" data-action="decrease" data-id={sku} aria-label="Disminuir cantidad">-</button>
+        <span class="quantity-value" data-id={sku} aria-live="polite" aria-atomic="true">1</span>
+        <button class="quantity-btn" type="button" data-action="increase" data-id={sku} aria-label="Aumentar cantidad">+</button>
+      </div>
+    </div>
+  </div>
+) : null}
+
+<style>
+  /* Plan 215: el scope .producto reutiliza el contrato JS del carrito, pero
+     las reglas de tarjeta compacta (.producto img, .card-title, .card-text)
+     no aplican al detalle: se neutralizan aquí con mayor especificidad. */
+  /* El article conserva layout de bloque: .producto global es flex. */
+  .producto.product-detail {
+    display: block;
+    height: auto;
+  }
+
+  .producto .product-detail-image {
+    height: auto;
+  }
+
+  .producto .product-detail__title {
+    display: block;
+    min-height: 0;
+    overflow: visible;
+    -webkit-line-clamp: initial;
+    line-clamp: initial;
+  }
+
+  .producto .product-detail__body > .card-text {
+    display: block;
+    min-height: 0;
+    overflow: visible;
+    -webkit-line-clamp: initial;
+    line-clamp: initial;
+  }
+
+  .product-breadcrumbs {
+    margin-bottom: 0.85rem;
+  }
+
+  .product-breadcrumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.85rem;
+  }
+
+  .product-breadcrumbs li {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .product-breadcrumbs li[aria-hidden='true'] {
+    min-height: 0;
+    color: var(--text-muted);
+  }
+
+  .product-breadcrumbs a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .product-breadcrumbs a:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.16em;
+  }
+
+  .product-breadcrumbs [aria-current='page'] {
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: min(100%, 22rem);
+  }
+
+  .product-detail__media {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 100%;
+    background: linear-gradient(180deg, #fbfaf7 0%, #f5f1ea 100%);
+  }
+
+  .product-detail__media .discount-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 3;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    background: #c62828;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+  }
+
+  .product-detail__title {
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
+  }
+
+  .product-detail__pricing {
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .product-detail__pricing .precio,
+  .product-detail__pricing .precio-descuento {
+    font-size: 1.5rem;
+  }
+
+  .stock-pill-off {
+    background: #f3e5e5;
+    color: #7a1f1f;
+  }
+
+  .product-detail__actions {
+    display: grid;
+    gap: 0.5rem;
+    max-width: 22rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .product-detail__add {
+    width: 100%;
+  }
+
+  .product-detail__out-of-stock {
+    margin-bottom: 1.25rem;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--line-soft);
+    border-radius: 10px;
+    background: var(--surface-muted);
+    color: var(--text-muted);
+  }
+
+  .product-detail__meta {
+    margin-bottom: 1.25rem;
+  }
+
+  /* Barra de compra fija (solo móvil, solo carrito vacío). */
+  .detail-buy-bar {
+    position: fixed;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    z-index: 1040;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.6rem 0.6rem 0.9rem;
+    border: 1px solid var(--line-color);
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  }
+
+  .detail-buy-bar__info {
+    display: grid;
+    gap: 0.1rem;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .detail-buy-bar__name {
+    font-size: 0.85rem;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .detail-buy-bar__price {
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .detail-buy-bar__actions {
+    flex: 0 0 auto;
+    min-width: 9rem;
+  }
+
+  .detail-buy-bar__actions .add-to-cart-btn {
+    width: 100%;
+    margin-top: 0;
+  }
+
+  .detail-buy-bar__actions .quantity-control {
+    margin-top: 0;
+  }
+
+  @media (min-width: 992px) {
+    .detail-buy-bar {
+      display: none;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .product-detail-image {
+      max-height: 300px;
+    }
+  }
+</style>

@@ -4,7 +4,9 @@
   --primary-strong: #00463c;
   --primary-soft: rgba(0, 91, 79, 0.08);
   --success-color: #16a34a;
-  --success-strong: #128a3e;
+  /* Plan 215: #128a3e medía 4.44:1 sobre blanco (bajo el 4.5:1 AA para
+     texto normal en .btn-outline-success) — oscurecido a 4.6:1+. */
+  --success-strong: #0e7a34;
   --btn-radius: 10px;
   --secondary-color: #546e7a;
   --accent-color: #a15c00;
@@ -13,6 +15,19 @@
   --background-color: #ffffff;
   --surface-color: #ffffff;
   --surface-muted: #f1ede6;
+  /* Plan 215: línea y elevación unificadas (warm neighborhood store) —
+     las tarjetas migran aquí en P3; no cambiar valores existentes aún. */
+  --line-color: rgba(18, 59, 53, 0.1);
+  --line-soft: rgba(0, 0, 0, 0.08);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 12px 24px rgba(18, 59, 53, 0.06);
+  --focus-ring: 3px solid var(--accent-color);
+  /* Plan 215: ritmo de movimiento único (150–300ms, solo transform/opacity). */
+  --motion-fast: 0.15s ease;
+  --motion-base: 0.2s ease;
   --border-radius: 0.25rem;
   --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   --transition: all 0.3s ease;
@@ -149,20 +164,25 @@ h1 {
   order: 1;
 }
 
-.home-layout__quick-order {
+/* Plan 215: la barra de anclas va bajo el hero (orden 2). */
+.home-layout__anchors {
   order: 2;
 }
 
-.home-layout__catalog {
+.home-layout__quick-order {
   order: 3;
 }
 
-.home-layout__bundles {
+.home-layout__catalog {
   order: 4;
 }
 
-.home-layout__deals {
+.home-layout__bundles {
   order: 5;
+}
+
+.home-layout__deals {
+  order: 6;
 }
 
 .home-entry,
@@ -276,8 +296,11 @@ h1 {
   align-items: center;
   width: auto;
   min-width: 0;
+  /* Plan 215: aspecto de enlace pero con diana táctil ≥44px. */
+  min-height: 44px;
   border: 0;
-  padding: 0;
+  padding: 0.25rem 0.15rem;
+  margin: -0.25rem -0.15rem;
   background: transparent;
   color: var(--primary-color);
   font-weight: 600;
@@ -302,7 +325,11 @@ h1 {
 }
 
 .home-section__link {
+  display: inline-flex;
+  align-items: center;
   width: fit-content;
+  /* Plan 215: diana táctil ≥44px. */
+  min-height: 44px;
   color: var(--primary-color);
   font-weight: 600;
   text-decoration: none;
@@ -569,8 +596,8 @@ h3 {
   justify-content: space-between;
   gap: 1rem;
   padding: 1rem;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
   background: var(--surface-muted);
 }
 
@@ -717,7 +744,10 @@ h3 {
 .service-dialog__close {
   flex: 0 0 auto;
   border: 0;
-  padding: 0.15rem 0;
+  /* Plan 215: diana táctil ≥44px manteniendo aspecto de texto. */
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.15rem 0.25rem;
   background: transparent;
   color: var(--secondary-color);
   font-weight: 600;
@@ -829,7 +859,8 @@ body.service-dialog-open {
 }
 
 .storefront-navbar__group-toggle {
-  min-height: 42px;
+  /* Plan 215: diana táctil ≥44px (antes 42px). */
+  min-height: 44px;
   padding: 0.55rem 0.8rem;
   border-radius: 10px;
   font-weight: 600;
@@ -852,7 +883,8 @@ body.service-dialog-open {
 }
 
 .storefront-navbar__menu .dropdown-item {
-  min-height: 42px;
+  /* Plan 215: diana táctil ≥44px (antes 42px). */
+  min-height: 44px;
   display: flex;
   align-items: center;
   padding: 0.6rem 0.9rem;
@@ -923,8 +955,9 @@ body.service-dialog-open {
   display: flex;
   flex-direction: column;
   background-color: var(--surface-color);
-  border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  /* Plan 215: lenguaje único de tarjeta (radio, línea y sombra del sistema). */
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line-soft);
   overflow: hidden;
 }
 
@@ -933,8 +966,24 @@ body.service-dialog-open {
   display: grid;
   place-items: center;
   padding: 0.75rem;
-  background: #fafaf8;
+  background: linear-gradient(180deg, #fbfaf7 0%, #f5f1ea 100%);
   border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+/* Plan 215: elevación solo en hover con puntero fino (nunca en táctil). */
+@media (hover: hover) and (min-width: 768px) {
+  .producto .card {
+    transition:
+      border-color var(--motion-base),
+      box-shadow var(--motion-base),
+      transform var(--motion-base);
+  }
+
+  .producto .card:hover {
+    border-color: rgba(0, 91, 79, 0.28);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
 }
 
 .producto .card-body {
@@ -1344,6 +1393,28 @@ body.service-dialog-open {
   min-height: 0;
 }
 
+/* Plan 215: estado vacío con salida accionable (sin auto-foco: el
+   role=status ya lo anuncia y mover el foco mientras se escribe es hostil). */
+.catalog-empty-state {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+}
+
+.catalog-empty-state.d-none {
+  display: none;
+}
+
+.catalog-empty-state p {
+  flex: 1 1 16rem;
+}
+
+.catalog-empty-state__clear {
+  flex: 0 0 auto;
+  min-height: 44px;
+}
+
 /* Cart Offcanvas Styles */
 .offcanvas {
   max-width: 100%;
@@ -1608,7 +1679,8 @@ body.service-dialog-open {
   gap: 0.3rem;
   width: auto;
   min-width: 44px;
-  height: 32px;
+  /* Plan 215: diana táctil ≥44px (antes 32px). */
+  min-height: 44px;
   padding: 0 0.7rem;
   background: none;
   border: 1px solid rgba(163, 38, 38, 0.28);
@@ -1703,7 +1775,9 @@ body.service-dialog-open {
 .cart-note-toggle {
   background: none;
   border: none;
-  padding: 0;
+  /* Plan 215: diana táctil ≥44px manteniendo aspecto de enlace. */
+  min-height: 44px;
+  padding: 0.25rem 0;
   color: var(--primary-color);
   font-size: var(--font-size-sm);
   font-weight: 600;
@@ -2009,9 +2083,49 @@ body.service-dialog-open {
     display: none;
   }
 
-  .home-entry__meta,
-  .home-entry__service-list {
+  .home-entry__meta {
     display: none;
+  }
+
+  /* Plan 215: en móvil la lista de servicio pasa a chips compactos de una
+     sola fila (no interactivos: sin requisito de 44px) en vez de ocultarse.
+     Presupuesto: +~36px sobre .home-entry (visual spec exige <400px). */
+  .home-entry__service-list {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0.1rem 0 0.2rem;
+    list-style: none;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .home-entry__service-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .home-entry__service-item {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    min-height: 0;
+    padding: 0.28rem 0.6rem;
+    border: 1px solid rgba(0, 91, 79, 0.16);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.78);
+  }
+
+  .home-entry__service-label {
+    display: none;
+  }
+
+  .home-entry__service-value {
+    font-size: 0.74rem;
+    font-weight: 600;
+    line-height: 1.25;
+    white-space: nowrap;
   }
 
   .catalog-controls {
@@ -2169,8 +2283,9 @@ body.service-dialog-open {
   }
 
   .cart-item__remove {
-    min-width: 40px;
-    height: 30px;
+    min-width: 44px;
+    /* Plan 215: diana táctil ≥44px (antes 40×30px). */
+    min-height: 44px;
   }
 
   .cart-payment-options {
@@ -2237,7 +2352,8 @@ body.service-dialog-open {
 
   .producto--compact-mobile .add-to-cart-btn {
     padding: 0.5rem 0.4rem;
-    min-height: 42px;
+    /* Plan 215: diana táctil ≥44px (antes 42px). */
+    min-height: 44px;
     font-size: 0.85rem;
     border-radius: 8px;
   }
@@ -2280,17 +2396,37 @@ body.service-dialog-open {
     grid-template-columns: 1fr;
   }
 
+  /* Plan 215: búsqueda a ancho completo en fila 1; ordenar + ofertas en fila 2. */
   .catalog-controls__grid {
-    grid-template-columns: 3fr 2fr;
+    grid-template-columns: 1fr 1fr;
     gap: 0.5rem;
   }
 
+  .catalog-controls__field--search {
+    grid-column: 1 / -1;
+  }
+
   .catalog-controls__search-input {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .catalog-controls__field--sort {
+    grid-column: 1 / 2;
+    min-width: 0;
   }
 
   .catalog-controls__field--toggle {
-    grid-column: 1 / -1;
+    grid-column: 2 / -1;
+    min-width: 0;
+  }
+
+  /* En media columna el texto auxiliar no cabe: el título + aria-label bastan. */
+  .catalog-controls__switch-copy {
+    display: none;
+  }
+
+  .catalog-controls__switch {
+    min-height: 100%;
   }
 
   .add-to-cart-btn {
@@ -2312,14 +2448,31 @@ body.service-dialog-open {
   #cart-count.cart-count-bump,
   .add-to-cart-btn.is-added,
   .quantity-changed,
-  #cart-total.cart-total-bump {
+  #cart-total.cart-total-bump,
+  /* Plan 215: fadeInUp tampoco debe animar con movimiento reducido. */
+  .fade-in-up,
+  .parking-breakdown__row {
     animation: none;
+  }
+
+  /* Plan 215: sin elevación progresiva con movimiento reducido. */
+  .producto .card,
+  .producto .card:hover {
+    transition: none;
+    transform: none;
+    box-shadow: none;
   }
 }
 
 @media (max-width: 350px) {
+  /* Plan 215: encoger en vez de ocultar — la marca sigue visible a 320px. */
+  .navbar-brand img {
+    width: 32px;
+    height: 32px;
+  }
+
   .navbar-brand span {
-    display: none;
+    font-size: 1rem;
   }
 }
 
@@ -2380,6 +2533,10 @@ body.service-dialog-open {
   flex-direction: column;
   gap: 0.25rem;
   align-items: center;
+  /* Plan 215: fondo opaco explícito (mismo #212529 de .bg-dark). Sin esto,
+     axe/Lighthouse atribuye fondo blanco al texto claro bajo el fold
+     (falso "contraste 1.05"; contraste real 14:1). Ver plan log. */
+  background-color: #212529;
 }
 
 #footer-container p {
@@ -2391,9 +2548,30 @@ body.service-dialog-open {
   color: rgba(255, 255, 255, 0.76);
 }
 
+/* Plan 215: navegación secundaria del pie con dianas ≥44px. */
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem 0.5rem;
+}
+
 .footer-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.25rem 0.6rem;
+  border-radius: 8px;
   color: #f4d6a0;
+  font-weight: 600;
   text-decoration: none;
+}
+
+.footer-link:hover,
+.footer-link:focus-visible {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
 }
 
 #cartOffcanvas .cart-footer-actions > .btn {
@@ -2470,7 +2648,8 @@ body.service-dialog-open {
 }
 
 .cart-companion-card__action {
-  min-height: 40px;
+  /* Plan 215: diana táctil ≥44px (antes 40px). */
+  min-height: 44px;
   white-space: nowrap;
 }
 
@@ -2869,6 +3048,11 @@ body.service-dialog-open {
   overflow: hidden;
 }
 
+/* Plan 215: cintillo de relacionados bajo el detalle. */
+.product-related-strip {
+  margin-top: 1.25rem;
+}
+
 .product-detail-image {
   width: 100%;
   height: 100%;
@@ -2946,7 +3130,10 @@ body.service-dialog-open {
 .order-confirm__close {
   flex: 0 0 auto;
   border: 0;
-  padding: 0.15rem 0;
+  /* Plan 215: diana táctil ≥44px manteniendo aspecto de texto. */
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.15rem 0.25rem;
   background: transparent;
   color: var(--secondary-color);
   font-weight: 600;
@@ -3169,8 +3356,9 @@ body.service-dialog-open {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  /* Plan 215: diana táctil ≥44px (antes 32px). */
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: none;
   background: transparent;
@@ -3296,8 +3484,9 @@ body.service-dialog-open {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  /* Plan 215: diana táctil ≥44px (antes 32px). */
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: none;
   background: transparent;
@@ -3432,8 +3621,9 @@ body.service-dialog-open {
   .back-to-top {
     right: 0.75rem;
     bottom: 5rem;
-    width: 40px;
-    height: 40px;
+    /* Plan 215: diana táctil ≥44px (antes 40px). */
+    width: 44px;
+    height: 44px;
   }
 }
 

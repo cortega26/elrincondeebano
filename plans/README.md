@@ -204,6 +204,22 @@ de los `.tgz` vendoreados, `_archive/`, `docs/audit/`, cuerpos de
 
 ---
 
+## Plan 215 — polish UX del storefront (2026-09-15, fuera de auditoría)
+
+Pedido del operador: looks, usabilidad e intuitividad en PC y móvil.
+Dirección: balanced / warm store / barra de anclas sticky / detalle comprable.
+
+| Plan                                            | Título                                      | Prioridad | Esfuerzo | Estado                                                                                                                                                                                                   |
+| ----------------------------------------------- | ------------------------------------------- | --------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [215](archive/215-storefront-ux-polish/spec.md) | Looks, usabilidad e intuitividad (PC+móvil) | P2        | M        | DONE — 2026-09-15 (anclas sticky + hero compacto + tarjetas unificadas + detalle comprable + targets ≥44px; LH móvil 71/100/100/100, desktop a11y/BP/SEO 100; root 392/392, admin 741/741, e2e 47+2skip) |
+
+Hallazgos laterales (preexistentes, cerrados en el plan): prune borraba
+`icon-192/512.png` en cada build (fix + `test/postbuild-prune-manifest.test.js`);
+quirk axe de fondo-blanco bajo el fold (fondo explícito en `.footer-content`).
+Detalle y desvíos en `archive/215-storefront-ux-polish/todo.md`.
+
+---
+
 ## Auditoría 10 — 2026-08-17 (`/improve deep`, commit `ee20b0f6`)
 
 Auditoría completa (8 categorías, 8 subagentes paralelos) sobre el árbol post-cierre

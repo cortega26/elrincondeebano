@@ -7,7 +7,10 @@
 'use strict';
 
 import { readdirSync, readFileSync, statSync, unlinkSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { join, resolve } from 'node:path';
+
+export { collectManifestAndWorkerReferencedAssets };
 
 const REPO_ROOT = resolve(import.meta.dirname, '..', '..');
 const DIST_ROOT = join(REPO_ROOT, 'astro-poc', 'dist');
@@ -93,12 +96,33 @@ function collectReferencedAssets() {
   return referenced;
 }
 
+// Plan 215: app.webmanifest y service-worker.js referencian iconos
+// (icon-192/512) que ningún HTML menciona — sin este scan el prune los
+// borraba en cada build y el precache del SW fallaba con 404.
+function collectManifestAndWorkerReferencedAssets(readFile = readFileSync, distRoot = DIST_ROOT) {
+  const referenced = new Set();
+  for (const name of ['app.webmanifest', 'service-worker.js']) {
+    let text;
+    try {
+      text = readFile(join(distRoot, name), 'utf8');
+    } catch {
+      continue;
+    }
+    for (const match of text.matchAll(/assets\/images\/[^\s"',)]+/g)) {
+      referenced.add(match[0].replace(/^\/+/, ''));
+    }
+  }
+  return referenced;
+}
+
 async function run() {
   const htmlRefs = collectReferencedAssets();
   const dataRefs = collectDataReferencedAssets();
-  const referenced = new Set([...htmlRefs, ...dataRefs]);
+  const staticRefs = collectManifestAndWorkerReferencedAssets();
+  const referenced = new Set([...htmlRefs, ...dataRefs, ...staticRefs]);
   void htmlRefs;
   void dataRefs;
+  void staticRefs;
   const imagesRoot = join(DIST_ROOT, 'assets', 'images');
   let removed = 0;
   let freed = 0;
@@ -122,7 +146,9 @@ async function run() {
   );
 }
 
-run().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  run().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

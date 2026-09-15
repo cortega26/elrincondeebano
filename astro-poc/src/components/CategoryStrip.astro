@@ -18,6 +18,8 @@ export interface Props {
   viewAllLabel?: string;
   /** Clase CSS adicional para el section */
   className?: string;
+  /** Plan 215: id de sección para la barra de anclas (navegación por chips). */
+  sectionId?: string;
 }
 
 const {
@@ -27,6 +29,7 @@ const {
   viewAllHref,
   viewAllLabel = 'Ver todo',
   className = '',
+  sectionId,
 } = Astro.props;
 
 // Identificador único para el contenedor de scroll (uno por cintillo en la página)
@@ -36,6 +39,7 @@ const scrollId = `strip-scroll-${headingId}`;
 <section
   class={`category-strip home-section ${className}`.trim()}
   aria-labelledby={headingId}
+  id={sectionId}
 >
   <div class="category-strip__header">
     <h2 id={headingId} class="category-strip__title">{title}</h2>
@@ -165,7 +169,8 @@ const scrollId = `strip-scroll-${headingId}`;
     color: var(--primary-color);
     text-decoration: none;
     white-space: nowrap;
-    min-height: 36px;
+    /* Plan 215: diana táctil ≥44px (antes 36px). */
+    min-height: 44px;
     padding: 0.25rem 0;
     border-radius: 6px;
     transition: opacity 0.15s ease;
@@ -220,8 +225,9 @@ const scrollId = `strip-scroll-${headingId}`;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    /* Plan 215: diana táctil ≥44px (antes 40px). */
+    width: 44px;
+    height: 44px;
     padding: 0;
     border: 1px solid rgba(0, 0, 0, 0.12);
     border-radius: 50%;
@@ -303,9 +309,14 @@ const scrollId = `strip-scroll-${headingId}`;
             ? container.scrollLeft - scrollAmount
             : container.scrollLeft + scrollAmount;
 
+        // Plan 215: respetar movimiento reducido también en scroll programático.
+        const reduceMotion =
+          typeof window.matchMedia === 'function' &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
         container.scrollTo({
           left: target,
-          behavior: 'smooth',
+          behavior: reduceMotion ? 'auto' : 'smooth',
         });
       });
     });

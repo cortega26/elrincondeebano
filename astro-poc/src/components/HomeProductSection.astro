@@ -8,6 +8,8 @@ export interface Props {
   description: string;
   items: ProductWithSku[];
   className?: string;
+  /** Plan 215: id de sección para la barra de anclas (navegación por chips). */
+  sectionId?: string;
   gridId?: string;
   gridClassName?: string;
   showProfileStrip?: boolean;
@@ -20,6 +22,7 @@ const {
   description,
   items,
   className = '',
+  sectionId,
   gridId,
   gridClassName = 'home-collection-grid',
   showProfileStrip = false,
@@ -27,7 +30,7 @@ const {
 } = Astro.props;
 ---
 
-<section class={`home-section ${className}`.trim()} aria-labelledby={headingId}>
+<section class={`home-section ${className}`.trim()} aria-labelledby={headingId} id={sectionId}>
   <div class="home-section__header">
     <h2 id={headingId}>{title}</h2>
     <p data-home-personalized-note={showProfileStrip ? 'true' : undefined}>{description}</p>

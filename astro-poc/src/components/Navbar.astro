@@ -131,7 +131,7 @@ const { navGroups } = Astro.props;
         <div id="payment-method-container" class="cart-config-card cart-config-card--payment">
           <div class="cart-config-card__header">
             <label class="form-label d-block mb-0" for="payment-cash">Pago rápido</label>
-            <p class="cart-config-card__hint mb-0">
+            <p class="cart-config-card__hint mb-0" id="payment-required-hint">
               Elige una opción para habilitar el envío del pedido.
             </p>
           </div>
@@ -164,7 +164,7 @@ const { navGroups } = Astro.props;
           aria-expanded="false"
           aria-controls="cart-details-collapse"
         >
-          Agregar nota o ajustar pedido
+          Opciones del pedido · nota, sustitución
         </button>
       </div>
       <div class="collapse cart-details-collapse" id="cart-details-collapse">
@@ -192,7 +192,7 @@ const { navGroups } = Astro.props;
       </div><!-- close .collapse.cart-details-collapse -->
       <p id="submit-feedback" class="cart-submit-feedback mb-0" role="status" aria-live="polite"></p>
       <div class="cart-footer-actions">
-        <button id="submit-cart" class="btn btn-success cart-submit-btn" disabled aria-disabled="true">Enviar pedido por WhatsApp</button>
+        <button id="submit-cart" class="btn btn-success cart-submit-btn" disabled aria-disabled="true" aria-describedby="payment-required-hint">Enviar pedido por WhatsApp</button>
         <button id="continue-shopping" class="btn btn-outline-primary" data-bs-dismiss="offcanvas">Seguir comprando</button>
       </div>
       </div><!-- close .cart-footer -->
