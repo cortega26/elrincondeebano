@@ -97,29 +97,29 @@
   "dependencies": {
     "@popperjs/core": "^2.11.8",
     "bootstrap": "^5.3.3",
-    "zod": "^4.4.3"
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.0",
     "@eslint/js": "^10.0.1",
-    "@playwright/test": "^1.62.1",
+    "@playwright/test": "^1.63.0",
     "@stryker-mutator/core": "^10.0.0",
     "@stryker-mutator/vitest-runner": "^10.0.0",
     "@vitest/coverage-v8": "^4.1.11",
     "chrome-launcher": "^1.2.1",
-    "eslint": "^10.8.1",
+    "eslint": "^10.10.0",
     "eslint-plugin-astro": "^3.1.0",
     "eslint-plugin-sonarjs": "^4.2.0",
-    "globals": "^17.9.0",
+    "globals": "^17.12.0",
     "husky": "^9.1.7",
     "jsdom": "^30.0.1",
     "lighthouse": "^13.4.0",
-    "lint-staged": "^17.3.0",
+    "lint-staged": "^17.5.0",
     "prettier": "^3.9.6",
-    "sass-embedded": "^1.100.0",
+    "sass-embedded": "^1.104.0",
     "sharp": "^0.35.4",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.66.0",
+    "typescript-eslint": "^8.70.0",
     "vitest": "^4.0.16"
   },
   "engines": {
