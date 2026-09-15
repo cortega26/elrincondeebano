@@ -23,6 +23,9 @@
     "doctor": "node --import tsx scripts/doctor.ts",
     "test:e2e:import": "playwright test -c playwright.import.config.ts",
     "test:e2e:changes": "playwright test -c playwright.changes.config.ts",
+    "test:e2e:media": "playwright test -c playwright.media.config.ts",
+    "test:e2e:scope": "playwright test -c playwright.scope.config.ts",
+    "test:e2e:storefront": "playwright test -c playwright.storefront.config.ts",
     "dev:web": "vite",
     "rotate-credential": "node scripts/rotate-credential.mjs",
     "bench:catalog": "node scripts/bench-catalog-snapshot.mjs"

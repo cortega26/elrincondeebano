@@ -321,9 +321,16 @@ test('Ctrl+F focuses the product search on a settled page', async ({ page }) => 
   // Wait for the debounced load to finish — its re-render would steal focus.
   await expect(page.getByText('Cargando…')).not.toBeVisible();
   // The load may still commit its final transition after Cargando disappears
-  // (React deferred render): give it one debounce cycle so the input node is
-  // stable before focusing (focus is lost when the node is replaced).
-  await page.waitForTimeout(350);
+  // (React deferred render): wait for the input node to survive two
+  // consecutive frames before focusing (focus is lost when the node is
+  // replaced — plan 193, no wall-clock sleep).
+  await page.waitForFunction(() => {
+    const cur = document.querySelector('input[placeholder="Nombre, descripción…"]');
+    if (!cur) return false;
+    const prev = (window as unknown as { __scopeSearchNode?: unknown }).__scopeSearchNode;
+    (window as unknown as { __scopeSearchNode?: unknown }).__scopeSearchNode = cur;
+    return prev === cur;
+  });
   await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
   await page.evaluate(() =>
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'f', ctrlKey: true, bubbles: true }))
@@ -379,8 +386,12 @@ test('category page: search, status filter and expand-all', async ({ page }) => 
   await expandAll.waitFor({ state: 'visible' });
 
   // Expand all keeps the 3 category rows (the fixture has no subcategories;
-  // the scope excludes the nav-groups table).
-  const catRows = page.getByRole('table', { name: 'Categorías' }).locator('tbody tr');
+  // the scope excludes the nav-groups table). Expanded categories render an
+  // extra `${id}-sub` detail row (single td[colspan]), so top-level rows are
+  // selected explicitly (plan 193 repair).
+  const catRows = page
+    .getByRole('table', { name: 'Categorías' })
+    .locator('tbody tr:not(:has(td[colspan]))');
   await expandAll.click({ force: true });
   await expect(catRows).toHaveCount(3);
 
