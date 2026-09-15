@@ -80,7 +80,7 @@ Legend: ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE (archived) · 🛑 BLOCKED (rea
 | L3   | [203](archive/203-sass-use-anymatch-reeval.md)    | Sass @use + anymatch         | M      | ✅ DONE (archived) |
 | L4   | [204](archive/204-env-format-versions.md)         | Env + format + versions docs | S      | ✅ DONE (archived) |
 | L4   | [205](archive/205-contributor-docs-rewrite.md)    | Contributor docs rewrite     | S      | ✅ DONE (archived) |
-| L4   | [206](206-dx-loops-matrix-logs.md)                | DX loops + matrix + logs     | M      | ⬜ TODO            |
+| L4   | [206](archive/206-dx-loops-matrix-logs.md)        | DX loops + matrix + logs     | M      | ✅ DONE (archived) |
 | L4   | [207](archive/207-entry-docs-drift.md)            | Entry docs drift             | M      | ✅ DONE (archived) |
 | L4   | [208](archive/208-ops-adr-docs-drift.md)          | Ops/ADR docs drift           | S      | ✅ DONE (archived) |
 | L4   | [209](archive/209-admin-lint-local.md)            | Admin lint local             | S      | ✅ DONE (archived) |
