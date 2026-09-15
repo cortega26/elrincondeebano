@@ -12,6 +12,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { logger } from './utils/logger.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -54,6 +55,7 @@ for (const file of files) {
 }
 
 if (violations.length > 0) {
+  logger.error('sass-import-quarantine-violated', { violations });
   console.error('Sass @import outside the bootstrap-needed.scss quarantine:\n');
   for (const violation of violations) {
     console.error(`- ${violation}`);
@@ -62,4 +64,5 @@ if (violations.length > 0) {
   process.exit(1);
 }
 
+logger.info('sass-import-quarantine-passed', {});
 console.log('Sass @import quarantine guard passed.');

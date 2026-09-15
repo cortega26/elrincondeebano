@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { logger } from '../utils/logger.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -120,6 +121,7 @@ for (const manifestPath of manifestPaths) {
 }
 
 if (errors.length > 0) {
+  logger.error('dependency-manifest-compat-failed', { errors });
   console.error('Dependency manifest compatibility guard failed.\n');
   for (const error of errors) {
     console.error(`- ${error}`);
@@ -127,4 +129,5 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
+logger.info('dependency-manifest-compat-passed', {});
 console.log('Dependency manifest compatibility guard passed.');
