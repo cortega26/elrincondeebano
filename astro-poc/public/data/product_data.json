@@ -1,6 +1,6 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-09-15T01:22:24.089Z",
+  "last_updated": "2026-09-15T14:32:58.016Z",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -60,7 +60,7 @@
       "image_path": "assets/images/bebidas/Agua 2L con gas Benedictino.webp",
       "image_avif_path": "assets/images/bebidas/Agua 2L con gas Benedictino.avif",
       "order": 5,
-      "is_archived": false
+      "is_archived": true
     },
     {
       "name": "Misiones de Rengo • Sauvignon Blanc",
@@ -84,7 +84,7 @@
       "image_path": "assets/images/despensa/Tortilla grande mexicana Líder 350g.webp",
       "image_avif_path": "assets/images/despensa/Tortilla grande mexicana Líder 350g.avif",
       "order": 8,
-      "is_archived": false
+      "is_archived": true
     },
     {
       "name": "Great Value • Mostaza Clásica",
@@ -120,7 +120,7 @@
       "image_path": "assets/images/carnes_y_embutidos/Salame Italiano Líder 100g.webp",
       "image_avif_path": "assets/images/carnes_y_embutidos/Salame Italiano Líder 100g.avif",
       "order": 12,
-      "is_archived": false
+      "is_archived": true
     },
     {
       "name": "Queso Llanero 1Kg",
@@ -192,7 +192,7 @@
       "image_path": "assets/images/snacks_salados/Crunchis Queso 160g.webp",
       "image_avif_path": "assets/images/snacks_salados/Crunchis Queso 160g.avif",
       "order": 18,
-      "is_archived": false
+      "is_archived": true
     },
     {
       "name": "McKay • Galletas de Coco",
@@ -360,7 +360,7 @@
       "image_path": "assets/images/cervezas/Corona Extra lata 473cc.webp",
       "image_avif_path": "assets/images/cervezas/Corona Extra lata 473cc.avif",
       "order": 32,
-      "is_archived": false
+      "is_archived": true
     },
     {
       "name": "Tocino Ahumado La Preferida",
@@ -391,7 +391,7 @@
       "description": "Botella de 1L",
       "price": 12900,
       "discount": 1000,
-      "stock": true,
+      "stock": false,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Aceite de Oliva Pepita de Oro 1L.webp",
       "image_avif_path": "assets/images/despensa/Aceite de Oliva Pepita de Oro 1L.avif",
@@ -408,7 +408,7 @@
       "image_path": "assets/images/despensa/Cafe-El-Peñon-Gourmet-500g.webp",
       "image_avif_path": "assets/images/despensa/Cafe-El-Peñon-Gourmet-500g.avif",
       "order": 36,
-      "is_archived": false
+      "is_archived": true
     },
     {
       "name": "Becker • Cerveza Lager",
@@ -444,7 +444,7 @@
       "image_path": "assets/images/cervezas/Coors lata 350cc.webp",
       "image_avif_path": "assets/images/cervezas/Coors lata 350cc.avif",
       "order": 39,
-      "is_archived": false
+      "is_archived": true
     },
     {
       "name": "Cristal • Cerveza Lager",
@@ -552,14 +552,14 @@
       "image_path": "assets/images/lacteos/Queso Crema Rafulco 190g.webp",
       "image_avif_path": "assets/images/lacteos/Queso Crema Rafulco 190g.avif",
       "order": 48,
-      "is_archived": false
+      "is_archived": true
     },
     {
       "name": "Queso Gauda La Vaquita",
       "description": "Laminado 400g",
       "price": 4900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Lacteos",
       "image_path": "assets/images/lacteos/Queso Gauda La Vaquita 400g.webp",
       "image_avif_path": "assets/images/lacteos/Queso Gauda La Vaquita 400g.avif",
@@ -600,7 +600,7 @@
       "image_path": "assets/images/carnes_y_embutidos/Salame La Preferida 500g.webp",
       "image_avif_path": "assets/images/carnes_y_embutidos/Salame La Preferida 500g.avif",
       "order": 53,
-      "is_archived": false
+      "is_archived": true
     },
     {
       "name": "Sprite Zero 2L",
@@ -1819,7 +1819,7 @@
       "description": "Barra de 82g",
       "price": 2200,
       "discount": 400,
-      "stock": true,
+      "stock": false,
       "category": "Chocolates",
       "image_path": "assets/images/chocolates/Chocolate con leche Hershey's 82g.jpg",
       "image_avif_path": "assets/images/chocolates/Chocolate con leche Hershey's 82g.avif",

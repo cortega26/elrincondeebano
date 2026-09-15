@@ -140,8 +140,8 @@ const hasAvifSource = typeof avifImage?.srcset === 'string' && avifImage.srcset.
     position: relative;
     display: grid;
     place-items: center;
-    background: linear-gradient(180deg, #fbfaf7 0%, #f5f1ea 100%);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background: #fff;
+    border-bottom: 1px solid var(--line-soft);
     padding: 0.55rem;
   }
 
@@ -170,7 +170,7 @@ const hasAvifSource = typeof avifImage?.srcset === 'string' && avifImage.srcset.
 
   .strip-card__title {
     font-size: 0.85rem;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.25;
     margin: 0;
     overflow: hidden;

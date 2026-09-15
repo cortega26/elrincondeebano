@@ -9,8 +9,10 @@ const rootDir = path.resolve(__dirname, '..');
 const outDir = path.join(rootDir, 'assets', 'fonts');
 const defaultCssPath = path.join(outDir, 'fonts.css');
 
+// Plan 216: Archivo reemplaza a Inter + Playfair Display (la UI ya no usa
+// serifas; una sola grotesca para display y cuerpo).
 const GOOGLE_CSS =
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&display=swap';
+  'https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap';
 const DEFAULT_REMOTE_HOSTS = new Set(['fonts.googleapis.com', 'fonts.gstatic.com']);
 
 function shouldAllowRemoteFetch() {
@@ -203,10 +205,11 @@ async function main() {
 
   // Very small parser: find one woff2 URL per family/weight (latin subset preferred)
   const targets = [
-    { family: 'Inter', weight: '400', file: 'inter-400.woff2' },
-    { family: 'Inter', weight: '700', file: 'inter-700.woff2' },
-    { family: 'Playfair Display', weight: '400', file: 'playfair-400.woff2' },
-    { family: 'Playfair Display', weight: '700', file: 'playfair-700.woff2' },
+    { family: 'Archivo', weight: '400', file: 'archivo-400.woff2' },
+    { family: 'Archivo', weight: '500', file: 'archivo-500.woff2' },
+    { family: 'Archivo', weight: '600', file: 'archivo-600.woff2' },
+    { family: 'Archivo', weight: '700', file: 'archivo-700.woff2' },
+    { family: 'Archivo', weight: '800', file: 'archivo-800.woff2' },
   ];
 
   const blocks = parseFontFaceBlocks(css);

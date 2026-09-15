@@ -1,5 +1,9 @@
 /* Core Variables */
 :root {
+  /* Plan 216: una sola grotesca (Archivo, self-hosted) para display y cuerpo.
+     Sin serifas en la UI; display siempre 700–800 con tracking apretado. */
+  --font-sans: 'Archivo', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-size-xs: 0.8125rem;
   --primary-color: #005b4f;
   --primary-strong: #00463c;
   --primary-soft: rgba(0, 91, 79, 0.08);
@@ -7,7 +11,8 @@
   /* Plan 215: #128a3e medía 4.44:1 sobre blanco (bajo el 4.5:1 AA para
      texto normal en .btn-outline-success) — oscurecido a 4.6:1+. */
   --success-strong: #0e7a34;
-  --btn-radius: 10px;
+  /* Plan 216: radio 8px — el pill de 10px en cada botón era genérico. */
+  --btn-radius: 8px;
   --secondary-color: #546e7a;
   --accent-color: #a15c00;
   --text-color: #212529;
@@ -85,15 +90,7 @@ textarea:focus-visible,
 }
 
 body {
-  font-family:
-    'Inter',
-    'Inter Fallback',
-    system-ui,
-    -apple-system,
-    'Segoe UI',
-    Roboto,
-    Arial,
-    sans-serif;
+  font-family: var(--font-sans);
   color: var(--text-color);
   background-color: var(--background-color);
   line-height: 1.6;
@@ -111,9 +108,10 @@ h1 {
   text-align: center;
   font-size: clamp(1.75rem, 4vw, 2.25rem);
   margin-bottom: 1.25rem;
-  font-weight: bold;
-  font-family: 'Playfair Display', 'Playfair Fallback', Georgia, 'Times New Roman', serif;
-  letter-spacing: 0.01em;
+  font-weight: 800;
+  font-family: var(--font-sans);
+  letter-spacing: -0.02em;
+  line-height: 1.12;
 }
 
 .hero-section {
@@ -194,14 +192,13 @@ h1 {
   padding: 1rem 1.1rem;
 }
 
+/* Plan 216: hero sin tarjeta — banda plana con aire, sin beige ni brillos. */
 .home-entry {
   display: grid;
   gap: 0.75rem;
-  padding: 0.85rem 1rem;
-  background: var(--surface-muted);
-  background-image:
-    radial-gradient(circle at top right, rgba(0, 91, 79, 0.09), transparent 34%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+  padding: 0.85rem 0.25rem;
+  background: transparent;
+  border: 0;
 }
 
 .home-entry__main,
@@ -308,20 +305,28 @@ h1 {
   text-underline-offset: 0.16em;
 }
 
+/* Plan 216: headers editoriales — título pesado con regla hairline. */
 .home-section__header {
   display: grid;
   gap: 0.3rem;
   margin-bottom: 1rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--line-soft);
 }
 
 .home-section__header h2 {
   margin: 0;
   font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
 }
 
 .home-section__header p {
   margin: 0;
   color: var(--text-muted);
+  font-size: 0.92rem;
+  max-width: 42rem;
 }
 
 .home-section__link {
@@ -578,10 +583,9 @@ h3 {
   font-size: var(--font-size-sm);
 }
 
-.home-profile-strip__repeat::before {
-  content: '↻';
-  font-size: 1.05em;
-  line-height: 1;
+/* Plan 216: icono SVG inline (el glifo ↻ dependía de la fuente del sistema). */
+.home-profile-strip__repeat svg {
+  flex: 0 0 auto;
 }
 
 .bundle-grid {
@@ -801,17 +805,10 @@ body.service-dialog-open {
   min-height: var(--storefront-header-height);
 }
 
+/* Plan 216: navbar plano — el gradiente + blur era ruido visual. */
 .storefront-navbar {
-  background: linear-gradient(180deg, #004d42 0%, #003b33 40%, #002e28 100%);
+  background: #0c3b35;
   border-bottom: 2px solid var(--accent-color);
-}
-
-@supports (backdrop-filter: blur(8px)) {
-  .storefront-navbar {
-    background: linear-gradient(180deg, rgba(0, 61, 53, 0.96) 0%, rgba(0, 46, 40, 0.97) 100%);
-    backdrop-filter: blur(12px) saturate(140%);
-    -webkit-backdrop-filter: blur(12px) saturate(140%);
-  }
 }
 
 .storefront-navbar__inner {
@@ -835,7 +832,9 @@ body.service-dialog-open {
 }
 
 .navbar-brand span {
-  font-family: 'Playfair Display', 'Playfair Fallback', Georgia, 'Times New Roman', serif;
+  font-family: var(--font-sans);
+  font-weight: 800;
+  letter-spacing: -0.015em;
   font-size: clamp(1.2rem, 3.5vw, 1.8rem);
   white-space: nowrap;
   overflow: hidden;
@@ -961,13 +960,14 @@ body.service-dialog-open {
   overflow: hidden;
 }
 
+/* Plan 216: media sobre blanco puro — el degradado beige era slop. */
 .product-card__media {
   position: relative;
   display: grid;
   place-items: center;
   padding: 0.75rem;
-  background: linear-gradient(180deg, #fbfaf7 0%, #f5f1ea 100%);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  background: #fff;
+  border-bottom: 1px solid var(--line-soft);
 }
 
 /* Plan 215: elevación solo en hover con puntero fino (nunca en táctil). */
@@ -1041,19 +1041,19 @@ body.service-dialog-open {
   background-color: var(--surface-color);
 }
 
-/* Discount badge */
+/* Plan 216: badge como etiqueta compacta, no pill genérico. */
 .discount-badge {
   position: absolute;
   top: 0.55rem;
   right: 0.55rem;
   z-index: 3;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-  background: #c62828;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  background: #b3261e;
   color: #fff;
   font-size: 0.75rem;
   font-weight: 800;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
   line-height: 1.4;
   box-shadow: none;
 }
@@ -1061,7 +1061,7 @@ body.service-dialog-open {
 .producto .card-title {
   font-size: var(--font-size-md);
   color: var(--text-color);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.3;
   min-height: 2.4em;
   overflow: hidden;
@@ -1096,12 +1096,13 @@ body.service-dialog-open {
   padding-top: 0;
 }
 
+/* Plan 216: precio primero — más grande, extrabold, tracking apretado. */
 .precio,
 .precio-descuento {
-  font-size: 1.22rem;
-  font-weight: 700;
+  font-size: 1.3rem;
+  font-weight: 800;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.01em;
+  letter-spacing: -0.01em;
   line-height: 1.1;
 }
 
@@ -1135,7 +1136,7 @@ body.service-dialog-open {
   min-height: 48px;
   margin-bottom: 0;
   border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 10px;
+  border-radius: 8px;
   background: #f5f3ee;
   overflow: hidden;
 }
@@ -1307,7 +1308,7 @@ body.service-dialog-open {
   justify-items: center;
   align-content: center;
   line-height: 1.1;
-  border-radius: 10px;
+  border-radius: 8px;
 }
 
 .add-to-cart-btn__label {
@@ -1933,6 +1934,21 @@ body.service-dialog-open {
 }
 
 /* Media Queries */
+/* Plan 216: sin wrap bajo el breakpoint xl — el max-width de la marca
+   provocaba un salto de línea gratuito (navbar de 2 filas en móvil).
+   La marca absorbe con ellipsis (min-width: 0). */
+@media (max-width: 1199.98px) {
+  /* Especificidad 0,2,0: empata con `.navbar > .container-fluid` de
+     Bootstrap (cuyo `inherit` traía el wrap) y gana por orden. */
+  .navbar > .storefront-navbar__inner {
+    flex-wrap: nowrap;
+  }
+
+  .storefront-navbar__inner .navbar-brand {
+    min-width: 0;
+  }
+}
+
 @media (max-width: 991.98px) {
   #navbarNav {
     justify-content: flex-start !important;
@@ -2690,6 +2706,34 @@ body.service-dialog-open {
   }
 }
 
+/* Plan 216: marca corta en móvil (display:none la saca también del árbol
+   de accesibilidad, sin duplicar el anuncio). */
+.brand-text--short {
+  display: none;
+}
+
+@media (max-width: 575.98px) {
+  .brand-text--full {
+    display: none;
+  }
+
+  .brand-text--short {
+    display: inline;
+  }
+}
+
+/* Plan 216: la marca Archivo 800 ocupa más ancho — compactar en desktop
+   para que no trunque con todos los grupos visibles. */
+@media (min-width: 1200px) and (max-width: 1399px) {
+  .navbar-brand span {
+    font-size: 1.35rem;
+  }
+
+  .storefront-navbar__group-toggle {
+    padding-inline: 0.6rem;
+  }
+}
+
 @media (min-width: 992px) {
   .offcanvas {
     width: 520px;
@@ -2757,7 +2801,7 @@ body.service-dialog-open {
   padding: 0.5rem 0.75rem;
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 10px;
-  font-family: 'Inter', 'Inter Fallback', system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-size: var(--font-size-base);
   background: #fbfaf8;
 }

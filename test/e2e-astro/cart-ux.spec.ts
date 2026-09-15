@@ -385,11 +385,13 @@ test('T11: forged legacy shared-cart link rehydrates from catalog only', async (
 
 test('T12: cart subtotal uses the discounted price when adjusting quantity', async ({ page }) => {
   await page.setViewportSize(MOBILE);
-  // Pepita de Oro: price 12900, discount 1000 -> effective 11900 (Despensa).
+  // PAN Harina de Maiz: price 2500, discount 100 -> effective 2400 (Despensa).
+  // (Re-pinned 2026-09-15: Pepita de Oro p-a8b114216534 went stock:false via
+  // operator catalog edit rev 16 — respected, not reverted.)
   await page.goto('/despensa/', { waitUntil: 'networkidle' });
   await waitForReady(page);
 
-  const addBtn = page.locator(`.add-to-cart-btn[data-id="p-a8b114216534"]`);
+  const addBtn = page.locator(`.add-to-cart-btn[data-id="p-e7bec89f0c9c"]`);
   await expect(addBtn).toBeVisible();
   await addBtn.click();
   await expect(page.locator('#cart-count')).toHaveText('1', { timeout: 5_000 });
@@ -407,8 +409,8 @@ test('T12: cart subtotal uses the discounted price when adjusting quantity', asy
 
   // Unitario line uses the discounted price and the subtotal matches it x2.
   // (No settle sleep: the text assertions below auto-retry — plan 193.)
-  await expect(offcanvas.locator('.cart-item__price-line')).toHaveText('Unitario: $11.900');
-  await expect(offcanvas.locator('.cart-item__subtotal')).toHaveText('Subtotal: $23.800');
+  await expect(offcanvas.locator('.cart-item__price-line')).toHaveText('Unitario: $2.400');
+  await expect(offcanvas.locator('.cart-item__subtotal')).toHaveText('Subtotal: $4.800');
 });
 
 test('T13: cart offcanvas closes via continue-shopping and the close button', async ({ page }) => {

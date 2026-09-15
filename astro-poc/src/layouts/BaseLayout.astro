@@ -87,6 +87,10 @@ const resolvedSharePreview =
     {robots ? <meta name="robots" content={robots} /> : null}
     <link rel="manifest" href="/app.webmanifest" />
 
+    <!-- Plan 216: tipografía self-hosted (antes existía pero ningún HTML la
+      referenciaba: document.fonts vacío en producción). -->
+    <link rel="stylesheet" href="/assets/fonts/fonts.css" />
+
     <meta property="og:title" content={resolvedSharePreview.title} />
     <meta property="og:description" content={resolvedSharePreview.description} />
     <meta property="og:image" content={resolvedSharePreview.ogImage} />

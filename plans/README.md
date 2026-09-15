@@ -218,6 +218,10 @@ Hallazgos laterales (preexistentes, cerrados en el plan): prune borraba
 quirk axe de fondo-blanco bajo el fold (fondo explícito en `.footer-content`).
 Detalle y desvíos en `archive/215-storefront-ux-polish/todo.md`.
 
+| Plan                                            | Título                                         | Prioridad | Esfuerzo | Estado                                                                                                                                                                                                                            |
+| ----------------------------------------------- | ---------------------------------------------- | --------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [216](archive/216-de-slop-professional/spec.md) | De-slop: tipografía real y sistema profesional | P1        | M        | DONE — 2026-09-15 (Archivo self-hosted ×5 por fin enlazada; sin serifas; navbar plano; hero sin tarjeta; tiles precio-primero; LH móvil 71/100/100/100, desktop 100s; e2e 47+2skip con T12 re-pinned por edición operador rev 16) |
+
 ---
 
 ## Auditoría 10 — 2026-08-17 (`/improve deep`, commit `ee20b0f6`)
