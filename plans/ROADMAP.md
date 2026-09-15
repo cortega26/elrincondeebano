@@ -93,7 +93,7 @@ Legend: ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE (archived) · 🛑 BLOCKED (rea
 | [199](archive/199-utils-lockstep-census.md)    | Utils/lockstep census             | S      | ✅ DONE (archived) |
 | [210](archive/210-waitlist-spike.md)           | Spike: waitlist WhatsApp          | S      | ✅ DONE (archived) |
 | [211](archive/211-preview-build-route.md)      | Preview-build route               | M      | ✅ DONE (archived) |
-| [212](212-durable-schedule-spike.md)           | Spike: durable scheduling         | M      | ⬜ TODO            |
+| [212](archive/212-durable-schedule-spike.md)   | Spike: durable scheduling         | M      | ✅ DONE (archived) |
 | [213](213-csv-import-spike.md)                 | Spike: CSV import                 | M      | ⬜ TODO            |
 | [214](archive/214-incremental-typed-client.md) | Incremental typed client          | S-M    | ✅ DONE (archived) |
 
