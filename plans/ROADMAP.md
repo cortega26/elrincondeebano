@@ -92,7 +92,7 @@ Legend: ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE (archived) · 🛑 BLOCKED (rea
 | [198](archive/198-god-module-slice-1.md)    | God-module slice 1 + dead removal | M      | ✅ DONE (archived) |
 | [199](archive/199-utils-lockstep-census.md) | Utils/lockstep census             | S      | ✅ DONE (archived) |
 | [210](210-waitlist-spike.md)                | Spike: waitlist WhatsApp          | S      | ⬜ TODO            |
-| [211](211-preview-build-route.md)           | Preview-build route               | M      | ⬜ TODO            |
+| [211](archive/211-preview-build-route.md)   | Preview-build route               | M      | ✅ DONE (archived) |
 | [212](212-durable-schedule-spike.md)        | Spike: durable scheduling         | M      | ⬜ TODO            |
 | [213](213-csv-import-spike.md)              | Spike: CSV import                 | M      | ⬜ TODO            |
 | [214](214-incremental-typed-client.md)      | Incremental typed client          | S-M    | ⬜ TODO            |
