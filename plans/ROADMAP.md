@@ -78,7 +78,7 @@ Legend: ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE (archived) · 🛑 BLOCKED (rea
 | L3   | [201](archive/201-drop-duplicate-deps.md)         | Drop duplicate deps          | S      | ✅ DONE (archived) |
 | L3   | [202](archive/202-tsx-production-spike-native.md) | tsx promote + native spike   | M      | ✅ DONE (archived) |
 | L3   | [203](archive/203-sass-use-anymatch-reeval.md)    | Sass @use + anymatch         | M      | ✅ DONE (archived) |
-| L4   | [204](204-env-format-versions.md)                 | Env + format + versions docs | S      | ⬜ TODO            |
+| L4   | [204](archive/204-env-format-versions.md)         | Env + format + versions docs | S      | ✅ DONE (archived) |
 | L4   | [205](archive/205-contributor-docs-rewrite.md)    | Contributor docs rewrite     | S      | ✅ DONE (archived) |
 | L4   | [206](206-dx-loops-matrix-logs.md)                | DX loops + matrix + logs     | M      | ⬜ TODO            |
 | L4   | [207](archive/207-entry-docs-drift.md)            | Entry docs drift             | M      | ✅ DONE (archived) |
