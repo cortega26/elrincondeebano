@@ -35,7 +35,7 @@ los archivos persisten).
 | `npm run build`            | **Preflight completo** (categories:sync → generación de imágenes → validación) + build Astro. Lento; usa `npm run build:fast` para iterar sin preflight.            |
 | `npm test`                 | **Dos runners vitest**: root (`test/`) + `npm run admin:test`.                                                                                                      |
 | `npm run typecheck`        | Astro check + admin tsc (el árbol legacy se retiró a echo, plan 155).                                                                                               |
-| `npm run lint`             | Cubre root (`lint:root`) + `astro-poc/` (`lint:astro`); `admin/content-manager/` lo cubre su propio config en pre-commit y CI (plan 209 añade `admin:lint` local).  |
+| `npm run lint`             | Cubre root (`lint:root`) + `astro-poc/` (`lint:astro`) + `admin/content-manager/` (`admin:lint`, mirrors CI).                                                       |
 | `npm run test:e2e`         | Playwright sobre `test/e2e-astro/` (config `playwright.astro.config.ts`). **Hace un build completo primero**; con `PLAYWRIGHT_SKIP_BUILD=1` reusa `astro-poc/dist`. |
 | `npm run validate`         | lint → typecheck → check:e2e-selectors → build → test → check:plans → guardrails:assets.                                                                            |
 | `npm run validate:release` | Gate de release (añade e2e + live share-preview probe; audits run separately in `security-audit.yml`).                                                              |

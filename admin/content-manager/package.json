@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "ADMIN_MODE=operator node --import tsx --watch src/server/start.ts",
+    "lint": "eslint src scripts test --config eslint.config.mjs",
     "build": "npm run build:web && npm run typecheck",
     "build:web": "tsc -p tsconfig.web.json && vite build",
     "start": "ADMIN_MODE=operator node --import tsx src/server/start.ts",

@@ -9,6 +9,7 @@
   },
   "scripts": {
     "admin:dev": "npm -w admin/content-manager run dev",
+    "admin:lint": "npm -w admin/content-manager run lint",
     "admin:dev:web": "npm -w admin/content-manager run dev:web",
     "admin:build": "npm -w admin/content-manager run build",
     "admin:start": "npm -w admin/content-manager run start",
@@ -32,7 +33,7 @@
     "dev": "npm -w astro-poc run dev",
     "lint:root": "eslint .",
     "lint:astro": "npm -w astro-poc run lint",
-    "lint": "npm run lint:root && npm run lint:astro",
+    "lint": "npm run lint:root && npm run lint:astro && npm run admin:lint",
     "check:determinism": "node tools/check-determinism-paths.mjs",
     "check:css-order": "node scripts/check-css-order.mjs",
     "check:e2e-selectors": "node tools/check-e2e-class-selectors.mjs",
@@ -144,7 +145,7 @@
       "node tools/check-sass-imports.mjs",
       "prettier --write"
     ],
-    "admin/content-manager/**/*.{ts,tsx}": [
+    "admin/content-manager/**/*.{ts,tsx,js,mjs,cjs}": [
       "eslint --no-warn-ignored --config admin/content-manager/eslint.config.mjs",
       "prettier --write"
     ],
