@@ -94,7 +94,7 @@ Legend: ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE (archived) · 🛑 BLOCKED (rea
 | [210](archive/210-waitlist-spike.md)           | Spike: waitlist WhatsApp          | S      | ✅ DONE (archived) |
 | [211](archive/211-preview-build-route.md)      | Preview-build route               | M      | ✅ DONE (archived) |
 | [212](archive/212-durable-schedule-spike.md)   | Spike: durable scheduling         | M      | ✅ DONE (archived) |
-| [213](213-csv-import-spike.md)                 | Spike: CSV import                 | M      | ⬜ TODO            |
+| [213](archive/213-csv-import-spike.md)         | Spike: CSV import                 | M      | ✅ DONE (archived) |
 | [214](archive/214-incremental-typed-client.md) | Incremental typed client          | S-M    | ✅ DONE (archived) |
 
 Effort rollup: S ×16 · S-M ×4 · M ×25 (45 plans). Heaviest waves: 4 (7 M)
