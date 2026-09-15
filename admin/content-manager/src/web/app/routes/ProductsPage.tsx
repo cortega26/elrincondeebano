@@ -17,6 +17,7 @@ import { BulkOpsBar } from '../components/BulkOpsBar.tsx';
 import { ProductList } from '../components/ProductList.tsx';
 import { ProductInspector } from '../components/ProductInspector.tsx';
 import { Feedback } from '../components/Feedback.tsx';
+import { SyncStoreButton } from '../components/SyncStoreButton.tsx';
 import type { UndoEntry } from './undo.ts';
 
 const client = new ContentManagerClient();
@@ -711,7 +712,19 @@ export function ProductsPage(): React.ReactElement {
 
   return (
     <main role="main" aria-label="Productos">
-      <h1>Productos{data ? ` (${data.total})` : ''}</h1>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '0.75rem',
+          flexWrap: 'wrap',
+          marginBottom: '0.5rem',
+        }}
+      >
+        <h1 style={{ margin: 0 }}>Productos{data ? ` (${data.total})` : ''}</h1>
+        <SyncStoreButton setFeedback={setFeedback} setOpError={setOpError} />
+      </div>
 
       {/* Plan 088: visible pagination scope — the operator always knows how
           much of the catalog the current view covers. */}
