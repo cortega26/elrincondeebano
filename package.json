@@ -36,6 +36,7 @@
     "check:determinism": "node tools/check-determinism-paths.mjs && node tools/check-vendor-tgz.mjs",
     "check:css-order": "node scripts/check-css-order.mjs",
     "check:e2e-selectors": "node tools/check-e2e-class-selectors.mjs",
+    "check:sass-imports": "node tools/check-sass-imports.mjs",
     "format": "prettier --write .",
     "icons": "node tools/generate-icons.js",
     "validate:categories": "npm run categories:sync && node tools/validate-category-registry.js",
@@ -137,6 +138,10 @@
     ],
     "astro-poc/**/*.{js,mjs,ts,mts}": [
       "eslint --no-warn-ignored --config astro-poc/eslint.config.mjs",
+      "prettier --write"
+    ],
+    "astro-poc/**/*.scss": [
+      "node tools/check-sass-imports.mjs",
       "prettier --write"
     ],
     "admin/content-manager/**/*.{ts,tsx}": [

@@ -82,6 +82,9 @@ jobs:
       - name: Validate E2E CSS selectors exist in source
         run: npm run check:e2e-selectors
 
+      - name: Guard Sass @import quarantine
+        run: npm run check:sass-imports
+
       - name: Guard orphan assets
         run: npm run guardrails:assets
 
