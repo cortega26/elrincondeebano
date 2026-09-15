@@ -8,7 +8,7 @@ documentation quality rather than a single feature.
 
 These priorities apply to:
 
-- storefront runtime changes in `astro-poc/` and `src/js/`;
+- storefront runtime changes in `astro-poc/` (incl. `src/scripts/storefront/`);
 - build and asset-pipeline work in `tools/` and `config/`;
 - data-shape and taxonomy changes in `data/`;
 - CI, release-gating, and doc-structure changes in `.github/`, `docs/`, and
@@ -71,8 +71,8 @@ Pay extra attention to:
 - `data/product_data.json` growth and any code that loads or transforms the full
   catalog;
 - `assets/images/` variant generation and orphan-asset detection;
-- browser-test scope growth in canonical `test/e2e-astro/` and supplemental
-  `test/e2e/`;
+- browser-test scope growth in canonical `test/e2e-astro/` (storefront) and
+  `admin/content-manager/test/e2e/` (admin);
 - scheduled live monitors that depend on network or third-party edge behavior.
 
 ## Maintainability

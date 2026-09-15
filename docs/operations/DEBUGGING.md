@@ -34,7 +34,7 @@ Estandarizar depuración local para fallos de build, test y runtime sin introduc
      `data/product_data.json`.
 4. Comparar antes/después del cambio:
    - tamaño de inputs (`data/`, `assets/images/`)
-   - paths tocados en `astro-poc/src/`, `src/js/`, `tools/`
+   - paths tocados en `astro-poc/src/`, `astro-poc/src/scripts/storefront/`, `tools/`
 5. Si la regresión es real pero la corrección es grande:
    - abrir un follow-up pequeño y reversible antes de mezclar refactor amplio.
 

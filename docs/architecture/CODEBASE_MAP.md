@@ -6,25 +6,25 @@ Reference document for automated agents, CI tools, and new contributors. Maps ev
 
 ## Directory responsibilities
 
-| Directory                        | Role                                                                                                                                                                  | Written by                              | Read by                        |
-| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | ------------------------------ |
-| `data/`                          | Source of truth for product catalog (`product_data.json`) and category tree (`categories.json`, `category_registry.json`). **Read-only input to build** (ADR-0005).   | Admin tools / `npm run categories:sync` | Preflight pipeline, tests      |
-| `assets/images/`                 | Source images: `originals/` (uploaded once), `web/` (generated variants), `og/` (Open Graph images). **Read-only input to Astro build**.                              | Image pipeline (`npm run images:*`)     | Preflight, Astro build         |
-| `assets/css/`                    | Legacy stylesheet used by dev-server preview.                                                                                                                         | Manual edits                            | dev-server.mjs                 |
-| `assets/fonts/`                  | Web fonts fetched by `npm run fonts`.                                                                                                                                 | `tools/fetch-fonts.mjs`                 | Astro build                    |
-| `astro-poc/`                     | **Production Astro storefront** — the canonical runtime (ADR-0003). Contains `src/`, `public/`, `scripts/`, and its own `package.json`.                               | Storefront dev                          | CI/CD (static.yml)             |
-| `astro-poc/dist/`                | Compiled static site. Git-ignored. Deployed to GitHub Pages.                                                                                                          | `npm run build`                         | GitHub Pages (static.yml)      |
-| `src/js/`                        | Shared typed JS modules (cart, logger, analytics, fetch). Covered by `tsconfig.typecheck.json`.                                                                       | Core dev                                | Astro storefront, tests        |
-| `test/`                          | Unit, integration, contract, guardrail, and Playwright end-to-end tests.                                                                                              | Test Sentinel                           | `npm test`, `npm run test:e2e` |
-| `tools/`                         | Preflight pipeline scripts (`preflight.js`), build utilities (image generation, guardrails, canary, Lighthouse).                                                      | Repo Cartographer                       | `npm run build`, CI            |
-| `scripts/`                       | Developer utility scripts: dev server, smoke test, CI helpers, and CSS-order check. Not part of the build.                                                            | Docs Steward                            | Local dev, CI smoke steps      |
-| `admin/`                         | TypeScript Content Manager (`content-manager/`): Fastify + React + Vite, single-user loopback. Python/Tkinter retired 2026-08-11 (plan 069; tag `v1.x-python-final`). | Content Manager                         | `npm run admin:dev`            |
-| `config/`                        | Static config files read by build tools (e.g., `category_og_icon_map.json`).                                                                                          | Manual edits                            | tools/, preflight              |
-| `infra/cloudflare/`              | Cloudflare Workers source for edge security headers. Deployed via `npm run cloudflare:deploy:edge-security-headers`.                                                  | Security agent                          | Cloudflare (manual deploy)     |
-| `docs/`                          | All architectural, operational, ADR, and onboarding documentation.                                                                                                    | Docs Steward                            | Agents, contributors           |
-| `docs/repo/ACTIVE_SURFACES.json` | Machine-checkable manifest of canonical runtime entry points, key docs, and critical workflows.                                                                       | Docs Steward                            | Tests, agents                  |
-| `reports/`                       | Generated audit/test evidence (`lighthouse/`, `orphan-assets/`, `smoke/`, `live-contract/`, `mutation/`). Git-ignored except baselines.                               | CI/CD                                   | Reviews, incident triage       |
-| `.github/workflows/`             | GitHub Actions CI/CD pipeline definitions.                                                                                                                            | CI Guardian                             | GitHub Actions                 |
+| Directory                           | Role                                                                                                                                                                  | Written by                              | Read by                        |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | ------------------------------ |
+| `data/`                             | Source of truth for product catalog (`product_data.json`) and category tree (`categories.json`, `category_registry.json`). **Read-only input to build** (ADR-0005).   | Admin tools / `npm run categories:sync` | Preflight pipeline, tests      |
+| `assets/images/`                    | Source images: `originals/` (uploaded once), `web/` (generated variants), `og/` (Open Graph images). **Read-only input to Astro build**.                              | Image pipeline (`npm run images:*`)     | Preflight, Astro build         |
+| `assets/css/`                       | Legacy stylesheet used by dev-server preview.                                                                                                                         | Manual edits                            | dev-server.mjs                 |
+| `assets/fonts/`                     | Web fonts fetched by `npm run fonts`.                                                                                                                                 | `tools/fetch-fonts.mjs`                 | Astro build                    |
+| `astro-poc/`                        | **Production Astro storefront** — the canonical runtime (ADR-0003). Contains `src/`, `public/`, `scripts/`, and its own `package.json`.                               | Storefront dev                          | CI/CD (static.yml)             |
+| `astro-poc/dist/`                   | Compiled static site. Git-ignored. Deployed to GitHub Pages.                                                                                                          | `npm run build`                         | GitHub Pages (static.yml)      |
+| `astro-poc/src/scripts/storefront/` | Live typed storefront JS modules (cart, state, observability — see module map below).                                                                                 | Storefront dev                          | Astro storefront, tests        |
+| `test/`                             | Unit, integration, contract, guardrail, and Playwright end-to-end tests.                                                                                              | Test Sentinel                           | `npm test`, `npm run test:e2e` |
+| `tools/`                            | Preflight pipeline scripts (`preflight.js`), build utilities (image generation, guardrails, canary, Lighthouse).                                                      | Repo Cartographer                       | `npm run build`, CI            |
+| `scripts/`                          | Developer utility scripts: dev server, smoke test, CI helpers, and CSS-order check. Not part of the build.                                                            | Docs Steward                            | Local dev, CI smoke steps      |
+| `admin/`                            | TypeScript Content Manager (`content-manager/`): Fastify + React + Vite, single-user loopback. Python/Tkinter retired 2026-08-11 (plan 069; tag `v1.x-python-final`). | Content Manager                         | `npm run admin:dev`            |
+| `config/`                           | Static config files read by build tools (e.g., `category_og_icon_map.json`).                                                                                          | Manual edits                            | tools/, preflight              |
+| `infra/cloudflare/`                 | Cloudflare Workers source for edge security headers. Deployed via `npm run cloudflare:deploy:edge-security-headers`.                                                  | Security agent                          | Cloudflare (manual deploy)     |
+| `docs/`                             | All architectural, operational, ADR, and onboarding documentation.                                                                                                    | Docs Steward                            | Agents, contributors           |
+| `docs/repo/ACTIVE_SURFACES.json`    | Machine-checkable manifest of canonical runtime entry points, key docs, and critical workflows.                                                                       | Docs Steward                            | Tests, agents                  |
+| `reports/`                          | Generated audit/test evidence (`lighthouse/`, `orphan-assets/`, `smoke/`, `live-contract/`, `mutation/`). Git-ignored except baselines.                               | CI/CD                                   | Reviews, incident triage       |
+| `.github/workflows/`                | GitHub Actions CI/CD pipeline definitions.                                                                                                                            | CI Guardian                             | GitHub Actions                 |
 
 ---
 
@@ -51,39 +51,41 @@ config/                    ─┘         │  inputs into astro-poc/
 
 ---
 
-## Module dependency map (`src/js/`)
+## Module dependency map (`astro-poc/src/scripts/storefront/`)
+
+(`src/js/` retired, plan 155; `tsconfig.typecheck.json` deleted, plan 205.)
 
 ```
-src/js/
-├── utils/          Pure utility functions — no DOM, no side-effects, safe to import anywhere
-├── modules/        Domain modules with optional DOM/browser dependencies
-│   ├── cart.mjs                 Cart state, quantity changes, persistence and rendering hooks
-│   ├── analytics.mjs            Event tracking abstraction
-│   ├── app-bootstrap.mjs        Shared storefront boot contract used by tests and runtime adapters
-│   └── product-data-manager.mjs Catalog fetch/cache orchestration for the storefront
-├── utils/
-│   ├── logger.mts              Structured logger with redaction support
-│   ├── product-data.mjs        Normalization helpers for catalog payloads
-│   └── data-endpoint.mjs       Build/runtime resolution of product-data endpoints
-└── *.d.ts          Type definitions scoped by tsconfig.typecheck.json
+astro-poc/src/scripts/storefront/
+├── storefront-state.ts   Central cart/catalog state (mutation-tested, plan 145)
+├── cart-view.js          Cart UI rendering + offcanvas
+├── catalog-view.js       Catalog listing + filtering
+├── order-submit.js       Checkout submit + money math (mutation-tested)
+├── card-registry.js      Product-card registry
+├── storage-contract.ts   localStorage keys + cross-tab contract
+├── service-worker-sync.ts SW data-sync bridge
+├── personalization.js    Personalization hooks
+├── recovery-banner.js    Recovery UX banner
+└── observability.js      Endpoint metrics + perf signals (ADR 0010 no-go: collection off)
 ```
 
-Typecheck scope is declared in [tsconfig.typecheck.json](../../tsconfig.typecheck.json) (`src/js/utils/**`, `src/js/modules/**`). Typecheck for the Astro app runs separately via `npm run typecheck:astro`.
+Storefront typecheck runs via `npm run typecheck` (Astro check); unit pins
+live in `test/storefront-*.spec.js`.
 
 ---
 
 ## Test layer map
 
-| Layer              | Runner         | File pattern                                             | Invoked by         |
-| ------------------ | -------------- | -------------------------------------------------------- | ------------------ |
-| Unit / spec        | Vitest (jsdom) | `test/**/*.spec.{js,mjs,ts}`                             | `npm test`         |
-| Legacy integration | node:test      | `test/**/*.test.js`                                      | `npm test`         |
-| Contract           | Vitest         | `test/*.contract.test.js`                                | `npm test`         |
-| Guardrail          | Vitest         | `test/*.guardrail.test.js`                               | `npm test`         |
-| Build metadata     | Vitest         | `test/*.build-metadata.test.js`                          | `npm test`         |
-| E2E — Astro        | Playwright     | `test/e2e-astro/**/*.spec.ts`                            | `npm run test:e2e` |
-| Mutation           | Stryker        | `test/cart.spec.js` et al.                               | `npx stryker run`  |
-| Visual regression  | Playwright     | retirado (plan 110) — la suite viva es `test/e2e-astro/` | —                  |
+| Layer             | Runner         | File pattern                                                                              | Invoked by                                         |
+| ----------------- | -------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| Unit / spec       | Vitest (jsdom) | `test/**/*.spec.{js,mjs,ts}`                                                              | `npm test`                                         |
+| Contract          | Vitest         | `test/*.contract.test.js`                                                                 | `npm test`                                         |
+| Guardrail         | Vitest         | `test/*.guardrail.test.js`                                                                | `npm test`                                         |
+| Build metadata    | Vitest         | `test/*.build-metadata.test.js`                                                           | `npm test`                                         |
+| E2E — Astro       | Playwright     | `test/e2e-astro/**/*.spec.ts`                                                             | `npm run test:e2e`                                 |
+| E2E — Admin       | Playwright     | `admin/content-manager/test/e2e/*.spec.ts`                                                | `npm run admin:test:e2e` (+ `:import`, `:changes`) |
+| Mutation          | Stryker        | `storefront/cart-view.js`, `storefront/order-submit.js`, `storefront/storefront-state.ts` | `npm run test:mutation`                            |
+| Visual regression | Playwright     | retirado (plan 110) — la suite viva es `test/e2e-astro/`                                  | —                                                  |
 
 `npm test` = `vitest run && npm run admin:test` (root + admin Vitest suites).
 

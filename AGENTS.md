@@ -1,8 +1,8 @@
 # AGENTS
 
 **El Rincón de Ébano** — storefront estático Astro + Content Manager local.
-Runtime: Node 24.x únicamente (`engines: >=24 <25`, Volta 24.0.0).
-Última actualización: 2026-08-13.
+Runtime: Node 24.x únicamente (`engines: >=24 <25`).
+Última actualización: 2026-09-15.
 
 **Content Manager**: la aplicación canónica es `admin/content-manager/`
 (TypeScript: Fastify + React + Vite + TS7). El manager Python/Tkinter
@@ -23,8 +23,8 @@ los archivos persisten).
   en el repo; el storefront lo consume en build. Cualquier cambio de catálogo,
   taxonomía o assets obliga a `guardrails:assets`.
 - **`plans/`** — planes de implementación activos (índice: `plans/README.md`,
-  planes numerados 001–127 con estado reconciliado; cola TODO vacía, master
-  roadmap del Content Manager = plan 127). `docs/audit/` conserva
+  planes 001–169 cerrados; lote de auditoría 11 (170–214) en curso — el README
+  es la fuente de estado). `docs/audit/` conserva
   auditorías antiguas, no el estado actual.
 
 ## Comandos clave
@@ -35,7 +35,7 @@ los archivos persisten).
 | `npm run build`            | **Preflight completo** (categories:sync → generación de imágenes → validación) + build Astro. Lento; usa `npm run build:fast` para iterar sin preflight.            |
 | `npm test`                 | **Dos runners vitest**: root (`test/`) + `npm run admin:test`.                                                                                                      |
 | `npm run typecheck`        | Astro check + admin tsc (el árbol legacy se retiró a echo, plan 155).                                                                                               |
-| `npm run lint`             | **NO cubre `admin/content-manager`** (root eslint lo ignora, igual que `astro-poc/`). El admin se lint-ea en pre-commit (lint-staged) y en CI `admin.yml`.          |
+| `npm run lint`             | Cubre root (`lint:root`) + `astro-poc/` (`lint:astro`); `admin/content-manager/` lo cubre su propio config en pre-commit y CI (plan 209 añade `admin:lint` local).  |
 | `npm run test:e2e`         | Playwright sobre `test/e2e-astro/` (config `playwright.astro.config.ts`). **Hace un build completo primero**; con `PLAYWRIGHT_SKIP_BUILD=1` reusa `astro-poc/dist`. |
 | `npm run validate`         | lint → typecheck → check:e2e-selectors → build → test → check:plans → guardrails:assets.                                                                            |
 | `npm run validate:release` | Gate de release (añade e2e + live share-preview probe; audits run separately in `security-audit.yml`).                                                              |
