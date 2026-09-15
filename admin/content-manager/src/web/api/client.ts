@@ -1,32 +1,50 @@
-import type { Product, ProductCatalog } from '../../shared/schemas/product.ts';
-import type { CategoryRegistry } from '../../shared/schemas/category.ts';
-import type { StorefrontExperience, StorefrontBundle } from '../../shared/schemas/storefront.ts';
+// ContentManagerClient — public facade. Method bodies live in the domain
+// modules next to this file (products, categories, storefront, media,
+// importExport, publications, system, sync); every call below is a one-line
+// delegation over the single ApiRequestFn core (requestCore.ts).
+//
+// Plan 197 maintenance rule: new API methods go in their domain module +
+// use the core. New fetch wrappers are banned (point at plan 197).
+import type { ProductCatalog } from '../../shared/schemas/product.ts';
 import type {
   ImportPreviewResponse,
   ImportApplyResponse,
   ImportResolution,
   CsvExportQuery,
 } from '../../shared/schemas/importExport.ts';
-import { getCredentialValue, resetCredential } from '../app/credentialStore.ts';
+import { fetchCore, requestJson, type ApiRequestFn } from './requestCore.ts';
+import * as productsApi from './products.ts';
+import * as categoriesApi from './categories.ts';
+import * as storefrontApi from './storefront.ts';
+import * as mediaApi from './media.ts';
+import * as importExportApi from './importExport.ts';
+import * as publicationsApi from './publications.ts';
+import * as systemApi from './system.ts';
+import * as syncApi from './sync.ts';
 
-export type ProductFilters = {
-  q?: string;
-  category?: string;
-  archived?: boolean;
-  out_of_stock?: boolean;
-  min_price?: number;
-  max_price?: number;
-  discounted_only?: boolean;
-  min_discount?: number;
-  max_discount?: number;
-};
-
-export interface PaginatedResponse<T> {
-  page: number;
-  limit: number;
-  total: number;
-  items: T[];
-}
+// Re-exported so existing `from './client.ts'` / `'@web/api/client.ts'`
+// imports keep working unchanged after the split.
+export { ApiRequestError, type ApiError } from './requestCore.ts';
+export type {
+  ProductFilters,
+  PaginatedResponse,
+  ProductResponse,
+  HistoryResponse,
+  ChangeSetResponse,
+  ProductMutation,
+  ProductWriteResult,
+  BulkResult,
+} from './products.ts';
+export type { CategoryResponse } from './categories.ts';
+export type { FeaturedResponse, BundlesResponse } from './storefront.ts';
+export type { GitStatusResponse, PublicationPreviewResponse, JobResponse } from './publications.ts';
+export type { DiagnosticsReport } from './system.ts';
+export type {
+  BackupEntry,
+  BackupsResponse,
+  SyncStatusResponse,
+  ConflictsResponse,
+} from './sync.ts';
 
 export interface BootstrapResponse {
   capabilities: {
@@ -50,191 +68,9 @@ export interface BootstrapResponse {
   };
 }
 
-export interface ProductResponse extends Product {
-  discounted_price: number;
-  discount_percentage: number;
-}
-
-export interface CategoryResponse {
-  rev: number;
-  nav_groups: CategoryRegistry['nav_groups'];
-  categories: CategoryRegistry['categories'];
-}
-
-export interface FeaturedResponse {
-  featuredStaples: StorefrontExperience['home']['featuredStaples'];
-  primaryCategories: string[];
-  secondaryCategories: string[];
-  trustBar: StorefrontExperience['trustBar'];
-}
-
-export interface BundlesResponse {
-  bundles: StorefrontBundle[];
-}
-
-export interface ApiError {
-  error: {
-    code: string;
-    message: string;
-    details?: Array<{ field?: string; code: string; message: string }>;
-  };
-}
-
-export class ApiRequestError extends Error {
-  public readonly status: number;
-
-  constructor(message: string, status: number) {
-    super(message);
-    this.name = 'ApiRequestError';
-    this.status = status;
-  }
-}
-
-export interface GitStatusResponse {
-  branch: string;
-  dirty: boolean;
-  staged: string[];
-  unstaged: string[];
-  untracked: string[];
-  ahead: number;
-  behind: number;
-  hasConflicts: boolean;
-}
-
-export interface PublicationPreviewResponse {
-  preflight: {
-    ok: boolean;
-    checks: Array<{ name: string; status: 'pass' | 'warn' | 'fail'; message: string }>;
-    errors: string[];
-    warnings: string[];
-    validations?: {
-      products: { ok: boolean; errors: string[] };
-      categories: { ok: boolean; errors: string[] };
-      storefront: { ok: boolean; errors: string[] };
-    };
-  };
-  git: GitStatusResponse;
-}
-
-export interface JobResponse {
-  id: string;
-  type: string;
-  status: string;
-  progress: number;
-  started_at?: string;
-  completed_at?: string;
-  scheduled_at?: string;
-  result?: unknown;
-  error?: string;
-}
-
-export interface DiagnosticsReport {
-  timestamp: string;
-  nodeVersion: string;
-  repoRoot: string;
-  checks: Array<{
-    name: string;
-    status: 'ok' | 'warn' | 'error';
-    message: string;
-    remediation?: string;
-  }>;
-  summary: { ok: number; warn: number; error: number };
-  recoveryNeeded: boolean;
-}
-
-export interface HistoryResponse {
-  total_products: number;
-  products_with_history: number;
-  entries: Array<{
-    product_name: string;
-    product_id?: string;
-    field: string;
-    timestamp?: string;
-    by?: string;
-    rev?: number;
-    before?: Record<string, unknown>;
-    after?: Record<string, unknown>;
-    change_set_id?: string;
-    source_change_set_id?: string;
-  }>;
-  catalog_version?: string;
-  catalog_last_updated?: string;
-}
-
-export interface ChangeSetResponse {
-  id: string;
-  status: string;
-  created_at: string;
-  updated_at: string;
-  product_ops: Array<Record<string, unknown>>;
-  source_change_set_id?: string;
-}
-
-export interface BackupEntry {
-  id: string;
-  timestamp: string;
-  files: Array<{ name: string; size: number }>;
-  backup_class?: string;
-  protected_reason?: string;
-  cleanup_warning?: string;
-}
-
-export interface BackupsResponse {
-  backups: { entries: BackupEntry[]; total: number; page: number };
-}
-
-export interface SyncStatusResponse {
-  sync: {
-    enabled: boolean;
-    api_base: string | null;
-    poll_interval: number;
-    pull_interval: number;
-    paused: boolean;
-    token_configured: boolean;
-    queue: { pending: number; error: number; total: number; synced?: number };
-    next_attempt: string | null;
-    last_push: { ok: boolean; error?: string } | null;
-    last_pull: { ok: boolean; error?: string } | null;
-  };
-  capabilities: { push: string; pull: string };
-}
-
-export interface ConflictsResponse {
-  conflicts: Array<{
-    id: string;
-    status: string;
-    entity_type: string;
-    entity_id: string;
-    entity_name?: string;
-    base_revision: number;
-    local_snapshot: Record<string, unknown>;
-    server_snapshot: Record<string, unknown>;
-    fields: Array<{
-      field: string;
-      base_value: unknown;
-      local_value: unknown;
-      server_value: unknown;
-      resolution: string;
-      manual_value?: unknown;
-      resolved_at?: string;
-    }>;
-    created_at: string;
-    updated_at: string;
-    retry_count: number;
-    last_error?: string;
-    resolution_audit: Array<{ timestamp: string; field: string; from: string; to: string }>;
-  }>;
-  summary: {
-    unresolved: number;
-    retrying: number;
-    resolved: number;
-    failed: number;
-    total: number;
-  };
-}
-
 export class ContentManagerClient {
   private readonly baseUrl: string;
+  private readonly invoke: ApiRequestFn;
 
   constructor(baseUrl?: string) {
     // Derive the API base from the page origin when running in the browser so
@@ -245,53 +81,25 @@ export class ContentManagerClient {
       (typeof window !== 'undefined' ? window.location.origin : undefined) ??
       'http://127.0.0.1:3000'
     ).replace(/\/$/, '');
+    this.invoke = <T>(path: string, init?: RequestInit, opts?: { rawResponse?: boolean }) =>
+      this.request<T>(path, init, opts);
   }
 
-  private async request<T>(path: string, init?: RequestInit): Promise<T> {
-    const method = init?.method ?? 'GET';
-    const isMutation = ['POST', 'PATCH', 'PUT', 'DELETE'].includes(method);
-
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      ...(init?.headers as Record<string, string> | undefined),
-    };
-
-    if (isMutation) {
-      // The credential is operator-supplied (plan 071); a 401 means it is
-      // missing/wrong and the CredentialPrompt must be shown.
-      const credential = getCredentialValue();
-      if (credential) {
-        headers['x-admin-credential'] = credential;
-      }
-    }
-
+  private async request<T>(
+    path: string,
+    init?: RequestInit,
+    opts?: { rawResponse?: boolean }
+  ): Promise<T> {
+    // Thin shim over the single browser core (requestCore.ts) — no fetch,
+    // credential or envelope logic lives here.
     const url = `${this.baseUrl}/api/v1${path}`;
-    const response = await fetch(url, {
-      ...init,
-      headers,
-    });
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        try {
-          resetCredential();
-        } catch {
-          // ignore
-        }
-      }
-      const body = await response.json().catch(() => ({}));
-      throw new ApiRequestError(
-        (body as ApiError).error?.message ?? `HTTP ${response.status}: ${response.statusText}`,
-        response.status
-      );
+    if (opts?.rawResponse) {
+      return (await fetchCore(url, init)) as unknown as T;
     }
-
-    if (response.status === 204) {
-      return undefined as T;
-    }
-
-    return response.json() as Promise<T>;
+    return requestJson<T>(url, init);
   }
+
+  // ── products ──────────────────────────────────────────────────────────
 
   async getProducts(params?: {
     page?: number;
@@ -305,34 +113,16 @@ export class ContentManagerClient {
     discounted_only?: boolean;
     min_discount?: number;
     max_discount?: number;
-  }): Promise<PaginatedResponse<ProductResponse>> {
-    const searchParams = new URLSearchParams();
-    if (params?.page) searchParams.set('page', String(params.page));
-    if (params?.limit) searchParams.set('limit', String(params.limit));
-    if (params?.q) searchParams.set('q', params.q);
-    if (params?.category) searchParams.set('category', params.category);
-    if (params?.archived !== undefined) searchParams.set('archived', String(params.archived));
-    if (params?.out_of_stock !== undefined)
-      searchParams.set('out_of_stock', String(params.out_of_stock));
-    if (params?.min_price !== undefined) searchParams.set('min_price', String(params.min_price));
-    if (params?.max_price !== undefined) searchParams.set('max_price', String(params.max_price));
-    if (params?.discounted_only !== undefined)
-      searchParams.set('discounted_only', String(params.discounted_only));
-    if (params?.min_discount !== undefined)
-      searchParams.set('min_discount', String(params.min_discount));
-    if (params?.max_discount !== undefined)
-      searchParams.set('max_discount', String(params.max_discount));
-
-    const qs = searchParams.toString();
-    return this.request<PaginatedResponse<ProductResponse>>(`/products${qs ? `?${qs}` : ''}`);
+  }): Promise<productsApi.PaginatedResponse<productsApi.ProductResponse>> {
+    return productsApi.getProducts(this.invoke, params);
   }
 
-  async getProduct(id: string): Promise<ProductResponse> {
-    return this.request<ProductResponse>(`/products/${encodeURIComponent(id)}`);
+  async getProduct(id: string): Promise<productsApi.ProductResponse> {
+    return productsApi.getProduct(this.invoke, id);
   }
 
-  async getCategories(): Promise<CategoryResponse> {
-    return this.request<CategoryResponse>('/categories');
+  async getCategories(): Promise<categoriesApi.CategoryResponse> {
+    return categoriesApi.getCategories(this.invoke);
   }
 
   // Plan 127 F2.1: batch category ops for undo/redo (one registry write).
@@ -340,17 +130,7 @@ export class ContentManagerClient {
     ops: Array<{ type: 'upsert' | 'delete'; category?: Record<string, unknown> }>,
     baseRevision: number
   ): Promise<{ command_id: string; status: string; applied: number }> {
-    return this.request<{ command_id: string; status: string; applied: number }>(
-      '/categories/batch-update',
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          command_id: crypto.randomUUID(),
-          base_revision: baseRevision,
-          ops,
-        }),
-      }
-    );
+    return categoriesApi.batchUpdateCategories(this.invoke, ops, baseRevision);
   }
 
   async createCategory(
@@ -364,10 +144,7 @@ export class ContentManagerClient {
     },
     baseRevision: number
   ): Promise<unknown> {
-    return this.request('/categories', {
-      method: 'POST',
-      body: JSON.stringify({ ...data, base_revision: baseRevision }),
-    });
+    return categoriesApi.createCategory(this.invoke, data, baseRevision);
   }
 
   async updateCategory(
@@ -375,20 +152,11 @@ export class ContentManagerClient {
     changes: Record<string, unknown>,
     baseRevision: number
   ): Promise<unknown> {
-    return this.request(`/categories/${encodeURIComponent(id)}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ ...changes, base_revision: baseRevision }),
-    });
+    return categoriesApi.updateCategory(this.invoke, id, changes, baseRevision);
   }
 
   async deleteCategory(id: string, baseRevision: number, reassignTo?: string): Promise<void> {
-    await this.request(`/categories/${encodeURIComponent(id)}`, {
-      method: 'DELETE',
-      body: JSON.stringify({
-        base_revision: baseRevision,
-        ...(reassignTo ? { reassign_to: reassignTo } : {}),
-      }),
-    });
+    await categoriesApi.deleteCategory(this.invoke, id, baseRevision, reassignTo);
   }
 
   async updateNavGroup(
@@ -396,10 +164,7 @@ export class ContentManagerClient {
     baseRevision: number,
     changes: { display_name?: { default?: string }; active?: boolean; sort_order?: number }
   ): Promise<Record<string, unknown>> {
-    return this.request(`/nav-groups/${encodeURIComponent(id)}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ ...changes, base_revision: baseRevision }),
-    });
+    return categoriesApi.updateNavGroup(this.invoke, id, baseRevision, changes);
   }
 
   async createNavGroup(
@@ -410,17 +175,11 @@ export class ContentManagerClient {
     },
     baseRevision: number
   ): Promise<unknown> {
-    return this.request('/nav-groups', {
-      method: 'POST',
-      body: JSON.stringify({ ...data, base_revision: baseRevision }),
-    });
+    return categoriesApi.createNavGroup(this.invoke, data, baseRevision);
   }
 
   async deleteNavGroup(id: string, baseRevision: number): Promise<void> {
-    await this.request(`/nav-groups/${encodeURIComponent(id)}`, {
-      method: 'DELETE',
-      body: JSON.stringify({ base_revision: baseRevision }),
-    });
+    await categoriesApi.deleteNavGroup(this.invoke, id, baseRevision);
   }
 
   async createSubcategory(
@@ -428,10 +187,7 @@ export class ContentManagerClient {
     data: { id: string; title: string; product_key: string; slug: string },
     baseRevision: number
   ): Promise<unknown> {
-    return this.request(`/categories/${encodeURIComponent(categoryId)}/subcategories`, {
-      method: 'POST',
-      body: JSON.stringify({ ...data, base_revision: baseRevision }),
-    });
+    return categoriesApi.createSubcategory(this.invoke, categoryId, data, baseRevision);
   }
 
   async updateSubcategory(
@@ -440,17 +196,11 @@ export class ContentManagerClient {
     changes: Record<string, unknown>,
     baseRevision: number
   ): Promise<unknown> {
-    return this.request(
-      `/categories/${encodeURIComponent(categoryId)}/subcategories/${encodeURIComponent(subId)}`,
-      { method: 'PATCH', body: JSON.stringify({ ...changes, base_revision: baseRevision }) }
-    );
+    return categoriesApi.updateSubcategory(this.invoke, categoryId, subId, changes, baseRevision);
   }
 
   async deleteSubcategory(categoryId: string, subId: string, baseRevision: number): Promise<void> {
-    await this.request(
-      `/categories/${encodeURIComponent(categoryId)}/subcategories/${encodeURIComponent(subId)}`,
-      { method: 'DELETE', body: JSON.stringify({ base_revision: baseRevision }) }
-    );
+    await categoriesApi.deleteSubcategory(this.invoke, categoryId, subId, baseRevision);
   }
 
   async updateFeatured(featured: {
@@ -458,55 +208,23 @@ export class ContentManagerClient {
     primaryCategories: string[];
     secondaryCategories: string[];
   }): Promise<unknown> {
-    return this.request('/storefront/featured', {
-      method: 'PUT',
-      body: JSON.stringify(featured),
-    });
+    return storefrontApi.updateFeatured(this.invoke, featured);
   }
 
   async updateBundles(bundles: Array<Record<string, unknown>>): Promise<unknown> {
-    return this.request('/storefront/bundles', {
-      method: 'PUT',
-      body: JSON.stringify({ bundles }),
-    });
+    return storefrontApi.updateBundles(this.invoke, bundles);
   }
 
-  async getMedia(): Promise<{
-    items: Array<{
-      path: string;
-      name: string;
-      size: number;
-      ext: string;
-      status: 'active' | 'orphan' | 'generated' | 'staged' | 'missing';
-      productName?: string;
-    }>;
-    summary: {
-      total: number;
-      active: number;
-      orphans: number;
-      generated: number;
-      staged: number;
-      missing: number;
-    };
-    intents: Array<{
-      id: string;
-      type: string;
-      status: 'pending' | 'running' | 'succeeded' | 'failed' | 'cancelled' | 'applied';
-      target_path?: string;
-      progress: number;
-      errors: string[];
-      category_slug?: string;
-    }>;
-  }> {
-    return this.request('/media');
+  async getMedia(): Promise<Awaited<ReturnType<typeof mediaApi.getMedia>>> {
+    return mediaApi.getMedia(this.invoke);
   }
 
-  async getBundles(): Promise<BundlesResponse> {
-    return this.request<BundlesResponse>('/storefront/bundles');
+  async getBundles(): Promise<storefrontApi.BundlesResponse> {
+    return storefrontApi.getBundles(this.invoke);
   }
 
-  async getFeatured(): Promise<FeaturedResponse> {
-    return this.request<FeaturedResponse>('/storefront/featured');
+  async getFeatured(): Promise<storefrontApi.FeaturedResponse> {
+    return storefrontApi.getFeatured(this.invoke);
   }
 
   async createProduct(payload: {
@@ -518,24 +236,12 @@ export class ContentManagerClient {
     category?: string;
     image_path?: string;
     image_avif_path?: string;
-  }): Promise<{
-    command_id: string;
-    status: string;
-    resulting_revision: number;
-    changed_fields: string[];
-    product: ProductResponse;
-  }> {
-    return this.request('/products', {
-      method: 'POST',
-      body: JSON.stringify({ command_id: crypto.randomUUID(), payload }),
-    });
+  }): Promise<productsApi.ProductWriteResult> {
+    return productsApi.createProduct(this.invoke, payload);
   }
 
   async deleteProduct(id: string, rev: number): Promise<{ status: string }> {
-    return this.request<{ status: string }>(`/products/${encodeURIComponent(id)}`, {
-      method: 'DELETE',
-      body: JSON.stringify({ base_revision: rev }),
-    });
+    return productsApi.deleteProduct(this.invoke, id, rev);
   }
 
   async updateProduct(
@@ -552,72 +258,41 @@ export class ContentManagerClient {
       image_avif_path?: string;
       is_archived?: boolean;
     }
-  ): Promise<{
-    command_id: string;
-    status: string;
-    resulting_revision: number;
-    changed_fields: string[];
-    product: ProductResponse;
-  }> {
-    return this.request(`/products/${encodeURIComponent(id)}`, {
-      method: 'PATCH',
-      body: JSON.stringify({
-        command_id: crypto.randomUUID(),
-        base_revision: baseRevision,
-        payload: changes,
-      }),
-    });
+  ): Promise<productsApi.ProductWriteResult> {
+    return productsApi.updateProduct(this.invoke, id, baseRevision, changes);
   }
 
-  async getGitStatus(): Promise<GitStatusResponse> {
-    return this.request<GitStatusResponse>('/git/status');
+  async getGitStatus(): Promise<publicationsApi.GitStatusResponse> {
+    return publicationsApi.getGitStatus(this.invoke);
   }
 
   async gitPull(): Promise<{ job_id: string; status: string }> {
-    return this.request<{ job_id: string; status: string }>('/git/pull', { method: 'POST' });
+    return publicationsApi.gitPull(this.invoke);
   }
 
   // ── Lossless catalog interchange (plan 060) ────────────────────────────────
 
   async importPreview(payload: unknown): Promise<ImportPreviewResponse> {
-    return this.request<ImportPreviewResponse>('/import/preview', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    });
+    return importExportApi.importPreview(this.invoke, payload);
   }
 
   async importApply(
     previewId: string,
     resolutions: ImportResolution[]
   ): Promise<ImportApplyResponse> {
-    return this.request<ImportApplyResponse>('/import/apply', {
-      method: 'POST',
-      body: JSON.stringify({ preview_id: previewId, resolutions }),
-    });
+    return importExportApi.importApply(this.invoke, previewId, resolutions);
   }
 
   async exportJson(): Promise<ProductCatalog> {
-    return this.request<ProductCatalog>('/export');
+    return importExportApi.exportJson(this.invoke);
   }
 
   async exportCsv(query: CsvExportQuery = {}): Promise<Response> {
-    const params = new URLSearchParams();
-    if (query.q) params.set('q', query.q);
-    if (query.category) params.set('category', query.category);
-    if (query.archived) params.set('archived', query.archived);
-    if (query.out_of_stock) params.set('out_of_stock', query.out_of_stock);
-    if (query.discounted_only) params.set('discounted_only', query.discounted_only);
-    if (query.min_discount) params.set('min_discount', query.min_discount);
-    if (query.max_discount) params.set('max_discount', query.max_discount);
-    const qs = params.toString();
-    return fetch(`${this.baseUrl}/api/v1/export.csv${qs ? `?${qs}` : ''}`);
+    return importExportApi.exportCsv(this.invoke, query);
   }
 
-  async previewPublication(): Promise<PublicationPreviewResponse> {
-    return this.request<PublicationPreviewResponse>('/publications/preview', {
-      method: 'POST',
-      body: JSON.stringify({}),
-    });
+  async previewPublication(): Promise<publicationsApi.PublicationPreviewResponse> {
+    return publicationsApi.previewPublication(this.invoke);
   }
 
   async publish(
@@ -625,26 +300,19 @@ export class ContentManagerClient {
     push?: boolean,
     publishAt?: string
   ): Promise<{ job_id: string; status: string }> {
-    const payload: Record<string, unknown> = { commitMessage, push };
-    if (publishAt) payload.publishAt = publishAt;
-    return this.request<{ job_id: string; status: string }>('/publications', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    });
+    return publicationsApi.publish(this.invoke, commitMessage, push, publishAt);
   }
 
-  async getJob(id: string): Promise<JobResponse> {
-    return this.request<JobResponse>(`/jobs/${encodeURIComponent(id)}`);
+  async getJob(id: string): Promise<publicationsApi.JobResponse> {
+    return publicationsApi.getJob(this.invoke, id);
   }
 
-  async listJobs(): Promise<{ jobs: JobResponse[] }> {
-    return this.request<{ jobs: JobResponse[] }>('/jobs');
+  async listJobs(): Promise<{ jobs: publicationsApi.JobResponse[] }> {
+    return publicationsApi.listJobs(this.invoke);
   }
 
-  async cancelJob(id: string): Promise<JobResponse> {
-    return this.request<JobResponse>(`/jobs/${encodeURIComponent(id)}/cancel`, {
-      method: 'POST',
-    });
+  async cancelJob(id: string): Promise<publicationsApi.JobResponse> {
+    return publicationsApi.cancelJob(this.invoke, id);
   }
 
   async batchUpdateProducts(
@@ -664,18 +332,7 @@ export class ContentManagerClient {
       };
     }>
   ): Promise<{ command_id: string; status: string; resulting_revision: number; applied: number }> {
-    return this.request<{
-      command_id: string;
-      status: string;
-      resulting_revision: number;
-      applied: number;
-    }>('/products/batch-update', {
-      method: 'POST',
-      body: JSON.stringify({
-        command_id: crypto.randomUUID(),
-        updates,
-      }),
-    });
+    return productsApi.batchUpdateProducts(this.invoke, updates);
   }
 
   async reorderProducts(orderedIds: string[]): Promise<{
@@ -684,20 +341,14 @@ export class ContentManagerClient {
     resulting_revision: number;
     reordered: number;
   }> {
-    return this.request('/products/reorder', {
-      method: 'POST',
-      body: JSON.stringify({
-        command_id: crypto.randomUUID(),
-        ordered_ids: orderedIds,
-      }),
-    });
+    return productsApi.reorderProducts(this.invoke, orderedIds);
   }
 
   async bulkPreview(
     action: string,
     value: number | boolean | string,
     productIds: string[],
-    scope?: { scope: 'all'; filters?: ProductFilters }
+    scope?: { scope: 'all'; filters?: productsApi.ProductFilters }
   ): Promise<{
     command_id: string;
     status: string;
@@ -711,78 +362,42 @@ export class ContentManagerClient {
     }>;
     total_changes: number;
   }> {
-    return this.request('/products/bulk/preview', {
-      method: 'POST',
-      body: JSON.stringify({
-        command_id: crypto.randomUUID(),
-        action,
-        value,
-        ...(scope ? { scope: scope.scope, filters: scope.filters } : { product_ids: productIds }),
-      }),
-    });
+    return productsApi.bulkPreview(this.invoke, action, value, productIds, scope);
   }
 
   async bulkApply(
     action: string,
     value: number | boolean | string,
     productIds: string[],
-    scope?: { scope: 'all'; filters?: ProductFilters }
-  ): Promise<{
-    command_id: string;
-    status: string;
-    resulting_revision: number;
-    changed: number;
-    changes: Array<{
-      product_id: string;
-      name: string;
-      field: string;
-      old_value: number | boolean | string;
-      new_value: number | boolean | string;
-    }>;
-  }> {
-    return this.request('/products/bulk/apply', {
-      method: 'POST',
-      body: JSON.stringify({
-        command_id: crypto.randomUUID(),
-        action,
-        value,
-        ...(scope ? { scope: scope.scope, filters: scope.filters } : { product_ids: productIds }),
-      }),
-    });
+    scope?: { scope: 'all'; filters?: productsApi.ProductFilters }
+  ): Promise<productsApi.BulkResult> {
+    return productsApi.bulkApply(this.invoke, action, value, productIds, scope);
   }
 
-  async getDiagnostics(): Promise<DiagnosticsReport> {
-    return this.request<DiagnosticsReport>('/diagnostics');
+  async getDiagnostics(): Promise<systemApi.DiagnosticsReport> {
+    return systemApi.getDiagnostics(this.invoke);
   }
 
-  async getHistory(): Promise<HistoryResponse> {
-    return this.request<HistoryResponse>('/history');
+  async getHistory(): Promise<productsApi.HistoryResponse> {
+    return productsApi.getHistory(this.invoke);
   }
 
-  async getChangeSets(): Promise<{ items: ChangeSetResponse[] }> {
-    return this.request<{ items: ChangeSetResponse[] }>('/change-sets');
+  async getChangeSets(): Promise<{ items: productsApi.ChangeSetResponse[] }> {
+    return productsApi.getChangeSets(this.invoke);
   }
 
-  async getBackups(params?: { page?: number; limit?: number }): Promise<BackupsResponse> {
-    const searchParams = new URLSearchParams();
-    if (params?.page) searchParams.set('page', String(params.page));
-    if (params?.limit) searchParams.set('limit', String(params.limit));
-    const qs = searchParams.toString();
-    return this.request<BackupsResponse>('/backup' + (qs ? `?${qs}` : ''));
+  async getBackups(params?: { page?: number; limit?: number }): Promise<syncApi.BackupsResponse> {
+    return syncApi.getBackups(this.invoke, params);
   }
 
-  async getSyncStatus(): Promise<SyncStatusResponse> {
-    return this.request<SyncStatusResponse>('/sync/status');
+  async getSyncStatus(): Promise<syncApi.SyncStatusResponse> {
+    return syncApi.getSyncStatus(this.invoke);
   }
 
   async getConflicts(params?: {
     status?: string;
     entity_type?: string;
-  }): Promise<ConflictsResponse> {
-    const searchParams = new URLSearchParams();
-    if (params?.status) searchParams.set('status', params.status);
-    if (params?.entity_type) searchParams.set('entity_type', params.entity_type);
-    const qs = searchParams.toString();
-    return this.request<ConflictsResponse>('/conflicts' + (qs ? `?${qs}` : ''));
+  }): Promise<syncApi.ConflictsResponse> {
+    return syncApi.getConflicts(this.invoke, params);
   }
 }

@@ -52,7 +52,9 @@ export const normalizeAssetPath = constants.normalizeAssetPath;
 export const supportsAvifConversion = constants.supportsAvifConversion;
 export const deriveAvifPath = constants.deriveAvifPath;
 
-// Variant path helpers (gap-fill / generate-images)
+// Variant path helpers (gap-fill + any variant producer): canonical
+// w<width>/images/<rel>/ layout — the only layout the storefront resolver
+// reads (plan 119: no width suffix).
 export function variantExists(variantsRoot, imagePath, width, ext) {
   const rel = path.dirname(imagePath.replace(/^assets\/images\//, ''));
   const base = path.basename(imagePath, path.extname(imagePath));
@@ -94,35 +96,6 @@ export async function renderSharpBuffer({ input, resize, format, formatOptions, 
   // Ensure without metadata for determinism
   pipeline = pipeline.withMetadata ? pipeline.withMetadata(false) : pipeline;
   return pipeline.toBuffer();
-}
-
-/**
- * Single-decode then clone pattern for generate-images.mjs
- * Decodes once, then clones for each width/format to avoid re-decode.
- */
-export async function generateVariantsSingleDecode({ sourcePath, widths, outDir, base, formats }) {
-  const sharp = await loadSharp();
-  const baseImage = sharp(sourcePath).withMetadata(false);
-  // We will produce buffers per width/format by cloning.
-  // Note: sharp requires .clone() per output to avoid mutating the pipeline.
-  const results = [];
-  for (const w of widths) {
-    for (const fmt of formats) {
-      const outputPath = path.join(outDir, `${base}-${w}.${fmt.ext}`);
-      if (fs.existsSync(outputPath) && !fmt.force) {
-        results.push({ outputPath, skipped: true });
-        continue;
-      }
-      const pipeline = baseImage
-        .clone()
-        .resize({ width: w, withoutEnlargement: true, fit: 'inside' })
-        .toFormat(fmt.format, fmt.options);
-      const buffer = await pipeline.toBuffer();
-      const changed = writeBufferIfChanged(outputPath, buffer);
-      results.push({ outputPath, changed, skipped: false });
-    }
-  }
-  return results;
 }
 
 export function getProductsJsonPath(override) {

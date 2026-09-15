@@ -26,7 +26,10 @@ const DEFAULT_PRODUCT_FILE = 'data/product_data.json';
 // idempotency + structuredClone cache (load-bearing for plans 092/105).
 // New single-file JSON writers should extend JsonFileRepository<T> +
 // writeJsonFileAtomic (see jsonFileRepository.ts / atomicFileWriter.ts).
-// Rebasing ProductRepository onto the base is deferred to a follow-up.
+// Plan 196 verdict: PERMANENTLY separate — the journal and
+// idempotency store have no hooks on the base, and a wrong merge corrupts
+// writes. Pinned by the idempotency contract tests (plan 175) and the
+// restart-recovery suite.
 
 export class ProductRepository {
   private readonly filePath: string;
@@ -189,57 +192,41 @@ export class ProductRepository {
     }
   ): { items: Product[]; total: number } {
     const catalog = this.loadCatalog();
-    let products = catalog.products;
 
-    if (filters?.archived === false) {
-      products = products.filter((p) => !p.is_archived);
-    } else if (filters?.archived === true) {
-      products = products.filter((p) => p.is_archived);
-    }
+    // Plan 188: single pass with hoisted normalizations (was up to 8 chained
+    // .filter passes plus repeated per-product toLowerCase). Every predicate
+    // mirrors the old chain exactly, including falsy-skips for q/category.
+    const query = filters?.q ? filters.q.toLowerCase().trim() : undefined;
+    const category = filters?.category ? filters.category.toLowerCase().trim() : undefined;
+    const minPrice = filters?.min_price;
+    const maxPrice = filters?.max_price;
+    const minDiscount = filters?.min_discount;
+    const maxDiscount = filters?.max_discount;
+    const products = catalog.products.filter((p) => {
+      if (filters?.archived === false && p.is_archived) return false;
+      if (filters?.archived === true && !p.is_archived) return false;
+      if (filters?.out_of_stock === true && p.stock) return false;
+      if (minPrice !== undefined && !(p.price >= minPrice)) return false;
+      if (maxPrice !== undefined && !(p.price <= maxPrice)) return false;
+      // Plan 091/195: raw ratio (deliberately unrounded — see the note above
+      // the old chain, preserved here).
+      const discountPct = p.price > 0 ? (p.discount / p.price) * 100 : 0;
+      if (filters?.discounted_only === true && !(discountPct > 0)) return false;
+      if (minDiscount !== undefined && !(discountPct >= minDiscount)) return false;
+      if (maxDiscount !== undefined && !(discountPct <= maxDiscount)) return false;
+      if (category !== undefined && p.category.toLowerCase().trim() !== category) return false;
+      if (query !== undefined) {
+        const name = p.name.toLowerCase();
+        const description = p.description.toLowerCase();
+        const cat = p.category.toLowerCase();
+        if (!name.includes(query) && !description.includes(query) && !cat.includes(query)) {
+          return false;
+        }
+      }
+      return true;
+    });
 
-    if (filters?.out_of_stock === true) {
-      products = products.filter((p) => !p.stock);
-    }
-
-    if (filters?.min_price !== undefined) {
-      products = products.filter((p) => p.price >= filters.min_price!);
-    }
-    if (filters?.max_price !== undefined) {
-      products = products.filter((p) => p.price <= filters.max_price!);
-    }
-
-    // Plan 091: discount filters operate on the same derived percentage the
-    // storefront displays (discount / price * 100).
-    // Plan 195: deliberately the RAW ratio, not a rounded helper — rounding
-    // before comparison would flip boundary items between filter and display.
-    const discountPercent = (p: Product): number =>
-      p.price > 0 ? (p.discount / p.price) * 100 : 0;
-    if (filters?.discounted_only === true) {
-      products = products.filter((p) => discountPercent(p) > 0);
-    }
-    if (filters?.min_discount !== undefined) {
-      products = products.filter((p) => discountPercent(p) >= filters.min_discount!);
-    }
-    if (filters?.max_discount !== undefined) {
-      products = products.filter((p) => discountPercent(p) <= filters.max_discount!);
-    }
-
-    if (filters?.category) {
-      const cat = filters.category.toLowerCase().trim();
-      products = products.filter((p) => p.category.toLowerCase().trim() === cat);
-    }
-
-    if (filters?.q) {
-      const q = filters.q.toLowerCase().trim();
-      products = products.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q)
-      );
-    }
-
-    products = products.sort((a, b) => a.order - b.order);
+    products.sort((a, b) => a.order - b.order);
 
     const total = products.length;
     const offset = (page - 1) * limit;

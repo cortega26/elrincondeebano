@@ -10,6 +10,7 @@ import {
 } from '../../shared/schemas/category.ts';
 import { ensureCategoryOgAssets } from '../services/categoryOgLifecycle.ts';
 import { requireWriteMode, type Repositories } from './helpers.ts';
+import { runRegistryCommand } from './catalog-command.ts';
 export async function categoryRoutes(
   app: FastifyInstance,
   repos: Repositories,
@@ -52,7 +53,6 @@ export async function categoryRoutes(
   app.post('/categories', async (request, reply) => {
     if (!requireWriteMode(reply, productService)) return;
 
-    const registry = repos.categories.load();
     const body = request.body as CreateCategoryInput;
 
     if (!body?.id || !body?.key || !body?.slug) {
@@ -61,52 +61,70 @@ export async function categoryRoutes(
       });
     }
 
-    const result = categoryService.create(registry, body);
-    if (!result.ok) {
-      return reply.status(409).send({ error: { code: 'CONFLICT', message: result.error } });
-    }
-
-    const wrote = await repos.categories.write(registry, readBaseRevision(request.body));
-    if (!wrote.ok) {
-      return reply.status(wrote.statusCode).send({
-        error: {
-          code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
-          message: wrote.error,
-        },
-      });
-    }
-
-    scheduleCategoryOg(result.category?.slug || result.category?.key, 'generate');
-    return reply.status(201).send({ ...result.category, rev: wrote.rev });
+    return runRegistryCommand({
+      reply,
+      load: () => repos.categories.load(),
+      getBaseRevision: () => readBaseRevision(request.body),
+      successStatus: 201,
+      apply: (registry) => {
+        const result = categoryService.create(registry, body);
+        if (!result.ok) {
+          return {
+            ok: false,
+            statusCode: 409,
+            code: 'CONFLICT',
+            message: result.error ?? 'Category create failed',
+          };
+        }
+        return { ok: true, data: result.category };
+      },
+      write: (registry, baseRevision) => repos.categories.write(registry, baseRevision),
+      onSuccess: (_registry, data, writeRev) => {
+        const category = (data ?? {}) as { slug?: string; key?: string };
+        scheduleCategoryOg(category.slug || category.key, 'generate');
+        return {
+          ...(data as Record<string, unknown>),
+          rev: writeRev,
+          resulting_revision: writeRev,
+        };
+      },
+    });
   });
 
   app.patch('/categories/:id', async (request, reply) => {
     if (!requireWriteMode(reply, productService)) return;
 
     const { id } = request.params as { id: string };
-    const registry = repos.categories.load();
-    const result = categoryService.edit(registry, id, request.body ?? {});
 
-    if (!result.ok) {
-      // Plan 094: typed code from the service — never string-match messages.
-      const status = result.code === 'NOT_FOUND' ? 404 : result.code === 'CONFLICT' ? 409 : 422;
-      return reply.status(status).send({
-        error: { code: result.code ?? 'VALIDATION_ERROR', message: result.error },
-      });
-    }
-
-    const wrote = await repos.categories.write(registry, readBaseRevision(request.body));
-    if (!wrote.ok) {
-      return reply.status(wrote.statusCode).send({
-        error: {
-          code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
-          message: wrote.error,
-        },
-      });
-    }
-
-    scheduleCategoryOg(result.category?.slug || result.category?.key, 'generate');
-    return { ...result.category, rev: wrote.rev };
+    return runRegistryCommand({
+      reply,
+      load: () => repos.categories.load(),
+      getBaseRevision: () => readBaseRevision(request.body),
+      apply: (registry) => {
+        const result = categoryService.edit(registry, id, request.body ?? {});
+        if (!result.ok) {
+          // Plan 094: typed code from the service — never string-match messages.
+          const status = result.code === 'NOT_FOUND' ? 404 : result.code === 'CONFLICT' ? 409 : 422;
+          return {
+            ok: false,
+            statusCode: status,
+            code: result.code ?? 'VALIDATION_ERROR',
+            message: result.error ?? 'Category operation failed',
+          };
+        }
+        return { ok: true, data: result.category };
+      },
+      write: (registry, baseRevision) => repos.categories.write(registry, baseRevision),
+      onSuccess: (_registry, data, writeRev) => {
+        const category = (data ?? {}) as { slug?: string; key?: string };
+        scheduleCategoryOg(category.slug || category.key, 'generate');
+        return {
+          ...(data as Record<string, unknown>),
+          rev: writeRev,
+          resulting_revision: writeRev,
+        };
+      },
+    });
   });
 
   app.delete('/categories/:id', async (request, reply) => {
@@ -166,26 +184,30 @@ export async function categoryRoutes(
       });
     }
 
-    const result = categoryService.remove(registry, id, 0);
-    if (!result.ok) {
-      // Plan 094: typed code from the service.
-      return reply.status(result.code === 'NOT_FOUND' ? 404 : 409).send({
-        error: { code: result.code ?? 'CONFLICT', message: result.error },
-      });
-    }
-
-    const wrote = await repos.categories.write(registry, readBaseRevision(request.body));
-    if (!wrote.ok) {
-      return reply.status(wrote.statusCode).send({
-        error: {
-          code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
-          message: wrote.error,
-        },
-      });
-    }
-
-    scheduleCategoryOg(id, 'delete');
-    return reply.status(200).send({ status: 'deleted', reassigned: usage.length });
+    return runRegistryCommand({
+      reply,
+      load: () => repos.categories.load(),
+      getBaseRevision: () => readBaseRevision(request.body),
+      successStatus: 200,
+      apply: (freshRegistry) => {
+        const result = categoryService.remove(freshRegistry, id, 0);
+        if (!result.ok) {
+          // Plan 094: typed code from the service.
+          return {
+            ok: false,
+            statusCode: result.code === 'NOT_FOUND' ? 404 : 409,
+            code: result.code ?? 'CONFLICT',
+            message: result.error ?? 'Category operation failed',
+          };
+        }
+        return { ok: true };
+      },
+      write: (freshRegistry, baseRevision) => repos.categories.write(freshRegistry, baseRevision),
+      onSuccess: (_registry, _data, writeRev) => {
+        scheduleCategoryOg(id, 'delete');
+        return { status: 'deleted', reassigned: usage.length, resulting_revision: writeRev };
+      },
+    });
   });
 
   // Plan 127 F2.1: batch category operations for undo/redo — upsert or
@@ -207,7 +229,6 @@ export async function categoryRoutes(
     }
 
     const registry = repos.categories.load();
-    const baseRev = readBaseRevision(envelope);
     // Batch delete is strict: no reassign_to in batch. Undo-of-create on an
     // in-use category is intentionally rejected — the operator must unassign
     // products first (or use the single DELETE with reassign_to).
@@ -255,36 +276,49 @@ export async function categoryRoutes(
     }
 
     // Apply.
-    for (const op of parsedOps) {
-      if (op.type === 'upsert') {
-        const result = categoryService.upsert(registry, op.category as never);
-        if (!result.ok) {
-          return reply.status(result.code === 'NOT_FOUND' ? 404 : 409).send({
-            error: { code: result.code ?? 'CONFLICT', message: result.error },
-          });
-        }
-      } else {
-        const id = (op.category as { id: string }).id;
-        const result = categoryService.remove(registry, id, 0);
-        if (!result.ok) {
-          return reply.status(result.code === 'NOT_FOUND' ? 404 : 409).send({
-            error: { code: result.code ?? 'CONFLICT', message: result.error },
-          });
+    const applyBatch = (
+      registry: Parameters<typeof categoryService.upsert>[0]
+    ): { ok: true } | { ok: false; statusCode: number; code: string; message: string } => {
+      for (const op of parsedOps) {
+        if (op.type === 'upsert') {
+          const result = categoryService.upsert(registry, op.category as never);
+          if (!result.ok) {
+            return {
+              ok: false,
+              statusCode: result.code === 'NOT_FOUND' ? 404 : 409,
+              code: result.code ?? 'CONFLICT',
+              message: result.error ?? 'Category operation failed',
+            };
+          }
+        } else {
+          const id = (op.category as { id: string }).id;
+          const result = categoryService.remove(registry, id, 0);
+          if (!result.ok) {
+            return {
+              ok: false,
+              statusCode: result.code === 'NOT_FOUND' ? 404 : 409,
+              code: result.code ?? 'CONFLICT',
+              message: result.error ?? 'Category operation failed',
+            };
+          }
         }
       }
-    }
+      return { ok: true };
+    };
 
-    const wrote = await repos.categories.write(registry, baseRev);
-    if (!wrote.ok) {
-      return reply.status(wrote.statusCode).send({
-        error: {
-          code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
-          message: wrote.error,
-        },
-      });
-    }
-
-    return { command_id: envelope.command_id, status: 'ok', applied: parsedOps.length };
+    return runRegistryCommand({
+      reply,
+      load: () => repos.categories.load(),
+      getBaseRevision: () => readBaseRevision(envelope),
+      apply: applyBatch,
+      write: (freshRegistry, baseRevision) => repos.categories.write(freshRegistry, baseRevision),
+      onSuccess: (_registry, _data, writeRev) => ({
+        command_id: envelope.command_id,
+        status: 'ok',
+        applied: parsedOps.length,
+        resulting_revision: writeRev,
+      }),
+    });
   });
 
   app.post('/categories/reorder', async (request, reply) => {
@@ -296,21 +330,24 @@ export async function categoryRoutes(
         .status(400)
         .send({ error: { code: 'BAD_REQUEST', message: 'Missing ordered_ids' } });
     }
+    const orderedIds = body.ordered_ids;
 
-    const registry = repos.categories.load();
-    categoryService.reorder(registry, body.ordered_ids);
-
-    const wrote = await repos.categories.write(registry, readBaseRevision(body));
-    if (!wrote.ok) {
-      return reply.status(wrote.statusCode).send({
-        error: {
-          code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
-          message: wrote.error,
-        },
-      });
-    }
-
-    return { status: 'ok', reordered: body.ordered_ids.length, rev: wrote.rev };
+    return runRegistryCommand({
+      reply,
+      load: () => repos.categories.load(),
+      getBaseRevision: () => readBaseRevision(body),
+      apply: (registry) => {
+        categoryService.reorder(registry, orderedIds);
+        return { ok: true };
+      },
+      write: (freshRegistry, baseRevision) => repos.categories.write(freshRegistry, baseRevision),
+      onSuccess: (_registry, _data, writeRev) => ({
+        status: 'ok',
+        reordered: orderedIds.length,
+        rev: writeRev,
+        resulting_revision: writeRev,
+      }),
+    });
   });
 
   app.post('/nav-groups', async (request, reply) => {
@@ -326,23 +363,30 @@ export async function categoryRoutes(
       });
     }
 
-    const registry = repos.categories.load();
-    const result = categoryService.addNavGroup(registry, parsed.data);
-    if (!result.ok) {
-      return reply.status(409).send({ error: { code: 'CONFLICT', message: result.error } });
-    }
-
-    const wrote = await repos.categories.write(registry, readBaseRevision(request.body));
-    if (!wrote.ok) {
-      return reply.status(wrote.statusCode).send({
-        error: {
-          code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
-          message: wrote.error,
-        },
-      });
-    }
-
-    return reply.status(201).send({ ...result.group, rev: wrote.rev });
+    return runRegistryCommand({
+      reply,
+      load: () => repos.categories.load(),
+      getBaseRevision: () => readBaseRevision(request.body),
+      successStatus: 201,
+      apply: (registry) => {
+        const result = categoryService.addNavGroup(registry, parsed.data);
+        if (!result.ok) {
+          return {
+            ok: false,
+            statusCode: 409,
+            code: 'CONFLICT',
+            message: result.error ?? 'Nav group create failed',
+          };
+        }
+        return { ok: true, data: result.group };
+      },
+      write: (freshRegistry, baseRevision) => repos.categories.write(freshRegistry, baseRevision),
+      onSuccess: (_registry, data, writeRev) => ({
+        ...(data as Record<string, unknown>),
+        rev: writeRev,
+        resulting_revision: writeRev,
+      }),
+    });
   });
 
   // Plan 096: edit nav-group fields (label, order, enabled) without
@@ -351,13 +395,6 @@ export async function categoryRoutes(
     if (!requireWriteMode(reply, productService)) return;
 
     const { id } = request.params as { id: string };
-    const registry = repos.categories.load();
-    const group = (registry.nav_groups ?? []).find((g) => g.id === id);
-    if (!group) {
-      return reply
-        .status(404)
-        .send({ error: { code: 'NOT_FOUND', message: `Nav group "${id}" not found` } });
-    }
 
     const body = request.body as Record<string, unknown>;
     const allowed: Array<'display_name' | 'active' | 'sort_order'> = [
@@ -374,49 +411,64 @@ export async function categoryRoutes(
         error: { code: 'BAD_REQUEST', message: `Unsupported field(s): ${unknown.join(', ')}` },
       });
     }
-    if (body.display_name !== undefined) {
-      group.display_name = body.display_name as { default?: string };
-    }
-    if (body.active !== undefined) group.active = body.active as boolean;
-    if (body.sort_order !== undefined) group.sort_order = body.sort_order as number;
 
-    const wrote = await repos.categories.write(registry, readBaseRevision(request.body));
-    if (!wrote.ok) {
-      return reply.status(wrote.statusCode).send({
-        error: {
-          code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
-          message: wrote.error,
-        },
-      });
-    }
-    return { ...group, rev: wrote.rev };
+    const groupId = id;
+    return runRegistryCommand({
+      reply,
+      load: () => repos.categories.load(),
+      getBaseRevision: () => readBaseRevision(request.body),
+      apply: (registry) => {
+        const target = (registry.nav_groups ?? []).find((g) => g.id === groupId);
+        if (!target) {
+          return {
+            ok: false,
+            statusCode: 404,
+            code: 'NOT_FOUND',
+            message: `Nav group "${groupId}" not found`,
+          };
+        }
+        if (body.display_name !== undefined) {
+          target.display_name = body.display_name as { default?: string };
+        }
+        if (body.active !== undefined) target.active = body.active as boolean;
+        if (body.sort_order !== undefined) target.sort_order = body.sort_order as number;
+        return { ok: true, data: target };
+      },
+      write: (freshRegistry, baseRevision) => repos.categories.write(freshRegistry, baseRevision),
+      onSuccess: (_registry, data, writeRev) => ({
+        ...(data as Record<string, unknown>),
+        rev: writeRev,
+        resulting_revision: writeRev,
+      }),
+    });
   });
 
   app.delete('/nav-groups/:id', async (request, reply) => {
     if (!requireWriteMode(reply, productService)) return;
 
     const { id } = request.params as { id: string };
-    const registry = repos.categories.load();
-    const result = categoryService.removeNavGroup(registry, id);
 
-    if (!result.ok) {
-      // Plan 094: typed code from the service.
-      return reply.status(result.code === 'NOT_FOUND' ? 404 : 409).send({
-        error: { code: result.code ?? 'CONFLICT', message: result.error },
-      });
-    }
-
-    const wrote = await repos.categories.write(registry, readBaseRevision(request.body));
-    if (!wrote.ok) {
-      return reply.status(wrote.statusCode).send({
-        error: {
-          code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
-          message: wrote.error,
-        },
-      });
-    }
-
-    return reply.status(204).send();
+    return runRegistryCommand({
+      reply,
+      load: () => repos.categories.load(),
+      getBaseRevision: () => readBaseRevision(request.body),
+      apply: (registry) => {
+        const result = categoryService.removeNavGroup(registry, id);
+        if (!result.ok) {
+          // Plan 094: typed code from the service.
+          return {
+            ok: false,
+            statusCode: result.code === 'NOT_FOUND' ? 404 : 409,
+            code: result.code ?? 'CONFLICT',
+            message: result.error ?? 'Category operation failed',
+          };
+        }
+        return { ok: true };
+      },
+      write: (freshRegistry, baseRevision) => repos.categories.write(freshRegistry, baseRevision),
+      successStatus: 204,
+      onSuccess: () => undefined,
+    });
   });
 
   app.post('/categories/:categoryId/subcategories', async (request, reply) => {
@@ -438,59 +490,72 @@ export async function categoryRoutes(
         error: { code: 'BAD_REQUEST', message: 'Missing id, title, product_key, or slug' },
       });
     }
+    // Narrowed once for the closures below (narrowing does not cross into them).
+    const { id: subId, title, product_key: productKey, slug } = body;
+    const subDescription = body.description;
+    const subOrder = body.order;
+    const subEnabled = body.enabled;
 
-    const registry = repos.categories.load();
-    const category = (registry.categories ?? []).find((c) => c.id === categoryId);
-    if (!category) {
-      return reply.status(404).send({
-        error: { code: 'NOT_FOUND', message: `Category "${categoryId}" not found` },
-      });
-    }
+    return runRegistryCommand({
+      reply,
+      load: () => repos.categories.load(),
+      getBaseRevision: () => readBaseRevision(request.body),
+      successStatus: 201,
+      apply: (registry) => {
+        const category = (registry.categories ?? []).find((c) => c.id === categoryId);
+        if (!category) {
+          return {
+            ok: false,
+            statusCode: 404,
+            code: 'NOT_FOUND',
+            message: `Category "${categoryId}" not found`,
+          };
+        }
 
-    if (!category.subcategories) {
-      category.subcategories = [];
-    }
+        if (!category.subcategories) {
+          category.subcategories = [];
+        }
 
-    if (category.subcategories.some((s) => s.id === body.id)) {
-      return reply.status(409).send({
-        error: { code: 'CONFLICT', message: `Subcategory "${body.id}" already exists` },
-      });
-    }
+        if (category.subcategories.some((s) => s.id === subId)) {
+          return {
+            ok: false,
+            statusCode: 409,
+            code: 'CONFLICT',
+            message: `Subcategory "${subId}" already exists`,
+          };
+        }
 
-    const subcategory: Subcategory = {
-      id: body.id,
-      title: body.title,
-      product_key: body.product_key,
-      slug: body.slug,
-      description: body.description ?? '',
-      order: body.order ?? category.subcategories.length * 10,
-      enabled: body.enabled ?? true,
-    };
+        const subcategory: Subcategory = {
+          id: subId,
+          title,
+          product_key: productKey,
+          slug,
+          description: subDescription ?? '',
+          order: subOrder ?? category.subcategories.length * 10,
+          enabled: subEnabled ?? true,
+        };
 
-    const result = subcategorySchema.safeParse(subcategory);
-    if (!result.success) {
-      return reply.status(400).send({
-        error: {
-          code: 'BAD_REQUEST',
-          message: result.error.issues.map((i) => i.message).join('; '),
-        },
-      });
-    }
+        const result = subcategorySchema.safeParse(subcategory);
+        if (!result.success) {
+          return {
+            ok: false,
+            statusCode: 400,
+            code: 'BAD_REQUEST',
+            message: result.error.issues.map((i) => i.message).join('; '),
+          };
+        }
 
-    category.subcategories.push(result.data);
-    category.subcategories.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-
-    const wrote = await repos.categories.write(registry, readBaseRevision(request.body));
-    if (!wrote.ok) {
-      return reply.status(wrote.statusCode).send({
-        error: {
-          code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
-          message: wrote.error,
-        },
-      });
-    }
-
-    return reply.status(201).send(result.data);
+        category.subcategories.push(result.data);
+        category.subcategories.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        return { ok: true, data: result.data };
+      },
+      write: (freshRegistry, baseRevision) => repos.categories.write(freshRegistry, baseRevision),
+      onSuccess: (_registry, data, writeRev) => ({
+        ...(data as Record<string, unknown>),
+        rev: writeRev,
+        resulting_revision: writeRev,
+      }),
+    });
   });
 
   app.patch('/categories/:categoryId/subcategories/:subId', async (request, reply) => {
@@ -499,47 +564,54 @@ export async function categoryRoutes(
     const { categoryId, subId } = request.params as { categoryId: string; subId: string };
     const body = request.body as Record<string, unknown>;
 
-    const registry = repos.categories.load();
-    const category = (registry.categories ?? []).find((c) => c.id === categoryId);
-    if (!category) {
-      return reply.status(404).send({
-        error: { code: 'NOT_FOUND', message: `Category "${categoryId}" not found` },
-      });
-    }
+    return runRegistryCommand({
+      reply,
+      load: () => repos.categories.load(),
+      getBaseRevision: () => readBaseRevision(request.body),
+      apply: (registry) => {
+        const category = (registry.categories ?? []).find((c) => c.id === categoryId);
+        if (!category) {
+          return {
+            ok: false,
+            statusCode: 404,
+            code: 'NOT_FOUND',
+            message: `Category "${categoryId}" not found`,
+          };
+        }
 
-    const subcategories = category.subcategories ?? [];
-    const idx = subcategories.findIndex((s) => s.id === subId);
-    if (idx === -1) {
-      return reply.status(404).send({
-        error: { code: 'NOT_FOUND', message: `Subcategory "${subId}" not found` },
-      });
-    }
+        const subcategories = category.subcategories ?? [];
+        const idx = subcategories.findIndex((s) => s.id === subId);
+        if (idx === -1) {
+          return {
+            ok: false,
+            statusCode: 404,
+            code: 'NOT_FOUND',
+            message: `Subcategory "${subId}" not found`,
+          };
+        }
 
-    const updated = { ...subcategories[idx], ...body };
-    const result = subcategorySchema.safeParse(updated);
-    if (!result.success) {
-      return reply.status(400).send({
-        error: {
-          code: 'BAD_REQUEST',
-          message: result.error.issues.map((i) => i.message).join('; '),
-        },
-      });
-    }
+        const updated = { ...subcategories[idx], ...body };
+        const result = subcategorySchema.safeParse(updated);
+        if (!result.success) {
+          return {
+            ok: false,
+            statusCode: 400,
+            code: 'BAD_REQUEST',
+            message: result.error.issues.map((i) => i.message).join('; '),
+          };
+        }
 
-    category.subcategories = subcategories.map((s) => (s.id === subId ? result.data : s));
-    category.subcategories.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-
-    const wrote = await repos.categories.write(registry, readBaseRevision(request.body));
-    if (!wrote.ok) {
-      return reply.status(wrote.statusCode).send({
-        error: {
-          code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
-          message: wrote.error,
-        },
-      });
-    }
-
-    return result.data;
+        category.subcategories = subcategories.map((s) => (s.id === subId ? result.data : s));
+        category.subcategories.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        return { ok: true, data: result.data };
+      },
+      write: (freshRegistry, baseRevision) => repos.categories.write(freshRegistry, baseRevision),
+      onSuccess: (_registry, data, writeRev) => ({
+        ...(data as Record<string, unknown>),
+        rev: writeRev,
+        resulting_revision: writeRev,
+      }),
+    });
   });
 
   app.delete('/categories/:categoryId/subcategories/:subId', async (request, reply) => {
@@ -547,35 +619,39 @@ export async function categoryRoutes(
 
     const { categoryId, subId } = request.params as { categoryId: string; subId: string };
 
-    const registry = repos.categories.load();
-    const category = (registry.categories ?? []).find((c) => c.id === categoryId);
-    if (!category) {
-      return reply.status(404).send({
-        error: { code: 'NOT_FOUND', message: `Category "${categoryId}" not found` },
-      });
-    }
+    return runRegistryCommand({
+      reply,
+      load: () => repos.categories.load(),
+      getBaseRevision: () => readBaseRevision(request.body),
+      successStatus: 204,
+      apply: (registry) => {
+        const category = (registry.categories ?? []).find((c) => c.id === categoryId);
+        if (!category) {
+          return {
+            ok: false,
+            statusCode: 404,
+            code: 'NOT_FOUND',
+            message: `Category "${categoryId}" not found`,
+          };
+        }
 
-    const subcategories = category.subcategories ?? [];
-    const before = subcategories.length;
-    category.subcategories = subcategories.filter((s) => s.id !== subId);
+        const subcategories = category.subcategories ?? [];
+        const before = subcategories.length;
+        category.subcategories = subcategories.filter((s) => s.id !== subId);
 
-    if (category.subcategories.length === before) {
-      return reply.status(404).send({
-        error: { code: 'NOT_FOUND', message: `Subcategory "${subId}" not found` },
-      });
-    }
-
-    const wrote = await repos.categories.write(registry, readBaseRevision(request.body));
-    if (!wrote.ok) {
-      return reply.status(wrote.statusCode).send({
-        error: {
-          code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
-          message: wrote.error,
-        },
-      });
-    }
-
-    return reply.status(204).send();
+        if (category.subcategories.length === before) {
+          return {
+            ok: false,
+            statusCode: 404,
+            code: 'NOT_FOUND',
+            message: `Subcategory "${subId}" not found`,
+          };
+        }
+        return { ok: true };
+      },
+      write: (freshRegistry, baseRevision) => repos.categories.write(freshRegistry, baseRevision),
+      onSuccess: () => undefined,
+    });
   });
 
   app.post('/categories/:categoryId/subcategories/reorder', async (request, reply) => {
@@ -591,33 +667,38 @@ export async function categoryRoutes(
       });
     }
 
-    const registry = repos.categories.load();
-    const category = (registry.categories ?? []).find((c) => c.id === categoryId);
-    if (!category) {
-      return reply.status(404).send({
-        error: { code: 'NOT_FOUND', message: `Category "${categoryId}" not found` },
-      });
-    }
+    return runRegistryCommand({
+      reply,
+      load: () => repos.categories.load(),
+      getBaseRevision: () => readBaseRevision(request.body),
+      apply: (registry) => {
+        const category = (registry.categories ?? []).find((c) => c.id === categoryId);
+        if (!category) {
+          return {
+            ok: false,
+            statusCode: 404,
+            code: 'NOT_FOUND',
+            message: `Category "${categoryId}" not found`,
+          };
+        }
 
-    const subcategories = category.subcategories ?? [];
-    for (let i = 0; i < orderedIds.length; i++) {
-      const sub = subcategories.find((s) => s.id === orderedIds[i]);
-      if (sub) {
-        sub.order = i * 10;
-      }
-    }
-    category.subcategories = subcategories.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-
-    const wrote = await repos.categories.write(registry, readBaseRevision(request.body));
-    if (!wrote.ok) {
-      return reply.status(wrote.statusCode).send({
-        error: {
-          code: wrote.statusCode === 409 ? 'CONFLICT' : 'INTERNAL_ERROR',
-          message: wrote.error,
-        },
-      });
-    }
-
-    return { status: 'ok', reordered: orderedIds.length, rev: wrote.rev };
+        const subcategories = category.subcategories ?? [];
+        for (let i = 0; i < orderedIds.length; i++) {
+          const sub = subcategories.find((s) => s.id === orderedIds[i]);
+          if (sub) {
+            sub.order = i * 10;
+          }
+        }
+        category.subcategories = subcategories.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        return { ok: true };
+      },
+      write: (freshRegistry, baseRevision) => repos.categories.write(freshRegistry, baseRevision),
+      onSuccess: (_registry, _data, writeRev) => ({
+        status: 'ok',
+        reordered: orderedIds.length,
+        rev: writeRev,
+        resulting_revision: writeRev,
+      }),
+    });
   });
 }

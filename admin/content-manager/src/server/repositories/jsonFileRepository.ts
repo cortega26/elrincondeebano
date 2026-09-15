@@ -1,9 +1,6 @@
 import { readFileSync, existsSync, statSync } from 'node:fs';
 import { z } from 'zod';
-import {
-  writeJsonFileAtomic,
-  type AtomicWriteOptions,
-} from '../services/atomicFileWriter.ts';
+import { writeJsonFileAtomic, type AtomicWriteOptions } from '../services/atomicFileWriter.ts';
 
 /**
  * Shared JSON-file repository base (plan 152).
@@ -22,6 +19,10 @@ import {
  * SyncQueue lenient filtering) override load()/save to preserve exact
  * contracts but reuse the cache + atomic helpers exposed as protected
  * members.
+ *
+ * Plan 196 rule: new JSON writers MUST extend JsonFileRepository<T> +
+ * writeJsonFileAtomic unless they add a permanent-separation contract test
+ * in the same commit.
  */
 export abstract class JsonFileRepository<T> {
   abstract getFilePath(): string;
