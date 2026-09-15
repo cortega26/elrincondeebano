@@ -63,25 +63,34 @@
      - do not weaken the CSP to accommodate those scripts
   7. Re-run `npm run monitor:live-contract:strict` and `npm run monitor:live-browser-contract`, and if doing a manual post-deploy probe, run `Post-Deploy Canary` with `require_security_headers=true`.
 
-## Product data fetch failures
+## Product data staleness (catalog is build-embedded)
+
+> Plan 206: no runtime catalog-fetch path exists — the catalog is embedded
+> at build, so there are no `fetch_products_*` log events (the previous
+> revision of this section described a non-existent path). Correlation IDs
+> (`createCorrelationId`, `astro-poc/src/lib/logger.ts`) stay opt-in for the
+> log events that do exist.
 
 - **Severity:** warning
-- **Logs:** `fetch_products_failure` with a `correlationId`.
-- **Expected behavior when `/data/product_data.json` fails:**
-  - If the service worker has cached `product_data.json`, the UI renders the **last cached full
-    catalog** without blocking the user (no error state).
-  - If the cache is unavailable but inline catalog data exists, the UI renders the inline subset,
-    marks it as partial, logs `fetch_products_network_fallback_inline`, and **hides missing
-    items** (no placeholders).
-  - If neither cached nor inline data is available, the UI shows the error component with
-    the message:
-    `Error al cargar los productos. Por favor, verifique su conexión a internet e inténtelo de nuevo.`
-    plus a **"Intentar nuevamente"** button, and logs `fetch_products_failure`.
+- **Expected behavior when products look stale or fail to render:**
+  - The UI renders the catalog embedded by the last successful `npm run
+build` — staleness means the build predates the `data/` change, not a
+    fetch failure. Rebuild + redeploy.
+  - The service worker `ebano-products-2026-05-01-b` cache only matters if
+    `/data/product_data.json` is ever requested directly (no app code path
+    does today); after a deploy with data changes, stale SW caches are
+    cleared by the version bump + activate cleanup.
+  - If neither cached nor inline data is available, the UI shows the error
+    component: `Error al cargar los productos. Por favor, verifique su
+conexión a internet e inténtelo de nuevo.` plus an **"Intentar
+    nuevamente"** button.
 - **Steps:**
-  1. Verify network connectivity to `/data/product_data.json`.
-  2. Check recent deployments for schema changes.
-  3. Confirm the service worker cache contains `product_data.json` in the `ebano-products-v*`
-     cache. If missing or stale, invalidate the cache (see steps below).
+  1. Verify the `data/` inputs (`product_data.json`, categories) contain the
+     expected change.
+  2. Check the last deploy built AFTER that change (`npm run build` runs
+     preflight + data sync; `astro-poc/dist/` is the artifact).
+  3. Confirm the service worker cache holds the current
+     `ebano-products-*` prefix; if stale, invalidate (see steps below).
   4. Retry after backoff; persistent failures escalate to infrastructure.
   5. Remember that only the first catalog batch is inlined in `#product-data`; the rest streams
      from `/data/product_data.json`. Confirm the JSON endpoint is cached by the service worker
