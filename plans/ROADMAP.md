@@ -74,7 +74,7 @@ Legend: ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE (archived) · 🛑 BLOCKED (rea
 | L1   | [190](archive/190-sw-fetch-investigate.md)   | SW + job-queue investigate   | S      | ✅ DONE (archived) |
 | L2   | [191](archive/191-release-gate-ownership.md) | Release-gate ownership       | S      | ✅ DONE (archived) |
 | L2   | [193](193-e2e-gate-flake-parity.md)          | E2E gate + flakes + parity   | M      | ⬜ TODO            |
-| L3   | [200](200-manifest-hygiene.md)               | Manifest hygiene             | S      | ⬜ TODO            |
+| L3   | [200](archive/200-manifest-hygiene.md)       | Manifest hygiene             | S      | ✅ DONE (archived) |
 | L3   | [201](201-drop-duplicate-deps.md)            | Drop duplicate deps          | S      | ⬜ TODO            |
 | L3   | [202](202-tsx-production-spike-native.md)    | tsx promote + native spike   | M      | ⬜ TODO            |
 | L3   | [203](203-sass-use-anymatch-reeval.md)       | Sass @use + anymatch         | M      | ⬜ TODO            |
