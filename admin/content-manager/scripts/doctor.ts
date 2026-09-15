@@ -31,3 +31,13 @@ console.log('');
 console.log(
   `Summary: ${report.summary.ok} ok, ${report.summary.warn} warnings, ${report.summary.error} errors`
 );
+
+// Plan 206 slice 5: machine exit contract (doctor as a CI gate is proposed,
+// not enabled — enabling it is an owner call). Default: human format above
+// + non-zero exit on errors. --fail-on warn also fails on warnings.
+const failOn = process.argv.includes('--fail-on')
+  ? (process.argv[process.argv.indexOf('--fail-on') + 1] ?? 'error')
+  : 'error';
+const failing =
+  failOn === 'warn' ? report.summary.error + report.summary.warn : report.summary.error;
+process.exit(failing > 0 ? 1 : 0);
