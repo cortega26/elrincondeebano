@@ -42,8 +42,11 @@ jobs:
       - name: Typecheck active storefront and legacy modules
         run: npm run typecheck
 
-  unit-tests:
-    name: Unit and Integration Tests
+  # Plan 189: root vs admin suites as parallel jobs (fail-fast preserved
+  # at the workflow level via concurrency cancel + the verify aggregation).
+  # `npm test` stays the local one-command serial runner.
+  unit-tests-root:
+    name: Unit Tests (root)
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -54,12 +57,27 @@ jobs:
 
       - uses: ./.github/actions/setup-node-and-deps
 
-      - name: Run unit and integration tests
-        run: npm test
+      - name: Run root unit and integration tests
+        run: npx vitest run
         env:
           # This job has no build artifacts; the build-contract tests skip
           # explicitly instead of failing (plan 075).
           CI_SKIP_BUILD_CONTRACT: '1'
+
+  unit-tests-admin:
+    name: Unit Tests (admin)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-node-and-deps
+
+      - name: Run admin unit and integration tests
+        run: npm run admin:test
 
   static-checks:
     name: Static Checks and Guardrails
@@ -231,7 +249,8 @@ jobs:
     timeout-minutes: 5
     needs:
       - lint-and-typecheck
-      - unit-tests
+      - unit-tests-root
+      - unit-tests-admin
       - static-checks
       - build-and-check
       - e2e-tests
@@ -259,7 +278,8 @@ jobs:
           }
 
           check_job "${{ needs.lint-and-typecheck.result }}" "lint-and-typecheck"
-          check_job "${{ needs.unit-tests.result }}" "unit-tests"
+          check_job "${{ needs.unit-tests-root.result }}" "unit-tests-root"
+          check_job "${{ needs.unit-tests-admin.result }}" "unit-tests-admin"
           check_job "${{ needs.static-checks.result }}" "static-checks"
           check_job "${{ needs.build-and-check.result }}" "build-and-check"
           check_job "${{ needs.e2e-tests.result }}" "e2e-tests"
@@ -281,7 +301,7 @@ jobs:
             echo ""
             echo "- Node: $(node -v)"
             echo "- SOURCE_DATE_EPOCH: ${SOURCE_DATE_EPOCH:-unset}"
-            echo "- Jobs: lint-and-typecheck, unit-tests, static-checks, build-and-check, e2e-tests, lighthouse"
+            echo "- Jobs: lint-and-typecheck, unit-tests-root, unit-tests-admin, static-checks, build-and-check, e2e-tests, lighthouse"
             echo "- Result: $STATUS"
           } >> "$GITHUB_STEP_SUMMARY"
 
