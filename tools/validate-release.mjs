@@ -12,6 +12,13 @@ const stages = [
     args: ['run', 'typecheck'],
   },
   {
+    // Plan 191 (owner decision D1=ADD): the ship gate owns the selector
+    // and plan-archive checks — same position philosophy as `validate`.
+    name: 'check:e2e-selectors',
+    command: 'npm',
+    args: ['run', 'check:e2e-selectors'],
+  },
+  {
     name: 'build',
     command: 'npm',
     args: ['run', 'build'],
@@ -20,6 +27,11 @@ const stages = [
     name: 'test',
     command: 'npm',
     args: ['test'],
+  },
+  {
+    name: 'check:plans',
+    command: 'npm',
+    args: ['run', 'check:plans'],
   },
   {
     name: 'guardrails:assets',

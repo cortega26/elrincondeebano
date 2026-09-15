@@ -261,10 +261,10 @@ test('plan 117: shared-cart link with a non-empty cart shows feedback and keeps 
   await page.goto('/', { waitUntil: 'networkidle' });
   await page.waitForFunction(() => (window as any).__APP_READY__ === true, { timeout: 15_000 });
 
-  // Seed a real cart item.
+  // Seed a real cart item (badge text proves the add committed — plan 193).
   const addBtn = page.locator('.category-strip .add-to-cart-btn').first();
   await addBtn.click();
-  await page.waitForTimeout(200);
+  await expect(page.locator('#cart-count')).toHaveText('1', { timeout: 5_000 });
 
   // Forge a shared-cart link for the same product.
   const card = addBtn.locator('xpath=ancestor::*[@data-product-id][1]');

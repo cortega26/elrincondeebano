@@ -185,3 +185,39 @@ describe('order-submit submitCartOrder', () => {
     expect(errEl.textContent).toBe('');
   });
 });
+
+describe('order-submit confirm summary kill-cases (plan 193)', () => {
+  it('clamps over-discounted rows to $0 instead of negative (Math.max, not min)', () => {
+    const controller = makeController();
+    const cart = [{ name: 'Leche', price: 1000, discount: 1500, quantity: 1 }];
+    controller.buildOrderConfirmSummary(cart, 0, 'Efectivo', 'similar', '');
+    const summary = document.getElementById('order-confirm-summary');
+    expect(summary.textContent).toContain('1 × $0');
+    expect(summary.textContent).not.toMatch(/\$-\d/);
+  });
+
+  it('returns silently when the summary container is absent', () => {
+    const controller = makeController();
+    document.getElementById('order-confirm-summary')?.remove();
+    const cart = [{ name: 'Leche', price: 1000, discount: 0, quantity: 1 }];
+    expect(() =>
+      controller.buildOrderConfirmSummary(cart, 1000, 'Efectivo', 'similar', '')
+    ).not.toThrow();
+  });
+
+  it('omits the Nota line when no delivery note is given', () => {
+    const controller = makeController();
+    const cart = [{ name: 'Azúcar', price: 1000, quantity: 1 }];
+    controller.buildOrderConfirmSummary(cart, 1000, 'Efectivo', 'similar', '');
+    const summary = document.getElementById('order-confirm-summary');
+    expect(summary.textContent).not.toContain('Nota:');
+  });
+
+  it('clears a stale payment error on successful submit', () => {
+    const controller = makeController();
+    const errEl = document.getElementById('payment-error');
+    errEl.textContent = 'stale error';
+    controller.submitCartOrder([{ name: 'Aceite', price: 2000, discount: 0, quantity: 1 }]);
+    expect(errEl.textContent).toBe('');
+  });
+});

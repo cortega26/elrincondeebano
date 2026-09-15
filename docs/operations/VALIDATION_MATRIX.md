@@ -32,11 +32,13 @@ part of the root scripts).
 
 1. `npm run lint`
 2. `npm run typecheck`
-3. `npm run build`
-4. `npm test`
-5. `npm run guardrails:assets`
-6. `npm run test:e2e`
-7. `npm run monitor:share-preview`
+3. `npm run check:e2e-selectors` (plan 191: ship gate owns it — D1=ADD)
+4. `npm run build`
+5. `npm test`
+6. `npm run check:plans` (plan 191: ship gate owns it — D1=ADD)
+7. `npm run guardrails:assets`
+8. `npm run test:e2e`
+9. `npm run monitor:share-preview`
 
 ## When to use each command
 
@@ -58,8 +60,9 @@ part of the root scripts).
   it is still lighter than `validate:release` (which adds `test:e2e` and the live
   `monitor:share-preview` probe). For a fast local loop use
   `npm run lint && npm run typecheck && npm test`.
-- The local baseline owns `check:e2e-selectors`; the release runner currently
-  defines its stages independently rather than invoking `npm run validate`.
+- The release runner is a superset of the local baseline for the static
+  checks: since plan 191 (owner decision D1=ADD) it owns `check:e2e-selectors`
+  and `check:plans` instead of leaving them to `npm run validate` alone.
 - `monitor:share-preview` is a live-network check against the deployed site.
 - If the release gate needs to change, update this file, `package.json`, and the
   ADR index together.

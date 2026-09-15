@@ -2,14 +2,13 @@
 
 ## Prerequisites
 
-| Tool    | Version              | Required for          |
-| ------- | -------------------- | --------------------- |
-| Node.js | 24.x                 | All storefront work   |
-| npm     | bundled with Node 24 | All JS tasks          |
-| Python  | 3.12                 | `admin/` tooling only |
-| Git     | Any recent           | Version control       |
+| Tool    | Version              | Required for        |
+| ------- | -------------------- | ------------------- |
+| Node.js | 24.x                 | All storefront work |
+| npm     | bundled with Node 24 | All JS tasks        |
+| Git     | Any recent           | Version control     |
 
-Use `nvm use 24` or rely on the [Volta](https://volta.sh/) pin in `package.json` to get the right Node version automatically.
+Use `nvm use 24` (`.nvmrc`, engines `>=24 <25`) to get the right Node version.
 
 ## First-time setup
 
@@ -40,9 +39,9 @@ Run this before opening a PR:
 npm run validate:release
 ```
 
-`validate:release` is the canonical ship gate. It runs:
+`validate:release` is the canonical ship gate. It runs (plan 191):
 
-`lint → typecheck → test → build → guardrails:assets → test:e2e → monitor:share-preview`
+`lint → typecheck → check:e2e-selectors → build → test → check:plans → guardrails:assets → test:e2e → monitor:share-preview`
 
 The local `validate` command also runs the E2E selector guard before the test
 suite. See the exact executable stages in
@@ -58,8 +57,8 @@ For individual steps:
 
 ```bash
 npm run lint             # root JS + dedicated astro-poc lint
-npm run typecheck        # tsc --noEmit (root + astro-poc)
-npm test                 # node:test (legacy) + Vitest (modern)
+npm run typecheck        # Astro check + admin tsc (legacy tree retired, plan 155)
+npm test                 # root Vitest + admin Vitest
 npm run build            # preflight pipeline + Astro build
 npm run guardrails:assets  # orphan-asset check
 ```
@@ -99,7 +98,7 @@ for the full non-functional guide.
 Before requesting review, verify:
 
 - [ ] `npm run lint` passes
-- [ ] `npm run typecheck` passes (required when touching `src/js/**`)
+- [ ] `npm run typecheck` passes
 - [ ] `npm test` passes
 - [ ] `npm run build` passes
 - [ ] `npm run guardrails:assets` passes (required when touching images or data files)
@@ -115,36 +114,38 @@ See [AGENTS.md](AGENTS.md#checklist-pr-mínimo) for the full machine-readable ch
 
 ## Key directories
 
-| Path         | Purpose                                                                     |
-| ------------ | --------------------------------------------------------------------------- |
-| `astro-poc/` | Production Astro storefront — the canonical runtime                         |
-| `data/`      | Shared source data (product catalog, categories) — read-only input to build |
-| `assets/`    | Shared source images and fonts — read-only input to build                   |
-| `src/js/`    | Typed JS modules (cart, logger, analytics) — typecheck-scoped               |
-| `test/`      | All unit, contract, guardrail, and integration tests                        |
-| `tools/`     | Preflight pipeline scripts run before Astro build                           |
-| `scripts/`   | Developer utility scripts (smoke, dev server, image conversion)             |
-| `admin/`     | Python GUI for product data management (separate Python runtime)            |
-| `docs/`      | All architectural, operational, and decision documentation                  |
+| Path                                | Purpose                                                                                        |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `astro-poc/`                        | Production Astro storefront — the canonical runtime                                            |
+| `data/`                             | Shared source data (product catalog, categories) — read-only input to build                    |
+| `assets/`                           | Shared source images and fonts — read-only input to build                                      |
+| `astro-poc/src/scripts/storefront/` | Typed storefront JS modules (cart, state, observability)                                       |
+| `test/`                             | All unit, contract, guardrail, and integration tests                                           |
+| `tools/`                            | Preflight pipeline scripts run before Astro build                                              |
+| `scripts/`                          | Developer utility scripts (smoke, dev server, image conversion)                                |
+| `admin/content-manager/`            | TypeScript Content Manager: Fastify API + React SPA (plan 127; Python admin retired, plan 069) |
+| `docs/`                             | All architectural, operational, and decision documentation                                     |
 
 For the full data-flow and module-boundary map see [docs/architecture/CODEBASE_MAP.md](docs/architecture/CODEBASE_MAP.md).
 
-## Admin Python tooling (optional)
+## Content Manager (TypeScript admin)
 
-Only needed if you work on product data management:
+Product data is managed through the Content Manager (`admin/content-manager/` —
+Fastify API + React SPA). The Python/Tkinter admin was retired (plan 069).
 
 ```bash
-cd admin/product_manager
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-python gui.py
+npm run admin:dev      # API dev server (:3000, tsx --watch)
+npm run admin:dev:web  # SPA dev server (Vite :5173, HMR)
 ```
+
+See [admin/content-manager/README.md](admin/content-manager/README.md) for the
+full admin workflows (certify, parity, rollback drills).
 
 ## Adding a test
 
-- **Complex logic / DOM / async:** Create `test/<name>.spec.js` using **Vitest** (`describe`, `it`, `expect`, `vi`).
-- **Simple scripts / legacy coverage:** Create `test/<name>.test.js` using `node:test`.
-- **TypeScript:** `.mts` files in `src/` are supported by both runners.
+- **Storefront unit/contract:** `test/<name>.spec.js` using **Vitest** (`describe`, `it`, `expect`, `vi`) — patterns in `vitest.config.mts`.
+- **Admin unit/contract:** `admin/content-manager/test/` using Vitest (see that workspace's README).
+- **E2E:** storefront specs in `test/e2e-astro/`, admin specs in `admin/content-manager/test/e2e/` (Playwright; every suite ships its runnable config + script).
 
 Run `npm test` after adding a test to confirm it integrates with the full suite.
 
@@ -160,4 +161,4 @@ Run `npm test` after adding a test to confirm it integrates with the full suite.
 1. Identify the failed workflow in the GitHub Actions UI.
 2. Reproduce locally with `npm ci`, then the specific failing script.
 3. See [docs/operations/DEBUGGING.md](docs/operations/DEBUGGING.md) for step-by-step procedures.
-4. For SARIF schema issues, apply the `jq` sanitizer documented in [AGENTS.md](AGENTS.md#guardrails-citests).
+4. For SARIF schema issues, apply the `jq` sanitizer in the CI workflows section of [RUNBOOK.md](docs/operations/RUNBOOK.md#flujos-de-trabajo-ci).

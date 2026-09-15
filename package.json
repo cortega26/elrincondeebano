@@ -9,6 +9,7 @@
   },
   "scripts": {
     "admin:dev": "npm -w admin/content-manager run dev",
+    "admin:lint": "npm -w admin/content-manager run lint",
     "admin:dev:web": "npm -w admin/content-manager run dev:web",
     "admin:build": "npm -w admin/content-manager run build",
     "admin:start": "npm -w admin/content-manager run start",
@@ -32,10 +33,11 @@
     "dev": "npm -w astro-poc run dev",
     "lint:root": "eslint .",
     "lint:astro": "npm -w astro-poc run lint",
-    "lint": "npm run lint:root && npm run lint:astro",
-    "check:determinism": "node tools/check-determinism-paths.mjs && node tools/check-vendor-tgz.mjs",
+    "lint": "npm run lint:root && npm run lint:astro && npm run admin:lint",
+    "check:determinism": "node tools/check-determinism-paths.mjs",
     "check:css-order": "node scripts/check-css-order.mjs",
     "check:e2e-selectors": "node tools/check-e2e-class-selectors.mjs",
+    "check:sass-imports": "node tools/check-sass-imports.mjs",
     "format": "prettier --write .",
     "icons": "node tools/generate-icons.js",
     "validate:categories": "npm run categories:sync && node tools/validate-category-registry.js",
@@ -58,6 +60,7 @@
     "ci:guardrails": "npm run build && npm run lint:images && npm run guardrails && npm run guardrails:assets",
     "prune:backups": "node tools/prune-backups.js",
     "test": "vitest run && npm run admin:test",
+    "test:watch": "vitest",
     "test:coverage": "vitest run --coverage && npm run admin:test:coverage",
     "test:mutation": "stryker run",
     "typecheck:legacy": "echo 'legacy typecheck retired (plan 155)'",
@@ -104,7 +107,7 @@
     "@stryker-mutator/core": "^10.0.0",
     "@stryker-mutator/vitest-runner": "^10.0.0",
     "@vitest/coverage-v8": "^4.1.11",
-    "chrome-launcher": "^1.1.2",
+    "chrome-launcher": "^1.2.1",
     "eslint": "^10.8.1",
     "eslint-plugin-astro": "^3.1.0",
     "eslint-plugin-sonarjs": "^4.2.0",
@@ -118,14 +121,10 @@
     "sharp": "^0.35.4",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.66.0",
-    "undici": "^8.10.0",
     "vitest": "^4.0.16"
   },
   "engines": {
     "node": ">=24 <25"
-  },
-  "volta": {
-    "node": "24.0.0"
   },
   "repository": {
     "type": "git",
@@ -143,7 +142,11 @@
       "eslint --no-warn-ignored --config astro-poc/eslint.config.mjs",
       "prettier --write"
     ],
-    "admin/content-manager/**/*.{ts,tsx}": [
+    "astro-poc/**/*.scss": [
+      "node tools/check-sass-imports.mjs",
+      "prettier --write"
+    ],
+    "admin/content-manager/**/*.{ts,tsx,js,mjs,cjs}": [
       "eslint --no-warn-ignored --config admin/content-manager/eslint.config.mjs",
       "prettier --write"
     ],

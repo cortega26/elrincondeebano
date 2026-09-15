@@ -148,7 +148,7 @@ Chequeos repo-side ya disponibles:
 - `npm run monitor:live-browser-contract`
 - workflow `Live Contract Monitor`
 - workflow `Deploy static content to Pages`; ahora ejecuta un browser canary bloqueante contra `astro-poc/dist` antes de publicar a Pages para validar `__APP_READY__`, service worker y cart boot path del bundle shipped
-- workflow `Post-Deploy Canary` con `require_security_headers=true`; ahora también ejecuta `tools/live-browser-contract.mjs` en el runner self-hosted para capturar errores de consola/CSP sobre la zona live antes del probe fetch-only
+- workflow `Post-Deploy Canary` con `require_security_headers=true`; ahora también ejecuta `tools/live-browser-contract.mjs` en el runner GitHub-hosted `ubuntu-24.04` para capturar errores de consola/CSP sobre la zona live antes del probe fetch-only
 - ambos probes live también fallan si detectan HTML público contaminado por scripts inyectados desde edge
 
 ### Semántica del monitor en runners compartidos

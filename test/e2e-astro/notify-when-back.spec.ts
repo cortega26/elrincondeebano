@@ -91,8 +91,11 @@ test.skip('notify link is keyboard-focusable and fires analytics emitter on clic
 
   // Click — emitter fires, href still points to wa.me (navigation is via native anchor + window.open polyfill)
   await link.click({ noWaitAfter: true });
-  // Small settle for delegated handler (attached via capture)
-  await page.waitForTimeout(150);
+  // State-based settle: the delegated handler appends to __notifyEvents
+  // (plan 193 — the suite stays skipped until stock:false returns).
+  await expect
+    .poll(() => page.evaluate(() => (window as any).__notifyEvents?.length ?? 0))
+    .toBeGreaterThanOrEqual(1);
 
   const events = await page.evaluate(
     () => (window as any).__notifyEvents as Array<{ eventName: string; props: unknown }>

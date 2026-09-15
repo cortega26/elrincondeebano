@@ -30,8 +30,12 @@ interface JournalEntry {
 export class BackupManager {
   private readonly backupsDir: string;
   private readonly indexPath: string;
+  private readonly repoRoot: string;
 
-  constructor(private readonly repoRoot: string) {
+  // Plan 202: explicit field + assignment (was a parameter property —
+  // non-erasable syntax; behavior identical).
+  constructor(repoRoot: string) {
+    this.repoRoot = repoRoot;
     this.backupsDir = resolve(repoRoot, 'data', 'backups');
     this.indexPath = resolve(repoRoot, 'data', 'backups-index.json');
     mkdirSync(this.backupsDir, { recursive: true });

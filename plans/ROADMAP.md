@@ -68,22 +68,22 @@ Legend: ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE (archived) · 🛑 BLOCKED (rea
 
 ### Wave 4 — Toolchain, CI, DX, docs (highly parallel)
 
-| Lane | Plan                                      | Title                        | Effort | Status  |
-| ---- | ----------------------------------------- | ---------------------------- | ------ | ------- |
-| L1   | [189](189-ci-build-cache-split.md)        | CI build/cache/split         | M      | ⬜ TODO |
-| L1   | [190](190-sw-fetch-investigate.md)        | SW + job-queue investigate   | S      | ⬜ TODO |
-| L2   | [191](191-release-gate-ownership.md)      | Release-gate ownership       | S      | ⬜ TODO |
-| L2   | [193](193-e2e-gate-flake-parity.md)       | E2E gate + flakes + parity   | M      | ⬜ TODO |
-| L3   | [200](200-manifest-hygiene.md)            | Manifest hygiene             | S      | ⬜ TODO |
-| L3   | [201](201-drop-duplicate-deps.md)         | Drop duplicate deps          | S      | ⬜ TODO |
-| L3   | [202](202-tsx-production-spike-native.md) | tsx promote + native spike   | M      | ⬜ TODO |
-| L3   | [203](203-sass-use-anymatch-reeval.md)    | Sass @use + anymatch         | M      | ⬜ TODO |
-| L4   | [204](204-env-format-versions.md)         | Env + format + versions docs | S      | ⬜ TODO |
-| L4   | [205](205-contributor-docs-rewrite.md)    | Contributor docs rewrite     | S      | ⬜ TODO |
-| L4   | [206](206-dx-loops-matrix-logs.md)        | DX loops + matrix + logs     | M      | ⬜ TODO |
-| L4   | [207](207-entry-docs-drift.md)            | Entry docs drift             | M      | ⬜ TODO |
-| L4   | [208](208-ops-adr-docs-drift.md)          | Ops/ADR docs drift           | S      | ⬜ TODO |
-| L4   | [209](209-admin-lint-local.md)            | Admin lint local             | S      | ⬜ TODO |
+| Lane | Plan                                              | Title                        | Effort | Status             |
+| ---- | ------------------------------------------------- | ---------------------------- | ------ | ------------------ |
+| L1   | [189](archive/189-ci-build-cache-split.md)        | CI build/cache/split         | M      | ✅ DONE (archived) |
+| L1   | [190](archive/190-sw-fetch-investigate.md)        | SW + job-queue investigate   | S      | ✅ DONE (archived) |
+| L2   | [191](archive/191-release-gate-ownership.md)      | Release-gate ownership       | S      | ✅ DONE (archived) |
+| L2   | [193](archive/193-e2e-gate-flake-parity.md)       | E2E gate + flakes + parity   | M      | ✅ DONE (archived) |
+| L3   | [200](archive/200-manifest-hygiene.md)            | Manifest hygiene             | S      | ✅ DONE (archived) |
+| L3   | [201](archive/201-drop-duplicate-deps.md)         | Drop duplicate deps          | S      | ✅ DONE (archived) |
+| L3   | [202](archive/202-tsx-production-spike-native.md) | tsx promote + native spike   | M      | ✅ DONE (archived) |
+| L3   | [203](archive/203-sass-use-anymatch-reeval.md)    | Sass @use + anymatch         | M      | ✅ DONE (archived) |
+| L4   | [204](archive/204-env-format-versions.md)         | Env + format + versions docs | S      | ✅ DONE (archived) |
+| L4   | [205](archive/205-contributor-docs-rewrite.md)    | Contributor docs rewrite     | S      | ✅ DONE (archived) |
+| L4   | [206](archive/206-dx-loops-matrix-logs.md)        | DX loops + matrix + logs     | M      | ✅ DONE (archived) |
+| L4   | [207](archive/207-entry-docs-drift.md)            | Entry docs drift             | M      | ✅ DONE (archived) |
+| L4   | [208](archive/208-ops-adr-docs-drift.md)          | Ops/ADR docs drift           | S      | ✅ DONE (archived) |
+| L4   | [209](archive/209-admin-lint-local.md)            | Admin lint local             | S      | ✅ DONE (archived) |
 
 ### Wave 5 — Structure slice + direction
 
