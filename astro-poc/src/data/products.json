@@ -1,7 +1,8 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-08-31T20:41:36.812Z",
-  "rev": 3,
+  "last_updated": "2026-09-15T01:22:24.089Z",
+  "rev": 4,
+  "schema_version": 1,
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -2058,7 +2059,7 @@
     {
       "name": "Pirulín grande",
       "description": "Lata de 300g",
-      "price": 7900,
+      "price": 8600,
       "discount": 0,
       "stock": true,
       "category": "SnacksDulces",
@@ -2066,12 +2067,12 @@
       "image_avif_path": "assets/images/snacks_dulces/Pirulin 300g.avif",
       "order": 94,
       "is_archived": false,
-      "rev": 0,
+      "rev": 1,
       "field_last_modified": {
         "price": {
-          "ts": "2025-11-07T22:17:27.439Z",
-          "by": "offline",
-          "rev": 0,
+          "ts": "2026-09-15T01:22:24.089Z",
+          "by": "admin",
+          "rev": 1,
           "base_rev": 0,
           "changeset_id": null
         },
