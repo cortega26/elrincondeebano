@@ -124,9 +124,6 @@
   "engines": {
     "node": ">=24 <25"
   },
-  "volta": {
-    "node": "24.0.0"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cortega26/elrincondeebano.git"

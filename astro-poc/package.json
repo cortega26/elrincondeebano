@@ -26,5 +26,8 @@
     "@astrojs/check": "^0.9.10",
     "eslint-plugin-sonarjs": "^4.2.0",
     "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": ">=24 <25"
   }
 }
