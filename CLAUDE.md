@@ -2,28 +2,28 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-> Vigencia (plan 112, 2026-08-12): este archivo se re-sincronizó con
+> Vigencia (planes 112/205, 2026-09-15): este archivo se re-sincronizó con
 > `AGENTS.md` (que es la fuente canónica). Si un comando no existe en
 > `package.json`, AGENTS.md manda.
 
 ## Commands
 
-| Command                         | Purpose                                                                                                      |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `npm run bootstrap`             | Full cold-start install (root + astro-poc)                                                                   |
-| `npm run dev`                   | Start Astro dev server (runs in astro-poc/); el admin es `npm run admin:dev`                                 |
-| `npm run build`                 | Preflight + Astro production build (output: astro-poc/dist/); usa `npm run build:fast` para iterar           |
-| `npm test`                      | `vitest run` (root) + `npm run admin:test` (Content Manager)                                                 |
-| `npm run test:e2e`              | Playwright E2E storefront (config: playwright.astro.config.ts; hace build completo primero)                  |
-| `npm run typecheck`             | Cobertura total: legacy + astro (`astro check`) + `admin:typecheck`                                          |
-| `npm run lint`                  | ESLint root + astro-poc; el admin se lint-ea en pre-commit y CI (`admin.yml`)                                |
-| `npm run format`                | Prettier write                                                                                               |
-| `npm run validate`              | Full local baseline: lint → typecheck → check:e2e-selectors → build → test → check:plans → guardrails:assets |
-| `npm run validate:release`      | Ship gate: e2e + live share-preview probe (audits run separately in `security-audit.yml`)                    |
-| `npm run admin:certify`         | Gate del cutover del Content Manager (certification report)                                                  |
-| `npm run guardrails`            | Orphan asset detection, secret scanning                                                                      |
-| `npm run monitor:share-preview` | Live check for social preview unfurls                                                                        |
-| `npm run lighthouse:audit`      | Performance audit                                                                                            |
+| Command                         | Purpose                                                                                                                   |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `npm run bootstrap`             | Full cold-start install (root + astro-poc + admin workspaces)                                                             |
+| `npm run dev`                   | Start Astro dev server (runs in astro-poc/); el admin es `npm run admin:dev`                                              |
+| `npm run build`                 | Preflight + Astro production build (output: astro-poc/dist/); usa `npm run build:fast` para iterar                        |
+| `npm test`                      | `vitest run` (root) + `npm run admin:test` (Content Manager)                                                              |
+| `npm run test:e2e`              | Playwright E2E storefront (config: playwright.astro.config.ts; hace build completo primero)                               |
+| `npm run typecheck`             | Astro check (`astro check`) + `admin:typecheck` (legacy tree retired, plan 155)                                           |
+| `npm run lint`                  | ESLint root + astro-poc; el admin se lint-ea en pre-commit y CI (`admin.yml`)                                             |
+| `npm run format`                | Prettier write                                                                                                            |
+| `npm run validate`              | Full local baseline: lint → typecheck → check:e2e-selectors → build → test → check:plans → guardrails:assets              |
+| `npm run validate:release`      | Ship gate: e2e + live share-preview probe (audits run separately in `security-audit.yml`)                                 |
+| `npm run admin:certify`         | Gate del cutover del Content Manager (certification report)                                                               |
+| `npm run guardrails`            | 9-stage suite (manifest-compat, secrets, SW, tree, CSS, legacy surface, images, orphans — see `tools/guardrails/run.mjs`) |
+| `npm run monitor:share-preview` | Live check for social preview unfurls                                                                                     |
+| `npm run lighthouse:audit`      | Performance audit                                                                                                         |
 
 ## Architecture
 
@@ -31,7 +31,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **`astro-poc/`** — Storefront de producción. Astro 7 static site, vanilla JS (sin framework de UI). Entry point: `astro-poc/src/scripts/storefront.js`. Módulos en `astro-poc/src/scripts/storefront/`.
 - **`admin/content-manager/`** — Content Manager canónico (TypeScript: Fastify + React + Vite). Todo se maneja con `npm run admin:*` (dev, build, test, certify, doctor).
-- **`src/`** — Legacy JS modules (being migrated into astro-poc). Still referenced by some tests.
 - **`test/`** — Vitest specs root (`*.spec.js`/`*.test.*`, run via `vitest run`), Playwright E2E storefront (`test/e2e-astro/*.spec.ts`). El admin tiene su propia suite en `admin/content-manager/test/`.
 - **`data/`** y **`assets/`** — Catálogo autoritativo (ADR 0009); el admin escribe en el repo, el storefront lo consume en build.
 - **`tools/`** — CLI tools for preflight, image processing, monitoring, guardrails.

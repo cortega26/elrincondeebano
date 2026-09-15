@@ -34,7 +34,7 @@ los archivos persisten).
 | `npm run dev`              | Astro dev del storefront. El admin es `npm run admin:dev`.                                                                                                          |
 | `npm run build`            | **Preflight completo** (categories:sync → generación de imágenes → validación) + build Astro. Lento; usa `npm run build:fast` para iterar sin preflight.            |
 | `npm test`                 | **Dos runners vitest**: root (`test/`) + `npm run admin:test`.                                                                                                      |
-| `npm run typecheck`        | Único comando que cubre los tres paquetes: legacy + astro + admin.                                                                                                  |
+| `npm run typecheck`        | Astro check + admin tsc (el árbol legacy se retiró a echo, plan 155).                                                                                               |
 | `npm run lint`             | **NO cubre `admin/content-manager`** (root eslint lo ignora, igual que `astro-poc/`). El admin se lint-ea en pre-commit (lint-staged) y en CI `admin.yml`.          |
 | `npm run test:e2e`         | Playwright sobre `test/e2e-astro/` (config `playwright.astro.config.ts`). **Hace un build completo primero**; con `PLAYWRIGHT_SKIP_BUILD=1` reusa `astro-poc/dist`. |
 | `npm run validate`         | lint → typecheck → check:e2e-selectors → build → test → check:plans → guardrails:assets.                                                                            |
