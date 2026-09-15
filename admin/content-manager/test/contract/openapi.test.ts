@@ -264,4 +264,5 @@ test('generated openapi.d.ts is current with the served document', async () => {
   } finally {
     writeFile(committed, before);
   }
-});
+  // Regen shells out to npx twice — generous budget under parallel load.
+}, 60_000);

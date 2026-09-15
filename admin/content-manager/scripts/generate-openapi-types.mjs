@@ -42,6 +42,10 @@ try {
     outFile,
     `/**\n * DO NOT EDIT — generated from the single-source zod doc.\n * Regen: npm run codegen:openapi (admin/content-manager workspace).\n * Stale snapshots fail CI via test/contract/openapi.test.ts.\n */\n${generated}`
   );
+  // Normalize with the repo's own prettier: lint-staged reformats this file
+  // on commit, so regen must produce the post-prettier bytes or the
+  // freshness check fails spuriously (plan 214 fix).
+  execFileSync('npx', ['prettier', '--write', outFile], { stdio: 'inherit' });
   console.log(`Generated ${outFile} (openapi-typescript@${OPENAPI_TYPESCRIPT_VERSION})`);
 } finally {
   rmSync(tmp, { recursive: true, force: true });
