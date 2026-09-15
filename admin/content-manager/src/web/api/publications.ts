@@ -86,3 +86,14 @@ export async function cancelJob(request: ApiRequestFn, id: string): Promise<JobR
     method: 'POST',
   });
 }
+
+export interface PreviewBuildTrigger {
+  job_id: string;
+  status: string;
+}
+
+// Plan 211: trigger a flag-gated preview build (POST /preview/build is a
+// mutation-class route — requires the launch credential like other writes).
+export async function triggerPreviewBuild(request: ApiRequestFn): Promise<PreviewBuildTrigger> {
+  return request<PreviewBuildTrigger>('/preview/build', { method: 'POST' });
+}

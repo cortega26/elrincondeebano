@@ -37,7 +37,12 @@ export type {
 } from './products.ts';
 export type { CategoryResponse } from './categories.ts';
 export type { FeaturedResponse, BundlesResponse } from './storefront.ts';
-export type { GitStatusResponse, PublicationPreviewResponse, JobResponse } from './publications.ts';
+export type {
+  GitStatusResponse,
+  PublicationPreviewResponse,
+  JobResponse,
+  PreviewBuildTrigger,
+} from './publications.ts';
 export type { DiagnosticsReport } from './system.ts';
 export type {
   BackupEntry,
@@ -313,6 +318,10 @@ export class ContentManagerClient {
 
   async cancelJob(id: string): Promise<publicationsApi.JobResponse> {
     return publicationsApi.cancelJob(this.invoke, id);
+  }
+
+  async triggerPreviewBuild(): Promise<publicationsApi.PreviewBuildTrigger> {
+    return publicationsApi.triggerPreviewBuild(this.invoke);
   }
 
   async batchUpdateProducts(
