@@ -1,6 +1,6 @@
 // The launch credential is supplied by the operator (ADMIN_CREDENTIAL env or
-// the startup log, plan 071) and entered once in the UI via CredentialPrompt.
-// It is never fetched from the server — bootstrap no longer serves it.
+// the startup log, plan 071) and entered once in the UI via CredentialPrompt.// It is never fetched from the server — bootstrap no longer serves it.
+import { fetchCore } from '../api/requestCore.ts';
 // Persisted to localStorage for single-operator localhost (plan 071 compliant)
 // so the operator is prompted only once; clear via "Credencial ✓" button or 401.
 // Loopback bypass (2026-08-29, plan 071 still loopback-only): no credential
@@ -73,18 +73,10 @@ export function resetCredential(): void {
   }
 }
 
+// Plan 197: thin shim over the single browser fetch core (requestCore.ts).
+// Same call shape as before (absolute-path URL + raw Response), but the
+// credential now comes from getCredentialValue() and 401 responses reset it
+// — identical posture to ContentManagerClient.request().
 export async function fetchWithCredential(url: string, init?: RequestInit): Promise<Response> {
-  const method = init?.method ?? 'GET';
-  const isMutation = ['POST', 'PATCH', 'PUT', 'DELETE'].includes(method);
-
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...(init?.headers as Record<string, string> | undefined),
-  };
-
-  if (isMutation && _credential) {
-    headers['x-admin-credential'] = _credential;
-  }
-
-  return fetch(url, { ...init, headers });
+  return fetchCore(url, init);
 }

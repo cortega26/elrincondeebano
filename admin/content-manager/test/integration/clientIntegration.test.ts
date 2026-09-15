@@ -163,7 +163,7 @@ test('client importPreview propagates the server 400 error shape', async () => {
   }
 });
 
-test('client exportCsv pins the current raw-fetch behavior (plan 197 owns the fix)', async () => {
+test('client exportCsv goes through the unified request core (plan 197)', async () => {
   const res = await client.exportCsv();
   expect(res.status).toBe(200);
   expect(res.headers.get('content-type')).toContain('text/csv');

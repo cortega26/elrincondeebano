@@ -79,6 +79,17 @@ function getToken(): string | undefined {
   return process.env.SYNC_API_TOKEN;
 }
 
+// Plan 197: the single server fetch core — both transport legs (push +
+// pull) go through here. Redirect policy + timeout live in one place;
+// timeout/retry/response semantics below are untouched.
+function syncFetch(url: string, init: RequestInit, timeoutSeconds: number): Promise<Response> {
+  return fetch(url, {
+    ...init,
+    redirect: 'manual',
+    signal: AbortSignal.timeout(timeoutSeconds * 1000),
+  });
+}
+
 export class SyncAdapter {
   private config: SyncConfig;
 
@@ -127,18 +138,20 @@ export class SyncAdapter {
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     try {
-      const response = await fetch(url, {
-        method: 'PATCH',
-        headers,
-        body: JSON.stringify({
-          base_rev: entry.base_rev,
-          changeset_id: entry.changeset_id,
-          source: 'offline',
-          fields: entry.fields,
-        }),
-        redirect: 'manual',
-        signal: AbortSignal.timeout(this.config.timeout * 1000),
-      });
+      const response = await syncFetch(
+        url,
+        {
+          method: 'PATCH',
+          headers,
+          body: JSON.stringify({
+            base_rev: entry.base_rev,
+            changeset_id: entry.changeset_id,
+            source: 'offline',
+            fields: entry.fields,
+          }),
+        },
+        this.config.timeout
+      );
 
       // Reject any redirect outright (safe redirects policy).
       if (
@@ -226,12 +239,14 @@ export class SyncAdapter {
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
     try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers,
-        redirect: 'manual',
-        signal: AbortSignal.timeout(this.config.timeout * 1000),
-      });
+      const response = await syncFetch(
+        url,
+        {
+          method: 'GET',
+          headers,
+        },
+        this.config.timeout
+      );
 
       if (
         response.type === 'opaqueredirect' ||

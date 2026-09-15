@@ -4,6 +4,18 @@ export interface PublicationManifest {
   commitMessage: string;
 }
 
+// Plan 197: domain-owned port for the git-change summary runPreflight reads.
+// Satisfied structurally by GitAdapter.getChanges() on the adapter side —
+// the domain no longer reaches into server/adapters/*, not even for types.
+export interface GitChangeSummary {
+  hasConflicts: boolean;
+  dirty: boolean;
+  staged: string[];
+  unstaged: string[];
+  untracked: string[];
+  branch: string;
+}
+
 export interface PreflightResult {
   ok: boolean;
   checks: Array<{ name: string; status: 'pass' | 'warn' | 'fail'; message: string }>;
@@ -33,9 +45,7 @@ export function createDefaultManifest(): PublicationManifest {
 
 export function runPreflight(
   manifest: PublicationManifest,
-  gitChanges: Awaited<
-    ReturnType<typeof import('../../server/adapters/gitAdapter.ts').GitAdapter.prototype.getChanges>
-  >
+  gitChanges: GitChangeSummary
 ): PreflightResult {
   const checks: PreflightResult['checks'] = [];
   const errors: string[] = [];

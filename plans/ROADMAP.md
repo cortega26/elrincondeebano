@@ -64,7 +64,7 @@ Legend: ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE (archived) · 🛑 BLOCKED (rea
 | L1   | [186](archive/186-image-pipeline-gates-parallel.md)   | Image pipeline gates+parallel | M      | ✅ DONE (archived) |
 | L2   | [194](archive/194-write-path-unification.md)          | Write-path unification        | M      | ✅ DONE (archived) |
 | L3   | [196](archive/196-writer-repository-consolidation.md) | Writer/repo consolidation     | M      | ✅ DONE (archived) |
-| L3   | [197](197-client-fetch-layering.md)                   | Client split + fetch cores    | M      | ⬜ TODO            |
+| L3   | [197](archive/197-client-fetch-layering.md)           | Client split + fetch cores    | M      | ✅ DONE (archived) |
 
 ### Wave 4 — Toolchain, CI, DX, docs (highly parallel)
 

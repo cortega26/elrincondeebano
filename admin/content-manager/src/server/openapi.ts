@@ -301,6 +301,16 @@ export function buildOpenApi() {
     responses: jsonResponse(productCatalogSchema),
   });
   registry.registerPath({
+    // Plan 197: visible since exportCsv joined the unified client core —
+    // the contract test extracts its path from the domain modules.
+    method: 'get',
+    path: '/api/v1/export.csv',
+    summary: 'Export catalog (CSV)',
+    responses: {
+      '200': { description: 'OK', content: { 'text/csv': { schema: z.string() } } },
+    },
+  });
+  registry.registerPath({
     method: 'get',
     path: '/api/v1/publications',
     summary: 'Publications',

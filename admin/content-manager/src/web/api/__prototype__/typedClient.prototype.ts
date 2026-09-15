@@ -15,25 +15,16 @@
 // Bundle impact: 0 bytes — types are erased at build.
 //
 // The prototype preserves plan 057's credential posture and the client's
-// envelope + 409 ApiRequestError semantics (see client.ts:250-287).
+// envelope + 409 ApiRequestError semantics (see requestCore.ts).
+//
+// Plan 197: the duplicated request() core below was deleted — this file
+// imports the real one (requestJson + ApiRequestError) so exactly one
+// request() implementation exists repo-wide.
 
 import type { paths } from './openapi.d.ts';
-import { getCredentialValue } from '../../app/credentialStore.ts';
+import { requestJson, ApiRequestError } from '../requestCore.ts';
 
-// Re-export the existing error class semantics so call sites keep the same
-// catch shape (status is required for 409 stale-revision retries).
-export class ApiRequestError extends Error {
-  public readonly status: number;
-  constructor(message: string, status: number) {
-    super(message);
-    this.name = 'ApiRequestError';
-    this.status = status;
-  }
-}
-
-type ApiError = {
-  error: { code: string; message: string };
-};
+export { ApiRequestError };
 
 // ── Generated type helpers ──────────────────────────────────────────────
 // Map OpenAPI paths to their request/response shapes. The names mirror the
@@ -68,41 +59,10 @@ export class PrototypeTypedClient {
     ).replace(/\/$/, '');
   }
 
-  private async request<T>(path: string, init?: RequestInit): Promise<T> {
-    const method = init?.method ?? 'GET';
-    const isMutation = ['POST', 'PATCH', 'PUT', 'DELETE'].includes(method);
-
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      ...(init?.headers as Record<string, string> | undefined),
-    };
-
-    if (isMutation) {
-      const credential = getCredentialValue();
-      if (credential) {
-        headers['x-admin-credential'] = credential;
-      }
-    }
-
-    const url = `${this.baseUrl}/api/v1${path}`;
-    const response = await fetch(url, {
-      ...init,
-      headers,
-    });
-
-    if (!response.ok) {
-      const body = (await response.json().catch(() => ({}))) as ApiError;
-      throw new ApiRequestError(
-        body.error?.message ?? `HTTP ${response.status}: ${response.statusText}`,
-        response.status
-      );
-    }
-
-    if (response.status === 204) {
-      return undefined as T;
-    }
-
-    return response.json() as Promise<T>;
+  private request<T>(path: string, init?: RequestInit): Promise<T> {
+    // Plan 197: thin shim over the single browser core — no fetch,
+    // credential or envelope logic lives here.
+    return requestJson<T>(`${this.baseUrl}/api/v1${path}`, init);
   }
 
   // ── Prototype method 1: publish (scheduled publication) ───────────────
