@@ -11,7 +11,7 @@ import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { spawn } from 'node:child_process';
 
-const PORT = Number(process.env.PORT) || 3102;
+const PORT = Number(process.env.PORT) || 3105;
 const ADMIN_CREDENTIAL = process.env.ADMIN_CREDENTIAL || randomBytes(32).toString('hex');
 const fixtureDir = resolve(process.cwd(), 'test', 'fixtures', 'scope-e2e-repo');
 const webDist = resolve(process.cwd(), 'dist', 'web');

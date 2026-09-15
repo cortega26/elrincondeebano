@@ -2,7 +2,7 @@ import { test, expect, type Page } from '@playwright/test';
 import { e2eCredential } from './e2eCredential.ts';
 
 // Pagination and bulk/reorder scope e2e (plan 088) against the isolated
-// 80-product fixture (playwright.scope.config.ts, :3102).
+// 80-product fixture (playwright.scope.config.ts, :3105).
 
 async function dismissCredentialPrompt(page: Page): Promise<void> {
   const input = page.getByPlaceholder('x-admin-credential');
@@ -82,13 +82,13 @@ test('bulk apply with a subset asks for scope; accept applies to ALL matching', 
   });
   await expect(page.getByText(/Aplicado: 60 productos modificados/)).toBeVisible();
 
-  const res = await request.get('http://127.0.0.1:3102/api/v1/products?category=cat-a&limit=200');
+  const res = await request.get('http://127.0.0.1:3105/api/v1/products?category=cat-a&limit=200');
   const body = await res.json();
   expect(body.total).toBe(60);
   expect(body.items.every((p: { stock: boolean }) => p.stock)).toBe(true);
 
   // cat-b products were not touched by the scoped apply.
-  const resB = await request.get('http://127.0.0.1:3102/api/v1/products?category=cat-b&limit=200');
+  const resB = await request.get('http://127.0.0.1:3105/api/v1/products?category=cat-b&limit=200');
   const bodyB = await resB.json();
   expect(bodyB.items.every((p: { stock: boolean }) => !p.stock)).toBe(true);
 });
@@ -121,7 +121,7 @@ test('bulk apply cancel keeps the visible page only', async ({ page, request }) 
   );
   await expect(page.getByText(/Aplicado: 50 productos modificados/)).toBeVisible();
 
-  const res = await request.get('http://127.0.0.1:3102/api/v1/products?category=cat-a&limit=200');
+  const res = await request.get('http://127.0.0.1:3105/api/v1/products?category=cat-a&limit=200');
   const body = await res.json();
   expect(body.items.filter((p: { stock: boolean }) => !p.stock)).toHaveLength(50);
   expect(body.items.filter((p: { stock: boolean }) => p.stock)).toHaveLength(10);
@@ -264,7 +264,7 @@ test('purge removes a product permanently after confirm', async ({ page, request
   // Plan 109: derive counts from the API — no dependency on other tests
   // mutating the shared fixture (shard/reorder safe).
   const before = await (
-    await request.get('http://127.0.0.1:3102/api/v1/products?category=cat-c&limit=200')
+    await request.get('http://127.0.0.1:3105/api/v1/products?category=cat-c&limit=200')
   ).json();
   const totalBefore = before.total as number;
 
@@ -282,7 +282,7 @@ test('purge removes a product permanently after confirm', async ({ page, request
   ).toBeVisible();
 
   const after = await (
-    await request.get('http://127.0.0.1:3102/api/v1/products?category=cat-c&limit=200')
+    await request.get('http://127.0.0.1:3105/api/v1/products?category=cat-c&limit=200')
   ).json();
   expect(after.total).toBe(totalBefore - 1);
 });
@@ -299,7 +299,7 @@ test('inline price edit saves with Enter', async ({ page, request }) => {
   await page.keyboard.press('Enter');
   await expect(page.getByText(/Precio actualizado ✓|price actualizado ✓/)).toBeVisible();
 
-  const res = await request.get('http://127.0.0.1:3102/api/v1/products?category=cat-b&limit=200');
+  const res = await request.get('http://127.0.0.1:3105/api/v1/products?category=cat-b&limit=200');
   const body = await res.json();
   expect(body.items.find((p: { name: string }) => p.name === 'Producto B 1')?.price).toBe(1234);
 });
@@ -344,7 +344,7 @@ test('bulk with checkbox selection applies to exactly the selected ids', async (
 }) => {
   // Plan 109: derive the count from the API — order-independent.
   const before = await (
-    await request.get('http://127.0.0.1:3102/api/v1/products?category=cat-c&limit=200')
+    await request.get('http://127.0.0.1:3105/api/v1/products?category=cat-c&limit=200')
   ).json();
   const total = before.total as number;
   await page.getByLabel('Categoría:').selectOption('cat-c');
@@ -368,7 +368,7 @@ test('bulk with checkbox selection applies to exactly the selected ids', async (
   );
   await expect(page.getByText(/Aplicado: 2 productos modificados/)).toBeVisible();
 
-  const res = await request.get('http://127.0.0.1:3102/api/v1/products?category=cat-c&limit=200');
+  const res = await request.get('http://127.0.0.1:3105/api/v1/products?category=cat-c&limit=200');
   const body = await res.json();
   // The two SELECTED products are the only ones that must be stocked — no
   // total-count assertion that depends on other tests' mutations.
