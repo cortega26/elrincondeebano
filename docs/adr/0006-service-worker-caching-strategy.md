@@ -45,12 +45,14 @@ cross-contamination or unnecessary re-downloads for users.
 ## Active versions
 
 > **Keep this table current. Update it every time a prefix is bumped.**
+> Truth is `CACHE_CONFIG.prefixes` in `service-worker.js` (plan 208).
 
-| Cache    | Active version      |
-| -------- | ------------------- |
-| static   | `ebano-static-v7`   |
-| dynamic  | `ebano-dynamic-v5`  |
-| products | `ebano-products-v6` |
+| Cache    | Active version                |
+| -------- | ----------------------------- |
+| static   | `ebano-static-2026-05-01-b`   |
+| dynamic  | `ebano-dynamic-2026-05-01-b`  |
+| products | `ebano-products-2026-05-01-b` |
+| html     | `ebano-html-2026-05-01-b`     |
 
 ## Operational affordances
 
@@ -82,7 +84,9 @@ caches.keys().then((keys) => keys.forEach((key) => caches.delete(key)));
 
 **Verification after a prefix bump:**
 
-1. Edit `CACHE_CONFIG.prefixes` in `astro-poc/public/service-worker.js`.
+1. Edit `CACHE_CONFIG.prefixes` in `service-worker.js` (root — the
+   `astro-poc/public/service-worker.js` copy syncs from it at build; never
+   edit only one copy).
 2. Update the active-versions table in this ADR.
 3. Run `npm run build`.
 4. Deploy and open DevTools → Application → Service Workers — confirm the
@@ -103,8 +107,8 @@ caches.keys().then((keys) => keys.forEach((key) => caches.delete(key)));
 
 ## References
 
-- `astro-poc/public/service-worker.js` — implementation (`CACHE_CONFIG`)
-- `src/js/modules/pwa.js` · `src/js/modules/service-worker-manager.mjs` — registration
+- `service-worker.js` (root; build-synced to `astro-poc/public/service-worker.js`) — implementation (`CACHE_CONFIG`)
+- `astro-poc/src/scripts/storefront.js` (`registerServiceWorker`) — registration
 - `docs/operations/RUNBOOK.md` — operational procedures, DevTools clear-cache steps, cache bump rules
 - ADR-0003 — Astro migration (static deployment context)
 - ADR-0004 — GitHub Pages / Cloudflare deployment (no server-side cache control)

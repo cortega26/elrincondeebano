@@ -106,7 +106,7 @@
 
 ## Service worker operations
 
-- **Cache versions activos:** `ebano-static-v6`, `ebano-dynamic-v4`, `ebano-products-v5`.
+- **Cache versions activos (verdad: `CACHE_CONFIG.prefixes` en `service-worker.js`):** `ebano-static-2026-05-01-b`, `ebano-dynamic-2026-05-01-b`, `ebano-products-2026-05-01-b`, `ebano-html-2026-05-01-b`.
 - **Cuándo y cómo bump de versiones de caché (prefijos en `service-worker.js`):**
   - `ebano-static-v*`: bump cuando cambian assets estáticos precacheados o su lista
     (`CACHE_CONFIG.staticAssets`, CSS/JS compilados, íconos, offline page).
@@ -242,9 +242,9 @@ Fallback sin `node` en PATH: `npx -y node@24 "C:\Program Files\nodejs\node_modul
 ### Gestionar planes de ejecución
 
 1. **Cambio pequeño** — plan efímero en la descripción del PR.
-2. **Trabajo complejo** — crear `docs/audit/plan-YYYYMMDD-<slug>.md` con objetivo, pasos `[ ]`/`[x]`, decisiones y deuda técnica.
+2. **Trabajo complejo** — crear `plans/NNN-<slug>.md` con objetivo, pasos `[ ]`/`[x]`, decisiones y deuda técnica.
 3. Versionar el plan junto al código.
-4. Al cerrar, mover a `plans/archive/` y referenciar el SHA del merge.
+4. Al cerrar, marcar `DONE` y mover a `plans/archive/` en el mismo commit (`git mv` — lo exige `tools/check-plan-archive.mjs`) y referenciar el SHA del merge. Ver [AGENTS.md](../../AGENTS.md).
 
 ### Auditoría del repositorio
 
