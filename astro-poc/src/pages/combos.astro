@@ -47,10 +47,14 @@ const sharePreview = createSharePreviewMetadata({
     footerHref="/#catalog-section"
     footerLabel="Volver al catálogo principal"
   />
+  {/*
+    Plan 187: inline only what the client consumes (companionRules) — see
+    index.astro for the rationale.
+  */}
   <script
     is:inline
     id="storefront-experience-data"
     type="application/json"
-    set:html={safeScriptJSON(storefrontExperience)}
+    set:html={safeScriptJSON({ companionRules: storefrontExperience.companionRules ?? [] })}
   ></script>
 </BaseLayout>

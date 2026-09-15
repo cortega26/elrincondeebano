@@ -13,6 +13,11 @@ import { createCatalogViewController } from './storefront/catalog-view.js';
 import { createCartViewController } from './storefront/cart-view.js';
 import { createOrderSubmitController } from './storefront/order-submit.js';
 import { createRecoveryBannerController } from './storefront/recovery-banner.js';
+import {
+  getProductCardById,
+  getProductCardMap,
+  invalidateProductCardCache,
+} from './storefront/card-registry.js';
 import { createObservabilityModule } from './storefront/observability.js';
 import { createPersonalizationEngine } from './storefront/personalization.js';
 import { syncStorefrontServiceWorkerVersion } from './storefront/service-worker-sync.js';
@@ -404,28 +409,6 @@ function saveSubstitutionPreference(value) {
   storefrontStorage.saveJson('substitutionPreference', value);
 }
 
-function getProductCardById(id) {
-  return Array.from(document.querySelectorAll('.producto')).find(
-    (card) => card instanceof HTMLElement && normalizeId(card.dataset.productId) === id
-  );
-}
-
-let productCardCache = null;
-
-function getProductCardMap() {
-  if (productCardCache) {
-    return productCardCache;
-  }
-  productCardCache = new Map();
-  document.querySelectorAll('#product-container .producto').forEach((card) => {
-    if (card instanceof HTMLElement) {
-      const id = normalizeId(card.dataset.productId);
-      if (id) productCardCache.set(id, card);
-    }
-  });
-  return productCardCache;
-}
-
 let companionProductCache = null;
 
 function getCompanionProductMap() {
@@ -470,18 +453,20 @@ function getProductByIdFromSource(id) {
   return card ? getProductFromCard(card) : null;
 }
 
-function updateBadge(cart, { animate = false } = {}) {
+function updateBadge(cart, { animate = false, totalItems = null } = {}) {
   const badge = document.getElementById('cart-count');
   if (!badge) {
     return;
   }
-  const { totalItems } = getCartState(cart);
-  badge.textContent = String(totalItems);
+  // Plan 187: accept a precomputed total so per-click paths pay exactly one
+  // getCartState (callers without it keep the old recompute behavior).
+  const items = totalItems ?? getCartState(cart).totalItems;
+  badge.textContent = String(items);
   const cartButton = document.getElementById('cart-icon');
   if (cartButton) {
     cartButton.setAttribute(
       'aria-label',
-      `Carrito de compras — ${totalItems} ${totalItems === 1 ? 'producto' : 'productos'}`
+      `Carrito de compras — ${items} ${items === 1 ? 'producto' : 'productos'}`
     );
   }
   if (animate) {
@@ -514,9 +499,25 @@ function toggleActionArea(actionArea, quantity) {
   }
 }
 
-function syncAllActionAreas(cart) {
+function syncAllActionAreas(cart, onlyId = null) {
   const quantities = new Map(cart.map((item) => [item.id, item.quantity]));
-  document.querySelectorAll('.action-area[data-pid]').forEach((actionArea) => {
+  // Plan 187: scope single-item updates to one card (native matching, no
+  // per-card JS toggles across ~184 cards). Falls back to the full sweep
+  // without CSS.escape support or without an id.
+  let areas;
+  if (
+    onlyId === null ||
+    onlyId === undefined ||
+    typeof CSS === 'undefined' ||
+    typeof CSS.escape !== 'function'
+  ) {
+    areas = document.querySelectorAll('.action-area[data-pid]');
+  } else {
+    areas = document.querySelectorAll(
+      `.action-area[data-pid="${CSS.escape(normalizeId(onlyId))}"]`
+    );
+  }
+  areas.forEach((actionArea) => {
     const id = normalizeId(actionArea.getAttribute('data-pid'));
     const quantity = quantities.get(id) || 0;
     toggleActionArea(actionArea, quantity);
@@ -929,7 +930,7 @@ function createCatalogController() {
     normalizeSearchText,
     parseNumber,
     onViewUpdated: () => {
-      productCardCache = null;
+      invalidateProductCardCache();
       companionProductCache = null;
     },
   });
@@ -1299,14 +1300,21 @@ function initStorefront() {
       showCartSaveError();
       return;
     }
-    updateBadge(cart, { animate: previousState.totalItems !== nextState.totalItems });
+    // Plan 187: prev/next are the only two full validations per mutation —
+    // downstream renders reuse their totals instead of recomputing, and only
+    // the edited card's action area re-syncs.
+    updateBadge(cart, {
+      animate: previousState.totalItems !== nextState.totalItems,
+      totalItems: nextState.totalItems,
+    });
     renderCart(cart, {
       animateTotal: previousState.totalAmount !== nextState.totalAmount,
       changedItemId: id,
+      totalAmount: nextState.totalAmount,
     });
     renderCompanionSuggestions(cart, companionRules);
     // Keep quick-order cards stable while the shopper is actively editing quantities.
-    syncAllActionAreas(cart);
+    syncAllActionAreas(cart, id);
 
     if (quantity > previousQuantity) {
       personalizationEngine.trackProductSignal(id, 'addedCount');

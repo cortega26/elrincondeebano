@@ -15,7 +15,10 @@ export function createCartViewController({
   shareCart,
   isOrderJustSent,
 } = {}) {
-  function renderCart(cart, { animateTotal = false, changedItemId = null } = {}) {
+  function renderCart(
+    cart,
+    { animateTotal = false, changedItemId = null, totalAmount = null } = {}
+  ) {
     const cartContainer = container || document.getElementById('cart-items');
     const cartTotalElement = totalElement || document.getElementById('cart-total');
 
@@ -39,14 +42,15 @@ export function createCartViewController({
           const effectivePrice = Math.max(0, cartItem.price - (cartItem.discount || 0));
           subtotalSpan.textContent = `Subtotal: ${formatCurrency(effectivePrice * cartItem.quantity)}`;
         }
-        // Update total and sync state
-        const { totalAmount } = getCartState(cart);
-        cartTotalElement.textContent = `Total: ${formatCurrency(totalAmount)}`;
+        // Update total and sync state (plan 187: reuse the caller's total
+        // when provided instead of re-validating the whole cart).
+        const total = totalAmount ?? getCartState(cart).totalAmount;
+        cartTotalElement.textContent = `Total: ${formatCurrency(total)}`;
         if (animateTotal) {
           triggerTransientClass(cartTotalElement, 'cart-total-bump');
         }
-        syncCheckoutState(cart, totalAmount);
-        syncMobileCartShortcut(cart, totalAmount);
+        syncCheckoutState(cart, total);
+        syncMobileCartShortcut(cart, total);
         return;
       }
 
@@ -59,13 +63,13 @@ export function createCartViewController({
           shareRow.remove();
           // Fall through to show empty state
         } else {
-          const { totalAmount } = getCartState(cart);
-          cartTotalElement.textContent = `Total: ${formatCurrency(totalAmount)}`;
+          const removedTotal = totalAmount ?? getCartState(cart).totalAmount;
+          cartTotalElement.textContent = `Total: ${formatCurrency(removedTotal)}`;
           if (animateTotal) {
             triggerTransientClass(cartTotalElement, 'cart-total-bump');
           }
-          syncCheckoutState(cart, totalAmount);
-          syncMobileCartShortcut(cart, totalAmount);
+          syncCheckoutState(cart, removedTotal);
+          syncMobileCartShortcut(cart, removedTotal);
           return;
         }
       }
@@ -232,13 +236,13 @@ export function createCartViewController({
       cartContainer.appendChild(shareRow);
     }
 
-    const { totalAmount } = getCartState(cart);
-    cartTotalElement.textContent = `Total: ${formatCurrency(totalAmount)}`;
+    const fullTotal = totalAmount ?? getCartState(cart).totalAmount;
+    cartTotalElement.textContent = `Total: ${formatCurrency(fullTotal)}`;
     if (animateTotal) {
       triggerTransientClass(cartTotalElement, 'cart-total-bump');
     }
-    syncCheckoutState(cart, totalAmount);
-    syncMobileCartShortcut(cart, totalAmount);
+    syncCheckoutState(cart, fullTotal);
+    syncMobileCartShortcut(cart, fullTotal);
   }
   return { renderCart };
 }

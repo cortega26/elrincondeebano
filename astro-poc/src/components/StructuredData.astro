@@ -38,6 +38,9 @@ const SITE_DESCRIPTION =
 const SITE_IMAGE = `${SITE_URL}/assets/images/og/home.og.jpg`;
 const SITE_PHONE = '+56951118901';
 
+// Plan 187: documented ItemList cap for category pages (see below).
+const STRUCTURED_DATA_CATEGORY_ITEM_LIMIT = 50;
+
 function buildOrganization(): object {
   return {
     '@type': 'Organization',
@@ -175,8 +178,14 @@ if (pageType === 'product' && products.length > 0) {
 
 // ItemList para páginas de categoría
 if (pageType === 'category' && products.length > 0) {
+  // Plan 187: cap the inlined list — every category page duplicated its full
+  // product list into JSON-LD, so payload grew with catalog size. 50 keeps
+  // rich results while bounding bytes; single-product pages are unaffected.
   const listName = categoryName ? `Productos en ${categoryName}` : 'Catálogo de productos';
-  const itemList = buildItemList(products, listName);
+  const itemList = buildItemList(
+    products.slice(0, STRUCTURED_DATA_CATEGORY_ITEM_LIMIT),
+    listName
+  );
   if (itemList) {
     graph.push(itemList as unknown as object);
   }
