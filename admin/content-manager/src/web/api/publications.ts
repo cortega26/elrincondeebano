@@ -3,6 +3,18 @@
 // Pure functions over the shared ApiRequestFn core — no call-site churn:
 // the facade keeps every signature, these just move.
 import type { ApiRequestFn } from './requestCore.ts';
+import type { paths } from './__generated__/openapi.ts';
+
+// Plan 214 pilot: request/response shapes derived from the generated doc
+// instead of hand-written. If the doc drops publishAt, the assignment below
+// fails to compile — the drift class plans 115/133 hit three times.
+type PublishRequest = NonNullable<
+  paths['/api/v1/publications']['post']['requestBody']
+>['content']['application/json'];
+type PublishResponse =
+  paths['/api/v1/publications']['post']['responses'][200]['content']['application/json'];
+type PreviewBuildResponse =
+  paths['/api/v1/preview/build']['post']['responses'][200]['content']['application/json'];
 
 export interface GitStatusResponse {
   branch: string;
@@ -64,10 +76,10 @@ export async function publish(
   commitMessage?: string,
   push?: boolean,
   publishAt?: string
-): Promise<{ job_id: string; status: string }> {
-  const payload: Record<string, unknown> = { commitMessage, push };
+): Promise<PublishResponse> {
+  const payload: PublishRequest = { commitMessage, push };
   if (publishAt) payload.publishAt = publishAt;
-  return request<{ job_id: string; status: string }>('/publications', {
+  return request<PublishResponse>('/publications', {
     method: 'POST',
     body: JSON.stringify(payload),
   });
@@ -87,10 +99,7 @@ export async function cancelJob(request: ApiRequestFn, id: string): Promise<JobR
   });
 }
 
-export interface PreviewBuildTrigger {
-  job_id: string;
-  status: string;
-}
+export type PreviewBuildTrigger = PreviewBuildResponse;
 
 // Plan 211: trigger a flag-gated preview build (POST /preview/build is a
 // mutation-class route — requires the launch credential like other writes).

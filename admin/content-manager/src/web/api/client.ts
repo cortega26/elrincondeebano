@@ -5,6 +5,9 @@
 //
 // Plan 197 maintenance rule: new API methods go in their domain module +
 // use the core. New fetch wrappers are banned (point at plan 197).
+// Plan 214: new endpoints use the __generated__/openapi.d.ts wrapper pattern
+// from day one (types from the doc, facade signature unchanged); old methods
+// migrate opportunistically (touch-it-adopt-it), never in bulk.
 import type { ProductCatalog } from '../../shared/schemas/product.ts';
 import type {
   ImportPreviewResponse,
