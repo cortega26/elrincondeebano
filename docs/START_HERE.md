@@ -33,7 +33,7 @@ changes.
 | Local baseline           | `npm run validate` (full slow build; fast loop: `npm run lint && npm run typecheck && npm test`) |
 | Full release gate        | `npm run validate:release`                                                                       |
 | Build only               | `npm run build`                                                                                  |
-| Browser suite only       | `npm run test:e2e`                                                                               |
+| Browser suite only       | `npm run test:e2e` (`PLAYWRIGHT_SKIP_BUILD=1` reuses `dist/` when sources are unchanged)         |
 | Live share-preview probe | `npm run monitor:share-preview`                                                                  |
 | Markdown lint            | `npx markdownlint-cli2 'docs/**/*.md' '*.md'`                                                    |
 
@@ -41,6 +41,12 @@ changes.
 
 - `npm run build` is the only supported build path.
 - Do not run `npm --prefix astro-poc run build` directly; it skips preflight.
+- Fast/slow rule: iterate with `npm run lint && npm run typecheck && npm test`
+  (~30s warm) plus `npm run test:watch` for TDD; pay for `npm run build` /
+  `test:e2e` only when shipped output, data, assets, or browser behavior
+  changed. Preflight hash-gates skip unchanged image steps automatically
+  (`[hash-gate] … skipping` lines); `PLAYWRIGHT_SKIP_BUILD=1` skips the E2E
+  rebuild.
 - Treat `data/` and `assets/` as versioned source-of-truth inputs.
 - Use `docs/architecture/ENGINEERING_PRIORITIES.md` when a change is driven by
   performance, scalability, maintainability, or doc-quality goals.

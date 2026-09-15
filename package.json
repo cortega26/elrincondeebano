@@ -60,6 +60,7 @@
     "ci:guardrails": "npm run build && npm run lint:images && npm run guardrails && npm run guardrails:assets",
     "prune:backups": "node tools/prune-backups.js",
     "test": "vitest run && npm run admin:test",
+    "test:watch": "vitest",
     "test:coverage": "vitest run --coverage && npm run admin:test:coverage",
     "test:mutation": "stryker run",
     "typecheck:legacy": "echo 'legacy typecheck retired (plan 155)'",
