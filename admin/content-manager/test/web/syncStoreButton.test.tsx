@@ -56,11 +56,15 @@ describe('SyncStoreButton', () => {
     expect(window.confirm).toHaveBeenCalled();
     expect(mockApi.publish).toHaveBeenCalledWith(undefined, true);
 
-    await waitFor(() => {
-      expect(setFeedback).toHaveBeenCalledWith(
-        expect.stringMatching(/sincronizada.*abc1234.*push/i)
-      );
-    });
+    // The component polls the job on a 1s interval — allow margin under load.
+    await waitFor(
+      () => {
+        expect(setFeedback).toHaveBeenCalledWith(
+          expect.stringMatching(/sincronizada.*abc1234.*push/i)
+        );
+      },
+      { timeout: 5000 }
+    );
   });
 
   test('clean tree reports up-to-date without publishing', async () => {
@@ -120,9 +124,12 @@ describe('SyncStoreButton', () => {
     const button = await screen.findByRole('button', { name: /sincronizar tienda/i });
     await user.click(button);
 
-    await waitFor(() => {
-      expect(setOpError).toHaveBeenCalledWith(expect.stringMatching(/preflight/i));
-    });
+    await waitFor(
+      () => {
+        expect(setOpError).toHaveBeenCalledWith(expect.stringMatching(/preflight/i));
+      },
+      { timeout: 5000 }
+    );
   });
 
   test('publish rejection surfaces inline', async () => {

@@ -1,8 +1,10 @@
 // @vitest-environment jsdom
-// Plan 177: admin feedback papercuts — badge honesty, sync-form preservation,
-// export error surfacing. (Share-button honesty lives in test/cart-view.spec.js.)
+// Plan 177: admin feedback papercuts — badge honesty, export error surfacing.
+// (Share-button honesty lives in test/cart-view.spec.js. The sync-form
+// preservation test was retired with the remote-sync panel: one "sync"
+// concept remains — Sincronizar tienda.)
 
-import { screen, waitFor, fireEvent, act } from '@testing-library/react';
+import { screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -66,33 +68,6 @@ describe('ProductsPage feedback (plan 177)', () => {
     // Limpiar returns to a badgeless baseline (pre-fix it survived forever).
     await user.click(screen.getByRole('button', { name: 'Limpiar' }));
     await waitFor(() => expect(screen.queryByText(/Filtros activos/)).not.toBeInTheDocument());
-  });
-
-  test('sync poll does not reset the config form while it is open', async () => {
-    const user = userEvent.setup();
-    renderWithRouter(<ProductsPage />);
-    await waitFor(() => expect(screen.getByText('Producto A')).toBeInTheDocument());
-
-    await user.click(screen.getByRole('button', { name: 'Configurar' }));
-    const input = screen.getByPlaceholderText('api_base') as HTMLInputElement;
-    fireEvent.change(input, { target: { value: 'http://typed:9999' } });
-    expect(input.value).toBe('http://typed:9999');
-
-    // The server now reports different values; the 30s poll must refresh
-    // status only, never the open form.
-    mockApi.getSyncStatus.mockResolvedValue({
-      sync: { ...SYNC_SHAPE, enabled: true, api_base: 'http://server:1' },
-      capabilities: { push: 'implemented', pull: 'implemented' },
-    } as unknown as Awaited<ReturnType<typeof mockApi.getSyncStatus>>);
-    vi.useFakeTimers();
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(31_000);
-    });
-    vi.useRealTimers();
-
-    expect((screen.getByPlaceholderText('api_base') as HTMLInputElement).value).toBe(
-      'http://typed:9999'
-    );
   });
 
   test('failed JSON export surfaces an error instead of vanishing', async () => {

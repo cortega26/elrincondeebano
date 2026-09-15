@@ -11,7 +11,6 @@ import {
 } from './undo.ts';
 import { ProductForm } from '../components/ProductForm.tsx';
 import { useProductsQuery } from '../components/useProductsQuery.ts';
-import { SyncStatusPanel } from '../components/SyncStatusPanel.tsx';
 import { FilterBar } from '../components/FilterBar.tsx';
 import { BulkOpsBar } from '../components/BulkOpsBar.tsx';
 import { ProductList } from '../components/ProductList.tsx';
@@ -101,103 +100,14 @@ export function ProductsPage(): React.ReactElement {
   const [sortField, setSortField] = useState<string>('order');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [categories, setCategories] = useState<CategoryRecord[]>([]);
-  const [syncStatus, setSyncStatus] = useState<{
-    enabled: boolean;
-    api_base: string;
-    paused: boolean;
-    token_configured: boolean;
-    queue: { pending: number; error: number; total: number };
-    last_push: { ok: boolean; error?: string } | null;
-  } | null>(null);
-  const [showSyncConfig, setShowSyncConfig] = useState(false);
-  const [syncConfig, setSyncConfig] = useState({ enabled: true, api_base: '', api_token: '' });
-  // Plan 177: the poll/SSE effect below must not reset the config form while
-  // the operator types — mirrored here because the effect runs once (ref so
-  // the subscription is never torn down by panel toggles).
-  const showSyncConfigRef = useRef(showSyncConfig);
-  showSyncConfigRef.current = showSyncConfig;
+  // Remote-sync panel retired: it only ever showed "Desactivado — No
+  // configurado" and its "sync" collided with Sincronizar tienda
+  // (publication). Backend routes stay; nothing here reads sync status.
   const undoStack = useRef<UndoEntry[]>(loadStack('cm-undo-stack'));
   const redoStack = useRef<UndoEntry[]>(loadStack('cm-redo-stack'));
   const dragIndex = useRef<number | null>(null);
   const selectedRef = useRef<ProductResponse | null>(null);
   selectedRef.current = selected;
-
-  useEffect(() => {
-    const refresh = (): void => {
-      client
-        .getSyncStatus()
-        .then((d) => {
-          const s = d.sync as {
-            enabled: boolean;
-            api_base: string;
-            poll_interval: number;
-            pull_interval: number;
-            paused: boolean;
-            token_configured: boolean;
-            queue: { pending: number; error: number; total: number };
-            last_push: { ok: boolean; error?: string } | null;
-          };
-          setSyncStatus(s);
-          // Plan 177: never clobber the form the operator may be typing in —
-          // status keeps updating; the form only refreshes while closed.
-          if (!showSyncConfigRef.current) {
-            setSyncConfig({
-              enabled: s.enabled,
-              api_base: s.api_base ?? '',
-              api_token: '',
-            });
-          }
-        })
-        .catch(() => {});
-    };
-    refresh();
-    // Plan 127 F3.4: subscribe to the sync SSE stream when available; the
-    // 30s polling stays as the fallback (EventSource errors, unsupported).
-    let source: EventSource | null = null;
-    try {
-      source = new EventSource('/api/v1/sync/events');
-      source.addEventListener('message', (event) => {
-        type SyncEventMessage = {
-          sync: {
-            enabled: boolean;
-            api_base: string;
-            poll_interval: number;
-            pull_interval: number;
-            paused: boolean;
-            token_configured: boolean;
-            queue: { pending: number; error: number; total: number };
-            last_push: { ok: boolean; error?: string } | null;
-          };
-        };
-        let d: SyncEventMessage | null;
-        try {
-          d = JSON.parse(event.data) as SyncEventMessage;
-        } catch {
-          d = null; // Plan 177: malformed frame — ignore silently, no listener throw.
-        }
-        if (!d) return;
-        setSyncStatus(d.sync);
-        if (!showSyncConfigRef.current) {
-          setSyncConfig({
-            enabled: d.sync.enabled,
-            api_base: d.sync.api_base ?? '',
-            api_token: '',
-          });
-        }
-      });
-      source.onerror = () => {
-        source?.close();
-        source = null;
-      };
-    } catch {
-      // EventSource unavailable — polling fallback below covers it.
-    }
-    const timer = setInterval(refresh, 30_000);
-    return () => {
-      clearInterval(timer);
-      source?.close();
-    };
-  }, []);
 
   useEffect(() => {
     client
@@ -757,18 +667,6 @@ export function ProductsPage(): React.ReactElement {
             </button>
           )}
         </p>
-      )}
-
-      {syncStatus && (
-        <SyncStatusPanel
-          syncStatus={syncStatus}
-          showSyncConfig={showSyncConfig}
-          setShowSyncConfig={setShowSyncConfig}
-          syncConfig={syncConfig}
-          setSyncConfig={setSyncConfig}
-          setFeedback={setFeedback}
-          setOpError={setOpError}
-        />
       )}
 
       {/* Feedback */}
