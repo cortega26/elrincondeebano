@@ -43,7 +43,13 @@ export function forbiddenOpFields(
 // values and per-entity revision evidence (plan 062 step 3). Stale base
 // revisions fail the whole apply — nothing is partially written.
 export class ChangeSetApplier {
-  constructor(private readonly repos: Repositories) {}
+  private readonly repos: Repositories;
+
+  // Plan 202: explicit field + assignment (was a parameter property —
+  // non-erasable syntax; behavior identical).
+  constructor(repos: Repositories) {
+    this.repos = repos;
+  }
 
   async apply(cs: ChangeSet): Promise<ApplyResult> {
     const catalog = this.repos.products.loadCatalog();
