@@ -1,7 +1,7 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-09-15T14:32:58.016Z",
-  "rev": 16,
+  "last_updated": "2026-09-15T15:43:44.572Z",
+  "rev": 19,
   "schema_version": 1,
   "products": [
     {
@@ -856,7 +856,7 @@
     {
       "name": "Leche Semidescremada Deslactosada",
       "description": "Envase Tetrabrik de 1L",
-      "price": 1800,
+      "price": 2000,
       "discount": 0,
       "stock": true,
       "category": "Lacteos",
@@ -864,12 +864,19 @@
       "image_avif_path": "assets/images/lacteos/Leche semidescremada deslactosada Surlat 1L.avif",
       "order": 34,
       "is_archived": false,
-      "rev": 0,
+      "rev": 1,
       "field_last_modified": {
         "stock": {
           "ts": "2026-02-13T14:06:34.562485Z",
           "by": "offline",
           "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2026-09-15T15:43:30.804Z",
+          "by": "admin",
+          "rev": 1,
           "base_rev": 0,
           "changeset_id": null
         }
@@ -1160,18 +1167,18 @@
       "description": "Presentación de 200mL",
       "price": 1500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Lacteos",
       "image_path": "assets/images/lacteos/Crema de leche Surlat 200mL.webp",
       "image_avif_path": "assets/images/lacteos/Crema de leche Surlat 200mL.avif",
       "order": 45,
       "is_archived": false,
-      "rev": 0,
+      "rev": 1,
       "field_last_modified": {
         "stock": {
-          "ts": "2026-04-11T06:24:11.047014Z",
-          "by": "offline",
-          "rev": 0,
+          "ts": "2026-09-15T15:43:37.500Z",
+          "by": "admin",
+          "rev": 1,
           "base_rev": 0,
           "changeset_id": null
         },
@@ -2334,18 +2341,18 @@
       "description": "Envase Tetra Brik® de 395g",
       "price": 2900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Lacteos",
       "image_path": "assets/images/lacteos/Parmalat-Leche-Condensada-395-gr.png",
       "image_avif_path": "assets/images/lacteos/Parmalat-Leche-Condensada-395-gr.avif",
       "order": 102,
       "is_archived": false,
-      "rev": 0,
+      "rev": 1,
       "field_last_modified": {
         "stock": {
-          "ts": "2026-02-13T14:06:58.658465Z",
-          "by": "offline",
-          "rev": 0,
+          "ts": "2026-09-15T15:43:44.572Z",
+          "by": "admin",
+          "rev": 1,
           "base_rev": 0,
           "changeset_id": null
         }

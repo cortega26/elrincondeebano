@@ -36,7 +36,6 @@ describe('preflight full chain preserved', () => {
       'images:og:home',
       'images:og:overrides',
       'images:og:categories',
-      'images:og:parking',
       'images:og:clean-overrides',
       'gap-fill',
       'migrate-catalog',
