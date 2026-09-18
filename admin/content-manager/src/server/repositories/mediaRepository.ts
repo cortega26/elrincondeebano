@@ -1,5 +1,6 @@
 import { readdirSync, statSync, existsSync } from 'node:fs';
 import { resolve, relative } from 'node:path';
+import { isContainedWithin } from '../../shared/identity.ts';
 import {
   isSafeMediaPath,
   isValidMediaExtension,
@@ -15,11 +16,13 @@ export interface MediaRepositoryConfig {
 
 const DEFAULT_ASSETS = 'assets/images';
 
-// Plan 152: MediaRepository intentionally stays off JsonFileRepository — its
+// Plan 152 background: MediaRepository is off JsonFileRepository — its
 // cache is a directory-walk (max mtime + total size + productsKey) over
 // ~4000 files, not a single JSON file's mtime+size. That walk + productsKey
 // invalidation does not map onto the single-file base without behavior
 // change, so it remains separate (see plan 148).
+// Plan 196 verdict: PERMANENTLY separate — pinned by the cache-contract
+// tests (mediaStamp.test.ts) and the mtime-immediacy cases in media.test.ts.
 
 export class MediaRepository {
   private readonly assetsPath: string;
@@ -42,8 +45,14 @@ export class MediaRepository {
   }
 
   private computeProductsKey(products: Product[]): string {
-    const imagePaths = products.map((p) => p.image_path ?? '').sort().join('|');
-    const avifPaths = products.map((p) => p.image_avif_path ?? '').sort().join('|');
+    const imagePaths = products
+      .map((p) => p.image_path ?? '')
+      .sort()
+      .join('|');
+    const avifPaths = products
+      .map((p) => p.image_avif_path ?? '')
+      .sort()
+      .join('|');
     return `${products.length}:${imagePaths}:${avifPaths}`;
   }
 
@@ -89,7 +98,13 @@ export class MediaRepository {
   getInventory(products: Product[]): { items: MediaItem[]; summary: Record<string, number> } {
     const productsKey = this.computeProductsKey(products);
     const stamp = this.getStamp();
-    if (stamp && this.cached && this.cached.mtimeMs === stamp.mtimeMs && this.cached.size === stamp.size && this.cached.productsKey === productsKey) {
+    if (
+      stamp &&
+      this.cached &&
+      this.cached.mtimeMs === stamp.mtimeMs &&
+      this.cached.size === stamp.size &&
+      this.cached.productsKey === productsKey
+    ) {
       return { items: this.cached.items, summary: this.cached.summary };
     }
 
@@ -195,7 +210,10 @@ export class MediaRepository {
     }
 
     const absPath = resolve(this.repoRoot, normalized);
-    if (!absPath.startsWith(this.repoRoot)) {
+    // Plan 184: segment-aware containment — a string-prefix check would
+    // accept a sibling directory sharing the root prefix. (Latent: the
+    // allowlist above already blocks such shapes; this is the last line.)
+    if (!isContainedWithin(this.repoRoot, absPath)) {
       return { ok: false, error: `Path traversal detected: "${path}"` };
     }
 

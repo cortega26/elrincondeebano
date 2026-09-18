@@ -79,3 +79,65 @@ test('syncProductCatalogAvif generates missing AVIF assets and updates catalog l
 
   fs.rmSync(repoRoot, { recursive: true, force: true });
 });
+
+test('syncProductCatalogAvif backs up pre-write bytes and skips backup on no-op', async () => {
+  const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'ebano-avif-backup-'));
+  const sourceImagePath = path.join(repoRoot, 'assets', 'images', 'demo', 'producto.png');
+  const productsJsonPath = path.join(repoRoot, 'data', 'product_data.json');
+
+  fs.mkdirSync(path.dirname(sourceImagePath), { recursive: true });
+  fs.mkdirSync(path.dirname(productsJsonPath), { recursive: true });
+
+  await sharp({
+    create: {
+      width: 8,
+      height: 8,
+      channels: 4,
+      background: { r: 255, g: 255, b: 255, alpha: 1 },
+    },
+  })
+    .png()
+    .toFile(sourceImagePath);
+
+  const beforeBytes = JSON.stringify(
+    {
+      version: 'v1',
+      last_updated: '2026-03-10T00:00:00.000Z',
+      rev: 0,
+      products: [
+        {
+          name: 'Producto demo',
+          description: 'Demo',
+          price: 1000,
+          discount: 0,
+          stock: true,
+          category: 'Demo',
+          image_path: 'assets/images/demo/producto.png',
+          image_avif_path: '',
+          order: 0,
+          is_archived: false,
+          rev: 0,
+        },
+      ],
+    },
+    null,
+    2
+  );
+  fs.writeFileSync(productsJsonPath, beforeBytes);
+
+  await syncProductCatalogAvif({ productsJsonPath, repoRoot });
+  const dataDir = path.dirname(productsJsonPath);
+  const backupsAfterWrite = fs
+    .readdirSync(dataDir)
+    .filter((f) => f.startsWith('product_data.json.backup_'));
+  assert.equal(backupsAfterWrite.length, 1);
+  assert.equal(fs.readFileSync(path.join(dataDir, backupsAfterWrite[0]), 'utf8'), beforeBytes);
+
+  await syncProductCatalogAvif({ productsJsonPath, repoRoot });
+  const backupsAfterNoop = fs
+    .readdirSync(dataDir)
+    .filter((f) => f.startsWith('product_data.json.backup_'));
+  assert.equal(backupsAfterNoop.length, 1);
+
+  fs.rmSync(repoRoot, { recursive: true, force: true });
+});

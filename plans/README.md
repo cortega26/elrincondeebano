@@ -64,6 +64,166 @@ admin/product_manager/`).
 
 ---
 
+## Auditoría 11 — 2026-09-14 (`/improve deep`, commit `0847089c`)
+
+Auditoría completa (9 categorías, 9 subagentes paralelos, profundidad
+"very thorough") sobre el árbol con los planes 128–169 DONE y archivados y
+el working tree sucio de la rama `advisor/b1-elrincon-remainder` (trabajo
+"Plan 013" a medio aterrizar: preflight-hash/run-parallel + cap de import +
+parking timeouts + caracterización de dinero). Hallazgos vetados contra
+fuente por el advisor (cada plan cita código leído por el advisor, no el
+reporte del subagente; correcciones de vetado documentadas abajo). Todos los
+hallazgos net-positivos se convirtieron en planes 170–214. Nota de
+honestidad: el advisor no ejecutó ningún comando de verificación durante el
+recon (Hard Rules prohíben installs/builds en el árbol del usuario) — todas
+las filas de comandos de los planes son `declared`, y el plan 170 establece
+el baseline verde antes que cualquier otro plan.
+
+| Plan                                                  | Título                                                 | Prioridad | Esfuerzo | Depende de    | Estado                                                                                                                                                                                                         |
+| ----------------------------------------------------- | ------------------------------------------------------ | --------- | -------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [170](archive/170-land-working-tree-baseline.md)      | Aterrizar el working tree sucio + baseline verde       | P0        | S        | —             | DONE — 2026-09-14 (LAND `bff475ec` + merge `4b526127`; lint/typecheck/test/build:fast verdes en main; +sync SW `4063eb68`)                                                                                     |
+| [171](archive/171-catalog-cache-miss-isolation.md)    | Clone en cache-miss del catálogo (fuga plan 105)       | P1        | S        | 170           | DONE — 2026-09-14 (miss clona; test rojo→verde; admin 643/643; nota: mitad edit() ya cerrada por plan 100)                                                                                                     |
+| [172](archive/172-bulk-action-validation.md)          | Validar acciones/valores bulk + re-chequear mutados    | P1        | S        | 170           | DONE — 2026-09-14 (allowlist en rutas + default en switches + revalidación con revert y skipped; 5 tests; admin 652/652)                                                                                       |
+| [173](archive/173-reorder-membership-scale.md)        | Reorder: membresía del set + escala (200/500 caps)     | P1        | S        | 170           | DONE — 2026-09-14 (set-equality 400 + archived pagination + handleReorder paging + drag full-view guard; 7 tests; admin 659/659)                                                                               |
+| [174](archive/174-undo-server-snapshots.md)           | Undo desde snapshots del servidor + tolerar purgados   | P2        | M        | 170           | DONE — 2026-09-14 (entradas siempre desde result.changes + allSettled + guard vacío; 3 tests; admin 684/684)                                                                                                   |
+| [175](archive/175-changeset-apply-robustness.md)      | Apply crash-safe + single-flight + idempotencia previa | P1        | M        | 170, 171      | DONE — 2026-09-14 (try/finally→failed + single-flight + pre-apply replay check; 4 tests; admin 647/647; mutationApi replay pin actualizado al contrato honesto)                                                |
+| [176](archive/176-media-apply-outputs.md)             | Media apply: outputs vacíos + targets por output       | P2        | M        | 170           | DONE — 2026-09-14 (422 en outputs vacíos/múltiples + primaryOutput; multi-output imposible por contrato; staged-sharing diferido con evidencia; 2 tests; 689/689)                                              |
+| [177](archive/177-admin-feedback-papercuts.md)        | Badge filtros + sync-form + feedback export/share      | P2        | S        | 170           | DONE — 2026-09-14 (badge sin baseline + form no-clobber + SSE guard + export catch + share honesto; 5 tests; 687/358 en verde)                                                                                 |
+| [178](archive/178-parking-stay-caps.md)               | Parking: cap 30 noches + dead end checkout             | P2        | S        | 170           | DONE — 2026-09-14 (range-check por atributos + cap MAX_NIGHTS en submit/change + reconcile checkout.max; MAX_NIGHTS exportado; 4 tests; root 371/371)                                                          |
+| [179](archive/179-cross-tab-cart-merge.md)            | Carrito cross-tab: merge en vez de last-writer-wins    | P3        | M        | 170           | DONE — 2026-09-14 (mergeCarts max-wins + storage listener con resync; sin echo-loop; 4 tests; suites en verde)                                                                                                 |
+| [180](archive/180-import-preview-hardening.md)        | Import preview: credential + pre-gate + prune          | P1        | S-M      | 170           | DONE — 2026-09-14 (preview→mutation + pre-gate + delete-on-apply + cap-50; 4 tests + policy-test; admin 664/664)                                                                                               |
+| [181](archive/181-state-machine-gaps.md)              | Cancel/quotepath/hash-gate/migration-lock              | P2        | S-M      | 170           | DONE — 2026-09-14 (cancel-failed false + unquote+parsePorcelainStatus + hash TOCTOU/step-guard + migration-lock DROPPED con veredicto; e2e flaky→parser determinista; 696/696)                                 |
+| [182](archive/182-loopback-bypass-ip-only.md)         | Bypass loopback solo-IP + matriz de credential         | P1        | S        | 170           | DONE — 2026-09-14 (bypass solo-IP + matriz 6 filas con prueba rojo(201)→verde(401); admin 665/665)                                                                                                             |
+| [183](archive/183-credential-hygiene.md)              | Credenciales e2e efímeras + redacción credential/key   | P2        | S        | 170           | DONE — 2026-09-14 (credenciales efímeras por run vía config+harness+specs, sin defaults; redacción credential/key; 3 tests; e2e real verde sin env; admin 668/668)                                             |
+| [184](archive/184-security-investigate-batch.md)      | Batch investigate seguridad (7 ítems LOW)              | P3        | S        | 170           | DONE — 2026-09-14 (serialización suficiente+apex redirect sin cambios; headers+scrub+prefix+CSV-fix; holder riesgo aceptado por dueño; 699/699)                                                                |
+| [185](archive/185-build-probe-memoization.md)         | Memoizar hashes OG + variant sets + hash streaming     | P2        | S-M      | 170           | DONE — 2026-09-14 (OG memo mtime-keyed + variant walk + streaming hash + CI state cache; dist byte-idéntico 4641 files; 363/696 en verde)                                                                      |
+| [186](archive/186-image-pipeline-gates-parallel.md)   | Gates + pool paralelo + layout único de imágenes       | P2        | M        | 170, 185      | DONE — 2026-09-14 (gate og self-healing 2.6s→0.1s + pool acotado 2.4× probado + retiro generate-images + avif write-if-changed; avif/gap-fill sin gate por medición; dist explicado; 388/718 en verde)         |
+| [187](archive/187-storefront-runtime-perf.md)         | Entrada acotada + payloads + hot-path maps             | P2        | M        | 170           | DONE — 2026-09-14 (prefetch viewport + payloads acotados + card-map + estado 2× + sync acotado + probe-cache + signals debounce; entry-split diferido con evidencia; home −2.3KB; e2e 13/13; LH 70/100/96/100) |
+| [188](archive/188-admin-request-costs.md)             | Sync batch + lecturas + paginación + cache media       | P2        | M        | 170, 171      | DONE — 2026-09-14 (enqueue estable + merge-index + getAll 1-pass + push-serial veredicto; paginación/streaming/index/getById/media-TTL RECHAZADOS con medición 0.4ms/148KB; 718/718)                           |
+| [189](archive/189-ci-build-cache-split.md)            | Un build compartido + caches + suites en paralelo      | P3        | M        | 170, 185      | DONE — 2026-09-15 (split root/admin verificado en CI verde; double-build y caches quedan con evidencia; mejora ~0s declarada)                                                                                  |
+| [190](archive/190-sw-fetch-investigate.md)            | Investigar fetch SW + builds inline en requests        | P3        | S        | 170           | DONE — 2026-09-15 (veredictos: nav no-store KEEP 2nav/2fetch; revalidación SWR KEEP 5/5 bg; product-data KEEP; preview vía jobRunner; OG solo-build; /media 48ms→4ms; sin cambios)                             |
+| [191](archive/191-release-gate-ownership.md)          | Decidir ownership selectores/planes en release gate    | P2        | S        | 170           | DONE — 2026-09-15 (D1=ADD owner-decided; release owns selectors+plans en validate order; matrix+ADR0007 al día)                                                                                                |
+| [192](archive/192-web-contract-coverage.md)           | Cobertura web: page-size, categorías, cliente, 409     | P1        | M        | 170           | DONE — 2026-09-14 (page-size+paged-reorder, categoriesPage 5, clientIntegration 6 incl. live-409; reassign-API ya cubierto en 096; admin 681/681; solo tests)                                                  |
+| [193](archive/193-e2e-gate-flake-parity.md)           | Gate e2e sharded + flakes + parity + mutation + floors | P2        | M        | 170           | DONE — 2026-09-15 (scripts media/scope/storefront; 0 sleeps; parity 3/3; mutación 58.2→61.8%; floors propuestos sin forzar)                                                                                    |
+| [194](archive/194-write-path-unification.md)          | Unificar writes producto/categoría + table-drive edit  | P2        | M        | 170, 171, 175 | DONE — 2026-09-14 (runRegistryCommand + 12 rutas migradas + edit table-driven + resulting_revision aditivo; sin command_id sin idempotencia (decisión honesta); 719/719)                                       |
+| [195](archive/195-shared-helper-dedup.md)             | Dedup undo/discount/normalización                      | P2        | M        | 170           | DONE — 2026-09-14 (undoStack extraído + discountPercent2/Int con D4 duo-precision + normalizeToken + paridad djb2 probada; getByKey intacto a propósito; 385/705 en verde)                                     |
+| [196](archive/196-writer-repository-consolidation.md) | Consolidar writers + cerrar migración JsonFileRepo     | P2        | M        | 170           | DONE — 2026-09-15 (backfill main-guard + atomic writers con backup; prune documentado divergente; 3 repos PERMANENT; admin 723/723 + sync-avif 4/4)                                                            |
+| [197](archive/197-client-fetch-layering.md)           | Split cliente + fetch único + ciclo de tipos           | P2        | M        | 170, 192      | DONE — 2026-09-15 (requestCore único + facade 8 módulos intacta; exportCsv vía core; openapi.csv declarado; admin 723/723)                                                                                     |
+| [198](archive/198-god-module-slice-1.md)              | Split categorías/media (slice 1) + remover muertos     | P3        | M        | 170, 192, 194 | DONE — 2026-09-15 (categorías 704→4 módulos; media 663→5; shim fuera; prototipos a 211/214; resto: storefront/pages/catalog/productRoutes)                                                                     |
+| [199](archive/199-utils-lockstep-census.md)           | Censo utils/lockstep (decidir, no construir)           | P3        | S        | 170           | DONE — 2026-09-15 (dualidad 3v4 sin dominio→no consolidar; _utils huérfano; lockstep sin cadencia→sin checklist)                                                                                               |
+| [200](archive/200-manifest-hygiene.md)                | types-node, floors, pins, guard de rangos, Node 24     | P2        | S        | 170           | DONE — 2026-09-15 (types-node→24.13.4 cero usos-26; chrome-launcher ^1.2.1; astro ^7.1.6 con build; guard 7 rangos probado; Volta fuera, engines×3)                                                            |
+| [201](archive/201-drop-duplicate-deps.md)             | Quitar playwright pelado + undici                      | P2        | S        | 170           | DONE — 2026-09-15 (bare playwright fuera, E2E 20/20; 4 ficheros a fetch nativo, fonts+test verdes, grep limpio)                                                                                                |
+| [202](archive/202-tsx-production-spike-native.md)     | Promover tsx + spike type-stripping nativo             | P2        | M        | 170           | DONE — 2026-09-15 (tsx a deps con probe omit-dev; erasableSyntaxOnly; spike nativo: boot+read+write OK, veredicto KEEP tsx)                                                                                    |
+| [203](archive/203-sass-use-anymatch-reeval.md)        | Sass @use + re-evaluar fork anymatch                   | P3        | M        | 170           | DONE — 2026-09-15 (@use imposible sin forkear Bootstrap — cuarentena+guard; fork anymatch fuera por registry 3.1.3, CSS idéntico)                                                                              |
+| [204](archive/204-env-format-versions.md)             | Env surface + format ignores + Node/ports              | P2        | S        | 170           | DONE — 2026-09-15 (.env completo con defaults; prettierignore espejado; ports+versiones únicos, Volta fuera)                                                                                                   |
+| [205](archive/205-contributor-docs-rewrite.md)        | Reescribir CONTRIBUTING/typecheck/CLAUDE               | P2        | S        | 170           | DONE — 2026-09-15 (CONTRIBUTING sin Python/node:test/src-js; CLAUDE 3 filas; AGENTS typecheck; tsconfig.typecheck fuera)                                                                                       |
+| [206](archive/206-dx-loops-matrix-logs.md)            | Fast loops + matriz e2e + logs observables             | P2        | M        | 170           | DONE — 2026-09-15 (watch+fast-rule; matriz false-green probado y cerrado; correlación sin path/RUNBOOK real; logger tools; pino+doctor con contrato)                                                           |
+| [207](archive/207-entry-docs-drift.md)                | Drift docs de entrada (map, structure, priorities)     | P2        | M        | 170, 205      | DONE — 2026-09-15 (mapas a módulos vivos; workspaces×3; AGENTS rango+lint; markdownlint 0)                                                                                                                     |
+| [208](archive/208-ops-adr-docs-drift.md)              | Drift docs ops/ADR (runbook, SW, índice, API)          | P2        | S        | 170           | DONE — 2026-09-15 (8 ítems: runbook plans+SW, índice 0010, EDGE runner, ADR0006 refs, API pointer, pins símbolo; orden ya fijo por 191)                                                                        |
+| [209](archive/209-admin-lint-local.md)                | Lint local del admin + hueco lint-staged               | P2        | S        | 170           | DONE — 2026-09-15 (admin:lint espejo de CI en lint root; staged .mjs probado; 0 errores)                                                                                                                       |
+| [210](archive/210-waitlist-spike.md)                  | Spike: re-habilitar waitlist WhatsApp                  | P3        | S        | 170           | DONE — 2026-09-15 (D2=DEFERRED vigente: hide sigue, emitter inerte, e2e skipped; re-confirmar 2026-12)                                                                                                         |
+| [211](archive/211-preview-build-route.md)             | Wirear job build+preview en publicación                | P3        | M        | 170, 198      | DONE — 2026-09-15 (ruta con flag+contención; POST=mutación justificada; UI con evidencia; loop local 6s; 740/740)                                                                                              |
+| [212](archive/212-durable-schedule-spike.md)          | Spike: publicación programada durable                  | P3        | M        | 170           | DONE — 2026-09-15 (pérdida reproducida; outbox data/scheduled-publications.json + fire-late propuestos; round-trip OK; BUILD on ADOPT)                                                                         |
+| [213](archive/213-csv-import-spike.md)                | Spike: import CSV round-trip                           | P3        | M        | 170, 180      | DONE — 2026-09-15 (RECHAZADO por operador: sin workflow de round-trip; re-abre si se observa conversión CSV→JSON)                                                                                              |
+| [214](archive/214-incremental-typed-client.md)        | Spike: cliente tipado incremental                      | P3        | S-M      | 170, 192, 197 | DONE — 2026-09-15 (codegen dev-only npx-pinned; piloto publish+preview; freshness probada; prototipo fuera; 741/741)                                                                                           |
+
+### Dependencias (Auditoría 11)
+
+- **170 antes de todo lo que toque sus 12 archivos** (en la práctica, antes
+  de casi todo: es el baseline; los demás planes llevan su drift check
+  contra `0847089c` más el SHA de aterrizaje de 170 para esos archivos).
+- **171 antes de 175, 188 y 194**: aislamiento del catálogo primero; el
+  resto construye sobre su contrato.
+- **175 antes de 194**: el helper generalizado debe incluir la reserva de
+  idempotencia desde el día uno.
+- **185 antes de 186 y 189**: memoización/medición primero; gates y CI
+  reutilizan sus números.
+- **192 antes de 197 y 214**: los pins del cliente preceden su split y su
+  codegen.
+- **194 antes de 198**: migrar rutas a helpers antes de partir archivos.
+- **180 antes de 213**: el cap/pre-gate condiciona el diseño del import CSV.
+- **197 antes de 214** (split antes que codegen); **198 coordina con 211 y
+  214** por los archivos prototype (quien aterrice primero gana, el otro
+  reconcilia); **205 antes de 207** y coordinado con 208/209 en filas
+  compartidas; **200-Step-5 coordina con 204-Step-3** (una sola historia
+  Node/ports); **186 coordina con 196** (write-if-changed vs atomicidad).
+
+### Orden de ejecución recomendado
+
+170 → 171 → 172 → 173 → 180 → 182 → 174 → 175 → 176 → 177 → 178 → 181 →
+183 → 184 → 185 → 186 → 187 → 188 → 191 → 192 → 193 → 194 → 195 → 196 →
+197 → 189 → 190 → 198 → 199 → 200 → 201 → 202 → 203 → 204 → 205 → 209 →
+207 → 208 → 206 → 210 → 211 → 212 → 213 → 214 (spikes/dirección al final).
+
+### Correcciones del vetado (lo que el advisor rechazó o reencuadró)
+
+- **TD-01 reencuadrado**: `runCatalogCommand` es específico del catálogo de
+  productos; las rutas de categorías usan `CategoryRepository` con su propio
+  guard de rev. El plan 194 generaliza el helper, no lo "adopta" a ciegas.
+- **TD-05 corregido**: `atomicFileWriter` y `storefrontRepository` YA
+  comparten `pruneFileBackups`; solo `AtomicWriter.pruneBackups` sigue
+  separado. El plan 196 verifica antes de fusionar.
+- **TD-13 reencuadrado**: el mismatch de layouts es `generate-images.mjs`
+  (`{base}-{w}.{ext}`) vs gap-fill+resolver (`w{W}/images/...` sin sufijo);
+  `image-pipeline.mjs` y gap-fill usan el MISMO layout. El plan 186 lo trata
+  así.
+- **PERF-02 matizado**: `VARIANT_EXISTS_CACHE` ya suaviza repeticiones
+  intra-proceso; queda el costo first-touch + cross-page. Plan 185.
+- **PERF-06 matizado**: el script de `BaseLayout` es módulo (deferred), no
+  bloqueante; el costo es parse del bundle + prefetch. Plan 187.
+- **PERF-11 matizado**: `pullOnce` ya batecha en un write (plan 092); quedan
+  3 loads, stringify O(n) en enqueue y `find` por cambio. Plan 188.
+- **TEST-02/DX-15 reencuadrado**: `VALIDATION_MATRIX` declara el split
+  intencional. El plan 191 es decisión-con-dueño, no defecto.
+- **SEC-08 matizado**: apex-como-target de primer nivel no verificado en el
+  monitor; el plan 184 lo prueba antes de proponer rutas edge.
+- **BaseLayout/START_HERE**: `build:fast` bendecido para código-only vs
+  "único path soportado" — el plan 206 lo documenta como regla de decisión,
+  no como defecto.
+- Rechazados por diseño (no re-auditar sin evidencia nueva): aislamiento
+  `structuredClone` por request (plan 105); lecturas admin sin credential
+  (control plane loopback-local); copias SW raíz vs public (build las
+  sincroniza); split TS6/TS7 (plan 113); Bootstrap/@popperjs congelados;
+  alerta bench-catalog (0.393 ms, sin costo); traversal en estático Fastify
+  (refutado empíricamente); majors Fastify/Vite/React/Zod/Vitest (todos al
+  día); bajar `bodyLimit` global (rompería media — plan 180 pre-gatea);
+  reescritura total del cliente tipado (spike 163 la rechazó); codegen para
+  lockstep (KISS — plan 199 decide con censo); suites sharded al default
+  (el aislamiento es el punto — plan 193 las gatea de otra forma); remover
+  `tsx` sin veredicto ADOPT (plan 202 spikea primero); doctor como gate de
+  CI (propuesto, no habilitado — plan 206).
+
+### Alcance no auditado (Auditoría 11)
+
+E2E vivo (requiere build), profiling con tráfico de producción (plan 190
+documenta el método), `npm audit` en modo read-only (no ejecutado — va por
+cuenta del checklist de PR), versiones upstream en vivo (astro 7.3.x, línea
+Sass 3.0: tomadas de docs, no verificadas contra registry), bytes internos
+de los `.tgz` vendoreados, `_archive/`, `docs/audit/`, cuerpos de
+`.github/actions/*` (lectura parcial), salida construida `dist/` del admin.
+
+---
+
+## Plan 215 — polish UX del storefront (2026-09-15, fuera de auditoría)
+
+Pedido del operador: looks, usabilidad e intuitividad en PC y móvil.
+Dirección: balanced / warm store / barra de anclas sticky / detalle comprable.
+
+| Plan                                            | Título                                      | Prioridad | Esfuerzo | Estado                                                                                                                                                                                                   |
+| ----------------------------------------------- | ------------------------------------------- | --------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [215](archive/215-storefront-ux-polish/spec.md) | Looks, usabilidad e intuitividad (PC+móvil) | P2        | M        | DONE — 2026-09-15 (anclas sticky + hero compacto + tarjetas unificadas + detalle comprable + targets ≥44px; LH móvil 71/100/100/100, desktop a11y/BP/SEO 100; root 392/392, admin 741/741, e2e 47+2skip) |
+
+Hallazgos laterales (preexistentes, cerrados en el plan): prune borraba
+`icon-192/512.png` en cada build (fix + `test/postbuild-prune-manifest.test.js`);
+quirk axe de fondo-blanco bajo el fold (fondo explícito en `.footer-content`).
+Detalle y desvíos en `archive/215-storefront-ux-polish/todo.md`.
+
+| Plan                                            | Título                                         | Prioridad | Esfuerzo | Estado                                                                                                                                                                                                                            |
+| ----------------------------------------------- | ---------------------------------------------- | --------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [216](archive/216-de-slop-professional/spec.md) | De-slop: tipografía real y sistema profesional | P1        | M        | DONE — 2026-09-15 (Archivo self-hosted ×5 por fin enlazada; sin serifas; navbar plano; hero sin tarjeta; tiles precio-primero; LH móvil 71/100/100/100, desktop 100s; e2e 47+2skip con T12 re-pinned por edición operador rev 16) |
+
+---
+
 ## Auditoría 10 — 2026-08-17 (`/improve deep`, commit `ee20b0f6`)
 
 Auditoría completa (8 categorías, 8 subagentes paralelos) sobre el árbol post-cierre

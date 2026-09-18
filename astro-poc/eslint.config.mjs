@@ -46,7 +46,9 @@ export default [
     },
   },
   {
-    files: ['public/service-worker.js'],
+    // Repo-root-relative alias: lint-staged runs this config from the root,
+    // where flat-config globs resolve against the CWD (same as above).
+    files: ['public/service-worker.js', 'astro-poc/public/service-worker.js'],
     languageOptions: {
       globals: {
         ...globals.browser,

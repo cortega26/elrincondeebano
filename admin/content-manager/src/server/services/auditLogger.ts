@@ -11,7 +11,24 @@ export interface AuditEntry {
   details?: Record<string, unknown>;
 }
 
-const REDACTED_FIELDS = new Set(['token', 'password', 'secret', 'authorization', 'cookie']);
+const REDACTED_FIELDS = new Set([
+  'token',
+  'password',
+  'secret',
+  'authorization',
+  'cookie',
+  'credential',
+  'api_key',
+  'apikey',
+  'private_key',
+]);
+
+// Plan 183: field-name matcher — camelCase is split to snake first so
+// accessKey redacts while monkey/keyboard/turkey pass through. Bare `key`
+// only matches on boundaries; *-key ids over-redact by design (conservative:
+// an id is harmless to hide, a key is not harmless to leak). New
+// secret-shaped fields must extend this matcher in the same commit that
+// introduces them.
 
 export class AuditLogger {
   private readonly logPath: string;
@@ -37,14 +54,23 @@ export class AuditLogger {
 
     const cleaned: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(entry.details)) {
-      const lower = key.toLowerCase();
-      const shouldRedact =
-        REDACTED_FIELDS.has(lower) ||
-        lower.includes('token') ||
-        lower.includes('secret') ||
-        lower.includes('password');
-      cleaned[key] = shouldRedact ? '[REDACTED]' : value;
+      cleaned[key] = isSensitiveFieldName(key) ? '[REDACTED]' : value;
     }
     return { ...entry, details: cleaned };
   }
+}
+
+function isSensitiveFieldName(name: string): boolean {
+  const lower = name.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
+  if (REDACTED_FIELDS.has(lower)) return true;
+  return (
+    lower.includes('token') ||
+    lower.includes('secret') ||
+    lower.includes('password') ||
+    lower.includes('credential') ||
+    lower === 'key' ||
+    lower.endsWith('_key') ||
+    lower.startsWith('key_') ||
+    lower.includes('_key_')
+  );
 }

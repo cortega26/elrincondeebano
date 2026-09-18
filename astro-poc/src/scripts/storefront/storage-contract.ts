@@ -41,19 +41,33 @@ function getDefaultStorage(): Storage | null {
   return globalThis?.localStorage ?? null;
 }
 
+// Plan 187: the probe does a setItem+removeItem round-trip — cache the
+// verdict per storage object for the page session instead of paying it on
+// every slot read/write (init alone performs ~10). Availability does not
+// change mid-page in practice; tests inject fresh storages (fresh verdicts).
+const storageProbeCache = new WeakMap<object, boolean>();
+
 function canUseStorage(storage: Storage | null): storage is Storage {
   if (!storage || typeof storage.getItem !== 'function' || typeof storage.setItem !== 'function') {
     return false;
   }
 
+  const cached = storageProbeCache.get(storage);
+  if (cached !== undefined) {
+    return cached;
+  }
+
+  let usable: boolean;
   try {
     const probeKey = '__astro_poc_storage_probe__';
     storage.setItem(probeKey, '1');
     storage.removeItem?.(probeKey);
-    return true;
+    usable = true;
   } catch {
     return false;
   }
+  storageProbeCache.set(storage, usable);
+  return usable;
 }
 
 function safeParseJson<T>(rawValue: unknown, fallback: T): T {

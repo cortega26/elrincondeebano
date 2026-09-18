@@ -67,7 +67,7 @@ parte de una regresión en producción:
 
 ## Operación sugerida
 
-1. Revisar eventos `slow_endpoint_detected` y `web_vitals_snapshot` en logs del navegador (ADR 0010 no-go: sin collector, colección deshabilitada por defecto — ver `storefront.js:1114`).
+1. Revisar eventos `slow_endpoint_detected` y `web_vitals_snapshot` en logs del navegador (ADR 0010 no-go: sin collector, colección deshabilitada por defecto — ver símbolo `initObservability` en `storefront.js`).
 2. Si aumenta error rate:
    - correlacionar con `runtime_error_before_app_ready` / `unhandled_js_error`.
 3. Ajustar umbral de latencia por entorno:

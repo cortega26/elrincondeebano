@@ -1,10 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { logger } from '../utils/logger.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, '..', '..');
+
+const ROOT_MANIFEST = 'package.json';
 
 function readJson(relativePath) {
   const absolutePath = path.join(repoRoot, relativePath);
@@ -45,15 +48,50 @@ function compareTriplets(left, right) {
   return 0;
 }
 
-const rootManifest = readJson('package.json').json;
+const rootManifest = readJson(ROOT_MANIFEST).json;
 const workspaceManifestPaths = Array.isArray(rootManifest.workspaces)
   ? rootManifest.workspaces
       .filter((workspacePath) => typeof workspacePath === 'string')
       .map((workspacePath) => path.posix.join(workspacePath, 'package.json'))
   : [];
-const manifestPaths = ['package.json', ...workspaceManifestPaths];
+const manifestPaths = [ROOT_MANIFEST, ...workspaceManifestPaths];
 
 const errors = [];
+
+// Plan 200 step 4: same-range assertion for ranges duplicated across
+// workspaces — a one-sided bump silently forks the install tree (notably
+// sharp's native binaries). The typescript split is EXEMPT by design
+// (plan 113: root/astro on TS6, admin on TS7 — peers block convergence).
+// Maintenance rule: extend SAME_RANGE_PACKAGES when adding a new
+// cross-workspace duplicate.
+const SAME_RANGE_PACKAGES = [
+  'sharp',
+  'zod',
+  'vitest',
+  '@vitest/coverage-v8',
+  'jsdom',
+  '@playwright/test',
+  'eslint-plugin-sonarjs',
+];
+
+for (const packageName of SAME_RANGE_PACKAGES) {
+  const declared = new Map();
+  for (const manifestPath of manifestPaths) {
+    const { json: manifest, relativePath } = readJson(manifestPath);
+    const range = getDeclaredVersion(manifest, packageName);
+    if (range) {
+      declared.set(relativePath, range);
+    }
+  }
+  const ranges = new Set(declared.values());
+  if (ranges.size > 1) {
+    errors.push(
+      `${packageName} range differs across manifests: ` +
+        [...declared.entries()].map(([file, range]) => `${file}=${range}`).join(', ') +
+        `. Bump all workspaces together.`
+    );
+  }
+}
 
 for (const manifestPath of manifestPaths) {
   const { json: manifest, relativePath } = readJson(manifestPath);
@@ -83,6 +121,7 @@ for (const manifestPath of manifestPaths) {
 }
 
 if (errors.length > 0) {
+  logger.error('dependency-manifest-compat-failed', { errors });
   console.error('Dependency manifest compatibility guard failed.\n');
   for (const error of errors) {
     console.error(`- ${error}`);
@@ -90,4 +129,5 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
+logger.info('dependency-manifest-compat-passed', {});
 console.log('Dependency manifest compatibility guard passed.');

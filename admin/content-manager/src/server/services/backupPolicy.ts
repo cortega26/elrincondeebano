@@ -61,6 +61,8 @@ export function selectPrunable(
 
 // Bounded pruning for adjacent per-file backups (`<file>.backup_<ts>`),
 // shared by the writers (atomicWriter pattern, plan 067 step 2).
+// Plan 196 verdict: AtomicWriter keeps its own copy against its injectable
+// fs seam (fault-injection coverage) — same semantics, deliberately separate.
 export function pruneFileBackups(
   dir: string,
   filePrefix: string,

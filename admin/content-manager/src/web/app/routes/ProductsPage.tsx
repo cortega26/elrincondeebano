@@ -11,12 +11,12 @@ import {
 } from './undo.ts';
 import { ProductForm } from '../components/ProductForm.tsx';
 import { useProductsQuery } from '../components/useProductsQuery.ts';
-import { SyncStatusPanel } from '../components/SyncStatusPanel.tsx';
 import { FilterBar } from '../components/FilterBar.tsx';
 import { BulkOpsBar } from '../components/BulkOpsBar.tsx';
 import { ProductList } from '../components/ProductList.tsx';
 import { ProductInspector } from '../components/ProductInspector.tsx';
 import { Feedback } from '../components/Feedback.tsx';
+import { SyncStoreButton } from '../components/SyncStoreButton.tsx';
 import type { UndoEntry } from './undo.ts';
 
 const client = new ContentManagerClient();
@@ -34,12 +34,31 @@ interface BulkChange {
 // products, so fetch them and append their ids in server order — archived
 // products land at the end of the new global order (index N..N+k). With no
 // archived products the payload is unchanged.
-async function reorderWithFullCatalog(
+type ProductQuery = NonNullable<Parameters<ContentManagerClient['getProducts']>[0]>;
+
+// Plan 173: page a filtered product query until exhausted (the server clamps
+// limit at 200). Single pagination loop shared by the archived fetch and the
+// clamped-view fetch below. Exported for unit tests.
+export async function fetchAllProductIds(
+  client: ContentManagerClient,
+  baseParams: ProductQuery
+): Promise<string[]> {
+  const ids: string[] = [];
+  const pageSize = 200;
+  for (let page = 1; ; page += 1) {
+    const result = await client.getProducts({ ...baseParams, page, limit: pageSize });
+    ids.push(...result.items.filter((p) => p.id).map((p) => p.id!));
+    if (result.items.length < pageSize) break;
+  }
+  return ids;
+}
+
+// Plan 173: exported for unit tests alongside fetchAllProductIds.
+export async function reorderWithFullCatalog(
   client: ContentManagerClient,
   visibleIds: string[]
 ): Promise<void> {
-  const archivedResult = await client.getProducts({ archived: true, page: 1, limit: 200 });
-  const archivedIds = archivedResult.items.filter((p) => p.id).map((p) => p.id!);
+  const archivedIds = await fetchAllProductIds(client, { archived: true });
   await client.reorderProducts([...visibleIds, ...archivedIds]);
 }
 
@@ -81,81 +100,14 @@ export function ProductsPage(): React.ReactElement {
   const [sortField, setSortField] = useState<string>('order');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [categories, setCategories] = useState<CategoryRecord[]>([]);
-  const [syncStatus, setSyncStatus] = useState<{
-    enabled: boolean;
-    api_base: string;
-    paused: boolean;
-    token_configured: boolean;
-    queue: { pending: number; error: number; total: number };
-    last_push: { ok: boolean; error?: string } | null;
-  } | null>(null);
-  const [showSyncConfig, setShowSyncConfig] = useState(false);
-  const [syncConfig, setSyncConfig] = useState({ enabled: true, api_base: '', api_token: '' });
+  // Remote-sync panel retired: it only ever showed "Desactivado — No
+  // configurado" and its "sync" collided with Sincronizar tienda
+  // (publication). Backend routes stay; nothing here reads sync status.
   const undoStack = useRef<UndoEntry[]>(loadStack('cm-undo-stack'));
   const redoStack = useRef<UndoEntry[]>(loadStack('cm-redo-stack'));
   const dragIndex = useRef<number | null>(null);
   const selectedRef = useRef<ProductResponse | null>(null);
   selectedRef.current = selected;
-
-  useEffect(() => {
-    const refresh = (): void => {
-      client
-        .getSyncStatus()
-        .then((d) => {
-          const s = d.sync as {
-            enabled: boolean;
-            api_base: string;
-            poll_interval: number;
-            pull_interval: number;
-            paused: boolean;
-            token_configured: boolean;
-            queue: { pending: number; error: number; total: number };
-            last_push: { ok: boolean; error?: string } | null;
-          };
-          setSyncStatus(s);
-          setSyncConfig({
-            enabled: s.enabled,
-            api_base: s.api_base ?? '',
-            api_token: '',
-          });
-        })
-        .catch(() => {});
-    };
-    refresh();
-    // Plan 127 F3.4: subscribe to the sync SSE stream when available; the
-    // 30s polling stays as the fallback (EventSource errors, unsupported).
-    let source: EventSource | null = null;
-    try {
-      source = new EventSource('/api/v1/sync/events');
-      source.addEventListener('message', (event) => {
-        const d = JSON.parse(event.data) as {
-          sync: {
-            enabled: boolean;
-            api_base: string;
-            poll_interval: number;
-            pull_interval: number;
-            paused: boolean;
-            token_configured: boolean;
-            queue: { pending: number; error: number; total: number };
-            last_push: { ok: boolean; error?: string } | null;
-          };
-        };
-        setSyncStatus(d.sync);
-        setSyncConfig({ enabled: d.sync.enabled, api_base: d.sync.api_base ?? '', api_token: '' });
-      });
-      source.onerror = () => {
-        source?.close();
-        source = null;
-      };
-    } catch {
-      // EventSource unavailable — polling fallback below covers it.
-    }
-    const timer = setInterval(refresh, 30_000);
-    return () => {
-      clearInterval(timer);
-      source?.close();
-    };
-  }, []);
 
   useEffect(() => {
     client
@@ -218,11 +170,11 @@ export function ProductsPage(): React.ReactElement {
     maxDiscount !== ''
   );
   const canReorder =
-    !!data &&
-    !filtersActive &&
-    data.total <= data.items.length &&
-    sortField === 'order' &&
-    sortDir === 'asc';
+    // Plan 101/173: reorder gates on filters + sort only. Fullness used to
+    // live here, but the 500-row UI clamp would otherwise kill reorder at
+    // scale — handleReorder pages through the same filters instead, and
+    // handleDrop keeps its own full-view guard (positional DnD is page-local).
+    !!data && !filtersActive && sortField === 'order' && sortDir === 'asc';
   const pageStart = data ? (data.page - 1) * data.limit + 1 : 0;
   const pageEnd = data ? Math.min(data.page * data.limit, data.total) : 0;
 
@@ -231,18 +183,23 @@ export function ProductsPage(): React.ReactElement {
     if (!data) return;
     const stamp = new Date().toISOString().slice(0, 10);
     if (kind === 'json') {
-      void client.exportJson().then((catalog) => {
-        const blob = new Blob([JSON.stringify(catalog, null, 2)], {
-          type: 'application/json',
-        });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `productos-${stamp}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-        setFeedback('Export JSON descargado ✓');
-      });
+      void client
+        .exportJson()
+        .then((catalog) => {
+          const blob = new Blob([JSON.stringify(catalog, null, 2)], {
+            type: 'application/json',
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `productos-${stamp}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+          setFeedback('Export JSON descargado ✓');
+        })
+        // Plan 177: mirror the CSV branch — a failed export must surface,
+        // never vanish as an unhandled rejection.
+        .catch((err) => setOpError((err as Error).message));
     } else {
       void client
         .exportCsv({
@@ -503,33 +460,18 @@ export function ProductsPage(): React.ReactElement {
       );
 
       // Plan 088: the undo entry is recorded ONLY after a successful apply.
-      // For scope=all the server's changes array carries the exact old
-      // values of every mutated product — the honest snapshot.
-      const affectedIds = scope === 'all' ? result.changes.map((c) => c.product_id) : ids;
-      const entry =
-        scope === 'all'
-          ? buildUndoEntry({
-              action: bulkAction,
-              value: val,
-              productIds: affectedIds,
-              products: [],
-              preview: result.changes,
-            })
-          : buildUndoEntry({
-              action: bulkAction,
-              value: val,
-              productIds: ids,
-              products: data.items
-                .filter((p): p is ProductResponse & { id: string } => Boolean(p.id))
-                .map((p) => ({
-                  id: p.id,
-                  price: p.price,
-                  discount: p.discount,
-                  stock: p.stock,
-                  category: p.category,
-                })),
-              preview: bulkPreview,
-            });
+      // Plan 174: the server's changes array carries the exact old values of
+      // every mutated product — the honest snapshot for EVERY scope, not just
+      // scope=all. data.items (current page only) is never used: it silently
+      // drops cross-page selections and may already be stale.
+      const affectedIds = result.changes.map((c) => c.product_id);
+      const entry = buildUndoEntry({
+        action: bulkAction,
+        value: val,
+        productIds: affectedIds,
+        products: [],
+        preview: result.changes,
+      });
       undoStack.current.push(entry);
       redoStack.current = [];
       saveStack('cm-undo-stack', undoStack.current);
@@ -567,7 +509,14 @@ export function ProductsPage(): React.ReactElement {
 
   async function handleReorder(): Promise<void> {
     if (!data || !canReorder) return;
-    const ids = data.items.filter((p) => p.id).map((p) => p.id!);
+    // Plan 173: ensure the FULL filtered view even when the UI clamp keeps
+    // rows off-screen — page through the same filters (the server sorts by
+    // `order`, so page order is global order). Never reorder a partial view,
+    // and never raise the 500-row render cap for this.
+    let ids = data.items.filter((p) => p.id).map((p) => p.id!);
+    if (data.total > data.items.length) {
+      ids = await fetchAllProductIds(client, { ...filters });
+    }
     if (ids.length === 0) return;
     try {
       await reorderWithFullCatalog(client, ids);
@@ -587,13 +536,27 @@ export function ProductsPage(): React.ReactElement {
       await moveEntryOnSuccess(undoStack, redoStack, async (entry) => {
         // Fetch fresh revisions right before undoing — data.items may already
         // be stale (a prior undo item in this same entry, or the apply).
-        const currentProducts = await Promise.all(
+        // Plan 174: one purged product must not block undoing the rest.
+        const settled = await Promise.allSettled(
           entry.perProductOldValues.map(async (item) => {
             const product = await client.getProduct(item.product_id);
             return { id: item.product_id, rev: product.rev ?? 0 };
           })
         );
+        const currentProducts = settled
+          .filter(
+            (r): r is PromiseFulfilledResult<{ id: string; rev: number }> =>
+              r.status === 'fulfilled'
+          )
+          .map((r) => r.value);
         const actions = computeUndoActions(entry, currentProducts);
+        if (actions.length === 0) {
+          // Nothing restorable (products were purged since) — report instead
+          // of hitting batch-update's non-empty guard with a confusing 400.
+          setFeedback('Nada que deshacer: los productos ya no existen');
+          await reload();
+          return;
+        }
         // Plan 121: one batch call = one catalog write (was N sequential
         // full-catalog rewrites). All-or-nothing with a single rev guard.
         await client.batchUpdateProducts(actions);
@@ -621,8 +584,12 @@ export function ProductsPage(): React.ReactElement {
 
   function handleDrop(e: React.DragEvent<HTMLTableRowElement>, dropIndex: number): void {
     e.preventDefault();
-    if (!canReorder) return;
-    if (dragIndex.current === null || dragIndex.current === dropIndex || !data) return;
+    if (!canReorder || !data) return;
+    // Plan 173: positional drag-and-drop is only meaningful with every row
+    // rendered — a clamped/paged view cannot express the move. Use the
+    // reorder button (which pages through) instead.
+    if (data.total > data.items.length) return;
+    if (dragIndex.current === null || dragIndex.current === dropIndex) return;
 
     const items = [...data.items];
     const [draggedItem] = items.splice(dragIndex.current, 1);
@@ -655,7 +622,19 @@ export function ProductsPage(): React.ReactElement {
 
   return (
     <main role="main" aria-label="Productos">
-      <h1>Productos{data ? ` (${data.total})` : ''}</h1>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '0.75rem',
+          flexWrap: 'wrap',
+          marginBottom: '0.5rem',
+        }}
+      >
+        <h1 style={{ margin: 0 }}>Productos{data ? ` (${data.total})` : ''}</h1>
+        <SyncStoreButton setFeedback={setFeedback} setOpError={setOpError} />
+      </div>
 
       {/* Plan 088: visible pagination scope — the operator always knows how
           much of the catalog the current view covers. */}
@@ -688,18 +667,6 @@ export function ProductsPage(): React.ReactElement {
             </button>
           )}
         </p>
-      )}
-
-      {syncStatus && (
-        <SyncStatusPanel
-          syncStatus={syncStatus}
-          showSyncConfig={showSyncConfig}
-          setShowSyncConfig={setShowSyncConfig}
-          syncConfig={syncConfig}
-          setSyncConfig={setSyncConfig}
-          setFeedback={setFeedback}
-          setOpError={setOpError}
-        />
       )}
 
       {/* Feedback */}

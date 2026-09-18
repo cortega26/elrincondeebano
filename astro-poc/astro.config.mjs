@@ -35,8 +35,12 @@ export default defineConfig({
       },
     }),
   ],
+  // Plan 187: viewport (not hover) prefetch — hover on link-dense
+  // home/category pages fired speculative fetches per link hovered, while
+  // content-only pages paid for targets they never need. Viewport keeps the
+  // benefit where it matters with a fraction of the requests.
   prefetch: {
     prefetchAll: true,
-    defaultStrategy: 'hover',
+    defaultStrategy: 'viewport',
   },
 });

@@ -103,7 +103,7 @@ mobile_add_to_cart: {}   // conteo únicamente
   ( §4 ) sin transmisión.
 - **Evidence assembled (spike)**:
   - Captura actual: `observability.initObservability({ enabled: true, slowEndpointMs: 1200 })`
-    en cada page load (`storefront.js:1103` pre-decision) → LCP/INP/CLS vía
+    en cada page load (símbolo `initObservability`, `storefront/observability.js`) → LCP/INP/CLS vía
     `PerformanceObserver`, contadores `error`/`unhandledrejection`, y
     `recordEndpointMetric` (buffer 50, solo `path`+método+status+duración,
     umbral 1200 ms). Salida únicamente `log(...)` → `logger.ts:67-82`
@@ -133,7 +133,7 @@ mobile_add_to_cart: {}   // conteo únicamente
   nueva que justifique el costo de consentimiento/operación para un operador
   único sin métricas acordadas.
 - **Branch executed (no-go)**:
-  - `astro-poc/src/scripts/storefront.js:1103` → `enabled:false` (observability
+  - `initObservability` → `enabled:false` (símbolo en `storefront/observability.js`, invocado desde `storefront.js`; observability
     deshabilita `PerformanceObserver` y contadores; `logger.ts` conservado).
   - `trackAnalyticsEvent` API conservada con comentario de revisit (ADR 0010
     §4); emisores retenidos como no-op inertes sin `__analyticsTrack` —
@@ -141,7 +141,7 @@ mobile_add_to_cart: {}   // conteo únicamente
   - Re-enable documentado: instalar collector first-party o bridge
     `__analyticsTrack` y volver a `enabled:true` + tests §2.
 - **Rollback**: `git revert <sha>` (cambio trivial).
-- **Refs**: plan 167, auditoría 10 DIR-06, `OBSERVABILITY.md`, `storefront.js:50,1103`.
+- **Refs**: plan 167, auditoría 10 DIR-06, `OBSERVABILITY.md`, símbolo `initObservability` + comentario revisit en `storefront.js` (anclas por símbolo, no por línea — plan 208).
 
 ## Referencias
 

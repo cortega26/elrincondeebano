@@ -65,16 +65,30 @@ jobs:
         run: npx playwright test -c playwright.config.ts
 
       # Plan 127 F1.3: the temp-repo suites run in parallel — each config
-      # owns its port (3101-3104/3102) and repo fixture, so the matrix is
-      # safe; scope.spec is order-independent (plan 109).
+      # owns its port (3101 import, 3102 changes, 3105 scope, 3103 media,
+      # 3104 storefront) and repo fixture. Plan 206: per-suite logs + wait -n
+      # fail-closed collection — bare `wait` always exits 0 (proven
+      # false-green 2026-09-15), so every PID is reaped explicitly and any
+      # suite failure fails the step.
       - name: E2E matrix (isolated temp repos)
         run: |
-          npx playwright test -c playwright.import.config.ts &
-          npx playwright test -c playwright.changes.config.ts &
-          npx playwright test -c playwright.media.config.ts &
-          npx playwright test -c playwright.storefront.config.ts &
-          npx playwright test -c playwright.scope.config.ts &
-          wait
+          mkdir -p reports/e2e-matrix
+          npx playwright test -c playwright.import.config.ts > reports/e2e-matrix/import.log 2>&1 &
+          npx playwright test -c playwright.changes.config.ts > reports/e2e-matrix/changes.log 2>&1 &
+          npx playwright test -c playwright.media.config.ts > reports/e2e-matrix/media.log 2>&1 &
+          npx playwright test -c playwright.storefront.config.ts > reports/e2e-matrix/storefront.log 2>&1 &
+          npx playwright test -c playwright.scope.config.ts > reports/e2e-matrix/scope.log 2>&1 &
+          remaining=5
+          status=0
+          while [ "$remaining" -gt 0 ]; do
+            if wait -n; then
+              :
+            else
+              status=1
+            fi
+            remaining=$((remaining - 1))
+          done
+          exit $status
 
       - name: Certification report
         run: node --import tsx scripts/certification-report.ts --ci
@@ -90,6 +104,7 @@ jobs:
           path: |
             admin/content-manager/test-results
             admin/content-manager/playwright-report
+            admin/content-manager/reports/e2e-matrix
             reports/e2e
             reports/certification
           if-no-files-found: ignore

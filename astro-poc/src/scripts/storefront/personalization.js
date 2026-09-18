@@ -10,18 +10,83 @@ export function createPersonalizationEngine({
   resolveProductById,
   maxPersonalizedItems = 4,
 } = {}) {
+  // Plan 187: coalesce signal writes — every quantity click used to parse,
+  // mutate, and rewrite the whole signals object synchronously. Mutations
+  // now accumulate on a pending object flushed on a trailing timer (plus
+  // page-hide), with readers seeing the merged view so behavior is unchanged.
+  let pendingSignals = null;
+  let flushTimer = null;
+
+  function currentSignals() {
+    if (!pendingSignals) {
+      const loaded = loadProductSignals();
+      pendingSignals = loaded && typeof loaded === 'object' ? loaded : {};
+    }
+    return pendingSignals;
+  }
+
+  function flushProductSignals() {
+    if (flushTimer !== null) {
+      clearTimeout(flushTimer);
+      flushTimer = null;
+    }
+    if (!pendingSignals) {
+      return;
+    }
+    const pending = pendingSignals;
+    pendingSignals = null;
+    try {
+      // Merge over a fresh base so a concurrent tab's signals are not
+      // clobbered — last-writer-wins only per product entry, not per file.
+      const base = loadProductSignals();
+      const merged = base && typeof base === 'object' ? { ...base, ...pending } : { ...pending };
+      saveProductSignals(merged);
+    } catch {
+      // Signals are advisory: a failed flush must never break the shopper's
+      // click (previously the synchronous save could throw into setQty).
+    }
+  }
+
+  function scheduleFlush() {
+    if (flushTimer !== null) {
+      return;
+    }
+    if (typeof setTimeout !== 'function') {
+      flushProductSignals();
+      return;
+    }
+    flushTimer = setTimeout(flushProductSignals, 500);
+    if (
+      flushTimer !== null &&
+      typeof flushTimer === 'object' &&
+      typeof flushTimer.unref === 'function'
+    ) {
+      flushTimer.unref();
+    }
+  }
+
+  // Never lose the trailing batch to an unload (guarded for non-DOM/test envs).
+  if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') flushProductSignals();
+    });
+    if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+      window.addEventListener('pagehide', flushProductSignals);
+    }
+  }
+
   function trackProductSignal(productId, field) {
     if (!productId || !field) {
       return;
     }
 
-    const signals = loadProductSignals();
+    const signals = currentSignals();
     const current =
       signals[productId] && typeof signals[productId] === 'object' ? signals[productId] : {};
     current[field] = parseNumber(current[field], 0) + 1;
     current.lastSeenAt = new Date().toISOString();
     signals[productId] = current;
-    saveProductSignals(signals);
+    scheduleFlush();
   }
 
   function recordOrder(cart, profile, payment, substitutionPreference) {
@@ -44,6 +109,9 @@ export function createPersonalizationEngine({
     saveLastOrder(order);
     saveRecentOrders([order, ...loadRecentOrders()]);
 
+    // Persist any coalesced add-signals first so the fresh load below sees
+    // them; order persistence itself stays synchronous (never debounced).
+    flushProductSignals();
     const signals = loadProductSignals();
     order.items.forEach((item) => {
       const current =
@@ -81,7 +149,7 @@ export function createPersonalizationEngine({
     const ranked = new Map();
     const lastOrder = loadLastOrder();
     const recentOrders = loadRecentOrders();
-    const signals = loadProductSignals();
+    const signals = currentSignals();
 
     if (lastOrder && Array.isArray(lastOrder.items)) {
       lastOrder.items.forEach((item, index) => {
@@ -117,5 +185,7 @@ export function createPersonalizationEngine({
     trackProductSignal,
     recordOrder,
     getPersonalizedProductIds,
+    // Plan 187: test seam + explicit flush point (page-hide uses it too).
+    flushProductSignals,
   };
 }

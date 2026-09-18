@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { randomBytes } from 'node:crypto';
 
 // Plan 123: shared factory for the admin e2e matrix — the six configs only
 // declare their deltas (testMatch, port, server command, project/report
@@ -17,6 +18,15 @@ export interface AdminPlaywrightConfigOverrides {
 
 export function defineAdminConfig(overrides: AdminPlaywrightConfigOverrides) {
   const { testMatch, port, serverCommand, projectName, jsonReport } = overrides;
+  // Plan 183: per-run harness credential — generated once per config process
+  // when the operator/CI did not provide one. Workers inherit it via
+  // process.env and the harness via webServer.env, so specs and server always
+  // agree with no committed default anywhere in the tree. An explicitly
+  // exported ADMIN_CREDENTIAL always wins (local override, CI secret).
+  const harnessCredential = process.env.ADMIN_CREDENTIAL || randomBytes(32).toString('hex');
+  if (!process.env.ADMIN_CREDENTIAL) {
+    process.env.ADMIN_CREDENTIAL = harnessCredential;
+  }
   return defineConfig({
     testDir: './test/e2e',
     testMatch,
@@ -43,6 +53,7 @@ export function defineAdminConfig(overrides: AdminPlaywrightConfigOverrides) {
     webServer: {
       command: serverCommand,
       url: `http://127.0.0.1:${port}/api/v1/health`,
+      env: { ...process.env, ADMIN_CREDENTIAL: harnessCredential },
       reuseExistingServer: overrides.reuseExistingServer ?? false,
       timeout: 20_000,
     },

@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { e2eCredential } from './e2eCredential.ts';
 
 // Change-set control center e2e (plan 062 step 5): create a change set via
 // API (setup), then drive review -> validate -> apply -> undo -> redo through
@@ -9,12 +10,12 @@ const BASE = 'http://127.0.0.1:3102';
 async function dismissCredentialPrompt(page: Page): Promise<void> {
   const input = page.getByPlaceholder('x-admin-credential');
   if (await input.isVisible()) {
-    await input.fill('e2e-import');
+    await input.fill(e2eCredential());
     await page.getByRole('button', { name: 'Guardar' }).click();
   }
 }
 
-const CH = { 'Content-Type': 'application/json', 'x-admin-credential': 'e2e-import' };
+const CH = { 'Content-Type': 'application/json', 'x-admin-credential': e2eCredential() };
 
 // The control-center UI gates destructive actions behind window.confirm —
 // accept the dialogs (the spec already asserts the outcomes they gate).

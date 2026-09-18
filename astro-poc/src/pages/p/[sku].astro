@@ -1,7 +1,14 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import CategoryStrip from '../../components/CategoryStrip.astro';
 import ProductDetail from '../../components/ProductDetail.astro';
-import { getProductsWithSku, type ProductWithSku } from '../../lib/catalog';
+import {
+  getCategoryLabel,
+  getModernCategoryPath,
+  getProductsByCategory,
+  getProductsWithSku,
+  type ProductWithSku,
+} from '../../lib/catalog';
 import { createSharePreviewMetadata, getProductOgImageUrl } from '../../lib/seo';
 
 export function getStaticPaths() {
@@ -12,6 +19,11 @@ export function getStaticPaths() {
 }
 
 const { item } = Astro.props as { item: ProductWithSku };
+// Plan 215: relacionados de la misma categoría (sin el producto actual, máx. 12).
+const relatedItems = getProductsByCategory(item.product.category)
+  .filter((entry) => entry.sku !== item.sku)
+  .slice(0, 12);
+const relatedCategoryLabel = getCategoryLabel(item.product.category);
 const canonicalPath = `/p/${item.sku}/`;
 const productDescription = item.product.description
   ? `${item.product.description} - El Rincón de Ébano`
@@ -50,4 +62,16 @@ const sharePreview = createSharePreviewMetadata({
   ]}
 >
   <ProductDetail item={item} />
+  {
+    relatedItems.length > 0 ? (
+      <CategoryStrip
+        headingId="product-related-heading"
+        title={`También en ${relatedCategoryLabel}`}
+        items={relatedItems}
+        viewAllHref={getModernCategoryPath(item.product.category)}
+        viewAllLabel="Ver todo"
+        className="product-related-strip"
+      />
+    ) : null
+  }
 </BaseLayout>

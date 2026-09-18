@@ -156,3 +156,47 @@ describe('PublicationPage (component)', () => {
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
   });
 });
+
+describe('PublicationPage preview block (plan 211)', () => {
+  test('trigger calls the preview endpoint and disables while running', async () => {
+    mockApi.triggerPreviewBuild.mockResolvedValue({ job_id: 'pv-1', status: 'running' });
+    const user = userEvent.setup();
+    renderWithRouter(<PublicationPage />);
+
+    const button = screen.getByRole('button', { name: 'Build + abrir vista previa' });
+    await user.click(button);
+
+    await waitFor(() => {
+      expect(mockApi.triggerPreviewBuild).toHaveBeenCalled();
+    });
+    expect(screen.getByRole('button', { name: 'Reconstruyendo…' })).toBeDisabled();
+    expect(screen.getByLabelText('Build en curso')).toBeInTheDocument();
+  });
+
+  test('completed preview shows open link and evidence download', async () => {
+    mockApi.triggerPreviewBuild.mockResolvedValue({ job_id: 'pv-2', status: 'completed' });
+    const user = userEvent.setup();
+    renderWithRouter(<PublicationPage />);
+
+    await user.click(screen.getByRole('button', { name: 'Build + abrir vista previa' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Abrir vista previa →' })).toHaveAttribute(
+        'href',
+        '/api/v1/preview/'
+      );
+    });
+    expect(screen.getByRole('button', { name: 'Descargar evidencia' })).toBeInTheDocument();
+  });
+
+  test('a live build-preview job from the server disables the trigger', async () => {
+    mockApi.listJobs.mockResolvedValue({
+      jobs: [{ id: 'pv-live', type: 'build-preview', status: 'running', progress: 40 }],
+    });
+    renderWithRouter(<PublicationPage />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Reconstruyendo…' })).toBeDisabled();
+    });
+  });
+});

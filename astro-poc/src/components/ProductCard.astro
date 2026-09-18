@@ -93,7 +93,7 @@ const hasAvifSource = typeof avifImage?.srcset === 'string' && avifImage.srcset.
       </div>
 
       <div class="action-area mt-auto" data-pid={sku} role="group" aria-label={`Acciones para ${product.name}`}>
-        <button class="btn btn-primary add-to-cart-btn mt-2" type="button" data-id={sku} aria-label={`Agregar ${product.name} al carrito`}>
+        <button class="btn btn-primary add-to-cart-btn mt-2" type="button" data-id={sku} aria-label={`Agregar ${product.name} al pedido`}>
           <span class="add-to-cart-btn__label">Agregar</span>
           {compactMobile ? null : <span class="add-to-cart-btn__hint">al pedido</span>}
         </button>

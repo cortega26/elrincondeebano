@@ -58,6 +58,80 @@ export interface ProductServiceResult {
   changedFields?: string[];
 }
 
+// Plan 194: the editable product fields in single-edit application order
+// (price before discount — the guards below depend on it). Adding a product
+// field means one row here (plus types/schemas), not a tenth copy of the
+// rev/metadata block.
+type EditableProductField =
+  | 'name'
+  | 'description'
+  | 'price'
+  | 'discount'
+  | 'stock'
+  | 'category'
+  | 'image_path'
+  | 'image_avif_path'
+  | 'is_archived';
+
+const EDITABLE_FIELDS: EditableProductField[] = [
+  'name',
+  'description',
+  'price',
+  'discount',
+  'stock',
+  'category',
+  'image_path',
+  'image_avif_path',
+  'is_archived',
+];
+
+type EditableValue = NonNullable<EditProductInput[EditableProductField]>;
+
+// Plan 194: per-field guards that can reject the whole edit. Runs in
+// EDITABLE_FIELDS order against the partially-mutated product — exactly the
+// old branch behavior (a simultaneous price-down + discount-down edit sees
+// the new discount in the price guard and the new price in the discount
+// guard). Returns the rejection message or null.
+function validateEditField(
+  field: EditableProductField,
+  product: Product,
+  changes: EditProductInput
+): string | null {
+  if (field === 'price') {
+    const price = changes.price;
+    // A discount also changing in this same request takes precedence over
+    // the stale stored value — otherwise a valid simultaneous
+    // price-down + discount-down edit would be rejected here even though
+    // the discount branch below would accept it.
+    const effectiveDiscount = changes.discount !== undefined ? changes.discount : product.discount;
+    if (price !== undefined && effectiveDiscount > price) {
+      return `Price (${price}) cannot be lower than discount (${effectiveDiscount})`;
+    }
+    return null;
+  }
+  if (field === 'discount') {
+    const discount = changes.discount;
+    if (discount !== undefined && discount > product.price) {
+      return `Discount (${discount}) cannot exceed price (${product.price})`;
+    }
+    return null;
+  }
+  return null;
+}
+
+// Plan 194: bulk action → mutated scalar, shared by single-edit-adjacent
+// bulkApply instead of a second switch-to-field mapping.
+export const BULK_ACTION_FIELD: Record<
+  BulkOperation['action'],
+  'price' | 'discount' | 'stock' | 'category'
+> = {
+  set_stock: 'stock',
+  set_category: 'category',
+  set_discount_percent: 'discount',
+  set_discount_fixed: 'discount',
+  set_price_delta_percent: 'price',
+};
+
 export class ProductService {
   private enabled = false;
 
@@ -173,155 +247,28 @@ export class ProductService {
       return { ok: false, error: messages, statusCode: 422 };
     }
 
-    if (params.changes.name !== undefined && params.changes.name !== product.name) {
-      product.name = params.changes.name;
-      product.rev += 1;
-      product.field_last_modified.name = {
-        ts: now,
-        by: 'admin',
-        rev: product.rev,
-        base_rev: params.baseRevision,
-        changeset_id: null,
-      };
-      changedFields.push('name');
-    }
-
-    if (
-      params.changes.description !== undefined &&
-      params.changes.description !== product.description
-    ) {
-      product.description = params.changes.description;
-      // Plan 092: description edits must record the same revision metadata
-      // as every other field — history/undo depend on it.
-      product.rev += 1;
-      product.field_last_modified.description = {
-        ts: now,
-        by: 'admin',
-        rev: product.rev,
-        base_rev: params.baseRevision,
-        changeset_id: null,
-      };
-      changedFields.push('description');
-    }
-
-    if (params.changes.price !== undefined && params.changes.price !== product.price) {
-      // A discount also changing in this same request takes precedence over
-      // the stale stored value — otherwise a valid simultaneous
-      // price-down + discount-down edit would be rejected here even though
-      // the discount branch below would accept it.
-      const effectiveDiscount =
-        params.changes.discount !== undefined ? params.changes.discount : product.discount;
-      if (effectiveDiscount > params.changes.price) {
-        return {
-          ok: false,
-          error: `Price (${params.changes.price}) cannot be lower than discount (${effectiveDiscount})`,
-          statusCode: 422,
-        };
+    // Plan 194: table-driven application (EDITABLE_FIELDS order = the old
+    // branch order). Guards run via validateEditField before each mutation.
+    const editable = product as unknown as Record<EditableProductField, EditableValue>;
+    for (const field of EDITABLE_FIELDS) {
+      const next = params.changes[field] as EditableValue | undefined;
+      if (next === undefined || next === editable[field]) {
+        continue;
       }
-      product.price = params.changes.price;
-      product.rev += 1;
-      product.field_last_modified.price = {
-        ts: now,
-        by: 'admin',
-        rev: product.rev,
-        base_rev: params.baseRevision,
-        changeset_id: null,
-      };
-      changedFields.push('price');
-    }
-
-    if (params.changes.discount !== undefined && params.changes.discount !== product.discount) {
-      if (params.changes.discount > product.price) {
-        return {
-          ok: false,
-          error: `Discount (${params.changes.discount}) cannot exceed price (${product.price})`,
-          statusCode: 422,
-        };
+      const violation = validateEditField(field, product, params.changes);
+      if (violation !== null) {
+        return { ok: false, error: violation, statusCode: 422 };
       }
-      product.discount = params.changes.discount;
+      editable[field] = next;
       product.rev += 1;
-      product.field_last_modified.discount = {
+      product.field_last_modified[field] = {
         ts: now,
         by: 'admin',
         rev: product.rev,
         base_rev: params.baseRevision,
         changeset_id: null,
       };
-      changedFields.push('discount');
-    }
-
-    if (params.changes.stock !== undefined && params.changes.stock !== product.stock) {
-      product.stock = params.changes.stock;
-      product.rev += 1;
-      product.field_last_modified.stock = {
-        ts: now,
-        by: 'admin',
-        rev: product.rev,
-        base_rev: params.baseRevision,
-        changeset_id: null,
-      };
-      changedFields.push('stock');
-    }
-
-    if (params.changes.category !== undefined && params.changes.category !== product.category) {
-      product.category = params.changes.category;
-      product.rev += 1;
-      product.field_last_modified.category = {
-        ts: now,
-        by: 'admin',
-        rev: product.rev,
-        base_rev: params.baseRevision,
-        changeset_id: null,
-      };
-      changedFields.push('category');
-    }
-
-    if (
-      params.changes.image_path !== undefined &&
-      params.changes.image_path !== product.image_path
-    ) {
-      product.image_path = params.changes.image_path;
-      product.rev += 1;
-      product.field_last_modified.image_path = {
-        ts: now,
-        by: 'admin',
-        rev: product.rev,
-        base_rev: params.baseRevision,
-        changeset_id: null,
-      };
-      changedFields.push('image_path');
-    }
-
-    if (
-      params.changes.image_avif_path !== undefined &&
-      params.changes.image_avif_path !== product.image_avif_path
-    ) {
-      product.image_avif_path = params.changes.image_avif_path;
-      product.rev += 1;
-      product.field_last_modified.image_avif_path = {
-        ts: now,
-        by: 'admin',
-        rev: product.rev,
-        base_rev: params.baseRevision,
-        changeset_id: null,
-      };
-      changedFields.push('image_avif_path');
-    }
-
-    if (
-      params.changes.is_archived !== undefined &&
-      params.changes.is_archived !== product.is_archived
-    ) {
-      product.is_archived = params.changes.is_archived;
-      product.rev += 1;
-      product.field_last_modified.is_archived = {
-        ts: now,
-        by: 'admin',
-        rev: product.rev,
-        base_rev: params.baseRevision,
-        changeset_id: null,
-      };
-      changedFields.push('is_archived');
+      changedFields.push(field);
     }
 
     const validation = productSchema.safeParse(product);
@@ -463,6 +410,15 @@ export class ProductService {
           }
           break;
         }
+        default: {
+          // Plan 172: unknown actions must fail loudly — falling through
+          // would return a misleading ok:true with zero changes.
+          return {
+            ok: false,
+            error: `Unknown bulk action "${String(operation.action)}"`,
+            changes: [],
+          };
+        }
       }
     }
 
@@ -472,18 +428,30 @@ export class ProductService {
   bulkApply(
     catalog: ProductCatalog,
     operation: BulkOperation
-  ): { ok: boolean; error?: string; changed: number; changes: BulkPreviewResult[] } {
+  ): {
+    ok: boolean;
+    error?: string;
+    changed: number;
+    skipped: number;
+    changes: BulkPreviewResult[];
+  } {
     if (!this.enabled) {
-      return { ok: false, error: 'Write operations are disabled', changed: 0, changes: [] };
+      return {
+        ok: false,
+        error: 'Write operations are disabled',
+        changed: 0,
+        skipped: 0,
+        changes: [],
+      };
     }
 
     const preview = this.bulkPreview(catalog, operation);
     if (!preview.ok) {
-      return { ok: false, error: preview.error, changed: 0, changes: [] };
+      return { ok: false, error: preview.error, changed: 0, skipped: 0, changes: [] };
     }
 
     if (preview.changes.length === 0) {
-      return { ok: false, error: 'No changes to apply', changed: 0, changes: [] };
+      return { ok: false, error: 'No changes to apply', changed: 0, skipped: 0, changes: [] };
     }
 
     const idSet = new Set(operation.product_ids);
@@ -496,8 +464,20 @@ export class ProductService {
     );
     const now = new Date().toISOString();
     let changed = 0;
+    let skipped = 0;
+
+    // Plan 172: the mutated scalar per action — resolved up front so a
+    // schema-rejected mutation can be reverted exactly (scalar + rev +
+    // history metadata) instead of persisting catalog-bricking state.
+    // Plan 194: shared BULK_ACTION_FIELD map (single source with edit's
+    // field table) instead of a second switch-to-field mapping.
+    const field = BULK_ACTION_FIELD[operation.action];
 
     for (const product of products) {
+      const mutable = product as unknown as Record<typeof field, number | boolean | string>;
+      const prevScalar = mutable[field];
+      const prevRev = product.rev;
+      const prevMeta = product.field_last_modified[field];
       switch (operation.action) {
         case 'set_discount_percent':
           product.discount = Math.min(
@@ -526,19 +506,33 @@ export class ProductService {
           product.category = cat;
           break;
         }
+        default: {
+          return {
+            ok: false,
+            error: `Unknown bulk action "${String(operation.action)}"`,
+            changed,
+            skipped,
+            changes: [],
+          };
+        }
+      }
+      // Plan 172: never persist schema-invalid state (e.g. a NaN discount
+      // serializes to null and bricks the next catalog load) — revert the
+      // product exactly and report it as skipped instead of changed.
+      if (!productSchema.safeParse(product).success) {
+        mutable[field] = prevScalar;
+        product.rev = prevRev;
+        if (prevMeta === undefined) {
+          delete product.field_last_modified[field];
+        } else {
+          product.field_last_modified[field] = prevMeta;
+        }
+        skipped += 1;
+        continue;
       }
       product.rev += 1;
       // Plan 059: bulk mutations record the same revision metadata as
       // single edits so history/undo stay consistent across paths.
-      const field =
-        operation.action === 'set_stock'
-          ? 'stock'
-          : operation.action === 'set_category'
-            ? 'category'
-            : operation.action === 'set_discount_percent' ||
-                operation.action === 'set_discount_fixed'
-              ? 'discount'
-              : 'price';
       product.field_last_modified[field] = {
         ts: now,
         by: 'bulk',
@@ -554,6 +548,6 @@ export class ProductService {
     catalog.rev += 1;
     catalog.last_updated = now;
 
-    return { ok: true, changed, changes: preview.changes };
+    return { ok: true, changed, skipped, changes: preview.changes };
   }
 }

@@ -76,3 +76,12 @@ export function isContainedWithin(root: string, candidate: string): boolean {
   }
   return !candParts.slice(rootParts.length).some((s) => s === '..');
 }
+
+// Plan 195: canonical fuzzy-identity token step (whitespace-collapse +
+// trim + lowercase) — shared by import identity keys and the stable-id
+// backfill so the same product resolves identically on every surface.
+// Deliberately NOT used for exact key lookups (category getByKey), where
+// collapsing interior whitespace could false-match distinct keys.
+export function normalizeToken(value: unknown): string {
+  return typeof value === 'string' ? value.split(/\s+/).join(' ').trim().toLowerCase() : '';
+}

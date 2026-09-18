@@ -11,6 +11,22 @@ import type { Repositories } from '../routes/helpers.ts';
 import { productSchema, type ProductCatalog } from '../../shared/schemas/product.ts';
 import { createHash } from 'node:crypto';
 
+// Plan 188: deterministic JSON encoding for dedup signatures — key-sorted
+// recursively so semantically identical updates compare equal regardless of
+// insertion order. Exported for unit tests.
+export function stableStringify(value: unknown): string {
+  if (value === null || typeof value !== 'object') {
+    return JSON.stringify(value) ?? 'null';
+  }
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => stableStringify(item)).join(',')}]`;
+  }
+  const entries = Object.entries(value as Record<string, unknown>)
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    .map(([key, item]) => `${JSON.stringify(key)}:${stableStringify(item)}`);
+  return `{${entries.join(',')}}`;
+}
+
 // Durable remote sync engine (plan 064). Python-parity semantics:
 // - queue entries with attempts/backoff/terminal state, atomic persistence
 // - push: 409/412 -> durable conflict (evidence never dropped)
@@ -62,12 +78,18 @@ export class SyncService {
     if (!this.adapter.isConfigured) return false;
     const entries = this.queue.load();
     // Idempotent enqueue: same product/base_rev/fields is a duplicate.
-    const signature = JSON.stringify({ productId, baseRev, fields });
+    // Plan 188: scalar fields short-circuit before any serialization, and
+    // the one signature built uses stable (key-sorted) encoding — the old
+    // code re-serialized every queued entry per call (O(n) stringifies) and
+    // was order-sensitive to boot (same update, different key order =
+    // duplicate). Queue is capped at 1000 entries.
+    const fieldsSignature = stableStringify(fields);
     const exists = entries.some(
       (e) =>
         e.status !== 'synced' &&
-        JSON.stringify({ productId: e.product_id, baseRev: e.base_rev, fields: e.fields }) ===
-          signature
+        e.product_id === productId &&
+        e.base_rev === baseRev &&
+        stableStringify(e.fields as Record<string, unknown>) === fieldsSignature
     );
     if (exists) return false;
 
@@ -106,6 +128,11 @@ export class SyncService {
       let pushed = 0;
       let failed = 0;
 
+      // Plan 188 verdict: pushes stay SERIAL (one RTT per entry) on purpose —
+      // entries mutate shared queue state with a single terminal save, and a
+      // remote ack can trigger a local apply (plan 086) that later entries
+      // may depend on. Bounded concurrency would break the retry/ordering
+      // semantics the single-consumer lock guarantees.
       for (const entry of entries) {
         if (entry.status === 'synced') continue;
         const retryTs = entry.next_retry_at ? new Date(entry.next_retry_at).getTime() : 0;
@@ -256,6 +283,10 @@ export class SyncService {
       // Plan 092: batch the whole pull into one catalog load and one write
       // (was one load + one write per change); all-or-nothing on the write.
       const catalog = this.repos.products.loadCatalog();
+      // Plan 188: index once per batch instead of find-per-change.
+      const byId = new Map<string | undefined, ProductCatalog['products'][number]>(
+        catalog.products.map((p) => [p.id, p])
+      );
       for (const change of changes) {
         const snapshot = change['product_snapshot'] as Record<string, unknown> | undefined;
         if (!snapshot) {
@@ -264,7 +295,7 @@ export class SyncService {
         }
         const productId = change['product_id'] as string | undefined;
         const rev = change['rev'] as number | undefined;
-        if (this.mergeSnapshotIntoCatalog(catalog, snapshot, rev ?? sinceRev, productId)) {
+        if (this.mergeSnapshotIntoCatalog(catalog, snapshot, rev ?? sinceRev, productId, byId)) {
           applied += 1;
         } else {
           failedApply += 1;
@@ -306,10 +337,11 @@ export class SyncService {
     catalog: ProductCatalog,
     snapshot: Record<string, unknown>,
     rev: number,
-    lookupProductId?: string
+    lookupProductId?: string,
+    index?: Map<string | undefined, ProductCatalog['products'][number]>
   ): boolean {
     const existing = lookupProductId
-      ? catalog.products.find((p) => p.id === lookupProductId)
+      ? (index?.get(lookupProductId) ?? catalog.products.find((p) => p.id === lookupProductId))
       : undefined;
 
     if (existing) {
@@ -339,6 +371,7 @@ export class SyncService {
     };
     if (!productSchema.safeParse(candidate).success) return false;
     catalog.products.push(candidate);
+    index?.set(id, candidate);
     return true;
   }
 

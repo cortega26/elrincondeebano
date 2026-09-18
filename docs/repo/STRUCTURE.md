@@ -2,8 +2,9 @@
 
 ## npm workspace layout
 
-This repo has a root package and the `astro-poc` workspace. The root lockfile
-installs both with one deterministic command:
+This repo has a root package and two workspaces (`astro-poc`,
+`admin/content-manager`). The root lockfile installs all three with one
+deterministic command:
 
 ```bash
 npm run bootstrap
@@ -21,12 +22,11 @@ The canonical production build is always `npm run build` from the repo root — 
 | Directory    | Role                                                                                                                                                                                   |
 | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `astro-poc/` | **Active production storefront.** Astro app; `npm run build` outputs to `astro-poc/dist/`.                                                                                             |
-| `src/js/`    | Legacy root JS modules type-checked via `tsconfig.typecheck.json`. Not shipped directly.                                                                                               |
 | `data/`      | Shared build inputs: `product_data.json`, `categories.json`, `category_registry.json`. Read by preflight and the Astro build.                                                          |
 | `assets/`    | Source images, fonts, CSS. Processed by preflight image pipelines before the Astro build consumes them.                                                                                |
 | `tools/`     | Build-time and CI scripts (image generation, guardrails, preflight, live-contract monitors). Not shipped to the browser.                                                               |
 | `scripts/`   | Operator helpers: local dev server, smoke checklist, CI utilities.                                                                                                                     |
-| `test/`      | Unit tests (`*.test.js` via node:test), Vitest specs (`*.spec.{js,ts}`), and Playwright E2E (`test/e2e-astro/`).                                                                       |
+| `test/`      | Vitest specs (`*.spec.{js,ts}`), contract/guardrail suites, and Playwright E2E (`test/e2e-astro/`).                                                                                    |
 | `static/`    | Static files copied verbatim into `astro-poc/dist/` by the build.                                                                                                                      |
 | `config/`    | Shared config inputs consumed by tooling (e.g., `category_og_icon_map.json`).                                                                                                          |
 | `infra/`     | Cloudflare Workers config (`wrangler.toml`) for edge security headers. Not part of the static build.                                                                                   |
@@ -59,15 +59,15 @@ config/ ─────────────────┘                  
 - **Edge config (headers/CSP):** `infra/cloudflare/` — not the Astro source
 - **Machine-readable map:** `docs/repo/ACTIVE_SURFACES.json`
 
-## Top-level layout (legacy detail)
+## Top-level layout (legacy detail — retired entries kept as record)
 
-- `src/`: browser runtime code (ES modules).
+- `src/`: retired root JS tree (plan 155) — live modules are `astro-poc/src/scripts/storefront/`.
 - `assets/`: source static assets (images, fonts, CSS).
 - `tools/`: build and generation pipeline scripts.
 - `scripts/`: operator helpers (local servers, smoke runs, CI helpers).
-- `test/` and `cypress/`: unit/integration/e2e suites.
+- `test/` + `cypress/`: suites live in `test/` (Vitest + `test/e2e-astro/` Playwright); `cypress/` retired long ago.
 - `docs/`: operational, architecture, and audit documentation.
-- `admin/`: Python content manager tooling.
+- `admin/`: TypeScript Content Manager (plan 127); the Python manager was retired (plan 069/111).
 - `astro-poc/`: active Astro storefront source and generated deploy output in `astro-poc/dist/`.
 - `_archive/legacy-storefront/`: retired EJS templates, builders, and tests kept only as historical reference.
 
@@ -75,7 +75,7 @@ config/ ─────────────────┘                  
 
 ### Canonical build scripts (`tools/`)
 
-- Image pipeline: `generate-images.mjs`, `rewrite-images.mjs`, `lint-images.mjs`, `gap-fill-image-variants.js` (plan 119).
+- Image pipeline: `sync-avif-assets.js`, `rewrite-images.mjs`, `lint-images.mjs`, `gap-fill-image-variants.js` (plan 119; `generate-images.mjs` retired in plan 186 — orphan layout, superseded by gap-fill).
 - Guardrails and checks: `preflight.js`, `check-determinism-paths.mjs`, `validate-category-registry.js`, `prune-backups.js`.
 
 ### Operator scripts (`scripts/`)
@@ -115,7 +115,7 @@ Manual/specialized scripts are kept for targeted maintenance tasks and should no
 
 ## Import/path conventions
 
-- Prefer relative imports within `src/js/` modules.
+- Prefer relative imports within `astro-poc/src/scripts/storefront/` modules.
 - Avoid deep cross-layer imports from runtime modules into `tools/` or `scripts/`.
 - Do not import generated artifacts from `astro-poc/dist/` in source code.
 - Keep category and product data contracts rooted in `data/` only.

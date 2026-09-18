@@ -1,3 +1,5 @@
+import { loadUndoStack, saveUndoStack } from '../undoStack.ts';
+
 export type UndoField = 'price' | 'discount' | 'stock' | 'category';
 
 export interface UndoPatch {
@@ -108,50 +110,18 @@ export function computeUndoActions(
 
 export const MAX_UNDO_LEVELS = 20;
 
+// Plan 195: mechanics live in ../undoStack.ts (single implementation shared
+// with category undo) — these are thin delegates preserving the historical
+// names and exact semantics (including no slicing on load).
 export function loadStack(key: string): UndoEntry[] {
-  try {
-    const raw = window.sessionStorage.getItem(key);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as UndoEntry[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+  return loadUndoStack<UndoEntry>(key);
 }
 
 export function saveStack(key: string, entries: UndoEntry[]): void {
-  try {
-    window.sessionStorage.setItem(key, JSON.stringify(entries.slice(-MAX_UNDO_LEVELS)));
-  } catch {
-    // Session storage full/blocked: the in-memory stack still works.
-  }
+  saveUndoStack(key, entries, MAX_UNDO_LEVELS);
 }
 
 // ── plan 099: stack semantics — entries move ONLY on success ─────────────────
 
-export interface StackRef<T> {
-  current: T[];
-}
-
-/**
- * Runs an operation on the entry popped from `source`. On success the entry
- * is pushed to `target`; on failure it is restored to `source` so the
- * operator can retry — a failed undo/redo must never lose the entry or move
- * it to the opposite stack (where "redo" would re-apply the very change the
- * operator wanted to undo).
- */
-export async function moveEntryOnSuccess<T>(
-  source: StackRef<T>,
-  target: StackRef<T>,
-  operation: (entry: T) => Promise<void>
-): Promise<void> {
-  const entry = source.current.pop();
-  if (entry === undefined) return;
-  try {
-    await operation(entry);
-    target.current.push(entry);
-  } catch (err) {
-    source.current.push(entry);
-    throw err;
-  }
-}
+export type { StackRef } from '../undoStack.ts';
+export { moveEntryOnSuccess } from '../undoStack.ts';

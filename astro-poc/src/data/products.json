@@ -1,7 +1,8 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-08-31T20:41:36.812Z",
-  "rev": 3,
+  "last_updated": "2026-09-15T15:43:44.572Z",
+  "rev": 19,
+  "schema_version": 1,
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -119,13 +120,20 @@
       "image_path": "assets/images/bebidas/Agua 2L con gas Benedictino.webp",
       "image_avif_path": "assets/images/bebidas/Agua 2L con gas Benedictino.avif",
       "order": 5,
-      "is_archived": false,
-      "rev": 0,
+      "is_archived": true,
+      "rev": 1,
       "field_last_modified": {
         "stock": {
           "ts": "2026-03-30T18:28:43.133973Z",
           "by": "offline",
           "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "is_archived": {
+          "ts": "2026-09-15T14:30:51.640Z",
+          "by": "admin",
+          "rev": 1,
           "base_rev": 0,
           "changeset_id": null
         }
@@ -157,13 +165,20 @@
       "image_path": "assets/images/despensa/Tortilla grande mexicana Líder 350g.webp",
       "image_avif_path": "assets/images/despensa/Tortilla grande mexicana Líder 350g.avif",
       "order": 8,
-      "is_archived": false,
-      "rev": 0,
+      "is_archived": true,
+      "rev": 1,
       "field_last_modified": {
         "stock": {
           "ts": "2026-03-10T18:05:15.619868Z",
           "by": "offline",
           "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "is_archived": {
+          "ts": "2026-09-15T14:30:58.545Z",
+          "by": "admin",
+          "rev": 1,
           "base_rev": 0,
           "changeset_id": null
         }
@@ -240,9 +255,17 @@
       "image_path": "assets/images/carnes_y_embutidos/Salame Italiano Líder 100g.webp",
       "image_avif_path": "assets/images/carnes_y_embutidos/Salame Italiano Líder 100g.avif",
       "order": 12,
-      "is_archived": false,
-      "rev": 0,
-      "field_last_modified": {},
+      "is_archived": true,
+      "rev": 1,
+      "field_last_modified": {
+        "is_archived": {
+          "ts": "2026-09-15T14:31:17.173Z",
+          "by": "admin",
+          "rev": 1,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      },
       "id": "p-f6fbbb911fae"
     },
     {
@@ -369,9 +392,17 @@
       "image_path": "assets/images/snacks_salados/Crunchis Queso 160g.webp",
       "image_avif_path": "assets/images/snacks_salados/Crunchis Queso 160g.avif",
       "order": 18,
-      "is_archived": false,
-      "rev": 0,
-      "field_last_modified": {},
+      "is_archived": true,
+      "rev": 1,
+      "field_last_modified": {
+        "is_archived": {
+          "ts": "2026-09-15T14:31:28.934Z",
+          "by": "admin",
+          "rev": 1,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      },
       "id": "p-7ea769099a7d"
     },
     {
@@ -773,8 +804,8 @@
       "image_path": "assets/images/cervezas/Corona Extra lata 473cc.webp",
       "image_avif_path": "assets/images/cervezas/Corona Extra lata 473cc.avif",
       "order": 32,
-      "is_archived": false,
-      "rev": 0,
+      "is_archived": true,
+      "rev": 1,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-18T00:25:32.081Z",
@@ -794,6 +825,13 @@
           "ts": "2025-10-18T00:25:32.081Z",
           "by": "offline",
           "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "is_archived": {
+          "ts": "2026-09-15T14:32:01.118Z",
+          "by": "admin",
+          "rev": 1,
           "base_rev": 0,
           "changeset_id": null
         }
@@ -818,7 +856,7 @@
     {
       "name": "Leche Semidescremada Deslactosada",
       "description": "Envase Tetrabrik de 1L",
-      "price": 1800,
+      "price": 2000,
       "discount": 0,
       "stock": true,
       "category": "Lacteos",
@@ -826,12 +864,19 @@
       "image_avif_path": "assets/images/lacteos/Leche semidescremada deslactosada Surlat 1L.avif",
       "order": 34,
       "is_archived": false,
-      "rev": 0,
+      "rev": 1,
       "field_last_modified": {
         "stock": {
           "ts": "2026-02-13T14:06:34.562485Z",
           "by": "offline",
           "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2026-09-15T15:43:30.804Z",
+          "by": "admin",
+          "rev": 1,
           "base_rev": 0,
           "changeset_id": null
         }
@@ -843,13 +888,13 @@
       "description": "Botella de 1L",
       "price": 12900,
       "discount": 1000,
-      "stock": true,
+      "stock": false,
       "category": "Despensa",
       "image_path": "assets/images/despensa/Aceite de Oliva Pepita de Oro 1L.webp",
       "image_avif_path": "assets/images/despensa/Aceite de Oliva Pepita de Oro 1L.avif",
       "order": 35,
       "is_archived": false,
-      "rev": 0,
+      "rev": 1,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-17T18:27:32.813Z",
@@ -862,6 +907,13 @@
           "ts": "2025-10-17T18:27:32.813Z",
           "by": "offline",
           "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2026-09-15T14:32:09.729Z",
+          "by": "admin",
+          "rev": 1,
           "base_rev": 0,
           "changeset_id": null
         }
@@ -878,8 +930,8 @@
       "image_path": "assets/images/despensa/Cafe-El-Peñon-Gourmet-500g.webp",
       "image_avif_path": "assets/images/despensa/Cafe-El-Peñon-Gourmet-500g.avif",
       "order": 36,
-      "is_archived": false,
-      "rev": 0,
+      "is_archived": true,
+      "rev": 1,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-17T18:28:27.253Z",
@@ -892,6 +944,13 @@
           "ts": "2025-10-17T18:28:27.253Z",
           "by": "offline",
           "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "is_archived": {
+          "ts": "2026-09-15T14:32:15.100Z",
+          "by": "admin",
+          "rev": 1,
           "base_rev": 0,
           "changeset_id": null
         }
@@ -968,13 +1027,20 @@
       "image_path": "assets/images/cervezas/Coors lata 350cc.webp",
       "image_avif_path": "assets/images/cervezas/Coors lata 350cc.avif",
       "order": 39,
-      "is_archived": false,
-      "rev": 0,
+      "is_archived": true,
+      "rev": 1,
       "field_last_modified": {
         "price": {
           "ts": "2026-03-20T17:14:49.400345Z",
           "by": "offline",
           "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "is_archived": {
+          "ts": "2026-09-15T14:32:27.032Z",
+          "by": "admin",
+          "rev": 1,
           "base_rev": 0,
           "changeset_id": null
         }
@@ -1101,18 +1167,18 @@
       "description": "Presentación de 200mL",
       "price": 1500,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Lacteos",
       "image_path": "assets/images/lacteos/Crema de leche Surlat 200mL.webp",
       "image_avif_path": "assets/images/lacteos/Crema de leche Surlat 200mL.avif",
       "order": 45,
       "is_archived": false,
-      "rev": 0,
+      "rev": 1,
       "field_last_modified": {
         "stock": {
-          "ts": "2026-04-11T06:24:11.047014Z",
-          "by": "offline",
-          "rev": 0,
+          "ts": "2026-09-15T15:43:37.500Z",
+          "by": "admin",
+          "rev": 1,
           "base_rev": 0,
           "changeset_id": null
         },
@@ -1196,9 +1262,17 @@
       "image_path": "assets/images/lacteos/Queso Crema Rafulco 190g.webp",
       "image_avif_path": "assets/images/lacteos/Queso Crema Rafulco 190g.avif",
       "order": 48,
-      "is_archived": false,
-      "rev": 0,
-      "field_last_modified": {},
+      "is_archived": true,
+      "rev": 1,
+      "field_last_modified": {
+        "is_archived": {
+          "ts": "2026-09-15T14:32:36.451Z",
+          "by": "admin",
+          "rev": 1,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      },
       "id": "p-e292073732a3"
     },
     {
@@ -1206,14 +1280,22 @@
       "description": "Laminado 400g",
       "price": 4900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Lacteos",
       "image_path": "assets/images/lacteos/Queso Gauda La Vaquita 400g.webp",
       "image_avif_path": "assets/images/lacteos/Queso Gauda La Vaquita 400g.avif",
       "order": 49,
       "is_archived": false,
-      "rev": 0,
-      "field_last_modified": {},
+      "rev": 1,
+      "field_last_modified": {
+        "stock": {
+          "ts": "2026-09-15T14:32:40.500Z",
+          "by": "admin",
+          "rev": 1,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      },
       "id": "p-2095e6b24f7d"
     },
     {
@@ -1286,9 +1368,17 @@
       "image_path": "assets/images/carnes_y_embutidos/Salame La Preferida 500g.webp",
       "image_avif_path": "assets/images/carnes_y_embutidos/Salame La Preferida 500g.avif",
       "order": 53,
-      "is_archived": false,
-      "rev": 0,
-      "field_last_modified": {},
+      "is_archived": true,
+      "rev": 1,
+      "field_last_modified": {
+        "is_archived": {
+          "ts": "2026-09-15T14:32:58.016Z",
+          "by": "admin",
+          "rev": 1,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      },
       "id": "p-26902dffcb4b"
     },
     {
@@ -2058,7 +2148,7 @@
     {
       "name": "Pirulín grande",
       "description": "Lata de 300g",
-      "price": 7900,
+      "price": 8600,
       "discount": 0,
       "stock": true,
       "category": "SnacksDulces",
@@ -2066,12 +2156,12 @@
       "image_avif_path": "assets/images/snacks_dulces/Pirulin 300g.avif",
       "order": 94,
       "is_archived": false,
-      "rev": 0,
+      "rev": 1,
       "field_last_modified": {
         "price": {
-          "ts": "2025-11-07T22:17:27.439Z",
-          "by": "offline",
-          "rev": 0,
+          "ts": "2026-09-15T01:22:24.089Z",
+          "by": "admin",
+          "rev": 1,
           "base_rev": 0,
           "changeset_id": null
         },
@@ -2251,18 +2341,18 @@
       "description": "Envase Tetra Brik® de 395g",
       "price": 2900,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Lacteos",
       "image_path": "assets/images/lacteos/Parmalat-Leche-Condensada-395-gr.png",
       "image_avif_path": "assets/images/lacteos/Parmalat-Leche-Condensada-395-gr.avif",
       "order": 102,
       "is_archived": false,
-      "rev": 0,
+      "rev": 1,
       "field_last_modified": {
         "stock": {
-          "ts": "2026-02-13T14:06:58.658465Z",
-          "by": "offline",
-          "rev": 0,
+          "ts": "2026-09-15T15:43:44.572Z",
+          "by": "admin",
+          "rev": 1,
           "base_rev": 0,
           "changeset_id": null
         }
@@ -3493,18 +3583,25 @@
       "description": "Barra de 82g",
       "price": 2200,
       "discount": 400,
-      "stock": true,
+      "stock": false,
       "category": "Chocolates",
       "image_path": "assets/images/chocolates/Chocolate con leche Hershey's 82g.jpg",
       "image_avif_path": "assets/images/chocolates/Chocolate con leche Hershey's 82g.avif",
       "order": 154,
       "is_archived": false,
-      "rev": 0,
+      "rev": 1,
       "field_last_modified": {
         "discount": {
           "ts": "2026-02-13T13:59:29.699281Z",
           "by": "offline",
           "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2026-09-15T14:30:09.881Z",
+          "by": "admin",
+          "rev": 1,
           "base_rev": 0,
           "changeset_id": null
         }

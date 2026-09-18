@@ -2,6 +2,16 @@ dist/
 build/
 coverage/
 reports/
+# Plan 204: mirrors admin/content-manager/eslint.config.mjs ignores (keep
+# the pair in sync) + CI-local double-build dirs. Prettier must never
+# rewrite generated trees mid-verification.
+admin/content-manager/dist/**
+admin/content-manager/reports/**
+admin/content-manager/coverage/**
+admin/content-manager/playwright-report/**
+admin/content-manager/test-results/**
+build-determinism-a/
+build-determinism-b/
 .stryker-tmp/
 .turbo/
 astro-poc/dist/

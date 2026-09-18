@@ -1,4 +1,5 @@
 import { CREATE_EXTRA_FIELDS, forbiddenOpFields } from '../services/changeSetApplier.ts';
+import { normalizeToken } from '../../shared/identity.ts';
 import type {
   ImportPreviewRecord,
   ImportPreviewResponse,
@@ -22,9 +23,9 @@ export function forbiddenOpFieldsInChangeSet(cs: {
 // and casefolds; JS has no casefold, so this matches Python for ASCII names
 // and documented-differs for exotic Unicode (plan 060, parity note).
 export function normalizeImportIdentity(name: string, description: string): string {
-  const norm = (v: string): string =>
-    typeof v === 'string' ? v.split(/\s+/).join(' ').trim().toLowerCase() : '';
-  return `${norm(name)}::${norm(description)}`;
+  // Plan 195: token step is shared/normalizeToken (single implementation for
+  // every identity surface); the composite shape + ASCII-only parity note stay.
+  return `${normalizeToken(name)}::${normalizeToken(description)}`;
 }
 
 export function productKey(p: { id?: string; name: string; description: string }): string {

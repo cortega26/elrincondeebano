@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 
 import rawProducts from '../data/products.json';
@@ -222,9 +222,61 @@ function publicAssetExists(assetPath: string): boolean {
     return VARIANT_EXISTS_CACHE.get(normalized) || false;
   }
 
-  const exists = STATIC_ASSET_ROOTS.some((rootPath) => existsSync(path.join(rootPath, normalized)));
+  // Plan 185: serve first-touches from one precomputed walk instead of
+  // thousands of sync stats. The direct probe stays as a fallback so files
+  // created mid-build still resolve; either answer is memoized below.
+  const walked = buildVariantExistenceSet();
+  const exists =
+    walked.has(normalized) ||
+    STATIC_ASSET_ROOTS.some((rootPath) => existsSync(path.join(rootPath, normalized)));
   VARIANT_EXISTS_CACHE.set(normalized, exists);
   return exists;
+}
+
+// Plan 185: one directory walk per build process instead of a per-card stat
+// storm. Walk targets are scoped to the trees that existence probes can ever
+// hit (public/ + the repo assets/ subtree) — never the whole repo (which
+// would drag in node_modules/.git). Lazily built; correctness never depends
+// on it because publicAssetExists falls back to a direct probe.
+let variantWalkCache: Set<string> | null = null;
+
+function buildVariantExistenceSet(): Set<string> {
+  if (variantWalkCache) {
+    return variantWalkCache;
+  }
+  const existing = new Set<string>();
+  const targets: Array<{ dir: string; prefix: string }> = [
+    { dir: path.join(ASTRO_ROOT, 'public'), prefix: '' },
+    { dir: path.join(REPO_ROOT, 'assets'), prefix: 'assets' },
+  ];
+  for (const { dir, prefix } of targets) {
+    walkFilesIntoSet(dir, dir, prefix, existing);
+  }
+  variantWalkCache = existing;
+  return existing;
+}
+
+function walkFilesIntoSet(
+  rootDir: string,
+  currentDir: string,
+  prefix: string,
+  out: Set<string>
+): void {
+  let entries;
+  try {
+    entries = readdirSync(currentDir, { withFileTypes: true });
+  } catch {
+    return;
+  }
+  for (const entry of entries) {
+    const full = path.join(currentDir, entry.name);
+    if (entry.isDirectory()) {
+      walkFilesIntoSet(rootDir, full, prefix, out);
+    } else if (entry.isFile()) {
+      const rel = path.relative(rootDir, full).split(path.sep).join('/');
+      out.add(prefix ? `${prefix}/${rel}` : rel);
+    }
+  }
 }
 
 function getResponsiveVariantSet(

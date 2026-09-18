@@ -111,6 +111,10 @@ export class AtomicWriter {
     return `${this.targetPath}.backup_${uniqueTimestamp()}`;
   }
 
+  // Plan 196 verdict: intentionally NOT shared with backupPolicy's
+  // pruneFileBackups (same shape, same retention) — this variant runs
+  // against the injectable AtomicFs seam so plan-108 fault-injection tests
+  // can fail it on purpose. Merging would trade that coverage away.
   private pruneBackups(maxBackups: number): void {
     try {
       const dir = dirname(this.targetPath);

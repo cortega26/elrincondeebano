@@ -14,6 +14,8 @@ export interface Props {
   footerLabel?: string;
   introHref?: string;
   introLabel?: string;
+  /** Plan 215: id de sección para la barra de anclas (navegación por chips). */
+  sectionId?: string;
 }
 
 const {
@@ -27,13 +29,14 @@ const {
   footerLabel,
   introHref,
   introLabel,
+  sectionId,
 } = Astro.props;
 
 const visibleBundles =
   typeof limit === 'number' && Number.isFinite(limit) && limit > 0 ? bundles.slice(0, limit) : bundles;
 ---
 
-<section class={`home-section ${className}`.trim()} aria-labelledby={headingId}>
+<section class={`home-section ${className}`.trim()} aria-labelledby={headingId} id={sectionId}>
   <div class="home-section__header">
     <h2 id={headingId}>{title}</h2>
     <p>{description}</p>

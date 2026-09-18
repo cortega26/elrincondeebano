@@ -19,15 +19,17 @@ share-preview monitoring.
 `npm run validate:release` is the canonical release-validation contract for this
 repository.
 
-It must execute these stages in order:
+It must execute these stages in order (mirrors `tools/validate-release.mjs`):
 
 1. `npm run lint`
 2. `npm run typecheck`
-3. `npm test`
+3. `npm run check:e2e-selectors` (plan 191: ship gate owns it — D1=ADD)
 4. `npm run build`
-5. `npm run guardrails:assets`
-6. `npm run test:e2e`
-7. `npm run monitor:share-preview`
+5. `npm test`
+6. `npm run check:plans` (plan 191: ship gate owns it — D1=ADD)
+7. `npm run guardrails:assets`
+8. `npm run test:e2e`
+9. `npm run monitor:share-preview`
 
 `npm run validate` remains the lighter local baseline for iterative work, but
 release-facing docs should point to `npm run validate:release` as the ship gate.

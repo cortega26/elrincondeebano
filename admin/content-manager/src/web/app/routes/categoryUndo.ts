@@ -2,6 +2,7 @@
 // snapshots (key/slug/nav_group/active/sort_order/display_name/description)
 // restored through the batch endpoint. Reuses the moveEntryOnSuccess stack
 // semantics from the product undo (plan 099).
+import { loadUndoStack, saveUndoStack } from '../undoStack.ts';
 
 // Type alias (not interface) so it keeps the implicit index signature the
 // batch client's Record<string, unknown> payloads accept.
@@ -41,49 +42,17 @@ export function buildCategoryUndoEntry(
   return { op, id, ...snapshots };
 }
 
-// Stack helpers — same semantics as the product undo (plans 097/099).
+// Stack helpers — delegated to the shared implementation (plans 097/099,
+// single-sourced in plan 195). Levels stay domain-named.
 export const MAX_CATEGORY_UNDO_LEVELS = 20;
 
 export function loadStack(key: string): CategoryUndoEntry[] {
-  try {
-    const raw = window.sessionStorage.getItem(key);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as CategoryUndoEntry[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+  return loadUndoStack<CategoryUndoEntry>(key);
 }
 
 export function saveStack(key: string, entries: CategoryUndoEntry[]): void {
-  try {
-    window.sessionStorage.setItem(key, JSON.stringify(entries.slice(-MAX_CATEGORY_UNDO_LEVELS)));
-  } catch {
-    // Session storage full/blocked: the in-memory stack still works.
-  }
+  saveUndoStack(key, entries, MAX_CATEGORY_UNDO_LEVELS);
 }
 
-export interface StackRef<T> {
-  current: T[];
-}
-
-/**
- * Runs an operation on the entry popped from `source`. On success the entry
- * is pushed to `target`; on failure it is restored to `source` (plan 099
- * semantics — a failed undo must stay retryable).
- */
-export async function moveEntryOnSuccess<T>(
-  source: StackRef<T>,
-  target: StackRef<T>,
-  operation: (entry: T) => Promise<void>
-): Promise<void> {
-  const entry = source.current.pop();
-  if (entry === undefined) return;
-  try {
-    await operation(entry);
-    target.current.push(entry);
-  } catch (err) {
-    source.current.push(entry);
-    throw err;
-  }
-}
+export type { StackRef } from '../undoStack.ts';
+export { moveEntryOnSuccess } from '../undoStack.ts';

@@ -10,6 +10,11 @@ import { sonarRules, unusedVarsRules } from '../../config/eslint-base.mjs';
 // as warnings so complexity never blocks mechanically).
 // Globs are repo-root-relative so the config resolves identically from any
 // CWD (eslint resolves flat-config globs against the current directory).
+// Plan 204: the generated-tree list below is mirrored in .prettierignore —
+// keep the pair in sync so neither linter rewrites build outputs.
+// Plan 209: the `files:` globs below are mirrored by the lint-staged admin
+// entry in root package.json, and the `lint` script here MUST stay identical
+// to the CI one-liner (admin.yml) — it is its local form.
 export default [
   {
     ignores: [

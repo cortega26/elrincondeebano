@@ -13,12 +13,18 @@ import { createCatalogViewController } from './storefront/catalog-view.js';
 import { createCartViewController } from './storefront/cart-view.js';
 import { createOrderSubmitController } from './storefront/order-submit.js';
 import { createRecoveryBannerController } from './storefront/recovery-banner.js';
+import {
+  getProductCardById,
+  getProductCardMap,
+  invalidateProductCardCache,
+} from './storefront/card-registry.js';
 import { createObservabilityModule } from './storefront/observability.js';
 import { createPersonalizationEngine } from './storefront/personalization.js';
 import { syncStorefrontServiceWorkerVersion } from './storefront/service-worker-sync.js';
 import {
   createStorefrontStorage,
   STOREFRONT_RUNTIME_CONTRACT,
+  STOREFRONT_STORAGE_KEYS,
 } from './storefront/storage-contract.js';
 import { log } from '../lib/logger.js';
 import { WHATSAPP_NUMBER, formatCurrency } from '../lib/formatting.js';
@@ -28,6 +34,7 @@ import {
   getCartState,
   hydrateCartFromOrder,
   hydrateSharedCart,
+  mergeCarts,
   normalizeId,
   parseNumber,
   sanitizeCart,
@@ -224,11 +231,21 @@ function getShareableCartUrl(cart) {
 }
 
 function shareCart(cart) {
+  // Plan 177: report the clipboard outcome — resolves true on copy, false on
+  // failure/denial/unavailable API (callers label the button from this).
   const url = getShareableCartUrl(cart);
-  if (!url) return;
+  if (!url) return Promise.resolve(false);
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(url).catch(function () {});
+    return navigator.clipboard.writeText(url).then(
+      function () {
+        return true;
+      },
+      function () {
+        return false;
+      }
+    );
   }
+  return Promise.resolve(false);
 }
 
 function loadCartFromUrl() {
@@ -392,28 +409,6 @@ function saveSubstitutionPreference(value) {
   storefrontStorage.saveJson('substitutionPreference', value);
 }
 
-function getProductCardById(id) {
-  return Array.from(document.querySelectorAll('.producto')).find(
-    (card) => card instanceof HTMLElement && normalizeId(card.dataset.productId) === id
-  );
-}
-
-let productCardCache = null;
-
-function getProductCardMap() {
-  if (productCardCache) {
-    return productCardCache;
-  }
-  productCardCache = new Map();
-  document.querySelectorAll('#product-container .producto').forEach((card) => {
-    if (card instanceof HTMLElement) {
-      const id = normalizeId(card.dataset.productId);
-      if (id) productCardCache.set(id, card);
-    }
-  });
-  return productCardCache;
-}
-
 let companionProductCache = null;
 
 function getCompanionProductMap() {
@@ -447,7 +442,11 @@ function getProductFromCard(card) {
   // so a final price here would double-apply the discount.
   const price = parseNumber(card.dataset.productPrice, 0);
   const discount = parseNumber(card.dataset.productDiscount, 0);
-  const image = card.querySelector('.product-thumb, .strip-card__img')?.getAttribute('src') || '';
+  // Plan 215: la página de detalle aporta .product-detail-image al mismo contrato.
+  const image =
+    card
+      .querySelector('.product-thumb, .strip-card__img, .product-detail-image')
+      ?.getAttribute('src') || '';
   const stock = card.dataset.productStock !== 'false';
 
   return { id, name, category, price, discount, image, stock };
@@ -458,18 +457,20 @@ function getProductByIdFromSource(id) {
   return card ? getProductFromCard(card) : null;
 }
 
-function updateBadge(cart, { animate = false } = {}) {
+function updateBadge(cart, { animate = false, totalItems = null } = {}) {
   const badge = document.getElementById('cart-count');
   if (!badge) {
     return;
   }
-  const { totalItems } = getCartState(cart);
-  badge.textContent = String(totalItems);
+  // Plan 187: accept a precomputed total so per-click paths pay exactly one
+  // getCartState (callers without it keep the old recompute behavior).
+  const items = totalItems ?? getCartState(cart).totalItems;
+  badge.textContent = String(items);
   const cartButton = document.getElementById('cart-icon');
   if (cartButton) {
     cartButton.setAttribute(
       'aria-label',
-      `Carrito de compras — ${totalItems} ${totalItems === 1 ? 'producto' : 'productos'}`
+      `Carrito de compras — ${items} ${items === 1 ? 'producto' : 'productos'}`
     );
   }
   if (animate) {
@@ -502,9 +503,25 @@ function toggleActionArea(actionArea, quantity) {
   }
 }
 
-function syncAllActionAreas(cart) {
+function syncAllActionAreas(cart, onlyId = null) {
   const quantities = new Map(cart.map((item) => [item.id, item.quantity]));
-  document.querySelectorAll('.action-area[data-pid]').forEach((actionArea) => {
+  // Plan 187: scope single-item updates to one card (native matching, no
+  // per-card JS toggles across ~184 cards). Falls back to the full sweep
+  // without CSS.escape support or without an id.
+  let areas;
+  if (
+    onlyId === null ||
+    onlyId === undefined ||
+    typeof CSS === 'undefined' ||
+    typeof CSS.escape !== 'function'
+  ) {
+    areas = document.querySelectorAll('.action-area[data-pid]');
+  } else {
+    areas = document.querySelectorAll(
+      `.action-area[data-pid="${CSS.escape(normalizeId(onlyId))}"]`
+    );
+  }
+  areas.forEach((actionArea) => {
     const id = normalizeId(actionArea.getAttribute('data-pid'));
     const quantity = quantities.get(id) || 0;
     toggleActionArea(actionArea, quantity);
@@ -849,6 +866,14 @@ function syncMobileCartShortcut(cart, totalAmount) {
   const isEmpty = totalItems <= 0;
   const shouldHide = isEmpty || cartUiState.isOffcanvasOpen;
 
+  // Plan 215: la barra de compra del detalle solo vive con carrito vacío
+  // y carrito cerrado — al agregar, cede la zona del pulgar al shortcut.
+  const detailBuyBar = document.querySelector('[data-detail-buy-bar]');
+  if (detailBuyBar instanceof HTMLElement) {
+    const showBuyBar = isEmpty && !cartUiState.isOffcanvasOpen;
+    detailBuyBar.classList.toggle('is-hidden', !showBuyBar);
+  }
+
   if (isEmpty) {
     shortcut.classList.add('is-hidden');
     shortcut.setAttribute('aria-hidden', 'true');
@@ -917,7 +942,7 @@ function createCatalogController() {
     normalizeSearchText,
     parseNumber,
     onViewUpdated: () => {
-      productCardCache = null;
+      invalidateProductCardCache();
       companionProductCache = null;
     },
   });
@@ -1202,6 +1227,39 @@ function initStorefront() {
     cartOffcanvas.addEventListener('hidden.bs.offcanvas', handleClose);
   }
 
+  // Plan 179: cross-tab convergence — merge remote edits instead of
+  // last-writer-wins. Keys resolve through STOREFRONT_STORAGE_KEYS (the same
+  // source saveCart writes through), never a hardcoded duplicate. `storage`
+  // events do not fire in the originating tab, and the merged cart is only
+  // saved when it differs, so this cannot echo-loop.
+  const cartStorageKeys = new Set([STOREFRONT_STORAGE_KEYS.cart].flat().map((key) => String(key)));
+  const handleCrossTabCart = (event) => {
+    if (!event || event.key === null || !cartStorageKeys.has(event.key)) {
+      return;
+    }
+    let remote;
+    try {
+      remote = event.newValue ? JSON.parse(event.newValue) : [];
+    } catch {
+      return;
+    }
+    const merged = mergeCarts(cart, remote);
+    if (JSON.stringify(merged) === JSON.stringify(cart)) {
+      return;
+    }
+    cart = merged;
+    if (!saveCart(cart)) {
+      return;
+    }
+    updateBadge(cart, {});
+    renderCart(cart, {});
+    renderCompanionSuggestions(cart, companionRules);
+    syncAllActionAreas(cart);
+  };
+  if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+    window.addEventListener('storage', handleCrossTabCart);
+  }
+
   const getQty = (id) => {
     const item = cart.find((entry) => entry.id === id);
     return item ? item.quantity : 0;
@@ -1254,14 +1312,21 @@ function initStorefront() {
       showCartSaveError();
       return;
     }
-    updateBadge(cart, { animate: previousState.totalItems !== nextState.totalItems });
+    // Plan 187: prev/next are the only two full validations per mutation —
+    // downstream renders reuse their totals instead of recomputing, and only
+    // the edited card's action area re-syncs.
+    updateBadge(cart, {
+      animate: previousState.totalItems !== nextState.totalItems,
+      totalItems: nextState.totalItems,
+    });
     renderCart(cart, {
       animateTotal: previousState.totalAmount !== nextState.totalAmount,
       changedItemId: id,
+      totalAmount: nextState.totalAmount,
     });
     renderCompanionSuggestions(cart, companionRules);
     // Keep quick-order cards stable while the shopper is actively editing quantities.
-    syncAllActionAreas(cart);
+    syncAllActionAreas(cart, id);
 
     if (quantity > previousQuantity) {
       personalizationEngine.trackProductSignal(id, 'addedCount');
@@ -1605,6 +1670,13 @@ function initStorefront() {
     }
     catalogController.resetVisibleLimit();
     catalogController.updateView();
+  });
+
+  // Plan 215: el estado vacío reutiliza el Limpiar principal (resetea
+  // búsqueda + orden + ofertas y devuelve el foco al campo de búsqueda).
+  const emptyClearBtn = document.getElementById('catalog-empty-clear');
+  emptyClearBtn?.addEventListener('click', () => {
+    document.getElementById('filter-clear')?.click();
   });
 
   hydrateProfilePersistence();

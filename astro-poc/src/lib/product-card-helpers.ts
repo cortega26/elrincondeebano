@@ -16,12 +16,20 @@ export interface ProductCardData {
   dataAttributes: Record<string, string>;
 }
 
+// Plan 195: canonical INTEGER discount formula for shopper-facing badges.
+// The admin list shows two decimals (admin shared/discount.ts) and catalog
+// filters compare the raw ratio — different surfaces, deliberately not
+// unified; this name is the contract that must stay integer here.
+export function discountPercentInt(price: number, discount: number): number {
+  return discount > 0 && price > 0 ? Math.round((discount / price) * 100) : 0;
+}
+
 export function computeProductCardData(product: ProductRecord, index: number): ProductCardData {
   const price = typeof product.price === 'number' ? product.price : 0;
   const discount = typeof product.discount === 'number' ? product.discount : 0;
   const finalPrice = Math.max(price - discount, 0);
   const hasDiscount = discount > 0 && price > 0 && finalPrice < price;
-  const discountPercent = hasDiscount ? Math.round((discount / price) * 100) : 0;
+  const discountPercent = hasDiscount ? discountPercentInt(price, discount) : 0;
 
   const searchText = [product.name, product.description, product.category]
     .filter(Boolean)

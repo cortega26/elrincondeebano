@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import CategoryAnchorBar from '../components/CategoryAnchorBar.astro';
 import CategoryStrip from '../components/CategoryStrip.astro';
 import HomeBundlesSection from '../components/HomeBundlesSection.astro';
 import HomeProductSection from '../components/HomeProductSection.astro';
@@ -45,6 +46,23 @@ const heroHighlights = [
 const heroPaymentCopy =
   trustMap.get('Pago') || 'Efectivo, transferencia y tarjeta desde $30.000.';
 const storefrontExperience = getStorefrontExperience();
+// Plan 215: una sola fuente para la barra de anclas y los cintillos —
+// solo categorías con productos generan chip + sección.
+const catalogStrips = primaryCategories
+  .map((category) => ({
+    category,
+    categoryProducts: getProductsByCategory(category.key).slice(0, 12),
+  }))
+  .filter(({ categoryProducts }) => categoryProducts.length > 0);
+const anchorItems = [
+  { label: 'Esenciales', targetId: 'home-section-esenciales' },
+  ...catalogStrips.map(({ category }) => ({
+    label: category.label,
+    targetId: `home-section-${category.slug}`,
+  })),
+  ...(featuredDeals.length > 0 ? [{ label: 'Ofertas', targetId: 'home-section-ofertas' }] : []),
+  ...(bundles.length > 0 ? [{ label: 'Combos', targetId: 'home-section-combos' }] : []),
+];
 const sharePreview = createSharePreviewMetadata({
   title: 'El Rincón de Ébano',
   description:
@@ -116,10 +134,13 @@ const sharePreview = createSharePreviewMetadata({
           disabled
           aria-disabled="true"
         >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
           Repetir último pedido
         </button>
       </div>
     </section>
+
+    <CategoryAnchorBar items={anchorItems} className="home-layout__anchors" />
 
     <HomeProductSection
       headingId="home-quick-order-heading"
@@ -127,6 +148,7 @@ const sharePreview = createSharePreviewMetadata({
       description="Una salida rápida con los básicos que más se repiten entre vecinos para resolver bebidas, despensa, lácteos y aseo."
       items={quickOrderItems}
       className="home-layout__quick-order"
+      sectionId="home-section-esenciales"
       gridId="home-personalized-grid"
       showProfileStrip={false}
       compactMobile={true}
@@ -134,19 +156,16 @@ const sharePreview = createSharePreviewMetadata({
 
     <div id="catalog-section" class="home-layout__catalog">
       {
-        primaryCategories.map((category) => {
-          const categoryProducts = getProductsByCategory(category.key).slice(0, 12);
-          if (categoryProducts.length === 0) return null;
-          return (
-            <CategoryStrip
-              headingId={`home-strip-${category.slug}`}
-              title={category.label}
-              items={categoryProducts}
-              viewAllHref={category.modernPath}
-              viewAllLabel="Ver todo"
-            />
-          );
-        })
+        catalogStrips.map(({ category, categoryProducts }) => (
+          <CategoryStrip
+            headingId={`home-strip-${category.slug}`}
+            title={category.label}
+            items={categoryProducts}
+            viewAllHref={category.modernPath}
+            viewAllLabel="Ver todo"
+            sectionId={`home-section-${category.slug}`}
+          />
+        ))
       }
     </div>
 
@@ -157,6 +176,7 @@ const sharePreview = createSharePreviewMetadata({
         description="Ofertas activas para resolver el pedido sin revisar promociones por separado."
         items={featuredDeals}
         className="home-layout__deals"
+        sectionId="home-section-ofertas"
         compactMobile={true}
       />
     ) : null}
@@ -167,6 +187,7 @@ const sharePreview = createSharePreviewMetadata({
       description="Suma un pedido completo al carrito sin armarlo producto por producto y ajusta después si quieres."
       bundles={bundles}
       className="home-layout__bundles"
+      sectionId="home-section-combos"
       limit={3}
       introHref="/combos/"
       introLabel="Ver todos los combos listos"
@@ -176,10 +197,15 @@ const sharePreview = createSharePreviewMetadata({
   </div>
 
   <ServiceGuideDialog targetHref="#catalog-section" targetLabel="Ir al catálogo" />
+  {/*
+    Plan 187: inline only what the client consumes (companionRules) — the
+    full merchandising object duplicated kilobytes per page load for data
+    the browser never reads (bundles/curation render server-side).
+  */}
   <script
     is:inline
     id="storefront-experience-data"
     type="application/json"
-    set:html={safeScriptJSON(storefrontExperience)}
+    set:html={safeScriptJSON({ companionRules: storefrontExperience.companionRules ?? [] })}
   ></script>
 </BaseLayout>

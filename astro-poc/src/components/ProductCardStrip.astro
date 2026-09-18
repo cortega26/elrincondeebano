@@ -93,7 +93,7 @@ const hasAvifSource = typeof avifImage?.srcset === 'string' && avifImage.srcset.
           class="btn btn-primary add-to-cart-btn strip-card__btn"
           type="button"
           data-id={sku}
-          aria-label={`Agregar ${product.name} al carrito`}
+          aria-label={`Agregar ${product.name} al pedido`}
         >
           <span class="add-to-cart-btn__label">Agregar</span>
         </button>
@@ -120,25 +120,28 @@ const hasAvifSource = typeof avifImage?.srcset === 'string' && avifImage.srcset.
     flex-direction: column;
     height: 100%;
     background-color: var(--surface-color);
-    border-radius: 12px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--line-soft);
     overflow: hidden;
     transition:
       border-color 0.2s ease,
       box-shadow 0.2s ease;
   }
 
-  .strip-card__inner:hover {
-    border-color: rgba(0, 91, 79, 0.25);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  /* Plan 215: el hover con elevación solo aplica con puntero fino. */
+  @media (hover: hover) {
+    .strip-card__inner:hover {
+      border-color: rgba(0, 91, 79, 0.25);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    }
   }
 
   .strip-card__media {
     position: relative;
     display: grid;
     place-items: center;
-    background: #fafaf8;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background: #fff;
+    border-bottom: 1px solid var(--line-soft);
     padding: 0.55rem;
   }
 
@@ -167,7 +170,7 @@ const hasAvifSource = typeof avifImage?.srcset === 'string' && avifImage.srcset.
 
   .strip-card__title {
     font-size: 0.85rem;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.25;
     margin: 0;
     overflow: hidden;
@@ -193,7 +196,8 @@ const hasAvifSource = typeof avifImage?.srcset === 'string' && avifImage.srcset.
 
   .strip-card__btn.add-to-cart-btn {
     padding: 0.45rem 0.5rem;
-    min-height: 38px;
+    /* Plan 215: diana táctil ≥44px (antes 38px). */
+    min-height: 44px;
     font-size: 0.82rem;
     gap: 0;
     width: 100%;
@@ -212,13 +216,14 @@ const hasAvifSource = typeof avifImage?.srcset === 'string' && avifImage.srcset.
   }
 
   .strip-card .quantity-btn {
-    width: 38px;
-    min-height: 38px;
+    /* Plan 215: diana táctil ≥44px (antes 38px). */
+    width: 44px;
+    min-height: 44px;
     font-size: 16px;
   }
 
   .strip-card .quantity-control {
-    min-height: 38px;
+    min-height: 44px;
     border-radius: 8px;
     gap: 0;
     display: flex;
@@ -228,6 +233,13 @@ const hasAvifSource = typeof avifImage?.srcset === 'string' && avifImage.srcset.
 
   .strip-card .quantity-value {
     font-size: 14px;
+  }
+
+  /* Plan 215: sin elevación progresiva con movimiento reducido. */
+  @media (prefers-reduced-motion: reduce) {
+    .strip-card__inner {
+      transition: none;
+    }
   }
 
   @media (min-width: 768px) {

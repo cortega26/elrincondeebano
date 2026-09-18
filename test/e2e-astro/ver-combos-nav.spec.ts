@@ -38,29 +38,21 @@ test.describe('Ver combos navigation', () => {
     const countBefore = await visibleCatalogCount(page);
     expect(countBefore).toBeGreaterThan(0);
 
+    // Plan 187 trimmed the embedded experience JSON to companionRules
+    // (bundles render server-side), so the total comes from the combos
+    // page full list — not from the inline payload.
     const teaserState = await page.evaluate(() => {
       const cards = document.querySelectorAll('.home-layout__bundles .bundle-card');
       const introLink = document.querySelector('.home-layout__bundles .home-section__link');
       const footerLink = document.querySelector('.home-layout__bundles .home-section__footer a');
-      const experienceData = document.getElementById('storefront-experience-data');
-      const totalBundles = (() => {
-        try {
-          const parsed = JSON.parse(experienceData?.textContent || '{}');
-          return Array.isArray(parsed?.bundles) ? parsed.bundles.length : 0;
-        } catch {
-          return 0;
-        }
-      })();
 
       return {
         cardCount: cards.length,
         introHref: introLink?.getAttribute('href') || '',
         footerHref: footerLink?.getAttribute('href') || '',
-        totalBundles,
       };
     });
 
-    expect(teaserState.cardCount).toBe(Math.min(3, teaserState.totalBundles));
     expect(teaserState.introHref).toBe('/combos/');
     expect(teaserState.footerHref).toBe('/combos/');
 
@@ -68,6 +60,9 @@ test.describe('Ver combos navigation', () => {
     await expect(page).toHaveURL(/\/combos\/$/);
     await waitForReady(page);
     await expect(page.locator('#combos-list-heading')).toBeVisible();
+
+    const totalBundles = await page.locator('.home-layout__bundles .bundle-card').count();
+    expect(teaserState.cardCount).toBe(Math.min(3, totalBundles));
 
     await page.goto('/', { waitUntil: 'networkidle' });
     await waitForReady(page);

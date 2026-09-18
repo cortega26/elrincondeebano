@@ -301,6 +301,16 @@ export function buildOpenApi() {
     responses: jsonResponse(productCatalogSchema),
   });
   registry.registerPath({
+    // Plan 197: visible since exportCsv joined the unified client core —
+    // the contract test extracts its path from the domain modules.
+    method: 'get',
+    path: '/api/v1/export.csv',
+    summary: 'Export catalog (CSV)',
+    responses: {
+      '200': { description: 'OK', content: { 'text/csv': { schema: z.string() } } },
+    },
+  });
+  registry.registerPath({
     method: 'get',
     path: '/api/v1/publications',
     summary: 'Publications',
@@ -330,6 +340,13 @@ export function buildOpenApi() {
     path: '/api/v1/publications/preview',
     summary: 'Publication preview',
     responses: jsonResponse(z.record(z.string(), z.unknown())),
+  });
+  registry.registerPath({
+    // Plan 211: flag-gated build+preview trigger (mutation-class route).
+    method: 'post',
+    path: '/api/v1/preview/build',
+    summary: 'Trigger a preview build job',
+    responses: jsonResponse(z.object({ job_id: z.string(), status: z.string() }), 'Accepted'),
   });
 
   registry.registerPath({

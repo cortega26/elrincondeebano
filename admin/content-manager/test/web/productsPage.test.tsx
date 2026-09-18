@@ -300,4 +300,49 @@ describe('ProductsPage (component)', () => {
     expect(screen.queryByText('El producto cambió; la lista se recargó.')).not.toBeInTheDocument();
     confirmSpy.mockRestore();
   });
+
+  test('page-size selector renders 50/100/All and refetches on change (plan 169/192)', async () => {
+    const user = userEvent.setup();
+    renderWithRouter(<ProductsPage />);
+    await waitFor(() => expect(screen.getByText('Producto A')).toBeInTheDocument());
+
+    const select = screen.getByLabelText('Tamaño de página');
+    expect(screen.getByRole('option', { name: '50' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: '100' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Todos (1)' })).toBeInTheDocument();
+
+    mockApi.getProducts.mockClear();
+    await user.selectOptions(select, '100');
+    await waitFor(() => {
+      expect(mockApi.getProducts).toHaveBeenCalledWith(expect.objectContaining({ limit: 100 }));
+    });
+  });
+
+  test('reorder on a clamped view pages through before submitting (plan 173)', async () => {
+    const user = userEvent.setup();
+    const page = [1, 2, 3].map((n) => ({
+      ...productA,
+      id: `p${n}`,
+      name: `Prod ${n}`,
+    }));
+    mockApi.getProducts.mockImplementation((params?: { archived?: boolean; page?: number }) => {
+      if (params?.archived === true) {
+        return Promise.resolve({ items: [], total: 0, page: 1, pageSize: 50 });
+      }
+      return Promise.resolve({ items: page, total: 600, page: params?.page ?? 1, pageSize: 50 });
+    });
+    mockApi.reorderProducts.mockClear();
+
+    renderWithRouter(<ProductsPage />);
+    await waitFor(() => expect(screen.getByText('Prod 1')).toBeInTheDocument());
+
+    // total (600) > rendered rows: the button stays enabled post-173 and the
+    // click pages through the same filters before submitting.
+    expect(screen.getAllByRole('button', { name: '⇅ Reordenar' })[0]).toBeEnabled();
+    await user.click(screen.getAllByRole('button', { name: '⇅ Reordenar' })[0]);
+
+    await waitFor(() => {
+      expect(mockApi.reorderProducts).toHaveBeenCalledWith(['p1', 'p2', 'p3']);
+    });
+  });
 });

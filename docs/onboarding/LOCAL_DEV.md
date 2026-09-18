@@ -4,9 +4,23 @@ This guide provides a short, repeatable setup for contributors.
 
 ## Requirements
 
-- Node.js 24.x. Keep in sync with `.nvmrc`, `.tool-versions`, and Volta.
-- (opcional) Python 3 para la generación de OG images vía `tools/category_og` — no es parte del admin.
+- Node.js 24.x. Keep in sync with `.nvmrc`, `.node-version`, `.tool-versions`,
+  `engines`, and CI (`24.x`) — single story (plan 200; no Volta pin).
 - Git.
+
+## Ports (plan 204 — values are code defaults; change nothing here)
+
+| Service                                                     | Default port | Override                               |
+| ----------------------------------------------------------- | ------------ | -------------------------------------- |
+| Storefront dev (`dev-server.mjs`)                           | 8080         | `PORT=... node scripts/dev-server.mjs` |
+| Storefront E2E (Playwright)                                 | 8081         | `PORT` in `.env`                       |
+| Smoke/preview (`serve`, `SMOKE_BASE_URL`)                   | 4173         | `SMOKE_BASE_URL`                       |
+| Admin Content Manager                                       | 3000         | `PORT` (admin `start.ts`)              |
+| Admin E2E harnesses (import/changes/scope/media/storefront) | 3101–3105    | per-config `PORT=`                     |
+
+The E2E suites share one `PORT` variable — a collision with another project
+on :3000 breaks `admin:dev` with `EADDRINUSE` (stop the squatter or export
+`PORT` for the conflicting service).
 
 ## First run (site)
 

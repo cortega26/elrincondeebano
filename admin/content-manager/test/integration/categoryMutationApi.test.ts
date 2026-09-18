@@ -817,3 +817,57 @@ test('batch-update is all-or-nothing when a mixed batch contains an in-use delet
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+// Plan 194: unified mutation envelope — every category write reports
+// resulting_revision alongside the historical rev field (204 deletes have no
+// body and are excluded by design).
+test('category mutations report resulting_revision matching rev', async () => {
+  const dir = createTempDir();
+  try {
+    setupData(dir);
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    try {
+      const created = await app.inject({
+        method: 'POST',
+        url: '/api/v1/categories',
+        headers: { ...credHeaders(app), 'Content-Type': 'application/json' },
+        payload: {
+          command_id: 'env-1',
+          id: 'env-cat',
+          key: 'env',
+          slug: 'env',
+          base_revision: 5,
+        },
+      });
+      expect(created.statusCode).toBe(201);
+      expect(created.json().resulting_revision).toBe(created.json().rev);
+
+      const reordered = await app.inject({
+        method: 'POST',
+        url: '/api/v1/categories/reorder',
+        headers: { ...credHeaders(app), 'Content-Type': 'application/json' },
+        payload: { command_id: 'env-2', base_revision: 6, ordered_ids: ['env-cat', 'cat1'] },
+      });
+      expect(reordered.statusCode).toBe(200);
+      expect(reordered.json().resulting_revision).toBe(reordered.json().rev);
+
+      const batched = await app.inject({
+        method: 'POST',
+        url: '/api/v1/categories/batch-update',
+        headers: { ...credHeaders(app), 'Content-Type': 'application/json' },
+        payload: {
+          command_id: 'env-3',
+          base_revision: 7,
+          ops: [{ type: 'delete', category: { id: 'env-cat' } }],
+        },
+      });
+      expect(batched.statusCode).toBe(200);
+      expect(batched.json().resulting_revision).toBeGreaterThan(7);
+    } finally {
+      await app.close();
+    }
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

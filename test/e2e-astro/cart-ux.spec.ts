@@ -20,8 +20,9 @@ async function seedCartAndOpen(page: Page, itemCount: number, viewport = MOBILE)
 
   for (let i = 0; i < Math.min(itemCount, count); i++) {
     await addButtons.nth(i).click();
-    // Brief settle between clicks to avoid race
-    await page.waitForTimeout(120);
+    // State-based settle: the navbar badge reflects each committed add
+    // (plan 193 — no wall-clock sleeps).
+    await expect(page.locator('#cart-count')).toHaveText(String(i + 1), { timeout: 5_000 });
   }
 
   const cartShortcut = page.locator('#mobile-cart-shortcut');
@@ -291,7 +292,7 @@ test('T10: missing payment blocks submit — button disabled, error text shown',
 
   const addBtn = page.locator('.category-strip .add-to-cart-btn').first();
   await addBtn.click();
-  await page.waitForTimeout(120);
+  await expect(page.locator('#cart-count')).toHaveText('1', { timeout: 5_000 });
 
   const shortcut = page.locator('#mobile-cart-shortcut');
   await expect(shortcut).toBeVisible({ timeout: 5000 });
@@ -384,14 +385,16 @@ test('T11: forged legacy shared-cart link rehydrates from catalog only', async (
 
 test('T12: cart subtotal uses the discounted price when adjusting quantity', async ({ page }) => {
   await page.setViewportSize(MOBILE);
-  // Pepita de Oro: price 12900, discount 1000 -> effective 11900 (Despensa).
+  // PAN Harina de Maiz: price 2500, discount 100 -> effective 2400 (Despensa).
+  // (Re-pinned 2026-09-15: Pepita de Oro p-a8b114216534 went stock:false via
+  // operator catalog edit rev 16 — respected, not reverted.)
   await page.goto('/despensa/', { waitUntil: 'networkidle' });
   await waitForReady(page);
 
-  const addBtn = page.locator(`.add-to-cart-btn[data-id="p-a8b114216534"]`);
+  const addBtn = page.locator(`.add-to-cart-btn[data-id="p-e7bec89f0c9c"]`);
   await expect(addBtn).toBeVisible();
   await addBtn.click();
-  await page.waitForTimeout(150);
+  await expect(page.locator('#cart-count')).toHaveText('1', { timeout: 5_000 });
 
   const shortcut = page.locator('#mobile-cart-shortcut');
   await expect(shortcut).toBeVisible({ timeout: 5_000 });
@@ -403,11 +406,11 @@ test('T12: cart subtotal uses the discounted price when adjusting quantity', asy
   const increaseBtn = offcanvas.locator('[data-action="increase"]');
   await expect(increaseBtn).toBeVisible();
   await increaseBtn.click();
-  await page.waitForTimeout(150);
 
   // Unitario line uses the discounted price and the subtotal matches it x2.
-  await expect(offcanvas.locator('.cart-item__price-line')).toHaveText('Unitario: $11.900');
-  await expect(offcanvas.locator('.cart-item__subtotal')).toHaveText('Subtotal: $23.800');
+  // (No settle sleep: the text assertions below auto-retry — plan 193.)
+  await expect(offcanvas.locator('.cart-item__price-line')).toHaveText('Unitario: $2.400');
+  await expect(offcanvas.locator('.cart-item__subtotal')).toHaveText('Subtotal: $4.800');
 });
 
 test('T13: cart offcanvas closes via continue-shopping and the close button', async ({ page }) => {

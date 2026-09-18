@@ -50,10 +50,13 @@ const recovery = checkStartupRecovery(recoveryJournal, repoRoot, {
   skipCheck: skipRecoveryCheck,
 });
 if (recovery.message) {
-  console.warn(recovery.message);
+  // Plan 206 slice 5: startup/recovery lines go through pino with the same
+  // envelope as request logs. (The two pre-boot guards above keep console:
+  // the Fastify logger does not exist yet at that point.)
+  app.log.warn(recovery.message);
 }
 if (recovery.blocked) {
-  console.error(
+  app.log.error(
     'Refusing to start in operator mode with an unrecovered write failure. ' +
       'Resolve it (see backup candidates above) or set ADMIN_SKIP_RECOVERY_CHECK=1.'
   );
@@ -63,10 +66,10 @@ if (recovery.blocked) {
 async function start(): Promise<void> {
   try {
     await app.listen({ port: PORT, host: HOST });
-    console.log(`Content Manager running at http://${HOST}:${PORT} (mode: ${mode})`);
+    app.log.info(`Content Manager running at http://${HOST}:${PORT} (mode: ${mode})`);
     if (enableWrites) {
       if (launchCredential) {
-        console.log('Write mode enabled — launch credential from ADMIN_CREDENTIAL environment');
+        app.log.info('Write mode enabled — launch credential from ADMIN_CREDENTIAL environment');
       } else if (!existsSync(resolve(repoRoot, 'data', '.admin-credential'))) {
         const generated = (app as unknown as { launchCredential?: string }).launchCredential;
         // Plan 125: never print the credential to stdout (logs/CI capture it
@@ -77,15 +80,15 @@ async function start(): Promise<void> {
           const credentialPath = resolve(repoRoot, 'data', '.admin-credential');
           mkdirSync(resolve(repoRoot, 'data'), { recursive: true });
           writeFileSync(credentialPath, generated, { encoding: 'utf-8', mode: 0o600, flush: true });
-          console.log(
+          app.log.info(
             `Write mode enabled — generated launch credential written to ${credentialPath} (0600)`
           );
         } else {
-          console.log('Write mode enabled — generated launch credential unavailable');
+          app.log.info('Write mode enabled — generated launch credential unavailable');
         }
       }
     } else {
-      console.log('Read-only mode — mutations are rejected');
+      app.log.info('Read-only mode — mutations are rejected');
     }
   } catch (err) {
     app.log.error(err);

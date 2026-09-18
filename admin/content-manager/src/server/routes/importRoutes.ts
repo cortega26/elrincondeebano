@@ -9,6 +9,7 @@ import {
   importApplyRequestSchema,
   CSV_EXPORT_COLUMNS,
   csvExportQuerySchema,
+  MAX_IMPORT_BYTES,
 } from '../../shared/schemas/importExport.ts';
 import type {
   ImportFieldConflict,
@@ -26,6 +27,10 @@ import {
 } from './changes-common.ts';
 import type { ProductService } from '../../domain/products/productService.ts';
 
+// Plan 180: framing margin for the content-length pre-gate below — the JSON
+// envelope around the products array is bytes, not megabytes.
+const PREVIEW_LENGTH_MARGIN = 64 * 1024;
+
 export async function importRoutes(
   app: FastifyInstance,
   repos: Repositories,
@@ -37,7 +42,6 @@ export async function importRoutes(
   void productService;
   const previews = new PreviewRepository(repoRoot);
   const history = new HistoryRepository(repoRoot);
-
   app.get('/export', async () => {
     const catalog = repos.products.loadCatalog();
     return catalog;
@@ -89,7 +93,16 @@ export async function importRoutes(
 
     const escapeCsv = (value: unknown): string => {
       const text = String(value ?? '');
-      return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+      // Plan 184: spreadsheet formula guard — the operator opens exports in
+      // formula-evaluating spreadsheets, so cells starting with a formula
+      // introducer (= + - @ tab CR) get a text-marker prefix. Quoting alone
+      // does NOT protect (quoted cells still evaluate). Benign cells starting
+      // with -/+ (e.g. "-5% off") gain an invisible marker — accepted cost.
+      const guarded =
+        text.length > 0 && ['=', '+', '-', '@', '\t', '\r'].includes(text[0] as string)
+          ? `'${text}`
+          : text;
+      return /[",\n\r]/.test(guarded) ? `"${guarded.replace(/"/g, '""')}"` : guarded;
     };
 
     // Python parity (import_export_mixin.export_filtered_csv): same columns in
@@ -119,12 +132,40 @@ export async function importRoutes(
 
   app.post('/import/preview', async (request, reply) => {
     try {
+      // Plan 180: fast reject on declared size before paying the second
+      // serialization plus the full preview build. The post-parse byte
+      // measurement below stays authoritative (content-length is
+      // client-controlled). Never lower the global bodyLimit for this —
+      // base64 media uploads need it.
+      const declaredLength = Number(request.headers['content-length']);
+      if (
+        Number.isFinite(declaredLength) &&
+        declaredLength > MAX_IMPORT_BYTES + PREVIEW_LENGTH_MARGIN
+      ) {
+        return reply.status(413).send({
+          error: {
+            code: 'PAYLOAD_TOO_LARGE',
+            message: `Import payload exceeds the limit of ${Math.round(MAX_IMPORT_BYTES / 1024 / 1024)} MB`,
+          },
+        });
+      }
       const body = request.body as Record<string, unknown>;
       const rawProducts = body?.products ?? body;
 
       if (!Array.isArray(rawProducts)) {
         return reply.status(400).send({
           error: { code: 'BAD_REQUEST', message: "Expected a JSON object with 'products' array" },
+        });
+      }
+
+      // Plan 013: duplicate the client byte cap server-side — never trust the
+      // picker/textarea check alone. Measure the serialized payload.
+      if (Buffer.byteLength(JSON.stringify(rawProducts), 'utf8') > MAX_IMPORT_BYTES) {
+        return reply.status(413).send({
+          error: {
+            code: 'PAYLOAD_TOO_LARGE',
+            message: `Import payload exceeds the limit of ${Math.round(MAX_IMPORT_BYTES / 1024 / 1024)} MB`,
+          },
         });
       }
 
@@ -310,7 +351,9 @@ export async function importRoutes(
       }
 
       // No-op apply: nothing effective changed — do not bump the revision.
+      // The preview was still consumed, so prune it either way.
       if (created === 0 && updated === 0) {
+        previews.delete(preview_id);
         return {
           status: 'ok' as const,
           created: 0,
@@ -351,6 +394,11 @@ export async function importRoutes(
         },
         ops: [],
       });
+
+      // Plan 180: the preview is consumed by a successful apply — delete it
+      // so import-previews cannot grow without bound. Failed applies keep
+      // theirs (the operator may resolve conflicts and retry).
+      previews.delete(preview_id);
 
       return {
         status: 'ok' as const,

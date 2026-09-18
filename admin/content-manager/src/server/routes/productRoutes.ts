@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import type { SyncService } from '../services/syncService.ts';
 import { ProductService } from '../../domain/products/productService.ts';
 import type { CommandEnvelope } from '../../shared/commands/envelope.ts';
+import { discountPercent2 } from '../../shared/discount.ts';
 import { relocateProductMedia, rollbackMediaRelocation } from '../services/mediaRelocation.ts';
 import { requireWriteMode, type Repositories } from './helpers.ts';
 import { runCatalogCommand } from './catalog-command.ts';
@@ -73,6 +74,46 @@ export async function productRoutes(
     }
     return { ids: body.product_ids };
   }
+
+  // Plan 172: bulk action/value allowlist — the service blind-casts otherwise,
+  // so unknown actions silently no-op and non-finite values (NaN from a
+  // cleared UI field, wrong types) corrupt the catalog on persist.
+  const BULK_ACTIONS = [
+    'set_discount_percent',
+    'set_discount_fixed',
+    'set_stock',
+    'set_price_delta_percent',
+    'set_category',
+  ] as const;
+  type BulkAction = (typeof BULK_ACTIONS)[number];
+
+  function validateBulkInput(
+    action: unknown,
+    value: unknown
+  ):
+    | { ok: true; action: BulkAction; value: number | boolean | string }
+    | { ok: false; message: string } {
+    if (typeof action !== 'string' || !(BULK_ACTIONS as readonly string[]).includes(action)) {
+      return { ok: false, message: `Unknown bulk action "${String(action)}"` };
+    }
+    const known = action as BulkAction;
+    if (known === 'set_stock') {
+      if (typeof value !== 'boolean') {
+        return { ok: false, message: 'Bulk action set_stock requires a boolean value' };
+      }
+      return { ok: true, action: known, value };
+    }
+    if (known === 'set_category') {
+      if (typeof value !== 'string' || value.trim() === '') {
+        return { ok: false, message: 'Bulk action set_category requires a non-empty string value' };
+      }
+      return { ok: true, action: known, value };
+    }
+    if (typeof value !== 'number' || !Number.isFinite(value)) {
+      return { ok: false, message: `Bulk action ${known} requires a finite numeric value` };
+    }
+    return { ok: true, action: known, value };
+  }
   app.get('/products', async (request) => {
     const query = request.query as Record<string, string | undefined>;
     const page = Math.max(1, Number(query.page) || 1);
@@ -132,7 +173,7 @@ export async function productRoutes(
       items: items.map((p) => ({
         ...p,
         discounted_price: Math.max(0, p.price - p.discount),
-        discount_percentage: p.price > 0 ? Math.round((p.discount / p.price) * 10000) / 100 : 0,
+        discount_percentage: discountPercent2(p.price, p.discount),
       })),
     };
   });
@@ -150,8 +191,7 @@ export async function productRoutes(
     return {
       ...product,
       discounted_price: Math.max(0, product.price - product.discount),
-      discount_percentage:
-        product.price > 0 ? Math.round((product.discount / product.price) * 10000) / 100 : 0,
+      discount_percentage: discountPercent2(product.price, product.discount),
     };
   });
 
@@ -472,6 +512,30 @@ export async function productRoutes(
             message: 'ordered_ids contains duplicates',
           };
         }
+        // Plan 173: length + duplicates is not enough — the id SET must equal
+        // the catalog id set, or unknown ids are silently skipped while
+        // missing products keep stale orders (duplicate `order` values, 200).
+        const catalogIds = new Set(catalog.products.map((p) => p.id));
+        if (catalog.products.some((p) => !p.id)) {
+          return {
+            ok: false,
+            statusCode: 400,
+            code: 'BAD_REQUEST',
+            message:
+              'Catalog contains products without ids — backfill stable ids before reordering',
+          };
+        }
+        if (
+          uniqueIds.size !== catalogIds.size ||
+          ![...uniqueIds].every((id) => catalogIds.has(id))
+        ) {
+          return {
+            ok: false,
+            statusCode: 400,
+            code: 'BAD_REQUEST',
+            message: 'ordered_ids must contain exactly the catalog id set (unknown or missing ids)',
+          };
+        }
 
         const result = productService.reorder(catalog, body.ordered_ids!);
         if (!result.ok) {
@@ -510,6 +574,13 @@ export async function productRoutes(
       });
     }
 
+    const validated = validateBulkInput(body.action, body.value);
+    if (!validated.ok) {
+      return reply.status(400).send({
+        error: { code: 'BAD_REQUEST', message: validated.message },
+      });
+    }
+
     const resolved = resolveBulkIds(body);
     if (resolved.error) {
       return reply.status(resolved.error.code === 'NO_MATCHES' ? 422 : 400).send({
@@ -519,8 +590,8 @@ export async function productRoutes(
 
     const catalog = repos.products.loadCatalog();
     const result = productService.bulkPreview(catalog, {
-      action: body.action as 'set_discount_percent',
-      value: body.value as number,
+      action: validated.action,
+      value: validated.value,
       product_ids: resolved.ids,
     });
 
@@ -557,6 +628,13 @@ export async function productRoutes(
       });
     }
 
+    const validated = validateBulkInput(body.action, body.value);
+    if (!validated.ok) {
+      return reply.status(400).send({
+        error: { code: 'BAD_REQUEST', message: validated.message },
+      });
+    }
+
     const resolved = resolveBulkIds(body);
     if (resolved.error) {
       return reply.status(resolved.error.code === 'NO_MATCHES' ? 422 : 400).send({
@@ -564,7 +642,7 @@ export async function productRoutes(
       });
     }
 
-    let bulkResult: { changed: number; changes: unknown[] } | undefined;
+    let bulkResult: { changed: number; skipped: number; changes: unknown[] } | undefined;
 
     return runCatalogCommand({
       repos,
@@ -572,8 +650,8 @@ export async function productRoutes(
       commandId: body.command_id,
       apply: (catalog) => {
         const result = productService.bulkApply(catalog, {
-          action: body.action as 'set_discount_percent',
-          value: body.value as number,
+          action: validated.action,
+          value: validated.value,
           product_ids: resolved.ids,
         });
 
@@ -591,6 +669,7 @@ export async function productRoutes(
       },
       onSuccess: () => ({
         changed: bulkResult!.changed,
+        skipped: bulkResult!.skipped,
         changes: bulkResult!.changes,
       }),
     });

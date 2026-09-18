@@ -7,8 +7,9 @@ import type {
   ImportApplyResponse,
   ImportResolution,
 } from '../../../shared/schemas/importExport.ts';
+import { MAX_IMPORT_BYTES } from '../../../shared/schemas/importExport.ts';
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+const MAX_FILE_SIZE = MAX_IMPORT_BYTES;
 
 export function ImportPage(): React.ReactElement {
   const [input, setInput] = useState('');
@@ -60,6 +61,13 @@ export function ImportPage(): React.ReactElement {
     setApprovalPending(false);
     setLoading(true);
     try {
+      // Plan 013: same byte cap as the file picker — reject before parsing
+      // so oversized pastes never reach the preview service.
+      if (new TextEncoder().encode(input).length > MAX_FILE_SIZE) {
+        setError(`El archivo supera el límite de ${Math.round(MAX_FILE_SIZE / 1024 / 1024)} MB`);
+        setLoading(false);
+        return;
+      }
       let parsed: unknown;
       try {
         parsed = JSON.parse(input);

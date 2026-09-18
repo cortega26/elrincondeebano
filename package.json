@@ -9,6 +9,7 @@
   },
   "scripts": {
     "admin:dev": "npm -w admin/content-manager run dev",
+    "admin:lint": "npm -w admin/content-manager run lint",
     "admin:dev:web": "npm -w admin/content-manager run dev:web",
     "admin:build": "npm -w admin/content-manager run build",
     "admin:start": "npm -w admin/content-manager run start",
@@ -26,27 +27,27 @@
     "changeset": "changeset",
     "fonts": "node tools/fetch-fonts.mjs",
     "categories:sync": "node tools/sync-category-catalog.js",
-    "preflight": "npm run categories:sync && npm run images:logo && npm run images:avif && npm run images:og:home && npm run images:og:overrides && npm run images:og:categories && npm run images:og:parking && npm run images:og:clean-overrides && node tools/gap-fill-image-variants.js && node admin/content-manager/scripts/migrate-catalog.mjs && node tools/preflight.js",
+    "preflight": "npm run categories:sync && node admin/content-manager/scripts/migrate-catalog.mjs && node tools/run-parallel.mjs \"npm run images:logo\" \"npm run images:avif\" \"npm run images:og:home\" \"npm run images:og:overrides\" && npm run images:og:categories && node tools/run-parallel.mjs \"npm run images:og:clean-overrides\" \"npm run images:gap-fill\" && node tools/preflight.js",
     "build": "npm run preflight && npm -w astro-poc run build",
     "build:fast": "npm -w astro-poc run build",
     "dev": "npm -w astro-poc run dev",
     "lint:root": "eslint .",
     "lint:astro": "npm -w astro-poc run lint",
-    "lint": "npm run lint:root && npm run lint:astro",
-    "check:determinism": "node tools/check-determinism-paths.mjs && node tools/check-vendor-tgz.mjs",
+    "lint": "npm run lint:root && npm run lint:astro && npm run admin:lint",
+    "check:determinism": "node tools/check-determinism-paths.mjs",
     "check:css-order": "node scripts/check-css-order.mjs",
     "check:e2e-selectors": "node tools/check-e2e-class-selectors.mjs",
+    "check:sass-imports": "node tools/check-sass-imports.mjs",
     "format": "prettier --write .",
     "icons": "node tools/generate-icons.js",
     "validate:categories": "npm run categories:sync && node tools/validate-category-registry.js",
-    "images:logo": "node tools/generate-logo-assets.mjs",
+    "images:logo": "node tools/preflight-hash.mjs --step images-logo --inputs assets/images/og/logo.png,tools/generate-logo-assets.mjs,tools/utils/image-pipeline.mjs --outputs assets/images/web/logo.webp,assets/images/web/logo.avif,assets/images/web/logo-40.webp,assets/images/web/logo-40.avif,assets/images/web/logo-80.webp,assets/images/web/logo-80.avif,assets/images/web/logo-120.webp,assets/images/web/logo-120.avif,assets/images/web/icon-192.png,assets/images/web/icon-512.png,assets/images/web/favicon.ico -- node tools/generate-logo-assets.mjs",
     "images:avif": "node tools/sync-avif-assets.js",
-    "images:og:home": "node tools/generate-home-og.mjs",
-    "images:generate": "node tools/generate-images.mjs",
+    "images:og:home": "node tools/preflight-hash.mjs --step images-og-home --inputs assets/images/og/logo.png,tools/generate-home-og.mjs,tools/utils/image-pipeline.mjs --outputs assets/images/og/home.og.jpg -- node tools/generate-home-og.mjs",
     "images:og:overrides": "node tools/sync-category-og-overrides.mjs",
-    "images:og:categories": "node tools/generate-category-og.mjs",
-    "images:og:parking": "node tools/generate-parking-og.mjs",
+    "images:og:categories": "node tools/preflight-hash.mjs --step images-og-categories --inputs data/category_registry.json,data/categories.json,config/category_og_icon_map.json,assets/images/og/icons,assets/images/og/categories,tools/generate-category-og.mjs,tools/utils/category-og.mjs,tools/utils/image-pipeline.mjs -- node tools/generate-category-og.mjs",
     "images:og:clean-overrides": "node tools/clean-og-overrides.mjs",
+    "images:gap-fill": "node tools/gap-fill-image-variants.js",
     "canary:post-deploy": "node tools/post-deploy-canary.mjs --base-url https://www.elrincondeebano.com",
     "taxonomy:release": "node tools/taxonomy-release.mjs release",
     "taxonomy:rollback": "node tools/taxonomy-release.mjs rollback",
@@ -58,6 +59,7 @@
     "ci:guardrails": "npm run build && npm run lint:images && npm run guardrails && npm run guardrails:assets",
     "prune:backups": "node tools/prune-backups.js",
     "test": "vitest run && npm run admin:test",
+    "test:watch": "vitest",
     "test:coverage": "vitest run --coverage && npm run admin:test:coverage",
     "test:mutation": "stryker run",
     "typecheck:legacy": "echo 'legacy typecheck retired (plan 155)'",
@@ -91,40 +93,37 @@
     "astro-poc",
     "admin/content-manager"
   ],
+  "//popper": "Plan 013: @popperjs/core is Bootstrap's peerDependency and is required at runtime by storefront.js deep imports (dropdown.js via Navbar data-bs-toggle=dropdown). Bootstrap ships no transitive copy, so the direct dep stays.",
   "dependencies": {
     "@popperjs/core": "^2.11.8",
     "bootstrap": "^5.3.3",
-    "zod": "^4.4.3"
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.0",
     "@eslint/js": "^10.0.1",
-    "@playwright/test": "^1.62.1",
+    "@playwright/test": "^1.63.0",
     "@stryker-mutator/core": "^10.0.0",
     "@stryker-mutator/vitest-runner": "^10.0.0",
     "@vitest/coverage-v8": "^4.1.11",
-    "chrome-launcher": "^1.1.2",
-    "eslint": "^10.8.1",
+    "chrome-launcher": "^1.2.1",
+    "eslint": "^10.10.0",
     "eslint-plugin-astro": "^3.1.0",
     "eslint-plugin-sonarjs": "^4.2.0",
-    "globals": "^17.9.0",
+    "globals": "^17.12.0",
     "husky": "^9.1.7",
     "jsdom": "^30.0.1",
     "lighthouse": "^13.4.0",
-    "lint-staged": "^17.3.0",
+    "lint-staged": "^17.5.0",
     "prettier": "^3.9.6",
-    "sass-embedded": "^1.100.0",
-    "sharp": "^0.35.3",
+    "sass-embedded": "^1.104.0",
+    "sharp": "^0.35.4",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.66.0",
-    "undici": "^8.10.0",
+    "typescript-eslint": "^8.70.0",
     "vitest": "^4.0.16"
   },
   "engines": {
     "node": ">=24 <25"
-  },
-  "volta": {
-    "node": "24.0.0"
   },
   "repository": {
     "type": "git",
@@ -142,7 +141,11 @@
       "eslint --no-warn-ignored --config astro-poc/eslint.config.mjs",
       "prettier --write"
     ],
-    "admin/content-manager/**/*.{ts,tsx}": [
+    "astro-poc/**/*.scss": [
+      "node tools/check-sass-imports.mjs",
+      "prettier --write"
+    ],
+    "admin/content-manager/**/*.{ts,tsx,js,mjs,cjs}": [
       "eslint --no-warn-ignored --config admin/content-manager/eslint.config.mjs",
       "prettier --write"
     ],

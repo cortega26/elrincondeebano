@@ -2,6 +2,7 @@ import { test, expect } from 'vitest';
 import { ProductService } from '../../src/domain/products/productService.ts';
 import type { ProductCatalog } from '../../src/shared/schemas/product.ts';
 import { generateProductId } from '../../src/shared/identity.ts';
+import { discountPercent2 } from '../../src/shared/discount.ts';
 
 function makeCatalog(rev = 0): ProductCatalog {
   return {
@@ -254,4 +255,12 @@ test('ProductService.bulkApply applies only changed products and matches the pre
   expect(changed.rev).toBe(changed.rev + 0); // bumped exactly once by the apply
   expect(noop.discount).toBe(100);
   expect(noop.rev).toBe(noopRevBefore);
+});
+
+test('discountPercent2 pins the admin two-decimal contract (plan 195)', () => {
+  expect(discountPercent2(799, 100)).toBe(12.52);
+  expect(discountPercent2(1000, 100)).toBe(10);
+  expect(discountPercent2(4500, 500)).toBe(11.11);
+  expect(discountPercent2(100, 0)).toBe(0);
+  expect(discountPercent2(0, 5)).toBe(0);
 });

@@ -81,8 +81,15 @@ const sharePreview = createSharePreviewMetadata({
       <>
         <CatalogControls stickyMobile={true} />
         <ProductGrid items={products} id="product-container" announce={true} compactMobile={true} />
-        <div id="catalog-empty-state" class="alert alert-info d-none mt-3" role="status">
-          No se encontraron productos con los filtros seleccionados.
+        <div id="catalog-empty-state" class="alert alert-info d-none mt-3 catalog-empty-state" role="status">
+          <p class="mb-0">No se encontraron productos con los filtros seleccionados.</p>
+          <button
+            type="button"
+            id="catalog-empty-clear"
+            class="btn btn-outline-primary btn-sm catalog-empty-state__clear"
+          >
+            Limpiar filtros
+          </button>
         </div>
         <div id="catalog-controls" class="text-center my-4">
           <button type="button" id="catalog-load-more" class="btn btn-outline-primary d-none">Cargar más productos</button>

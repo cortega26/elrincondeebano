@@ -75,6 +75,10 @@ function computeDiscountMeta(product) {
   const price = Number(product.price) || 0;
   const discount = Number(product.discount) || 0;
   const discountedPrice = Math.max(price - discount, 0);
+  // Plan 195: canonical INTEGER formula for build-time payloads — matches
+  // astro product-card-helpers discountPercentInt by contract (separate
+  // runtimes cannot share the implementation; keep the formulas identical).
+  // The admin list intentionally shows two decimals (admin shared/discount.ts).
   const percent = price > 0 ? Math.round((discount / price) * 100) : 0;
   return {
     discountedPrice,
@@ -163,6 +167,8 @@ module.exports = {
   DATA_PATH,
   CFIMG_THUMB,
   readProductData,
+  generateStableId,
+  computeDiscountMeta,
   sortAndEnrichProducts,
   mapProductForInline,
   safeJsonStringify,

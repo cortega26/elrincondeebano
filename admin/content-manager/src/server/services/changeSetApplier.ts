@@ -2,7 +2,7 @@ import type { ChangeSetOp } from '../../shared/schemas/changeSet.ts';
 import type { ChangeSet } from '../../shared/schemas/changeSet.ts';
 import { productSchema } from '../../shared/schemas/product.ts';
 import { generateProductId } from '../../shared/identity.ts';
-import type { Repositories } from '../../server/routes/helpers.ts';
+import type { Repositories } from '../repositories/types.ts';
 
 export type ApplyResult =
   | { ok: true; applied: number; resulting_revision: number; ops: ChangeSetOp[] }
@@ -43,7 +43,13 @@ export function forbiddenOpFields(
 // values and per-entity revision evidence (plan 062 step 3). Stale base
 // revisions fail the whole apply — nothing is partially written.
 export class ChangeSetApplier {
-  constructor(private readonly repos: Repositories) {}
+  private readonly repos: Repositories;
+
+  // Plan 202: explicit field + assignment (was a parameter property —
+  // non-erasable syntax; behavior identical).
+  constructor(repos: Repositories) {
+    this.repos = repos;
+  }
 
   async apply(cs: ChangeSet): Promise<ApplyResult> {
     const catalog = this.repos.products.loadCatalog();

@@ -1,11 +1,18 @@
 /* Core Variables */
 :root {
+  /* Plan 216: una sola grotesca (Archivo, self-hosted) para display y cuerpo.
+     Sin serifas en la UI; display siempre 700–800 con tracking apretado. */
+  --font-sans: 'Archivo', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-size-xs: 0.8125rem;
   --primary-color: #005b4f;
   --primary-strong: #00463c;
   --primary-soft: rgba(0, 91, 79, 0.08);
   --success-color: #16a34a;
-  --success-strong: #128a3e;
-  --btn-radius: 10px;
+  /* Plan 215: #128a3e medía 4.44:1 sobre blanco (bajo el 4.5:1 AA para
+     texto normal en .btn-outline-success) — oscurecido a 4.6:1+. */
+  --success-strong: #0e7a34;
+  /* Plan 216: radio 8px — el pill de 10px en cada botón era genérico. */
+  --btn-radius: 8px;
   --secondary-color: #546e7a;
   --accent-color: #a15c00;
   --text-color: #212529;
@@ -13,6 +20,19 @@
   --background-color: #ffffff;
   --surface-color: #ffffff;
   --surface-muted: #f1ede6;
+  /* Plan 215: línea y elevación unificadas (warm neighborhood store) —
+     las tarjetas migran aquí en P3; no cambiar valores existentes aún. */
+  --line-color: rgba(18, 59, 53, 0.1);
+  --line-soft: rgba(0, 0, 0, 0.08);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 12px 24px rgba(18, 59, 53, 0.06);
+  --focus-ring: 3px solid var(--accent-color);
+  /* Plan 215: ritmo de movimiento único (150–300ms, solo transform/opacity). */
+  --motion-fast: 0.15s ease;
+  --motion-base: 0.2s ease;
   --border-radius: 0.25rem;
   --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   --transition: all 0.3s ease;
@@ -70,15 +90,7 @@ textarea:focus-visible,
 }
 
 body {
-  font-family:
-    'Inter',
-    'Inter Fallback',
-    system-ui,
-    -apple-system,
-    'Segoe UI',
-    Roboto,
-    Arial,
-    sans-serif;
+  font-family: var(--font-sans);
   color: var(--text-color);
   background-color: var(--background-color);
   line-height: 1.6;
@@ -96,9 +108,10 @@ h1 {
   text-align: center;
   font-size: clamp(1.75rem, 4vw, 2.25rem);
   margin-bottom: 1.25rem;
-  font-weight: bold;
-  font-family: 'Playfair Display', 'Playfair Fallback', Georgia, 'Times New Roman', serif;
-  letter-spacing: 0.01em;
+  font-weight: 800;
+  font-family: var(--font-sans);
+  letter-spacing: -0.02em;
+  line-height: 1.12;
 }
 
 .hero-section {
@@ -149,20 +162,25 @@ h1 {
   order: 1;
 }
 
-.home-layout__quick-order {
+/* Plan 215: la barra de anclas va bajo el hero (orden 2). */
+.home-layout__anchors {
   order: 2;
 }
 
-.home-layout__catalog {
+.home-layout__quick-order {
   order: 3;
 }
 
-.home-layout__bundles {
+.home-layout__catalog {
   order: 4;
 }
 
-.home-layout__deals {
+.home-layout__bundles {
   order: 5;
+}
+
+.home-layout__deals {
+  order: 6;
 }
 
 .home-entry,
@@ -174,14 +192,13 @@ h1 {
   padding: 1rem 1.1rem;
 }
 
+/* Plan 216: hero sin tarjeta — banda plana con aire, sin beige ni brillos. */
 .home-entry {
   display: grid;
   gap: 0.75rem;
-  padding: 0.85rem 1rem;
-  background: var(--surface-muted);
-  background-image:
-    radial-gradient(circle at top right, rgba(0, 91, 79, 0.09), transparent 34%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+  padding: 0.85rem 0.25rem;
+  background: transparent;
+  border: 0;
 }
 
 .home-entry__main,
@@ -276,8 +293,11 @@ h1 {
   align-items: center;
   width: auto;
   min-width: 0;
+  /* Plan 215: aspecto de enlace pero con diana táctil ≥44px. */
+  min-height: 44px;
   border: 0;
-  padding: 0;
+  padding: 0.25rem 0.15rem;
+  margin: -0.25rem -0.15rem;
   background: transparent;
   color: var(--primary-color);
   font-weight: 600;
@@ -285,24 +305,36 @@ h1 {
   text-underline-offset: 0.16em;
 }
 
+/* Plan 216: headers editoriales — título pesado con regla hairline. */
 .home-section__header {
   display: grid;
   gap: 0.3rem;
   margin-bottom: 1rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--line-soft);
 }
 
 .home-section__header h2 {
   margin: 0;
   font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
 }
 
 .home-section__header p {
   margin: 0;
   color: var(--text-muted);
+  font-size: 0.92rem;
+  max-width: 42rem;
 }
 
 .home-section__link {
+  display: inline-flex;
+  align-items: center;
   width: fit-content;
+  /* Plan 215: diana táctil ≥44px. */
+  min-height: 44px;
   color: var(--primary-color);
   font-weight: 600;
   text-decoration: none;
@@ -551,10 +583,9 @@ h3 {
   font-size: var(--font-size-sm);
 }
 
-.home-profile-strip__repeat::before {
-  content: '↻';
-  font-size: 1.05em;
-  line-height: 1;
+/* Plan 216: icono SVG inline (el glifo ↻ dependía de la fuente del sistema). */
+.home-profile-strip__repeat svg {
+  flex: 0 0 auto;
 }
 
 .bundle-grid {
@@ -569,8 +600,8 @@ h3 {
   justify-content: space-between;
   gap: 1rem;
   padding: 1rem;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
   background: var(--surface-muted);
 }
 
@@ -717,7 +748,10 @@ h3 {
 .service-dialog__close {
   flex: 0 0 auto;
   border: 0;
-  padding: 0.15rem 0;
+  /* Plan 215: diana táctil ≥44px manteniendo aspecto de texto. */
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.15rem 0.25rem;
   background: transparent;
   color: var(--secondary-color);
   font-weight: 600;
@@ -771,17 +805,10 @@ body.service-dialog-open {
   min-height: var(--storefront-header-height);
 }
 
+/* Plan 216: navbar plano — el gradiente + blur era ruido visual. */
 .storefront-navbar {
-  background: linear-gradient(180deg, #004d42 0%, #003b33 40%, #002e28 100%);
+  background: #0c3b35;
   border-bottom: 2px solid var(--accent-color);
-}
-
-@supports (backdrop-filter: blur(8px)) {
-  .storefront-navbar {
-    background: linear-gradient(180deg, rgba(0, 61, 53, 0.96) 0%, rgba(0, 46, 40, 0.97) 100%);
-    backdrop-filter: blur(12px) saturate(140%);
-    -webkit-backdrop-filter: blur(12px) saturate(140%);
-  }
 }
 
 .storefront-navbar__inner {
@@ -805,7 +832,9 @@ body.service-dialog-open {
 }
 
 .navbar-brand span {
-  font-family: 'Playfair Display', 'Playfair Fallback', Georgia, 'Times New Roman', serif;
+  font-family: var(--font-sans);
+  font-weight: 800;
+  letter-spacing: -0.015em;
   font-size: clamp(1.2rem, 3.5vw, 1.8rem);
   white-space: nowrap;
   overflow: hidden;
@@ -829,7 +858,8 @@ body.service-dialog-open {
 }
 
 .storefront-navbar__group-toggle {
-  min-height: 42px;
+  /* Plan 215: diana táctil ≥44px (antes 42px). */
+  min-height: 44px;
   padding: 0.55rem 0.8rem;
   border-radius: 10px;
   font-weight: 600;
@@ -852,7 +882,8 @@ body.service-dialog-open {
 }
 
 .storefront-navbar__menu .dropdown-item {
-  min-height: 42px;
+  /* Plan 215: diana táctil ≥44px (antes 42px). */
+  min-height: 44px;
   display: flex;
   align-items: center;
   padding: 0.6rem 0.9rem;
@@ -923,18 +954,36 @@ body.service-dialog-open {
   display: flex;
   flex-direction: column;
   background-color: var(--surface-color);
-  border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  /* Plan 215: lenguaje único de tarjeta (radio, línea y sombra del sistema). */
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line-soft);
   overflow: hidden;
 }
 
+/* Plan 216: media sobre blanco puro — el degradado beige era slop. */
 .product-card__media {
   position: relative;
   display: grid;
   place-items: center;
   padding: 0.75rem;
-  background: #fafaf8;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  background: #fff;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+/* Plan 215: elevación solo en hover con puntero fino (nunca en táctil). */
+@media (hover: hover) and (min-width: 768px) {
+  .producto .card {
+    transition:
+      border-color var(--motion-base),
+      box-shadow var(--motion-base),
+      transform var(--motion-base);
+  }
+
+  .producto .card:hover {
+    border-color: rgba(0, 91, 79, 0.28);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
 }
 
 .producto .card-body {
@@ -992,19 +1041,19 @@ body.service-dialog-open {
   background-color: var(--surface-color);
 }
 
-/* Discount badge */
+/* Plan 216: badge como etiqueta compacta, no pill genérico. */
 .discount-badge {
   position: absolute;
   top: 0.55rem;
   right: 0.55rem;
   z-index: 3;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-  background: #c62828;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  background: #b3261e;
   color: #fff;
   font-size: 0.75rem;
   font-weight: 800;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
   line-height: 1.4;
   box-shadow: none;
 }
@@ -1012,7 +1061,7 @@ body.service-dialog-open {
 .producto .card-title {
   font-size: var(--font-size-md);
   color: var(--text-color);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.3;
   min-height: 2.4em;
   overflow: hidden;
@@ -1047,12 +1096,13 @@ body.service-dialog-open {
   padding-top: 0;
 }
 
+/* Plan 216: precio primero — más grande, extrabold, tracking apretado. */
 .precio,
 .precio-descuento {
-  font-size: 1.22rem;
-  font-weight: 700;
+  font-size: 1.3rem;
+  font-weight: 800;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.01em;
+  letter-spacing: -0.01em;
   line-height: 1.1;
 }
 
@@ -1086,7 +1136,7 @@ body.service-dialog-open {
   min-height: 48px;
   margin-bottom: 0;
   border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 10px;
+  border-radius: 8px;
   background: #f5f3ee;
   overflow: hidden;
 }
@@ -1258,7 +1308,7 @@ body.service-dialog-open {
   justify-items: center;
   align-content: center;
   line-height: 1.1;
-  border-radius: 10px;
+  border-radius: 8px;
 }
 
 .add-to-cart-btn__label {
@@ -1342,6 +1392,28 @@ body.service-dialog-open {
 
 .catalog-controls__status {
   min-height: 0;
+}
+
+/* Plan 215: estado vacío con salida accionable (sin auto-foco: el
+   role=status ya lo anuncia y mover el foco mientras se escribe es hostil). */
+.catalog-empty-state {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+}
+
+.catalog-empty-state.d-none {
+  display: none;
+}
+
+.catalog-empty-state p {
+  flex: 1 1 16rem;
+}
+
+.catalog-empty-state__clear {
+  flex: 0 0 auto;
+  min-height: 44px;
 }
 
 /* Cart Offcanvas Styles */
@@ -1608,7 +1680,8 @@ body.service-dialog-open {
   gap: 0.3rem;
   width: auto;
   min-width: 44px;
-  height: 32px;
+  /* Plan 215: diana táctil ≥44px (antes 32px). */
+  min-height: 44px;
   padding: 0 0.7rem;
   background: none;
   border: 1px solid rgba(163, 38, 38, 0.28);
@@ -1703,7 +1776,9 @@ body.service-dialog-open {
 .cart-note-toggle {
   background: none;
   border: none;
-  padding: 0;
+  /* Plan 215: diana táctil ≥44px manteniendo aspecto de enlace. */
+  min-height: 44px;
+  padding: 0.25rem 0;
   color: var(--primary-color);
   font-size: var(--font-size-sm);
   font-weight: 600;
@@ -1859,6 +1934,21 @@ body.service-dialog-open {
 }
 
 /* Media Queries */
+/* Plan 216: sin wrap bajo el breakpoint xl — el max-width de la marca
+   provocaba un salto de línea gratuito (navbar de 2 filas en móvil).
+   La marca absorbe con ellipsis (min-width: 0). */
+@media (max-width: 1199.98px) {
+  /* Especificidad 0,2,0: empata con `.navbar > .container-fluid` de
+     Bootstrap (cuyo `inherit` traía el wrap) y gana por orden. */
+  .navbar > .storefront-navbar__inner {
+    flex-wrap: nowrap;
+  }
+
+  .storefront-navbar__inner .navbar-brand {
+    min-width: 0;
+  }
+}
+
 @media (max-width: 991.98px) {
   #navbarNav {
     justify-content: flex-start !important;
@@ -2009,9 +2099,49 @@ body.service-dialog-open {
     display: none;
   }
 
-  .home-entry__meta,
-  .home-entry__service-list {
+  .home-entry__meta {
     display: none;
+  }
+
+  /* Plan 215: en móvil la lista de servicio pasa a chips compactos de una
+     sola fila (no interactivos: sin requisito de 44px) en vez de ocultarse.
+     Presupuesto: +~36px sobre .home-entry (visual spec exige <400px). */
+  .home-entry__service-list {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0.1rem 0 0.2rem;
+    list-style: none;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .home-entry__service-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .home-entry__service-item {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    min-height: 0;
+    padding: 0.28rem 0.6rem;
+    border: 1px solid rgba(0, 91, 79, 0.16);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.78);
+  }
+
+  .home-entry__service-label {
+    display: none;
+  }
+
+  .home-entry__service-value {
+    font-size: 0.74rem;
+    font-weight: 600;
+    line-height: 1.25;
+    white-space: nowrap;
   }
 
   .catalog-controls {
@@ -2169,8 +2299,9 @@ body.service-dialog-open {
   }
 
   .cart-item__remove {
-    min-width: 40px;
-    height: 30px;
+    min-width: 44px;
+    /* Plan 215: diana táctil ≥44px (antes 40×30px). */
+    min-height: 44px;
   }
 
   .cart-payment-options {
@@ -2237,7 +2368,8 @@ body.service-dialog-open {
 
   .producto--compact-mobile .add-to-cart-btn {
     padding: 0.5rem 0.4rem;
-    min-height: 42px;
+    /* Plan 215: diana táctil ≥44px (antes 42px). */
+    min-height: 44px;
     font-size: 0.85rem;
     border-radius: 8px;
   }
@@ -2280,17 +2412,37 @@ body.service-dialog-open {
     grid-template-columns: 1fr;
   }
 
+  /* Plan 215: búsqueda a ancho completo en fila 1; ordenar + ofertas en fila 2. */
   .catalog-controls__grid {
-    grid-template-columns: 3fr 2fr;
+    grid-template-columns: 1fr 1fr;
     gap: 0.5rem;
   }
 
+  .catalog-controls__field--search {
+    grid-column: 1 / -1;
+  }
+
   .catalog-controls__search-input {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .catalog-controls__field--sort {
+    grid-column: 1 / 2;
+    min-width: 0;
   }
 
   .catalog-controls__field--toggle {
-    grid-column: 1 / -1;
+    grid-column: 2 / -1;
+    min-width: 0;
+  }
+
+  /* En media columna el texto auxiliar no cabe: el título + aria-label bastan. */
+  .catalog-controls__switch-copy {
+    display: none;
+  }
+
+  .catalog-controls__switch {
+    min-height: 100%;
   }
 
   .add-to-cart-btn {
@@ -2312,14 +2464,30 @@ body.service-dialog-open {
   #cart-count.cart-count-bump,
   .add-to-cart-btn.is-added,
   .quantity-changed,
-  #cart-total.cart-total-bump {
+  #cart-total.cart-total-bump,
+  /* Plan 215: fadeInUp tampoco debe animar con movimiento reducido. */
+  .fade-in-up {
     animation: none;
+  }
+
+  /* Plan 215: sin elevación progresiva con movimiento reducido. */
+  .producto .card,
+  .producto .card:hover {
+    transition: none;
+    transform: none;
+    box-shadow: none;
   }
 }
 
 @media (max-width: 350px) {
+  /* Plan 215: encoger en vez de ocultar — la marca sigue visible a 320px. */
+  .navbar-brand img {
+    width: 32px;
+    height: 32px;
+  }
+
   .navbar-brand span {
-    display: none;
+    font-size: 1rem;
   }
 }
 
@@ -2380,6 +2548,10 @@ body.service-dialog-open {
   flex-direction: column;
   gap: 0.25rem;
   align-items: center;
+  /* Plan 215: fondo opaco explícito (mismo #212529 de .bg-dark). Sin esto,
+     axe/Lighthouse atribuye fondo blanco al texto claro bajo el fold
+     (falso "contraste 1.05"; contraste real 14:1). Ver plan log. */
+  background-color: #212529;
 }
 
 #footer-container p {
@@ -2391,9 +2563,30 @@ body.service-dialog-open {
   color: rgba(255, 255, 255, 0.76);
 }
 
+/* Plan 215: navegación secundaria del pie con dianas ≥44px. */
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem 0.5rem;
+}
+
 .footer-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.25rem 0.6rem;
+  border-radius: 8px;
   color: #f4d6a0;
+  font-weight: 600;
   text-decoration: none;
+}
+
+.footer-link:hover,
+.footer-link:focus-visible {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
 }
 
 #cartOffcanvas .cart-footer-actions > .btn {
@@ -2470,7 +2663,8 @@ body.service-dialog-open {
 }
 
 .cart-companion-card__action {
-  min-height: 40px;
+  /* Plan 215: diana táctil ≥44px (antes 40px). */
+  min-height: 44px;
   white-space: nowrap;
 }
 
@@ -2511,6 +2705,34 @@ body.service-dialog-open {
   }
 }
 
+/* Plan 216: marca corta en móvil (display:none la saca también del árbol
+   de accesibilidad, sin duplicar el anuncio). */
+.brand-text--short {
+  display: none;
+}
+
+@media (max-width: 575.98px) {
+  .brand-text--full {
+    display: none;
+  }
+
+  .brand-text--short {
+    display: inline;
+  }
+}
+
+/* Plan 216: la marca Archivo 800 ocupa más ancho — compactar en desktop
+   para que no trunque con todos los grupos visibles. */
+@media (min-width: 1200px) and (max-width: 1399px) {
+  .navbar-brand span {
+    font-size: 1.35rem;
+  }
+
+  .storefront-navbar__group-toggle {
+    padding-inline: 0.6rem;
+  }
+}
+
 @media (min-width: 992px) {
   .offcanvas {
     width: 520px;
@@ -2548,316 +2770,6 @@ body.service-dialog-open {
   border-radius: 999px;
 }
 
-/* Parking Reservation Styles */
-.parking-card {
-  padding: 1.15rem;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 12px;
-  background: var(--surface-color);
-}
-
-.parking-dates {
-  display: grid;
-  gap: 0.85rem;
-  margin-bottom: 0.5rem;
-}
-
-.parking-field {
-  display: grid;
-  gap: 0.3rem;
-}
-
-.parking-field label {
-  font-size: var(--font-size-sm);
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.parking-field input[type='date'] {
-  min-height: 48px;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 10px;
-  font-family: 'Inter', 'Inter Fallback', system-ui, sans-serif;
-  font-size: var(--font-size-base);
-  background: #fbfaf8;
-}
-
-.pricing-legend {
-  display: grid;
-  gap: 0.55rem;
-  padding: 0.85rem;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 10px;
-  background: var(--surface-muted);
-}
-
-.pricing-legend__item {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  font-size: var(--font-size-sm);
-  line-height: 1.35;
-}
-
-.pricing-legend__swatch {
-  flex: 0 0 auto;
-  width: 14px;
-  height: 14px;
-  border-radius: 4px;
-}
-
-.pricing-legend__swatch--regular {
-  background: #e8f5e9;
-}
-
-.pricing-legend__swatch--high {
-  background: #fff3e0;
-}
-
-.parking-breakdown {
-  display: grid;
-  gap: 0.45rem;
-  margin: 0.5rem 0 0.25rem;
-  padding: 0.65rem 0 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.parking-breakdown__row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.85rem;
-  font-size: 0.9rem;
-  padding: 0.3rem 0;
-  animation: fadeInUp 0.25s ease-out both;
-}
-
-.parking-breakdown__row:nth-child(1) {
-  animation-delay: 0s;
-}
-.parking-breakdown__row:nth-child(2) {
-  animation-delay: 0.04s;
-}
-.parking-breakdown__row:nth-child(3) {
-  animation-delay: 0.08s;
-}
-.parking-breakdown__row:nth-child(4) {
-  animation-delay: 0.12s;
-}
-.parking-breakdown__row:nth-child(5) {
-  animation-delay: 0.16s;
-}
-.parking-breakdown__row:nth-child(6) {
-  animation-delay: 0.2s;
-}
-.parking-breakdown__row:nth-child(7) {
-  animation-delay: 0.24s;
-}
-.parking-breakdown__row:nth-child(8) {
-  animation-delay: 0.28s;
-}
-.parking-breakdown__row:nth-child(9) {
-  animation-delay: 0.32s;
-}
-.parking-breakdown__row:nth-child(10) {
-  animation-delay: 0.36s;
-}
-.parking-breakdown__row:nth-child(11) {
-  animation-delay: 0.4s;
-}
-.parking-breakdown__row:nth-child(12) {
-  animation-delay: 0.44s;
-}
-.parking-breakdown__row:nth-child(13) {
-  animation-delay: 0.48s;
-}
-.parking-breakdown__row:nth-child(14) {
-  animation-delay: 0.52s;
-}
-.parking-breakdown__row:nth-child(15) {
-  animation-delay: 0.56s;
-}
-.parking-breakdown__row:nth-child(16) {
-  animation-delay: 0.6s;
-}
-.parking-breakdown__row:nth-child(17) {
-  animation-delay: 0.64s;
-}
-.parking-breakdown__row:nth-child(18) {
-  animation-delay: 0.68s;
-}
-.parking-breakdown__row:nth-child(19) {
-  animation-delay: 0.72s;
-}
-.parking-breakdown__row:nth-child(20) {
-  animation-delay: 0.76s;
-}
-
-.parking-breakdown__row--total {
-  border-top: 2px solid rgba(0, 0, 0, 0.1);
-  margin-top: 0.25rem;
-  padding-top: 0.55rem;
-  font-weight: 700;
-  font-size: 1.05rem;
-}
-
-.parking-breakdown__label {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-}
-
-.parking-breakdown__price,
-.parking-breakdown__total-amount {
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.parking-breakdown__badge {
-  display: inline-flex;
-  padding: 0.1rem 0.45rem;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  line-height: 1.3;
-}
-
-.parking-breakdown__badge--holiday {
-  background: #fff3e0;
-  color: #a15c00;
-}
-
-.parking-breakdown__badge--eve {
-  background: #e3f2fd;
-  color: #1565c0;
-}
-
-.parking-breakdown__badge--weekend {
-  background: #f3e5f5;
-  color: #7b1fa2;
-}
-
-.parking-breakdown__badge--blocked {
-  background: #ffebee;
-  color: #c62828;
-}
-
-.parking-breakdown__row--blocked {
-  opacity: 0.55;
-  text-decoration: line-through;
-}
-
-.parking-breakdown__price--blocked {
-  color: var(--text-muted);
-  font-style: normal;
-}
-
-.parking-submit {
-  width: 100%;
-  min-height: 48px;
-  font-weight: 700;
-  border-radius: 10px;
-  margin-top: 0.5rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.parking-submit__icon {
-  margin-right: 0.45rem;
-}
-
-.parking-total.is-hidden {
-  display: none;
-}
-
-.parking-section-title {
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: var(--text-color);
-  margin-top: 1rem;
-  padding-top: 0.85rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.parking-section-desc {
-  margin: 0.15rem 0 0.65rem;
-  color: var(--text-muted);
-  font-size: var(--font-size-sm);
-  line-height: 1.35;
-}
-
-.parking-fields-group {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.parking-payment {
-  margin-top: 0.65rem;
-}
-
-.parking-payment-hint {
-  padding: 0.5rem 0.65rem;
-  border: 1px solid rgba(18, 59, 53, 0.08);
-  border-radius: 12px;
-  background: #f1ebe1;
-  color: var(--text-muted);
-  font-size: var(--font-size-sm);
-  margin: 0 0 0.6rem;
-}
-
-.parking-payment-options {
-  display: grid;
-  gap: 0.5rem;
-}
-
-.parking-payment-options .form-check {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  min-height: 46px;
-  margin: 0;
-  padding: 0.65rem 0.75rem 0.65rem 2.1rem;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 10px;
-  background: var(--surface-muted);
-}
-
-.parking-payment-options .form-check-label {
-  font-weight: 600;
-}
-
-.parking-payment-options .form-check-input {
-  margin-top: 0;
-}
-
-/* Validation styles */
-.parking-field input.is-invalid {
-  border-color: #dc3545;
-}
-
-.parking-payment--invalid {
-  padding: 0.6rem 0.7rem;
-  border: 1px solid #dc3545;
-  border-radius: 12px;
-}
-
-@media (min-width: 576px) {
-  .parking-dates {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .parking-fields-group {
-    grid-template-columns: 2fr 1fr 1fr;
-  }
-
-  .parking-payment-options {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
 .product-thumb {
   aspect-ratio: 1 / 1;
   object-fit: cover;
@@ -2867,6 +2779,11 @@ body.service-dialog-open {
   border: none;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
   overflow: hidden;
+}
+
+/* Plan 215: cintillo de relacionados bajo el detalle. */
+.product-related-strip {
+  margin-top: 1.25rem;
 }
 
 .product-detail-image {
@@ -2946,7 +2863,10 @@ body.service-dialog-open {
 .order-confirm__close {
   flex: 0 0 auto;
   border: 0;
-  padding: 0.15rem 0;
+  /* Plan 215: diana táctil ≥44px manteniendo aspecto de texto. */
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.15rem 0.25rem;
   background: transparent;
   color: var(--secondary-color);
   font-weight: 600;
@@ -3169,8 +3089,9 @@ body.service-dialog-open {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  /* Plan 215: diana táctil ≥44px (antes 32px). */
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: none;
   background: transparent;
@@ -3296,8 +3217,9 @@ body.service-dialog-open {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  /* Plan 215: diana táctil ≥44px (antes 32px). */
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: none;
   background: transparent;
@@ -3432,8 +3354,9 @@ body.service-dialog-open {
   .back-to-top {
     right: 0.75rem;
     bottom: 5rem;
-    width: 40px;
-    height: 40px;
+    /* Plan 215: diana táctil ≥44px (antes 40px). */
+    width: 44px;
+    height: 44px;
   }
 }
 

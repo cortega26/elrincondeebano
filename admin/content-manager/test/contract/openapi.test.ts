@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { mkdirSync, rmSync } from 'node:fs';
@@ -9,46 +9,58 @@ import { createApp } from '../../src/server/app.ts';
 
 // Plan 127 F2.3: the client/server contract — every route the typed client
 // calls must be declared in the generated OpenAPI document. The client's
-// paths are extracted from its source (the single place they live), so a
-// new client method without an OpenAPI declaration fails this test.
+// paths are extracted from the domain modules in src/web/api/ (the single
+// place they live since plan 197 split the facade), so a new client method
+// without an OpenAPI declaration fails this test.
 
-const CLIENT_SOURCE = resolve(__dirname, '../../src/web/api/client.ts');
+const API_DIR = resolve(__dirname, '../../src/web/api');
 
 interface ClientRoute {
   path: string;
   method: string;
 }
 
+function clientSources(): string[] {
+  return readdirSync(API_DIR, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name.endsWith('.ts'))
+    .map((entry) => readFileSync(resolve(API_DIR, entry.name), 'utf-8'));
+}
+
 function extractClientRoutes(): ClientRoute[] {
-  const src = readFileSync(CLIENT_SOURCE, 'utf-8');
   const routes: ClientRoute[] = [];
 
-  // this.request('/path', { method: 'PATCH' }) and this.request('/path')
-  const requestRe =
-    /this\.request(?:<[^>]+>)?\(\s*[`']([^`']+)[`']\s*(?:,\s*\{\s*method:\s*'([A-Z]+)')?/g;
-  let m: RegExpExecArray | null;
-  while ((m = requestRe.exec(src)) !== null) {
-    const rawPath = m[1];
-    const method = (m[2] ?? 'GET').toLowerCase();
-    routes.push({ path: rawPath, method });
-  }
-
-  // Direct fetch calls with an explicit HTTP verb.
-  const fetchRe = /method:\s*'([A-Z]+)'[^}]*url:\s*`([^`]+)`/g;
-  while ((m = fetchRe.exec(src)) !== null) {
-    routes.push({ path: m[2], method: m[1].toLowerCase() });
+  // request('/path'), request<T>('/path', { method: 'POST' }) and template-
+  // literal first args. Templates are cut at the first ${…} tail AFTER
+  // encodeURIComponent() params are normalized (see toOpenApiPath), so both
+  // `/products/${encodeURIComponent(id)}` and `/products${qs?…}` resolve.
+  const requestRe = /(?:this\.)?request\s*(?:<[^()]*>)?\(\s*(?:'([^']+)'|"([^"]+)"|`([^`]*?)`)/g;
+  const methodRe = /,\s*\{\s*method:\s*'([A-Z]+)'/y;
+  for (const src of clientSources()) {
+    let m: RegExpExecArray | null;
+    requestRe.lastIndex = 0;
+    while ((m = requestRe.exec(src)) !== null) {
+      const rawPath = m[1] ?? m[2] ?? m[3];
+      methodRe.lastIndex = m.index + m[0].length;
+      const methodMatch = methodRe.exec(src);
+      routes.push({ path: rawPath, method: (methodMatch?.[1] ?? 'GET').toLowerCase() });
+    }
   }
 
   return routes;
 }
 
 function toOpenApiPath(rawPath: string): string {
-  // '/products/${encodeURIComponent(id)}' -> '/api/v1/products/{id}'
+  // '/products/${encodeURIComponent(id)}' -> '/api/v1/products/{id}';
+  // query-string tails ('/products${qs?…}') are cut after param normalization.
   let p = rawPath;
+  p = p.replace(/\$\{encodeURIComponent\(([^)]+)\)\}/g, '{$1}');
+  const tail = p.indexOf('$');
+  if (tail !== -1) {
+    p = p.slice(0, tail);
+  }
   if (!p.startsWith('/api/v1')) {
     p = `/api/v1${p}`;
   }
-  p = p.replace(/\$\{encodeURIComponent\(([^)]+)\)\}/g, '{$1}');
   return p;
 }
 
@@ -167,7 +179,7 @@ test('POST /api/v1/publications request body is documented with publishAt and va
   expect(props.publishAt?.type).toBe('string');
 
   // The client must also forward publishAt (src check, not shape param).
-  const clientSrc = readFileSync(CLIENT_SOURCE, 'utf-8');
+  const clientSrc = clientSources().join('\n');
   expect(clientSrc).toContain('publishAt');
 
   // Runtime shape guard: fixtures that mirror what the client actually
@@ -232,3 +244,25 @@ test('GET /openapi.json returns identical bytes on consecutive requests', async 
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+// Plan 214: generated-types freshness — the committed
+// src/web/api/__generated__/openapi.d.ts must match a fresh regen from the
+// single-source doc. Regen (never hand-edit) when this fires.
+test('generated openapi.d.ts is current with the served document', async () => {
+  const { execFileSync } = await import('node:child_process');
+  const { writeFileSync: writeFile } = await import('node:fs');
+  const committed = resolve(__dirname, '../../src/web/api/__generated__/openapi.d.ts');
+  const before = readFileSync(committed, 'utf8');
+  execFileSync(process.execPath, ['--import', 'tsx', 'scripts/generate-openapi-types.mjs'], {
+    cwd: resolve(__dirname, '../..'),
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  try {
+    const after = readFileSync(committed, 'utf8');
+    expect(after).toBe(before);
+  } finally {
+    writeFile(committed, before);
+  }
+  // Regen shells out to npx twice — generous budget under parallel load.
+}, 60_000);

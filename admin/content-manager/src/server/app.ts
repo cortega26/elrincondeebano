@@ -23,6 +23,7 @@ import { historyRoutes } from './routes/historyRoutes.ts';
 import { importRoutes } from './routes/importRoutes.ts';
 import { storefrontMutRoutes } from './routes/storefront.ts';
 import { publicationRoutes } from './routes/publication.ts';
+import { previewRoutes } from './routes/previewRoutes.ts';
 import { JobRunner } from './services/jobRunner.ts';
 import { GitAdapter } from './adapters/gitAdapter.ts';
 import { ConflictService } from '../domain/conflicts/conflictService.ts';
@@ -231,6 +232,16 @@ export function createApp(opts?: AppOptions): FastifyInstance {
     { prefix: '/api/v1' }
   );
 
+  // Plan 211: build+preview, flag-gated until the follow-up removes the flag.
+  if (process.env.PREVIEW_BUILD_ENABLED === '1') {
+    app.register(
+      async function (instance) {
+        await previewRoutes(instance, repoRoot, jobRunner);
+      },
+      { prefix: '/api/v1' }
+    );
+  }
+
   app.register(
     async function (instance) {
       await backupRoutes(instance, repoRoot, enableWrites);
@@ -328,9 +339,13 @@ export function createApp(opts?: AppOptions): FastifyInstance {
   });
 
   app.addHook('onSend', async (_request, reply, payload) => {
+    // Plan 184: align with the public-surface baseline — deny plugin
+    // execution and base-URL hijacking outright (no admin view uses
+    // <object> or <base>; DENY already covers framing).
     reply.header(
       'Content-Security-Policy',
-      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"
+      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; " +
+        "object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
     );
     reply.header('X-Content-Type-Options', 'nosniff');
     reply.header('X-Frame-Options', 'DENY');

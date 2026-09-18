@@ -29,6 +29,8 @@ const { mockApi } = vi.hoisted(() => {
     updateFeatured: vi.fn(),
     importPreview: vi.fn(),
     importApply: vi.fn(),
+    exportJson: vi.fn(),
+    exportCsv: vi.fn(),
     createCategory: vi.fn(),
     updateCategory: vi.fn(),
     deleteCategory: vi.fn(),
@@ -50,6 +52,7 @@ const { mockApi } = vi.hoisted(() => {
     getJob: vi.fn(),
     listJobs: vi.fn(),
     cancelJob: vi.fn(),
+    triggerPreviewBuild: vi.fn(),
   };
   return { mockApi };
 });
@@ -74,6 +77,8 @@ vi.mock('@web/api/client.ts', async (importOriginal) => {
     updateFeatured = mockApi.updateFeatured;
     importPreview = mockApi.importPreview;
     importApply = mockApi.importApply;
+    exportJson = mockApi.exportJson;
+    exportCsv = mockApi.exportCsv;
     createCategory = mockApi.createCategory;
     updateCategory = mockApi.updateCategory;
     deleteCategory = mockApi.deleteCategory;
@@ -95,6 +100,7 @@ vi.mock('@web/api/client.ts', async (importOriginal) => {
     getJob = mockApi.getJob;
     listJobs = mockApi.listJobs;
     cancelJob = mockApi.cancelJob;
+    triggerPreviewBuild = mockApi.triggerPreviewBuild;
   }
   return { ...actual, ContentManagerClient: MockContentManagerClient };
 });
