@@ -1,7 +1,7 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-09-15T15:43:44.572Z",
-  "rev": 19,
+  "last_updated": "2026-09-18T19:10:44.594Z",
+  "rev": 23,
   "schema_version": 1,
   "products": [
     {
@@ -4159,8 +4159,8 @@
       "image_path": "assets/images/despensa/Nescafé - Café instantáneo 170g.webp",
       "image_avif_path": "assets/images/despensa/Nescafé - Café instantáneo 170g.avif",
       "order": 170,
-      "is_archived": false,
-      "rev": 0,
+      "is_archived": true,
+      "rev": 1,
       "field_last_modified": {
         "stock": {
           "ts": "2026-03-30T20:38:24.690065Z",
@@ -4173,6 +4173,13 @@
           "ts": "2026-03-30T20:38:24.690065Z",
           "by": "offline",
           "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "is_archived": {
+          "ts": "2026-09-18T18:58:40.693Z",
+          "by": "admin",
+          "rev": 1,
           "base_rev": 0,
           "changeset_id": null
         }
@@ -5144,6 +5151,36 @@
       "rev": 0,
       "field_last_modified": {},
       "id": "p-ea48895d3dd5"
+    },
+    {
+      "name": "Toalla Papel Nova Clásica",
+      "description": "Tres Rollos de 12m c/u",
+      "price": 2500,
+      "discount": 0,
+      "stock": true,
+      "category": "Limpiezayaseo",
+      "image_path": "assets/images/limpieza_y_aseo/Nova Clásiva 3x12m.webp",
+      "image_avif_path": "assets/images/limpieza_y_aseo/Nova-Clásiva-3x12m.avif",
+      "order": 187,
+      "is_archived": false,
+      "rev": 3,
+      "field_last_modified": {
+        "name": {
+          "ts": "2026-09-18T19:10:31.714Z",
+          "by": "admin",
+          "rev": 2,
+          "base_rev": 1,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2026-09-18T19:10:44.594Z",
+          "by": "admin",
+          "rev": 3,
+          "base_rev": 2,
+          "changeset_id": null
+        }
+      },
+      "id": "01a0b5ed-3879-7726-a45e-bb4c4d92b389"
     }
   ]
 }
