@@ -24,6 +24,12 @@ const searchText = card.searchText;
 const image = card.imageSource;
 const avifImage = card.avifImageSource;
 const hasAvifSource = typeof avifImage?.srcset === 'string' && avifImage.srcset.length > 0;
+// Plan (Ahrefs orphan-page fix): SSR'd link to the product detail page so
+// crawlers that don't execute JS can discover /p/<sku>/. Kept outside
+// .action-area (the <button>) to avoid the nested-interactive a11y issue
+// this repo already fixed once (docs/a11y/axe-summary.md) — the media link
+// is a hidden duplicate; .product-card__copy carries the real accessible name.
+const productPath = `/p/${sku}/`;
 ---
 
 <article
@@ -41,7 +47,7 @@ const hasAvifSource = typeof avifImage?.srcset === 'string' && avifImage.srcset.
   data-compact-mobile={compactMobile ? 'true' : 'false'}
 >
   <div class="card h-100">
-    <div class="product-card__media">
+    <a class="product-card__media" href={productPath} tabindex="-1" aria-hidden="true">
       {hasDiscount ? (
         <span class="discount-badge badge bg-danger" aria-label="Producto en oferta">
           -{discountPercent}%
@@ -67,13 +73,13 @@ const hasAvifSource = typeof avifImage?.srcset === 'string' && avifImage.srcset.
           height="200"
         />
       </picture>
-    </div>
+    </a>
 
     <div class="card-body d-flex flex-column">
-      <div class="product-card__copy">
+      <a class="product-card__copy" href={productPath}>
         <h3 class="card-title mb-0">{product.name}</h3>
         {product.description ? <p class="card-text mb-0">{product.description}</p> : null}
-      </div>
+      </a>
 
       <div class="precio-container product-card__pricing mb-2">
         {
