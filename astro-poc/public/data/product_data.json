@@ -1,6 +1,6 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-09-15T15:43:44.572Z",
+  "last_updated": "2026-09-18T19:10:44.594Z",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -2016,7 +2016,7 @@
       "image_path": "assets/images/despensa/Nescafé - Café instantáneo 170g.webp",
       "image_avif_path": "assets/images/despensa/Nescafé - Café instantáneo 170g.avif",
       "order": 170,
-      "is_archived": false
+      "is_archived": true
     },
     {
       "name": "Lobos • Sal Fina",
@@ -2244,6 +2244,18 @@
       "image_path": "assets/images/electronicos/Baterias Duracell CR2032.webp",
       "image_avif_path": "assets/images/electronicos/Baterias Duracell CR2032.avif",
       "order": 186,
+      "is_archived": false
+    },
+    {
+      "name": "Toalla Papel Nova Clásica",
+      "description": "Tres Rollos de 12m c/u",
+      "price": 2500,
+      "discount": 0,
+      "stock": true,
+      "category": "Limpiezayaseo",
+      "image_path": "assets/images/limpieza_y_aseo/Nova Clásiva 3x12m.webp",
+      "image_avif_path": "assets/images/limpieza_y_aseo/Nova-Clásiva-3x12m.avif",
+      "order": 187,
       "is_archived": false
     }
   ]
