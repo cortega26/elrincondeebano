@@ -215,7 +215,7 @@ h1 {
 .home-entry__lead {
   color: var(--text-muted);
   font-size: 1rem;
-  max-width: 38rem;
+    max-width: 38rem;
 }
 
 .home-entry__eyebrow {
@@ -961,6 +961,9 @@ body.service-dialog-open {
 }
 
 /* Plan 216: media sobre blanco puro — el degradado beige era slop. */
+/* Ahrefs orphan-page fix: .product-card__media and .product-card__copy are
+   <a> elements now (SSR link to /p/<sku>/); reset anchor defaults so they
+   still look like plain card regions. */
 .product-card__media {
   position: relative;
   display: grid;
@@ -968,6 +971,8 @@ body.service-dialog-open {
   padding: 0.75rem;
   background: #fff;
   border-bottom: 1px solid var(--line-soft);
+  color: inherit;
+  text-decoration: none;
 }
 
 /* Plan 215: elevación solo en hover con puntero fino (nunca en táctil). */
@@ -999,6 +1004,13 @@ body.service-dialog-open {
   gap: 0.4rem;
   padding-bottom: 0.7rem;
   border-bottom: 1px solid rgba(18, 59, 53, 0.1);
+  color: inherit;
+  text-decoration: none;
+}
+
+.product-card__copy:hover .card-title,
+.product-card__copy:focus-visible .card-title {
+  text-decoration: underline;
 }
 
 .producto .card-body .action-area {
