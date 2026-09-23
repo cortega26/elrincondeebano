@@ -215,7 +215,7 @@ h1 {
 .home-entry__lead {
   color: var(--text-muted);
   font-size: 1rem;
-    max-width: 38rem;
+  max-width: 38rem;
 }
 
 .home-entry__eyebrow {
