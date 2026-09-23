@@ -24,6 +24,8 @@ const searchText = card.searchText;
 const image = card.imageSource;
 const avifImage = card.avifImageSource;
 const hasAvifSource = typeof avifImage?.srcset === 'string' && avifImage.srcset.length > 0;
+// Plan (Ahrefs orphan-page fix): same SSR product link as ProductCard.astro.
+const productPath = `/p/${sku}/`;
 ---
 
 <article
@@ -40,7 +42,7 @@ const hasAvifSource = typeof avifImage?.srcset === 'string' && avifImage.srcset.
   data-product-stock={product.stock ?? true}
 >
   <div class="strip-card__inner">
-    <div class="strip-card__media">
+    <a class="strip-card__media" href={productPath} tabindex="-1" aria-hidden="true">
       {hasDiscount ? (
         <span class="discount-badge strip-card__badge" aria-label="Producto en oferta">
           -{discountPercent}%
@@ -66,10 +68,10 @@ const hasAvifSource = typeof avifImage?.srcset === 'string' && avifImage.srcset.
           height="150"
         />
       </picture>
-    </div>
+    </a>
 
     <div class="strip-card__body">
-      <h3 class="strip-card__title">{product.name}</h3>
+      <h3 class="strip-card__title"><a class="strip-card__title-link" href={productPath}>{product.name}</a></h3>
 
       <div class="precio-container strip-card__pricing">
         {
@@ -143,6 +145,18 @@ const hasAvifSource = typeof avifImage?.srcset === 'string' && avifImage.srcset.
     background: #fff;
     border-bottom: 1px solid var(--line-soft);
     padding: 0.55rem;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .strip-card__title-link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .strip-card__title-link:hover,
+  .strip-card__title-link:focus-visible {
+    text-decoration: underline;
   }
 
   .strip-card__badge {
