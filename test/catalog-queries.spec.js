@@ -124,6 +124,13 @@ describe('getHomeFeaturedDeals', () => {
       expect(Number(product.discount)).toBeGreaterThan(0);
     });
   });
+
+  it('never promotes alcohol on the home page', () => {
+    const deals = getHomeFeaturedDeals();
+    deals.forEach(({ product }) => {
+      expect(isSearchExcludedCategory(product.category)).toBe(false);
+    });
+  });
 });
 
 describe('getStorefrontBundles', () => {
