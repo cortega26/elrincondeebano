@@ -31,6 +31,7 @@ const trustMap = new Map(trustItems.map((item) => [item.label, item.value]));
 const statusMap = new Map(statusItems.map((item) => [item.label, item.value]));
 const heroAvailability =
   statusMap.get('Pedidos hoy') || 'Abierto para vecinos de Ébano';
+const heroIsOpen = /\babierto\b/i.test(heroAvailability);
 const heroResponse = statusMap.get('Respuesta') || 'Aprox. 10 minutos';
 const heroDelivery =
   trustMap.get('Entrega') || 'Coordinada dentro de Ébano';
@@ -106,7 +107,10 @@ const sharePreview = createSharePreviewMetadata({
       </form>
 
       <div class="home-entry__signals" aria-label="Información del servicio">
-        <span class="home-entry__signal home-entry__signal--status">{heroAvailability}</span>
+        <span class:list={['home-entry__signal', heroIsOpen && 'home-entry__signal--status-open']}>
+          {heroIsOpen ? <span class="home-entry__status-dot" aria-hidden="true"></span> : null}
+          {heroAvailability}
+        </span>
         <span class="home-entry__signal">Respuesta {heroResponse.toLowerCase()}</span>
         <span class="home-entry__signal">{heroDelivery}</span>
         <span class="home-entry__signal">{heroPaymentCopy}</span>
