@@ -91,10 +91,21 @@ test('category route variants share catalog output while keeping route-specific 
   expect(snapshots[2].products).toEqual(snapshots[0].products);
 });
 
+test('Juegos is active under Varios and UNO is available to order', async ({ page }) => {
+  await page.goto('/juegos/', { waitUntil: 'networkidle' });
+  await page.waitForFunction(() => window.__APP_READY__ === true);
+
+  await expect(page.locator('#category-heading')).toHaveText(/Juegos/i);
+  const unoCard = page.locator('#product-container .producto').filter({
+    has: page.locator('.card-title', { hasText: /^UNO$/i }),
+  });
+  await expect(unoCard).toHaveCount(1);
+  await expect(unoCard.locator('.add-to-cart-btn')).toBeEnabled();
+});
+
 test('disabled category route is not generated', async ({ page }) => {
-  // E (Electrónicos) was re-activated in f459ed26 for battery products, so it now
-  // correctly returns 200. Use a still-disabled category (juegos) for this probe.
-  const response = await page.goto('/pages/juegos.html', { waitUntil: 'networkidle' });
+  // Juegos and Electrónicos are now active; Software remains disabled.
+  const response = await page.goto('/pages/software.html', { waitUntil: 'networkidle' });
   expect(response, 'disabled legacy category route should return a response').not.toBeNull();
   expect(response?.status()).toBe(404);
   await expect(page.locator('#category-heading')).toHaveCount(0);
