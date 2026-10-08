@@ -1,9 +1,10 @@
 ---
 export interface Props {
   stickyMobile?: boolean;
+  queryParam?: string;
 }
 
-const { stickyMobile = false } = Astro.props;
+const { stickyMobile = false, queryParam } = Astro.props;
 ---
 
 <section
@@ -21,6 +22,8 @@ const { stickyMobile = false } = Astro.props;
           placeholder="Nombre, marca o categoría"
           aria-label="Filtrar productos por nombre, marca o categoría"
           autocomplete="off"
+          name={queryParam || undefined}
+          data-query-param={queryParam || undefined}
         />
         <button
           type="button"
