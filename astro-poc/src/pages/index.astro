@@ -29,22 +29,17 @@ const trustItems = getStorefrontTrustItems();
 const statusItems = getStorefrontStatusItems();
 const trustMap = new Map(trustItems.map((item) => [item.label, item.value]));
 const statusMap = new Map(statusItems.map((item) => [item.label, item.value]));
-const heroHighlights = [
-  {
-    label: 'Pedidos hoy',
-    value: statusMap.get('Pedidos hoy') || 'Abierto para vecinos de Ébano',
-  },
-  {
-    label: 'Respuesta',
-    value: statusMap.get('Respuesta') || 'Aprox. 10 minutos',
-  },
-  {
-    label: 'Entrega',
-    value: trustMap.get('Entrega') || 'Coordinada dentro del edificio',
-  },
-];
-const heroPaymentCopy =
-  trustMap.get('Pago') || 'Efectivo, transferencia y tarjeta desde $30.000.';
+const heroAvailability =
+  statusMap.get('Pedidos hoy') || 'Abierto para vecinos de Ébano';
+const heroResponse = statusMap.get('Respuesta') || 'Aprox. 10 minutos';
+const heroDelivery =
+  trustMap.get('Entrega') || 'Coordinada dentro de Ébano';
+const rawPaymentCopy =
+  trustMap.get('Pago') || 'Efectivo, transferencia y tarjeta desde $30.000';
+const heroPaymentCopy = rawPaymentCopy.replace(
+  'Efectivo, transferencia y tarjeta desde',
+  'Efectivo o transferencia · Tarjeta desde'
+);
 const storefrontExperience = getStorefrontExperience();
 // Plan 215: una sola fuente para la barra de anclas y los cintillos —
 // solo categorías con productos generan chip + sección.
@@ -83,49 +78,53 @@ const sharePreview = createSharePreviewMetadata({
 >
   <div class="home-layout">
     <section class="home-entry home-layout__entry" aria-labelledby="main-heading">
-      <div class="home-entry__main">
-        <div class="home-entry__copy">
-          <p class="home-entry__eyebrow mb-0">Minimarket privado del edificio</p>
-          <h1 id="main-heading">Básicos del día con entrega dentro de Ébano</h1>
-          <p class="home-entry__lead mb-0">
-            Despensa, bebidas y aseo para vecinos del edificio. Agrega aquí y confirma por WhatsApp.
-          </p>
-          <p class="home-entry__meta mb-0">{heroPaymentCopy}</p>
+      <div class="home-entry__copy">
+        <p class="home-entry__eyebrow mb-0">Exclusivo para vecinos de Ébano</p>
+        <h1 id="main-heading">¿Qué te falta hoy?</h1>
+        <p class="home-entry__lead mb-0">
+          Búscalo aquí, agrégalo al pedido y te lo entregamos dentro del edificio.
+        </p>
+      </div>
+
+      <form class="home-entry__search" action="/buscar/" method="get" role="search" data-home-primary-search>
+        <label for="home-product-search" class="visually-hidden">Buscar productos</label>
+        <div class="input-group input-group-lg">
+          <input
+            id="home-product-search"
+            class="form-control"
+            type="search"
+            name="q"
+            maxlength="100"
+            placeholder="Café, leche, papel toalla…"
+            autocomplete="off"
+            inputmode="search"
+            enterkeyhint="search"
+            required
+          />
+          <button class="btn btn-primary" type="submit">Buscar</button>
         </div>
-        <ul class="home-entry__service-list" aria-label="Estado del servicio">
-          {
-            heroHighlights.map((item) => (
-              <li class="home-entry__service-item">
-                <span class="home-entry__service-label">{item.label}</span>
-                <strong class="home-entry__service-value">{item.value}</strong>
-              </li>
-            ))
-          }
-        </ul>
-        <div class="home-entry__actions">
-          <a
-            href="/combos/"
-            class="btn btn-primary home-entry__cta"
-            data-home-hero-cta
-          >
-            Ver combos
-          </a>
-          <button
-            type="button"
-            class="service-guide-trigger home-entry__help-link"
-            data-service-dialog-trigger
-            aria-haspopup="dialog"
-            aria-controls="service-guide-dialog"
-          >
-            Cómo pedir
-          </button>
-        </div>
+      </form>
+
+      <div class="home-entry__signals" aria-label="Información del servicio">
+        <span class="home-entry__signal home-entry__signal--status">{heroAvailability}</span>
+        <span class="home-entry__signal">Respuesta {heroResponse.toLowerCase()}</span>
+        <span class="home-entry__signal">{heroDelivery}</span>
+        <span class="home-entry__signal">{heroPaymentCopy}</span>
+        <button
+          type="button"
+          class="service-guide-trigger home-entry__help-link"
+          data-service-dialog-trigger
+          aria-haspopup="dialog"
+          aria-controls="service-guide-dialog"
+        >
+          Cómo pedir
+        </button>
       </div>
 
       <div class="home-profile-strip" data-home-profile-strip aria-live="polite">
         <div data-home-profile-copy>
-          <strong>Tu último pedido puede quedar listo en un toque.</strong>
-          <span>Si quieres, deja una nota para el pedido y úsala también en la próxima compra.</span>
+          <strong>¿Lo mismo que la última vez?</strong>
+          <span>Recupera tu pedido y ajústalo antes de enviarlo.</span>
         </div>
         <button
           type="button"
@@ -134,39 +133,17 @@ const sharePreview = createSharePreviewMetadata({
           disabled
           aria-disabled="true"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
           Repetir último pedido
         </button>
       </div>
-    </section>
-
-    <section class="home-search-panel" aria-labelledby="home-product-search-label">
-      <form action="/buscar/" method="get" role="search">
-        <label id="home-product-search-label" for="home-product-search" class="home-search-panel__label">
-          ¿Qué estás buscando?
-        </label>
-        <div class="input-group">
-          <input
-            id="home-product-search"
-            class="form-control"
-            type="search"
-            name="q"
-            maxlength="100"
-            placeholder="Ej. café, leche, detergente"
-            autocomplete="off"
-            required
-          />
-          <button class="btn btn-primary" type="submit">Buscar</button>
-        </div>
-      </form>
     </section>
 
     <CategoryAnchorBar items={anchorItems} className="home-layout__anchors" />
 
     <HomeProductSection
       headingId="home-quick-order-heading"
-      title="Esenciales de hoy"
-      description="Una salida rápida con los básicos que más se repiten entre vecinos para resolver bebidas, despensa, lácteos y aseo."
+      title="Para resolver rápido"
+      description="Básicos útiles para agregar sin recorrer todo el catálogo."
       items={quickOrderItems}
       className="home-layout__quick-order"
       sectionId="home-section-esenciales"
@@ -194,7 +171,7 @@ const sharePreview = createSharePreviewMetadata({
       <HomeProductSection
         headingId="home-deals-heading"
         title="Ahorra hoy"
-        description="Ofertas activas para resolver el pedido sin revisar promociones por separado."
+        description="Descuentos activos en productos del minimarket."
         items={featuredDeals}
         className="home-layout__deals"
         sectionId="home-section-ofertas"
