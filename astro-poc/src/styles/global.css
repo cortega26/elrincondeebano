@@ -3365,3 +3365,45 @@ body.service-dialog-open {
     transition: none;
   }
 }
+
+
+/* Global product search */
+.storefront-navbar__search-link {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0.55rem 0.8rem;
+  border-radius: 10px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.storefront-navbar__search-link:hover,
+.storefront-navbar__search-link:focus-visible {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.home-entry__search {
+  display: grid;
+  gap: 0.35rem;
+  width: min(100%, 38rem);
+  margin-top: 0.2rem;
+}
+
+.home-entry__search-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--secondary-color);
+}
+
+.home-entry__search .form-control,
+.home-entry__search .btn {
+  min-height: 46px;
+}
+
+@media (max-width: 767px) {
+  .home-entry__search {
+    width: 100%;
+  }
+}
