@@ -1,7 +1,7 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-09-18T19:10:44.594Z",
-  "rev": 23,
+  "last_updated": "2026-10-08T23:43:53.505Z",
+  "rev": 24,
   "schema_version": 1,
   "products": [
     {
@@ -2409,18 +2409,18 @@
       "description": "Juego de Cartas",
       "price": 4000,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "Juegos",
       "image_path": "assets/images/juegos/UNO.webp",
       "image_avif_path": "assets/images/juegos/UNO.avif",
       "order": 105,
       "is_archived": false,
-      "rev": 0,
+      "rev": 1,
       "field_last_modified": {
         "stock": {
-          "ts": "2025-11-07T22:32:56.613Z",
-          "by": "offline",
-          "rev": 0,
+          "ts": "2026-10-08T23:43:53.505Z",
+          "by": "git",
+          "rev": 1,
           "base_rev": 0,
           "changeset_id": null
         }
