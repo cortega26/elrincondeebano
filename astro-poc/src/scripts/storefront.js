@@ -9,7 +9,10 @@ import 'bootstrap/js/dist/alert.js';
 // CJS interop: dist modules export the class as module.exports
 // (named imports come back undefined through Vite's interop).
 import Offcanvas from 'bootstrap/js/dist/offcanvas.js';
-import { createCatalogViewController } from './storefront/catalog-view.js';
+import {
+  createCatalogViewController,
+  hydrateCatalogSearchFromQuery,
+} from './storefront/catalog-view.js';
 import { createCartViewController } from './storefront/cart-view.js';
 import { createOrderSubmitController } from './storefront/order-submit.js';
 import { createRecoveryBannerController } from './storefront/recovery-banner.js';
@@ -1150,6 +1153,12 @@ function initStorefront() {
   checkStockNotifications();
   const initialProfile = loadProfile();
   const lastOrder = loadLastOrder();
+  const keywordInput = document.getElementById('filter-keyword');
+  hydrateCatalogSearchFromQuery({
+    searchInput: keywordInput,
+    locationHref: globalThis.location?.href,
+    paramName: keywordInput?.dataset?.queryParam,
+  });
   const catalogController = createCatalogController();
   const cartViewController = createCartViewController({
     createElement,
@@ -1639,7 +1648,6 @@ function initStorefront() {
     }
   });
 
-  const keywordInput = document.getElementById('filter-keyword');
   keywordInput?.addEventListener(
     'input',
     debounce(() => {
