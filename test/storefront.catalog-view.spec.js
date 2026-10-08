@@ -1,7 +1,10 @@
 /* eslint-disable max-lines-per-function -- suite-level describe block (plan 149) */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { JSDOM } from 'jsdom';
-import { createCatalogViewController } from '../astro-poc/src/scripts/storefront/catalog-view.js';
+import {
+  createCatalogViewController,
+  hydrateCatalogSearchFromQuery,
+} from '../astro-poc/src/scripts/storefront/catalog-view.js';
 
 function setupCatalogDom() {
   const dom = new JSDOM(`<!DOCTYPE html>
@@ -50,6 +53,34 @@ afterEach(() => {
   delete global.window;
   delete global.document;
   delete global.HTMLElement;
+});
+
+describe('hydrateCatalogSearchFromQuery', () => {
+  it('hydrates the search input from the requested query parameter without decoding into HTML', () => {
+    setupCatalogDom();
+    const input = document.getElementById('filter-keyword');
+    const query = hydrateCatalogSearchFromQuery({
+      searchInput: input,
+      locationHref: 'https://www.elrincondeebano.com/buscar/?q=caf%C3%A9%20molido',
+      paramName: 'q',
+    });
+
+    expect(query).toBe('café molido');
+    expect(input.value).toBe('café molido');
+  });
+
+  it('stays empty for malformed URLs or missing parameter names', () => {
+    setupCatalogDom();
+    const input = document.getElementById('filter-keyword');
+    expect(
+      hydrateCatalogSearchFromQuery({
+        searchInput: input,
+        locationHref: 'not a valid url',
+        paramName: 'q',
+      })
+    ).toBe('');
+    expect(hydrateCatalogSearchFromQuery({ searchInput: input })).toBe('');
+  });
 });
 
 describe('createCatalogViewController', () => {
