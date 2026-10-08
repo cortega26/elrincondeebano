@@ -1,6 +1,6 @@
 {
   "version": "20260213-145517",
-  "last_updated": "2026-02-13T14:55:17.989112Z",
+  "last_updated": "2026-10-08T23:43:53.505Z",
   "nav_groups": [
     {
       "id": "alimentos",
@@ -105,7 +105,7 @@
       "description": "Explora nuestra selección de juegos de mesa en El Rincón de Ébano.",
       "group_id": "varios",
       "order": 10,
-      "enabled": false,
+      "enabled": true,
       "subcategories": []
     },
     {
