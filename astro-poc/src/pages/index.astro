@@ -102,22 +102,6 @@ const sharePreview = createSharePreviewMetadata({
             ))
           }
         </ul>
-        <form class="home-entry__search" action="/buscar/" method="get" role="search">
-          <label for="home-product-search" class="home-entry__search-label">¿Qué estás buscando?</label>
-          <div class="input-group">
-            <input
-              id="home-product-search"
-              class="form-control"
-              type="search"
-              name="q"
-              maxlength="100"
-              placeholder="Ej. café, leche, detergente"
-              autocomplete="off"
-              required
-            />
-            <button class="btn btn-primary" type="submit">Buscar</button>
-          </div>
-        </form>
         <div class="home-entry__actions">
           <a
             href="/combos/"
@@ -154,6 +138,27 @@ const sharePreview = createSharePreviewMetadata({
           Repetir último pedido
         </button>
       </div>
+    </section>
+
+    <section class="home-search-panel" aria-labelledby="home-product-search-label">
+      <form action="/buscar/" method="get" role="search">
+        <label id="home-product-search-label" for="home-product-search" class="home-search-panel__label">
+          ¿Qué estás buscando?
+        </label>
+        <div class="input-group">
+          <input
+            id="home-product-search"
+            class="form-control"
+            type="search"
+            name="q"
+            maxlength="100"
+            placeholder="Ej. café, leche, detergente"
+            autocomplete="off"
+            required
+          />
+          <button class="btn btn-primary" type="submit">Buscar</button>
+        </div>
+      </form>
     </section>
 
     <CategoryAnchorBar items={anchorItems} className="home-layout__anchors" />
