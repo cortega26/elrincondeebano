@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "source": "categories.json",
   "version": "20260213-145517",
-  "last_updated": "2026-02-13T14:55:17.989112Z",
+  "last_updated": "2026-10-08T23:43:53.505Z",
   "nav_groups": [
     {
       "id": "alimentos",
@@ -129,7 +129,7 @@
         "default": "Juegos"
       },
       "nav_group": "varios",
-      "active": false,
+      "active": true,
       "sort_order": 10,
       "description": "Explora nuestra selección de juegos de mesa en El Rincón de Ébano.",
       "subcategories": []
