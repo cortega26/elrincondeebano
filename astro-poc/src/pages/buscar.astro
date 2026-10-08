@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CatalogControls from '../components/CatalogControls.astro';
+import ProductGrid from '../components/ProductGrid.astro';
+import ServiceGuideDialog from '../components/ServiceGuideDialog.astro';
+import { getSearchableProductsWithSku } from '../lib/catalog';
+import { createSharePreviewMetadata, DEFAULT_OG_IMAGE } from '../lib/seo';
+
+const products = getSearchableProductsWithSku();
+const sharePreview = createSharePreviewMetadata({
+  title: 'Buscar productos | El Rincón de Ébano',
+  description:
+    'Busca productos disponibles en El Rincón de Ébano por nombre, marca o categoría.',
+  canonicalPath: '/buscar/',
+  ogImage: DEFAULT_OG_IMAGE,
+  ogImageAlt: 'Logotipo de El Rincón de Ébano',
+});
+---
+
+<BaseLayout
+  title={sharePreview.title}
+  description={sharePreview.description}
+  canonicalPath="/buscar/"
+  sharePreview={sharePreview}
+  robots="noindex, follow"
+  showTrustStrip={false}
+  pageType="page"
+>
+  <section class="category-intro mb-4" aria-labelledby="search-heading">
+    <div class="category-intro-copy">
+      <div class="category-intro-headline">
+        <h1 id="search-heading" class="mb-0">Buscar productos</h1>
+        <button
+          type="button"
+          class="service-guide-trigger"
+          data-service-dialog-trigger
+          aria-haspopup="dialog"
+          aria-controls="service-guide-dialog"
+        >
+          Cómo pedir
+        </button>
+      </div>
+      <p class="category-summary mb-0">
+        Escribe lo que necesitas, por ejemplo café, leche o detergente.
+      </p>
+    </div>
+  </section>
+
+  <CatalogControls stickyMobile={true} queryParam="q" />
+  <ProductGrid items={products} id="product-container" announce={true} compactMobile={true} />
+
+  <div id="catalog-empty-state" class="alert alert-info d-none mt-3 catalog-empty-state" role="status">
+    <p class="mb-0">No encontramos productos con esa búsqueda.</p>
+    <button
+      type="button"
+      id="catalog-empty-clear"
+      class="btn btn-outline-primary btn-sm catalog-empty-state__clear"
+    >
+      Limpiar búsqueda
+    </button>
+  </div>
+
+  <div id="catalog-controls" class="text-center my-4">
+    <button type="button" id="catalog-load-more" class="btn btn-outline-primary d-none">
+      Cargar más productos
+    </button>
+  </div>
+  <div id="catalog-sentinel" aria-hidden="true"></div>
+
+  <ServiceGuideDialog targetHref="#product-container" targetLabel="Ir a resultados" />
+</BaseLayout>
