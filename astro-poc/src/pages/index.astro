@@ -32,15 +32,15 @@ const statusMap = new Map(statusItems.map((item) => [item.label, item.value]));
 const heroAvailability =
   statusMap.get('Pedidos hoy') || 'Abierto para vecinos de Ébano';
 const heroIsOpen = /\babierto\b/i.test(heroAvailability);
+const heroAvailabilityLabel = heroAvailability.replace(/\s+para vecinos de Ébano$/i, '');
 const heroResponse = statusMap.get('Respuesta') || 'Aprox. 10 minutos';
-const heroDelivery =
-  trustMap.get('Entrega') || 'Coordinada dentro de Ébano';
-const rawPaymentCopy =
-  trustMap.get('Pago') || 'Efectivo, transferencia y tarjeta desde $30.000';
-const heroPaymentCopy = rawPaymentCopy.replace(
-  'Efectivo, transferencia y tarjeta desde',
-  'Efectivo o transferencia · Tarjeta desde'
-);
+const heroResponseLabel = heroResponse
+  .replace(/^Aprox\.\s*/i, '≈ ')
+  .replace(/\s*minutos?$/i, ' min');
+const heroDelivery = trustMap.get('Entrega') || 'Coordinada dentro de Ébano';
+const heroDeliveryLabel = /^Coordinada dentro de Ébano$/i.test(heroDelivery)
+  ? 'Entrega en Ébano'
+  : heroDelivery;
 const storefrontExperience = getStorefrontExperience();
 // Plan 215: una sola fuente para la barra de anclas y los cintillos —
 // solo categorías con productos generan chip + sección.
@@ -82,9 +82,7 @@ const sharePreview = createSharePreviewMetadata({
       <div class="home-entry__copy">
         <p class="home-entry__eyebrow mb-0">Exclusivo para vecinos de Ébano</p>
         <h1 id="main-heading">¿Qué te falta hoy?</h1>
-        <p class="home-entry__lead mb-0">
-          Resuélvelo sin salir del edificio. Busca, agrega y te lo llevamos dentro de Ébano.
-        </p>
+        <p class="home-entry__lead mb-0">Busca, agrega y te lo llevamos sin salir del edificio.</p>
       </div>
 
       <form class="home-entry__search" action="/buscar/" method="get" role="search" data-home-primary-search>
@@ -109,11 +107,10 @@ const sharePreview = createSharePreviewMetadata({
       <div class="home-entry__signals" aria-label="Información del servicio">
         <span class:list={['home-entry__signal', heroIsOpen && 'home-entry__signal--status-open']}>
           {heroIsOpen ? <span class="home-entry__status-dot" aria-hidden="true"></span> : null}
-          {heroAvailability}
+          {heroAvailabilityLabel}
         </span>
-        <span class="home-entry__signal">Respuesta {heroResponse.toLowerCase()}</span>
-        <span class="home-entry__signal">{heroDelivery}</span>
-        <span class="home-entry__signal">{heroPaymentCopy}</span>
+        <span class="home-entry__signal">{heroResponseLabel}</span>
+        <span class="home-entry__signal">{heroDeliveryLabel}</span>
         <button
           type="button"
           class="service-guide-trigger home-entry__help-link"
@@ -125,7 +122,9 @@ const sharePreview = createSharePreviewMetadata({
         </button>
       </div>
 
-      <div class="home-profile-strip" data-home-profile-strip aria-live="polite">
+    </section>
+
+      <div class="home-profile-strip home-layout__repeat" data-home-profile-strip aria-live="polite">
         <div data-home-profile-copy>
           <strong>¿Lo mismo que la última vez?</strong>
           <span>Recupera tu pedido y ajústalo antes de enviarlo.</span>
@@ -140,7 +139,7 @@ const sharePreview = createSharePreviewMetadata({
           Repetir último pedido
         </button>
       </div>
-    </section>
+
 
     <CategoryAnchorBar items={anchorItems} className="home-layout__anchors" />
 
