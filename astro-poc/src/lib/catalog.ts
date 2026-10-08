@@ -467,7 +467,10 @@ export function getHomeSecondaryCategories(): NavGroup['categories'] {
 
 export function getHomeFeaturedDeals(): ProductWithSku[] {
   return [...getProductsWithSku()]
-    .filter(({ product }) => Number(product.discount) > 0)
+    .filter(
+      ({ product }) =>
+        Number(product.discount) > 0 && !isSearchExcludedCategory(product.category)
+    )
     .sort((a, b) => {
       const priceA = Number(a.product.price) || 0;
       const priceB = Number(b.product.price) || 0;

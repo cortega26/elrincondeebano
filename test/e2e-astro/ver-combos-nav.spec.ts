@@ -11,7 +11,7 @@ async function visibleCatalogCount(page: Page) {
 }
 
 test.describe('Ver combos navigation', () => {
-  test('early click navigates from home to /combos/ without mutating the home catalog', async ({
+  test('primary home search takes a shopper straight to matching products without mutating the home catalog', async ({
     page,
   }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
@@ -19,10 +19,13 @@ test.describe('Ver combos navigation', () => {
     const countBefore = await visibleCatalogCount(page);
     expect(countBefore).toBeGreaterThan(0);
 
-    await page.locator('[data-home-hero-cta]').click();
-    await expect(page).toHaveURL(/\/combos\/$/);
+    await page.locator('#home-product-search').fill('café');
+    await page.locator('[data-home-primary-search] button[type="submit"]').click();
+    await expect(page).toHaveURL(/\/buscar\/\?q=caf(?:%C3%A9|é)$/);
     await waitForReady(page);
-    await expect(page.locator('#combos-page-heading')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Buscar productos' })).toBeVisible();
+    await expect(page.locator('#filter-keyword')).toHaveValue('café');
+    await expect(page.locator('#product-container .producto:not(.is-hidden)').first()).toBeVisible();
 
     await page.goto('/', { waitUntil: 'networkidle' });
     await waitForReady(page);

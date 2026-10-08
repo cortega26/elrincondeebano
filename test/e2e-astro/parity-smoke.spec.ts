@@ -31,8 +31,9 @@ test('desktop home keeps the compact hero and hero CTA navigates to combos page'
 
   await expect(page.locator('.trust-strip__card')).toHaveCount(0);
   await expect(page.locator('.home-entry')).toBeVisible();
+  await expect(page.locator('#home-product-search')).toBeVisible();
 
-  await page.locator('.home-entry__cta').click();
+  await page.locator('.home-layout__bundles a[href="/combos/"]').first().click();
   await expect(page).toHaveURL(/\/combos\/$/);
   await expect(page.locator('#combos-page-heading')).toBeVisible();
   await expect(page.locator('#combos-list-heading')).toBeVisible();

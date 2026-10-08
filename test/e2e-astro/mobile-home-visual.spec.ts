@@ -24,11 +24,13 @@ test('mobile home top section stays compact', async ({ page }) => {
 
   const entry = page.locator('.home-entry');
   await expect(entry).toBeVisible();
-  await expect(page.locator('.home-entry__cta')).toBeVisible();
+  await expect(page.locator('#home-product-search')).toBeVisible();
+  await expect(page.locator('[data-home-primary-search] button[type="submit"]')).toBeVisible();
   await expect(page.locator('[data-repeat-last-order]')).toBeVisible();
 
   const entryBox = await entry.boundingBox();
   expect(entryBox?.height).toBeLessThan(400);
+  await expect(page.getByRole('heading', { name: '¿Qué te falta hoy?' })).toBeVisible();
 
   await expect(page.locator('h2', { hasText: 'Categorías clave' })).toHaveCount(0);
 
