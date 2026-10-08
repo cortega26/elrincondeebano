@@ -1,5 +1,28 @@
 const DEFAULT_PAGE_SIZE = 24;
 
+export function hydrateCatalogSearchFromQuery({
+  searchInput,
+  locationHref,
+  paramName,
+  maxLength = 100,
+} = {}) {
+  if (!searchInput || typeof searchInput.value !== 'string' || !paramName) {
+    return '';
+  }
+
+  try {
+    const url = new URL(locationHref || globalThis.location?.href || 'http://localhost/');
+    const query = String(url.searchParams.get(paramName) || '')
+      .trim()
+      .slice(0, maxLength);
+    searchInput.value = query;
+    return query;
+  } catch {
+    searchInput.value = '';
+    return '';
+  }
+}
+
 export function createCatalogViewController({
   container,
   sortSelect,

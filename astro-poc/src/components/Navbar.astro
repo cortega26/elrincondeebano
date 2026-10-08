@@ -63,6 +63,11 @@ const { navGroups } = Astro.props;
 
       <div class="collapse navbar-collapse justify-content-end storefront-navbar__collapse" id="navbarNav">
         <ul class="navbar-nav storefront-navbar__groups">
+          <li class="nav-item">
+            <a class="nav-link storefront-navbar__search-link" href="/buscar/">
+              Buscar
+            </a>
+          </li>
           {
             navGroups.map((group) => (
               <li class="nav-item dropdown" data-bs-auto-close="outside">

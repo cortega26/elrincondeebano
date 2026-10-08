@@ -8,6 +8,8 @@ import {
   getNavigationGroups,
   getProductByReference,
   getProductsByReferences,
+  getSearchableProductsWithSku,
+  isSearchExcludedCategory,
 } from '../astro-poc/src/lib/catalog.ts';
 import { formatCurrency } from '../astro-poc/src/lib/formatting.ts';
 
@@ -75,6 +77,37 @@ describe('getCategoryByKey', () => {
   it('returns undefined for a non-existent key', () => {
     const category = getCategoryByKey('NoExiste');
     expect(category).toBeUndefined();
+  });
+});
+
+describe('storefront search catalog', () => {
+  it('excludes every category assigned to the alcohol navigation group', () => {
+    const alcoholKeys = new Set(
+      getActiveCategories()
+        .filter((category) => category.nav_group === 'alcohol')
+        .map((category) => category.key)
+    );
+    expect(alcoholKeys.size).toBeGreaterThan(0);
+
+    const searchable = getSearchableProductsWithSku();
+    expect(searchable.length).toBeGreaterThan(0);
+    searchable.forEach(({ product }) => {
+      expect(alcoholKeys.has(product.category)).toBe(false);
+      expect(isSearchExcludedCategory(product.category)).toBe(false);
+    });
+  });
+
+  it('keeps ordinary products such as coffee searchable', () => {
+    const searchable = getSearchableProductsWithSku();
+    expect(
+      searchable.some(({ product }) => /caf[eé]/i.test(`${product.name} ${product.description || ''}`))
+    ).toBe(true);
+  });
+
+  it('classifies all current alcohol categories as search-excluded', () => {
+    for (const categoryKey of ['Cervezas', 'Vinos', 'Espumantes', 'Piscos']) {
+      expect(isSearchExcludedCategory(categoryKey)).toBe(true);
+    }
   });
 });
 
