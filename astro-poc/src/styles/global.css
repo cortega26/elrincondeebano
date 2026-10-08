@@ -275,13 +275,12 @@ h1 {
   color: rgba(0, 0, 0, 0.32);
 }
 
-.home-entry__signal--status {
+.home-entry__signal--status-open {
   color: var(--primary-color);
   font-weight: 700;
 }
 
-.home-entry__signal--status::before {
-  content: '';
+.home-entry__status-dot {
   display: inline-block;
   width: 0.48rem;
   height: 0.48rem;
