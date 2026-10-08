@@ -375,6 +375,19 @@ export function getProductsWithSku(): ProductWithSku[] {
   return cachedProductsWithSku;
 }
 
+const SEARCH_EXCLUDED_NAV_GROUPS = new Set(['alcohol']);
+
+export function isSearchExcludedCategory(categoryKey: string): boolean {
+  const navGroup = getCategoryByKey(categoryKey)?.nav_group;
+  return SEARCH_EXCLUDED_NAV_GROUPS.has(String(navGroup || '').trim().toLowerCase());
+}
+
+export function getSearchableProductsWithSku(): ProductWithSku[] {
+  return getProductsWithSku().filter(
+    ({ product }) => !isSearchExcludedCategory(product.category)
+  );
+}
+
 function productReferenceKey(reference: ProductReference): string {
   return `${normalizeCategoryToken(reference.category)}::${normalizeSearchToken(reference.name)}`;
 }
