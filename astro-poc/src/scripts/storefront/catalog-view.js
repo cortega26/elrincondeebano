@@ -10,18 +10,17 @@ export function hydrateCatalogSearchFromQuery({
     return '';
   }
 
-  let query = '';
   try {
     const url = new URL(locationHref || globalThis.location?.href || 'http://localhost/');
-    query = String(url.searchParams.get(paramName) || '')
+    const query = String(url.searchParams.get(paramName) || '')
       .trim()
       .slice(0, maxLength);
+    searchInput.value = query;
+    return query;
   } catch {
-    query = '';
+    searchInput.value = '';
+    return '';
   }
-
-  searchInput.value = query;
-  return query;
 }
 
 export function createCatalogViewController({
