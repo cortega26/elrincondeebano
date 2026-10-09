@@ -1,6 +1,6 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-08T23:43:53.505Z",
+  "last_updated": "2026-10-09T00:00:00.000Z",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -2217,8 +2217,8 @@
       "discount": 0,
       "stock": true,
       "category": "E",
-      "image_path": "assets/images/electronicos/Baterias AA AmazonBasics.webp",
-      "image_avif_path": "assets/images/electronicos/Baterias AA AmazonBasics.avif",
+      "image_path": "assets/images/electronicos/amazonbasics-aa-par-v2.webp",
+      "image_avif_path": "assets/images/electronicos/amazonbasics-aa-par-v2.avif",
       "order": 184,
       "is_archived": false
     },
@@ -2229,8 +2229,8 @@
       "discount": 0,
       "stock": true,
       "category": "E",
-      "image_path": "assets/images/electronicos/Baterias AAA AmazonBasics.webp",
-      "image_avif_path": "assets/images/electronicos/Baterias AAA AmazonBasics.avif",
+      "image_path": "assets/images/electronicos/amazonbasics-aaa-par-v2.webp",
+      "image_avif_path": "assets/images/electronicos/amazonbasics-aaa-par-v2.avif",
       "order": 185,
       "is_archived": false
     },
@@ -2241,8 +2241,8 @@
       "discount": 0,
       "stock": true,
       "category": "E",
-      "image_path": "assets/images/electronicos/Baterias Duracell CR2032.webp",
-      "image_avif_path": "assets/images/electronicos/Baterias Duracell CR2032.avif",
+      "image_path": "assets/images/electronicos/duracell-cr2032-unitaria-v2.webp",
+      "image_avif_path": "assets/images/electronicos/duracell-cr2032-unitaria-v2.avif",
       "order": 186,
       "is_archived": false
     },
