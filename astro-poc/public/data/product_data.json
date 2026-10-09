@@ -1,6 +1,6 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-09T02:40:26.193Z",
+  "last_updated": "2026-10-09T04:22:11.785Z",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -2256,6 +2256,18 @@
       "image_path": "assets/images/limpieza_y_aseo/Nova Clásiva 3x12m.webp",
       "image_avif_path": "assets/images/limpieza_y_aseo/Nova-Clásiva-3x12m.avif",
       "order": 187,
+      "is_archived": false
+    },
+    {
+      "name": "Comfort • Suavizante Concentrado Frescor Intenso 500 mL",
+      "description": "Suavizante concentrado para ropa. Botella 500 mL; rinde 2,3 L (hasta 25 lavados).",
+      "price": 3000,
+      "discount": 0,
+      "stock": true,
+      "category": "Limpiezayaseo",
+      "image_path": "assets/images/limpieza_y_aseo/Comfort-Frescor-Intenso-Concentrado-500mL.webp",
+      "image_avif_path": "assets/images/limpieza_y_aseo/Comfort-Frescor-Intenso-Concentrado-500mL.avif",
+      "order": 188,
       "is_archived": false
     }
   ]

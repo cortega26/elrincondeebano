@@ -1,7 +1,7 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-09T02:40:26.193Z",
-  "rev": 27,
+  "last_updated": "2026-10-09T04:22:11.785Z",
+  "rev": 28,
   "schema_version": 1,
   "products": [
     {
@@ -5226,6 +5226,21 @@
         }
       },
       "id": "01a0b5ed-3879-7726-a45e-bb4c4d92b389"
+    },
+    {
+      "name": "Comfort • Suavizante Concentrado Frescor Intenso 500 mL",
+      "description": "Suavizante concentrado para ropa. Botella 500 mL; rinde 2,3 L (hasta 25 lavados).",
+      "price": 3000,
+      "discount": 0,
+      "stock": true,
+      "category": "Limpiezayaseo",
+      "image_path": "assets/images/limpieza_y_aseo/Comfort-Frescor-Intenso-Concentrado-500mL.webp",
+      "image_avif_path": "assets/images/limpieza_y_aseo/Comfort-Frescor-Intenso-Concentrado-500mL.avif",
+      "order": 188,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {},
+      "id": "p-2ac9f841def5"
     }
   ]
 }
