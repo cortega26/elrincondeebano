@@ -1,7 +1,7 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-09T00:00:00.000Z",
-  "rev": 25,
+  "last_updated": "2026-10-09T01:05:44.773Z",
+  "rev": 26,
   "schema_version": 1,
   "products": [
     {
@@ -5144,24 +5144,24 @@
       "discount": 0,
       "stock": true,
       "category": "E",
-      "image_path": "assets/images/electronicos/amazonbasics-aaa-par-v2.webp",
-      "image_avif_path": "assets/images/electronicos/amazonbasics-aaa-par-v2.avif",
+      "image_path": "assets/images/electronicos/amazonbasics-aaa-par-v3.webp",
+      "image_avif_path": "assets/images/electronicos/amazonbasics-aaa-par-v3.avif",
       "order": 185,
       "is_archived": false,
-      "rev": 2,
+      "rev": 4,
       "field_last_modified": {
         "image_path": {
-          "ts": "2026-10-09T00:00:00.000Z",
+          "ts": "2026-10-09T01:05:44.773Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         },
         "image_avif_path": {
-          "ts": "2026-10-09T00:00:00.000Z",
+          "ts": "2026-10-09T01:05:44.773Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 0,
+          "rev": 4,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
