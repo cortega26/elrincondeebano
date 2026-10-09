@@ -6,8 +6,8 @@ const dom = new JSDOM(`<!DOCTYPE html><div id="product-container"></div>
 <button id="catalog-load-more" class="d-none"></button>
 <div id="catalog-sentinel"></div>`);
 
-global.window = dom.window;
-global.document = dom.window.document;
+// Keep the DOM local: Vitest 5 makes the environment's global document read-only.
+const document = dom.window.document;
 
 const products = [
   {

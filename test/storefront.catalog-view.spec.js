@@ -27,9 +27,9 @@ function setupCatalogDom() {
       </div>
     </body>`);
 
-  global.window = dom.window;
-  global.document = dom.window.document;
-  global.HTMLElement = dom.window.HTMLElement;
+  vi.stubGlobal('window', dom.window);
+  vi.stubGlobal('document', dom.window.document);
+  vi.stubGlobal('HTMLElement', dom.window.HTMLElement);
 
   return dom;
 }
@@ -50,9 +50,7 @@ function parseNumber(value, fallback = 0) {
 afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
-  delete global.window;
-  delete global.document;
-  delete global.HTMLElement;
+  vi.unstubAllGlobals();
 });
 
 describe('hydrateCatalogSearchFromQuery', () => {
