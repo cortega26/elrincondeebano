@@ -1,0 +1,353 @@
+/* Storefront refinement, 2026-10-09.
+   One restrained visual layer over the existing Bootstrap and global.css contracts.
+   No component hooks, cart selectors, or catalog data are modified. */
+
+:root {
+  --primary-color: #24594e;
+  --primary-strong: #193f37;
+  --primary-soft: rgba(36, 89, 78, 0.085);
+  --accent-color: #96612e;
+  --text-color: #26352f;
+  --text-muted: #59635c;
+  --background-color: #faf9f6;
+  --surface-color: #fff;
+  --surface-muted: #f3f0e9;
+  --line-color: #dde2db;
+  --line-soft: #e4e7e1;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --btn-radius: 7px;
+  --shadow-md: 0 8px 18px rgba(28, 59, 49, 0.07);
+}
+
+body {
+  line-height: 1.5;
+}
+
+.storefront-navbar {
+  background: #23483f;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.storefront-navbar .navbar-brand span {
+  font-size: clamp(1.15rem, 2.1vw, 1.48rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.storefront-navbar__groups {
+  gap: 0.12rem;
+}
+
+.storefront-navbar__group-toggle,
+.storefront-navbar__search-link {
+  padding-inline: 0.68rem;
+  border-radius: 6px;
+  font-size: 0.91rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.91);
+}
+
+.storefront-navbar__menu {
+  border: 1px solid var(--line-soft);
+  border-radius: 9px;
+  padding: 0.3rem;
+  box-shadow: 0 12px 24px rgba(21, 48, 41, 0.12);
+}
+
+.storefront-navbar__menu .dropdown-item {
+  border-radius: 5px;
+  font-weight: 500;
+}
+
+#cart-icon {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.22);
+  border-radius: 7px;
+}
+
+.storefront-shell {
+  padding-top: 1.2rem;
+}
+
+.home-entry {
+  gap: 1rem;
+  padding: 1.2rem 0 1.5rem;
+}
+
+.home-entry__copy {
+  gap: 0.4rem;
+}
+
+.home-entry__eyebrow {
+  letter-spacing: 0.045em;
+  font-weight: 700;
+}
+
+.home-entry h1 {
+  font-size: clamp(2.05rem, 4vw, 3rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.034em;
+}
+
+.home-entry__lead {
+  font-size: 1.03rem;
+  line-height: 1.5;
+}
+
+.home-entry__search {
+  width: min(100%, 46rem);
+}
+
+.home-entry__search .input-group {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 0.55rem;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.home-entry__search .form-control {
+  flex: 1 1 auto;
+  width: 1%;
+  min-width: 0;
+  min-height: 52px;
+  padding-inline: 1rem;
+  border: 1px solid #cbd5ce;
+  border-radius: 8px !important;
+  background: #fff;
+  box-shadow: none;
+}
+
+.home-entry__search .form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+.home-entry__search .btn-primary {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 7.25rem;
+  min-height: 52px;
+  margin: 0;
+  border-radius: 8px !important;
+  font-weight: 650;
+}
+
+.home-entry__signals {
+  font-size: 0.85rem;
+  gap: 0.4rem 0.85rem;
+}
+
+.home-layout .home-section {
+  padding: 1.1rem 0 1.5rem;
+  margin-bottom: 0.75rem;
+  border: 0;
+  border-bottom: 1px solid var(--line-soft);
+  border-radius: 0;
+  background: transparent;
+}
+
+.home-section__header {
+  gap: 0.25rem;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.home-section__header h2,
+.home-layout .category-strip__title {
+  font-size: clamp(1.1rem, 1.6vw, 1.32rem);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.home-section__header p {
+  font-size: 0.9rem;
+}
+
+.home-layout .category-strip.home-section {
+  padding-inline: 0;
+}
+
+.home-layout .strip-card .strip-card__inner,
+.producto .card {
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+.producto .card:hover,
+.home-layout .strip-card .strip-card__inner:hover {
+  border-color: #b8c9bf;
+}
+
+.product-card__media,
+.home-layout .strip-card .strip-card__media {
+  border-bottom-color: #edf0eb;
+}
+
+.producto .card-body {
+  gap: 0.55rem;
+  padding: 0.9rem;
+}
+
+.product-card__copy {
+  gap: 0.28rem;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.producto .card-title {
+  font-weight: 650;
+  line-height: 1.34;
+}
+
+.producto .card-text {
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.producto .precio,
+.producto .precio-descuento {
+  font-size: 1.18rem;
+  font-weight: 750;
+}
+
+.add-to-cart-btn {
+  border-radius: 7px;
+}
+
+.catalog-controls {
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+.catalog-controls .form-control,
+.catalog-controls .form-select,
+.catalog-controls__switch {
+  border-color: #cfd7d0;
+  border-radius: 7px;
+  background: #fff;
+}
+
+.catalog-controls__label {
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.catalog-controls__switch {
+  padding: 0.55rem 0.7rem;
+}
+
+.category-intro {
+  margin-bottom: 1.15rem !important;
+}
+
+.category-intro-copy h1 {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.category-summary {
+  font-size: 0.93rem;
+}
+
+.offcanvas-header {
+  background: #23483f;
+}
+
+.offcanvas-body {
+  background: var(--background-color);
+}
+
+.cart-summary-card,
+.cart-config-card {
+  background: var(--surface-color);
+  border-color: var(--line-soft);
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+#footer-container.bg-dark,
+#footer-container .footer-content {
+  background-color: #23483f !important;
+}
+
+@media (min-width: 992px) {
+  .storefront-shell {
+    padding-top: 1.6rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .storefront-navbar .navbar-brand span {
+    font-size: 1.28rem;
+  }
+
+  .storefront-shell {
+    padding-top: 0.65rem;
+  }
+
+  .home-entry {
+    gap: 0.65rem;
+    padding: 0.65rem 0.2rem 1rem;
+  }
+
+  .home-entry h1 {
+    font-size: clamp(1.92rem, 8.7vw, 2.4rem);
+    letter-spacing: -0.026em;
+  }
+
+  .home-entry__lead {
+    font-size: 0.91rem;
+  }
+
+  .home-entry__search .input-group {
+    gap: 0.45rem;
+  }
+
+  .home-entry__search .form-control,
+  .home-entry__search .btn-primary {
+    min-height: 48px;
+  }
+
+  .home-entry__search .btn-primary {
+    min-width: 5.75rem;
+    padding-inline: 0.65rem;
+  }
+
+  .home-layout .home-section {
+    padding: 0.75rem 0 1rem;
+  }
+
+  .producto--compact-mobile .card-body {
+    padding: 0.65rem;
+  }
+
+  .producto--compact-mobile .card-title {
+    font-size: 0.89rem;
+  }
+
+  .producto--compact-mobile .precio,
+  .producto--compact-mobile .precio-descuento {
+    font-size: 1.05rem;
+  }
+
+  .catalog-controls--sticky-mobile {
+    background: var(--background-color);
+    border-radius: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-layout .strip-card .strip-card__inner,
+  .producto .card {
+    transition: none;
+    transform: none;
+  }
+}
