@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "source": "categories.json",
   "version": "20260213-145517",
-  "last_updated": "2026-10-08T23:43:53.505Z",
+  "last_updated": "2026-10-09T12:56:47.440Z",
   "nav_groups": [
     {
       "id": "alimentos",
@@ -340,6 +340,19 @@
       "active": true,
       "sort_order": 80,
       "description": "Explora nuestra selección de piscos en El Rincón de Ébano.",
+      "subcategories": []
+    },
+    {
+      "id": "papeleria",
+      "key": "Papeleria",
+      "slug": "papeleria",
+      "display_name": {
+        "default": "Papelería y Oficina"
+      },
+      "nav_group": "varios",
+      "active": true,
+      "sort_order": 40,
+      "description": "Papel y suministros de oficina para uso diario.",
       "subcategories": []
     }
   ]

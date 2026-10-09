@@ -1,6 +1,6 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-09T04:22:11.785Z",
+  "last_updated": "2026-10-09T12:56:47.440Z",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -2268,6 +2268,18 @@
       "image_path": "assets/images/limpieza_y_aseo/Comfort-Frescor-Intenso-Concentrado-500mL.webp",
       "image_avif_path": "assets/images/limpieza_y_aseo/Comfort-Frescor-Intenso-Concentrado-500mL.avif",
       "order": 188,
+      "is_archived": false
+    },
+    {
+      "name": "Pen+Gear • Papel Fotocopia Carta (500 hojas)",
+      "description": "Resma de papel blanco tamaño carta (216 × 279 mm), 500 hojas de 75 g/m². Apta para impresoras y fotocopiadoras.",
+      "price": 6900,
+      "discount": 0,
+      "stock": true,
+      "category": "Papeleria",
+      "image_path": "assets/images/papeleria/pen-gear-resma-carta-500-v1.webp",
+      "image_avif_path": "assets/images/papeleria/pen-gear-resma-carta-500-v1.avif",
+      "order": 189,
       "is_archived": false
     }
   ]
