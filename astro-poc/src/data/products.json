@@ -1,7 +1,7 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-09T04:22:11.785Z",
-  "rev": 28,
+  "last_updated": "2026-10-09T12:56:47.440Z",
+  "rev": 29,
   "schema_version": 1,
   "products": [
     {
@@ -5241,6 +5241,21 @@
       "rev": 0,
       "field_last_modified": {},
       "id": "p-2ac9f841def5"
+    },
+    {
+      "name": "Pen+Gear • Papel Fotocopia Carta (500 hojas)",
+      "description": "Resma de papel blanco tamaño carta (216 × 279 mm), 500 hojas de 75 g/m². Apta para impresoras y fotocopiadoras.",
+      "price": 6900,
+      "discount": 0,
+      "stock": true,
+      "category": "Papeleria",
+      "image_path": "assets/images/papeleria/pen-gear-resma-carta-500-v1.webp",
+      "image_avif_path": "assets/images/papeleria/pen-gear-resma-carta-500-v1.avif",
+      "order": 189,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {},
+      "id": "p-f438f7c2a91d"
     }
   ]
 }
