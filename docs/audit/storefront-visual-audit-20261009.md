@@ -24,3 +24,10 @@ Fuentes: storefront público en escritorio, \`AGENTS.md\`, \`astro-poc/src/style
 ## Fuera de alcance
 
 No se modifica inventario, taxonomía, precios, SEO, analítica, transporte ni lógica de WhatsApp. No se declara incremento de conversión sin datos. Rollback: revertir el merge del PR.
+
+
+## Segunda inspección visual en producción
+
+- **Verificado con screenshot móvil 390 × 844:** al abrir el menú, el colapso Bootstrap permanecía en la fila flex sin wrap y desplazaba marca/carrito al costado. Se corrige anclando el panel debajo de la cabecera (sin modificar los hooks de Bootstrap).
+- **Verificado con screenshot de categoría móvil:** el valor de orden predeterminado estaba cortado y «Solo ofertas» saltaba a dos líneas. Se acortan exclusivamente las etiquetas visuales: «Por defecto» y «Ofertas»; valores, filtrado y etiquetas de accesibilidad se conservan.
+- Regresión E2E adicional: geometría del panel, marca/carrito, expansión de Varios, y presencia de la categoría Papelería y Oficina.

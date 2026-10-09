@@ -351,3 +351,68 @@ body {
     transform: none;
   }
 }
+
+/* Production mobile review: keep the navigation panel outside the header row. */
+@media (max-width: 1199.98px) {
+  .storefront-navbar__collapse {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 0;
+    padding: 0.45rem 1rem 0.9rem;
+    background: #23483f;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 14px 22px rgba(20, 40, 34, 0.16);
+    max-height: calc(100dvh - var(--storefront-header-height));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .storefront-navbar__groups {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 0;
+  }
+
+  .storefront-navbar__groups > .nav-item {
+    width: 100%;
+  }
+
+  .storefront-navbar__groups .nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 44px;
+    padding: 0.62rem 0.6rem;
+    text-align: left;
+  }
+
+  .storefront-navbar__menu {
+    position: static !important;
+    transform: none !important;
+    width: 100%;
+    min-width: 0;
+    margin: 0 0 0.4rem;
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .category-intro-copy h1 {
+    font-size: 1.42rem;
+    line-height: 1.2;
+  }
+
+  .catalog-controls__switch {
+    padding-inline: 0.55rem;
+    gap: 0.45rem;
+  }
+
+  .catalog-controls__switch-title {
+    font-size: 0.86rem;
+  }
+}
