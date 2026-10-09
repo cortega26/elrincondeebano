@@ -53,3 +53,48 @@ test('category search and product action remain usable after visual refinement',
   await add.click();
   await expect(page.locator('#mobile-cart-shortcut')).toContainText('Ver pedido');
 });
+
+
+test('mobile menu expands below the header without displacing brand or cart', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await page.locator('.storefront-navbar__toggle').click();
+  await expect(page.locator('#navbarNav')).toBeVisible();
+
+  const menuGeometry = await page.evaluate(() => {
+    const header = document.querySelector('.storefront-navbar');
+    const panel = document.getElementById('navbarNav');
+    const brand = document.querySelector('.navbar-brand');
+    const cart = document.getElementById('cart-icon');
+    if (!header || !panel || !brand || !cart) return null;
+    const h = header.getBoundingClientRect();
+    const n = panel.getBoundingClientRect();
+    const b = brand.getBoundingClientRect();
+    const c = cart.getBoundingClientRect();
+    return {
+      headerBottom: h.bottom,
+      menuTop: n.top,
+      menuLeft: n.left,
+      menuRight: n.right,
+      brandBottom: b.bottom,
+      cartBottom: c.bottom,
+    };
+  });
+  expect(menuGeometry).not.toBeNull();
+  expect(menuGeometry!.menuTop).toBeGreaterThanOrEqual(menuGeometry!.headerBottom - 2);
+  expect(menuGeometry!.menuLeft).toBeGreaterThanOrEqual(-2);
+  expect(menuGeometry!.menuRight).toBeLessThanOrEqual(392);
+  expect(menuGeometry!.brandBottom).toBeLessThanOrEqual(menuGeometry!.headerBottom + 2);
+  expect(menuGeometry!.cartBottom).toBeLessThanOrEqual(menuGeometry!.headerBottom + 2);
+
+  await page.locator('.storefront-navbar__group-toggle', { hasText: 'Varios' }).click();
+  await expect(page.getByRole('link', { name: 'Papelería y Oficina' })).toBeVisible();
+});
+
+test('mobile catalog sort and offer filter retain succinct labels', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/limpiezayaseo/', { waitUntil: 'networkidle' });
+  await expect(page.locator('#sort-options option:checked')).toHaveText('Por defecto');
+  await expect(page.locator('.catalog-controls__switch-title')).toHaveText('Ofertas');
+  await expect(page.locator('#filter-keyword')).toBeVisible();
+});
