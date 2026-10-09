@@ -283,6 +283,17 @@
       "order": 80,
       "enabled": true,
       "subcategories": []
+    },
+    {
+      "id": "papeleria",
+      "title": "Papelería y Oficina",
+      "product_key": "Papeleria",
+      "slug": "papeleria",
+      "description": "Papel y suministros de oficina para uso diario.",
+      "group_id": "varios",
+      "order": 40,
+      "enabled": true,
+      "subcategories": []
     }
   ]
 }

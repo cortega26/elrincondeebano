@@ -25,7 +25,6 @@ Fuentes: storefront público en escritorio, \`AGENTS.md\`, \`astro-poc/src/style
 
 No se modifica inventario, taxonomía, precios, SEO, analítica, transporte ni lógica de WhatsApp. No se declara incremento de conversión sin datos. Rollback: revertir el merge del PR.
 
-
 ## Segunda inspección visual en producción
 
 - **Verificado con screenshot móvil 390 × 844:** al abrir el menú, el colapso Bootstrap permanecía en la fila flex sin wrap y desplazaba marca/carrito al costado. Se corrige anclando el panel debajo de la cabecera (sin modificar los hooks de Bootstrap).
