@@ -1,6 +1,6 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-09T01:05:44.773Z",
+  "last_updated": "2026-10-09T02:40:26.193Z",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -2241,8 +2241,8 @@
       "discount": 0,
       "stock": true,
       "category": "E",
-      "image_path": "assets/images/electronicos/duracell-cr2032-unitaria-v2.webp",
-      "image_avif_path": "assets/images/electronicos/duracell-cr2032-unitaria-v2.avif",
+      "image_path": "assets/images/electronicos/duracell-cr2032-unitaria-v3.webp",
+      "image_avif_path": "assets/images/electronicos/duracell-cr2032-unitaria-v3.avif",
       "order": 186,
       "is_archived": false
     },
