@@ -34,6 +34,33 @@ async function seedCartAndOpen(page: Page, itemCount: number, viewport = MOBILE)
   return offcanvas;
 }
 
+test('cart stays accessible through its badge without recovery popups on storefront pages', async ({
+  page,
+}) => {
+  await page.setViewportSize(MOBILE);
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await waitForReady(page);
+
+  const addButton = page.locator('.category-strip .add-to-cart-btn').first();
+  await expect(addButton).toBeVisible();
+  await addButton.click();
+  await expect(page.locator('#cart-count')).toHaveText('1');
+  await expect(page.locator('#cart-recovery')).toHaveCount(0);
+  await expect(page.getByText('Tienes productos pendientes')).toHaveCount(0);
+
+  // All customer-facing pages share Navbar, including printing and search.
+  for (const url of ['/impresiones/', '/buscar/']) {
+    await page.goto(url, { waitUntil: 'networkidle' });
+    await waitForReady(page);
+    await expect(page.locator('#cart-recovery')).toHaveCount(0);
+    await expect(page.locator('#cart-count')).toHaveText('1');
+  }
+
+  await page.locator('#cart-icon').click();
+  await expect(page.locator('#cartOffcanvas')).toBeVisible();
+  await expect(page.locator('#cart-items .cart-item')).toHaveCount(1);
+});
+
 // ─── T1: Single scroll zone ───────────────────────────────────────────────────
 
 test('T1: only .offcanvas-scroll-area has scrollable overflow — no nested scroll', async ({

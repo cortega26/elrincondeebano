@@ -917,9 +917,6 @@ let renderCart = () => {};
 let submitCartOrder = () => {};
 let buildWhatsAppMessageText = () => '';
 let markOrderAsSent = () => {};
-let showRecoveryBanner = () => {};
-let hideRecoveryBanner = () => {};
-let shouldShowRecoveryBanner = () => false;
 
 function openCartOffcanvas() {
   const offcanvasElement = document.getElementById('cartOffcanvas');
@@ -1197,12 +1194,8 @@ function initStorefront() {
     syncAllActionAreas,
     showCartSaveError,
     hidePostSubmitToast,
-    isOrderJustSent,
   });
   markOrderAsSent = recoveryBannerController.markOrderAsSent;
-  showRecoveryBanner = recoveryBannerController.showRecoveryBanner;
-  hideRecoveryBanner = recoveryBannerController.hideRecoveryBanner;
-  shouldShowRecoveryBanner = recoveryBannerController.shouldShowRecoveryBanner;
   const cartOffcanvas = document.getElementById('cartOffcanvas');
 
   const syncCartShortcutState = () => {
@@ -1483,21 +1476,6 @@ function initStorefront() {
       return;
     }
 
-    const reviewRecoveryBtn = target.closest('#cart-recovery-review');
-    if (reviewRecoveryBtn) {
-      event.preventDefault();
-      hideRecoveryBanner();
-      openCartOffcanvas();
-      return;
-    }
-
-    const dismissRecoveryBtn = target.closest('#cart-recovery-dismiss');
-    if (dismissRecoveryBtn) {
-      event.preventDefault();
-      recoveryBannerController.dismissRecoveryBanner();
-      return;
-    }
-
     const addBtn = target.closest('.add-to-cart-btn');
     if (addBtn) {
       if (addBtn instanceof HTMLButtonElement && addBtn.disabled) {
@@ -1692,10 +1670,6 @@ function initStorefront() {
   renderCart(cart);
   renderCompanionSuggestions(cart, companionRules);
   syncAllActionAreas(cart);
-
-  if (shouldShowRecoveryBanner(cart)) {
-    showRecoveryBanner();
-  }
 
   renderPersonalizedProducts();
   recoveryBannerController.initServiceOnboarding();

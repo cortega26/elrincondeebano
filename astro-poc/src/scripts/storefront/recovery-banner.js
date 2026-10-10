@@ -1,8 +1,6 @@
-// Plan 116 (chunk 3): service onboarding dialog + cart recovery banner
-// extracted from the storefront.js monolith. Factory with injected
-// dependencies; storefront.js remains the composition root.
-
-const RECOVERY_BANNER_TTL_MS = 3600000; // 1 hour
+// Legacy module path retained for the order-sent action and service onboarding.
+// The intrusive cart-recovery banner was removed; persisted carts remain available
+// through the navbar cart icon and its quantity badge.
 
 export function createRecoveryBannerController({
   storefrontStorage,
@@ -13,49 +11,7 @@ export function createRecoveryBannerController({
   syncAllActionAreas,
   showCartSaveError,
   hidePostSubmitToast,
-  isOrderJustSent,
 } = {}) {
-  function isRecoveryBannerDismissed() {
-    const dismissedAt = storefrontStorage.loadJson('recoveryDismissed', 0);
-    return dismissedAt > 0 && Date.now() - dismissedAt < RECOVERY_BANNER_TTL_MS;
-  }
-
-  function showRecoveryBanner() {
-    const banner = document.getElementById('cart-recovery');
-    if (!banner) {
-      return;
-    }
-    banner.classList.remove('is-hidden');
-    banner.setAttribute('aria-hidden', 'false');
-  }
-
-  function hideRecoveryBanner() {
-    const banner = document.getElementById('cart-recovery');
-    if (!banner) {
-      return;
-    }
-    banner.classList.add('is-hidden');
-    banner.setAttribute('aria-hidden', 'true');
-  }
-
-  function shouldShowRecoveryBanner(cart) {
-    if (!Array.isArray(cart) || cart.length === 0) {
-      return false;
-    }
-    if (isOrderJustSent()) {
-      return false;
-    }
-    if (isRecoveryBannerDismissed()) {
-      return false;
-    }
-    return true;
-  }
-
-  function dismissRecoveryBanner() {
-    storefrontStorage.saveJson('recoveryDismissed', Date.now());
-    hideRecoveryBanner();
-  }
-
   function markOrderAsSent() {
     const cart = loadCart();
     if (cart.length === 0) {
@@ -129,10 +85,6 @@ export function createRecoveryBannerController({
   }
 
   return {
-    showRecoveryBanner,
-    hideRecoveryBanner,
-    shouldShowRecoveryBanner,
-    dismissRecoveryBanner,
     markOrderAsSent,
     initServiceOnboarding,
   };
