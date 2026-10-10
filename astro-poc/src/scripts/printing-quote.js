@@ -8,6 +8,9 @@ function initializePrintingQuote() {
   }
   root.dataset.initialized = 'true';
 
+  const paperSizeInput = root.querySelector('#printing-paper-size');
+  const bwUnitOutput = root.querySelector('#printing-bw-unit-price');
+  const colorUnitOutput = root.querySelector('#printing-color-unit-price');
   const bwInput = root.querySelector('#printing-bw');
   const colorInput = root.querySelector('#printing-color');
   const serviceOutput = root.querySelector('#printing-service-cost');
@@ -19,12 +22,15 @@ function initializePrintingQuote() {
 
   function render() {
     try {
-      const quote = calculatePrintingQuote(bwInput.value, colorInput.value);
+      const quote = calculatePrintingQuote(bwInput.value, colorInput.value, paperSizeInput.value);
+      bwUnitOutput.textContent = `${formatCurrency(quote.blackAndWhiteUnitPrice)} por página`;
+      colorUnitOutput.textContent = `${formatCurrency(quote.colorUnitPrice)} por página`;
       serviceOutput.textContent = formatCurrency(quote.serviceCost);
       bwOutput.textContent = formatCurrency(quote.blackAndWhiteCost);
       colorOutput.textContent = formatCurrency(quote.colorCost);
       totalOutput.textContent = formatCurrency(quote.total);
       errorOutput.textContent = quote.hasPages ? '' : 'Agrega al menos una página para solicitar.';
+      paperSizeInput.removeAttribute('aria-invalid');
       bwInput.removeAttribute('aria-invalid');
       colorInput.removeAttribute('aria-invalid');
 
@@ -40,6 +46,7 @@ function initializePrintingQuote() {
       }
     } catch (error) {
       errorOutput.textContent = error instanceof Error ? error.message : 'Revisa las cantidades.';
+      paperSizeInput.setAttribute('aria-invalid', 'true');
       bwInput.setAttribute('aria-invalid', 'true');
       colorInput.setAttribute('aria-invalid', 'true');
       submitLink.removeAttribute('href');
@@ -52,6 +59,7 @@ function initializePrintingQuote() {
     }
   }
 
+  paperSizeInput.addEventListener('change', render);
   bwInput.addEventListener('input', render);
   colorInput.addEventListener('input', render);
   render();

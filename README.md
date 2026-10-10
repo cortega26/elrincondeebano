@@ -132,12 +132,18 @@ The resident-only landing at `/impresiones/` estimates printing/photocopy orders
 without taking payments or uploading documents. Rates are centralized in
 [`astro-poc/src/lib/printing-pricing.js`](./astro-poc/src/lib/printing-pricing.js):
 CLP 500 once per order for attention/delivery, CLP 200 per B/N page and
-CLP 400 per color page. The calculator requests quantities (maximum 500 per
-type), applies the fixed charge only for non-empty orders, and builds a
-pre-filled WhatsApp quote using the existing canonical contact from
+CLP 400 per color page on **Carta** (the default format). **Oficio** adds
+CLP 50 per B/N page and CLP 100 per color page (CLP 250 / CLP 500 per
+page); it does not change the fixed service fee. Both use 75 g/m² bond paper,
+single-sided printing, with normal ink coverage. The calculator requests
+quantities (maximum 500 per type), applies the fixed charge only for
+non-empty orders, and builds a pre-filled WhatsApp quote including selected
+paper format and unit prices, using the canonical contact from
 `astro-poc/src/lib/formatting.ts`. Every final amount and delivery time
-still requires manual confirmation. Photocopies of physical originals
-require prior handoff coordination. Update rates in the single module and
+still requires manual confirmation. Full-page images and large-volume
+orders require a separate quote; other paper formats are not advertised.
+Photocopies of physical originals require prior handoff coordination.
+Update rates and surcharges in the single module and
 run `npm run validate:release` before shipping price changes.
 
 ## License and maintainer
