@@ -9,6 +9,9 @@ test.describe('Landing de impresiones', () => {
 
     await expect(page).toHaveURL(/\/impresiones\/$/);
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Lo resuelves aquí');
+    await expect(page.locator('.printing-terms')).toContainText('papel bond de');
+    await expect(page.locator('.printing-terms')).toContainText('75 g/m², tamaño carta');
+    await expect(page.locator('.printing-terms')).not.toContainText('A4');
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       'href',
       'https://www.elrincondeebano.com/impresiones/'
