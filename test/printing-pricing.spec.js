@@ -36,6 +36,45 @@ describe('printing service quote', () => {
     );
   });
 
+  it('uses carta by default and applies oficio surcharge per printed page', () => {
+    const carta = calculatePrintingQuote(2, 1);
+    const oficio = calculatePrintingQuote(2, 1, 'oficio');
+
+    expect(carta).toMatchObject({
+      paperSize: 'carta',
+      paperSizeLabel: 'Carta',
+      blackAndWhiteUnitPrice: 200,
+      colorUnitPrice: 400,
+      total: 1300,
+    });
+    expect(oficio).toMatchObject({
+      paperSize: 'oficio',
+      paperSizeLabel: 'Oficio',
+      blackAndWhiteUnitPrice: 250,
+      colorUnitPrice: 500,
+      blackAndWhiteCost: 500,
+      colorCost: 500,
+      serviceCost: 500,
+      total: 1500,
+    });
+    expect(oficio.total - carta.total).toBe(2 * 50 + 100);
+  });
+
+  it('does not apply oficio surcharge to the fixed fee or an empty order', () => {
+    const empty = calculatePrintingQuote(0, 0, 'oficio');
+    expect(empty).toMatchObject({ serviceCost: 0, total: 0, hasPages: false });
+    expect(buildPrintingWhatsAppUrl(empty)).toBeNull();
+    expect(calculatePrintingQuote(0, 1, 'oficio').total).toBe(1000);
+    expect(calculatePrintingQuote(1, 0, 'oficio').total).toBe(750);
+  });
+
+  it.each(['A4', '', 'carta/oficio', null, undefined])(
+    'rejects unsupported format %s',
+    (paperSize) => {
+      expect(() => calculatePrintingQuote(1, 1, paperSize)).toThrow(RangeError);
+    }
+  );
+
   it('does not charge or enable WhatsApp for an empty order', () => {
     const result = calculatePrintingQuote(0, 0);
     expect(result).toMatchObject({ serviceCost: 0, total: 0, hasPages: false });
@@ -75,10 +114,24 @@ describe('printing service quote', () => {
     const message = url.searchParams.get('text');
     expect(message).toContain('Blanco y negro: 2 página(s)');
     expect(message).toContain('Color: 1 página(s)');
+    expect(message).toContain('Formato: Carta.');
+    expect(message).toContain('a $200 c/u');
+    expect(message).toContain('a $400 c/u');
     expect(message).toContain('Total estimado:');
     expect(message).toContain('papel bond de 75 g/m², tamaño carta y a una cara');
     expect(message).not.toContain('A4');
     expect(message).toContain('precio final y la disponibilidad se confirman');
     expect(message).not.toContain('undefined');
+  });
+
+  it('includes oficio, its unit prices and adjusted total in the WhatsApp request', () => {
+    const message = new URL(buildPrintingWhatsAppUrl(calculatePrintingQuote(2, 1, 'oficio')))
+      .searchParams.get('text');
+    expect(message).toContain('Formato: Oficio.');
+    expect(message).toContain('a $250 c/u');
+    expect(message).toContain('a $500 c/u');
+    expect(message).toContain('Total estimado: $1.500');
+    expect(message).toContain('papel bond de 75 g/m², tamaño oficio y a una cara');
+    expect(message).not.toContain('A4');
   });
 });
