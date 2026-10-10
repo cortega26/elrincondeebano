@@ -18,6 +18,7 @@ function initializePrintingQuote() {
   const colorUnitOutput = root.querySelector('#printing-color-unit-price');
   const bwInput = root.querySelector('#printing-bw');
   const colorInput = root.querySelector('#printing-color');
+  const quantityButtons = root.querySelectorAll('.printing-quote__step');
   const serviceOutput = root.querySelector('#printing-service-cost');
   const bwOutput = root.querySelector('#printing-bw-cost');
   const colorOutput = root.querySelector('#printing-color-cost');
@@ -60,7 +61,22 @@ function initializePrintingQuote() {
     }
   }
 
+  function syncQuantityButtons() {
+    quantityButtons.forEach((button) => {
+      const input = button.dataset.printingTarget === 'printing-bw' ? bwInput : colorInput;
+      const count = input.value === '' ? NaN : Number(input.value);
+      const next = count + Number(button.dataset.printingDelta);
+      button.disabled =
+        !Number.isSafeInteger(count) ||
+        count < Number(input.min) ||
+        count > Number(input.max) ||
+        next < Number(input.min) ||
+        next > Number(input.max);
+    });
+  }
+
   function render() {
+    syncQuantityButtons();
     const physical = requestType() === 'original';
     digitalSection.hidden = physical;
     physicalSection.hidden = !physical;
@@ -156,6 +172,22 @@ function initializePrintingQuote() {
         shareFeedback.textContent = 'No fue posible compartir. Usa el botón de WhatsApp y adjunta el archivo en la conversación.';
       }
     }
+  });
+
+  quantityButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const input = button.dataset.printingTarget === 'printing-bw' ? bwInput : colorInput;
+      const count = input.value === '' ? NaN : Number(input.value);
+      const delta = Number(button.dataset.printingDelta);
+      if (
+        button.disabled ||
+        !Number.isSafeInteger(count) ||
+        count < Number(input.min) ||
+        count > Number(input.max)
+      ) return;
+      input.value = String(Math.max(Number(input.min), Math.min(Number(input.max), count + delta)));
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
   });
 
   paperSizeInput.addEventListener('change', render);
