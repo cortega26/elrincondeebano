@@ -129,7 +129,17 @@ Use `npm run build` (full) for CI and when catalog data or images have changed.
 ## Printing and photocopies service
 
 The resident-only landing at `/impresiones/` estimates printing/photocopy orders
-without taking payments or uploading documents. Rates are centralized in
+without taking payments or uploading documents to the site. Residents choose
+one of two requests: **print a digital document** (optional local PDF, Word,
+JPG or PNG selection, maximum 15 MB) or **photocopy physical originals**.
+When file sharing is supported, the native Web Share API lets residents
+select WhatsApp and share the file with a prequote; some devices/targets
+omit the text. If the browser does not support file sharing, residents use
+the existing WhatsApp prequote and attach the file in that conversation.
+No document is stored in our application, analytics or URL.
+For physical originals, only the estimated total number of final printed
+pages is requested. Their reception, return and final count are coordinated
+and confirmed in WhatsApp; residents should not photograph private originals. Rates are centralized in
 [`astro-poc/src/lib/printing-pricing.js`](./astro-poc/src/lib/printing-pricing.js):
 CLP 500 once per order for attention/delivery, CLP 200 per B/N page and
 CLP 400 per color page on **Carta** (the default format). **Oficio** adds
