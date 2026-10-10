@@ -136,8 +136,11 @@ CLP 400 per color page. The calculator requests quantities (maximum 500 per
 type), applies the fixed charge only for non-empty orders, and builds a
 pre-filled WhatsApp quote using the existing canonical contact from
 `astro-poc/src/lib/formatting.ts`. Every final amount and delivery time
-still requires manual confirmation. Photocopies of physical originals
-require prior handoff coordination. Update rates in the single module and
+still requires manual confirmation. Standard jobs use 75 g/m² bond paper,
+letter size, single-sided, with normal ink coverage. Full-page images and
+large-volume orders require a separate quote; other paper formats are not
+advertised. Photocopies of physical originals require prior handoff
+coordination. Update rates in the single module and
 run `npm run validate:release` before shipping price changes.
 
 ## License and maintainer
