@@ -8,6 +8,12 @@ import '../styles/printing.css';
 const initialQuote = calculatePrintingQuote(1, 0);
 const oficioQuote = calculatePrintingQuote(1, 1, 'oficio');
 const initialWhatsAppUrl = buildPrintingWhatsAppUrl(initialQuote);
+const printingTerms = [
+  'Los precios indicados corresponden a impresiones y fotocopias en papel bond de 75 g/m², tamaño carta u oficio, a una cara y con cobertura de tinta normal.',
+  `Oficio tiene un recargo de ${formatCurrency(oficioQuote.blackAndWhiteUnitPrice - initialQuote.blackAndWhiteUnitPrice)} por página B/N y ${formatCurrency(oficioQuote.colorUnitPrice - initialQuote.colorUnitPrice)} por página a color respecto de carta.`,
+  'Las imágenes a página completa y los pedidos de gran volumen requieren cotización previa.',
+  'Si necesitas fotocopiar documentos físicos, coordinamos la recepción y devolución de los originales.',
+].join(' ');
 const sharePreview = createSharePreviewMetadata({
   title: 'Impresiones y fotocopias en Ébano | El Rincón de Ébano',
   description:
@@ -152,16 +158,7 @@ const sharePreview = createSharePreviewMetadata({
     <section class="printing-terms" aria-labelledby="printing-terms-heading">
       <div>
         <h2 id="printing-terms-heading">Para que sepas exactamente qué estás cotizando</h2>
-        <p>
-          Los precios indicados corresponden a impresiones y fotocopias en papel bond de
-          75 g/m², tamaño carta u oficio, a una cara y con cobertura de tinta normal.
-          Oficio tiene un recargo de {formatCurrency(oficioQuote.blackAndWhiteUnitPrice - initialQuote.blackAndWhiteUnitPrice)}
-          por página B/N y {formatCurrency(oficioQuote.colorUnitPrice - initialQuote.colorUnitPrice)}
-          por página a color respecto de carta. Las imágenes a página completa y
-          los pedidos de gran volumen requieren cotización previa.
-          Si necesitas fotocopiar documentos físicos, coordinamos la recepción y devolución
-          de los originales.
-        </p>
+        <p>{printingTerms}</p>
       </div>
       <a href="/" class="printing-terms__link">Volver al minimarket <span aria-hidden="true">→</span></a>
     </section>

@@ -11,6 +11,9 @@ test.describe('Landing de impresiones', () => {
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Lo resuelves aquí');
     await expect(page.locator('.printing-terms')).toContainText('papel bond de');
     await expect(page.locator('.printing-terms')).toContainText('75 g/m², tamaño carta u oficio');
+    await expect(page.locator('.printing-terms')).toContainText(
+      'Oficio tiene un recargo de $50 por página B/N y $100 por página a color respecto de carta.'
+    );
     await expect(page.locator('.printing-terms')).not.toContainText('A4');
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       'href',
