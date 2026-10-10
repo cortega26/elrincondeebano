@@ -1,0 +1,156 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { createSharePreviewMetadata, DEFAULT_OG_IMAGE } from '../lib/seo';
+import { PRINTING_RATES, calculatePrintingQuote, buildPrintingWhatsAppUrl } from '../lib/printing-pricing.js';
+import { formatCurrency } from '../lib/formatting.js';
+import '../styles/printing.css';
+
+const initialQuote = calculatePrintingQuote(1, 0);
+const initialWhatsAppUrl = buildPrintingWhatsAppUrl(initialQuote);
+const sharePreview = createSharePreviewMetadata({
+  title: 'Impresiones y fotocopias en Ébano | El Rincón de Ébano',
+  description:
+    'Imprime documentos en blanco y negro o color sin salir del edificio Ébano. Calcula tu precio y coordina por WhatsApp.',
+  canonicalPath: '/impresiones/',
+  ogImage: DEFAULT_OG_IMAGE,
+  ogImageAlt: 'El Rincón de Ébano: impresiones y fotocopias para residentes',
+});
+---
+
+<BaseLayout
+  title={sharePreview.title}
+  description={sharePreview.description}
+  canonicalPath="/impresiones/"
+  sharePreview={sharePreview}
+  showTrustStrip={false}
+  hideCartShortcut={true}
+>
+  <div class="printing-page">
+    <nav class="printing-breadcrumb" aria-label="Ruta de navegación">
+      <a href="/">El Rincón de Ébano</a>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">Impresiones</span>
+    </nav>
+
+    <section class="printing-hero" aria-labelledby="printing-heading">
+      <div class="printing-hero__copy">
+        <p class="printing-eyebrow">Un servicio más, exclusivo para vecinos de Ébano</p>
+        <h1 id="printing-heading">Lo necesitas impreso.<br /><span>Lo resuelves aquí.</span></h1>
+        <p class="printing-hero__lead">
+          Documentos, formularios, tareas y contratos en blanco y negro o color.
+          Cotiza en segundos, envía tu archivo por WhatsApp y coordinamos la entrega dentro del edificio.
+        </p>
+        <div class="printing-benefits" aria-label="Ventajas del servicio">
+          <span>Sin desplazarte</span>
+          <span>Precio claro antes de pedir</span>
+          <span>Atención por WhatsApp</span>
+        </div>
+        <a class="printing-hero__secondary" href="#como-funciona">
+          Cómo funciona el servicio <span aria-hidden="true">↓</span>
+        </a>
+      </div>
+
+      <aside class="printing-quote" id="cotizador" aria-labelledby="printing-quote-heading" data-printing-calculator>
+        <div class="printing-quote__heading">
+          <p class="printing-eyebrow">Cotización instantánea</p>
+          <h2 id="printing-quote-heading">Calcula tu impresión</h2>
+          <p>Indica cuántas páginas necesitas. Puedes combinar blanco y negro con color en el mismo pedido.</p>
+        </div>
+
+        <div class="printing-quote__inputs">
+          <div class="printing-quote__input-row">
+            <label for="printing-bw">
+              <strong>Blanco y negro</strong>
+              <small>{formatCurrency(PRINTING_RATES.blackAndWhite)} por página</small>
+            </label>
+            <input id="printing-bw" type="number" inputmode="numeric" min="0" max="500" step="1" value="1" aria-describedby="printing-limit" />
+          </div>
+          <div class="printing-quote__input-row">
+            <label for="printing-color">
+              <strong>A color</strong>
+              <small>{formatCurrency(PRINTING_RATES.color)} por página</small>
+            </label>
+            <input id="printing-color" type="number" inputmode="numeric" min="0" max="500" step="1" value="0" aria-describedby="printing-limit" />
+          </div>
+          <p class="printing-quote__input-hint" id="printing-limit">Hasta 500 páginas por tipo en el cotizador. Para cantidades mayores, consulta por WhatsApp.</p>
+        </div>
+
+        <div class="printing-quote__breakdown" aria-label="Detalle del precio estimado">
+          <div class="printing-quote__line">
+            <span>Atención y entrega <small>(una vez por pedido)</small></span>
+            <output id="printing-service-cost">{formatCurrency(initialQuote.serviceCost)}</output>
+          </div>
+          <div class="printing-quote__line">
+            <span>Páginas B/N</span>
+            <output id="printing-bw-cost">{formatCurrency(initialQuote.blackAndWhiteCost)}</output>
+          </div>
+          <div class="printing-quote__line">
+            <span>Páginas color</span>
+            <output id="printing-color-cost">{formatCurrency(initialQuote.colorCost)}</output>
+          </div>
+        </div>
+
+        <div class="printing-quote__total" role="status" aria-live="polite" aria-atomic="true">
+          <span>Total estimado</span>
+          <output id="printing-total">{formatCurrency(initialQuote.total)}</output>
+        </div>
+        <p class="printing-quote__error" id="printing-error" aria-live="polite"></p>
+
+        <a
+          id="printing-whatsapp"
+          class="btn btn-primary printing-quote__cta"
+          href={initialWhatsAppUrl ?? undefined}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Solicitar por WhatsApp <span aria-hidden="true">↗</span>
+        </a>
+        <p class="printing-quote__disclaimer">
+          Sin pago en línea ni envío de archivos desde esta página.
+          Tu solicitud y el precio final se confirman por WhatsApp, según disponibilidad.
+        </p>
+      </aside>
+    </section>
+
+    <section class="printing-how" id="como-funciona" aria-labelledby="printing-how-heading">
+      <div class="printing-section-header">
+        <p class="printing-eyebrow">Simple y cerca</p>
+        <h2 id="printing-how-heading">Tres pasos. Sin salir de casa.</h2>
+      </div>
+      <div class="printing-how__grid">
+        <article class="printing-how__step">
+          <span class="printing-how__number" aria-hidden="true">01</span>
+          <h3>Calcula</h3>
+          <p>Indica tus páginas B/N y color. El cargo de atención se aplica una sola vez.</p>
+        </article>
+        <article class="printing-how__step">
+          <span class="printing-how__number" aria-hidden="true">02</span>
+          <h3>Envía</h3>
+          <p>Abre WhatsApp con tu presupuesto listo y comparte el PDF o documento que necesitas imprimir.</p>
+        </article>
+        <article class="printing-how__step">
+          <span class="printing-how__number" aria-hidden="true">03</span>
+          <h3>Recibe</h3>
+          <p>Confirmamos disponibilidad, precio final y coordinamos la entrega dentro del edificio.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="printing-terms" aria-labelledby="printing-terms-heading">
+      <div>
+        <h2 id="printing-terms-heading">Para que sepas exactamente qué estás cotizando</h2>
+        <p>
+          Los precios corresponden a documentos en papel común, tamaño carta o A4, a una cara y
+          con cobertura de tinta normal. Las imágenes a página completa, papeles especiales,
+          formatos distintos y pedidos de gran volumen se cotizan aparte.
+          Para fotocopias de originales físicos, coordinamos previamente su recepción y devolución.
+        </p>
+      </div>
+      <a href="/" class="printing-terms__link">Volver al minimarket <span aria-hidden="true">→</span></a>
+    </section>
+  </div>
+
+  <script>
+    import '../scripts/printing-quote.js';
+  </script>
+</BaseLayout>

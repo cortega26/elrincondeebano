@@ -118,13 +118,27 @@ Use `npm run build` (full) for CI and when catalog data or images have changed.
 
 ## Production contract
 
-- Supported public routes: `/`, `/<category>/`, and `/p/<sku>/`.
+- Supported public routes: `/`, `/<category>/`, `/p/<sku>/`, `/combos/`, and `/impresiones/`.
 - Catalog and assets are versioned build inputs; generated output is not edited
   by hand.
 - Social metadata and image versioning are centralized in
   [`astro-poc/src/lib/seo.ts`](./astro-poc/src/lib/seo.ts).
 - Shopper state uses `astro-poc-*` local-storage keys. The old `cart` key is a
   read-only upgrade alias.
+
+## Printing and photocopies service
+
+The resident-only landing at `/impresiones/` estimates printing/photocopy orders
+without taking payments or uploading documents. Rates are centralized in
+[`astro-poc/src/lib/printing-pricing.js`](./astro-poc/src/lib/printing-pricing.js):
+CLP 500 once per order for attention/delivery, CLP 200 per B/N page and
+CLP 400 per color page. The calculator requests quantities (maximum 500 per
+type), applies the fixed charge only for non-empty orders, and builds a
+pre-filled WhatsApp quote using the existing canonical contact from
+`astro-poc/src/lib/formatting.ts`. Every final amount and delivery time
+still requires manual confirmation. Photocopies of physical originals
+require prior handoff coordination. Update rates in the single module and
+run `npm run validate:release` before shipping price changes.
 
 ## License and maintainer
 
