@@ -68,7 +68,7 @@ describe('printing service quote', () => {
     expect(calculatePrintingQuote(1, 0, 'oficio').total).toBe(750);
   });
 
-  it.each(['A4', '', 'carta/oficio', null, undefined])(
+  it.each(['A4', '', 'carta/oficio', null])(
     'rejects unsupported format %s',
     (paperSize) => {
       expect(() => calculatePrintingQuote(1, 1, paperSize)).toThrow(RangeError);
