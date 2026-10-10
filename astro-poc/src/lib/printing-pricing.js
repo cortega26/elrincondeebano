@@ -8,6 +8,12 @@ export const PRINTING_RATES = Object.freeze({
 });
 
 export const MAX_PRINTING_PAGES_PER_TYPE = 500;
+export const MAX_PRINTING_FILE_BYTES = 15 * 1024 * 1024;
+
+export const PRINTING_REQUEST_TYPES = Object.freeze({
+  archivo: 'archivo',
+  original: 'original',
+});
 
 // Los recargos se suman por página al precio base de carta, nunca al cargo fijo.
 export const PRINTING_PAPER_FORMATS = Object.freeze({
@@ -62,22 +68,56 @@ export function calculatePrintingQuote(blackAndWhite, color, paperSize = 'carta'
   };
 }
 
-/** Solicitud precotizada, nunca un pedido ni un cobro confirmado. */
-export function buildPrintingWhatsAppUrl(quote) {
+/** Solo metadatos locales: el archivo jamás se carga ni almacena en esta web. */
+export function validatePrintingFile(file) {
+  if (!file) {
+    return { valid: false, message: 'Selecciona un archivo.' };
+  }
+
+  if (!/\.(pdf|doc|docx|jpe?g|png)$/i.test(String(file.name || ''))) {
+    return { valid: false, message: 'Formato no admitido. Usa PDF, Word, JPG o PNG.' };
+  }
+
+  if (!Number.isSafeInteger(file.size) || file.size < 1 || file.size > MAX_PRINTING_FILE_BYTES) {
+    return { valid: false, message: 'Selecciona un archivo de hasta 15 MB.' };
+  }
+
+  return { valid: true, message: '' };
+}
+
+function validateRequestType(requestType) {
+  if (!Object.hasOwn(PRINTING_REQUEST_TYPES, requestType)) {
+    throw new RangeError('Selecciona impresión digital o fotocopia de originales.');
+  }
+}
+
+/** Texto reutilizado por WhatsApp y por la función nativa de compartir archivos. */
+export function buildPrintingWhatsAppMessage(quote, { requestType = 'archivo' } = {}) {
+  validateRequestType(requestType);
   if (!quote?.hasPages) {
     return null;
   }
 
   const lines = [
     'Hola, quiero cotizar impresiones/fotocopias en El Rincón de Ébano.',
+    `Tipo: ${requestType === 'archivo' ? 'impresión desde archivo digital' : 'fotocopia de originales físicos'}.`,
     `Formato: ${quote.paperSizeLabel}.`,
     `Blanco y negro: ${quote.blackAndWhitePages} página(s) a ${formatCurrency(quote.blackAndWhiteUnitPrice)} c/u (${formatCurrency(quote.blackAndWhiteCost)}).`,
     `Color: ${quote.colorPages} página(s) a ${formatCurrency(quote.colorUnitPrice)} c/u (${formatCurrency(quote.colorCost)}).`,
     `Atención y entrega: ${formatCurrency(quote.serviceCost)} por pedido.`,
     `Total estimado: ${formatCurrency(quote.total)}.`,
-    `Es para documentos en papel bond de 75 g/m², tamaño ${quote.paperSizeLabel.toLowerCase()} y a una cara. Enviaré los archivos o coordinaré los originales por este chat.`,
+    `Es para documentos en papel bond de 75 g/m², tamaño ${quote.paperSizeLabel.toLowerCase()} y a una cara.`,
+    requestType === 'archivo'
+      ? 'Compartiré el archivo mediante el dispositivo o lo adjuntaré en este chat.'
+      : 'Las cantidades son páginas finales estimadas. Necesito coordinar la recepción y devolución de los originales físicos; confirmaremos el precio tras revisarlos.',
     'Entiendo que el precio final y la disponibilidad se confirman por WhatsApp.',
   ];
 
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join('\n'))}`;
+  return lines.join('\n');
+}
+
+/** Solicitud precotizada, nunca un pedido ni un cobro confirmado. */
+export function buildPrintingWhatsAppUrl(quote, options = {}) {
+  const message = buildPrintingWhatsAppMessage(quote, options);
+  return message ? `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}` : null;
 }
