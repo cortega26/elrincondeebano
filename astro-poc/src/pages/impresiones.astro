@@ -155,9 +155,9 @@ const sharePreview = createSharePreviewMetadata({
         <p>
           Los precios indicados corresponden a impresiones y fotocopias en papel bond de
           75 g/m², tamaño carta u oficio, a una cara y con cobertura de tinta normal.
-          Oficio tiene un recargo de {formatCurrency(oficioQuote.blackAndWhiteUnitPrice - initialQuote.blackAndWhiteUnitPrice)}
-          por página B/N y {formatCurrency(oficioQuote.colorUnitPrice - initialQuote.colorUnitPrice)}
-          por página a color respecto de carta. Las imágenes a página completa y
+          Oficio tiene un recargo de
+          {`${formatCurrency(oficioQuote.blackAndWhiteUnitPrice - initialQuote.blackAndWhiteUnitPrice)} por página B/N y ${formatCurrency(oficioQuote.colorUnitPrice - initialQuote.colorUnitPrice)} por página a color respecto de carta.`}
+          Las imágenes a página completa y
           los pedidos de gran volumen requieren cotización previa.
           Si necesitas fotocopiar documentos físicos, coordinamos la recepción y devolución
           de los originales.
