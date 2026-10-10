@@ -45,7 +45,7 @@ const sharePreview = createSharePreviewMetadata({
         <h1 id="printing-heading">Lo necesitas impreso.<br /><span>Lo resuelves aquí.</span></h1>
         <p class="printing-hero__lead">
           Documentos, formularios, tareas y contratos en blanco y negro o color.
-          Cotiza en segundos, envía tu archivo por WhatsApp y coordinamos la entrega dentro del edificio.
+          Cotiza en segundos. Comparte el archivo desde tu dispositivo o coordina la recepción de originales físicos por WhatsApp; entregamos dentro del edificio.
         </p>
         <div class="printing-benefits" aria-label="Ventajas del servicio">
           <span>Sin desplazarte</span>
@@ -61,8 +61,23 @@ const sharePreview = createSharePreviewMetadata({
         <div class="printing-quote__heading">
           <p class="printing-eyebrow">Cotización instantánea</p>
           <h2 id="printing-quote-heading">Calcula tu impresión</h2>
-          <p>Indica cuántas páginas necesitas. Puedes combinar blanco y negro con color en el mismo pedido.</p>
+          <p>Elige el tipo de solicitud y cuántas páginas impresas finales necesitas. Puedes combinar blanco y negro con color.</p>
         </div>
+
+        <fieldset class="printing-source" aria-describedby="printing-source-help">
+          <legend>¿Qué necesitas hacer?</legend>
+          <div class="printing-source__choices">
+            <label>
+              <input type="radio" name="printing-source" value="archivo" checked />
+              <span><strong>Imprimir archivo</strong><small>PDF, Word o imagen digital</small></span>
+            </label>
+            <label>
+              <input type="radio" name="printing-source" value="original" />
+              <span><strong>Fotocopiar originales</strong><small>Documentos físicos en papel</small></span>
+            </label>
+          </div>
+          <p id="printing-source-help">No es necesario tomar fotografías de documentos físicos para solicitar fotocopias.</p>
+        </fieldset>
 
         <div class="printing-quote__format">
           <label for="printing-paper-size">
@@ -91,7 +106,25 @@ const sharePreview = createSharePreviewMetadata({
             </label>
             <input id="printing-color" type="number" inputmode="numeric" min="0" max="500" step="1" value="0" aria-describedby="printing-limit" />
           </div>
-          <p class="printing-quote__input-hint" id="printing-limit">Hasta 500 páginas por tipo en el cotizador. Para cantidades mayores, consulta por WhatsApp.</p>
+          <p class="printing-quote__input-hint" id="printing-limit">Indica páginas finales impresas, no archivos u originales. Por ejemplo, 3 copias de 2 páginas son 6 páginas. Hasta 500 por tipo; cantidades mayores se cotizan aparte.</p>
+        </div>
+
+        <div id="printing-digital-section" class="printing-request-details">
+          <label for="printing-file"><strong>Seleccionar documento</strong> <span>(opcional)</span></label>
+          <input
+            type="file"
+            id="printing-file"
+            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png"
+            aria-describedby="printing-file-feedback printing-file-privacy"
+          />
+          <p id="printing-file-feedback" role="status" aria-live="polite">Puedes seleccionar un archivo para compartirlo junto a la cotización, o adjuntarlo después en WhatsApp.</p>
+          <p id="printing-file-privacy">PDF, Word, JPG o PNG; máximo 15 MB. El archivo permanece en tu dispositivo hasta que decidas compartirlo con una aplicación. No se sube a este sitio. Para evitar cambios de formato, recomendamos PDF.</p>
+        </div>
+
+        <div id="printing-physical-section" class="printing-request-details printing-request-details--physical" hidden>
+          <strong>Fotocopias de originales físicos</strong>
+          <p>Calcula la cantidad de páginas finales. Al solicitar, coordinaremos por WhatsApp cómo recibir y devolver los originales dentro del edificio. Confirmaremos el precio y la cantidad después de revisarlos.</p>
+          <p>No tienes que fotografiar ni subir los documentos.</p>
         </div>
 
         <div class="printing-quote__breakdown" aria-label="Detalle del precio estimado">
@@ -115,6 +148,12 @@ const sharePreview = createSharePreviewMetadata({
         </div>
         <p class="printing-quote__error" id="printing-error" aria-live="polite"></p>
 
+        <button id="printing-share-file" class="btn btn-primary printing-quote__cta printing-quote__share" type="button" hidden>
+          Compartir archivo y cotización <span aria-hidden="true">↗</span>
+        </button>
+        <p class="printing-quote__share-help">Al compartir, selecciona WhatsApp y la conversación correcta. Comprueba que se incluyan archivo y resumen; algunas aplicaciones pueden omitir el texto.</p>
+        <p id="printing-share-feedback" class="printing-quote__share-feedback" role="status" aria-live="polite"></p>
+
         <a
           id="printing-whatsapp"
           class="btn btn-primary printing-quote__cta"
@@ -122,11 +161,11 @@ const sharePreview = createSharePreviewMetadata({
           target="_blank"
           rel="noopener noreferrer"
         >
-          Solicitar por WhatsApp <span aria-hidden="true">↗</span>
+          <span id="printing-whatsapp-label">Enviar cotización por WhatsApp</span> <span aria-hidden="true">↗</span>
         </a>
         <p class="printing-quote__disclaimer">
-          Sin pago en línea ni envío de archivos desde esta página.
-          Tu solicitud y el precio final se confirman por WhatsApp, según disponibilidad.
+          No se cobra ni se reciben archivos en esta web. Compartir no equivale a confirmar un pedido.
+          En WhatsApp verificamos detalles, disponibilidad y precio final.
         </p>
       </aside>
     </section>
@@ -140,17 +179,17 @@ const sharePreview = createSharePreviewMetadata({
         <article class="printing-how__step">
           <span class="printing-how__number" aria-hidden="true">01</span>
           <h3>Calcula</h3>
-          <p>Indica tus páginas B/N y color. El cargo de atención se aplica una sola vez.</p>
+          <p>Elige impresión digital o fotocopia física, formato carta u oficio y páginas finales B/N y color. El cargo de atención se aplica una vez.</p>
         </article>
         <article class="printing-how__step">
           <span class="printing-how__number" aria-hidden="true">02</span>
           <h3>Envía</h3>
-          <p>Abre WhatsApp con tu presupuesto listo y comparte el PDF o documento que necesitas imprimir.</p>
+          <p>Para impresión digital, comparte el archivo desde el teléfono o adjúntalo al chat. Para fotocopias, coordinamos la recepción de originales físicos.</p>
         </article>
         <article class="printing-how__step">
           <span class="printing-how__number" aria-hidden="true">03</span>
           <h3>Recibe</h3>
-          <p>Confirmamos disponibilidad, precio final y coordinamos la entrega dentro del edificio.</p>
+          <p>Confirmamos las páginas, la disponibilidad y el precio final. Entregamos las impresiones y, cuando corresponda, devolvemos los originales.</p>
         </article>
       </div>
     </section>
