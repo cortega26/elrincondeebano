@@ -5,6 +5,9 @@ import {
   MAX_PRINTING_PAGES_PER_TYPE,
   calculatePrintingQuote,
   buildPrintingWhatsAppUrl,
+  buildPrintingWhatsAppMessage,
+  MAX_PRINTING_FILE_BYTES,
+  validatePrintingFile,
 } from '../astro-poc/src/lib/printing-pricing.js';
 
 describe('printing service quote', () => {
@@ -134,4 +137,39 @@ describe('printing service quote', () => {
     expect(message).toContain('papel bond de 75 g/m², tamaño oficio y a una cara');
     expect(message).not.toContain('A4');
   });
+  it('distinguishes an estimated physical-original handoff from a digital-file request', () => {
+    const quote = calculatePrintingQuote(6, 0, 'oficio');
+    const message = buildPrintingWhatsAppMessage(quote, { requestType: 'original' });
+    expect(message).toContain('Tipo: fotocopia de originales físicos.');
+    expect(message).toContain('Formato: Oficio.');
+    expect(message).toContain('Total estimado: $2.000');
+    expect(message).toContain('páginas finales estimadas');
+    expect(message).toContain('recepción y devolución de los originales físicos');
+    expect(message).not.toContain('Compartiré el archivo');
+
+    const url = buildPrintingWhatsAppUrl(quote, { requestType: 'original' });
+    expect(new URL(url).searchParams.get('text')).toBe(message);
+    expect(buildPrintingWhatsAppMessage(quote)).toContain('Tipo: impresión desde archivo digital.');
+    expect(() => buildPrintingWhatsAppMessage(quote, { requestType: 'unknown' })).toThrow(RangeError);
+  });
+
+  it('validates local document metadata without uploading or reading file contents', () => {
+    for (const name of ['tarea.PDF', 'texto.doc', 'texto.DOCX', 'foto.jpg', 'foto.jpeg', 'foto.PNG']) {
+      expect(validatePrintingFile({ name, size: 1024 })).toEqual({ valid: true, message: '' });
+    }
+    expect(validatePrintingFile({ name: 'tarea.pdf', size: MAX_PRINTING_FILE_BYTES }).valid).toBe(true);
+    expect(validatePrintingFile({ name: 'tarea.pdf', size: MAX_PRINTING_FILE_BYTES + 1 }).valid).toBe(false);
+    expect(validatePrintingFile({ name: 'tarea.pdf', size: 0 }).valid).toBe(false);
+    expect(validatePrintingFile({ name: 'tarea.exe', size: 200 }).valid).toBe(false);
+    expect(validatePrintingFile({ name: 'tarea.pdf.exe', size: 200 }).valid).toBe(false);
+    expect(validatePrintingFile(null).valid).toBe(false);
+  });
+
+  it('preserves single fixed fee for physical and digital estimates alike', () => {
+    const mixed = calculatePrintingQuote(2, 1, 'oficio');
+    expect(mixed.serviceCost).toBe(500);
+    expect(buildPrintingWhatsAppMessage(mixed, { requestType: 'original' })).toContain('Total estimado: $1.500');
+    expect(buildPrintingWhatsAppMessage(mixed, { requestType: 'archivo' })).toContain('Total estimado: $1.500');
+  });
+
 });
