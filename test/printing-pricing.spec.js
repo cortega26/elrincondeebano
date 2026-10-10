@@ -76,6 +76,8 @@ describe('printing service quote', () => {
     expect(message).toContain('Blanco y negro: 2 página(s)');
     expect(message).toContain('Color: 1 página(s)');
     expect(message).toContain('Total estimado:');
+    expect(message).toContain('papel bond de 75 g/m², tamaño carta y a una cara');
+    expect(message).not.toContain('A4');
     expect(message).toContain('precio final y la disponibilidad se confirman');
     expect(message).not.toContain('undefined');
   });
