@@ -31,6 +31,7 @@ function initializePrintingQuote() {
   const fileInput = root.querySelector('#printing-file');
   const fileFeedback = root.querySelector('#printing-file-feedback');
   const shareButton = root.querySelector('#printing-share-file');
+  const shareHelp = root.querySelector('.printing-quote__share-help');
   const shareFeedback = root.querySelector('#printing-share-feedback');
 
   const requestType = () =>
@@ -64,6 +65,7 @@ function initializePrintingQuote() {
     digitalSection.hidden = physical;
     physicalSection.hidden = !physical;
     shareButton.hidden = true;
+    shareHelp.hidden = true;
 
     try {
       const quote = calculatePrintingQuote(bwInput.value, colorInput.value, paperSizeInput.value);
@@ -94,6 +96,7 @@ function initializePrintingQuote() {
           } else if (getShareCapability(file)) {
             fileFeedback.textContent = `Archivo listo: ${file.name}. No se carga al sitio.`;
             shareButton.hidden = !quote.hasPages;
+            shareHelp.hidden = shareButton.hidden;
           } else {
             fileFeedback.textContent = `Archivo elegido: ${file.name}. Este navegador no permite compartirlo desde la web: abre WhatsApp y adjúntalo allí.`;
           }
