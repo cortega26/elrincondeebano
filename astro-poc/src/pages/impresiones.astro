@@ -97,14 +97,22 @@ const sharePreview = createSharePreviewMetadata({
               <strong>Blanco y negro</strong>
               <small id="printing-bw-unit-price">{formatCurrency(initialQuote.blackAndWhiteUnitPrice)} por página</small>
             </label>
-            <input id="printing-bw" type="number" inputmode="numeric" min="0" max="500" step="1" value="1" aria-describedby="printing-limit" />
+            <div class="printing-quote__quantity" role="group" aria-label="Ajustar páginas en blanco y negro">
+              <button class="printing-quote__step" type="button" data-printing-target="printing-bw" data-printing-delta="-1" aria-controls="printing-bw" aria-label="Quitar una página en blanco y negro">−</button>
+              <input id="printing-bw" type="number" inputmode="numeric" min="0" max="500" step="1" value="1" aria-describedby="printing-limit" />
+              <button class="printing-quote__step" type="button" data-printing-target="printing-bw" data-printing-delta="1" aria-controls="printing-bw" aria-label="Agregar una página en blanco y negro">+</button>
+            </div>
           </div>
           <div class="printing-quote__input-row">
             <label for="printing-color">
               <strong>A color</strong>
               <small id="printing-color-unit-price">{formatCurrency(initialQuote.colorUnitPrice)} por página</small>
             </label>
-            <input id="printing-color" type="number" inputmode="numeric" min="0" max="500" step="1" value="0" aria-describedby="printing-limit" />
+            <div class="printing-quote__quantity" role="group" aria-label="Ajustar páginas a color">
+              <button class="printing-quote__step" type="button" data-printing-target="printing-color" data-printing-delta="-1" aria-controls="printing-color" aria-label="Quitar una página a color" disabled>−</button>
+              <input id="printing-color" type="number" inputmode="numeric" min="0" max="500" step="1" value="0" aria-describedby="printing-limit" />
+              <button class="printing-quote__step" type="button" data-printing-target="printing-color" data-printing-delta="1" aria-controls="printing-color" aria-label="Agregar una página a color">+</button>
+            </div>
           </div>
           <p class="printing-quote__input-hint" id="printing-limit">Indica páginas finales impresas, no archivos u originales. Por ejemplo, 3 copias de 2 páginas son 6 páginas. Hasta 500 por tipo; cantidades mayores se cotizan aparte.</p>
         </div>

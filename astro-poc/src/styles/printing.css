@@ -299,9 +299,10 @@
 
 .printing-quote__input-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.7rem;
 }
 
 .printing-quote__input-row label {
@@ -333,6 +334,70 @@
   font-size: 1.08rem;
   font-weight: 750;
   text-align: center;
+}
+
+.printing-quote__quantity {
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: 44px 64px 44px;
+  align-items: center;
+  gap: 4px;
+}
+
+.printing-quote__quantity input {
+  width: 100%;
+  min-width: 0;
+  padding: 0.35rem 0.2rem;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.printing-quote__quantity input::-webkit-inner-spin-button,
+.printing-quote__quantity input::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.printing-quote__step {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  min-height: 46px;
+  padding: 0;
+  border: 1px solid #b8d1bd;
+  border-radius: 7px;
+  background: #ecf5ee;
+  color: var(--primary-strong);
+  font: inherit;
+  font-size: 1.45rem;
+  font-weight: 750;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.printing-quote__step:hover:not(:disabled) {
+  background: #dfeee2;
+  border-color: var(--primary-color);
+}
+
+.printing-quote__step:focus-visible {
+  outline: 3px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.printing-quote__step:disabled {
+  background: #f3f5f3;
+  color: #87958c;
+  border-color: #d7dfd9;
+  cursor: not-allowed;
+}
+
+@media (max-width: 400px) {
+  .printing-quote__quantity {
+    width: 100%;
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+  }
 }
 
 .printing-quote__input-row input[aria-invalid='true'] {

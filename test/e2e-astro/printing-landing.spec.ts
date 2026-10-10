@@ -25,6 +25,95 @@ test.describe('Landing de impresiones', () => {
     );
   });
 
+  test('offers discoverable minus/plus buttons that update prices and enforce zero', async ({ page }) => {
+    await page.goto('/impresiones/');
+
+    const bw = page.locator('#printing-bw');
+    const color = page.locator('#printing-color');
+    const bwMinus = page.getByRole('button', { name: 'Quitar una página en blanco y negro' });
+    const bwPlus = page.getByRole('button', { name: 'Agregar una página en blanco y negro' });
+    const colorMinus = page.getByRole('button', { name: 'Quitar una página a color' });
+    const colorPlus = page.getByRole('button', { name: 'Agregar una página a color' });
+    const whatsapp = page.locator('#printing-whatsapp');
+
+    await expect(bw).toHaveValue('1');
+    await expect(color).toHaveValue('0');
+    await expect(bwMinus).toBeEnabled();
+    await expect(colorMinus).toBeDisabled();
+
+    await bwMinus.click();
+    await expect(bw).toHaveValue('0');
+    await expect(bwMinus).toBeDisabled();
+    await expect(page.locator('#printing-total')).toContainText('0');
+    await expect(whatsapp).not.toHaveAttribute('href');
+
+    await bwPlus.click();
+    await colorPlus.click();
+    await expect(bw).toHaveValue('1');
+    await expect(color).toHaveValue('1');
+    await expect(page.locator('#printing-total')).toContainText('1.100');
+
+    await page.locator('#printing-paper-size').selectOption('oficio');
+    await expect(page.locator('#printing-total')).toContainText('1.250');
+    const message = new URL((await whatsapp.getAttribute('href')) as string).searchParams.get('text');
+    expect(message).toContain('Total estimado: $1.250');
+
+    await colorMinus.click();
+    await expect(color).toHaveValue('0');
+    await expect(colorMinus).toBeDisabled();
+    await expect(page.locator('#printing-total')).toContainText('750');
+  });
+
+  test('steppers respect manual editing and the 500-page limit', async ({ page }) => {
+    await page.goto('/impresiones/');
+
+    const bw = page.locator('#printing-bw');
+    const bwMinus = page.getByRole('button', { name: 'Quitar una página en blanco y negro' });
+    const bwPlus = page.getByRole('button', { name: 'Agregar una página en blanco y negro' });
+    await bw.fill('499');
+    await bwPlus.click();
+    await expect(bw).toHaveValue('500');
+    await expect(bwPlus).toBeDisabled();
+
+    await bwMinus.click();
+    await expect(bw).toHaveValue('499');
+    await expect(bwPlus).toBeEnabled();
+
+    await bw.fill('501');
+    await expect(page.locator('#printing-whatsapp')).not.toHaveAttribute('href');
+    await expect(bwPlus).toBeDisabled();
+    await expect(bwMinus).toBeDisabled();
+
+    await bw.fill('');
+    await expect(bwPlus).toBeDisabled();
+    await expect(bwMinus).toBeDisabled();
+
+    await bw.fill('2');
+    await expect(bwPlus).toBeEnabled();
+    await expect(bwMinus).toBeEnabled();
+    await expect(page.locator('#printing-total')).toContainText('900');
+  });
+
+  test('quantity controls remain usable without horizontal clipping on a narrow phone', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 700 });
+    await page.goto('/impresiones/');
+
+    const controls = page.locator('.printing-quote__quantity');
+    await expect(controls).toHaveCount(2);
+    for (const group of await controls.all()) {
+      const fitsInsideQuote = await group.evaluate((node) => {
+        const rect = node.getBoundingClientRect();
+        const quote = node.closest('.printing-quote')?.getBoundingClientRect();
+        return Boolean(quote && rect.left >= quote.left && rect.right <= quote.right);
+      });
+      expect(fitsInsideQuote).toBe(true);
+    }
+    await page.getByRole('button', { name: 'Agregar una página a color' }).click();
+    await expect(page.locator('#printing-color')).toHaveValue('1');
+  });
+
   test('updates a mixed order and prepares the real WhatsApp prequote', async ({ page }) => {
     await page.goto('/impresiones/');
 
