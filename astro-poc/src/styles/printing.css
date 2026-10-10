@@ -108,6 +108,142 @@
   font-size: 0.88rem;
 }
 
+.printing-quote [hidden] {
+  display: none !important;
+}
+
+.printing-source {
+  min-width: 0;
+  margin: 0 0 1.3rem;
+  padding: 0 0 1.2rem;
+  border: 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.printing-source legend {
+  float: none;
+  width: auto;
+  margin: 0 0 0.55rem;
+  font-size: 0.94rem;
+  font-weight: 750;
+}
+
+.printing-source__choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+
+.printing-source__choices label {
+  display: flex;
+  gap: 0.45rem;
+  align-items: flex-start;
+  min-width: 0;
+  padding: 0.7rem 0.6rem;
+  border: 1px solid #cddacf;
+  border-radius: 7px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.printing-source__choices label:has(input:checked) {
+  background: #eff5ef;
+  border-color: var(--primary-color);
+}
+
+.printing-source__choices input {
+  flex: 0 0 auto;
+  margin-top: 0.15rem;
+  accent-color: var(--primary-color);
+}
+
+.printing-source__choices strong,
+.printing-source__choices small {
+  display: block;
+  line-height: 1.35;
+}
+
+.printing-source__choices strong {
+  font-size: 0.82rem;
+}
+
+.printing-source__choices small {
+  margin-top: 0.15rem;
+  color: var(--text-muted);
+  font-size: 0.73rem;
+}
+
+.printing-source > p,
+.printing-request-details p,
+.printing-quote__share-help,
+.printing-quote__share-feedback {
+  margin: 0.5rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.77rem;
+  line-height: 1.55;
+}
+
+.printing-request-details {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 1.2rem;
+  padding: 0.95rem;
+  border: 1px solid #dbe5dd;
+  border-radius: 8px;
+  background: #f8faf7;
+}
+
+.printing-request-details > label {
+  font-size: 0.89rem;
+}
+
+.printing-request-details > label span {
+  font-size: 0.76rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.printing-request-details input[type='file'] {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0.4rem;
+  border: 1px solid #cbd8cf;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 0.78rem;
+}
+
+.printing-request-details p {
+  margin: 0;
+}
+
+.printing-request-details--physical > strong {
+  font-size: 0.89rem;
+}
+
+.printing-quote__share {
+  margin-bottom: 0.6rem;
+}
+
+.printing-quote__share-feedback {
+  margin: 0.25rem 0 0.65rem;
+}
+
+.printing-quote__share-feedback:empty {
+  display: none;
+}
+
+.printing-quote__share-help {
+  margin: 0 0 0.65rem;
+}
+
+@media (max-width: 400px) {
+  .printing-source__choices {
+    grid-template-columns: 1fr;
+  }
+}
+
 .printing-quote__format {
   display: grid;
   gap: 0.5rem;
