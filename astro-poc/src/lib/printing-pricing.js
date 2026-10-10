@@ -56,7 +56,7 @@ export function buildPrintingWhatsAppUrl(quote) {
     `Color: ${quote.colorPages} página(s) (${formatCurrency(quote.colorCost)}).`,
     `Atención y entrega: ${formatCurrency(quote.serviceCost)} por pedido.`,
     `Total estimado: ${formatCurrency(quote.total)}.`,
-    'Es para documentos en papel común, a una cara. Enviaré los archivos o coordinaré los originales por este chat.',
+    'Es para documentos en papel bond de 75 g/m², tamaño carta y a una cara. Enviaré los archivos o coordinaré los originales por este chat.',
     'Entiendo que el precio final y la disponibilidad se confirman por WhatsApp.',
   ];
 
