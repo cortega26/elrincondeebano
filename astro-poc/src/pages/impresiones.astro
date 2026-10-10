@@ -1,11 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { createSharePreviewMetadata, DEFAULT_OG_IMAGE } from '../lib/seo';
-import { PRINTING_RATES, calculatePrintingQuote, buildPrintingWhatsAppUrl } from '../lib/printing-pricing.js';
+import { calculatePrintingQuote, buildPrintingWhatsAppUrl } from '../lib/printing-pricing.js';
 import { formatCurrency } from '../lib/formatting.js';
 import '../styles/printing.css';
 
 const initialQuote = calculatePrintingQuote(1, 0);
+const oficioQuote = calculatePrintingQuote(1, 1, 'oficio');
 const initialWhatsAppUrl = buildPrintingWhatsAppUrl(initialQuote);
 const sharePreview = createSharePreviewMetadata({
   title: 'Impresiones y fotocopias en Ébano | El Rincón de Ébano',
@@ -57,18 +58,30 @@ const sharePreview = createSharePreviewMetadata({
           <p>Indica cuántas páginas necesitas. Puedes combinar blanco y negro con color en el mismo pedido.</p>
         </div>
 
+        <div class="printing-quote__format">
+          <label for="printing-paper-size">
+            <strong>Formato del papel</strong>
+            <small>Papel bond de 75 g/m² · a una cara</small>
+          </label>
+          <select id="printing-paper-size" aria-describedby="printing-format-note">
+            <option value="carta" selected>Carta · B/N {formatCurrency(initialQuote.blackAndWhiteUnitPrice)} · color {formatCurrency(initialQuote.colorUnitPrice)}</option>
+            <option value="oficio">Oficio · B/N {formatCurrency(oficioQuote.blackAndWhiteUnitPrice)} · color {formatCurrency(oficioQuote.colorUnitPrice)}</option>
+          </select>
+          <p id="printing-format-note">Oficio: +{formatCurrency(oficioQuote.blackAndWhiteUnitPrice - initialQuote.blackAndWhiteUnitPrice)} por página B/N y +{formatCurrency(oficioQuote.colorUnitPrice - initialQuote.colorUnitPrice)} por página color. El cargo de atención no cambia.</p>
+        </div>
+
         <div class="printing-quote__inputs">
           <div class="printing-quote__input-row">
             <label for="printing-bw">
               <strong>Blanco y negro</strong>
-              <small>{formatCurrency(PRINTING_RATES.blackAndWhite)} por página</small>
+              <small id="printing-bw-unit-price">{formatCurrency(initialQuote.blackAndWhiteUnitPrice)} por página</small>
             </label>
             <input id="printing-bw" type="number" inputmode="numeric" min="0" max="500" step="1" value="1" aria-describedby="printing-limit" />
           </div>
           <div class="printing-quote__input-row">
             <label for="printing-color">
               <strong>A color</strong>
-              <small>{formatCurrency(PRINTING_RATES.color)} por página</small>
+              <small id="printing-color-unit-price">{formatCurrency(initialQuote.colorUnitPrice)} por página</small>
             </label>
             <input id="printing-color" type="number" inputmode="numeric" min="0" max="500" step="1" value="0" aria-describedby="printing-limit" />
           </div>
@@ -141,8 +154,11 @@ const sharePreview = createSharePreviewMetadata({
         <h2 id="printing-terms-heading">Para que sepas exactamente qué estás cotizando</h2>
         <p>
           Los precios indicados corresponden a impresiones y fotocopias en papel bond de
-          75 g/m², tamaño carta, a una cara y con cobertura de tinta normal.
-          Las imágenes a página completa y los pedidos de gran volumen requieren cotización previa.
+          75 g/m², tamaño carta u oficio, a una cara y con cobertura de tinta normal.
+          Oficio tiene un recargo de {formatCurrency(oficioQuote.blackAndWhiteUnitPrice - initialQuote.blackAndWhiteUnitPrice)}
+          por página B/N y {formatCurrency(oficioQuote.colorUnitPrice - initialQuote.colorUnitPrice)}
+          por página a color respecto de carta. Las imágenes a página completa y
+          los pedidos de gran volumen requieren cotización previa.
           Si necesitas fotocopiar documentos físicos, coordinamos la recepción y devolución
           de los originales.
         </p>
