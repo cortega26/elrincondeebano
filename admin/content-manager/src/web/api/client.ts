@@ -23,6 +23,8 @@ import * as mediaApi from './media.ts';
 import * as importExportApi from './importExport.ts';
 import * as publicationsApi from './publications.ts';
 import * as systemApi from './system.ts';
+import * as commsApi from './comms.ts';
+import type { CommsDocument } from '../../shared/schemas/comms.ts';
 import * as syncApi from './sync.ts';
 
 // Re-exported so existing `from './client.ts'` / `'@web/api/client.ts'`
@@ -384,6 +386,16 @@ export class ContentManagerClient {
     scope?: { scope: 'all'; filters?: productsApi.ProductFilters }
   ): Promise<productsApi.BulkResult> {
     return productsApi.bulkApply(this.invoke, action, value, productIds, scope);
+  }
+
+  // ── comms (plan 217) ──────────────────────────────────────────────────
+
+  async getComms(): Promise<CommsDocument> {
+    return commsApi.getComms(this.invoke);
+  }
+
+  async saveComms(document: CommsDocument, expectedRev: number): Promise<CommsDocument> {
+    return commsApi.saveComms(this.invoke, document, expectedRev);
   }
 
   async getDiagnostics(): Promise<systemApi.DiagnosticsReport> {
