@@ -190,17 +190,61 @@ test('con Web Share: comparte texto + imagen JPEG y registra solo "compartir ini
   expect(shared).toEqual([{ text: expect.stringContaining('Buenos días'), files: 1 }]);
 });
 
-test('mensaje repetido al mismo destino exige confirmación', async ({ page }) => {
+test('mensaje repetido: solo tras un envío confirmado exige confirmación', async ({ page }) => {
   await setup(page);
   await page.getByLabel('Buscar plantillas').fill('abrimos');
   await page.getByLabel('Buscar plantillas').press('Enter');
   await page.getByRole('combobox', { name: 'Destino' }).selectOption('grupo-vecinos');
   const open = page.getByRole('button', { name: 'Abrir WhatsApp y elegir el grupo' });
   await open.click();
+  // Abrir el chat no bloquea el fallback de copiar ni un reintento.
+  await expect(page.getByRole('button', { name: 'Copiar mensaje' })).toBeEnabled();
+  await expect(open).toBeEnabled();
+  await page.getByRole('button', { name: 'Sí, marcar como enviado' }).click();
   await expect(open).toBeDisabled();
   await expect(page.getByText('Este mismo texto ya fue a este destino')).toBeVisible();
   await page.getByText('Enviar de todos modos').click();
   await expect(open).toBeEnabled();
+});
+
+test('promoción con producto y foto reales del catálogo', async ({ page }) => {
+  await setup(page, { webShare: true });
+  await page.getByLabel('Buscar plantillas').fill('promocion de producto');
+  await page.getByLabel('Buscar plantillas').press('Enter');
+  await page.getByRole('combobox', { name: 'Destino' }).selectOption('grupo-vecinos');
+  await page.getByPlaceholder('Buscar producto…').fill('nova');
+  await page
+    .getByRole('list', { name: 'Productos encontrados' })
+    .getByRole('button')
+    .first()
+    .click();
+  await expect(page.getByRole('alert')).toContainText('Confirma que el producto está disponible');
+  await page.getByText('Revisé que hay stock real').click();
+  const preview = page.getByTestId('comms-preview-text');
+  await expect(preview).toContainText('$');
+  await expect(preview).toContainText('https://www.elrincondeebano.com/');
+  // La plantilla de oferta exige {oferta}: si el producto no tiene descuento
+  // se completa a mano (nunca se inventa).
+  const oferta = page.getByLabel('{oferta}');
+  if (
+    (await oferta.isVisible()) &&
+    (await oferta.inputValue()) === '' &&
+    !(await oferta.getAttribute('placeholder'))
+  ) {
+    await oferta.fill('$1.000');
+  }
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Descargar' }).first().click();
+  expect((await download).suggestedFilename()).toMatch(/\.jpg$/);
+  await page.getByRole('button', { name: /Compartir texto \+ imagen/ }).click();
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => (window as unknown as { __shared: Array<{ files: number }> }).__shared[0]?.files
+      )
+    )
+    .toBe(1);
+  await page.screenshot({ path: 'reports/e2e/comms-desktop.png', fullPage: true });
 });
 
 test('vista móvil', async ({ page }) => {

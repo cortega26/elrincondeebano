@@ -171,7 +171,15 @@ export function textHash(text: string): string {
 
 export const REPEAT_WINDOW_DAYS = 7;
 
-/** Última actividad con el mismo texto al mismo destino dentro de la ventana. */
+// Solo un envío confirmado (o un compartir iniciado) cuenta como repetición:
+// abrir el chat o copiar no prueban que el mensaje salió, y bloquearlos
+// impediría reintentar o usar el fallback de copiar.
+const REPEAT_STATUSES: ReadonlySet<CommsActivity['status']> = new Set([
+  'enviado_manual',
+  'compartir_iniciado',
+]);
+
+/** Último envío del mismo texto al mismo destino dentro de la ventana. */
 export function findRecentRepeat(
   activity: CommsActivity[],
   destinationId: string | null,
@@ -182,6 +190,7 @@ export function findRecentRepeat(
   const cutoff = now.getTime() - days * 24 * 60 * 60 * 1000;
   for (const entry of activity) {
     if (
+      REPEAT_STATUSES.has(entry.status) &&
       entry.text_hash === hash &&
       entry.destination_id === destinationId &&
       Date.parse(entry.at) >= cutoff

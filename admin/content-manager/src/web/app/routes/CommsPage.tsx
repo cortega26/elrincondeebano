@@ -90,7 +90,19 @@ function loadDraft(): Draft {
 
 function saveDraft(draft: Draft): void {
   try {
-    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    // Datos personales fuera del borrador: el número pegado y {nombre}
+    // solo viven en memoria.
+    const { nombre: _nombre, ...values } = draft.values;
+    void _nombre;
+    localStorage.setItem(
+      DRAFT_KEY,
+      JSON.stringify({
+        ...draft,
+        adhocPhone: '',
+        destinationId: draft.destinationId === ADHOC_ID ? null : draft.destinationId,
+        values,
+      })
+    );
   } catch {
     /* sin almacenamiento: el borrador vive solo en memoria */
   }
@@ -242,7 +254,8 @@ export function CommsPage(): React.ReactElement {
   }, [hash, destination?.id]);
 
   const chosenImages = imageOptions.filter((o) => selectedImages.includes(o.key));
-  const needsStockCheck = Boolean(product);
+  // Solo la difusión exige verificar stock (una respuesta «no disponible» no).
+  const needsStockCheck = Boolean(product) && template?.kind === 'mensaje';
   const blockers: string[] = [];
   if (!template) blockers.push('Elige un mensaje');
   if (!destination) blockers.push('Elige el destino');
@@ -591,7 +604,7 @@ export function CommsPage(): React.ReactElement {
                   setStockChecked(false);
                 }}
               />
-              {product && (
+              {product && needsStockCheck && (
                 <label className="comms-check">
                   <input
                     type="checkbox"

@@ -121,14 +121,19 @@ describe('datos de producto', () => {
 
 describe('repeticiones', () => {
   const now = new Date('2026-10-10T12:00:00Z');
-  const entry = (at: string, dest: string | null, hash: string): CommsActivity => ({
+  const entry = (
+    at: string,
+    dest: string | null,
+    hash: string,
+    status: CommsActivity['status'] = 'enviado_manual'
+  ): CommsActivity => ({
     id: `a-${at}`,
     at,
     template_id: 't',
     template_title: 'T',
     destination_id: dest,
     destination_alias: 'X',
-    status: 'chat_abierto',
+    status,
     text_hash: hash,
   });
 
@@ -142,6 +147,18 @@ describe('repeticiones', () => {
     expect(
       findRecentRepeat([entry('2026-09-01T12:00:00Z', 'grupo', h)], 'grupo', h, now)
     ).toBeNull();
+  });
+
+  it('abrir el chat o copiar no cuentan como envío repetido', () => {
+    const h = textHash('Hola');
+    for (const status of ['chat_abierto', 'preparado'] as const) {
+      expect(
+        findRecentRepeat([entry('2026-10-10T11:00:00Z', 'g', h, status)], 'g', h, now)
+      ).toBeNull();
+    }
+    expect(
+      findRecentRepeat([entry('2026-10-10T11:00:00Z', 'g', h, 'compartir_iniciado')], 'g', h, now)
+    ).not.toBeNull();
   });
 });
 
