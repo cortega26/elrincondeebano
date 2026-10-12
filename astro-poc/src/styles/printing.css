@@ -444,6 +444,13 @@
   font-variant-numeric: tabular-nums;
 }
 
+.printing-quote__scope {
+  margin: 0 0 0.8rem;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
 .printing-quote__error {
   margin: 0 0 0.65rem;
   color: #9d3028;
