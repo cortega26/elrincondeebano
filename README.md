@@ -128,33 +128,32 @@ Use `npm run build` (full) for CI and when catalog data or images have changed.
 
 ## Printing and photocopies service
 
-The resident-only landing at `/impresiones/` estimates printing/photocopy orders
+The resident-only landing at `/impresiones/` quotes printing and photocopying
 without taking payments or uploading documents to the site. Residents choose
-one of two requests: **print a digital document** (optional local PDF, Word,
-JPG or PNG selection, maximum 15 MB) or **photocopy physical originals**.
-When file sharing is supported, the native Web Share API lets residents
-select WhatsApp and share the file with a prequote; some devices/targets
-omit the text. If the browser does not support file sharing, residents use
-the existing WhatsApp prequote and attach the file in that conversation.
-No document is stored in our application, analytics or URL.
-For physical originals, only the estimated total number of final printed
-pages is requested. Their reception, return and final count are coordinated
-and confirmed in WhatsApp; residents should not photograph private originals. Rates are centralized in
-[`astro-poc/src/lib/printing-pricing.js`](./astro-poc/src/lib/printing-pricing.js):
-CLP 500 once per order for attention/delivery, CLP 200 per B/N page and
-CLP 400 per color page on **Carta** (the default format). **Oficio** adds
-CLP 50 per B/N page and CLP 100 per color page (CLP 250 / CLP 500 per
-page); it does not change the fixed service fee. Both use 75 g/m² bond paper,
-single-sided printing, with normal ink coverage. The calculator requests
-quantities (maximum 500 per type), applies the fixed charge only for
-non-empty orders, and builds a pre-filled WhatsApp quote including selected
-paper format and unit prices, using the canonical contact from
-`astro-poc/src/lib/formatting.ts`. Every final amount and delivery time
-still requires manual confirmation. Full-page images and large-volume
-orders require a separate quote; other paper formats are not advertised.
-Photocopies of physical originals require prior handoff coordination.
-Update rates and surcharges in the single module and
-run `npm run validate:release` before shipping price changes.
+**print a digital document** (optional local PDF, Word, JPG or PNG selection,
+maximum 15 MB) or **photocopy physical originals**. The two paper formats can
+be combined in one order: **Carta** and **Oficio** each have separate B/N and
+color page counters. The calculator charges CLP 500 once per non-empty order
+for attention/delivery. Carta costs CLP 200 per B/N page and CLP 400 per color
+page; Oficio costs CLP 250 per B/N page and CLP 500 per color page.
+The pricing source of truth is
+[`astro-poc/src/lib/printing-pricing.js`](./astro-poc/src/lib/printing-pricing.js).
+The quantity limit is 500 pages **per size/color combination**.
+
+The UI and WhatsApp summary label the calculated sum **Total**, and explicitly
+scope published rates to text documents on single-sided 75 g/m² bond paper
+with normal ink coverage. Photographs and high-coverage printing require
+separate quoting. The fixed charge is never duplicated when the client chooses
+both paper formats.
+
+When file sharing is supported, the native Web Share API lets residents select
+WhatsApp and share the file with the itemized prequote; some devices/targets
+omit the text. Otherwise residents can open WhatsApp with the itemized quote
+and attach the file there. No document is stored by this application, analytics,
+or URL. For physical originals, their handoff, return and final page count are
+coordinated through WhatsApp. Every final amount and delivery time requires
+manual confirmation. Update rates in the single pricing module and run
+`npm run validate:release` before shipping price changes.
 
 ## License and maintainer
 
