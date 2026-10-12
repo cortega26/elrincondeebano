@@ -1,7 +1,7 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-09T12:56:47.440Z",
-  "rev": 29,
+  "last_updated": "2026-10-12T21:05:00.000Z",
+  "rev": 31,
   "schema_version": 1,
   "products": [
     {
@@ -9,19 +9,19 @@
       "description": "Dos Rollos de 14m c/u",
       "price": 2000,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Limpiezayaseo",
       "image_path": "assets/images/limpieza_y_aseo/Nova Clásica 2x14m.webp",
       "image_avif_path": "assets/images/limpieza_y_aseo/Nova Clásica 2x14m.avif",
       "order": 0,
       "is_archived": false,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "stock": {
-          "ts": "2025-11-24T19:47:04.614Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
+          "ts": "2026-10-12T21:05:00.000Z",
+          "by": "admin",
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -5256,6 +5256,29 @@
       "rev": 0,
       "field_last_modified": {},
       "id": "p-f438f7c2a91d"
+    },
+    {
+      "name": "Confort • Papel Sanitario",
+      "description": "4 rollos de 20 m c/u • Doble hoja",
+      "price": 2000,
+      "discount": 0,
+      "stock": true,
+      "category": "Limpiezayaseo",
+      "image_path": "",
+      "image_avif_path": "",
+      "order": 190,
+      "is_archived": false,
+      "rev": 1,
+      "field_last_modified": {
+        "name": {
+          "ts": "2026-10-12T21:05:00.000Z",
+          "by": "admin",
+          "rev": 1,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      },
+      "id": "01a131ed-153a-721e-94fc-2eb8f6b9a44c"
     }
   ]
 }

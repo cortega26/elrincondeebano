@@ -1,13 +1,13 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-09T12:56:47.440Z",
+  "last_updated": "2026-10-12T21:05:00.000Z",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
       "description": "Dos Rollos de 14m c/u",
       "price": 2000,
       "discount": 0,
-      "stock": true,
+      "stock": false,
       "category": "Limpiezayaseo",
       "image_path": "assets/images/limpieza_y_aseo/Nova Clásica 2x14m.webp",
       "image_avif_path": "assets/images/limpieza_y_aseo/Nova Clásica 2x14m.avif",
@@ -2280,6 +2280,18 @@
       "image_path": "assets/images/papeleria/pen-gear-resma-carta-500-v1.webp",
       "image_avif_path": "assets/images/papeleria/pen-gear-resma-carta-500-v1.avif",
       "order": 189,
+      "is_archived": false
+    },
+    {
+      "name": "Confort • Papel Sanitario",
+      "description": "4 rollos de 20 m c/u • Doble hoja",
+      "price": 2000,
+      "discount": 0,
+      "stock": true,
+      "category": "Limpiezayaseo",
+      "image_path": "",
+      "image_avif_path": "",
+      "order": 190,
       "is_archived": false
     }
   ]
