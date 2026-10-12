@@ -150,8 +150,10 @@ export function CommsPage(): React.ReactElement {
     });
   }, []);
 
-  const notify = (kindValue: FeedbackKind, text: string): void =>
-    setFeedback({ kind: kindValue, text });
+  const notify = useCallback(
+    (kindValue: FeedbackKind, text: string): void => setFeedback({ kind: kindValue, text }),
+    []
+  );
 
   const reload = useCallback(async () => {
     try {
@@ -198,7 +200,7 @@ export function CommsPage(): React.ReactElement {
         setBusy(false);
       }
     },
-    [doc, reload]
+    [doc, reload, notify]
   );
 
   const template = doc?.templates.find((t) => t.id === draft.templateId) ?? null;
@@ -687,7 +689,7 @@ export function CommsPage(): React.ReactElement {
                             )
                           }
                         />
-                        <img src={option.src} alt={option.label} />
+                        <img src={option.src} alt={option.label} width={96} height={96} />
                       </label>
                       <div>
                         {canCopyImage() && (
