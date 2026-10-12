@@ -1,7 +1,7 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-12T21:05:00.000Z",
-  "rev": 31,
+  "last_updated": "2026-10-12T21:29:41.035Z",
+  "rev": 32,
   "schema_version": 1,
   "products": [
     {
@@ -5264,17 +5264,31 @@
       "discount": 0,
       "stock": true,
       "category": "Limpiezayaseo",
-      "image_path": "",
-      "image_avif_path": "",
+      "image_path": "assets/images/limpieza_y_aseo/Confort Doble Hoja 4x20m.webp",
+      "image_avif_path": "assets/images/limpieza_y_aseo/Confort Doble Hoja 4x20m.avif",
       "order": 190,
       "is_archived": false,
-      "rev": 1,
+      "rev": 3,
       "field_last_modified": {
         "name": {
           "ts": "2026-10-12T21:05:00.000Z",
           "by": "admin",
           "rev": 1,
           "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2026-10-12T21:29:41.035Z",
+          "by": "admin",
+          "rev": 2,
+          "base_rev": 1,
+          "changeset_id": null
+        },
+        "image_avif_path": {
+          "ts": "2026-10-12T21:29:41.035Z",
+          "by": "admin",
+          "rev": 3,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
