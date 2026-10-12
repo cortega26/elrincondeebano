@@ -4,6 +4,7 @@ import {
   PRINTING_RATES,
   MAX_PRINTING_PAGES_PER_TYPE,
   calculatePrintingQuote,
+  calculateCombinedPrintingQuote,
   buildPrintingWhatsAppUrl,
   buildPrintingWhatsAppMessage,
   MAX_PRINTING_FILE_BYTES,
@@ -120,7 +121,7 @@ describe('printing service quote', () => {
     expect(message).toContain('Formato: Carta.');
     expect(message).toContain('a $200 c/u');
     expect(message).toContain('a $400 c/u');
-    expect(message).toContain('Total estimado:');
+    expect(message).toContain('Total:');
     expect(message).toContain('papel bond de 75 g/m², tamaño carta y a una cara');
     expect(message).not.toContain('A4');
     expect(message).toContain('precio final y la disponibilidad se confirman');
@@ -133,7 +134,7 @@ describe('printing service quote', () => {
     expect(message).toContain('Formato: Oficio.');
     expect(message).toContain('a $250 c/u');
     expect(message).toContain('a $500 c/u');
-    expect(message).toContain('Total estimado: $1.500');
+    expect(message).toContain('Total: $1.500');
     expect(message).toContain('papel bond de 75 g/m², tamaño oficio y a una cara');
     expect(message).not.toContain('A4');
   });
@@ -142,7 +143,7 @@ describe('printing service quote', () => {
     const message = buildPrintingWhatsAppMessage(quote, { requestType: 'original' });
     expect(message).toContain('Tipo: fotocopia de originales físicos.');
     expect(message).toContain('Formato: Oficio.');
-    expect(message).toContain('Total estimado: $2.000');
+    expect(message).toContain('Total: $2.000');
     expect(message).toContain('páginas finales estimadas');
     expect(message).toContain('recepción y devolución de los originales físicos');
     expect(message).not.toContain('Compartiré el archivo');
@@ -151,6 +152,53 @@ describe('printing service quote', () => {
     expect(new URL(url).searchParams.get('text')).toBe(message);
     expect(buildPrintingWhatsAppMessage(quote)).toContain('Tipo: impresión desde archivo digital.');
     expect(() => buildPrintingWhatsAppMessage(quote, { requestType: 'unknown' })).toThrow(RangeError);
+  });
+
+  it('combines carta and oficio independently and charges the service fee once', () => {
+    const quote = calculateCombinedPrintingQuote({
+      carta: { blackAndWhite: 2, color: 1 },
+      oficio: { blackAndWhite: 3, color: 2 },
+    });
+    expect(quote.formats.carta.blackAndWhiteCost).toBe(400);
+    expect(quote.formats.carta.colorCost).toBe(400);
+    expect(quote.formats.oficio.blackAndWhiteCost).toBe(750);
+    expect(quote.formats.oficio.colorCost).toBe(1000);
+    expect(quote).toMatchObject({
+      serviceCost: 500,
+      blackAndWhiteCost: 1150,
+      colorCost: 1400,
+      total: 3050,
+      hasPages: true,
+    });
+    const message = buildPrintingWhatsAppMessage(quote);
+    expect(message).toContain('Formato: Carta.');
+    expect(message).toContain('Formato: Oficio.');
+    expect(message).toContain('Total: $3.050');
+    expect(message).toContain('Fotografías o impresiones de alta cobertura se cotizan aparte.');
+    expect(message).not.toContain('Total estimado');
+  });
+
+  it('omits empty format groups, rejects invalid input and disables empty orders', () => {
+    const cartaOnly = calculateCombinedPrintingQuote({
+      carta: { blackAndWhite: 1, color: 0 },
+      oficio: { blackAndWhite: 0, color: 0 },
+    });
+    const message = buildPrintingWhatsAppMessage(cartaOnly);
+    expect(message).toContain('Formato: Carta.');
+    expect(message).not.toContain('Formato: Oficio.');
+    expect(cartaOnly.total).toBe(700);
+    const empty = calculateCombinedPrintingQuote({
+      carta: { blackAndWhite: 0, color: 0 },
+      oficio: { blackAndWhite: 0, color: 0 },
+    });
+    expect(empty.total).toBe(0);
+    expect(buildPrintingWhatsAppUrl(empty)).toBeNull();
+    expect(() =>
+      calculateCombinedPrintingQuote({
+        carta: { blackAndWhite: 1, color: 0 },
+        oficio: { blackAndWhite: 501, color: 0 },
+      })
+    ).toThrow(RangeError);
   });
 
   it('validates local document metadata without uploading or reading file contents', () => {
@@ -168,8 +216,8 @@ describe('printing service quote', () => {
   it('preserves single fixed fee for physical and digital estimates alike', () => {
     const mixed = calculatePrintingQuote(2, 1, 'oficio');
     expect(mixed.serviceCost).toBe(500);
-    expect(buildPrintingWhatsAppMessage(mixed, { requestType: 'original' })).toContain('Total estimado: $1.500');
-    expect(buildPrintingWhatsAppMessage(mixed, { requestType: 'archivo' })).toContain('Total estimado: $1.500');
+    expect(buildPrintingWhatsAppMessage(mixed, { requestType: 'original' })).toContain('Total: $1.500');
+    expect(buildPrintingWhatsAppMessage(mixed, { requestType: 'archivo' })).toContain('Total: $1.500');
   });
 
 });
