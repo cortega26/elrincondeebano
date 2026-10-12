@@ -1,5 +1,5 @@
 import {
-  calculatePrintingQuote,
+  calculateCombinedPrintingQuote,
   buildPrintingWhatsAppMessage,
   buildPrintingWhatsAppUrl,
   validatePrintingFile,
@@ -13,19 +13,26 @@ function initializePrintingQuote() {
   }
   root.dataset.initialized = 'true';
 
-  const paperSizeInput = root.querySelector('#printing-paper-size');
-  const bwUnitOutput = root.querySelector('#printing-bw-unit-price');
-  const colorUnitOutput = root.querySelector('#printing-color-unit-price');
   const bwInput = root.querySelector('#printing-bw');
   const colorInput = root.querySelector('#printing-color');
+  const bwOficioInput = root.querySelector('#printing-bw-oficio');
+  const colorOficioInput = root.querySelector('#printing-color-oficio');
+  const quantityInputs = [bwInput, colorInput, bwOficioInput, colorOficioInput];
   const quantityButtons = root.querySelectorAll('.printing-quote__step');
   const serviceOutput = root.querySelector('#printing-service-cost');
   const bwOutput = root.querySelector('#printing-bw-cost');
   const colorOutput = root.querySelector('#printing-color-cost');
+  const bwOficioOutput = root.querySelector('#printing-bw-oficio-cost');
+  const colorOficioOutput = root.querySelector('#printing-color-oficio-cost');
   const totalOutput = root.querySelector('#printing-total');
   const submitLink = root.querySelector('#printing-whatsapp');
   const submitLabel = root.querySelector('#printing-whatsapp-label');
   const errorOutput = root.querySelector('#printing-error');
+
+  const getQuote = () => calculateCombinedPrintingQuote({
+    carta: { blackAndWhite: bwInput.value, color: colorInput.value },
+    oficio: { blackAndWhite: bwOficioInput.value, color: colorOficioInput.value },
+  });
 
   const digitalSection = root.querySelector('#printing-digital-section');
   const physicalSection = root.querySelector('#printing-physical-section');
@@ -63,7 +70,7 @@ function initializePrintingQuote() {
 
   function syncQuantityButtons() {
     quantityButtons.forEach((button) => {
-      const input = button.dataset.printingTarget === 'printing-bw' ? bwInput : colorInput;
+      const input = root.querySelector(`#${button.dataset.printingTarget}`);
       const count = input.value === '' ? NaN : Number(input.value);
       const next = count + Number(button.dataset.printingDelta);
       button.disabled =
@@ -84,17 +91,15 @@ function initializePrintingQuote() {
     shareHelp.hidden = true;
 
     try {
-      const quote = calculatePrintingQuote(bwInput.value, colorInput.value, paperSizeInput.value);
-      bwUnitOutput.textContent = `${formatCurrency(quote.blackAndWhiteUnitPrice)} por página`;
-      colorUnitOutput.textContent = `${formatCurrency(quote.colorUnitPrice)} por página`;
+      const quote = getQuote();
       serviceOutput.textContent = formatCurrency(quote.serviceCost);
-      bwOutput.textContent = formatCurrency(quote.blackAndWhiteCost);
-      colorOutput.textContent = formatCurrency(quote.colorCost);
+      bwOutput.textContent = formatCurrency(quote.formats.carta.blackAndWhiteCost);
+      colorOutput.textContent = formatCurrency(quote.formats.carta.colorCost);
+      bwOficioOutput.textContent = formatCurrency(quote.formats.oficio.blackAndWhiteCost);
+      colorOficioOutput.textContent = formatCurrency(quote.formats.oficio.colorCost);
       totalOutput.textContent = formatCurrency(quote.total);
       errorOutput.textContent = quote.hasPages ? '' : 'Agrega al menos una página para solicitar.';
-      paperSizeInput.removeAttribute('aria-invalid');
-      bwInput.removeAttribute('aria-invalid');
-      colorInput.removeAttribute('aria-invalid');
+      quantityInputs.forEach((input) => input.removeAttribute('aria-invalid'));
 
       setCallToAction(buildPrintingWhatsAppUrl(quote, { requestType: requestType() }));
       submitLabel.textContent = physical
@@ -120,13 +125,20 @@ function initializePrintingQuote() {
       }
     } catch (error) {
       errorOutput.textContent = error instanceof Error ? error.message : 'Revisa las cantidades.';
-      paperSizeInput.setAttribute('aria-invalid', 'true');
-      bwInput.setAttribute('aria-invalid', 'true');
-      colorInput.setAttribute('aria-invalid', 'true');
+      quantityInputs.forEach((input) => {
+        const count = input.value === '' ? NaN : Number(input.value);
+        if (!Number.isSafeInteger(count) || count < 0 || count > 500) {
+          input.setAttribute('aria-invalid', 'true');
+        } else {
+          input.removeAttribute('aria-invalid');
+        }
+      });
       setCallToAction(null);
       serviceOutput.textContent = '—';
       bwOutput.textContent = '—';
       colorOutput.textContent = '—';
+      bwOficioOutput.textContent = '—';
+      colorOficioOutput.textContent = '—';
       totalOutput.textContent = '—';
     }
   }
@@ -152,7 +164,7 @@ function initializePrintingQuote() {
 
     let quote;
     try {
-      quote = calculatePrintingQuote(bwInput.value, colorInput.value, paperSizeInput.value);
+      quote = getQuote();
     } catch {
       render();
       return;
@@ -176,7 +188,7 @@ function initializePrintingQuote() {
 
   quantityButtons.forEach((button) => {
     button.addEventListener('click', () => {
-      const input = button.dataset.printingTarget === 'printing-bw' ? bwInput : colorInput;
+      const input = root.querySelector(`#${button.dataset.printingTarget}`);
       const count = input.value === '' ? NaN : Number(input.value);
       const delta = Number(button.dataset.printingDelta);
       if (
@@ -190,9 +202,7 @@ function initializePrintingQuote() {
     });
   });
 
-  paperSizeInput.addEventListener('change', render);
-  bwInput.addEventListener('input', render);
-  colorInput.addEventListener('input', render);
+  quantityInputs.forEach((input) => input.addEventListener('input', render));
   fileInput.addEventListener('change', () => {
     shareFeedback.textContent = '';
     render();
