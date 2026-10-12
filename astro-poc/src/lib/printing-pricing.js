@@ -68,6 +68,31 @@ export function calculatePrintingQuote(blackAndWhite, color, paperSize = 'carta'
   };
 }
 
+/** Una sola cotización admite cantidades independientes en carta y oficio. */
+export function calculateCombinedPrintingQuote({ carta, oficio }) {
+  if (!carta || !oficio) {
+    throw new RangeError('Indica las cantidades de carta y oficio.');
+  }
+
+  const formats = {
+    carta: calculatePrintingQuote(carta.blackAndWhite, carta.color, 'carta'),
+    oficio: calculatePrintingQuote(oficio.blackAndWhite, oficio.color, 'oficio'),
+  };
+  const hasPages = formats.carta.hasPages || formats.oficio.hasPages;
+  const blackAndWhiteCost = formats.carta.blackAndWhiteCost + formats.oficio.blackAndWhiteCost;
+  const colorCost = formats.carta.colorCost + formats.oficio.colorCost;
+  const serviceCost = hasPages ? PRINTING_RATES.service : 0;
+
+  return {
+    formats,
+    hasPages,
+    blackAndWhiteCost,
+    colorCost,
+    serviceCost,
+    total: blackAndWhiteCost + colorCost + serviceCost,
+  };
+}
+
 /** Solo metadatos locales: el archivo jamás se carga ni almacena en esta web. */
 export function validatePrintingFile(file) {
   if (!file) {
@@ -98,15 +123,26 @@ export function buildPrintingWhatsAppMessage(quote, { requestType = 'archivo' } 
     return null;
   }
 
+  const formatLines = (quote.formats
+    ? Object.values(quote.formats).filter((format) => format.hasPages)
+    : [quote]
+  ).flatMap((format) => [
+    `Formato: ${format.paperSizeLabel}.`,
+    `Blanco y negro: ${format.blackAndWhitePages} página(s) a ${formatCurrency(format.blackAndWhiteUnitPrice)} c/u (${formatCurrency(format.blackAndWhiteCost)}).`,
+    `Color: ${format.colorPages} página(s) a ${formatCurrency(format.colorUnitPrice)} c/u (${formatCurrency(format.colorCost)}).`,
+  ]);
+
+  const sizesDescription = quote.formats
+    ? 'tamaños carta y/u oficio según el desglose'
+    : `tamaño ${quote.paperSizeLabel.toLowerCase()}`;
+
   const lines = [
     'Hola, quiero cotizar impresiones/fotocopias en El Rincón de Ébano.',
     `Tipo: ${requestType === 'archivo' ? 'impresión desde archivo digital' : 'fotocopia de originales físicos'}.`,
-    `Formato: ${quote.paperSizeLabel}.`,
-    `Blanco y negro: ${quote.blackAndWhitePages} página(s) a ${formatCurrency(quote.blackAndWhiteUnitPrice)} c/u (${formatCurrency(quote.blackAndWhiteCost)}).`,
-    `Color: ${quote.colorPages} página(s) a ${formatCurrency(quote.colorUnitPrice)} c/u (${formatCurrency(quote.colorCost)}).`,
+    ...formatLines,
     `Atención y entrega: ${formatCurrency(quote.serviceCost)} por pedido.`,
-    `Total estimado: ${formatCurrency(quote.total)}.`,
-    `Es para documentos en papel bond de 75 g/m², tamaño ${quote.paperSizeLabel.toLowerCase()} y a una cara.`,
+    `Total: ${formatCurrency(quote.total)}.`,
+    `Precios para documentos de texto en papel bond de 75 g/m², ${sizesDescription} y a una cara. Fotografías o impresiones de alta cobertura se cotizan aparte.`,
     requestType === 'archivo'
       ? 'Compartiré el archivo mediante el dispositivo o lo adjuntaré en este chat.'
       : 'Las cantidades son páginas finales estimadas. Necesito coordinar la recepción y devolución de los originales físicos; confirmaremos el precio tras revisarlos.',
