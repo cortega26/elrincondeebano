@@ -1,7 +1,7 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-12T21:29:41.035Z",
-  "rev": 32,
+  "last_updated": "2026-10-13T23:19:09.107Z",
+  "rev": 33,
   "schema_version": 1,
   "products": [
     {
@@ -2736,18 +2736,33 @@
       "id": "p-2bd74ac4350a"
     },
     {
-      "name": "Papas Corte Americano Marco Polo 170g",
+      "name": "Marco Polo • Papas Onduladas Corte Americano 170g",
       "description": "Bolsa de plástico",
       "price": 2000,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Americano 170g.webp",
       "image_avif_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Americano 170g.avif",
       "order": 118,
       "is_archived": false,
-      "rev": 0,
-      "field_last_modified": {},
+      "rev": 1,
+      "field_last_modified": {
+        "name": {
+          "ts": "2026-10-13T23:19:09.107Z",
+          "by": "catalog-maintenance",
+          "rev": 1,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2026-10-13T23:19:09.107Z",
+          "by": "catalog-maintenance",
+          "rev": 1,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      },
       "id": "p-2c90badf789c"
     },
     {
@@ -3381,17 +3396,17 @@
       "id": "p-0b1402e68bb5"
     },
     {
-      "name": "Lay's • Papas sabor Original",
+      "name": "Lay's • Papas Stax Original 134g",
       "description": "Tarro de 134g",
       "price": 2600,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Lays - Papas Originales 134g.webp",
       "image_avif_path": "assets/images/snacks_salados/Lays - Papas Originales 134g.avif",
       "order": 146,
       "is_archived": false,
-      "rev": 0,
+      "rev": 1,
       "field_last_modified": {
         "price": {
           "ts": "2026-03-20T17:20:35.812822Z",
@@ -3399,27 +3414,55 @@
           "rev": 0,
           "base_rev": 0,
           "changeset_id": null
+        },
+        "name": {
+          "ts": "2026-10-13T23:19:09.107Z",
+          "by": "catalog-maintenance",
+          "rev": 1,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2026-10-13T23:19:09.107Z",
+          "by": "catalog-maintenance",
+          "rev": 1,
+          "base_rev": 0,
+          "changeset_id": null
         }
       },
       "id": "p-59c67e743257"
     },
     {
-      "name": "Lay's • Papas sabor Queso",
+      "name": "Lay's • Papas Stax Queso Cheddar 134g",
       "description": "Tarro de 134g",
       "price": 2600,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Lays - Papas Queso 134g.webp",
       "image_avif_path": "assets/images/snacks_salados/Lays - Papas Queso 134g.avif",
       "order": 147,
       "is_archived": false,
-      "rev": 0,
+      "rev": 1,
       "field_last_modified": {
         "price": {
           "ts": "2026-03-20T17:20:38.755867Z",
           "by": "offline",
           "rev": 0,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "name": {
+          "ts": "2026-10-13T23:19:09.107Z",
+          "by": "catalog-maintenance",
+          "rev": 1,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "stock": {
+          "ts": "2026-10-13T23:19:09.107Z",
+          "by": "catalog-maintenance",
+          "rev": 1,
           "base_rev": 0,
           "changeset_id": null
         }
@@ -3450,22 +3493,22 @@
       "id": "p-79e36db8823e"
     },
     {
-      "name": "Marco Polo • Papas Lisas",
-      "description": "Bolsa de 200g",
+      "name": "Marco Polo • Papas Lisas Caseras 170g",
+      "description": "Bolsa de 170g",
       "price": 2500,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "SnacksSalados",
-      "image_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Liso 200g.webp",
-      "image_avif_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Liso 200g.avif",
+      "image_path": "assets/images/snacks_salados/Marco Polo - Papas Caseras 170g.jpg",
+      "image_avif_path": "assets/images/snacks_salados/Marco Polo - Papas Caseras 170g.avif",
       "order": 149,
       "is_archived": false,
-      "rev": 0,
+      "rev": 1,
       "field_last_modified": {
         "name": {
-          "ts": "2025-10-18T15:18:15.077Z",
-          "by": "offline",
-          "rev": 0,
+          "ts": "2026-10-13T23:19:09.107Z",
+          "by": "catalog-maintenance",
+          "rev": 1,
           "base_rev": 0,
           "changeset_id": null
         },
@@ -3477,9 +3520,30 @@
           "changeset_id": null
         },
         "stock": {
-          "ts": "2025-11-07T22:32:56.812Z",
-          "by": "offline",
-          "rev": 0,
+          "ts": "2026-10-13T23:19:09.107Z",
+          "by": "catalog-maintenance",
+          "rev": 1,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2026-10-13T23:19:09.107Z",
+          "by": "catalog-maintenance",
+          "rev": 1,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2026-10-13T23:19:09.107Z",
+          "by": "catalog-maintenance",
+          "rev": 1,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_avif_path": {
+          "ts": "2026-10-13T23:19:09.107Z",
+          "by": "catalog-maintenance",
+          "rev": 1,
           "base_rev": 0,
           "changeset_id": null
         }

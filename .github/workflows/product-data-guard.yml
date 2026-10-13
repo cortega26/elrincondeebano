@@ -50,7 +50,8 @@ jobs:
         id: tree_state
         shell: bash
         run: |
-          if [[ -n "$(git status --porcelain)" ]]; then
+          # Untracked image variants are build outputs; only tracked source/sync files must remain unchanged.
+          if [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
             echo "dirty_tree=true" >> "$GITHUB_OUTPUT"
           else
             echo "dirty_tree=false" >> "$GITHUB_OUTPUT"

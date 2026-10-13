@@ -1,6 +1,6 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-12T21:29:41.035Z",
+  "last_updated": "2026-10-13T23:19:09.107Z",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -1371,11 +1371,11 @@
       "is_archived": false
     },
     {
-      "name": "Papas Corte Americano Marco Polo 170g",
+      "name": "Marco Polo • Papas Onduladas Corte Americano 170g",
       "description": "Bolsa de plástico",
       "price": 2000,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Americano 170g.webp",
       "image_avif_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Americano 170g.avif",
@@ -1719,11 +1719,11 @@
       "is_archived": false
     },
     {
-      "name": "Lay's • Papas sabor Original",
+      "name": "Lay's • Papas Stax Original 134g",
       "description": "Tarro de 134g",
       "price": 2600,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Lays - Papas Originales 134g.webp",
       "image_avif_path": "assets/images/snacks_salados/Lays - Papas Originales 134g.avif",
@@ -1731,11 +1731,11 @@
       "is_archived": false
     },
     {
-      "name": "Lay's • Papas sabor Queso",
+      "name": "Lay's • Papas Stax Queso Cheddar 134g",
       "description": "Tarro de 134g",
       "price": 2600,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "SnacksSalados",
       "image_path": "assets/images/snacks_salados/Lays - Papas Queso 134g.webp",
       "image_avif_path": "assets/images/snacks_salados/Lays - Papas Queso 134g.avif",
@@ -1755,14 +1755,14 @@
       "is_archived": false
     },
     {
-      "name": "Marco Polo • Papas Lisas",
-      "description": "Bolsa de 200g",
+      "name": "Marco Polo • Papas Lisas Caseras 170g",
+      "description": "Bolsa de 170g",
       "price": 2500,
       "discount": 0,
-      "stock": false,
+      "stock": true,
       "category": "SnacksSalados",
-      "image_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Liso 200g.webp",
-      "image_avif_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Liso 200g.avif",
+      "image_path": "assets/images/snacks_salados/Marco Polo - Papas Caseras 170g.jpg",
+      "image_avif_path": "assets/images/snacks_salados/Marco Polo - Papas Caseras 170g.avif",
       "order": 149,
       "is_archived": false
     },

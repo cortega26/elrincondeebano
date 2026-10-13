@@ -7,7 +7,14 @@ function loadProductCatalog() {
 }
 
 function findWebpBackedProduct(products = []) {
-  return products.find((product) => /\.webp$/i.test(String(product?.image_path || ''))) || null;
+  return (
+    products.find(
+      (product) =>
+        product?.stock !== false &&
+        product?.is_archived !== true &&
+        /\.webp$/i.test(String(product?.image_path || ''))
+    ) || null
+  );
 }
 
 function getWebpBackedProduct() {
