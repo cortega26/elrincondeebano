@@ -28,28 +28,22 @@ export interface ApiError {
   };
 }
 
-const MUTATION_METHODS: ReadonlySet<string> = new Set(['POST', 'PATCH', 'PUT', 'DELETE']);
-
 /**
- * Raw-Response core: credential injection for mutations + fetch + 401 reset.
+ * Raw-Response core: credential injection for all requests + fetch + 401 reset.
  * Returns the Response untouched so binary/download paths (CSV export,
  * media upload callers) keep their streaming shape.
  */
 export async function fetchCore(url: string, init?: RequestInit): Promise<Response> {
-  const method = init?.method ?? 'GET';
-
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(init?.headers as Record<string, string> | undefined),
   };
 
-  if (MUTATION_METHODS.has(method)) {
-    // The credential is operator-supplied (plan 071); a 401 means it is
-    // missing/wrong and the CredentialPrompt must be shown.
-    const credential = getCredentialValue();
-    if (credential) {
-      headers['x-admin-credential'] = credential;
-    }
+  // In remote mode the API authenticates reads too. The server still ignores
+  // this header on localhost when the admin is running in local-only mode.
+  const credential = getCredentialValue();
+  if (credential) {
+    headers['x-admin-credential'] = credential;
   }
 
   const response = await fetch(url, {
