@@ -1,6 +1,6 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-13T23:19:09.107Z",
+  "last_updated": "2026-10-13T23:55:39.371Z",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -1757,7 +1757,7 @@
     {
       "name": "Marco Polo • Papas Lisas Caseras 170g",
       "description": "Bolsa de 170g",
-      "price": 2500,
+      "price": 2000,
       "discount": 0,
       "stock": true,
       "category": "SnacksSalados",

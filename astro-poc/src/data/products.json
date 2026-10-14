@@ -1,7 +1,7 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-13T23:19:09.107Z",
-  "rev": 33,
+  "last_updated": "2026-10-13T23:55:39.371Z",
+  "rev": 34,
   "schema_version": 1,
   "products": [
     {
@@ -3495,7 +3495,7 @@
     {
       "name": "Marco Polo • Papas Lisas Caseras 170g",
       "description": "Bolsa de 170g",
-      "price": 2500,
+      "price": 2000,
       "discount": 0,
       "stock": true,
       "category": "SnacksSalados",
@@ -3503,7 +3503,7 @@
       "image_avif_path": "assets/images/snacks_salados/Marco Polo - Papas Caseras 170g.avif",
       "order": 149,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2026-10-13T23:19:09.107Z",
@@ -3545,6 +3545,13 @@
           "by": "catalog-maintenance",
           "rev": 1,
           "base_rev": 0,
+          "changeset_id": null
+        },
+        "price": {
+          "ts": "2026-10-13T23:55:39.371Z",
+          "by": "catalog-maintenance",
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
