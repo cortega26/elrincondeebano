@@ -30,6 +30,25 @@ The server refuses to bind a non-loopback `HOST` and rejects requests whose
 `Host` header is not `localhost` / `127.0.0.1` / `[::1]` (DNS-rebinding
 protection, plan 071).
 
+### OCI remote mode (behind an authenticated Cloudflare Tunnel)
+
+Set `ADMIN_REMOTE_ORIGIN=https://admin.elrincondeebano.com` **only** on the
+OCI instance, leaving `HOST=127.0.0.1`. The hostname is added to the
+Host allowlist, browser mutations validate the HTTPS Origin, and **every
+API read and write requires `x-admin-credential`**, including requests whose
+source is loopback (the tunnel itself is local). Other hosts stay forbidden.
+
+**Cloudflare Access must have a deny-by-default policy before adding the
+hostname ingress/DNS route.** A tunnel alone does not provide user auth. This
+setting is not an authorization to open port 3000 on the public firewall.
+Use an independently generated, mode-0600 credential on the VM, not a token
+from Pogo-lab or Fintual Executor.
+
+Remote deployments must have a dedicated writable GitHub deploy key for the
+`elrincondeebano` repo before the Publish button can push to GitHub. Without
+one, local modifications must not be misrepresented as storefront releases.
+
+
 ## Launch credential
 
 The credential is **never served over HTTP** (plan 071). Either:
