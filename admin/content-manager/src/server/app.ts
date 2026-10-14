@@ -48,6 +48,8 @@ export interface AppOptions {
   enableWrites?: boolean;
   logger?: boolean;
   launchCredential?: string;
+  /** Dedicated HTTPS origin when run behind a loopback reverse tunnel. */
+  remoteOrigin?: string;
 }
 
 function loadSyncConfig(configPath: string): SyncConfig {
@@ -69,6 +71,27 @@ export type { SyncConfig };
 export function createApp(opts?: AppOptions): FastifyInstance {
   const repoRoot = opts?.repoRoot ?? process.env.REPO_ROOT ?? process.cwd();
   const enableWrites = opts?.enableWrites ?? false;
+  const configuredOrigin = opts?.remoteOrigin ?? process.env.ADMIN_REMOTE_ORIGIN;
+  // The tunnel connects to loopback, but the browser's Host/Origin use HTTPS.
+  // Reject malformed or non-HTTPS origins before any route is registered.
+  let remoteOrigin: string | undefined;
+  let remoteHost: string | undefined;
+  if (configuredOrigin) {
+    const url = new URL(configuredOrigin);
+    if (
+      url.protocol !== 'https:' ||
+      url.username ||
+      url.password ||
+      url.pathname !== '/' ||
+      url.search ||
+      url.hash ||
+      configuredOrigin !== url.origin
+    ) {
+      throw new Error('ADMIN_REMOTE_ORIGIN must be an exact HTTPS origin without path/query');
+    }
+    remoteOrigin = url.origin;
+    remoteHost = url.host;
+  }
   // The launch credential is never served over HTTP (see bootstrap.ts); the
   // operator supplies it via ADMIN_CREDENTIAL or it is read/generated via
   // data/.admin-credential (0600, plan 125/127 — see start.ts).
@@ -261,6 +284,18 @@ export function createApp(opts?: AppOptions): FastifyInstance {
     if (url.startsWith('/api/v1/health')) return;
 
     const routeClass = classifyRoute(request.method, url);
+    // Remote-mode requests all need a credential, even if the proxy connects
+    // from 127.0.0.1. A proxy's source IP is NOT an operator authentication.
+    if (remoteOrigin && url.startsWith('/api/v1/')) {
+      const credential = extractCredential(
+        request.headers as Record<string, string | string[] | undefined>
+      );
+      if (!validateCredential(credential, launchCredential)) {
+        return reply.status(401).send({
+          error: { code: 'UNAUTHORIZED', message: 'Valid launch credential required' },
+        });
+      }
+    }
 
     if (routeClass.class === 'mutation' || routeClass.class === 'preview') {
       if (!enableWrites) {
@@ -276,7 +311,7 @@ export function createApp(opts?: AppOptions): FastifyInstance {
       // (onRequest) rejects non-loopback Host; this bypass skips the
       // credential only for loopback requests (defense-in-depth retains the
       // check for any non-loopback ip/host that somehow reaches this hook).
-      if (isLoopbackRequest(request.ip, request.headers.host as string | string[] | undefined)) {
+      if (!remoteOrigin && isLoopbackRequest(request.ip, request.headers.host as string | string[] | undefined)) {
         return;
       }
       const credential = extractCredential(
@@ -297,8 +332,9 @@ export function createApp(opts?: AppOptions): FastifyInstance {
     // Host-header allowlist (DNS rebinding protection): the admin app is a
     // loopback-only control plane, so any other Host is rejected before any
     // origin/method logic runs — including on /health.
-    const host = (request.headers.host ?? '').replace(/:\d+$/, '').replace(/^\[|\]$/g, '');
-    if (!['localhost', '127.0.0.1', '::1'].includes(host)) {
+    const rawHost = request.headers.host ?? '';
+    const host = rawHost.replace(/:\d+$/, '').replace(/^\[|\]$/g, '');
+    if (!['localhost', '127.0.0.1', '::1'].includes(host) && rawHost !== remoteHost) {
       return reply.status(403).send({
         error: { code: 'FORBIDDEN', message: 'Invalid Host header' },
       });
@@ -329,7 +365,7 @@ export function createApp(opts?: AppOptions): FastifyInstance {
       // every real same-origin request on any non-default port (this admin
       // app defaults to :3000). The Host header was already validated
       // against the loopback allowlist above, so it's safe to reuse as-is.
-      const expectedOrigin = `${request.protocol}://${request.headers.host}`;
+      const expectedOrigin = rawHost === remoteHost ? remoteOrigin : `${request.protocol}://${rawHost}`;
       if (origin !== expectedOrigin) {
         return reply.status(403).send({
           error: { code: 'FORBIDDEN', message: 'Invalid origin' },
