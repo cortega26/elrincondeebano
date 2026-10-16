@@ -388,6 +388,19 @@ export function buildOpenApi() {
     summary: 'Diagnostics report',
     responses: jsonResponse(z.record(z.string(), z.unknown())),
   });
+  // Plan 217: comunicaciones privadas (loopback; PUT exige credencial).
+  registry.registerPath({
+    method: 'get',
+    path: '/api/v1/comms',
+    summary: 'Private WhatsApp comms document (templates, destinations, activity)',
+    responses: jsonResponse(z.record(z.string(), z.unknown())),
+  });
+  registry.registerPath({
+    method: 'put',
+    path: '/api/v1/comms',
+    summary: 'Replace comms document (optimistic rev check)',
+    responses: jsonResponse(z.record(z.string(), z.unknown())),
+  });
   registry.registerPath({
     method: 'get',
     path: '/api/v1/history',
