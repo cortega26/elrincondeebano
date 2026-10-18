@@ -3,12 +3,12 @@ const TEST_MODE =
   typeof module !== 'undefined' &&
   !(typeof globalThis !== 'undefined' && globalThis.__SW_RUNTIME_TEST__ === true);
 const CACHE_CONFIG = {
-  version: '2026-10-18-cart-freshness',
+  version: '2026-10-18-sw-hardening',
   prefixes: {
-    static: 'ebano-static-2026-10-18-cart-freshness',
-    dynamic: 'ebano-dynamic-2026-10-18-cart-freshness',
-    products: 'ebano-products-2026-05-01-b',
-    html: 'ebano-html-2026-10-18-cart-freshness',
+    static: 'ebano-static-2026-10-18-sw-hardening',
+    dynamic: 'ebano-dynamic-2026-10-18-sw-hardening',
+    products: 'ebano-products-2026-10-18-sw-hardening',
+    html: 'ebano-html-2026-10-18-sw-hardening',
   },
   duration: {
     html: 24 * 60 * 60 * 1000, // 1 day for HTML navigations (SSG, changes only on deploy)
@@ -105,7 +105,7 @@ const addTimestamp = async (response, type = 'static') => {
   const headers = new Headers(response.headers);
   headers.append('sw-timestamp', Date.now().toString());
   headers.append('cache-type', type);
-  return new Response(await response.blob(), {
+  return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
     headers: headers,
@@ -463,17 +463,25 @@ async function invalidateCache(cacheName) {
   }
 }
 
-// Helper function to invalidate all caches
+// Helper function to invalidate all caches except the install-seeded static
+// shell. The shell (`/index.html`, `/pages/offline.html`, placeholder, icons)
+// is only seeded in the install event, so deleting it on a cacheVersion bump
+// that does not change this file's bytes would drop offline navigation to the
+// plain 503 fallback. `staticAssets` are version-pinned by the SW version
+// itself and `/_astro/*` already bypasses the cache, so the shell never needs
+// a per-invalidation purge.
 async function invalidateAllCaches() {
   try {
     const cacheNames = await caches.keys();
-    const validPrefixes = Object.values(CACHE_CONFIG.prefixes);
+    const purgePrefixes = Object.values(CACHE_CONFIG.prefixes).filter(
+      (prefix) => prefix !== CACHE_CONFIG.prefixes.static
+    );
     await Promise.all(
       cacheNames
-        .filter((name) => validPrefixes.some((prefix) => name.startsWith(prefix)))
+        .filter((name) => purgePrefixes.some((prefix) => name.startsWith(prefix)))
         .map((name) => caches.delete(name))
     );
-    console.log('All caches invalidated successfully');
+    console.log('All caches invalidated successfully (static shell preserved)');
   } catch (error) {
     console.error('Error invalidating all caches:', error);
     throw error; // Propagate error for proper handling in message response
