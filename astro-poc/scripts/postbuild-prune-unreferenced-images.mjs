@@ -8,9 +8,9 @@
 
 import { readdirSync, readFileSync, statSync, unlinkSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { join, resolve } from 'node:path';
+import { join, relative, resolve, sep } from 'node:path';
 
-export { collectManifestAndWorkerReferencedAssets };
+export { collectManifestAndWorkerReferencedAssets, pruneUnreferencedImages };
 
 const REPO_ROOT = resolve(import.meta.dirname, '..', '..');
 const DIST_ROOT = join(REPO_ROOT, 'astro-poc', 'dist');
@@ -115,6 +115,36 @@ function collectManifestAndWorkerReferencedAssets(readFile = readFileSync, distR
   return referenced;
 }
 
+// Plan 235: walk recursivo bajo imagesRoot. El walk de dos niveles anterior
+// solo miraba archivos directos dentro de assets/images/<cat>/ y saltaba
+// directorios, así que los árboles anidados (variants/w<ancho>/...) nunca se
+// podaban y ~57 MB de anchos sin referencia viajaban en cada deploy. Las rutas
+// se comparan relativas a imagesRoot con prefijo assets/images/ (mismo
+// contrato de rutas que collectReferencedAssets).
+function pruneUnreferencedImages(imagesRoot, referenced) {
+  let removed = 0;
+  let freed = 0;
+
+  const walk = (dir) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(full);
+        continue;
+      }
+      const rel = relative(imagesRoot, full).split(sep).join('/');
+      const assetRel = `assets/images/${rel}`;
+      if (referenced.has(assetRel)) continue;
+      freed += statSync(full).size;
+      unlinkSync(full);
+      removed += 1;
+    }
+  };
+
+  walk(imagesRoot);
+  return { removed, freed };
+}
+
 async function run() {
   const htmlRefs = collectReferencedAssets();
   const dataRefs = collectDataReferencedAssets();
@@ -124,22 +154,7 @@ async function run() {
   void dataRefs;
   void staticRefs;
   const imagesRoot = join(DIST_ROOT, 'assets', 'images');
-  let removed = 0;
-  let freed = 0;
-
-  for (const category of readdirSync(imagesRoot, { withFileTypes: true })) {
-    if (!category.isDirectory()) continue;
-    const categoryPath = join(imagesRoot, category.name);
-    for (const file of readdirSync(categoryPath, { withFileTypes: true })) {
-      if (!file.isFile()) continue;
-      const rel = `assets/images/${category.name}/${file.name}`;
-      if (referenced.has(rel)) continue;
-      const absolute = join(categoryPath, file.name);
-      freed += statSync(absolute).size;
-      unlinkSync(absolute);
-      removed += 1;
-    }
-  }
+  const { removed, freed } = pruneUnreferencedImages(imagesRoot, referenced);
 
   console.log(
     `[prune-images] removed ${removed} unreferenced image(s) from dist (${(freed / 1048576).toFixed(1)} MB freed).`
