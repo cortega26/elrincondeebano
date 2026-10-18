@@ -1,12 +1,12 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-18T15:02:22.434Z",
-  "rev": 39,
+  "last_updated": "2026-10-18T16:37:25.120Z",
+  "rev": 40,
   "schema_version": 1,
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
-      "description": "Dos Rollos de 14m c/u. Papel absorbente para tareas cotidianas de cocina y limpieza.",
+      "description": "Dos Rollos de 14m c/u",
       "price": 2000,
       "discount": 0,
       "stock": false,
@@ -15,7 +15,7 @@
       "image_avif_path": "assets/images/limpieza_y_aseo/Nova Clásica 2x14m.avif",
       "order": 0,
       "is_archived": false,
-      "rev": 4,
+      "rev": 5,
       "field_last_modified": {
         "stock": {
           "ts": "2026-10-12T21:05:00.000Z",
@@ -25,10 +25,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 4,
-          "base_rev": 3,
+          "rev": 5,
+          "base_rev": 4,
           "changeset_id": null
         }
       },
@@ -36,7 +36,7 @@
     },
     {
       "name": "Mont Blanc • Harina sin polvos",
-      "description": "Empaque de 1Kg. Para preparar masas, panes y recetas de cocina o repostería.",
+      "description": "Empaque de 1Kg",
       "price": 1800,
       "discount": 0,
       "stock": true,
@@ -45,7 +45,7 @@
       "image_avif_path": "assets/images/despensa/Harina Mont Blanc 1Kg.avif",
       "order": 1,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-17T18:27:19.701Z",
@@ -62,10 +62,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -73,7 +73,7 @@
     },
     {
       "name": "Coca-Cola 3L",
-      "description": "Envase retornable. Bebida gaseosa para acompañar comidas o compartir.",
+      "description": "Envase retornable",
       "price": 3800,
       "discount": 0,
       "stock": true,
@@ -82,7 +82,7 @@
       "image_avif_path": "assets/images/bebidas/Coca Cola 3L.avif",
       "order": 2,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-03-30T20:22:38.928121Z",
@@ -99,10 +99,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -133,7 +133,7 @@
     },
     {
       "name": "Benedictino • Agua gasificada 2L",
-      "description": "Envase desechable. Agua para tener a mano en casa y acompañar las comidas.",
+      "description": "Envase desechable",
       "price": 2000,
       "discount": 0,
       "stock": false,
@@ -142,7 +142,7 @@
       "image_avif_path": "assets/images/bebidas/Agua 2L con gas Benedictino.avif",
       "order": 5,
       "is_archived": true,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "stock": {
           "ts": "2026-03-30T18:28:43.133973Z",
@@ -159,10 +159,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -185,7 +185,7 @@
     },
     {
       "name": "Líder • Tortilla Grande Mexicana",
-      "description": "Empaque de 350g. Para tacos, wraps y otras preparaciones.",
+      "description": "Empaque de 350g",
       "price": 2400,
       "discount": 500,
       "stock": false,
@@ -194,7 +194,7 @@
       "image_avif_path": "assets/images/despensa/Tortilla grande mexicana Líder 350g.avif",
       "order": 8,
       "is_archived": true,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "stock": {
           "ts": "2026-03-10T18:05:15.619868Z",
@@ -211,10 +211,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -222,7 +222,7 @@
     },
     {
       "name": "Great Value • Mostaza Clásica",
-      "description": "Botella de 397g. Para sándwiches, hamburguesas y aderezos.",
+      "description": "Botella de 397g",
       "price": 3500,
       "discount": 0,
       "stock": false,
@@ -231,7 +231,7 @@
       "image_avif_path": "assets/images/despensa/Mostaza Great Value 397g.avif",
       "order": 9,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-17T18:26:54.534Z",
@@ -255,10 +255,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -266,7 +266,7 @@
     },
     {
       "name": "Sprite 3L",
-      "description": "Envase desechable. Bebida gaseosa para acompañar comidas o compartir.",
+      "description": "Envase desechable",
       "price": 3800,
       "discount": 0,
       "stock": true,
@@ -275,7 +275,7 @@
       "image_avif_path": "assets/images/bebidas/Sprite 3L desechable.avif",
       "order": 10,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2025-10-14T15:25:14.308Z",
@@ -285,10 +285,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -296,7 +296,7 @@
     },
     {
       "name": "Líder • Salame Italiano",
-      "description": "Empaque de 100g. Para sándwiches, tablas y picoteos.",
+      "description": "Empaque de 100g",
       "price": 1900,
       "discount": 0,
       "stock": false,
@@ -305,7 +305,7 @@
       "image_avif_path": "assets/images/carnes_y_embutidos/Salame Italiano Líder 100g.avif",
       "order": 12,
       "is_archived": true,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "is_archived": {
           "ts": "2026-09-15T14:31:17.173Z",
@@ -315,10 +315,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -326,7 +326,7 @@
     },
     {
       "name": "Queso Llanero 1Kg",
-      "description": "A granel, trozo. Para sándwiches, desayunos y preparaciones de cocina.",
+      "description": "A granel, trozo",
       "price": 10000,
       "discount": 0,
       "stock": true,
@@ -335,13 +335,13 @@
       "image_avif_path": "assets/images/lacteos/Queso-Llanero2.avif",
       "order": 13,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -349,7 +349,7 @@
     },
     {
       "name": "Iansa • Azúcar Blanca",
-      "description": "Empaque de 900g. Para endulzar bebidas y preparar recetas dulces.",
+      "description": "Empaque de 900g",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -358,7 +358,7 @@
       "image_avif_path": "assets/images/despensa/Azúcar blanca Iansa 900g.avif",
       "order": 14,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2026-03-15T22:22:22.684502Z",
@@ -368,10 +368,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -379,7 +379,7 @@
     },
     {
       "name": "Coca-Cola Zero 3L",
-      "description": "Envase retornable. Bebida gaseosa para acompañar comidas o compartir.",
+      "description": "Envase retornable",
       "price": 3800,
       "discount": 0,
       "stock": false,
@@ -388,7 +388,7 @@
       "image_avif_path": "assets/images/bebidas/Coca Cola Zero 3L.avif",
       "order": 15,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-03-30T20:22:25.551651Z",
@@ -405,10 +405,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -439,7 +439,7 @@
     },
     {
       "name": "Kross • Cerveza Golden Pale Ale",
-      "description": "Lata de 470cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
+      "description": "Lata de 470cc x 6 unidades",
       "price": 13000,
       "discount": 0,
       "stock": true,
@@ -448,7 +448,7 @@
       "image_avif_path": "assets/images/cervezas/Kross lata 470mL.avif",
       "order": 17,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2026-03-20T17:17:18.069191Z",
@@ -458,10 +458,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -469,7 +469,7 @@
     },
     {
       "name": "Crunchis Queso Marco Polo 160g",
-      "description": "Bolsa de 160 g de Crunchis sabor queso. Snack salado para picotear o compartir.",
+      "description": "Bolsa de 160 g.",
       "price": 2000,
       "discount": 0,
       "stock": false,
@@ -478,7 +478,7 @@
       "image_avif_path": "assets/images/snacks_salados/Crunchis Queso 160g.avif",
       "order": 18,
       "is_archived": true,
-      "rev": 3,
+      "rev": 4,
       "field_last_modified": {
         "is_archived": {
           "ts": "2026-09-15T14:31:28.934Z",
@@ -488,10 +488,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:02:22.434Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 3,
-          "base_rev": 2,
+          "rev": 4,
+          "base_rev": 3,
           "changeset_id": null
         }
       },
@@ -499,7 +499,7 @@
     },
     {
       "name": "McKay • Galletas de Coco",
-      "description": "Empaque de 120g. Galletas para acompañar café, té o una colación.",
+      "description": "Empaque de 120g",
       "price": 1300,
       "discount": 0,
       "stock": false,
@@ -508,13 +508,13 @@
       "image_avif_path": "assets/images/snacks_dulces/Galletas Coco McKay 120g.avif",
       "order": 19,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "order": {
@@ -529,7 +529,7 @@
     },
     {
       "name": "Líder • Salsa de tomate",
-      "description": "Botella de 680 g de salsa de tomate tipo ketchup. Para acompañar papas fritas, sándwiches y otras comidas.",
+      "description": "Botella de 680g",
       "price": 3500,
       "discount": 0,
       "stock": false,
@@ -538,7 +538,7 @@
       "image_avif_path": "assets/images/despensa/Salsa de Tomate Ketchup Lider 680g.avif",
       "order": 20,
       "is_archived": false,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-17T18:25:32.501Z",
@@ -555,10 +555,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:02:22.434Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -566,7 +566,7 @@
     },
     {
       "name": "McKay • Galletas Niza",
-      "description": "Empaque de 150g. Galletas para acompañar café, té o una colación.",
+      "description": "Empaque de 150g",
       "price": 1300,
       "discount": 0,
       "stock": false,
@@ -575,7 +575,7 @@
       "image_avif_path": "assets/images/snacks_dulces/Galletas Niza McKay 150g.avif",
       "order": 21,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-01-26T22:03:42.971203Z",
@@ -592,10 +592,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -603,7 +603,7 @@
     },
     {
       "name": "McKay • Galletas de Mantequilla",
-      "description": "Empaque de 140g. Galletas para acompañar café, té o una colación.",
+      "description": "Empaque de 140g",
       "price": 1300,
       "discount": 0,
       "stock": false,
@@ -612,7 +612,7 @@
       "image_avif_path": "assets/images/snacks_dulces/Galletas Mantequilla McKay 140g.avif",
       "order": 22,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2025-11-08T14:36:54.918Z",
@@ -622,10 +622,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -633,7 +633,7 @@
     },
     {
       "name": "Mantequilla Kumey 250g",
-      "description": "Artesanal. Para untar, cocinar y preparar recetas.",
+      "description": "Artesanal",
       "price": 3500,
       "discount": 0,
       "stock": true,
@@ -642,7 +642,7 @@
       "image_avif_path": "assets/images/lacteos/Mantequilla Kumey.avif",
       "order": 23,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2026-08-11T01:11:03.625629Z",
@@ -652,10 +652,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -663,7 +663,7 @@
     },
     {
       "name": "Easy Clean Lavanda L",
-      "description": "Arena Sanitaria - Bolsa de 8Kg/10L. Para preparar el espacio sanitario de tu mascota.",
+      "description": "Arena Sanitaria - Bolsa de 8Kg/10L",
       "price": 9500,
       "discount": 0,
       "stock": true,
@@ -672,7 +672,7 @@
       "image_avif_path": "assets/images/mascotas/easy-clean-lavanda4474.avif",
       "order": 24,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-02-13T14:07:25.090559Z",
@@ -682,10 +682,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -708,7 +708,7 @@
     },
     {
       "name": "Espumante Rosé • Misiones de Rengo",
-      "description": "Botella de 750mL. Espumante para servir en celebraciones o encuentros.",
+      "description": "Botella de 750mL",
       "price": 6900,
       "discount": 0,
       "stock": false,
@@ -717,7 +717,7 @@
       "image_avif_path": "assets/images/espumantes/Espumante Misiones de Rengo Rosé.avif",
       "order": 26,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2026-03-30T20:48:22.446684Z",
@@ -727,10 +727,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "order": {
@@ -745,7 +745,7 @@
     },
     {
       "name": "Espumante Demisec • Misiones de Rengo",
-      "description": "Botella de 750mL. Espumante para servir en celebraciones o encuentros.",
+      "description": "Botella de 750mL",
       "price": 6900,
       "discount": 0,
       "stock": false,
@@ -754,7 +754,7 @@
       "image_avif_path": "assets/images/espumantes/Espumante Misiones de Rengo Demi Sec.avif",
       "order": 27,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2026-03-30T20:48:06.198633Z",
@@ -764,10 +764,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "order": {
@@ -782,7 +782,7 @@
     },
     {
       "name": "Espumante Brut • Misiones de Rengo",
-      "description": "Botella de 750mL. Espumante para servir en celebraciones o encuentros.",
+      "description": "Botella de 750mL",
       "price": 6900,
       "discount": 0,
       "stock": false,
@@ -791,7 +791,7 @@
       "image_avif_path": "assets/images/espumantes/Espumante Misiones de Rengo Brut.avif",
       "order": 28,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2026-03-30T20:47:44.862187Z",
@@ -801,10 +801,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "stock": {
@@ -826,7 +826,7 @@
     },
     {
       "name": "Espumante Brut • Undurraga",
-      "description": "Botella de 750mL. Espumante para servir en celebraciones o encuentros.",
+      "description": "Botella de 750mL",
       "price": 6900,
       "discount": 0,
       "stock": true,
@@ -835,7 +835,7 @@
       "image_avif_path": "assets/images/espumantes/Undurraga - Espumante Brut 750mL.avif",
       "order": 29,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2026-03-30T20:47:20.911948Z",
@@ -845,10 +845,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "image_path": {
@@ -877,7 +877,7 @@
     },
     {
       "name": "Pisco Especial 35° • Alto del Carmen",
-      "description": "Botella de 750 mL. Para preparar cócteles o servir según preferencia.",
+      "description": "Botella de 750 mL",
       "price": 8000,
       "discount": 1100,
       "stock": true,
@@ -886,7 +886,7 @@
       "image_avif_path": "assets/images/piscos/Pisco Alto del Carmen Especial 35° 750mL.avif",
       "order": 30,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "order": {
           "ts": "2026-04-11T06:25:11.972390Z",
@@ -896,10 +896,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -907,7 +907,7 @@
     },
     {
       "name": "Pisco Especial 35° g • Alto del Carmen",
-      "description": "Botella de 1L. Para preparar cócteles o servir según preferencia.",
+      "description": "Botella de 1L",
       "price": 9900,
       "discount": 0,
       "stock": true,
@@ -916,7 +916,7 @@
       "image_avif_path": "assets/images/piscos/Pisco Alto del Carmen Especial 35° 1L.avif",
       "order": 31,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-03-15T22:36:04.232243Z",
@@ -926,10 +926,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -937,7 +937,7 @@
     },
     {
       "name": "Corona • Cerveza Lager",
-      "description": "Lata de 473cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
+      "description": "Lata de 473cc x 6 unidades",
       "price": 6900,
       "discount": 0,
       "stock": false,
@@ -946,7 +946,7 @@
       "image_avif_path": "assets/images/cervezas/Corona Extra lata 473cc.avif",
       "order": 32,
       "is_archived": true,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-18T00:25:32.081Z",
@@ -956,10 +956,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         },
         "order": {
@@ -981,7 +981,7 @@
     },
     {
       "name": "Tocino Ahumado La Preferida",
-      "description": "Empaque de 500g. Para desayunos, sándwiches y preparaciones de cocina.",
+      "description": "Empaque de 500g",
       "price": 7500,
       "discount": 0,
       "stock": false,
@@ -990,13 +990,13 @@
       "image_avif_path": "assets/images/carnes_y_embutidos/Tocino Ahumado La Preferida 500g.avif",
       "order": 33,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -1004,7 +1004,7 @@
     },
     {
       "name": "Leche Semidescremada Deslactosada",
-      "description": "Envase Tetrabrik de 1L. Leche semidescremada deslactosada para desayunos, café y preparaciones cotidianas.",
+      "description": "Envase Tetrabrik de 1L",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -1013,7 +1013,7 @@
       "image_avif_path": "assets/images/lacteos/Leche semidescremada deslactosada Surlat 1L.avif",
       "order": 34,
       "is_archived": false,
-      "rev": 3,
+      "rev": 4,
       "field_last_modified": {
         "stock": {
           "ts": "2026-02-13T14:06:34.562485Z",
@@ -1030,10 +1030,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:02:22.434Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 3,
-          "base_rev": 2,
+          "rev": 4,
+          "base_rev": 3,
           "changeset_id": null
         }
       },
@@ -1041,7 +1041,7 @@
     },
     {
       "name": "Pepita de Oro • Aceite de Oliva Extra Virgen",
-      "description": "Botella de 1L. Para aliños, ensaladas y preparaciones de cocina.",
+      "description": "Botella de 1L",
       "price": 12900,
       "discount": 1000,
       "stock": false,
@@ -1050,7 +1050,7 @@
       "image_avif_path": "assets/images/despensa/Aceite de Oliva Pepita de Oro 1L.avif",
       "order": 35,
       "is_archived": false,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-17T18:27:32.813Z",
@@ -1074,10 +1074,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -1085,7 +1085,7 @@
     },
     {
       "name": "El Peñón • Café Gourmet",
-      "description": "Empaque de 500g. Para preparar café en casa o en la oficina.",
+      "description": "Empaque de 500g",
       "price": 6900,
       "discount": 1000,
       "stock": false,
@@ -1094,7 +1094,7 @@
       "image_avif_path": "assets/images/despensa/Cafe-El-Peñon-Gourmet-500g.avif",
       "order": 36,
       "is_archived": true,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-17T18:28:27.253Z",
@@ -1118,10 +1118,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -1129,7 +1129,7 @@
     },
     {
       "name": "Becker • Cerveza Lager",
-      "description": "Lata de 354cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
+      "description": "Lata de 354cc x 6 unidades",
       "price": 3500,
       "discount": 0,
       "stock": false,
@@ -1138,7 +1138,7 @@
       "image_avif_path": "assets/images/cervezas/Becker lata 350cc.avif",
       "order": 37,
       "is_archived": true,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-18T00:25:07.152Z",
@@ -1148,10 +1148,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "order": {
@@ -1166,7 +1166,7 @@
     },
     {
       "name": "Coors • Cerveza Lager",
-      "description": "Botella de 355cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
+      "description": "Botella de 355cc x 6 unidades",
       "price": 7900,
       "discount": 0,
       "stock": true,
@@ -1175,7 +1175,7 @@
       "image_avif_path": "assets/images/cervezas/Coors botella 355cc.avif",
       "order": 38,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2026-03-20T17:14:41.409071Z",
@@ -1185,10 +1185,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -1196,7 +1196,7 @@
     },
     {
       "name": "Coors • Cerveza Lager",
-      "description": "Lata de 350cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
+      "description": "Lata de 350cc x 6 unidades",
       "price": 6900,
       "discount": 0,
       "stock": false,
@@ -1205,7 +1205,7 @@
       "image_avif_path": "assets/images/cervezas/Coors lata 350cc.avif",
       "order": 39,
       "is_archived": true,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "price": {
           "ts": "2026-03-20T17:14:49.400345Z",
@@ -1222,10 +1222,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -1233,7 +1233,7 @@
     },
     {
       "name": "Cristal • Cerveza Lager",
-      "description": "Lata de 350cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
+      "description": "Lata de 350cc x 6 unidades",
       "price": 4500,
       "discount": 0,
       "stock": false,
@@ -1242,7 +1242,7 @@
       "image_avif_path": "assets/images/cervezas/Cristal lata b350cc.avif",
       "order": 40,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-03-10T23:58:06.171186Z",
@@ -1252,10 +1252,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -1263,7 +1263,7 @@
     },
     {
       "name": "Heineken • Cerveza Lager",
-      "description": "Lata de 350cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
+      "description": "Lata de 350cc x 6 unidades",
       "price": 6800,
       "discount": 0,
       "stock": true,
@@ -1272,7 +1272,7 @@
       "image_avif_path": "assets/images/cervezas/Heineken lata 350cc.avif",
       "order": 41,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2026-03-20T17:12:57.682649Z",
@@ -1282,10 +1282,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -1293,7 +1293,7 @@
     },
     {
       "name": "Royal Guard • Cerveza Lager",
-      "description": "Lata de 350cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
+      "description": "Lata de 350cc x 6 unidades",
       "price": 5900,
       "discount": 0,
       "stock": true,
@@ -1302,7 +1302,7 @@
       "image_avif_path": "assets/images/cervezas/Royal Guard lata 350cc.avif",
       "order": 42,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2026-03-20T17:12:13.542135Z",
@@ -1312,10 +1312,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -1323,7 +1323,7 @@
     },
     {
       "name": "Stella Artois • Cerveza Lager",
-      "description": "Lata de 354cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
+      "description": "Lata de 354cc x 6 unidades",
       "price": 5900,
       "discount": 0,
       "stock": true,
@@ -1332,7 +1332,7 @@
       "image_avif_path": "assets/images/cervezas/Stella Artois lata 350cc.avif",
       "order": 43,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "discount": {
           "ts": "2026-06-14T21:40:50.690872Z",
@@ -1342,10 +1342,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -1353,7 +1353,7 @@
     },
     {
       "name": "Stones • Cerveza Lemon",
-      "description": "Lata de 350cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
+      "description": "Lata de 350cc x 6 unidades",
       "price": 6900,
       "discount": 0,
       "stock": true,
@@ -1362,7 +1362,7 @@
       "image_avif_path": "assets/images/cervezas/Stones - Lemon lata 350cc.avif",
       "order": 44,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2025-11-22T15:58:43.848Z",
@@ -1372,10 +1372,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -1383,7 +1383,7 @@
     },
     {
       "name": "Crema de Leche Surlat",
-      "description": "Presentación de 200mL. Para salsas, postres y recetas que requieren crema.",
+      "description": "Presentación de 200mL",
       "price": 1500,
       "discount": 0,
       "stock": false,
@@ -1392,7 +1392,7 @@
       "image_avif_path": "assets/images/lacteos/Crema de leche Surlat 200mL.avif",
       "order": 45,
       "is_archived": false,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "stock": {
           "ts": "2026-09-15T15:43:37.500Z",
@@ -1409,10 +1409,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -1420,7 +1420,7 @@
     },
     {
       "name": "PAN • Harina de Maiz",
-      "description": "Empaque de 1Kg. Para preparar masas, panes y recetas de cocina o repostería.",
+      "description": "Empaque de 1Kg",
       "price": 2500,
       "discount": 100,
       "stock": true,
@@ -1429,7 +1429,7 @@
       "image_avif_path": "assets/images/despensa/Harina-de-Maiz-blanca-PAN-1-kg.avif",
       "order": 46,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2026-08-11T01:11:37.446960Z",
@@ -1453,10 +1453,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -1464,7 +1464,7 @@
     },
     {
       "name": "Nescafé • Café Fina Selección",
-      "description": "Frasco de 200g. Para preparar café en casa o en la oficina.",
+      "description": "Frasco de 200g",
       "price": 11900,
       "discount": 0,
       "stock": true,
@@ -1473,7 +1473,7 @@
       "image_avif_path": "assets/images/despensa/Cafe-Nescafe-Fina-Seleccion-200-g.avif",
       "order": 47,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-03-12T00:49:12.627528Z",
@@ -1483,10 +1483,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -1494,7 +1494,7 @@
     },
     {
       "name": "Queso Crema Rafulco",
-      "description": "Presentación de 190g. Para untar en panes, tostadas y preparar salsas.",
+      "description": "Presentación de 190g",
       "price": 1900,
       "discount": 0,
       "stock": false,
@@ -1503,7 +1503,7 @@
       "image_avif_path": "assets/images/lacteos/Queso Crema Rafulco 190g.avif",
       "order": 48,
       "is_archived": true,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "is_archived": {
           "ts": "2026-09-15T14:32:36.451Z",
@@ -1513,10 +1513,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -1524,7 +1524,7 @@
     },
     {
       "name": "Queso Gauda La Vaquita",
-      "description": "Laminado 400g. Para sándwiches, desayunos y preparaciones de cocina.",
+      "description": "Laminado 400g",
       "price": 4900,
       "discount": 0,
       "stock": false,
@@ -1533,7 +1533,7 @@
       "image_avif_path": "assets/images/lacteos/Queso Gauda La Vaquita 400g.avif",
       "order": 49,
       "is_archived": false,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "stock": {
           "ts": "2026-09-15T14:32:40.500Z",
@@ -1543,10 +1543,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -1554,7 +1554,7 @@
     },
     {
       "name": "Chuleta Ahumada con hueso x Kg",
-      "description": "Empaque congelado y al vacío (peso aprox. 600g). Para preparar comidas caseras; conservar según las indicaciones del envase.",
+      "description": "Empaque congelado y al vacío (peso aprox. 600g)",
       "price": 9900,
       "discount": 0,
       "stock": true,
@@ -1563,7 +1563,7 @@
       "image_avif_path": "assets/images/carnes_y_embutidos/Chuleta Ahumada con hueso.avif",
       "order": 51,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2026-03-30T20:34:33.411430Z",
@@ -1580,10 +1580,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -1591,7 +1591,7 @@
     },
     {
       "name": "PF • Jamón de Pierna Acaramelado",
-      "description": "Empaque al vacío de 200g. Para sándwiches, tablas y picoteos.",
+      "description": "Empaque al vacío de 200g",
       "price": 2900,
       "discount": 0,
       "stock": true,
@@ -1600,7 +1600,7 @@
       "image_avif_path": "assets/images/carnes_y_embutidos/Jamón PF acaramelado 200g.avif",
       "order": 52,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2026-01-13T22:38:07.708610Z",
@@ -1617,10 +1617,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -1628,7 +1628,7 @@
     },
     {
       "name": "Salame La Preferida",
-      "description": "Empaque al vacío de 500g. Para sándwiches, tablas y picoteos.",
+      "description": "Empaque al vacío de 500g",
       "price": 7500,
       "discount": 600,
       "stock": false,
@@ -1637,7 +1637,7 @@
       "image_avif_path": "assets/images/carnes_y_embutidos/Salame La Preferida 500g.avif",
       "order": 53,
       "is_archived": true,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "is_archived": {
           "ts": "2026-09-15T14:32:58.016Z",
@@ -1647,10 +1647,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -1658,7 +1658,7 @@
     },
     {
       "name": "Sprite Zero 2L",
-      "description": "Envase retornable. Bebida gaseosa para acompañar comidas o compartir.",
+      "description": "Envase retornable",
       "price": 3000,
       "discount": 0,
       "stock": true,
@@ -1667,7 +1667,7 @@
       "image_avif_path": "assets/images/bebidas/Sprite 2L zero.avif",
       "order": 54,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2025-10-14T15:25:21.119Z",
@@ -1677,10 +1677,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -1688,7 +1688,7 @@
     },
     {
       "name": "Fanta 3L",
-      "description": "Envase retornable. Bebida gaseosa para acompañar comidas o compartir.",
+      "description": "Envase retornable",
       "price": 3800,
       "discount": 0,
       "stock": true,
@@ -1697,7 +1697,7 @@
       "image_avif_path": "assets/images/bebidas/Fanta Naranja 3L retornable.avif",
       "order": 55,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-02-13T13:53:44.905940Z",
@@ -1707,10 +1707,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -1718,7 +1718,7 @@
     },
     {
       "name": "Fanta Zero 2L",
-      "description": "Envase retornable. Bebida gaseosa para acompañar comidas o compartir.",
+      "description": "Envase retornable",
       "price": 3000,
       "discount": 0,
       "stock": true,
@@ -1727,7 +1727,7 @@
       "image_avif_path": "assets/images/bebidas/Fanta 2L zero.avif",
       "order": 56,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2025-10-14T15:25:27.856Z",
@@ -1737,10 +1737,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -1899,7 +1899,7 @@
     },
     {
       "name": "Kunstmann • Cerveza Torobayo",
-      "description": "Lata de 470cc. Cerveza para servir fría o compartir en encuentros.",
+      "description": "Lata de 470cc",
       "price": 2200,
       "discount": 0,
       "stock": true,
@@ -1908,7 +1908,7 @@
       "image_avif_path": "assets/images/cervezas/Kunstmann Torobayo lata 470cc.avif",
       "order": 66,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2026-03-20T17:12:39.818750Z",
@@ -1918,10 +1918,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -1929,7 +1929,7 @@
     },
     {
       "name": "Budweiser • Cerveza Lager",
-      "description": "Lata de 354cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
+      "description": "Lata de 354cc x 6 unidades",
       "price": 5900,
       "discount": 0,
       "stock": true,
@@ -1938,7 +1938,7 @@
       "image_avif_path": "assets/images/cervezas/budweiser lata 350cc.avif",
       "order": 67,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2026-03-20T17:15:00.440953Z",
@@ -1948,10 +1948,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -1959,7 +1959,7 @@
     },
     {
       "name": "Paños Wypall X50",
-      "description": "34cm x 28,8cm • 50 paños reusables. Paños para tareas de limpieza y mantenimiento cotidiano.",
+      "description": "34cm x 28,8cm • 50 paños reusables",
       "price": 3900,
       "discount": 400,
       "stock": true,
@@ -1968,13 +1968,13 @@
       "image_avif_path": "assets/images/limpieza_y_aseo/Wypall-X50.avif",
       "order": 68,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -1982,7 +1982,7 @@
     },
     {
       "name": "Paños Wypall X75",
-      "description": "42,3cm x 27,6cm • 60 paños reusables. Paños para tareas de limpieza y mantenimiento cotidiano.",
+      "description": "42,3cm x 27,6cm • 60 paños reusables",
       "price": 8500,
       "discount": 0,
       "stock": true,
@@ -1991,13 +1991,13 @@
       "image_avif_path": "assets/images/limpieza_y_aseo/Wypall-X75.avif",
       "order": 69,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -2005,7 +2005,7 @@
     },
     {
       "name": "Pisco Reservado 40° • Alto del Carmen",
-      "description": "Botella de 750mL. Para preparar cócteles o servir según preferencia.",
+      "description": "Botella de 750mL",
       "price": 10900,
       "discount": 1000,
       "stock": true,
@@ -2014,7 +2014,7 @@
       "image_avif_path": "assets/images/piscos/Pisco Alto del Carmen Reservado 750mL.avif",
       "order": 70,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2025-11-02T21:43:30.791Z",
@@ -2031,10 +2031,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -2042,7 +2042,7 @@
     },
     {
       "name": "Pisco Envejecido Barricas de Selección 40° • Alto del Carmen",
-      "description": "Botella de 750mL. Para preparar cócteles o servir según preferencia.",
+      "description": "Botella de 750mL",
       "price": 9900,
       "discount": 1000,
       "stock": false,
@@ -2051,13 +2051,13 @@
       "image_avif_path": "assets/images/piscos/Pisco Alto del Carmen Envejecido 40°.avif",
       "order": 71,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -2065,7 +2065,7 @@
     },
     {
       "name": "Pisco Especial 35° • Artesanos del Cochiguaz",
-      "description": "Botella de 750mL. Para preparar cócteles o servir según preferencia.",
+      "description": "Botella de 750mL",
       "price": 5500,
       "discount": 600,
       "stock": false,
@@ -2074,7 +2074,7 @@
       "image_avif_path": "assets/images/piscos/Pisco Artesanos del Cochiguaz.avif",
       "order": 72,
       "is_archived": true,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-02-13T14:08:10.834123Z",
@@ -2084,10 +2084,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -2140,7 +2140,7 @@
     },
     {
       "name": "Pisco Reservado 40° • Malpaso",
-      "description": "Botella de 750mL • D.O. Valle del Limarí. Para preparar cócteles o servir según preferencia.",
+      "description": "Botella de 750mL • D.O. Valle del Limarí",
       "price": 10500,
       "discount": 0,
       "stock": false,
@@ -2149,13 +2149,13 @@
       "image_avif_path": "assets/images/piscos/Pisco Malpaso Reservado 40°.avif",
       "order": 76,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -2163,7 +2163,7 @@
     },
     {
       "name": "Pisco Añejado en Roble 46° • Mistral",
-      "description": "Botella de 750mL. Para preparar cócteles o servir según preferencia.",
+      "description": "Botella de 750mL",
       "price": 11000,
       "discount": 0,
       "stock": false,
@@ -2172,7 +2172,7 @@
       "image_avif_path": "assets/images/piscos/Pisco Añejado en Roble 46° Mistral.avif",
       "order": 77,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2025-11-07T22:32:56.369Z",
@@ -2182,10 +2182,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -2193,7 +2193,7 @@
     },
     {
       "name": "Austral • Cerveza Calafate Ale",
-      "description": "Lata de 350cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
+      "description": "Lata de 350cc x 6 unidades",
       "price": 9000,
       "discount": 0,
       "stock": false,
@@ -2202,7 +2202,7 @@
       "image_avif_path": "assets/images/cervezas/Austral Calafate Ale lata 350cc.avif",
       "order": 78,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-18T00:22:59.625Z",
@@ -2212,10 +2212,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "order": {
@@ -2230,7 +2230,7 @@
     },
     {
       "name": "Miller • Cerveza Lager",
-      "description": "Lata de 355cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
+      "description": "Lata de 355cc x 6 unidades",
       "price": 9900,
       "discount": 0,
       "stock": true,
@@ -2239,7 +2239,7 @@
       "image_avif_path": "assets/images/cervezas/Miller lata 350cc.avif",
       "order": 79,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2026-03-20T17:12:21.822190Z",
@@ -2249,10 +2249,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -2373,7 +2373,7 @@
     },
     {
       "name": "Pisco Sour Limón Zero 14° • Secreto Peruano",
-      "description": "Pisco Sour • Botella de 700mL. Para preparar cócteles o servir según preferencia.",
+      "description": "Pisco Sour • Botella de 700mL",
       "price": 4500,
       "discount": 0,
       "stock": false,
@@ -2382,13 +2382,13 @@
       "image_avif_path": "assets/images/piscos/Pisco Sour Limón Zero Secreto Peruano 700mL.avif",
       "order": 87,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -2396,7 +2396,7 @@
     },
     {
       "name": "Soprole • Jugo de Naranja",
-      "description": "Envase de 1L • Sin azúcar añadida. Una bebida de fruta para desayunos, colaciones o acompañar comidas.",
+      "description": "Envase de 1L • Sin azúcar añadida",
       "price": 1700,
       "discount": 0,
       "stock": true,
@@ -2405,7 +2405,7 @@
       "image_avif_path": "assets/images/jugos/jugo-soprole-1-lt.avif",
       "order": 88,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2026-06-14T18:13:07.327055Z",
@@ -2415,10 +2415,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -2426,7 +2426,7 @@
     },
     {
       "name": "Soprole • Jugo de Durazno",
-      "description": "Envase de 1L • Sin azúcar añadida. Una bebida de fruta para desayunos, colaciones o acompañar comidas.",
+      "description": "Envase de 1L • Sin azúcar añadida",
       "price": 1700,
       "discount": 0,
       "stock": true,
@@ -2435,7 +2435,7 @@
       "image_avif_path": "assets/images/jugos/Jugo-Durazno-Soprole-1L.avif",
       "order": 89,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2026-06-14T18:13:10.991413Z",
@@ -2445,10 +2445,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -2456,7 +2456,7 @@
     },
     {
       "name": "Our Finest • Chocolate amargo 90% cacao",
-      "description": "Barra de 100g. Chocolate en barra para disfrutar por porciones o compartir.",
+      "description": "Barra de 100g",
       "price": 3900,
       "discount": 0,
       "stock": true,
@@ -2465,7 +2465,7 @@
       "image_avif_path": "assets/images/chocolates/Chocolate amargo Our Finest 90_ cacao.avif",
       "order": 90,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2026-03-30T20:37:46.791703Z",
@@ -2482,10 +2482,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -2493,7 +2493,7 @@
     },
     {
       "name": "Doritos • Tortillas Maíz Queso",
-      "description": "Bolsa de 140g. Tortillas crujientes para picotear o acompañar salsas.",
+      "description": "Bolsa de 140g",
       "price": 2000,
       "discount": 0,
       "stock": false,
@@ -2502,7 +2502,7 @@
       "image_avif_path": "assets/images/snacks_salados/Doritos Queso 140gr.avif",
       "order": 91,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-01-13T22:34:19.383391Z",
@@ -2512,10 +2512,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -2523,7 +2523,7 @@
     },
     {
       "name": "Papas Caseras Marco Polo 200g",
-      "description": "Bolsa de plástico. Papas para picotear entre comidas o compartir.",
+      "description": "Bolsa de 200 g.",
       "price": 2200,
       "discount": 0,
       "stock": false,
@@ -2532,13 +2532,13 @@
       "image_avif_path": "assets/images/snacks_salados/Papas-Marco-Polo-Caseras-200g.avif",
       "order": 92,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -2546,7 +2546,7 @@
     },
     {
       "name": "Papas Rústicas Sal de Mar Marco Polo 150g",
-      "description": "Bolsa de plástico. Papas para picotear entre comidas o compartir.",
+      "description": "Bolsa de 150 g.",
       "price": 1900,
       "discount": 0,
       "stock": false,
@@ -2555,13 +2555,13 @@
       "image_avif_path": "assets/images/snacks_salados/Papas Rústicas Sal de Mar Marco Polo 150g.avif",
       "order": 93,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -2569,7 +2569,7 @@
     },
     {
       "name": "Pirulín grande",
-      "description": "Lata de 300g. Dulce para disfrutar en una colación o compartir.",
+      "description": "Lata de 300g",
       "price": 8600,
       "discount": 0,
       "stock": true,
@@ -2578,7 +2578,7 @@
       "image_avif_path": "assets/images/snacks_dulces/Pirulin 300g.avif",
       "order": 94,
       "is_archived": false,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "price": {
           "ts": "2026-09-15T01:22:24.089Z",
@@ -2595,10 +2595,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -2606,7 +2606,7 @@
     },
     {
       "name": "Nestlé • Súper 8, pack de 4 unidades",
-      "description": "Barras de 29g c/u. Barras dulces individuales para una colación.",
+      "description": "Barras de 29g c/u",
       "price": 2000,
       "discount": 0,
       "stock": false,
@@ -2615,7 +2615,7 @@
       "image_avif_path": "assets/images/snacks_dulces/Nestlé - Super 8 - 4 unidades.avif",
       "order": 95,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2025-11-07T22:18:38.528Z",
@@ -2625,10 +2625,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -2636,7 +2636,7 @@
     },
     {
       "name": "Mario Bros",
-      "description": "Llavero de PVC con diseño de Mario Bros. Para llevar con las llaves, en el bolso o en la mochila.",
+      "description": "Llavero de PVC.",
       "price": 3900,
       "discount": 0,
       "stock": true,
@@ -2645,7 +2645,7 @@
       "image_avif_path": "assets/images/llaveros/Mario.avif",
       "order": 96,
       "is_archived": false,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "price": {
           "ts": "2025-10-14T15:30:54.687Z",
@@ -2655,10 +2655,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:02:22.434Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -2666,7 +2666,7 @@
     },
     {
       "name": "Luigi",
-      "description": "Llavero de PVC con diseño de Luigi. Para llevar con las llaves, en el bolso o en la mochila.",
+      "description": "Llavero de PVC.",
       "price": 3900,
       "discount": 0,
       "stock": true,
@@ -2675,7 +2675,7 @@
       "image_avif_path": "assets/images/llaveros/Luigi.avif",
       "order": 97,
       "is_archived": false,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "price": {
           "ts": "2025-10-14T15:30:57.608Z",
@@ -2685,10 +2685,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:02:22.434Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -2696,7 +2696,7 @@
     },
     {
       "name": "Yoshi",
-      "description": "Llavero de PVC con diseño de Yoshi. Para llevar con las llaves, en el bolso o en la mochila.",
+      "description": "Llavero de PVC.",
       "price": 3900,
       "discount": 0,
       "stock": true,
@@ -2705,7 +2705,7 @@
       "image_avif_path": "assets/images/llaveros/Yoshi.avif",
       "order": 98,
       "is_archived": false,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "price": {
           "ts": "2025-10-14T15:31:00.347Z",
@@ -2715,10 +2715,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:02:22.434Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -2726,7 +2726,7 @@
     },
     {
       "name": "Peach",
-      "description": "Llavero de PVC con diseño de Peach. Para llevar con las llaves, en el bolso o en la mochila.",
+      "description": "Llavero de PVC.",
       "price": 3900,
       "discount": 0,
       "stock": true,
@@ -2735,7 +2735,7 @@
       "image_avif_path": "assets/images/llaveros/Peach.avif",
       "order": 99,
       "is_archived": false,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "price": {
           "ts": "2025-10-14T15:31:02.685Z",
@@ -2745,10 +2745,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:02:22.434Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -2756,7 +2756,7 @@
     },
     {
       "name": "Bowser",
-      "description": "Llavero de PVC con diseño de Bowser. Para llevar con las llaves, en el bolso o en la mochila.",
+      "description": "Llavero de PVC.",
       "price": 3900,
       "discount": 0,
       "stock": true,
@@ -2765,7 +2765,7 @@
       "image_avif_path": "assets/images/llaveros/Bowser.avif",
       "order": 100,
       "is_archived": false,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "stock": {
           "ts": "2026-02-13T14:05:16.874219Z",
@@ -2775,10 +2775,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:02:22.434Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -2786,7 +2786,7 @@
     },
     {
       "name": "Donkey Kong",
-      "description": "Llavero de PVC con diseño de Donkey Kong. Para llevar con las llaves, en el bolso o en la mochila.",
+      "description": "Llavero de PVC.",
       "price": 3900,
       "discount": 0,
       "stock": true,
@@ -2795,7 +2795,7 @@
       "image_avif_path": "assets/images/llaveros/Donkey Kong.avif",
       "order": 101,
       "is_archived": false,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "stock": {
           "ts": "2026-02-13T14:05:18.178438Z",
@@ -2805,10 +2805,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:02:22.434Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -2816,7 +2816,7 @@
     },
     {
       "name": "Leche Condensada Parmalat",
-      "description": "Envase Tetra Brik® de 395g. Para postres, repostería y preparaciones dulces.",
+      "description": "Envase Tetra Brik® de 395g",
       "price": 2900,
       "discount": 0,
       "stock": false,
@@ -2825,7 +2825,7 @@
       "image_avif_path": "assets/images/lacteos/Parmalat-Leche-Condensada-395-gr.avif",
       "order": 102,
       "is_archived": false,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "stock": {
           "ts": "2026-09-15T15:43:44.572Z",
@@ -2835,10 +2835,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -2846,7 +2846,7 @@
     },
     {
       "name": "Toalla Papel Nova Clásica XL",
-      "description": "Rollo de 45m. Papel absorbente para tareas cotidianas de cocina y limpieza.",
+      "description": "Rollo de 45m",
       "price": 2600,
       "discount": 0,
       "stock": false,
@@ -2855,13 +2855,13 @@
       "image_avif_path": "assets/images/limpieza_y_aseo/Nova Clásica XL 45m.avif",
       "order": 103,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -2869,7 +2869,7 @@
     },
     {
       "name": "Toalla Papel Favorita Estilo",
-      "description": "Dos rollos de 26m c/u. Papel absorbente para tareas cotidianas de cocina y limpieza.",
+      "description": "Dos rollos de 26m c/u",
       "price": 3900,
       "discount": 0,
       "stock": false,
@@ -2878,7 +2878,7 @@
       "image_avif_path": "assets/images/limpieza_y_aseo/Favorita Estilo 2x 52m.avif",
       "order": 104,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2025-10-14T15:30:10.196Z",
@@ -2895,10 +2895,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -2906,7 +2906,7 @@
     },
     {
       "name": "UNO",
-      "description": "Juego de Cartas. Juego de cartas para disfrutar partidas en grupo.",
+      "description": "Juego de Cartas",
       "price": 4000,
       "discount": 0,
       "stock": true,
@@ -2915,7 +2915,7 @@
       "image_avif_path": "assets/images/juegos/UNO.avif",
       "order": 105,
       "is_archived": false,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "stock": {
           "ts": "2026-10-08T23:43:53.505Z",
@@ -2925,10 +2925,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -2936,7 +2936,7 @@
     },
     {
       "name": "Nescafé • Café Tradición",
-      "description": "Lata 150g. Para preparar café en casa o en la oficina.",
+      "description": "Lata 150g",
       "price": 7500,
       "discount": 0,
       "stock": false,
@@ -2945,7 +2945,7 @@
       "image_avif_path": "assets/images/despensa/Cafe Nescafé Tradición 150g.avif",
       "order": 106,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-02-13T14:01:15.706037Z",
@@ -2955,10 +2955,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -2966,7 +2966,7 @@
     },
     {
       "name": "Queso Llanero 1/4Kg",
-      "description": "A granel, trozo. Para sándwiches, desayunos y preparaciones de cocina.",
+      "description": "A granel, trozo",
       "price": 3000,
       "discount": 0,
       "stock": true,
@@ -2975,13 +2975,13 @@
       "image_avif_path": "assets/images/lacteos/Queso-Llanero2.avif",
       "order": 107,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -2989,7 +2989,7 @@
     },
     {
       "name": "Leche Entera",
-      "description": "Envase Tetrabrik de 1L. Para desayunos, café y recetas de cocina.",
+      "description": "Envase Tetrabrik de 1L",
       "price": 1800,
       "discount": 0,
       "stock": true,
@@ -2998,7 +2998,7 @@
       "image_avif_path": "assets/images/lacteos/Leche entera Líder 1L.avif",
       "order": 108,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2026-02-13T14:05:54.258267Z",
@@ -3008,10 +3008,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3019,7 +3019,7 @@
     },
     {
       "name": "Líder • Atún Lomitos en Agua",
-      "description": "Lata. Peso neto: 140g. Para ensaladas, sándwiches y preparaciones rápidas.",
+      "description": "Lata. Peso neto: 140g",
       "price": 1900,
       "discount": 0,
       "stock": true,
@@ -3028,7 +3028,7 @@
       "image_avif_path": "assets/images/despensa/Líder - Atún en agua 140g.avif",
       "order": 109,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "image_path": {
           "ts": "2025-10-21T19:55:52.575Z",
@@ -3052,10 +3052,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3063,7 +3063,7 @@
     },
     {
       "name": "Líder • Aceite de Maravilla",
-      "description": "Botella de 1L. Para cocinar, saltear y preparar aliños.",
+      "description": "Botella de 1L",
       "price": 3600,
       "discount": 0,
       "stock": false,
@@ -3072,7 +3072,7 @@
       "image_avif_path": "assets/images/despensa/Aceite de Maravilla Líder 1L.avif",
       "order": 110,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-03-30T20:41:36.106002Z",
@@ -3082,10 +3082,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3093,7 +3093,7 @@
     },
     {
       "name": "Mix de Papas Terra 120g",
-      "description": "Bolsa de plástico. Papas para picotear entre comidas o compartir.",
+      "description": "Bolsa de 120 g.",
       "price": 2000,
       "discount": 0,
       "stock": false,
@@ -3102,13 +3102,13 @@
       "image_avif_path": "assets/images/snacks_salados/Terra Mix Papas 120g.avif",
       "order": 111,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3116,7 +3116,7 @@
     },
     {
       "name": "Bolsas biodegradables para mascotas",
-      "description": "3 rollos de 15 bolsas cada una. Bolsas para recoger desechos durante los paseos con tu mascota.",
+      "description": "3 rollos de 15 bolsas cada una",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -3125,13 +3125,13 @@
       "image_avif_path": "assets/images/mascotas/Bolsa biodegradable caca perro.avif",
       "order": 112,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3139,7 +3139,7 @@
     },
     {
       "name": "Líder • Maíz Curagua (cabritas/cotufas)",
-      "description": "Bolsa de 500g. Para preparar cabritas o cotufas en casa.",
+      "description": "Bolsa de 500g",
       "price": 2200,
       "discount": 0,
       "stock": true,
@@ -3148,7 +3148,7 @@
       "image_avif_path": "assets/images/despensa/maiz-removebg-preview.avif",
       "order": 113,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-17T18:25:55.541Z",
@@ -3165,10 +3165,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3176,7 +3176,7 @@
     },
     {
       "name": "Great Value • Chocolate con Avellanas",
-      "description": "Barra de 100g. Chocolate en barra para disfrutar por porciones o compartir.",
+      "description": "Barra de 100g",
       "price": 2900,
       "discount": 0,
       "stock": true,
@@ -3185,7 +3185,7 @@
       "image_avif_path": "assets/images/chocolates/Great Value - Chocolate con Avellanas.avif",
       "order": 114,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2026-02-13T13:58:23.834259Z",
@@ -3195,10 +3195,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3206,7 +3206,7 @@
     },
     {
       "name": "Corona • Cerveza sin Alcohol",
-      "description": "Botella de 330cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
+      "description": "Botella de 330cc x 6 unidades",
       "price": 7500,
       "discount": 0,
       "stock": false,
@@ -3215,7 +3215,7 @@
       "image_avif_path": "assets/images/cervezas/Corona sin alcohol botella 330mL.avif",
       "order": 115,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-18T00:26:13.177Z",
@@ -3225,10 +3225,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "price": {
@@ -3250,7 +3250,7 @@
     },
     {
       "name": "Royal Guard • Cerveza sin Alcohol",
-      "description": "Botella de 355cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
+      "description": "Botella de 355cc x 6 unidades",
       "price": 6700,
       "discount": 0,
       "stock": false,
@@ -3259,7 +3259,7 @@
       "image_avif_path": "assets/images/cervezas/Royal Guard botella 355cc.avif",
       "order": 116,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-18T00:26:43.552Z",
@@ -3269,10 +3269,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "order": {
@@ -3287,7 +3287,7 @@
     },
     {
       "name": "OMO Ultraconcentrado 500mL",
-      "description": "Ultraconcentrado para piel sensible. Detergente para lavado de ropa; seguir la dosificación indicada en el envase.",
+      "description": "Ultraconcentrado para piel sensible",
       "price": 5500,
       "discount": 0,
       "stock": false,
@@ -3296,7 +3296,7 @@
       "image_avif_path": "assets/images/limpieza_y_aseo/OMO-piel-sensible-500mL.avif",
       "order": 117,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-01-13T22:36:45.362102Z",
@@ -3306,10 +3306,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3317,7 +3317,7 @@
     },
     {
       "name": "Marco Polo • Papas Onduladas Corte Americano 170g",
-      "description": "Bolsa de plástico. Papas para picotear entre comidas o compartir.",
+      "description": "Bolsa de 170 g.",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -3326,7 +3326,7 @@
       "image_avif_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Americano 170g.avif",
       "order": 118,
       "is_archived": false,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "name": {
           "ts": "2026-10-13T23:19:09.107Z",
@@ -3343,10 +3343,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -3354,7 +3354,7 @@
     },
     {
       "name": "Sprite 2L",
-      "description": "Envase retornable. Bebida gaseosa para acompañar comidas o compartir.",
+      "description": "Envase retornable",
       "price": 3000,
       "discount": 0,
       "stock": true,
@@ -3363,7 +3363,7 @@
       "image_avif_path": "assets/images/bebidas/Sprite 2L.avif",
       "order": 119,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2025-10-14T15:25:30.632Z",
@@ -3373,10 +3373,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3384,7 +3384,7 @@
     },
     {
       "name": "Sprite Zero 3L",
-      "description": "Envase desechable. Bebida gaseosa para acompañar comidas o compartir.",
+      "description": "Envase desechable",
       "price": 4000,
       "discount": 0,
       "stock": false,
@@ -3393,7 +3393,7 @@
       "image_avif_path": "assets/images/bebidas/Sprite Zero 3L desechable.avif",
       "order": 120,
       "is_archived": true,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2025-11-24T19:49:14.797Z",
@@ -3403,10 +3403,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3414,7 +3414,7 @@
     },
     {
       "name": "Vital • Agua sin gas 1,6L",
-      "description": "Envase desechable. Agua para tener a mano en casa y acompañar las comidas.",
+      "description": "Envase desechable",
       "price": 1500,
       "discount": 0,
       "stock": false,
@@ -3423,7 +3423,7 @@
       "image_avif_path": "assets/images/bebidas/Agua 1,6L con gas Vital.avif",
       "order": 121,
       "is_archived": true,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2025-11-24T19:45:33.101Z",
@@ -3433,10 +3433,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3444,7 +3444,7 @@
     },
     {
       "name": "Vital • Agua sin gas 2,5L",
-      "description": "Envase desechable. Agua para tener a mano en casa y acompañar las comidas.",
+      "description": "Envase desechable",
       "price": 2000,
       "discount": 0,
       "stock": false,
@@ -3453,7 +3453,7 @@
       "image_avif_path": "assets/images/bebidas/Agua 2,5L con gas Vital.avif",
       "order": 122,
       "is_archived": true,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2025-11-24T19:45:41.845Z",
@@ -3463,10 +3463,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3474,7 +3474,7 @@
     },
     {
       "name": "Chocolate con Avellanas Milka",
-      "description": "Barra de 100g. Chocolate en barra para disfrutar por porciones o compartir.",
+      "description": "Barra de 100g",
       "price": 3200,
       "discount": 0,
       "stock": false,
@@ -3483,13 +3483,13 @@
       "image_avif_path": "assets/images/chocolates/Chocolate con Almendras Milka 100g.avif",
       "order": 123,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3497,7 +3497,7 @@
     },
     {
       "name": "Nabisco • Galletas Oreo Original",
-      "description": "Empaque de 108g. Galletas para acompañar café, té o una colación.",
+      "description": "Empaque de 108g",
       "price": 1300,
       "discount": 0,
       "stock": true,
@@ -3506,7 +3506,7 @@
       "image_avif_path": "assets/images/snacks_dulces/Galletas Oreo Original 108g.avif",
       "order": 124,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-03-12T17:15:59.012372Z",
@@ -3516,10 +3516,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3527,7 +3527,7 @@
     },
     {
       "name": "Costa • Galletas Choco Chips",
-      "description": "Empaque de 125g. Galletas para acompañar café, té o una colación.",
+      "description": "Empaque de 125g",
       "price": 1300,
       "discount": 0,
       "stock": false,
@@ -3536,7 +3536,7 @@
       "image_avif_path": "assets/images/snacks_dulces/Choco Chips  Costa 125g.avif",
       "order": 125,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2025-11-08T14:36:46.445Z",
@@ -3546,10 +3546,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3557,7 +3557,7 @@
     },
     {
       "name": "Papas Orégano Lay's 140g",
-      "description": "Bolsa de plástico. Papas para picotear entre comidas o compartir.",
+      "description": "Bolsa de 140 g.",
       "price": 1900,
       "discount": 0,
       "stock": false,
@@ -3566,13 +3566,13 @@
       "image_avif_path": "assets/images/snacks_salados/Lays Orégano 140g.avif",
       "order": 126,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3580,7 +3580,7 @@
     },
     {
       "name": "Papas Jamón Serrano 140g",
-      "description": "Bolsa de plástico. Papas para picotear entre comidas o compartir.",
+      "description": "Bolsa de 140 g.",
       "price": 1900,
       "discount": 0,
       "stock": false,
@@ -3589,13 +3589,13 @@
       "image_avif_path": "assets/images/snacks_salados/Lays-Jamón-Serrano-140gr.avif",
       "order": 127,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3603,7 +3603,7 @@
     },
     {
       "name": "Tocino Ahumado PF",
-      "description": "Empaque al vacío de 150g. Para desayunos, sándwiches y preparaciones de cocina.",
+      "description": "Empaque al vacío de 150g",
       "price": 3500,
       "discount": 0,
       "stock": false,
@@ -3612,7 +3612,7 @@
       "image_avif_path": "assets/images/carnes_y_embutidos/Tocino PF 150g.avif",
       "order": 128,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2025-11-25T14:18:16.167Z",
@@ -3622,10 +3622,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3633,7 +3633,7 @@
     },
     {
       "name": "Coca-Cola 2L",
-      "description": "Envase retornable. Bebida gaseosa para acompañar comidas o compartir.",
+      "description": "Envase retornable",
       "price": 3000,
       "discount": 0,
       "stock": false,
@@ -3642,7 +3642,7 @@
       "image_avif_path": "assets/images/bebidas/Coca-Cola-2L.avif",
       "order": 129,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-03-30T19:51:52.432119Z",
@@ -3652,10 +3652,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3663,7 +3663,7 @@
     },
     {
       "name": "Coca-Cola Zero 2L",
-      "description": "Envase retornable. Bebida gaseosa para acompañar comidas o compartir.",
+      "description": "Envase retornable",
       "price": 3000,
       "discount": 0,
       "stock": false,
@@ -3672,7 +3672,7 @@
       "image_avif_path": "assets/images/bebidas/Coca-Cola-2L sin azucar.avif",
       "order": 130,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-03-30T20:23:08.233722Z",
@@ -3689,10 +3689,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3700,7 +3700,7 @@
     },
     {
       "name": "Fanta 2L",
-      "description": "Envase retornable. Bebida gaseosa para acompañar comidas o compartir.",
+      "description": "Envase retornable",
       "price": 3000,
       "discount": 0,
       "stock": true,
@@ -3709,7 +3709,7 @@
       "image_avif_path": "assets/images/bebidas/Fanta 2L.avif",
       "order": 131,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2025-10-14T15:25:55.403Z",
@@ -3719,10 +3719,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3730,7 +3730,7 @@
     },
     {
       "name": "Pollo Pechuga deshuesada Congelada Seara",
-      "description": "Empaque de 800g. Para preparar comidas caseras; conservar según las indicaciones del envase.",
+      "description": "Empaque de 800g",
       "price": 5900,
       "discount": 0,
       "stock": false,
@@ -3739,7 +3739,7 @@
       "image_avif_path": "assets/images/carnes_y_embutidos/Pechuga pollo deshuesada 800g Seara.avif",
       "order": 132,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-03-27T01:47:36.251165Z",
@@ -3749,10 +3749,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3851,7 +3851,7 @@
     },
     {
       "name": "Powerade Rojo",
-      "description": "Botella de 1.1L. Bebida isotónica lista para llevar o consumir fría.",
+      "description": "Botella de 1.1L",
       "price": 1900,
       "discount": 0,
       "stock": false,
@@ -3860,13 +3860,13 @@
       "image_avif_path": "assets/images/energeticaseisotonicas/Powerade Rojo 1.1L.avif",
       "order": 138,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3874,7 +3874,7 @@
     },
     {
       "name": "Costa • Galletas de Chocolate",
-      "description": "Empaque de 140g. Galletas para acompañar café, té o una colación.",
+      "description": "Empaque de 140g",
       "price": 1300,
       "discount": 0,
       "stock": false,
@@ -3883,13 +3883,13 @@
       "image_avif_path": "assets/images/snacks_dulces/Galletas Chocolate Costa 140g.avif",
       "order": 139,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "order": {
@@ -3911,7 +3911,7 @@
     },
     {
       "name": "Canada Dry • Agua Tónica 1,5L",
-      "description": "Envase desechable. Agua tónica para servir fría o usar como mezclador.",
+      "description": "Envase desechable",
       "price": 2900,
       "discount": 0,
       "stock": false,
@@ -3920,7 +3920,7 @@
       "image_avif_path": "assets/images/bebidas/Canada Dry - Agua Tónica 1,5L.avif",
       "order": 140,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "order": {
           "ts": "2025-10-15T22:35:18.285Z",
@@ -3930,10 +3930,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3941,7 +3941,7 @@
     },
     {
       "name": "Benedictino • Agua sin gas 2L",
-      "description": "Envase desechable. Agua para tener a mano en casa y acompañar las comidas.",
+      "description": "Envase desechable",
       "price": 2000,
       "discount": 0,
       "stock": false,
@@ -3950,7 +3950,7 @@
       "image_avif_path": "assets/images/bebidas/Agua 2L sin gas Benedictino.avif",
       "order": 141,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-03-30T18:29:25.494885Z",
@@ -3967,10 +3967,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -3978,7 +3978,7 @@
     },
     {
       "name": "Gatorade • Bebida Isotónica Cool Blue",
-      "description": "Botella de 1L. Bebida isotónica lista para llevar o consumir fría.",
+      "description": "Botella de 1L",
       "price": 2200,
       "discount": 0,
       "stock": true,
@@ -3987,7 +3987,7 @@
       "image_avif_path": "assets/images/energeticaseisotonicas/Gatorade 1L Cool Blue.avif",
       "order": 141,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-17T22:51:54.378Z",
@@ -4004,10 +4004,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -4015,7 +4015,7 @@
     },
     {
       "name": "Shweppes • Agua Tónica",
-      "description": "Botella de 1,5L. Agua tónica para servir fría o usar como mezclador.",
+      "description": "Botella de 1,5L",
       "price": 2800,
       "discount": 800,
       "stock": false,
@@ -4024,7 +4024,7 @@
       "image_avif_path": "assets/images/aguas/Shweppes - Agua Tonica 1,5L.avif",
       "order": 143,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-07-15T18:21:24.667536Z",
@@ -4034,10 +4034,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -4045,7 +4045,7 @@
     },
     {
       "name": "Gatorade • Bebida Isotónica Frutas Tropicales",
-      "description": "Botella de 1L. Bebida isotónica lista para llevar o consumir fría.",
+      "description": "Botella de 1L",
       "price": 2200,
       "discount": 0,
       "stock": false,
@@ -4054,7 +4054,7 @@
       "image_avif_path": "assets/images/energeticaseisotonicas/Gatorade 1L Frutas Tropicales.avif",
       "order": 143,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-02-13T14:02:44.906159Z",
@@ -4064,10 +4064,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -4075,7 +4075,7 @@
     },
     {
       "name": "Gatorade • Bebida Isotónica Limón",
-      "description": "Botella de 1L. Bebida isotónica lista para llevar o consumir fría.",
+      "description": "Botella de 1L",
       "price": 2200,
       "discount": 0,
       "stock": true,
@@ -4084,7 +4084,7 @@
       "image_avif_path": "assets/images/energeticaseisotonicas/Gatorade 1L Limón.avif",
       "order": 144,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-17T22:52:15.123Z",
@@ -4101,10 +4101,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -4112,7 +4112,7 @@
     },
     {
       "name": "Lay's • Papas Sabor Crema y Cebolla",
-      "description": "Tarro de 134g. Papas para picotear entre comidas o compartir.",
+      "description": "Tarro de 134g",
       "price": 2600,
       "discount": 0,
       "stock": false,
@@ -4121,7 +4121,7 @@
       "image_avif_path": "assets/images/snacks_salados/Lays - Papas Crema y Cebolla 134g.avif",
       "order": 145,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2026-03-20T17:20:32.996339Z",
@@ -4131,10 +4131,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -4142,7 +4142,7 @@
     },
     {
       "name": "Lay's • Papas Stax Original 134g",
-      "description": "Tarro de 134g. Papas para picotear entre comidas o compartir.",
+      "description": "Tarro de 134g",
       "price": 2600,
       "discount": 0,
       "stock": true,
@@ -4151,7 +4151,7 @@
       "image_avif_path": "assets/images/snacks_salados/Lays - Papas Originales 134g.avif",
       "order": 146,
       "is_archived": false,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "price": {
           "ts": "2026-03-20T17:20:35.812822Z",
@@ -4175,10 +4175,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -4186,7 +4186,7 @@
     },
     {
       "name": "Lay's • Papas Stax Queso Cheddar 134g",
-      "description": "Tarro de 134g. Papas para picotear entre comidas o compartir.",
+      "description": "Tarro de 134g",
       "price": 2600,
       "discount": 0,
       "stock": true,
@@ -4195,7 +4195,7 @@
       "image_avif_path": "assets/images/snacks_salados/Lays - Papas Queso 134g.avif",
       "order": 147,
       "is_archived": false,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "price": {
           "ts": "2026-03-20T17:20:38.755867Z",
@@ -4219,10 +4219,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -4230,7 +4230,7 @@
     },
     {
       "name": "Marco Polo • Papas Onduladas",
-      "description": "Bolsa de 200g. Papas para picotear entre comidas o compartir.",
+      "description": "Bolsa de 200g",
       "price": 2500,
       "discount": 0,
       "stock": false,
@@ -4239,7 +4239,7 @@
       "image_avif_path": "assets/images/snacks_salados/Marco Polo - Papas Corte Americano 200g.avif",
       "order": 148,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-01-13T22:36:02.245690Z",
@@ -4249,10 +4249,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -4260,7 +4260,7 @@
     },
     {
       "name": "Marco Polo • Papas Lisas Caseras 170g",
-      "description": "Bolsa de 170g. Papas para picotear entre comidas o compartir.",
+      "description": "Bolsa de 170g",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -4269,7 +4269,7 @@
       "image_avif_path": "assets/images/snacks_salados/Marco Polo - Papas Caseras 170g.avif",
       "order": 149,
       "is_archived": false,
-      "rev": 3,
+      "rev": 4,
       "field_last_modified": {
         "name": {
           "ts": "2026-10-13T23:19:09.107Z",
@@ -4293,10 +4293,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 3,
-          "base_rev": 2,
+          "rev": 4,
+          "base_rev": 3,
           "changeset_id": null
         },
         "image_path": {
@@ -4325,7 +4325,7 @@
     },
     {
       "name": "Marco Polo • Maní Salado",
-      "description": "Bolsa de 150g. Para picotear entre comidas o servir al compartir.",
+      "description": "Bolsa de 150g",
       "price": 1900,
       "discount": 0,
       "stock": false,
@@ -4334,7 +4334,7 @@
       "image_avif_path": "assets/images/snacks_salados/Marco Polo - Maní Salado 150g.avif",
       "order": 150,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-02-13T13:51:20.938140Z",
@@ -4344,10 +4344,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -4355,7 +4355,7 @@
     },
     {
       "name": "Marco Polo • Maní sin Sal",
-      "description": "Bolsa de 150g. Para picotear entre comidas o servir al compartir.",
+      "description": "Bolsa de 150g",
       "price": 1900,
       "discount": 0,
       "stock": false,
@@ -4364,7 +4364,7 @@
       "image_avif_path": "assets/images/snacks_salados/Marco Polo - Maní sin sal 150g.avif",
       "order": 151,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-02-13T13:51:22.122302Z",
@@ -4374,10 +4374,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -4385,7 +4385,7 @@
     },
     {
       "name": "Great Value • Chocolate con Almendras",
-      "description": "Barra de 100g. Chocolate en barra para disfrutar por porciones o compartir.",
+      "description": "Barra de 100g",
       "price": 2900,
       "discount": 0,
       "stock": false,
@@ -4394,7 +4394,7 @@
       "image_avif_path": "assets/images/chocolates/Great Value - Chocolate con Almendras.avif",
       "order": 152,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2026-02-13T13:58:20.059315Z",
@@ -4404,10 +4404,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -4415,7 +4415,7 @@
     },
     {
       "name": "Hershey's • Chocolate Cookies and Creme",
-      "description": "Barra de 77g. Chocolate en barra para disfrutar por porciones o compartir.",
+      "description": "Barra de 77g",
       "price": 2200,
       "discount": 200,
       "stock": false,
@@ -4424,7 +4424,7 @@
       "image_avif_path": "assets/images/chocolates/Hersheys - Chocolate Cookies n Creme 77g.avif",
       "order": 153,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-02-13T13:58:36.370310Z",
@@ -4434,10 +4434,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -4445,7 +4445,7 @@
     },
     {
       "name": "Hershey's • Chocolate con Leche",
-      "description": "Barra de 82g. Chocolate en barra para disfrutar por porciones o compartir.",
+      "description": "Barra de 82g",
       "price": 2200,
       "discount": 400,
       "stock": false,
@@ -4454,7 +4454,7 @@
       "image_avif_path": "assets/images/chocolates/Chocolate con leche Hershey's 82g.avif",
       "order": 154,
       "is_archived": false,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "discount": {
           "ts": "2026-02-13T13:59:29.699281Z",
@@ -4471,10 +4471,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -4482,7 +4482,7 @@
     },
     {
       "name": "Heyshey's • Chocolate Extra Cremoso",
-      "description": "Barra de 82g. Chocolate en barra para disfrutar por porciones o compartir.",
+      "description": "Barra de 82g",
       "price": 2200,
       "discount": 200,
       "stock": false,
@@ -4491,7 +4491,7 @@
       "image_avif_path": "assets/images/chocolates/Hersheys - Chocolate Extra Cremoso 82g.avif",
       "order": 155,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-01-13T22:34:59.426870Z",
@@ -4508,10 +4508,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -4519,7 +4519,7 @@
     },
     {
       "name": "Robinson Crusoe • Atún Lomitos en Agua",
-      "description": "Lata. Peso neto: 140g - Peso drenado: 91g. Para ensaladas, sándwiches y preparaciones rápidas.",
+      "description": "Lata. Peso neto: 140g - Peso drenado: 91g",
       "price": 2200,
       "discount": 0,
       "stock": false,
@@ -4528,7 +4528,7 @@
       "image_avif_path": "assets/images/despensa/Robinson Crusoe - Atún en agua 140g.avif",
       "order": 156,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-17T18:25:03.277Z",
@@ -4552,10 +4552,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -4563,7 +4563,7 @@
     },
     {
       "name": "Líder • Cacao Amargo",
-      "description": "Bolsa de 150g. Para repostería y bebidas con cacao.",
+      "description": "Bolsa de 150g",
       "price": 2400,
       "discount": 0,
       "stock": true,
@@ -4572,7 +4572,7 @@
       "image_avif_path": "assets/images/despensa/Líder - Cacao Natural en polvo amargo 150g.avif",
       "order": 157,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-17T19:00:02.932Z",
@@ -4582,10 +4582,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "price": {
@@ -4635,7 +4635,7 @@
     },
     {
       "name": "Malloa • Salsa Italiana",
-      "description": "Sobre de 200g. Para pastas y otras preparaciones con salsa.",
+      "description": "Sobre de 200g",
       "price": 1200,
       "discount": 0,
       "stock": true,
@@ -4644,7 +4644,7 @@
       "image_avif_path": "assets/images/despensa/Malloa - Salsa Italiana para pastas 200g.avif",
       "order": 158,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-17T19:45:26.741Z",
@@ -4654,10 +4654,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "price": {
@@ -4707,7 +4707,7 @@
     },
     {
       "name": "Mr. Big • Bebida Energética",
-      "description": "Lata de 473mL. Bebida energética en formato individual; revisar las indicaciones del envase.",
+      "description": "Lata de 473mL",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -4716,7 +4716,7 @@
       "image_avif_path": "assets/images/energeticaseisotonicas/Mr Big lata 473mL.avif",
       "order": 159,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-17T22:52:48.410Z",
@@ -4733,10 +4733,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -4744,7 +4744,7 @@
     },
     {
       "name": "Score • Bebida Energética Mango",
-      "description": "Lata de 473mL. Bebida energética en formato individual; revisar las indicaciones del envase.",
+      "description": "Lata de 473mL",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -4753,7 +4753,7 @@
       "image_avif_path": "assets/images/energeticaseisotonicas/Score Mango lata 473mL.avif",
       "order": 160,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-03-15T22:36:46.079057Z",
@@ -4763,10 +4763,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -4774,7 +4774,7 @@
     },
     {
       "name": "Score • Bebida Energética Guaraná",
-      "description": "Lata de 473mL. Bebida energética en formato individual; revisar las indicaciones del envase.",
+      "description": "Lata de 473mL",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -4783,7 +4783,7 @@
       "image_avif_path": "assets/images/energeticaseisotonicas/Score Guaraná lata 473mL.avif",
       "order": 161,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-17T22:51:29.706Z",
@@ -4800,10 +4800,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -4811,7 +4811,7 @@
     },
     {
       "name": "Austral • Cerveza Calafate Ale",
-      "description": "Lata de 470cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
+      "description": "Lata de 470cc x 6 unidades",
       "price": 12000,
       "discount": 0,
       "stock": true,
@@ -4820,7 +4820,7 @@
       "image_avif_path": "assets/images/cervezas/Austral Calafate Ale lata 470cc.avif",
       "order": 162,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-18T00:12:51.546Z",
@@ -4830,10 +4830,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "price": {
@@ -4883,7 +4883,7 @@
     },
     {
       "name": "Stones • Cerveza Berry",
-      "description": "Lata de 350cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
+      "description": "Lata de 350cc x 6 unidades",
       "price": 6900,
       "discount": 0,
       "stock": true,
@@ -4892,7 +4892,7 @@
       "image_avif_path": "assets/images/cervezas/Stones - Berry lata 350cc.avif",
       "order": 163,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2025-11-24T19:50:33.198Z",
@@ -4902,10 +4902,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -4913,7 +4913,7 @@
     },
     {
       "name": "Stones • Cerveza Mango",
-      "description": "Lata de 350cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
+      "description": "Lata de 350cc x 6 unidades",
       "price": 6900,
       "discount": 0,
       "stock": false,
@@ -4922,7 +4922,7 @@
       "image_avif_path": "assets/images/cervezas/Stones - Mango lata 350cc.avif",
       "order": 164,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "price": {
           "ts": "2025-11-22T15:57:55.420Z",
@@ -4946,10 +4946,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -4957,7 +4957,7 @@
     },
     {
       "name": "Doritos • Tortillas Maíz Queso",
-      "description": "Bolsa de 285g. Tortillas crujientes para picotear o acompañar salsas.",
+      "description": "Bolsa de 285g",
       "price": 3500,
       "discount": 0,
       "stock": false,
@@ -4966,7 +4966,7 @@
       "image_avif_path": "assets/images/snacks_salados/Doritos Queso 285gr.avif",
       "order": 165,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-01-13T22:34:20.444748Z",
@@ -4976,10 +4976,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -4987,7 +4987,7 @@
     },
     {
       "name": "Selección • Chips de Plátano Frito",
-      "description": "Bola de 240g. Chips de plátano para picotear o compartir.",
+      "description": "Bola de 240g",
       "price": 3500,
       "discount": 0,
       "stock": true,
@@ -4996,7 +4996,7 @@
       "image_avif_path": "assets/images/snacks_salados/Selección - Plátano Frito 240g.avif",
       "order": 166,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2025-11-07T22:33:20.951Z",
@@ -5006,10 +5006,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -5017,7 +5017,7 @@
     },
     {
       "name": "Marco Polo • Papas Rústicas Sal de Mar",
-      "description": "Bolsa de 130g. Papas para picotear entre comidas o compartir.",
+      "description": "Bolsa de 130g",
       "price": 2000,
       "discount": 0,
       "stock": false,
@@ -5026,7 +5026,7 @@
       "image_avif_path": "assets/images/snacks_salados/Marco Polo - Papas Sal de Mar.avif",
       "order": 167,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-02-13T14:09:03.234179Z",
@@ -5036,10 +5036,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -5047,7 +5047,7 @@
     },
     {
       "name": "Marco Polo • Tortilla Vegetal Kraks Sal de Mar",
-      "description": "Bolsa de 140g. Tortillas crujientes para picotear o acompañar salsas.",
+      "description": "Bolsa de 140g",
       "price": 2000,
       "discount": 0,
       "stock": false,
@@ -5056,7 +5056,7 @@
       "image_avif_path": "assets/images/snacks_salados/Marco Polo - Tortillas Vegetal Sal de Mar.avif",
       "order": 168,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2026-01-13T22:34:03.543560Z",
@@ -5066,10 +5066,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -5077,7 +5077,7 @@
     },
     {
       "name": "Costa • Galletas de Mantequilla",
-      "description": "Empaque de 140g. Galletas para acompañar café, té o una colación.",
+      "description": "Empaque de 140g",
       "price": 1300,
       "discount": 0,
       "stock": false,
@@ -5086,7 +5086,7 @@
       "image_avif_path": "assets/images/snacks_dulces/Costa - Galletas de Mantequilla 140g.avif",
       "order": 169,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2025-11-08T14:36:29.926Z",
@@ -5096,10 +5096,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -5107,7 +5107,7 @@
     },
     {
       "name": "Nescafé • Café Dolca",
-      "description": "Lata de 170g. Para preparar café en casa o en la oficina.",
+      "description": "Lata de 170g",
       "price": 6500,
       "discount": 600,
       "stock": false,
@@ -5116,7 +5116,7 @@
       "image_avif_path": "assets/images/despensa/Nescafé - Café instantáneo 170g.avif",
       "order": 170,
       "is_archived": true,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "stock": {
           "ts": "2026-03-30T20:38:24.690065Z",
@@ -5140,10 +5140,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -5151,7 +5151,7 @@
     },
     {
       "name": "Lobos • Sal Fina",
-      "description": "Empaque de 1Kg. Para sazonar comidas y recetas de cocina.",
+      "description": "Empaque de 1Kg",
       "price": 1200,
       "discount": 0,
       "stock": true,
@@ -5160,7 +5160,7 @@
       "image_avif_path": "assets/images/despensa/Lobos - Sal 1Kg.avif",
       "order": 171,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-21T20:01:35.329Z",
@@ -5170,10 +5170,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "price": {
@@ -5223,7 +5223,7 @@
     },
     {
       "name": "La Romana • Arroz",
-      "description": "Empaque de 800g. Para guarniciones y platos del día a día.",
+      "description": "Empaque de 800g",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -5232,7 +5232,7 @@
       "image_avif_path": "assets/images/despensa/La Romana - Arroz 800g.avif",
       "order": 172,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2025-10-21T20:04:09.745Z",
@@ -5242,10 +5242,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "price": {
@@ -5295,7 +5295,7 @@
     },
     {
       "name": "Costa • Galletas Brownie Chips",
-      "description": "Empaque de 120g. Galletas para acompañar café, té o una colación.",
+      "description": "Empaque de 120g",
       "price": 1300,
       "discount": 0,
       "stock": false,
@@ -5304,7 +5304,7 @@
       "image_avif_path": "assets/images/snacks_dulces/Costa - Galletas Brownie Chips 120g.avif",
       "order": 173,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "stock": {
           "ts": "2025-11-08T14:36:29.294Z",
@@ -5314,10 +5314,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -5325,7 +5325,7 @@
     },
     {
       "name": "Benedictino • Agua gasificada 2,5L",
-      "description": "Envase desechable. Agua para tener a mano en casa y acompañar las comidas.",
+      "description": "Envase desechable",
       "price": 2200,
       "discount": 0,
       "stock": true,
@@ -5334,7 +5334,7 @@
       "image_avif_path": "assets/images/aguas/Agua con gas 2,5L Benedictino.avif",
       "order": 171,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "discount": {
           "ts": "2026-07-15T18:21:37.756256Z",
@@ -5344,10 +5344,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -5355,7 +5355,7 @@
     },
     {
       "name": "Benedictino • Agua sin gas 2,5L",
-      "description": "Envase desechable. Agua para tener a mano en casa y acompañar las comidas.",
+      "description": "Envase desechable",
       "price": 2200,
       "discount": 0,
       "stock": true,
@@ -5364,7 +5364,7 @@
       "image_avif_path": "assets/images/aguas/Agua sin gas 2,5L Benedictino.avif",
       "order": 172,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "discount": {
           "ts": "2026-07-15T18:21:39.940571Z",
@@ -5374,10 +5374,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -5385,7 +5385,7 @@
     },
     {
       "name": "Cola-Cola 2L",
-      "description": "Envase desechable. Agua para tener a mano en casa y acompañar las comidas.",
+      "description": "Envase desechable",
       "price": 3000,
       "discount": 0,
       "stock": true,
@@ -5394,7 +5394,7 @@
       "image_avif_path": "assets/images/bebidas/Coca Cola 2L desechable.avif",
       "order": 173,
       "is_archived": true,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2026-03-30T19:51:40.849101Z",
@@ -5404,10 +5404,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "price": {
@@ -5457,7 +5457,7 @@
     },
     {
       "name": "Coca-Cola 2L",
-      "description": "Envase desechable. Bebida gaseosa para acompañar comidas o compartir.",
+      "description": "Envase desechable",
       "price": 3000,
       "discount": 0,
       "stock": true,
@@ -5466,7 +5466,7 @@
       "image_avif_path": "assets/images/bebidas/Coca Cola 2L desechable.avif",
       "order": 174,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "category": {
           "ts": "2026-03-30T19:53:34.996345Z",
@@ -5483,10 +5483,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -5494,7 +5494,7 @@
     },
     {
       "name": "Coca-Cola Zero 2L",
-      "description": "Envase desechable. Bebida gaseosa para acompañar comidas o compartir.",
+      "description": "Envase desechable",
       "price": 3000,
       "discount": 0,
       "stock": true,
@@ -5503,7 +5503,7 @@
       "image_avif_path": "assets/images/bebidas/Coca Cola Zero 2L desechable.avif",
       "order": 175,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "category": {
           "ts": "2026-03-30T19:54:48.258627Z",
@@ -5520,10 +5520,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -5531,7 +5531,7 @@
     },
     {
       "name": "Miraflores • Aceite de Maravilla",
-      "description": "Botella de 900mL. Para cocinar, saltear y preparar aliños.",
+      "description": "Botella de 900mL",
       "price": 3400,
       "discount": 0,
       "stock": true,
@@ -5540,7 +5540,7 @@
       "image_avif_path": "assets/images/despensa/Aceite de Maravilla 900mL Miraflores.avif",
       "order": 176,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2026-03-30T20:41:18.450360Z",
@@ -5550,10 +5550,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "price": {
@@ -5603,7 +5603,7 @@
     },
     {
       "name": "Nescafé • Café Dolca",
-      "description": "Lata de 110g. Para preparar café en casa o en la oficina.",
+      "description": "Lata de 110g",
       "price": 4500,
       "discount": 0,
       "stock": true,
@@ -5612,7 +5612,7 @@
       "image_avif_path": "assets/images/despensa/Nescafé - Café Instantáneo Dolca 110g.avif",
       "order": 177,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2026-03-30T20:43:32.587544Z",
@@ -5622,10 +5622,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "price": {
@@ -5675,7 +5675,7 @@
     },
     {
       "name": "Espumante Demisec • Undurraga",
-      "description": "Botella de 750mL. Espumante para servir en celebraciones o encuentros.",
+      "description": "Botella de 750mL",
       "price": 6900,
       "discount": 0,
       "stock": true,
@@ -5684,7 +5684,7 @@
       "image_avif_path": "assets/images/espumantes/Undurraga - Espumante Demisec 750mL.avif",
       "order": 178,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2026-03-30T20:49:23.112002Z",
@@ -5694,10 +5694,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "price": {
@@ -5747,7 +5747,7 @@
     },
     {
       "name": "Espumante Sweet • Undurraga",
-      "description": "Botella de 750mL. Espumante para servir en celebraciones o encuentros.",
+      "description": "Botella de 750mL",
       "price": 6900,
       "discount": 0,
       "stock": true,
@@ -5756,7 +5756,7 @@
       "image_avif_path": "assets/images/espumantes/Undurraga - Espumante Sweet 750mL.avif",
       "order": 179,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2026-03-30T20:50:38.577539Z",
@@ -5766,10 +5766,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "price": {
@@ -5819,7 +5819,7 @@
     },
     {
       "name": "Espumante Brut Bri Sparkling • Undurraga",
-      "description": "Botella de 750mL. Espumante para servir en celebraciones o encuentros.",
+      "description": "Botella de 750mL",
       "price": 6900,
       "discount": 0,
       "stock": true,
@@ -5828,7 +5828,7 @@
       "image_avif_path": "assets/images/espumantes/Undurraga - Espumante Brut Bri Sparkling 750mL.avif",
       "order": 180,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2026-03-30T20:53:15.891147Z",
@@ -5838,10 +5838,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "price": {
@@ -5891,7 +5891,7 @@
     },
     {
       "name": "Valdivieso • Espumante Brut Limited",
-      "description": "Botella de 750mL. Espumante para servir en celebraciones o encuentros.",
+      "description": "Botella de 750mL",
       "price": 11900,
       "discount": 1000,
       "stock": true,
@@ -5900,7 +5900,7 @@
       "image_avif_path": "assets/images/espumantes/Valdivieso - Espumante Brut Limited 750mL.avif",
       "order": 181,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2026-03-30T20:56:15.709273Z",
@@ -5910,10 +5910,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "price": {
@@ -5963,7 +5963,7 @@
     },
     {
       "name": "OMO • Detergente Líquido Piel Sensible",
-      "description": "Doypack de 400mL. Detergente para lavado de ropa; seguir la dosificación indicada en el envase.",
+      "description": "Doypack de 400mL",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -5972,7 +5972,7 @@
       "image_avif_path": "assets/images/limpieza_y_aseo/OMO - Detergente líquido piel sensible 400mL.avif",
       "order": 182,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2026-03-30T21:16:12.487296Z",
@@ -5982,10 +5982,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "price": {
@@ -6035,7 +6035,7 @@
     },
     {
       "name": "Darmax  • Lomo Ahumado sin hueso",
-      "description": "Empaque al vacío (Precio x Kg). Para sándwiches, tablas y picoteos.",
+      "description": "Empaque al vacío (Precio x Kg)",
       "price": 9900,
       "discount": 0,
       "stock": true,
@@ -6044,7 +6044,7 @@
       "image_avif_path": "assets/images/carnes_y_embutidos/Lomo-Ahumado-Darmax-500g.avif",
       "order": 183,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "name": {
           "ts": "2026-03-30T21:43:32.677600Z",
@@ -6054,10 +6054,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         },
         "price": {
@@ -6107,7 +6107,7 @@
     },
     {
       "name": "Baterías AA AmazonBasics (el par)",
-      "description": "El par (2 unidades) — Alcalinas 1.5V. Pilas para dispositivos que utilizan este tamaño; verifica la compatibilidad antes de comprar.",
+      "description": "El par (2 unidades) — Alcalinas 1.5V",
       "price": 3000,
       "discount": 0,
       "stock": true,
@@ -6116,7 +6116,7 @@
       "image_avif_path": "assets/images/electronicos/amazonbasics-aa-par-v2.avif",
       "order": 184,
       "is_archived": false,
-      "rev": 3,
+      "rev": 4,
       "field_last_modified": {
         "image_path": {
           "ts": "2026-10-09T00:00:00.000Z",
@@ -6133,10 +6133,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 3,
-          "base_rev": 2,
+          "rev": 4,
+          "base_rev": 3,
           "changeset_id": null
         }
       },
@@ -6144,7 +6144,7 @@
     },
     {
       "name": "Baterías AAA AmazonBasics (el par)",
-      "description": "El par (2 unidades) — Alcalinas 1.5V. Pilas para dispositivos que utilizan este tamaño; verifica la compatibilidad antes de comprar.",
+      "description": "El par (2 unidades) — Alcalinas 1.5V",
       "price": 3000,
       "discount": 0,
       "stock": true,
@@ -6153,7 +6153,7 @@
       "image_avif_path": "assets/images/electronicos/amazonbasics-aaa-par-v3.avif",
       "order": 185,
       "is_archived": false,
-      "rev": 5,
+      "rev": 6,
       "field_last_modified": {
         "image_path": {
           "ts": "2026-10-09T01:05:44.773Z",
@@ -6170,10 +6170,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 5,
-          "base_rev": 4,
+          "rev": 6,
+          "base_rev": 5,
           "changeset_id": null
         }
       },
@@ -6181,7 +6181,7 @@
     },
     {
       "name": "Baterías Duracell CR2032",
-      "description": "Pila botón litio 3V — unitaria. Pila de botón para dispositivos compatibles con CR2032.",
+      "description": "Pila botón litio 3V — unitaria",
       "price": 2500,
       "discount": 0,
       "stock": true,
@@ -6190,7 +6190,7 @@
       "image_avif_path": "assets/images/electronicos/duracell-cr2032-unitaria-v3.avif",
       "order": 186,
       "is_archived": false,
-      "rev": 5,
+      "rev": 6,
       "field_last_modified": {
         "image_path": {
           "ts": "2026-10-09T02:40:26.193Z",
@@ -6207,10 +6207,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 5,
-          "base_rev": 4,
+          "rev": 6,
+          "base_rev": 5,
           "changeset_id": null
         }
       },
@@ -6218,7 +6218,7 @@
     },
     {
       "name": "Toalla Papel Nova Clásica",
-      "description": "Tres Rollos de 12m c/u. Papel absorbente para tareas cotidianas de cocina y limpieza.",
+      "description": "Tres Rollos de 12m c/u",
       "price": 2500,
       "discount": 0,
       "stock": true,
@@ -6227,7 +6227,7 @@
       "image_avif_path": "assets/images/limpieza_y_aseo/Nova-Clásiva-3x12m.avif",
       "order": 187,
       "is_archived": false,
-      "rev": 4,
+      "rev": 5,
       "field_last_modified": {
         "name": {
           "ts": "2026-09-18T19:10:31.714Z",
@@ -6244,10 +6244,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 4,
-          "base_rev": 3,
+          "rev": 5,
+          "base_rev": 4,
           "changeset_id": null
         }
       },
@@ -6255,7 +6255,7 @@
     },
     {
       "name": "Comfort • Suavizante Concentrado Frescor Intenso 500 mL",
-      "description": "Suavizante concentrado para ropa. Botella 500 mL; rinde 2,3 L (hasta 25 lavados). Para el cuidado de la ropa; seguir la dosificación indicada en el envase.",
+      "description": "Suavizante concentrado para ropa. Botella 500 mL; rinde 2,3 L (hasta 25 lavados).",
       "price": 3000,
       "discount": 0,
       "stock": true,
@@ -6264,13 +6264,13 @@
       "image_avif_path": "assets/images/limpieza_y_aseo/Comfort-Frescor-Intenso-Concentrado-500mL.avif",
       "order": 188,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -6293,7 +6293,7 @@
     },
     {
       "name": "Confort • Papel Sanitario",
-      "description": "4 rollos de 20 m c/u • Doble hoja. Papel higiénico para abastecer el baño de casa.",
+      "description": "4 rollos de 20 m c/u • Doble hoja",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -6302,7 +6302,7 @@
       "image_avif_path": "assets/images/limpieza_y_aseo/Confort Doble Hoja 4x20m.avif",
       "order": 190,
       "is_archived": false,
-      "rev": 4,
+      "rev": 5,
       "field_last_modified": {
         "name": {
           "ts": "2026-10-12T21:05:00.000Z",
@@ -6326,10 +6326,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 4,
-          "base_rev": 3,
+          "rev": 5,
+          "base_rev": 4,
           "changeset_id": null
         }
       },
@@ -6337,7 +6337,7 @@
     },
     {
       "name": "Nestlé • Leche condensada en tarro 265 g",
-      "description": "Tarro de 265 g. Ideal para postres, frutas y preparaciones de repostería. Para postres, repostería y preparaciones dulces.",
+      "description": "Tarro de 265 g. Ideal para postres, frutas y preparaciones de repostería.",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -6346,7 +6346,7 @@
       "image_avif_path": "assets/images/lacteos/nestle-leche-condensada-265g.avif",
       "order": 191,
       "is_archived": false,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "image_path": {
           "ts": "2026-10-18T01:12:38.379Z",
@@ -6363,10 +6363,10 @@
           "changeset_id": null
         },
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
@@ -6374,7 +6374,7 @@
     },
     {
       "name": "Kross • Golden Ale, pack de 4 botellas de 330 mL",
-      "description": "Pack de 4 botellas de 330 mL c/u (1,32 L). Cerveza artesanal Golden Ale de 5,3% alcohol. Cerveza para servir fría o compartir en encuentros.",
+      "description": "Pack de 4 botellas de 330 mL c/u (1,32 L). Cerveza artesanal Golden Ale de 5,3% alcohol.",
       "price": 6900,
       "discount": 0,
       "stock": true,
@@ -6383,13 +6383,13 @@
       "image_avif_path": "assets/images/cervezas/kross-golden-ale-pack4-330ml.avif",
       "order": 192,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -6397,7 +6397,7 @@
     },
     {
       "name": "Oikos • Yoghurt Griego Natural sin Azúcar 150 g",
-      "description": "Pote de 150 g de yoghurt griego natural sin azúcar. Mantener refrigerado. Una opción para desayunos y colaciones; mantener refrigerado.",
+      "description": "Pote de 150 g de yoghurt griego natural sin azúcar. Mantener refrigerado.",
       "price": 1200,
       "discount": 0,
       "stock": true,
@@ -6406,13 +6406,13 @@
       "image_avif_path": "assets/images/lacteos/oikos-yoghurt-griego-natural-sin-azucar-150g.avif",
       "order": 193,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
@@ -6420,7 +6420,7 @@
     },
     {
       "name": "Van Camp's • Atún Lomitos en Agua",
-      "description": "Atún lomitos en agua. Lata de 142 g de contenido neto y 92 g de peso drenado. Para ensaladas, sándwiches y preparaciones rápidas.",
+      "description": "Atún lomitos en agua. Lata de 142 g de contenido neto y 92 g de peso drenado.",
       "price": 2500,
       "discount": 0,
       "stock": true,
@@ -6429,13 +6429,13 @@
       "image_avif_path": "assets/images/despensa/van-camps-atun-lomitos-agua-142g.avif",
       "order": 194,
       "is_archived": false,
-      "rev": 1,
+      "rev": 2,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T15:00:00.000Z",
+          "ts": "2026-10-18T16:37:25.120Z",
           "by": "git",
-          "rev": 1,
-          "base_rev": 0,
+          "rev": 2,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
