@@ -290,7 +290,10 @@ export function createApp(opts?: AppOptions): FastifyInstance {
 
   app.addHook('preHandler', async (request, reply) => {
     const url = request.url.split('?')[0] ?? '';
-    if (url.startsWith('/api/v1/health')) return;
+    // Plan 223: health is credential-free only when remote mode is off;
+    // remote mode gates it like every other /api/v1 route (no unauthenticated
+    // version/node/uptime recon through the tunnel).
+    if (!remoteOrigin && url.startsWith('/api/v1/health')) return;
 
     const routeClass = classifyRoute(request.method, url);
     // Remote-mode requests all need a credential, even if the proxy connects

@@ -40,7 +40,19 @@ test('remote mode requires an admin credential on reads, even from loopback', as
       (await app.inject({ method: 'GET', url, headers: { ...headers, 'x-admin-credential': credential } }))
         .statusCode
     ).toBe(200);
-    expect((await app.inject({ method: 'GET', url: '/api/v1/health', headers })).statusCode).toBe(200);
+    // Plan 223: remote mode gates health too — no unauthenticated recon.
+    expect((await app.inject({ method: 'GET', url: '/api/v1/health', headers })).statusCode).toBe(
+      401
+    );
+    expect(
+      (
+        await app.inject({
+          method: 'GET',
+          url: '/api/v1/health',
+          headers: { ...headers, 'x-admin-credential': credential },
+        })
+      ).statusCode
+    ).toBe(200);
   } finally {
     await app.close();
   }
