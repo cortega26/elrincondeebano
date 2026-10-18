@@ -1,6 +1,6 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-13T23:55:39.371Z",
+  "last_updated": "2026-10-18T00:53:49.877Z",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -2292,6 +2292,18 @@
       "image_path": "assets/images/limpieza_y_aseo/Confort Doble Hoja 4x20m.webp",
       "image_avif_path": "assets/images/limpieza_y_aseo/Confort Doble Hoja 4x20m.avif",
       "order": 190,
+      "is_archived": false
+    },
+    {
+      "name": "Nestlé • Leche condensada en tarro 265 g",
+      "description": "Tarro de 265 g. Ideal para postres, frutas y preparaciones de repostería.",
+      "price": 2000,
+      "discount": 0,
+      "stock": true,
+      "category": "Lacteos",
+      "image_path": "",
+      "image_avif_path": "",
+      "order": 191,
       "is_archived": false
     }
   ]
