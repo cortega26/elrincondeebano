@@ -217,11 +217,27 @@ export function parsePorcelainStatus(output: string): PorcelainStatus {
     }
     if (!line.trim()) continue;
     const status = line.substring(0, 2);
+    // Plan 224: `R`/`C` in either status column marks a rename/copy entry,
+    // rendered `old -> new` in porcelain v1. Callers (ownedPaths matching,
+    // publication preflight) care about the NEW path only, so the old path
+    // is intentionally dropped: take the substring after the LAST ` -> `
+    // (an unquoted `->` can appear inside the old path).
     // Quotepath-aware: stock git quotes non-ASCII paths (core.quotepath),
     // which must be decoded before ownedPaths prefix-matching.
-    const file = unquotePorcelainPath(line.substring(3).trim());
+    const kind =
+      status[0] === 'R' || status[0] === 'C' || status[1] === 'R' || status[1] === 'C'
+        ? 'rename'
+        : 'plain';
+    let file: string;
+    if (kind === 'rename') {
+      const raw = line.substring(3).trim();
+      const arrowIndex = raw.lastIndexOf(' -> ');
+      file = unquotePorcelainPath(arrowIndex >= 0 ? raw.slice(arrowIndex + 4) : raw);
+    } else {
+      file = unquotePorcelainPath(line.substring(3).trim());
+    }
     if (/^[ADU][ADU] /.test(line)) hasConflicts = true;
-    if (status.includes('M') || status.includes('A') || status.includes('D')) {
+    if (status.includes('M') || status.includes('A') || status.includes('D') || kind === 'rename') {
       if (status[0] !== ' ') staged.push(file);
       if (status[1] !== ' ') unstaged.push(file);
     }

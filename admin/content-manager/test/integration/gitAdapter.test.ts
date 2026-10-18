@@ -261,3 +261,90 @@ test('getChanges parses ahead and behind together', async () => {
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('getChanges reports an accented quoted rename as the decoded new staged path', async () => {
+  const { root, repoDir } = makeCleanRepo();
+  try {
+    writeFileSync(resolve(repoDir, 'Nova Clásica.png'), 'image\n');
+    git(repoDir, 'add', '-A');
+    git(repoDir, 'commit', '-qm', 'add accented file');
+    git(repoDir, 'mv', 'Nova Clásica.png', 'Nova Clasica renombrada.png');
+
+    const statusOut = git(repoDir, 'status', '--porcelain', '--branch');
+    // STOP condition (plan 224): porcelain v1 renders renames as `old -> new`;
+    // if the arrow disappears the parser split needs adjustment.
+    if (!statusOut.includes(' -> ')) {
+      throw new Error(`Unexpected porcelain output for rename: ${JSON.stringify(statusOut)}`);
+    }
+
+    const adapter = new GitAdapter(repoDir);
+    const changes = await adapter.getChanges();
+    expect(changes.staged).toEqual(['Nova Clasica renombrada.png']);
+    expect(changes.unstaged).toEqual([]);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('getChanges reports a rename plus worktree edit in both lists with the new path', async () => {
+  const { root, repoDir } = makeCleanRepo();
+  try {
+    writeFileSync(resolve(repoDir, 'renamed-source.txt'), 'v1\n');
+    git(repoDir, 'add', '-A');
+    git(repoDir, 'commit', '-qm', 'add source');
+    git(repoDir, 'mv', 'renamed-source.txt', 'renamed-target.txt');
+    writeFileSync(resolve(repoDir, 'renamed-target.txt'), 'v2 modified\n');
+
+    const statusOut = git(repoDir, 'status', '--porcelain', '--branch');
+    if (!/^RM renamed-source\.txt -> renamed-target\.txt$/m.test(statusOut)) {
+      throw new Error(`Unexpected porcelain output for rename+edit: ${JSON.stringify(statusOut)}`);
+    }
+
+    const adapter = new GitAdapter(repoDir);
+    const changes = await adapter.getChanges();
+    expect(changes.staged).toEqual(['renamed-target.txt']);
+    expect(changes.unstaged).toEqual(['renamed-target.txt']);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('getChanges keeps plain M/A/D staging classification', async () => {
+  const { root, repoDir } = makeCleanRepo();
+  try {
+    writeFileSync(resolve(repoDir, 'to-delete.txt'), 'bye\n');
+    writeFileSync(resolve(repoDir, 'to-modify-staged.txt'), 'v1\n');
+    writeFileSync(resolve(repoDir, 'to-modify-worktree.txt'), 'v1\n');
+    git(repoDir, 'add', '-A');
+    git(repoDir, 'commit', '-qm', 'seed plain cases');
+
+    writeFileSync(resolve(repoDir, 'added.txt'), 'new\n');
+    git(repoDir, 'add', 'added.txt');
+    git(repoDir, 'rm', '-q', 'to-delete.txt');
+    writeFileSync(resolve(repoDir, 'to-modify-staged.txt'), 'v2\n');
+    git(repoDir, 'add', 'to-modify-staged.txt');
+    writeFileSync(resolve(repoDir, 'to-modify-worktree.txt'), 'v2\n');
+
+    const statusOut = git(repoDir, 'status', '--porcelain', '--branch');
+    for (const expected of [
+      'A  added.txt',
+      'D  to-delete.txt',
+      'M  to-modify-staged.txt',
+      ' M to-modify-worktree.txt',
+    ]) {
+      if (!statusOut.includes(expected)) {
+        throw new Error(
+          `Unexpected porcelain output for plain cases: ${JSON.stringify(statusOut)}`
+        );
+      }
+    }
+
+    const adapter = new GitAdapter(repoDir);
+    const changes = await adapter.getChanges();
+    expect(changes.staged).toEqual(['added.txt', 'to-delete.txt', 'to-modify-staged.txt']);
+    expect(changes.unstaged).toEqual(['to-modify-worktree.txt']);
+    expect(changes.untracked).toEqual([]);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
