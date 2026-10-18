@@ -2,21 +2,27 @@ import type { FastifyInstance } from 'fastify';
 import { CommsConflictError, CommsRepository } from '../repositories/commsRepository.ts';
 import { parseCommsDocument } from '../../shared/comms.ts';
 
+// Plan 230: cuerpo fijo del 500 de lectura. Los mensajes del repositorio
+// incluyen la ruta absoluta del archivo y detalles del schema; al operador
+// solo le corresponde saber que el documento no se pudo leer.
+const COMMS_UNREADABLE_BODY = {
+  error: { code: 'COMMS_UNREADABLE', message: 'No se pudo leer el documento de comunicaciones' },
+} as const;
+
 // Plan 217 / ADR 0011: API del módulo privado de comunicaciones. Solo
 // lectura y reemplazo completo del documento (la SPA compone los cambios);
 // el PUT es mutación (credencial + modo operator, ver ROUTE_POLICY).
 export async function commsRoutes(app: FastifyInstance, repoRoot: string): Promise<void> {
   const repo = new CommsRepository(repoRoot);
 
-  app.get('/comms', async (_request, reply) => {
+  app.get('/comms', async (request, reply) => {
     // Contiene teléfonos: nunca cachear.
     reply.header('Cache-Control', 'no-store');
     try {
       return repo.read();
     } catch (err) {
-      return reply.status(500).send({
-        error: { code: 'COMMS_UNREADABLE', message: (err as Error).message },
-      });
+      request.log.error({ err }, 'comms read failed');
+      return reply.status(500).send(COMMS_UNREADABLE_BODY);
     }
   });
 

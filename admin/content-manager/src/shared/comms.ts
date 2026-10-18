@@ -57,15 +57,26 @@ export function renderTemplate(body: string, values: VariableValues): RenderResu
  * Normaliza un número a dígitos internacionales (formato wa.me). Acepta
  * formatos chilenos habituales: "+56 9 1234 5678", "9 1234 5678",
  * "912345678". Devuelve null si no es un número plausible.
+ *
+ * Endurecido (plan 230): con "+" se exige largo internacional (10–15
+ * dígitos) y sin "+" solo se aceptan las formas chilenas conocidas —
+ * móvil de 9 dígitos (9XXXXXXXX) o el código 56 con largo 11. Un fijo
+ * de 8 dígitos ya no pasa: wa.me lo rechazaría.
  */
 export function normalizePhone(input: string): string | null {
   const trimmed = input.trim();
   let digits = trimmed.replace(/[^0-9]/g, '');
   if (!digits) return null;
   if (trimmed.startsWith('00')) digits = digits.slice(2);
-  // Móvil chileno sin código de país (9 dígitos que empiezan con 9).
-  if (!trimmed.startsWith('+') && digits.length === 9 && digits.startsWith('9')) {
+  if (trimmed.startsWith('+')) {
+    // Internacional explícito: largo E.164 plausible (10–15 dígitos).
+    if (!/^\d{10,15}$/.test(digits)) return null;
+  } else if (/^9\d{8}$/.test(digits)) {
+    // Móvil chileno sin código de país (9 dígitos que empiezan con 9).
     digits = `56${digits}`;
+  } else if (!/^56\d{9}$/.test(digits)) {
+    // Sin "+": solo las formas chilenas conocidas (56 + 9 dígitos).
+    return null;
   }
   if (digits.startsWith('56') && digits.length !== 11) return null;
   if (!/^[1-9][0-9]{7,14}$/.test(digits)) return null;

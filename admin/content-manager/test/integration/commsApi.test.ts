@@ -112,13 +112,33 @@ describe('comms API', () => {
     expect(invalid.statusCode).toBe(422);
   });
 
-  it('un archivo corrupto se informa, no se reemplaza en silencio', async () => {
+  it('un archivo corrupto responde 500 sanitizado y no se reemplaza en silencio', async () => {
     const file = resolve(dir, COMMS_RELATIVE_PATH);
     mkdirSync(resolve(dir, 'data', '.comms'), { recursive: true });
     writeFileSync(file, '{corrupto');
     const res = await app.inject({ method: 'GET', url: '/api/v1/comms' });
     expect(res.statusCode).toBe(500);
+    expect(res.json()).toEqual({
+      error: {
+        code: 'COMMS_UNREADABLE',
+        message: 'No se pudo leer el documento de comunicaciones',
+      },
+    });
+    // El cuerpo no filtra rutas absolutas ni detalles del repositorio/schema.
+    expect(res.body).not.toContain(dir);
+    expect(res.body).not.toContain('Invalid JSON');
     expect(readFileSync(file, 'utf8')).toBe('{corrupto');
+  });
+
+  it('un archivo con schema inválido también responde 500 sin detalles de zod', async () => {
+    const file = resolve(dir, COMMS_RELATIVE_PATH);
+    mkdirSync(resolve(dir, 'data', '.comms'), { recursive: true });
+    writeFileSync(file, JSON.stringify({ schema_version: 1, rev: 'cero' }));
+    const res = await app.inject({ method: 'GET', url: '/api/v1/comms' });
+    expect(res.statusCode).toBe(500);
+    expect(res.json().error.message).toBe('No se pudo leer el documento de comunicaciones');
+    expect(res.body).not.toContain(dir);
+    expect(res.body).not.toContain('Schema validation');
   });
 
   it('bloquea lectura y escritura desde un Host no loopback', async () => {

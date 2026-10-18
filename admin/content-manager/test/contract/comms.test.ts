@@ -54,17 +54,33 @@ describe('variables de plantilla', () => {
 });
 
 describe('teléfonos', () => {
+  // Matriz de contrato (plan 230): solo formas dialables por wa.me.
   it.each([
     ['+56 9 1234 5678', '56912345678'],
     ['912345678', '56912345678'],
     ['9 1234 5678', '56912345678'],
+    ['56912345678', '56912345678'],
     ['0056912345678', '56912345678'],
+    ['00 56 9 1234 5678', '56912345678'],
+    ['9 1111 2222', '56911112222'],
+    ['+56 9 0000 0000', '56900000000'],
     ['+1 (415) 555-0100', '14155550100'],
   ])('normaliza %s', (input, expected) => {
     expect(normalizePhone(input)).toBe(expected);
   });
 
-  it.each(['', 'abc', '12345', '+56 9 1234', '5691234567890'])('rechaza %s', (input) => {
+  it.each([
+    '',
+    'abc',
+    '12345',
+    '+9 1234 5678',
+    '+2 1234 5678',
+    '+56 9 1234',
+    '+56 22334455',
+    '22334455',
+    '91234567',
+    '5691234567890',
+  ])('rechaza %s', (input) => {
     expect(normalizePhone(input)).toBeNull();
   });
 
@@ -147,6 +163,15 @@ describe('repeticiones', () => {
     expect(
       findRecentRepeat([entry('2026-09-01T12:00:00Z', 'grupo', h)], 'grupo', h, now)
     ).toBeNull();
+  });
+
+  it('el número pegado (destination_id null) se compara como destino propio', () => {
+    const h = textHash('Hola vecino');
+    const pegado = [entry('2026-10-08T12:00:00Z', null, h)];
+    expect(findRecentRepeat(pegado, null, h, now)).not.toBeNull();
+    // Un destino guardado no coincide con el caso pegado ni al revés.
+    expect(findRecentRepeat(pegado, 'grupo', h, now)).toBeNull();
+    expect(findRecentRepeat([entry('2026-10-08T12:00:00Z', 'grupo', h)], null, h, now)).toBeNull();
   });
 
   it('abrir el chat o copiar no cuentan como envío repetido', () => {

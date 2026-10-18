@@ -126,6 +126,13 @@ function relativeTime(iso: string): string {
 
 export function CommsPage(): React.ReactElement {
   const [doc, setDoc] = useState<CommsDocument | null>(null);
+  // Espejo síncrono del documento: persist rebasa sobre el último estado
+  // guardado y no sobre el de un render viejo (plan 230).
+  const docRef = useRef<CommsDocument | null>(null);
+  const applyDoc = useCallback((next: CommsDocument | null): void => {
+    docRef.current = next;
+    setDoc(next);
+  }, []);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ kind: FeedbackKind; text: string } | null>(null);
   const [kind, setKind] = useState<Kind>('mensaje');
@@ -141,6 +148,7 @@ export function CommsPage(): React.ReactElement {
   const [editing, setEditing] = useState<CommsTemplate | null>(null);
   const [busy, setBusy] = useState(false);
   const searchRef = useRef<HTMLInputElement | null>(null);
+  const ownImagesRef = useRef<ImageOption[]>([]);
 
   const setDraft = useCallback((update: (prev: Draft) => Draft) => {
     setDraftState((prev) => {
@@ -157,12 +165,12 @@ export function CommsPage(): React.ReactElement {
 
   const reload = useCallback(async () => {
     try {
-      setDoc(await client.getComms());
+      applyDoc(await client.getComms());
       setLoadError(null);
     } catch (err) {
       setLoadError(errorMessage(err));
     }
-  }, []);
+  }, [applyDoc]);
 
   useEffect(() => {
     void reload();
@@ -185,11 +193,12 @@ export function CommsPage(): React.ReactElement {
   /** Aplica un cambio al documento y lo guarda (concurrencia optimista). */
   const persist = useCallback(
     async (mutate: (current: CommsDocument) => CommsDocument, success?: string) => {
-      if (!doc) return null;
+      const current = docRef.current;
+      if (!current) return null;
       setBusy(true);
       try {
-        const saved = await client.saveComms(mutate(doc), doc.rev);
-        setDoc(saved);
+        const saved = await client.saveComms(mutate(current), current.rev);
+        applyDoc(saved);
         if (success) notify('success', success);
         return saved;
       } catch (err) {
@@ -200,7 +209,7 @@ export function CommsPage(): React.ReactElement {
         setBusy(false);
       }
     },
-    [doc, reload, notify]
+    [applyDoc, reload, notify]
   );
 
   const template = doc?.templates.find((t) => t.id === draft.templateId) ?? null;
@@ -230,7 +239,11 @@ export function CommsPage(): React.ReactElement {
     : { text: '', missing: [] };
   const finalText = rendered.text.trim();
   const hash = textHash(finalText);
-  const repeat = doc && destination ? findRecentRepeat(doc.activity, destination.id, hash) : null;
+  // Los números pegados (ad-hoc) se guardan sin id: se buscan como destino
+  // null para que el aviso de repetición también cubra ese caso (plan 230).
+  const repeatDestinationId = destination && destination.id !== ADHOC_ID ? destination.id : null;
+  const repeat =
+    doc && destination ? findRecentRepeat(doc.activity, repeatDestinationId, hash) : null;
 
   const imageOptions: ImageOption[] = useMemo(() => {
     const options: ImageOption[] = [];
@@ -250,6 +263,18 @@ export function CommsPage(): React.ReactElement {
   useEffect(() => {
     setSelectedImages(imageOptions.map((o) => o.key));
   }, [imageOptions]);
+
+  // Plan 230: los object URL de imágenes propias se revocan al quitarlas
+  // (handler) y al desmontar la página; el ref guarda la lista más reciente.
+  useEffect(() => {
+    ownImagesRef.current = ownImages;
+  }, [ownImages]);
+  useEffect(
+    () => () => {
+      for (const image of ownImagesRef.current) URL.revokeObjectURL(image.src);
+    },
+    []
+  );
 
   useEffect(() => {
     setRepeatAck(false);
@@ -391,7 +416,13 @@ export function CommsPage(): React.ReactElement {
 
   const handleConfirmSent = async (): Promise<void> => {
     if (!pendingConfirm || !template || !destination) return;
-    await logActivity('enviado_manual');
+    const saved = await logActivity('enviado_manual');
+    if (!saved) {
+      // El registro falló: no prometer que quedó guardado y dejar
+      // pendienteConfirm para reintentar (plan 230).
+      notify('error', 'No se pudo registrar el envío. Inténtalo de nuevo.');
+      return;
+    }
     setPendingConfirm(null);
     notify('success', 'Registrado como enviado (confirmación manual).');
   };
@@ -411,6 +442,13 @@ export function CommsPage(): React.ReactElement {
         { key: `own-${newId('img')}`, label: file.name.replace(/\.[^.]+$/, ''), src, blob: file },
       ]);
     }
+  };
+
+  /** Quita una imagen propia y libera su object URL (plan 230). */
+  const removeOwnImage = (option: ImageOption): void => {
+    setOwnImages((prev) => prev.filter((image) => image.key !== option.key));
+    setSelectedImages((prev) => prev.filter((key) => key !== option.key));
+    URL.revokeObjectURL(option.src);
   };
 
   if (loadError) {
@@ -700,6 +738,11 @@ export function CommsPage(): React.ReactElement {
                         <button type="button" onClick={() => void handleDownloadImage(option)}>
                           Descargar
                         </button>
+                        {option.blob && (
+                          <button type="button" onClick={() => removeOwnImage(option)}>
+                            Quitar
+                          </button>
+                        )}
                       </div>
                     </li>
                   ))}
@@ -889,7 +932,7 @@ export function CommsPage(): React.ReactElement {
         doc={doc}
         busy={busy}
         onImport={async (imported) => {
-          await persist(() => ({ ...imported, rev: doc.rev }), 'Respaldo importado.');
+          await persist((current) => ({ ...imported, rev: current.rev }), 'Respaldo importado.');
         }}
         onError={(text) => notify('error', text)}
       />
