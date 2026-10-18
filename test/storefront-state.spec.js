@@ -98,7 +98,7 @@ describe('storefront-state cart primitives', () => {
       expect(result.map((item) => item.id)).toEqual(['prod-1', 'prod-3']);
     });
 
-    it('collapses duplicate SKU lines and never inflates a customer's quantity', () => {
+    it('collapses duplicate SKU lines without inflating cart quantities', () => {
       const duplicated = [
         { id: 'sku', name: 'Royal Guard', price: 5900, quantity: 1 },
         { id: 'another', price: 1000, quantity: 1 },
