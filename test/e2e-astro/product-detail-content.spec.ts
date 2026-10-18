@@ -6,7 +6,8 @@ test('product page presents readable detail and retains a working order action',
   await page.waitForFunction(() => window.__APP_READY__ === true);
 
   await expect(page.locator('.product-detail__eyebrow')).toHaveText('Despensa');
-  await expect(page.locator('.product-detail__summary')).toContainText('ensaladas');
+  await expect(page.locator('.product-detail__summary')).toContainText('92 g de peso drenado');
+  await expect(page.locator('.product-detail__summary')).not.toContainText('Para ensaladas');
   await expect(page.locator('.product-detail__buy-panel .precio')).toHaveText('$2.500');
   await expect(page.locator('.product-detail__checkout-note')).toContainText('WhatsApp');
   await expect(page.locator('.product-detail__information-title')).toHaveText('Información del producto');
