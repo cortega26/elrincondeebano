@@ -7,7 +7,10 @@
 > in `plans/README.md` — unless a reviewer dispatched you and told you they
 > maintain the index.
 >
-> **Drift check (run first)**: `git diff --stat 97b21096..HEAD -- astro-poc/src/components/ProductCard.astro astro-poc/src/components/ProductCardStrip.astro test/ssr-product-links.build-contract.test.js .github/workflows/ci.yml`
+> **Drift check (run first)**: `git diff --stat f7654a51..HEAD -- astro-poc/src/components/ProductCard.astro astro-poc/src/components/ProductCardStrip.astro test/ssr-product-links.build-contract.test.js .github/workflows/ci.yml`
+> (Reconciled to `f7654a51`: plan 233 has LANDED — `ci.yml` now contains the
+> `build-contract-tests` job, so Step 2's conditional is active: append the
+> new test file to that job's list. The component excerpts are unchanged.)
 > If any in-scope file changed since this plan was written, compare the
 > "Current state" excerpts against the live code before proceeding; on a
 > mismatch, treat it as a STOP condition.
@@ -20,7 +23,7 @@
 - **Depends on**: 233 (the CI job that runs build-contract suites) — if 233
   has landed, extend its command; if not, write the test and note it
 - **Category**: tests
-- **Planned at**: commit `97b21096`, 2026-10-18
+- **Planned at**: commit `97b21096`, 2026-10-18 (reconciled to `f7654a51`: plan 233 landed; ci.yml gained the `build-contract-tests` job — Step 2 is now unconditionally active)
 
 ## Why this matters
 
