@@ -105,7 +105,7 @@ const addTimestamp = async (response, type = 'static') => {
   const headers = new Headers(response.headers);
   headers.append('sw-timestamp', Date.now().toString());
   headers.append('cache-type', type);
-  return new Response(await response.blob(), {
+  return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
     headers: headers,

@@ -2,7 +2,7 @@ const assert = require('node:assert');
 const path = require('node:path');
 
 const SERVICE_WORKER_PATH = path.join(__dirname, '..', 'service-worker.js');
-const { CACHE_CONFIG, shouldSkipCache } = require(SERVICE_WORKER_PATH);
+const { CACHE_CONFIG, shouldSkipCache, addTimestamp } = require(SERVICE_WORKER_PATH);
 
 const createTimestampedResponse = (body, { status = 200, type = 'static', headers = {} } = {}) =>
   new Response(body, {
@@ -324,4 +324,36 @@ test('INVALIDATE_ALL_CACHES preserves the install-seeded static shell and delete
   }
   assert.ok(caches.stores.has('unrelated-cache'), 'unknown caches must stay untouched');
   cleanup();
+});
+
+test('addTimestamp streams the cloned body and preserves status and headers', async () => {
+  const originalBlob = Response.prototype.blob;
+  let blobCalls = 0;
+  Response.prototype.blob = () => {
+    blobCalls += 1;
+    throw new Error('addTimestamp must not buffer through response.blob()');
+  };
+
+  try {
+    const source = new Response('streamed-payload', {
+      status: 201,
+      statusText: 'Created',
+      headers: { 'content-type': 'text/plain' },
+    });
+
+    const stamped = await addTimestamp(source.clone(), 'html');
+
+    assert.ok(stamped.body instanceof ReadableStream, 'stamped response carries a body stream');
+    assert.strictEqual(stamped.status, 201);
+    assert.strictEqual(stamped.statusText, 'Created');
+    assert.strictEqual(stamped.headers.get('content-type'), 'text/plain');
+    assert.ok(stamped.headers.get('sw-timestamp'), 'freshness header must be appended');
+    assert.strictEqual(stamped.headers.get('cache-type'), 'html');
+    assert.strictEqual(await stamped.text(), 'streamed-payload');
+    assert.strictEqual(await source.text(), 'streamed-payload');
+  } finally {
+    Response.prototype.blob = originalBlob;
+  }
+
+  assert.strictEqual(blobCalls, 0, 'blob() must not be called by addTimestamp');
 });
