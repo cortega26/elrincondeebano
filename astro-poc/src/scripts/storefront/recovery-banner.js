@@ -25,6 +25,7 @@ export function createRecoveryBannerController({
     }
 
     storefrontStorage.saveJson('orderLastSentAt', Date.now());
+    onCartCleared();
     updateBadge([], { animate: true });
     renderCart([]);
     syncAllActionAreas([]);
