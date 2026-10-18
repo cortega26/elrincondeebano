@@ -16,7 +16,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | `npm test`                      | `vitest run` (root) + `npm run admin:test` (Content Manager)                                                              |
 | `npm run test:e2e`              | Playwright E2E storefront (config: playwright.astro.config.ts; hace build completo primero)                               |
 | `npm run typecheck`             | Astro check (`astro check`) + `admin:typecheck` (legacy tree retired, plan 155)                                           |
-| `npm run lint`                  | ESLint root + astro-poc; el admin se lint-ea en pre-commit y CI (`admin.yml`)                                             |
+| `npm run lint`                  | ESLint root + astro-poc + admin (`admin:lint`; espejo de CI)                                                              |
 | `npm run format`                | Prettier write                                                                                                            |
 | `npm run validate`              | Full local baseline: lint → typecheck → check:e2e-selectors → build → test → check:plans → guardrails:assets              |
 | `npm run validate:release`      | Ship gate: e2e + live share-preview probe (audits run separately in `security-audit.yml`)                                 |

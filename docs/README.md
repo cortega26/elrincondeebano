@@ -12,6 +12,10 @@
 ## Operations
 
 - `docs/operations/RUNBOOK.md`: production incident handling and recovery steps.
+- `docs/operations/COMMS.md`: private WhatsApp messaging module (templates, handoff, data).
+- `docs/operations/CUTOVER.md`: Content Manager cutover and certification gate.
+- `docs/operations/SHARE_PREVIEW.md`: social preview unfurls (OG/WhatsApp) and live checks.
+- `docs/operations/EDGE_SECURITY_HEADERS.md`: edge security headers, CSP, and Cloudflare policy.
 - `docs/operations/BACKUP.md`: backup and restore procedures.
 - `docs/operations/VALIDATION_MATRIX.md`: fast baseline vs canonical release gate.
 - `docs/operations/QUALITY_GUARDRAILS.md`: non-regression checklist and release gates.

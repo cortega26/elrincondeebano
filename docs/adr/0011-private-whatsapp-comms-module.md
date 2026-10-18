@@ -65,8 +65,29 @@ ahorrar tiempo sin agregar servicios, costos ni riesgo de exponer teléfonos.
 - El MVP es **de escritorio** (WhatsApp Web o Desktop). El admin no es
   accesible desde el teléfono porque rechaza HOST no loopback. Habilitar el
   móvil requiere un acceso autenticado (por ejemplo Tailscale o Cloudflare
-  Access) y es una decisión aparte.
+  Access) y es una decisión aparte. **Actualización 2026-10-18:** el modo
+  remoto autenticado ya está implementado (ver addendum al final).
 - Donde no hay Web Share con archivos (pendiente de comprobar en el PC del
   operador), el flujo de texto + imagen queda así: «Copiar imagen» → «Abrir chat con mensaje» → pegar (Ctrl+V) → Enviar.
 - Rollback: quitar la ruta y la entrada de navegación. `data/.comms/` puede
   borrarse o conservarse; no afecta al catálogo ni al storefront.
+
+## Addendum (2026-10-18): modo remoto autenticado
+
+La limitación de la última consecuencia («el admin no es accesible desde el
+teléfono… es una decisión aparte») quedó superada: el modo remoto
+autenticado se implementó el 2026-10-13 (`5a15428d`, `ADMIN_REMOTE_ORIGIN`),
+documentado en `admin/content-manager/README.md`.
+
+- Toda petición a `/api/v1/*` requiere `x-admin-credential`, **incluida
+  `/api/v1/health`**: el proxy conecta desde loopback y eso no cuenta como
+  autenticación (`admin/content-manager/src/server/app.ts` gatea el modo
+  remoto explícitamente).
+- El hostname remoto entra en la allowlist de `Host` y las mutaciones validan
+  el `Origin` HTTPS.
+- Cloudflare Access con política **deny-by-default** es un prerrequisito
+  documentado, verificado externamente (el repositorio no lo comprueba).
+
+Con esto queda desbloqueado el ítem pendiente de la spec del plan 217
+(«Requiere acceso autenticado fuera de loopback»); su implementación se
+rastrea aparte.

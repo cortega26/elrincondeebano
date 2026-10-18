@@ -10,8 +10,9 @@ ADMIN_MODE=operator npm run admin:start
 # abrir http://127.0.0.1:3000/comms  (atajo: g, w)
 ```
 
-Guardar plantillas o destinos requiere el modo `operator`. Desde
-127.0.0.1 no se pide credencial.
+Guardar plantillas o destinos requiere el modo `operator`. En loopback no
+se pide credencial; en modo remoto (`ADMIN_REMOTE_ORIGIN`) toda petición
+requiere `x-admin-credential`.
 
 ## Uso
 
@@ -52,7 +53,10 @@ bloquea hasta que lo confirmes.
 - No adjunta imágenes por enlace. `wa.me` solo lleva texto.
 - No publica en el grupo por API (la Groups API no aplica; ver ADR).
 - No sabe quién te escribió: el destinatario siempre lo eliges tú.
-- No funciona desde el teléfono (el admin solo escucha en 127.0.0.1).
+- Por defecto no funciona desde el teléfono: el admin escucha en 127.0.0.1.
+  Con el despliegue remoto (`ADMIN_REMOTE_ORIGIN` detrás de Cloudflare
+  Access, credencial en cada petición) sí; ver
+  [ADR 0011](../adr/0011-private-whatsapp-comms-module.md).
 
 ## Datos, respaldo y privacidad
 

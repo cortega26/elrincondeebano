@@ -1,5 +1,20 @@
 ﻿# RELEASE RUNBOOK
 
+## Current flow (2026-10)
+
+- Versión actual: `1.5.0` en `package.json` (último release manual,
+  2026-08-12).
+- `CHANGELOG.md` se escribe **a mano** en el momento del release (Keep a
+  Changelog + SemVer), con el Release Log Template de este documento.
+- El release se corta a mano: bump de versión, entrada de changelog y tag
+  `vX.Y.Z`. El deploy del storefront corre en push a `main`
+  (`.github/workflows/static.yml`) y el gate canónico es
+  `npm run validate:release`.
+- `.changeset/` y `.github/workflows/changesets.yml` están cableados pero
+  **no adoptados**: la adopción es un RFC wave-3 (ver `AGENTS.md` y
+  `docs/operations/DEPENDENCY_POLICY.md`). Los contribuidores **no** agregan
+  changesets todavía.
+
 ## Release Types
 
 - Routine change: content copy, minor layout tweak, non-critical JS, no Service Worker (SW) or checkout path changes.

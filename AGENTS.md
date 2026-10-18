@@ -2,7 +2,7 @@
 
 **El Rincón de Ébano** — storefront estático Astro + Content Manager local.
 Runtime: Node 24.x únicamente (`engines: >=24 <25`).
-Última actualización: 2026-09-15.
+Última actualización: 2026-10-18.
 
 **Content Manager**: la aplicación canónica es `admin/content-manager/`
 (TypeScript: Fastify + React + Vite + TS7). El manager Python/Tkinter
@@ -23,7 +23,7 @@ los archivos persisten).
   en el repo; el storefront lo consume en build. Cualquier cambio de catálogo,
   taxonomía o assets obliga a `guardrails:assets`.
 - **`plans/`** — planes de implementación activos (índice: `plans/README.md`,
-  planes 001–169 cerrados; lote de auditoría 11 (170–214) en curso — el README
+  planes 001–214 cerrados/archivados; auditoría 12 (218+) en curso — el README
   es la fuente de estado). `docs/audit/` conserva
   auditorías antiguas, no el estado actual.
 
@@ -43,8 +43,8 @@ los archivos persisten).
 
 ## Gotchas
 
-- `node test/run-all.js` ya no existe: el plan 024 unificó todo en Vitest.
-  `CLAUDE.md` está desactualizado en este punto; **AGENTS.md manda**.
+- `node test/run-all.js` ya no existe: Vitest reemplazó
+  `node:test`/`run-all.js` (plan 024).
 - `test/e2e/` fue retirado (plan 110): los scripts `test:e2e:visual*`,
   `test:e2e:media` y `test:e2e:storefront` fueron eliminados del manifest.
   La suite E2E viva vive en `test/e2e-astro/` (storefront) y
@@ -143,6 +143,7 @@ npm run validate:release
 | Cutover / certificación Content Manager          | [`CUTOVER`](docs/operations/CUTOVER.md)                                                             |
 | Smoke manual                                     | [`SMOKE_TEST`](docs/operations/SMOKE_TEST.md)                                                       |
 | Share preview                                    | [`SHARE_PREVIEW`](docs/operations/SHARE_PREVIEW.md)                                                 |
+| Comms / mensajes WhatsApp                        | [`COMMS`](docs/operations/COMMS.md)                                                                 |
 | Incidentes y rollback                            | [`INCIDENT_TRIAGE`](docs/operations/INCIDENT_TRIAGE.md) · [`ROLLBACK`](docs/operations/ROLLBACK.md) |
 | Observabilidad                                   | [`OBSERVABILITY`](docs/operations/OBSERVABILITY.md)                                                 |
 | Política de dependencias                         | [`DEPENDENCY_POLICY`](docs/operations/DEPENDENCY_POLICY.md)                                         |

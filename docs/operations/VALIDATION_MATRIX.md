@@ -23,7 +23,7 @@ release readiness.
 7. `npm run guardrails:assets`
 
 The root `typecheck` and `test` gates cover the **whole monorepo**: the
-storefront (`astro-poc/`), the legacy tree, and the TypeScript Content Manager
+storefront (`astro-poc/`) and the TypeScript Content Manager
 (`admin/content-manager/` — its workspace typecheck and vitest suite run as
 part of the root scripts).
 
