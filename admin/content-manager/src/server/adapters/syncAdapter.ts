@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const syncConfigSchema = z.object({
   enabled: z.boolean().default(false),
-  api_base: z.string().url().optional(),
+  api_base: z.url().optional(),
   api_token: z.string().optional(),
   poll_interval: z.number().int().positive().default(60),
   pull_interval: z.number().int().positive().default(300),
