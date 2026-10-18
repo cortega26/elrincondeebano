@@ -207,6 +207,11 @@ export function ProductsPage(): React.ReactElement {
           category: category || undefined,
           archived: archived === 'true' ? 'true' : archived === 'false' ? 'false' : undefined,
           out_of_stock: outOfStock === 'true' ? 'true' : undefined,
+          // Plan 221: price filters reach the export like every other filter
+          // — previously an operator filtered by price and the CSV silently
+          // ignored it (names follow the list query variables in the hook).
+          min_price: minPrice || undefined,
+          max_price: maxPrice || undefined,
           discounted_only: discountedOnly === 'true' ? 'true' : undefined,
           min_discount: minDiscount || undefined,
           max_discount: maxDiscount || undefined,

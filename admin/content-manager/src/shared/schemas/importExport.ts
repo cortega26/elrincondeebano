@@ -102,6 +102,10 @@ export const csvExportQuerySchema = z.object({
   category: z.string().optional(),
   archived: z.enum(['true', 'false']).optional(),
   out_of_stock: z.enum(['true', 'false']).optional(),
+  // Plan 221: price filters — string shape like every other export query
+  // param; the shared parser coerces them for the repository path.
+  min_price: z.string().optional(),
+  max_price: z.string().optional(),
   discounted_only: z.enum(['true', 'false']).optional(),
   min_discount: z.string().optional(),
   max_discount: z.string().optional(),
