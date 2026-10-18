@@ -17,6 +17,7 @@ import type {
   ImportValidationError,
 } from '../../shared/schemas/importExport.ts';
 import { HttpError, sanitizeUserMessage } from '../../shared/errors/AppError.ts';
+import { parseQueryFilters } from '../../shared/productFilters.ts';
 import { createHash } from 'node:crypto';
 import {
   IMPORT_COMPARE_FIELDS,
@@ -57,39 +58,13 @@ export async function importRoutes(
         },
       });
     }
-    const { q, category, archived, out_of_stock, discounted_only, min_discount, max_discount } =
-      query.data;
-
-    let products = repos.products.loadCatalog().products;
-    if (q) {
-      const needle = q.toLowerCase();
-      products = products.filter(
-        (p) => p.name.toLowerCase().includes(needle) || p.description.toLowerCase().includes(needle)
-      );
-    }
-    if (category !== undefined) {
-      products = products.filter((p) => p.category === category);
-    }
-    if (archived !== undefined) {
-      products = products.filter((p) => p.is_archived === (archived === 'true'));
-    }
-    if (out_of_stock !== undefined) {
-      products = products.filter((p) => p.stock === (out_of_stock !== 'true'));
-    }
-    // Plan 091: discount filters mirror GET /products (percent of price).
-    const discountPercent = (p: (typeof products)[number]): number =>
-      p.price > 0 ? (p.discount / p.price) * 100 : 0;
-    if (discounted_only === 'true') {
-      products = products.filter((p) => discountPercent(p) > 0);
-    }
-    if (min_discount !== undefined) {
-      const min = Number(min_discount);
-      if (Number.isFinite(min)) products = products.filter((p) => discountPercent(p) >= min);
-    }
-    if (max_discount !== undefined) {
-      const max = Number(max_discount);
-      if (Number.isFinite(max)) products = products.filter((p) => discountPercent(p) <= max);
-    }
+    // Plan 221: the export filters through the canonical repository path —
+    // the exact call bulk scope:'all' uses (resolveBulkIds) — so list, bulk
+    // and CSV can never drift again. Intended behavior changes vs the old
+    // local filter block: `q` now also matches the category field, and
+    // `category` compares case/space-insensitively (both matching the list).
+    const filters = parseQueryFilters(query.data);
+    const products = repos.products.getAll(1, Number.MAX_SAFE_INTEGER, filters).items;
 
     const escapeCsv = (value: unknown): string => {
       const text = String(value ?? '');
