@@ -296,3 +296,24 @@ Fallback sin `node` en PATH: `npx -y node@24 "C:\Program Files\nodejs\node_modul
   como **AGOTADO** y aplica escala de grises; además, los filtros del frontend los
   ocultan.
 - Evita borrar productos por falta de stock; conserva el registro para reactivarlo cuando vuelva disponibilidad.
+
+## Catalog build guard: derived logo assets
+
+`.github/workflows/product-data-guard.yml` runs `npm run build` and invokes
+`tools/ci/catalog-build-tree-check.mjs` to inspect **tracked changes vs HEAD**
+(including staged changes). The original logo
+`assets/images/og/logo.png` is the canonical input. Only the eleven exact
+generated targets from `tools/generate-logo-assets.mjs` are exempt from the
+tracked-clean check: the `logo.{webp,avif}` variants,
+`logo-{40,80,120}.{webp,avif}`, `icon-{192,512}.png`, and `favicon.ico`.
+Builds on a new runner can regenerate those files with different encoded bytes
+because of Sharp/libvips. They must still build and ship as usual.
+
+Every other modified tracked file fails the guard, including catalog JSON,
+the Astro/public projections, any edited source, and unknown image paths.
+Untracked image variants are build outputs and are excluded. Git inspection
+failures also fail the job (never silently mark it green). The separate
+Continuous Integration workflow checks output reproducibility with two
+consecutive builds. To intentionally change the brand, edit the canonical
+source logo and use the normal validated build/deploy path; do not expand
+the exemption list casually.
