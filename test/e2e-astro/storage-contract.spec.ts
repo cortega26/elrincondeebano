@@ -470,3 +470,55 @@ test('duplicate persisted SKU rows disappear after a single removal and never re
   );
   expect(persisted).toEqual([addedId]);
 });
+
+
+test('different IDs for the same physical product cannot recreate a removed cart row', async ({
+  page,
+}) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await waitForReady(page);
+
+  const products = await page.locator('.category-strip .add-to-cart-btn').evaluateAll((buttons) =>
+    [...new Map(
+      buttons
+        .map((button) => button.closest<HTMLElement>('[data-product-id]'))
+        .filter((card): card is HTMLElement => Boolean(card?.dataset.productId))
+        .map((card) => [card.dataset.productId, {
+          id: card.dataset.productId,
+          name: card.dataset.productName,
+          category: card.dataset.productCategory,
+          price: Number(card.dataset.productPrice),
+          discount: Number(card.dataset.productDiscount || 0),
+          image: card.querySelector('img')?.getAttribute('src') || '',
+        }])
+    ).values()]
+  );
+  expect(products.length).toBeGreaterThanOrEqual(2);
+  const [item, next] = products;
+
+  await page.evaluate((product) => {
+    const image = product.image.replace(/\\.(?:webp|avif)(?=[?#]|$)/i, '.webp');
+    localStorage.setItem('astro-poc-cart', JSON.stringify([
+      { ...product, id: 'obsolete-product-id', image, quantity: 1 },
+      { ...product, quantity: 3 },
+    ]));
+  }, item);
+
+  await page.reload({ waitUntil: 'networkidle' });
+  await waitForReady(page);
+  await expect(page.locator('#cart-count')).toHaveText('3');
+  await page.locator('#cart-icon').click();
+  await expect(page.locator('#cart-items .cart-item')).toHaveCount(1);
+  await page.locator('#cart-items .cart-item .cart-item__remove').click();
+  await expect(page.locator('#cart-count')).toHaveText('0');
+  await page.locator('#cartOffcanvas [data-bs-dismiss="offcanvas"]').first().click();
+  await expect(page.locator('#cartOffcanvas')).toBeHidden();
+
+  await page.locator(`.category-strip .add-to-cart-btn[data-id="${next.id}"]`).first().click();
+  await page.reload({ waitUntil: 'networkidle' });
+  await waitForReady(page);
+  const result = await page.evaluate(() => JSON.parse(localStorage.getItem('astro-poc-cart') || '[]'));
+  expect(result).toHaveLength(1);
+  expect(result[0].id).toBe(next.id);
+  await expect(page.locator('#cart-count')).toHaveText('1');
+});
