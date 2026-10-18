@@ -14,6 +14,9 @@ import { OpenAPIRegistry, OpenApiGeneratorV3 } from '@asteasolutions/zod-to-open
 import { productReadSchema, productCatalogSchema } from '../shared/schemas/product.ts';
 import { categoryRecordSchema } from '../shared/schemas/category.ts';
 import { storefrontBundleSchema } from '../shared/schemas/storefront.ts';
+import { changeSetSchema } from '../shared/schemas/changeSet.ts';
+import { conflictSchema } from '../shared/schemas/conflict.ts';
+import { mediaIntentSchema } from '../shared/schemas/mediaIntent.ts';
 
 const PRODUCT = '/api/v1/products';
 const PRODUCT_ID = '/api/v1/products/{id}';
@@ -24,9 +27,16 @@ const NAV_GROUPS = '/api/v1/nav-groups';
 const NAV_GROUP_ID = '/api/v1/nav-groups/{id}';
 const BUNDLES = '/api/v1/storefront/bundles';
 const FEATURED = '/api/v1/storefront/featured';
+const MEDIA_INTENTS = '/api/v1/media/intents';
+const MEDIA_INTENT_ID = '/api/v1/media/intents/{id}';
+const CHANGE_SET_ID = '/api/v1/change-sets/{id}';
 
 const jsonResponse = (schema: z.ZodType, description = 'OK') => ({
   '200': { description, content: { 'application/json': { schema } } },
+});
+
+const createdResponse = (schema: z.ZodType, description = 'Created') => ({
+  '201': { description, content: { 'application/json': { schema } } },
 });
 
 const errorResponse = () => ({
@@ -45,6 +55,9 @@ export function buildOpenApi() {
   registry.register('ProductCatalog', z.object(productCatalogSchema.shape));
   registry.register('Category', z.object(categoryRecordSchema.shape));
   registry.register('Bundle', z.object(storefrontBundleSchema.shape));
+  registry.register('ChangeSet', z.object(changeSetSchema.shape));
+  registry.register('Conflict', z.object(conflictSchema.shape));
+  registry.register('MediaIntent', z.object(mediaIntentSchema.shape));
 
   const listProducts = {
     method: 'get' as const,
@@ -270,6 +283,140 @@ export function buildOpenApi() {
     summary: 'Media inventory',
     responses: jsonResponse(z.object({ items: z.array(z.record(z.string(), z.unknown())) })),
   });
+  // Plan 252: the media workbench lifecycle (upload → staged intent → run →
+  // apply/discard), declared from the handlers in mediaUploadRoutes.ts /
+  // mediaIntentRoutes.ts / mediaApplyRoutes.ts and their integration tests
+  // (test/integration/mediaWorkbench.test.ts).
+  registry.registerPath({
+    method: 'post',
+    path: '/api/v1/media/upload',
+    summary: 'Stage an uploaded media file (base64, magic-byte sniffed, size-capped)',
+    request: {
+      body: {
+        content: {
+          'application/json': {
+            schema: z.object({
+              data: z.string().optional(),
+              targetPath: z.string(),
+              // MAGIC_BYTES keys in mediaUploadRoutes.ts — the sniffed allowlist.
+              content_type: z.enum([
+                'image/png',
+                'image/jpeg',
+                'image/webp',
+                'image/avif',
+                'image/gif',
+              ]),
+            }),
+          },
+        },
+      },
+    },
+    responses: {
+      ...createdResponse(
+        z.object({
+          status: z.string(),
+          targetPath: z.string(),
+          content_type: z.string(),
+          size: z.number().optional(),
+          staged_file: z.string().optional(),
+          sha256: z.string().optional(),
+        })
+      ),
+      ...errorResponse(),
+    },
+  });
+  registry.registerPath({
+    method: 'post',
+    path: MEDIA_INTENTS,
+    summary: 'Create a media intent (staged_file → target_path)',
+    request: {
+      body: {
+        content: {
+          'application/json': {
+            schema: z.object({
+              type: z.enum(['avif', 'variant', 'og', 'og-delete']),
+              staged_file: z.string().optional(),
+              target_path: z.string(),
+              product_id: z.string().optional(),
+              category_slug: z.string().optional(),
+            }),
+          },
+        },
+      },
+    },
+    responses: { ...createdResponse(mediaIntentSchema), ...errorResponse() },
+  });
+  registry.registerPath({
+    method: 'post',
+    path: '/api/v1/media/intents/{id}/run',
+    summary: 'Run a media intent job',
+    responses: {
+      ...jsonResponse(z.object({ status: z.string(), intent_id: z.string() })),
+      ...errorResponse(),
+    },
+  });
+  registry.registerPath({
+    method: 'post',
+    path: '/api/v1/media/intents/{id}/cancel',
+    summary: 'Cancel a pending/running media intent',
+    responses: {
+      ...jsonResponse(z.object({ status: z.string(), intent_id: z.string() })),
+      ...errorResponse(),
+    },
+  });
+  registry.registerPath({
+    method: 'post',
+    path: '/api/v1/media/intents/{id}/apply',
+    summary: 'Apply a succeeded media intent (promote staged outputs to canonical)',
+    responses: {
+      ...jsonResponse(
+        z.object({
+          status: z.string(),
+          intent_id: z.string(),
+          promoted: z.number(),
+          canonical: z.string().optional(),
+        })
+      ),
+      ...errorResponse(),
+    },
+  });
+  registry.registerPath({
+    method: 'delete',
+    path: MEDIA_INTENT_ID,
+    summary: 'Discard a media intent (staged files only, never canonical assets)',
+    responses: {
+      ...jsonResponse(z.object({ status: z.string(), intent_id: z.string() })),
+      ...errorResponse(),
+    },
+  });
+  registry.registerPath({
+    method: 'post',
+    path: '/api/v1/media/intents/batch',
+    summary: 'Batch run/cancel/discard media intents',
+    request: {
+      body: {
+        content: {
+          'application/json': {
+            schema: z.object({
+              action: z.enum(['run', 'cancel', 'discard']),
+              ids: z.array(z.string()),
+            }),
+          },
+        },
+      },
+    },
+    responses: {
+      ...jsonResponse(
+        z.object({
+          status: z.string(),
+          action: z.string(),
+          applied: z.number(),
+          skipped: z.array(z.object({ id: z.string(), reason: z.string() })),
+        })
+      ),
+      ...errorResponse(),
+    },
+  });
   registry.registerPath({
     method: 'get',
     path: '/api/v1/git/status',
@@ -407,6 +554,29 @@ export function buildOpenApi() {
     summary: 'History entries',
     responses: jsonResponse(z.record(z.string(), z.unknown())),
   });
+  // Plan 252: history revert — applies the recorded before-values as a
+  // rev-guarded edit change set (historyRoutes.ts:154).
+  registry.registerPath({
+    method: 'post',
+    path: '/api/v1/history/{productId}/revert',
+    summary: 'Revert a product to a recorded change-set revision',
+    request: {
+      body: {
+        content: {
+          'application/json': {
+            schema: z.object({ to_rev: z.number().int().nonnegative() }),
+          },
+        },
+      },
+    },
+    responses: {
+      ...jsonResponse(z.object({ status: z.string(), resulting_revision: z.number() })),
+      ...errorResponse(),
+    },
+  });
+  // Plan 252: the change-set lifecycle card (validate/update, apply,
+  // discard, undo, redo), declared from changeSetRoutes.ts and
+  // test/integration/changeSetWorkflow.test.ts.
   registry.registerPath({
     method: 'get',
     path: '/api/v1/change-sets',
@@ -414,10 +584,129 @@ export function buildOpenApi() {
     responses: jsonResponse(z.record(z.string(), z.unknown())),
   });
   registry.registerPath({
+    method: 'patch',
+    path: CHANGE_SET_ID,
+    summary: 'Validate or update a change set (explicit status transitions)',
+    request: {
+      body: {
+        content: {
+          'application/json': {
+            // The handler's allowlist (changeSetRoutes.ts:120): server-owned
+            // fields (id/created_at/updated_at) are rejected, so they are not
+            // part of the patch shape.
+            schema: changeSetSchema
+              .pick({
+                status: true,
+                product_ops: true,
+                category_ops: true,
+                validation_evidence: true,
+                publication_result: true,
+              })
+              .partial(),
+          },
+        },
+      },
+    },
+    responses: { ...jsonResponse(changeSetSchema), ...errorResponse() },
+  });
+  registry.registerPath({
+    method: 'post',
+    path: '/api/v1/change-sets/{id}/apply',
+    summary: 'Apply a validated change set exactly once',
+    responses: {
+      ...jsonResponse(
+        z.object({
+          status: z.string(),
+          applied: z.number(),
+          resulting_revision: z.number(),
+          change_set_id: z.string(),
+        })
+      ),
+      ...errorResponse(),
+    },
+  });
+  registry.registerPath({
+    method: 'post',
+    path: '/api/v1/change-sets/{id}/discard',
+    summary: 'Discard a non-published change set',
+    responses: { ...jsonResponse(z.object({ status: z.string() })), ...errorResponse() },
+  });
+  registry.registerPath({
+    method: 'post',
+    path: '/api/v1/change-sets/{id}/undo',
+    summary: 'Undo a published change set (new inverse change set)',
+    responses: {
+      ...jsonResponse(
+        z.object({
+          status: z.string(),
+          undo_change_set_id: z.string(),
+          change_set: changeSetSchema,
+        })
+      ),
+      ...errorResponse(),
+    },
+  });
+  registry.registerPath({
+    method: 'post',
+    path: '/api/v1/change-sets/{id}/redo',
+    summary: 'Redo a published inverse change set (new forward change set)',
+    responses: {
+      ...jsonResponse(
+        z.object({
+          status: z.string(),
+          redo_change_set_id: z.string(),
+          change_set: changeSetSchema,
+        })
+      ),
+      ...errorResponse(),
+    },
+  });
+  // Plan 252: backup prune/restore operations (backup.ts), declared with the
+  // BackupManager result envelopes.
+  registry.registerPath({
     method: 'get',
     path: '/api/v1/backup',
     summary: 'List backups',
     responses: jsonResponse(z.record(z.string(), z.unknown())),
+  });
+  registry.registerPath({
+    method: 'post',
+    path: '/api/v1/backup/prune-preview',
+    summary: 'Preview which backups can be pruned',
+    responses: jsonResponse(
+      z.object({ prunable: z.array(z.object({ id: z.string(), reason: z.string() })) })
+    ),
+  });
+  registry.registerPath({
+    method: 'post',
+    path: '/api/v1/backup/prune',
+    summary: 'Prune the given backup ids (protected backups are rejected)',
+    request: {
+      body: {
+        content: { 'application/json': { schema: z.object({ ids: z.array(z.string()) }) } },
+      },
+    },
+    responses: {
+      ...jsonResponse(
+        z.object({ status: z.string(), pruned: z.number(), warning: z.string().nullable() })
+      ),
+      ...errorResponse(),
+    },
+  });
+  registry.registerPath({
+    method: 'post',
+    path: '/api/v1/backup/{id}/restore',
+    summary: 'Restore a backup (pre-restore snapshot included)',
+    responses: {
+      ...jsonResponse(
+        z.object({
+          status: z.string(),
+          backup_id: z.string(),
+          pre_restore_snapshot: z.string(),
+        })
+      ),
+      ...errorResponse(),
+    },
   });
   registry.registerPath({
     method: 'get',
@@ -430,6 +719,33 @@ export function buildOpenApi() {
     path: '/api/v1/conflicts',
     summary: 'List conflicts',
     responses: jsonResponse(z.record(z.string(), z.unknown())),
+  });
+  // Plan 252: conflict resolution card (resolve/retry), declared from
+  // conflicts.ts and test/integration/conflictApi.test.ts.
+  registry.registerPath({
+    method: 'post',
+    path: '/api/v1/conflicts/{id}/resolve',
+    summary: 'Resolve one field of a conflict',
+    request: {
+      body: {
+        content: {
+          'application/json': {
+            schema: z.object({
+              field: z.string(),
+              resolution: z.enum(['local', 'server', 'manual']),
+              manual_value: z.unknown().optional(),
+            }),
+          },
+        },
+      },
+    },
+    responses: { ...jsonResponse(conflictSchema), ...errorResponse() },
+  });
+  registry.registerPath({
+    method: 'post',
+    path: '/api/v1/conflicts/{id}/retry',
+    summary: 'Retry a conflict',
+    responses: { ...jsonResponse(conflictSchema), ...errorResponse() },
   });
 
   return new OpenApiGeneratorV3(registry.definitions).generateDocument({

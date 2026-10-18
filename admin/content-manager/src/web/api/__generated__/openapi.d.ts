@@ -1216,6 +1216,395 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/media/upload': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Stage an uploaded media file (base64, magic-byte sniffed, size-capped) */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': {
+            data?: string;
+            targetPath: string;
+            /** @enum {string} */
+            content_type: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/avif' | 'image/gif';
+          };
+        };
+      };
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              status: string;
+              targetPath: string;
+              content_type: string;
+              size?: number;
+              staged_file?: string;
+              sha256?: string;
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/media/intents': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Create a media intent (staged_file → target_path) */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': {
+            /** @enum {string} */
+            type: 'avif' | 'variant' | 'og' | 'og-delete';
+            staged_file?: string;
+            target_path: string;
+            product_id?: string;
+            category_slug?: string;
+          };
+        };
+      };
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              /** @enum {number} */
+              version: 1;
+              id: string;
+              /** @enum {string} */
+              type: 'avif' | 'variant' | 'og' | 'og-delete';
+              /**
+               * @default pending
+               * @enum {string}
+               */
+              status: 'pending' | 'running' | 'succeeded' | 'failed' | 'cancelled' | 'applied';
+              source_path?: string;
+              target_path?: string;
+              staged_file?: string;
+              staged_sha256?: string;
+              product_id?: string;
+              category_slug?: string;
+              /** @default [] */
+              outputs: string[];
+              /** @default 0 */
+              progress: number;
+              /** @default [] */
+              errors: string[];
+              created_at: string;
+              updated_at: string;
+              /** @default null */
+              completed_at: string | null;
+              /** @default null */
+              change_set_id: string | null;
+              /** @default false */
+              cancel_requested: boolean;
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/media/intents/{id}/run': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Run a media intent job */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              status: string;
+              intent_id: string;
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/media/intents/{id}/cancel': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Cancel a pending/running media intent */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              status: string;
+              intent_id: string;
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/media/intents/{id}/apply': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Apply a succeeded media intent (promote staged outputs to canonical) */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              status: string;
+              intent_id: string;
+              promoted: number;
+              canonical?: string;
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/media/intents/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Discard a media intent (staged files only, never canonical assets) */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              status: string;
+              intent_id: string;
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/media/intents/batch': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Batch run/cancel/discard media intents */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': {
+            /** @enum {string} */
+            action: 'run' | 'cancel' | 'discard';
+            ids: string[];
+          };
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              status: string;
+              action: string;
+              applied: number;
+              skipped: {
+                id: string;
+                reason: string;
+              }[];
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/git/status': {
     parameters: {
       query?: never;
@@ -1899,6 +2288,58 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/history/{productId}/revert': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Revert a product to a recorded change-set revision */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': {
+            to_rev: number;
+          };
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              status: string;
+              resulting_revision: number;
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/change-sets': {
     parameters: {
       query?: never;
@@ -1937,6 +2378,428 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/change-sets/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Validate or update a change set (explicit status transitions) */
+    patch: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': {
+            /**
+             * @default draft
+             * @enum {string}
+             */
+            status?:
+              | 'draft'
+              | 'validating'
+              | 'validated'
+              | 'publishing'
+              | 'published'
+              | 'failed'
+              | 'discarded';
+            /** @default [] */
+            product_ops?: {
+              /** @enum {string} */
+              action: 'create' | 'edit' | 'archive' | 'restore' | 'purge';
+              product_id?: string;
+              data: {
+                [key: string]: unknown;
+              };
+              base_revision?: number;
+              /** @default {} */
+              before?: {
+                [key: string]: unknown;
+              };
+              /** @default {} */
+              after?: {
+                [key: string]: unknown;
+              };
+              resulting_revision?: number;
+              idempotency_key?: string;
+            }[];
+            /** @default [] */
+            category_ops?: {
+              /** @enum {string} */
+              action: 'create' | 'edit' | 'delete' | 'reorder';
+              category_id?: string;
+              data: {
+                [key: string]: unknown;
+              };
+            }[];
+            validation_evidence?: unknown;
+            publication_result?: unknown;
+          };
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              id: string;
+              /**
+               * @default draft
+               * @enum {string}
+               */
+              status:
+                | 'draft'
+                | 'validating'
+                | 'validated'
+                | 'publishing'
+                | 'published'
+                | 'failed'
+                | 'discarded';
+              created_at: string;
+              updated_at: string;
+              /** @default [] */
+              product_ops: {
+                /** @enum {string} */
+                action: 'create' | 'edit' | 'archive' | 'restore' | 'purge';
+                product_id?: string;
+                data: {
+                  [key: string]: unknown;
+                };
+                base_revision?: number;
+                /** @default {} */
+                before: {
+                  [key: string]: unknown;
+                };
+                /** @default {} */
+                after: {
+                  [key: string]: unknown;
+                };
+                resulting_revision?: number;
+                idempotency_key?: string;
+              }[];
+              /** @default [] */
+              category_ops: {
+                /** @enum {string} */
+                action: 'create' | 'edit' | 'delete' | 'reorder';
+                category_id?: string;
+                data: {
+                  [key: string]: unknown;
+                };
+              }[];
+              validation_evidence?: unknown;
+              publication_result?: unknown;
+              source_change_set_id?: string;
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    trace?: never;
+  };
+  '/api/v1/change-sets/{id}/apply': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Apply a validated change set exactly once */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              status: string;
+              applied: number;
+              resulting_revision: number;
+              change_set_id: string;
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/change-sets/{id}/discard': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Discard a non-published change set */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              status: string;
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/change-sets/{id}/undo': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Undo a published change set (new inverse change set) */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              status: string;
+              undo_change_set_id: string;
+              change_set: {
+                id: string;
+                /**
+                 * @default draft
+                 * @enum {string}
+                 */
+                status:
+                  | 'draft'
+                  | 'validating'
+                  | 'validated'
+                  | 'publishing'
+                  | 'published'
+                  | 'failed'
+                  | 'discarded';
+                created_at: string;
+                updated_at: string;
+                /** @default [] */
+                product_ops: {
+                  /** @enum {string} */
+                  action: 'create' | 'edit' | 'archive' | 'restore' | 'purge';
+                  product_id?: string;
+                  data: {
+                    [key: string]: unknown;
+                  };
+                  base_revision?: number;
+                  /** @default {} */
+                  before: {
+                    [key: string]: unknown;
+                  };
+                  /** @default {} */
+                  after: {
+                    [key: string]: unknown;
+                  };
+                  resulting_revision?: number;
+                  idempotency_key?: string;
+                }[];
+                /** @default [] */
+                category_ops: {
+                  /** @enum {string} */
+                  action: 'create' | 'edit' | 'delete' | 'reorder';
+                  category_id?: string;
+                  data: {
+                    [key: string]: unknown;
+                  };
+                }[];
+                validation_evidence?: unknown;
+                publication_result?: unknown;
+                source_change_set_id?: string;
+              };
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/change-sets/{id}/redo': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Redo a published inverse change set (new forward change set) */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              status: string;
+              redo_change_set_id: string;
+              change_set: {
+                id: string;
+                /**
+                 * @default draft
+                 * @enum {string}
+                 */
+                status:
+                  | 'draft'
+                  | 'validating'
+                  | 'validated'
+                  | 'publishing'
+                  | 'published'
+                  | 'failed'
+                  | 'discarded';
+                created_at: string;
+                updated_at: string;
+                /** @default [] */
+                product_ops: {
+                  /** @enum {string} */
+                  action: 'create' | 'edit' | 'archive' | 'restore' | 'purge';
+                  product_id?: string;
+                  data: {
+                    [key: string]: unknown;
+                  };
+                  base_revision?: number;
+                  /** @default {} */
+                  before: {
+                    [key: string]: unknown;
+                  };
+                  /** @default {} */
+                  after: {
+                    [key: string]: unknown;
+                  };
+                  resulting_revision?: number;
+                  idempotency_key?: string;
+                }[];
+                /** @default [] */
+                category_ops: {
+                  /** @enum {string} */
+                  action: 'create' | 'edit' | 'delete' | 'reorder';
+                  category_id?: string;
+                  data: {
+                    [key: string]: unknown;
+                  };
+                }[];
+                validation_evidence?: unknown;
+                publication_result?: unknown;
+                source_change_set_id?: string;
+              };
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/backup': {
     parameters: {
       query?: never;
@@ -1969,6 +2832,147 @@ export interface paths {
     };
     put?: never;
     post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/backup/prune-preview': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Preview which backups can be pruned */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              prunable: {
+                id: string;
+                reason: string;
+              }[];
+            };
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/backup/prune': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Prune the given backup ids (protected backups are rejected) */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': {
+            ids: string[];
+          };
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              status: string;
+              pruned: number;
+              warning: string | null;
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/backup/{id}/restore': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Restore a backup (pre-restore snapshot included) */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              status: string;
+              backup_id: string;
+              pre_restore_snapshot: string;
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
     delete?: never;
     options?: never;
     head?: never;
@@ -2045,6 +3049,187 @@ export interface paths {
     };
     put?: never;
     post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/conflicts/{id}/resolve': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Resolve one field of a conflict */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': {
+            field: string;
+            /** @enum {string} */
+            resolution: 'local' | 'server' | 'manual';
+            manual_value?: unknown;
+          };
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              id: string;
+              /**
+               * @default unresolved
+               * @enum {string}
+               */
+              status: 'unresolved' | 'resolving' | 'resolved' | 'retrying' | 'failed';
+              /** @enum {string} */
+              entity_type: 'product' | 'category' | 'storefront';
+              entity_id: string;
+              entity_name?: string;
+              base_revision: number;
+              local_snapshot: {
+                [key: string]: unknown;
+              };
+              server_snapshot: {
+                [key: string]: unknown;
+              };
+              fields: {
+                field: string;
+                base_value?: unknown;
+                local_value?: unknown;
+                server_value?: unknown;
+                /**
+                 * @default unresolved
+                 * @enum {string}
+                 */
+                resolution: 'local' | 'server' | 'manual' | 'unresolved';
+                manual_value?: unknown;
+                resolved_at?: string;
+              }[];
+              created_at: string;
+              updated_at: string;
+              /** @default 0 */
+              retry_count: number;
+              last_error?: string;
+              /** @default [] */
+              resolution_audit: {
+                timestamp: string;
+                field: string;
+                from: string;
+                to: string;
+              }[];
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/conflicts/{id}/retry': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Retry a conflict */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              id: string;
+              /**
+               * @default unresolved
+               * @enum {string}
+               */
+              status: 'unresolved' | 'resolving' | 'resolved' | 'retrying' | 'failed';
+              /** @enum {string} */
+              entity_type: 'product' | 'category' | 'storefront';
+              entity_id: string;
+              entity_name?: string;
+              base_revision: number;
+              local_snapshot: {
+                [key: string]: unknown;
+              };
+              server_snapshot: {
+                [key: string]: unknown;
+              };
+              fields: {
+                field: string;
+                base_value?: unknown;
+                local_value?: unknown;
+                server_value?: unknown;
+                /**
+                 * @default unresolved
+                 * @enum {string}
+                 */
+                resolution: 'local' | 'server' | 'manual' | 'unresolved';
+                manual_value?: unknown;
+                resolved_at?: string;
+              }[];
+              created_at: string;
+              updated_at: string;
+              /** @default 0 */
+              retry_count: number;
+              last_error?: string;
+              /** @default [] */
+              resolution_audit: {
+                timestamp: string;
+                field: string;
+                from: string;
+                to: string;
+              }[];
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
     delete?: never;
     options?: never;
     head?: never;
@@ -2193,6 +3378,125 @@ export interface components {
         name: string;
       }[];
       bundlePrice?: number;
+    };
+    ChangeSet: {
+      id: string;
+      /**
+       * @default draft
+       * @enum {string}
+       */
+      status:
+        'draft' | 'validating' | 'validated' | 'publishing' | 'published' | 'failed' | 'discarded';
+      created_at: string;
+      updated_at: string;
+      /** @default [] */
+      product_ops: {
+        /** @enum {string} */
+        action: 'create' | 'edit' | 'archive' | 'restore' | 'purge';
+        product_id?: string;
+        data: {
+          [key: string]: unknown;
+        };
+        base_revision?: number;
+        /** @default {} */
+        before: {
+          [key: string]: unknown;
+        };
+        /** @default {} */
+        after: {
+          [key: string]: unknown;
+        };
+        resulting_revision?: number;
+        idempotency_key?: string;
+      }[];
+      /** @default [] */
+      category_ops: {
+        /** @enum {string} */
+        action: 'create' | 'edit' | 'delete' | 'reorder';
+        category_id?: string;
+        data: {
+          [key: string]: unknown;
+        };
+      }[];
+      validation_evidence?: unknown;
+      publication_result?: unknown;
+      source_change_set_id?: string;
+    };
+    Conflict: {
+      id: string;
+      /**
+       * @default unresolved
+       * @enum {string}
+       */
+      status: 'unresolved' | 'resolving' | 'resolved' | 'retrying' | 'failed';
+      /** @enum {string} */
+      entity_type: 'product' | 'category' | 'storefront';
+      entity_id: string;
+      entity_name?: string;
+      base_revision: number;
+      local_snapshot: {
+        [key: string]: unknown;
+      };
+      server_snapshot: {
+        [key: string]: unknown;
+      };
+      fields: {
+        field: string;
+        base_value?: unknown;
+        local_value?: unknown;
+        server_value?: unknown;
+        /**
+         * @default unresolved
+         * @enum {string}
+         */
+        resolution: 'local' | 'server' | 'manual' | 'unresolved';
+        manual_value?: unknown;
+        resolved_at?: string;
+      }[];
+      created_at: string;
+      updated_at: string;
+      /** @default 0 */
+      retry_count: number;
+      last_error?: string;
+      /** @default [] */
+      resolution_audit: {
+        timestamp: string;
+        field: string;
+        from: string;
+        to: string;
+      }[];
+    };
+    MediaIntent: {
+      /** @enum {number} */
+      version: 1;
+      id: string;
+      /** @enum {string} */
+      type: 'avif' | 'variant' | 'og' | 'og-delete';
+      /**
+       * @default pending
+       * @enum {string}
+       */
+      status: 'pending' | 'running' | 'succeeded' | 'failed' | 'cancelled' | 'applied';
+      source_path?: string;
+      target_path?: string;
+      staged_file?: string;
+      staged_sha256?: string;
+      product_id?: string;
+      category_slug?: string;
+      /** @default [] */
+      outputs: string[];
+      /** @default 0 */
+      progress: number;
+      /** @default [] */
+      errors: string[];
+      created_at: string;
+      updated_at: string;
+      /** @default null */
+      completed_at: string | null;
+      /** @default null */
+      change_set_id: string | null;
+      /** @default false */
+      cancel_requested: boolean;
     };
   };
   responses: never;
