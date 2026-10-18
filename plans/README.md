@@ -1,23 +1,26 @@
 # Implementation Plans
 
-Índice de los planes de implementación (001–127). Generados por `/improve deep`
-en nueve auditorías (2026-06-14 → 2026-08-12) y ampliados por la directiva de
+Índice de los planes de implementación (001–251). Generados por `/improve deep`
+en doce auditorías (2026-06-14 → 2026-10-18) y ampliados por la directiva de
 migración del 2026-07-15 (plan 055) y el master roadmap del Content Manager
 TS (plan 127). El retiro de Python (plan 069) se ejecutó el 2026-08-11 de
 forma revertible. El histórico completo vive en
 [`archive/README-history.md`](archive/README-history.md).
 
-| Auditoría | Fecha      | Commit    | Planes  |
-| --------- | ---------- | --------- | ------- |
-| 1         | 2026-06-14 | `4751633` | 001–012 |
-| 2         | 2026-07-14 | `633eeb8` | 013–024 |
-| 3         | 2026-07-14 | `877f179` | 025–038 |
-| 4         | 2026-07-15 | `8c903e3` | 039–054 |
-| 5         | 2026-07-15 | `30dbab7` | 055     |
-| 6         | 2026-07-16 | `30dbab7` | 056–069 |
-| 7         | 2026-08-03 | `30dbab7` | 070–085 |
-| 8         | 2026-08-11 | `cefdd9f` | 086–097 |
-| 9         | 2026-08-12 | `ccb921f` | 098–126 |
+| Auditoría | Fecha      | Commit     | Planes  |
+| --------- | ---------- | ---------- | ------- |
+| 1         | 2026-06-14 | `4751633`  | 001–012 |
+| 2         | 2026-07-14 | `633eeb8`  | 013–024 |
+| 3         | 2026-07-14 | `877f179`  | 025–038 |
+| 4         | 2026-07-15 | `8c903e3`  | 039–054 |
+| 5         | 2026-07-15 | `30dbab7`  | 055     |
+| 6         | 2026-07-16 | `30dbab7`  | 056–069 |
+| 7         | 2026-08-03 | `30dbab7`  | 070–085 |
+| 8         | 2026-08-11 | `cefdd9f`  | 086–097 |
+| 9         | 2026-08-12 | `ccb921f`  | 098–126 |
+| 10        | 2026-08-17 | `ee20b0f6` | 128–169 |
+| 11        | 2026-09-14 | `0847089c` | 170–214 |
+| 12        | 2026-10-18 | `97b21096` | 218–251 |
 
 **Status values**: `TODO | IN PROGRESS | PARTIAL | DONE | BLOCKED (reason) |
 REJECTED (rationale)`, más `SUPERSEDED`/`ABSORBED` (reemplazados por el plan
@@ -61,6 +64,131 @@ admin/product_manager/`).
   al Content Manager TS).
 - Los planes archivados se conservan como registro en las tablas de este
   README (regla de archivo enforceada por `tools/check-plan-archive.mjs`).
+
+---
+
+## Auditoría 12 — 2026-10-18 (`/improve deep`, commit `97b21096`)
+
+Auditoría completa (9 categorías, 9 subagentes paralelos, profundidad
+"very thorough") sobre el árbol post-planes 215–217 y los fixes del carrito
+del 18-oct. Todos los hallazgos fueron **vetados contra fuente por el
+advisor** (cada plan cita código leído y verificado directamente; los
+duplicados entre subagentes se consolidaron: `DEP-02=SEC-01`,
+`DX-01=DOCS-01`, `DX-02=DOCS-05`, `SEC-05=COR-06`). Una pasada adversarial
+del subagente `advisor` revisó el batch antes de escribir los planes y sus
+correcciones se aplicaron: la rehidratación del carrito es **in-memory**
+(sin reescribir storage), las fuentes usan **un solo archivo con las cinco
+faces intactas** (sin preload), y el entry-split quedó **gateado por
+medición** (≥10 KB gz o se registra como rechazado). Nota de honestidad:
+el advisor no ejecutó builds/tests durante el recon — todas las filas de
+comandos de los planes son `declared`; el baseline real lo establece el
+primer paso de cada plan.
+
+| Plan                                        | Título                                                          | Prioridad | Esfuerzo | Depende de    | Estado |
+| ------------------------------------------- | --------------------------------------------------------------- | --------- | -------- | ------------- | ------ |
+| [218](218-sw-hardening.md)                  | SW: kill-switch real + seed estático + streaming                | P1        | S–M      | —             | TODO   |
+| [219](219-cart-trust-contract.md)           | Carrito: una semántica de duplicados + precios vivos (memory)   | P1        | M        | —             | TODO   |
+| [220](220-media-workbench.md)               | Media: cancel real + apply sin split + staging 0700             | P1        | M        | —             | TODO   |
+| [221](221-product-filter-parity.md)         | Un contrato de filtros para lista/bulk/export CSV               | P1        | M        | —             | TODO   |
+| [222](222-images-workflow.md)               | images.yml: paso muerto + trigger y auto-commit acotados        | P1        | S        | —             | TODO   |
+| [223](223-remote-mode-hardening.md)         | Modo remoto: credencial por sesión + health gateado + env truth | P2        | S        | —             | TODO   |
+| [224](224-git-porcelain-renames.md)         | Parser git: renames/copies (R/C)                                | P2        | S        | —             | TODO   |
+| [225](225-ci-hardening.md)                  | CI: pin fetch-metadata + inputs por env + provenance gate       | P2        | S        | —             | TODO   |
+| [226](226-env-surface-truth.md)             | Superficie env: 5 vars nuevas, 3 muertas, doc veraz + guard     | P2        | S        | 223           | TODO   |
+| [227](227-admin-dx-coverage.md)             | Lint/typecheck admin sin huecos + editor configs retirados      | P2        | S–M      | —             | TODO   |
+| [228](228-zod-deprecations.md)              | Zod v4: formatos top-level (6 usos deprecados)                  | P2        | S        | —             | TODO   |
+| [229](229-admin-client-coverage.md)         | 15 fetch crudos → cliente tipado + guard de contrato            | P2        | M        | 227           | TODO   |
+| [230](230-comms-correctness.md)             | Comms: repeat ad-hoc, teléfonos, persistencia, URLs, 500        | P2        | M        | —             | TODO   |
+| [231](231-test-gaps-batch.md)               | Tests: encodeCart, PII draft, cliente comms, checkout, handoff  | P2        | M        | 219, 230      | TODO   |
+| [232](232-docs-drift-batch.md)              | Docs: remote mode, AGENTS, src/js, CODEBASE_MAP, release flow   | P2        | S–M      | —             | TODO   |
+| [233](233-build-contract-ci.md)             | Suites build-contract en CI (post-build)                        | P2        | M        | —             | TODO   |
+| [234](234-fonts-single-file.md)             | Fuentes: un archivo variable detrás de las 5 faces              | P2        | S        | —             | TODO   |
+| [235](235-image-variants-lifecycle.md)      | Variantes: prune recursivo + widths alineados + limpieza        | P2        | S–M      | —             | TODO   |
+| [236](236-ssr-anchor-test.md)               | Pin de anclas SSR `/p/<sku>/`                                   | P2        | S        | 233           | TODO   |
+| [237](237-breadcrumb-slug.md)               | Breadcrumb por slug, no por key                                 | P3        | S        | —             | TODO   |
+| [238](238-ci-dx-hygiene.md)                 | CI/DX: playwright docs, pins, setup-node, timeouts, lizard      | P3        | S        | 222, 225, 233 | TODO   |
+| [239](239-dead-surface-cleanup.md)          | Limpieza: assets/css, dataAttributes muerto, folds              | P3        | S–M      | 231, 232      | TODO   |
+| [240](240-comms-page-split.md)              | Split CommsPage (paneles + hook), sin cambio de conducta        | P3        | M        | 230, 231      | TODO   |
+| [241](241-admin-bundle-split.md)            | Admin: rutas lazy + zod fuera del bundle browser                | P3        | S        | 240           | TODO   |
+| [242](242-admin-page-hooks.md)              | useResource/useFeedback + labels compartidos                    | P3        | M        | 229, 240      | TODO   |
+| [243](243-createapp-decompose.md)           | createApp: registro de rutas extraído                           | P3        | M        | 223, 229      | TODO   |
+| [244](244-tools-logger-migration.md)        | Logger de tools: guardrails + preflight chain + lint            | P3        | S–M      | 239           | TODO   |
+| [245](245-cart-controller.md)               | Extraer cart controller de initStorefront                       | P3        | L        | 219, 231      | TODO   |
+| [246](246-asset-sync-incremental.md)        | sync-data incremental (sin rm+cp de 116 MB)                     | P3        | S–M      | —             | TODO   |
+| [247](247-entry-split-measure.md)           | Entry-split: medir primero, gate 10 KB gz (puede ser REJECTED)  | P3        | S/M      | —             | TODO   |
+| [248](248-durable-scheduled-publication.md) | Publicación programada durable (adoptar diseño 212)             | P2        | M        | —             | TODO   |
+| [249](249-printing-share-discovery.md)      | Impresiones: OG propio + monitor + SearchAction                 | P2        | S        | —             | TODO   |
+| [250](250-deferrals-register.md)            | Registro de diferidos con condiciones de reapertura             | P3        | S        | 247, 248      | TODO   |
+| [251](251-admin-mobile-spike.md)            | Spike: camino móvil del admin/comms (PWA)                       | P3        | M        | 223           | TODO   |
+
+### Orden de ejecución recomendado (Auditoría 12)
+
+218 → 219 → 220 → 221 → 222 → 223 → 224 → 225 → 226 → 227 → 228 → 229 →
+230 → 231 → 232 → 233 → 234 → 235 → 236 → 237 → 238 → 239 → 240 → 241 →
+242 → 243 → 244 → 245 → 246 → 247 → 248 → 249 → 250 → 251.
+
+### Dependencias y reglas de archivo (Auditoría 12)
+
+- **227 antes del tramo admin** (229→230→231→240→241→242 son el orden
+  L→X→F→Q→Z→V→AD: zod, cliente, comms, tests, split, bundle, hooks).
+- **219 y 230 antes de 231** (congelan conducta antes de testear/refactor).
+- **238 al final del grupo CI** (toca todos los workflows): 222, 225, 233
+  antes.
+- **232 antes de 239** (fila de CODEBASE_MAP) y **antes de 250** (índices).
+- **247 y 248 antes de 250** (sus resultados son filas del registro).
+- Serialización por archivo (regla de la casa): 219/245 editan
+  `storefront.js`; 230/240 editan `CommsPage.tsx`; 223/243 editan `app.ts`;
+  222/235 editan el pipeline de imágenes en archivos distintos (seguros en
+  paralelo).
+- SW: si el guardrail `sw-cache-bump` exige bump de `CACHE_CONFIG`, 218 lo
+  aplica (solo si cambia el runtime del carrito); nunca editar
+  `astro-poc/public/service-worker.js` a mano (lo sincroniza el build).
+
+### Correcciones del vetado y de la pasada adversarial (Auditoría 12)
+
+- **COR-02 (carrito)**: la rehidratación es **in-memory** (display/total/
+  mensaje); escribir precios refrescados al storage podía colapsar filas
+  distintas en el próximo `sanitizeCart` (el fingerprint incluye precio).
+- **PERF-01 (fuentes)**: se conservan las 5 `@font-face` con sus
+  `font-display` (swap/optional) y **sin preload** (diferido por 216); solo
+  se dedupean los bytes a un archivo.
+- **PERF-04 (entry-split)**: gateado por medición (≥10 KB gz en
+  `/impresiones/` y sin regresión LH); si no, se registra REJECTED con
+  números — no se re-litiga 187 sin evidencia.
+- **DEP-01 ampliado**: no era 1 uso deprecado de zod sino 6 (url ×1 +
+  datetime ×5) — verificado en typings.
+- **IDs con namespace**: los códigos del informe (COR/PERF/DX/…) de esta
+  auditoría no deben confundirse con los de la tabla histórica en
+  `archive/README.md` (prefijo mental `A12-`).
+
+### Considerados y rechazados / diferidos sin plan (Auditoría 12)
+
+- **DEP-05** (`@astrojs/compiler-rs` duplicado en el lockfile): sin acción
+  hasta que `astro-eslint-parser` adopte 0.5.x — registrado en 250.
+- **DX-10** (CHANGELOG congelado): se resuelve documentando el flujo actual
+  en el plan 232 (changesets queda como RFC wave-3, sin adoptar).
+- **PERF-08** (batching de interacción del carrito): plan 187 ya acotó los
+  hot-paths con números; se registra en 250 con condición de reapertura
+  medida, no se planifica.
+- **Verificado limpio (no re-auditar)**: remote-mode Host/Origen/CSRF y sus
+  tests; comparación constante de credencial; redacción de logs (pino +
+  tools logger); sniffing/cap/contención de media; guard CSV; preview/apply
+  de import con zod; contención PII de comms (0700/0600, gitignore, fuera
+  de BACKUP_FILES/ownedPaths); cero sinks HTML dinámicos en
+  storefront/admin; printing client-only con `encodeURIComponent`; secret
+  scan 0 hits; `npm audit --omit=dev` 0 vulnerabilidades; `data/.admin-credential`
+  0600 untracked; correcciones del carrito 18-oct con tests honestos en la
+  capa correcta; impresiones con suite e2e propia.
+
+### Alcance no auditado (Auditoría 12)
+
+Ejecución real de builds/tests/Lighthouse (auditoría read-only; los planes
+marcan sus comandos como `declared`), sitio en vivo y probes de red,
+estado real de Cloudflare Access/WAF/túnel OCI, comportamiento móvil en
+dispositivos, `infra/cloudflare/**` más allá del WAF de bypass, y lo
+listado por cada subagente (detalle en sus informes). Los helpers Python
+`scripts/sarif_to_md.py` y `plans/fixtures/*.py` quedan como están
+(inertes/retention).
 
 ---
 
