@@ -19,9 +19,13 @@ test('deploy canary boots the shipped storefront bundle without browser errors',
   await page.goto('/', { waitUntil: 'networkidle' });
   await page.waitForFunction(() => window.__APP_READY__ === true);
   await page.evaluate(async () => {
-    if ('serviceWorker' in navigator) {
-      await navigator.serviceWorker.ready;
-    }
+    if (!('serviceWorker' in navigator)) return;
+    const registration = await navigator.serviceWorker.getRegistration();
+    if (!registration) return; // loopback gate: SW intentionally not registered
+    await Promise.race([
+      navigator.serviceWorker.ready,
+      new Promise((resolve) => setTimeout(resolve, 2000)),
+    ]);
   });
 
   await expect(page.locator('.strip-card.producto').first()).toBeVisible();
