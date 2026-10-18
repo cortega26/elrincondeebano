@@ -230,7 +230,11 @@ export function CommsPage(): React.ReactElement {
     : { text: '', missing: [] };
   const finalText = rendered.text.trim();
   const hash = textHash(finalText);
-  const repeat = doc && destination ? findRecentRepeat(doc.activity, destination.id, hash) : null;
+  // Los números pegados (ad-hoc) se guardan sin id: se buscan como destino
+  // null para que el aviso de repetición también cubra ese caso (plan 230).
+  const repeatDestinationId = destination && destination.id !== ADHOC_ID ? destination.id : null;
+  const repeat =
+    doc && destination ? findRecentRepeat(doc.activity, repeatDestinationId, hash) : null;
 
   const imageOptions: ImageOption[] = useMemo(() => {
     const options: ImageOption[] = [];

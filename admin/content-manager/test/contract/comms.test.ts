@@ -149,6 +149,15 @@ describe('repeticiones', () => {
     ).toBeNull();
   });
 
+  it('el número pegado (destination_id null) se compara como destino propio', () => {
+    const h = textHash('Hola vecino');
+    const pegado = [entry('2026-10-08T12:00:00Z', null, h)];
+    expect(findRecentRepeat(pegado, null, h, now)).not.toBeNull();
+    // Un destino guardado no coincide con el caso pegado ni al revés.
+    expect(findRecentRepeat(pegado, 'grupo', h, now)).toBeNull();
+    expect(findRecentRepeat([entry('2026-10-08T12:00:00Z', 'grupo', h)], null, h, now)).toBeNull();
+  });
+
   it('abrir el chat o copiar no cuentan como envío repetido', () => {
     const h = textHash('Hola');
     for (const status of ['chat_abierto', 'preparado'] as const) {
