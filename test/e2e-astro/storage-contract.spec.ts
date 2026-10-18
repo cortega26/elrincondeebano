@@ -451,6 +451,8 @@ test('duplicate persisted SKU rows disappear after a single removal and never re
   await item.locator('.cart-item__remove').click();
   await expect(page.locator('#cart-count')).toHaveText('0');
   await expect(page.locator('#cart-items .cart-item')).toHaveCount(0);
+  await page.locator('#cartOffcanvas [data-bs-dismiss="offcanvas"]').first().click();
+  await expect(page.locator('#cartOffcanvas')).toBeHidden();
 
   await page.locator(`.category-strip .add-to-cart-btn[data-id="${addedId}"]`).first().click();
   await page.reload({ waitUntil: 'networkidle' });
