@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest';
 import { createApp } from '../../src/server/app.ts';
-import { writeFileSync, mkdirSync, rmSync, existsSync } from 'node:fs';
+import { writeFileSync, mkdirSync, rmSync, existsSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { CREDENTIAL_HEADER } from '../../src/server/security/launchCredential.ts';
@@ -90,6 +90,42 @@ test('POST /api/v1/media/upload with valid base64 data stages the file (never ca
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test.skipIf(process.platform === 'win32')(
+  'upload chmods the staging root to 0700 (plan 220)',
+  async () => {
+    const dir = resolve(tmpdir(), `cm-upload-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    setup(dir);
+
+    try {
+      const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+      await app.ready();
+
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/v1/media/upload',
+        headers: credHeaders(app),
+        payload: {
+          data: smallImageBase64(),
+          targetPath: 'assets/images/test-upload.png',
+          content_type: 'image/png',
+        },
+      });
+      expect(res.statusCode).toBe(201);
+
+      // POSIX-only: the staging root is created 0755 by umask by default
+      // (the repository constructor), so the upload's chmod is what makes it
+      // operator-private.
+      const stagingRoot = resolve(dir, 'data', '.media-staging');
+      expect(existsSync(stagingRoot)).toBe(true);
+      expect(statSync(stagingRoot).mode & 0o777).toBe(0o700);
+
+      await app.close();
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }
+);
 
 test('POST /api/v1/media/upload with oversized payload returns 413', async () => {
   const dir = resolve(tmpdir(), `cm-upload-${Date.now()}-${Math.random().toString(36).slice(2)}`);

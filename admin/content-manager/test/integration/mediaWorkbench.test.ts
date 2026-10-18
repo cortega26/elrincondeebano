@@ -2,7 +2,9 @@ import { test, expect } from 'vitest';
 import { createApp } from '../../src/server/app.ts';
 import { writeFileSync, mkdirSync, rmSync, existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { randomBytes } from 'node:crypto';
 import { tmpdir } from 'node:os';
+import sharp from 'sharp';
 import { CREDENTIAL_HEADER } from '../../src/server/security/launchCredential.ts';
 import type { FastifyInstance } from 'fastify';
 
@@ -362,7 +364,98 @@ test('cancel marks a pending/running intent as cancelled', async () => {
   }
 });
 
-// ── plan 089: category OG intents ────────────────────────────────────────────
+// ── plan 220: cancel must reach the running job (disk flag is authoritative) ──
+
+async function noisyPngBase64(size: number): Promise<string> {
+  // High-entropy PNG: its AVIF conversion (sharp) takes hundreds of ms —
+  // orders of magnitude longer than the in-process cancel round-trip — so a
+  // cancel issued right after `/run` deterministically lands mid-conversion.
+  const raw = randomBytes(size * size * 3);
+  const png = await sharp(raw, { raw: { width: size, height: size, channels: 3 } })
+    .png()
+    .toBuffer();
+  return png.toString('base64');
+}
+
+function readPersistedIntent(path: string): { status: string; cancel_requested: boolean } | null {
+  try {
+    return JSON.parse(readFileSync(path, 'utf8')) as {
+      status: string;
+      cancel_requested: boolean;
+    };
+  } catch {
+    return null; // transient partial write while the job saves
+  }
+}
+
+test('cancel during a running avif job is observed on disk and ends cancelled (plan 220)', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const { staged_file } = await uploadStaged(app, await noisyPngBase64(256), 'image/png');
+
+    const created = await app.inject({
+      method: 'POST',
+      url: '/api/v1/media/intents',
+      headers: ch,
+      payload: {
+        type: 'avif',
+        staged_file,
+        target_path: 'assets/images/product.png',
+        product_id: 'existing-1',
+      },
+    });
+    expect(created.statusCode).toBe(201);
+    const intentId = created.json<{ id: string }>().id;
+
+    const run = await app.inject({
+      method: 'POST',
+      url: `/api/v1/media/intents/${intentId}/run`,
+      headers: ch,
+    });
+    expect(run.statusCode).toBe(200);
+
+    const cancel = await app.inject({
+      method: 'POST',
+      url: `/api/v1/media/intents/${intentId}/cancel`,
+      headers: ch,
+    });
+    // 200 (not 409 ALREADY_FINISHED): the job was still running.
+    expect(cancel.statusCode).toBe(200);
+    expect(cancel.json<{ status: string }>().status).toBe('cancelling');
+
+    // The operator flag is on disk while the job is mid-flight — the job must
+    // observe it there, not from its stale in-memory copy.
+    const intentPath = resolve(dir, 'data', 'media-intents', `${intentId}.json`);
+    const midFlight = readPersistedIntent(intentPath);
+    expect(midFlight?.status).toBe('running');
+    expect(midFlight?.cancel_requested).toBe(true);
+
+    // Poll the persisted file until terminal: no progress/completion tick may
+    // ever reset cancel_requested back to false, and cancel must win.
+    const snapshots: Array<{ status: string; cancel_requested: boolean }> = [];
+    for (let i = 0; i < 500; i++) {
+      const snap = readPersistedIntent(intentPath);
+      if (snap) {
+        snapshots.push(snap);
+        if (['succeeded', 'failed', 'cancelled'].includes(snap.status)) break;
+      }
+      await new Promise((r) => setTimeout(r, 10));
+    }
+    const final = snapshots.at(-1);
+    expect(final?.status).toBe('cancelled');
+    expect(final?.cancel_requested).toBe(true);
+    for (const snap of snapshots) expect(snap.cancel_requested).toBe(true);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
 
 const OG_CANONICAL_REL = 'assets/images/og/categories/bebidas.png';
 
@@ -707,7 +800,7 @@ test('raster intents reject .svg targets with 422 VALIDATION_ERROR (plan 138)', 
     });
     expect(variantSvg.statusCode).toBe(422);
     expect(variantSvg.json<{ error: { code: string; message: string } }>().error.code).toBe(
-      'VALIDATION_ERROR',
+      'VALIDATION_ERROR'
     );
     expect(variantSvg.json<{ error: { message: string } }>().error.message).toMatch(/\.svg/i);
 
@@ -765,7 +858,11 @@ test('og intents are not affected by raster svg validation (plan 138)', async ()
       method: 'POST',
       url: '/api/v1/media/intents',
       headers: ch,
-      payload: { type: 'og', target_path: 'assets/images/og/categories/bebidas.svg', category_slug: 'bebidas' },
+      payload: {
+        type: 'og',
+        target_path: 'assets/images/og/categories/bebidas.svg',
+        category_slug: 'bebidas',
+      },
     });
     // OG should not be rejected for svg-like extensions (not a raster job).
     expect(ogVariantSvg.statusCode).toBe(201);

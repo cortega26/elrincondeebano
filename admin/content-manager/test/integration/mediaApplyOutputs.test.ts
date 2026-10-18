@@ -3,13 +3,19 @@
 // multi-output intents are rejected (mediaJobs produces exactly one output
 // on success). Rollback pairing itself is pinned by the existing async
 // mediaWorkbench suite, which must stay green.
-import { test, expect } from 'vitest';
+import { test, expect, vi, afterEach } from 'vitest';
 import { createApp } from '../../src/server/app.ts';
-import { writeFileSync, mkdirSync, rmSync } from 'node:fs';
+import { writeFileSync, mkdirSync, rmSync, existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { CREDENTIAL_HEADER } from '../../src/server/security/launchCredential.ts';
+import { MediaIntentRepository } from '../../src/server/repositories/mediaIntentRepository.ts';
+import { ProductRepository } from '../../src/server/repositories/productRepository.ts';
 import type { FastifyInstance } from 'fastify';
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 function getCredential(app: FastifyInstance): string {
   const cred = (app as unknown as Record<string, unknown>).launchCredential;
@@ -167,6 +173,99 @@ test('apply with multiple outputs is rejected as a contract violation', async ()
       expect(res.statusCode).toBe(422);
       expect(res.json().error.code).toBe('MULTIPLE_OUTPUTS');
 
+      expect(await revision(app)).toBe(revBefore);
+      expect(await productImage(app)).toBe('');
+    } finally {
+      await app.close();
+    }
+  } finally {
+    cleanup(dir);
+  }
+});
+
+// ── plan 220: the catalog commit ends rollback ───────────────────────────────
+
+test('apply failure after the catalog commit keeps the canonical asset in place (plan 220)', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    try {
+      const stagedDir = resolve(dir, 'data', '.media-staging');
+      mkdirSync(stagedDir, { recursive: true });
+      const staged = resolve(stagedDir, 'staged-output-480.webp');
+      writeFileSync(staged, 'STAGED-BYTES');
+      craftIntent(dir, 'intent-post-commit', [staged]);
+
+      // Fault injection (same prototype-spy pattern as syncInterval.test.ts):
+      // the intent save that follows the successful catalog write fails —
+      // e.g. ENOSPC in production.
+      vi.spyOn(MediaIntentRepository.prototype, 'save').mockImplementationOnce(() => {
+        throw new Error('injected intents.save failure');
+      });
+
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/v1/media/intents/intent-post-commit/apply',
+        headers: headers(app),
+      });
+      expect(res.statusCode).toBe(500);
+      expect(res.json().error.code).toBe('APPLY_FAILED');
+
+      // The JSON already points at the canonical path, so the file must stay
+      // there: rolling it back to staging would split JSON and assets.
+      const canonical = resolve(dir, 'assets', 'images', 'p1-480.webp');
+      expect(existsSync(canonical)).toBe(true);
+      expect(readFileSync(canonical, 'utf8')).toBe('STAGED-BYTES');
+      expect(existsSync(staged)).toBe(false);
+
+      // The catalog write really committed before the failure.
+      expect(await productImage(app)).toBe('assets/images/p1-480.webp');
+    } finally {
+      await app.close();
+    }
+  } finally {
+    cleanup(dir);
+  }
+});
+
+test('apply failure before the catalog commit still rolls the promoted file back (plan 220)', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    try {
+      const stagedDir = resolve(dir, 'data', '.media-staging');
+      mkdirSync(stagedDir, { recursive: true });
+      const staged = resolve(stagedDir, 'staged-rollback-480.webp');
+      writeFileSync(staged, 'STAGED-BYTES');
+      craftIntent(dir, 'intent-pre-commit', [staged]);
+      const revBefore = await revision(app);
+
+      // Fault injection: the catalog write itself fails (revision conflict /
+      // IO error). The file was promoted but the JSON never committed, so the
+      // rollback must still return it to staging.
+      vi.spyOn(ProductRepository.prototype, 'writeCatalog').mockResolvedValueOnce({
+        ok: false,
+        error: 'injected catalog write failure',
+        statusCode: 409,
+      });
+
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/v1/media/intents/intent-pre-commit/apply',
+        headers: headers(app),
+      });
+      expect(res.statusCode).toBe(500);
+      expect(res.json().error.code).toBe('APPLY_FAILED');
+
+      // Rolled back: staged file restored, canonical target absent, catalog
+      // untouched.
+      expect(existsSync(resolve(dir, 'assets', 'images', 'p1-480.webp'))).toBe(false);
+      expect(existsSync(staged)).toBe(true);
+      expect(readFileSync(staged, 'utf8')).toBe('STAGED-BYTES');
       expect(await revision(app)).toBe(revBefore);
       expect(await productImage(app)).toBe('');
     } finally {

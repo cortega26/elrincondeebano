@@ -165,7 +165,14 @@ export async function registerMediaIntentRoutes({
     mediaRepo: MediaRepository
   ): void {
     const update = (patch: Partial<MediaIntent>): void => {
-      Object.assign(intent, patch, { updated_at: new Date().toISOString() });
+      // Plan 220: re-read before the full-object save — the operator may have
+      // persisted a cancel (or any future shared field) since this job started.
+      const persisted = intents.load(intent.id) ?? intent;
+      Object.assign(intent, patch, {
+        // Never clobber an operator-set cancel flag with the job's stale copy.
+        cancel_requested: persisted.cancel_requested,
+        updated_at: new Date().toISOString(),
+      });
       intents.save(intent);
     };
 
@@ -177,7 +184,14 @@ export async function registerMediaIntentRoutes({
         targetRelativePath: intent.target_path ?? '',
         categorySlug: intent.category_slug,
         onProgress: (percent: number) => update({ progress: percent }),
-        isCancelled: () => intent.cancel_requested,
+        isCancelled: () => {
+          // Plan 220: the cancel route persists the operator's intent; re-read
+          // it so the job observes the flag even though this in-memory copy
+          // was taken before the cancel landed.
+          const persisted = intents.load(intent.id);
+          if (persisted?.cancel_requested) intent.cancel_requested = true;
+          return intent.cancel_requested;
+        },
       };
 
       try {
@@ -226,6 +240,28 @@ export async function registerMediaIntentRoutes({
     })();
   }
 
+  // Plan 220: single- and batch-cancel share one implementation. The helper
+  // re-loads the persisted intent (never the stale copy the caller holds, and
+  // never one a running job mutates) before applying the pending/running rule.
+  function requestCancel(intent: MediaIntent): 'cancelled' | 'cancelling' | 'ALREADY_FINISHED' {
+    const current = intents.load(intent.id) ?? intent;
+    if (current.status === 'succeeded' || current.status === 'failed') {
+      return 'ALREADY_FINISHED';
+    }
+    let outcome: 'cancelled' | 'cancelling';
+    if (current.status === 'pending') {
+      current.status = 'cancelled';
+      current.completed_at = new Date().toISOString();
+      outcome = 'cancelled';
+    } else {
+      current.cancel_requested = true;
+      outcome = 'cancelling';
+    }
+    current.updated_at = new Date().toISOString();
+    intents.save(current);
+    return outcome;
+  }
+
   app.post('/media/intents/:id/cancel', async (request, reply) => {
     const { id } = request.params as { id: string };
     const intent = intents.load(id);
@@ -234,19 +270,11 @@ export async function registerMediaIntentRoutes({
         .status(404)
         .send({ error: { code: 'NOT_FOUND', message: 'Media intent not found' } });
     }
-    if (intent.status === 'succeeded' || intent.status === 'failed') {
+    if (requestCancel(intent) === 'ALREADY_FINISHED') {
       return reply.status(409).send({
         error: { code: 'ALREADY_FINISHED', message: `Intent already ${intent.status}` },
       });
     }
-    if (intent.status === 'pending') {
-      intent.status = 'cancelled';
-      intent.completed_at = new Date().toISOString();
-    } else {
-      intent.cancel_requested = true;
-    }
-    intent.updated_at = new Date().toISOString();
-    intents.save(intent);
     return { status: 'cancelling', intent_id: id };
   });
 
@@ -293,18 +321,10 @@ export async function registerMediaIntentRoutes({
         intents.save(intent);
         startIntentJob(intent, intents, repoRoot, media);
       } else if (body.action === 'cancel') {
-        if (intent.status === 'succeeded' || intent.status === 'failed') {
+        if (requestCancel(intent) === 'ALREADY_FINISHED') {
           skipped.push({ id, reason: 'ALREADY_FINISHED' });
           continue;
         }
-        if (intent.status === 'pending') {
-          intent.status = 'cancelled';
-          intent.completed_at = new Date().toISOString();
-        } else {
-          intent.cancel_requested = true;
-        }
-        intent.updated_at = new Date().toISOString();
-        intents.save(intent);
       } else {
         // discard: staging only, never canonical assets; running intents
         // are refused (the single route's contract).

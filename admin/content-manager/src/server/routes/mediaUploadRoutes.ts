@@ -1,4 +1,4 @@
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync, chmodSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { MEDIA_UPLOAD_MAX_BYTES } from '../../shared/schemas/mediaIntent.ts';
@@ -132,7 +132,14 @@ export async function registerMediaUploadRoutes({
       const sha256 = createHash('sha256').update(decoded).digest('hex');
       const stagedFile = `${sha256}.${EXTENSION_FOR_TYPE[contentType]}`;
       const stagedPath = resolve(intents.stagingRoot, stagedFile);
-      mkdirSync(intents.stagingRoot, { recursive: true });
+      // Plan 220: staging holds operator-uploaded bytes — create/keep it
+      // private (0700), mirroring the comms state directory.
+      mkdirSync(intents.stagingRoot, { recursive: true, mode: 0o700 });
+      try {
+        chmodSync(intents.stagingRoot, 0o700);
+      } catch {
+        /* best-effort on non-POSIX filesystems */
+      }
       writeFileSync(stagedPath, decoded, { flush: true });
 
       return reply.status(201).send({
