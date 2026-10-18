@@ -72,23 +72,11 @@ export function getCartState(cart: unknown): CartState {
   return { totalItems, totalAmount };
 }
 
-// Plan 179: cross-tab convergence — union by id with max-quantity wins.
-// Idempotent: quantities never double-count. On conflicting snapshots the
-// higher-quantity side's item (with its name/price) wins. Deletion does NOT
-// propagate (no tombstones): an item absent remotely but present locally is
-// kept — documented limitation, revisit only on operator evidence.
-export function mergeCarts(local: unknown, remote: unknown): CartItem[] {
-  const merged = new Map<string, CartItem>();
-  for (const item of sanitizeCart(local)) {
-    merged.set(item.id, item);
-  }
-  for (const item of sanitizeCart(remote)) {
-    const existing = merged.get(item.id);
-    if (!existing || item.quantity > existing.quantity) {
-      merged.set(item.id, item);
-    }
-  }
-  return [...merged.values()];
+// Persisted snapshots are authoritative across tabs. An absent item is a
+// deliberate removal, not a candidate for reintroduction via union/max merge.
+// Keep the local state only when the persisted value is malformed.
+export function adoptCartSnapshot(local: unknown, persisted: unknown): CartItem[] {
+  return Array.isArray(persisted) ? sanitizeCart(persisted) : sanitizeCart(local);
 }
 
 export function createCartItemFromProduct(product: unknown, quantity = 1): CartItem | null {
