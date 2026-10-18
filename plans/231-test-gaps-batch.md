@@ -7,7 +7,12 @@
 > in `plans/README.md` — unless a reviewer dispatched you and told you they
 > maintain the index.
 >
-> **Drift check (run first)**: `git diff --stat 97b21096..HEAD -- astro-poc/src/scripts/storefront.js astro-poc/src/scripts/storefront/storefront-state.ts test/storefront-state.spec.js test/order-submit.spec.js test/e2e-astro/cart-ux.spec.ts test/e2e-astro/storage-contract.spec.ts admin/content-manager/test/e2e/comms.spec.ts admin/content-manager/test/integration/clientIntegration.test.ts admin/content-manager/test/contract/handoff.test.ts vitest.config.mts admin/content-manager/vitest.config.ts`
+> **Drift check (run first)**: `git diff --stat a16db972..HEAD -- astro-poc/src/scripts/storefront.js astro-poc/src/scripts/storefront/storefront-state.ts test/storefront-state.spec.js test/order-submit.spec.js test/e2e-astro/cart-ux.spec.ts test/e2e-astro/storage-contract.spec.ts admin/content-manager/test/e2e/comms.spec.ts admin/content-manager/test/integration/clientIntegration.test.ts admin/content-manager/test/contract/handoff.test.ts vitest.config.mts admin/content-manager/vitest.config.ts`
+> (Reconciled to `a16db972`: plans 218/219 shifted lines in `storefront.js`
+> / `storefront-state.ts` — locate symbols by name (`encodeCart`,
+> `decodeCart`, `refreshCartItemsFromCatalog`, `getCartState`); plan 230
+> changed `CommsPage.tsx` internals but the draft-PII flow this plan pins is
+> unchanged; the comms e2e spec kept its selectors.)
 > If any in-scope file changed since this plan was written, compare the
 > "Current state" excerpts against the live code before proceeding; on a
 > mismatch, treat it as a STOP condition.
@@ -19,7 +24,7 @@
 - **Risk**: LOW
 - **Depends on**: 219, 230 (this plan freezes their behavior with tests)
 - **Category**: tests
-- **Planned at**: commit `97b21096`, 2026-10-18
+- **Planned at**: commit `97b21096`, 2026-10-18 (reconciled to `a16db972` after plans 218/219/230; line refs in cart modules are locate-by-name)
 
 ## Why this matters
 
