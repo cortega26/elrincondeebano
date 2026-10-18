@@ -1176,6 +1176,9 @@ function initStorefront() {
     syncAllActionAreas,
     showCartSaveError,
     hidePostSubmitToast,
+    onCartCleared: () => {
+      cart = [];
+    },
   });
   markOrderAsSent = recoveryBannerController.markOrderAsSent;
   const cartOffcanvas = document.getElementById('cartOffcanvas');
