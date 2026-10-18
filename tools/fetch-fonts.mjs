@@ -203,16 +203,20 @@ async function main() {
   const label = cssPath ? path.relative(rootDir, cssPath) : source;
   console.log(`Using font CSS from ${label}`);
 
-  // Very small parser: find one woff2 URL per family/weight (latin subset preferred)
+  // Plan 234: the five weights share one variable file — dedupe destinations
+  // so the URL is fetched/written once per run. The per-weight block lookup
+  // below stays: a Google CSS change that drops a weight must still warn.
+  const archivoFile = 'archivo.woff2';
   const targets = [
-    { family: 'Archivo', weight: '400', file: 'archivo-400.woff2' },
-    { family: 'Archivo', weight: '500', file: 'archivo-500.woff2' },
-    { family: 'Archivo', weight: '600', file: 'archivo-600.woff2' },
-    { family: 'Archivo', weight: '700', file: 'archivo-700.woff2' },
-    { family: 'Archivo', weight: '800', file: 'archivo-800.woff2' },
+    { family: 'Archivo', weight: '400', file: archivoFile },
+    { family: 'Archivo', weight: '500', file: archivoFile },
+    { family: 'Archivo', weight: '600', file: archivoFile },
+    { family: 'Archivo', weight: '700', file: archivoFile },
+    { family: 'Archivo', weight: '800', file: archivoFile },
   ];
 
   const blocks = parseFontFaceBlocks(css);
+  const processed = new Set();
   for (const t of targets) {
     const block = findFontFaceBlock(blocks, t.family, t.weight);
     if (!block) {
@@ -225,6 +229,8 @@ async function main() {
       continue;
     }
     const dest = path.join(outDir, t.file);
+    if (processed.has(dest)) continue;
+    processed.add(dest);
     console.log(`Downloading ${t.family} ${t.weight} -> ${t.file}`);
     await fetchFontAsset(url, cssPath, dest);
   }
