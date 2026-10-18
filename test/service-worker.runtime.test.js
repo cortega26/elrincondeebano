@@ -294,3 +294,34 @@ test('service worker message handler supports skip waiting and cache invalidatio
   assert.strictEqual((await productsCache.keys()).length, 0);
   cleanup();
 });
+
+test('INVALIDATE_ALL_CACHES preserves the install-seeded static shell and deletes the other namespaces', async () => {
+  const caches = createCachesMock();
+  const { static: staticPrefix, html, dynamic, products } = CACHE_CONFIG.prefixes;
+  for (const name of [staticPrefix, html, dynamic, products, 'unrelated-cache']) {
+    const cache = await caches.open(name);
+    await cache.put('/seed', new Response('seed', { status: 200 }));
+  }
+
+  const { events, cleanup } = loadServiceWorkerRuntime({
+    fetchImpl: async () => new Response('ok', { status: 200 }),
+    cachesImpl: caches,
+  });
+
+  const messageHandler = events.get('message');
+  const port = { messages: [], postMessage: (msg) => port.messages.push(msg) };
+  messageHandler({ data: { type: 'INVALIDATE_ALL_CACHES' }, ports: [port] });
+
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.strictEqual(port.messages[0].success, true);
+  assert.ok(
+    caches.stores.has(staticPrefix),
+    'static shell (install-seeded) must survive full invalidation'
+  );
+  assert.ok(caches.stores.get(staticPrefix).size > 0, 'static shell entries must survive too');
+  for (const name of [html, dynamic, products]) {
+    assert.ok(!caches.stores.has(name), `${name} must be deleted by full invalidation`);
+  }
+  assert.ok(caches.stores.has('unrelated-cache'), 'unknown caches must stay untouched');
+  cleanup();
+});

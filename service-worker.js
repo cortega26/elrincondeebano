@@ -463,17 +463,25 @@ async function invalidateCache(cacheName) {
   }
 }
 
-// Helper function to invalidate all caches
+// Helper function to invalidate all caches except the install-seeded static
+// shell. The shell (`/index.html`, `/pages/offline.html`, placeholder, icons)
+// is only seeded in the install event, so deleting it on a cacheVersion bump
+// that does not change this file's bytes would drop offline navigation to the
+// plain 503 fallback. `staticAssets` are version-pinned by the SW version
+// itself and `/_astro/*` already bypasses the cache, so the shell never needs
+// a per-invalidation purge.
 async function invalidateAllCaches() {
   try {
     const cacheNames = await caches.keys();
-    const validPrefixes = Object.values(CACHE_CONFIG.prefixes);
+    const purgePrefixes = Object.values(CACHE_CONFIG.prefixes).filter(
+      (prefix) => prefix !== CACHE_CONFIG.prefixes.static
+    );
     await Promise.all(
       cacheNames
-        .filter((name) => validPrefixes.some((prefix) => name.startsWith(prefix)))
+        .filter((name) => purgePrefixes.some((prefix) => name.startsWith(prefix)))
         .map((name) => caches.delete(name))
     );
-    console.log('All caches invalidated successfully');
+    console.log('All caches invalidated successfully (static shell preserved)');
   } catch (error) {
     console.error('Error invalidating all caches:', error);
     throw error; // Propagate error for proper handling in message response
