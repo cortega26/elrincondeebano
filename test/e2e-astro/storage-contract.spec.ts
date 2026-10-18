@@ -419,3 +419,54 @@ test('an edit rebases a stale in-memory cart instead of bringing back deleted it
   expect(afterEvent).toEqual([addedId]);
   await expect(page.locator('#cart-count')).toHaveText('1');
 });
+
+test('duplicate persisted SKU rows disappear after a single removal and never return', async ({
+  page,
+}) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await waitForReady(page);
+  const ids = await page.locator('.category-strip .add-to-cart-btn').evaluateAll((buttons) =>
+    [...new Set(buttons.map((button) => button.getAttribute('data-id')).filter(Boolean))]
+  );
+  expect(ids.length).toBeGreaterThanOrEqual(2);
+  const [removedId, addedId] = ids as string[];
+
+  await page.evaluate((id) => {
+    localStorage.setItem(
+      'astro-poc-cart',
+      JSON.stringify([
+        { id, name: 'Duplicated SKU', price: 5900, quantity: 1 },
+        { id, name: 'Duplicated SKU', price: 5900, quantity: 3 },
+      ])
+    );
+  }, removedId);
+  await page.reload({ waitUntil: 'networkidle' });
+  await waitForReady(page);
+
+  await expect(page.locator('#cart-count')).toHaveText('3');
+  await page.locator('#cart-icon').click();
+  const item = page.locator(`#cart-items .cart-item[data-id="${removedId}"]`);
+  await expect(item).toHaveCount(1);
+  await expect(item.locator('.item-quantity')).toHaveText('3');
+  const repaired = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('astro-poc-cart') || '[]')
+  );
+  expect(repaired).toHaveLength(1);
+  expect(repaired[0]).toMatchObject({ id: removedId, quantity: 3 });
+  await item.locator('.cart-item__remove').click();
+  await expect(page.locator('#cart-count')).toHaveText('0');
+  await expect(page.locator('#cart-items .cart-item')).toHaveCount(0);
+  await page.locator('#cartOffcanvas [data-bs-dismiss="offcanvas"]').first().click();
+  await expect(page.locator('#cartOffcanvas')).toBeHidden();
+
+  await page.locator(`.category-strip .add-to-cart-btn[data-id="${addedId}"]`).first().click();
+  await page.reload({ waitUntil: 'networkidle' });
+  await waitForReady(page);
+  await expect(page.locator('#cart-count')).toHaveText('1');
+  const persisted = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('astro-poc-cart') || '[]').map(
+      (entry: { id: string }) => entry.id
+    )
+  );
+  expect(persisted).toEqual([addedId]);
+});

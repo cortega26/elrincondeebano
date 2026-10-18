@@ -51,9 +51,21 @@ export function sanitizeCart(cart: unknown): CartItem[] {
     return [];
   }
 
-  return cart
-    .map((item) => normalizeCartItem(item))
-    .filter((item): item is CartItem => item !== null);
+  // Old browser sessions can leave more than one line for the same SKU.
+  // Keep a single line (highest quantity) instead of counting or re-adding
+  // stale copies. Summing duplicates would inflate the customer's order.
+  const byId = new Map<string, CartItem>();
+  for (const raw of cart) {
+    const item = normalizeCartItem(raw);
+    if (!item) {
+      continue;
+    }
+    const existing = byId.get(item.id);
+    if (!existing || item.quantity > existing.quantity) {
+      byId.set(item.id, item);
+    }
+  }
+  return [...byId.values()];
 }
 
 export interface CartState {
@@ -134,7 +146,14 @@ export interface SharedCartPayload {
 
 export function toSharedCartPayload(cart: unknown): SharedCartPayload | null {
   const merged = new Map<string, number>();
-  for (const item of sanitizeCart(cart)) {
+  // Shared links preserve their historical additive duplicate contract.
+  // Persisted carts use sanitizeCart's stricter one-line-per-SKU invariant.
+  const items = Array.isArray(cart) ? cart : [];
+  for (const raw of items) {
+    const item = normalizeCartItem(raw);
+    if (!item) {
+      continue;
+    }
     const id = normalizeId(item.id);
     if (!id) {
       continue;

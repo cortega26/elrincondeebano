@@ -98,6 +98,23 @@ describe('storefront-state cart primitives', () => {
       expect(result.map((item) => item.id)).toEqual(['prod-1', 'prod-3']);
     });
 
+    it('collapses duplicate SKU lines without inflating cart quantities', () => {
+      const duplicated = [
+        { id: 'sku', name: 'Royal Guard', price: 5900, quantity: 1 },
+        { id: 'another', price: 1000, quantity: 1 },
+        { id: 'sku', name: 'Royal Guard', price: 5900, quantity: 3 },
+        { id: 'sku', name: 'Royal Guard', price: 5900, quantity: 2 },
+      ];
+
+      const normalized = sanitizeCart(duplicated);
+      expect(normalized.map((item) => [item.id, item.quantity])).toEqual([
+        ['sku', 3],
+        ['another', 1],
+      ]);
+      expect(getCartState(duplicated)).toEqual({ totalItems: 4, totalAmount: 18700 });
+      expect(sanitizeCart(normalized)).toEqual(normalized);
+    });
+
     it('returns an empty cart for non-array input', () => {
       expect(sanitizeCart(null)).toEqual([]);
       expect(sanitizeCart({})).toEqual([]);
