@@ -49,10 +49,20 @@ cross-contamination or unnecessary re-downloads for users.
 
 | Cache    | Active version                |
 | -------- | ----------------------------- |
-| static   | `ebano-static-2026-05-01-b`   |
-| dynamic  | `ebano-dynamic-2026-05-01-b`  |
+| static   | `ebano-static-2026-10-18-cart-freshness`   |
+| dynamic  | `ebano-dynamic-2026-10-18-cart-freshness`  |
 | products | `ebano-products-2026-05-01-b` |
-| html     | `ebano-html-2026-05-01-b`     |
+| html     | `ebano-html-2026-10-18-cart-freshness`     |
+
+## Release note (2026-10-18): cart code freshness
+
+The versioned `/_astro/*.js`, `/_astro/*.mjs`, and `/_astro/*.css`
+bundles now bypass the service worker. Their content-hashed URLs are handled
+by the browser HTTP cache, preventing the service worker's 24-hour
+stale-while-revalidate cache from retaining obsolete cart runtime code.
+Static/dynamic/html namespaces and the storefront client's `cacheVersion`
+were advanced to invalidate previously cached executable assets on upgrade.
+The `products` cache and persisted cart data are unchanged.
 
 ## Operational affordances
 
