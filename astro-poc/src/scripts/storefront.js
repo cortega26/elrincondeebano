@@ -1217,13 +1217,14 @@ function initStorefront() {
     if (!event || (event.key !== STOREFRONT_STORAGE_KEYS.cart && event.key !== null)) {
       return;
     }
-    // A removed canonical key or a clear() event means an empty cart. Do not
-    // fall back to a stale legacy alias after a deliberate deletion.
+    if (event.storageArea && event.storageArea !== globalThis.localStorage) {
+      return;
+    }
+    // Read the current key even for a delayed clear() event: another tab may
+    // have saved a newer cart already. Never fall back to a stale legacy alias.
     const canonicalRaw = globalThis.localStorage?.getItem(STOREFRONT_STORAGE_KEYS.cart);
     const persisted =
-      canonicalRaw === null || event.key === null
-        ? []
-        : storefrontStorage.loadJson('cart', null);
+      canonicalRaw == null ? [] : storefrontStorage.loadJson('cart', null);
     const latest = adoptCartSnapshot(cart, persisted);
     if (JSON.stringify(latest) === JSON.stringify(cart)) {
       return;
