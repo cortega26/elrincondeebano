@@ -2,35 +2,35 @@
    reemplaza a Inter + Playfair Display — la UI no usa serifas. */
 @font-face {
   font-family: 'Archivo';
-  src: url('./archivo-400.woff2') format('woff2');
+  src: url('./archivo.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Archivo';
-  src: url('./archivo-500.woff2') format('woff2');
+  src: url('./archivo.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Archivo';
-  src: url('./archivo-600.woff2') format('woff2');
+  src: url('./archivo.woff2') format('woff2');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Archivo';
-  src: url('./archivo-700.woff2') format('woff2');
+  src: url('./archivo.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: optional;
 }
 @font-face {
   font-family: 'Archivo';
-  src: url('./archivo-800.woff2') format('woff2');
+  src: url('./archivo.woff2') format('woff2');
   font-weight: 800;
   font-style: normal;
   font-display: optional;
