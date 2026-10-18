@@ -112,7 +112,9 @@ test('disabled category route is not generated', async ({ page }) => {
 });
 
 test('service worker and compatibility artifacts are served', async ({ page }) => {
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  // Loopback gate (ADR 0006): plain `/` intentionally does not register on
+  // 127.0.0.1; `?sw=on` is the documented opt-in, so `ready` is asserted for real.
+  await page.goto('/?sw=on', { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => 'serviceWorker' in navigator);
   await page.evaluate(async () => {
     await navigator.serviceWorker.ready;
