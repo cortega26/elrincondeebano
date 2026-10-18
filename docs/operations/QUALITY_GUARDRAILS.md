@@ -39,8 +39,9 @@ The following areas require extra caution and explicit rollback notes:
    `data/categories.json`, `data/category_registry.json`).
 5. Images and asset pipeline (`tools/sync-avif-assets.js`,
    `tools/rewrite-images.mjs`, `tools/lint-images.mjs`).
-6. Service worker and caching (`service-worker.js`, `src/js/modules/pwa.js`,
-   `src/js/modules/service-worker-manager.mjs`).
+6. Service worker and caching (`service-worker.js`,
+   `astro-poc/src/scripts/storefront/service-worker-sync.ts`,
+   `astro-poc/src/scripts/storefront/sw-registration.js`).
 
 ## Change Policy
 
