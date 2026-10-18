@@ -196,8 +196,8 @@ export interface SharedCartPayload {
 
 export function toSharedCartPayload(cart: unknown): SharedCartPayload | null {
   const merged = new Map<string, number>();
-  // Shared links preserve their historical additive duplicate contract.
-  // Persisted carts use sanitizeCart's stricter one-line-per-SKU invariant.
+  // Duplicate rows collapse by max, matching sanitizeCart: a stale row must
+  // never inflate an order on either side of a shared link.
   const items = Array.isArray(cart) ? cart : [];
   for (const raw of items) {
     const item = normalizeCartItem(raw);
@@ -208,7 +208,7 @@ export function toSharedCartPayload(cart: unknown): SharedCartPayload | null {
     if (!id) {
       continue;
     }
-    const quantity = clampQty((merged.get(id) ?? 0) + clampQty(item.quantity));
+    const quantity = Math.max(merged.get(id) ?? 0, clampQty(item.quantity));
     if (quantity > 0) {
       merged.set(id, quantity);
     }
@@ -244,19 +244,20 @@ export function parseSharedCartPayload(payload: unknown): SharedCartItem[] {
     rawItems = obj.items;
   }
 
-  const seen = new Set<string>();
-  const items: SharedCartItem[] = [];
+  // Duplicate ids collapse by max (matching sanitizeCart and the encoder): a
+  // stale row must never inflate an order, and a forged additive link cannot
+  // either. Entry order stays first-seen.
+  const merged = new Map<string, number>();
   for (const raw of rawItems as unknown[]) {
     const entry = raw as Record<string, unknown> | null | undefined;
     const id = normalizeId(entry?.id);
     const quantity = clampQty(entry?.quantity);
-    if (!id || quantity <= 0 || seen.has(id)) {
+    if (!id || quantity <= 0) {
       continue;
     }
-    seen.add(id);
-    items.push({ id, quantity });
+    merged.set(id, Math.max(merged.get(id) ?? 0, quantity));
   }
-  return items;
+  return [...merged.entries()].map(([id, quantity]) => ({ id, quantity }));
 }
 
 export function hydrateSharedCart(

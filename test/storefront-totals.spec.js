@@ -4,10 +4,12 @@
 import { describe, expect, it } from 'vitest';
 import catalog from '../data/product_data.json';
 import {
+  SHARED_CART_VERSION,
   createCartItemFromProduct,
   getCartState,
   hydrateCartFromOrder,
   hydrateSharedCart,
+  parseSharedCartPayload,
   toSharedCartPayload,
 } from '../astro-poc/src/scripts/storefront/storefront-state.js';
 import { createStorefrontStorage } from '../astro-poc/src/scripts/storefront/storage-contract.js';
@@ -102,5 +104,33 @@ describe('storage-contract round-trips preserve totals (plan 013)', () => {
     expect(payload).toBeTruthy();
     const rehydrated = hydrateSharedCart(payload, (id) => byId.get(id) ?? null);
     expect(getCartState(rehydrated)).toEqual(getCartState(cart));
+  });
+
+  it('shared-cart duplicates collapse by max in both directions (plan 219)', () => {
+    const target = inStockProducts()[0];
+    const id = String(target.id);
+    const duplicateRows = [
+      createCartItemFromProduct(target, 2),
+      createCartItemFromProduct(target, 3),
+    ];
+
+    // Encoder: summing would inflate the order; max matches sanitizeCart.
+    const payload = toSharedCartPayload(duplicateRows);
+    expect(payload).toBeTruthy();
+    expect(payload.items).toEqual([{ id, quantity: 3 }]);
+
+    // Parser: forged/historical additive payloads collapse by max too.
+    expect(
+      parseSharedCartPayload({
+        version: SHARED_CART_VERSION,
+        items: [
+          { id, quantity: 2 },
+          { id, quantity: 3 },
+        ],
+      })
+    ).toEqual([{ id, quantity: 3 }]);
+
+    const rehydrated = hydrateSharedCart(payload, () => target);
+    expect(getCartState(rehydrated).totalItems).toBe(3);
   });
 });

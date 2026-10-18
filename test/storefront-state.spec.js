@@ -334,7 +334,7 @@ describe('storefront-state cart primitives', () => {
       expect(JSON.stringify(payload)).not.toContain('leche.jpg');
     });
 
-    it('merges duplicate ids deterministically and clamps quantities', () => {
+    it('collapses duplicate ids by max and clamps quantities', () => {
       const payload = toSharedCartPayload([
         { id: 'b', price: 500, quantity: 1 },
         { id: 'a', price: 800, quantity: 999 },
@@ -343,7 +343,7 @@ describe('storefront-state cart primitives', () => {
 
       expect(payload.items).toEqual([
         { id: 'a', quantity: MAX_CART_ITEM_QTY },
-        { id: 'b', quantity: 3 },
+        { id: 'b', quantity: 2 },
       ]);
     });
 
@@ -355,7 +355,7 @@ describe('storefront-state cart primitives', () => {
   });
 
   describe('parseSharedCartPayload', () => {
-    it('parses versioned payloads with capped and deduplicated items', () => {
+    it('parses versioned payloads collapsing duplicate ids by max', () => {
       const items = parseSharedCartPayload({
         version: SHARED_CART_VERSION,
         items: [
@@ -368,7 +368,7 @@ describe('storefront-state cart primitives', () => {
       });
 
       expect(items).toEqual([
-        { id: 'p1', quantity: 1 },
+        { id: 'p1', quantity: 3 },
         { id: 'p2', quantity: MAX_CART_ITEM_QTY },
       ]);
     });
