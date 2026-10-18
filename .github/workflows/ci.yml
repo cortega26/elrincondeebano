@@ -268,7 +268,8 @@ jobs:
             test/share-preview.build-contract.test.js \
             test/product-og.build-metadata.test.js \
             test/category-og.build-metadata.test.js \
-            test/home-og.build-metadata.test.js
+            test/home-og.build-metadata.test.js \
+            test/ssr-product-links.build-contract.test.js
 
   # ── Aggregation (must wait for all jobs) ──
 

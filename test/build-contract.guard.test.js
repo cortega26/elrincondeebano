@@ -1,6 +1,6 @@
 'use strict';
 
-// Plan 075 regression guard: the five build-contract tests must keep
+// Plan 075 regression guard: the six build-contract tests must keep
 // fail-closed semantics. A future edit that flips them back to t.skip()
 // (silently skipping the contract when astro-poc/dist is absent) fails this
 // test — fix the file, never weaken this guard.
@@ -14,6 +14,7 @@ const CONTRACT_FILES = [
   'test/category-og.build-metadata.test.js',
   'test/product-og.build-metadata.test.js',
   'test/home-og.build-metadata.test.js',
+  'test/ssr-product-links.build-contract.test.js',
 ];
 
 const ROOT = path.resolve(__dirname, '..');
