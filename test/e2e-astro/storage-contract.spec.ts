@@ -448,6 +448,11 @@ test('duplicate persisted SKU rows disappear after a single removal and never re
   const item = page.locator(`#cart-items .cart-item[data-id="${removedId}"]`);
   await expect(item).toHaveCount(1);
   await expect(item.locator('.item-quantity')).toHaveText('3');
+  const repaired = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('astro-poc-cart') || '[]')
+  );
+  expect(repaired).toHaveLength(1);
+  expect(repaired[0]).toMatchObject({ id: removedId, quantity: 3 });
   await item.locator('.cart-item__remove').click();
   await expect(page.locator('#cart-count')).toHaveText('0');
   await expect(page.locator('#cart-items .cart-item')).toHaveCount(0);
