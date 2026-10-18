@@ -1,9 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   getProducts,
   getActiveCategories,
   getCategoryByKey,
   getHomeFeaturedDeals,
+  getModernCategoryPath,
   getStorefrontBundles,
   getNavigationGroups,
   getProductByReference,
@@ -77,6 +78,42 @@ describe('getCategoryByKey', () => {
   it('returns undefined for a non-existent key', () => {
     const category = getCategoryByKey('NoExiste');
     expect(category).toBeUndefined();
+  });
+});
+
+describe('getModernCategoryPath', () => {
+  // The product breadcrumb consumes this helper (plan 237).
+  it('builds the modern path from the registry slug', () => {
+    expect(getModernCategoryPath('bebidas')).toBe('/bebidas/');
+  });
+
+  it('uses the registry slug when it differs from the category key', async () => {
+    vi.resetModules();
+    vi.doMock('../astro-poc/src/data/categories.json', () => ({
+      default: {
+        categories: [
+          {
+            id: 'Bebidas',
+            key: 'Bebidas',
+            slug: 'bebidas-retail',
+            display_name: { default: 'Bebidas' },
+          },
+        ],
+      },
+    }));
+    try {
+      const { getModernCategoryPath: getPathWithFixture } = await import(
+        '../astro-poc/src/lib/catalog.ts'
+      );
+      expect(getPathWithFixture('Bebidas')).toBe('/bebidas-retail/');
+    } finally {
+      vi.doUnmock('../astro-poc/src/data/categories.json');
+      vi.resetModules();
+    }
+  });
+
+  it('falls back to the category key when the category is missing', () => {
+    expect(getModernCategoryPath('CategoriaInexistente')).toBe('/CategoriaInexistente/');
   });
 });
 
