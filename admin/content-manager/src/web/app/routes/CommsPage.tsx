@@ -126,6 +126,13 @@ function relativeTime(iso: string): string {
 
 export function CommsPage(): React.ReactElement {
   const [doc, setDoc] = useState<CommsDocument | null>(null);
+  // Espejo síncrono del documento: persist rebasa sobre el último estado
+  // guardado y no sobre el de un render viejo (plan 230).
+  const docRef = useRef<CommsDocument | null>(null);
+  const applyDoc = useCallback((next: CommsDocument | null): void => {
+    docRef.current = next;
+    setDoc(next);
+  }, []);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ kind: FeedbackKind; text: string } | null>(null);
   const [kind, setKind] = useState<Kind>('mensaje');
@@ -157,12 +164,12 @@ export function CommsPage(): React.ReactElement {
 
   const reload = useCallback(async () => {
     try {
-      setDoc(await client.getComms());
+      applyDoc(await client.getComms());
       setLoadError(null);
     } catch (err) {
       setLoadError(errorMessage(err));
     }
-  }, []);
+  }, [applyDoc]);
 
   useEffect(() => {
     void reload();
@@ -185,11 +192,12 @@ export function CommsPage(): React.ReactElement {
   /** Aplica un cambio al documento y lo guarda (concurrencia optimista). */
   const persist = useCallback(
     async (mutate: (current: CommsDocument) => CommsDocument, success?: string) => {
-      if (!doc) return null;
+      const current = docRef.current;
+      if (!current) return null;
       setBusy(true);
       try {
-        const saved = await client.saveComms(mutate(doc), doc.rev);
-        setDoc(saved);
+        const saved = await client.saveComms(mutate(current), current.rev);
+        applyDoc(saved);
         if (success) notify('success', success);
         return saved;
       } catch (err) {
@@ -200,7 +208,7 @@ export function CommsPage(): React.ReactElement {
         setBusy(false);
       }
     },
-    [doc, reload, notify]
+    [applyDoc, reload, notify]
   );
 
   const template = doc?.templates.find((t) => t.id === draft.templateId) ?? null;
@@ -395,7 +403,13 @@ export function CommsPage(): React.ReactElement {
 
   const handleConfirmSent = async (): Promise<void> => {
     if (!pendingConfirm || !template || !destination) return;
-    await logActivity('enviado_manual');
+    const saved = await logActivity('enviado_manual');
+    if (!saved) {
+      // El registro falló: no prometer que quedó guardado y dejar
+      // pendienteConfirm para reintentar (plan 230).
+      notify('error', 'No se pudo registrar el envío. Inténtalo de nuevo.');
+      return;
+    }
     setPendingConfirm(null);
     notify('success', 'Registrado como enviado (confirmación manual).');
   };
@@ -893,7 +907,7 @@ export function CommsPage(): React.ReactElement {
         doc={doc}
         busy={busy}
         onImport={async (imported) => {
-          await persist(() => ({ ...imported, rev: doc.rev }), 'Respaldo importado.');
+          await persist((current) => ({ ...imported, rev: current.rev }), 'Respaldo importado.');
         }}
         onError={(text) => notify('error', text)}
       />
