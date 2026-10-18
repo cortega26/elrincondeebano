@@ -1,7 +1,7 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-13T23:55:39.371Z",
-  "rev": 34,
+  "last_updated": "2026-10-18T00:53:49.877Z",
+  "rev": 35,
   "schema_version": 1,
   "products": [
     {
@@ -5364,6 +5364,21 @@
         }
       },
       "id": "01a131ed-153a-721e-94fc-2eb8f6b9a44c"
+    },
+    {
+      "name": "Nestlé • Leche condensada en tarro 265 g",
+      "description": "Tarro de 265 g. Ideal para postres, frutas y preparaciones de repostería.",
+      "price": 2000,
+      "discount": 0,
+      "stock": true,
+      "category": "Lacteos",
+      "image_path": "",
+      "image_avif_path": "",
+      "order": 191,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {},
+      "id": "p-7a7d9d85683f"
     }
   ]
 }
