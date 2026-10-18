@@ -7,7 +7,9 @@
 > in `plans/README.md` — unless a reviewer dispatched you and told you they
 > maintain the index.
 >
-> **Drift check (run first)**: `git diff --stat 97b21096..HEAD -- .github/workflows/images.yml test/images-workflow.contract.test.js docs/operations/RUNBOOK.md`
+> **Drift check (run first)**: `git diff --stat b237b387..HEAD -- .github/workflows/images.yml test/images-workflow.contract.test.js docs/operations/RUNBOOK.md`
+> (Reconciled to `b237b387`: RUNBOOK changed only at lines 79/118 — SW cache
+> prefixes, plan 218; the `images:generate` line at :211 is untouched.)
 > If any in-scope file changed since this plan was written, compare the
 > "Current state" excerpts against the live code before proceeding; on a
 > mismatch, treat it as a STOP condition.
@@ -19,7 +21,7 @@
 - **Risk**: LOW
 - **Depends on**: none
 - **Category**: bug/security
-- **Planned at**: commit `97b21096`, 2026-10-18
+- **Planned at**: commit `97b21096`, 2026-10-18 (reconciled to `b237b387`; RUNBOOK prefix-only drift from plan 218)
 
 ## Why this matters
 
