@@ -37,6 +37,7 @@ describe('storefront order-completion controller', () => {
       syncAllActionAreas: vi.fn(),
       showCartSaveError: vi.fn(),
       hidePostSubmitToast: vi.fn(),
+      onCartCleared: vi.fn(),
       ...overrides,
     };
     return { controller: createRecoveryBannerController(dependencies), dependencies };
@@ -63,6 +64,7 @@ describe('storefront order-completion controller', () => {
     controller.markOrderAsSent();
 
     expect(dependencies.saveCart).toHaveBeenCalledWith([]);
+    expect(dependencies.onCartCleared).toHaveBeenCalledOnce();
     expect(storageData.get('orderLastSentAt')).toEqual(expect.any(Number));
     expect(dependencies.updateBadge).toHaveBeenCalledWith([], { animate: true });
     expect(dependencies.renderCart).toHaveBeenCalledWith([]);
@@ -79,6 +81,7 @@ describe('storefront order-completion controller', () => {
     controller.markOrderAsSent();
 
     expect(dependencies.showCartSaveError).toHaveBeenCalledOnce();
+    expect(dependencies.onCartCleared).not.toHaveBeenCalled();
     expect(dependencies.updateBadge).not.toHaveBeenCalled();
     expect(dependencies.renderCart).not.toHaveBeenCalled();
     expect(storageData.has('orderLastSentAt')).toBe(false);

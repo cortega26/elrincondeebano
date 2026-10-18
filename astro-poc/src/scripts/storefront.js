@@ -37,7 +37,7 @@ import {
   getCartState,
   hydrateCartFromOrder,
   hydrateSharedCart,
-  mergeCarts,
+  adoptCartSnapshot,
   normalizeId,
   parseNumber,
   sanitizeCart,
@@ -154,43 +154,25 @@ function setCartOffcanvasState(nextOpen) {
 }
 
 function loadCart() {
-  const cart = sanitizeCart(storefrontStorage.loadJson('cart', []));
-  // Si hay datos en la key legacy pero no en la canónica, migrar
-  if (cart.length === 0) {
-    const legacyRaw = globalThis.localStorage?.getItem('cart');
-    if (legacyRaw) {
-      try {
-        const legacyCart = sanitizeCart(JSON.parse(legacyRaw));
-        if (legacyCart.length > 0) {
-          storefrontStorage.saveJson('cart', legacyCart);
-          return legacyCart;
-        }
-      } catch {
-        /* ignorar JSON inválido */
-      }
-    }
-    return [];
-  }
-  // Mantener la key legacy sincronizada durante la transición (write-through)
-  try {
-    const serialized = JSON.stringify(cart);
-    globalThis.localStorage?.setItem('cart', serialized);
-  } catch {
-    /* ignorar error de quota en la key legacy */
-  }
-  return cart;
+  // The storage contract migrates the legacy alias only if the canonical key
+  // does not exist. A present empty canonical cart must NEVER revive old items.
+  return sanitizeCart(storefrontStorage.loadJson('cart', []));
 }
 
 function saveCart(cart) {
   const sanitized = sanitizeCart(cart);
   const saved = storefrontStorage.saveJson('cart', sanitized);
-  try {
-    var serialized = JSON.stringify(sanitized);
-    globalThis.localStorage?.setItem('cart', serialized);
-  } catch (_e) {
-    /* ignorar error de quota en la key legacy */
+  if (!saved) {
+    return false;
   }
-  return saved;
+  // Maintain the legacy alias for older clients, but never let an alias write
+  // succeed when the canonical commit failed.
+  try {
+    globalThis.localStorage?.setItem('cart', JSON.stringify(sanitized));
+  } catch {
+    /* Legacy mirror is best-effort; the canonical key remains authoritative. */
+  }
+  return true;
 }
 
 function showCartSaveError() {
@@ -1194,6 +1176,9 @@ function initStorefront() {
     syncAllActionAreas,
     showCartSaveError,
     hidePostSubmitToast,
+    onCartCleared: () => {
+      cart = [];
+    },
   });
   markOrderAsSent = recoveryBannerController.markOrderAsSent;
   const cartOffcanvas = document.getElementById('cartOffcanvas');
@@ -1229,30 +1214,25 @@ function initStorefront() {
     cartOffcanvas.addEventListener('hidden.bs.offcanvas', handleClose);
   }
 
-  // Plan 179: cross-tab convergence — merge remote edits instead of
-  // last-writer-wins. Keys resolve through STOREFRONT_STORAGE_KEYS (the same
-  // source saveCart writes through), never a hardcoded duplicate. `storage`
-  // events do not fire in the originating tab, and the merged cart is only
-  // saved when it differs, so this cannot echo-loop.
-  const cartStorageKeys = new Set([STOREFRONT_STORAGE_KEYS.cart].flat().map((key) => String(key)));
+  // Storage events can arrive after a newer write. Read the latest persisted
+  // snapshot rather than replaying event.newValue; never write an event back.
   const handleCrossTabCart = (event) => {
-    if (!event || event.key === null || !cartStorageKeys.has(event.key)) {
+    if (!event || (event.key !== STOREFRONT_STORAGE_KEYS.cart && event.key !== null)) {
       return;
     }
-    let remote;
-    try {
-      remote = event.newValue ? JSON.parse(event.newValue) : [];
-    } catch {
+    if (event.storageArea && event.storageArea !== globalThis.localStorage) {
       return;
     }
-    const merged = mergeCarts(cart, remote);
-    if (JSON.stringify(merged) === JSON.stringify(cart)) {
+    // Read the current key even for a delayed clear() event: another tab may
+    // have saved a newer cart already. Never fall back to a stale legacy alias.
+    const canonicalRaw = globalThis.localStorage?.getItem(STOREFRONT_STORAGE_KEYS.cart);
+    const persisted =
+      canonicalRaw == null ? [] : storefrontStorage.loadJson('cart', null);
+    const latest = adoptCartSnapshot(cart, persisted);
+    if (JSON.stringify(latest) === JSON.stringify(cart)) {
       return;
     }
-    cart = merged;
-    if (!saveCart(cart)) {
-      return;
-    }
+    cart = latest;
     updateBadge(cart, {});
     renderCart(cart, {});
     renderCompanionSuggestions(cart, companionRules);
@@ -1263,72 +1243,66 @@ function initStorefront() {
   }
 
   const getQty = (id) => {
-    const item = cart.find((entry) => entry.id === id);
+    // A different tab (or the order-sent controller) may have committed a
+    // deletion before this tab receives its storage event.
+    const item = loadCart().find((entry) => entry.id === id);
     return item ? item.quantity : 0;
   };
 
   const setQty = (id, nextQty, fallbackProduct = null) => {
+    // Rebase each shopper action on the current persisted cart, not a stale
+    // in-memory snapshot. This prevents unrelated deleted items resurfacing.
+    const persistedCart = loadCart();
+    const wasStale = JSON.stringify(cart) !== JSON.stringify(persistedCart);
+    const nextCart = persistedCart.map((item) => ({ ...item }));
     const quantity = clampQty(nextQty);
-    const index = cart.findIndex((entry) => entry.id === id);
-    const previousState = getCartState(cart);
-    const previousQuantity = index >= 0 ? cart[index].quantity : 0;
+    const index = nextCart.findIndex((entry) => entry.id === id);
+    const previousState = getCartState(persistedCart);
+    const previousQuantity = index >= 0 ? nextCart[index].quantity : 0;
 
     if (index < 0 && fallbackProduct?.stock === false) {
       return;
     }
 
-    let _removedItem = null;
-
     if (quantity <= 0) {
       if (index >= 0) {
-        _removedItem = cart.splice(index, 1)[0] || null;
+        nextCart.splice(index, 1);
       }
     } else if (index >= 0) {
-      // Verificar stock antes de incrementar
-      if (quantity > cart[index].quantity && fallbackProduct?.stock === false) {
+      if (quantity > previousQuantity && fallbackProduct?.stock === false) {
         return;
       }
-      cart[index].quantity = quantity;
+      nextCart[index].quantity = quantity;
     } else if (fallbackProduct) {
       const nextItem = createCartItemFromProduct(fallbackProduct, quantity);
       if (nextItem) {
-        cart.push(nextItem);
+        nextCart.push(nextItem);
       }
     }
 
-    const nextState = getCartState(cart);
-    const saved = saveCart(cart);
-    if (!saved) {
+    const changed = JSON.stringify(nextCart) !== JSON.stringify(persistedCart);
+    if (!changed && !wasStale) {
+      return;
+    }
+    if (changed && !saveCart(nextCart)) {
       log('warn', 'cart_save_failed', { reason: 'localStorage_quota' });
-      // Restaurar estado anterior
-      if (_removedItem) {
-        cart.splice(index, 0, _removedItem);
-      } else if (index >= 0 && previousQuantity > 0) {
-        cart[index].quantity = previousQuantity;
-      } else if (index >= 0 && previousQuantity <= 0) {
-        cart.splice(index, 1);
-      }
-      if (previousQuantity <= 0 && index < 0 && fallbackProduct) {
-        cart.pop();
-      }
       showCartSaveError();
       return;
     }
-    // Plan 187: prev/next are the only two full validations per mutation —
-    // downstream renders reuse their totals instead of recomputing, and only
-    // the edited card's action area re-syncs.
+    // Persist-first: no rollback of a mutated shared array is necessary.
+    cart = nextCart;
+    const nextState = getCartState(cart);
     updateBadge(cart, {
       animate: previousState.totalItems !== nextState.totalItems,
       totalItems: nextState.totalItems,
     });
     renderCart(cart, {
       animateTotal: previousState.totalAmount !== nextState.totalAmount,
-      changedItemId: id,
+      changedItemId: wasStale ? null : id,
       totalAmount: nextState.totalAmount,
     });
     renderCompanionSuggestions(cart, companionRules);
-    // Keep quick-order cards stable while the shopper is actively editing quantities.
-    syncAllActionAreas(cart, id);
+    syncAllActionAreas(cart, wasStale ? null : id);
 
     if (quantity > previousQuantity) {
       personalizationEngine.trackProductSignal(id, 'addedCount');
