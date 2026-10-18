@@ -12,6 +12,7 @@ import {
   normalizeId,
   parseNumber,
   parseSharedCartPayload,
+  refreshCartItemsFromCatalog,
   sanitizeCart,
   toSharedCartPayload,
 } from '../astro-poc/src/scripts/storefront/storefront-state.js';
@@ -334,7 +335,7 @@ describe('storefront-state cart primitives', () => {
       expect(JSON.stringify(payload)).not.toContain('leche.jpg');
     });
 
-    it('merges duplicate ids deterministically and clamps quantities', () => {
+    it('collapses duplicate ids by max and clamps quantities', () => {
       const payload = toSharedCartPayload([
         { id: 'b', price: 500, quantity: 1 },
         { id: 'a', price: 800, quantity: 999 },
@@ -343,7 +344,7 @@ describe('storefront-state cart primitives', () => {
 
       expect(payload.items).toEqual([
         { id: 'a', quantity: MAX_CART_ITEM_QTY },
-        { id: 'b', quantity: 3 },
+        { id: 'b', quantity: 2 },
       ]);
     });
 
@@ -355,7 +356,7 @@ describe('storefront-state cart primitives', () => {
   });
 
   describe('parseSharedCartPayload', () => {
-    it('parses versioned payloads with capped and deduplicated items', () => {
+    it('parses versioned payloads collapsing duplicate ids by max', () => {
       const items = parseSharedCartPayload({
         version: SHARED_CART_VERSION,
         items: [
@@ -368,7 +369,7 @@ describe('storefront-state cart primitives', () => {
       });
 
       expect(items).toEqual([
-        { id: 'p1', quantity: 1 },
+        { id: 'p1', quantity: 3 },
         { id: 'p2', quantity: MAX_CART_ITEM_QTY },
       ]);
     });
@@ -448,6 +449,107 @@ describe('storefront-state cart primitives', () => {
     it('supports legacy array links through the same catalog hydration', () => {
       const items = hydrateSharedCart([{ id: 'p1', price: 1, quantity: 2 }], resolve);
       expect(items).toEqual([expect.objectContaining({ id: 'p1', price: 1500, quantity: 2 })]);
+    });
+  });
+
+  describe('refreshCartItemsFromCatalog', () => {
+    const liveProduct = {
+      id: 'p1',
+      name: 'Leche',
+      category: 'Lacteos',
+      price: 1500,
+      discount: 0,
+      image: 'leche-live.jpg',
+    };
+    const resolve = (id) => (id === liveProduct.id ? liveProduct : null);
+
+    function persisted(overrides = {}) {
+      return {
+        id: 'p1',
+        name: 'Leche',
+        category: 'Lacteos',
+        price: 1200,
+        discount: 0,
+        image: 'leche.jpg',
+        quantity: 2,
+        ...overrides,
+      };
+    }
+
+    it('refreshes the price from the live catalog and keeps the quantity', () => {
+      const { cart, changed } = refreshCartItemsFromCatalog([persisted()], resolve);
+      expect(changed).toBe(true);
+      expect(cart).toEqual([{ ...liveProduct, quantity: 2 }]);
+    });
+
+    it('refreshes a changed discount from the live catalog', () => {
+      const discounted = { ...liveProduct, discount: 300 };
+      const { cart, changed } = refreshCartItemsFromCatalog(
+        [persisted({ price: 1500, image: 'leche-live.jpg' })],
+        (id) => (id === 'p1' ? discounted : null)
+      );
+      expect(changed).toBe(true);
+      expect(cart[0]).toMatchObject({ price: 1500, discount: 300, quantity: 2 });
+    });
+
+    it('refreshes name and image changes from the live catalog', () => {
+      const renamed = { ...liveProduct, name: 'Leche entera', image: 'leche-nueva.jpg' };
+      const { cart, changed } = refreshCartItemsFromCatalog(
+        [persisted({ price: 1500 })],
+        (id) => (id === 'p1' ? renamed : null)
+      );
+      expect(changed).toBe(true);
+      expect(cart[0]).toMatchObject({
+        name: 'Leche entera',
+        image: 'leche-nueva.jpg',
+        quantity: 2,
+      });
+    });
+
+    it('keeps unresolved lines untouched and never drops, adds or reorders lines', () => {
+      const unknown = {
+        id: 'gone',
+        name: 'Producto histórico',
+        category: 'Varios',
+        price: 999,
+        discount: 5,
+        image: 'gone.jpg',
+        quantity: 7,
+      };
+      const { cart, changed } = refreshCartItemsFromCatalog([persisted(), unknown], resolve);
+      expect(changed).toBe(true);
+      expect(cart).toHaveLength(2);
+      expect(cart[0].id).toBe('p1');
+      expect(cart[1]).toEqual(unknown);
+    });
+
+    it('keeps the line when the resolver returns an unusable record', () => {
+      const stale = persisted();
+      const { cart, changed } = refreshCartItemsFromCatalog([stale], () => ({}));
+      expect(changed).toBe(false);
+      expect(cart[0]).toBe(stale);
+    });
+
+    it('reports changed: false when every field already matches the catalog', () => {
+      const current = { ...liveProduct, quantity: 4 };
+      const result = refreshCartItemsFromCatalog([current], resolve);
+      expect(result.changed).toBe(false);
+      expect(result.cart[0]).toEqual(current);
+      expect(result.cart[0].quantity).toBe(4);
+    });
+
+    it('is pure: does not mutate the input and is idempotent', () => {
+      const input = [persisted()];
+      const snapshot = structuredClone(input);
+
+      const first = refreshCartItemsFromCatalog(input, resolve);
+      expect(first.changed).toBe(true);
+      expect(input).toEqual(snapshot);
+
+      const second = refreshCartItemsFromCatalog(first.cart, resolve);
+      expect(second.changed).toBe(false);
+      expect(second.cart).toEqual(first.cart);
+      expect(input).toEqual(snapshot);
     });
   });
 });

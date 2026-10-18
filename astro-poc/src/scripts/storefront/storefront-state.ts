@@ -154,6 +154,51 @@ export function createCartItemFromProduct(product: unknown, quantity = 1): CartI
   });
 }
 
+export interface CartRefreshResult {
+  cart: CartItem[];
+  changed: boolean;
+}
+
+// Refresh display/pricing fields of persisted lines from the live catalog.
+// Identity is NOT changed: lines whose product cannot be resolved are kept
+// untouched (snapshot is authoritative for identity — deleted products must
+// not reappear or silently vanish from the cart). Never changes quantity,
+// never drops or adds lines, never reorders; callers own persistence.
+export function refreshCartItemsFromCatalog(
+  cart: CartItem[],
+  resolveProductById: (id: string) => unknown
+): CartRefreshResult {
+  if (!Array.isArray(cart) || typeof resolveProductById !== 'function') {
+    return { cart: Array.isArray(cart) ? cart : [], changed: false };
+  }
+
+  let changed = false;
+  const refreshed = cart.map((item) => {
+    const product = resolveProductById(item.id);
+    const next = product ? createCartItemFromProduct(product, item.quantity) : null;
+    if (!next) {
+      return item;
+    }
+
+    const unchanged =
+      next.id === item.id &&
+      next.name === item.name &&
+      next.category === item.category &&
+      next.price === item.price &&
+      next.discount === item.discount &&
+      next.image === item.image;
+    if (unchanged) {
+      return item;
+    }
+
+    changed = true;
+    // createCartItemFromProduct clamps quantity; the persisted value wins.
+    return { ...next, quantity: item.quantity };
+  });
+
+  return { cart: refreshed, changed };
+}
+
 export interface OrderData {
   items: CartItem[];
 }
@@ -196,8 +241,8 @@ export interface SharedCartPayload {
 
 export function toSharedCartPayload(cart: unknown): SharedCartPayload | null {
   const merged = new Map<string, number>();
-  // Shared links preserve their historical additive duplicate contract.
-  // Persisted carts use sanitizeCart's stricter one-line-per-SKU invariant.
+  // Duplicate rows collapse by max, matching sanitizeCart: a stale row must
+  // never inflate an order on either side of a shared link.
   const items = Array.isArray(cart) ? cart : [];
   for (const raw of items) {
     const item = normalizeCartItem(raw);
@@ -208,7 +253,7 @@ export function toSharedCartPayload(cart: unknown): SharedCartPayload | null {
     if (!id) {
       continue;
     }
-    const quantity = clampQty((merged.get(id) ?? 0) + clampQty(item.quantity));
+    const quantity = Math.max(merged.get(id) ?? 0, clampQty(item.quantity));
     if (quantity > 0) {
       merged.set(id, quantity);
     }
@@ -244,19 +289,20 @@ export function parseSharedCartPayload(payload: unknown): SharedCartItem[] {
     rawItems = obj.items;
   }
 
-  const seen = new Set<string>();
-  const items: SharedCartItem[] = [];
+  // Duplicate ids collapse by max (matching sanitizeCart and the encoder): a
+  // stale row must never inflate an order, and a forged additive link cannot
+  // either. Entry order stays first-seen.
+  const merged = new Map<string, number>();
   for (const raw of rawItems as unknown[]) {
     const entry = raw as Record<string, unknown> | null | undefined;
     const id = normalizeId(entry?.id);
     const quantity = clampQty(entry?.quantity);
-    if (!id || quantity <= 0 || seen.has(id)) {
+    if (!id || quantity <= 0) {
       continue;
     }
-    seen.add(id);
-    items.push({ id, quantity });
+    merged.set(id, Math.max(merged.get(id) ?? 0, quantity));
   }
-  return items;
+  return [...merged.entries()].map(([id, quantity]) => ({ id, quantity }));
 }
 
 export function hydrateSharedCart(

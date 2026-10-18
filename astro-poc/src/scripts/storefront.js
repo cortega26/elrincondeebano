@@ -41,6 +41,7 @@ import {
   adoptCartSnapshot,
   normalizeId,
   parseNumber,
+  refreshCartItemsFromCatalog,
   sanitizeCart,
   sameCartProduct,
   toSharedCartPayload,
@@ -165,7 +166,11 @@ function loadCart() {
   if (Array.isArray(raw) && raw.length !== cart.length) {
     saveCart(cart);
   }
-  return cart;
+  // Read-time projection only: never write the refreshed fields back. The
+  // duplicate fingerprint (visualCartIdentity) includes price/discount, so a
+  // refresh-triggered write could collapse rows on the next sanitize.
+  // Persistence stays owned by the mutation flows (setQty, add/remove).
+  return refreshCartItemsFromCatalog(cart, resolveLiveProductForCart).cart;
 }
 
 function saveCart(cart) {
@@ -250,9 +255,7 @@ function loadCartFromUrl() {
   try {
     var raw = decodeCart(match[1]);
     if (!raw) return false;
-    var hydrated = hydrateSharedCart(raw, function (id) {
-      return getProductByIdFromSource(id) || getProductFromCard(getProductCardById(id));
-    });
+    var hydrated = hydrateSharedCart(raw, resolveLiveProductForCart);
     if (hydrated.length === 0) return false;
 
     var currentCart = loadCart();
@@ -449,6 +452,13 @@ function getProductFromCard(card) {
 function getProductByIdFromSource(id) {
   const card = getProductCardMap().get(id);
   return card ? getProductFromCard(card) : null;
+}
+
+// Shared by the shared-link hydration (plan 026) and the persisted-cart
+// refresh (plan 219): the live catalog record for a cart line, resolved from
+// the rendered cards (map first, document-wide fallback).
+function resolveLiveProductForCart(id) {
+  return getProductByIdFromSource(id) || getProductFromCard(getProductCardById(id));
 }
 
 function updateBadge(cart, { animate = false, totalItems = null } = {}) {
@@ -1185,7 +1195,18 @@ function initStorefront() {
     buildWhatsAppPreview,
     showOrderConfirmationDialog,
   });
-  submitCartOrder = orderSubmitController.submitCartOrder;
+  // Plan 219: the checkout dialog, the summary and the WhatsApp message must
+  // all price the order from the live catalog. Read-time projection only — no
+  // storage write happens here either; mutate flows own persistence.
+  submitCartOrder = (cartToSubmit) => {
+    const refreshed = refreshCartItemsFromCatalog(cartToSubmit, resolveLiveProductForCart);
+    if (refreshed.changed) {
+      cart = refreshed.cart;
+      updateBadge(cart);
+      renderCart(cart);
+    }
+    orderSubmitController.submitCartOrder(refreshed.cart);
+  };
   buildWhatsAppMessageText = orderSubmitController.buildWhatsAppMessageText;
   const recoveryBannerController = createRecoveryBannerController({
     storefrontStorage,
