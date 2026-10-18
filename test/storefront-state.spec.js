@@ -115,6 +115,56 @@ describe('storefront-state cart primitives', () => {
       expect(sanitizeCart(normalized)).toEqual(normalized);
     });
 
+    it('coalesces identical products even when a legacy row has a different ID', () => {
+      const cart = sanitizeCart([
+        {
+          id: 'legacy-royal',
+          name: 'Royal Guard • Cerveza Lager',
+          category: 'Cervezas',
+          price: 5900,
+          discount: 0,
+          image: '/assets/images/cervezas/Royal%20Guard%20lata%20350cc.webp',
+          quantity: 1,
+        },
+        {
+          id: 'p-a9fa2c67f826',
+          name: 'Royal Guard • Cerveza Lager',
+          category: 'Cervezas',
+          price: 5900,
+          discount: 0,
+          image: '/assets/images/cervezas/Royal Guard lata 350cc.avif',
+          quantity: 3,
+        },
+      ]);
+
+      expect(cart).toHaveLength(1);
+      expect(cart[0]).toMatchObject({ id: 'p-a9fa2c67f826', quantity: 3 });
+      expect(getCartState(cart)).toEqual({ totalItems: 3, totalAmount: 17700 });
+    });
+
+    it('keeps genuine variations with the same displayed name separate', () => {
+      const cart = sanitizeCart([
+        {
+          id: 'cola-returnable',
+          name: 'Coca-Cola 2L',
+          category: 'Bebidas',
+          image: '/images/cola-retornable.webp',
+          price: 3000,
+          quantity: 1,
+        },
+        {
+          id: 'cola-disposable',
+          name: 'Coca-Cola 2L',
+          category: 'Bebidas',
+          image: '/images/cola-desechable.webp',
+          price: 3000,
+          quantity: 2,
+        },
+      ]);
+
+      expect(cart.map((item) => item.id)).toEqual(['cola-returnable', 'cola-disposable']);
+    });
+
     it('returns an empty cart for non-array input', () => {
       expect(sanitizeCart(null)).toEqual([]);
       expect(sanitizeCart({})).toEqual([]);
