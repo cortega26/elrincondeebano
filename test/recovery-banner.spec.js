@@ -37,6 +37,7 @@ describe('storefront order-completion controller', () => {
       syncAllActionAreas: vi.fn(),
       showCartSaveError: vi.fn(),
       hidePostSubmitToast: vi.fn(),
+      onCartCleared: vi.fn(),
       ...overrides,
     };
     return { controller: createRecoveryBannerController(dependencies), dependencies };
