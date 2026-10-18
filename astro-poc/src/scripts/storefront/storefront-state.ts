@@ -69,7 +69,7 @@ function visualCartIdentity(item: CartItem): string | null {
     .pop()
     ?.trim()
     .toLowerCase()
-    .replace(/\\.(?:avif|webp|png|jpe?g)$/i, '');
+    .replace(/\.(?:avif|webp|png|jpe?g)$/i, '');
   if (!imageFile) {
     return null;
   }
