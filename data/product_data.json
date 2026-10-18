@@ -1,7 +1,7 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-18T00:53:49.877Z",
-  "rev": 35,
+  "last_updated": "2026-10-18T01:12:38.379Z",
+  "rev": 36,
   "schema_version": 1,
   "products": [
     {
@@ -5372,13 +5372,58 @@
       "discount": 0,
       "stock": true,
       "category": "Lacteos",
-      "image_path": "",
-      "image_avif_path": "",
+      "image_path": "assets/images/lacteos/nestle-leche-condensada-265g.jpg",
+      "image_avif_path": "assets/images/lacteos/nestle-leche-condensada-265g.avif",
       "order": 191,
+      "is_archived": false,
+      "rev": 1,
+      "field_last_modified": {
+        "image_path": {
+          "ts": "2026-10-18T01:12:38.379Z",
+          "by": "git",
+          "rev": 1,
+          "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_avif_path": {
+          "ts": "2026-10-18T01:12:38.379Z",
+          "by": "git",
+          "rev": 1,
+          "base_rev": 0,
+          "changeset_id": null
+        }
+      },
+      "id": "p-7a7d9d85683f"
+    },
+    {
+      "name": "Kross • Golden Ale, pack de 4 botellas de 330 mL",
+      "description": "Pack de 4 botellas de 330 mL c/u (1,32 L). Cerveza artesanal Golden Ale de 5,3% alcohol.",
+      "price": 6900,
+      "discount": 0,
+      "stock": true,
+      "category": "Cervezas",
+      "image_path": "assets/images/cervezas/kross-golden-ale-pack4-330ml.jpg",
+      "image_avif_path": "assets/images/cervezas/kross-golden-ale-pack4-330ml.avif",
+      "order": 192,
       "is_archived": false,
       "rev": 0,
       "field_last_modified": {},
-      "id": "p-7a7d9d85683f"
+      "id": "p-00780461534002"
+    },
+    {
+      "name": "Oikos • Yoghurt Griego Natural sin Azúcar 150 g",
+      "description": "Pote de 150 g de yoghurt griego natural sin azúcar. Mantener refrigerado.",
+      "price": 1200,
+      "discount": 0,
+      "stock": true,
+      "category": "Lacteos",
+      "image_path": "assets/images/lacteos/oikos-yoghurt-griego-natural-sin-azucar-150g.jpg",
+      "image_avif_path": "assets/images/lacteos/oikos-yoghurt-griego-natural-sin-azucar-150g.avif",
+      "order": 193,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {},
+      "id": "p-00780295500779"
     }
   ]
 }
