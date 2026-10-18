@@ -31,6 +31,9 @@ export async function registerMediaApplyRoutes({
     }
 
     const promoted: Array<{ staged: string; canonical: string }> = [];
+    // Plan 220: once the catalog write succeeds, the JSON already points at
+    // the canonical paths — rollback must not run past that commit.
+    let catalogWritten = false;
     try {
       // Plan 089: the canonical OG tool writes/deletes the canonical asset
       // at run time (no staging) — apply is a no-op state transition that
@@ -151,6 +154,7 @@ export async function registerMediaApplyRoutes({
         if (!writeResult.ok) {
           throw new Error(writeResult.error ?? 'Catalog write failed');
         }
+        catalogWritten = true;
       }
 
       intent.status = 'applied';
@@ -161,14 +165,35 @@ export async function registerMediaApplyRoutes({
 
       return { status: 'applied', intent_id: id, promoted: promoted.length };
     } catch (err) {
-      // Roll back promoted files (best effort) so JSON and assets never split.
-      for (const { staged, canonical } of promoted.reverse()) {
-        if (existsSync(canonical)) {
-          try {
-            renameSync(canonical, staged);
-          } catch {
-            // Best-effort rollback
+      if (!catalogWritten) {
+        // Roll back promoted files (best effort) so JSON and assets never split.
+        for (const { staged, canonical } of promoted.reverse()) {
+          if (existsSync(canonical)) {
+            try {
+              renameSync(canonical, staged);
+            } catch {
+              // Best-effort rollback
+            }
           }
+        }
+      } else {
+        // Invariant (plan 220): once the product_data.json write committed,
+        // it points at the canonical paths — renaming the files back to
+        // staging here would create the exact JSON/assets split this route
+        // must avoid. Files stay put; the only recovery is a re-run (the
+        // MISSING_OUTPUT 422 path reports the split state).
+        request.log.error(
+          { err, intent: id },
+          'apply failed after the catalog commit; canonical assets left in place'
+        );
+        try {
+          intent.status = 'failed';
+          intent.errors = [(err as Error).message];
+          intent.completed_at = new Date().toISOString();
+          intent.updated_at = intent.completed_at;
+          intents.save(intent);
+        } catch {
+          // Best-effort failure mark must never mask the rethrown failure.
         }
       }
       if (promoted.length > 0) media.invalidate();
