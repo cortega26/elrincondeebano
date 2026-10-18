@@ -24,6 +24,7 @@ import {
 import { createObservabilityModule } from './storefront/observability.js';
 import { createPersonalizationEngine } from './storefront/personalization.js';
 import { syncStorefrontServiceWorkerVersion } from './storefront/service-worker-sync.js';
+import { shouldRegisterServiceWorker } from './storefront/sw-registration.js';
 import {
   createStorefrontStorage,
   STOREFRONT_RUNTIME_CONTRACT,
@@ -1104,6 +1105,17 @@ function setupOnlineStatusIndicator() {
 
 async function registerServiceWorker() {
   if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) {
+    return;
+  }
+  // ADR 0006 operational affordances: the kill-switch (`ebano-sw-disabled`)
+  // and the loopback opt-in (`ebano-sw-enable-local` / `?sw=on`) are enforced
+  // by the predicate so incident triage can disable registration at runtime.
+  if (
+    !shouldRegisterServiceWorker({
+      storage: globalThis.localStorage,
+      location: globalThis.location,
+    })
+  ) {
     return;
   }
   try {

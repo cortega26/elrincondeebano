@@ -136,7 +136,7 @@ test('invalidateCache deletes all entries for a specific cache', async () => {
   assert.strictEqual((await cache.keys()).length, 0);
 });
 
-test('invalidateAllCaches removes only caches matching configured prefixes', async () => {
+test('invalidateAllCaches preserves the static shell and removes the other namespaced caches', async () => {
   global.caches = createCachesMock();
   const { static: staticPrefix, dynamic: dynamicPrefix } = CACHE_CONFIG.prefixes;
   const unrelated = 'unrelated-cache';
@@ -152,7 +152,9 @@ test('invalidateAllCaches removes only caches matching configured prefixes', asy
 
   await invalidateAllCaches();
 
-  assert.deepStrictEqual(await caches.keys(), [unrelated]);
+  // Plan 218: the install-seeded static shell survives full invalidation; only
+  // the purgeable namespaces are deleted.
+  assert.deepStrictEqual((await caches.keys()).sort(), [staticPrefix, unrelated].sort());
 });
 
 test('static assets served from cache on warm visits with background revalidation', async () => {
