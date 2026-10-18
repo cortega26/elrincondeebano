@@ -522,3 +522,46 @@ test('different IDs for the same physical product cannot recreate a removed cart
   expect(result[0].id).toBe(next.id);
   await expect(page.locator('#cart-count')).toHaveText('1');
 });
+
+
+test('adding a current SKU upgrades its historical ID without creating another cart line', async ({
+  page,
+}) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await waitForReady(page);
+  const button = page.locator('.category-strip .add-to-cart-btn').first();
+  const product = await button.evaluate((element) => {
+    const card = element.closest<HTMLElement>('[data-product-id]')!;
+    return {
+      id: card.dataset.productId!,
+      name: card.dataset.productName!,
+      category: card.dataset.productCategory || '',
+      price: Number(card.dataset.productPrice),
+      discount: Number(card.dataset.productDiscount || 0),
+      image: card.querySelector('img')?.getAttribute('src') || '',
+    };
+  });
+  await page.evaluate((item) => {
+    localStorage.setItem('astro-poc-cart', JSON.stringify([
+      { ...item, id: 'historical-id-for-same-product', quantity: 3 },
+    ]));
+  }, product);
+  await page.reload({ waitUntil: 'networkidle' });
+  await waitForReady(page);
+  await expect(page.locator('#cart-count')).toHaveText('3');
+
+  await page.locator(`.category-strip .add-to-cart-btn[data-id="${product.id}"]`).first().click();
+  await expect(page.locator('#cart-count')).toHaveText('4');
+  await page.locator('#cart-icon').click();
+  await expect(page.locator('#cart-items .cart-item')).toHaveCount(1);
+  await expect(page.locator('#cart-items .cart-item .item-quantity')).toHaveText('4');
+  const afterAdd = await page.evaluate(() => JSON.parse(localStorage.getItem('astro-poc-cart') || '[]'));
+  expect(afterAdd).toHaveLength(1);
+  expect(afterAdd[0]).toMatchObject({ id: product.id, quantity: 4 });
+
+  await page.locator('#cart-items .cart-item .cart-item__remove').click();
+  await expect(page.locator('#cart-count')).toHaveText('0');
+  await page.reload({ waitUntil: 'networkidle' });
+  await waitForReady(page);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('astro-poc-cart') || '[]'))).toEqual([]);
+});
