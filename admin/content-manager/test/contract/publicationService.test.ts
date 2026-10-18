@@ -3,6 +3,7 @@ import {
   createDefaultManifest,
   runPreflight,
 } from '../../src/domain/publication/publicationService.ts';
+import { parsePorcelainStatus } from '../../src/server/adapters/gitAdapter.ts';
 
 function makeGitChanges(
   overrides: Partial<{
@@ -178,6 +179,24 @@ test('runPreflight does not treat assets/images-evil as covered by assets/images
 
   expect(result.ok).toBe(false);
   expect(result.errors).toContain('Unrelated staged file: assets/images-evil/x.png');
+});
+
+test('runPreflight sees the decoded new path of a hand-written rename entry', () => {
+  const manifest = createDefaultManifest();
+  // Plan 224: porcelain v1 renders renames as `R  old -> new` (quoted sides
+  // possible). The parser must surface the NEW path so this preflight
+  // reviews it instead of silently dropping the entry.
+  const parsed = parsePorcelainStatus(
+    '## main\nR  "data/idempotency vieja.json" -> "data/idempotency.json"\n'
+  );
+  expect(parsed.staged).toEqual(['data/idempotency.json']);
+
+  const result = runPreflight(manifest, makeGitChanges({ staged: parsed.staged }));
+  expect(result.ok).toBe(false);
+  expect(result.errors).toContain('Unrelated staged file: data/idempotency.json');
+
+  const check = result.checks.find((c) => c.name === 'no-unrelated-staged');
+  expect(check!.status).toBe('fail');
 });
 
 test('createDefaultManifest has expected structure', () => {
