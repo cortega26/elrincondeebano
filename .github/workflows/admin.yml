@@ -40,9 +40,12 @@ jobs:
       - uses: ./.github/actions/setup-node-and-deps
 
       - name: Lint
-        # Plan 127 F1.2: the FULL tree (src + scripts + test) must be
-        # error-free in CI — previously only lint-staged covered the admin.
-        run: npx eslint src scripts test --config eslint.config.mjs
+        # Plan 127 F1.2 / plan 227: the FULL workspace tree — src, scripts,
+        # test plus the workspace-root configs (playwright.*, vite.config,
+        # vitest.config, eslint.config.mjs) — must be error-free in CI;
+        # previously only lint-staged covered the admin. Identical one-liner
+        # to the `lint` script in admin/content-manager/package.json.
+        run: npx eslint . --config eslint.config.mjs
 
       - name: Typecheck
         run: npx tsc -p tsconfig.json --noEmit
