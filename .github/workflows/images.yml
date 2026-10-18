@@ -2,6 +2,7 @@ name: Optimize images
 
 on:
   push:
+    branches: ['main']
     paths:
       - 'assets/images/originals/**'
     tags-ignore:
@@ -42,7 +43,8 @@ jobs:
           node-version: '24.x'
           cache: 'npm'
       - run: bash tools/ci/npm-ci-with-retry.sh
-      - run: npm run images:generate
+      - run: npm run images:avif
+      - run: npm run images:gap-fill
       - run: npm run images:rewrite
       - run: npm run lint:images
       - name: Commit changes
@@ -51,10 +53,16 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add -A
+          git add assets/images/ data/product_data.json astro-poc/src/data/ astro-poc/public/ || true
           if git diff --cached --quiet; then
             echo "No image changes detected. Skipping commit."
             exit 0
+          fi
+          OUTSIDE=$(git diff --cached --name-only | grep -Ev '^(assets/images/|data/product_data\.json|astro-poc/src/data/|astro-poc/public/)' || true)
+          if [ -n "$OUTSIDE" ]; then
+            echo "::error::Staged files outside the image pipeline allowlist:"
+            echo "$OUTSIDE"
+            exit 1
           fi
           git commit -m 'chore: update optimized images'
           git pull --rebase origin "${GITHUB_REF_NAME}"

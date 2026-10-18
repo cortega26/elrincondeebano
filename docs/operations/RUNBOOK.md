@@ -208,7 +208,7 @@ Fallback sin `node` en PATH: `npx -y node@24 "C:\Program Files\nodejs\node_modul
 
 - **`Deploy static content to Pages`** (`.github/workflows/static.yml`) — push a `main` / `workflow_dispatch` sólo desde `main` con `confirm_production_deploy=DEPLOY`. Permisos: `contents: read`, `pages: write`, `id-token: write`. Artefacto: `astro-poc/dist`. Deploys manuales de SHA/ref históricos deben usar `rollback.yml`.
 - **`Deploy Cloudflare Edge Security Headers`** (`.github/workflows/cloudflare-edge-security-headers.yml`) — push a `main` por cambios en la policy/worker, o `workflow_dispatch` sólo desde `main` con `confirm_edge_deploy=DEPLOY_EDGE`.
-- **`Optimize images`** (`.github/workflows/images.yml`) — cambios en `assets/images/originals/**`. Node 24.x; usa `npm ci` + `images:generate`, `images:rewrite`, `lint:images`. Auto-commitea solo a `refs/heads/<branch>`.
+- **`Optimize images`** (`.github/workflows/images.yml`) — push a `main` por cambios en `assets/images/originals/**`. Node 24.x; usa `npm ci` + `images:avif`, `images:gap-fill`, `images:rewrite`, `lint:images`. Auto-commitea solo a `main` (allowlist de rutas).
 - **`Semgrep Security Scan`** (`.github/workflows/semgrep.yml`) — push/PR a `main`, cron semanal. Instala desde `tools/requirements-semgrep.txt`; escanea con `p/default` + `p/secrets`; sube SARIF.
 - **`Secret Scan`** (`.github/workflows/secret-scan.yml`) — push/PR, cron semanal. Ejecuta `npm run security:secret-scan`.
 - **`Continuous Integration`** (`.github/workflows/ci.yml`) — push/PR a `main` (no paths filter; always validates `main` pushes). Node 24.x: lint root + Astro, build, guardrails, unit tests, E2E, smoke, Lighthouse.
