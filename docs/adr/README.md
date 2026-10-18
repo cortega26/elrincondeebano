@@ -27,6 +27,7 @@ Create or update an ADR when a change:
 | `0008` | Accepted                               | Live production must satisfy the edge security contract; fix production, not the contract.                                                                                                                                                                               |
 | `0009` | Accepted                               | `data/product_data.json` is the single authoritative product catalog. All write-path ownership documented; synced copies and the TS Content Manager write paths identified. Executed by the Streamlit retirement notice (`docs/archive/streamlit-retirement-notice.md`). |
 | `0010` | Decided — no-go (2026-08-27, plan 167) | Contrato provider-neutral de medición privada del funnel: colección desactivada por defecto; no re-litigar sin evidencia nueva.                                                                                                                                          |
+| `0011` | Accepted (2026-10-11, plan 217)        | Módulo privado de mensajes de WhatsApp dentro del admin local: handoff honesto (wa.me/Web Share/portapapeles), datos en `data/.comms/` gitignored, sin API de WhatsApp.                                                                                                  |
 
 ## Maintenance notes
 

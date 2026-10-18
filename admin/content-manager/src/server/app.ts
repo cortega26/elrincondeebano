@@ -33,6 +33,7 @@ import { SyncAdapter, syncConfigSchema, type SyncConfig } from './adapters/syncA
 import { SyncService } from './services/syncService.ts';
 import { backupRoutes } from './routes/backup.ts';
 import { diagnosticsRoutes } from './routes/diagnostics.ts';
+import { commsRoutes } from './routes/commsRoutes.ts';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
@@ -275,6 +276,14 @@ export function createApp(opts?: AppOptions): FastifyInstance {
   app.register(
     async function (instance) {
       await diagnosticsRoutes(instance, repoRoot);
+    },
+    { prefix: '/api/v1' }
+  );
+
+  // Plan 217: comunicaciones privadas (data/.comms/, gitignored).
+  app.register(
+    async function (instance) {
+      await commsRoutes(instance, repoRoot);
     },
     { prefix: '/api/v1' }
   );

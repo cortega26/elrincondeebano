@@ -94,6 +94,8 @@ data/media-intents/
 data/import-previews/
 data/idempotency.json
 data/.admin-credential
+# Plan 217: comunicaciones privadas (teléfonos de vecinos, plantillas, actividad)
+data/.comms/
 data/sync-config.json
 data/recovery-journal*.json
 data/recovery-journal.ndjson

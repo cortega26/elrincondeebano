@@ -124,6 +124,9 @@ export const ROUTE_POLICY: RoutePolicyEntry[] = [
   { method: 'POST', path: '/api/v1/backup/prune-preview', class: 'preview' },
   { method: 'POST', path: '/api/v1/backup/prune', class: 'mutation' },
   { method: 'POST', path: '/api/v1/backup/reconcile', class: 'mutation' },
+  // comms (plan 217) — datos privados, nunca en el bundle público
+  { method: 'GET', path: '/api/v1/comms', class: 'read' },
+  { method: 'PUT', path: '/api/v1/comms', class: 'mutation' },
 ];
 
 export interface RouteMatch {

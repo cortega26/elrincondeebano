@@ -19,6 +19,7 @@ import { PublicationPage } from './routes/PublicationPage.tsx';
 import { DiagnosticsPage } from './routes/DiagnosticsPage.tsx';
 import { SettingsPage } from './routes/SettingsPage.tsx';
 import { HelpPage } from './routes/HelpPage.tsx';
+import { CommsPage } from './routes/CommsPage.tsx';
 import { RouteErrorPage } from './RouteErrorPage.tsx';
 import { CredentialPrompt } from './CredentialPrompt.tsx';
 import { loadPreferences, applyPreferences } from './preferences.ts';
@@ -74,6 +75,10 @@ const router = createBrowserRouter([
         element: <SettingsPage />,
       },
       {
+        path: 'comms',
+        element: <CommsPage />,
+      },
+      {
         path: 'help',
         element: <HelpPage />,
       },
@@ -98,6 +103,7 @@ const GOTO_MAP: Record<string, string> = {
   u: '/publish',
   d: '/diagnostics',
   s: '/settings',
+  w: '/comms',
   '?': '/help',
 };
 
@@ -112,6 +118,7 @@ const NAV_ITEMS: Array<{ to: string; label: string }> = [
   { to: '/conflicts', label: 'Conflictos' },
   { to: '/history', label: 'Cambios y recuperación' },
   { to: '/publish', label: 'Publicación' },
+  { to: '/comms', label: 'Mensajes' },
   { to: '/diagnostics', label: 'Diagnósticos' },
   { to: '/settings', label: 'Ajustes' },
   { to: '/help', label: 'Ayuda' },
