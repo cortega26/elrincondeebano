@@ -240,6 +240,36 @@ jobs:
           path: reports/lighthouse
           if-no-files-found: ignore
 
+  # Plan 233: the root suite self-skips these files (no dist artifact), so
+  # they only execute here, against the artifact from the build job.
+  build-contract-tests:
+    name: Build Contract Tests (post-build)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    needs: [build-and-check]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-node-and-deps
+
+      - name: Download build artifact
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: astro-dist
+          path: astro-poc/dist
+
+      - name: Run build-contract suites
+        run: |
+          npx vitest run \
+            test/csp.policy.hardening.test.js \
+            test/share-preview.build-contract.test.js \
+            test/product-og.build-metadata.test.js \
+            test/category-og.build-metadata.test.js \
+            test/home-og.build-metadata.test.js
+
   # ── Aggregation (must wait for all jobs) ──
 
   verify:
@@ -255,6 +285,7 @@ jobs:
       - build-and-check
       - e2e-tests
       - lighthouse
+      - build-contract-tests
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -284,6 +315,7 @@ jobs:
           check_job "${{ needs.build-and-check.result }}" "build-and-check"
           check_job "${{ needs.e2e-tests.result }}" "e2e-tests"
           check_job "${{ needs.lighthouse.result }}" "lighthouse"
+          check_job "${{ needs.build-contract-tests.result }}" "build-contract-tests"
 
           echo "CI_STATUS=$STATUS" >> $GITHUB_ENV
 
