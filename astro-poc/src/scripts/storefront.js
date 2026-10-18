@@ -156,7 +156,14 @@ function setCartOffcanvasState(nextOpen) {
 function loadCart() {
   // The storage contract migrates the legacy alias only if the canonical key
   // does not exist. A present empty canonical cart must NEVER revive old items.
-  return sanitizeCart(storefrontStorage.loadJson('cart', []));
+  const raw = storefrontStorage.loadJson('cart', []);
+  const cart = sanitizeCart(raw);
+  // Repair historical duplicate SKU lines in storage, not only in the UI.
+  // Without this write, another tab could read the corrupt snapshot again.
+  if (Array.isArray(raw) && raw.length !== cart.length) {
+    saveCart(cart);
+  }
+  return cart;
 }
 
 function saveCart(cart) {
