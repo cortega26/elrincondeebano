@@ -97,7 +97,7 @@ Use this process in PR descriptions for risky changes:
 - **Cobertura:** baseline objetivo 80%. Mutation testing (Stryker) en lógica crítica (Cart, Analytics, Logger); no reintroducir survivors.
 - **Linter/formatter:** `npm run lint` (root + `astro-poc`), `npm run typecheck`, `npm run format` en verde.
 - **SARIF:** si se genera manualmente, sanitizar con `jq` y verificar esquema `2.1.0`. Nunca construir JSON con `echo` + interpolaciones.
-- **Secretos:** nunca registrar valores sensibles en logs o `git diff`. `SYNC_API_REQUIRE_AUTH=true` y `SYNC_API_STRICT_STARTUP=true` en producción.
+- **Secretos:** nunca registrar valores sensibles en logs o `git diff`. El control de escritura del admin es la credencial de lanzamiento (`ADMIN_CREDENTIAL` / `data/.admin-credential`, 0600) y, para sync remoto, `SYNC_API_TOKEN` (config en `data/sync-config.json`, fuera del repo). En modo remoto, Cloudflare Access deny-by-default es prerrequisito.
 - **Permisos mínimos:** `contents: read`, `pages: write` — sólo lo necesario por workflow.
 - **Presupuesto de cambio:** objetivo ≤400 líneas netas por PR; refactors grandes requieren desglose.
 - **Docs como contrato:** actualizar `README.md`, `docs/START_HERE.md`, runbooks y ADRs afectados cuando cambian comandos, ownership o restricciones.

@@ -120,14 +120,14 @@ live in `test/storefront-*.spec.js`.
 
 These are non-negotiable rules derived from the ADRs. Violating them will break the build or production site.
 
-| Constraint                                                                      | Source    | Impact of violation                          |
-| ------------------------------------------------------------------------------- | --------- | -------------------------------------------- |
-| Never skip preflight before Astro build                                         | ADR-0005  | Missing OG images, broken category pages     |
-| `data/` and `assets/` are read-only build inputs — tools must not write back    | ADR-0005  | Data corruption, non-deterministic builds    |
-| `astro-poc/` is the canonical runtime; legacy `pages/` path is archived         | ADR-0003  | Deploying wrong artifact                     |
-| Live probes run on GitHub-hosted `ubuntu-24.04` runners                         | ADR-0004  | N/A — migration completed 2026-07            |
-| `npm ci` mandatory in CI; `npm install` forbidden when lockfile is present      | AGENTS.md | Non-deterministic dependency trees           |
-| `SYNC_API_REQUIRE_AUTH=true` + `SYNC_API_TOKEN` required in production Sync API | AGENTS.md | Unauthenticated write access to product data |
+| Constraint                                                                                                                                       | Source                | Impact of violation                          |
+| ------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------- | -------------------------------------------- |
+| Never skip preflight before Astro build                                                                                                          | ADR-0005              | Missing OG images, broken category pages     |
+| `data/` and `assets/` are read-only build inputs — tools must not write back                                                                     | ADR-0005              | Data corruption, non-deterministic builds    |
+| `astro-poc/` is the canonical runtime; legacy `pages/` path is archived                                                                          | ADR-0003              | Deploying wrong artifact                     |
+| Live probes run on GitHub-hosted `ubuntu-24.04` runners                                                                                          | ADR-0004              | N/A — migration completed 2026-07            |
+| `npm ci` mandatory in CI; `npm install` forbidden when lockfile is present                                                                       | AGENTS.md             | Non-deterministic dependency trees           |
+| Admin writes require the launch credential; remote mode requires it on every `/api/v1` request behind a deny-by-default Cloudflare Access policy | ADR 0011/README admin | Unauthenticated write access to product data |
 
 ---
 
