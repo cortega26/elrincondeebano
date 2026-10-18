@@ -15,6 +15,9 @@ import { sonarRules, unusedVarsRules } from '../../config/eslint-base.mjs';
 // Plan 209: the `files:` globs below are mirrored by the lint-staged admin
 // entry in root package.json, and the `lint` script here MUST stay identical
 // to the CI one-liner (admin.yml) — it is its local form.
+// Plan 227: the globs also cover the workspace-root configs (playwright.*,
+// vite.config, vitest.config, eslint.config.mjs) so `eslint .` lints the
+// whole workspace, not just src/scripts/test.
 export default [
   {
     ignores: [
@@ -30,9 +33,11 @@ export default [
   {
     files: [
       // Workspace-relative (npm run lint inside admin/content-manager/).
+      '*.{js,mjs,ts,mts}',
       'src/**/*.{js,mjs,ts,mts,tsx}',
       'scripts/**/*.{js,mjs,ts,mts}',
       // Repo-root-relative aliases (lint-staged and root CWDs).
+      'admin/content-manager/*.{js,mjs,ts,mts}',
       'admin/content-manager/src/**/*.{js,mjs,ts,mts,tsx}',
       'admin/content-manager/scripts/**/*.{js,mjs,ts,mts}',
     ],
