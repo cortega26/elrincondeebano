@@ -10,7 +10,7 @@ Reference document for automated agents, CI tools, and new contributors. Maps ev
 | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | ------------------------------ |
 | `data/`                             | Source of truth for product catalog (`product_data.json`) and category tree (`categories.json`, `category_registry.json`). **Read-only input to build** (ADR-0005).   | Admin tools / `npm run categories:sync` | Preflight pipeline, tests      |
 | `assets/images/`                    | Source images: `originals/` (uploaded once), `web/` (generated variants), `og/` (Open Graph images). **Read-only input to Astro build**.                              | Image pipeline (`npm run images:*`)     | Preflight, Astro build         |
-| `assets/css/`                       | Legacy stylesheet used by dev-server preview.                                                                                                                         | Manual edits                            | dev-server.mjs                 |
+| `assets/css/`                       | Legacy stylesheet; read only by the critical-CSS guardrail (`tools/guardrails/critical-css.mjs`). Candidate for removal under plan 239 (dead-surface cleanup).        | Manual edits                            | `guardrails/critical-css.mjs`  |
 | `assets/fonts/`                     | Web fonts fetched by `npm run fonts`.                                                                                                                                 | `tools/fetch-fonts.mjs`                 | Astro build                    |
 | `astro-poc/`                        | **Production Astro storefront** — the canonical runtime (ADR-0003). Contains `src/`, `public/`, `scripts/`, and its own `package.json`.                               | Storefront dev                          | CI/CD (static.yml)             |
 | `astro-poc/dist/`                   | Compiled static site. Git-ignored. Deployed to GitHub Pages.                                                                                                          | `npm run build`                         | GitHub Pages (static.yml)      |
@@ -41,7 +41,7 @@ config/                    ─┘         │  inputs into astro-poc/
                                astro-poc/src/
                                astro-poc/public/
                                       │
-                               astro-poc/  (npm --prefix astro-poc run build)
+                               astro-poc/  (npm -w astro-poc run build)
                                       │
                                       ▼
                                astro-poc/dist/     ← deployed to GitHub Pages
@@ -108,6 +108,8 @@ live in `test/storefront-*.spec.js`.
 | `dependency-review.yml`                | PR                                        | Supply chain review                                                                                     |
 | `product-data-guard.yml`               | changes in `data/product_data.json`       | Product data contract validation                                                                        |
 | `rollback.yml`                         | manual                                    | Orchestrated rollback                                                                                   |
+| `changesets.yml`                       | push `main`                               | Release PR automation via `changesets/action` (wired; adoption pending, wave-3 RFC)                     |
+| `dependabot-auto-merge.yml`            | PR `main` (Dependabot)                    | Auto-merge patch-only dependency PRs                                                                    |
 | `cloudflare-edge-security-headers.yml` | manual                                    | Deploy Cloudflare Workers security headers                                                              |
 
 **Note:** Live probes use **GitHub-hosted `ubuntu-24.04`** runners. Cloudflare challenge behaviour was resolved by the 2026-07 migration away from self-hosted runners (ADR-0004 superseding note).
