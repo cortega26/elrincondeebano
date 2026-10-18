@@ -41,6 +41,7 @@ import {
   normalizeId,
   parseNumber,
   sanitizeCart,
+  sameCartProduct,
   toSharedCartPayload,
 } from './storefront/storefront-state.js';
 
@@ -1249,10 +1250,13 @@ function initStorefront() {
     window.addEventListener('storage', handleCrossTabCart);
   }
 
-  const getQty = (id) => {
-    // A different tab (or the order-sent controller) may have committed a
-    // deletion before this tab receives its storage event.
-    const item = loadCart().find((entry) => entry.id === id);
+  const getQty = (id, product = null) => {
+    // Resolve old and current SKU identifiers for the same physical item.
+    // A different tab may also have committed a deletion before this event.
+    const candidate = product ? createCartItemFromProduct(product, 1) : null;
+    const item = loadCart().find(
+      (entry) => entry.id === id || (candidate && sameCartProduct(entry, candidate))
+    );
     return item ? item.quantity : 0;
   };
 
@@ -1263,7 +1267,10 @@ function initStorefront() {
     const wasStale = JSON.stringify(cart) !== JSON.stringify(persistedCart);
     const nextCart = persistedCart.map((item) => ({ ...item }));
     const quantity = clampQty(nextQty);
-    const index = nextCart.findIndex((entry) => entry.id === id);
+    const candidate = fallbackProduct ? createCartItemFromProduct(fallbackProduct, 1) : null;
+    const index = nextCart.findIndex(
+      (entry) => entry.id === id || (candidate && sameCartProduct(entry, candidate))
+    );
     const previousState = getCartState(persistedCart);
     const previousQuantity = index >= 0 ? nextCart[index].quantity : 0;
 
@@ -1279,7 +1286,12 @@ function initStorefront() {
       if (quantity > previousQuantity && fallbackProduct?.stock === false) {
         return;
       }
-      nextCart[index].quantity = quantity;
+      // Refresh legacy ID and display fields from the currently selected
+      // catalog item when both IDs represent the same physical product.
+      const refreshed = fallbackProduct
+        ? createCartItemFromProduct(fallbackProduct, quantity)
+        : null;
+      nextCart[index] = refreshed || { ...nextCart[index], quantity };
     } else if (fallbackProduct) {
       const nextItem = createCartItemFromProduct(fallbackProduct, quantity);
       if (nextItem) {
@@ -1287,17 +1299,20 @@ function initStorefront() {
       }
     }
 
-    const changed = JSON.stringify(nextCart) !== JSON.stringify(persistedCart);
+    // Render exactly what was persisted; never render an unnormalized cart
+    // whose duplicates were removed only inside saveCart().
+    const canonicalNextCart = sanitizeCart(nextCart);
+    const changed = JSON.stringify(canonicalNextCart) !== JSON.stringify(persistedCart);
     if (!changed && !wasStale) {
       return;
     }
-    if (changed && !saveCart(nextCart)) {
+    if (changed && !saveCart(canonicalNextCart)) {
       log('warn', 'cart_save_failed', { reason: 'localStorage_quota' });
       showCartSaveError();
       return;
     }
     // Persist-first: no rollback of a mutated shared array is necessary.
-    cart = nextCart;
+    cart = canonicalNextCart;
     const nextState = getCartState(cart);
     updateBadge(cart, {
       animate: previousState.totalItems !== nextState.totalItems,
@@ -1344,7 +1359,7 @@ function initStorefront() {
         getProductByIdFromSource(id) ||
         getProductFromCard(getProductCardById(id)) ||
         fallbackProduct;
-      setQty(id, Math.max(getQty(id), 0) + 1, product);
+      setQty(id, Math.max(getQty(id, product), 0) + 1, product);
       added = true;
     });
 
@@ -1352,10 +1367,10 @@ function initStorefront() {
   };
 
   const updateQtyByDelta = (id, delta) => {
-    const current = getQty(id);
-    const next = current + delta;
     const card = getProductCardById(id);
     const fallbackProduct = getProductFromCard(card);
+    const current = getQty(id, fallbackProduct);
+    const next = current + delta;
     setQty(id, next, fallbackProduct);
   };
 
@@ -1471,7 +1486,7 @@ function initStorefront() {
         globalThis.setTimeout(() => {
           addBtn.classList.remove('is-added');
         }, 280);
-        setQty(id, Math.max(getQty(id), 0) + 1, product);
+        setQty(id, Math.max(getQty(id, product), 0) + 1, product);
         if (isMobileViewport()) {
           trackAnalyticsEvent('mobile_add_to_cart', {
             id,
@@ -1489,7 +1504,7 @@ function initStorefront() {
       const id = normalizeId(companionAddBtn.getAttribute('data-id'));
       const product = getProductByIdFromSource(id) || getProductFromCard(getProductCardById(id));
       if (id && product && product.stock !== false) {
-        setQty(id, Math.max(getQty(id), 0) + 1, product);
+        setQty(id, Math.max(getQty(id, product), 0) + 1, product);
       }
       return;
     }
