@@ -7,7 +7,7 @@
 > in `plans/README.md` — unless a reviewer dispatched you and told you they
 > maintain the index.
 >
-> **Drift check (run first)**: `git diff --stat 97b21096..HEAD -- admin/content-manager/package.json admin/content-manager/eslint.config.mjs .github/workflows/admin.yml tsconfig.json admin/content-manager/tsconfig.test.json admin/content-manager/tsconfig.server.json .vscode/launch.json .vscode/settings.json`
+> **Drift check (run first)**: `git diff --stat 97b21096..HEAD -- admin/content-manager/package.json admin/content-manager/eslint.config.mjs .github/workflows/admin.yml tsconfig.json admin/content-manager/tsconfig.test.json admin/content-manager/tsconfig.server.json`
 > If any in-scope file changed since this plan was written, compare the
 > "Current state" excerpts against the live code before proceeding; on a
 > mismatch, treat it as a STOP condition.
@@ -20,6 +20,13 @@
 - **Depends on**: none (runs before the rest of the admin batch)
 - **Category**: dx
 - **Planned at**: commit `97b21096`, 2026-10-18
+- **Reviewer amendment (2026-10-18, round 1)**: Step 1 measured **116** tsc
+  errors (115× TS6059 — `rootDir: "src"` inherited by `tsconfig.test.json`
+  which includes `test/**`; 1× TS2883 in `test/web/harness.tsx:13`).
+  Authorized: fix both (precedent: `tsconfig.server.json` already overrides
+  `rootDir: null`) and proceed. **Step 5 withdrawn**: `.vscode/` is
+  gitignored (`.gitignore:22`, untracked since `b1eaf0a0`) — unreachable
+  from a branch; local cleanup is the owner's call.
 
 ## Why this matters
 
@@ -88,7 +95,7 @@
 - `tsconfig.json` (root)
 - `admin/content-manager/tsconfig.test.json` (wire or adjust)
 - `admin/content-manager/tsconfig.server.json` (delete if orphan)
-- `.vscode/launch.json`, `.vscode/settings.json`
+- (Step 5 withdrawn — `.vscode/` is untracked, see the amendment above)
 
 **Out of scope**:
 
@@ -116,9 +123,13 @@ Run `npx eslint . --config eslint.config.mjs` (cwd admin) and
 `npx tsc -p tsconfig.test.json --noEmit` (cwd admin) on the unmodified
 checkout. Record the error counts.
 
-- If `tsc -p tsconfig.test.json` reports more than ~30 errors, STOP and
-  report the count + first 10 (wiring it may be a project of its own; the
-  owner decides).
+- Measured at round 1: **116 errors** (115× TS6059 + 1× TS2883) — the
+  reviewer authorized fixing them: override `rootDir` in
+  `tsconfig.test.json` (set `"rootDir": null`, same as
+  `tsconfig.server.json` already does) so the 115 TS6059 disappear, and
+  give `test/web/harness.tsx`'s `mockApi` (line ~13) an explicit type so
+  TS2883 resolves. If either fix balloons beyond a few lines, STOP and
+  report with the new counts.
 - ESLint findings: expect a handful; fix them in the config files (e.g.
   `vite-env.d.ts` reference) or in the files themselves when mechanical.
 
@@ -170,16 +181,12 @@ surface (no tooling reads it — `typecheck` does not use it; verify with
 
 **Verify**: no `cypress` string remains: `grep -rn "cypress" tsconfig.json` → nothing.
 
-### Step 5: Purge the Python editor leftovers
+### Step 5 (withdrawn by reviewer): Python editor leftovers
 
-- `.vscode/launch.json`: delete both `debugpy` configurations (the whole
-  `configurations` array can be emptied or removed — keep valid JSON).
-- `.vscode/settings.json`: remove `python.analysis.*`, `python.*`,
-  `python-envs.*` and the three `terminal.integrated.env.*` PYTHONPATH
-  blocks; keep `amazonQ.telemetry`, `cSpell.words`, `markdown.validate.enabled`.
-
-**Verify**: `grep -n "python\|PYTHONPATH" .vscode/*.json` → no matches;
-`node -e "JSON.parse(require('fs').readFileSync('.vscode/settings.json')); JSON.parse(require('fs').readFileSync('.vscode/launch.json')); console.log('json ok')"` → json ok.
+`.vscode/launch.json` and `.vscode/settings.json` are **not tracked by git**
+(`.gitignore:22`; untracked since `b1eaf0a0`) and are absent from fresh
+worktrees. This step cannot land via a branch: **skip it entirely**. Local
+cleanup of the operator's machine copy is optional and out of scope.
 
 ### Step 6: Full gates
 
@@ -199,7 +206,6 @@ Machine-checkable. ALL must hold:
 - [ ] `npx eslint . --config eslint.config.mjs` (cwd `admin/content-manager`) exits 0
 - [ ] `npm run admin:typecheck` exits 0 and runs both tsconfigs (grep the script)
 - [ ] `grep -rn "cypress" tsconfig.json` returns nothing
-- [ ] `grep -n "python" .vscode/launch.json .vscode/settings.json` returns nothing
 - [ ] `grep -n "eslint . --config eslint.config.mjs" .github/workflows/admin.yml admin/content-manager/package.json` shows both
 - [ ] `npm run admin:test` exits 0; `npm run lint` exits 0
 - [ ] `plans/README.md` status row updated
