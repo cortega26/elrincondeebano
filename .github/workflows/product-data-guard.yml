@@ -96,7 +96,9 @@ jobs:
   auto-commit-synced-files-for-dependabot:
     name: Auto-commit synced files for Dependabot
     needs: ensure-build-in-sync
-    if: ${{ always() && needs.ensure-build-in-sync.outputs.dirty_tree == 'true' && github.actor == 'dependabot[bot]' }}
+    # Gate on the provenance of the diff (a Dependabot-authored PR head branch),
+    # not on the trigger actor: github.actor only reports who started this run.
+    if: ${{ always() && needs.ensure-build-in-sync.outputs.dirty_tree == 'true' && (github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]' && startsWith(github.head_ref, 'dependabot/')) }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:

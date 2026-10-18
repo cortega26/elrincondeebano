@@ -83,12 +83,15 @@ jobs:
       - name: Resolve canary metadata
         id: meta
         shell: bash
+        env:
+          BASE_URL: ${{ inputs.base_url }}
+          CATEGORY_PATH: ${{ inputs.category_path }}
+          TIMEOUT_MS: ${{ inputs.timeout_ms }}
+          DEPLOY_SHA: ${{ inputs.deploy_sha }}
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            BASE_URL="${{ inputs.base_url }}"
-            CATEGORY_PATH="${{ inputs.category_path }}"
-            TIMEOUT_MS="${{ inputs.timeout_ms }}"
-            DEPLOY_SHA="${{ inputs.deploy_sha }}"
+            # Manual dispatch values arrive through the step env block (no inline interpolation).
+            :
           elif [ "${{ github.event_name }}" = "workflow_run" ]; then
             BASE_URL="https://www.elrincondeebano.com"
             CATEGORY_PATH=""
@@ -103,6 +106,10 @@ jobs:
 
           if [ -z "$DEPLOY_SHA" ]; then
             DEPLOY_SHA="${{ github.sha }}"
+          fi
+
+          if ! [[ "$DEPLOY_SHA" =~ ^[A-Za-z0-9._/-]{1,128}$ ]]; then
+            echo "::error::deploy_sha has an unexpected format"; exit 1
           fi
 
           echo "base_url=$BASE_URL" >> "$GITHUB_OUTPUT"
@@ -284,11 +291,13 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    env:
+      ROLLBACK_REF: ${{ inputs.rollback_ref }}
     steps:
       - name: Checkout rollback ref
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ inputs.rollback_ref }}
+          ref: ${{ env.ROLLBACK_REF }}
           persist-credentials: false
 
       - uses: ./.github/actions/setup-node-and-deps
