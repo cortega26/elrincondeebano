@@ -1,7 +1,7 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-18T01:12:38.379Z",
-  "rev": 36,
+  "last_updated": "2026-10-18T14:43:33.929Z",
+  "rev": 37,
   "schema_version": 1,
   "products": [
     {
@@ -5424,6 +5424,21 @@
       "rev": 0,
       "field_last_modified": {},
       "id": "p-00780295500779"
+    },
+    {
+      "name": "Van Camp's • Atún Lomitos en Agua",
+      "description": "Atún lomitos en agua. Lata de 142 g de contenido neto y 92 g de peso drenado.",
+      "price": 2500,
+      "discount": 0,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/van-camps-atun-lomitos-agua-142g.webp",
+      "image_avif_path": "assets/images/despensa/van-camps-atun-lomitos-agua-142g.avif",
+      "order": 194,
+      "is_archived": false,
+      "rev": 0,
+      "field_last_modified": {},
+      "id": "p-00770236729335"
     }
   ]
 }

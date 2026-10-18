@@ -1,6 +1,6 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-18T01:12:38.379Z",
+  "last_updated": "2026-10-18T14:43:33.929Z",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -2328,6 +2328,18 @@
       "image_path": "assets/images/lacteos/oikos-yoghurt-griego-natural-sin-azucar-150g.jpg",
       "image_avif_path": "assets/images/lacteos/oikos-yoghurt-griego-natural-sin-azucar-150g.avif",
       "order": 193,
+      "is_archived": false
+    },
+    {
+      "name": "Van Camp's • Atún Lomitos en Agua",
+      "description": "Atún lomitos en agua. Lata de 142 g de contenido neto y 92 g de peso drenado.",
+      "price": 2500,
+      "discount": 0,
+      "stock": true,
+      "category": "Despensa",
+      "image_path": "assets/images/despensa/van-camps-atun-lomitos-agua-142g.webp",
+      "image_avif_path": "assets/images/despensa/van-camps-atun-lomitos-agua-142g.avif",
+      "order": 194,
       "is_archived": false
     }
   ]
