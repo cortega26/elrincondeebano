@@ -46,26 +46,76 @@ export function normalizeCartItem(item: unknown): CartItem | null {
   };
 }
 
+// Product IDs have changed during catalog migrations. Two historical IDs may
+// represent one physical item. A conservative fingerprint is used ONLY when
+// both lines have the same name, category, commercial fields and image name.
+// Different pack sizes/images must remain separate, even when names match.
+function visualCartIdentity(item: CartItem): string | null {
+  const name = item.name.trim().normalize('NFKC').toLowerCase();
+  const category = item.category.trim().normalize('NFKC').toLowerCase();
+  if (!name || name === item.id.toLowerCase() || !item.image) {
+    return null;
+  }
+
+  const path = item.image.split(/[?#]/, 1)[0];
+  let decoded = path;
+  try {
+    decoded = decodeURIComponent(path);
+  } catch {
+    // Bad legacy image encoding must not break cart access.
+  }
+  const imageFile = decoded
+    .split('/')
+    .pop()
+    ?.trim()
+    .toLowerCase()
+    .replace(/\\.(?:avif|webp|png|jpe?g)$/i, '');
+  if (!imageFile) {
+    return null;
+  }
+  return JSON.stringify([name, category, item.price, item.discount, imageFile]);
+}
+
+export function sameCartProduct(first: CartItem, second: CartItem): boolean {
+  if (first.id === second.id) {
+    return true;
+  }
+  const identity = visualCartIdentity(first);
+  return identity !== null && identity === visualCartIdentity(second);
+}
+
 export function sanitizeCart(cart: unknown): CartItem[] {
   if (!Array.isArray(cart)) {
     return [];
   }
 
-  // Old browser sessions can leave more than one line for the same SKU.
-  // Keep a single line (highest quantity) instead of counting or re-adding
-  // stale copies. Summing duplicates would inflate the customer's order.
-  const byId = new Map<string, CartItem>();
+  const normalized: CartItem[] = [];
+  const seenIds = new Map<string, number>();
+  const seenVisual = new Map<string, number>();
+
   for (const raw of cart) {
     const item = normalizeCartItem(raw);
     if (!item) {
       continue;
     }
-    const existing = byId.get(item.id);
-    if (!existing || item.quantity > existing.quantity) {
-      byId.set(item.id, item);
+
+    const identity = visualCartIdentity(item);
+    const index = seenIds.get(item.id) ?? (identity ? seenVisual.get(identity) : undefined);
+    if (index === undefined) {
+      const nextIndex = normalized.push(item) - 1;
+      seenIds.set(item.id, nextIndex);
+      if (identity) seenVisual.set(identity, nextIndex);
+      continue;
     }
+
+    // Max, not sum: a stale historical row must never inflate an order.
+    if (item.quantity > normalized[index].quantity) {
+      normalized[index] = item;
+    }
+    seenIds.set(item.id, index);
+    if (identity) seenVisual.set(identity, index);
   }
-  return [...byId.values()];
+  return normalized;
 }
 
 export interface CartState {
