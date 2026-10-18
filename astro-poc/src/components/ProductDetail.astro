@@ -87,9 +87,12 @@ const inStock = product.stock !== false;
 
     <div class="col-12 col-md-7">
       <div class="card-body product-detail__body">
+        <p class="product-detail__eyebrow"><span class="product-detail__eyebrow-mark" aria-hidden="true"></span>{categoryLabel}</p>
         <h1 class="card-title product-detail__title">{product.name}</h1>
-        {product.description ? <p class="card-text mb-3">{product.description}</p> : null}
+        {product.description ? <p class="card-text product-detail__summary">{product.description}</p> : null}
 
+        <section class="product-detail__buy-panel" aria-label="Comprar este producto">
+          <p class="product-detail__price-label">Precio por unidad</p>
         <div class="precio-container product-detail__pricing">
           {
             hasDiscount ? (
@@ -129,6 +132,15 @@ const inStock = product.stock !== false;
           </p>
         )}
 
+          {inStock ? (
+            <p class="product-detail__checkout-note">
+              Agrégalo a tu pedido. Al finalizar, coordina la entrega dentro de Ébano por WhatsApp.
+            </p>
+          ) : null}
+        </section>
+
+        <div class="product-detail__information">
+          <h2 class="product-detail__information-title">Información del producto</h2>
         <dl class="product-meta product-detail__meta">
           <div>
             <dt>SKU</dt>
@@ -139,10 +151,11 @@ const inStock = product.stock !== false;
             <dd><a href={categoryPath}>{categoryLabel}</a></dd>
           </div>
         </dl>
+        </div>
 
-        <div class="d-flex gap-2 flex-wrap">
-          <a class="btn btn-outline-primary" href={categoryPath}>Volver a categoría</a>
-          <a class="btn btn-primary" href="/">Ir al inicio</a>
+        <div class="product-detail__links">
+          <a class="btn btn-outline-primary" href={categoryPath}>Seguir en {categoryLabel}</a>
+          <a class="product-detail__browse" href="/">Explorar todo el catálogo →</a>
         </div>
       </div>
     </div>
@@ -177,6 +190,10 @@ const inStock = product.stock !== false;
   .producto.product-detail {
     display: block;
     height: auto;
+    overflow: hidden;
+    border: 1px solid var(--line-soft);
+    border-radius: 20px;
+    box-shadow: 0 18px 40px rgba(31, 53, 38, 0.08);
   }
 
   .producto .product-detail-image {
@@ -251,8 +268,106 @@ const inStock = product.stock !== false;
     position: relative;
     display: grid;
     place-items: center;
+    min-height: 340px;
     height: 100%;
-    background: #fff;
+    padding: clamp(1rem, 3vw, 2.5rem);
+    background: linear-gradient(145deg, #f1f5ef 0%, #fbfcf9 65%, #fff 100%);
+  }
+
+  .product-detail__media picture {
+    display: grid;
+    place-items: center;
+    width: 100%;
+  }
+
+  .producto .product-detail-image {
+    display: block;
+    width: 100%;
+    max-width: 520px;
+    max-height: 520px;
+    object-fit: contain;
+    border-radius: 14px;
+  }
+
+  .product-detail__body {
+    padding: clamp(1.25rem, 3vw, 2.75rem);
+  }
+
+  .product-detail__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.65rem;
+    color: var(--primary-color);
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.075em;
+    text-transform: uppercase;
+  }
+
+  .product-detail__eyebrow-mark {
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .producto .product-detail__summary {
+    margin: 0.8rem 0 1.5rem;
+    color: var(--text-muted);
+    font-size: 1rem;
+    line-height: 1.65;
+    white-space: normal;
+  }
+
+  .product-detail__buy-panel {
+    margin-bottom: 1.4rem;
+    padding: clamp(1rem, 2vw, 1.4rem);
+    border: 1px solid #dce8d9;
+    border-radius: 16px;
+    background: #f7faf5;
+  }
+
+  .product-detail__price-label {
+    margin-bottom: 0.3rem;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+
+  .product-detail__checkout-note {
+    margin: 0.25rem 0 0;
+    color: var(--text-muted);
+    font-size: 0.86rem;
+    line-height: 1.5;
+  }
+
+  .product-detail__information-title {
+    margin: 0 0 0.65rem;
+    color: var(--text-color, #26352a);
+    font-size: 0.94rem;
+    font-weight: 800;
+  }
+
+  .product-detail__information {
+    margin-bottom: 1.1rem;
+  }
+
+  .product-detail__links {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+  }
+
+  .product-detail__browse {
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
   }
 
   .product-detail__media .discount-badge {
@@ -293,8 +408,8 @@ const inStock = product.stock !== false;
   .product-detail__actions {
     display: grid;
     gap: 0.5rem;
-    max-width: 22rem;
-    margin-bottom: 1.25rem;
+    width: 100%;
+    margin-bottom: 0.8rem;
   }
 
   .product-detail__add {
@@ -372,8 +487,21 @@ const inStock = product.stock !== false;
   }
 
   @media (max-width: 767px) {
-    .product-detail-image {
-      max-height: 300px;
+    .product-detail__media {
+      min-height: 0;
+      padding: 1rem;
+    }
+
+    .producto .product-detail-image {
+      max-height: 330px;
+    }
+
+    .product-detail__body {
+      padding: 1.25rem;
+    }
+
+    .product-detail__links > .btn {
+      width: 100%;
     }
   }
 </style>

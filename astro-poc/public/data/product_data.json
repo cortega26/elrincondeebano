@@ -1,10 +1,10 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-18T14:43:33.929Z",
+  "last_updated": "2026-10-18T15:00:00.000Z",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
-      "description": "Dos Rollos de 14m c/u",
+      "description": "Dos Rollos de 14m c/u. Papel absorbente para tareas cotidianas de cocina y limpieza.",
       "price": 2000,
       "discount": 0,
       "stock": false,
@@ -16,7 +16,7 @@
     },
     {
       "name": "Mont Blanc • Harina sin polvos",
-      "description": "Empaque de 1Kg",
+      "description": "Empaque de 1Kg. Para preparar masas, panes y recetas de cocina o repostería.",
       "price": 1800,
       "discount": 0,
       "stock": true,
@@ -28,7 +28,7 @@
     },
     {
       "name": "Coca-Cola 3L",
-      "description": "Envase retornable",
+      "description": "Envase retornable. Bebida gaseosa para acompañar comidas o compartir.",
       "price": 3800,
       "discount": 0,
       "stock": true,
@@ -52,7 +52,7 @@
     },
     {
       "name": "Benedictino • Agua gasificada 2L",
-      "description": "Envase desechable",
+      "description": "Envase desechable. Agua para tener a mano en casa y acompañar las comidas.",
       "price": 2000,
       "discount": 0,
       "stock": false,
@@ -76,7 +76,7 @@
     },
     {
       "name": "Líder • Tortilla Grande Mexicana",
-      "description": "Empaque de 350g",
+      "description": "Empaque de 350g. Para tacos, wraps y otras preparaciones.",
       "price": 2400,
       "discount": 500,
       "stock": false,
@@ -88,7 +88,7 @@
     },
     {
       "name": "Great Value • Mostaza Clásica",
-      "description": "Botella de 397g",
+      "description": "Botella de 397g. Para sándwiches, hamburguesas y aderezos.",
       "price": 3500,
       "discount": 0,
       "stock": false,
@@ -100,7 +100,7 @@
     },
     {
       "name": "Sprite 3L",
-      "description": "Envase desechable",
+      "description": "Envase desechable. Bebida gaseosa para acompañar comidas o compartir.",
       "price": 3800,
       "discount": 0,
       "stock": true,
@@ -112,7 +112,7 @@
     },
     {
       "name": "Líder • Salame Italiano",
-      "description": "Empaque de 100g",
+      "description": "Empaque de 100g. Para sándwiches, tablas y picoteos.",
       "price": 1900,
       "discount": 0,
       "stock": false,
@@ -124,7 +124,7 @@
     },
     {
       "name": "Queso Llanero 1Kg",
-      "description": "A granel, trozo",
+      "description": "A granel, trozo. Para sándwiches, desayunos y preparaciones de cocina.",
       "price": 10000,
       "discount": 0,
       "stock": true,
@@ -136,7 +136,7 @@
     },
     {
       "name": "Iansa • Azúcar Blanca",
-      "description": "Empaque de 900g",
+      "description": "Empaque de 900g. Para endulzar bebidas y preparar recetas dulces.",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -148,7 +148,7 @@
     },
     {
       "name": "Coca-Cola Zero 3L",
-      "description": "Envase retornable",
+      "description": "Envase retornable. Bebida gaseosa para acompañar comidas o compartir.",
       "price": 3800,
       "discount": 0,
       "stock": false,
@@ -172,7 +172,7 @@
     },
     {
       "name": "Kross • Cerveza Golden Pale Ale",
-      "description": "Lata de 470cc x 6 unidades",
+      "description": "Lata de 470cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
       "price": 13000,
       "discount": 0,
       "stock": true,
@@ -184,7 +184,7 @@
     },
     {
       "name": "Crunchis Queso Marco Polo 160g",
-      "description": "Bolsa de plástico",
+      "description": "Bolsa de plástico. Papas para picotear entre comidas o compartir.",
       "price": 2000,
       "discount": 0,
       "stock": false,
@@ -196,7 +196,7 @@
     },
     {
       "name": "McKay • Galletas de Coco",
-      "description": "Empaque de 120g",
+      "description": "Empaque de 120g. Galletas para acompañar café, té o una colación.",
       "price": 1300,
       "discount": 0,
       "stock": false,
@@ -208,7 +208,7 @@
     },
     {
       "name": "Líder • Salsa de tomate",
-      "description": "Botella de 680g",
+      "description": "Botella de 680g. Para pastas y otras preparaciones con salsa.",
       "price": 3500,
       "discount": 0,
       "stock": false,
@@ -220,7 +220,7 @@
     },
     {
       "name": "McKay • Galletas Niza",
-      "description": "Empaque de 150g",
+      "description": "Empaque de 150g. Galletas para acompañar café, té o una colación.",
       "price": 1300,
       "discount": 0,
       "stock": false,
@@ -232,7 +232,7 @@
     },
     {
       "name": "McKay • Galletas de Mantequilla",
-      "description": "Empaque de 140g",
+      "description": "Empaque de 140g. Galletas para acompañar café, té o una colación.",
       "price": 1300,
       "discount": 0,
       "stock": false,
@@ -244,7 +244,7 @@
     },
     {
       "name": "Mantequilla Kumey 250g",
-      "description": "Artesanal",
+      "description": "Artesanal. Para untar, cocinar y preparar recetas.",
       "price": 3500,
       "discount": 0,
       "stock": true,
@@ -256,7 +256,7 @@
     },
     {
       "name": "Easy Clean Lavanda L",
-      "description": "Arena Sanitaria - Bolsa de 8Kg/10L",
+      "description": "Arena Sanitaria - Bolsa de 8Kg/10L. Para preparar el espacio sanitario de tu mascota.",
       "price": 9500,
       "discount": 0,
       "stock": true,
@@ -280,7 +280,7 @@
     },
     {
       "name": "Espumante Rosé • Misiones de Rengo",
-      "description": "Botella de 750mL",
+      "description": "Botella de 750mL. Espumante para servir en celebraciones o encuentros.",
       "price": 6900,
       "discount": 0,
       "stock": false,
@@ -292,7 +292,7 @@
     },
     {
       "name": "Espumante Demisec • Misiones de Rengo",
-      "description": "Botella de 750mL",
+      "description": "Botella de 750mL. Espumante para servir en celebraciones o encuentros.",
       "price": 6900,
       "discount": 0,
       "stock": false,
@@ -304,7 +304,7 @@
     },
     {
       "name": "Espumante Brut • Misiones de Rengo",
-      "description": "Botella de 750mL",
+      "description": "Botella de 750mL. Espumante para servir en celebraciones o encuentros.",
       "price": 6900,
       "discount": 0,
       "stock": false,
@@ -316,7 +316,7 @@
     },
     {
       "name": "Espumante Brut • Undurraga",
-      "description": "Botella de 750mL",
+      "description": "Botella de 750mL. Espumante para servir en celebraciones o encuentros.",
       "price": 6900,
       "discount": 0,
       "stock": true,
@@ -328,7 +328,7 @@
     },
     {
       "name": "Pisco Especial 35° • Alto del Carmen",
-      "description": "Botella de 750 mL",
+      "description": "Botella de 750 mL. Para preparar cócteles o servir según preferencia.",
       "price": 8000,
       "discount": 1100,
       "stock": true,
@@ -340,7 +340,7 @@
     },
     {
       "name": "Pisco Especial 35° g • Alto del Carmen",
-      "description": "Botella de 1L",
+      "description": "Botella de 1L. Para preparar cócteles o servir según preferencia.",
       "price": 9900,
       "discount": 0,
       "stock": true,
@@ -352,7 +352,7 @@
     },
     {
       "name": "Corona • Cerveza Lager",
-      "description": "Lata de 473cc x 6 unidades",
+      "description": "Lata de 473cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
       "price": 6900,
       "discount": 0,
       "stock": false,
@@ -364,7 +364,7 @@
     },
     {
       "name": "Tocino Ahumado La Preferida",
-      "description": "Empaque de 500g",
+      "description": "Empaque de 500g. Para desayunos, sándwiches y preparaciones de cocina.",
       "price": 7500,
       "discount": 0,
       "stock": false,
@@ -376,7 +376,7 @@
     },
     {
       "name": "Leche Semidescremada Deslactosada",
-      "description": "Envase Tetrabrik de 1L",
+      "description": "Envase Tetrabrik de 1L. Para salsas, postres y recetas que requieren crema.",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -388,7 +388,7 @@
     },
     {
       "name": "Pepita de Oro • Aceite de Oliva Extra Virgen",
-      "description": "Botella de 1L",
+      "description": "Botella de 1L. Para aliños, ensaladas y preparaciones de cocina.",
       "price": 12900,
       "discount": 1000,
       "stock": false,
@@ -400,7 +400,7 @@
     },
     {
       "name": "El Peñón • Café Gourmet",
-      "description": "Empaque de 500g",
+      "description": "Empaque de 500g. Para preparar café en casa o en la oficina.",
       "price": 6900,
       "discount": 1000,
       "stock": false,
@@ -412,7 +412,7 @@
     },
     {
       "name": "Becker • Cerveza Lager",
-      "description": "Lata de 354cc x 6 unidades",
+      "description": "Lata de 354cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
       "price": 3500,
       "discount": 0,
       "stock": false,
@@ -424,7 +424,7 @@
     },
     {
       "name": "Coors • Cerveza Lager",
-      "description": "Botella de 355cc x 6 unidades",
+      "description": "Botella de 355cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
       "price": 7900,
       "discount": 0,
       "stock": true,
@@ -436,7 +436,7 @@
     },
     {
       "name": "Coors • Cerveza Lager",
-      "description": "Lata de 350cc x 6 unidades",
+      "description": "Lata de 350cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
       "price": 6900,
       "discount": 0,
       "stock": false,
@@ -448,7 +448,7 @@
     },
     {
       "name": "Cristal • Cerveza Lager",
-      "description": "Lata de 350cc x 6 unidades",
+      "description": "Lata de 350cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
       "price": 4500,
       "discount": 0,
       "stock": false,
@@ -460,7 +460,7 @@
     },
     {
       "name": "Heineken • Cerveza Lager",
-      "description": "Lata de 350cc x 6 unidades",
+      "description": "Lata de 350cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
       "price": 6800,
       "discount": 0,
       "stock": true,
@@ -472,7 +472,7 @@
     },
     {
       "name": "Royal Guard • Cerveza Lager",
-      "description": "Lata de 350cc x 6 unidades",
+      "description": "Lata de 350cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
       "price": 5900,
       "discount": 0,
       "stock": true,
@@ -484,7 +484,7 @@
     },
     {
       "name": "Stella Artois • Cerveza Lager",
-      "description": "Lata de 354cc x 6 unidades",
+      "description": "Lata de 354cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
       "price": 5900,
       "discount": 0,
       "stock": true,
@@ -496,7 +496,7 @@
     },
     {
       "name": "Stones • Cerveza Lemon",
-      "description": "Lata de 350cc x 6 unidades",
+      "description": "Lata de 350cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
       "price": 6900,
       "discount": 0,
       "stock": true,
@@ -508,7 +508,7 @@
     },
     {
       "name": "Crema de Leche Surlat",
-      "description": "Presentación de 200mL",
+      "description": "Presentación de 200mL. Para salsas, postres y recetas que requieren crema.",
       "price": 1500,
       "discount": 0,
       "stock": false,
@@ -520,7 +520,7 @@
     },
     {
       "name": "PAN • Harina de Maiz",
-      "description": "Empaque de 1Kg",
+      "description": "Empaque de 1Kg. Para preparar masas, panes y recetas de cocina o repostería.",
       "price": 2500,
       "discount": 100,
       "stock": true,
@@ -532,7 +532,7 @@
     },
     {
       "name": "Nescafé • Café Fina Selección",
-      "description": "Frasco de 200g",
+      "description": "Frasco de 200g. Para preparar café en casa o en la oficina.",
       "price": 11900,
       "discount": 0,
       "stock": true,
@@ -544,7 +544,7 @@
     },
     {
       "name": "Queso Crema Rafulco",
-      "description": "Presentación de 190g",
+      "description": "Presentación de 190g. Para untar en panes, tostadas y preparar salsas.",
       "price": 1900,
       "discount": 0,
       "stock": false,
@@ -556,7 +556,7 @@
     },
     {
       "name": "Queso Gauda La Vaquita",
-      "description": "Laminado 400g",
+      "description": "Laminado 400g. Para sándwiches, desayunos y preparaciones de cocina.",
       "price": 4900,
       "discount": 0,
       "stock": false,
@@ -568,7 +568,7 @@
     },
     {
       "name": "Chuleta Ahumada con hueso x Kg",
-      "description": "Empaque congelado y al vacío (peso aprox. 600g)",
+      "description": "Empaque congelado y al vacío (peso aprox. 600g). Para preparar comidas caseras; conservar según las indicaciones del envase.",
       "price": 9900,
       "discount": 0,
       "stock": true,
@@ -580,7 +580,7 @@
     },
     {
       "name": "PF • Jamón de Pierna Acaramelado",
-      "description": "Empaque al vacío de 200g",
+      "description": "Empaque al vacío de 200g. Para sándwiches, tablas y picoteos.",
       "price": 2900,
       "discount": 0,
       "stock": true,
@@ -592,7 +592,7 @@
     },
     {
       "name": "Salame La Preferida",
-      "description": "Empaque al vacío de 500g",
+      "description": "Empaque al vacío de 500g. Para sándwiches, tablas y picoteos.",
       "price": 7500,
       "discount": 600,
       "stock": false,
@@ -604,7 +604,7 @@
     },
     {
       "name": "Sprite Zero 2L",
-      "description": "Envase retornable",
+      "description": "Envase retornable. Bebida gaseosa para acompañar comidas o compartir.",
       "price": 3000,
       "discount": 0,
       "stock": true,
@@ -616,7 +616,7 @@
     },
     {
       "name": "Fanta 3L",
-      "description": "Envase retornable",
+      "description": "Envase retornable. Bebida gaseosa para acompañar comidas o compartir.",
       "price": 3800,
       "discount": 0,
       "stock": true,
@@ -628,7 +628,7 @@
     },
     {
       "name": "Fanta Zero 2L",
-      "description": "Envase retornable",
+      "description": "Envase retornable. Bebida gaseosa para acompañar comidas o compartir.",
       "price": 3000,
       "discount": 0,
       "stock": true,
@@ -748,7 +748,7 @@
     },
     {
       "name": "Kunstmann • Cerveza Torobayo",
-      "description": "Lata de 470cc",
+      "description": "Lata de 470cc. Cerveza para servir fría o compartir en encuentros.",
       "price": 2200,
       "discount": 0,
       "stock": true,
@@ -760,7 +760,7 @@
     },
     {
       "name": "Budweiser • Cerveza Lager",
-      "description": "Lata de 354cc x 6 unidades",
+      "description": "Lata de 354cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
       "price": 5900,
       "discount": 0,
       "stock": true,
@@ -772,7 +772,7 @@
     },
     {
       "name": "Paños Wypall X50",
-      "description": "34cm x 28,8cm • 50 paños reusables",
+      "description": "34cm x 28,8cm • 50 paños reusables. Paños para tareas de limpieza y mantenimiento cotidiano.",
       "price": 3900,
       "discount": 400,
       "stock": true,
@@ -784,7 +784,7 @@
     },
     {
       "name": "Paños Wypall X75",
-      "description": "42,3cm x 27,6cm • 60 paños reusables",
+      "description": "42,3cm x 27,6cm • 60 paños reusables. Paños para tareas de limpieza y mantenimiento cotidiano.",
       "price": 8500,
       "discount": 0,
       "stock": true,
@@ -796,7 +796,7 @@
     },
     {
       "name": "Pisco Reservado 40° • Alto del Carmen",
-      "description": "Botella de 750mL",
+      "description": "Botella de 750mL. Para preparar cócteles o servir según preferencia.",
       "price": 10900,
       "discount": 1000,
       "stock": true,
@@ -808,7 +808,7 @@
     },
     {
       "name": "Pisco Envejecido Barricas de Selección 40° • Alto del Carmen",
-      "description": "Botella de 750mL",
+      "description": "Botella de 750mL. Para preparar cócteles o servir según preferencia.",
       "price": 9900,
       "discount": 1000,
       "stock": false,
@@ -820,7 +820,7 @@
     },
     {
       "name": "Pisco Especial 35° • Artesanos del Cochiguaz",
-      "description": "Botella de 750mL",
+      "description": "Botella de 750mL. Para preparar cócteles o servir según preferencia.",
       "price": 5500,
       "discount": 600,
       "stock": false,
@@ -868,7 +868,7 @@
     },
     {
       "name": "Pisco Reservado 40° • Malpaso",
-      "description": "Botella de 750mL • D.O. Valle del Limarí",
+      "description": "Botella de 750mL • D.O. Valle del Limarí. Para preparar cócteles o servir según preferencia.",
       "price": 10500,
       "discount": 0,
       "stock": false,
@@ -880,7 +880,7 @@
     },
     {
       "name": "Pisco Añejado en Roble 46° • Mistral",
-      "description": "Botella de 750mL",
+      "description": "Botella de 750mL. Para preparar cócteles o servir según preferencia.",
       "price": 11000,
       "discount": 0,
       "stock": false,
@@ -892,7 +892,7 @@
     },
     {
       "name": "Austral • Cerveza Calafate Ale",
-      "description": "Lata de 350cc x 6 unidades",
+      "description": "Lata de 350cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
       "price": 9000,
       "discount": 0,
       "stock": false,
@@ -904,7 +904,7 @@
     },
     {
       "name": "Miller • Cerveza Lager",
-      "description": "Lata de 355cc x 6 unidades",
+      "description": "Lata de 355cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
       "price": 9900,
       "discount": 0,
       "stock": true,
@@ -1000,7 +1000,7 @@
     },
     {
       "name": "Pisco Sour Limón Zero 14° • Secreto Peruano",
-      "description": "Pisco Sour • Botella de 700mL",
+      "description": "Pisco Sour • Botella de 700mL. Para preparar cócteles o servir según preferencia.",
       "price": 4500,
       "discount": 0,
       "stock": false,
@@ -1012,7 +1012,7 @@
     },
     {
       "name": "Soprole • Jugo de Naranja",
-      "description": "Envase de 1L • Sin azúcar añadida",
+      "description": "Envase de 1L • Sin azúcar añadida. Una bebida de fruta para desayunos, colaciones o acompañar comidas.",
       "price": 1700,
       "discount": 0,
       "stock": true,
@@ -1024,7 +1024,7 @@
     },
     {
       "name": "Soprole • Jugo de Durazno",
-      "description": "Envase de 1L • Sin azúcar añadida",
+      "description": "Envase de 1L • Sin azúcar añadida. Una bebida de fruta para desayunos, colaciones o acompañar comidas.",
       "price": 1700,
       "discount": 0,
       "stock": true,
@@ -1036,7 +1036,7 @@
     },
     {
       "name": "Our Finest • Chocolate amargo 90% cacao",
-      "description": "Barra de 100g",
+      "description": "Barra de 100g. Chocolate en barra para disfrutar por porciones o compartir.",
       "price": 3900,
       "discount": 0,
       "stock": true,
@@ -1048,7 +1048,7 @@
     },
     {
       "name": "Doritos • Tortillas Maíz Queso",
-      "description": "Bolsa de 140g",
+      "description": "Bolsa de 140g. Tortillas crujientes para picotear o acompañar salsas.",
       "price": 2000,
       "discount": 0,
       "stock": false,
@@ -1060,7 +1060,7 @@
     },
     {
       "name": "Papas Caseras Marco Polo 200g",
-      "description": "Bolsa de plástico",
+      "description": "Bolsa de plástico. Papas para picotear entre comidas o compartir.",
       "price": 2200,
       "discount": 0,
       "stock": false,
@@ -1072,7 +1072,7 @@
     },
     {
       "name": "Papas Rústicas Sal de Mar Marco Polo 150g",
-      "description": "Bolsa de plástico",
+      "description": "Bolsa de plástico. Papas para picotear entre comidas o compartir.",
       "price": 1900,
       "discount": 0,
       "stock": false,
@@ -1084,7 +1084,7 @@
     },
     {
       "name": "Pirulín grande",
-      "description": "Lata de 300g",
+      "description": "Lata de 300g. Dulce para disfrutar en una colación o compartir.",
       "price": 8600,
       "discount": 0,
       "stock": true,
@@ -1096,7 +1096,7 @@
     },
     {
       "name": "Nestlé • Súper 8, pack de 4 unidades",
-      "description": "Barras de 29g c/u",
+      "description": "Barras de 29g c/u. Barras dulces individuales para una colación.",
       "price": 2000,
       "discount": 0,
       "stock": false,
@@ -1108,7 +1108,7 @@
     },
     {
       "name": "Mario Bros",
-      "description": "Llavero PVC alta calidad",
+      "description": "Llavero PVC alta calidad. Accesorio de PVC para identificar llaves, mochilas o bolsos.",
       "price": 3900,
       "discount": 0,
       "stock": true,
@@ -1120,7 +1120,7 @@
     },
     {
       "name": "Luigi",
-      "description": "Llavero PVC alta calidad",
+      "description": "Llavero PVC alta calidad. Accesorio de PVC para identificar llaves, mochilas o bolsos.",
       "price": 3900,
       "discount": 0,
       "stock": true,
@@ -1132,7 +1132,7 @@
     },
     {
       "name": "Yoshi",
-      "description": "Llavero PVC alta calidad",
+      "description": "Llavero PVC alta calidad. Accesorio de PVC para identificar llaves, mochilas o bolsos.",
       "price": 3900,
       "discount": 0,
       "stock": true,
@@ -1144,7 +1144,7 @@
     },
     {
       "name": "Peach",
-      "description": "Llavero PVC alta calidad",
+      "description": "Llavero PVC alta calidad. Accesorio de PVC para identificar llaves, mochilas o bolsos.",
       "price": 3900,
       "discount": 0,
       "stock": true,
@@ -1156,7 +1156,7 @@
     },
     {
       "name": "Bowser",
-      "description": "Llavero PVC alta calidad",
+      "description": "Llavero PVC alta calidad. Accesorio de PVC para identificar llaves, mochilas o bolsos.",
       "price": 3900,
       "discount": 0,
       "stock": true,
@@ -1168,7 +1168,7 @@
     },
     {
       "name": "Donkey Kong",
-      "description": "Llavero PVC alta calidad",
+      "description": "Llavero PVC alta calidad. Accesorio de PVC para identificar llaves, mochilas o bolsos.",
       "price": 3900,
       "discount": 0,
       "stock": true,
@@ -1180,7 +1180,7 @@
     },
     {
       "name": "Leche Condensada Parmalat",
-      "description": "Envase Tetra Brik® de 395g",
+      "description": "Envase Tetra Brik® de 395g. Para postres, repostería y preparaciones dulces.",
       "price": 2900,
       "discount": 0,
       "stock": false,
@@ -1192,7 +1192,7 @@
     },
     {
       "name": "Toalla Papel Nova Clásica XL",
-      "description": "Rollo de 45m",
+      "description": "Rollo de 45m. Papel absorbente para tareas cotidianas de cocina y limpieza.",
       "price": 2600,
       "discount": 0,
       "stock": false,
@@ -1204,7 +1204,7 @@
     },
     {
       "name": "Toalla Papel Favorita Estilo",
-      "description": "Dos rollos de 26m c/u",
+      "description": "Dos rollos de 26m c/u. Papel absorbente para tareas cotidianas de cocina y limpieza.",
       "price": 3900,
       "discount": 0,
       "stock": false,
@@ -1216,7 +1216,7 @@
     },
     {
       "name": "UNO",
-      "description": "Juego de Cartas",
+      "description": "Juego de Cartas. Juego de cartas para disfrutar partidas en grupo.",
       "price": 4000,
       "discount": 0,
       "stock": true,
@@ -1228,7 +1228,7 @@
     },
     {
       "name": "Nescafé • Café Tradición",
-      "description": "Lata 150g",
+      "description": "Lata 150g. Para preparar café en casa o en la oficina.",
       "price": 7500,
       "discount": 0,
       "stock": false,
@@ -1240,7 +1240,7 @@
     },
     {
       "name": "Queso Llanero 1/4Kg",
-      "description": "A granel, trozo",
+      "description": "A granel, trozo. Para sándwiches, desayunos y preparaciones de cocina.",
       "price": 3000,
       "discount": 0,
       "stock": true,
@@ -1252,7 +1252,7 @@
     },
     {
       "name": "Leche Entera",
-      "description": "Envase Tetrabrik de 1L",
+      "description": "Envase Tetrabrik de 1L. Para desayunos, café y recetas de cocina.",
       "price": 1800,
       "discount": 0,
       "stock": true,
@@ -1264,7 +1264,7 @@
     },
     {
       "name": "Líder • Atún Lomitos en Agua",
-      "description": "Lata. Peso neto: 140g",
+      "description": "Lata. Peso neto: 140g. Para ensaladas, sándwiches y preparaciones rápidas.",
       "price": 1900,
       "discount": 0,
       "stock": true,
@@ -1276,7 +1276,7 @@
     },
     {
       "name": "Líder • Aceite de Maravilla",
-      "description": "Botella de 1L",
+      "description": "Botella de 1L. Para cocinar, saltear y preparar aliños.",
       "price": 3600,
       "discount": 0,
       "stock": false,
@@ -1288,7 +1288,7 @@
     },
     {
       "name": "Mix de Papas Terra 120g",
-      "description": "Bolsa de plástico",
+      "description": "Bolsa de plástico. Papas para picotear entre comidas o compartir.",
       "price": 2000,
       "discount": 0,
       "stock": false,
@@ -1300,7 +1300,7 @@
     },
     {
       "name": "Bolsas biodegradables para mascotas",
-      "description": "3 rollos de 15 bolsas cada una",
+      "description": "3 rollos de 15 bolsas cada una. Bolsas para recoger desechos durante los paseos con tu mascota.",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -1312,7 +1312,7 @@
     },
     {
       "name": "Líder • Maíz Curagua (cabritas/cotufas)",
-      "description": "Bolsa de 500g",
+      "description": "Bolsa de 500g. Para preparar cabritas o cotufas en casa.",
       "price": 2200,
       "discount": 0,
       "stock": true,
@@ -1324,7 +1324,7 @@
     },
     {
       "name": "Great Value • Chocolate con Avellanas",
-      "description": "Barra de 100g",
+      "description": "Barra de 100g. Chocolate en barra para disfrutar por porciones o compartir.",
       "price": 2900,
       "discount": 0,
       "stock": true,
@@ -1336,7 +1336,7 @@
     },
     {
       "name": "Corona • Cerveza sin Alcohol",
-      "description": "Botella de 330cc x 6 unidades",
+      "description": "Botella de 330cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
       "price": 7500,
       "discount": 0,
       "stock": false,
@@ -1348,7 +1348,7 @@
     },
     {
       "name": "Royal Guard • Cerveza sin Alcohol",
-      "description": "Botella de 355cc x 6 unidades",
+      "description": "Botella de 355cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
       "price": 6700,
       "discount": 0,
       "stock": false,
@@ -1360,7 +1360,7 @@
     },
     {
       "name": "OMO Ultraconcentrado 500mL",
-      "description": "Ultraconcentrado para piel sensible",
+      "description": "Ultraconcentrado para piel sensible. Detergente para lavado de ropa; seguir la dosificación indicada en el envase.",
       "price": 5500,
       "discount": 0,
       "stock": false,
@@ -1372,7 +1372,7 @@
     },
     {
       "name": "Marco Polo • Papas Onduladas Corte Americano 170g",
-      "description": "Bolsa de plástico",
+      "description": "Bolsa de plástico. Papas para picotear entre comidas o compartir.",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -1384,7 +1384,7 @@
     },
     {
       "name": "Sprite 2L",
-      "description": "Envase retornable",
+      "description": "Envase retornable. Bebida gaseosa para acompañar comidas o compartir.",
       "price": 3000,
       "discount": 0,
       "stock": true,
@@ -1396,7 +1396,7 @@
     },
     {
       "name": "Sprite Zero 3L",
-      "description": "Envase desechable",
+      "description": "Envase desechable. Bebida gaseosa para acompañar comidas o compartir.",
       "price": 4000,
       "discount": 0,
       "stock": false,
@@ -1408,7 +1408,7 @@
     },
     {
       "name": "Vital • Agua sin gas 1,6L",
-      "description": "Envase desechable",
+      "description": "Envase desechable. Agua para tener a mano en casa y acompañar las comidas.",
       "price": 1500,
       "discount": 0,
       "stock": false,
@@ -1420,7 +1420,7 @@
     },
     {
       "name": "Vital • Agua sin gas 2,5L",
-      "description": "Envase desechable",
+      "description": "Envase desechable. Agua para tener a mano en casa y acompañar las comidas.",
       "price": 2000,
       "discount": 0,
       "stock": false,
@@ -1432,7 +1432,7 @@
     },
     {
       "name": "Chocolate con Avellanas Milka",
-      "description": "Barra de 100g",
+      "description": "Barra de 100g. Chocolate en barra para disfrutar por porciones o compartir.",
       "price": 3200,
       "discount": 0,
       "stock": false,
@@ -1444,7 +1444,7 @@
     },
     {
       "name": "Nabisco • Galletas Oreo Original",
-      "description": "Empaque de 108g",
+      "description": "Empaque de 108g. Galletas para acompañar café, té o una colación.",
       "price": 1300,
       "discount": 0,
       "stock": true,
@@ -1456,7 +1456,7 @@
     },
     {
       "name": "Costa • Galletas Choco Chips",
-      "description": "Empaque de 125g",
+      "description": "Empaque de 125g. Galletas para acompañar café, té o una colación.",
       "price": 1300,
       "discount": 0,
       "stock": false,
@@ -1468,7 +1468,7 @@
     },
     {
       "name": "Papas Orégano Lay's 140g",
-      "description": "Bolsa de plástico",
+      "description": "Bolsa de plástico. Papas para picotear entre comidas o compartir.",
       "price": 1900,
       "discount": 0,
       "stock": false,
@@ -1480,7 +1480,7 @@
     },
     {
       "name": "Papas Jamón Serrano 140g",
-      "description": "Bolsa de plástico",
+      "description": "Bolsa de plástico. Papas para picotear entre comidas o compartir.",
       "price": 1900,
       "discount": 0,
       "stock": false,
@@ -1492,7 +1492,7 @@
     },
     {
       "name": "Tocino Ahumado PF",
-      "description": "Empaque al vacío de 150g",
+      "description": "Empaque al vacío de 150g. Para desayunos, sándwiches y preparaciones de cocina.",
       "price": 3500,
       "discount": 0,
       "stock": false,
@@ -1504,7 +1504,7 @@
     },
     {
       "name": "Coca-Cola 2L",
-      "description": "Envase retornable",
+      "description": "Envase retornable. Bebida gaseosa para acompañar comidas o compartir.",
       "price": 3000,
       "discount": 0,
       "stock": false,
@@ -1516,7 +1516,7 @@
     },
     {
       "name": "Coca-Cola Zero 2L",
-      "description": "Envase retornable",
+      "description": "Envase retornable. Bebida gaseosa para acompañar comidas o compartir.",
       "price": 3000,
       "discount": 0,
       "stock": false,
@@ -1528,7 +1528,7 @@
     },
     {
       "name": "Fanta 2L",
-      "description": "Envase retornable",
+      "description": "Envase retornable. Bebida gaseosa para acompañar comidas o compartir.",
       "price": 3000,
       "discount": 0,
       "stock": true,
@@ -1540,7 +1540,7 @@
     },
     {
       "name": "Pollo Pechuga deshuesada Congelada Seara",
-      "description": "Empaque de 800g",
+      "description": "Empaque de 800g. Para preparar comidas caseras; conservar según las indicaciones del envase.",
       "price": 5900,
       "discount": 0,
       "stock": false,
@@ -1612,7 +1612,7 @@
     },
     {
       "name": "Powerade Rojo",
-      "description": "Botella de 1.1L",
+      "description": "Botella de 1.1L. Bebida isotónica lista para llevar o consumir fría.",
       "price": 1900,
       "discount": 0,
       "stock": false,
@@ -1624,7 +1624,7 @@
     },
     {
       "name": "Costa • Galletas de Chocolate",
-      "description": "Empaque de 140g",
+      "description": "Empaque de 140g. Galletas para acompañar café, té o una colación.",
       "price": 1300,
       "discount": 0,
       "stock": false,
@@ -1636,7 +1636,7 @@
     },
     {
       "name": "Canada Dry • Agua Tónica 1,5L",
-      "description": "Envase desechable",
+      "description": "Envase desechable. Agua tónica para servir fría o usar como mezclador.",
       "price": 2900,
       "discount": 0,
       "stock": false,
@@ -1648,7 +1648,7 @@
     },
     {
       "name": "Benedictino • Agua sin gas 2L",
-      "description": "Envase desechable",
+      "description": "Envase desechable. Agua para tener a mano en casa y acompañar las comidas.",
       "price": 2000,
       "discount": 0,
       "stock": false,
@@ -1660,7 +1660,7 @@
     },
     {
       "name": "Gatorade • Bebida Isotónica Cool Blue",
-      "description": "Botella de 1L",
+      "description": "Botella de 1L. Bebida isotónica lista para llevar o consumir fría.",
       "price": 2200,
       "discount": 0,
       "stock": true,
@@ -1672,7 +1672,7 @@
     },
     {
       "name": "Shweppes • Agua Tónica",
-      "description": "Botella de 1,5L",
+      "description": "Botella de 1,5L. Agua tónica para servir fría o usar como mezclador.",
       "price": 2800,
       "discount": 800,
       "stock": false,
@@ -1684,7 +1684,7 @@
     },
     {
       "name": "Gatorade • Bebida Isotónica Frutas Tropicales",
-      "description": "Botella de 1L",
+      "description": "Botella de 1L. Bebida isotónica lista para llevar o consumir fría.",
       "price": 2200,
       "discount": 0,
       "stock": false,
@@ -1696,7 +1696,7 @@
     },
     {
       "name": "Gatorade • Bebida Isotónica Limón",
-      "description": "Botella de 1L",
+      "description": "Botella de 1L. Bebida isotónica lista para llevar o consumir fría.",
       "price": 2200,
       "discount": 0,
       "stock": true,
@@ -1708,7 +1708,7 @@
     },
     {
       "name": "Lay's • Papas Sabor Crema y Cebolla",
-      "description": "Tarro de 134g",
+      "description": "Tarro de 134g. Papas para picotear entre comidas o compartir.",
       "price": 2600,
       "discount": 0,
       "stock": false,
@@ -1720,7 +1720,7 @@
     },
     {
       "name": "Lay's • Papas Stax Original 134g",
-      "description": "Tarro de 134g",
+      "description": "Tarro de 134g. Papas para picotear entre comidas o compartir.",
       "price": 2600,
       "discount": 0,
       "stock": true,
@@ -1732,7 +1732,7 @@
     },
     {
       "name": "Lay's • Papas Stax Queso Cheddar 134g",
-      "description": "Tarro de 134g",
+      "description": "Tarro de 134g. Papas para picotear entre comidas o compartir.",
       "price": 2600,
       "discount": 0,
       "stock": true,
@@ -1744,7 +1744,7 @@
     },
     {
       "name": "Marco Polo • Papas Onduladas",
-      "description": "Bolsa de 200g",
+      "description": "Bolsa de 200g. Papas para picotear entre comidas o compartir.",
       "price": 2500,
       "discount": 0,
       "stock": false,
@@ -1756,7 +1756,7 @@
     },
     {
       "name": "Marco Polo • Papas Lisas Caseras 170g",
-      "description": "Bolsa de 170g",
+      "description": "Bolsa de 170g. Papas para picotear entre comidas o compartir.",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -1768,7 +1768,7 @@
     },
     {
       "name": "Marco Polo • Maní Salado",
-      "description": "Bolsa de 150g",
+      "description": "Bolsa de 150g. Para picotear entre comidas o servir al compartir.",
       "price": 1900,
       "discount": 0,
       "stock": false,
@@ -1780,7 +1780,7 @@
     },
     {
       "name": "Marco Polo • Maní sin Sal",
-      "description": "Bolsa de 150g",
+      "description": "Bolsa de 150g. Para picotear entre comidas o servir al compartir.",
       "price": 1900,
       "discount": 0,
       "stock": false,
@@ -1792,7 +1792,7 @@
     },
     {
       "name": "Great Value • Chocolate con Almendras",
-      "description": "Barra de 100g",
+      "description": "Barra de 100g. Chocolate en barra para disfrutar por porciones o compartir.",
       "price": 2900,
       "discount": 0,
       "stock": false,
@@ -1804,7 +1804,7 @@
     },
     {
       "name": "Hershey's • Chocolate Cookies and Creme",
-      "description": "Barra de 77g",
+      "description": "Barra de 77g. Chocolate en barra para disfrutar por porciones o compartir.",
       "price": 2200,
       "discount": 200,
       "stock": false,
@@ -1816,7 +1816,7 @@
     },
     {
       "name": "Hershey's • Chocolate con Leche",
-      "description": "Barra de 82g",
+      "description": "Barra de 82g. Chocolate en barra para disfrutar por porciones o compartir.",
       "price": 2200,
       "discount": 400,
       "stock": false,
@@ -1828,7 +1828,7 @@
     },
     {
       "name": "Heyshey's • Chocolate Extra Cremoso",
-      "description": "Barra de 82g",
+      "description": "Barra de 82g. Chocolate en barra para disfrutar por porciones o compartir.",
       "price": 2200,
       "discount": 200,
       "stock": false,
@@ -1840,7 +1840,7 @@
     },
     {
       "name": "Robinson Crusoe • Atún Lomitos en Agua",
-      "description": "Lata. Peso neto: 140g - Peso drenado: 91g",
+      "description": "Lata. Peso neto: 140g - Peso drenado: 91g. Para ensaladas, sándwiches y preparaciones rápidas.",
       "price": 2200,
       "discount": 0,
       "stock": false,
@@ -1852,7 +1852,7 @@
     },
     {
       "name": "Líder • Cacao Amargo",
-      "description": "Bolsa de 150g",
+      "description": "Bolsa de 150g. Para repostería y bebidas con cacao.",
       "price": 2400,
       "discount": 0,
       "stock": true,
@@ -1864,7 +1864,7 @@
     },
     {
       "name": "Malloa • Salsa Italiana",
-      "description": "Sobre de 200g",
+      "description": "Sobre de 200g. Para pastas y otras preparaciones con salsa.",
       "price": 1200,
       "discount": 0,
       "stock": true,
@@ -1876,7 +1876,7 @@
     },
     {
       "name": "Mr. Big • Bebida Energética",
-      "description": "Lata de 473mL",
+      "description": "Lata de 473mL. Bebida energética en formato individual; revisar las indicaciones del envase.",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -1888,7 +1888,7 @@
     },
     {
       "name": "Score • Bebida Energética Mango",
-      "description": "Lata de 473mL",
+      "description": "Lata de 473mL. Bebida energética en formato individual; revisar las indicaciones del envase.",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -1900,7 +1900,7 @@
     },
     {
       "name": "Score • Bebida Energética Guaraná",
-      "description": "Lata de 473mL",
+      "description": "Lata de 473mL. Bebida energética en formato individual; revisar las indicaciones del envase.",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -1912,7 +1912,7 @@
     },
     {
       "name": "Austral • Cerveza Calafate Ale",
-      "description": "Lata de 470cc x 6 unidades",
+      "description": "Lata de 470cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
       "price": 12000,
       "discount": 0,
       "stock": true,
@@ -1924,7 +1924,7 @@
     },
     {
       "name": "Stones • Cerveza Berry",
-      "description": "Lata de 350cc x 6 unidades",
+      "description": "Lata de 350cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
       "price": 6900,
       "discount": 0,
       "stock": true,
@@ -1936,7 +1936,7 @@
     },
     {
       "name": "Stones • Cerveza Mango",
-      "description": "Lata de 350cc x 6 unidades",
+      "description": "Lata de 350cc x 6 unidades. Cerveza para servir fría o compartir en encuentros.",
       "price": 6900,
       "discount": 0,
       "stock": false,
@@ -1948,7 +1948,7 @@
     },
     {
       "name": "Doritos • Tortillas Maíz Queso",
-      "description": "Bolsa de 285g",
+      "description": "Bolsa de 285g. Tortillas crujientes para picotear o acompañar salsas.",
       "price": 3500,
       "discount": 0,
       "stock": false,
@@ -1960,7 +1960,7 @@
     },
     {
       "name": "Selección • Chips de Plátano Frito",
-      "description": "Bola de 240g",
+      "description": "Bola de 240g. Chips de plátano para picotear o compartir.",
       "price": 3500,
       "discount": 0,
       "stock": true,
@@ -1972,7 +1972,7 @@
     },
     {
       "name": "Marco Polo • Papas Rústicas Sal de Mar",
-      "description": "Bolsa de 130g",
+      "description": "Bolsa de 130g. Papas para picotear entre comidas o compartir.",
       "price": 2000,
       "discount": 0,
       "stock": false,
@@ -1984,7 +1984,7 @@
     },
     {
       "name": "Marco Polo • Tortilla Vegetal Kraks Sal de Mar",
-      "description": "Bolsa de 140g",
+      "description": "Bolsa de 140g. Tortillas crujientes para picotear o acompañar salsas.",
       "price": 2000,
       "discount": 0,
       "stock": false,
@@ -1996,7 +1996,7 @@
     },
     {
       "name": "Costa • Galletas de Mantequilla",
-      "description": "Empaque de 140g",
+      "description": "Empaque de 140g. Galletas para acompañar café, té o una colación.",
       "price": 1300,
       "discount": 0,
       "stock": false,
@@ -2008,7 +2008,7 @@
     },
     {
       "name": "Nescafé • Café Dolca",
-      "description": "Lata de 170g",
+      "description": "Lata de 170g. Para preparar café en casa o en la oficina.",
       "price": 6500,
       "discount": 600,
       "stock": false,
@@ -2020,7 +2020,7 @@
     },
     {
       "name": "Lobos • Sal Fina",
-      "description": "Empaque de 1Kg",
+      "description": "Empaque de 1Kg. Para sazonar comidas y recetas de cocina.",
       "price": 1200,
       "discount": 0,
       "stock": true,
@@ -2032,7 +2032,7 @@
     },
     {
       "name": "La Romana • Arroz",
-      "description": "Empaque de 800g",
+      "description": "Empaque de 800g. Para guarniciones y platos del día a día.",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -2044,7 +2044,7 @@
     },
     {
       "name": "Costa • Galletas Brownie Chips",
-      "description": "Empaque de 120g",
+      "description": "Empaque de 120g. Galletas para acompañar café, té o una colación.",
       "price": 1300,
       "discount": 0,
       "stock": false,
@@ -2056,7 +2056,7 @@
     },
     {
       "name": "Benedictino • Agua gasificada 2,5L",
-      "description": "Envase desechable",
+      "description": "Envase desechable. Agua para tener a mano en casa y acompañar las comidas.",
       "price": 2200,
       "discount": 0,
       "stock": true,
@@ -2068,7 +2068,7 @@
     },
     {
       "name": "Benedictino • Agua sin gas 2,5L",
-      "description": "Envase desechable",
+      "description": "Envase desechable. Agua para tener a mano en casa y acompañar las comidas.",
       "price": 2200,
       "discount": 0,
       "stock": true,
@@ -2080,7 +2080,7 @@
     },
     {
       "name": "Cola-Cola 2L",
-      "description": "Envase desechable",
+      "description": "Envase desechable. Agua para tener a mano en casa y acompañar las comidas.",
       "price": 3000,
       "discount": 0,
       "stock": true,
@@ -2092,7 +2092,7 @@
     },
     {
       "name": "Coca-Cola 2L",
-      "description": "Envase desechable",
+      "description": "Envase desechable. Bebida gaseosa para acompañar comidas o compartir.",
       "price": 3000,
       "discount": 0,
       "stock": true,
@@ -2104,7 +2104,7 @@
     },
     {
       "name": "Coca-Cola Zero 2L",
-      "description": "Envase desechable",
+      "description": "Envase desechable. Bebida gaseosa para acompañar comidas o compartir.",
       "price": 3000,
       "discount": 0,
       "stock": true,
@@ -2116,7 +2116,7 @@
     },
     {
       "name": "Miraflores • Aceite de Maravilla",
-      "description": "Botella de 900mL",
+      "description": "Botella de 900mL. Para cocinar, saltear y preparar aliños.",
       "price": 3400,
       "discount": 0,
       "stock": true,
@@ -2128,7 +2128,7 @@
     },
     {
       "name": "Nescafé • Café Dolca",
-      "description": "Lata de 110g",
+      "description": "Lata de 110g. Para preparar café en casa o en la oficina.",
       "price": 4500,
       "discount": 0,
       "stock": true,
@@ -2140,7 +2140,7 @@
     },
     {
       "name": "Espumante Demisec • Undurraga",
-      "description": "Botella de 750mL",
+      "description": "Botella de 750mL. Espumante para servir en celebraciones o encuentros.",
       "price": 6900,
       "discount": 0,
       "stock": true,
@@ -2152,7 +2152,7 @@
     },
     {
       "name": "Espumante Sweet • Undurraga",
-      "description": "Botella de 750mL",
+      "description": "Botella de 750mL. Espumante para servir en celebraciones o encuentros.",
       "price": 6900,
       "discount": 0,
       "stock": true,
@@ -2164,7 +2164,7 @@
     },
     {
       "name": "Espumante Brut Bri Sparkling • Undurraga",
-      "description": "Botella de 750mL",
+      "description": "Botella de 750mL. Espumante para servir en celebraciones o encuentros.",
       "price": 6900,
       "discount": 0,
       "stock": true,
@@ -2176,7 +2176,7 @@
     },
     {
       "name": "Valdivieso • Espumante Brut Limited",
-      "description": "Botella de 750mL",
+      "description": "Botella de 750mL. Espumante para servir en celebraciones o encuentros.",
       "price": 11900,
       "discount": 1000,
       "stock": true,
@@ -2188,7 +2188,7 @@
     },
     {
       "name": "OMO • Detergente Líquido Piel Sensible",
-      "description": "Doypack de 400mL",
+      "description": "Doypack de 400mL. Detergente para lavado de ropa; seguir la dosificación indicada en el envase.",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -2200,7 +2200,7 @@
     },
     {
       "name": "Darmax  • Lomo Ahumado sin hueso",
-      "description": "Empaque al vacío (Precio x Kg)",
+      "description": "Empaque al vacío (Precio x Kg). Para sándwiches, tablas y picoteos.",
       "price": 9900,
       "discount": 0,
       "stock": true,
@@ -2212,7 +2212,7 @@
     },
     {
       "name": "Baterías AA AmazonBasics (el par)",
-      "description": "El par (2 unidades) — Alcalinas 1.5V",
+      "description": "El par (2 unidades) — Alcalinas 1.5V. Pilas para dispositivos que utilizan este tamaño; verifica la compatibilidad antes de comprar.",
       "price": 3000,
       "discount": 0,
       "stock": true,
@@ -2224,7 +2224,7 @@
     },
     {
       "name": "Baterías AAA AmazonBasics (el par)",
-      "description": "El par (2 unidades) — Alcalinas 1.5V",
+      "description": "El par (2 unidades) — Alcalinas 1.5V. Pilas para dispositivos que utilizan este tamaño; verifica la compatibilidad antes de comprar.",
       "price": 3000,
       "discount": 0,
       "stock": true,
@@ -2236,7 +2236,7 @@
     },
     {
       "name": "Baterías Duracell CR2032",
-      "description": "Pila botón litio 3V — unitaria",
+      "description": "Pila botón litio 3V — unitaria. Pila de botón para dispositivos compatibles con CR2032.",
       "price": 2500,
       "discount": 0,
       "stock": true,
@@ -2248,7 +2248,7 @@
     },
     {
       "name": "Toalla Papel Nova Clásica",
-      "description": "Tres Rollos de 12m c/u",
+      "description": "Tres Rollos de 12m c/u. Papel absorbente para tareas cotidianas de cocina y limpieza.",
       "price": 2500,
       "discount": 0,
       "stock": true,
@@ -2260,7 +2260,7 @@
     },
     {
       "name": "Comfort • Suavizante Concentrado Frescor Intenso 500 mL",
-      "description": "Suavizante concentrado para ropa. Botella 500 mL; rinde 2,3 L (hasta 25 lavados).",
+      "description": "Suavizante concentrado para ropa. Botella 500 mL; rinde 2,3 L (hasta 25 lavados). Para el cuidado de la ropa; seguir la dosificación indicada en el envase.",
       "price": 3000,
       "discount": 0,
       "stock": true,
@@ -2284,7 +2284,7 @@
     },
     {
       "name": "Confort • Papel Sanitario",
-      "description": "4 rollos de 20 m c/u • Doble hoja",
+      "description": "4 rollos de 20 m c/u • Doble hoja. Papel higiénico para abastecer el baño de casa.",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -2296,7 +2296,7 @@
     },
     {
       "name": "Nestlé • Leche condensada en tarro 265 g",
-      "description": "Tarro de 265 g. Ideal para postres, frutas y preparaciones de repostería.",
+      "description": "Tarro de 265 g. Ideal para postres, frutas y preparaciones de repostería. Para postres, repostería y preparaciones dulces.",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -2308,7 +2308,7 @@
     },
     {
       "name": "Kross • Golden Ale, pack de 4 botellas de 330 mL",
-      "description": "Pack de 4 botellas de 330 mL c/u (1,32 L). Cerveza artesanal Golden Ale de 5,3% alcohol.",
+      "description": "Pack de 4 botellas de 330 mL c/u (1,32 L). Cerveza artesanal Golden Ale de 5,3% alcohol. Cerveza para servir fría o compartir en encuentros.",
       "price": 6900,
       "discount": 0,
       "stock": true,
@@ -2320,7 +2320,7 @@
     },
     {
       "name": "Oikos • Yoghurt Griego Natural sin Azúcar 150 g",
-      "description": "Pote de 150 g de yoghurt griego natural sin azúcar. Mantener refrigerado.",
+      "description": "Pote de 150 g de yoghurt griego natural sin azúcar. Mantener refrigerado. Una opción para desayunos y colaciones; mantener refrigerado.",
       "price": 1200,
       "discount": 0,
       "stock": true,
@@ -2332,7 +2332,7 @@
     },
     {
       "name": "Van Camp's • Atún Lomitos en Agua",
-      "description": "Atún lomitos en agua. Lata de 142 g de contenido neto y 92 g de peso drenado.",
+      "description": "Atún lomitos en agua. Lata de 142 g de contenido neto y 92 g de peso drenado. Para ensaladas, sándwiches y preparaciones rápidas.",
       "price": 2500,
       "discount": 0,
       "stock": true,
