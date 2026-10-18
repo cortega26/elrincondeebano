@@ -154,6 +154,51 @@ export function createCartItemFromProduct(product: unknown, quantity = 1): CartI
   });
 }
 
+export interface CartRefreshResult {
+  cart: CartItem[];
+  changed: boolean;
+}
+
+// Refresh display/pricing fields of persisted lines from the live catalog.
+// Identity is NOT changed: lines whose product cannot be resolved are kept
+// untouched (snapshot is authoritative for identity — deleted products must
+// not reappear or silently vanish from the cart). Never changes quantity,
+// never drops or adds lines, never reorders; callers own persistence.
+export function refreshCartItemsFromCatalog(
+  cart: CartItem[],
+  resolveProductById: (id: string) => unknown
+): CartRefreshResult {
+  if (!Array.isArray(cart) || typeof resolveProductById !== 'function') {
+    return { cart: Array.isArray(cart) ? cart : [], changed: false };
+  }
+
+  let changed = false;
+  const refreshed = cart.map((item) => {
+    const product = resolveProductById(item.id);
+    const next = product ? createCartItemFromProduct(product, item.quantity) : null;
+    if (!next) {
+      return item;
+    }
+
+    const unchanged =
+      next.id === item.id &&
+      next.name === item.name &&
+      next.category === item.category &&
+      next.price === item.price &&
+      next.discount === item.discount &&
+      next.image === item.image;
+    if (unchanged) {
+      return item;
+    }
+
+    changed = true;
+    // createCartItemFromProduct clamps quantity; the persisted value wins.
+    return { ...next, quantity: item.quantity };
+  });
+
+  return { cart: refreshed, changed };
+}
+
 export interface OrderData {
   items: CartItem[];
 }
