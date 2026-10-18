@@ -76,7 +76,7 @@
   - The UI renders the catalog embedded by the last successful `npm run
 build` — staleness means the build predates the `data/` change, not a
     fetch failure. Rebuild + redeploy.
-  - The service worker `ebano-products-2026-05-01-b` cache only matters if
+  - The service worker `ebano-products-2026-10-18-sw-hardening` cache only matters if
     `/data/product_data.json` is ever requested directly (no app code path
     does today); after a deploy with data changes, stale SW caches are
     cleared by the version bump + activate cleanup.
@@ -115,7 +115,7 @@ conexión a internet e inténtelo de nuevo.` plus an **"Intentar
 
 ## Service worker operations
 
-- **Cache versions activos (verdad: `CACHE_CONFIG.prefixes` en `service-worker.js`):** `ebano-static-2026-10-18-cart-freshness`, `ebano-dynamic-2026-10-18-cart-freshness`, `ebano-products-2026-05-01-b`, `ebano-html-2026-10-18-cart-freshness`.
+- **Cache versions activos (verdad: `CACHE_CONFIG.prefixes` en `service-worker.js`):** `ebano-static-2026-10-18-sw-hardening`, `ebano-dynamic-2026-10-18-sw-hardening`, `ebano-products-2026-10-18-sw-hardening`, `ebano-html-2026-10-18-sw-hardening`.
 - **Cuándo y cómo bump de versiones de caché (prefijos en `service-worker.js`):**
   - `ebano-static-v*`: bump cuando cambian assets estáticos precacheados o su lista
     (`CACHE_CONFIG.staticAssets`, CSS/JS compilados, íconos, offline page).

@@ -47,12 +47,12 @@ cross-contamination or unnecessary re-downloads for users.
 > **Keep this table current. Update it every time a prefix is bumped.**
 > Truth is `CACHE_CONFIG.prefixes` in `service-worker.js` (plan 208).
 
-| Cache    | Active version                                   |
-| -------- | ------------------------------------------------ |
-| static   | `ebano-static-2026-10-18-cart-freshness`         |
-| dynamic  | `ebano-dynamic-2026-10-18-cart-freshness`        |
-| products | `ebano-products-2026-05-01-b`                    |
-| html     | `ebano-html-2026-10-18-cart-freshness`           |
+| Cache    | Active version                           |
+| -------- | ---------------------------------------- |
+| static   | `ebano-static-2026-10-18-sw-hardening`   |
+| dynamic  | `ebano-dynamic-2026-10-18-sw-hardening`  |
+| products | `ebano-products-2026-10-18-sw-hardening` |
+| html     | `ebano-html-2026-10-18-sw-hardening`     |
 
 ## Release note (2026-10-18): cart code freshness
 
