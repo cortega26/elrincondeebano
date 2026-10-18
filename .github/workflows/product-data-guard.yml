@@ -6,11 +6,16 @@ on:
       - data/product_data.json
       - data/category_registry.json
       - astro-poc/**/*
+      - .github/workflows/product-data-guard.yml
+      - tools/ci/catalog-build-tree-check.mjs
   pull_request:
     paths:
       - data/product_data.json
       - data/category_registry.json
       - astro-poc/**/*
+      - .github/workflows/product-data-guard.yml
+      - tools/ci/catalog-build-tree-check.mjs
+      - test/catalog-build-tree-check.spec.js
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -46,22 +51,15 @@ jobs:
         run: |
           ls -R astro-poc/dist | head -n 120
 
-      - name: Check working tree state
+      - name: Check tracked build inputs and synced outputs
         id: tree_state
-        shell: bash
-        run: |
-          # Untracked image variants are build outputs; only tracked source/sync files must remain unchanged.
-          if [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
-            echo "dirty_tree=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "dirty_tree=false" >> "$GITHUB_OUTPUT"
-          fi
+        run: node tools/ci/catalog-build-tree-check.mjs
 
-      - name: Verify working tree is clean
+      - name: Reject unexpected tracked build drift
         if: ${{ steps.tree_state.outputs.dirty_tree == 'true' }}
         run: |
-          echo "::error::Detected tracked changes after running Astro build. Synced data/public files must be committed."
-          git status --short
+          echo "::error::Build modified tracked files outside the exact derived-logo allowlist. Commit canonical data/public changes."
+          git diff --name-only HEAD --
           exit 1
 
       - name: Capture failure diagnostics
