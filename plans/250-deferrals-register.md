@@ -94,7 +94,9 @@ changesets adoption (wave-3 RFC) · cart-interaction batching (measure
 click cycle; plan 187 numbers as the bar) · plan 247 outcome (if REJECTED:
 reopen if `/impresiones/` becomes a primary landing or entry grows past its
 recorded size) · comms reminders (local usage signal, e.g. × sessions
-where the operator re-uses a template manually).
+where the operator re-uses a template manually) · canary live-probe
+`needs.*.outputs` inline interpolation en `post-deploy-canary.yml` (nota del
+plan 225: extender el env-pass cuando se toque la semántica del canary).
 
 Add a 5-line header stating: what this file is, that `reconcile` reads it
 at session start, and that resolved rows move to a "Resolved" section with
