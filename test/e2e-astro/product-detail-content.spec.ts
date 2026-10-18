@@ -23,5 +23,5 @@ test('product detail remains accessible on desktop', async ({ page }) => {
   await expect(page.getByRole('heading', { name: "Van Camp's • Atún Lomitos en Agua" })).toBeVisible();
   await expect(page.locator('.product-detail__media img')).toBeVisible();
   await expect(page.locator('.product-detail__links a').first()).toHaveAttribute('href', '/despensa/');
-  await expect(page.locator('a[href="/p/p-00770236729335/"]')).not.toHaveCount(0);
+  await expect(page.locator('.product-detail__buy-panel')).toBeVisible();
 });
