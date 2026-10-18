@@ -3,12 +3,12 @@ const TEST_MODE =
   typeof module !== 'undefined' &&
   !(typeof globalThis !== 'undefined' && globalThis.__SW_RUNTIME_TEST__ === true);
 const CACHE_CONFIG = {
-  version: '2026-10-18-cart-freshness',
+  version: '2026-10-18-sw-hardening',
   prefixes: {
-    static: 'ebano-static-2026-10-18-cart-freshness',
-    dynamic: 'ebano-dynamic-2026-10-18-cart-freshness',
-    products: 'ebano-products-2026-05-01-b',
-    html: 'ebano-html-2026-10-18-cart-freshness',
+    static: 'ebano-static-2026-10-18-sw-hardening',
+    dynamic: 'ebano-dynamic-2026-10-18-sw-hardening',
+    products: 'ebano-products-2026-10-18-sw-hardening',
+    html: 'ebano-html-2026-10-18-sw-hardening',
   },
   duration: {
     html: 24 * 60 * 60 * 1000, // 1 day for HTML navigations (SSG, changes only on deploy)
