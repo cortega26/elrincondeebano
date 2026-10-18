@@ -26,7 +26,7 @@ function createMemoryStorage(seed = {}) {
 describe('service worker storefront sync', () => {
   it('derives a cache version token from the runtime contract', () => {
     expect(getStorefrontCacheVersion(STOREFRONT_RUNTIME_CONTRACT)).toBe(
-      'astro-poc-storefront:storage-v1:cache-v2'
+      'astro-poc-storefront:storage-v1:cache-v3'
     );
   });
 
@@ -74,9 +74,9 @@ describe('service worker storefront sync', () => {
     expect(result).toMatchObject({
       available: true,
       invalidated: true,
-      version: 'astro-poc-storefront:storage-v1:cache-v2',
+      version: 'astro-poc-storefront:storage-v1:cache-v3',
     });
-    expect(storage.getItem(versionKey)).toBe('astro-poc-storefront:storage-v1:cache-v2');
+    expect(storage.getItem(versionKey)).toBe('astro-poc-storefront:storage-v1:cache-v3');
     expect(activeWorker.postMessage).toHaveBeenCalledTimes(1);
     expect(waitingWorker.postMessage).toHaveBeenCalledWith({ type: 'SKIP_WAITING' });
   });
@@ -110,7 +110,7 @@ describe('service worker storefront sync', () => {
     expect(result).toMatchObject({
       available: true,
       invalidated: false,
-      version: 'astro-poc-storefront:storage-v1:cache-v2',
+      version: 'astro-poc-storefront:storage-v1:cache-v3',
       reason: 'message-failed',
     });
     expect(storage.getItem(versionKey)).toBe('astro-poc-storefront:storage-v1:cache-v1');
@@ -118,7 +118,7 @@ describe('service worker storefront sync', () => {
     expect(log).toHaveBeenCalledWith(
       'warn',
       'service_worker_cache_invalidation_failed',
-      expect.objectContaining({ version: 'astro-poc-storefront:storage-v1:cache-v2' })
+      expect.objectContaining({ version: 'astro-poc-storefront:storage-v1:cache-v3' })
     );
   });
 
@@ -170,6 +170,6 @@ describe('service worker storefront sync', () => {
       reason: 'first-seen-version',
     });
     expect(activeWorker.postMessage).not.toHaveBeenCalled();
-    expect(storage.getItem(versionKey)).toBe('astro-poc-storefront:storage-v1:cache-v2');
+    expect(storage.getItem(versionKey)).toBe('astro-poc-storefront:storage-v1:cache-v3');
   });
 });

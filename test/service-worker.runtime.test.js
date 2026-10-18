@@ -2,7 +2,7 @@ const assert = require('node:assert');
 const path = require('node:path');
 
 const SERVICE_WORKER_PATH = path.join(__dirname, '..', 'service-worker.js');
-const { CACHE_CONFIG } = require(SERVICE_WORKER_PATH);
+const { CACHE_CONFIG, shouldSkipCache } = require(SERVICE_WORKER_PATH);
 
 const createTimestampedResponse = (body, { status = 200, type = 'static', headers = {} } = {}) =>
   new Response(body, {
@@ -102,6 +102,22 @@ const loadServiceWorkerRuntime = ({ fetchImpl, cachesImpl, origin = 'https://exa
 
   return { events, self, cleanup };
 };
+
+test('versioned JavaScript and CSS bypass SW caches without bypassing catalog images', () => {
+  const request = { headers: new Headers() };
+  for (const extension of ['js', 'mjs', 'css']) {
+    assert.strictEqual(
+      shouldSkipCache(request, new URL(`https://example.com/_astro/site.hash.${extension}`)),
+      true,
+      `SW must never serve stale ${extension} from its 24h cache`
+    );
+  }
+  assert.strictEqual(
+    shouldSkipCache(request, new URL('https://example.com/_astro/image.hash.webp')),
+    false,
+    'Cacheable images preserve the offline fallback'
+  );
+});
 
 test('service worker install caches static assets and manifest files', async () => {
   const fetchCalls = [];

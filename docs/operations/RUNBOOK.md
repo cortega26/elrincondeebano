@@ -115,7 +115,7 @@ conexión a internet e inténtelo de nuevo.` plus an **"Intentar
 
 ## Service worker operations
 
-- **Cache versions activos (verdad: `CACHE_CONFIG.prefixes` en `service-worker.js`):** `ebano-static-2026-05-01-b`, `ebano-dynamic-2026-05-01-b`, `ebano-products-2026-05-01-b`, `ebano-html-2026-05-01-b`.
+- **Cache versions activos (verdad: `CACHE_CONFIG.prefixes` en `service-worker.js`):** `ebano-static-2026-10-18-cart-freshness`, `ebano-dynamic-2026-10-18-cart-freshness`, `ebano-products-2026-05-01-b`, `ebano-html-2026-10-18-cart-freshness`.
 - **Cuándo y cómo bump de versiones de caché (prefijos en `service-worker.js`):**
   - `ebano-static-v*`: bump cuando cambian assets estáticos precacheados o su lista
     (`CACHE_CONFIG.staticAssets`, CSS/JS compilados, íconos, offline page).
