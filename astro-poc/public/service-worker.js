@@ -3,12 +3,12 @@ const TEST_MODE =
   typeof module !== 'undefined' &&
   !(typeof globalThis !== 'undefined' && globalThis.__SW_RUNTIME_TEST__ === true);
 const CACHE_CONFIG = {
-  version: '2026-05-01-b',
+  version: '2026-10-18-cart-freshness',
   prefixes: {
-    static: 'ebano-static-2026-05-01-b',
-    dynamic: 'ebano-dynamic-2026-05-01-b',
+    static: 'ebano-static-2026-10-18-cart-freshness',
+    dynamic: 'ebano-dynamic-2026-10-18-cart-freshness',
     products: 'ebano-products-2026-05-01-b',
-    html: 'ebano-html-2026-05-01-b',
+    html: 'ebano-html-2026-10-18-cart-freshness',
   },
   duration: {
     html: 24 * 60 * 60 * 1000, // 1 day for HTML navigations (SSG, changes only on deploy)
@@ -130,7 +130,10 @@ const shouldSkipCache = (request, url, { ignoreAuth = false } = {}) => {
     url.pathname.startsWith('/payment') ||
     url.pathname.startsWith('/confirm') ||
     url.pathname.startsWith('/cdn-cgi/image/') ||
-    url.pathname === '/service-worker.js'
+    url.pathname === '/service-worker.js' ||
+    // Astro filenames are content-hashed: let the browser's HTTP cache handle
+    // them and NEVER return stale executable code from our 24h SW cache.
+    /^\/_astro\/.*\.(?:m?js|css)$/i.test(url.pathname)
   ) {
     return true;
   }
