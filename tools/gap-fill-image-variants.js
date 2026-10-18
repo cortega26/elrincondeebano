@@ -2,8 +2,9 @@
 // when the originals tree is absent. The variant pipeline reads
 // assets/images/originals/ which is not committed, so products added later
 // (e.g. Lomo-Ahumado-Darmax) ship the full-size image with no srcset. This
-// step derives w200..w1200 webp/avif variants from the product's own
-// image_path and records them in data/product_data.json (image_variants).
+// step derives the canonical-width webp/avif variants from the product's own
+// image_path (plan 235: GAP_FILL_WIDTHS mirrors the UI srcset widths —
+// previously it generated 600/800/1200, which no consumer requested).
 'use strict';
 
 // Shared helpers per plan 156 — via tools/utils/image-pipeline.mjs
@@ -12,6 +13,7 @@ const path = require('node:path');
 const sharp = require('sharp');
 const {
   REPO_ROOT,
+  PRODUCT_IMAGE_WIDTHS,
   GAP_FILL_WIDTHS: WIDTHS,
   GAP_FILL_EXTENSIONS: VARIANT_EXTENSIONS,
   ensureDir,
@@ -23,6 +25,28 @@ const PRODUCTS_JSON = path.join(REPO_ROOT, 'data', 'product_data.json');
 function loadProducts() {
   const raw = JSON.parse(fs.readFileSync(PRODUCTS_JSON, 'utf-8'));
   return { catalog: raw, products: raw.products };
+}
+
+// Plan 235: el set canónico de anchos es el que pide la UI
+// (PRODUCT_IMAGE_WIDTHS ∪ GAP_FILL_WIDTHS). Entradas image_variants con
+// anchos fuera del set (p. ej. 600/800/1200) quedan muertas: sus archivos ya
+// no se generan. Se descartan al cargar el catálogo y se persisten solo si
+// algo cambió. Hoy data/product_data.json tiene 0 entradas (el escritor
+// histórico, generate-image-variants.js, se retiró en el plan 119), así que
+// es un guard defensivo contra writers futuros.
+function pruneStaleImageVariantWidths(products, canonicalWidths) {
+  let pruned = 0;
+  for (const product of products ?? []) {
+    if (!Array.isArray(product?.image_variants)) continue;
+    const kept = product.image_variants.filter(
+      (variant) => typeof variant?.width === 'number' && canonicalWidths.has(variant.width)
+    );
+    if (kept.length !== product.image_variants.length) {
+      pruned += product.image_variants.length - kept.length;
+      product.image_variants = kept;
+    }
+  }
+  return pruned;
 }
 
 async function buildVariant(opts) {
@@ -49,7 +73,15 @@ async function run() {
     console.log('Skipping variant gap-fill');
     return;
   }
-  const { products } = loadProducts();
+  const { catalog, products } = loadProducts();
+  const canonicalWidths = new Set([...PRODUCT_IMAGE_WIDTHS, ...WIDTHS]);
+  const prunedVariants = pruneStaleImageVariantWidths(products, canonicalWidths);
+  if (prunedVariants > 0) {
+    fs.writeFileSync(PRODUCTS_JSON, `${JSON.stringify(catalog, null, 2)}\n`, 'utf-8');
+    console.log(
+      `[gap-fill] dropped ${prunedVariants} image_variants entr(ies) outside the canonical widths.`
+    );
+  }
   const variantsRoot = path.join(REPO_ROOT, 'assets', 'images', 'variants');
 
   // Plan 186: shared variant-existence helper (was a local duplicate of
@@ -104,7 +136,11 @@ async function run() {
   console.log(`Variant gap-fill: ${filled} variants generated for ${updated} products.`);
 }
 
-run().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+module.exports = { pruneStaleImageVariantWidths };
+
+if (require.main === module) {
+  run().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}
