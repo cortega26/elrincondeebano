@@ -497,7 +497,7 @@ test('different IDs for the same physical product cannot recreate a removed cart
   const [item, next] = products;
 
   await page.evaluate((product) => {
-    const image = product.image.replace(/\\.(?:webp|avif)(?=[?#]|$)/i, '.webp');
+    const image = product.image.replace(/\.(?:webp|avif)(?=[?#]|$)/i, '.webp');
     localStorage.setItem('astro-poc-cart', JSON.stringify([
       { ...product, id: 'obsolete-product-id', image, quantity: 1 },
       { ...product, quantity: 3 },
