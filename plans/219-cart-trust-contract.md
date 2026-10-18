@@ -7,7 +7,10 @@
 > in `plans/README.md` — unless a reviewer dispatched you and told you they
 > maintain the index.
 >
-> **Drift check (run first)**: `git diff --stat 97b21096..HEAD -- astro-poc/src/scripts/storefront.js astro-poc/src/scripts/storefront/storefront-state.ts test/storefront-state.spec.js test/storefront-totals.spec.js test/e2e-astro/storage-contract.spec.ts`
+> **Drift check (run first)**: `git diff --stat 32d90295..HEAD -- astro-poc/src/scripts/storefront.js astro-poc/src/scripts/storefront/storefront-state.ts test/storefront-state.spec.js test/storefront-totals.spec.js test/e2e-astro/storage-contract.spec.ts`
+> (Reconciled after plan 218: only `storefront.js` gained the SW import +
+> registration guard, so the line references below shifted +1 before
+> ~line 1107 and +12 after it; content unchanged.)
 > If any in-scope file changed since this plan was written, compare the
 > "Current state" excerpts against the live code before proceeding; on a
 > mismatch, treat it as a STOP condition.
@@ -19,7 +22,7 @@
 - **Risk**: MED
 - **Depends on**: none
 - **Category**: bug
-- **Planned at**: commit `97b21096`, 2026-10-18
+- **Planned at**: commit `97b21096`, 2026-10-18 (reconciled to `32d90295` after plan 218 — line shifts only)
 
 ## Why this matters
 
@@ -72,7 +75,7 @@ const quantity = clampQty((merged.get(id) ?? 0) + clampQty(item.quantity));
 `storefront-state.ts:247-258` — parser keeps the first duplicate:
 `if (!id || quantity <= 0 || seen.has(id)) { continue; }`
 
-`astro-poc/src/scripts/storefront.js:157-168` — `loadCart` only sanitizes:
+`astro-poc/src/scripts/storefront.js:158-169` — `loadCart` only sanitizes:
 
 ```js
 function loadCart() {
@@ -85,7 +88,7 @@ function loadCart() {
 }
 ```
 
-`storefront.js:252-254` — the resolver composition used by the shared-link
+`storefront.js:253-255` — the resolver composition used by the shared-link
 path (reuse it):
 
 ```js
@@ -94,7 +97,7 @@ var hydrated = hydrateSharedCart(raw, function (id) {
 });
 ```
 
-`storefront.js:1263-1274` — `setQty` already refreshes touched lines when it
+`storefront.js:1275-1286` — `setQty` already refreshes touched lines when it
 has a `fallbackProduct`; untouched lines never refresh.
 
 `astro-poc/src/scripts/storefront/order-submit.js:33-46` — the WhatsApp
@@ -219,16 +222,20 @@ In `storefront.js`:
 1. Extract the resolver arrow already used at line 253 into a named
    function `resolveLiveProductForCart(id)` and reuse it in both places
    (line 253 and the new refresh sites).
-2. In `loadCart()` (lines 157-168): after `sanitizeCart(raw)` and the
+2. In `loadCart()` (lines 158-169): after `sanitizeCart(raw)` and the
    existing duplicate-repair write, return
    `refreshCartItemsFromCatalog(cart, resolveLiveProductForCart).cart`.
    Do **not** call `saveCart` because of refresh changes.
-3. Before the checkout message is built: locate the submit flow (the entry
-   that resolves products around `storefront.js:1500-1510` via
-   `getProductByIdFromSource`). Refresh the in-memory `cart` there with the
-   same helper immediately before `submitCart`/message construction, and
-   re-render (badge + cart view) so the confirmation dialog and the WhatsApp
-   text share one pricing. No storage write here either.
+3. Before the checkout message is built: at the composition root, the submit
+   entry is `submitCartOrder = orderSubmitController.submitCartOrder;`
+   (currently `storefront.js:1188`; the `#submit-cart` handler around
+   `:1552-1574` invokes it). Wrap that entry so the in-memory `cart` is
+   refreshed with the same helper first and the refreshed cart is what the
+   controller receives — read `order-submit.js` for the exact
+   `submitCartOrder` signature/argument handling before choosing the wrapper.
+   Re-render (badge + cart view) when the refresh changed anything, so the
+   confirmation dialog and the WhatsApp text share one pricing. No storage
+   write here either.
 
 If at load time the catalog is not yet available (`getProductByIdFromSource`
 returns undefined and the DOM has no cards), the helper keeps items
