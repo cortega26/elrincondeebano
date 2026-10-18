@@ -27,6 +27,16 @@
   `rootDir: null`) and proceed. **Step 5 withdrawn**: `.vscode/` is
   gitignored (`.gitignore:22`, untracked since `b1eaf0a0`) — unreachable
   from a branch; local cleanup is the owner's call.
+- **Reviewer amendment (2026-10-18, round 2)**: the authorized C1 fix was
+  applied (one line) and **unmasked 143 real errors** across 36 test files
+  (TS2339×60, TS2322×20, TS2741×14, TS2739×14, TS2307×13, TS2345×10,
+  singletons incl. TS2883/TS1294/TS1117, plus 1 structural TS6059 for the
+  `comms.test.ts` → `astro-poc/src/lib/product-identity.ts` cross-workspace
+  import). Decision: **C1 reverted; the test-typecheck wiring is withdrawn
+  from this plan** and registered as its own debt item (deferrals register,
+  plan 250). Proceed with the remaining workstreams: ESLint widening
+  (Step 2), root tsconfig (Step 4), and the `tsconfig.server.json` orphan
+  check.
 
 ## Why this matters
 
@@ -77,13 +87,13 @@
 
 ## Commands you will need
 
-| Purpose          | Command                                                                 | Provenance | Expected on success |
-| ---------------- | ----------------------------------------------------------------------- | ---------- | ------------------- |
-| Install          | `npm ci`                                                                | declared   | exit 0              |
-| Admin lint (new) | `npx eslint . --config eslint.config.mjs` (cwd `admin/content-manager`) | declared   | exit 0              |
-| Admin typecheck  | `npm run admin:typecheck`                                               | declared   | exit 0              |
-| Test typecheck   | `npx tsc -p tsconfig.test.json --noEmit` (cwd `admin/content-manager`)  | declared   | exit 0              |
-| Admin tests      | `npm run admin:test`                                                    | declared   | all pass            |
+| Purpose                                                        | Command                                                                 | Provenance | Expected on success |
+| -------------------------------------------------------------- | ----------------------------------------------------------------------- | ---------- | ------------------- |
+| Install                                                        | `npm ci`                                                                | declared   | exit 0              |
+| Admin lint (new)                                               | `npx eslint . --config eslint.config.mjs` (cwd `admin/content-manager`) | declared   | exit 0              |
+| Admin typecheck                                                | `npm run admin:typecheck`                                               | declared   | exit 0              |
+| Test typecheck (withdrawn — do NOT run; see round-2 amendment) | `npx tsc -p tsconfig.test.json --noEmit` (cwd `admin/content-manager`)  | declared   | n/a                 |
+| Admin tests                                                    | `npm run admin:test`                                                    | declared   | all pass            |
 
 ## Scope
 
@@ -93,7 +103,8 @@
 - `admin/content-manager/eslint.config.mjs` (glob coverage + comment)
 - `.github/workflows/admin.yml` (mirror the lint one-liner)
 - `tsconfig.json` (root)
-- `admin/content-manager/tsconfig.test.json` (wire or adjust)
+- (test-typecheck wiring withdrawn — see the round-2 amendment;
+  `tsconfig.test.json` unchanged)
 - `admin/content-manager/tsconfig.server.json` (delete if orphan)
 - (Step 5 withdrawn — `.vscode/` is untracked, see the amendment above)
 
@@ -123,13 +134,11 @@ Run `npx eslint . --config eslint.config.mjs` (cwd admin) and
 `npx tsc -p tsconfig.test.json --noEmit` (cwd admin) on the unmodified
 checkout. Record the error counts.
 
-- Measured at round 1: **116 errors** (115× TS6059 + 1× TS2883) — the
-  reviewer authorized fixing them: override `rootDir` in
-  `tsconfig.test.json` (set `"rootDir": null`, same as
-  `tsconfig.server.json` already does) so the 115 TS6059 disappear, and
-  give `test/web/harness.tsx`'s `mockApi` (line ~13) an explicit type so
-  TS2883 resolves. If either fix balloons beyond a few lines, STOP and
-  report with the new counts.
+- Superseded by round 2: the one-line `rootDir: null` fix unmasked **143**
+  real errors in 36 test files. The fix is reverted and the test-typecheck
+  wiring dropped from this plan (see the round-2 amendment). Do NOT touch
+  `tsconfig.test.json` or `harness.tsx`; the ESLint measurement below is
+  the only measurement this plan still uses.
 - ESLint findings: expect a handful; fix them in the config files (e.g.
   `vite-env.d.ts` reference) or in the files themselves when mechanical.
 
@@ -146,16 +155,15 @@ checkout. Record the error counts.
 
 **Verify**: `npx eslint . --config eslint.config.mjs` (cwd admin) → exit 0.
 
-### Step 3: Typecheck the tests
+### Step 3 (withdrawn by reviewer): Typecheck the tests
 
-- If Step 1 was clean (or after fixing ≤30 errors), wire it:
-  `"typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit"`.
-  Keep `typecheck:root` as is.
-- `tsconfig.server.json`: `grep -rn "tsconfig.server" .` (excluding
-  node_modules) — if truly unreferenced, delete it; else leave it and note
-  the reference in the PR.
-
-**Verify**: `npm run admin:typecheck` → exit 0 (runs both projects).
+Round 2 measured 143 pre-existing errors across 36 test files once the
+`rootDir` interplay stopped hiding them — that cleanup is its own project
+(registered in the deferrals register, plan 250) and **is NOT wired here**.
+The `typecheck` script stays exactly as it is. Keep only the sub-item:
+`tsconfig.server.json` → `grep -rn "tsconfig.server" .` (excluding
+node_modules); if truly unreferenced, delete it, else leave it and note the
+reference in the PR.
 
 ### Step 4: Root tsconfig for the active surface
 
@@ -204,7 +212,7 @@ exit 0; `npm run admin:test` → all pass; root `npm run lint` → exit 0.
 Machine-checkable. ALL must hold:
 
 - [ ] `npx eslint . --config eslint.config.mjs` (cwd `admin/content-manager`) exits 0
-- [ ] `npm run admin:typecheck` exits 0 and runs both tsconfigs (grep the script)
+- [ ] `npm run admin:typecheck` exits 0 (unchanged single-project script — the test-typecheck wiring was withdrawn)
 - [ ] `grep -rn "cypress" tsconfig.json` returns nothing
 - [ ] `grep -n "eslint . --config eslint.config.mjs" .github/workflows/admin.yml admin/content-manager/package.json` shows both
 - [ ] `npm run admin:test` exits 0; `npm run lint` exits 0

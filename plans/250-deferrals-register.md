@@ -96,7 +96,10 @@ reopen if `/impresiones/` becomes a primary landing or entry grows past its
 recorded size) · comms reminders (local usage signal, e.g. × sessions
 where the operator re-uses a template manually) · canary live-probe
 `needs.*.outputs` inline interpolation en `post-deploy-canary.yml` (nota del
-plan 225: extender el env-pass cuando se toque la semántica del canary).
+plan 225: extender el env-pass cuando se toque la semántica del canary) ·
+typecheck del árbol de tests del admin (143 errores reales en 36 archivos,
+TS2339×60 + singletons + import cross-workspace a astro-poc — desenmascarado
+por el plan 227 ronda 2; extraer como plan propio cuando se priorice).
 
 Add a 5-line header stating: what this file is, that `reconcile` reads it
 at session start, and that resolved rows move to a "Resolved" section with
