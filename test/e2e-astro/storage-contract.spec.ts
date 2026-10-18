@@ -293,3 +293,129 @@ test('plan 117: shared-cart link with a non-empty cart shows feedback and keeps 
   await expect(offcanvas).toBeVisible();
   await expect(offcanvas.locator('.item-quantity')).toHaveText('1');
 });
+
+
+test('removed products do not return after cross-tab edits, additions and reloads', async ({
+  page,
+  context,
+}) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await waitForReady(page);
+  await page.evaluate(() => localStorage.clear());
+  await page.reload({ waitUntil: 'networkidle' });
+  await waitForReady(page);
+
+  const ids = await page.locator('.category-strip .add-to-cart-btn').evaluateAll((buttons) =>
+    [...new Set(buttons.map((button) => button.getAttribute('data-id')).filter(Boolean))]
+  );
+  expect(ids.length).toBeGreaterThanOrEqual(2);
+  const [removedId, addedId] = ids as string[];
+
+  const otherTab = await context.newPage();
+  await otherTab.goto('/', { waitUntil: 'networkidle' });
+  await waitForReady(otherTab);
+
+  await page.locator(`.category-strip .add-to-cart-btn[data-id="${removedId}"]`).first().click();
+  await expect(otherTab.locator('#cart-count')).toHaveText('1');
+  await otherTab.locator('#cart-icon').click();
+  await expect(otherTab.locator('#cartOffcanvas')).toBeVisible();
+  await otherTab.locator(`.cart-item__remove[data-id="${removedId}"]`).click();
+  await expect(page.locator('#cart-count')).toHaveText('0');
+
+  await page.locator(`.category-strip .add-to-cart-btn[data-id="${addedId}"]`).first().click();
+  await expect(otherTab.locator('#cart-count')).toHaveText('1');
+  for (const tab of [page, otherTab]) {
+    await tab.reload({ waitUntil: 'networkidle' });
+    await waitForReady(tab);
+    const storedIds = await tab.evaluate(() => {
+      const stored = JSON.parse(localStorage.getItem('astro-poc-cart') || '[]');
+      return stored.map((item: { id: string }) => item.id);
+    });
+    expect(storedIds).toEqual([addedId]);
+    await expect(tab.locator('#cart-count')).toHaveText('1');
+  }
+  await otherTab.close();
+});
+
+test('an empty canonical cart defeats a stale legacy alias on reload and next add', async ({
+  page,
+}) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await waitForReady(page);
+  await page.evaluate(() => localStorage.clear());
+  const ids = await page.locator('.category-strip .add-to-cart-btn').evaluateAll((buttons) =>
+    [...new Set(buttons.map((button) => button.getAttribute('data-id')).filter(Boolean))]
+  );
+  expect(ids.length).toBeGreaterThanOrEqual(2);
+  const [ghostId, newId] = ids as string[];
+
+  await page.evaluate((id) => {
+    localStorage.setItem('astro-poc-cart', '[]');
+    localStorage.setItem(
+      'cart',
+      JSON.stringify([
+        { id, name: 'Old item', category: 'test', price: 1000, image: '', quantity: 2 },
+      ])
+    );
+  }, ghostId);
+  await page.reload({ waitUntil: 'networkidle' });
+  await waitForReady(page);
+  await expect(page.locator('#cart-count')).toHaveText('0');
+
+  await page.locator(`.category-strip .add-to-cart-btn[data-id="${newId}"]`).first().click();
+  const idsAfter = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('astro-poc-cart') || '[]').map(
+      (item: { id: string }) => item.id
+    )
+  );
+  expect(idsAfter).toEqual([newId]);
+});
+
+test('an edit rebases a stale in-memory cart instead of bringing back deleted items', async ({
+  page,
+}) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await waitForReady(page);
+  await page.evaluate(() => localStorage.clear());
+  await page.reload({ waitUntil: 'networkidle' });
+  await waitForReady(page);
+
+  const ids = await page.locator('.category-strip .add-to-cart-btn').evaluateAll((buttons) =>
+    [...new Set(buttons.map((button) => button.getAttribute('data-id')).filter(Boolean))]
+  );
+  expect(ids.length).toBeGreaterThanOrEqual(2);
+  const [removedId, addedId] = ids as string[];
+  await page.locator(`.category-strip .add-to-cart-btn[data-id="${removedId}"]`).first().click();
+
+  // Simulate a same-tab controller writing the authoritative empty cart
+  // without updating the storefront's closed-over in-memory copy.
+  await page.evaluate(() => localStorage.setItem('astro-poc-cart', '[]'));
+  await page.locator(`.category-strip .add-to-cart-btn[data-id="${addedId}"]`).first().click();
+
+  const cartIds = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('astro-poc-cart') || '[]').map(
+      (item: { id: string }) => item.id
+    )
+  );
+  expect(cartIds).toEqual([addedId]);
+  await expect(page.locator('#cart-count')).toHaveText('1');
+
+  // A queued/stale storage event must not re-apply its old payload.
+  await page.evaluate((id) => {
+    const stale = JSON.stringify([{ id, quantity: 3 }]);
+    window.dispatchEvent(
+      new StorageEvent('storage', {
+        key: 'astro-poc-cart',
+        newValue: stale,
+        storageArea: localStorage,
+      })
+    );
+  }, removedId);
+  const afterEvent = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('astro-poc-cart') || '[]').map(
+      (item: { id: string }) => item.id
+    )
+  );
+  expect(afterEvent).toEqual([addedId]);
+  await expect(page.locator('#cart-count')).toHaveText('1');
+});
