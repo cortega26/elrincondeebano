@@ -1,6 +1,6 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-18T15:00:00.000Z",
+  "last_updated": "2026-10-18T15:02:22.434Z",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -184,7 +184,7 @@
     },
     {
       "name": "Crunchis Queso Marco Polo 160g",
-      "description": "Bolsa de plástico. Papas para picotear entre comidas o compartir.",
+      "description": "Bolsa de 160 g de Crunchis sabor queso. Snack salado para picotear o compartir.",
       "price": 2000,
       "discount": 0,
       "stock": false,
@@ -208,7 +208,7 @@
     },
     {
       "name": "Líder • Salsa de tomate",
-      "description": "Botella de 680g. Para pastas y otras preparaciones con salsa.",
+      "description": "Botella de 680 g de salsa de tomate tipo ketchup. Para acompañar papas fritas, sándwiches y otras comidas.",
       "price": 3500,
       "discount": 0,
       "stock": false,
@@ -376,7 +376,7 @@
     },
     {
       "name": "Leche Semidescremada Deslactosada",
-      "description": "Envase Tetrabrik de 1L. Para salsas, postres y recetas que requieren crema.",
+      "description": "Envase Tetrabrik de 1L. Leche semidescremada deslactosada para desayunos, café y preparaciones cotidianas.",
       "price": 2000,
       "discount": 0,
       "stock": true,
@@ -1108,7 +1108,7 @@
     },
     {
       "name": "Mario Bros",
-      "description": "Llavero PVC alta calidad. Accesorio de PVC para identificar llaves, mochilas o bolsos.",
+      "description": "Llavero de PVC con diseño de Mario Bros. Para llevar con las llaves, en el bolso o en la mochila.",
       "price": 3900,
       "discount": 0,
       "stock": true,
@@ -1120,7 +1120,7 @@
     },
     {
       "name": "Luigi",
-      "description": "Llavero PVC alta calidad. Accesorio de PVC para identificar llaves, mochilas o bolsos.",
+      "description": "Llavero de PVC con diseño de Luigi. Para llevar con las llaves, en el bolso o en la mochila.",
       "price": 3900,
       "discount": 0,
       "stock": true,
@@ -1132,7 +1132,7 @@
     },
     {
       "name": "Yoshi",
-      "description": "Llavero PVC alta calidad. Accesorio de PVC para identificar llaves, mochilas o bolsos.",
+      "description": "Llavero de PVC con diseño de Yoshi. Para llevar con las llaves, en el bolso o en la mochila.",
       "price": 3900,
       "discount": 0,
       "stock": true,
@@ -1144,7 +1144,7 @@
     },
     {
       "name": "Peach",
-      "description": "Llavero PVC alta calidad. Accesorio de PVC para identificar llaves, mochilas o bolsos.",
+      "description": "Llavero de PVC con diseño de Peach. Para llevar con las llaves, en el bolso o en la mochila.",
       "price": 3900,
       "discount": 0,
       "stock": true,
@@ -1156,7 +1156,7 @@
     },
     {
       "name": "Bowser",
-      "description": "Llavero PVC alta calidad. Accesorio de PVC para identificar llaves, mochilas o bolsos.",
+      "description": "Llavero de PVC con diseño de Bowser. Para llevar con las llaves, en el bolso o en la mochila.",
       "price": 3900,
       "discount": 0,
       "stock": true,
@@ -1168,7 +1168,7 @@
     },
     {
       "name": "Donkey Kong",
-      "description": "Llavero PVC alta calidad. Accesorio de PVC para identificar llaves, mochilas o bolsos.",
+      "description": "Llavero de PVC con diseño de Donkey Kong. Para llevar con las llaves, en el bolso o en la mochila.",
       "price": 3900,
       "discount": 0,
       "stock": true,
