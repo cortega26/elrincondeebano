@@ -5,7 +5,9 @@ import {
   productCatalogSchema,
 } from '../../src/shared/schemas/product.ts';
 import { categoryRegistrySchema } from '../../src/shared/schemas/category.ts';
+import { commsTemplateSchema } from '../../src/shared/schemas/comms.ts';
 import { storefrontExperienceSchema } from '../../src/shared/schemas/storefront.ts';
+import { syncConfigSchema } from '../../src/server/adapters/syncAdapter.ts';
 
 test('productSchema accepts a valid product', () => {
   const product = {
@@ -335,4 +337,26 @@ test('fieldMetadataSchema enforces strict shape (plan 154)', () => {
       },
     }).success
   ).toBe(false);
+});
+
+// ── plan 228: zod v4 top-level string formats (z.iso.datetime / z.url) ───────
+
+test('commsTemplateSchema accepts a valid ISO datetime and rejects an invalid one', () => {
+  const template = {
+    id: 't1',
+    kind: 'mensaje',
+    title: 'Promo',
+    body: 'Hola',
+    category: 'novedades',
+    updated_at: '2026-10-18T12:00:00.000Z',
+  };
+  expect(commsTemplateSchema.safeParse(template).success).toBe(true);
+  expect(commsTemplateSchema.safeParse({ ...template, updated_at: '18-10-2026' }).success).toBe(
+    false
+  );
+});
+
+test('syncConfigSchema accepts a valid URL in api_base and rejects an invalid one', () => {
+  expect(syncConfigSchema.safeParse({ api_base: 'https://example.com/api' }).success).toBe(true);
+  expect(syncConfigSchema.safeParse({ api_base: 'example.com' }).success).toBe(false);
 });

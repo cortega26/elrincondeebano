@@ -55,8 +55,8 @@ export const commsTemplateSchema = z.object({
   images: z.array(catalogImageSchema).max(10).default([]),
   favorite: z.boolean().default(false),
   archived: z.boolean().default(false),
-  updated_at: z.string().datetime(),
-  last_used_at: z.string().datetime().optional(),
+  updated_at: z.iso.datetime(),
+  last_used_at: z.iso.datetime().optional(),
 });
 export type CommsTemplate = z.infer<typeof commsTemplateSchema>;
 
@@ -100,7 +100,7 @@ export const COMMS_STATUS_LABELS: Record<(typeof COMMS_STATUSES)[number], string
 
 export const commsActivitySchema = z.object({
   id: idSchema,
-  at: z.string().datetime(),
+  at: z.iso.datetime(),
   template_id: z.string().max(64).nullable(),
   template_title: z.string().max(120),
   destination_id: z.string().max(64).nullable(),
@@ -116,7 +116,7 @@ export const MAX_ACTIVITY = 500;
 export const commsDocumentSchema = z.object({
   schema_version: z.literal(COMMS_SCHEMA_VERSION),
   rev: z.number().int().nonnegative(),
-  updated_at: z.string().datetime(),
+  updated_at: z.iso.datetime(),
   templates: z.array(commsTemplateSchema).max(500),
   destinations: z.array(commsDestinationSchema).max(500),
   activity: z.array(commsActivitySchema).max(MAX_ACTIVITY),
@@ -127,7 +127,7 @@ export type CommsDocument = z.infer<typeof commsDocumentSchema>;
 export const COMMS_BACKUP_FORMAT = 'rincon-comms-backup' as const;
 export const commsBackupSchema = z.object({
   format: z.literal(COMMS_BACKUP_FORMAT),
-  exported_at: z.string().datetime(),
+  exported_at: z.iso.datetime(),
   data: commsDocumentSchema,
 });
 export type CommsBackup = z.infer<typeof commsBackupSchema>;
