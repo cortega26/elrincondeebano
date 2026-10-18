@@ -57,7 +57,7 @@ const sharePreview = createSharePreviewMetadata({
   ]}
   breadcrumbs={[
     { name: 'Inicio', url: '/' },
-    { name: item.product.category, url: `/${item.product.category.toLowerCase()}/` },
+    { name: item.product.category, url: getModernCategoryPath(item.product.category) },
     { name: item.product.name, url: canonicalPath },
   ]}
 >
