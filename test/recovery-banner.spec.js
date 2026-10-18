@@ -64,6 +64,7 @@ describe('storefront order-completion controller', () => {
     controller.markOrderAsSent();
 
     expect(dependencies.saveCart).toHaveBeenCalledWith([]);
+    expect(dependencies.onCartCleared).toHaveBeenCalledOnce();
     expect(storageData.get('orderLastSentAt')).toEqual(expect.any(Number));
     expect(dependencies.updateBadge).toHaveBeenCalledWith([], { animate: true });
     expect(dependencies.renderCart).toHaveBeenCalledWith([]);
