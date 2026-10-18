@@ -7,7 +7,12 @@
 > in `plans/README.md` — unless a reviewer dispatched you and told you they
 > maintain the index.
 >
-> **Drift check (run first)**: `git diff --stat 97b21096..HEAD -- docs/ AGENTS.md CLAUDE.md CONTRIBUTING.md README.md`
+> **Drift check (run first)**: `git diff --stat 673df7f2..HEAD -- docs/ AGENTS.md CLAUDE.md CONTRIBUTING.md README.md`
+> (Reconciled to `673df7f2`: plans 218/222/226 changed RUNBOOK lines
+> 79/118/211, CODEBASE_MAP row 130 + table padding, and
+> QUALITY_GUARDRAILS line 100. This plan's target lines — START_HERE
+> 19/25, RUNBOOK 226, CODEBASE_MAP 13/44/96-111, VALIDATION_MATRIX 26,
+> CLAUDE 19, docs/README, ADR 0011, COMMS.md — are unchanged.)
 > If any in-scope file changed since this plan was written, compare the
 > "Current state" excerpts against the live text before proceeding; on a
 > mismatch, treat it as a STOP condition.
@@ -19,7 +24,7 @@
 - **Risk**: LOW
 - **Depends on**: none (independent doc fixes); coordinate notes with plan 242 (assets/css) — see Step 5
 - **Category**: docs
-- **Planned at**: commit `97b21096`, 2026-10-18
+- **Planned at**: commit `97b21096`, 2026-10-18 (reconciled to `673df7f2`; RUNBOOK/CODEBASE_MAP/QUALITY_GUARDRAILS had prefix/row updates from plans 218/222/226 — target lines unaffected)
 
 ## Why this matters
 
