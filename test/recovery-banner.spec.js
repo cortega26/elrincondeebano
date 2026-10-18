@@ -81,6 +81,7 @@ describe('storefront order-completion controller', () => {
     controller.markOrderAsSent();
 
     expect(dependencies.showCartSaveError).toHaveBeenCalledOnce();
+    expect(dependencies.onCartCleared).not.toHaveBeenCalled();
     expect(dependencies.updateBadge).not.toHaveBeenCalled();
     expect(dependencies.renderCart).not.toHaveBeenCalled();
     expect(storageData.has('orderLastSentAt')).toBe(false);
