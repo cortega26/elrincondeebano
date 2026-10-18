@@ -39,17 +39,22 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-24.04
+    env:
+      ROLLBACK_REF: ${{ inputs.rollback_ref }}
     steps:
       - name: Checkout rollback ref
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ inputs.rollback_ref }}
+          ref: ${{ env.ROLLBACK_REF }}
           persist-credentials: false
 
       - name: Resolve rollback metadata
         shell: bash
         run: |
-          echo "ROLLBACK_REF=${{ inputs.rollback_ref }}" >> "$GITHUB_ENV"
+          if ! [[ "$ROLLBACK_REF" =~ ^[A-Za-z0-9._/-]{1,128}$ ]]; then
+            echo "::error::rollback_ref has an unexpected format"; exit 1
+          fi
+          echo "ROLLBACK_REF=$ROLLBACK_REF" >> "$GITHUB_ENV"
           echo "ROLLBACK_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
 
       - uses: ./.github/actions/setup-node-and-deps
