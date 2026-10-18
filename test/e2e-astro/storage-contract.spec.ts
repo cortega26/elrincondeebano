@@ -565,3 +565,68 @@ test('adding a current SKU upgrades its historical ID without creating another c
   await waitForReady(page);
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('astro-poc-cart') || '[]'))).toEqual([]);
 });
+
+test('stale persisted prices refresh from the live catalog without rewriting storage', async ({
+  page,
+}) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await waitForReady(page);
+
+  const button = page.locator('.category-strip .add-to-cart-btn').first();
+  const product = await button.evaluate((element) => {
+    const card = element.closest<HTMLElement>('[data-product-id]')!;
+    return {
+      id: card.dataset.productId!,
+      name: card.dataset.productName!,
+      category: card.dataset.productCategory || '',
+      price: Number(card.dataset.productPrice),
+      discount: Number(card.dataset.productDiscount || 0),
+      image: card.querySelector('img')?.getAttribute('src') || '',
+    };
+  });
+
+  const stalePrice = product.price + 500;
+  expect(stalePrice).not.toBe(product.price);
+  await page.evaluate(
+    ({ item, price }) => {
+      localStorage.setItem('astro-poc-cart', JSON.stringify([{ ...item, price, quantity: 2 }]));
+    },
+    { item: product, price: stalePrice }
+  );
+
+  await page.reload({ waitUntil: 'networkidle' });
+  await waitForReady(page);
+
+  // Quantity survives, and the cart view is priced from the current catalog.
+  await expect(page.locator('#cart-count')).toHaveText('2');
+  await page.locator('#cart-icon').click();
+  const offcanvas = page.locator('#cartOffcanvas');
+  await expect(offcanvas).toBeVisible();
+
+  const effectivePrice = Math.max(0, product.price - (product.discount || 0));
+  const format = (value: number) =>
+    new Intl.NumberFormat('es-CL', {
+      style: 'currency',
+      currency: 'CLP',
+      minimumFractionDigits: 0,
+    }).format(value);
+
+  const line = offcanvas.locator(`#cart-items .cart-item[data-id="${product.id}"]`);
+  await expect(line.locator('.cart-item__price-line')).toHaveText(
+    `Unitario: ${format(effectivePrice)}`
+  );
+  await expect(line.locator('.cart-item__subtotal')).toHaveText(
+    `Subtotal: ${format(effectivePrice * 2)}`
+  );
+  await expect(line.locator('.item-quantity')).toHaveText('2');
+  await expect(page.locator('#cart-total')).toHaveText(`Total: ${format(effectivePrice * 2)}`);
+
+  // The display refresh is in-memory by design: the persisted snapshot keeps
+  // its stale price (writing refreshed fields could collapse rows on the next
+  // sanitize — visualCartIdentity includes price/discount).
+  const stored = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('astro-poc-cart') || '[]')
+  );
+  expect(stored).toHaveLength(1);
+  expect(stored[0]).toMatchObject({ id: product.id, price: stalePrice, quantity: 2 });
+});
