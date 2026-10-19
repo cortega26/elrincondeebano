@@ -14,7 +14,7 @@
 - **Priority**: P3
 - **Effort**: S
 - **Risk**: LOW (solo docs)
-- **Depends on**: 272 (changesets retirado), 258/274 (gates nuevos)
+- **Depends on**: 272 (changesets retirado), 258/274/275 (gates nuevos)
 - **Category**: docs / gardening
 - **Planned at**: commit `e67e8488`, 2026-10-19
 
@@ -43,7 +43,8 @@ principio del repo es "este archivo es un índice".
   CODEBASE_MAP:13 dicen "retired by plan 239"; RELEASE.md:14 documenta la
   decisión del 272) — correctas, no tocar.
 - Gates nuevos ya en main que la matriz no menciona: `typecheck` incluye
-  `typecheck:e2e` (258), admin e2e `test:e2e:products` (274).
+  `typecheck:e2e` (258), admin e2e `test:e2e:products` (274) y el guard de
+  build tree-clean en CI (275).
 
 ## Commands you will need
 
@@ -110,8 +111,9 @@ principio del repo es "este archivo es un índice".
 
 ### Step 3: VALIDATION_MATRIX (+ mapa si aplica)
 
-- Menciona que `npm run typecheck` incluye la pata e2e (258) y que el
-  admin tiene `test:e2e:products` (274) — en la sección que corresponda.
+- Menciona que `npm run typecheck` incluye la pata e2e (258), que el
+  admin tiene `test:e2e:products` (274) y que CI corre el guard de build
+  tree-clean tras el build canónico (275) — en la sección que corresponda.
 - Si el sweep marcó una fila falsa en `CODEBASE_MAP.md`, corrígela
   (mínimo).
 
