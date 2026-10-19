@@ -72,7 +72,13 @@ function setup(dir: string): void {
 
 function readCatalog(dir: string): {
   rev: number;
-  products: Array<{ id: string; price: number; is_archived: boolean; rev: number }>;
+  products: Array<{
+    id: string;
+    name: string;
+    price: number;
+    is_archived: boolean;
+    rev: number;
+  }>;
 } {
   return JSON.parse(readFileSync(resolve(dir, 'data', 'product_data.json'), 'utf8'));
 }

@@ -235,7 +235,7 @@ test('create-from-copy yields a fresh identity with full field parity', async ()
         id: string;
         name: string;
         rev: number;
-        field_last_modified: Record<string, unknown>;
+        field_last_modified: Record<string, { rev: number } | undefined>;
       };
     }>().product;
 

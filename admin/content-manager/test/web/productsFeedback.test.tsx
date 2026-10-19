@@ -5,7 +5,7 @@
 // concept remains — Sincronizar tienda.)
 
 import { screen, waitFor, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderWithRouter, mockApi, productA } from './harness.tsx';

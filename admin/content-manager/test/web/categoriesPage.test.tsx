@@ -5,7 +5,7 @@
 // itself is pinned in categoryMutationApi.test.ts (plan 096).
 
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { renderWithRouter, mockApi } from './harness.tsx';

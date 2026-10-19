@@ -11,6 +11,10 @@ import type { PersistentIdempotencyStore } from '../services/persistentIdempoten
 import type { RecoveryJournal } from '../services/recoveryJournal.ts';
 import type { CommandResult } from '../../shared/commands/envelope.ts';
 
+// Structural subset the repository actually uses (get/has/set). The test
+// suite substitutes the in-memory IdempotencyStore through this seam.
+type IdempotencyStoreLike = Pick<PersistentIdempotencyStore, 'get' | 'has' | 'set'>;
+
 export interface ProductRepositoryConfig {
   repoRoot: string;
   dataFile?: string;
@@ -35,14 +39,14 @@ export class ProductRepository {
   private readonly filePath: string;
   private readonly lock: MutationLock;
   private readonly writer: AtomicWriter;
-  private idempotencyStore?: PersistentIdempotencyStore;
+  private idempotencyStore?: IdempotencyStoreLike;
   private readonly catalogMigrations?: CatalogMigration[];
   // Plan 092: mtime+size-keyed cache — every request used to re-read and
   // re-validate the whole catalog. Keyed on the file stat so external edits
   // (git pull, editor) invalidate automatically; writes invalidate eagerly.
   private cache: { key: string; catalog: ProductCatalog } | null = null;
 
-  constructor(config: ProductRepositoryConfig, idempotencyStore?: PersistentIdempotencyStore) {
+  constructor(config: ProductRepositoryConfig, idempotencyStore?: IdempotencyStoreLike) {
     const dataFile = config.dataFile ?? DEFAULT_PRODUCT_FILE;
     this.filePath = resolve(config.repoRoot, dataFile);
     this.lock = new MutationLock();
@@ -51,7 +55,7 @@ export class ProductRepository {
     this.catalogMigrations = config.catalogMigrations;
   }
 
-  setIdempotencyStore(store: PersistentIdempotencyStore): void {
+  setIdempotencyStore(store: IdempotencyStoreLike): void {
     this.idempotencyStore = store;
   }
 

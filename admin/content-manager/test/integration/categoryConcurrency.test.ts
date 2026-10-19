@@ -150,7 +150,7 @@ test('traversal ids in change-set/conflict/backup routes return 400', async () =
     const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
-    const probes: Array<[string, string]> = [
+    const probes: Array<['PATCH' | 'POST', string]> = [
       ['PATCH', '/api/v1/change-sets/..%2F..%2Fdata%2Fx'],
       ['POST', '/api/v1/change-sets/..%2F..%2Fdata%2Fx/discard'],
       ['POST', '/api/v1/conflicts/..%2F..%2Fdata%2Fx/resolve'],

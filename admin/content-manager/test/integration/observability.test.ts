@@ -33,7 +33,7 @@ test('responses carry x-request-id and 500s are correlated in the log', async ()
 
     const res = await app.inject({ method: 'GET', url: '/api/v1/health' });
     expect(res.statusCode).toBe(200);
-    const reqId = res.headers['x-request-id'];
+    const reqId = res.headers['x-request-id'] as string | undefined;
     expect(typeof reqId).toBe('string');
     expect(reqId!.length).toBeGreaterThan(0);
 

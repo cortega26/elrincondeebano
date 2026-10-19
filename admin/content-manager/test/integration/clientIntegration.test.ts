@@ -135,7 +135,7 @@ test('client bulkApply round-trips changed counts and skipped (plan 172 additive
   const ids: string[] = [];
   for (const name of ['Bulk A', 'Bulk B', 'Bulk C']) {
     const created = await client.createProduct({ name, price: 1000, category: 'cat1' });
-    ids.push(created.product.id);
+    ids.push(created.product.id!);
   }
 
   const result = await client.bulkApply('set_discount_fixed', 100, ids);
@@ -182,7 +182,7 @@ test('client exportCsv goes through the unified request core (plan 197)', async 
 
 test('real 409 race through the client resolves exactly-once, then recovers', async () => {
   const created = await client.createProduct({ name: 'Race', price: 100, category: 'cat1' });
-  const id = created.product.id;
+  const id = created.product.id!;
   const rev = created.product.rev;
 
   // Stale base revision surfaces a 409 with the conflict envelope.

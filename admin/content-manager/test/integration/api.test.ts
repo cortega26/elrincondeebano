@@ -5,9 +5,11 @@ import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 
 import { CREDENTIAL_HEADER } from '../../src/server/security/launchCredential.ts';
+import type { FastifyInstance } from 'fastify';
 
-function credHeaders(app: { launchCredential?: string }): Record<string, string> {
-  return { [CREDENTIAL_HEADER]: app.launchCredential ?? '' };
+function credHeaders(app: FastifyInstance): Record<string, string> {
+  const credential = (app as unknown as { launchCredential?: string }).launchCredential;
+  return { [CREDENTIAL_HEADER]: credential ?? '' };
 }
 
 function createTempDir(): string {

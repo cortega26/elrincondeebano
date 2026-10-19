@@ -60,7 +60,7 @@ test('applyPreferences sets dataset and font size on the root', () => {
 test('system theme resolves from the media query', () => {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
-    value: (query: string): { matches: boolean } => ({
+    value: (query: string) => ({
       matches: query.includes('dark'),
       media: query,
       addEventListener: () => {},

@@ -9,8 +9,8 @@ export const CATALOG_SCHEMA_VERSION = 1;
 export interface CatalogMigration {
   /** The version this migration upgrades FROM. */
   from: number;
-  /** Mutates/returns the catalog for the next shape. */
-  migrate(catalog: Record<string, unknown>): Record<string, unknown>;
+  /** Mutates the catalog for the next shape. The return value is ignored by migrateCatalog. */
+  migrate(catalog: Record<string, unknown>): void;
 }
 
 // The built-in registry — append new migrations here as the shape evolves.

@@ -203,7 +203,7 @@ test('valid bulk apply keeps identical preview/apply counts', async () => {
 });
 
 function makeCatalog(): ProductCatalog {
-  return { version: 'test', last_updated: '', rev: 0, products: [] };
+  return { version: 'test', last_updated: '', rev: 0, schema_version: 1, products: [] };
 }
 
 test('bulkPreview and bulkApply fail unknown actions loudly at the service layer', () => {

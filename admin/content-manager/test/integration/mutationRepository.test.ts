@@ -17,6 +17,7 @@ const baseCatalog: ProductCatalog = {
   version: '20260715-test',
   last_updated: '2026-07-15T00:00:00.000Z',
   rev: 5,
+  schema_version: 1,
   products: [
     {
       name: 'P1',

@@ -44,12 +44,12 @@ test('AtomicWriter happy path writes and backs up on the second write', () => {
     const dataFile = resolve(dir, 'data', 'catalog.json');
     const writer = new AtomicWriter(dataFile);
 
-    const catalog1: ProductCatalog = { version: 'v1', last_updated: '', rev: 1, products: [] };
+    const catalog1: ProductCatalog = { version: 'v1', last_updated: '', rev: 1, schema_version: 1, products: [] };
     const result1 = writer.write(catalog1);
     expect(result1.success).toBe(true);
     expect(result1.backedUp).toBe(false);
 
-    const catalog2: ProductCatalog = { version: 'v2', last_updated: '', rev: 2, products: [] };
+    const catalog2: ProductCatalog = { version: 'v2', last_updated: '', rev: 2, schema_version: 1, products: [] };
     const result2 = writer.write(catalog2);
     expect(result2.success).toBe(true);
     expect(result2.backedUp).toBe(true);
@@ -64,7 +64,7 @@ test('AtomicWriter restores the previous file when the tmp -> target rename fail
     const dataFile = resolve(dir, 'data', 'catalog.json');
     const writer = new AtomicWriter(dataFile);
 
-    const catalog1: ProductCatalog = { version: 'v1', last_updated: '', rev: 1, products: [] };
+    const catalog1: ProductCatalog = { version: 'v1', last_updated: '', rev: 1, schema_version: 1, products: [] };
     const first = writer.write(catalog1);
     expect(first.success).toBe(true);
     const previousContent = readFileSync(dataFile, 'utf-8');
@@ -76,7 +76,7 @@ test('AtomicWriter restores the previous file when the tmp -> target rename fail
     renameState.callCount = 0;
     renameState.failAtCall = 2;
 
-    const catalog2: ProductCatalog = { version: 'v2', last_updated: '', rev: 2, products: [] };
+    const catalog2: ProductCatalog = { version: 'v2', last_updated: '', rev: 2, schema_version: 1, products: [] };
     const result = writer.write(catalog2);
 
     expect(result.success).toBe(false);
@@ -102,7 +102,7 @@ test('AtomicWriter calls the recovery journal on start/complete and on failure',
     };
     const writer = new AtomicWriter(dataFile, journal as never);
 
-    const catalog: ProductCatalog = { version: 'v1', last_updated: '', rev: 1, products: [] };
+    const catalog: ProductCatalog = { version: 'v1', last_updated: '', rev: 1, schema_version: 1, products: [] };
     const result = writer.write(catalog, 'cmd-1');
     expect(result.success).toBe(true);
     expect(journal.startOperation).toHaveBeenCalledWith(
@@ -117,7 +117,7 @@ test('AtomicWriter calls the recovery journal on start/complete and on failure',
     renameState.callCount = 0;
     renameState.failAtCall = 2;
 
-    const catalog2: ProductCatalog = { version: 'v2', last_updated: '', rev: 2, products: [] };
+    const catalog2: ProductCatalog = { version: 'v2', last_updated: '', rev: 2, schema_version: 1, products: [] };
     const failed = writer.write(catalog2, 'cmd-2');
     expect(failed.success).toBe(false);
     expect(journal.failOperation).toHaveBeenCalledWith('atomic-write', 'catalog.json', 'cmd-2');

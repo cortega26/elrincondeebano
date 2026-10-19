@@ -16,10 +16,11 @@ const catalog = (rev: number, name = 'Widget'): ProductCatalog => ({
   version: 'v1',
   last_updated: '2026-01-01T00:00:00.000Z',
   rev,
+  schema_version: 1,
   products: [
     {
       id: 'p1',
-      sku: null,
+      sku: null as unknown as string | undefined,
       name,
       description: '',
       price: 100,
@@ -69,10 +70,10 @@ const failingFs = (failOn: { op: Op; call: number }): AtomicFs => {
       fail('writeFileSync');
       return NODE_FS.writeFileSync(...args);
     },
-    readFileSync: (...args) => {
+    readFileSync: ((...args: Parameters<typeof NODE_FS.readFileSync>) => {
       fail('readFileSync');
       return NODE_FS.readFileSync(...args);
-    },
+    }) as typeof NODE_FS.readFileSync,
     renameSync: (...args) => {
       fail('renameSync');
       return NODE_FS.renameSync(...args);
@@ -85,14 +86,14 @@ const failingFs = (failOn: { op: Op; call: number }): AtomicFs => {
       fail('existsSync');
       return NODE_FS.existsSync(...args);
     },
-    readdirSync: (...args) => {
+    readdirSync: ((...args: Parameters<typeof NODE_FS.readdirSync>) => {
       fail('readdirSync');
       return NODE_FS.readdirSync(...args);
-    },
-    statSync: (...args) => {
+    }) as typeof NODE_FS.readdirSync,
+    statSync: ((...args: Parameters<typeof NODE_FS.statSync>) => {
       fail('statSync');
       return NODE_FS.statSync(...args);
-    },
+    }) as typeof NODE_FS.statSync,
   };
 };
 
@@ -147,9 +148,9 @@ test('writeFileSync is never called directly on the target path', () => {
     const writes: string[] = [];
     const spyFs: AtomicFs = {
       ...NODE_FS,
-      writeFileSync: (path: string | URL, ...args: Parameters<typeof NODE_FS.writeFileSync>) => {
-        writes.push(String(path));
-        return NODE_FS.writeFileSync(path, ...args);
+      writeFileSync: (...args: Parameters<typeof NODE_FS.writeFileSync>) => {
+        writes.push(String(args[0]));
+        return NODE_FS.writeFileSync(...args);
       },
     };
     const writer = new AtomicWriter(dataFile, undefined, spyFs);

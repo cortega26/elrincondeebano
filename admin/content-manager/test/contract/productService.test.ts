@@ -8,6 +8,7 @@ function makeCatalog(rev = 0): ProductCatalog {
     version: '20260715-test',
     last_updated: '2026-07-15T00:00:00.000Z',
     rev,
+    schema_version: 1,
     products: [],
   };
 }

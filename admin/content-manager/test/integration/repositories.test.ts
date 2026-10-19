@@ -300,8 +300,9 @@ test('CategoryRepository does not mutate data on read', () => {
 // Plan 081: clearing all storefront bundles must persist [] instead of
 // leaving the stale standalone bundles file behind.
 import { StorefrontRepository } from '../../src/server/repositories/storefrontRepository.ts';
+import type { StorefrontExperience } from '../../src/shared/schemas/storefront.ts';
 
-const experienceWithBundles = (bundles: unknown[]) => ({
+const experienceWithBundles = (bundles: StorefrontExperience['bundles']): StorefrontExperience => ({
   trustBar: { highlights: [], statusItems: [] },
   home: {
     primaryCategories: [],
@@ -386,6 +387,7 @@ test('CategoryRepository.write restores the previous registry when the tmp -> ta
 
     const result = await repo.write(
       {
+        rev: 0,
         nav_groups: validCategories.nav_groups,
         categories: [
           ...validCategories.categories,
