@@ -81,6 +81,12 @@ textarea:focus-visible,
   outline-offset: 2px;
 }
 
+/* Plan 273: el enlace del 404 heredaba --bs-link-color (#0d6efd, 4.27:1
+   sobre #faf9f6). Token primario: 7.64:1, AA para texto normal. */
+[aria-labelledby='not-found-title'] a {
+  color: var(--primary-color);
+}
+
 .dropdown-item:focus-visible {
   background-color: rgba(0, 91, 79, 0.12);
 }
@@ -307,6 +313,9 @@ h1 {
   margin: 0;
   padding: 0;
   font-size: 0.82rem;
+  /* Plan 273: el enlace heredaba --bs-link-color (#0d6efd, 4.27:1 sobre
+     #faf9f6). Token primario: 7.64:1, AA para texto normal. */
+  color: var(--primary-color);
 }
 
 .service-guide-trigger {
