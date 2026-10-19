@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { lazy, Suspense, useState, useEffect, useRef } from 'react';
 import { ContentManagerClient, ApiRequestError } from '../../api/client.ts';
 import type { ProductResponse } from '../../api/client.ts';
 import type { CategoryRecord } from '../../../shared/schemas/category.ts';
@@ -9,7 +9,6 @@ import {
   saveStack,
   moveEntryOnSuccess,
 } from './undo.ts';
-import { ProductForm } from '../components/ProductForm.tsx';
 import { useProductsQuery } from '../components/useProductsQuery.ts';
 import { FilterBar } from '../components/FilterBar.tsx';
 import { BulkOpsBar } from '../components/BulkOpsBar.tsx';
@@ -18,6 +17,22 @@ import { ProductInspector } from '../components/ProductInspector.tsx';
 import { Feedback } from '../components/Feedback.tsx';
 import { SyncStoreButton } from '../components/SyncStoreButton.tsx';
 import type { UndoEntry } from './undo.ts';
+
+// Plan 271: ProductForm (y con él zod) solo se descarga al abrir el alta o la
+// edición; antes viajaba en el chunk inicial porque ProductsPage es la ruta
+// index. Se preserva el export named para los consumidores.
+const ProductForm = lazy(() =>
+  import('../components/ProductForm.tsx').then((m) => ({ default: m.ProductForm }))
+);
+
+// Plan 271: mismo aviso accesible que el fallback de rutas del plan 241.
+function ProductFormPending(): React.ReactElement {
+  return (
+    <div className="route-loading" role="status">
+      Cargando…
+    </div>
+  );
+}
 
 const client = new ContentManagerClient();
 
@@ -793,12 +808,14 @@ export function ProductsPage(): React.ReactElement {
 
       <ProductInspector selected={selected} onEdit={setEditing} onClose={() => setSelected(null)} />
 
-      {editing && (
-        <ProductForm product={editing} onSave={handleSave} onCancel={() => setEditing(null)} />
-      )}
+      <Suspense fallback={<ProductFormPending />}>
+        {editing && (
+          <ProductForm product={editing} onSave={handleSave} onCancel={() => setEditing(null)} />
+        )}
 
-      {/* Create form */}
-      {creating && <ProductForm onSave={handleCreate} onCancel={() => setCreating(false)} />}
+        {/* Create form */}
+        {creating && <ProductForm onSave={handleCreate} onCancel={() => setCreating(false)} />}
+      </Suspense>
     </main>
   );
 }
