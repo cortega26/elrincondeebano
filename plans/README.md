@@ -218,6 +218,8 @@ typecheck-e2e 227, canary 225, fetch-fonts 234).
 **3.ª ola (261–262)**: envelope 4xx con code real (fila 13) y barrido
 `steps.*` del canary (observación del 259) — **completa** (2026-10-19;
 registro en **7 Resolved**).
+**4.ª ola (263)**: el ciclo grande — typecheck del árbol de tests del
+admin (142 errores → 0 + cableado permanente).
 
 | Plan                                        | Título                                                     | Prioridad | Esfuerzo | Depende de   | Estado                                                                                                                                                                                                                                                                                                                      |
 | ------------------------------------------- | ---------------------------------------------------------- | --------- | -------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -230,6 +232,7 @@ registro en **7 Resolved**).
 | [260](archive/260-fetch-fonts-remote.md)    | `fetch-fonts`: extractor de comillas + UA moderna (remoto) | P3        | S        | —            | DONE — 2026-10-19 (`8c6bbad7`, worktree `advisor/260-fetch-fonts-remote`; merged a main `c7821770`; remoto → md5 `cd56e2ec…` byte-idéntico al woff2 commiteado (repro + re-corrida local del reviewer); copy local no-vacuous probada; fila 11 del registro → Resolved; conflicto con 259 resuelto conservando ambas filas) |
 | [261](archive/261-4xx-error-code.md)        | Envelope 4xx: preservar el code real (fila 13)             | P3        | S        | —            | DONE — 2026-10-19 (`36168175`, worktree `advisor/261-4xx-error-code`; merged a main `105c1ec6`; before/after: 400 `NOT_FOUND` → `FST_ERR_CTP_EMPTY_JSON_BODY` real; sonda raw nueva + suites verdes (878); fila 13 del registro → Resolved)                                                                                 |
 | [262](archive/262-canary-steps-env-pass.md) | Canary: env-pass de `steps.*` en bloques bash              | P3        | XS       | 259          | DONE — 2026-10-19 (`7e495126`, worktree `advisor/262-canary-steps-env-pass`; merged a main `485cb0b3`; R1 tras STOP correcto (los 5 `github.*` del metadata quedan por decisión del 225, documentados); construction-check JSON/echo idénticos; sweep del reviewer steps/job=0)                                             |
+| [263](263-admin-test-typecheck.md)          | Typecheck del árbol de tests del admin: 142 → 0 + cableado | P2        | L        | 227          | TODO                                                                                                                                                                                                                                                                                                                        |
 
 ---
 
