@@ -30,7 +30,7 @@ test('generateChangeSetId unique', () => {
 // ── plan 087: field allowlist ────────────────────────────────────────────────
 
 test('editable fields are exactly the product write surface', () => {
-  expect(EDITABLE_PRODUCT_FIELDS.sort()).toEqual(
+  expect((EDITABLE_PRODUCT_FIELDS as unknown as string[]).sort()).toEqual(
     [
       'name',
       'description',

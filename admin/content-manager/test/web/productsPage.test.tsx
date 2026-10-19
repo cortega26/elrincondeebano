@@ -3,7 +3,7 @@
 // previously only had e2e coverage (bugs 099/101/126 lived here).
 
 import { screen, waitFor, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { renderWithRouter, flushPromises, mockApi, productA } from './harness.tsx';

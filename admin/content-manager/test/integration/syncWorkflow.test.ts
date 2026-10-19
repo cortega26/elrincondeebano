@@ -536,7 +536,7 @@ test('queue survives restart and runtime config reconfiguration needs no restart
     await app2.ready();
     const ch2 = credHeaders(app2);
     let status = (await app2.inject({ method: 'GET', url: '/api/v1/sync/status' })).json<{
-      sync: { queue: { error: number } };
+      sync: { queue: { error: number }; paused: boolean };
     }>();
     expect(status.sync.queue.error).toBe(1);
 
@@ -562,7 +562,7 @@ test('queue survives restart and runtime config reconfiguration needs no restart
     // Pause: sync/now becomes a no-op.
     await app2.inject({ method: 'POST', url: '/api/v1/sync/pause', headers: ch2 });
     status = (await app2.inject({ method: 'GET', url: '/api/v1/sync/status' })).json<{
-      sync: { paused: boolean };
+      sync: { queue: { error: number }; paused: boolean };
     }>();
     expect(status.sync.paused).toBe(true);
     const paused = await app2.inject({ method: 'POST', url: '/api/v1/sync/now', headers: ch2 });
@@ -638,7 +638,7 @@ test('GET /api/v1/sync/events streams the sync status over SSE (plan 127 F3.4)',
       },
       { timeout: 3000, interval: 50 },
     );
-    req?.destroy();
+    (req as http.ClientRequest | null)?.destroy();
     await Promise.race([
       dataPromise.catch(() => {}),
       new Promise<void>((r) => setImmediate(r as () => void)),

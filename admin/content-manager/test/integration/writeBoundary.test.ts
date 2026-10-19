@@ -12,7 +12,7 @@ import { CREDENTIAL_HEADER } from '../../src/server/security/launchCredential.ts
 interface Probe {
   method: 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   url: string;
-  payload?: unknown;
+  payload?: object;
 }
 
 const MUTATION_PROBES: Probe[] = [

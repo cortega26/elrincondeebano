@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 // Plan 013 Step 1: paste-path cap + file-picker cap share MAX_IMPORT_BYTES.
 import { screen, waitFor, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { renderWithRouter, mockApi } from './harness.tsx';

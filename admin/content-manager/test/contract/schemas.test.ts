@@ -37,7 +37,7 @@ test('productSchema accepts a valid product', () => {
   expect(result.success).toBe(true);
   if (result.success) {
     expect(result.data.name).toBe('Test Product');
-    expect(result.data.discounted_price).toBeUndefined();
+    expect((result.data as Record<string, unknown>).discounted_price).toBeUndefined();
   }
 });
 

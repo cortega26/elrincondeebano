@@ -3,7 +3,7 @@
 // category, undo it (delete op through the batch endpoint), redo it.
 
 import { screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
 import { describe, test, expect, beforeEach } from 'vitest';
 import { renderWithRouter, mockApi } from './harness.tsx';
