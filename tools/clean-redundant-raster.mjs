@@ -1,6 +1,7 @@
 import { readdirSync, statSync, unlinkSync, existsSync } from 'node:fs';
 import { join, extname, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { logger } from './utils/logger.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..');
@@ -23,7 +24,7 @@ function walk(dir) {
           const sizeKb = Math.round(statSync(fullPath).size / 1024);
           unlinkSync(fullPath);
           const relPath = fullPath.slice(REPO_ROOT.length + 1);
-          console.log(`Removed ${relPath} (${sizeKb} KB) — ${alt} equivalent exists`);
+          logger.info(`Removed ${relPath} (${sizeKb} KB) — ${alt} equivalent exists`);
           break;
         }
       }

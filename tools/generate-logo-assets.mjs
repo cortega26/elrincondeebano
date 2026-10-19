@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
 import { REPO_ROOT as rootDir, ensureDir, writeBufferIfChanged } from './utils/image-pipeline.mjs';
+import { logger } from './utils/logger.mjs';
 
 const SOURCE_PATH = path.join(rootDir, 'assets', 'images', 'og', 'logo.png');
 const OUTPUT_DIR = path.join(rootDir, 'assets', 'images', 'web');
@@ -127,15 +128,15 @@ async function main() {
   for (const result of results) {
     const relativePath = path.relative(rootDir, result.path);
     if (result.updated) {
-      console.log(`Generated ${relativePath}`);
+      logger.info(`Generated ${relativePath}`);
       continue;
     }
 
-    console.log(`Unchanged ${relativePath}`);
+    logger.info(`Unchanged ${relativePath}`);
   }
 }
 
 main().catch((error) => {
-  console.error(error instanceof Error ? error.message : String(error));
+  logger.error(error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

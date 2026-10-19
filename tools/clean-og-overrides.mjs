@@ -1,6 +1,7 @@
 import { readdirSync, statSync, unlinkSync, existsSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { logger } from './utils/logger.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..');
@@ -64,7 +65,7 @@ const totalBytes = catResult.bytes + rootResult.bytes;
 
 if (totalRemoved > 0) {
   const kb = Math.round(totalBytes / 1024);
-  console.log(
+  logger.info(
     `OG cleanup: removed ${totalRemoved} source file(s) (${kb} KB) from public directory.`
   );
 }

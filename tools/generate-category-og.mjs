@@ -4,9 +4,10 @@
   lookupTitleForSlug,
   syncCategoryAssets,
 } from './utils/category-og.mjs';
+import { logger } from './utils/logger.mjs';
 
 if (process.env.PREFLIGHT_SKIP_OG === '1') {
-  console.log('PREFLIGHT_SKIP_OG=1: skipping category OG image generation.');
+  logger.info('PREFLIGHT_SKIP_OG=1: skipping category OG image generation.');
   process.exit(0);
 }
 
@@ -49,7 +50,7 @@ function parseArgs(argv) {
 }
 
 function printHelp() {
-  console.log(`Category OG pipeline (Node, batch renderer per plan 156)
+  logger.info(`Category OG pipeline (Node, batch renderer per plan 156)
 Usage:
   node tools/generate-category-og.mjs --sync [--dry-run] [--force] [--repo-root <path>]
   node tools/generate-category-og.mjs --one <slug> [--title <title>] [--dry-run] [--force] [--repo-root <path>]
@@ -74,7 +75,7 @@ async function main() {
   const hasDelete = Boolean(parsed.deleteSlug);
   const commandCount = (hasSync ? 1 : 0) + (hasOne ? 1 : 0) + (hasDelete ? 1 : 0);
   if (commandCount !== 1) {
-    console.error('ERROR: specify exactly one of --sync, --one <slug>, --delete <slug>');
+    logger.error('ERROR: specify exactly one of --sync, --one <slug>, --delete <slug>');
     process.exit(2);
   }
 
@@ -107,9 +108,10 @@ async function main() {
         dryRun: parsed.dryRun,
       });
     }
-    console.log(JSON.stringify(result, null, 2));
+    // Machine payload: the CLI result summary stays on raw stdout (plan 255).
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
   } catch (err) {
-    console.error(`ERROR: ${err instanceof Error ? err.message : String(err)}`);
+    logger.error(`ERROR: ${err instanceof Error ? err.message : String(err)}`);
     process.exit(1);
   }
 }

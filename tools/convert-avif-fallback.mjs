@@ -3,6 +3,7 @@
 import path from 'node:path';
 import sharp from 'sharp';
 import { ensureDir, writeBufferIfChanged } from './utils/image-pipeline.mjs';
+import { logger } from './utils/logger.mjs';
 
 function parseArgs(argv) {
   const parsed = { src: '', dest: '', maxSize: 0 };
@@ -66,6 +67,6 @@ async function main() {
 
 main().catch((error) => {
   const message = error instanceof Error ? error.message : String(error);
-  console.error(message);
+  logger.error(message);
   process.exitCode = 1;
 });
