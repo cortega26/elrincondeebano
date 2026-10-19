@@ -35,7 +35,12 @@ export interface ApiError {
  */
 export async function fetchCore(url: string, init?: RequestInit): Promise<Response> {
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+    // Plan 253: the JSON content-type default belongs only to requests that
+    // carry a body. A bodyless request claiming `application/json` is answered
+    // by Fastify with 400 FST_ERR_CTP_EMPTY_JSON_BODY before any handler runs
+    // (prunePreview and git pull both hit this). FormData/Blob bodies must let
+    // fetch derive their own content-type (multipart boundary / blob type).
+    ...(defaultsJsonContentType(init?.body) ? { 'Content-Type': 'application/json' } : {}),
     ...(init?.headers as Record<string, string> | undefined),
   };
 
@@ -60,6 +65,18 @@ export async function fetchCore(url: string, init?: RequestInit): Promise<Respon
   }
 
   return response;
+}
+
+/**
+ * Plan 253: whether fetchCore should supply the `application/json` content-type
+ * default. Only body-carrying requests qualify, and never FormData/Blob bodies
+ * — fetch sets their content-type itself (multipart boundary, blob type).
+ */
+function defaultsJsonContentType(body: RequestInit['body']): boolean {
+  if (body == null) return false;
+  if (typeof FormData !== 'undefined' && body instanceof FormData) return false;
+  if (typeof Blob !== 'undefined' && body instanceof Blob) return false;
+  return true;
 }
 
 /**
