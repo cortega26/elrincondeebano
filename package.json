@@ -24,7 +24,6 @@
     "admin:doctor": "npm -w admin/content-manager run doctor",
     "admin:validate": "npm run admin:typecheck && npm run admin:test && npm run admin:build && npm run admin:contract",
     "bootstrap": "npm ci",
-    "changeset": "changeset",
     "fonts": "node tools/fetch-fonts.mjs",
     "categories:sync": "node tools/sync-category-catalog.js",
     "preflight": "npm run categories:sync && node admin/content-manager/scripts/migrate-catalog.mjs && node tools/run-parallel.mjs \"npm run images:logo\" \"npm run images:avif\" \"npm run images:og:home\" \"npm run images:og:printing\" \"npm run images:og:overrides\" && npm run images:og:categories && node tools/run-parallel.mjs \"npm run images:og:clean-overrides\" \"npm run images:gap-fill\" && node tools/preflight.js",
@@ -102,7 +101,6 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@changesets/cli": "^3.0.3",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.63.0",
     "@stryker-mutator/core": "^10.0.0",
