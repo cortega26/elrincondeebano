@@ -207,24 +207,16 @@ Cola derivada de los diferidos con condición de reapertura ya cumplida
 housekeeping micro) y del registro
 [`DEFERRALS`](../docs/operations/DEFERRALS.md).
 
-**Estado (cierre 2026-10-19)**: **completa — 5/5 planes** (254–258)
-archivados; 3 filas del registro movidas a Resolved (docs del 239,
-dev-server del 241, typecheck e2e del 227) + los 3 diferidos internos de
-planeo ejecutados (242-CategoriesPage, 244-batch2, 235-recheck).
-**2.º tramo del registro (259–260)**: candado del workflow canary
-(env-pass) y `fetch-fonts` remoto — **completa** (2026-10-19; el registro
-acumula **6 filas Resolved**: 212→248, docs 239, dev-server 241,
-typecheck-e2e 227, canary 225, fetch-fonts 234).
-**3.ª ola (261–262)**: envelope 4xx con code real (fila 13) y barrido
-`steps.*` del canary (observación del 259) — **completa** (2026-10-19;
-registro en **7 Resolved**).
-**4.ª ola (263)**: el ciclo grande — typecheck del árbol de tests del
-admin — **completa** (145 → 0, cableado permanente).
-Paralelo sin solape: **265** — DOM handlers de `initStorefront`
-(caracterización primero, e2e del carrito como red).
-Carril de contrato: **267** — phantoms OpenAPI invertidos (doc→rutas)
-
-- guard bidireccional.
+**Estado (cierre 2026-10-19)**: **completa — 23/23 planes (254–277)**
+archivados; registro **15 Resolved / 5 OPEN** (todas externas: fecha,
+operador, señal de uso, dispositivo, upstream); gate canónica certificada
+(`validate` 0, e2e 84/2, árbol tree-clean por el 275). Olas: 254–258
+(deferidos de 242/244/235), 259–260 (canary + fetch-fonts), 261–262
+(4xx + steps del canary), 263 (typecheck del test-tree), 265 (DOM
+handlers), 266 (DEP-05), 267 (phantoms), 268 (audit dev), 269 (cart
+batching), 270 (CSS split, rechazado con números), 271 (zod lazy), 272
+(changesets retirado), 273 (a11y 100), 274 (e2e lazy form), 275
+(tree-clean), 276 (doc-gardening), 277 (allowlist stale).
 
 | Plan                                          | Título                                                          | Prioridad | Esfuerzo | Depende de    | Estado                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | --------------------------------------------- | --------------------------------------------------------------- | --------- | -------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
