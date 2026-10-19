@@ -80,7 +80,7 @@ config/ ─────────────────┘                  
 
 ### Operator scripts (`scripts/`)
 
-- Canonical: `dev-server.mjs`, `smoke-checklist.mjs`, `check-css-order.mjs`.
+- Canonical: `dev-server.mjs`, `smoke-checklist.mjs`.
 - Specialized/manual: `sarif_to_md.py`.
 
 Manual/specialized scripts are kept for targeted maintenance tasks and should not be added to CI gates without explicit RFC/ADR.

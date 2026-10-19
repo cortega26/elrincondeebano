@@ -43,6 +43,10 @@ const DEFAULT_SCAN_TARGETS = [
   'static',
 ];
 
+// `variants` stays ignored by design (plan 235; rechecked 2026-10-19 in plan
+// 256: removing this entry flags all 1956 generated variant files as
+// unexpected orphans — the static scan cannot see dynamic width-set consumers,
+// and the 235 dist prune is the enforcement for that tree).
 const DEFAULT_ALLOWLIST = {
   ignoredDirectories: ['originals', 'variants'],
   allowedOrphans: [],
