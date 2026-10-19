@@ -8,7 +8,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   plugins: [react()],
   root: 'src/web',
-  publicDir: false,
+  // Plan 251: manifest PWA. El default de publicDir se resolvería bajo el root
+  // (src/web/public); se fija explícito a admin/content-manager/public.
+  publicDir: path.resolve(__dirname, 'public'),
   resolve: {
     alias: {
       '@shared': path.resolve(__dirname, 'src/shared'),

@@ -308,6 +308,8 @@ export function createApp(opts?: AppOptions): FastifyInstance {
       '.js': 'application/javascript',
       '.css': 'text/css',
       '.json': 'application/json',
+      // Plan 251: the PWA manifest served from dist/web needs its own type.
+      '.webmanifest': 'application/manifest+json',
       '.png': 'image/png',
       '.svg': 'image/svg+xml',
       '.jpg': 'image/jpeg',
