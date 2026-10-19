@@ -32,7 +32,7 @@ import { classifyRoute } from './security/routePolicy.ts';
 export interface AppOptions {
   repoRoot?: string;
   enableWrites?: boolean;
-  logger?: boolean;
+  logger?: FastifyServerOptions['logger'];
   launchCredential?: string;
   /** Dedicated HTTPS origin when run behind a loopback reverse tunnel. */
   remoteOrigin?: string;
