@@ -18,7 +18,7 @@ function mockClient(pages: Record<number, Array<{ id: string }>>) {
     calls.push({ page: params?.page, limit: params?.limit });
     return { items: pages[params?.page ?? 1] ?? [], total: 999 };
   });
-  const reorderProducts = vi.fn(async () => undefined);
+  const reorderProducts = vi.fn<(ids: string[]) => Promise<undefined>>(async () => undefined);
   const client = { getProducts, reorderProducts } as unknown as ContentManagerClient;
   return { client, getProducts, reorderProducts, calls };
 }

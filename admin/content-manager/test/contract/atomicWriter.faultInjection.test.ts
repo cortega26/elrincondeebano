@@ -86,14 +86,14 @@ const failingFs = (failOn: { op: Op; call: number }): AtomicFs => {
       fail('existsSync');
       return NODE_FS.existsSync(...args);
     },
-    readdirSync: (...args) => {
+    readdirSync: ((...args: Parameters<typeof NODE_FS.readdirSync>) => {
       fail('readdirSync');
       return NODE_FS.readdirSync(...args);
-    },
-    statSync: (...args) => {
+    }) as typeof NODE_FS.readdirSync,
+    statSync: ((...args: Parameters<typeof NODE_FS.statSync>) => {
       fail('statSync');
       return NODE_FS.statSync(...args);
-    },
+    }) as typeof NODE_FS.statSync,
   };
 };
 
@@ -148,9 +148,9 @@ test('writeFileSync is never called directly on the target path', () => {
     const writes: string[] = [];
     const spyFs: AtomicFs = {
       ...NODE_FS,
-      writeFileSync: (path: string | URL, ...args: Parameters<typeof NODE_FS.writeFileSync>) => {
-        writes.push(String(path));
-        return NODE_FS.writeFileSync(path, ...args);
+      writeFileSync: (...args: Parameters<typeof NODE_FS.writeFileSync>) => {
+        writes.push(String(args[0]));
+        return NODE_FS.writeFileSync(...args);
       },
     };
     const writer = new AtomicWriter(dataFile, undefined, spyFs);

@@ -408,7 +408,6 @@ test('POST /api/v1/conflicts/:id/resolve with manual value stores it in field', 
       url: `/api/v1/conflicts/${conflict.id}/resolve`,
       headers: credHeaders(app),
       payload: { field: 'name', resolution: 'manual', manual_value: 'Custom Resolution' },
-      headers: credHeaders(app),
     });
 
     expect(response.statusCode).toBe(200);
