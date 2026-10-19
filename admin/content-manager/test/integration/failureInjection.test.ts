@@ -195,12 +195,12 @@ test('AtomicWriter creates backups on every write', () => {
     mkdirSync(resolve(dir, 'data'), { recursive: true });
     const writer = new AtomicWriter(dataFile);
 
-    const catalog1: ProductCatalog = { version: 'v1', last_updated: '', rev: 1, products: [] };
+    const catalog1: ProductCatalog = { version: 'v1', last_updated: '', rev: 1, schema_version: 1, products: [] };
     const result1 = writer.write(catalog1);
     expect(result1.success).toBe(true);
     expect(result1.backedUp).toBe(false); // First write, nothing to back up
 
-    const catalog2: ProductCatalog = { version: 'v2', last_updated: '', rev: 2, products: [] };
+    const catalog2: ProductCatalog = { version: 'v2', last_updated: '', rev: 2, schema_version: 1, products: [] };
     const result2 = writer.write(catalog2);
     expect(result2.success).toBe(true);
     expect(result2.backedUp).toBe(true);
@@ -219,7 +219,7 @@ test('AtomicWriter verifies written JSON', () => {
     mkdirSync(resolve(dir, 'data'), { recursive: true });
     const writer = new AtomicWriter(dataFile);
 
-    const catalog: ProductCatalog = { version: 'v1', last_updated: '', rev: 1, products: [] };
+    const catalog: ProductCatalog = { version: 'v1', last_updated: '', rev: 1, schema_version: 1, products: [] };
     const result = writer.write(catalog);
     expect(result.success).toBe(true);
     expect(result.verified).toBe(true);

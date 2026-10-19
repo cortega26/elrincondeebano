@@ -16,10 +16,11 @@ const catalog = (rev: number, name = 'Widget'): ProductCatalog => ({
   version: 'v1',
   last_updated: '2026-01-01T00:00:00.000Z',
   rev,
+  schema_version: 1,
   products: [
     {
       id: 'p1',
-      sku: null,
+      sku: null as unknown as string | undefined,
       name,
       description: '',
       price: 100,
@@ -69,10 +70,10 @@ const failingFs = (failOn: { op: Op; call: number }): AtomicFs => {
       fail('writeFileSync');
       return NODE_FS.writeFileSync(...args);
     },
-    readFileSync: (...args: Parameters<typeof NODE_FS.readFileSync>) => {
+    readFileSync: ((...args: Parameters<typeof NODE_FS.readFileSync>) => {
       fail('readFileSync');
       return NODE_FS.readFileSync(...args);
-    },
+    }) as typeof NODE_FS.readFileSync,
     renameSync: (...args) => {
       fail('renameSync');
       return NODE_FS.renameSync(...args);
