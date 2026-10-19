@@ -69,7 +69,7 @@ jobs:
 
       # Plan 127 F1.3: the temp-repo suites run in parallel — each config
       # owns its port (3101 import, 3102 changes, 3105 scope, 3103 media,
-      # 3104 storefront) and repo fixture. Plan 206: per-suite logs + wait -n
+      # 3104 storefront, 3106 products) and repo fixture. Plan 206: per-suite logs + wait -n
       # fail-closed collection — bare `wait` always exits 0 (proven
       # false-green 2026-09-15), so every PID is reaped explicitly and any
       # suite failure fails the step.
@@ -81,7 +81,8 @@ jobs:
           npx playwright test -c playwright.media.config.ts > reports/e2e-matrix/media.log 2>&1 &
           npx playwright test -c playwright.storefront.config.ts > reports/e2e-matrix/storefront.log 2>&1 &
           npx playwright test -c playwright.scope.config.ts > reports/e2e-matrix/scope.log 2>&1 &
-          remaining=5
+          npx playwright test -c playwright.products.config.ts > reports/e2e-matrix/products.log 2>&1 &
+          remaining=6
           status=0
           while [ "$remaining" -gt 0 ]; do
             if wait -n; then
