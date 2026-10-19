@@ -207,7 +207,7 @@ Cola derivada de los diferidos con condición de reapertura ya cumplida
 housekeeping micro) y del registro
 [`DEFERRALS`](../docs/operations/DEFERRALS.md).
 
-**Estado (cierre 2026-10-19)**: **completa — 23/23 planes (254–277)**
+**Estado (cierre 2026-10-19)**: **completa — 24/24 planes (254–278)**
 archivados; registro **15 Resolved / 5 OPEN** (todas externas: fecha,
 operador, señal de uso, dispositivo, upstream); gate canónica certificada
 (`validate` 0, e2e 84/2, árbol tree-clean por el 275). Olas: 254–258
@@ -216,7 +216,8 @@ operador, señal de uso, dispositivo, upstream); gate canónica certificada
 handlers), 266 (DEP-05), 267 (phantoms), 268 (audit dev), 269 (cart
 batching), 270 (CSS split, rechazado con números), 271 (zod lazy), 272
 (changesets retirado), 273 (a11y 100), 274 (e2e lazy form), 275
-(tree-clean), 276 (doc-gardening), 277 (allowlist stale).
+(tree-clean), 276 (doc-gardening), 277 (allowlist stale), 278 (flake
+CI del dev-server).
 
 | Plan                                          | Título                                                          | Prioridad | Esfuerzo | Depende de    | Estado                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | --------------------------------------------- | --------------------------------------------------------------- | --------- | -------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

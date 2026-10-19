@@ -2,7 +2,7 @@
 
 Registro histórico de auditorías, pipelines y decisiones de los planes 001–054 y
 056–068. Este documento se conserva como evidencia y referencia; el índice
-vigente con las colas activas es [`../README.md`](../README.md).
+vigente con las colas activas es [`../README.md`](README.md).
 
 Contenido:
 
@@ -436,13 +436,13 @@ These plans may be implemented in parallel after 039 because their primary
 production files do not overlap, except 040/044 both touch bulk operations.
 If using multiple executors, run 040 before 044 or serialize those two branches.
 
-| Plan                                                       | Título                                          | Priority | Effort | Depends on           | Status |
-| ---------------------------------------------------------- | ----------------------------------------------- | -------- | ------ | -------------------- | ------ |
-| [040](../040-preserve-product-state-in-bulk-operations.md) | Preservar metadata en operaciones masivas       | P1       | S      | 039                  | TODO   |
-| [041](../041-stage-media-mutations-until-save.md)          | Hacer transaccionales los cambios de medios     | P1       | M      | 039                  | TODO   |
-| [042](../042-reorder-products-by-identity.md)              | Reordenar por identidad real                    | P1       | S      | 039                  | TODO   |
-| [043](../043-preserve-sync-conflicts.md)                   | Preservar conflictos hasta resolución explícita | P1       | S      | 039                  | TODO   |
-| [044](../044-unify-discount-invariant.md)                  | Unificar invariante de descuentos               | P2       | S      | 039; 040 recomendado | TODO   |
+| Plan                                                    | Título                                          | Priority | Effort | Depends on           | Status |
+| ------------------------------------------------------- | ----------------------------------------------- | -------- | ------ | -------------------- | ------ |
+| [040](040-preserve-product-state-in-bulk-operations.md) | Preservar metadata en operaciones masivas       | P1       | S      | 039                  | TODO   |
+| [041](041-stage-media-mutations-until-save.md)          | Hacer transaccionales los cambios de medios     | P1       | M      | 039                  | TODO   |
+| [042](042-reorder-products-by-identity.md)              | Reordenar por identidad real                    | P1       | S      | 039                  | TODO   |
+| [043](043-preserve-sync-conflicts.md)                   | Preservar conflictos hasta resolución explícita | P1       | S      | 039                  | TODO   |
+| [044](044-unify-discount-invariant.md)                  | Unificar invariante de descuentos               | P2       | S      | 039; 040 recomendado | TODO   |
 
 **Why this order**: 040 and 041 remove silent data-loss paths first. Plan 042
 then fixes incorrect catalog mutation, 043 makes sync evidence durable, and 044
@@ -454,11 +454,11 @@ target module regresses to 0%.
 
 ### Wave 2 — Publication, responsiveness, and configuration
 
-| Plan                                                      | Título                                   | Priority | Effort | Depends on | Status |
-| --------------------------------------------------------- | ---------------------------------------- | -------- | ------ | ---------- | ------ |
-| [045](../045-make-publication-safe-and-truthful.md)       | Publicación acotada, preflighted y veraz | P1       | M      | 039        | TODO   |
-| [046](../046-run-git-operations-off-ui-thread.md)         | Ejecutar Git fuera del hilo Tk           | P1       | M      | 039, 045   | TODO   |
-| [047](../047-centralize-product-manager-configuration.md) | Centralizar configuración tipada         | P1       | M      | 039        | TODO   |
+| Plan                                                   | Título                                   | Priority | Effort | Depends on | Status |
+| ------------------------------------------------------ | ---------------------------------------- | -------- | ------ | ---------- | ------ |
+| [045](045-make-publication-safe-and-truthful.md)       | Publicación acotada, preflighted y veraz | P1       | M      | 039        | TODO   |
+| [046](046-run-git-operations-off-ui-thread.md)         | Ejecutar Git fuera del hilo Tk           | P1       | M      | 039, 045   | TODO   |
+| [047](047-centralize-product-manager-configuration.md) | Centralizar configuración tipada         | P1       | M      | 039        | TODO   |
 
 Implement 045 before 046 so async orchestration wraps the final publication
 contract, not a transitional API. Plan 047 is file-overlapping with the current
@@ -524,9 +524,9 @@ review → publish confirmation in both themes and at maximum configured font.
 
 ### Conditional cleanup
 
-| Plan                                         | Título                       | Priority | Effort | Depends on | Status                                                                      |
-| -------------------------------------------- | ---------------------------- | -------- | ------ | ---------- | --------------------------------------------------------------------------- |
-| [049](../049-retire-dormant-sqlite-store.md) | Retirar store SQLite dormido | P3       | S      | 036        | UNBLOCKED — ADR 0008 names SQLite as non-authoritative, ready for execution |
+| Plan                                      | Título                       | Priority | Effort | Depends on | Status                                                                      |
+| ----------------------------------------- | ---------------------------- | -------- | ------ | ---------- | --------------------------------------------------------------------------- |
+| [049](049-retire-dormant-sqlite-store.md) | Retirar store SQLite dormido | P3       | S      | 036        | UNBLOCKED — ADR 0008 names SQLite as non-authoritative, ready for execution |
 
 Do not delete `data_store.py` merely because it has no callers. Plan 036 already
 owns the cross-surface authority decision and may retain SQLite as an operator
