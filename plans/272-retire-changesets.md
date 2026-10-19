@@ -7,7 +7,7 @@
 > estado de este plan en `plans/README.md` — salvo que un reviewer te haya
 > despachado y te haya dicho que mantiene el índice.
 >
-> **Drift check (run first)**: `git diff --stat 6e65ff83..HEAD -- .github/workflows/changesets.yml .changeset/ package.json package-lock.json docs/RELEASE.md docs/operations/DEFERRALS.md AGENTS.md docs/operations/DEPENDENCY_POLICY.md`
+> **Drift check (run first)**: `git diff --stat 6e65ff83..HEAD -- .github/workflows/changesets.yml .changeset/ package.json package-lock.json docs/RELEASE.md docs/operations/DEFERRALS.md AGENTS.md docs/operations/DEPENDENCY_POLICY.md docs/architecture/CODEBASE_MAP.md`
 
 ## Status
 
@@ -71,6 +71,8 @@ RELEASE.md que nunca se activa). El repo no mantiene superficie muerta.
   el flujo manual queda; reabrir si se publican artefactos versionados…").
 - `AGENTS.md` (mención wave-3 → actualizar).
 - `docs/operations/DEFERRALS.md` (fila → Resolved con la decisión).
+- `docs/architecture/CODEBASE_MAP.md` (R1: borrar la fila `changesets.yml`
+  del mapa de workflows, ~:111 — hallada por el inventario).
 
 **Out of scope**:
 
@@ -92,6 +94,11 @@ referencia FUERA del inventario conocido (RELEASE.md, AGENTS.md, config,
 workflow, package) → STOP y reporta.
 
 ### Step 1: Retiro
+
+> **R1 (2026-10-19)**: el inventario encontró una referencia viva fuera
+> del scope original — la fila `changesets.yml` del mapa de workflows
+> (`docs/architecture/CODEBASE_MAP.md:111`). Ya está en scope: bórrala
+> en este mismo paso (la tabla debe quedar consistente).
 
 - `git rm .github/workflows/changesets.yml`; `git rm -r .changeset/`.
 - `package.json`: quita el script `changeset` y el devDep `@changesets/cli`.
