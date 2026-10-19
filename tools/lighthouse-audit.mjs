@@ -14,6 +14,7 @@ const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 const reportDir = path.join(rootDir, 'reports', 'lighthouse');
 const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const DEFAULT_AUDIT_PATH = '/index.html';
 const MIME_TYPES = {
   '.css': 'text/css; charset=utf-8',
   '.html': 'text/html; charset=utf-8',
@@ -54,6 +55,44 @@ async function runBuild() {
 export function getMimeType(filePath) {
   const ext = path.extname(filePath).toLowerCase();
   return MIME_TYPES[ext] || 'application/octet-stream';
+}
+
+function normalizeAuditPath(rawPath) {
+  const trimmed = String(rawPath || '').trim();
+  if (!trimmed) {
+    return DEFAULT_AUDIT_PATH;
+  }
+  return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+}
+
+export function getReportLabel(auditPath) {
+  const segments = normalizeAuditPath(auditPath)
+    .split('/')
+    .filter((segment) => segment && segment !== 'index.html');
+  if (segments.length === 0) {
+    return null;
+  }
+  return segments
+    .join('-')
+    .replace(/[^a-zA-Z0-9_-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .toLowerCase();
+}
+
+export function parseAuditPath(argv = process.argv.slice(2)) {
+  const equalsArg = argv.find((arg) => arg.startsWith('--path='));
+  if (equalsArg) {
+    return normalizeAuditPath(equalsArg.slice('--path='.length));
+  }
+  const flagIndex = argv.indexOf('--path');
+  if (flagIndex === -1) {
+    return DEFAULT_AUDIT_PATH;
+  }
+  const value = argv[flagIndex + 1];
+  if (!value || value.startsWith('--')) {
+    throw new Error('--path requiere una ruta (por ejemplo: --path /impresiones/)');
+  }
+  return normalizeAuditPath(value);
 }
 
 function sanitizePath(pathname) {
@@ -142,8 +181,8 @@ export function createStaticServer(root) {
   });
 }
 
-async function runLighthouseAudit(targetUrl, preset, timestamp) {
-  logger.info(`Iniciando auditoría Lighthouse (${preset})...`);
+async function runLighthouseAudit(targetUrl, preset, timestamp, label) {
+  logger.info(`Iniciando auditoría Lighthouse (${preset}) sobre ${targetUrl}...`);
   const chrome = await launchChrome({
     chromeFlags: ['--headless=new', '--no-sandbox', '--disable-gpu'],
   });
@@ -157,7 +196,8 @@ async function runLighthouseAudit(targetUrl, preset, timestamp) {
     });
 
     const [htmlReport, jsonReport] = result.report;
-    const baseName = `lighthouse-${preset}-${timestamp}`;
+    const labelPart = label ? `${label}-` : '';
+    const baseName = `lighthouse-${preset}-${labelPart}${timestamp}`;
     const htmlPath = path.join(reportDir, `${baseName}.html`);
     const jsonPath = path.join(reportDir, `${baseName}.json`);
 
@@ -192,14 +232,20 @@ async function main() {
   });
 
   const origin = `http://127.0.0.1:${port}`;
-  const targetUrl = `${origin}/index.html`;
+  const auditPath = parseAuditPath();
+  const targetUrl = `${origin}${auditPath}`;
+  const reportLabel = getReportLabel(auditPath);
   const { getDeterministicDate } = deterministicTime;
   const timestamp = getDeterministicDate().toISOString().replace(/[:.]/g, '-');
+
+  logger.info(
+    `Página objetivo: ${targetUrl}${reportLabel ? ` (label: ${reportLabel})` : ''}`
+  );
 
   try {
     const presets = ['desktop', 'mobile'];
     for (const preset of presets) {
-      await runLighthouseAudit(targetUrl, preset, timestamp);
+      await runLighthouseAudit(targetUrl, preset, timestamp, reportLabel);
     }
   } finally {
     await new Promise((resolve) => server.close(resolve));
