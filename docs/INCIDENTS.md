@@ -40,7 +40,7 @@
 - Verify (2-5 min): hard reload, observe top of page and first product row.
 - Suspected areas/files: `astro-poc/src/styles/global.css` (legacy `assets/css/` split retired by plan 239).
 - Immediate mitigation:
-  - Align critical CSS with main CSS for affected selectors.
+  - Align the affected selectors' rules with the single sheet (`astro-poc/src/styles/global.css`).
 - Rollback:
   - Revert CSS PR.
 - Log: which elements shift, which pages.
