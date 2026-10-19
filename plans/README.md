@@ -200,6 +200,21 @@ listado por cada subagente (detalle en sus informes). Los helpers Python
 
 ---
 
+## Post-auditoría 12 — diferidos ejecutables (2026-10-19)
+
+Cola derivada de los diferidos con condición de reapertura ya cumplida
+(plan 242 → CategoriesPage; plan 244 → logger batch-2; planes 235/239 →
+housekeeping micro) y del registro
+[`DEFERRALS`](../docs/operations/DEFERRALS.md).
+
+| Plan                                | Título                                            | Prioridad | Esfuerzo | Depende de   | Estado |
+| ----------------------------------- | ------------------------------------------------- | --------- | -------- | ------------ | ------ |
+| [254](254-categories-page-hooks.md) | CategoriesPage → useResource/useFeedback          | P3        | S–M      | 242 (✓)      | TODO   |
+| [255](255-tools-logger-batch2.md)   | Logger de tools batch-2 (~39 archivos)            | P3        | M        | 244 (✓)      | TODO   |
+| [256](256-housekeeping-micro.md)    | Micro: recheck del 235 (allowlist) + docs del 239 | P3        | XS–S     | 235, 239 (✓) | TODO   |
+
+---
+
 ## Auditoría 11 — 2026-09-14 (`/improve deep`, commit `0847089c`)
 
 Auditoría completa (9 categorías, 9 subagentes paralelos, profundidad
