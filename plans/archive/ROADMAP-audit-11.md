@@ -1,5 +1,10 @@
 # Roadmap — Auditoría 11 (planes 170–214)
 
+> **HISTÓRICO — Auditoría 11 (2026-09-14), cerrada.** Este roadmap ya no se
+> mantiene: el índice vigente es [`plans/README.md`](../README.md) y la cola de
+> condiciones vive en [`docs/operations/DEFERRALS.md`](../../docs/operations/DEFERRALS.md).
+> Archivado el 2026-10-19 para conservar el registro histórico.
+
 > Living document: scoreboard + backlog + assistant prompt library for the
 > whole batch. Status source of truth per plan stays `plans/README.md`
 > (this file mirrors it; update both when a plan lands).
@@ -24,78 +29,78 @@ Legend: ⬜ TODO · 🔄 IN PROGRESS · ✅ DONE (archived) · 🛑 BLOCKED (rea
 
 ### Wave 0 — Foundation (gate for everything)
 
-| Plan                                             | Title                              | Effort | Status             |
-| ------------------------------------------------ | ---------------------------------- | ------ | ------------------ |
-| [170](archive/170-land-working-tree-baseline.md) | Land working tree + green baseline | S      | ✅ DONE (archived) |
+| Plan                                     | Title                              | Effort | Status             |
+| ---------------------------------------- | ---------------------------------- | ------ | ------------------ |
+| [170](170-land-working-tree-baseline.md) | Land working tree + green baseline | S      | ✅ DONE (archived) |
 
 ### Wave 1 — Protect the data (P1 bugs + auth)
 
-| Lane | Plan                                               | Title                                | Effort | Status             |
-| ---- | -------------------------------------------------- | ------------------------------------ | ------ | ------------------ |
-| L1   | [171](archive/171-catalog-cache-miss-isolation.md) | Cache-miss isolation leak            | S      | ✅ DONE (archived) |
-| L1   | [175](archive/175-changeset-apply-robustness.md)   | Apply crash-safe + idempotency-first | M      | ✅ DONE (archived) |
-| L2   | [172](archive/172-bulk-action-validation.md)       | Bulk validation hardening            | S      | ✅ DONE (archived) |
-| L2   | [173](archive/173-reorder-membership-scale.md)     | Reorder membership + scale           | S      | ✅ DONE (archived) |
-| L3   | [180](archive/180-import-preview-hardening.md)     | Import preview hardening             | S-M    | ✅ DONE (archived) |
-| L3   | [182](archive/182-loopback-bypass-ip-only.md)      | Loopback bypass IP-only              | S      | ✅ DONE (archived) |
-| L3   | [183](archive/183-credential-hygiene.md)           | Credential hygiene                   | S      | ✅ DONE (archived) |
-| L4   | [192](archive/192-web-contract-coverage.md)        | Web contract coverage (pins)         | M      | ✅ DONE (archived) |
+| Lane | Plan                                       | Title                                | Effort | Status             |
+| ---- | ------------------------------------------ | ------------------------------------ | ------ | ------------------ |
+| L1   | [171](171-catalog-cache-miss-isolation.md) | Cache-miss isolation leak            | S      | ✅ DONE (archived) |
+| L1   | [175](175-changeset-apply-robustness.md)   | Apply crash-safe + idempotency-first | M      | ✅ DONE (archived) |
+| L2   | [172](172-bulk-action-validation.md)       | Bulk validation hardening            | S      | ✅ DONE (archived) |
+| L2   | [173](173-reorder-membership-scale.md)     | Reorder membership + scale           | S      | ✅ DONE (archived) |
+| L3   | [180](180-import-preview-hardening.md)     | Import preview hardening             | S-M    | ✅ DONE (archived) |
+| L3   | [182](182-loopback-bypass-ip-only.md)      | Loopback bypass IP-only              | S      | ✅ DONE (archived) |
+| L3   | [183](183-credential-hygiene.md)           | Credential hygiene                   | S      | ✅ DONE (archived) |
+| L4   | [192](192-web-contract-coverage.md)        | Web contract coverage (pins)         | M      | ✅ DONE (archived) |
 
 ### Wave 2 — Correctness cleanup + build perf
 
-| Lane | Plan                                             | Title                      | Effort | Status             |
-| ---- | ------------------------------------------------ | -------------------------- | ------ | ------------------ |
-| L1   | [174](archive/174-undo-server-snapshots.md)      | Undo from server snapshots | M      | ✅ DONE (archived) |
-| L1   | [177](archive/177-admin-feedback-papercuts.md)   | Admin feedback papercuts   | S      | ✅ DONE (archived) |
-| L2   | [176](archive/176-media-apply-outputs.md)        | Media apply outputs        | M      | ✅ DONE (archived) |
-| L3   | [181](archive/181-state-machine-gaps.md)         | State-machine gaps batch   | S-M    | ✅ DONE (archived) |
-| L3   | [185](archive/185-build-probe-memoization.md)    | Build probe memoization    | S-M    | ✅ DONE (archived) |
-| L4   | [179](archive/179-cross-tab-cart-merge.md)       | Cross-tab cart merge       | M      | ✅ DONE (archived) |
-| L4   | [178](archive/178-parking-stay-caps.md)          | Parking stay caps          | S      | ✅ DONE (archived) |
-| L5   | [187](archive/187-storefront-runtime-perf.md)    | Storefront runtime perf    | M      | ✅ DONE (archived) |
-| L6   | [184](archive/184-security-investigate-batch.md) | Security investigate batch | S      | ✅ DONE (archived) |
-| L6   | [195](archive/195-shared-helper-dedup.md)        | Shared helper dedup        | M      | ✅ DONE (archived) |
+| Lane | Plan                                     | Title                      | Effort | Status             |
+| ---- | ---------------------------------------- | -------------------------- | ------ | ------------------ |
+| L1   | [174](174-undo-server-snapshots.md)      | Undo from server snapshots | M      | ✅ DONE (archived) |
+| L1   | [177](177-admin-feedback-papercuts.md)   | Admin feedback papercuts   | S      | ✅ DONE (archived) |
+| L2   | [176](176-media-apply-outputs.md)        | Media apply outputs        | M      | ✅ DONE (archived) |
+| L3   | [181](181-state-machine-gaps.md)         | State-machine gaps batch   | S-M    | ✅ DONE (archived) |
+| L3   | [185](185-build-probe-memoization.md)    | Build probe memoization    | S-M    | ✅ DONE (archived) |
+| L4   | [179](179-cross-tab-cart-merge.md)       | Cross-tab cart merge       | M      | ✅ DONE (archived) |
+| L4   | [178](178-parking-stay-caps.md)          | Parking stay caps          | S      | ✅ DONE (archived) |
+| L5   | [187](187-storefront-runtime-perf.md)    | Storefront runtime perf    | M      | ✅ DONE (archived) |
+| L6   | [184](184-security-investigate-batch.md) | Security investigate batch | S      | ✅ DONE (archived) |
+| L6   | [195](195-shared-helper-dedup.md)        | Shared helper dedup        | M      | ✅ DONE (archived) |
 
 ### Wave 3 — Server perf + structural debt
 
-| Lane | Plan                                                  | Title                         | Effort | Status             |
-| ---- | ----------------------------------------------------- | ----------------------------- | ------ | ------------------ |
-| L1   | [188](archive/188-admin-request-costs.md)             | Admin request costs           | M      | ✅ DONE (archived) |
-| L1   | [186](archive/186-image-pipeline-gates-parallel.md)   | Image pipeline gates+parallel | M      | ✅ DONE (archived) |
-| L2   | [194](archive/194-write-path-unification.md)          | Write-path unification        | M      | ✅ DONE (archived) |
-| L3   | [196](archive/196-writer-repository-consolidation.md) | Writer/repo consolidation     | M      | ✅ DONE (archived) |
-| L3   | [197](archive/197-client-fetch-layering.md)           | Client split + fetch cores    | M      | ✅ DONE (archived) |
+| Lane | Plan                                          | Title                         | Effort | Status             |
+| ---- | --------------------------------------------- | ----------------------------- | ------ | ------------------ |
+| L1   | [188](188-admin-request-costs.md)             | Admin request costs           | M      | ✅ DONE (archived) |
+| L1   | [186](186-image-pipeline-gates-parallel.md)   | Image pipeline gates+parallel | M      | ✅ DONE (archived) |
+| L2   | [194](194-write-path-unification.md)          | Write-path unification        | M      | ✅ DONE (archived) |
+| L3   | [196](196-writer-repository-consolidation.md) | Writer/repo consolidation     | M      | ✅ DONE (archived) |
+| L3   | [197](197-client-fetch-layering.md)           | Client split + fetch cores    | M      | ✅ DONE (archived) |
 
 ### Wave 4 — Toolchain, CI, DX, docs (highly parallel)
 
-| Lane | Plan                                              | Title                        | Effort | Status             |
-| ---- | ------------------------------------------------- | ---------------------------- | ------ | ------------------ |
-| L1   | [189](archive/189-ci-build-cache-split.md)        | CI build/cache/split         | M      | ✅ DONE (archived) |
-| L1   | [190](archive/190-sw-fetch-investigate.md)        | SW + job-queue investigate   | S      | ✅ DONE (archived) |
-| L2   | [191](archive/191-release-gate-ownership.md)      | Release-gate ownership       | S      | ✅ DONE (archived) |
-| L2   | [193](archive/193-e2e-gate-flake-parity.md)       | E2E gate + flakes + parity   | M      | ✅ DONE (archived) |
-| L3   | [200](archive/200-manifest-hygiene.md)            | Manifest hygiene             | S      | ✅ DONE (archived) |
-| L3   | [201](archive/201-drop-duplicate-deps.md)         | Drop duplicate deps          | S      | ✅ DONE (archived) |
-| L3   | [202](archive/202-tsx-production-spike-native.md) | tsx promote + native spike   | M      | ✅ DONE (archived) |
-| L3   | [203](archive/203-sass-use-anymatch-reeval.md)    | Sass @use + anymatch         | M      | ✅ DONE (archived) |
-| L4   | [204](archive/204-env-format-versions.md)         | Env + format + versions docs | S      | ✅ DONE (archived) |
-| L4   | [205](archive/205-contributor-docs-rewrite.md)    | Contributor docs rewrite     | S      | ✅ DONE (archived) |
-| L4   | [206](archive/206-dx-loops-matrix-logs.md)        | DX loops + matrix + logs     | M      | ✅ DONE (archived) |
-| L4   | [207](archive/207-entry-docs-drift.md)            | Entry docs drift             | M      | ✅ DONE (archived) |
-| L4   | [208](archive/208-ops-adr-docs-drift.md)          | Ops/ADR docs drift           | S      | ✅ DONE (archived) |
-| L4   | [209](archive/209-admin-lint-local.md)            | Admin lint local             | S      | ✅ DONE (archived) |
+| Lane | Plan                                      | Title                        | Effort | Status             |
+| ---- | ----------------------------------------- | ---------------------------- | ------ | ------------------ |
+| L1   | [189](189-ci-build-cache-split.md)        | CI build/cache/split         | M      | ✅ DONE (archived) |
+| L1   | [190](190-sw-fetch-investigate.md)        | SW + job-queue investigate   | S      | ✅ DONE (archived) |
+| L2   | [191](191-release-gate-ownership.md)      | Release-gate ownership       | S      | ✅ DONE (archived) |
+| L2   | [193](193-e2e-gate-flake-parity.md)       | E2E gate + flakes + parity   | M      | ✅ DONE (archived) |
+| L3   | [200](200-manifest-hygiene.md)            | Manifest hygiene             | S      | ✅ DONE (archived) |
+| L3   | [201](201-drop-duplicate-deps.md)         | Drop duplicate deps          | S      | ✅ DONE (archived) |
+| L3   | [202](202-tsx-production-spike-native.md) | tsx promote + native spike   | M      | ✅ DONE (archived) |
+| L3   | [203](203-sass-use-anymatch-reeval.md)    | Sass @use + anymatch         | M      | ✅ DONE (archived) |
+| L4   | [204](204-env-format-versions.md)         | Env + format + versions docs | S      | ✅ DONE (archived) |
+| L4   | [205](205-contributor-docs-rewrite.md)    | Contributor docs rewrite     | S      | ✅ DONE (archived) |
+| L4   | [206](206-dx-loops-matrix-logs.md)        | DX loops + matrix + logs     | M      | ✅ DONE (archived) |
+| L4   | [207](207-entry-docs-drift.md)            | Entry docs drift             | M      | ✅ DONE (archived) |
+| L4   | [208](208-ops-adr-docs-drift.md)          | Ops/ADR docs drift           | S      | ✅ DONE (archived) |
+| L4   | [209](209-admin-lint-local.md)            | Admin lint local             | S      | ✅ DONE (archived) |
 
 ### Wave 5 — Structure slice + direction
 
-| Plan                                           | Title                             | Effort | Status             |
-| ---------------------------------------------- | --------------------------------- | ------ | ------------------ |
-| [198](archive/198-god-module-slice-1.md)       | God-module slice 1 + dead removal | M      | ✅ DONE (archived) |
-| [199](archive/199-utils-lockstep-census.md)    | Utils/lockstep census             | S      | ✅ DONE (archived) |
-| [210](archive/210-waitlist-spike.md)           | Spike: waitlist WhatsApp          | S      | ✅ DONE (archived) |
-| [211](archive/211-preview-build-route.md)      | Preview-build route               | M      | ✅ DONE (archived) |
-| [212](archive/212-durable-schedule-spike.md)   | Spike: durable scheduling         | M      | ✅ DONE (archived) |
-| [213](archive/213-csv-import-spike.md)         | Spike: CSV import                 | M      | ✅ DONE (archived) |
-| [214](archive/214-incremental-typed-client.md) | Incremental typed client          | S-M    | ✅ DONE (archived) |
+| Plan                                   | Title                             | Effort | Status             |
+| -------------------------------------- | --------------------------------- | ------ | ------------------ |
+| [198](198-god-module-slice-1.md)       | God-module slice 1 + dead removal | M      | ✅ DONE (archived) |
+| [199](199-utils-lockstep-census.md)    | Utils/lockstep census             | S      | ✅ DONE (archived) |
+| [210](210-waitlist-spike.md)           | Spike: waitlist WhatsApp          | S      | ✅ DONE (archived) |
+| [211](211-preview-build-route.md)      | Preview-build route               | M      | ✅ DONE (archived) |
+| [212](212-durable-schedule-spike.md)   | Spike: durable scheduling         | M      | ✅ DONE (archived) |
+| [213](213-csv-import-spike.md)         | Spike: CSV import                 | M      | ✅ DONE (archived) |
+| [214](214-incremental-typed-client.md) | Incremental typed client          | S-M    | ✅ DONE (archived) |
 
 Effort rollup: S ×16 · S-M ×4 · M ×25 (45 plans). Heaviest waves: 4 (7 M)
 and 2–3 (5 M each) — both highly parallelizable by lane.
