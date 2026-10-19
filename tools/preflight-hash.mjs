@@ -15,6 +15,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { logger } from './utils/logger.mjs';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const STATE_DIR = path.join(REPO_ROOT, 'reports', 'preflight-hashes');
@@ -199,7 +200,7 @@ function parseArgs(argv) {
 function main() {
   const { opts, cmd } = parseArgs(process.argv.slice(2));
   if (!opts.step || opts.inputs.length === 0 || cmd.length === 0) {
-    console.error(
+    logger.error(
       'Usage: preflight-hash.mjs --step <name> --inputs <csv> [--outputs <csv>] -- <command> [args...]'
     );
     process.exit(2);
@@ -208,15 +209,15 @@ function main() {
   try {
     decision = shouldSkipStep(opts.step, opts.inputs, opts.outputs);
   } catch (err) {
-    console.error(`[hash-gate] ${(err && err.message) || String(err)}`);
+    logger.error(`[hash-gate] ${(err && err.message) || String(err)}`);
     process.exit(2);
   }
   if (decision.skip) {
-    console.log(`[hash-gate] ${opts.step}: inputs unchanged, skipping.`);
+    logger.info(`[hash-gate] ${opts.step}: inputs unchanged, skipping.`);
     process.exit(0);
   }
   if (decision.reason !== 'inputs-changed') {
-    console.log(`[hash-gate] ${opts.step}: ${decision.reason}, running.`);
+    logger.info(`[hash-gate] ${opts.step}: ${decision.reason}, running.`);
   }
   const result = spawnSync(cmd[0], cmd.slice(1), { stdio: 'inherit', cwd: REPO_ROOT });
   if (result.status === 0 && decision.hash) {
