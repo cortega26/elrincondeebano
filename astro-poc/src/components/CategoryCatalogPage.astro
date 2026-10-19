@@ -80,6 +80,9 @@ const sharePreview = createSharePreviewMetadata({
     products.length > 0 ? (
       <>
         <CatalogControls stickyMobile={true} />
+        <!-- Plan 273 R1: la página saltaba de h1 a los h3 de tarjeta
+             (heading-order). Encabezado de sección accesible, sin impacto visual. -->
+        <h2 class="sr-only">Productos de {categoryLabel}</h2>
         <ProductGrid items={products} id="product-container" announce={true} compactMobile={true} />
         <div id="catalog-empty-state" class="alert alert-info d-none mt-3 catalog-empty-state" role="status">
           <p class="mb-0">No se encontraron productos con los filtros seleccionados.</p>
