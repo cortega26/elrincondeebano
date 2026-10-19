@@ -13,6 +13,7 @@ import {
   createCatalogViewController,
   hydrateCatalogSearchFromQuery,
 } from './storefront/catalog-view.js';
+import { createCartController } from './storefront/cart-controller.js';
 import { createCartViewController } from './storefront/cart-view.js';
 import { createOrderSubmitController } from './storefront/order-submit.js';
 import { createRecoveryBannerController } from './storefront/recovery-banner.js';
@@ -1139,10 +1140,10 @@ function initStorefront() {
     ? storefrontExperience.companionRules
     : [];
 
-  let cart = loadCart();
   // Cargar carrito desde URL y notificar stock
-  const urlLoaded = loadCartFromUrl();
-  if (urlLoaded) cart = loadCart();
+  // Plan 245: the in-memory snapshot lives in the cart controller, which
+  // loads the persisted cart (including one hydrated from an URL) on creation.
+  loadCartFromUrl();
   checkStockNotifications();
   const initialProfile = loadProfile();
   const lastOrder = loadLastOrder();
@@ -1166,6 +1167,38 @@ function initStorefront() {
     companionRules,
   });
   renderCart = cartViewController.renderCart;
+  // Plan 245: cart mutation rules (stale rebase, stock guard, persist-first
+  // render, telemetry) live in the controller; this root only wires them.
+  const cartController = createCartController({
+    loadCart,
+    saveCart,
+    sanitizeCart,
+    clampQty,
+    getCartState,
+    createCartItemFromProduct,
+    sameCartProduct,
+    normalizeId,
+    parseNumber,
+    getProductByIdFromSource,
+    getProductFromCard,
+    getProductCardById,
+    adoptCartSnapshot,
+    storefrontStorage,
+    storageKeys: STOREFRONT_STORAGE_KEYS,
+    trackProductSignal: (productId, field) =>
+      personalizationEngine.trackProductSignal(productId, field),
+    showCartSaveError,
+    isOrderJustSent,
+    clearLastOrderSentAt,
+    log,
+    updateBadge,
+    renderCart,
+    renderCompanionSuggestions,
+    syncAllActionAreas,
+    companionRules,
+  });
+  const { getCart, setCart, getQty, setQty, addBundleItems, updateQtyByDelta, clearCart } =
+    cartController;
   const orderSubmitController = createOrderSubmitController({
     createElement,
     formatCurrency,
@@ -1185,9 +1218,10 @@ function initStorefront() {
   submitCartOrder = (cartToSubmit) => {
     const refreshed = refreshCartItemsFromCatalog(cartToSubmit, resolveLiveProductForCart);
     if (refreshed.changed) {
-      cart = refreshed.cart;
-      updateBadge(cart);
-      renderCart(cart);
+      const nextCart = refreshed.cart;
+      setCart(nextCart);
+      updateBadge(nextCart);
+      renderCart(nextCart);
     }
     orderSubmitController.submitCartOrder(refreshed.cart);
   };
@@ -1202,15 +1236,16 @@ function initStorefront() {
     showCartSaveError,
     hidePostSubmitToast,
     onCartCleared: () => {
-      cart = [];
+      setCart([]);
     },
   });
   markOrderAsSent = recoveryBannerController.markOrderAsSent;
   const cartOffcanvas = document.getElementById('cartOffcanvas');
 
   const syncCartShortcutState = () => {
-    const { totalAmount } = getCartState(cart);
-    syncMobileCartShortcut(cart, totalAmount);
+    const currentCart = getCart();
+    const { totalAmount } = getCartState(currentCart);
+    syncMobileCartShortcut(currentCart, totalAmount);
   };
 
   setCartOffcanvasState(
@@ -1239,156 +1274,11 @@ function initStorefront() {
     cartOffcanvas.addEventListener('hidden.bs.offcanvas', handleClose);
   }
 
-  // Storage events can arrive after a newer write. Read the latest persisted
-  // snapshot rather than replaying event.newValue; never write an event back.
-  const handleCrossTabCart = (event) => {
-    if (!event || (event.key !== STOREFRONT_STORAGE_KEYS.cart && event.key !== null)) {
-      return;
-    }
-    if (event.storageArea && event.storageArea !== globalThis.localStorage) {
-      return;
-    }
-    // Read the current key even for a delayed clear() event: another tab may
-    // have saved a newer cart already. Never fall back to a stale legacy alias.
-    const canonicalRaw = globalThis.localStorage?.getItem(STOREFRONT_STORAGE_KEYS.cart);
-    const persisted = canonicalRaw == null ? [] : storefrontStorage.loadJson('cart', null);
-    const latest = adoptCartSnapshot(cart, persisted);
-    if (JSON.stringify(latest) === JSON.stringify(cart)) {
-      return;
-    }
-    cart = latest;
-    updateBadge(cart, {});
-    renderCart(cart, {});
-    renderCompanionSuggestions(cart, companionRules);
-    syncAllActionAreas(cart);
-  };
+  // Plan 245: storage events are adopted by the controller (latest persisted
+  // snapshot, read-only — never a replayed event.newValue).
   if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
-    window.addEventListener('storage', handleCrossTabCart);
+    window.addEventListener('storage', cartController.adoptCrossTabEvent);
   }
-
-  const getQty = (id, product = null) => {
-    // Resolve old and current SKU identifiers for the same physical item.
-    // A different tab may also have committed a deletion before this event.
-    const candidate = product ? createCartItemFromProduct(product, 1) : null;
-    const item = loadCart().find(
-      (entry) => entry.id === id || (candidate && sameCartProduct(entry, candidate))
-    );
-    return item ? item.quantity : 0;
-  };
-
-  const setQty = (id, nextQty, fallbackProduct = null) => {
-    // Rebase each shopper action on the current persisted cart, not a stale
-    // in-memory snapshot. This prevents unrelated deleted items resurfacing.
-    const persistedCart = loadCart();
-    const wasStale = JSON.stringify(cart) !== JSON.stringify(persistedCart);
-    const nextCart = persistedCart.map((item) => ({ ...item }));
-    const quantity = clampQty(nextQty);
-    const candidate = fallbackProduct ? createCartItemFromProduct(fallbackProduct, 1) : null;
-    const index = nextCart.findIndex(
-      (entry) => entry.id === id || (candidate && sameCartProduct(entry, candidate))
-    );
-    const previousState = getCartState(persistedCart);
-    const previousQuantity = index >= 0 ? nextCart[index].quantity : 0;
-
-    if (index < 0 && fallbackProduct?.stock === false) {
-      return;
-    }
-
-    if (quantity <= 0) {
-      if (index >= 0) {
-        nextCart.splice(index, 1);
-      }
-    } else if (index >= 0) {
-      if (quantity > previousQuantity && fallbackProduct?.stock === false) {
-        return;
-      }
-      // Refresh legacy ID and display fields from the currently selected
-      // catalog item when both IDs represent the same physical product.
-      const refreshed = fallbackProduct
-        ? createCartItemFromProduct(fallbackProduct, quantity)
-        : null;
-      nextCart[index] = refreshed || { ...nextCart[index], quantity };
-    } else if (fallbackProduct) {
-      const nextItem = createCartItemFromProduct(fallbackProduct, quantity);
-      if (nextItem) {
-        nextCart.push(nextItem);
-      }
-    }
-
-    // Render exactly what was persisted; never render an unnormalized cart
-    // whose duplicates were removed only inside saveCart().
-    const canonicalNextCart = sanitizeCart(nextCart);
-    const changed = JSON.stringify(canonicalNextCart) !== JSON.stringify(persistedCart);
-    if (!changed && !wasStale) {
-      return;
-    }
-    if (changed && !saveCart(canonicalNextCart)) {
-      log('warn', 'cart_save_failed', { reason: 'localStorage_quota' });
-      showCartSaveError();
-      return;
-    }
-    // Persist-first: no rollback of a mutated shared array is necessary.
-    cart = canonicalNextCart;
-    const nextState = getCartState(cart);
-    updateBadge(cart, {
-      animate: previousState.totalItems !== nextState.totalItems,
-      totalItems: nextState.totalItems,
-    });
-    renderCart(cart, {
-      animateTotal: previousState.totalAmount !== nextState.totalAmount,
-      changedItemId: wasStale ? null : id,
-      totalAmount: nextState.totalAmount,
-    });
-    renderCompanionSuggestions(cart, companionRules);
-    syncAllActionAreas(cart, wasStale ? null : id);
-
-    if (quantity > previousQuantity) {
-      personalizationEngine.trackProductSignal(id, 'addedCount');
-    }
-
-    if (cart.length > 0 && isOrderJustSent()) {
-      clearLastOrderSentAt();
-    }
-  };
-
-  const addBundleItems = (bundleItems) => {
-    if (!Array.isArray(bundleItems) || bundleItems.length === 0) {
-      return false;
-    }
-
-    let added = false;
-    bundleItems.forEach((item) => {
-      const id = normalizeId(item?.id);
-      if (!id) {
-        return;
-      }
-
-      const fallbackProduct = {
-        id,
-        name: typeof item?.name === 'string' ? item.name : id,
-        category: typeof item?.category === 'string' ? item.category : '',
-        price: parseNumber(item?.price, 0),
-        image: typeof item?.image === 'string' ? item.image : '',
-      };
-
-      const product =
-        getProductByIdFromSource(id) ||
-        getProductFromCard(getProductCardById(id)) ||
-        fallbackProduct;
-      setQty(id, Math.max(getQty(id, product), 0) + 1, product);
-      added = true;
-    });
-
-    return added;
-  };
-
-  const updateQtyByDelta = (id, delta) => {
-    const card = getProductCardById(id);
-    const fallbackProduct = getProductFromCard(card);
-    const current = getQty(id, fallbackProduct);
-    const next = current + delta;
-    setQty(id, next, fallbackProduct);
-  };
 
   const repeatLastOrder = () => {
     const order = loadLastOrder();
@@ -1402,11 +1292,11 @@ function initStorefront() {
       return;
     }
 
-    cart = nextCart;
-    updateBadge(cart, { animate: true });
-    renderCart(cart, { animateTotal: true });
-    renderCompanionSuggestions(cart, companionRules);
-    syncAllActionAreas(cart);
+    setCart(nextCart);
+    updateBadge(nextCart, { animate: true });
+    renderCart(nextCart, { animateTotal: true });
+    renderCompanionSuggestions(nextCart, companionRules);
+    syncAllActionAreas(nextCart);
     if (order.profile) {
       populateProfileForm(order.profile);
       saveProfile(readProfileForm());
@@ -1422,7 +1312,7 @@ function initStorefront() {
         substitutionSelect.value = order.substitutionPreference;
       }
     }
-    syncCheckoutState(cart, getCartState(cart).totalAmount);
+    syncCheckoutState(nextCart, getCartState(nextCart).totalAmount);
     openCartOffcanvas();
   };
 
@@ -1553,14 +1443,7 @@ function initStorefront() {
     if (emptyBtn) {
       event.preventDefault();
       if (globalThis.confirm('¿Quieres vaciar el carrito completo?')) {
-        if (!saveCart([])) {
-          showCartSaveError();
-          return;
-        }
-        cart = [];
-        updateBadge(cart, { animate: true });
-        renderCart(cart, { animateTotal: true });
-        syncAllActionAreas(cart);
+        clearCart();
       }
       return;
     }
@@ -1568,7 +1451,7 @@ function initStorefront() {
     const submitBtn = target.closest('#submit-cart');
     if (submitBtn) {
       event.preventDefault();
-      submitCartOrder(cart);
+      submitCartOrder(getCart());
       return;
     }
 
@@ -1628,8 +1511,9 @@ function initStorefront() {
       if (selectedPayment) {
         savePreferredPayment(selectedPayment);
       }
-      const { totalAmount } = getCartState(cart);
-      syncCheckoutState(cart, totalAmount);
+      const currentCart = getCart();
+      const { totalAmount } = getCartState(currentCart);
+      syncCheckoutState(currentCart, totalAmount);
       return;
     }
 
@@ -1678,10 +1562,11 @@ function initStorefront() {
   });
 
   hydrateProfilePersistence();
-  updateBadge(cart);
-  renderCart(cart);
-  renderCompanionSuggestions(cart, companionRules);
-  syncAllActionAreas(cart);
+  const currentCart = getCart();
+  updateBadge(currentCart);
+  renderCart(currentCart);
+  renderCompanionSuggestions(currentCart, companionRules);
+  syncAllActionAreas(currentCart);
 
   renderPersonalizedProducts();
   recoveryBannerController.initServiceOnboarding();
