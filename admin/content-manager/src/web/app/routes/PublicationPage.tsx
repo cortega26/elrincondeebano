@@ -4,6 +4,8 @@ import type {
   GitStatusResponse,
   PublicationPreviewResponse,
   JobResponse,
+  RecoveredPublication,
+  MissedPublication,
 } from '../../api/client.ts';
 
 const client = new ContentManagerClient();
@@ -16,6 +18,9 @@ export function PublicationPage(): React.ReactElement {
   const [publishAt, setPublishAt] = useState('');
   const [job, setJob] = useState<JobResponse | null>(null);
   const [pendingJobs, setPendingJobs] = useState<JobResponse[]>([]);
+  // Plan 248: durable-outbox notices (server-computed, never inferred here).
+  const [recoveredPublications, setRecoveredPublications] = useState<RecoveredPublication[]>([]);
+  const [missedPublications, setMissedPublications] = useState<MissedPublication[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [pullStatus, setPullStatus] = useState<string | null>(null);
@@ -63,6 +68,9 @@ export function PublicationPage(): React.ReactElement {
     try {
       const res = await client.listJobs();
       setPendingJobs(res.jobs);
+      // Plan 248: recovered/missed come straight from the server response.
+      setRecoveredPublications(res.recovered ?? []);
+      setMissedPublications(res.missed ?? []);
     } catch {
       // Ignore — pending list is best-effort.
     }
@@ -611,8 +619,9 @@ export function PublicationPage(): React.ReactElement {
               marginTop: '0.5rem',
             }}
           >
-            Nota: el admin debe estar corriendo a la hora programada — las publicaciones programadas
-            son en memoria y no sobreviven a un reinicio.
+            Nota: las publicaciones programadas se guardan en disco y se recuperan al reiniciar. Si el
+            admin está apagado a la hora programada, se publica al arrancar — hasta 24 h de retraso
+            (avisadas como «publicado tarde»); pasadas 24 h quedan marcadas como no publicadas.
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -770,6 +779,58 @@ export function PublicationPage(): React.ReactElement {
               </li>
             ))}
           </ul>
+        )}
+
+        {/* Plan 248: schedules recovered late after a restart, and those the
+            server could not publish — read from GET /jobs, never inferred. */}
+        {recoveredPublications.length > 0 && (
+          <div
+            role="status"
+            style={{
+              marginTop: '0.5rem',
+              padding: '0.4rem 0.6rem',
+              background: '#fff3e0',
+              border: '1px solid #ffe0b2',
+              borderRadius: 'var(--radius)',
+              fontSize: '0.85rem',
+            }}
+          >
+            <strong>Publicado tarde tras un reinicio:</strong>
+            <ul style={{ margin: '0.25rem 0', paddingLeft: '1.25rem' }}>
+              {recoveredPublications.map((rp) => (
+                <li key={rp.job_id}>
+                  <strong>{rp.job_id}</strong> · {rp.commit_message} — programada para{' '}
+                  {new Date(rp.publish_at).toLocaleString()}
+                  {rp.fired_at && <> · publicada {new Date(rp.fired_at).toLocaleString()}</>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {missedPublications.length > 0 && (
+          <div
+            role="alert"
+            style={{
+              marginTop: '0.5rem',
+              padding: '0.4rem 0.6rem',
+              background: '#ffebee',
+              border: '1px solid #ffcdd2',
+              borderRadius: 'var(--radius)',
+              fontSize: '0.85rem',
+            }}
+          >
+            <strong>No publicadas (requieren revisión):</strong>
+            <ul style={{ margin: '0.25rem 0', paddingLeft: '1.25rem' }}>
+              {missedPublications.map((mp) => (
+                <li key={mp.job_id}>
+                  <strong>{mp.job_id}</strong> · {mp.commit_message} — programada para{' '}
+                  {new Date(mp.publish_at).toLocaleString()}
+                  {mp.error && <> · {mp.error}</>}
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </section>
 

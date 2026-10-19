@@ -54,6 +54,28 @@ export interface JobResponse {
   error?: string;
 }
 
+// Plan 248: durable-outbox notices served by GET /jobs — a schedule that
+// fired late after a restart, and one that never fired (stale or crash).
+export interface RecoveredPublication {
+  job_id: string;
+  commit_message: string;
+  publish_at: string;
+  fired_at?: string;
+}
+
+export interface MissedPublication {
+  job_id: string;
+  commit_message: string;
+  publish_at: string;
+  error?: string;
+}
+
+export interface JobsListResponse {
+  jobs: JobResponse[];
+  recovered?: RecoveredPublication[];
+  missed?: MissedPublication[];
+}
+
 export async function getGitStatus(request: ApiRequestFn): Promise<GitStatusResponse> {
   return request<GitStatusResponse>('/git/status');
 }
@@ -89,8 +111,8 @@ export async function getJob(request: ApiRequestFn, id: string): Promise<JobResp
   return request<JobResponse>(`/jobs/${encodeURIComponent(id)}`);
 }
 
-export async function listJobs(request: ApiRequestFn): Promise<{ jobs: JobResponse[] }> {
-  return request<{ jobs: JobResponse[] }>('/jobs');
+export async function listJobs(request: ApiRequestFn): Promise<JobsListResponse> {
+  return request<JobsListResponse>('/jobs');
 }
 
 export async function cancelJob(request: ApiRequestFn, id: string): Promise<JobResponse> {

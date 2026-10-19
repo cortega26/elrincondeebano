@@ -52,13 +52,12 @@ beforeEach(() => {
 });
 
 describe('PublicationPage (component)', () => {
-  test('renders datetime-local input and notice about admin must be running', async () => {
+  test('renders datetime-local input and the durable-schedule notice (plan 248)', async () => {
     renderWithRouter(<PublicationPage />);
     expect(screen.getByLabelText('Fecha programada')).toBeInTheDocument();
     expect(screen.getByLabelText('Fecha programada')).toHaveAttribute('type', 'datetime-local');
-    expect(
-      screen.getByText(/el admin debe estar corriendo a la hora programada/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/se recuperan al reiniciar/i)).toBeInTheDocument();
+    expect(screen.getByText(/publicado tarde/i)).toBeInTheDocument();
   });
 
   test('datetime input empty means immediate — submit sends publish without publishAt', async () => {
