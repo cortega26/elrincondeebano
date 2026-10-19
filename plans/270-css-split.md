@@ -164,3 +164,85 @@ Machine-checkable. ALL must hold:
 
 - Reviewer: confirma los tamaños por página antes/después y que
   `printing.css` y el layout de catálogo no cambiaron de orden.
+
+## Completion note — REJECTED (measure-only, 2026-10-19)
+
+Worktree `advisor/270-css-split` @ `5bc448dc` (base `fe2392d3`); drift check
+(`git diff --stat fe2392d3..HEAD -- astro-poc/src/styles/ astro-poc/src/layouts/BaseLayout.astro astro-poc/src/pages/ docs/operations/DEFERRALS.md`) vacío;
+`HUSKY=0 npm ci` exit 0; `npm run build` canónico exit 0.
+
+**Decisión: REJECTED — la masa extraíble no compensa.** El ahorro proyectado
+en `/impresiones/` es **2,83 KB gzip (< 5 KB de gate)** y el split empeoraría
+**+1,57 KB gzip todas las páginas de catálogo** (dos recursos HTTP en vez de
+uno). Sin implementación: `BaseLayout.astro`, `global.css`,
+`storefront-refinement.css` y `printing.css` quedan intactos.
+
+### Medición (CDP `CSS.startRuleUsageTracking` + Playwright, throwaway en `/tmp/opencode/plan270`)
+
+Páginas: `/`, `/c/bebidas/`, `/p/p-00770236729335/`, `/combos/`, `/buscar/`,
+`/impresiones/`, `/404`, `/pages/bebidas.html`; carga limpia y —para el
+offcanvas— con carrito de 2 ítems y el offcanvas abierto. CDP sólo devuelve
+reglas _matcheadas_ (`used=true`): se comparan **sets**, nunca porcentajes.
+`fonts.css` no tiene reglas de estilo; el resto de hojas ya son por página.
+
+**Corrección de clasificación del plan:** `dist/pages/bebidas.html` es
+byte-idéntico a `dist/c/bebidas/index.html` (49711 B, `diff` limpio): trae
+`#product-container`, 27 product-cards y el formulario de pedido completo.
+`pages/[slug]` es, por tanto, **catálogo** (debe importar el trozo extraído),
+no página de contenido como asumía la línea del set-diff. Contenido =
+`/impresiones/` + `/404` (`/offline.html` no carga ninguna hoja).
+
+| página                 | hojas CSS                        | CSS raw | CSS gzip -9 | reglas base-sheet | bytes base-sheet (%) |
+| ---------------------- | -------------------------------- | ------: | ----------: | ----------------: | -------------------: |
+| `/`                    | fonts+base+index+CategoryStrip   |  227376 |       35708 |               331 |        45783 (20.9%) |
+| `/c/bebidas/`          | fonts+base                       |  219905 |       33538 |               295 |        43112 (19.7%) |
+| `/p/p-00770236729335/` | fonts+base+CategoryStrip+`_sku_` |  231838 |       36548 |               259 |        37996 (17.4%) |
+| `/combos/`             | fonts+base                       |  219905 |       33538 |               232 |        34696 (15.8%) |
+| `/buscar/`             | fonts+base                       |  219905 |       33538 |               299 |        43530 (19.9%) |
+| `/impresiones/`        | fonts+base+impresiones           |  228778 |       35805 |               213 |        32771 (15.0%) |
+| `/404`                 | fonts+base                       |  219905 |       33538 |               204 |        31708 (14.5%) |
+| `/pages/bebidas.html`  | fonts+base                       |  219905 |       33538 |               295 |        43112 (19.7%) |
+
+La cifra 15.0% de `/impresiones/` reproduce exactamente la medición del 247.
+Con el carrito poblado: `/impresiones/` 246 reglas / 16.8%, `/404` 237 / 16.3%.
+
+**Set-diff** (base sheet): unión catálogo 430 reglas matcheadas; unión
+contenido 259; **183 reglas candidatas = 18134 B raw** (reglas completas;
+5 registros de preludio `@media` excluidos del splice). Composición: bootstrap
+6105 B · `global.css` 9648 B · `storefront-refinement.css` 2381 B. El 60%
+(259/430) de las reglas matcheadas en catálogo también matchea en contenido
+(navbar/offcanvas/footer compartidos) — es el STOP condition del set-diff
+pequeño. La masa candidata es el 8.3% de los 218993 B de la hoja base.
+
+**Proyección** (splice de las reglas candidatas sobre el bundle construido,
+gzip -9): original raw 218993 / gz 33280 / br 25005 → recortado raw
+200858 / gz 30450 / br 22844 = **−2830 B gz / −2161 B br** en
+`/impresiones/` y `/404`; hoja extraída raw 18135 / gz 4395. En catálogo:
+30450 + 4395 = 34845 vs 33280 → **+1565 B gz de regresión en cada página de
+catálogo** (home, categoría, producto, combos, búsqueda, legacy).
+
+**Gate:** ≥5120 B gz → NO (55% del gate). «Ninguna otra página empeora» →
+NO (+1565 B gz en catálogo). **REJECTED.** El offcanvas no infló candidatas
+(las reglas de líneas de carrito nunca fueron candidatas: también matchean en
+catálogo sólo con carrito poblado); el pase poblado retiró 2 variantes
+`.btn-outline-secondary` (−780 B raw, −45 B gz).
+
+### Verificación en HEAD (sin cambios de código)
+
+- `PORT=8111 PLAYWRIGHT_SKIP_BUILD=1 npm run test:e2e` → 84 passed / 2 skipped.
+- `storefront-visual-refinement.spec.ts` + `mobile-home-visual.spec.ts` → 7 passed.
+- LH mobile `/impresiones/` → 85/100/100/100 (baseline 247: 86; LCP 3,4 s, TBT 0 ms);
+  home mobile 68/97/100/100, desktop 69/97/100/100 (a11y 97 =
+  `color-contrast` preexistente). Sin «after»: no hay implementación.
+- `npm test` → 115 files / 879 tests passed. `npm run lint` → exit 0 (263
+  warnings preexistentes, 0 errors).
+
+### Reapertura
+
+Reabrir sólo si: las páginas de contenido dejan de compartir el chrome
+navbar/offcanvas/carrito, o la masa catalog-only matcheada crece hasta ~33 KB
+raw (≈5 KB gz tras el coste de fichero extra), o `/impresiones/` pasa a ser
+landing primaria y el trabajo se re-scope a **quitar chrome** de las páginas
+de contenido (otro problema, no este split).
+
+Override del despacho: `plans/README.md` lo mantiene el reviewer (no se tocó).
