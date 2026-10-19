@@ -1,4 +1,5 @@
 import { runStages } from './utils/stage-runner.mjs';
+import { logger } from './utils/logger.mjs';
 
 const stages = [
   {
@@ -55,6 +56,6 @@ try {
     successMessage: 'Release validation passed.',
   });
 } catch (error) {
-  console.error(error?.message || String(error));
+  logger.error(error?.message || String(error));
   process.exitCode = error?.exitCode || 1;
 }

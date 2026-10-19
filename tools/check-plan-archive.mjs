@@ -13,6 +13,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { logger } from './utils/logger.mjs';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const readmePath = resolve(repoRoot, 'plans', 'README.md');
@@ -50,13 +51,11 @@ for (const line of readme.split('\n')) {
 }
 
 if (violations.length > 0 || missing.length > 0) {
-  console.error('[check-plan-archive] FAILED:');
-  for (const v of violations) console.error(`  - ${v}`);
-  for (const m of missing) console.error(`  - ${m}`);
-  console.error(
-    'Rule: a plan marked DONE in plans/README.md must live in plans/archive/ (git mv).'
-  );
+  logger.error('[check-plan-archive] FAILED:');
+  for (const v of violations) logger.error(`  - ${v}`);
+  for (const m of missing) logger.error(`  - ${m}`);
+  logger.error('Rule: a plan marked DONE in plans/README.md must live in plans/archive/ (git mv).');
   process.exit(1);
 }
 
-console.log('[check-plan-archive] OK — every DONE plan is archived and links resolve.');
+logger.info('[check-plan-archive] OK — every DONE plan is archived and links resolve.');

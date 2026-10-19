@@ -9,6 +9,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { logger } from './utils/logger.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -272,7 +273,7 @@ function getRelativePath(filePath) {
 
 function main() {
   if (!fs.existsSync(E2E_DIR)) {
-    console.log('E2E test directory not found. Skipping class selector check.');
+    logger.info('E2E test directory not found. Skipping class selector check.');
     process.exit(0);
   }
 
@@ -282,7 +283,7 @@ function main() {
     .map((f) => path.join(E2E_DIR, f));
 
   if (testFiles.length === 0) {
-    console.log('No E2E test files found. Skipping class selector check.');
+    logger.info('No E2E test files found. Skipping class selector check.');
     process.exit(0);
   }
 
@@ -317,26 +318,26 @@ function main() {
   }
 
   // Mostrar resumen
-  console.log(
+  logger.info(
     `Verificación de selectores CSS en E2E: ${validCounts.total} clases encontradas (${validCounts.found} del proyecto, ${validCounts.framework} de framework/base)`
   );
 
   if (violations.length > 0) {
-    console.error('\n❌ Clases CSS no encontradas en el código fuente:\n');
+    logger.error('\n❌ Clases CSS no encontradas en el código fuente:\n');
     for (const v of violations) {
-      console.error(`  ${v.testFile}:${v.line}  →  .${v.className}  (selector: "${v.selector}")`);
+      logger.error(`  ${v.testFile}:${v.line}  →  .${v.className}  (selector: "${v.selector}")`);
     }
-    console.error(
+    logger.error(
       `\n${violations.length} clase(s) CSS usada(s) en tests E2E no existen en los archivos fuente.`
     );
-    console.error('Esto puede indicar que una clase fue renombrada y el test no fue actualizado.');
-    console.error(
+    logger.error('Esto puede indicar que una clase fue renombrada y el test no fue actualizado.');
+    logger.error(
       'Sugerencia: usa atributos data-* en lugar de clases CSS para selectores en tests E2E.'
     );
     process.exit(1);
   }
 
-  console.log('✅ Todos los selectores de clase CSS en tests E2E existen en el código fuente.');
+  logger.info('✅ Todos los selectores de clase CSS en tests E2E existen en el código fuente.');
 }
 
 main();
