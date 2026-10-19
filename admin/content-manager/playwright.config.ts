@@ -28,6 +28,7 @@ export default defineConfig({
         '**/media-workbench.spec.ts',
         '**/storefront.spec.ts',
         '**/scope.spec.ts',
+        '**/products-lazy-form.spec.ts',
       ],
     },
   ],
