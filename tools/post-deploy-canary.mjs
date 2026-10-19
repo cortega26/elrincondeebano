@@ -14,6 +14,7 @@ import {
   formatSecurityHeaderFailure,
   inspectSecurityHeaders,
 } from './security-header-policy.mjs';
+import { logger } from './utils/logger.mjs';
 
 const ALLOWED_CANARY_HOSTS = new Set(['www.elrincondeebano.com', 'elrincondeebano.com']);
 
@@ -365,7 +366,9 @@ async function runCli() {
       await mkdir(path.dirname(values.report), { recursive: true });
       await writeFile(values.report, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
     }
-    console.log(JSON.stringify(report, null, 2));
+    // Machine payload: the JSON canary report stays on raw stdout (plan 255);
+    // the workflow consumes the --report file.
+    process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
   } catch (error) {
     if (values.report) {
       await mkdir(path.dirname(values.report), { recursive: true });
@@ -384,7 +387,7 @@ async function runCli() {
 const isDirectRun = process.argv[1] === fileURLToPath(import.meta.url);
 if (isDirectRun) {
   runCli().catch((error) => {
-    console.error(error.message || String(error));
+    logger.error(error.message || String(error));
     process.exitCode = 1;
   });
 }

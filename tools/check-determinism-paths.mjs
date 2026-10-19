@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { logger } from './utils/logger.mjs';
 
 const ROOT = process.cwd();
 const SCAN_DIRS = ['tools', 'scripts', 'admin', 'server', 'src', 'templates', 'data'];
@@ -123,21 +124,21 @@ function main() {
 
   allowlisted.forEach((entry) => {
     entry.hits.forEach((hit) => {
-      console.warn(`ALLOWLISTED: ${entry.relPath}:${hit.line} [${hit.label}] ${hit.snippet}`);
+      logger.warn(`ALLOWLISTED: ${entry.relPath}:${hit.line} [${hit.label}] ${hit.snippet}`);
     });
   });
 
   if (violations.length > 0) {
     violations.forEach((entry) => {
       entry.hits.forEach((hit) => {
-        console.error(`${entry.relPath}:${hit.line} [${hit.label}] ${hit.snippet}`);
+        logger.error(`${entry.relPath}:${hit.line} [${hit.label}] ${hit.snippet}`);
       });
     });
-    console.error('Determinism path scan failed. Remove local paths or update the allowlist.');
+    logger.error('Determinism path scan failed. Remove local paths or update the allowlist.');
     process.exit(1);
   }
 
-  console.log('Determinism path scan passed.');
+  logger.info('Determinism path scan passed.');
 }
 
 main();

@@ -6,6 +6,7 @@ import {
   SECURITY_HEADER_BASELINE_ROUTES,
 } from './security-header-policy.mjs';
 import { parseOptionalIntegerOption, writeJsonReport } from './utils/cli.mjs';
+import { logger } from './utils/logger.mjs';
 
 const DEFAULT_BASE_URL = 'https://www.elrincondeebano.com';
 const DEFAULT_TIMEOUT_MS = 15000;
@@ -162,7 +163,9 @@ export async function runLiveBrowserContract({
     };
 
     writeJsonReport(reportPath, report);
-    console.log(JSON.stringify(report, null, 2));
+    // Machine payload: the JSON report stays on raw stdout (plan 255); the
+    // workflow consumes the --report file.
+    process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
 
     if (failures.length > 0) {
       throw new Error(`Live browser contract found ${failures.length} failing route(s).`);
@@ -198,7 +201,7 @@ async function runCli() {
 const isDirectRun = process.argv[1] === fileURLToPath(import.meta.url);
 if (isDirectRun) {
   runCli().catch((error) => {
-    console.error(error?.message || String(error));
+    logger.error(error?.message || String(error));
     process.exitCode = 1;
   });
 }

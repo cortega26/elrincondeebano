@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { resolveFromOutput } = require('./utils/output-dir');
+const { logger } = require('./utils/logger.mjs');
 
 const DEFAULT_IMAGE = 'https://elrincondeebano.com/assets/images/og/home.og.jpg';
 
@@ -78,7 +79,7 @@ function parseInlineProductPayload(html) {
     }
     return { hasPayload: true, products: [] };
   } catch (error) {
-    console.warn(`[structured-data] Invalid inline payload in page: ${error.message}`);
+    logger.warn(`[structured-data] Invalid inline payload in page: ${error.message}`);
     return { hasPayload: true, products: [] };
   }
 }

@@ -6,6 +6,7 @@ const {
   loadCategoryRegistry,
   convertRegistryToLegacyCatalog,
 } = require('./utils/category-registry');
+const { logger } = require('./utils/logger.mjs');
 
 function writeIfChanged(filePath, nextContent) {
   const current = fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : null;
@@ -26,12 +27,12 @@ function main() {
   const changed = writeIfChanged(legacyCatalogPath, nextContent);
 
   if (changed) {
-    console.log(`Legacy category catalog synced from registry: ${legacyCatalogPath}`);
+    logger.info(`Legacy category catalog synced from registry: ${legacyCatalogPath}`);
   } else {
-    console.log(`Legacy category catalog already in sync: ${legacyCatalogPath}`);
+    logger.info(`Legacy category catalog already in sync: ${legacyCatalogPath}`);
   }
 
-  console.log(`Source registry: ${categoryRegistryPath}`);
+  logger.info(`Source registry: ${categoryRegistryPath}`);
 }
 
 if (require.main === module) {

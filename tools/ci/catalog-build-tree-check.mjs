@@ -5,6 +5,7 @@
 import { execFileSync } from 'node:child_process';
 import { appendFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { logger } from '../utils/logger.mjs';
 
 export const DERIVED_LOGO_ASSETS = new Set([
   'assets/images/web/logo.webp',
@@ -45,10 +46,13 @@ export function checkBuildTree({ cwd = process.cwd(), git = execFileSync } = {})
 
 function main() {
   const { ignored, unexpected } = checkBuildTree();
-  for (const name of ignored) console.log(`Derived logo regenerated: ${name}`);
-  for (const name of unexpected) console.error(`Unexpected tracked build change: ${name}`);
+  for (const name of ignored) logger.info(`Derived logo regenerated: ${name}`);
+  for (const name of unexpected) logger.error(`Unexpected tracked build change: ${name}`);
   if (process.env.GITHUB_OUTPUT) {
-    appendFileSync(process.env.GITHUB_OUTPUT, `dirty_tree=${unexpected.length ? 'true' : 'false'}\n`);
+    appendFileSync(
+      process.env.GITHUB_OUTPUT,
+      `dirty_tree=${unexpected.length ? 'true' : 'false'}\n`
+    );
   }
   // Git failures throw and fail this step instead of being treated as clean.
 }

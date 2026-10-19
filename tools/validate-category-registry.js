@@ -8,6 +8,7 @@ const {
   normalizeCategoryKey,
   validateProductDataContract,
 } = require('./utils/product-contract');
+const { logger } = require('./utils/logger.mjs');
 
 function getKnownCategoryKeys(registry) {
   const categories = Array.isArray(registry?.categories) ? registry.categories : [];
@@ -51,14 +52,14 @@ function main() {
   ];
 
   if (allErrors.length) {
-    console.error(`Category registry validation failed (${allErrors.length} issues):`);
-    allErrors.forEach((error) => console.error(`- ${error}`));
+    logger.error(`Category registry validation failed (${allErrors.length} issues):`);
+    allErrors.forEach((error) => logger.error(`- ${error}`));
     process.exit(1);
   }
 
-  console.log(`Category registry OK (${categoryRegistryPath})`);
-  console.log(`Validated categories: ${registry.categories?.length || 0}`);
-  console.log(`Validated products: ${products.length}`);
+  logger.info(`Category registry OK (${categoryRegistryPath})`);
+  logger.info(`Validated categories: ${registry.categories?.length || 0}`);
+  logger.info(`Validated products: ${products.length}`);
 }
 
 if (require.main === module) {

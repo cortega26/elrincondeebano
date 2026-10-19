@@ -8,9 +8,10 @@ import {
   writeBufferIfChanged,
 } from './utils/image-pipeline.mjs';
 import { buildLabel, wrapLabelLines, labelStyleForLines } from './utils/category-og.mjs';
+import { logger } from './utils/logger.mjs';
 
 if (process.env.PREFLIGHT_SKIP_OG === '1') {
-  console.log('PREFLIGHT_SKIP_OG=1: skipping printing OG image generation.');
+  logger.info('PREFLIGHT_SKIP_OG=1: skipping printing OG image generation.');
   process.exit(0);
 }
 
@@ -93,14 +94,14 @@ async function main() {
 
   const changed = writeBufferIfChanged(OUTPUT_PATH, rendered);
   if (!changed) {
-    console.log(`Printing OG image unchanged, skipping write.`);
+    logger.info(`Printing OG image unchanged, skipping write.`);
     return;
   }
 
-  console.log(`Generated ${path.relative(rootDir, OUTPUT_PATH)}`);
+  logger.info(`Generated ${path.relative(rootDir, OUTPUT_PATH)}`);
 }
 
 main().catch((error) => {
-  console.error(error instanceof Error ? error.message : String(error));
+  logger.error(error instanceof Error ? error.message : String(error));
   process.exit(1);
 });

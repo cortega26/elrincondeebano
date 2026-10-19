@@ -56,13 +56,13 @@ for (const file of files) {
 
 if (violations.length > 0) {
   logger.error('sass-import-quarantine-violated', { violations });
-  console.error('Sass @import outside the bootstrap-needed.scss quarantine:\n');
+  logger.error('Sass @import outside the bootstrap-needed.scss quarantine:\n');
   for (const violation of violations) {
-    console.error(`- ${violation}`);
+    logger.error(`- ${violation}`);
   }
-  console.error('\nNew stylesheets MUST use @use (plan 203).');
+  logger.error('\nNew stylesheets MUST use @use (plan 203).');
   process.exit(1);
 }
 
 logger.info('sass-import-quarantine-passed', {});
-console.log('Sass @import quarantine guard passed.');
+logger.info('Sass @import quarantine guard passed.');

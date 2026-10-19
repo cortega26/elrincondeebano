@@ -12,6 +12,7 @@ import {
   looksLikeChallenge,
 } from './share-preview-contract.mjs';
 import { normalizeBaseUrl } from './share-preview-monitor.mjs';
+import { logger } from './utils/logger.mjs';
 
 const DEFAULT_BASE_URL = 'https://www.elrincondeebano.com';
 const DEFAULT_ROUTE = '/';
@@ -518,8 +519,9 @@ async function runCli() {
     reportPath: values.report || DEFAULT_REPORT_PATH,
   });
 
-  console.log(
-    JSON.stringify(
+  // Machine payload: the JSON diagnosis summary stays on raw stdout (plan 255).
+  process.stdout.write(
+    `${JSON.stringify(
       {
         success: report.success,
         reportPath: report.reportPath,
@@ -531,14 +533,14 @@ async function runCli() {
       },
       null,
       2
-    )
+    )}\n`
   );
 }
 
 const isDirectRun = process.argv[1] === fileURLToPath(import.meta.url);
 if (isDirectRun) {
   runCli().catch((error) => {
-    console.error(error?.message || String(error));
+    logger.error(error?.message || String(error));
     process.exitCode = 1;
   });
 }

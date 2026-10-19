@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { resolveFromOutput } = require('./utils/output-dir');
+const { logger } = require('./utils/logger.mjs');
 
 const LOGO_PRELOAD_PATH = '/assets/images/web/logo.webp';
 const SCRIPT_PRELOAD_PATH = '/dist/js/script.min.js';
@@ -96,16 +97,16 @@ function main() {
       });
     }
 
-    console.log('✅ Resource hints processed');
-    console.log(`📊 Files checked: ${processedCount}, Modified: ${modifiedCount}`);
+    logger.info('✅ Resource hints processed');
+    logger.info(`📊 Files checked: ${processedCount}, Modified: ${modifiedCount}`);
 
     if (modifiedCount > 0) {
-      console.log('🚀 Performance hints added! Pages should load slightly faster now.');
+      logger.info('🚀 Performance hints added! Pages should load slightly faster now.');
     } else {
-      console.log('ℹ️ Resource hints already present in all files.');
+      logger.info('ℹ️ Resource hints already present in all files.');
     }
   } catch (error) {
-    console.error('❌ Error injecting resource hints:', error.message);
+    logger.error('❌ Error injecting resource hints:', { error: error.message });
     // Don't throw - we don't want to break the build
   }
 }

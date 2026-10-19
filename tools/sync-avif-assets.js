@@ -14,6 +14,7 @@ const {
   ensureDir,
   writeBufferIfChanged,
 } = require('./utils/constants.js');
+const { logger } = require('./utils/logger.mjs');
 
 const DEFAULT_PRODUCTS_JSON = path.join(REPO_ROOT, 'data', 'product_data.json');
 
@@ -205,7 +206,7 @@ async function run() {
   const catalogStats = await syncProductCatalogAvif({ force });
   const uiStats = await syncCriticalUiAvifAssets({ force });
 
-  console.log(
+  logger.info(
     `Synced AVIF assets: ${catalogStats.updatedProducts} catalog link(s) updated, ` +
       `${catalogStats.generatedAssets} catalog asset(s) generated, ` +
       `${catalogStats.linkedExistingAssets} existing catalog AVIF asset(s) linked, ` +
@@ -215,7 +216,7 @@ async function run() {
 
 if (require.main === module) {
   run().catch((error) => {
-    console.error(error);
+    logger.error(error instanceof Error ? error.message : String(error));
     process.exit(1);
   });
 }

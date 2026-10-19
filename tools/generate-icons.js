@@ -4,13 +4,14 @@
 const fs = require('fs');
 const path = require('path');
 const { REPO_ROOT: rootDir, ensureDir, writeBufferIfChanged } = require('./utils/constants.js');
+const { logger } = require('./utils/logger.mjs');
 
 async function ensureSharp() {
   try {
     // Dynamically require to provide clearer error if missing
     return require('sharp');
   } catch (e) {
-    console.error('\nMissing devDependency: sharp\nRun:  npm i --save-dev sharp\n');
+    logger.error('\nMissing devDependency: sharp\nRun:  npm i --save-dev sharp\n');
     process.exit(1);
   }
 }
@@ -25,7 +26,7 @@ async function main() {
   ];
 
   if (!fs.existsSync(src)) {
-    console.error(`Source file not found: ${src}`);
+    logger.error(`Source file not found: ${src}`);
     process.exit(1);
   }
 
@@ -41,12 +42,14 @@ async function main() {
         .png({ compressionLevel: 9 })
         .toBuffer();
       const changed = writeBufferIfChanged(dest, buffer);
-      console.log(`${changed ? 'Wrote' : 'Unchanged'} ${dest}`);
+      logger.info(`${changed ? 'Wrote' : 'Unchanged'} ${dest}`);
     })
   );
 }
 
 main().catch((err) => {
-  console.error('Icon generation failed:', err);
+  logger.error('Icon generation failed:', {
+    error: err instanceof Error ? err.message : String(err),
+  });
   process.exit(1);
 });

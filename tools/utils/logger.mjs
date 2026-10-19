@@ -5,8 +5,11 @@
 //
 // Maintenance rule: the migrated surfaces — tools/guardrails/**, preflight.js,
 // run-parallel.mjs, preflight-hash.mjs (plan 244) — MUST use this logger (no
-// bare console.*; enforced by the scoped no-console override in
-// eslint.config.cjs). The remaining ~40 tool files are deferred backlog.
+// bare console.*; enforced by the tools-wide no-console override in
+// eslint.config.cjs). All of tools/ is migrated as of plan 255; only the
+// exclusions keep console: this file (the sink), stage-runner.mjs (plan-206
+// human labels) and live-contract-monitor.mjs (payload captured through a
+// mocked console.log by its test).
 
 const LEVELS = { debug: 10, info: 20, warn: 30, error: 40 };
 

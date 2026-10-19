@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { JSDOM } from 'jsdom';
+import { logger } from './utils/logger.mjs';
 
 const repoRoot = process.cwd();
 const htmlDirs = [repoRoot, path.join(repoRoot, 'pages')];
@@ -91,7 +92,7 @@ function rewriteCss(file) {
 
 function run() {
   if (process.env.SKIP_IMAGE_OPT === '1') {
-    console.log('Skipping image rewrite');
+    logger.info('Skipping image rewrite');
     return;
   }
   for (const dir of htmlDirs) {

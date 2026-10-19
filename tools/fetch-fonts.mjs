@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { logger } from './utils/logger.mjs';
 // Plan 201: global fetch (Node 24-only runtime) — the fetch shim dep is retired.
 
 const __filename = fileURLToPath(import.meta.url);
@@ -201,7 +202,7 @@ async function main() {
   await fs.promises.mkdir(outDir, { recursive: true });
   const { css, cssPath, source } = await loadFontsCss();
   const label = cssPath ? path.relative(rootDir, cssPath) : source;
-  console.log(`Using font CSS from ${label}`);
+  logger.info(`Using font CSS from ${label}`);
 
   // Plan 234: the five weights share one variable file — dedupe destinations
   // so the URL is fetched/written once per run. The per-weight block lookup
@@ -220,24 +221,24 @@ async function main() {
   for (const t of targets) {
     const block = findFontFaceBlock(blocks, t.family, t.weight);
     if (!block) {
-      console.warn(`No @font-face block for ${t.family} ${t.weight}`);
+      logger.warn(`No @font-face block for ${t.family} ${t.weight}`);
       continue;
     }
     const url = extractWoff2Url(block);
     if (!url) {
-      console.warn(`No woff2 URL inside block for ${t.family} ${t.weight}`);
+      logger.warn(`No woff2 URL inside block for ${t.family} ${t.weight}`);
       continue;
     }
     const dest = path.join(outDir, t.file);
     if (processed.has(dest)) continue;
     processed.add(dest);
-    console.log(`Downloading ${t.family} ${t.weight} -> ${t.file}`);
+    logger.info(`Downloading ${t.family} ${t.weight} -> ${t.file}`);
     await fetchFontAsset(url, cssPath, dest);
   }
-  console.log('Fonts downloaded to assets/fonts');
+  logger.info('Fonts downloaded to assets/fonts');
 }
 
 main().catch((e) => {
-  console.error(e);
+  logger.error(e instanceof Error ? e.message : String(e));
   process.exit(1);
 });

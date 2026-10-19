@@ -84,12 +84,19 @@ module.exports = [
   {
     // Plan 244: logger-migration ratchet — migrated tools must not print bare
     // console.* (tools/utils/logger.mjs emits one JSON line per call with
-    // LOG_LEVEL filtering + redaction). Extend `files` as more tools migrate.
-    files: [
-      'tools/guardrails/**/*.{js,mjs}',
-      'tools/preflight.js',
-      'tools/run-parallel.mjs',
-      'tools/preflight-hash.mjs',
+    // LOG_LEVEL filtering + redaction). Plan 255 extended it to all tools.
+    // Exclusions:
+    // - tools/utils/logger.mjs: the logger sink itself.
+    // - tools/utils/stage-runner.mjs: plan-206 human stage labels + pass-through
+    //   child output (injectable console.log default).
+    // - tools/live-contract-monitor.mjs: the JSON report payload must stay on
+    //   console.log because test/live-contract-monitor.test.js captures it
+    //   through a mocked console.log (plan 255 payload exception).
+    files: ['tools/**/*.{js,mjs}'],
+    ignores: [
+      'tools/utils/logger.mjs',
+      'tools/utils/stage-runner.mjs',
+      'tools/live-contract-monitor.mjs',
     ],
     rules: {
       'no-console': 'error',

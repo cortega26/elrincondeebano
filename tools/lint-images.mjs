@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { JSDOM } from 'jsdom';
+import { logger } from './utils/logger.mjs';
 
 const repoRoot = process.cwd();
 const htmlDirs = [repoRoot, path.join(repoRoot, 'pages')];
@@ -50,7 +51,7 @@ function lintCss(file, errors) {
 
 function run() {
   if (process.env.SKIP_IMAGE_OPT === '1') {
-    console.log('Skipping image lint');
+    logger.info('Skipping image lint');
     return;
   }
   const errors = [];
@@ -59,7 +60,7 @@ function run() {
   }
   findFiles(cssDir, ['.css']).forEach((f) => lintCss(f, errors));
   if (errors.length) {
-    console.error(errors.join('\n'));
+    logger.error(errors.join('\n'));
     process.exit(1);
   }
 }

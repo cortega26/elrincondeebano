@@ -3,6 +3,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { logger } = require('./utils/logger.mjs');
 
 const LOCATIONS = [path.resolve(__dirname, '..', 'data')];
 const extraLocations = process.env.PRUNE_LOCATIONS
@@ -43,9 +44,9 @@ function prune(dir) {
   toRemove.forEach((b) => {
     try {
       fs.unlinkSync(b.path);
-      console.log(`Removed ${b.path}`);
+      logger.info(`Removed ${b.path}`);
     } catch (e) {
-      console.warn(`Failed to remove ${b.path}: ${e.message}`);
+      logger.warn(`Failed to remove ${b.path}: ${e.message}`);
     }
   });
   return { dir, removed: toRemove.map((b) => b.path) };
@@ -54,7 +55,7 @@ function prune(dir) {
 function main() {
   const results = LOCATIONS.map(prune);
   const totalRemoved = results.reduce((sum, r) => sum + r.removed.length, 0);
-  console.log(`Prune completed. Removed ${totalRemoved} old backups.`);
+  logger.info(`Prune completed. Removed ${totalRemoved} old backups.`);
 }
 
 main();

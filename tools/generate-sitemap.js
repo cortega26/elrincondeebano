@@ -3,6 +3,7 @@ const path = require('path');
 const { resolveFromOutput, ensureDir } = require('./utils/output-dir');
 const { loadCategoryCatalog, buildCategoryPages } = require('./utils/category-catalog');
 const { getDeterministicDate } = require('./utils/deterministic-time');
+const { logger } = require('./utils/logger.mjs');
 
 function generateSitemap() {
   const baseUrl = 'https://elrincondeebano.com';
@@ -53,13 +54,13 @@ function main() {
     ensureDir(path.dirname(sitemapPath));
 
     fs.writeFileSync(sitemapPath, sitemapContent, 'utf8');
-    console.log('✅ Sitemap generated successfully at sitemap.xml');
+    logger.info('✅ Sitemap generated successfully at sitemap.xml');
 
     // Also log some stats
     const urlCount = (sitemapContent.match(/<url>/g) || []).length;
-    console.log(`📊 Generated sitemap with ${urlCount} URLs`);
+    logger.info(`📊 Generated sitemap with ${urlCount} URLs`);
   } catch (error) {
-    console.error('❌ Error generating sitemap:', error.message);
+    logger.error('❌ Error generating sitemap:', { error: error.message });
     // Don't throw - we don't want to break the build if sitemap fails
   }
 }

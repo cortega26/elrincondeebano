@@ -1,3 +1,5 @@
+const { logger } = require('./logger.mjs');
+
 let cachedDate = null;
 let warned = false;
 
@@ -7,7 +9,7 @@ const EPOCH_SECONDS_CUTOFF_MS = 1000 * 1000 * 1000 * 1000;
 function warnOnce(message) {
   if (warned) return;
   warned = true;
-  console.warn(message);
+  logger.warn(message);
 }
 
 function parseEpochSeconds(raw) {

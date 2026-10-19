@@ -1,4 +1,5 @@
 const { categoryRegistryPath, loadCategoryCatalogFromRegistry } = require('./category-registry');
+const { logger } = require('./logger.mjs');
 
 const catalogPath = categoryRegistryPath;
 
@@ -6,7 +7,9 @@ function loadCategoryCatalog() {
   try {
     return loadCategoryCatalogFromRegistry();
   } catch (err) {
-    console.error(`No se pudo leer el catálogo de categorías en ${catalogPath}:`, err);
+    logger.error(`No se pudo leer el catálogo de categorías en ${catalogPath}:`, {
+      error: err instanceof Error ? err.message : String(err),
+    });
     return { categories: [], nav_groups: [] };
   }
 }
