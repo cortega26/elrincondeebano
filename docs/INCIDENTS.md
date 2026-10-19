@@ -38,7 +38,7 @@
 
 - Symptoms: navbar/hero/images jump on load.
 - Verify (2-5 min): hard reload, observe top of page and first product row.
-- Suspected areas/files: `assets/css/critical.css`, `assets/css/style.css`.
+- Suspected areas/files: `astro-poc/src/styles/global.css` (legacy `assets/css/` split retired by plan 239).
 - Immediate mitigation:
   - Align critical CSS with main CSS for affected selectors.
 - Rollback:

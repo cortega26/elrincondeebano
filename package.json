@@ -36,7 +36,6 @@
     "lint:md": "markdownlint-cli2 'docs/**/*.md' '*.md' '#node_modules' '#astro-poc/node_modules' '#admin/content-manager/node_modules'",
     "lint": "npm run lint:root && npm run lint:astro && npm run admin:lint",
     "check:determinism": "node tools/check-determinism-paths.mjs",
-    "check:css-order": "node scripts/check-css-order.mjs",
     "check:e2e-selectors": "node tools/check-e2e-class-selectors.mjs",
     "check:sass-imports": "node tools/check-sass-imports.mjs",
     "format": "prettier --write .",
