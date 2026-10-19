@@ -611,6 +611,45 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/products/revision': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get the catalog revision and last-updated timestamp */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              rev: number;
+              last_updated: string;
+            };
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/categories': {
     parameters: {
       query?: never;
@@ -804,6 +843,130 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/categories/{key}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a category by key */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              id: string;
+              key: string;
+              slug: string;
+              display_name?: {
+                default?: string;
+              };
+              nav_group?: string;
+              active?: boolean;
+              sort_order?: number;
+              description?: string;
+              subcategories?: {
+                id: string;
+                /** @default  */
+                title: string;
+                /** @default  */
+                product_key: string;
+                /** @default  */
+                slug: string;
+                /** @default  */
+                description: string;
+                /** @default 0 */
+                order: number;
+                /** @default true */
+                enabled: boolean;
+              }[];
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/categories/reorder': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Reorder categories in one registry write */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': {
+            ordered_ids: string[];
+            base_revision?: number;
+          };
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              status: string;
+              reordered: number;
+              rev: number;
+              resulting_revision: number;
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/categories/{id}/subcategories': {
     parameters: {
       query?: never;
@@ -922,6 +1085,61 @@ export interface paths {
         };
       };
     };
+    trace?: never;
+  };
+  '/api/v1/categories/{id}/subcategories/reorder': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Reorder the subcategories of a category */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': {
+            ordered_ids: string[];
+            base_revision?: number;
+          };
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              status: string;
+              reordered: number;
+              rev: number;
+              resulting_revision: number;
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
   '/api/v1/nav-groups': {
@@ -1205,6 +1423,54 @@ export interface paths {
               }[];
             };
           };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/media/validate': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Validate a media target path (assets/images containment) */
+    get: {
+      parameters: {
+        query: {
+          path: string;
+        };
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              ok: boolean;
+              error?: string;
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
         };
       };
     };
@@ -1991,6 +2257,52 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/publications/recovery': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Publication recovery journal status */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              pending_recovery: boolean;
+              state: {
+                current_job_id?: string;
+                current_step?: string;
+                commit_made?: boolean;
+                commit_sha?: string;
+                staged_paths: string[];
+                timestamp: string;
+              } | null;
+            };
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/preview/build': {
     parameters: {
       query?: never;
@@ -2190,6 +2502,62 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/bootstrap': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Bootstrap payload (capabilities, revision, counts) */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              capabilities: {
+                products: boolean;
+                categories: boolean;
+                storefront: boolean;
+                media: boolean;
+                changes: boolean;
+                publication: boolean;
+                sync: boolean;
+              };
+              revision: {
+                products: number;
+                last_updated: string;
+              };
+              counts: {
+                products: number;
+                categories: number;
+                nav_groups: number;
+                bundles: number;
+              };
+            };
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/comms': {
     parameters: {
       query?: never;
@@ -2340,6 +2708,66 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/diff': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Diff two product snapshots */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': {
+            before?: {
+              products: {
+                [key: string]: unknown;
+              }[];
+            };
+            after?: {
+              products: {
+                [key: string]: unknown;
+              }[];
+            };
+          };
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              products: {
+                field: string;
+                old?: unknown;
+                new?: unknown;
+                productName?: string;
+              }[];
+              categories: unknown[];
+              storefront: unknown[];
+            };
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/change-sets': {
     parameters: {
       query?: never;
@@ -2371,7 +2799,116 @@ export interface paths {
       };
     };
     put?: never;
-    post?: never;
+    /** Create a draft change set */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': {
+            /** @default [] */
+            product_ops?: {
+              /** @enum {string} */
+              action: 'create' | 'edit' | 'archive' | 'restore' | 'purge';
+              product_id?: string;
+              data: {
+                [key: string]: unknown;
+              };
+              base_revision?: number;
+              /** @default {} */
+              before?: {
+                [key: string]: unknown;
+              };
+              /** @default {} */
+              after?: {
+                [key: string]: unknown;
+              };
+              resulting_revision?: number;
+              idempotency_key?: string;
+            }[];
+            /** @default [] */
+            category_ops?: {
+              /** @enum {string} */
+              action: 'create' | 'edit' | 'delete' | 'reorder';
+              category_id?: string;
+              data: {
+                [key: string]: unknown;
+              };
+            }[];
+          };
+        };
+      };
+      responses: {
+        /** @description Created */
+        201: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              id: string;
+              /**
+               * @default draft
+               * @enum {string}
+               */
+              status:
+                | 'draft'
+                | 'validating'
+                | 'validated'
+                | 'publishing'
+                | 'published'
+                | 'failed'
+                | 'discarded';
+              created_at: string;
+              updated_at: string;
+              /** @default [] */
+              product_ops: {
+                /** @enum {string} */
+                action: 'create' | 'edit' | 'archive' | 'restore' | 'purge';
+                product_id?: string;
+                data: {
+                  [key: string]: unknown;
+                };
+                base_revision?: number;
+                /** @default {} */
+                before: {
+                  [key: string]: unknown;
+                };
+                /** @default {} */
+                after: {
+                  [key: string]: unknown;
+                };
+                resulting_revision?: number;
+                idempotency_key?: string;
+              }[];
+              /** @default [] */
+              category_ops: {
+                /** @enum {string} */
+                action: 'create' | 'edit' | 'delete' | 'reorder';
+                category_id?: string;
+                data: {
+                  [key: string]: unknown;
+                };
+              }[];
+              validation_evidence?: unknown;
+              publication_result?: unknown;
+              source_change_set_id?: string;
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
     delete?: never;
     options?: never;
     head?: never;
@@ -2385,7 +2922,82 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /** Get a change set by id */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              id: string;
+              /**
+               * @default draft
+               * @enum {string}
+               */
+              status:
+                | 'draft'
+                | 'validating'
+                | 'validated'
+                | 'publishing'
+                | 'published'
+                | 'failed'
+                | 'discarded';
+              created_at: string;
+              updated_at: string;
+              /** @default [] */
+              product_ops: {
+                /** @enum {string} */
+                action: 'create' | 'edit' | 'archive' | 'restore' | 'purge';
+                product_id?: string;
+                data: {
+                  [key: string]: unknown;
+                };
+                base_revision?: number;
+                /** @default {} */
+                before: {
+                  [key: string]: unknown;
+                };
+                /** @default {} */
+                after: {
+                  [key: string]: unknown;
+                };
+                resulting_revision?: number;
+                idempotency_key?: string;
+              }[];
+              /** @default [] */
+              category_ops: {
+                /** @enum {string} */
+                action: 'create' | 'edit' | 'delete' | 'reorder';
+                category_id?: string;
+                data: {
+                  [key: string]: unknown;
+                };
+              }[];
+              validation_evidence?: unknown;
+              publication_result?: unknown;
+              source_change_set_id?: string;
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
     put?: never;
     post?: never;
     delete?: never;
@@ -2831,7 +3443,38 @@ export interface paths {
       };
     };
     put?: never;
-    post?: never;
+    /** Create a verified manual backup */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description Backup created */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              backup_id: string;
+              timestamp: string;
+              files: string[];
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
     delete?: never;
     options?: never;
     head?: never;
@@ -2979,6 +3622,46 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/v1/backup/reconcile': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Reconcile the backup index against disk */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              status: string;
+              added: number;
+              removed: number;
+            };
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/v1/sync/status': {
     parameters: {
       query?: never;
@@ -3011,6 +3694,239 @@ export interface paths {
     };
     put?: never;
     post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/sync/events': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Sync status SSE stream */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description text/event-stream: repeated `data: { sync, capabilities }` frames (same envelope as GET /api/v1/sync/status) plus `: ping` heartbeat comments; max 2 concurrent connections (429 beyond). */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'text/event-stream': string;
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/sync/config': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Update sync configuration (api_token is env-only and rejected) */
+    put: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: {
+        content: {
+          'application/json': {
+            /** @default false */
+            enabled?: boolean;
+            /** Format: uri */
+            api_base?: string;
+            /** @default 60 */
+            poll_interval?: number;
+            /** @default 300 */
+            pull_interval?: number;
+            /** @default 10 */
+            timeout?: number;
+          };
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              /** @default false */
+              enabled: boolean;
+              /** Format: uri */
+              api_base?: string;
+              api_token?: string;
+              /** @default 60 */
+              poll_interval: number;
+              /** @default 300 */
+              pull_interval: number;
+              /** @default 10 */
+              timeout: number;
+            };
+          };
+        };
+        /** @description Error */
+        '4XX': {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+      };
+    };
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/sync/now': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Run one push+pull sync cycle now */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              ok: boolean;
+              message: string;
+              pushed: number;
+              push_failed: number;
+              pulled: number;
+              cursor: number;
+              pull_error: string | null;
+            };
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/sync/pause': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Pause background sync */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              status: string;
+            };
+          };
+        };
+      };
+    };
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/v1/sync/resume': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Resume background sync */
+    post: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json': {
+              status: string;
+            };
+          };
+        };
+      };
+    };
     delete?: never;
     options?: never;
     head?: never;

@@ -75,11 +75,15 @@ test('every client request path is declared in the OpenAPI document', () => {
   expect(clientRoutes.length).toBeGreaterThan(10);
 
   // Compare with parameter names normalized ({id}/{categoryId}/{subId} ->
-  // {}) — the contract is the route shape, not the param label.
+  // {}) — the contract is the route shape, not the param label. Methods are
+  // merged per normalized shape: the registry now declares two paths that
+  // normalize identically (GET /categories/{key} alongside PATCH/DELETE
+  // /categories/{id}), and a last-write-wins map would drop one side.
   const normalize = (path: string): string => path.replace(/\{[^}]+\}/g, '{}');
   const declaredNormalized = new Map<string, string[]>();
   for (const [path, methods] of declared) {
-    declaredNormalized.set(normalize(path), methods);
+    const key = normalize(path);
+    declaredNormalized.set(key, [...new Set([...(declaredNormalized.get(key) ?? []), ...methods])]);
   }
 
   const missing: string[] = [];

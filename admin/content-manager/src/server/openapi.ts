@@ -17,6 +17,7 @@ import { storefrontBundleSchema } from '../shared/schemas/storefront.ts';
 import { changeSetSchema } from '../shared/schemas/changeSet.ts';
 import { conflictSchema } from '../shared/schemas/conflict.ts';
 import { mediaIntentSchema } from '../shared/schemas/mediaIntent.ts';
+import { syncConfigSchema } from './adapters/syncAdapter.ts';
 
 const PRODUCT = '/api/v1/products';
 const PRODUCT_ID = '/api/v1/products/{id}';
@@ -161,6 +162,14 @@ export function buildOpenApi() {
       z.object({ command_id: z.string(), status: z.string(), applied: z.number() })
     ),
   });
+  // Plan 252: catalog revision probe (productRoutes.ts:131 →
+  // ProductRepository.getRevision()); used by mediaApplyOutputs and the UI.
+  registry.registerPath({
+    method: 'get',
+    path: '/api/v1/products/revision',
+    summary: 'Get the catalog revision and last-updated timestamp',
+    responses: jsonResponse(z.object({ rev: z.number(), last_updated: z.string() })),
+  });
 
   registry.registerPath({
     method: 'get',
@@ -200,6 +209,42 @@ export function buildOpenApi() {
       z.object({ command_id: z.string(), status: z.string(), applied: z.number() })
     ),
   });
+  // Plan 252: single-category read + reorder, and subcategory reorder
+  // (categoryCrudRoutes.ts:28/310, categorySubcategoryRoutes.ts:196).
+  registry.registerPath({
+    method: 'get',
+    path: '/api/v1/categories/{key}',
+    summary: 'Get a category by key',
+    responses: { ...jsonResponse(categoryRecordSchema), ...errorResponse() },
+  });
+  registry.registerPath({
+    method: 'post',
+    path: '/api/v1/categories/reorder',
+    summary: 'Reorder categories in one registry write',
+    request: {
+      body: {
+        content: {
+          'application/json': {
+            schema: z.object({
+              ordered_ids: z.array(z.string()),
+              base_revision: z.number().optional(),
+            }),
+          },
+        },
+      },
+    },
+    responses: {
+      ...jsonResponse(
+        z.object({
+          status: z.string(),
+          reordered: z.number(),
+          rev: z.number(),
+          resulting_revision: z.number(),
+        })
+      ),
+      ...errorResponse(),
+    },
+  });
   registry.registerPath({
     method: 'get',
     path: CATEGORY_SUBS,
@@ -223,6 +268,34 @@ export function buildOpenApi() {
     path: '/api/v1/categories/{id}/subcategories/{subId}',
     summary: 'Delete a subcategory',
     responses: jsonResponse(z.object({ status: z.string() })),
+  });
+  registry.registerPath({
+    method: 'post',
+    path: '/api/v1/categories/{id}/subcategories/reorder',
+    summary: 'Reorder the subcategories of a category',
+    request: {
+      body: {
+        content: {
+          'application/json': {
+            schema: z.object({
+              ordered_ids: z.array(z.string()),
+              base_revision: z.number().optional(),
+            }),
+          },
+        },
+      },
+    },
+    responses: {
+      ...jsonResponse(
+        z.object({
+          status: z.string(),
+          reordered: z.number(),
+          rev: z.number(),
+          resulting_revision: z.number(),
+        })
+      ),
+      ...errorResponse(),
+    },
   });
 
   registry.registerPath({
@@ -287,6 +360,16 @@ export function buildOpenApi() {
   // apply/discard), declared from the handlers in mediaUploadRoutes.ts /
   // mediaIntentRoutes.ts / mediaApplyRoutes.ts and their integration tests
   // (test/integration/mediaWorkbench.test.ts).
+  registry.registerPath({
+    method: 'get',
+    path: '/api/v1/media/validate',
+    summary: 'Validate a media target path (assets/images containment)',
+    request: { query: z.object({ path: z.string() }) },
+    responses: {
+      ...jsonResponse(z.object({ ok: z.boolean(), error: z.string().optional() })),
+      ...errorResponse(),
+    },
+  });
   registry.registerPath({
     method: 'post',
     path: '/api/v1/media/upload',
@@ -488,6 +571,28 @@ export function buildOpenApi() {
     summary: 'Publication preview',
     responses: jsonResponse(z.record(z.string(), z.unknown())),
   });
+  // Plan 252: publication recovery journal (publication.ts:272 →
+  // RecoveryJournal.load()); `state` is null when no crash was recorded.
+  registry.registerPath({
+    method: 'get',
+    path: '/api/v1/publications/recovery',
+    summary: 'Publication recovery journal status',
+    responses: jsonResponse(
+      z.object({
+        pending_recovery: z.boolean(),
+        state: z
+          .object({
+            current_job_id: z.string().optional(),
+            current_step: z.string().optional(),
+            commit_made: z.boolean().optional(),
+            commit_sha: z.string().optional(),
+            staged_paths: z.array(z.string()),
+            timestamp: z.string(),
+          })
+          .nullable(),
+      })
+    ),
+  });
   registry.registerPath({
     // Plan 211: flag-gated build+preview trigger (mutation-class route).
     method: 'post',
@@ -535,6 +640,34 @@ export function buildOpenApi() {
     summary: 'Diagnostics report',
     responses: jsonResponse(z.record(z.string(), z.unknown())),
   });
+  // Plan 252: unauthenticated bootstrap payload — capabilities, catalog
+  // revision and counts only (bootstrap.ts; the launch credential is
+  // deliberately not served).
+  registry.registerPath({
+    method: 'get',
+    path: '/api/v1/bootstrap',
+    summary: 'Bootstrap payload (capabilities, revision, counts)',
+    responses: jsonResponse(
+      z.object({
+        capabilities: z.object({
+          products: z.boolean(),
+          categories: z.boolean(),
+          storefront: z.boolean(),
+          media: z.boolean(),
+          changes: z.boolean(),
+          publication: z.boolean(),
+          sync: z.boolean(),
+        }),
+        revision: z.object({ products: z.number(), last_updated: z.string() }),
+        counts: z.object({
+          products: z.number(),
+          categories: z.number(),
+          nav_groups: z.number(),
+          bundles: z.number(),
+        }),
+      })
+    ),
+  });
   // Plan 217: comunicaciones privadas (loopback; PUT exige credencial).
   registry.registerPath({
     method: 'get',
@@ -574,6 +707,39 @@ export function buildOpenApi() {
       ...errorResponse(),
     },
   });
+  // Plan 252: catalog diff (historyRoutes.ts:24) — read-class, compares the
+  // `after.products` snapshot against `before.products`.
+  registry.registerPath({
+    method: 'post',
+    path: '/api/v1/diff',
+    summary: 'Diff two product snapshots',
+    request: {
+      body: {
+        content: {
+          'application/json': {
+            schema: z.object({
+              before: z.object({ products: z.array(z.record(z.string(), z.unknown())) }).optional(),
+              after: z.object({ products: z.array(z.record(z.string(), z.unknown())) }).optional(),
+            }),
+          },
+        },
+      },
+    },
+    responses: jsonResponse(
+      z.object({
+        products: z.array(
+          z.object({
+            field: z.string(),
+            old: z.unknown(),
+            new: z.unknown(),
+            productName: z.string().optional(),
+          })
+        ),
+        categories: z.array(z.unknown()),
+        storefront: z.array(z.unknown()),
+      })
+    ),
+  });
   // Plan 252: the change-set lifecycle card (validate/update, apply,
   // discard, undo, redo), declared from changeSetRoutes.ts and
   // test/integration/changeSetWorkflow.test.ts.
@@ -582,6 +748,30 @@ export function buildOpenApi() {
     path: '/api/v1/change-sets',
     summary: 'List change sets',
     responses: jsonResponse(z.record(z.string(), z.unknown())),
+  });
+  registry.registerPath({
+    method: 'post',
+    path: '/api/v1/change-sets',
+    summary: 'Create a draft change set',
+    request: {
+      body: {
+        content: {
+          'application/json': {
+            // Both op arrays are optional in the handler (default []).
+            schema: changeSetSchema
+              .pick({ product_ops: true, category_ops: true })
+              .partial(),
+          },
+        },
+      },
+    },
+    responses: { ...createdResponse(changeSetSchema), ...errorResponse() },
+  });
+  registry.registerPath({
+    method: 'get',
+    path: CHANGE_SET_ID,
+    summary: 'Get a change set by id',
+    responses: { ...jsonResponse(changeSetSchema), ...errorResponse() },
   });
   registry.registerPath({
     method: 'patch',
@@ -671,6 +861,18 @@ export function buildOpenApi() {
   });
   registry.registerPath({
     method: 'post',
+    path: '/api/v1/backup',
+    summary: 'Create a verified manual backup',
+    responses: {
+      ...jsonResponse(
+        z.object({ backup_id: z.string(), timestamp: z.string(), files: z.array(z.string()) }),
+        'Backup created'
+      ),
+      ...errorResponse(),
+    },
+  });
+  registry.registerPath({
+    method: 'post',
     path: '/api/v1/backup/prune-preview',
     summary: 'Preview which backups can be pruned',
     responses: jsonResponse(
@@ -709,10 +911,77 @@ export function buildOpenApi() {
     },
   });
   registry.registerPath({
+    method: 'post',
+    path: '/api/v1/backup/reconcile',
+    summary: 'Reconcile the backup index against disk',
+    responses: jsonResponse(
+      z.object({ status: z.string(), added: z.number(), removed: z.number() })
+    ),
+  });
+  registry.registerPath({
     method: 'get',
     path: '/api/v1/sync/status',
     summary: 'Sync status',
     responses: jsonResponse(z.record(z.string(), z.unknown())),
+  });
+  // Plan 252: sync control surface, declared from conflicts.ts:184-330.
+  registry.registerPath({
+    method: 'get',
+    path: '/api/v1/sync/events',
+    summary: 'Sync status SSE stream',
+    responses: {
+      '200': {
+        description:
+          'text/event-stream: repeated `data: { sync, capabilities }` frames (same envelope as GET /api/v1/sync/status) plus `: ping` heartbeat comments; max 2 concurrent connections (429 beyond).',
+        content: { 'text/event-stream': { schema: z.string() } },
+      },
+      ...errorResponse(),
+    },
+  });
+  registry.registerPath({
+    method: 'put',
+    path: '/api/v1/sync/config',
+    summary: 'Update sync configuration (api_token is env-only and rejected)',
+    request: {
+      body: {
+        content: {
+          'application/json': {
+            // api_token deliberately omitted: the handler rejects it (400) —
+            // it is supplied via the SYNC_API_TOKEN environment variable.
+            schema: syncConfigSchema.omit({ api_token: true }).partial(),
+          },
+        },
+      },
+    },
+    responses: { ...jsonResponse(syncConfigSchema), ...errorResponse() },
+  });
+  registry.registerPath({
+    method: 'post',
+    path: '/api/v1/sync/now',
+    summary: 'Run one push+pull sync cycle now',
+    responses: jsonResponse(
+      z.object({
+        ok: z.boolean(),
+        message: z.string(),
+        pushed: z.number(),
+        push_failed: z.number(),
+        pulled: z.number(),
+        cursor: z.number(),
+        pull_error: z.string().nullable(),
+      })
+    ),
+  });
+  registry.registerPath({
+    method: 'post',
+    path: '/api/v1/sync/pause',
+    summary: 'Pause background sync',
+    responses: jsonResponse(z.object({ status: z.string() })),
+  });
+  registry.registerPath({
+    method: 'post',
+    path: '/api/v1/sync/resume',
+    summary: 'Resume background sync',
+    responses: jsonResponse(z.object({ status: z.string() })),
   });
   registry.registerPath({
     method: 'get',
