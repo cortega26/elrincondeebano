@@ -10,10 +10,11 @@
   `vX.Y.Z`. El deploy del storefront corre en push a `main`
   (`.github/workflows/static.yml`) y el gate canónico es
   `npm run validate:release`.
-- `.changeset/` y `.github/workflows/changesets.yml` están cableados pero
-  **no adoptados**: la adopción es un RFC wave-3 (ver `AGENTS.md` y
-  `docs/operations/DEPENDENCY_POLICY.md`). Los contribuidores **no** agregan
-  changesets todavía.
+- Changesets: **no adoptado y retirado el 2026-10-19** (workflow,
+  `.changeset/` y devDep eliminados). No hay consumidores de versiones
+  publicadas y el deploy es continuo por push, así que el flujo manual de
+  abajo es el único. Reabrir solo si se publican artefactos versionados
+  para consumidores o aparece expectativa externa de changelog.
 
 ## Release Types
 

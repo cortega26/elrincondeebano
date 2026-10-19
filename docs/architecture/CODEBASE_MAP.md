@@ -108,7 +108,6 @@ live in `test/storefront-*.spec.js`.
 | `dependency-review.yml`                | PR                                        | Supply chain review                                                                                     |
 | `product-data-guard.yml`               | changes in `data/product_data.json`       | Product data contract validation                                                                        |
 | `rollback.yml`                         | manual                                    | Orchestrated rollback                                                                                   |
-| `changesets.yml`                       | push `main`                               | Release PR automation via `changesets/action` (wired; adoption pending, wave-3 RFC)                     |
 | `dependabot-auto-merge.yml`            | PR `main` (Dependabot)                    | Auto-merge patch-only dependency PRs                                                                    |
 | `cloudflare-edge-security-headers.yml` | manual                                    | Deploy Cloudflare Workers security headers                                                              |
 
