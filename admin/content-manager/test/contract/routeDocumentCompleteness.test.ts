@@ -10,7 +10,10 @@ import { buildOpenApi } from '../../src/server/openapi.ts';
 // document, so a new route cannot ship without its declaration. Route
 // source: `app.printRoutes({ commonPrefix: false })` on a temp-repo
 // `createApp` (what Fastify actually serves), not the ROUTE_POLICY
-// classification table.
+// classification table. Plan 267 completes the guard in the reverse
+// direction: every declared path must be registered (or explicitly
+// allowlisted as a flag-gated exception) — a declaration without a route
+// would 404 the client.
 
 const METHODS = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
 
@@ -49,11 +52,12 @@ function normalizeParamNames(path: string): string {
   return path.replace(/\{[^}]+\}/g, '{}');
 }
 
-test('every registered /api/v1 route is declared in the OpenAPI document', async () => {
-  // Pin the preview-build flag off: with PREVIEW_BUILD_ENABLED=1 the app also
-  // registers GET /api/v1/preview and GET /api/v1/preview/* — static preview
-  // assets served from the preview dist root, not part of the JSON API
-  // contract — and printRoutes renders the wildcard child as `preview*`.
+// Both directions of the guard read the same route source: a temp-repo app
+// with the preview-build flag pinned off. With PREVIEW_BUILD_ENABLED=1 the
+// app also registers GET /api/v1/preview and GET /api/v1/preview/* — static
+// preview assets served from the preview dist root, not part of the JSON API
+// contract — and printRoutes renders the wildcard child as `preview*`.
+async function collectApiRoutes(): Promise<Array<{ method: string; path: string }>> {
   delete process.env.PREVIEW_BUILD_ENABLED;
 
   const dir = resolve(
@@ -77,13 +81,16 @@ test('every registered /api/v1 route is declared in the OpenAPI document', async
 
   const app = createApp({ repoRoot: dir, logger: false });
   await app.ready();
-  let routes: Array<{ method: string; path: string }>;
   try {
-    routes = parsePrintRoutes(app.printRoutes({ commonPrefix: false }));
+    return parsePrintRoutes(app.printRoutes({ commonPrefix: false }));
   } finally {
     await app.close();
     rmSync(dir, { recursive: true, force: true });
   }
+}
+
+test('every registered /api/v1 route is declared in the OpenAPI document', async () => {
+  const routes = await collectApiRoutes();
 
   const doc = buildOpenApi();
   const declared = new Set<string>();
@@ -117,4 +124,44 @@ test('every registered /api/v1 route is declared in the OpenAPI document', async
     missing,
     `routes registered but not declared in the OpenAPI document: ${missing.join(', ')}`
   ).toEqual([]);
+});
+
+// Plan 267: the reverse direction — every (method, path) declared in the
+// document must be registered by the app, otherwise the typed client would
+// call a route that 404s. The only legitimate declarations without a
+// registration under the pinned flag-off app are flag-gated routes, listed
+// explicitly below; anything else is a phantom.
+test('every declared /api/v1 path is registered by the app (or allowlisted)', async () => {
+  const routes = await collectApiRoutes();
+  const registered = new Set(
+    routes
+      .filter((route) => route.path.startsWith('/api/v1'))
+      .map((route) => `${route.method} ${normalizeParamNames(toOpenApiPath(route.path))}`)
+  );
+
+  const declared: string[] = [];
+  for (const [path, methods] of Object.entries(buildOpenApi().paths ?? {})) {
+    for (const method of Object.keys(methods as object)) {
+      declared.push(`${method.toUpperCase()} ${normalizeParamNames(path)}`);
+    }
+  }
+  declared.sort();
+
+  // Explicit allowlist — comment per entry. Only flag-gated routes belong
+  // here: `collectApiRoutes` pins PREVIEW_BUILD_ENABLED off, so the app does
+  // not register them, but the client still calls them and the declaration
+  // must stay.
+  const allowlist = new Set<string>([
+    // Plan 211: registered only with PREVIEW_BUILD_ENABLED=1
+    // (src/server/routes/registerRoutes.ts:167); the client triggers it
+    // (src/web/api/publications.ts:129).
+    'POST /api/v1/preview/build',
+  ]);
+
+  const unregistered = declared.filter((pair) => !registered.has(pair));
+
+  expect(
+    unregistered,
+    `declared in the OpenAPI document but not registered: ${unregistered.join(', ')}`
+  ).toEqual([...allowlist]);
 });
