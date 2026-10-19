@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { rootDir, resolveOutputDir } = require('./utils/output-dir');
 const { readManifest } = require('./utils/manifest');
+const { logger } = require('./utils/logger.mjs');
 
 function main() {
   const outputRoot = resolveOutputDir();
@@ -47,18 +48,18 @@ function main() {
   }, []);
 
   if (swMissing.length > 0 || manifestMissing.length > 0) {
-    console.error('❌ Service worker assets missing from build output:');
+    logger.error('❌ Service worker assets missing from build output:');
     swMissing.forEach(({ assetPath, fullPath }) => {
-      console.error(`   - ${assetPath} (expected at ${fullPath})`);
+      logger.error(`   - ${assetPath} (expected at ${fullPath})`);
     });
-    console.error('❌ Manifest assets missing from build output:');
+    logger.error('❌ Manifest assets missing from build output:');
     manifestMissing.forEach(({ assetPath, fullPath }) => {
-      console.error(`   - ${assetPath} (expected at ${fullPath})`);
+      logger.error(`   - ${assetPath} (expected at ${fullPath})`);
     });
     process.exit(1);
   }
 
-  console.log('✅ Service worker and manifest assets verified in build output.');
+  logger.info('✅ Service worker and manifest assets verified in build output.');
 }
 
 main();

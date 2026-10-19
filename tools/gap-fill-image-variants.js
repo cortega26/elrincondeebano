@@ -19,6 +19,7 @@ const {
   ensureDir,
   writeBufferIfChanged,
 } = require('./utils/constants.js');
+const { logger } = require('./utils/logger.mjs');
 
 const PRODUCTS_JSON = path.join(REPO_ROOT, 'data', 'product_data.json');
 
@@ -70,7 +71,7 @@ async function buildVariant(opts) {
 
 async function run() {
   if (process.env.SKIP_IMAGE_OPT === '1') {
-    console.log('Skipping variant gap-fill');
+    logger.info('Skipping variant gap-fill');
     return;
   }
   const { catalog, products } = loadProducts();
@@ -78,7 +79,7 @@ async function run() {
   const prunedVariants = pruneStaleImageVariantWidths(products, canonicalWidths);
   if (prunedVariants > 0) {
     fs.writeFileSync(PRODUCTS_JSON, `${JSON.stringify(catalog, null, 2)}\n`, 'utf-8');
-    console.log(
+    logger.info(
       `[gap-fill] dropped ${prunedVariants} image_variants entr(ies) outside the canonical widths.`
     );
   }
@@ -129,18 +130,18 @@ async function run() {
       built.sort();
       filled += built.length;
       updated += 1;
-      console.log(`[gap-fill] ${imagePath}: +${built.join(', ')}`);
+      logger.info(`[gap-fill] ${imagePath}: +${built.join(', ')}`);
     }
   }
 
-  console.log(`Variant gap-fill: ${filled} variants generated for ${updated} products.`);
+  logger.info(`Variant gap-fill: ${filled} variants generated for ${updated} products.`);
 }
 
 module.exports = { pruneStaleImageVariantWidths };
 
 if (require.main === module) {
   run().catch((err) => {
-    console.error(err);
+    logger.error(err instanceof Error ? err.message : String(err));
     process.exit(1);
   });
 }

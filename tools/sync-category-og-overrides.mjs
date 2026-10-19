@@ -158,7 +158,8 @@ export function runSyncCategoryOgOverrides({ repoRoot = repoRootFromHere() } = {
 
 function runCli() {
   const result = runSyncCategoryOgOverrides();
-  console.log(JSON.stringify(result, null, 2));
+  // Machine payload: the CLI result JSON stays on raw stdout (plan 255).
+  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
 }
 
 const isDirectRun = process.argv[1] === fileURLToPath(import.meta.url);
