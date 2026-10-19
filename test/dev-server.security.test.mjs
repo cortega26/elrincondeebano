@@ -24,14 +24,17 @@ test('dev server path containment', async () => {
   fs.symlinkSync(siblingDir, path.join(rootDir, 'link-out'));
   fs.symlinkSync(path.join(siblingDir, 'secret.txt'), path.join(rootDir, 'link-file.txt'));
 
-  const port = 42000 + ((process.pid * 31 + Math.floor(Math.random() * 1000)) % 20000);
+  // Plan 278: PORT=0 binds an OS-assigned ephemeral port, so parallel test
+  // workers can never collide on a pseudo-random fixed port (EADDRINUSE).
+  const stderrChunks = [];
   const child = spawn(process.execPath, [DEV_SERVER, rootDir], {
-    env: { ...process.env, PORT: String(port) },
-    stdio: ['ignore', 'ignore', 'inherit'],
+    env: { ...process.env, PORT: '0' },
+    stdio: ['ignore', 'pipe', 'pipe'],
   });
+  child.stderr.on('data', (chunk) => stderrChunks.push(chunk));
   let started = false;
   try {
-    await waitForServer(port);
+    const port = await waitForServerPort(child, () => Buffer.concat(stderrChunks).toString());
     started = true;
 
     // (d) A normal file inside the root still serves.
@@ -84,21 +87,52 @@ test('dev server path containment', async () => {
     }
     fs.rmSync(base, { recursive: true, force: true });
   }
-});
+}, 15000);
 
-async function waitForServer(port) {
-  const deadline = Date.now() + 5000;
-  for (;;) {
-    try {
-      await fetch(`http://127.0.0.1:${port}/hello.txt`);
-      return;
-    } catch {
-      if (Date.now() > deadline) {
-        throw new Error(`dev server did not start on port ${port} within 5s`);
-      }
-      await new Promise((resolve) => setTimeout(resolve, 50));
+// Waits for the server's startup line, which now reports the real bound port
+// (scripts/dev-server.mjs). No blind polling: the line is logged from the
+// `listen` callback, so the server is already accepting connections.
+function waitForServerPort(child, readStderr) {
+  return new Promise((resolve, reject) => {
+    let stdout = '';
+    let settled = false;
+    const timer = setTimeout(() => {
+      settle(reject, new Error(`dev server did not report its port within 10s.\n${readStderr()}`));
+    }, 10000);
+
+    function settle(callback, value) {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      child.stdout.off('data', onStdout);
+      child.off('exit', onExit);
+      child.off('error', onError);
+      callback(value);
     }
-  }
+
+    function onStdout(chunk) {
+      stdout += chunk;
+      const match = stdout.match(/Static server running at http:\/\/127\.0\.0\.1:(\d+)/);
+      if (match) settle(resolve, Number(match[1]));
+    }
+
+    function onExit(code, signal) {
+      settle(
+        reject,
+        new Error(
+          `dev server exited before listening (code=${code}, signal=${signal}).\n${readStderr()}`
+        )
+      );
+    }
+
+    function onError(error) {
+      settle(reject, error);
+    }
+
+    child.stdout.on('data', onStdout);
+    child.on('exit', onExit);
+    child.on('error', onError);
+  });
 }
 
 function httpGet(url) {

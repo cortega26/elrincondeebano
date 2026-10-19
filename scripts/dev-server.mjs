@@ -109,5 +109,9 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(port, () => {
-  console.log(`Static server running at http://127.0.0.1:${port} from ${rootDir}`);
+  // Plan 278: PORT=0 asks the OS for an ephemeral port; log the one it
+  // actually assigned so callers (tests, harnesses) can reach the server.
+  const address = server.address();
+  const boundPort = address && typeof address === 'object' ? address.port : port;
+  console.log(`Static server running at http://127.0.0.1:${boundPort} from ${rootDir}`);
 });
