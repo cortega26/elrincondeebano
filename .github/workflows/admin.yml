@@ -48,7 +48,10 @@ jobs:
         run: npx eslint . --config eslint.config.mjs
 
       - name: Typecheck
-        run: npx tsc -p tsconfig.json --noEmit
+        # Plan 263: src + test tree (mirrors the workspace `typecheck` script).
+        run: |
+          npx tsc -p tsconfig.json --noEmit
+          npx tsc -p tsconfig.test.json --noEmit
 
       - name: Unit and integration tests (with coverage threshold)
         run: npx vitest run --coverage
