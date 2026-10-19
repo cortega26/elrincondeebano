@@ -7,11 +7,11 @@
 > y [ADR 0011](../../../docs/adr/0011-private-whatsapp-comms-module.md);
 > este archivo es interno del admin y solo los complementa.
 >
-> **Estado del prototipo: NO enviado.** El build del admin desactiva el
-> directorio de estáticos (`publicDir: false`, `vite.config.ts:11`), que es
-> la condición de STOP del plan 251 («no hay directorio de estáticos en el
-> vite config; la colocación del manifest es una decisión de build del
-> dueño»). Abajo quedan las opciones verificadas para esa decisión.
+> **Estado del prototipo: enviado (colocación A, `2af6d23a`).** El build
+> del admin desactivaba el directorio de estáticos (`publicDir: false`,
+> `vite.config.ts:11`) — la condición de STOP del plan 251; el reviewer
+> decidió la colocación (A) y es reversible. Abajo quedan las opciones
+> verificadas para esa decisión.
 >
 > **La operación (túnel, Cloudflare Access, deploy key) está fuera del
 > alcance de este repo.** Nada de este registro configura ni verifica esos
@@ -143,14 +143,14 @@ Modos de fallo:
 
 ## Instalabilidad (manifest)
 
-**Prototipo: no enviado** — STOP del plan (ver recuadro arriba). Para que
-la colocación no sea un stub, este spike verificó las opciones en una
-**copia scratch** de la app (misma versión de Vite 8.3.3; el repo no se
-tocó):
+**Prototipo: enviado (colocación A, `2af6d23a`)** — decisión del reviewer,
+reversible (volver `publicDir` a `false` y quitar los archivos). Para que la
+colocación no fuera un stub, este spike verificó las opciones en una **copia
+scratch** de la app (misma versión de Vite 8.3.3; el repo no se tocó):
 
-- **A. Habilitar `publicDir`** (`public/manifest.webmanifest`): cambio de
-  1 línea de config; produciría `dist/web/manifest.webmanifest` tal como
-  espera el plan. No probado (es la decisión del dueño).
+- **A. Habilitar `publicDir`** (`public/manifest.webmanifest`): **aplicada**;
+  produce `dist/web/manifest.webmanifest` tal como esperaba el plan.
+  Reversible: `publicDir: false` y retirar `public/`.
 - **B. Archivo junto a `index.html`** (`src/web/manifest.webmanifest` +
   `<link rel="manifest" href="./manifest.webmanifest">`): **ningún cambio
   de config**. Verificado en scratch: dev sirve 200
@@ -164,10 +164,9 @@ tocó):
 Hallazgos de la verificación que afectan al plan de build:
 
 - **MIME en producción**: el mapa `mimeTypes` del servidor Fastify
-  (`app.ts:306-319`) no incluye `.webmanifest` → hoy se serviría como
-  `application/octet-stream` (en `/assets/`, además, con caché
-  `immutable`). Añadir `.webmanifest → application/manifest+json` es
-  parte del build plan, con cualquiera de las opciones.
+  (`app.ts:306-319`) no incluía `.webmanifest` (se habría servido como
+  `application/octet-stream`); añadido `.webmanifest →
+application/manifest+json` en `2af6d23a`.
 - **Íconos con B**: las rutas del manifest se resuelven respecto a la URL
   del manifest (`/assets/…`), así que los `src` deben ser absolutos
   (`/assets/images/web/icon-192.png`). En el despliegue funcionan por el
@@ -192,8 +191,10 @@ Hallazgos de la verificación que afectan al plan de build:
 ## Estado de validación
 
 - Verificado por comandos: `npm run admin:build` y `npm run admin:test`
-  en verde en este worktree (114 archivos / 873 tests). El prototipo no
-  existe en el repo, así que no hay cambio de comportamiento que medir.
+  en verde en este worktree (115 archivos / 877 tests tras el merge de
+  main). El manifest no altera el comportamiento de la app; el build lo
+  copia a `dist/web` y el servidor lo sirve como
+  `application/manifest+json`.
 - Verificado por código/verificación scratch: acceso y credencial (arriba),
   opciones A/B/C (arriba).
 - **NO validado en dispositivo**: no hubo teléfono en este spike. El test
