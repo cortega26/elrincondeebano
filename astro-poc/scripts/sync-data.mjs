@@ -96,18 +96,108 @@ function shouldCopyPublicAsset(sourcePath, sourceDir) {
   return !PUBLIC_ASSET_SOURCE_EXCLUDES.some((pattern) => pattern.test(relativeAssetPath));
 }
 
+// Filesystem timestamps lose sub-millisecond precision on copy (ns -> µs/ms
+// truncation), so equal mtimes may differ by a fraction of a millisecond.
+const MTIME_MATCH_TOLERANCE_MS = 1;
+
+function ensureMirrorDir(dirPath) {
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+    return;
+  }
+  if (!fs.statSync(dirPath).isDirectory()) {
+    fs.rmSync(dirPath, { recursive: true, force: true });
+    fs.mkdirSync(dirPath, { recursive: true });
+  }
+}
+
+function copySourceFileIfStale(sourcePath, targetPath, sourceStat) {
+  if (fs.existsSync(targetPath)) {
+    const targetStat = fs.statSync(targetPath);
+    if (targetStat.isFile()) {
+      const sizeMatches = targetStat.size === sourceStat.size;
+      const mtimeMatches =
+        Math.abs(targetStat.mtimeMs - sourceStat.mtimeMs) < MTIME_MATCH_TOLERANCE_MS;
+      if (sizeMatches && mtimeMatches) {
+        return false;
+      }
+    } else {
+      fs.rmSync(targetPath, { recursive: true, force: true });
+    }
+  }
+
+  ensureDirFor(targetPath);
+  fs.copyFileSync(sourcePath, targetPath);
+  fs.utimesSync(targetPath, sourceStat.atime, sourceStat.mtime);
+  return true;
+}
+
+function mirrorSourceInto(state, currentDir) {
+  for (const entry of fs.readdirSync(currentDir, { withFileTypes: true })) {
+    const sourcePath = path.join(currentDir, entry.name);
+    if (!shouldCopyPublicAsset(sourcePath, state.sourceDir)) {
+      continue;
+    }
+
+    const relativePath = normalizeAssetPathForPublicCopy(sourcePath, state.sourceDir);
+    state.keptRelativePaths.add(relativePath);
+    const targetPath = path.join(state.targetDir, relativePath);
+
+    if (entry.isDirectory()) {
+      ensureMirrorDir(targetPath);
+      mirrorSourceInto(state, sourcePath);
+      continue;
+    }
+
+    const sourceStat = fs.statSync(sourcePath);
+    if (copySourceFileIfStale(sourcePath, targetPath, sourceStat)) {
+      state.copiedCount += 1;
+    }
+  }
+}
+
+function pruneTargetExtras(state, currentDir) {
+  if (!fs.existsSync(currentDir)) {
+    return;
+  }
+
+  for (const entry of fs.readdirSync(currentDir, { withFileTypes: true })) {
+    const targetPath = path.join(currentDir, entry.name);
+    const relativePath = normalizeAssetPathForPublicCopy(targetPath, state.targetDir);
+
+    if (entry.isDirectory()) {
+      if (state.keptRelativePaths.has(relativePath)) {
+        pruneTargetExtras(state, targetPath);
+      } else {
+        fs.rmSync(targetPath, { recursive: true, force: true });
+        state.removedCount += 1;
+      }
+      continue;
+    }
+
+    if (!state.keptRelativePaths.has(relativePath)) {
+      fs.rmSync(targetPath, { force: true });
+      state.removedCount += 1;
+    }
+  }
+}
+
 function syncDirectory(sourceDir, targetDir) {
   if (!fs.existsSync(sourceDir)) {
     throw new Error(`Missing source directory: ${sourceDir}`);
   }
 
-  fs.rmSync(targetDir, { recursive: true, force: true });
-  fs.cpSync(sourceDir, targetDir, {
-    recursive: true,
-    force: true,
-    errorOnExist: false,
-    filter: (sourcePath) => shouldCopyPublicAsset(sourcePath, sourceDir),
-  });
+  ensureMirrorDir(targetDir);
+  const state = {
+    sourceDir,
+    targetDir,
+    keptRelativePaths: new Set(),
+    copiedCount: 0,
+    removedCount: 0,
+  };
+  mirrorSourceInto(state, sourceDir);
+  pruneTargetExtras(state, targetDir);
+  return { copiedCount: state.copiedCount, removedCount: state.removedCount };
 }
 
 export function validateCatalogImageAssetPath(rawValue, { fieldName, index } = {}) {
@@ -269,7 +359,7 @@ export function runSync(options = {}) {
   validateProductCategoryMapping(products, categories);
 
   writeJson(targetPublicProductDataPath, createPublicProductsPayload(products));
-  syncDirectory(sourceAssetsPath, targetPublicAssetsPath);
+  const assetMirror = syncDirectory(sourceAssetsPath, targetPublicAssetsPath);
   copyFile(sourceRobotsPath, targetRobotsPath);
   copyFile(sourceManifestPath, targetManifestPath);
   copyFile(sourceServiceWorkerPath, targetServiceWorkerPath);
@@ -280,6 +370,9 @@ export function runSync(options = {}) {
 
   console.log(
     `Synced Astro storefront assets: ${productCount} products, ${categoryCount} categories, plus legacy public contract files.`
+  );
+  console.log(
+    `Public asset mirror (incremental): ${assetMirror.copiedCount} copied, ${assetMirror.removedCount} removed.`
   );
 }
 
