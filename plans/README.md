@@ -222,8 +222,9 @@ registro en **7 Resolved**).
 admin (142 errores → 0 + cableado permanente).
 Paralelo sin solape: **265** — DOM handlers de `initStorefront`
 (caracterización primero, e2e del carrito como red).
-Tercer carril: **266** — dedupe de `@astrojs/compiler-rs`
-(la condición upstream del registro se cumplió hoy).
+Carril de contrato: **267** — phantoms OpenAPI invertidos (doc→rutas)
+
+- guard bidireccional.
 
 | Plan                                        | Título                                                          | Prioridad | Esfuerzo | Depende de   | Estado                                                                                                                                                                                                                                                                                                                              |
 | ------------------------------------------- | --------------------------------------------------------------- | --------- | -------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -239,6 +240,7 @@ Tercer carril: **266** — dedupe de `@astrojs/compiler-rs`
 | [263](263-admin-test-typecheck.md)          | Typecheck del árbol de tests del admin: 142 → 0 + cableado      | P2        | L        | 227          | TODO                                                                                                                                                                                                                                                                                                                                |
 | [265](265-storefront-dom-handlers.md)       | Storefront: DOM handlers de `initStorefront` (diferido del 245) | P3        | M        | 245          | TODO                                                                                                                                                                                                                                                                                                                                |
 | [266](archive/266-dep05-compiler-rs.md)     | DEP-05: dedupe de `@astrojs/compiler-rs` (condición cumplida)   | P3        | S        | —            | DONE — 2026-10-19 (`617d142d`, worktree `advisor/266-dep05-compiler-rs`; merged a main `8199bb09`; duplicado 0.3.2+0.5.1 → **0.5.2 única** (patch nuevo dentro de rangos, desviación justificada); churn contenido (26 entradas del subárbol); `npm ci` reproducible (md5 del lock estable); lint byte-idéntico; DEP-05 → Resolved) |
+| [267](267-openapi-phantoms.md)              | Phantoms OpenAPI: doc→rutas + guard bidireccional               | P3        | S        | 252          | TODO                                                                                                                                                                                                                                                                                                                                |
 
 ---
 
