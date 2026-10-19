@@ -334,7 +334,7 @@ jobs:
             echo ""
             echo "- Node: $(node -v)"
             echo "- SOURCE_DATE_EPOCH: ${SOURCE_DATE_EPOCH:-unset}"
-            echo "- Jobs: lint-and-typecheck, unit-tests-root, unit-tests-admin, static-checks, build-and-check, e2e-tests, lighthouse"
+            echo "- Jobs: lint-and-typecheck, unit-tests-root, unit-tests-admin, static-checks, build-and-check, e2e-tests, lighthouse, build-contract-tests"
             echo "- Result: $STATUS"
           } >> "$GITHUB_STEP_SUMMARY"
 
