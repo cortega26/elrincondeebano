@@ -7,7 +7,11 @@
 > in `plans/README.md` — unless a reviewer dispatched you and told you they
 > maintain the index.
 >
-> **Drift check (run first)**: `git diff --stat 97b21096..HEAD -- admin/content-manager/src/web/app/components/useProductsQuery.ts admin/content-manager/src/web/app/hooks/ admin/content-manager/src/web/app/routes/MediaPage.tsx admin/content-manager/src/web/app/routes/HistoryPage.tsx admin/content-manager/src/web/app/routes/PublicationPage.tsx admin/content-manager/src/web/app/routes/DiagnosticsPage.tsx`
+> **Drift check (run first)**: `git diff --stat d8af80c3..HEAD -- admin/content-manager/src/web/app/components/useProductsQuery.ts admin/content-manager/src/web/app/hooks/ admin/content-manager/src/web/app/routes/MediaPage.tsx admin/content-manager/src/web/app/routes/HistoryPage.tsx admin/content-manager/src/web/app/routes/PublicationPage.tsx admin/content-manager/src/web/app/routes/DiagnosticsPage.tsx`
+> (Reconciled to `d8af80c3`: `MediaPage`/`HistoryPage` were migrated to the
+> typed client by plan 229 and `PublicationPage` gained the durable-recovery
+> blocks in plan 248 — re-read all three before migrating; preserve those
+> behaviors exactly.)
 > If any in-scope page changed (plans 229/240 touch some), re-read before
 > editing; unexplained divergence is a STOP condition.
 
@@ -19,7 +23,7 @@
 - **Depends on**: 229 (HistoryPage/ConflictsPage will have just been
   touched — migrate after that lands), 240 (CommsPage out of scope here)
 - **Category**: tech-debt
-- **Planned at**: commit `97b21096`, 2026-10-18
+- **Planned at**: commit `97b21096`, 2026-10-18 (reconciled to `d8af80c3` after plans 229/248; re-read Media/History/Publication pages)
 
 ## Why this matters
 

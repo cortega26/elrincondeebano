@@ -7,7 +7,11 @@
 > in `plans/README.md` — unless a reviewer dispatched you and told you they
 > maintain the index.
 >
-> **Drift check (run first)**: `git diff --stat 97b21096..HEAD -- docs/operations/DEFERRALS.md docs/README.md AGENTS.md plans/README.md`
+> **Drift check (run first)**: `git diff --stat d8af80c3..HEAD -- docs/operations/DEFERRALS.md docs/README.md AGENTS.md plans/README.md`
+> (Reconciled to `d8af80c3`: `AGENTS.md` and `docs/README.md` were updated
+> by plan 232 — re-read before adding rows; `plans/README.md` is maintained
+> by the REVIEWER — do NOT edit it in this plan (the reviewer adds the
+> register pointer), and skip that step's file there.)
 > If any changed, re-read before editing; unexplained divergence is a STOP
 > condition.
 
@@ -18,7 +22,7 @@
 - **Risk**: LOW
 - **Depends on**: 247/248 outcomes (their rows are written here)
 - **Category**: direction
-- **Planned at**: commit `97b21096`, 2026-10-18
+- **Planned at**: commit `97b21096`, 2026-10-18 (reconciled to `d8af80c3` after plans 232/247/248; plans/README.md edits reserved to the reviewer)
 
 ## Why this matters
 

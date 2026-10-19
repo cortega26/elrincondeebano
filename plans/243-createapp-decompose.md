@@ -7,7 +7,11 @@
 > in `plans/README.md` — unless a reviewer dispatched you and told you they
 > maintain the index.
 >
-> **Drift check (run first)**: `git diff --stat 97b21096..HEAD -- admin/content-manager/src/server/app.ts admin/content-manager/src/server/routes/registerRoutes.ts`
+> **Drift check (run first)**: `git diff --stat d8af80c3..HEAD -- admin/content-manager/src/server/app.ts admin/content-manager/src/server/routes/registerRoutes.ts`
+> (Reconciled to `d8af80c3`: `app.ts` gained the remote-mode health gate
+> (223) and the scheduled-publication boot recovery (248) — the registration
+> count grew with the new routes; extract the CURRENT list, not the plan's
+> 18, and keep the recovery wiring in the lifecycle section.)
 > If `app.ts` changed (plans 223/229 edit it), re-read and adapt; any
 > unexplained divergence is a STOP condition.
 
@@ -18,7 +22,7 @@
 - **Risk**: LOW–MED
 - **Depends on**: 223, 229 (they edit `app.ts`/route files first)
 - **Category**: tech-debt
-- **Planned at**: commit `97b21096`, 2026-10-18
+- **Planned at**: commit `97b21096`, 2026-10-18 (reconciled to `d8af80c3` after plans 223/248; extract the current route list, keep boot recovery in lifecycle)
 
 ## Why this matters
 
