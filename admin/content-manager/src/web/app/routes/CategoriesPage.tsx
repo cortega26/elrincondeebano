@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { ContentManagerClient, ApiRequestError } from '../../api/client.ts';
 import type { CategoryResponse } from '../../api/client.ts';
 import type { CategoryRecord, Subcategory } from '../../../shared/schemas/category.ts';
 import { foldAccents } from '../../../shared/text.ts';
+import { useResource } from '../hooks/useResource.ts';
+import { useFeedback } from '../hooks/useFeedback.ts';
 import {
   buildCategoryUndoEntry,
   loadStack,
@@ -16,13 +18,16 @@ import {
 const client = new ContentManagerClient();
 
 export function CategoriesPage(): React.ReactElement {
-  const [data, setData] = useState<CategoryResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Plan 254: the categories read (data/loading/error plus every refresh)
+  // comes from useResource, and the action notices — success strings and the
+  // action errors the old setError carried — come from useFeedback, the same
+  // 242 pattern as Media/History/Publication. The undo/redo apparatus
+  // (stacks, session persistence, move-on-success timing) stays local.
+  const page = useResource<CategoryResponse>(() => client.getCategories(), []);
+  const { feedback, notify, clear } = useFeedback();
   const [editing, setEditing] = useState<CategoryRecord | null>(null);
   const [adding, setAdding] = useState(false);
   const [addingGroup, setAddingGroup] = useState(false);
-  const [feedback, setFeedback] = useState<string | null>(null);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   // Plan 096: category search + status filter.
   const [categorySearch, setCategorySearch] = useState('');
@@ -37,25 +42,8 @@ export function CategoriesPage(): React.ReactElement {
   const redoStack = useRef<CategoryUndoEntry[]>(loadStack(CATEGORY_REDO_KEY));
   const [stackVersion, setStackVersion] = useState(0);
 
-  const load = async (): Promise<void> => {
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await client.getCategories();
-      setData(result);
-    } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    void load();
-  }, []);
-
   function categoryRecordById(id: string): CategoryRecord | undefined {
-    return data?.categories?.find((c) => c.id === id) ?? undefined;
+    return page.data?.categories?.find((c) => c.id === id) ?? undefined;
   }
 
   function syncStackState(): void {
@@ -70,7 +58,7 @@ export function CategoriesPage(): React.ReactElement {
   async function handleUndoCategory(): Promise<void> {
     try {
       await moveEntryOnSuccess(undoStack, redoStack, async (entry) => {
-        const baseRev = data?.rev ?? 0;
+        const baseRev = page.data?.rev ?? 0;
         if (entry.op === 'create') {
           await client.batchUpdateCategories(
             [{ type: 'delete', category: { id: entry.id } }],
@@ -82,8 +70,8 @@ export function CategoriesPage(): React.ReactElement {
             baseRev
           );
         }
-        setFeedback('Operación de categoría deshecha ✓');
-        await load();
+        notify('success', 'Operación de categoría deshecha ✓');
+        await page.reload();
       });
       syncStackState();
     } catch (err) {
@@ -95,7 +83,7 @@ export function CategoriesPage(): React.ReactElement {
   async function handleRedoCategory(): Promise<void> {
     try {
       await moveEntryOnSuccess(redoStack, undoStack, async (entry) => {
-        const baseRev = data?.rev ?? 0;
+        const baseRev = page.data?.rev ?? 0;
         if (entry.op === 'create') {
           const previous = entry.previous;
           if (previous) {
@@ -115,8 +103,8 @@ export function CategoriesPage(): React.ReactElement {
             await client.batchUpdateCategories([{ type: 'upsert', category: record }], baseRev);
           }
         }
-        setFeedback('Operación de categoría rehecha ✓');
-        await load();
+        notify('success', 'Operación de categoría rehecha ✓');
+        await page.reload();
       });
       syncStackState();
     } catch (err) {
@@ -127,10 +115,10 @@ export function CategoriesPage(): React.ReactElement {
 
   async function handleMutationError(err: unknown): Promise<void> {
     if (err instanceof ApiRequestError && err.status === 409) {
-      await load();
-      setError('La categoría cambió; recarga y reintenta');
+      await page.reload();
+      notify('error', 'La categoría cambió; recarga y reintenta');
     } else {
-      setError((err as Error).message);
+      notify('error', (err as Error).message);
     }
   }
 
@@ -145,7 +133,7 @@ export function CategoriesPage(): React.ReactElement {
         ?.trim() ?? '';
     const previousRecord = categoryRecordById(id);
     try {
-      await client.deleteCategory(id, data?.rev ?? 0, reassignTo || undefined);
+      await client.deleteCategory(id, page.data?.rev ?? 0, reassignTo || undefined);
       if (previousRecord) {
         undoStack.current.push(
           buildCategoryUndoEntry('delete', id, {
@@ -156,12 +144,13 @@ export function CategoriesPage(): React.ReactElement {
         redoStack.current = [];
         syncStackState();
       }
-      setFeedback(
+      notify(
+        'success',
         reassignTo
           ? `Categoría eliminada, productos reasignados a ${reassignTo} ✓`
           : 'Categoría eliminada ✓'
       );
-      await load();
+      await page.reload();
     } catch (err) {
       await handleMutationError(err);
     }
@@ -172,9 +161,9 @@ export function CategoriesPage(): React.ReactElement {
     changes: { display_name?: { default?: string }; active?: boolean }
   ): Promise<void> {
     try {
-      await client.updateNavGroup(id, data?.rev ?? 0, changes);
-      setFeedback('Grupo actualizado ✓');
-      await load();
+      await client.updateNavGroup(id, page.data?.rev ?? 0, changes);
+      notify('success', 'Grupo actualizado ✓');
+      await page.reload();
     } catch (err) {
       await handleMutationError(err);
     }
@@ -183,9 +172,9 @@ export function CategoriesPage(): React.ReactElement {
   async function handleDeleteGroup(id: string): Promise<void> {
     if (!window.confirm(`¿Eliminar el grupo de navegación "${id}"?`)) return;
     try {
-      await client.deleteNavGroup(id, data?.rev ?? 0);
-      setFeedback('Grupo eliminado ✓');
-      await load();
+      await client.deleteNavGroup(id, page.data?.rev ?? 0);
+      notify('success', 'Grupo eliminado ✓');
+      await page.reload();
     } catch (err) {
       await handleMutationError(err);
     }
@@ -195,7 +184,7 @@ export function CategoriesPage(): React.ReactElement {
     try {
       if (editing) {
         const previousRecord = categoryRecordById(editing.id);
-        await client.updateCategory(editing.id, form, data?.rev ?? 0);
+        await client.updateCategory(editing.id, form, page.data?.rev ?? 0);
         if (previousRecord) {
           // Plan 129: the redo entry must carry the post-edit snapshot, not
           // just the pre-edit one. The post-state is the previous record with
@@ -219,7 +208,7 @@ export function CategoriesPage(): React.ReactElement {
         const created = form as unknown as CategoryRecord;
         await client.createCategory(
           { id: created.id, key: created.key, slug: created.slug },
-          data?.rev ?? 0
+          page.data?.rev ?? 0
         );
         undoStack.current.push(buildCategoryUndoEntry('create', created.id, { previous: created }));
         redoStack.current = [];
@@ -227,8 +216,8 @@ export function CategoriesPage(): React.ReactElement {
       }
       setEditing(null);
       setAdding(false);
-      setFeedback(editing ? 'Categoría actualizada ✓' : 'Categoría creada ✓');
-      await load();
+      notify('success', editing ? 'Categoría actualizada ✓' : 'Categoría creada ✓');
+      await page.reload();
     } catch (err) {
       await handleMutationError(err);
     }
@@ -238,11 +227,11 @@ export function CategoriesPage(): React.ReactElement {
     try {
       await client.createNavGroup(
         form as { id: string; display_name?: { default?: string } },
-        data?.rev ?? 0
+        page.data?.rev ?? 0
       );
       setAddingGroup(false);
-      setFeedback('Grupo creado ✓');
-      await load();
+      notify('success', 'Grupo creado ✓');
+      await page.reload();
     } catch (err) {
       await handleMutationError(err);
     }
@@ -253,11 +242,11 @@ export function CategoriesPage(): React.ReactElement {
       await client.createSubcategory(
         categoryId,
         form as { id: string; title: string; product_key: string; slug: string },
-        data?.rev ?? 0
+        page.data?.rev ?? 0
       );
       setAddingSub(null);
-      setFeedback('Subcategoría creada ✓');
-      await load();
+      notify('success', 'Subcategoría creada ✓');
+      await page.reload();
     } catch (err) {
       await handleMutationError(err);
     }
@@ -269,10 +258,10 @@ export function CategoriesPage(): React.ReactElement {
     changes: Record<string, unknown>
   ): Promise<void> {
     try {
-      await client.updateSubcategory(categoryId, subId, changes, data?.rev ?? 0);
+      await client.updateSubcategory(categoryId, subId, changes, page.data?.rev ?? 0);
       setEditingSub(null);
-      setFeedback('Subcategoría actualizada ✓');
-      await load();
+      notify('success', 'Subcategoría actualizada ✓');
+      await page.reload();
     } catch (err) {
       await handleMutationError(err);
     }
@@ -281,9 +270,9 @@ export function CategoriesPage(): React.ReactElement {
   async function handleDeleteSub(categoryId: string, subId: string): Promise<void> {
     if (!window.confirm(`¿Eliminar la subcategoría "${subId}"?`)) return;
     try {
-      await client.deleteSubcategory(categoryId, subId, data?.rev ?? 0);
-      setFeedback('Subcategoría eliminada ✓');
-      await load();
+      await client.deleteSubcategory(categoryId, subId, page.data?.rev ?? 0);
+      notify('success', 'Subcategoría eliminada ✓');
+      await page.reload();
     } catch (err) {
       await handleMutationError(err);
     }
@@ -301,7 +290,14 @@ export function CategoriesPage(): React.ReactElement {
     });
   }
 
-  if (error) {
+  // Plan 242/254: action notices win over the load error (the old pair was
+  // last-write-wins too); the page-level error branch renders either one
+  // with the exact former markup.
+  const actionError = feedback?.kind === 'error' ? feedback.message : null;
+  const errorMessage = actionError ?? page.error;
+  const statusMessage = feedback && feedback.kind !== 'error' ? feedback.message : null;
+
+  if (errorMessage) {
     return (
       <main role="main" aria-label="Categorías">
         <h1>Categorías</h1>
@@ -320,11 +316,11 @@ export function CategoriesPage(): React.ReactElement {
           </button>
           {stackVersion >= 0 && null}
         </div>
-        <p role="alert">{error}</p>
+        <p role="alert">{errorMessage}</p>
         <button
           onClick={() => {
-            setError(null);
-            void load();
+            clear();
+            void page.reload();
           }}
         >
           Reintentar
@@ -333,7 +329,7 @@ export function CategoriesPage(): React.ReactElement {
     );
   }
 
-  const categories = data?.categories ?? [];
+  const categories = page.data?.categories ?? [];
   // Plan 096: derived — search by name/key/slug, status filter.
   const filteredCategories = categories.filter((cat) => {
     if (categoryStatus === 'active' && cat.active === false) return false;
@@ -346,7 +342,7 @@ export function CategoriesPage(): React.ReactElement {
       (cat.slug ?? '').toLowerCase().includes(needle)
     );
   });
-  const groups = data?.nav_groups ?? [];
+  const groups = page.data?.nav_groups ?? [];
 
   return (
     <main role="main" aria-label="Categorías">
@@ -398,7 +394,7 @@ export function CategoriesPage(): React.ReactElement {
 
       {/* Navigation */}
 
-      {feedback && (
+      {statusMessage && (
         <div
           role="status"
           aria-live="polite"
@@ -409,9 +405,9 @@ export function CategoriesPage(): React.ReactElement {
             borderRadius: 'var(--radius)',
           }}
         >
-          {feedback}
+          {statusMessage}
           <button
-            onClick={() => setFeedback(null)}
+            onClick={() => clear()}
             style={{ marginLeft: '0.5rem', background: 'none', border: 'none', cursor: 'pointer' }}
           >
             ×
@@ -419,7 +415,7 @@ export function CategoriesPage(): React.ReactElement {
         </div>
       )}
 
-      {loading && <p>Cargando…</p>}
+      {page.loading && <p>Cargando…</p>}
 
       {/* Nav Groups */}
       <section aria-label="Grupos de navegación" style={{ marginBottom: '1.5rem' }}>
