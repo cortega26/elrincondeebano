@@ -273,6 +273,23 @@
         "width": 1200
       }
     },
+    "papeleria": {
+      "jpg": {
+        "exists": true,
+        "file": "papeleria.og_v3.jpg",
+        "height": 1200,
+        "sha256": "579a94291ca3dc53a54815f35f4421a5b2c24f48fe462f1a73144590975886a3",
+        "size": 62436,
+        "width": 1200
+      },
+      "svg": {
+        "exists": true,
+        "height": 1200,
+        "sha256": "ee808dee082438e1931157af871b6d6784c125d2de17827587ea267edd6666b5",
+        "size": 1990,
+        "width": 1200
+      }
+    },
     "piscos": {
       "jpg": {
         "exists": true,
@@ -378,6 +395,7 @@
     "limpiezayaseo",
     "llaveros",
     "mascotas",
+    "papeleria",
     "piscos",
     "snacksdulces",
     "snackssalados",
