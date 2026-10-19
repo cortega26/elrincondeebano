@@ -35,7 +35,7 @@ changes.
 | Build only               | `npm run build`                                                                                                                                     |
 | Browser suite only       | `npm run test:e2e` (`PLAYWRIGHT_SKIP_BUILD=1` reuses `dist/` when sources are unchanged; requiere `npx playwright install chromium` la primera vez) |
 | Live share-preview probe | `npm run monitor:share-preview`                                                                                                                     |
-| Markdown lint            | `npx markdownlint-cli2 'docs/**/*.md' '*.md'`                                                                                                       |
+| Markdown lint            | `npm run lint:md`                                                                                                                                   |
 
 ## Ground rules
 

@@ -141,6 +141,10 @@ jobs:
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24.x'
+          cache: 'npm'
 
-      - name: Run markdownlint-cli2
-        run: npx markdownlint-cli2 'docs/**/*.md' '*.md' '#node_modules' '#astro-poc/node_modules'
+      - name: Install dependencies
+        run: bash tools/ci/npm-ci-with-retry.sh
+
+      - name: Run markdownlint (npm run lint:md)
+        run: npm run lint:md
