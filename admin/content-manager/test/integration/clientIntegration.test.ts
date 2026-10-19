@@ -6,7 +6,10 @@ import { tmpdir } from 'node:os';
 import { execFileSync } from 'node:child_process';
 import type { FastifyInstance } from 'fastify';
 import { ContentManagerClient, ApiRequestError } from '../../src/web/api/client.ts';
+import { fetchCore } from '../../src/web/api/requestCore.ts';
 import { setCredential, resetCredential } from '../../src/web/app/credentialStore.ts';
+import { seedDocument } from '../../src/shared/comms.ts';
+import type { CommsDocument } from '../../src/shared/schemas/comms.ts';
 
 let dir: string;
 let app: FastifyInstance;
@@ -52,6 +55,14 @@ beforeAll(async () => {
         },
       ],
     })
+  );
+
+  // Plan 231: seed the private comms document at a non-zero rev so the
+  // stale-rev leg of the round-trip cannot pass by accident.
+  mkdirSync(resolve(dir, 'data', '.comms'), { recursive: true });
+  writeFileSync(
+    resolve(dir, 'data', '.comms', 'comms.json'),
+    JSON.stringify({ ...seedDocument(), rev: 3 })
   );
 
   app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
@@ -199,4 +210,36 @@ test('real 409 race through the client resolves exactly-once, then recovers', as
   expect(current.items).toHaveLength(1);
   const recovered = await client.updateProduct(id, current.items[0].rev, { price: 104 });
   expect(recovered.product.price).toBe(104);
+});
+
+test('client comms round-trip: no-store GET, PUT with rev succeeds, stale rev is 409', async () => {
+  const seeded = await client.getComms();
+  expect(seeded.rev).toBe(3);
+
+  // The private document (phones) must never be cached. Read the raw response
+  // through the same core the client uses — the exportCsv pattern — so a lost
+  // `cache: 'no-store'` option cannot pass unnoticed.
+  const raw = await fetchCore(`${baseUrl}/api/v1/comms`);
+  expect(raw.status).toBe(200);
+  expect(raw.headers.get('cache-control')).toBe('no-store');
+  const rawDoc = (await raw.json()) as CommsDocument;
+  expect(rawDoc.rev).toBe(seeded.rev);
+
+  const next: CommsDocument = {
+    ...seeded,
+    destinations: [
+      ...seeded.destinations,
+      { id: 'ct-nuevo', kind: 'contacto', alias: 'Nuevo', name: '', phone: '56911112222' },
+    ],
+  };
+  const saved = await client.saveComms(next, seeded.rev);
+  expect(saved.rev).toBe(seeded.rev + 1);
+  expect(saved.destinations.map((d) => d.id)).toContain('ct-nuevo');
+
+  const reread = await client.getComms();
+  expect(reread.rev).toBe(saved.rev);
+  expect(reread.destinations.some((d) => d.id === 'ct-nuevo')).toBe(true);
+
+  // Stale revision: the 409 envelope surfaces through the client intact.
+  await expect(client.saveComms(next, seeded.rev)).rejects.toMatchObject({ status: 409 });
 });
