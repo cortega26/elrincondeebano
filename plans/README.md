@@ -222,6 +222,8 @@ registro en **7 Resolved**).
 admin (142 errores → 0 + cableado permanente).
 Paralelo sin solape: **265** — DOM handlers de `initStorefront`
 (caracterización primero, e2e del carrito como red).
+Tercer carril: **266** — dedupe de `@astrojs/compiler-rs`
+(la condición upstream del registro se cumplió hoy).
 
 | Plan                                        | Título                                                          | Prioridad | Esfuerzo | Depende de   | Estado                                                                                                                                                                                                                                                                                                                      |
 | ------------------------------------------- | --------------------------------------------------------------- | --------- | -------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -236,6 +238,7 @@ Paralelo sin solape: **265** — DOM handlers de `initStorefront`
 | [262](archive/262-canary-steps-env-pass.md) | Canary: env-pass de `steps.*` en bloques bash                   | P3        | XS       | 259          | DONE — 2026-10-19 (`7e495126`, worktree `advisor/262-canary-steps-env-pass`; merged a main `485cb0b3`; R1 tras STOP correcto (los 5 `github.*` del metadata quedan por decisión del 225, documentados); construction-check JSON/echo idénticos; sweep del reviewer steps/job=0)                                             |
 | [263](263-admin-test-typecheck.md)          | Typecheck del árbol de tests del admin: 142 → 0 + cableado      | P2        | L        | 227          | TODO                                                                                                                                                                                                                                                                                                                        |
 | [265](265-storefront-dom-handlers.md)       | Storefront: DOM handlers de `initStorefront` (diferido del 245) | P3        | M        | 245          | TODO                                                                                                                                                                                                                                                                                                                        |
+| [266](266-dep05-compiler-rs.md)             | DEP-05: dedupe de `@astrojs/compiler-rs` (condición cumplida)   | P3        | S        | —            | TODO                                                                                                                                                                                                                                                                                                                        |
 
 ---
 
