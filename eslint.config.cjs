@@ -82,6 +82,20 @@ module.exports = [
     },
   },
   {
+    // Plan 244: logger-migration ratchet — migrated tools must not print bare
+    // console.* (tools/utils/logger.mjs emits one JSON line per call with
+    // LOG_LEVEL filtering + redaction). Extend `files` as more tools migrate.
+    files: [
+      'tools/guardrails/**/*.{js,mjs}',
+      'tools/preflight.js',
+      'tools/run-parallel.mjs',
+      'tools/preflight-hash.mjs',
+    ],
+    rules: {
+      'no-console': 'error',
+    },
+  },
+  {
     // Legacy runtime (pre-Astro storefront server): pre-existing structural
     // warnings predate the strict limits; kept in the lint surface (errors
     // still block) but the complexity trio stays warn-free-of-fail here.
