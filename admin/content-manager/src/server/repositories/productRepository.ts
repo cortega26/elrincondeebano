@@ -8,12 +8,12 @@ import { AtomicWriter } from '../services/atomicWriter.ts';
 import { migrateCatalog, type CatalogMigration } from '../services/catalogMigrations.ts';
 import { MutationLock } from '../services/mutationLock.ts';
 import type { PersistentIdempotencyStore } from '../services/persistentIdempotencyStore.ts';
+import type { RecoveryJournal } from '../services/recoveryJournal.ts';
+import type { CommandResult } from '../../shared/commands/envelope.ts';
 
 // Structural subset the repository actually uses (get/has/set). The test
 // suite substitutes the in-memory IdempotencyStore through this seam.
 type IdempotencyStoreLike = Pick<PersistentIdempotencyStore, 'get' | 'has' | 'set'>;
-import type { RecoveryJournal } from '../services/recoveryJournal.ts';
-import type { CommandResult } from '../../shared/commands/envelope.ts';
 
 export interface ProductRepositoryConfig {
   repoRoot: string;
