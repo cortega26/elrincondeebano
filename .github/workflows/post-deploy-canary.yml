@@ -139,21 +139,25 @@ jobs:
 
       - name: Write artifact canary report
         shell: bash
+        env:
+          BASE_URL: ${{ steps.meta.outputs.base_url }}
+          DEPLOY_SHA: ${{ steps.meta.outputs.deploy_sha }}
+          BROWSER_CANARY_OUTCOME: ${{ steps.browser_canary.outcome }}
         run: |
           mkdir -p reports/canary
           cat > reports/canary/artifact-canary.json <<JSON
           {
             "mode": "artifact-contract",
-            "baseUrl": "${{ steps.meta.outputs.base_url }}",
-            "deploySha": "${{ steps.meta.outputs.deploy_sha }}",
+            "baseUrl": "$BASE_URL",
+            "deploySha": "$DEPLOY_SHA",
             "generatedAt": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
             "checks": [
               "npm run build",
-              "browser-canary:${{ steps.browser_canary.outcome }}"
+              "browser-canary:$BROWSER_CANARY_OUTCOME"
             ],
             "browserCanary": {
               "mode": "observed",
-              "status": "${{ steps.browser_canary.outcome }}",
+              "status": "$BROWSER_CANARY_OUTCOME",
               "command": "npx playwright test -c playwright.astro.config.ts test/e2e-astro/deploy-canary.spec.ts --trace on"
             }
           }
@@ -180,16 +184,21 @@ jobs:
       - name: Write canary summary
         if: always()
         shell: bash
+        env:
+          DEPLOY_SHA: ${{ steps.meta.outputs.deploy_sha }}
+          BASE_URL: ${{ steps.meta.outputs.base_url }}
+          BROWSER_CANARY_OUTCOME: ${{ steps.browser_canary.outcome }}
+          JOB_STATUS: ${{ job.status }}
         run: |
           {
             echo "## Post-Deploy Canary (Artifact Mode)"
             echo ""
-            echo "- Deploy SHA: ${{ steps.meta.outputs.deploy_sha }}"
-            echo "- Base URL metadata: ${{ steps.meta.outputs.base_url }}"
+            echo "- Deploy SHA: $DEPLOY_SHA"
+            echo "- Base URL metadata: $BASE_URL"
             echo "- Mode: artifact-contract (no live network probe on this runner)"
-            echo "- Browser canary: ${{ steps.browser_canary.outcome }} (observed, non-blocking)"
+            echo "- Browser canary: $BROWSER_CANARY_OUTCOME (observed, non-blocking)"
             echo ""
-            if [ "${{ job.status }}" = "success" ]; then
+            if [ "$JOB_STATUS" = "success" ]; then
               echo "Result: ✅ Artifact contract checks passed."
             else
               echo "Result: ❌ Artifact contract checks failed."
