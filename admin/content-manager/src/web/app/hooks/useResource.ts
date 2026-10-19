@@ -14,7 +14,10 @@ export interface Resource<T> {
 // the latest fetcher. The mounted flag extends the same guard across unmount
 // (no setState after the component is gone). Callers pass their own `deps`
 // to re-fetch when inputs change, mirroring useProductsQuery's dependency
-// list; `reload` keeps a stable identity while `deps` are unchanged.
+// list; `reload` keeps a stable identity while `deps` are unchanged and
+// returns the in-flight promise at runtime (its declared type stays
+// `() => void`), so callers that need to sequence work after a refresh — the
+// old `await load()` sites — can still await it.
 export function useResource<T>(fetcher: () => Promise<T>, deps: unknown[] = []): Resource<T> {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
