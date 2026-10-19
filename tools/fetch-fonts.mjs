@@ -16,6 +16,13 @@ const GOOGLE_CSS =
   'https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap';
 const DEFAULT_REMOTE_HOSTS = new Set(['fonts.googleapis.com', 'fonts.gstatic.com']);
 
+// Plan 260: Google Fonts serves woff2 sources only to modern browser UAs —
+// a bare "Mozilla/5.0" gets TTF, which downloadRemote rejects. One documented
+// constant keeps the stylesheet fetch (loadFontsCss) and the font binary
+// fetch (downloadRemote) aligned.
+const BROWSER_UA =
+  'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+
 function shouldAllowRemoteFetch() {
   const raw = process.env.ALLOW_REMOTE_FONTS;
   if (!raw) return false;
@@ -84,7 +91,7 @@ async function loadFontsCss() {
 
   const url = process.env.FONTS_CSS_URL || GOOGLE_CSS;
   const safeUrl = assertAllowedRemoteUrl(url);
-  const res = await fetch(safeUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+  const res = await fetch(safeUrl, { headers: { 'User-Agent': BROWSER_UA } });
   if (!res.ok) throw new Error(`Failed to fetch Google Fonts CSS: ${res.status}`);
   const css = await res.text();
   return { css, cssPath: null, source: safeUrl };
@@ -118,7 +125,10 @@ function findFontFaceBlock(blocks, family, weight) {
 }
 
 function extractWoff2Url(block) {
-  const urlMatch = block.match(/url\(([^)]+\.woff2)\)/i);
+  // Plan 260: accept quoted and unquoted urls (the pinned local stylesheet uses
+  // url('./archivo.woff2')), and tolerate anything after ".woff2" up to the
+  // closing quote/paren (e.g. query strings), like downloadRemote does.
+  const urlMatch = block.match(/url\(\s*['"]?([^)'"]+?\.woff2[^)'"]*)['"]?\s*\)/i);
   if (!urlMatch) return null;
   return urlMatch[1];
 }
@@ -163,7 +173,7 @@ async function downloadRemote(rawUrl, dest) {
   const safeUrl = parsed.toString();
   // URL validated against allowlist + https-only + woff2-only before fetch.
   // nosemgrep
-  const res = await fetch(safeUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+  const res = await fetch(safeUrl, { headers: { 'User-Agent': BROWSER_UA } });
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${safeUrl}`);
   const buf = Buffer.from(await res.arrayBuffer());
   await fs.promises.writeFile(dest, buf);
