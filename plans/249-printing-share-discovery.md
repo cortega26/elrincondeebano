@@ -7,7 +7,10 @@
 > in `plans/README.md` — unless a reviewer dispatched you and told you they
 > maintain the index.
 >
-> **Drift check (run first)**: `git diff --stat 97b21096..HEAD -- astro-poc/src/pages/impresiones.astro astro-poc/src/components/StructuredData.astro tools/generate-home-og.mjs tools/share-preview-monitor.mjs docs/operations/SHARE_PREVIEW.md package.json astro-poc/scripts/validate-artifact-contract.mjs`
+> **Drift check (run first)**: `git diff --stat 92caed4c..HEAD -- astro-poc/src/pages/impresiones.astro astro-poc/src/components/StructuredData.astro tools/generate-home-og.mjs tools/share-preview-monitor.mjs docs/operations/SHARE_PREVIEW.md package.json astro-poc/scripts/validate-artifact-contract.mjs`
+> (Reconciled to `92caed4c`: `package.json` gained `lint:md`/markdownlint +
+> pinned lizard (plan 238) — keep them when adding the new script/wiring;
+> the other files are unchanged since the audit.)
 > If any changed, re-read before editing; unexplained divergence is a STOP
 > condition.
 
@@ -18,7 +21,7 @@
 - **Risk**: LOW
 - **Depends on**: none
 - **Category**: direction
-- **Planned at**: commit `97b21096`, 2026-10-18
+- **Planned at**: commit `97b21096`, 2026-10-18 (reconciled to `92caed4c`; package.json carries the plan-238 additions)
 
 ## Why this matters
 

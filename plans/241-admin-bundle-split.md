@@ -7,7 +7,11 @@
 > in `plans/README.md` — unless a reviewer dispatched you and told you they
 > maintain the index.
 >
-> **Drift check (run first)**: `git diff --stat 97b21096..HEAD -- admin/content-manager/src/web/app/App.tsx admin/content-manager/vite.config.ts admin/content-manager/src/shared/comms-meta.ts admin/content-manager/src/shared/schemas/comms.ts admin/content-manager/src/web/app/routes/CommsPage.tsx`
+> **Drift check (run first)**: `git diff --stat 92caed4c..HEAD -- admin/content-manager/src/web/app/App.tsx admin/content-manager/vite.config.ts admin/content-manager/src/shared/comms-meta.ts admin/content-manager/src/shared/schemas/comms.ts admin/content-manager/src/web/app/routes/CommsPage.tsx`
+> (Reconciled to `92caed4c`: `CommsPage.tsx` is now the 170-line split
+> version (plan 240) and its constants imports moved into the panels/hook
+> under `comms/` — update the imports there too; `schemas/comms.ts` uses
+> zod v4 top-level formats (plan 228). App.tsx/vite.config unchanged.)
 > If any in-scope file changed since this plan was written (plans 230/231/
 > 240 touch CommsPage), re-read the changed files and adapt import paths —
 > unexplained divergence is a STOP condition.
@@ -19,7 +23,7 @@
 - **Risk**: LOW–MED
 - **Depends on**: 240 (split first, then make the parts lazy)
 - **Category**: perf
-- **Planned at**: commit `97b21096`, 2026-10-18
+- **Planned at**: commit `97b21096`, 2026-10-18 (reconciled to `92caed4c` after plans 228/230/240; CommsPage is split — update panel imports)
 
 ## Why this matters
 
