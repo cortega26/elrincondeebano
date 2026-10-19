@@ -42,6 +42,14 @@ archivo (gemelo del 259).
 - **Usos legítimos fuera de bash (no tocar)**: `outputs:` del job
   (~~:78-81), `ref:` de un checkout (~~:123), `url:` de un paso de deploy
   (~:296).
+- **Revisión del plan (2026-10-19, ronda R1)**: la extensión del sweep
+  encontró un TERCER bloque con expresiones — "Resolve canary metadata"
+  (~:91-108) con 5 usos `${{ github.* }}`. **Quedan como están**: el plan
+  225 decidió explícitamente que las comparaciones con `github.event_name`
+  y los SHAs (`github.sha`, `workflow_run.head_sha`) no interpolan texto
+  no confiable (`plans/archive/225-ci-hardening.md`, Step 2). El objetivo
+  de este plan es la clase **`steps.*` / `job.status`**; los 5 `github.*`
+  se documentan y no se tocan.
 
 ## Commands you will need
 
@@ -77,7 +85,9 @@ archivo (gemelo del 259).
 Instala; valida YAML; inventario **completo** de `${{` en el archivo,
 clasificado en bash / no-bash. El sweep del 259 solo miraba `needs.`;
 extiéndelo aquí para reportar **cualquier** `${{` dentro de strings de
-`run:` (los `$(date …)` de shell NO son `${{` y quedan).
+`run:` (los `$(date …)` de shell NO son `${{` y quedan), **clasificado
+por clase**: eliminar `steps.*` + `job.status`; documentar los 5
+`github.*` del paso de metadata, que se quedan (decisión 225).
 
 ### Step 1: Fix del bloque del reporte JSON
 
@@ -97,8 +107,9 @@ cambia la fuente del valor).
 ### Step 3: Verificación
 
 - YAML parse OK.
-- Sweep YAML-aware: **cero** `${{` dentro de cualquier string de `run:`
-  (reporta el inventario final).
+- Sweep YAML-aware: **cero** `steps.*` / `job.status` dentro de strings de
+  `run:`; exactamente los 5 `github.*` documentados del paso de metadata
+  permanecen (sin tocar).
 - `git diff` quirúrgico: solo los dos pasos.
 - `npm run lint:md` exit 0; `git status` limpio.
 
@@ -118,7 +129,7 @@ Sin unit tests para workflows: la red es el parseo YAML + el sweep
 
 Machine-checkable. ALL must hold:
 
-- [ ] Cero `${{ … }}` dentro de strings de `run:` en todo el archivo (sweep YAML-aware)
+- [ ] Cero `steps.*` / `job.status` dentro de strings de `run:` (los 5 `github.*` del paso de metadata quedan por decisión 225, documentados)
 - [ ] Los dos pasos usan `env:` + variables de shell; JSON/echo byte-equivalentes en forma
 - [ ] YAML parsea; diff solo de los dos bloques
 - [ ] Fila de `plans/README.md` actualizada (salvo despacho con override)
