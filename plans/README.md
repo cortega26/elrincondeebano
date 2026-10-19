@@ -207,11 +207,11 @@ Cola derivada de los diferidos con condición de reapertura ya cumplida
 housekeeping micro) y del registro
 [`DEFERRALS`](../docs/operations/DEFERRALS.md).
 
-| Plan                                | Título                                            | Prioridad | Esfuerzo | Depende de   | Estado |
-| ----------------------------------- | ------------------------------------------------- | --------- | -------- | ------------ | ------ |
-| [254](254-categories-page-hooks.md) | CategoriesPage → useResource/useFeedback          | P3        | S–M      | 242 (✓)      | TODO   |
-| [255](255-tools-logger-batch2.md)   | Logger de tools batch-2 (~39 archivos)            | P3        | M        | 244 (✓)      | TODO   |
-| [256](256-housekeeping-micro.md)    | Micro: recheck del 235 (allowlist) + docs del 239 | P3        | XS–S     | 235, 239 (✓) | TODO   |
+| Plan                                     | Título                                            | Prioridad | Esfuerzo | Depende de   | Estado                                                                                                                                                                                                                                                                               |
+| ---------------------------------------- | ------------------------------------------------- | --------- | -------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [254](254-categories-page-hooks.md)      | CategoriesPage → useResource/useFeedback          | P3        | S–M      | 242 (✓)      | TODO                                                                                                                                                                                                                                                                                 |
+| [255](255-tools-logger-batch2.md)        | Logger de tools batch-2 (~39 archivos)            | P3        | M        | 244 (✓)      | TODO                                                                                                                                                                                                                                                                                 |
+| [256](archive/256-housekeeping-micro.md) | Micro: recheck del 235 (allowlist) + docs del 239 | P3        | XS–S     | 235, 239 (✓) | DONE — 2026-10-19 (`d159da66`, worktree `advisor/256-housekeeping-micro`; merged a main `c2bab164`; allowlist **KEEP** con recheck independiente del reviewer: sin la entrada exit 1 con 1.956 huérfanos, con ella 0; docs post-239 corregidos; fila del registro movida a Resolved) |
 
 ---
 
