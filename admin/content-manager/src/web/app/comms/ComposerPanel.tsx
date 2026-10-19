@@ -3,10 +3,8 @@ import { ProductPicker } from './ProductPicker.tsx';
 import { ShareButton } from './ShareButton.tsx';
 import { ADHOC_ID, relativeTime, type CommsWorkspace } from './useCommsWorkspace.ts';
 import { KNOWN_VARIABLES, formatPhone, normalizePhone } from '../../../shared/comms.ts';
-import {
-  COMMS_STATUS_LABELS,
-  type CommsDestination,
-} from '../../../shared/schemas/comms.ts';
+import { COMMS_STATUS_LABELS } from '../../../shared/comms-meta.ts';
+import type { CommsDestination } from '../../../shared/schemas/comms.ts';
 
 export function ComposerPanel({
   ws,
@@ -141,12 +139,16 @@ export function ComposerPanel({
               aria-label="Texto del mensaje"
               rows={5}
               value={draft.edited ? draft.text : template.body}
-              onChange={(e) => setDraft((prev) => ({ ...prev, text: e.target.value, edited: true }))}
+              onChange={(e) =>
+                setDraft((prev) => ({ ...prev, text: e.target.value, edited: true }))
+              }
             />
             {draft.edited && (
               <button
                 type="button"
-                onClick={() => setDraft((prev) => ({ ...prev, text: template.body, edited: false }))}
+                onClick={() =>
+                  setDraft((prev) => ({ ...prev, text: template.body, edited: false }))
+                }
               >
                 Volver al texto de la plantilla
               </button>

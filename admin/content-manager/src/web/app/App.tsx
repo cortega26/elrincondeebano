@@ -5,24 +5,63 @@ import {
   Outlet,
   NavLink,
 } from 'react-router-dom';
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { RecoveryBanner } from './components/RecoveryBanner.tsx';
 import { ProductsPage } from './routes/ProductsPage.tsx';
-import { CategoriesPage } from './routes/CategoriesPage.tsx';
-import { MediaPage } from './routes/MediaPage.tsx';
-import { HistoryPage } from './routes/HistoryPage.tsx';
-import { BundlesPage } from './routes/BundlesPage.tsx';
-import { ImportPage } from './routes/ImportPage.tsx';
-import { ConflictsPage } from './routes/ConflictsPage.tsx';
-import { NotFoundPage } from './routes/NotFoundPage.tsx';
-import { PublicationPage } from './routes/PublicationPage.tsx';
-import { DiagnosticsPage } from './routes/DiagnosticsPage.tsx';
-import { SettingsPage } from './routes/SettingsPage.tsx';
-import { HelpPage } from './routes/HelpPage.tsx';
-import { CommsPage } from './routes/CommsPage.tsx';
 import { RouteErrorPage } from './RouteErrorPage.tsx';
 import { CredentialPrompt } from './CredentialPrompt.tsx';
 import { loadPreferences, applyPreferences } from './preferences.ts';
+
+// Plan 241: solo ProductsPage viaja en el chunk inicial (index + /products);
+// el resto de las rutas se descargan por demanda (React.lazy + Suspense).
+const CategoriesPage = lazy(() =>
+  import('./routes/CategoriesPage.tsx').then((m) => ({ default: m.CategoriesPage }))
+);
+const MediaPage = lazy(() =>
+  import('./routes/MediaPage.tsx').then((m) => ({ default: m.MediaPage }))
+);
+const HistoryPage = lazy(() =>
+  import('./routes/HistoryPage.tsx').then((m) => ({ default: m.HistoryPage }))
+);
+const BundlesPage = lazy(() =>
+  import('./routes/BundlesPage.tsx').then((m) => ({ default: m.BundlesPage }))
+);
+const ImportPage = lazy(() =>
+  import('./routes/ImportPage.tsx').then((m) => ({ default: m.ImportPage }))
+);
+const ConflictsPage = lazy(() =>
+  import('./routes/ConflictsPage.tsx').then((m) => ({ default: m.ConflictsPage }))
+);
+const NotFoundPage = lazy(() =>
+  import('./routes/NotFoundPage.tsx').then((m) => ({ default: m.NotFoundPage }))
+);
+const PublicationPage = lazy(() =>
+  import('./routes/PublicationPage.tsx').then((m) => ({ default: m.PublicationPage }))
+);
+const DiagnosticsPage = lazy(() =>
+  import('./routes/DiagnosticsPage.tsx').then((m) => ({ default: m.DiagnosticsPage }))
+);
+const SettingsPage = lazy(() =>
+  import('./routes/SettingsPage.tsx').then((m) => ({ default: m.SettingsPage }))
+);
+const HelpPage = lazy(() => import('./routes/HelpPage.tsx').then((m) => ({ default: m.HelpPage })));
+const CommsPage = lazy(() =>
+  import('./routes/CommsPage.tsx').then((m) => ({ default: m.CommsPage }))
+);
+
+// Plan 241: aviso mínimo y accesible mientras se descarga el chunk de la
+// ruta; se muestra dentro del Layout, así la navegación sigue disponible.
+function RoutePending(): React.ReactElement {
+  return (
+    <div className="route-loading" role="status">
+      Cargando…
+    </div>
+  );
+}
+
+function routePage(page: React.ReactElement): React.ReactElement {
+  return <Suspense fallback={<RoutePending />}>{page}</Suspense>;
+}
 
 const router = createBrowserRouter([
   {
@@ -38,54 +77,18 @@ const router = createBrowserRouter([
         path: 'products',
         element: <ProductsPage />,
       },
-      {
-        path: 'categories',
-        element: <CategoriesPage />,
-      },
-      {
-        path: 'media',
-        element: <MediaPage />,
-      },
-      {
-        path: 'history',
-        element: <HistoryPage />,
-      },
-      {
-        path: 'bundles',
-        element: <BundlesPage />,
-      },
-      {
-        path: 'import',
-        element: <ImportPage />,
-      },
-      {
-        path: 'conflicts',
-        element: <ConflictsPage />,
-      },
-      {
-        path: 'publish',
-        element: <PublicationPage />,
-      },
-      {
-        path: 'diagnostics',
-        element: <DiagnosticsPage />,
-      },
-      {
-        path: 'settings',
-        element: <SettingsPage />,
-      },
-      {
-        path: 'comms',
-        element: <CommsPage />,
-      },
-      {
-        path: 'help',
-        element: <HelpPage />,
-      },
-      {
-        path: '*',
-        element: <NotFoundPage />,
-      },
+      { path: 'categories', element: routePage(<CategoriesPage />) },
+      { path: 'media', element: routePage(<MediaPage />) },
+      { path: 'history', element: routePage(<HistoryPage />) },
+      { path: 'bundles', element: routePage(<BundlesPage />) },
+      { path: 'import', element: routePage(<ImportPage />) },
+      { path: 'conflicts', element: routePage(<ConflictsPage />) },
+      { path: 'publish', element: routePage(<PublicationPage />) },
+      { path: 'diagnostics', element: routePage(<DiagnosticsPage />) },
+      { path: 'settings', element: routePage(<SettingsPage />) },
+      { path: 'comms', element: routePage(<CommsPage />) },
+      { path: 'help', element: routePage(<HelpPage />) },
+      { path: '*', element: routePage(<NotFoundPage />) },
     ],
   },
 ]);

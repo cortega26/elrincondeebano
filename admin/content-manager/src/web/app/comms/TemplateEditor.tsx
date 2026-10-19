@@ -1,10 +1,7 @@
 import { useState } from 'react';
 import { ProductImage, normalizeImagePath } from '../components/ProductImage.tsx';
-import {
-  COMMS_CATEGORIES,
-  COMMS_CATEGORY_LABELS,
-  type CommsTemplate,
-} from '../../../shared/schemas/comms.ts';
+import { COMMS_CATEGORIES, COMMS_CATEGORY_LABELS } from '../../../shared/comms-meta.ts';
+import type { CommsTemplate } from '../../../shared/schemas/comms.ts';
 import { KNOWN_VARIABLES } from '../../../shared/comms.ts';
 import { ProductPicker } from './ProductPicker.tsx';
 import type { Kind } from './useCommsWorkspace.ts';

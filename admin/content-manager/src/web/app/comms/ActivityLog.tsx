@@ -1,7 +1,5 @@
-import {
-  COMMS_STATUS_LABELS,
-  type CommsActivity,
-} from '../../../shared/schemas/comms.ts';
+import { COMMS_STATUS_LABELS } from '../../../shared/comms-meta.ts';
+import type { CommsActivity } from '../../../shared/schemas/comms.ts';
 import { relativeTime } from './useCommsWorkspace.ts';
 
 export function ActivityLog({ activity }: { activity: CommsActivity[] }): React.ReactElement {

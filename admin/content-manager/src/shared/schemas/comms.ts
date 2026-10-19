@@ -4,33 +4,19 @@
 // Nunca se publican ni se sincronizan al storefront.
 import { z } from 'zod';
 
+// Plan 241: las constantes sin zod viven en comms-meta.ts (importable por el
+// bundle del navegador) y se re-exportan aquí para conservar la API del
+// servidor. Fuente única: no duplicar estos datos.
+import { COMMS_CATEGORIES, COMMS_STATUSES, MAX_ACTIVITY } from '../comms-meta.ts';
+export {
+  COMMS_CATEGORIES,
+  COMMS_CATEGORY_LABELS,
+  COMMS_STATUSES,
+  COMMS_STATUS_LABELS,
+  MAX_ACTIVITY,
+} from '../comms-meta.ts';
+
 export const COMMS_SCHEMA_VERSION = 1 as const;
-
-export const COMMS_CATEGORIES = [
-  'promociones',
-  'novedades',
-  'disponibilidad',
-  'reposicion',
-  'horarios',
-  'entregas',
-  'pagos',
-  'pedidos',
-  'seguimiento',
-  'agradecimientos',
-] as const;
-
-export const COMMS_CATEGORY_LABELS: Record<(typeof COMMS_CATEGORIES)[number], string> = {
-  promociones: 'Promociones',
-  novedades: 'Novedades',
-  disponibilidad: 'Disponibilidad',
-  reposicion: 'Reposición de stock',
-  horarios: 'Horarios',
-  entregas: 'Entregas',
-  pagos: 'Medios de pago',
-  pedidos: 'Pedidos',
-  seguimiento: 'Seguimiento',
-  agradecimientos: 'Agradecimientos',
-};
 
 const idSchema = z
   .string()
@@ -84,20 +70,6 @@ export const commsDestinationSchema = z.discriminatedUnion('kind', [
 ]);
 export type CommsDestination = z.infer<typeof commsDestinationSchema>;
 
-// Estados honestos: ninguno significa "entregado" ni "leído".
-export const COMMS_STATUSES = [
-  'preparado',
-  'chat_abierto',
-  'compartir_iniciado',
-  'enviado_manual',
-] as const;
-export const COMMS_STATUS_LABELS: Record<(typeof COMMS_STATUSES)[number], string> = {
-  preparado: 'Preparado (copiado)',
-  chat_abierto: 'Chat abierto',
-  compartir_iniciado: 'Compartir iniciado',
-  enviado_manual: 'Envío confirmado manualmente',
-};
-
 export const commsActivitySchema = z.object({
   id: idSchema,
   at: z.iso.datetime(),
@@ -110,8 +82,6 @@ export const commsActivitySchema = z.object({
   text_hash: z.string().max(32),
 });
 export type CommsActivity = z.infer<typeof commsActivitySchema>;
-
-export const MAX_ACTIVITY = 500;
 
 export const commsDocumentSchema = z.object({
   schema_version: z.literal(COMMS_SCHEMA_VERSION),
