@@ -45,12 +45,28 @@ test('repeat-order flow keeps canonical last-order state usable after reload', a
     .getAttribute('data-id');
   expect(productId).toBeTruthy();
 
+  // Plan 231: the WhatsApp URL is captured, not just counted — the open call
+  // must carry the catalog-priced total for the fixture cart (quantity 1).
+  const product = await page
+    .locator(`.category-strip .add-to-cart-btn[data-id="${productId}"]`)
+    .first()
+    .evaluate((element) => {
+      const card = element.closest<HTMLElement>('[data-product-id]')!;
+      return {
+        price: Number(card.dataset.productPrice),
+        discount: Number(card.dataset.productDiscount || 0),
+      };
+    });
+  const expectedTotal = Math.max(0, product.price - product.discount);
+
   await page.evaluate(() => {
     (window as any).__openCallCount = 0;
-    window.open = (..._args: any[]) => {
+    (window as any).__lastOpenUrl = '';
+    window.open = ((url: string) => {
       (window as any).__openCallCount = ((window as any).__openCallCount || 0) + 1;
+      (window as any).__lastOpenUrl = String(url);
       return null;
-    };
+    }) as typeof window.open;
   });
 
   await page.locator(`.category-strip .add-to-cart-btn[data-id="${productId}"]`).first().click();
@@ -73,6 +89,13 @@ test('repeat-order flow keeps canonical last-order state usable after reload', a
 
   const openCount = await page.evaluate(() => (window as any).__openCallCount || 0);
   expect(openCount).toBe(1);
+
+  const openUrl = await page.evaluate(() => (window as any).__lastOpenUrl as string);
+  expect(openUrl).toContain('https://wa.me/');
+  const formattedTotal = expectedTotal.toLocaleString('es-CL');
+  expect(openUrl).toContain(encodeURIComponent(formattedTotal));
+  const whatsappMessage = decodeURIComponent(openUrl.split('?text=')[1] ?? '');
+  expect(whatsappMessage).toContain(`*Total:* $${formattedTotal}`);
 
   await page.reload({ waitUntil: 'networkidle' });
   await waitForReady(page);

@@ -1,6 +1,8 @@
 /** @vitest-environment jsdom */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createOrderSubmitController } from '../astro-poc/src/scripts/storefront/order-submit.js';
+import { formatCurrency } from '../astro-poc/src/lib/formatting.ts';
+import { getCartState } from '../astro-poc/src/scripts/storefront/storefront-state.ts';
 
 function createTestElement(tagName, { className = '', text = '', attrs = {} } = {}) {
   const element = document.createElement(tagName);
@@ -10,32 +12,6 @@ function createTestElement(tagName, { className = '', text = '', attrs = {} } = 
     if (value !== null && value !== undefined) element.setAttribute(key, String(value));
   });
   return element;
-}
-
-function formatCurrency(value) {
-  const parsed = Number(value);
-  const amount = Number.isFinite(parsed) ? parsed : 0;
-  return new Intl.NumberFormat('es-CL', {
-    style: 'currency',
-    currency: 'CLP',
-    minimumFractionDigits: 0,
-  }).format(amount);
-}
-
-function getCartState(cart) {
-  const normalized = Array.isArray(cart) ? cart : [];
-  let totalItems = 0;
-  let totalAmount = 0;
-  for (const item of normalized) {
-    const qty = Number.isFinite(Number(item.quantity)) ? Number(item.quantity) : 0;
-    if (qty <= 0) continue;
-    totalItems += qty;
-    const price = Number.isFinite(Number(item.price)) ? Number(item.price) : 0;
-    const discount = Number.isFinite(Number(item.discount)) ? Number(item.discount) : 0;
-    const effective = Math.max(0, price - discount);
-    totalAmount += effective * qty;
-  }
-  return { totalItems, totalAmount };
 }
 
 function makeController(overrides = {}) {
@@ -158,21 +134,42 @@ describe('order-submit submitCartOrder', () => {
       saveSubstitutionPreference,
       buildWhatsAppPreview,
       showOrderConfirmationDialog,
-      getCartState,
     });
 
     const cart = [{ id: 'p1', name: 'Aceite', price: 2000, discount: 500, quantity: 2 }];
+    // Fixture total computed with the PRODUCTION cart math (no local doubles).
+    const expectedTotal = getCartState(cart).totalAmount;
+    expect(expectedTotal).toBe(3000);
     controller.submitCartOrder(cart);
     const pending = controller.takePendingOrder();
     expect(pending).not.toBeNull();
     expect(pending.selectedPayment).toBe('Transferencia');
-    expect(pending.totalAmount).toBe(3000);
+    expect(pending.totalAmount).toBe(expectedTotal);
     expect(pending.message).toContain((1500).toLocaleString('es-CL'));
     expect(pending.message).toContain((3000).toLocaleString('es-CL'));
     expect(saveProfile).toHaveBeenCalledWith({ name: 'Ana', deliveryNote: 'Timbre 2' });
     expect(savePreferredPayment).toHaveBeenCalledWith('Transferencia');
     expect(saveSubstitutionPreference).toHaveBeenCalledWith('exacto');
-    expect(buildWhatsAppPreview).toHaveBeenCalled();
+    // Plan 231: the preview is wired to the production cart math. Pin the
+    // exact positional call the composition root makes and prove the message
+    // those arguments render carries the fixture total (a wrong or truncated
+    // total cannot pass any more).
+    expect(buildWhatsAppPreview).toHaveBeenCalledTimes(1);
+    const previewArgs = buildWhatsAppPreview.mock.calls[0];
+    expect(previewArgs).toEqual([cart, expectedTotal, 'Transferencia', 'exacto', 'Timbre 2']);
+    const [previewCart, previewTotal, previewPayment, previewSubstitution, previewNote] =
+      previewArgs;
+    const previewMessage = controller.buildWhatsAppMessageText(
+      previewCart,
+      previewTotal,
+      previewPayment,
+      previewSubstitution,
+      previewNote
+    );
+    expect(previewMessage).toContain(`*Total:* $${expectedTotal.toLocaleString('es-CL')}`);
+    expect(document.getElementById('order-confirm-summary').textContent).toContain(
+      formatCurrency(expectedTotal)
+    );
     expect(showOrderConfirmationDialog).toHaveBeenCalled();
     expect(controller.takePendingOrder()).toBeNull();
   });

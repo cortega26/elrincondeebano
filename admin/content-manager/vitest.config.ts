@@ -26,6 +26,13 @@ export default defineConfig({
       thresholds: {
         lines: 40,
         branches: 25,
+        // Plan 231 ratchet: module-level floors (achieved − 5; measured
+        // lines 97.25 / functions 93.55 on 2026-10-18). Raise with the PR
+        // that keeps it green.
+        'src/shared/comms.ts': {
+          lines: 92,
+          functions: 88,
+        },
       },
       reporter: ['text', 'text-summary', 'json', 'html'],
     },

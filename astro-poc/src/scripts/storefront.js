@@ -35,6 +35,8 @@ import { WHATSAPP_NUMBER, formatCurrency } from '../lib/formatting.js';
 import {
   clampQty,
   createCartItemFromProduct,
+  decodeCart,
+  encodeCart,
   getCartState,
   hydrateCartFromOrder,
   hydrateSharedCart,
@@ -44,7 +46,6 @@ import {
   refreshCartItemsFromCatalog,
   sanitizeCart,
   sameCartProduct,
-  toSharedCartPayload,
 } from './storefront/storefront-state.js';
 
 const MAX_RECENT_ORDERS = 6;
@@ -201,25 +202,8 @@ function showCartSaveError() {
   document.body.appendChild(toast);
 }
 
-// Carrito compartible por URL
-function encodeCart(cart) {
-  try {
-    const payload = toSharedCartPayload(cart);
-    if (!payload) return '';
-    return btoa(encodeURIComponent(JSON.stringify(payload)));
-  } catch {
-    return '';
-  }
-}
-
-function decodeCart(encoded) {
-  try {
-    return JSON.parse(decodeURIComponent(atob(encoded)));
-  } catch {
-    return null;
-  }
-}
-
+// Carrito compartible por URL (plan 231: encode/decode viven en
+// storefront-state.ts; aquí solo queda la construcción de la URL).
 function getShareableCartUrl(cart) {
   if (!cart || cart.length === 0) return null;
   const encoded = encodeCart(cart);
@@ -1267,8 +1251,7 @@ function initStorefront() {
     // Read the current key even for a delayed clear() event: another tab may
     // have saved a newer cart already. Never fall back to a stale legacy alias.
     const canonicalRaw = globalThis.localStorage?.getItem(STOREFRONT_STORAGE_KEYS.cart);
-    const persisted =
-      canonicalRaw == null ? [] : storefrontStorage.loadJson('cart', null);
+    const persisted = canonicalRaw == null ? [] : storefrontStorage.loadJson('cart', null);
     const latest = adoptCartSnapshot(cart, persisted);
     if (JSON.stringify(latest) === JSON.stringify(cart)) {
       return;

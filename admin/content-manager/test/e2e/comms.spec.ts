@@ -126,6 +126,64 @@ test('variables incompletas bloquean el envío; número pegado se valida', async
   await expect(page.getByRole('button', { name: 'Abrir chat con mensaje' })).toBeEnabled();
 });
 
+test('borrador sin PII: sobrevive al recargo sin el teléfono ad-hoc ni {nombre}', async ({
+  page,
+}) => {
+  await setup(page);
+  await page.getByRole('tab', { name: 'Responder a vecino' }).click();
+  await page.getByLabel('Buscar plantillas').fill('si hay disponible');
+  await page.getByLabel('Buscar plantillas').press('Enter');
+  await page.getByRole('combobox', { name: 'Destino' }).selectOption('__adhoc__');
+  await page.getByLabel(/Número \(ej/).fill('9 1111 2222');
+  await page.getByLabel('{nombre}').fill('Luis');
+  await page.getByLabel('{producto}').fill('Pan amasado');
+  await page.getByLabel('{precio}').fill('$1.200');
+  await expect(page.getByRole('button', { name: 'Abrir chat con mensaje' })).toBeEnabled();
+
+  // Plan 231 / ADR 0011: saveDraft drops the ad-hoc phone and {nombre} on
+  // every write — while the UI still holds both.
+  await expect(page.getByTestId('comms-destination')).toContainText('+56 9 1111 2222');
+  const beforeReload = await page.evaluate(() => localStorage.getItem('cm-comms-draft-v1'));
+  expect(beforeReload).not.toBeNull();
+  expect(beforeReload).toContain('Pan amasado');
+  expect(beforeReload).not.toContain('1111');
+  expect(beforeReload).not.toContain('2222');
+  expect(beforeReload).not.toContain('Luis');
+
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Mensajes de WhatsApp' })).toBeVisible();
+
+  // The draft survives: template + non-personal values come back.
+  await expect(page.getByTestId('comms-preview-text')).toContainText(
+    'sí tenemos Pan amasado a $1.200'
+  );
+  await expect(page.getByLabel('{producto}')).toHaveValue('Pan amasado');
+  await expect(page.getByLabel('{precio}')).toHaveValue('$1.200');
+
+  // The personal data does not: no ad-hoc destination, {nombre} unfilled.
+  await expect(page.getByRole('combobox', { name: 'Destino' })).toHaveValue('');
+  await expect(page.getByLabel(/Número \(ej/)).toHaveCount(0);
+  await expect(page.getByTestId('comms-preview-text')).toContainText('{nombre}');
+  await expect(page.getByLabel('{nombre}')).toHaveValue('');
+
+  // And the persisted draft itself contains neither the phone digits nor the name.
+  const persisted = await page.evaluate(() => localStorage.getItem('cm-comms-draft-v1'));
+  expect(persisted).not.toBeNull();
+  const draft = JSON.parse(persisted!) as {
+    templateId: string | null;
+    destinationId: string | null;
+    adhocPhone: string;
+    values: Record<string, string>;
+  };
+  expect(draft.templateId).toBe('resp-disponible');
+  expect(draft.destinationId).toBeNull();
+  expect(draft.adhocPhone).toBe('');
+  expect(draft.values).toEqual({ producto: 'Pan amasado', precio: '$1.200' });
+  expect(persisted).not.toContain('1111');
+  expect(persisted).not.toContain('2222');
+  expect(persisted).not.toContain('Luis');
+});
+
 test('grupo: abre el selector de chats, nunca un enlace de invitación', async ({ page }) => {
   await setup(page);
   await page.getByLabel('Buscar plantillas').fill('abrimos');
