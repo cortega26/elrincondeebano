@@ -84,6 +84,12 @@ el advisor no ejecutó builds/tests durante el recon — todas las filas de
 comandos de los planes son `declared`; el baseline real lo establece el
 primer paso de cada plan.
 
+**Estado (cierre 2026-10-18)**: **completa — 36/36 planes archivados**
+(218–253; el 247 cerró con veredicto **REJECTED** por medición: ahorro
+< gate de 10 KB gz — ver su nota y la condición de reapertura). Diferidos
+vivos con condiciones de reapertura:
+[`docs/operations/DEFERRALS.md`](../docs/operations/DEFERRALS.md).
+
 | Plan                                                | Título                                                          | Prioridad | Esfuerzo | Depende de    | Estado                                                                                                                                                                                                                                                                                                                                                                          |
 | --------------------------------------------------- | --------------------------------------------------------------- | --------- | -------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [218](archive/218-sw-hardening.md)                  | SW: kill-switch real + seed estático + streaming                | P1        | S–M      | —             | DONE — 2026-10-18 (`e6c0c7cd`, worktree `advisor/218-sw-hardening`; merged a main `03fef03e`; revisión aprobada; e2e 82p/2s)                                                                                                                                                                                                                                                    |
