@@ -109,7 +109,11 @@ no-opea; los bytes live woff2 sí son idénticos — verificado en plan 234) ·
 phantoms del OpenAPI en dirección inversa: declaradas pero no/condicionalmente
 registradas (`GET /nav-groups`, `GET /publications`,
 `GET /categories/{id}/subcategories`, `POST /preview/build` flag-gated) — el
-guard del 252 es routes→doc; considerarlos al tocar esas rutas.
+guard del 252 es routes→doc; considerarlos al tocar esas rutas ·
+el handler central de errores del admin enmascara cualquier 4xx como
+`NOT_FOUND` (nota del plan 253: el 400 real `FST_ERR_CTP_EMPTY_JSON_BODY`
+nunca llega al cliente) — considerar preservar el `code` real al tocar
+`app.ts`.
 
 Add a 5-line header stating: what this file is, that `reconcile` reads it
 at session start, and that resolved rows move to a "Resolved" section with
