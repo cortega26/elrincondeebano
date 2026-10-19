@@ -1,5 +1,6 @@
 const fs = require('fs');
 const { getDeterministicTimestamp } = require('./deterministic-time');
+const { logger } = require('./logger.mjs');
 
 function readManifest(manifestPath) {
   try {
@@ -18,7 +19,9 @@ function readManifestFonts(manifestPath, label = 'manifest') {
       (file) => typeof file === 'string' && file.toLowerCase().endsWith('.woff2')
     );
   } catch (error) {
-    console.warn(`${label}: Unable to read asset manifest for font preloads:`, error);
+    logger.warn(`${label}: Unable to read asset manifest for font preloads:`, {
+      error: error instanceof Error ? error.message : String(error),
+    });
     return [];
   }
 }
