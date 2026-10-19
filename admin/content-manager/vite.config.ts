@@ -25,6 +25,17 @@ export default defineConfig({
     target: 'es2024',
     rollupOptions: {
       input: path.resolve(__dirname, 'src/web/index.html'),
+      output: {
+        // Plan 241: vendor estable (react + router) fuera del código de la app,
+        // para aprovechar la caché entre despliegues. Vite 8 usa rolldown, que
+        // solo acepta manualChunks como función.
+        manualChunks(id: string): string | undefined {
+          if (/node_modules[\\/](react|react-dom|react-router|react-router-dom)[\\/]/.test(id)) {
+            return 'vendor';
+          }
+          return undefined;
+        },
+      },
     },
   },
   server: {

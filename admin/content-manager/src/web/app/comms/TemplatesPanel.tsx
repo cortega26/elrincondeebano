@@ -1,10 +1,9 @@
 import { newId } from '../../../shared/comms.ts';
-import { COMMS_CATEGORY_LABELS } from '../../../shared/schemas/comms.ts';
+import { COMMS_CATEGORY_LABELS } from '../../../shared/comms-meta.ts';
 import type { CommsWorkspace } from './useCommsWorkspace.ts';
 
 export function TemplatesPanel({ ws }: { ws: CommsWorkspace }): React.ReactElement {
-  const { searchRef, query, setQuery, list, kind, draft, setEditing, selectTemplate, persist } =
-    ws;
+  const { searchRef, query, setQuery, list, kind, draft, setEditing, selectTemplate, persist } = ws;
 
   return (
     <section aria-label="Plantillas" className="comms-library">
@@ -59,9 +58,7 @@ export function TemplatesPanel({ ws }: { ws: CommsWorkspace }): React.ReactEleme
               <button
                 type="button"
                 aria-label={
-                  t.favorite
-                    ? `Quitar ${t.title} de favoritos`
-                    : `Marcar ${t.title} como favorito`
+                  t.favorite ? `Quitar ${t.title} de favoritos` : `Marcar ${t.title} como favorito`
                 }
                 aria-pressed={t.favorite}
                 onClick={() =>
