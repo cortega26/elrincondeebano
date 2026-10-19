@@ -18,6 +18,13 @@ export interface JobClock {
   clear(handle: unknown): void;
 }
 
+/** Default wall-clock/real-timer implementation (plan 248 exports it for AppOptions). */
+export const systemClock: JobClock = {
+  now: () => Date.now(),
+  schedule: (cb, ms) => setTimeout(cb, ms),
+  clear: (h) => clearTimeout(h as NodeJS.Timeout),
+};
+
 export class JobRunner {
   private jobs = new Map<string, Job>();
   private queue: Array<{ job: Job; fn: () => Promise<unknown> }> = [];
@@ -29,11 +36,12 @@ export class JobRunner {
   private readonly clock: JobClock;
 
   constructor(clock?: JobClock) {
-    this.clock = clock ?? {
-      now: () => Date.now(),
-      schedule: (cb, ms) => setTimeout(cb, ms),
-      clear: (h) => clearTimeout(h as NodeJS.Timeout),
-    };
+    this.clock = clock ?? systemClock;
+  }
+
+  /** Current time per the injected clock (plan 248 uses it for overdue policy). */
+  now(): number {
+    return this.clock.now();
   }
 
   schedule<T>(type: string, fn: () => Promise<T>): Job<T> {
@@ -58,9 +66,12 @@ export class JobRunner {
     return job;
   }
 
-  scheduleAt<T>(type: string, fn: () => Promise<T>, when: Date): Job<T> {
+  // Plan 248: `id` lets the durable outbox own the job identity — a boot
+  // re-arm must keep the same id so claim/complete/cancel stay bound to the
+  // persisted entry across restarts. Existing callers keep the generated id.
+  scheduleAt<T>(type: string, fn: () => Promise<T>, when: Date, id?: string): Job<T> {
     const job: Job<T> = {
-      id: `job-${Date.now()}-${globalThis.crypto.randomUUID().slice(0, 6)}`,
+      id: id ?? `job-${Date.now()}-${globalThis.crypto.randomUUID().slice(0, 6)}`,
       type,
       status: 'pending',
       progress: 0,

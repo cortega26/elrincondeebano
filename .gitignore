@@ -94,6 +94,8 @@ data/media-intents/
 data/import-previews/
 data/idempotency.json
 data/.admin-credential
+# Plan 248: durable scheduled-publication outbox (runtime state, like data/.comms/)
+data/scheduled-publications.json
 # Plan 217: comunicaciones privadas (teléfonos de vecinos, plantillas, actividad)
 data/.comms/
 data/sync-config.json

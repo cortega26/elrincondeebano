@@ -48,6 +48,9 @@ export type {
   GitStatusResponse,
   PublicationPreviewResponse,
   JobResponse,
+  RecoveredPublication,
+  MissedPublication,
+  JobsListResponse,
   PreviewBuildTrigger,
 } from './publications.ts';
 export type { DiagnosticsReport } from './system.ts';
@@ -381,7 +384,7 @@ export class ContentManagerClient {
     return publicationsApi.getJob(this.invoke, id);
   }
 
-  async listJobs(): Promise<{ jobs: publicationsApi.JobResponse[] }> {
+  async listJobs(): Promise<publicationsApi.JobsListResponse> {
     return publicationsApi.listJobs(this.invoke);
   }
 

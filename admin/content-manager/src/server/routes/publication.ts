@@ -9,6 +9,14 @@ import {
 } from '../../domain/publication/publicationService.ts';
 import { ValidationAdapter } from '../adapters/validationAdapter.ts';
 import { RecoveryJournal } from '../services/publicationRecovery.ts';
+import type { PersistentIdempotencyStore } from '../services/persistentIdempotencyStore.ts';
+import {
+  FIRE_LATE_MAX_HOURS,
+  ScheduledPublications,
+  classifyOverdue,
+  newScheduledPublicationJobId,
+  type ScheduledPublicationEntry,
+} from '../services/scheduledPublications.ts';
 
 export interface GitStatusResponse {
   branch: string;
@@ -26,15 +34,312 @@ export interface PublicationJobResult {
   pushed: boolean;
 }
 
+/** Plan 248: outbox-backed notice surfaced by GET /jobs (late / missed). */
+export interface PublicationRecoverySummary {
+  job_id: string;
+  commit_message: string;
+  publish_at: string;
+  fired_at?: string;
+  error?: string;
+}
+
+export interface PublicationRouteOptions {
+  scheduledPublications: ScheduledPublications;
+  idempotencyStore: PersistentIdempotencyStore;
+  /** Read-only boots must not fire publications (a write): entries stay durable. */
+  enableWrites: boolean;
+}
+
+interface PublicationDeps {
+  jobRunner: JobRunner;
+  git: GitAdapter;
+  repos: Repositories;
+  repoRoot: string;
+  scheduledPublications: ScheduledPublications;
+  idempotencyStore: PersistentIdempotencyStore;
+}
+
+interface PublicationJobParams {
+  commitMessage: string;
+  push: boolean;
+}
+
+/**
+ * Plan 212 design record: the publication body, bound to an explicit job id
+ * (so the durable outbox can re-arm the same job after a restart).
+ * `onCommitted` records crash evidence the moment the commit lands, while the
+ * entry is still `firing` — before the push step can fail or the process die.
+ */
+async function runPublicationJob(
+  deps: PublicationDeps,
+  jobId: string,
+  params: PublicationJobParams,
+  onCommitted?: (commitSha: string) => void
+): Promise<PublicationJobResult> {
+  const { jobRunner, git, repoRoot } = deps;
+  const manifest = createDefaultManifest();
+  const recovery = new RecoveryJournal(repoRoot);
+  const validation = new ValidationAdapter();
+
+  const checkCancel = (): void => {
+    if (jobRunner.getJob(jobId)?.cancelRequested) {
+      throw new Error('Publication cancelled by operator');
+    }
+  };
+
+  try {
+    jobRunner.updateProgress(jobId, 10);
+    checkCancel();
+
+    const gitChanges = await git.getChanges();
+    checkCancel();
+    const preflight = runPreflight(manifest, gitChanges);
+    if (!preflight.ok) {
+      throw new Error(`Preflight failed: ${preflight.errors.join('; ')}`);
+    }
+
+    const validations = await validation.runAllValidations(repoRoot);
+    checkCancel();
+    const failedValidations = validations.filter((v) => v.status === 'fail');
+    if (failedValidations.length > 0) {
+      throw new Error(
+        `${failedValidations.length} validations failed: ${failedValidations.map((v) => v.step).join(', ')}`
+      );
+    }
+
+    jobRunner.updateProgress(jobId, 30);
+    checkCancel();
+
+    recovery.save({
+      current_job_id: jobId,
+      current_step: 'stage',
+      commit_made: false,
+      staged_paths: manifest.ownedPaths,
+      timestamp: new Date().toISOString(),
+    });
+
+    const stageResult = await git.stage(manifest.ownedPaths);
+    checkCancel();
+    if (!stageResult.success) {
+      throw new Error(`Stage failed: ${stageResult.error ?? 'unknown error'}`);
+    }
+
+    jobRunner.updateProgress(jobId, 50);
+    checkCancel();
+
+    const commitResult = await git.commitWithPaths(manifest.ownedPaths, params.commitMessage);
+    checkCancel();
+    if (!commitResult.success) {
+      throw new Error(`Commit failed: ${commitResult.error ?? 'unknown error'}`);
+    }
+
+    const logResult = await git.log(1);
+    checkCancel();
+    const commitSha =
+      logResult.success && logResult.output ? logResult.output.split(' ')[0] : 'unknown';
+
+    // Plan 248: durable evidence BEFORE anything else can fail — the outbox
+    // entry (still `firing`) and the persistent idempotency store are what
+    // boot recovery consults to never fire a committed publication twice.
+    onCommitted?.(commitSha);
+
+    recovery.save({
+      current_job_id: jobId,
+      current_step: params.push ? 'push' : 'done',
+      commit_made: true,
+      commit_sha: commitSha,
+      staged_paths: manifest.ownedPaths,
+      timestamp: new Date().toISOString(),
+    });
+
+    jobRunner.updateProgress(jobId, 70);
+    checkCancel();
+
+    if (params.push) {
+      const pushResult = await git.push();
+      checkCancel();
+      if (!pushResult.success) {
+        throw new Error(
+          `Push failed (commit: ${commitSha}): ${pushResult.error ?? 'unknown error'}`
+        );
+      }
+    }
+
+    jobRunner.updateProgress(jobId, 100);
+    recovery.clear();
+
+    return { commit: commitSha, pushed: params.push };
+  } catch (err) {
+    // Plan 130 CORR-03: a handled failure or cancellation must clear the
+    // recovery journal before propagating — only a real crash (process
+    // death, which never reaches this catch) may keep it for manual
+    // recovery. clear() ignores errors, so this never masks the cause.
+    recovery.clear();
+    throw err;
+  }
+}
+
+/** Record the crash-evidence pair the moment a scheduled publication commits. */
+function recordCommitted(deps: PublicationDeps, jobId: string, commitSha: string): void {
+  deps.scheduledPublications.recordCommit(jobId, commitSha);
+  deps.idempotencyStore.set(jobId, {
+    command_id: jobId,
+    status: 'ok',
+    warnings: ['scheduled publication committed (plan 248 durability marker)'],
+  });
+}
+
+/**
+ * Fire a claimed (`firing`) entry: overdue policy first (never fire beyond
+ * FIRE_LATE_MAX_HOURS), then the publication, then complete/fail. Runs both
+ * from the in-memory timer and from boot recovery. Throws on failure (the
+ * in-memory job must not report success); the outbox is already updated.
+ */
+async function fireClaimedPublication(
+  deps: PublicationDeps,
+  entry: ScheduledPublicationEntry
+): Promise<PublicationJobResult | undefined> {
+  const decision = classifyOverdue(entry.publish_at, deps.jobRunner.now());
+  if (decision.action === 'skip') {
+    const error = `recovered_overdue: la hora programada venció hace más de ${FIRE_LATE_MAX_HOURS} h`;
+    deps.scheduledPublications.fail(entry.job_id, error);
+    throw new Error(error);
+  }
+
+  try {
+    const result = await runPublicationJob(
+      deps,
+      entry.job_id,
+      { commitMessage: entry.commit_message, push: entry.push },
+      (commitSha) => recordCommitted(deps, entry.job_id, commitSha)
+    );
+    deps.scheduledPublications.complete(entry.job_id, {
+      late: decision.late,
+      commit_sha: result.commit,
+    });
+    return result;
+  } catch (err) {
+    deps.scheduledPublications.fail(entry.job_id, (err as Error).message);
+    throw err;
+  }
+}
+
+/** Timer path: re-read the entry, claim it, then fire (cancel-safe). */
+async function fireScheduledPublication(
+  deps: PublicationDeps,
+  jobId: string
+): Promise<PublicationJobResult | undefined> {
+  const entry = deps.scheduledPublications.get(jobId);
+  if (!entry || entry.status !== 'pending') return undefined;
+  const claimed = deps.scheduledPublications.claim(jobId, new Date(deps.jobRunner.now()));
+  if (!claimed) return undefined;
+  return fireClaimedPublication(deps, claimed);
+}
+
+/** Boot path: future pending entry → arm an in-memory timer under the SAME job id. */
+function rearmScheduledPublication(deps: PublicationDeps, entry: ScheduledPublicationEntry): void {
+  deps.jobRunner.scheduleAt(
+    'publication',
+    () => fireScheduledPublication(deps, entry.job_id),
+    new Date(entry.publish_at),
+    entry.job_id
+  );
+}
+
+/**
+ * Boot path: a `firing` entry means the process died mid-fire. Resolve it via
+ * the publication idempotency evidence — the recorded commit SHA present in
+ * the git log (plan 212 design record) or the persistent idempotency marker
+ * written when the commit landed (plan 248). Without evidence the outcome is
+ * undecidable: fail for the operator instead of re-firing (never
+ * double-publish).
+ */
+async function resolveCrashedPublication(
+  deps: PublicationDeps,
+  entry: ScheduledPublicationEntry
+): Promise<void> {
+  const committed =
+    (entry.commit_sha && (await commitExistsInLog(deps.git, entry.commit_sha))) ||
+    deps.idempotencyStore.has(entry.job_id);
+  if (committed) {
+    deps.scheduledPublications.complete(entry.job_id, {
+      late: classifyOverdue(entry.publish_at, deps.jobRunner.now()).late,
+      commit_sha: entry.commit_sha,
+    });
+    return;
+  }
+  deps.scheduledPublications.fail(
+    entry.job_id,
+    'crash_mid_publication: el commit quedó indeterminado tras el reinicio; verifica el log de git antes de republicar'
+  );
+}
+
+async function commitExistsInLog(git: GitAdapter, sha: string): Promise<boolean> {
+  const result = await git.log(200);
+  if (!result.success || !result.output) return false;
+  return result.output.split('\n').some((line) => {
+    const short = line.split(' ')[0] ?? '';
+    return short.length > 0 && (short === sha || short.startsWith(sha) || sha.startsWith(short));
+  });
+}
+
+/**
+ * Plan 248 boot recovery (called from publicationRoutes registration, real
+ * boot path — ADMIN_SKIP_RECOVERY_CHECK does not apply here): due pending
+ * entries are claimed and fired, future ones re-armed, crash leftovers
+ * resolved. Only runs when writes are enabled.
+ */
+async function recoverScheduledPublications(deps: PublicationDeps): Promise<void> {
+  const now = new Date(deps.jobRunner.now());
+  for (const entry of deps.scheduledPublications.list()) {
+    if (entry.status === 'pending') {
+      if (Date.parse(entry.publish_at) > now.getTime()) {
+        rearmScheduledPublication(deps, entry);
+      }
+      // Due pending entries are claimed below (single durable write) and fired.
+    } else if (entry.status === 'firing') {
+      await resolveCrashedPublication(deps, entry);
+    }
+  }
+
+  for (const claimed of deps.scheduledPublications.claimDue(new Date(deps.jobRunner.now()))) {
+    try {
+      await fireClaimedPublication(deps, claimed);
+    } catch {
+      // Already recorded in the outbox as failed; a boot fire has no
+      // in-memory job to surface the error to (GET /jobs `missed` shows it).
+    }
+  }
+}
+
+function recoverySummary(entry: ScheduledPublicationEntry): PublicationRecoverySummary {
+  return {
+    job_id: entry.job_id,
+    commit_message: entry.commit_message,
+    publish_at: entry.publish_at,
+    fired_at: entry.fired_at,
+    error: entry.error,
+  };
+}
+
 export async function publicationRoutes(
   app: FastifyInstance,
   repos: Repositories,
   jobRunner: JobRunner,
   git: GitAdapter,
   productService: ProductService,
-  repoRoot: string
+  repoRoot: string,
+  options: PublicationRouteOptions
 ): Promise<void> {
   const validation = new ValidationAdapter();
+  const deps: PublicationDeps = {
+    jobRunner,
+    git,
+    repos,
+    repoRoot,
+    scheduledPublications: options.scheduledPublications,
+    idempotencyStore: options.idempotencyStore,
+  };
 
   app.get('/git/status', async () => {
     const changes = await git.getChanges();
@@ -141,7 +446,6 @@ export async function publicationRoutes(
       publishAt?: string;
     };
 
-    const manifest = createDefaultManifest();
     const productCount = repos.products.loadCatalog().products.length;
     const commitMessage =
       body.commitMessage ??
@@ -163,110 +467,35 @@ export async function publicationRoutes(
       }
     }
 
-    const jobFn = async (): Promise<PublicationJobResult> => {
-      const jobId = job.id;
-      const recovery = new RecoveryJournal(repoRoot);
-      const validation = new ValidationAdapter();
+    let job: Job<PublicationJobResult | undefined>;
 
-      const checkCancel = (): void => {
-        if (job.cancelRequested) throw new Error('Publication cancelled by operator');
-      };
+    // Immediate publications stay in-memory only: there is nothing to recover
+    // after a crash the operator did not just trigger. The runner only invokes
+    // this after `job` is assigned below.
+    const runImmediatePublication = (): Promise<PublicationJobResult> =>
+      runPublicationJob(deps, job.id, { commitMessage, push });
 
-      try {
-        jobRunner.updateProgress(jobId, 10);
-        checkCancel();
-
-        const gitChanges = await git.getChanges();
-        checkCancel();
-        const preflight = runPreflight(manifest, gitChanges);
-        if (!preflight.ok) {
-          throw new Error(`Preflight failed: ${preflight.errors.join('; ')}`);
-        }
-
-        const validations = await validation.runAllValidations(repoRoot);
-        checkCancel();
-        const failedValidations = validations.filter((v) => v.status === 'fail');
-        if (failedValidations.length > 0) {
-          throw new Error(
-            `${failedValidations.length} validations failed: ${failedValidations.map((v) => v.step).join(', ')}`
-          );
-        }
-
-        jobRunner.updateProgress(jobId, 30);
-        checkCancel();
-
-        recovery.save({
-          current_job_id: jobId,
-          current_step: 'stage',
-          commit_made: false,
-          staged_paths: manifest.ownedPaths,
-          timestamp: new Date().toISOString(),
-        });
-
-        const stageResult = await git.stage(manifest.ownedPaths);
-        checkCancel();
-        if (!stageResult.success) {
-          throw new Error(`Stage failed: ${stageResult.error ?? 'unknown error'}`);
-        }
-
-        jobRunner.updateProgress(jobId, 50);
-        checkCancel();
-
-        const commitResult = await git.commitWithPaths(manifest.ownedPaths, commitMessage);
-        checkCancel();
-        if (!commitResult.success) {
-          throw new Error(`Commit failed: ${commitResult.error ?? 'unknown error'}`);
-        }
-
-        const logResult = await git.log(1);
-        checkCancel();
-        const commitSha =
-          logResult.success && logResult.output ? logResult.output.split(' ')[0] : 'unknown';
-
-        recovery.save({
-          current_job_id: jobId,
-          current_step: push ? 'push' : 'done',
-          commit_made: true,
-          commit_sha: commitSha,
-          staged_paths: manifest.ownedPaths,
-          timestamp: new Date().toISOString(),
-        });
-
-        jobRunner.updateProgress(jobId, 70);
-        checkCancel();
-
-        if (push) {
-          const pushResult = await git.push();
-          checkCancel();
-          if (!pushResult.success) {
-            throw new Error(
-              `Push failed (commit: ${commitSha}): ${pushResult.error ?? 'unknown error'}`
-            );
-          }
-        }
-
-        jobRunner.updateProgress(jobId, 100);
-        recovery.clear();
-
-        return { commit: commitSha, pushed: push };
-      } catch (err) {
-        // Plan 130 CORR-03: a handled failure or cancellation must clear the
-        // recovery journal before propagating — only a real crash (process
-        // death, which never reaches this catch) may keep it for manual
-        // recovery. clear() ignores errors, so this never masks the cause.
-        recovery.clear();
-        throw err;
-      }
-    };
-
-    let job: Job<PublicationJobResult>;
     if (publishAt) {
-      job = jobRunner.scheduleAt<PublicationJobResult>('publication', jobFn, publishAt);
+      // Plan 248: durable intent FIRST (a crash before the in-memory timer is
+      // armed must not lose the schedule), then arm the job under the outbox id.
+      const jobId = newScheduledPublicationJobId();
+      deps.scheduledPublications.upsertPending({
+        job_id: jobId,
+        commit_message: commitMessage,
+        push,
+        publish_at: publishAt,
+      });
+      job = jobRunner.scheduleAt<PublicationJobResult | undefined>(
+        'publication',
+        () => fireScheduledPublication(deps, jobId),
+        publishAt,
+        jobId
+      );
     } else {
-      job = jobRunner.schedule<PublicationJobResult>('publication', jobFn);
+      job = jobRunner.schedule<PublicationJobResult>('publication', runImmediatePublication);
     }
 
-    return { job_id: job.id, status: publishAt ? 'scheduled' : 'scheduled' };
+    return { job_id: job.id, status: 'scheduled' };
   });
 
   app.get('/publications/recovery', async () => {
@@ -280,6 +509,10 @@ export async function publicationRoutes(
 
   app.get('/jobs', async () => {
     const jobs = jobRunner.listJobs();
+    // Plan 248: the durable outbox backs the pending list — `recovered`
+    // (fired late after a restart) and `missed` (never fired: stale or crash)
+    // come from the store, not inferred client-side.
+    const entries = options.scheduledPublications.list();
     return {
       jobs: jobs
         .filter((j) => j.status === 'pending' || j.status === 'running')
@@ -292,6 +525,12 @@ export async function publicationRoutes(
           completed_at: j.completed_at,
           scheduled_at: j.scheduled_at,
         })),
+      recovered: entries
+        .filter((entry) => entry.status === 'completed' && entry.late)
+        .map(recoverySummary),
+      missed: entries
+        .filter((entry) => entry.status === 'failed')
+        .map(recoverySummary),
     };
   });
 
@@ -338,6 +577,9 @@ export async function publicationRoutes(
     }
 
     const job = jobRunner.getJob(id);
+    // Plan 248: drop the durable intent too — a cancelled schedule must not
+    // resurrect from the outbox on the next boot (no-op for non-outbox jobs).
+    options.scheduledPublications.remove(id);
     return {
       id: job?.id ?? id,
       type: job?.type ?? '',
@@ -349,4 +591,17 @@ export async function publicationRoutes(
       error: job?.error,
     };
   });
+
+  // Plan 248 boot recovery — the real boot path tests exercise through
+  // createApp. It runs here (not start.ts) so the app under test and the
+  // production entry share it; ADMIN_SKIP_RECOVERY_CHECK does not apply.
+  // Read-only boots never fire publications: the durable entries wait for an
+  // operator-mode boot.
+  if (options.enableWrites) {
+    try {
+      await recoverScheduledPublications(deps);
+    } catch (err) {
+      app.log.error({ err }, 'scheduled publications recovery failed');
+    }
+  }
 }
