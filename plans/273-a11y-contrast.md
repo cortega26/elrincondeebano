@@ -30,9 +30,9 @@ contraste (WCAG AA) y hace la herramienta page-aware.
 
 ## Current state
 
-- `tools/lighthouse-audit.mjs`: `main()` fija `const targetUrl =
-\`${origin}/index.html\``y`port = 4173`; presets `desktop`y`mobile`;
-reportes en `reports/lighthouse/`. Sin argumentos.
+- `tools/lighthouse-audit.mjs`: `main()` fija la URL objetivo a
+  `${origin}/index.html` y `port = 4173`; presets `desktop` y `mobile`;
+  reportes en `reports/lighthouse/`. Sin argumentos.
 - Estilos: `astro-poc/src/styles/global.css` (3338 líneas) +
   `storefront-refinement.css` (418) — hojas únicas post-239.
 - LH home (sandbox): 68-69/97/100/100; `/impresiones/` mobile 85/100/100/100;
