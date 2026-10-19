@@ -7,9 +7,16 @@
 > estado de este plan en `plans/README.md` — salvo que un reviewer te haya
 > despachado y te haya dicho que mantiene el índice.
 >
-> **Drift check (run first)**: `git diff --stat cdf4e124..HEAD -- astro-poc/src/styles/ tools/lighthouse-audit.mjs package.json`
+> **Drift check (run first)**: `git diff --stat cdf4e124..HEAD -- astro-poc/src/styles/ astro-poc/src/components/CategoryCatalogPage.astro astro-poc/src/pages/c/ tools/lighthouse-audit.mjs package.json`
 
 ## Status
+
+- **Revisión (2026-10-19, R1)**: el STOP de la ronda 0 fue
+  correcto — el criterio a11y 100 en `/c/bebidas/` era inalcanzable en
+  scope CSS-only: el único fallo restante es **`heading-order`** (la
+  página salta de `h1` a `h3` de tarjeta, `ProductCard.astro:69`). Se
+  amplía el scope con la semántica de encabezados (un `h2` de sección
+  `sr-only` en `CategoryCatalogPage.astro`).
 
 - **Priority**: P2 (accesibilidad user-facing)
 - **Effort**: S–M
@@ -56,6 +63,9 @@ contraste (WCAG AA) y hace la herramienta page-aware.
 
 - `tools/lighthouse-audit.mjs` (`--path`, report label).
 - `astro-poc/src/styles/**` (solo pares de color que fallen contraste).
+- `astro-poc/src/components/CategoryCatalogPage.astro` (R1: heading-order —
+  añadir el `h2` de sección que falta, con `.sr-only`; sin tocar tarjetas
+  ni home).
 - `plans/README.md` NO (lo mantiene el reviewer).
 
 **Out of scope**:
@@ -89,6 +99,12 @@ actual). El label del reporte debe distinguir la página (p.ej. `home`,
 directorios → `index.html`).
 
 ### Step 2: Contraste AA
+
+> **R1**: tras los pares de color, corrige el `heading-order` de las
+> páginas de categoría añadiendo el `h2` de sección que falta (texto
+> tipo "Productos" o "Productos de {categoría}", `.sr-only`, justo
+> antes del grid) en `CategoryCatalogPage.astro`. NO cambies el nivel
+> de las tarjetas (afecta home) ni el `h1` de la página.
 
 Para cada par flaggeado: ajusta el color **mínimo** para alcanzar
 **4.5:1** (texto normal) / **3:1** (texto grande ≥24px o ≥19px bold),
