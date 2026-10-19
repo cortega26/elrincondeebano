@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { logger } from '../utils/logger.mjs';
 
 const BINARY_EXTENSIONS = new Set([
   '.png',
@@ -116,13 +117,13 @@ function main() {
   }
 
   if (!findings.length) {
-    console.log('Secret scan passed: no high-confidence credentials found.');
+    logger.info('Secret scan passed: no high-confidence credentials found.');
     return;
   }
 
-  console.error('Secret scan failed: high-confidence credential patterns found.');
+  logger.error('Secret scan failed: high-confidence credential patterns found.');
   for (const finding of findings) {
-    console.error(`- ${finding.filePath}:${finding.line} [${finding.pattern}]`);
+    logger.error(`- ${finding.filePath}:${finding.line} [${finding.pattern}]`);
   }
   process.exitCode = 1;
 }

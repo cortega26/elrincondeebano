@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { logger } from '../utils/logger.mjs';
 
 const DEFAULT_DOC_TARGETS = [
   'README.md',
@@ -147,7 +148,7 @@ const isMain = process.argv[1] && path.resolve(process.argv[1]) === __filename;
 if (isMain) {
   const findings = findLegacyStorefrontSurfaceReferences();
   if (findings.length > 0) {
-    console.error(
+    logger.error(
       [
         'Active docs/test runner still reference legacy storefront surfaces.',
         formatFindings(findings),
@@ -157,5 +158,5 @@ if (isMain) {
     process.exit(1);
   }
 
-  console.log('Legacy storefront surface guardrails passed.');
+  logger.info('Legacy storefront surface guardrails passed.');
 }

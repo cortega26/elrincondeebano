@@ -3,6 +3,8 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
+const { logger } = require('../utils/logger.mjs');
+
 const IMAGE_EXTENSIONS = new Set([
   '.avif',
   '.webp',
@@ -258,7 +260,7 @@ function main() {
       ignoredDirectories: result.ignoredDirectories,
       allowedOrphans: result.orphanAssets,
     });
-    console.log(`Updated ${path.relative(repoRoot, allowlistPath)} with current orphan baseline.`);
+    logger.info(`Updated ${path.relative(repoRoot, allowlistPath)} with current orphan baseline.`);
     return;
   }
 
@@ -268,26 +270,26 @@ function main() {
       generatedAt: new Date().toISOString(),
       ...result,
     });
-    console.log(`Wrote orphan-asset report: ${path.relative(repoRoot, reportPath)}`);
+    logger.info(`Wrote orphan-asset report: ${path.relative(repoRoot, reportPath)}`);
   }
 
   if (result.unexpectedOrphans.length) {
-    console.error('Orphan asset guard failed. Unexpected orphan image assets detected:');
+    logger.error('Orphan asset guard failed. Unexpected orphan image assets detected:');
     for (const orphan of result.unexpectedOrphans) {
-      console.error(`- ${orphan}`);
+      logger.error(`- ${orphan}`);
     }
     process.exitCode = 1;
     return;
   }
 
   if (result.staleAllowedOrphans.length) {
-    console.warn('Orphan asset allowlist contains stale entries (can be removed):');
+    logger.warn('Orphan asset allowlist contains stale entries (can be removed):');
     for (const staleEntry of result.staleAllowedOrphans) {
-      console.warn(`- ${staleEntry}`);
+      logger.warn(`- ${staleEntry}`);
     }
   }
 
-  console.log(
+  logger.info(
     `Orphan asset guard passed (${result.orphanAssets.length} orphan assets, ${result.referencedAssetsCount} references scanned).`
   );
 }

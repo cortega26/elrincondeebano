@@ -1,5 +1,6 @@
 ﻿import { execSync } from 'node:child_process';
 import fs from 'node:fs';
+import { logger } from '../utils/logger.mjs';
 
 export function sh(cmd) {
   try {
@@ -55,13 +56,13 @@ export function readFileFromGit(ref, filePath) {
 }
 
 export function fail(message) {
-  console.error(message);
+  logger.error(message);
   process.exit(1);
 }
 
 export function ok(message) {
   if (message) {
-    console.log(message);
+    logger.info(message);
   }
   process.exit(0);
 }
