@@ -1,11 +1,6 @@
 import Fastify from 'fastify';
 import type { FastifyInstance, FastifyServerOptions } from 'fastify';
-import compress from '@fastify/compress';
-import { healthRoute } from './routes/health.ts';
-import { productRoutes } from './routes/productRoutes.ts';
-import { categoryRoutes } from './routes/categoryRoutes.ts';
-import { bootstrapRoute } from './routes/bootstrap.ts';
-import { openapiRoute } from './routes/openapi.ts';
+import { registerRoutes } from './routes/registerRoutes.ts';
 import { ProductRepository } from './repositories/productRepository.ts';
 import { CategoryRepository } from './repositories/categoryRepository.ts';
 import { StorefrontRepository } from './repositories/storefrontRepository.ts';
@@ -17,24 +12,13 @@ import { HttpError } from '../shared/errors/AppError.ts';
 import { isContainedWithin } from '../shared/identity.ts';
 import { MediaRepository } from './repositories/mediaRepository.ts';
 import { ChangeSetRepository } from './repositories/changeSetRepository.ts';
-import { mediaMutRoutes } from './routes/media.ts';
-import { changeSetRoutes } from './routes/changeSetRoutes.ts';
-import { historyRoutes } from './routes/historyRoutes.ts';
-import { importRoutes } from './routes/importRoutes.ts';
-import { storefrontMutRoutes } from './routes/storefront.ts';
-import { publicationRoutes } from './routes/publication.ts';
-import { previewRoutes } from './routes/previewRoutes.ts';
 import { JobRunner, systemClock, type JobClock } from './services/jobRunner.ts';
 import { ScheduledPublications } from './services/scheduledPublications.ts';
 import { GitAdapter } from './adapters/gitAdapter.ts';
 import { ConflictService } from '../domain/conflicts/conflictService.ts';
 import { ConflictRepository } from './repositories/conflictRepository.ts';
-import { conflictsRoutes } from './routes/conflicts.ts';
 import { SyncAdapter, syncConfigSchema, type SyncConfig } from './adapters/syncAdapter.ts';
 import { SyncService } from './services/syncService.ts';
-import { backupRoutes } from './routes/backup.ts';
-import { diagnosticsRoutes } from './routes/diagnostics.ts';
-import { commsRoutes } from './routes/commsRoutes.ts';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
@@ -127,9 +111,6 @@ export function createApp(opts?: AppOptions): FastifyInstance {
 
   const app = Fastify(fastifyOpts);
 
-  // Plan 092: gzip/deflate responses (API JSON + SPA assets).
-  app.register(compress, { threshold: 1024 });
-
   // Only ProductRepository is wired to the journal: it's the only
   // repository built on AtomicWriter. CategoryRepository and
   // StorefrontRepository have their own inline write() implementations
@@ -181,122 +162,27 @@ export function createApp(opts?: AppOptions): FastifyInstance {
   app.decorate('enableWrites', enableWrites);
   app.decorate('launchCredential', launchCredential);
 
-  app.register(healthRoute, { prefix: '/api/v1' });
-
-  app.register(openapiRoute, { prefix: '/api/v1' });
-
-  app.register(
-    async function (instance) {
-      await productRoutes(instance, repos, productService, syncService, repoRoot);
-    },
-    { prefix: '/api/v1' }
-  );
-
-  app.register(
-    async function (instance) {
-      await categoryRoutes(instance, repos, productService, categoryService, repoRoot);
-    },
-    { prefix: '/api/v1' }
-  );
-
-  app.register(
-    async function (instance) {
-      await storefrontMutRoutes(instance, repos);
-    },
-    { prefix: '/api/v1' }
-  );
-
-  app.register(
-    async function (instance) {
-      await bootstrapRoute(instance, repos);
-    },
-    { prefix: '/api/v1' }
-  );
-
-  app.register(
-    async function (instance) {
-      await mediaMutRoutes(instance, repos, media, repoRoot);
-    },
-    { prefix: '/api/v1' }
-  );
-
-  app.register(
-    async function (instance) {
-      await changeSetRoutes(instance, repos, changeSets, repoRoot, productService);
-    },
-    { prefix: '/api/v1' }
-  );
-
-  app.register(
-    async function (instance) {
-      await importRoutes(instance, repos, changeSets, repoRoot, productService);
-    },
-    { prefix: '/api/v1' }
-  );
-
-  app.register(
-    async function (instance) {
-      await historyRoutes(instance, repos, changeSets, repoRoot, productService);
-    },
-    { prefix: '/api/v1' }
-  );
-
-  app.register(
-    async function (instance) {
-      await conflictsRoutes(
-        instance,
-        conflictService,
-        conflicts,
-        syncAdapter,
-        syncConfigPath,
-        syncService
-      );
-    },
-    { prefix: '/api/v1' }
-  );
-
-  app.register(
-    async function (instance) {
-      await publicationRoutes(instance, repos, jobRunner, git, productService, repoRoot, {
-        scheduledPublications,
-        idempotencyStore,
-        enableWrites,
-      });
-    },
-    { prefix: '/api/v1' }
-  );
-
-  // Plan 211: build+preview, flag-gated until the follow-up removes the flag.
-  if (process.env.PREVIEW_BUILD_ENABLED === '1') {
-    app.register(
-      async function (instance) {
-        await previewRoutes(instance, repoRoot, jobRunner);
-      },
-      { prefix: '/api/v1' }
-    );
-  }
-
-  app.register(
-    async function (instance) {
-      await backupRoutes(instance, repoRoot, enableWrites);
-    },
-    { prefix: '/api/v1' }
-  );
-
-  app.register(
-    async function (instance) {
-      await diagnosticsRoutes(instance, repoRoot);
-    },
-    { prefix: '/api/v1' }
-  );
-
-  // Plan 217: comunicaciones privadas (data/.comms/, gitignored).
-  app.register(
-    async function (instance) {
-      await commsRoutes(instance, repoRoot);
-    },
-    { prefix: '/api/v1' }
-  );
+  // Plan 243: route registration lives in routes/registerRoutes.ts; the
+  // order there is the contract (diff it one-by-one against the previous
+  // inline sequence when editing).
+  registerRoutes(app, {
+    repoRoot,
+    enableWrites,
+    repos,
+    media,
+    changeSets,
+    productService,
+    categoryService,
+    conflictService,
+    conflicts,
+    syncAdapter,
+    syncConfigPath,
+    syncService,
+    jobRunner,
+    scheduledPublications,
+    idempotencyStore,
+    git,
+  });
 
   app.addHook('preHandler', async (request, reply) => {
     const url = request.url.split('?')[0] ?? '';
@@ -333,7 +219,10 @@ export function createApp(opts?: AppOptions): FastifyInstance {
       // (onRequest) rejects non-loopback Host; this bypass skips the
       // credential only for loopback requests (defense-in-depth retains the
       // check for any non-loopback ip/host that somehow reaches this hook).
-      if (!remoteOrigin && isLoopbackRequest(request.ip, request.headers.host as string | string[] | undefined)) {
+      if (
+        !remoteOrigin &&
+        isLoopbackRequest(request.ip, request.headers.host as string | string[] | undefined)
+      ) {
         return;
       }
       const credential = extractCredential(
@@ -387,7 +276,8 @@ export function createApp(opts?: AppOptions): FastifyInstance {
       // every real same-origin request on any non-default port (this admin
       // app defaults to :3000). The Host header was already validated
       // against the loopback allowlist above, so it's safe to reuse as-is.
-      const expectedOrigin = rawHost === remoteHost ? remoteOrigin : `${request.protocol}://${rawHost}`;
+      const expectedOrigin =
+        rawHost === remoteHost ? remoteOrigin : `${request.protocol}://${rawHost}`;
       if (origin !== expectedOrigin) {
         return reply.status(403).send({
           error: { code: 'FORBIDDEN', message: 'Invalid origin' },
