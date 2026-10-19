@@ -414,8 +414,15 @@ export function createApp(opts?: AppOptions): FastifyInstance {
     }
     const status = (err as { statusCode?: number }).statusCode ?? 500;
     if (status < 500) {
-      // Fastify internals (e.g. route not found): no internal details.
-      return reply.status(status).send({ error: { code: 'NOT_FOUND', message: 'Not found' } });
+      // Plan 261: Fastify 4xx errors (e.g. the body parser's
+      // FST_ERR_CTP_EMPTY_JSON_BODY) carry a public code/message and no
+      // internal details — preserve them so contract failures stay
+      // debuggable. 5xx details below remain masked.
+      const rawCode = (err as { code?: unknown }).code;
+      const rawMessage = (err as { message?: unknown }).message;
+      const code = typeof rawCode === 'string' && rawCode ? rawCode : 'BAD_REQUEST';
+      const message = typeof rawMessage === 'string' && rawMessage ? rawMessage : 'Bad request';
+      return reply.status(status).send({ error: { code, message } });
     }
     request.log.error(
       {
