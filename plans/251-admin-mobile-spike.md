@@ -6,7 +6,10 @@
 > behavior change for local/loopback operators. When done, update the
 > status row for this plan in `plans/README.md`.
 >
-> **Drift check (run first)**: `git diff --stat 97b21096..HEAD -- admin/content-manager/README.md admin/content-manager/src/web/index.html admin/content-manager/vite.config.ts docs/operations/COMMS.md docs/adr/0011-private-whatsapp-comms-module.md`
+> **Drift check (run first)**: `git diff --stat 6b266939..HEAD -- admin/content-manager/README.md admin/content-manager/src/web/index.html admin/content-manager/vite.config.ts docs/operations/COMMS.md docs/adr/0011-private-whatsapp-comms-module.md`
+> (Reconciled to `6b266939`: `vite.config.ts` gained the plan-241 vendor
+> chunk — keep it; COMMS.md/ADR 0011 carry the plan-232 addendum (the
+> "no phone" claims are historical + addendum). index.html unchanged.)
 > Plans 223/232 touch some of these — re-read if changed; unexplained
 > divergence is a STOP condition.
 
@@ -18,7 +21,7 @@
 - **Risk**: LOW for the spike; the rollout's cost is the exposed surface
 - **Depends on**: 223 (credential re-scope: remote mode uses sessionStorage)
 - **Category**: direction
-- **Planned at**: commit `97b21096`, 2026-10-18
+- **Planned at**: commit `97b21096`, 2026-10-18 (reconciled to `6b266939` after plans 223/232/241)
 
 ## Why this matters
 
