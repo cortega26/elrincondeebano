@@ -138,6 +138,17 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Check tracked and untracked build drift
+        id: tree_state
+        run: node tools/ci/catalog-build-tree-check.mjs
+
+      - name: Reject unexpected build drift
+        if: ${{ steps.tree_state.outputs.dirty_tree == 'true' }}
+        run: |
+          echo "::error::Build changed or created files outside the exact derived-logo allowlist. Commit the canonical assets/public outputs."
+          git status --porcelain
+          exit 1
+
       - name: Deterministic build check
         run: |
           rm -rf build-determinism-a build-determinism-b
