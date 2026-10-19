@@ -4,7 +4,7 @@
 // sharded scope e2e, which npm test never runs). The reassign API contract
 // itself is pinned in categoryMutationApi.test.ts (plan 096).
 
-import { screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
 import { describe, test, expect, vi, beforeEach } from 'vitest';
@@ -112,6 +112,24 @@ describe('CategoriesPage (component)', () => {
 
     await user.click(screen.getByRole('button', { name: 'Colapsar todo' }));
     await waitFor(() => expect(screen.queryByText(/Subcategorías \(1\)/)).not.toBeInTheDocument());
+  });
+
+  test('auto-slug folds accents when adding a category', async () => {
+    const user = userEvent.setup();
+    renderWithRouter(<CategoriesPage />);
+    await waitFor(() => expect(screen.getByText('Categorías (3)')).toBeInTheDocument());
+
+    const region = within(screen.getByRole('region', { name: 'Categorías' }));
+    await user.click(region.getByRole('button', { name: '+ Añadir' }));
+
+    // Un solo change con el valor completo (como pegar): el auto-slug solo
+    // rellena mientras slug/key están vacíos.
+    fireEvent.change(region.getByLabelText('display_name:'), {
+      target: { value: 'Lácteos Ñandú' },
+    });
+
+    expect(region.getByLabelText('slug:')).toHaveValue('lacteos-nandu');
+    expect(region.getByLabelText('key:')).toHaveValue('lacteos-nandu');
   });
 
   test('delete offers reassignment and reports the target', async () => {

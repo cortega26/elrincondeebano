@@ -1,5 +1,6 @@
 // Plan 217 / ADR 0011: traspaso a WhatsApp desde el navegador. Cada función
 // devuelve un resultado honesto: ninguna puede saber si el mensaje se envió.
+import { foldAccents } from '../../../shared/text.ts';
 
 export const OWN_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
 export const OWN_IMAGE_MAX_BYTES = 10 * 1024 * 1024;
@@ -135,9 +136,7 @@ export function openWhatsApp(url: string): boolean {
 }
 
 export function safeFileName(base: string, ext: string): string {
-  const slug = base
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
+  const slug = foldAccents(base)
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
