@@ -28,14 +28,14 @@ changes.
 
 ## Canonical commands
 
-| Goal                     | Command                                                                                          |
-| ------------------------ | ------------------------------------------------------------------------------------------------ |
-| Local baseline           | `npm run validate` (full slow build; fast loop: `npm run lint && npm run typecheck && npm test`) |
-| Full release gate        | `npm run validate:release`                                                                       |
-| Build only               | `npm run build`                                                                                  |
-| Browser suite only       | `npm run test:e2e` (`PLAYWRIGHT_SKIP_BUILD=1` reuses `dist/` when sources are unchanged)         |
-| Live share-preview probe | `npm run monitor:share-preview`                                                                  |
-| Markdown lint            | `npx markdownlint-cli2 'docs/**/*.md' '*.md'`                                                    |
+| Goal                     | Command                                                                                                                                             |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Local baseline           | `npm run validate` (full slow build; fast loop: `npm run lint && npm run typecheck && npm test`)                                                    |
+| Full release gate        | `npm run validate:release`                                                                                                                          |
+| Build only               | `npm run build`                                                                                                                                     |
+| Browser suite only       | `npm run test:e2e` (`PLAYWRIGHT_SKIP_BUILD=1` reuses `dist/` when sources are unchanged; requiere `npx playwright install chromium` la primera vez) |
+| Live share-preview probe | `npm run monitor:share-preview`                                                                                                                     |
+| Markdown lint            | `npx markdownlint-cli2 'docs/**/*.md' '*.md'`                                                                                                       |
 
 ## Ground rules
 

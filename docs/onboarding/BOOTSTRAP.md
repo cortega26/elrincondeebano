@@ -14,7 +14,10 @@ Keep `.nvmrc`, `.node-version`, `.tool-versions`, CI workflows, and
 
 1. Select Node 24 (`nvm use 24`, `mise use node@24`, or equivalent).
 2. Run `npm run bootstrap`.
-3. Run `npm run validate`.
+3. Before the first `npm run test:e2e` (or `validate:release`), install the
+   Playwright browser once: `npx playwright install chromium` — on Linux
+   environments without the browser system dependencies, add `--with-deps`.
+4. Run `npm run validate`.
 
 ## Why use the bootstrap command?
 
