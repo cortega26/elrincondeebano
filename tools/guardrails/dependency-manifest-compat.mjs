@@ -122,12 +122,12 @@ for (const manifestPath of manifestPaths) {
 
 if (errors.length > 0) {
   logger.error('dependency-manifest-compat-failed', { errors });
-  console.error('Dependency manifest compatibility guard failed.\n');
+  logger.error('Dependency manifest compatibility guard failed.\n');
   for (const error of errors) {
-    console.error(`- ${error}`);
+    logger.error(`- ${error}`);
   }
   process.exit(1);
 }
 
 logger.info('dependency-manifest-compat-passed', {});
-console.log('Dependency manifest compatibility guard passed.');
+logger.info('Dependency manifest compatibility guard passed.');

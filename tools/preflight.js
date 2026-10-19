@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { getDeterministicTimestamp } = require('./utils/deterministic-time');
+const { logger } = require('./utils/logger.mjs');
 
 const rootDir = path.resolve(__dirname, '..');
 const pkg = require(path.join(rootDir, 'package.json'));
@@ -166,14 +167,14 @@ function logCfimgMode() {
   const enable = process.env.CFIMG_ENABLE;
   const disable = process.env.CFIMG_DISABLE;
   if (disable && ['1', 'true', 'yes'].includes(disable.toLowerCase())) {
-    console.log('CFIMG: rewrite disabled via CFIMG_DISABLE');
+    logger.info('CFIMG: rewrite disabled via CFIMG_DISABLE');
     return;
   }
   if (enable && ['1', 'true', 'yes'].includes(enable.toLowerCase())) {
-    console.log('CFIMG: rewrite enabled via CFIMG_ENABLE');
+    logger.info('CFIMG: rewrite enabled via CFIMG_ENABLE');
     return;
   }
-  console.log(
+  logger.info(
     'CFIMG: rewrite disabled by default; set CFIMG_ENABLE=1 when building behind Cloudflare'
   );
 }

@@ -6,6 +6,7 @@
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { logger } from './utils/logger.mjs';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -63,7 +64,7 @@ export async function runTasksBounded(taskFns, limit) {
 async function main() {
   const commands = process.argv.slice(2);
   if (commands.length === 0) {
-    console.error('Usage: run-parallel.mjs "<command>" ["<command>" ...]');
+    logger.error('Usage: run-parallel.mjs "<command>" ["<command>" ...]');
     process.exit(2);
   }
   const startedAt = Date.now();
@@ -71,11 +72,11 @@ async function main() {
   const failed = results.filter((r) => r.code !== 0);
   const elapsed = ((Date.now() - startedAt) / 1000).toFixed(1);
   if (failed.length > 0) {
-    for (const f of failed) console.error(`[parallel] FAILED (${f.code}): ${f.command}`);
-    console.error(`[parallel] ${failed.length}/${results.length} commands failed in ${elapsed}s.`);
+    for (const f of failed) logger.error(`[parallel] FAILED (${f.code}): ${f.command}`);
+    logger.error(`[parallel] ${failed.length}/${results.length} commands failed in ${elapsed}s.`);
     process.exit(1);
   }
-  console.log(`[parallel] ${results.length}/${results.length} commands ok in ${elapsed}s.`);
+  logger.info(`[parallel] ${results.length}/${results.length} commands ok in ${elapsed}s.`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

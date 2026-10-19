@@ -3,8 +3,10 @@
 // redaction mirroring astro-poc/src/lib/logger.ts, one JSON line per call
 // (machine-readable; grep for `"level":"error"` in CI logs).
 //
-// Maintenance rule: NEW/edited tools MUST use this logger (no new bare
-// console.* in tools/). Mass migration of existing sites is a follow-up.
+// Maintenance rule: the migrated surfaces — tools/guardrails/**, preflight.js,
+// run-parallel.mjs, preflight-hash.mjs (plan 244) — MUST use this logger (no
+// bare console.*; enforced by the scoped no-console override in
+// eslint.config.cjs). The remaining ~40 tool files are deferred backlog.
 
 const LEVELS = { debug: 10, info: 20, warn: 30, error: 40 };
 

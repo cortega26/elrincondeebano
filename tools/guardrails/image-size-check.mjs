@@ -1,6 +1,7 @@
 import { readdirSync, statSync, existsSync } from 'node:fs';
 import { join, relative, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { logger } from '../utils/logger.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..');
@@ -62,21 +63,21 @@ function main() {
   }
 
   if (allWarnings.length) {
-    console.warn('Large image assets detected (warn):');
-    for (const w of allWarnings) console.warn(`- ${w}`);
+    logger.warn('Large image assets detected (warn):');
+    for (const w of allWarnings) logger.warn(`- ${w}`);
   }
 
   if (allErrors.length) {
-    console.error('Oversized image assets detected (error):');
-    for (const e of allErrors) console.error(`- ${e}`);
+    logger.error('Oversized image assets detected (error):');
+    for (const e of allErrors) logger.error(`- ${e}`);
   }
 
   if (allErrors.length > 0) {
     process.exitCode = 1;
   } else if (allWarnings.length > 0) {
-    console.warn(`\n${allWarnings.length} large image(s) — consider compressing.`);
+    logger.warn(`\n${allWarnings.length} large image(s) — consider compressing.`);
   } else {
-    console.log('Image size check passed — no assets exceed thresholds.');
+    logger.info('Image size check passed — no assets exceed thresholds.');
   }
 }
 
