@@ -145,7 +145,7 @@ full admin workflows (certify, parity, rollback drills).
 
 - **Storefront unit/contract:** `test/<name>.spec.js` using **Vitest** (`describe`, `it`, `expect`, `vi`) — patterns in `vitest.config.mts`.
 - **Admin unit/contract:** `admin/content-manager/test/` using Vitest (see that workspace's README).
-- **E2E:** storefront specs in `test/e2e-astro/`, admin specs in `admin/content-manager/test/e2e/` (Playwright; every suite ships its runnable config + script).
+- **E2E:** storefront specs in `test/e2e-astro/`, admin specs in `admin/content-manager/test/e2e/` (Playwright; every suite ships its runnable config + script). `npm run bootstrap` does not download browsers: run `npx playwright install chromium` once before the first E2E run (see [docs/onboarding/BOOTSTRAP.md](docs/onboarding/BOOTSTRAP.md)).
 
 Run `npm test` after adding a test to confirm it integrates with the full suite.
 

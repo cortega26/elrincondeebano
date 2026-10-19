@@ -23,6 +23,7 @@ jobs:
   reject-unconfirmed:
     if: ${{ inputs.confirm_rollback != 'ROLLBACK' }}
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
       - name: Require explicit confirmation
         run: |
@@ -39,6 +40,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
     env:
       ROLLBACK_REF: ${{ inputs.rollback_ref }}
     steps:

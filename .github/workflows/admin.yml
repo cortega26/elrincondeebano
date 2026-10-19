@@ -50,10 +50,7 @@ jobs:
       - name: Typecheck
         run: npx tsc -p tsconfig.json --noEmit
 
-      - name: Unit and integration tests
-        run: npx vitest run
-
-      - name: Test coverage
+      - name: Unit and integration tests (with coverage threshold)
         run: npx vitest run --coverage
 
       - name: Dependency audit
