@@ -8,8 +8,9 @@ import { sonarRules, unusedVarsRules } from '../../config/eslint-base.mjs';
 // ignores admin/content-manager/**; this is the workspace's own zero-warning
 // config, mirroring the astro-poc pattern (tseslint recommended + sonarjs
 // as warnings so complexity never blocks mechanically).
-// Globs are repo-root-relative so the config resolves identically from any
-// CWD (eslint resolves flat-config globs against the current directory).
+// Globs are provided in both repo-root-relative and workspace-relative forms
+// (mirroring the `files:` aliases below) so the config resolves identically
+// from any CWD: repo root for lint-staged, workspace root for `npm run lint`.
 // Plan 204: the generated-tree list below is mirrored in .prettierignore —
 // keep the pair in sync so neither linter rewrites build outputs.
 // Plan 209: the `files:` globs below are mirrored by the lint-staged admin
@@ -21,6 +22,13 @@ import { sonarRules, unusedVarsRules } from '../../config/eslint-base.mjs';
 export default [
   {
     ignores: [
+      // Workspace-relative (npm run lint inside admin/content-manager/).
+      'dist/**',
+      'reports/**',
+      'coverage/**',
+      'playwright-report/**',
+      'test-results/**',
+      // Repo-root-relative aliases (lint-staged and root CWDs).
       'admin/content-manager/dist/**',
       'admin/content-manager/reports/**',
       'admin/content-manager/coverage/**',
