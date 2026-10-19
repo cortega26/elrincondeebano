@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ContentManagerClient } from '../../api/client.ts';
+import { DIAGNOSTIC_STATUS_LABEL } from '../components/statusLabels.ts';
 
 const client = new ContentManagerClient();
 
@@ -19,12 +20,6 @@ interface DoctorReport {
   summary: { ok: number; warn: number; error: number };
   recoveryNeeded: boolean;
 }
-
-const STATUS_LABEL: Record<DiagnosticCheck['status'], string> = {
-  ok: '✓',
-  warn: '⚠',
-  error: '✗',
-};
 
 export function DiagnosticsPage(): React.ReactElement {
   const [report, setReport] = useState<DoctorReport | null>(null);
@@ -124,7 +119,7 @@ export function DiagnosticsPage(): React.ReactElement {
                     }}
                     aria-hidden="true"
                   >
-                    {STATUS_LABEL[check.status]}{' '}
+                    {DIAGNOSTIC_STATUS_LABEL[check.status]}{' '}
                   </span>
                   <strong>{check.name}:</strong> {check.message}
                 </p>

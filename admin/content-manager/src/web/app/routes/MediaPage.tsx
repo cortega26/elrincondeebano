@@ -4,6 +4,7 @@ import {
   type MediaIntentType,
   type MediaUploadRequest,
 } from '../../api/client.ts';
+import { MEDIA_STATUS_LABEL } from '../components/statusLabels.ts';
 import { useFeedback } from '../hooks/useFeedback.ts';
 import { useResource } from '../hooks/useResource.ts';
 
@@ -38,29 +39,6 @@ interface ProductOption {
   id: string;
   name: string;
 }
-
-const MEDIA_STATUS_LABEL: Record<string, string> = {
-  active: 'Activo',
-  orphan: 'Huérfano',
-  generated: 'Generado',
-  staged: 'Staging',
-  missing: 'Faltante',
-  pending: 'Pendiente',
-  running: 'Ejecutando',
-  succeeded: 'Listo',
-  failed: 'Falló',
-  cancelled: 'Cancelado',
-  applied: 'Aplicado',
-};
-
-const STATUS_LABEL: Record<string, string> = {
-  pending: 'Pendiente',
-  running: 'Ejecutando',
-  succeeded: 'Listo',
-  failed: 'Falló',
-  cancelled: 'Cancelado',
-  applied: 'Aplicado',
-};
 
 export function MediaPage(): React.ReactElement {
   // Plan 242: the inventory read (data/loading/error/reload) and the
@@ -458,7 +436,7 @@ export function MediaPage(): React.ReactElement {
                   </td>
                   <td style={{ padding: '0.25rem 0.5rem' }}>{intent.type}</td>
                   <td style={{ padding: '0.25rem 0.5rem' }}>
-                    {STATUS_LABEL[intent.status] ?? intent.status}
+                    {MEDIA_STATUS_LABEL[intent.status] ?? intent.status}
                   </td>
                   <td style={{ padding: '0.25rem 0.5rem' }}>
                     <progress max={100} value={intent.progress} style={{ width: '80px' }} />
