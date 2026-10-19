@@ -1,5 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { ApiRequestError, ContentManagerClient } from '../../api/client.ts';
+import { useFeedback } from '../hooks/useFeedback.ts';
+import { useResource } from '../hooks/useResource.ts';
 
 const client = new ContentManagerClient();
 
@@ -52,52 +54,49 @@ const ACTION_LABEL: Record<string, string> = {
 };
 
 export function HistoryPage(): React.ReactElement {
-  const [entries, setEntries] = useState<HistoryEntry[]>([]);
-  const [summary, setSummary] = useState<Record<string, unknown>>({});
-  const [changeSets, setChangeSets] = useState<ChangeSet[]>([]);
-  const [backups, setBackups] = useState<BackupEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<string | null>(null);
-  const [restoreTarget, setRestoreTarget] = useState<BackupEntry | null>(null);
-
-  const load = useCallback(async (): Promise<void> => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [history, csData, backupData] = await Promise.all([
-        client.getHistory(),
-        client.getChangeSets(),
-        client.getBackups(),
-      ]);
-      setEntries(history.entries as unknown as HistoryEntry[]);
-      setSummary(history as unknown as Record<string, unknown>);
-      setChangeSets(csData.items as unknown as ChangeSet[]);
-      setBackups(backupData.backups.entries as unknown as BackupEntry[]);
-    } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
+  // Plan 242: one mount read through useResource (same three requests, same
+  // order) + useFeedback for the action notices; the busy flag stays local
+  // because it spans action + refresh, not just the read.
+  const page = useResource<{
+    entries: HistoryEntry[];
+    summary: Record<string, unknown>;
+    changeSets: ChangeSet[];
+    backups: BackupEntry[];
+  }>(async () => {
+    const [history, csData, backupData] = await Promise.all([
+      client.getHistory(),
+      client.getChangeSets(),
+      client.getBackups(),
+    ]);
+    return {
+      entries: history.entries as unknown as HistoryEntry[],
+      summary: history as unknown as Record<string, unknown>,
+      changeSets: csData.items as unknown as ChangeSet[],
+      backups: backupData.backups.entries as unknown as BackupEntry[],
+    };
   }, []);
+  const { feedback, notify, clear } = useFeedback();
+  const [busy, setBusy] = useState(false);
+  const [restoreTarget, setRestoreTarget] = useState<BackupEntry | null>(null);
+  const [prunePreview, setPrunePreview] = useState<Array<{ id: string; reason: string }>>([]);
 
-  useEffect(() => {
-    void load();
-  }, [load]);
+  const entries = page.data?.entries ?? [];
+  const summary = page.data?.summary ?? {};
+  const changeSets = page.data?.changeSets ?? [];
+  const backups = page.data?.backups ?? [];
+  const loading = page.loading;
 
   // Plan 229: the HTTP goes through the typed client; this helper only owns
   // the busy/error/refresh UI feedback (same lifecycle as the old post()).
   const post = async (action: () => Promise<unknown>): Promise<boolean> => {
     setBusy(true);
-    setError(null);
-    setFeedback(null);
+    clear();
     try {
       await action();
-      await load();
+      await page.reload();
       return true;
     } catch (err) {
-      setError((err as Error).message);
+      notify('error', (err as Error).message);
       return false;
     } finally {
       setBusy(false);
@@ -107,28 +106,28 @@ export function HistoryPage(): React.ReactElement {
   const handleApply = (id: string): void => {
     if (!window.confirm('Aplicar este change set al catálogo?')) return;
     void post(() => client.applyChangeSet(id)).then((ok) => {
-      if (ok) setFeedback('Change set aplicado ✓');
+      if (ok) notify('success', 'Change set aplicado ✓');
     });
   };
 
   const handleDiscard = (id: string): void => {
     if (!window.confirm('Descartar este change set? Esta acción no se puede deshacer.')) return;
     void post(() => client.discardChangeSet(id)).then((ok) => {
-      if (ok) setFeedback('Change set descartado');
+      if (ok) notify('success', 'Change set descartado');
     });
   };
 
   const handleValidate = async (id: string): Promise<void> => {
     setBusy(true);
-    setError(null);
+    clear();
     try {
       for (const status of ['validating', 'validated'] as const) {
         await client.updateChangeSet(id, { status });
       }
-      setFeedback('Change set validado');
-      await load();
+      notify('success', 'Change set validado');
+      await page.reload();
     } catch (err) {
-      setError((err as Error).message);
+      notify('error', (err as Error).message);
     } finally {
       setBusy(false);
     }
@@ -139,10 +138,10 @@ export function HistoryPage(): React.ReactElement {
     setBusy(true);
     try {
       await client.revertHistory(productId, rev);
-      setFeedback('Producto revertido ✓');
-      await load();
+      notify('success', 'Producto revertido ✓');
+      await page.reload();
     } catch (err) {
-      setError((err as Error).message);
+      notify('error', (err as Error).message);
     } finally {
       setBusy(false);
     }
@@ -151,28 +150,26 @@ export function HistoryPage(): React.ReactElement {
   const handleUndo = (id: string): void => {
     if (!window.confirm('Crear un change set inverso para deshacer este cambio?')) return;
     void post(() => client.undoChangeSet(id)).then((ok) => {
-      if (ok) setFeedback('Change set inverso creado (validated) — revisa y aplica');
+      if (ok) notify('success', 'Change set inverso creado (validated) — revisa y aplica');
     });
   };
 
   const handleRedo = (id: string): void => {
     if (!window.confirm('Reaplicar la operación original (redo)?')) return;
     void post(() => client.redoChangeSet(id)).then((ok) => {
-      if (ok) setFeedback('Change set de redo creado — revisa y aplica');
+      if (ok) notify('success', 'Change set de redo creado — revisa y aplica');
     });
   };
 
-  const [prunePreview, setPrunePreview] = useState<Array<{ id: string; reason: string }>>([]);
-
   const loadPrunePreview = async (): Promise<void> => {
-    setError(null);
+    clear();
     try {
       const data = await client.prunePreview();
       setPrunePreview(data.prunable);
     } catch (err) {
       // The old wire stayed silent on non-ok responses (only transport
       // errors reached the error banner) — keep that exact display.
-      if (!(err instanceof ApiRequestError)) setError((err as Error).message);
+      if (!(err instanceof ApiRequestError)) notify('error', (err as Error).message);
     }
   };
 
@@ -188,7 +185,7 @@ export function HistoryPage(): React.ReactElement {
     }
     const ok = await post(() => client.pruneBackups(prunePreview.map((p) => p.id)));
     setPrunePreview([]);
-    if (ok) setFeedback('Backups limpiados según política ✓');
+    if (ok) notify('success', 'Backups limpiados según política ✓');
   };
 
   const handleRestore = async (): Promise<void> => {
@@ -203,7 +200,7 @@ export function HistoryPage(): React.ReactElement {
     }
     const ok = await post(() => client.restoreBackup(restoreTarget.id));
     setRestoreTarget(null);
-    if (ok) setFeedback('Backup restaurado ✓');
+    if (ok) notify('success', 'Backup restaurado ✓');
   };
 
   const pending = changeSets.filter((cs) => cs.status === 'draft' || cs.status === 'validated');
@@ -211,18 +208,25 @@ export function HistoryPage(): React.ReactElement {
     changeSets.filter((cs) => cs.status === 'published').map((cs) => cs.id)
   );
 
+  // Plan 242: one alert + one status banner, same roles/styles as the
+  // previous setError/setFeedback pair; action notices win over the load
+  // error, matching the old last-write-wins display.
+  const actionError = feedback?.kind === 'error' ? feedback.message : null;
+  const alertMessage = actionError ?? page.error;
+  const statusMessage = feedback && feedback.kind !== 'error' ? feedback.message : null;
+
   return (
     <main role="main" aria-label="Cambios y recuperación">
       <h1>Cambios y recuperación</h1>
 
-      {error && (
+      {alertMessage && (
         <p role="alert" style={{ color: '#c62828' }}>
-          {error}
+          {alertMessage}
         </p>
       )}
-      {feedback && (
+      {statusMessage && (
         <p role="status" style={{ color: '#2e7d32' }}>
-          {feedback}
+          {statusMessage}
         </p>
       )}
       {loading && <p>Cargando…</p>}

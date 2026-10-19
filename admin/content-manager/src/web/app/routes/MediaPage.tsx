@@ -1,9 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import {
   ContentManagerClient,
   type MediaIntentType,
   type MediaUploadRequest,
 } from '../../api/client.ts';
+import { MEDIA_STATUS_LABEL } from '../components/statusLabels.ts';
+import { useFeedback } from '../hooks/useFeedback.ts';
+import { useResource } from '../hooks/useResource.ts';
 
 const client = new ContentManagerClient();
 
@@ -37,38 +40,38 @@ interface ProductOption {
   name: string;
 }
 
-const MEDIA_STATUS_LABEL: Record<string, string> = {
-  active: 'Activo',
-  orphan: 'Huérfano',
-  generated: 'Generado',
-  staged: 'Staging',
-  missing: 'Faltante',
-  pending: 'Pendiente',
-  running: 'Ejecutando',
-  succeeded: 'Listo',
-  failed: 'Falló',
-  cancelled: 'Cancelado',
-  applied: 'Aplicado',
-};
-
-const STATUS_LABEL: Record<string, string> = {
-  pending: 'Pendiente',
-  running: 'Ejecutando',
-  succeeded: 'Listo',
-  failed: 'Falló',
-  cancelled: 'Cancelado',
-  applied: 'Aplicado',
-};
-
 export function MediaPage(): React.ReactElement {
-  const [items, setItems] = useState<MediaEntry[]>([]);
-  const [intents, setIntents] = useState<MediaIntent[]>([]);
-  const [summary, setSummary] = useState<Record<string, number>>({});
-  const [categories, setCategories] = useState<CategoryEntry[]>([]);
-  const [products, setProducts] = useState<ProductOption[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Plan 242: the inventory read (data/loading/error/reload) and the
+  // best-effort option lists come from useResource; transient notices go
+  // through useFeedback. Request order is unchanged: media first, then
+  // categories and products together.
+  const media = useResource<{
+    items: MediaEntry[];
+    summary: Record<string, number>;
+    intents: MediaIntent[];
+  }>(() => client.getMedia(), []);
+  const options = useResource<{
+    categories: CategoryEntry[];
+    products: ProductOption[];
+  }>(async () => {
+    const [categoriesData, productsData] = await Promise.all([
+      client.getCategories(),
+      client.getProducts(),
+    ]);
+    return {
+      categories: categoriesData.categories as unknown as CategoryEntry[],
+      products: productsData.items as unknown as ProductOption[],
+    };
+  }, []);
+  const { feedback, notify, clear } = useFeedback();
+
+  const items = media.data?.items ?? [];
+  const intents = media.data?.intents ?? [];
+  const summary: Record<string, number> = media.data?.summary ?? {};
+  const categories = options.data?.categories ?? [];
+  const products = options.data?.products ?? [];
+  const loading = media.loading;
+
   const [filter, setFilter] = useState<string>('all');
   // Plan 127 F2.4: multi-select for batch intent operations.
   const [selectedIntents, setSelectedIntents] = useState<Set<string>>(new Set());
@@ -84,37 +87,8 @@ export function MediaPage(): React.ReactElement {
   const [intentType, setIntentType] = useState<'avif' | 'variant'>('avif');
   const [ogCategory, setOgCategory] = useState('');
 
-  const load = useCallback(async (): Promise<void> => {
-    setLoading(true);
-    setError(null);
-    try {
-      // Plan 115: typed client for the media inventory read.
-      const data = await client.getMedia();
-      setItems(data.items);
-      setSummary(data.summary);
-      setIntents(data.intents);
-    } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-    client
-      .getCategories()
-      .then((d) => setCategories(d.categories as unknown as CategoryEntry[]))
-      .catch(() => {});
-    client
-      .getProducts()
-      .then((d) => setProducts(d.items as unknown as ProductOption[]))
-      .catch(() => {});
-  }, [load]);
-
   const handleFile = async (file: File | undefined): Promise<void> => {
-    setError(null);
-    setFeedback(null);
+    clear();
     setUploadState(null);
     if (!file) return;
 
@@ -142,7 +116,10 @@ export function MediaPage(): React.ReactElement {
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      setError((body as { error?: { message?: string } }).error?.message ?? `Error ${res.status}`);
+      notify(
+        'error',
+        (body as { error?: { message?: string } }).error?.message ?? `Error ${res.status}`
+      );
       return;
     }
     const body = (await res.json()) as {
@@ -152,7 +129,8 @@ export function MediaPage(): React.ReactElement {
       content_type: string;
     };
     setUploadState(body);
-    setFeedback(
+    notify(
+      'success',
       `Archivo ${file.name} inspeccionado y en staging (${Math.round(body.size / 1024)} KB)`
     );
   };
@@ -161,11 +139,10 @@ export function MediaPage(): React.ReactElement {
     type: MediaIntentType,
     extra: { category_slug?: string } = {}
   ): Promise<void> => {
-    setError(null);
-    setFeedback(null);
+    clear();
     if (type === 'avif' || type === 'variant') {
       if (!uploadState || !targetPath || !productId) {
-        setError('Sube un archivo, elige destino y producto');
+        notify('error', 'Sube un archivo, elige destino y producto');
         return;
       }
     }
@@ -183,31 +160,31 @@ export function MediaPage(): React.ReactElement {
         ...extra,
       });
     } catch (err) {
-      setError((err as Error).message);
+      notify('error', (err as Error).message);
       return;
     }
-    setFeedback('Intent creado — ejecútalo para generar los derivados');
+    notify('success', 'Intent creado — ejecútalo para generar los derivados');
     setUploadState(null);
     setFileName(null);
-    void load();
+    media.reload();
   };
 
   const intentAction = async (
     id: string,
     action: 'run' | 'cancel' | 'discard' | 'apply'
   ): Promise<void> => {
-    setError(null);
-    setFeedback(null);
+    clear();
     try {
       if (action === 'run') await client.runIntent(id);
       else if (action === 'cancel') await client.cancelIntent(id);
       else if (action === 'apply') await client.applyIntent(id);
       else await client.discardIntent(id);
     } catch (err) {
-      setError((err as Error).message);
+      notify('error', (err as Error).message);
       return;
     }
-    setFeedback(
+    notify(
+      'success',
       `Intent ${action === 'apply' ? 'aplicado' : action === 'run' ? 'en ejecución' : action === 'discard' ? 'descartado' : 'cancelado'}`
     );
     if (action === 'run') {
@@ -216,36 +193,36 @@ export function MediaPage(): React.ReactElement {
         const d = (await client.getMedia()) as unknown as { intents: MediaIntent[] };
         const current = d.intents.find((i) => i.id === id);
         if (current && ['succeeded', 'failed', 'cancelled'].includes(current.status)) {
-          await load();
+          media.reload();
           return;
         }
         window.setTimeout(() => void poll(), 600);
       };
       void poll();
     } else {
-      await load();
+      media.reload();
     }
   };
 
   const handleBatch = async (action: 'run' | 'cancel' | 'discard'): Promise<void> => {
     const ids = [...selectedIntents];
     if (ids.length === 0) return;
-    setError(null);
-    setFeedback(null);
+    clear();
     let body: { applied: number; skipped: Array<{ id: string; reason: string }> };
     try {
       body = await client.batchIntents({ action, ids });
     } catch (err) {
-      setError((err as Error).message);
+      notify('error', (err as Error).message);
       return;
     }
-    setFeedback(
+    notify(
+      'success',
       `Batch ${action}: ${body.applied} aplicados` +
         (body.skipped.length > 0 ? `, ${body.skipped.length} omitidos` : '') +
         ' ✓'
     );
     setSelectedIntents(new Set());
-    await load();
+    media.reload();
   };
 
   const toggleIntent = (id: string, checked: boolean): void => {
@@ -267,18 +244,25 @@ export function MediaPage(): React.ReactElement {
 
   const filtered = filter === 'all' ? items : items.filter((i) => i.status === filter);
 
+  // Plan 242: exactly one alert and one status banner, same roles/styles as
+  // the previous setError/setFeedback pair. Action notices win over the
+  // inventory load error, matching the old last-write-wins display.
+  const actionError = feedback?.kind === 'error' ? feedback.message : null;
+  const alertMessage = actionError ?? media.error;
+  const statusMessage = feedback && feedback.kind !== 'error' ? feedback.message : null;
+
   return (
     <main role="main" aria-label="Medios">
       <h1>Medios y derivados ({summary.total ?? 0} archivos)</h1>
 
-      {error && (
+      {alertMessage && (
         <p role="alert" style={{ color: '#c62828' }}>
-          {error}
+          {alertMessage}
         </p>
       )}
-      {feedback && (
+      {statusMessage && (
         <p role="status" style={{ color: '#2e7d32' }}>
-          {feedback}
+          {statusMessage}
         </p>
       )}
       {loading && <p>Cargando…</p>}
@@ -452,7 +436,7 @@ export function MediaPage(): React.ReactElement {
                   </td>
                   <td style={{ padding: '0.25rem 0.5rem' }}>{intent.type}</td>
                   <td style={{ padding: '0.25rem 0.5rem' }}>
-                    {STATUS_LABEL[intent.status] ?? intent.status}
+                    {MEDIA_STATUS_LABEL[intent.status] ?? intent.status}
                   </td>
                   <td style={{ padding: '0.25rem 0.5rem' }}>
                     <progress max={100} value={intent.progress} style={{ width: '80px' }} />

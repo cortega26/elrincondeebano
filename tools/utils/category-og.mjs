@@ -76,7 +76,7 @@ export function buildLabel(title, slug) {
   return normalized || 'CATEGORIA';
 }
 
-function wrapLabelLines(label) {
+export function wrapLabelLines(label) {
   const compact = label.replace(/\s+/g, ' ').trim();
   if (!compact) {
     return ['CATEGORIA'];
@@ -107,7 +107,7 @@ function wrapLabelLines(label) {
   return lines;
 }
 
-function labelStyleForLines(lines) {
+export function labelStyleForLines(lines) {
   const count = Math.max(1, lines.length);
   const longest = Math.max(...lines.map((l) => l.length), 0);
   let fontSize;

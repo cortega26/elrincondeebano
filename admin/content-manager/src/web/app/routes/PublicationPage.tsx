@@ -7,6 +7,8 @@ import type {
   RecoveredPublication,
   MissedPublication,
 } from '../../api/client.ts';
+import { useFeedback } from '../hooks/useFeedback.ts';
+import { useResource } from '../hooks/useResource.ts';
 
 const client = new ContentManagerClient();
 
@@ -17,11 +19,15 @@ export function PublicationPage(): React.ReactElement {
   const [pushAfterCommit, setPushAfterCommit] = useState(false);
   const [publishAt, setPublishAt] = useState('');
   const [job, setJob] = useState<JobResponse | null>(null);
-  const [pendingJobs, setPendingJobs] = useState<JobResponse[]>([]);
-  // Plan 248: durable-outbox notices (server-computed, never inferred here).
-  const [recoveredPublications, setRecoveredPublications] = useState<RecoveredPublication[]>([]);
-  const [missedPublications, setMissedPublications] = useState<MissedPublication[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  // Plan 242: the pending-jobs read (plus plan 248's durable-outbox notices,
+  // which come straight from the same server response, never inferred here)
+  // goes through useResource; the 5 s interval below re-runs it. The read is
+  // best-effort — like the old refreshPending, its failures stay silent.
+  const jobs = useResource(() => client.listJobs(), []);
+  const { feedback, notify, clear } = useFeedback();
+  const pendingJobs = jobs.data?.jobs ?? [];
+  const recoveredPublications: RecoveredPublication[] = jobs.data?.recovered ?? [];
+  const missedPublications: MissedPublication[] = jobs.data?.missed ?? [];
   const [loading, setLoading] = useState(false);
   const [pullStatus, setPullStatus] = useState<string | null>(null);
   const [previewJob, setPreviewJob] = useState<JobResponse | null>(null);
@@ -64,18 +70,6 @@ export function PublicationPage(): React.ReactElement {
     [stopPolling]
   );
 
-  const refreshPending = useCallback(async (): Promise<void> => {
-    try {
-      const res = await client.listJobs();
-      setPendingJobs(res.jobs);
-      // Plan 248: recovered/missed come straight from the server response.
-      setRecoveredPublications(res.recovered ?? []);
-      setMissedPublications(res.missed ?? []);
-    } catch {
-      // Ignore — pending list is best-effort.
-    }
-  }, []);
-
   useEffect(() => {
     // Plan 097: git status refreshes every 30s while the page is open.
     const timer = setInterval(() => void refreshGitStatus().catch(() => {}), 30_000);
@@ -83,10 +77,9 @@ export function PublicationPage(): React.ReactElement {
   }, []);
 
   useEffect(() => {
-    void refreshPending();
-    const timer = setInterval(() => void refreshPending().catch(() => {}), 5_000);
+    const timer = setInterval(() => jobs.reload(), 5_000);
     return () => clearInterval(timer);
-  }, [refreshPending]);
+  }, [jobs.reload]);
 
   useEffect(() => {
     return () => {
@@ -132,7 +125,7 @@ export function PublicationPage(): React.ReactElement {
         previewJob.status === 'scheduled'));
 
   async function handlePreviewBuild(): Promise<void> {
-    setError(null);
+    clear();
     try {
       const result = await client.triggerPreviewBuild();
       setPreviewJob({
@@ -142,10 +135,10 @@ export function PublicationPage(): React.ReactElement {
         progress: 0,
       });
       pollPreviewJob(result.job_id);
-      void refreshPending();
+      jobs.reload();
     } catch (err) {
-      setError((err as Error).message);
-      void refreshPending();
+      notify('error', (err as Error).message);
+      jobs.reload();
     }
   }
 
@@ -161,21 +154,21 @@ export function PublicationPage(): React.ReactElement {
   }
 
   async function handlePreview(): Promise<void> {
-    setError(null);
+    clear();
     setLoading(true);
     try {
       const result = await client.previewPublication();
       setGitStatus(result.git);
       setPreview(result);
     } catch (err) {
-      setError((err as Error).message);
+      notify('error', (err as Error).message);
     } finally {
       setLoading(false);
     }
   }
 
   async function handlePublish(push: boolean): Promise<void> {
-    setError(null);
+    clear();
     setLoading(true);
     try {
       const iso = publishAt ? new Date(publishAt).toISOString() : undefined;
@@ -188,9 +181,9 @@ export function PublicationPage(): React.ReactElement {
         scheduled_at: iso,
       });
       pollJob(result.job_id);
-      void refreshPending();
+      jobs.reload();
     } catch (err) {
-      setError((err as Error).message);
+      notify('error', (err as Error).message);
     } finally {
       setLoading(false);
     }
@@ -198,22 +191,22 @@ export function PublicationPage(): React.ReactElement {
 
   async function handleCancel(): Promise<void> {
     if (!job) return;
-    setError(null);
+    clear();
     try {
       const result = await client.cancelJob(job.id);
       setJob(result);
       stopPolling();
-      void refreshPending();
+      jobs.reload();
     } catch (err) {
-      setError((err as Error).message);
+      notify('error', (err as Error).message);
     }
   }
 
   async function handleCancelPending(id: string): Promise<void> {
-    setError(null);
+    clear();
     try {
       await client.cancelJob(id);
-      void refreshPending();
+      jobs.reload();
       if (job?.id === id) {
         try {
           const updated = await client.getJob(id);
@@ -224,22 +217,22 @@ export function PublicationPage(): React.ReactElement {
         stopPolling();
       }
     } catch (err) {
-      setError((err as Error).message);
+      notify('error', (err as Error).message);
     }
   }
 
   async function refreshGitStatus(): Promise<void> {
-    setError(null);
+    clear();
     try {
       const result = await client.getGitStatus();
       setGitStatus(result);
     } catch (err) {
-      setError((err as Error).message);
+      notify('error', (err as Error).message);
     }
   }
 
   async function handleGitPull(): Promise<void> {
-    setError(null);
+    clear();
     setPullStatus(null);
     try {
       const result = await client.gitPull();
@@ -266,15 +259,19 @@ export function PublicationPage(): React.ReactElement {
       };
       void poll();
     } catch (err) {
-      setError((err as Error).message);
+      notify('error', (err as Error).message);
     }
   }
+
+  // Plan 242: one dismissible alert block, same markup and copy; notices
+  // arrive through notify('error', …) and the × clears them.
+  const errorText = feedback?.kind === 'error' ? feedback.message : null;
 
   return (
     <main role="main" aria-label="Publicación">
       <h1>Publicación</h1>
 
-      {error && (
+      {errorText && (
         <div
           role="alert"
           style={{
@@ -284,9 +281,9 @@ export function PublicationPage(): React.ReactElement {
             borderRadius: 'var(--radius)',
           }}
         >
-          {error}
+          {errorText}
           <button
-            onClick={() => setError(null)}
+            onClick={clear}
             style={{ marginLeft: '0.5rem', background: 'none', border: 'none', cursor: 'pointer' }}
             aria-label="Cerrar"
           >
@@ -619,9 +616,10 @@ export function PublicationPage(): React.ReactElement {
               marginTop: '0.5rem',
             }}
           >
-            Nota: las publicaciones programadas se guardan en disco y se recuperan al reiniciar. Si el
-            admin está apagado a la hora programada, se publica al arrancar — hasta 24 h de retraso
-            (avisadas como «publicado tarde»); pasadas 24 h quedan marcadas como no publicadas.
+            Nota: las publicaciones programadas se guardan en disco y se recuperan al reiniciar. Si
+            el admin está apagado a la hora programada, se publica al arrancar — hasta 24 h de
+            retraso (avisadas como «publicado tarde»); pasadas 24 h quedan marcadas como no
+            publicadas.
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -730,7 +728,7 @@ export function PublicationPage(): React.ReactElement {
           }}
         >
           <h2 style={{ margin: 0 }}>Programadas / pendientes</h2>
-          <button onClick={() => void refreshPending()} style={{ padding: '0.25rem 0.75rem' }}>
+          <button onClick={() => jobs.reload()} style={{ padding: '0.25rem 0.75rem' }}>
             Actualizar
           </button>
         </div>

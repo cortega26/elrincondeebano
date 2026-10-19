@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { createSharePreviewMetadata, DEFAULT_OG_IMAGE } from '../lib/seo';
+import { createSharePreviewMetadata } from '../lib/seo';
 import { calculatePrintingQuote, calculateCombinedPrintingQuote, buildPrintingWhatsAppUrl } from '../lib/printing-pricing.js';
 import { formatCurrency } from '../lib/formatting.js';
 import '../styles/printing.css';
@@ -23,8 +23,10 @@ const sharePreview = createSharePreviewMetadata({
   description:
     'Imprime documentos en blanco y negro o color sin salir del edificio Ébano. Calcula tu precio y coordina por WhatsApp.',
   canonicalPath: '/impresiones/',
-  ogImage: DEFAULT_OG_IMAGE,
-  ogImageAlt: 'El Rincón de Ébano: impresiones y fotocopias para residentes',
+  // Dedicated social asset; createSharePreviewMetadata appends the ?v= byte
+  // token centrally (same contract as DEFAULT_OG_IMAGE on the home page).
+  ogImage: '/assets/images/og/printing.og.jpg',
+  ogImageAlt: 'Impresiones y fotocopias en El Rincón de Ébano',
 });
 ---
 
