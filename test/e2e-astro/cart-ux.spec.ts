@@ -340,6 +340,9 @@ test('T10: missing payment blocks submit — button disabled, error text shown',
 });
 
 // ─── T11: Shared cart URL is catalog-authoritative (plan 026) ─────────────────
+// Decoder-side test: the link below is FORGED here, so this pins what
+// hydrateSharedCart accepts from an untrusted hash. The producer half of the
+// same contract (the real "Compartir carrito" button output) is T11b — plan 231.
 
 test('T11: forged legacy shared-cart link rehydrates from catalog only', async ({ page }) => {
   await page.setViewportSize(MOBILE);
@@ -408,6 +411,79 @@ test('T11: forged legacy shared-cart link rehydrates from catalog only', async (
   });
   expect(stored![0].price).toBeGreaterThan(1);
   expect(stored![0].name).not.toBe('PRODUCTO FORJADO');
+});
+
+// ─── T11b: producer (plan 231) — the real share button ────────────────────────
+// MODE: real clipboard. The context is granted clipboard-read/clipboard-write,
+// the test clicks the production "Compartir carrito" button (shareCart →
+// navigator.clipboard.writeText) and reads the clipboard back. If this ever
+// turns flaky in CI, replace the read with an in-page
+// navigator.clipboard.writeText stub that captures the argument (comment the
+// chosen mode here when changing it).
+test('T11b: share button copies a producer-built link that rehydrates the cart', async ({
+  page,
+  context,
+}) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.setViewportSize(MOBILE);
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await waitForReady(page);
+  await page.evaluate(() => localStorage.clear());
+  await page.reload({ waitUntil: 'networkidle' });
+  await waitForReady(page);
+
+  // Seed two real cart lines through the add buttons (state-based settle).
+  const addButtons = page.locator('.category-strip .add-to-cart-btn');
+  await addButtons.nth(0).click();
+  await expect(page.locator('#cart-count')).toHaveText('1', { timeout: 5_000 });
+  await addButtons.nth(1).click();
+  await expect(page.locator('#cart-count')).toHaveText('2', { timeout: 5_000 });
+
+  const seeded = await page.evaluate(() =>
+    (JSON.parse(localStorage.getItem('astro-poc-cart') || '[]') as Array<{ id: string }>).map(
+      (item) => item.id
+    )
+  );
+  expect(seeded).toHaveLength(2);
+
+  const shortcut = page.locator('#mobile-cart-shortcut');
+  await expect(shortcut).toBeVisible({ timeout: 5_000 });
+  await shortcut.click();
+  const offcanvas = page.locator('#cartOffcanvas');
+  await expect(offcanvas).toBeVisible({ timeout: 5_000 });
+
+  // The button's accessible name comes from its aria-label, not the visible
+  // text (cart-view.js). The text label flips to the clipboard outcome.
+  const shareBtn = offcanvas.getByRole('button', {
+    name: 'Copiar enlace del carrito para compartir',
+  });
+  await expect(shareBtn).toBeVisible();
+  await expect(shareBtn).toHaveText('Compartir carrito');
+  await shareBtn.click();
+  // Clipboard failures would relabel the button ("No se pudo copiar").
+  await expect(shareBtn).toHaveText('¡Enlace copiado!', { timeout: 5_000 });
+
+  const copied = await page.evaluate(() => navigator.clipboard.readText());
+  expect(copied).toContain('#cart=');
+  expect(copied.startsWith(page.url().split('#')[0])).toBe(true);
+
+  // Rehydrate through the shipped page: clear the local cart and visit the
+  // copied URL — only the production decode/hydrate path can make this pass.
+  // A hash-only goto is a same-document navigation, so the reload is required
+  // for loadCartFromUrl() to run on a real boot.
+  await page.evaluate(() => localStorage.clear());
+  await page.goto(copied);
+  await page.reload({ waitUntil: 'networkidle' });
+  await waitForReady(page);
+  await expect(page.locator('#cart-count')).toHaveText('2', { timeout: 10_000 });
+  expect(page.url()).not.toContain('#cart=');
+
+  await page.locator('#mobile-cart-shortcut').click();
+  await expect(offcanvas).toBeVisible({ timeout: 5_000 });
+  const restored = await offcanvas
+    .locator('.cart-item')
+    .evaluateAll((items) => items.map((item) => item.getAttribute('data-id')).sort());
+  expect(restored).toEqual([...seeded].sort());
 });
 
 test('T12: cart subtotal uses the discounted price when adjusting quantity', async ({ page }) => {

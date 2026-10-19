@@ -269,6 +269,31 @@ export function toSharedCartPayload(cart: unknown): SharedCartPayload | null {
   };
 }
 
+/**
+ * URL-safe producer/consumer pair for shared links (plan 231: moved here from
+ * the storefront monolith so the producer is unit-testable). Display fields
+ * never travel (identity/quantity only), but an id with unicode hits
+ * `encodeURIComponent` before `btoa` so the base64 step still sees ASCII.
+ */
+export function encodeCart(cart: unknown): string {
+  try {
+    const payload = toSharedCartPayload(cart);
+    if (!payload) return '';
+    return btoa(encodeURIComponent(JSON.stringify(payload)));
+  } catch {
+    return '';
+  }
+}
+
+/** Returns the parsed payload or null for any malformed input. */
+export function decodeCart(encoded: string): unknown {
+  try {
+    return JSON.parse(decodeURIComponent(atob(encoded)));
+  } catch {
+    return null;
+  }
+}
+
 export function parseSharedCartPayload(payload: unknown): SharedCartItem[] {
   let rawItems: unknown;
   if (Array.isArray(payload)) {

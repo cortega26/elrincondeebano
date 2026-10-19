@@ -5,6 +5,8 @@ import {
   SHARED_CART_VERSION,
   clampQty,
   createCartItemFromProduct,
+  decodeCart,
+  encodeCart,
   getCartState,
   hydrateCartFromOrder,
   hydrateSharedCart,
@@ -449,6 +451,77 @@ describe('storefront-state cart primitives', () => {
     it('supports legacy array links through the same catalog hydration', () => {
       const items = hydrateSharedCart([{ id: 'p1', price: 1, quantity: 2 }], resolve);
       expect(items).toEqual([expect.objectContaining({ id: 'p1', price: 1500, quantity: 2 })]);
+    });
+  });
+
+  // Plan 231: the producer (encodeCart) is the half the e2e T11 only forged
+  // by hand — these tests pin it against the production decoder.
+  describe('encodeCart / decodeCart', () => {
+    const catalog = new Map([
+      ['p1', { id: 'p1', name: 'Leche', category: 'Lacteos', price: 1500, quantity: 1 }],
+      ['p2', { id: 'p2', name: 'Pan', category: 'Panaderia', price: 800, discount: 100 }],
+      ['p3', { id: 'p3', name: 'Café', category: 'Varios', price: 2400 }],
+    ]);
+    const resolve = (id) => catalog.get(id) ?? null;
+
+    it('round-trips a 3-item cart: encode → decode → hydrateSharedCart', () => {
+      const cart = [
+        { id: 'p1', name: 'Leche', category: 'Lacteos', price: 1500, discount: 0, quantity: 2 },
+        { id: 'p2', name: 'Pan', category: 'Panaderia', price: 800, discount: 100, quantity: 1 },
+        { id: 'p3', name: 'Café', category: 'Varios', price: 2400, discount: 0, quantity: 3 },
+      ];
+
+      const encoded = encodeCart(cart);
+      expect(encoded).not.toBe('');
+      expect(decodeCart(encoded)).toEqual(toSharedCartPayload(cart));
+      expect(decodeCart(encoded)).toEqual({
+        version: SHARED_CART_VERSION,
+        items: [
+          { id: 'p1', quantity: 2 },
+          { id: 'p2', quantity: 1 },
+          { id: 'p3', quantity: 3 },
+        ],
+      });
+
+      const hydrated = hydrateSharedCart(decodeCart(encoded), resolve);
+      expect(hydrated.map((item) => ({ id: item.id, quantity: item.quantity }))).toEqual([
+        { id: 'p1', quantity: 2 },
+        { id: 'p2', quantity: 1 },
+        { id: 'p3', quantity: 3 },
+      ]);
+    });
+
+    it('keeps unicode ids intact via encodeURIComponent before btoa', () => {
+      // Names never travel (identity/quantity only), but an id with
+      // accents/emoji would make a raw btoa(JSON.stringify(...)) throw.
+      const cart = [{ id: 'p-ünïcode-✨', name: 'Nova Clásica ✨', price: 1000, quantity: 1 }];
+      const encoded = encodeCart(cart);
+
+      expect(encoded).not.toBe('');
+      expect(encoded).toMatch(/^[A-Za-z0-9+/=]+$/);
+      expect(decodeCart(encoded)).toEqual({
+        version: SHARED_CART_VERSION,
+        items: [{ id: 'p-ünïcode-✨', quantity: 1 }],
+      });
+    });
+
+    it('returns "" for empty or unusable carts (no shareable URL payload)', () => {
+      expect(encodeCart([])).toBe('');
+      expect(encodeCart(null)).toBe('');
+      expect(encodeCart([{ id: '', quantity: 1 }])).toBe('');
+    });
+
+    it('returns null for malformed input (not base64 / not JSON)', () => {
+      expect(decodeCart('not base64!!')).toBeNull();
+      expect(decodeCart('')).toBeNull();
+      expect(decodeCart(btoa(encodeURIComponent('just text')))).toBeNull();
+      // Valid encoding, wrong payload shape: the decoder yields it and the
+      // trusted consumer rejects it.
+      const wrongShape = decodeCart(
+        btoa(encodeURIComponent(JSON.stringify({ version: 99, items: [] })))
+      );
+      expect(wrongShape).toEqual({ version: 99, items: [] });
+      expect(hydrateSharedCart(wrongShape, resolve)).toEqual([]);
     });
   });
 
