@@ -1,10 +1,10 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 import { getProductSku } from '../../astro-poc/src/lib/product-identity.ts';
 import productCatalogHelpers from '../helpers/product-catalog.js';
 
 async function expectSharePreviewContract(
-  page: Parameters<typeof test>[1]['page'],
+  page: Page,
   expectedCanonical: string,
   label: string
 ) {
