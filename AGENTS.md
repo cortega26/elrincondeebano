@@ -23,8 +23,8 @@ los archivos persisten).
   en el repo; el storefront lo consume en build. Cualquier cambio de catálogo,
   taxonomía o assets obliga a `guardrails:assets`.
 - **`plans/`** — planes de implementación activos (índice: `plans/README.md`,
-  planes 001–275 cerrados/archivados; Auditoría 12 (218–253) cerrada; olas
-  post-auditoría 254–275 — el README es la fuente de estado). `docs/audit/`
+  planes 001–278 cerrados/archivados; Auditoría 12 (218–253) cerrada; olas
+  post-auditoría 254–278 — el README es la fuente de estado). `docs/audit/`
   conserva auditorías antiguas, no el estado actual.
 
 ## Comandos clave
