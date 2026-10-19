@@ -7,6 +7,7 @@ WhatsApp share-preview support is guaranteed only for these public route familie
 - `https://www.elrincondeebano.com/`
 - `https://www.elrincondeebano.com/<category>/`
 - `https://www.elrincondeebano.com/p/<sku>/`
+- `https://www.elrincondeebano.com/impresiones/`
 
 Legacy compatibility routes such as `/c/*` and `/pages/*.html` may remain reachable, but they are not part of the supported share-preview contract. They must stay canonicalized to the modern route and `noindex, follow`.
 
@@ -16,7 +17,7 @@ Legacy compatibility routes such as `/c/*` and `/pages/*.html` may remain reacha
 - Metadata rendering: `astro-poc/src/layouts/BaseLayout.astro`
 - Logo artwork source: `assets/images/og/logo.png`
 - Logo/web-icon generation: `npm run images:logo`
-- OG image generation: `npm run images:og:home`, `npm run images:og:overrides`, `npm run images:og:categories`
+- OG image generation: `npm run images:og:home`, `npm run images:og:printing`, `npm run images:og:overrides`, `npm run images:og:categories`
 - Build enforcement: `astro-poc/scripts/validate-artifact-contract.mjs`
 - Live validation: `npm run monitor:share-preview`
 - Root-cause diagnosis: `npm run diagnose:share-preview`
@@ -47,7 +48,7 @@ Expected results:
 - build passes with no artifact-contract failures
 - build-output tests confirm canonical, description, and OG/Twitter metadata alignment
 - browser tests confirm supported routes expose the same metadata seen in the built HTML
-- the live monitor confirms homepage, one primary category route, and one product route return a valid public preview contract and a fetchable JPG/PNG OG image
+- the live monitor confirms homepage, one primary category route, one product route, and the `/impresiones/` service route return a valid public preview contract and a fetchable JPG/PNG OG image
 - the diagnosis command returns either a clean probe set or an explicit suspicion code that narrows the fault domain (`social-bot-challenge`, `edge-challenge-injection`, `og-image-fetch-failure`, `og-image-url-instability`, `network-instability`)
 
 ## Regenerating OG images
@@ -57,6 +58,7 @@ If the social image artwork changed, regenerate the pipeline before building:
 ```bash
 npm run images:logo
 npm run images:og:home
+npm run images:og:printing
 npm run images:og:overrides
 npm run images:og:categories
 ```

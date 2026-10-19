@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import fs from 'node:fs';
+import path from 'node:path';
 import {
   absoluteUrl,
   publicAssetUrl,
@@ -128,5 +130,26 @@ describe('createSharePreviewMetadata', () => {
       ogImage: 'https://cdn.externo.com/og.jpg',
     });
     expect(meta.ogImage).toBe('https://cdn.externo.com/og.jpg');
+  });
+});
+
+describe('StructuredData SearchAction target', () => {
+  // The Astro component cannot be rendered in the root vitest suite (no
+  // Astro compiler); this pins the rendered JSON-LD contract at the source
+  // level (same pattern as the plan-239 component assertions). The built
+  // home HTML is verified by the build-contract job and the rebuild grep.
+  const componentPath = path.join(
+    import.meta.dirname,
+    '..',
+    'astro-poc',
+    'src',
+    'components',
+    'StructuredData.astro'
+  );
+
+  it('points the WebSite SearchAction at the /buscar/ route contract', () => {
+    const source = fs.readFileSync(componentPath, 'utf8');
+    expect(source).toContain('/buscar/?q={search_term_string}');
+    expect(source).not.toContain('/?search=');
   });
 });

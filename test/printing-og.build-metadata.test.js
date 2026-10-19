@@ -1,0 +1,36 @@
+'use strict';
+
+const assert = require('node:assert');
+const fs = require('node:fs');
+const path = require('node:path');
+
+test('built /impresiones/ page emits the versioned printing JPG og:image with 1200x1200 metadata', (t) => {
+  const pagePath = path.resolve(__dirname, '..', 'astro-poc', 'dist', 'impresiones', 'index.html');
+  if (!fs.existsSync(pagePath)) {
+    // Explicit CI opt-in: the unit-tests job has no build artifacts.
+    if (process.env.CI_SKIP_BUILD_CONTRACT === '1') {
+      t.skip('skipped: CI_SKIP_BUILD_CONTRACT=1 (no build artifacts in this job)');
+      return;
+    }
+    assert.fail('astro-poc/dist/impresiones/index.html not found; run npm run build first');
+    return;
+  }
+
+  const html = fs.readFileSync(pagePath, 'utf8');
+  const imageMatch = html.match(/<meta property="og:image" content="([^"]+)"/i);
+  assert.ok(imageMatch, 'Expected og:image meta tag in built printing page');
+  assert.match(
+    imageMatch[1],
+    /\/assets\/images\/og\/printing\.og\.jpg\?v=[a-f0-9]{12}$/i,
+    'Expected /impresiones/ og:image to point to the dedicated versioned JPG social asset'
+  );
+
+  assert.ok(
+    html.includes('<meta property="og:image:width" content="1200">'),
+    'Expected og:image:width=1200'
+  );
+  assert.ok(
+    html.includes('<meta property="og:image:height" content="1200">'),
+    'Expected og:image:height=1200'
+  );
+});
