@@ -79,7 +79,9 @@ afterAll(async () => {
 // content-type and include both answers. Pre-fix the JSON variant is a 400 —
 // Fastify's FST_ERR_CTP_EMPTY_JSON_BODY, masked by the central error handler
 // (app.ts) as `NOT_FOUND`/`Not found` with status 400 — while the variant
-// without the header reaches the handler.
+// without the header reaches the handler. Plan 261 unmasked the envelope, so
+// the JSON variant now carries Fastify's real code (see the direct probe
+// below).
 async function throughClient<T>(endpoint: string, call: () => Promise<T>): Promise<T> {
   try {
     return await call();
@@ -125,4 +127,19 @@ test('client.gitPull: bodyless POST schedules a real no-op pull (plan 253)', asy
     },
     { timeout: 8000, interval: 20 }
   );
+});
+
+// Plan 261: raw request (no typed client), bodyless POST declaring a JSON
+// content-type — Fastify answers 400 before any handler runs and the central
+// envelope must preserve its real code instead of masking it as `NOT_FOUND`.
+test('raw bodyless JSON POST: the 400 carries the real Fastify code (plan 261)', async () => {
+  const res = await fetch(`${baseUrl}/api/v1/backup/prune-preview`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  expect(res.status).toBe(400);
+  const body = (await res.json()) as { error: { code: string; message: string } };
+  expect(body.error.code).toBe('FST_ERR_CTP_EMPTY_JSON_BODY');
+  expect(body.error.code).not.toBe('NOT_FOUND');
+  expect(body.error.message.toLowerCase()).toContain('empty');
 });
