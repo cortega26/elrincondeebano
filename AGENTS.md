@@ -150,3 +150,4 @@ npm run validate:release
 | Headers de seguridad edge                        | [`EDGE_SECURITY_HEADERS`](docs/operations/EDGE_SECURITY_HEADERS.md)                                 |
 | Scripts y utilidades                             | [`tools/`](tools/)                                                                                  |
 | Suite de pruebas                                 | [`test/`](test/)                                                                                    |
+| Diferidos y condiciones de reapertura            | [`DEFERRALS`](docs/operations/DEFERRALS.md)                                                         |

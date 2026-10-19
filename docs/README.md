@@ -27,6 +27,7 @@
 - `docs/operations/DEBUGGING.md`: standard local/CI debugging workflow.
 - `docs/operations/INCIDENT_TRIAGE.md`: incident severity and triage sequence.
 - `docs/operations/ROLLBACK.md`: rollback procedures and validation gates.
+- `docs/operations/DEFERRALS.md`: deferred decisions with reopen conditions and their resolution record.
 
 ## Architecture
 
