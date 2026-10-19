@@ -20,12 +20,11 @@
 - **Depends on**: 227 (satisfied), **252 (blocker — OpenAPI declarations)**
 - **Category**: tech-debt
 - **Planned at**: commit `97b21096`, 2026-10-18
-- **BLOCKED (2026-10-18, round 1)**: the STOP condition fired — **0/18**
-  method+path pairs used by `MediaPage`/`HistoryPage`/`ConflictsPage` are
-  declared in `buildOpenApi()` (only their GET list endpoints exist). The
-  plan's premise that the document covered them is false. Prerequisite:
-  plan 252 declares the 18 operations + a routes↔doc completeness guard;
-  re-dispatch this plan after 252 lands, then proceed as written.
+- **BLOCKED (2026-10-18, round 1)** → **UNBLOCKED el 2026-10-18**: el
+  prerrequisito 252 aterrizó (35/35 pares `/api/v1` declarados en OpenAPI
+  incluidos los 18 usados por estas páginas; guard rutas↔doc activo).
+  Re-despacho autorizado; proceder como escrito (la nota original queda como
+  registro: la premisa «el doc ya declaraba estas rutas» era falsa).
 
 ## Why this matters
 

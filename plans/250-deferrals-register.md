@@ -105,7 +105,11 @@ preexistentes: 17× TS2339 `window.__APP_READY__` sin declaración ambiente +
 2× TS5097 imports `.ts` desde astro-poc — nota de las rondas 2/3 del plan 227) ·
 `fetch-fonts` en modo remoto no funciona (UA `Mozilla/5.0` → Google sirve TTF;
 el extractor no matchea URLs locales entrecomilladas, así que `npm run fonts`
-no-opea; los bytes live woff2 sí son idénticos — verificado en plan 234).
+no-opea; los bytes live woff2 sí son idénticos — verificado en plan 234) ·
+phantoms del OpenAPI en dirección inversa: declaradas pero no/condicionalmente
+registradas (`GET /nav-groups`, `GET /publications`,
+`GET /categories/{id}/subcategories`, `POST /preview/build` flag-gated) — el
+guard del 252 es routes→doc; considerarlos al tocar esas rutas.
 
 Add a 5-line header stating: what this file is, that `reconcile` reads it
 at session start, and that resolved rows move to a "Resolved" section with
