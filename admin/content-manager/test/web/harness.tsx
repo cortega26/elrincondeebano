@@ -4,14 +4,14 @@
 // the global fetch stub the panels need.
 
 import { render, screen, cleanup } from '@testing-library/react';
-import { vi, beforeEach, afterEach } from 'vitest';
+import { vi, beforeEach, afterEach, type Mock } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import type { ReactElement } from 'react';
 
 // Single mock instance for the whole suite — tests configure per-case via
 // mockApi.<method>.mockResolvedValueOnce(...) before rendering.
 const { mockApi } = vi.hoisted(() => {
-  const mockApi = {
+  const mockApi: Record<string, Mock> = {
     getProducts: vi.fn(),
     getCategories: vi.fn(),
     getBundles: vi.fn(),

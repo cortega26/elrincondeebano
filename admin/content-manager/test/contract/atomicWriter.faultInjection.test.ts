@@ -69,7 +69,7 @@ const failingFs = (failOn: { op: Op; call: number }): AtomicFs => {
       fail('writeFileSync');
       return NODE_FS.writeFileSync(...args);
     },
-    readFileSync: (...args) => {
+    readFileSync: (...args: Parameters<typeof NODE_FS.readFileSync>) => {
       fail('readFileSync');
       return NODE_FS.readFileSync(...args);
     },

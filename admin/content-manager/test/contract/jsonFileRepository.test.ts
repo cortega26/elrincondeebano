@@ -10,8 +10,11 @@ const testSchema = z.object({ rev: z.number().int().nonnegative(), name: z.strin
 type TestData = z.infer<typeof testSchema>;
 
 class TestRepo extends JsonFileRepository<TestData> {
-  constructor(private readonly file: string) {
+  private readonly file: string;
+
+  constructor(file: string) {
     super();
+    this.file = file;
   }
 
   getFilePath(): string {
