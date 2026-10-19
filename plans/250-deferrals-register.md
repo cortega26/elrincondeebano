@@ -113,7 +113,13 @@ guard del 252 es routes→doc; considerarlos al tocar esas rutas ·
 el handler central de errores del admin enmascara cualquier 4xx como
 `NOT_FOUND` (nota del plan 253: el 400 real `FST_ERR_CTP_EMPTY_JSON_BODY`
 nunca llega al cliente) — considerar preservar el `code` real al tocar
-`app.ts`.
+`app.ts` ·
+extracción restante de `initStorefront` (plan 245 quedó en 479 líneas vs
+~300: los handlers DOM requieren caracterización propia antes de moverse;
+incluye la delegación `onDocumentClick`) ·
+micro-grooming de docs del plan 239: `docs/INCIDENTS.md:43` ("Align critical
+CSS…") y `docs/repo/STRUCTURE.md:83` (mención a `check-css-order.mjs`)
+quedaron stale al retirar la superficie.
 
 Add a 5-line header stating: what this file is, that `reconcile` reads it
 at session start, and that resolved rows move to a "Resolved" section with
