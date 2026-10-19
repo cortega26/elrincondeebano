@@ -148,3 +148,58 @@ Stop and report back (do not improvise) if:
   if /impresiones/ becomes a primary landing or the entry grows > X KB").
 - **Deferred:** CSS split (the 214 KB base CSS is shared with every page's
   needed components; splitting it is a separate, harder problem).
+
+## Completion note — REJECTED (measure-only, 2026-10-18)
+
+Worktree `advisor/247-entry-split-measure` @ `2d1115dd`; drift check vs
+`7a5efb37` empty; canonical `npm run build` exit 0. **Decision: REJECTED —
+"measured ≈1.3 KB gzip < 10 KB gate; entry stays unified — see plan 187".**
+No implementation (gate not met).
+
+### Step 1 — measurements
+
+`/impresiones/` first-load assets (parsed from built HTML; `gzip -9`):
+
+| asset                            | raw    | gzip  |
+| -------------------------------- | ------ | ----- |
+| `BaseLayout.*.js` (entry)        | 107645 | 33926 |
+| `formatting.*.js` (shared chunk) | 203    | 203   |
+| `page.*.js`                      | 2490   | 1139  |
+| `impresiones.*.js` (page script) | 7854   | 3028  |
+| `BaseLayout.*.css`               | 218993 | 33169 |
+| `impresiones.*.css`              | 8873   | 2301  |
+| fonts.css                        | 912    | 268   |
+
+Total JS+CSS ≈ 74.0 KB gzip. `/bebidas/` ≈ 68.7 KB gzip (no page-specific
+JS/CSS). Instrumented CDP coverage (throwaway session over the repo's
+static server): `__APP_READY__=true` on both pages; entry chunk (107597 B)
+executed with innermost semantics 26.9% on `/impresiones/` (28897 B) vs
+28.8% on `/bebidas/` (30946 B); delta executed only on `/bebidas/` = 2099 B
+(catalog filter/sort internals + product-card sync). `/impresiones/` has no
+`#product-container` (0 matches), so `updateView()` early-returns.
+
+Lighthouse mobile `/impresiones/` (preset mobile, repo static server):
+**86 / 100 / 100 / 100** (LCP 3.3 s, TBT 0 ms, CLS 0.001). `npm run
+lighthouse:audit` (home, `LH_SKIP_BUILD=1`): mobile 69 / 97 / 100 / 100 —
+home already differs from plan 216's recorded 71/100/100/100
+(`color-contrast=0` pre-existing; LH 13.5 on this machine). No "after" run:
+no implementation. Step 4 (e2e) not applicable.
+
+### Step 2 — candidate slice and gate
+
+Slice identified in the built chunk via coverage + string anchors (offsets
+verified): `catalog-view.js` module [55016..57815] = 2799 B,
+`createCatalogController` [97236..97840] = 604 B, catalog wiring in the
+entry (hydrate call, sort/keyword/load-more/clear/empty-clear listeners,
+final reset/update/setupPagination calls) = 989 B → **4392 B minified**
+(`normalizeSearchText` excluded: shared with companion/cart). Splice
+measurement over the real chunk + `gzip -9` (headerless): 33866 → 32500 B =
+**−1366 B gzip**; the slice as a standalone dynamic chunk = 1716 B gzip.
+**Gate 10240 B: NOT MET (~7.5× below).**
+
+### Context (deferred)
+
+CSS usage (CDP): `/impresiones/` uses 32.9/219.0 KB of the base CSS (15.0%),
+`/bebidas/` 43.3/219.0 KB (19.8%). CSS split remains out of scope here.
+Reopen condition (for the plan 250 register): revisit if `/impresiones/`
+becomes a primary landing or the entry grows past the recorded size.
