@@ -974,29 +974,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List subcategories */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              [key: string]: unknown;
-            }[];
-          };
-        };
-      };
-    };
+    get?: never;
     put?: never;
     /** Create a subcategory */
     post: {
@@ -1149,29 +1127,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List nav groups */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              [key: string]: unknown;
-            }[];
-          };
-        };
-      };
-    };
+    get?: never;
     put?: never;
     /** Create a nav group */
     post: {
@@ -2157,29 +2113,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Publications */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path?: never;
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /** @description OK */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json': {
-              [key: string]: unknown;
-            }[];
-          };
-        };
-      };
-    };
+    get?: never;
     put?: never;
     /** Create a publication */
     post: {

@@ -246,12 +246,6 @@ export function buildOpenApi() {
     },
   });
   registry.registerPath({
-    method: 'get',
-    path: CATEGORY_SUBS,
-    summary: 'List subcategories',
-    responses: jsonResponse(z.array(z.record(z.string(), z.unknown()))),
-  });
-  registry.registerPath({
     method: 'post',
     path: CATEGORY_SUBS,
     summary: 'Create a subcategory',
@@ -298,12 +292,6 @@ export function buildOpenApi() {
     },
   });
 
-  registry.registerPath({
-    method: 'get',
-    path: NAV_GROUPS,
-    summary: 'List nav groups',
-    responses: jsonResponse(z.array(z.record(z.string(), z.unknown()))),
-  });
   registry.registerPath({
     method: 'post',
     path: NAV_GROUPS,
@@ -539,12 +527,6 @@ export function buildOpenApi() {
     responses: {
       '200': { description: 'OK', content: { 'text/csv': { schema: z.string() } } },
     },
-  });
-  registry.registerPath({
-    method: 'get',
-    path: '/api/v1/publications',
-    summary: 'Publications',
-    responses: jsonResponse(z.array(z.record(z.string(), z.unknown()))),
   });
   registry.registerPath({
     method: 'post',
