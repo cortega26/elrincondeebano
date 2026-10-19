@@ -47,7 +47,7 @@ export default defineConfig({
     // Plan 124: dev loop — `npm run admin:dev` (API :3000, tsx --watch) +
     // `npm run admin:dev:web` (vite :5173, HMR) proxies API calls.
     proxy: {
-      '/api': {
+      '/api/v1': {
         target: 'http://127.0.0.1:3000',
         changeOrigin: true,
       },
