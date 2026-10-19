@@ -20,6 +20,7 @@ async function loadModule() {
 const HOMEPAGE_OG_IMAGE = `${SITE_ORIGIN}/assets/images/og/home.og.jpg?v=1234567890ab`;
 const CATEGORY_OG_IMAGE = `${SITE_ORIGIN}/assets/images/og/categories/bebidas.og_v3.jpg?v=abcdef123456`;
 const PRODUCT_OG_IMAGE = `${SITE_ORIGIN}/assets/images/og/categories/producto.og_v3.jpg?v=0123456789ab`;
+const PRINTING_OG_IMAGE = `${SITE_ORIGIN}/assets/images/og/printing.og.jpg?v=67890abcdef1`;
 
 test('normalizeBaseUrl enforces HTTPS and allowlisted hosts', async () => {
   const { normalizeBaseUrl } = await loadModule();
@@ -55,6 +56,15 @@ test('runSharePreviewMonitor validates homepage, category, and product previews 
           })
         );
       }
+      if (target.endsWith('/impresiones/')) {
+        return makeHtmlResponse(
+          makeSharePreviewHtml({
+            title: 'Impresiones y fotocopias en Ébano | El Rincón de Ébano',
+            canonical: `${SITE_ORIGIN}/impresiones/`,
+            ogImage: PRINTING_OG_IMAGE,
+          })
+        );
+      }
       if (target.endsWith('/')) {
         return makeHtmlResponse(
           makeSharePreviewHtml({
@@ -73,15 +83,20 @@ test('runSharePreviewMonitor validates homepage, category, and product previews 
       if (target.endsWith(PRODUCT_OG_IMAGE.replace(SITE_ORIGIN, ''))) {
         return makeImageResponse();
       }
+      if (target.endsWith(PRINTING_OG_IMAGE.replace(SITE_ORIGIN, ''))) {
+        return makeImageResponse();
+      }
       return new Response('not found', { status: 404 });
     },
     async () => {
       const report = await runSharePreviewMonitor({ baseUrl: SITE_ORIGIN });
-      assert.equal(report.checks.length, 3);
+      assert.equal(report.checks.length, 4);
       assert.deepEqual(
         report.checks.map((check) => check.name),
-        ['homepage', 'category', 'product']
+        ['homepage', 'category', 'product', 'printing']
       );
+      assert.equal(report.checks[3].url, `${SITE_ORIGIN}/impresiones/`);
+      assert.equal(report.checks[3].ogImage, PRINTING_OG_IMAGE);
       assert.match(report.checks[0].htmlProbe.bodySha1, /^[0-9a-f]{12}$/);
       assert.deepEqual(
         {

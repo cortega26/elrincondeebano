@@ -108,6 +108,7 @@ function selectSharePreviewTargets(sitemapXml) {
     return pathname !== '/' && !pathname.startsWith('/p/');
   });
   const product = locs.find((loc) => new URL(loc).pathname.startsWith('/p/'));
+  const printing = `${DEFAULT_BASE_URL}/impresiones/`;
 
   if (!category) {
     fail('Sitemap did not expose a primary category route for share-preview monitoring.');
@@ -120,6 +121,7 @@ function selectSharePreviewTargets(sitemapXml) {
     { name: 'homepage', url: homepage },
     { name: 'category', url: category },
     { name: 'product', url: product },
+    { name: 'printing', url: printing },
   ];
 }
 
