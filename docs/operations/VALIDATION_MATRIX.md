@@ -25,7 +25,8 @@ release readiness.
 The root `typecheck` and `test` gates cover the **whole monorepo**: the
 storefront (`astro-poc/`) and the TypeScript Content Manager
 (`admin/content-manager/` — its workspace typecheck and vitest suite run as
-part of the root scripts).
+part of the root scripts). The root `typecheck` gate also type-checks the
+Playwright E2E specs (`typecheck:e2e`, plan 258).
 
 `npm run validate:release` runs the release stages explicitly defined in
 `tools/validate-release.mjs`:
@@ -56,6 +57,12 @@ part of the root scripts).
 ## Notes
 
 - `npm run build` remains the only supported build path.
+- The admin workspace exposes `test:e2e:products`
+  (`playwright.products.config.ts`, plan 274); `admin.yml` runs it in the
+  isolated temp-repo E2E matrix.
+- CI runs `node tools/ci/catalog-build-tree-check.mjs` right after the
+  canonical build and fails on tracked or untracked changes outside the
+  derived-logo allowlist (plan 275).
 - `npm run validate` runs the full slow build and is therefore not a fast loop;
   it is still lighter than `validate:release` (which adds `test:e2e` and the live
   `monitor:share-preview` probe). For a fast local loop use

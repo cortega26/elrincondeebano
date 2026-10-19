@@ -7,16 +7,28 @@
     "bootstrap": "docs/onboarding/BOOTSTRAP.md",
     "task_router": "docs/START_HERE.md",
     "codebase_map": "docs/architecture/CODEBASE_MAP.md",
-    "repo_structure": "docs/repo/STRUCTURE.md"
+    "repo_structure": "docs/repo/STRUCTURE.md",
+    "deferrals": "docs/operations/DEFERRALS.md"
   },
   "validation": {
     "fast_gate": "npm run validate",
     "release_gate": "npm run validate:release"
   },
   "workflows": [
+    ".github/workflows/admin.yml",
     ".github/workflows/ci.yml",
-    ".github/workflows/static.yml",
+    ".github/workflows/cloudflare-edge-security-headers.yml",
+    ".github/workflows/dependabot-auto-merge.yml",
+    ".github/workflows/dependency-review.yml",
+    ".github/workflows/images.yml",
+    ".github/workflows/live-contract-monitor.yml",
+    ".github/workflows/post-deploy-canary.yml",
+    ".github/workflows/product-data-guard.yml",
+    ".github/workflows/quality-gates.yml",
+    ".github/workflows/rollback.yml",
+    ".github/workflows/secret-scan.yml",
     ".github/workflows/security-audit.yml",
-    ".github/workflows/live-contract-monitor.yml"
+    ".github/workflows/semgrep.yml",
+    ".github/workflows/static.yml"
   ]
 }

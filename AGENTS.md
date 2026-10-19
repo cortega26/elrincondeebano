@@ -2,7 +2,7 @@
 
 **El Rincón de Ébano** — storefront estático Astro + Content Manager local.
 Runtime: Node 24.x únicamente (`engines: >=24 <25`).
-Última actualización: 2026-10-18.
+Última actualización: 2026-10-19.
 
 **Content Manager**: la aplicación canónica es `admin/content-manager/`
 (TypeScript: Fastify + React + Vite + TS7). El manager Python/Tkinter
@@ -23,9 +23,9 @@ los archivos persisten).
   en el repo; el storefront lo consume en build. Cualquier cambio de catálogo,
   taxonomía o assets obliga a `guardrails:assets`.
 - **`plans/`** — planes de implementación activos (índice: `plans/README.md`,
-  planes 001–214 cerrados/archivados; auditoría 12 (218+) en curso — el README
-  es la fuente de estado). `docs/audit/` conserva
-  auditorías antiguas, no el estado actual.
+  planes 001–275 cerrados/archivados; Auditoría 12 (218–253) cerrada; olas
+  post-auditoría 254–275 — el README es la fuente de estado). `docs/audit/`
+  conserva auditorías antiguas, no el estado actual.
 
 ## Comandos clave
 
