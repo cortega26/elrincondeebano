@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { relative, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { mkdirSync, rmSync } from 'node:fs';
 import { z } from 'zod';
@@ -106,6 +106,74 @@ test('the OpenAPI document exposes the product and category schemas', () => {
   expect(Object.keys(schemas)).toContain('Product');
   expect(Object.keys(schemas)).toContain('Category');
   expect(Object.keys(schemas)).toContain('Bundle');
+});
+
+// ── Plan 229: raw-call guard ───────────────────────────────────────────────
+// The scan above only sees paths that live in src/web/api/* — a page could
+// still hand-build /api/v1 URLs or reach for the credential shim and dodge
+// it. Ban both under src/web/app/**, with an explicit allowlist keyed by
+// exact line content (an allowed line must contain `allowedLineIncludes`).
+
+const APP_DIR = resolve(__dirname, '../../src/web/app');
+
+interface AppRawUsage {
+  file: string; // relative to src/web/app
+  needle: 'fetchWithCredential' | '/api/v1/';
+  allowedLineIncludes: string;
+  reason: string;
+}
+
+const APP_RAW_USAGE_ALLOWLIST: AppRawUsage[] = [
+  {
+    file: 'credentialStore.ts',
+    needle: 'fetchWithCredential',
+    allowedLineIncludes: 'export async function fetchWithCredential(',
+    reason: 'The shim definition itself (requestCore.ts owns the real fetch).',
+  },
+  {
+    file: 'routes/PublicationPage.tsx',
+    needle: '/api/v1/',
+    allowedLineIncludes: 'href="/api/v1/preview/"',
+    reason: 'Anchor navigation to the served preview build — not a fetch call.',
+  },
+];
+
+function appSourceFiles(dir: string): string[] {
+  const files: string[] = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = resolve(dir, entry.name);
+    if (entry.isDirectory()) files.push(...appSourceFiles(full));
+    else if (entry.isFile() && /\.tsx?$/.test(entry.name)) files.push(full);
+  }
+  return files;
+}
+
+test('no file under src/web/app bypasses the typed client (plan 229)', () => {
+  const needles = ['fetchWithCredential', '/api/v1/'] as const;
+  const offenders: string[] = [];
+
+  for (const file of appSourceFiles(APP_DIR)) {
+    const rel = relative(APP_DIR, file);
+    readFileSync(file, 'utf-8')
+      .split('\n')
+      .forEach((line, i) => {
+        for (const needle of needles) {
+          if (!line.includes(needle)) continue;
+          const allowed = APP_RAW_USAGE_ALLOWLIST.some(
+            (entry) =>
+              entry.file === rel &&
+              entry.needle === needle &&
+              line.includes(entry.allowedLineIncludes)
+          );
+          if (!allowed) offenders.push(`${rel}:${i + 1} [${needle}] ${line.trim()}`);
+        }
+      });
+  }
+
+  expect(
+    offenders,
+    `raw /api/v1 access outside the typed client — route it through src/web/api/* (or allowlist with justification):\n${offenders.join('\n')}`
+  ).toEqual([]);
 });
 
 // Plan 163 fallback (extends plan 133): shape assertion so a missing request

@@ -26,6 +26,8 @@ import * as systemApi from './system.ts';
 import * as commsApi from './comms.ts';
 import type { CommsDocument } from '../../shared/schemas/comms.ts';
 import * as syncApi from './sync.ts';
+import * as changesApi from './changes.ts';
+import * as conflictsApi from './conflicts.ts';
 
 // Re-exported so existing `from './client.ts'` / `'@web/api/client.ts'`
 // imports keep working unchanged after the split.
@@ -55,6 +57,37 @@ export type {
   SyncStatusResponse,
   ConflictsResponse,
 } from './sync.ts';
+// Plan 229: media workbench lifecycle + change-set/history/backup/conflict
+// mutations (typed from the generated OpenAPI doc).
+export type {
+  MediaUploadRequest,
+  MediaIntentRequest,
+  MediaIntentType,
+  MediaIntent,
+  RunIntentResponse,
+  CancelIntentResponse,
+  ApplyIntentResponse,
+  DiscardIntentResponse,
+  BatchIntentsRequest,
+  BatchIntentsResponse,
+} from './media.ts';
+export type {
+  ChangeSet,
+  ChangeSetPatch,
+  ApplyChangeSetResponse,
+  DiscardChangeSetResponse,
+  UndoChangeSetResponse,
+  RedoChangeSetResponse,
+  RevertHistoryResponse,
+  PrunePreviewResponse,
+  PruneBackupsResponse,
+  RestoreBackupResponse,
+} from './changes.ts';
+export type {
+  ConflictResolveRequest,
+  ConflictResolveResponse,
+  ConflictRetryResponse,
+} from './conflicts.ts';
 
 export interface BootstrapResponse {
   capabilities: {
@@ -227,6 +260,37 @@ export class ContentManagerClient {
 
   async getMedia(): Promise<Awaited<ReturnType<typeof mediaApi.getMedia>>> {
     return mediaApi.getMedia(this.invoke);
+  }
+
+  // ── media workbench mutations (plan 229) ──────────────────────────────
+
+  /** Raw Response — the page keeps its res.ok / error-envelope handling. */
+  async uploadMedia(body: mediaApi.MediaUploadRequest): Promise<Response> {
+    return mediaApi.uploadMedia(this.invoke, body);
+  }
+
+  async createIntent(body: mediaApi.MediaIntentRequest): Promise<mediaApi.MediaIntent> {
+    return mediaApi.createIntent(this.invoke, body);
+  }
+
+  async runIntent(id: string): Promise<mediaApi.RunIntentResponse> {
+    return mediaApi.runIntent(this.invoke, id);
+  }
+
+  async cancelIntent(id: string): Promise<mediaApi.CancelIntentResponse> {
+    return mediaApi.cancelIntent(this.invoke, id);
+  }
+
+  async applyIntent(id: string): Promise<mediaApi.ApplyIntentResponse> {
+    return mediaApi.applyIntent(this.invoke, id);
+  }
+
+  async discardIntent(id: string): Promise<mediaApi.DiscardIntentResponse> {
+    return mediaApi.discardIntent(this.invoke, id);
+  }
+
+  async batchIntents(body: mediaApi.BatchIntentsRequest): Promise<mediaApi.BatchIntentsResponse> {
+    return mediaApi.batchIntents(this.invoke, body);
   }
 
   async getBundles(): Promise<storefrontApi.BundlesResponse> {
@@ -410,6 +474,52 @@ export class ContentManagerClient {
     return productsApi.getChangeSets(this.invoke);
   }
 
+  // ── change sets, history revert, backups (plan 229) ───────────────────
+
+  async getChangeSet(id: string): Promise<changesApi.ChangeSet> {
+    return changesApi.getChangeSet(this.invoke, id);
+  }
+
+  /** PATCH validate/update (the history page's validating → validated flow). */
+  async updateChangeSet(
+    id: string,
+    patch: changesApi.ChangeSetPatch
+  ): Promise<changesApi.ChangeSet> {
+    return changesApi.updateChangeSet(this.invoke, id, patch);
+  }
+
+  async applyChangeSet(id: string): Promise<changesApi.ApplyChangeSetResponse> {
+    return changesApi.applyChangeSet(this.invoke, id);
+  }
+
+  async discardChangeSet(id: string): Promise<changesApi.DiscardChangeSetResponse> {
+    return changesApi.discardChangeSet(this.invoke, id);
+  }
+
+  async undoChangeSet(id: string): Promise<changesApi.UndoChangeSetResponse> {
+    return changesApi.undoChangeSet(this.invoke, id);
+  }
+
+  async redoChangeSet(id: string): Promise<changesApi.RedoChangeSetResponse> {
+    return changesApi.redoChangeSet(this.invoke, id);
+  }
+
+  async revertHistory(productId: string, toRev: number): Promise<changesApi.RevertHistoryResponse> {
+    return changesApi.revertHistory(this.invoke, productId, toRev);
+  }
+
+  async prunePreview(): Promise<changesApi.PrunePreviewResponse> {
+    return changesApi.prunePreview(this.invoke);
+  }
+
+  async pruneBackups(ids: string[]): Promise<changesApi.PruneBackupsResponse> {
+    return changesApi.pruneBackups(this.invoke, ids);
+  }
+
+  async restoreBackup(id: string): Promise<changesApi.RestoreBackupResponse> {
+    return changesApi.restoreBackup(this.invoke, id);
+  }
+
   async getBackups(params?: { page?: number; limit?: number }): Promise<syncApi.BackupsResponse> {
     return syncApi.getBackups(this.invoke, params);
   }
@@ -423,5 +533,18 @@ export class ContentManagerClient {
     entity_type?: string;
   }): Promise<syncApi.ConflictsResponse> {
     return syncApi.getConflicts(this.invoke, params);
+  }
+
+  // ── conflict resolution mutations (plan 229) ──────────────────────────
+
+  async resolveConflict(
+    id: string,
+    payload: conflictsApi.ConflictResolveRequest
+  ): Promise<conflictsApi.ConflictResolveResponse> {
+    return conflictsApi.resolveConflict(this.invoke, id, payload);
+  }
+
+  async retryConflict(id: string): Promise<conflictsApi.ConflictRetryResponse> {
+    return conflictsApi.retryConflict(this.invoke, id);
   }
 }

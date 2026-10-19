@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { ContentManagerClient } from '../../api/client.ts';
-import { fetchWithCredential } from '../credentialStore.ts';
+import { ContentManagerClient, type ConflictResolveRequest } from '../../api/client.ts';
 
 const client = new ContentManagerClient();
 
@@ -132,25 +131,14 @@ export function ConflictsPage(): React.ReactElement {
     }
 
     try {
-      const body: Record<string, unknown> = { field, resolution: fr.resolution };
+      const body: ConflictResolveRequest = {
+        field,
+        resolution: fr.resolution as ConflictResolveRequest['resolution'],
+      };
       if (fr.resolution === 'manual' && fr.manualValue) {
         body.manual_value = fr.manualValue;
       }
-      const response = await fetchWithCredential(
-        `/api/v1/conflicts/${encodeURIComponent(conflictId)}/resolve`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        }
-      );
-
-      if (!response.ok) {
-        const errBody = await response.json().catch(() => ({}));
-        throw new Error(
-          (errBody as { error?: { message?: string } }).error?.message ?? `HTTP ${response.status}`
-        );
-      }
+      await client.resolveConflict(conflictId, body);
 
       setFeedback(`Campo "${field}" resuelto`);
       void fetchConflicts();
@@ -161,20 +149,7 @@ export function ConflictsPage(): React.ReactElement {
 
   async function handleRetry(conflictId: string): Promise<void> {
     try {
-      const response = await fetchWithCredential(
-        `/api/v1/conflicts/${encodeURIComponent(conflictId)}/retry`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
-
-      if (!response.ok) {
-        const errBody = await response.json().catch(() => ({}));
-        throw new Error(
-          (errBody as { error?: { message?: string } }).error?.message ?? `HTTP ${response.status}`
-        );
-      }
+      await client.retryConflict(conflictId);
 
       setFeedback('Conflicto reenviado para reintento');
       void fetchConflicts();

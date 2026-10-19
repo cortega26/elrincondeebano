@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ContentManagerClient } from '../../api/client.ts';
-// Plan 115 exception: the workbench mutations (upload, intents) keep the
-// credential helper until they get client methods of their own.
-import { fetchWithCredential } from '../credentialStore.ts';
+import {
+  ContentManagerClient,
+  type MediaIntentType,
+  type MediaUploadRequest,
+} from '../../api/client.ts';
 
 const client = new ContentManagerClient();
 
@@ -134,13 +135,10 @@ export function MediaPage(): React.ReactElement {
     setTargetPath(target);
     setFileName(file.name);
 
-    const res = await fetchWithCredential('/api/v1/media/upload', {
-      method: 'POST',
-      body: JSON.stringify({
-        data: base64,
-        targetPath: target,
-        content_type: contentType,
-      }),
+    const res = await client.uploadMedia({
+      data: base64,
+      targetPath: target,
+      content_type: contentType as MediaUploadRequest['content_type'],
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
@@ -159,7 +157,10 @@ export function MediaPage(): React.ReactElement {
     );
   };
 
-  const createIntent = async (type: string, extra: Record<string, unknown> = {}): Promise<void> => {
+  const createIntent = async (
+    type: MediaIntentType,
+    extra: { category_slug?: string } = {}
+  ): Promise<void> => {
     setError(null);
     setFeedback(null);
     if (type === 'avif' || type === 'variant') {
@@ -168,9 +169,8 @@ export function MediaPage(): React.ReactElement {
         return;
       }
     }
-    const res = await fetchWithCredential('/api/v1/media/intents', {
-      method: 'POST',
-      body: JSON.stringify({
+    try {
+      await client.createIntent({
         type,
         staged_file: uploadState?.staged_file,
         // Plan 089: OG intents target the category's canonical OG asset;
@@ -181,11 +181,9 @@ export function MediaPage(): React.ReactElement {
             : targetPath,
         product_id: productId,
         ...extra,
-      }),
-    });
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      setError((body as { error?: { message?: string } }).error?.message ?? `Error ${res.status}`);
+      });
+    } catch (err) {
+      setError((err as Error).message);
       return;
     }
     setFeedback('Intent creado — ejecútalo para generar los derivados');
@@ -200,17 +198,13 @@ export function MediaPage(): React.ReactElement {
   ): Promise<void> => {
     setError(null);
     setFeedback(null);
-    const method = action === 'discard' ? 'DELETE' : 'POST';
-    const res = await fetchWithCredential(
-      `/api/v1/media/intents/${id}/${action === 'discard' ? '' : action}`,
-      {
-        method,
-        body: JSON.stringify({}),
-      }
-    );
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      setError((body as { error?: { message?: string } }).error?.message ?? `Error ${res.status}`);
+    try {
+      if (action === 'run') await client.runIntent(id);
+      else if (action === 'cancel') await client.cancelIntent(id);
+      else if (action === 'apply') await client.applyIntent(id);
+      else await client.discardIntent(id);
+    } catch (err) {
+      setError((err as Error).message);
       return;
     }
     setFeedback(
@@ -238,20 +232,13 @@ export function MediaPage(): React.ReactElement {
     if (ids.length === 0) return;
     setError(null);
     setFeedback(null);
-    const res = await fetchWithCredential('/api/v1/media/intents/batch', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, ids }),
-    });
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      setError((body as { error?: { message?: string } }).error?.message ?? `Error ${res.status}`);
+    let body: { applied: number; skipped: Array<{ id: string; reason: string }> };
+    try {
+      body = await client.batchIntents({ action, ids });
+    } catch (err) {
+      setError((err as Error).message);
       return;
     }
-    const body = (await res.json()) as {
-      applied: number;
-      skipped: Array<{ id: string; reason: string }>;
-    };
     setFeedback(
       `Batch ${action}: ${body.applied} aplicados` +
         (body.skipped.length > 0 ? `, ${body.skipped.length} omitidos` : '') +

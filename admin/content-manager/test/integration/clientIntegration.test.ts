@@ -200,3 +200,27 @@ test('real 409 race through the client resolves exactly-once, then recovers', as
   const recovered = await client.updateProduct(id, current.items[0].rev, { price: 104 });
   expect(recovered.product.price).toBe(104);
 });
+
+// Plan 229: one round trip over the new changes.ts client methods — the
+// history page's get → validate (PATCH) → discard lifecycle.
+test('client change-set lifecycle goes through changes.ts (plan 229)', async () => {
+  const created = await app.inject({
+    method: 'POST',
+    url: '/api/v1/change-sets',
+    payload: {},
+  });
+  expect(created.statusCode).toBe(201);
+  const { id } = JSON.parse(created.body) as { id: string };
+
+  const draft = await client.getChangeSet(id);
+  expect(draft.id).toBe(id);
+  expect(draft.status).toBe('draft');
+
+  const validating = await client.updateChangeSet(id, { status: 'validating' });
+  expect(validating.status).toBe('validating');
+  const validated = await client.updateChangeSet(id, { status: 'validated' });
+  expect(validated.status).toBe('validated');
+
+  const discarded = await client.discardChangeSet(id);
+  expect(discarded.status).toBe('discarded');
+});

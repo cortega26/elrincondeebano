@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ContentManagerClient } from '../../api/client.ts';
-import { fetchWithCredential } from '../credentialStore.ts';
+import { ApiRequestError, ContentManagerClient } from '../../api/client.ts';
 
 const client = new ContentManagerClient();
 
@@ -87,22 +86,14 @@ export function HistoryPage(): React.ReactElement {
     void load();
   }, [load]);
 
-  const post = async (url: string, payload?: Record<string, unknown>): Promise<boolean> => {
+  // Plan 229: the HTTP goes through the typed client; this helper only owns
+  // the busy/error/refresh UI feedback (same lifecycle as the old post()).
+  const post = async (action: () => Promise<unknown>): Promise<boolean> => {
     setBusy(true);
     setError(null);
     setFeedback(null);
     try {
-      const res = await fetchWithCredential(url, {
-        method: 'POST',
-        body: JSON.stringify(payload ?? {}),
-      });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        setError(
-          (body as { error?: { message?: string } }).error?.message ?? `Error ${res.status}`
-        );
-        return false;
-      }
+      await action();
       await load();
       return true;
     } catch (err) {
@@ -115,14 +106,14 @@ export function HistoryPage(): React.ReactElement {
 
   const handleApply = (id: string): void => {
     if (!window.confirm('Aplicar este change set al catálogo?')) return;
-    void post(`/api/v1/change-sets/${id}/apply`).then((ok) => {
+    void post(() => client.applyChangeSet(id)).then((ok) => {
       if (ok) setFeedback('Change set aplicado ✓');
     });
   };
 
   const handleDiscard = (id: string): void => {
     if (!window.confirm('Descartar este change set? Esta acción no se puede deshacer.')) return;
-    void post(`/api/v1/change-sets/${id}/discard`).then((ok) => {
+    void post(() => client.discardChangeSet(id)).then((ok) => {
       if (ok) setFeedback('Change set descartado');
     });
   };
@@ -131,19 +122,8 @@ export function HistoryPage(): React.ReactElement {
     setBusy(true);
     setError(null);
     try {
-      for (const status of ['validating', 'validated']) {
-        const res = await fetchWithCredential(`/api/v1/change-sets/${id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status }),
-        });
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          setError(
-            (body as { error?: { message?: string } }).error?.message ?? `Error ${res.status}`
-          );
-          return;
-        }
+      for (const status of ['validating', 'validated'] as const) {
+        await client.updateChangeSet(id, { status });
       }
       setFeedback('Change set validado');
       await load();
@@ -158,20 +138,7 @@ export function HistoryPage(): React.ReactElement {
     if (!window.confirm(`¿Revertir "${name}" al estado de la revisión ${rev}?`)) return;
     setBusy(true);
     try {
-      const res = await fetchWithCredential(
-        `/api/v1/history/${encodeURIComponent(productId)}/revert`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ to_rev: rev }),
-        }
-      );
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(
-          (body as { error?: { message?: string } }).error?.message ?? `HTTP ${res.status}`
-        );
-      }
+      await client.revertHistory(productId, rev);
       setFeedback('Producto revertido ✓');
       await load();
     } catch (err) {
@@ -183,14 +150,14 @@ export function HistoryPage(): React.ReactElement {
 
   const handleUndo = (id: string): void => {
     if (!window.confirm('Crear un change set inverso para deshacer este cambio?')) return;
-    void post(`/api/v1/change-sets/${id}/undo`).then((ok) => {
+    void post(() => client.undoChangeSet(id)).then((ok) => {
       if (ok) setFeedback('Change set inverso creado (validated) — revisa y aplica');
     });
   };
 
   const handleRedo = (id: string): void => {
     if (!window.confirm('Reaplicar la operación original (redo)?')) return;
-    void post(`/api/v1/change-sets/${id}/redo`).then((ok) => {
+    void post(() => client.redoChangeSet(id)).then((ok) => {
       if (ok) setFeedback('Change set de redo creado — revisa y aplica');
     });
   };
@@ -200,12 +167,12 @@ export function HistoryPage(): React.ReactElement {
   const loadPrunePreview = async (): Promise<void> => {
     setError(null);
     try {
-      const res = await fetchWithCredential('/api/v1/backup/prune-preview', { method: 'POST' });
-      if (!res.ok) return;
-      const data = (await res.json()) as { prunable: Array<{ id: string; reason: string }> };
+      const data = await client.prunePreview();
       setPrunePreview(data.prunable);
     } catch (err) {
-      setError((err as Error).message);
+      // The old wire stayed silent on non-ok responses (only transport
+      // errors reached the error banner) — keep that exact display.
+      if (!(err instanceof ApiRequestError)) setError((err as Error).message);
     }
   };
 
@@ -219,7 +186,7 @@ export function HistoryPage(): React.ReactElement {
       setPrunePreview([]);
       return;
     }
-    const ok = await post('/api/v1/backup/prune', { ids: prunePreview.map((p) => p.id) });
+    const ok = await post(() => client.pruneBackups(prunePreview.map((p) => p.id)));
     setPrunePreview([]);
     if (ok) setFeedback('Backups limpiados según política ✓');
   };
@@ -234,7 +201,7 @@ export function HistoryPage(): React.ReactElement {
       setRestoreTarget(null);
       return;
     }
-    const ok = await post(`/api/v1/backup/${restoreTarget.id}/restore`);
+    const ok = await post(() => client.restoreBackup(restoreTarget.id));
     setRestoreTarget(null);
     if (ok) setFeedback('Backup restaurado ✓');
   };
