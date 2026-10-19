@@ -386,3 +386,33 @@ test('shutdown clears multiple scheduled timers', async () => {
   expect(clearCalls).toBe(2);
   expect(timers.length).toBe(0);
 });
+
+// ── plan 248: explicit job id (durable outbox re-arm keeps the same id) ─────
+
+test('scheduleAt keeps an explicitly provided job id and fires under it', async () => {
+  const { clock, advance } = manualClock();
+  const runner = new JobRunner(clock);
+  const job = runner.scheduleAt<string>(
+    'scheduled',
+    async () => 're-armed',
+    new Date(clock.now() + 5_000),
+    'job-durable-1'
+  );
+
+  expect(job.id).toBe('job-durable-1');
+  expect(runner.getJob('job-durable-1')).toBe(job);
+
+  advance(5_000);
+  await vi.waitFor(() => expect(job.status).toBe('completed'), { timeout: 1000, interval: 10 });
+  expect(job.result).toBe('re-armed');
+});
+
+test('scheduleAt without an id keeps generating unique ids', () => {
+  const { clock } = manualClock();
+  const runner = new JobRunner(clock);
+  const first = runner.scheduleAt('scheduled', async () => 'a', new Date(clock.now() + 10_000));
+  const second = runner.scheduleAt('scheduled', async () => 'b', new Date(clock.now() + 10_000));
+
+  expect(first.id).toMatch(/^job-\d+-[0-9a-f]{6}$/);
+  expect(second.id).not.toBe(first.id);
+});

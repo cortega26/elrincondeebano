@@ -199,3 +199,53 @@ describe('PublicationPage preview block (plan 211)', () => {
     });
   });
 });
+
+describe('PublicationPage durable schedule notices (plan 248)', () => {
+  test('renders recovered/missed entries straight from the server response', async () => {
+    mockApi.listJobs.mockResolvedValue({
+      jobs: [],
+      recovered: [
+        {
+          job_id: 'job-late-1',
+          commit_message: 'publicación tardía',
+          publish_at: '2026-10-18T10:00:00.000Z',
+          fired_at: '2026-10-18T12:00:00.000Z',
+        },
+      ],
+      missed: [
+        {
+          job_id: 'job-missed-1',
+          commit_message: 'no publicada',
+          publish_at: '2026-10-10T10:00:00.000Z',
+          error: 'recovered_overdue: la hora programada venció hace más de 24 h',
+        },
+      ],
+    } as unknown as Awaited<ReturnType<typeof mockApi.listJobs>>);
+
+    renderWithRouter(<PublicationPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/publicado tarde tras un reinicio/i)).toBeInTheDocument();
+    });
+
+    const recovered = screen.getByRole('status');
+    expect(recovered).toHaveTextContent('job-late-1');
+    expect(recovered).toHaveTextContent('publicación tardía');
+
+    const missed = screen.getByRole('alert');
+    expect(missed).toHaveTextContent('job-missed-1');
+    expect(missed).toHaveTextContent('recovered_overdue');
+    expect(screen.getByText(/no publicadas \(requieren revisión\)/i)).toBeInTheDocument();
+  });
+
+  test('no notices when the server reports nothing recovered or missed', async () => {
+    mockApi.listJobs.mockResolvedValue({ jobs: [], recovered: [], missed: [] });
+    renderWithRouter(<PublicationPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/no hay publicaciones programadas/i)).toBeInTheDocument();
+    });
+    expect(screen.queryByText(/publicado tarde tras un reinicio/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/no publicadas \(requieren revisión\)/i)).not.toBeInTheDocument();
+  });
+});
