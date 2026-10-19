@@ -19,6 +19,12 @@ export default defineConfig({
         branches: 25,
         functions: 28,
         lines: 33,
+        // Plan 231 ratchet: module-level floors (achieved − 5; measured
+        // 100/100 on 2026-10-18). Raise with the PR that keeps it green.
+        'astro-poc/src/scripts/storefront/sw-registration.js': {
+          lines: 95,
+          functions: 95,
+        },
       },
     },
   },
