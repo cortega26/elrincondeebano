@@ -7,7 +7,10 @@
 > in `plans/README.md` — unless a reviewer dispatched you and told you they
 > maintain the index.
 >
-> **Drift check (run first)**: `git diff --stat 97b21096..HEAD -- tools/guardrails/ tools/preflight.js tools/run-parallel.mjs tools/preflight-hash.mjs eslint.config.cjs`
+> **Drift check (run first)**: `git diff --stat 7a5efb37..HEAD -- tools/guardrails/ tools/preflight.js tools/run-parallel.mjs tools/preflight-hash.mjs eslint.config.cjs`
+> (Reconciled to `7a5efb37`: plan 239 removed `tools/guardrails/critical-css.mjs`
+> and edited `run.mjs` — `critical-css.mjs` is gone from the migration
+> list; migrate what remains, locate by name.)
 > If files changed (plans 239/222 touch `tools/guardrails/`), re-read;
 > unexplained divergence is a STOP condition.
 
@@ -19,7 +22,7 @@
 - **Depends on**: 239 (critical-css retirement may shrink the guardrails
   suite — migrate whatever remains)
 - **Category**: tech-debt
-- **Planned at**: commit `97b21096`, 2026-10-18
+- **Planned at**: commit `97b21096`, 2026-10-18 (reconciled to `7a5efb37`; critical-css.mjs retired by plan 239 — migrate the remaining files)
 
 ## Why this matters
 

@@ -7,7 +7,10 @@
 > improvise a split that the gate rejected. When done, update the status
 > row for this plan in `plans/README.md`.
 >
-> **Drift check (run first)**: `git diff --stat 97b21096..HEAD -- astro-poc/src/layouts/BaseLayout.astro astro-poc/src/scripts/storefront.js astro-poc/src/components/Navbar.astro plans/archive/187-storefront-runtime-perf.md`
+> **Drift check (run first)**: `git diff --stat 7a5efb37..HEAD -- astro-poc/src/layouts/BaseLayout.astro astro-poc/src/scripts/storefront.js astro-poc/src/components/Navbar.astro plans/archive/187-storefront-runtime-perf.md`
+> (Reconciled to `7a5efb37`: `storefront.js` was rewired by plans
+> 218/219/231/245 (locate `initStorefront`/`createCartController` by name);
+> BaseLayout/Navbar are unchanged since the audit.)
 > If any changed, re-read before measuring; unexplained divergence is a
 > STOP condition.
 
@@ -18,7 +21,7 @@
 - **Risk**: MED if implemented (entry touches every page)
 - **Depends on**: none; must respect plan 187's recorded deferral
 - **Category**: perf
-- **Planned at**: commit `97b21096`, 2026-10-18
+- **Planned at**: commit `97b21096`, 2026-10-18 (reconciled to `7a5efb37`; storefront.js line refs are locate-by-name)
 
 ## Why this matters
 
