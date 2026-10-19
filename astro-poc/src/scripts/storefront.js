@@ -15,6 +15,7 @@ import {
 } from './storefront/catalog-view.js';
 import { createCartController } from './storefront/cart-controller.js';
 import { createCartViewController } from './storefront/cart-view.js';
+import { createDomHandlers } from './storefront/dom-handlers.js';
 import { createOrderSubmitController } from './storefront/order-submit.js';
 import { createRecoveryBannerController } from './storefront/recovery-banner.js';
 import {
@@ -1197,8 +1198,7 @@ function initStorefront() {
     syncAllActionAreas,
     companionRules,
   });
-  const { getCart, setCart, getQty, setQty, addBundleItems, updateQtyByDelta, clearCart } =
-    cartController;
+  const { getCart, setCart } = cartController;
   const orderSubmitController = createOrderSubmitController({
     createElement,
     formatCurrency,
@@ -1242,11 +1242,51 @@ function initStorefront() {
   markOrderAsSent = recoveryBannerController.markOrderAsSent;
   const cartOffcanvas = document.getElementById('cartOffcanvas');
 
-  const syncCartShortcutState = () => {
-    const currentCart = getCart();
-    const { totalAmount } = getCartState(currentCart);
-    syncMobileCartShortcut(currentCart, totalAmount);
-  };
+  // Plan 265: the DOM wiring (capture click delegation, change listener,
+  // cart-offcanvas events, catalog controls, cross-tab hookup) lives in the
+  // factory; this root only instantiates it and attaches the returned
+  // handlers below in the original order.
+  const domHandlers = createDomHandlers({
+    documentRef: document,
+    windowRef: globalThis.window,
+    cartController,
+    catalogController,
+    orderSubmitController,
+    setCartOffcanvasState,
+    syncMobileCartShortcut,
+    getCartState,
+    openCartOffcanvas,
+    trackAnalyticsEvent,
+    isMobileViewport,
+    debounce,
+    normalizeId,
+    log,
+    getProductFromCard,
+    getProductByIdFromSource,
+    getProductCardById,
+    submitCartOrder,
+    executeSendOrder,
+    markOrderAsSent,
+    hidePostSubmitToast,
+    closeOrderConfirmationDialog,
+    getSelectedPaymentValue,
+    savePreferredPayment,
+    saveSubstitutionPreference,
+    syncCheckoutState,
+    loadLastOrder,
+    hydrateCartFromOrder,
+    saveCart,
+    showCartSaveError,
+    updateBadge,
+    renderCart,
+    renderCompanionSuggestions,
+    syncAllActionAreas,
+    companionRules,
+    populateProfileForm,
+    saveProfile,
+    readProfileForm,
+    setPreferredPayment,
+  });
 
   setCartOffcanvasState(
     cartOffcanvas instanceof HTMLElement && cartOffcanvas.classList.contains('show')
@@ -1259,307 +1299,33 @@ function initStorefront() {
   initHomeExperienceTelemetry();
 
   if (cartOffcanvas instanceof HTMLElement) {
-    const handleOpen = () => {
-      setCartOffcanvasState(true);
-      syncCartShortcutState();
-    };
-    const handleClose = () => {
-      setCartOffcanvasState(false);
-      syncCartShortcutState();
-    };
-
-    cartOffcanvas.addEventListener('show.bs.offcanvas', handleOpen);
-    cartOffcanvas.addEventListener('shown.bs.offcanvas', handleOpen);
-    cartOffcanvas.addEventListener('hide.bs.offcanvas', handleClose);
-    cartOffcanvas.addEventListener('hidden.bs.offcanvas', handleClose);
+    cartOffcanvas.addEventListener('show.bs.offcanvas', domHandlers.handleCartOffcanvasOpen);
+    cartOffcanvas.addEventListener('shown.bs.offcanvas', domHandlers.handleCartOffcanvasOpen);
+    cartOffcanvas.addEventListener('hide.bs.offcanvas', domHandlers.handleCartOffcanvasClose);
+    cartOffcanvas.addEventListener('hidden.bs.offcanvas', domHandlers.handleCartOffcanvasClose);
   }
 
-  // Plan 245: storage events are adopted by the controller (latest persisted
-  // snapshot, read-only — never a replayed event.newValue).
-  if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
-    window.addEventListener('storage', cartController.adoptCrossTabEvent);
-  }
-
-  const repeatLastOrder = () => {
-    const order = loadLastOrder();
-    if (!order || !Array.isArray(order.items) || order.items.length === 0) {
-      return;
-    }
-    const nextCart = hydrateCartFromOrder(order);
-
-    if (!saveCart(nextCart)) {
-      showCartSaveError();
-      return;
-    }
-
-    setCart(nextCart);
-    updateBadge(nextCart, { animate: true });
-    renderCart(nextCart, { animateTotal: true });
-    renderCompanionSuggestions(nextCart, companionRules);
-    syncAllActionAreas(nextCart);
-    if (order.profile) {
-      populateProfileForm(order.profile);
-      saveProfile(readProfileForm());
-    }
-    if (order.payment) {
-      setPreferredPayment(order.payment);
-      savePreferredPayment(order.payment);
-    }
-    if (order.substitutionPreference) {
-      saveSubstitutionPreference(order.substitutionPreference);
-      const substitutionSelect = document.getElementById('substitution-preference');
-      if (substitutionSelect instanceof HTMLSelectElement) {
-        substitutionSelect.value = order.substitutionPreference;
-      }
-    }
-    syncCheckoutState(nextCart, getCartState(nextCart).totalAmount);
-    openCartOffcanvas();
-  };
-
-  const onDocumentClick = (event) => {
-    const target = event.target;
-    if (!(target instanceof Element)) {
-      return;
-    }
-
-    const cartIcon = target.closest('#cart-icon');
-    if (cartIcon) {
-      event.preventDefault();
-      openCartOffcanvas();
-      return;
-    }
-
-    const mobileCartShortcut = target.closest('#mobile-cart-shortcut');
-    if (mobileCartShortcut) {
-      event.preventDefault();
-      trackAnalyticsEvent('mobile_cart_shortcut_click', {
-        source: 'floating_shortcut',
-      });
-      openCartOffcanvas();
-      return;
-    }
-
-    const notifyWhenBack = target.closest('[data-notify-whatsapp]');
-    if (notifyWhenBack) {
-      const sku = notifyWhenBack.getAttribute('data-notify-sku') || '';
-      const name = notifyWhenBack.getAttribute('data-notify-name') || '';
-      trackAnalyticsEvent('notify_when_back', {
-        sku,
-        name,
-      });
-    }
-
-    const heroCta = target.closest('[data-home-hero-cta]');
-    if (heroCta) {
-      const href = heroCta.getAttribute('href') || '';
-      trackAnalyticsEvent('home_hero_primary_cta_click', {
-        destination: href || '/combos/',
-      });
-    }
-
-    const repeatBtn = target.closest('[data-repeat-last-order]');
-    if (repeatBtn) {
-      event.preventDefault();
-      repeatLastOrder();
-      return;
-    }
-
-    const bundleBtn = target.closest('[data-bundle-payload]');
-    if (bundleBtn) {
-      event.preventDefault();
-      try {
-        const bundleItems = JSON.parse(bundleBtn.getAttribute('data-bundle-payload') || '[]');
-        if (addBundleItems(bundleItems)) {
-          openCartOffcanvas();
-        }
-      } catch (error) {
-        log('warn', 'bundle_payload_parse_failed', { error });
-      }
-      return;
-    }
-
-    const addBtn = target.closest('.add-to-cart-btn');
-    if (addBtn) {
-      if (addBtn instanceof HTMLButtonElement && addBtn.disabled) {
-        return;
-      }
-      event.preventDefault();
-      const id = normalizeId(addBtn.getAttribute('data-id'));
-      const card = addBtn.closest('.producto');
-      const product = getProductFromCard(card);
-      if (id && product && product.stock !== false) {
-        addBtn.classList.add('is-added');
-        globalThis.setTimeout(() => {
-          addBtn.classList.remove('is-added');
-        }, 280);
-        setQty(id, Math.max(getQty(id, product), 0) + 1, product);
-        if (isMobileViewport()) {
-          trackAnalyticsEvent('mobile_add_to_cart', {
-            id,
-            name: product.name,
-            price: product.price,
-          });
-        }
-      }
-      return;
-    }
-
-    const companionAddBtn = target.closest('[data-role="companion-add"]');
-    if (companionAddBtn) {
-      event.preventDefault();
-      const id = normalizeId(companionAddBtn.getAttribute('data-id'));
-      const product = getProductByIdFromSource(id) || getProductFromCard(getProductCardById(id));
-      if (id && product && product.stock !== false) {
-        setQty(id, Math.max(getQty(id, product), 0) + 1, product);
-      }
-      return;
-    }
-
-    const qtyBtn = target.closest('.quantity-btn');
-    if (qtyBtn) {
-      event.preventDefault();
-      const id = normalizeId(qtyBtn.getAttribute('data-id'));
-      const action = qtyBtn.getAttribute('data-action');
-      if (id && action === 'increase') {
-        updateQtyByDelta(id, 1);
-      }
-      if (id && action === 'decrease') {
-        updateQtyByDelta(id, -1);
-      }
-      return;
-    }
-
-    const removeBtn = target.closest('.remove-item');
-    if (removeBtn) {
-      event.preventDefault();
-      const id = normalizeId(removeBtn.getAttribute('data-id'));
-      if (id) {
-        setQty(id, 0);
-      }
-      return;
-    }
-
-    const emptyBtn = target.closest('#empty-cart');
-    if (emptyBtn) {
-      event.preventDefault();
-      if (globalThis.confirm('¿Quieres vaciar el carrito completo?')) {
-        clearCart();
-      }
-      return;
-    }
-
-    const submitBtn = target.closest('#submit-cart');
-    if (submitBtn) {
-      event.preventDefault();
-      submitCartOrder(getCart());
-      return;
-    }
-
-    const confirmSendBtn = target.closest('#order-confirm-send');
-    if (confirmSendBtn) {
-      event.preventDefault();
-      const pending = orderSubmitController.takePendingOrder();
-      executeSendOrder(pending);
-      return;
-    }
-
-    const markSentBtn = target.closest('#order-mark-sent');
-    if (markSentBtn) {
-      event.preventDefault();
-      markOrderAsSent();
-      return;
-    }
-
-    const dismissToastBtn = target.closest('#order-toast-dismiss');
-    if (dismissToastBtn) {
-      event.preventDefault();
-      hidePostSubmitToast();
-      return;
-    }
-
-    const orderConfirmClose = target.closest('[data-order-confirm-close]');
-    if (orderConfirmClose) {
-      event.preventDefault();
-      closeOrderConfirmationDialog();
-      orderSubmitController.takePendingOrder();
-    }
-  };
+  domHandlers.attachStorageListener();
 
   // Register the click delegate before the rest of the hydration work finishes
   // so the hero CTA is protected even when Chrome users click as soon as the
   // page paints.
-  document.addEventListener('click', onDocumentClick, true);
+  document.addEventListener('click', domHandlers.onDocumentClick, true);
 
-  document.addEventListener('change', (event) => {
-    const target = event.target;
-    if (!(target instanceof Element)) {
-      return;
-    }
+  document.addEventListener('change', domHandlers.onDocumentChange);
 
-    if (target.id === 'sort-options' || target.id === 'filter-discount') {
-      catalogController.resetVisibleLimit();
-      catalogController.updateView();
-      return;
-    }
-
-    if (target.matches('input[name="paymentMethod"]')) {
-      const paymentError = document.getElementById('payment-error');
-      if (paymentError) {
-        paymentError.textContent = '';
-      }
-      const selectedPayment = getSelectedPaymentValue();
-      if (selectedPayment) {
-        savePreferredPayment(selectedPayment);
-      }
-      const currentCart = getCart();
-      const { totalAmount } = getCartState(currentCart);
-      syncCheckoutState(currentCart, totalAmount);
-      return;
-    }
-
-    if (target.id === 'substitution-preference' && target instanceof HTMLSelectElement) {
-      saveSubstitutionPreference(target.value);
-    }
-  });
-
-  keywordInput?.addEventListener(
-    'input',
-    debounce(() => {
-      catalogController.resetVisibleLimit();
-      catalogController.updateView();
-    })
-  );
+  keywordInput?.addEventListener('input', domHandlers.onKeywordInput);
 
   const loadMoreBtn = document.getElementById('catalog-load-more');
-  loadMoreBtn?.addEventListener('click', () => {
-    catalogController.loadMore();
-  });
+  loadMoreBtn?.addEventListener('click', domHandlers.onLoadMoreClick);
 
   const clearBtn = document.getElementById('filter-clear');
-  clearBtn?.addEventListener('click', () => {
-    const keywordField = document.getElementById('filter-keyword');
-    const sortField = document.getElementById('sort-options');
-    const discountField = document.getElementById('filter-discount');
-    if (keywordField instanceof HTMLInputElement) {
-      keywordField.value = '';
-      keywordField.focus();
-    }
-    if (sortField instanceof HTMLSelectElement) {
-      sortField.value = 'original';
-    }
-    if (discountField instanceof HTMLInputElement) {
-      discountField.checked = false;
-    }
-    catalogController.resetVisibleLimit();
-    catalogController.updateView();
-  });
+  clearBtn?.addEventListener('click', domHandlers.onClearClick);
 
   // Plan 215: el estado vacío reutiliza el Limpiar principal (resetea
   // búsqueda + orden + ofertas y devuelve el foco al campo de búsqueda).
   const emptyClearBtn = document.getElementById('catalog-empty-clear');
-  emptyClearBtn?.addEventListener('click', () => {
-    document.getElementById('filter-clear')?.click();
-  });
+  emptyClearBtn?.addEventListener('click', domHandlers.onEmptyClearClick);
 
   hydrateProfilePersistence();
   const currentCart = getCart();
