@@ -24,7 +24,8 @@ import { importRoutes } from './routes/importRoutes.ts';
 import { storefrontMutRoutes } from './routes/storefront.ts';
 import { publicationRoutes } from './routes/publication.ts';
 import { previewRoutes } from './routes/previewRoutes.ts';
-import { JobRunner } from './services/jobRunner.ts';
+import { JobRunner, systemClock, type JobClock } from './services/jobRunner.ts';
+import { ScheduledPublications } from './services/scheduledPublications.ts';
 import { GitAdapter } from './adapters/gitAdapter.ts';
 import { ConflictService } from '../domain/conflicts/conflictService.ts';
 import { ConflictRepository } from './repositories/conflictRepository.ts';
@@ -51,6 +52,8 @@ export interface AppOptions {
   launchCredential?: string;
   /** Dedicated HTTPS origin when run behind a loopback reverse tunnel. */
   remoteOrigin?: string;
+  /** Plan 248: injectable job clock — tests drive fire/recovery timing. */
+  clock?: JobClock;
 }
 
 function loadSyncConfig(configPath: string): SyncConfig {
@@ -147,7 +150,10 @@ export function createApp(opts?: AppOptions): FastifyInstance {
   const syncAdapter = new SyncAdapter(syncConfig);
   const syncService = new SyncService(repoRoot, syncAdapter, repos);
 
-  const jobRunner = new JobRunner();
+  const jobRunner = new JobRunner(opts?.clock ?? systemClock);
+  // Plan 248: durable outbox for scheduled publications (gitignored runtime
+  // state) — shared by the routes and the boot recovery in publicationRoutes.
+  const scheduledPublications = new ScheduledPublications(repoRoot);
 
   // Plan 097: background auto-sync — polls the queue (push) and pulls remote
   // changes while sync is enabled and not paused. The adapter config is
@@ -251,7 +257,11 @@ export function createApp(opts?: AppOptions): FastifyInstance {
 
   app.register(
     async function (instance) {
-      await publicationRoutes(instance, repos, jobRunner, git, productService, repoRoot);
+      await publicationRoutes(instance, repos, jobRunner, git, productService, repoRoot, {
+        scheduledPublications,
+        idempotencyStore,
+        enableWrites,
+      });
     },
     { prefix: '/api/v1' }
   );

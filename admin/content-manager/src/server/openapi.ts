@@ -604,7 +604,7 @@ export function buildOpenApi() {
   registry.registerPath({
     method: 'get',
     path: '/api/v1/jobs',
-    summary: 'List pending/running jobs',
+    summary: 'List pending/running jobs, plus recovered/missed scheduled publications',
     responses: jsonResponse(
       z.object({
         jobs: z.array(
@@ -616,6 +616,25 @@ export function buildOpenApi() {
             started_at: z.string().optional(),
             completed_at: z.string().optional(),
             scheduled_at: z.string().optional(),
+          })
+        ),
+        // Plan 248: durable-outbox notices — `recovered` fired late after a
+        // restart, `missed` never fired (stale > 24 h or crash without commit
+        // evidence); both read from data/scheduled-publications.json.
+        recovered: z.array(
+          z.object({
+            job_id: z.string(),
+            commit_message: z.string(),
+            publish_at: z.string(),
+            fired_at: z.string().optional(),
+          })
+        ),
+        missed: z.array(
+          z.object({
+            job_id: z.string(),
+            commit_message: z.string(),
+            publish_at: z.string(),
+            error: z.string().optional(),
           })
         ),
       })

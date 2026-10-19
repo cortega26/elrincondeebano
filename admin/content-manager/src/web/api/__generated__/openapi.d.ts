@@ -2349,7 +2349,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List pending/running jobs */
+    /** List pending/running jobs, plus recovered/missed scheduled publications */
     get: {
       parameters: {
         query?: never;
@@ -2374,6 +2374,18 @@ export interface paths {
                 started_at?: string;
                 completed_at?: string;
                 scheduled_at?: string;
+              }[];
+              recovered: {
+                job_id: string;
+                commit_message: string;
+                publish_at: string;
+                fired_at?: string;
+              }[];
+              missed: {
+                job_id: string;
+                commit_message: string;
+                publish_at: string;
+                error?: string;
               }[];
             };
           };
