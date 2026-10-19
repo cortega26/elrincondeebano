@@ -215,11 +215,14 @@ jobs:
 
       - name: Run live browser contract probe
         shell: bash
+        env:
+          BASE_URL: ${{ needs.artifact-canary.outputs.base_url }}
+          TIMEOUT_MS: ${{ needs.artifact-canary.outputs.timeout_ms }}
         run: |
           mkdir -p reports/canary
           node tools/live-browser-contract.mjs \
-            --base-url "${{ needs.artifact-canary.outputs.base_url }}" \
-            --timeout-ms "${{ needs.artifact-canary.outputs.timeout_ms }}" \
+            --base-url "$BASE_URL" \
+            --timeout-ms "$TIMEOUT_MS" \
             --report reports/canary/live-browser.json
 
       - name: Run live canary probes (allowed network)
