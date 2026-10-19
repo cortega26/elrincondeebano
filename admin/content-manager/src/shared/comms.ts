@@ -1,5 +1,6 @@
 // Plan 217 / ADR 0011: lógica pura del módulo de comunicaciones (sin DOM ni
 // fs) — compartida por el servidor (validación) y la SPA (composición).
+import { foldAccents } from './text.ts';
 import {
   COMMS_BACKUP_FORMAT,
   COMMS_SCHEMA_VERSION,
@@ -234,7 +235,7 @@ export function searchTemplates(templates: CommsTemplate[], query: string): Comm
 }
 
 function normalizeText(value: string): string {
-  return value.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim();
+  return foldAccents(value.toLowerCase()).replace(/\s+/g, ' ').trim();
 }
 
 /** Errores de integridad que el schema no cubre (ids duplicados). */

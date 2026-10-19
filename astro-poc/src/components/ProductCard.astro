@@ -14,13 +14,11 @@ const { product, sku } = item;
 const { index = 0 } = Astro.props;
 const { compactMobile = false } = Astro.props;
 const isLikelyLcp = index === 0;
-const card = computeProductCardData(product, index);
+const card = computeProductCardData(product, index, sku);
 const price = card.price;
-const discount = card.discount;
 const finalPrice = card.finalPrice;
 const hasDiscount = card.hasDiscount;
 const discountPercent = card.discountPercent;
-const searchText = card.searchText;
 const image = card.imageSource;
 const avifImage = card.avifImageSource;
 const hasAvifSource = typeof avifImage?.srcset === 'string' && avifImage.srcset.length > 0;
@@ -34,16 +32,7 @@ const productPath = `/p/${sku}/`;
 
 <article
   class={`producto col-6 col-sm-6 col-md-4 col-lg-3 ${compactMobile ? 'producto--compact-mobile' : ''}`.trim()}
-  data-product-id={sku}
-  data-product-name={product.name}
-  data-product-category={product.category}
-  data-product-description={product.description || ''}
-  data-product-search-text={searchText}
-  data-product-price={price}
-  data-product-discount={discount}
-  data-product-final-price={finalPrice}
-  data-product-order={index}
-  data-product-stock={product.stock ?? true}
+  {...card.dataAttributes}
   data-compact-mobile={compactMobile ? 'true' : 'false'}
 >
   <div class="card h-100">

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ContentManagerClient, ApiRequestError } from '../../api/client.ts';
 import type { CategoryResponse } from '../../api/client.ts';
 import type { CategoryRecord, Subcategory } from '../../../shared/schemas/category.ts';
+import { foldAccents } from '../../../shared/text.ts';
 import {
   buildCategoryUndoEntry,
   loadStack,
@@ -795,10 +796,7 @@ function CategoryForm({
                   // Plan 096: auto-slug from the title when the fields are
                   // still empty (slugify: lowercase, no accents, dashes).
                   if (f === 'display_name') {
-                    const slug = value
-                      .toLowerCase()
-                      .normalize('NFD')
-                      .replace(/[\u0300-\u036f]/g, '')
+                    const slug = foldAccents(value.toLowerCase())
                       .replace(/[^a-z0-9]+/g, '-')
                       .replace(/^-+|-+$/g, '');
                     if (slug) {

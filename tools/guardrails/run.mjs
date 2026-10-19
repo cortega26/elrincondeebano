@@ -11,7 +11,6 @@ const stages = [
   'sw-cache-bump.mjs',
   'sw-forbidden.mjs',
   'canonical-tree.mjs',
-  'critical-css.mjs',
   'legacy-storefront-surface.mjs',
   'image-size-check.mjs',
   'orphan-assets.js',
