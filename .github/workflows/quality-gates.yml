@@ -34,7 +34,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install lizard
-        run: pip install lizard
+        run: pip install -r tools/requirements-lizard.txt
 
       - name: Run complexity analysis
         run: |

@@ -1,0 +1,2 @@
+# Pinned for the quality-gates complexity job; lizard counting/thresholds are release-sensitive.
+lizard==1.24.1
