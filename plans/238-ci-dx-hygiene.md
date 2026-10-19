@@ -7,7 +7,13 @@
 > in `plans/README.md` — unless a reviewer dispatched you and told you they
 > maintain the index.
 >
-> **Drift check (run first)**: `git diff --stat 97b21096..HEAD -- .github/workflows/ .github/actions/setup-node-and-deps/action.yml package.json docs/onboarding/BOOTSTRAP.md CONTRIBUTING.md docs/START_HERE.md tools/requirements-lizard.txt`
+> **Drift check (run first)**: `git diff --stat d54e9b7f..HEAD -- .github/workflows/ .github/actions/setup-node-and-deps/action.yml package.json docs/onboarding/BOOTSTRAP.md CONTRIBUTING.md docs/START_HERE.md tools/requirements-lizard.txt`
+> (Reconciled to `d54e9b7f`: plan 222 changed `images.yml`, 225
+> `rollback.yml` (env-pass + validation), 227 `admin.yml` (lint one-liner),
+> 233 `ci.yml` (new `build-contract-tests` job), 232 repadded
+> `docs/START_HERE.md` tables — locate the `test:e2e` row by content, not
+> by line number. Line refs in this plan for admin.yml/quality-gates.yml
+> may have shifted: locate steps by name.)
 > If any in-scope file changed since this plan was written, compare the
 > "Current state" excerpts against the live code before proceeding; on a
 > mismatch, treat it as a STOP condition.
@@ -20,7 +26,12 @@
 - **Depends on**: 222, 225, 233 (this plan touches every workflow — run it
   last in the CI group so the other fixes are already in)
 - **Category**: dx
-- **Planned at**: commit `97b21096`, 2026-10-18
+- **Planned at**: commit `97b21096`, 2026-10-18 (reconciled to `d54e9b7f` after plans 222/225/227/232/233; locate steps/rows by name)
+- **Reviewer addition (2026-10-18)**: also update the informational
+  `- Jobs:` line in the `verify` job's `GITHUB_STEP_SUMMARY` heredoc
+  (`ci.yml`, lists 7 jobs) to include `build-contract-tests` — plan 233
+  added the job but left that line untouched (its plan scoped only
+  `needs` + `check_job`).
 
 ## Why this matters
 
