@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
 import deterministicTime from './utils/deterministic-time.js';
+import { logger } from './utils/logger.mjs';
 
 const DEFAULT_OUTPUT_DIR = path.resolve(process.cwd(), 'reports', 'snapshots');
 const DEFAULT_VIEWPORT = { width: 1280, height: 720 };
@@ -204,13 +205,7 @@ async function runCli() {
   if (values['replace-last']) {
     removedSnapshot = await removeLatestSnapshot(manifestPath, { deleteArtifact: false });
     if (removedSnapshot) {
-      console.info(
-        JSON.stringify({
-          level: 'info',
-          message: 'snapshot-removed',
-          snapshot: removedSnapshot,
-        })
-      );
+      logger.info('snapshot-removed', { snapshot: removedSnapshot });
     }
   }
 
@@ -234,13 +229,7 @@ async function runCli() {
       }
     }
 
-    console.info(
-      JSON.stringify({
-        level: 'info',
-        message: 'snapshot-created',
-        snapshot: entry,
-      })
-    );
+    logger.info('snapshot-created', { snapshot: entry });
   } catch (error) {
     if (removedSnapshot) {
       await appendSnapshotMetadata(manifestPath, removedSnapshot);
@@ -251,16 +240,12 @@ async function runCli() {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   runCli().catch((error) => {
-    console.error(
-      JSON.stringify({
-        level: 'error',
-        message: 'snapshot-failed',
-        error: {
-          name: error.name,
-          message: error.message,
-        },
-      })
-    );
+    logger.error('snapshot-failed', {
+      error: {
+        name: error.name,
+        message: error.message,
+      },
+    });
     process.exitCode = 1;
   });
 }

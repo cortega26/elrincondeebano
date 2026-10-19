@@ -12,6 +12,7 @@ import {
   normalizeAllowlistedBaseUrl,
 } from './share-preview-contract.mjs';
 import { parseOptionalIntegerOption, writeJsonReport } from './utils/cli.mjs';
+import { logger } from './utils/logger.mjs';
 
 const DEFAULT_BASE_URL = 'https://www.elrincondeebano.com';
 const DEFAULT_TIMEOUT_MS = 15000;
@@ -313,7 +314,7 @@ async function main() {
   });
 
   writeJsonReport(reportPath, report);
-  console.log(
+  logger.info(
     `Share-preview monitor passed for ${report.checks.length} route(s). Report: ${reportPath}`
   );
 }
@@ -323,7 +324,7 @@ const isMainModule =
 
 if (isMainModule) {
   main().catch((error) => {
-    console.error(error.message || error);
+    logger.error(error.message || error);
     process.exitCode = 1;
   });
 }

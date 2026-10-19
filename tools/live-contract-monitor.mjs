@@ -8,6 +8,7 @@ import {
   summarizeSecurityHeaderFailure,
 } from './security-header-policy.mjs';
 import { parseOptionalIntegerOption, writeJsonReport } from './utils/cli.mjs';
+import { logger } from './utils/logger.mjs';
 
 const DEFAULT_BASE_URL = 'https://www.elrincondeebano.com';
 const DEFAULT_TIMEOUT_MS = 15000;
@@ -440,6 +441,10 @@ export async function runMonitor({
   };
 
   writeJsonReport(reportPath, report);
+  // Machine payload: the JSON report stays on raw stdout. It must remain
+  // console.log (not process.stdout.write) because
+  // test/live-contract-monitor.test.js captures it through a mocked
+  // console.log and JSON-parses the first captured line (plan 255).
   console.log(JSON.stringify(report, null, 2));
 
   if (confirmedAvailabilityFailures.length > 0) {
@@ -511,7 +516,7 @@ async function runCli() {
 const isDirectRun = process.argv[1] === fileURLToPath(import.meta.url);
 if (isDirectRun) {
   runCli().catch((error) => {
-    console.error(error?.message || String(error));
+    logger.error(error?.message || String(error));
     process.exitCode = 1;
   });
 }

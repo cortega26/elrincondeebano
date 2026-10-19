@@ -7,6 +7,7 @@ import { once } from 'node:events';
 import lighthouse from 'lighthouse';
 import { launch as launchChrome } from 'chrome-launcher';
 import deterministicTime from './utils/deterministic-time.js';
+import { logger } from './utils/logger.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,7 +30,7 @@ const MIME_TYPES = {
 };
 
 async function runBuild() {
-  console.log('Ejecutando "npm run build"...');
+  logger.info('Ejecutando "npm run build"...');
   await new Promise((resolve, reject) => {
     const buildProcess = spawn(npmCmd, ['run', 'build'], {
       cwd: rootDir,
@@ -115,7 +116,9 @@ export function createStaticServer(root) {
 
       const stream = fs.createReadStream(finalPath);
       stream.on('error', (error) => {
-        console.error('Error al enviar el archivo:', error);
+        logger.error('Error al enviar el archivo:', {
+          error: error instanceof Error ? error.message : String(error),
+        });
         if (!res.headersSent) {
           res.statusCode = 500;
         }
@@ -128,7 +131,9 @@ export function createStaticServer(root) {
       res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
       stream.pipe(res);
     } catch (error) {
-      console.error('Error en el servidor estático:', error);
+      logger.error('Error en el servidor estático:', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       if (!res.headersSent) {
         res.statusCode = 500;
         res.end('Internal Server Error');
@@ -138,7 +143,7 @@ export function createStaticServer(root) {
 }
 
 async function runLighthouseAudit(targetUrl, preset, timestamp) {
-  console.log(`Iniciando auditoría Lighthouse (${preset})...`);
+  logger.info(`Iniciando auditoría Lighthouse (${preset})...`);
   const chrome = await launchChrome({
     chromeFlags: ['--headless=new', '--no-sandbox', '--disable-gpu'],
   });
@@ -159,7 +164,7 @@ async function runLighthouseAudit(targetUrl, preset, timestamp) {
     fs.writeFileSync(htmlPath, htmlReport, 'utf8');
     fs.writeFileSync(jsonPath, jsonReport, 'utf8');
 
-    console.log(
+    logger.info(
       `Auditoría ${preset} completada. Reportes guardados en:\n  - ${htmlPath}\n  - ${jsonPath}`
     );
   } finally {
@@ -172,7 +177,7 @@ async function main() {
   if (!process.env.LH_SKIP_BUILD) {
     await runBuild();
   } else {
-    console.log('Omitiendo build (LH_SKIP_BUILD=1).');
+    logger.info('Omitiendo build (LH_SKIP_BUILD=1).');
   }
 
   const astroDistRoot = path.join(rootDir, 'astro-poc', 'dist');
@@ -181,7 +186,7 @@ async function main() {
   await new Promise((resolve, reject) => {
     server.once('error', reject);
     server.listen(port, '127.0.0.1', () => {
-      console.log(`Servidor estático iniciado en http://127.0.0.1:${port}`);
+      logger.info(`Servidor estático iniciado en http://127.0.0.1:${port}`);
       resolve();
     });
   });
@@ -199,7 +204,7 @@ async function main() {
   } finally {
     await new Promise((resolve) => server.close(resolve));
     await once(server, 'close');
-    console.log('Servidor estático detenido.');
+    logger.info('Servidor estático detenido.');
   }
 }
 
@@ -212,7 +217,9 @@ function isDirectExecution() {
 
 if (isDirectExecution()) {
   main().catch((error) => {
-    console.error('Fallo en la auditoría Lighthouse:', error);
+    logger.error('Fallo en la auditoría Lighthouse:', {
+      error: error instanceof Error ? error.message : String(error),
+    });
     process.exit(1);
   });
 }
