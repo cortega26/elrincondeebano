@@ -7,7 +7,11 @@
 > in `plans/README.md` — unless a reviewer dispatched you and told you they
 > maintain the index.
 >
-> **Drift check (run first)**: `git diff --stat 97b21096..HEAD -- assets/css/ tools/guardrails/critical-css.mjs tools/guardrails/run.mjs scripts/check-css-order.mjs package.json tools/guardrails/orphan-assets.allowlist.json astro-poc/src/lib/product-card-helpers.ts astro-poc/src/components/ProductCard.astro astro-poc/src/components/ProductCardStrip.astro astro-poc/src/components/ProductDetail.astro admin/content-manager/src/shared/comms.ts admin/content-manager/src/shared/text.ts docs/architecture/CODEBASE_MAP.md docs/INCIDENTS.md`
+> **Drift check (run first)**: `git diff --stat de31bcf3..HEAD -- assets/css/ tools/guardrails/critical-css.mjs tools/guardrails/run.mjs scripts/check-css-order.mjs package.json tools/guardrails/orphan-assets.allowlist.json astro-poc/src/lib/product-card-helpers.ts astro-poc/src/components/ProductCard.astro astro-poc/src/components/ProductCardStrip.astro astro-poc/src/components/ProductDetail.astro admin/content-manager/src/shared/comms.ts admin/content-manager/src/shared/text.ts docs/architecture/CODEBASE_MAP.md docs/INCIDENTS.md`
+> (Reconciled to `de31bcf3`: `package.json` gained `lint:md` +
+> markdownlint-cli2 (238) — keep that intact; `CODEBASE_MAP.md` was updated
+> by plans 226/232 — re-read row 13 before touching it; `shared/comms.ts`
+> was hardened by 230 — preserve its current normalizePhone/comment state.)
 > If any in-scope file changed since this plan was written, compare the
 > "Current state" excerpts against the live code before proceeding; on a
 > mismatch, treat it as a STOP condition.
@@ -19,7 +23,7 @@
 - **Risk**: MED (deletions — each section has a verification step)
 - **Depends on**: 232 (docs batch adjusts the CODEBASE_MAP row first; this plan then removes or re-points it), 231 (the card-attribute test is written there if you choose the spread path)
 - **Category**: tech-debt
-- **Planned at**: commit `97b21096`, 2026-10-18
+- **Planned at**: commit `97b21096`, 2026-10-18 (reconciled to `de31bcf3` after plans 226/230/232/238)
 
 ## Why this matters
 
