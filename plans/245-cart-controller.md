@@ -7,7 +7,11 @@
 > in `plans/README.md` — unless a reviewer dispatched you and told you they
 > maintain the index.
 >
-> **Drift check (run first)**: `git diff --stat 97b21096..HEAD -- astro-poc/src/scripts/storefront.js astro-poc/src/scripts/storefront/cart-controller.js`
+> **Drift check (run first)**: `git diff --stat 582ba688..HEAD -- astro-poc/src/scripts/storefront.js astro-poc/src/scripts/storefront/cart-controller.js`
+> (Reconciled to `582ba688`: plans 218/219/231 all edited `storefront.js`
+> (SW guard, cart refresh, encodeCart move) — locate `initStorefront`,
+> `getQty`, `setQty`, `addBundleItems`, `loadCart` BY NAME; the plan's line
+> refs are pre-218. `cart-controller.js` does not exist yet.)
 > Plan 219 edits `storefront.js` (loadCart/setQty area) — if it has landed,
 > re-read those functions before starting; unexplained divergence is a
 > STOP condition.
@@ -19,7 +23,7 @@
 - **Risk**: MED (money path)
 - **Depends on**: 219, 231 (cart behavior frozen and tested first)
 - **Category**: tech-debt
-- **Planned at**: commit `97b21096`, 2026-10-18
+- **Planned at**: commit `97b21096`, 2026-10-18 (reconciled to `582ba688` after plans 218/219/231; locate symbols by name)
 
 ## Why this matters
 

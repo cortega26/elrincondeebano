@@ -7,7 +7,12 @@
 > in `plans/README.md` — unless a reviewer dispatched you and told you they
 > maintain the index.
 >
-> **Drift check (run first)**: `git diff --stat <planned-at>..HEAD -- admin/content-manager/src/web/api/requestCore.ts admin/content-manager/src/web/api/changes.ts admin/content-manager/src/server/routes/backup.ts admin/content-manager/src/server/routes/gitRoutes.ts admin/content-manager/test/integration/clientIntegration.test.ts`
+> **Drift check (run first)**: `git diff --stat 582ba688..HEAD -- admin/content-manager/src/web/api/requestCore.ts admin/content-manager/src/web/api/changes.ts admin/content-manager/src/server/routes/backup.ts admin/content-manager/src/server/routes/gitRoutes.ts admin/content-manager/test/integration/clientIntegration.test.ts`
+> (Reconciled to `582ba688`: `changes.ts` was created by plan 229 with the
+> bodyless `prunePreview`; plan 231 extended `clientIntegration.test.ts`
+> (landed; the 229↔231 conflict was resolved keeping both blocks — extending
+> that file is now safe, but a new focused file is still acceptable). Locate
+> the git-pull client path by search — the route file name may differ.)
 > If any in-scope file changed since this plan was written, compare the
 > "Current state" excerpts against the live code before proceeding; on a
 > mismatch, treat it as a STOP condition.
@@ -19,7 +24,7 @@
 - **Risk**: LOW–MED
 - **Depends on**: 229 (landed; this bug was found while migrating those calls)
 - **Category**: bug
-- **Planned at**: commit `ad738701`, 2026-10-18
+- **Planned at**: commit `ad738701`, 2026-10-18 (reconciled to `582ba688`; 231 landed so the clientIntegration file is free again)
 - **Coordination**: plan 231 also edits `test/integration/clientIntegration.test.ts`
   — if 231 is still in flight, put this plan's tests in a NEW focused file
   (e.g. `test/integration/bodylessRequests.test.ts`) to avoid same-file
