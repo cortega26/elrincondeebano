@@ -300,7 +300,7 @@ describe('cart controller — pinned cart mutation rules (plan 245)', () => {
   });
 
   describe('addBundleItems', () => {
-    it('applies one setQty (and one render) per item — pinned as-is, not batched', () => {
+    it('flushes once per bundle: one save, badge, render and sync (plan 269 replaced the per-item renders)', () => {
       const { controller, deps } = createHarness({ persisted: [] });
       deps.getProductByIdFromSource.mockImplementation((id) =>
         id === AGUA_PRODUCT.id ? AGUA_PRODUCT : null
@@ -318,9 +318,110 @@ describe('cart controller — pinned cart mutation rules (plan 245)', () => {
       ]);
 
       expect(added).toBe(true);
-      expect(deps.saveCart).toHaveBeenCalledTimes(2);
-      expect(deps.renderCart).toHaveBeenCalledTimes(2);
+      expectPersistBeforeRender(deps);
+      expect(deps.updateBadge).toHaveBeenCalledTimes(1);
+      expect(deps.renderCompanionSuggestions).toHaveBeenCalledTimes(1);
+      expect(deps.syncAllActionAreas).toHaveBeenCalledTimes(1);
+      // Batched flush renders/syncs the full cart, not a per-item scope.
+      expect(deps.renderCart.mock.calls[0][1]).toMatchObject({ changedItemId: null });
+      expect(deps.syncAllActionAreas.mock.calls[0][1]).toBe(null);
+      expect(deps.saveCart.mock.calls[0][0]).toEqual([
+        line(AGUA_PRODUCT, 1),
+        line(PASTA_PRODUCT, 1),
+      ]);
       expect(controller.getCart()).toEqual([line(AGUA_PRODUCT, 1), line(PASTA_PRODUCT, 1)]);
+    });
+
+    it('accumulates a duplicated id inside the bundle on the working copy (merge max-wins), single persist', () => {
+      const { controller, deps } = createHarness({ persisted: [] });
+      deps.getProductByIdFromSource.mockImplementation((id) =>
+        id === AGUA_PRODUCT.id ? AGUA_PRODUCT : null
+      );
+
+      const added = controller.addBundleItems([
+        { id: AGUA_PRODUCT.id },
+        { id: AGUA_PRODUCT.id },
+      ]);
+
+      expect(added).toBe(true);
+      expect(deps.saveCart).toHaveBeenCalledTimes(1);
+      expect(deps.saveCart.mock.calls[0][0]).toEqual([line(AGUA_PRODUCT, 2)]);
+      expect(controller.getCart()).toEqual([line(AGUA_PRODUCT, 2)]);
+      // Per-item telemetry: two increases, one persist.
+      expect(deps.trackProductSignal).toHaveBeenCalledTimes(2);
+    });
+
+    it('applies the per-item stock guard and the quantity cap without aborting the rest of the bundle', () => {
+      const cappedLine = line(PASTA_PRODUCT, 50);
+      const { controller, deps } = createHarness({ persisted: [cappedLine] });
+      controller.setCart([cappedLine]);
+      deps.getProductByIdFromSource.mockImplementation((id) => {
+        if (id === OOS_PRODUCT.id) return OOS_PRODUCT;
+        if (id === PASTA_PRODUCT.id) return PASTA_PRODUCT;
+        return null;
+      });
+
+      const added = controller.addBundleItems([{ id: OOS_PRODUCT.id }, { id: PASTA_PRODUCT.id }]);
+
+      expect(added).toBe(true);
+      // The out-of-stock line never lands and the capped line stays at 50, so
+      // nothing changed: no flush at all.
+      expect(deps.saveCart).not.toHaveBeenCalled();
+      expect(deps.renderCart).not.toHaveBeenCalled();
+      expect(controller.getCart()).toEqual([cappedLine]);
+
+      // Adding a fresh in-stock item in the same bundle does flush once.
+      deps.getProductByIdFromSource.mockImplementation((id) => {
+        if (id === OOS_PRODUCT.id) return OOS_PRODUCT;
+        if (id === AGUA_PRODUCT.id) return AGUA_PRODUCT;
+        return null;
+      });
+      expect(
+        controller.addBundleItems([{ id: OOS_PRODUCT.id }, { id: AGUA_PRODUCT.id }])
+      ).toBe(true);
+      expect(deps.saveCart).toHaveBeenCalledTimes(1);
+      expect(controller.getCart()).toEqual([cappedLine, line(AGUA_PRODUCT, 1)]);
+      expect(deps.trackProductSignal).toHaveBeenCalledTimes(1);
+      expect(deps.trackProductSignal).toHaveBeenCalledWith(AGUA_PRODUCT.id, 'addedCount');
+    });
+
+    it('a save failure in the batch surfaces the error, touches nothing and never renders', () => {
+      const { controller, deps, storage } = createHarness({
+        persisted: [line(AGUA_PRODUCT, 1)],
+        saveCartResult: false,
+      });
+      controller.setCart([line(AGUA_PRODUCT, 1)]);
+      deps.getProductByIdFromSource.mockImplementation((id) =>
+        id === AGUA_PRODUCT.id ? AGUA_PRODUCT : null
+      );
+
+      expect(controller.addBundleItems([{ id: AGUA_PRODUCT.id }, { id: PASTA_PRODUCT.id }])).toBe(
+        true
+      );
+
+      expect(deps.saveCart).toHaveBeenCalledTimes(1);
+      expect(deps.log).toHaveBeenCalledWith('warn', 'cart_save_failed', {
+        reason: 'localStorage_quota',
+      });
+      expect(deps.showCartSaveError).toHaveBeenCalledTimes(1);
+      expect(deps.renderCart).not.toHaveBeenCalled();
+      expect(deps.updateBadge).not.toHaveBeenCalled();
+      expect(deps.syncAllActionAreas).not.toHaveBeenCalled();
+      expect(deps.trackProductSignal).not.toHaveBeenCalled();
+      expect(controller.getCart()).toEqual([line(AGUA_PRODUCT, 1)]);
+      expect(storage.persisted).toEqual([line(AGUA_PRODUCT, 1)]);
+    });
+
+    it('clears the just-sent marker once when the batched cart ends non-empty', () => {
+      const { controller, deps } = createHarness({ persisted: [] });
+      deps.isOrderJustSent.mockReturnValue(true);
+      deps.getProductByIdFromSource.mockImplementation((id) =>
+        id === AGUA_PRODUCT.id ? AGUA_PRODUCT : null
+      );
+
+      controller.addBundleItems([{ id: AGUA_PRODUCT.id }, { id: PASTA_PRODUCT.id }]);
+
+      expect(deps.clearLastOrderSentAt).toHaveBeenCalledTimes(1);
     });
 
     it('returns false and touches nothing for empty or malformed payloads', () => {
