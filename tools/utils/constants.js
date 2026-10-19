@@ -6,12 +6,15 @@ const crypto = require('node:crypto');
 
 const REPO_ROOT = path.resolve(__dirname, '../..');
 
-// Original widths from product-mapper.js and gap-fill etc — single source per plan 156.
+// Original widths from product-mapper.js and gap-fill etc — single source per
+// plan 156. Plan 235: GAP_FILL_WIDTHS mirrors PRODUCT_IMAGE_WIDTHS — the
+// widths the storefront requests in its srcsets (catalog.ts). Cualquier ancho
+// fuera de este set no lo pide nadie y no debe generarse.
 const PRODUCT_IMAGE_WIDTHS = Object.freeze([200, 320, 400, 480, 640]);
 const HERO_WIDTHS = Object.freeze([200, 320, 400, 480, 640]);
 const HERO_BASE_WIDTH = 320;
 const PRODUCT_IMAGE_SIZES = '(max-width: 575px) 50vw, (max-width: 991px) 45vw, 280px';
-const GAP_FILL_WIDTHS = Object.freeze([200, 400, 600, 800, 1200]);
+const GAP_FILL_WIDTHS = Object.freeze([200, 320, 400, 480, 640]);
 const GAP_FILL_EXTENSIONS = Object.freeze(['webp', 'avif']);
 const GENERATE_IMAGE_WIDTHS = Object.freeze([200, 400, 600, 800, 1200, 1600, 2000]);
 
