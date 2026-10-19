@@ -7,7 +7,10 @@
 > in `plans/README.md` — unless a reviewer dispatched you and told you they
 > maintain the index.
 >
-> **Drift check (run first)**: `git diff --stat 97b21096..HEAD -- admin/content-manager/src/server/services/jobRunner.ts admin/content-manager/src/server/routes/publication.ts admin/content-manager/src/server/services/publicationRecovery.ts admin/content-manager/src/server/services/recoveryJournal.ts admin/content-manager/src/web/app/routes/PublicationPage.tsx admin/content-manager/src/server/app.ts`
+> **Drift check (run first)**: `git diff --stat 5ad2ea99..HEAD -- admin/content-manager/src/server/services/jobRunner.ts admin/content-manager/src/server/routes/publication.ts admin/content-manager/src/server/services/publicationRecovery.ts admin/content-manager/src/server/services/recoveryJournal.ts admin/content-manager/src/web/app/routes/PublicationPage.tsx admin/content-manager/src/server/app.ts`
+> (Reconciled to `5ad2ea99`: `app.ts` changed by plan 223 (remote-mode
+> health gate) — re-read the preHandler before wiring boot recovery;
+> the other files are untouched since the audit.)
 > If any changed, re-read before starting; unexplained divergence is a
 > STOP condition.
 
@@ -19,7 +22,7 @@
 - **Depends on**: none; reads the archived design record at
   `plans/archive/212-durable-schedule-spike.md`
 - **Category**: direction
-- **Planned at**: commit `97b21096`, 2026-10-18
+- **Planned at**: commit `97b21096`, 2026-10-18 (reconciled to `5ad2ea99`; app.ts gained the remote-mode health gate in plan 223)
 
 ## Why this matters
 

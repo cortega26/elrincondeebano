@@ -7,7 +7,11 @@
 > in `plans/README.md` — unless a reviewer dispatched you and told you they
 > maintain the index.
 >
-> **Drift check (run first)**: `git diff --stat 97b21096..HEAD -- admin/content-manager/src/web/app/routes/CommsPage.tsx admin/content-manager/src/web/app/comms/`
+> **Drift check (run first)**: `git diff --stat 5ad2ea99..HEAD -- admin/content-manager/src/web/app/routes/CommsPage.tsx admin/content-manager/src/web/app/comms/`
+> (Reconciled to `5ad2ea99`: plan 230 changed CommsPage.tsx internals
+> (docRef/applyDoc persistence, object-URL revoke + "Quitar" button,
+> phone/repeat handling) — re-read it before splitting; `comms/handoff.ts`
+> is still the pre-audit version.)
 > If CommsPage.tsx changed since this plan was written (plan 230 will change
 > it), re-read the file and adapt the extraction inventory — but treat
 > unexplained divergence as a STOP condition.
@@ -19,7 +23,7 @@
 - **Risk**: LOW
 - **Depends on**: 230 (freeze behavior first), 231 (comms tests net)
 - **Category**: tech-debt
-- **Planned at**: commit `97b21096`, 2026-10-18
+- **Planned at**: commit `97b21096`, 2026-10-18 (reconciled to `5ad2ea99` after plan 230; re-read CommsPage before splitting)
 
 ## Why this matters
 
