@@ -14,13 +14,11 @@ export interface Props {
 const { item, index = 0 } = Astro.props;
 const { product, sku } = item;
 const isLikelyLcp = index < 3;
-const card = computeProductCardData(product, index);
+const card = computeProductCardData(product, index, sku);
 const price = card.price;
-const discount = card.discount;
 const finalPrice = card.finalPrice;
 const hasDiscount = card.hasDiscount;
 const discountPercent = card.discountPercent;
-const searchText = card.searchText;
 const image = card.imageSource;
 const avifImage = card.avifImageSource;
 const hasAvifSource = typeof avifImage?.srcset === 'string' && avifImage.srcset.length > 0;
@@ -30,16 +28,7 @@ const productPath = `/p/${sku}/`;
 
 <article
   class="strip-card producto"
-  data-product-id={sku}
-  data-product-name={product.name}
-  data-product-category={product.category}
-  data-product-description={product.description || ''}
-  data-product-search-text={searchText}
-  data-product-price={price}
-  data-product-discount={discount}
-  data-product-final-price={finalPrice}
-  data-product-order={index}
-  data-product-stock={product.stock ?? true}
+  {...card.dataAttributes}
 >
   <div class="strip-card__inner">
     <a class="strip-card__media" href={productPath} tabindex="-1" aria-hidden="true">

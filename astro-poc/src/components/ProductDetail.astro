@@ -24,9 +24,8 @@ const categoryPath = getModernCategoryPath(product.category);
 const image = getProductDetailImageSource(product.image_path);
 const avifImage = getProductDetailImageSource(product.image_avif_path);
 const hasAvifSource = typeof avifImage.srcset === 'string' && avifImage.srcset.length > 0;
-const card = computeProductCardData(product, 0);
+const card = computeProductCardData(product, 0, sku);
 const price = card.price;
-const discount = card.discount;
 const finalPrice = card.finalPrice;
 const hasDiscount = card.hasDiscount;
 const discountPercent = card.discountPercent;
@@ -45,16 +44,7 @@ const inStock = product.stock !== false;
 
 <article
   class="card product-detail producto"
-  data-product-id={sku}
-  data-product-name={product.name}
-  data-product-category={product.category}
-  data-product-description={product.description || ''}
-  data-product-search-text={card.searchText}
-  data-product-price={price}
-  data-product-discount={discount}
-  data-product-final-price={finalPrice}
-  data-product-order="0"
-  data-product-stock={product.stock ?? true}
+  {...card.dataAttributes}
 >
   <div class="row g-0">
     <div class="col-12 col-md-5">

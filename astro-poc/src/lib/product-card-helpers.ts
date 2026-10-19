@@ -24,7 +24,11 @@ export function discountPercentInt(price: number, discount: number): number {
   return discount > 0 && price > 0 ? Math.round((discount / price) * 100) : 0;
 }
 
-export function computeProductCardData(product: ProductRecord, index: number): ProductCardData {
+export function computeProductCardData(
+  product: ProductRecord,
+  index: number,
+  sku?: string
+): ProductCardData {
   const price = typeof product.price === 'number' ? product.price : 0;
   const discount = typeof product.discount === 'number' ? product.discount : 0;
   const finalPrice = Math.max(price - discount, 0);
@@ -39,7 +43,15 @@ export function computeProductCardData(product: ProductRecord, index: number): P
   const avifPath = product.image_avif_path;
   const avifImageSource = avifPath ? getProductCardImageSource(avifPath) : null;
 
+  // Plan 239: single source of the DOM contract the runtime reads through
+  // `dataset.product*` (catalog-view.js, storefront.js, card-registry.js).
+  // The three card components spread this object instead of hand-writing the
+  // attributes; `sku` is an explicit argument because it is unique per
+  // rendered card (duplicates in catalog.ts get a `-2` suffix) and cannot be
+  // re-derived from `product` alone. Pinned by
+  // test/storefront.product-card-attributes.spec.js.
   const dataAttributes: Record<string, string> = {
+    ...(sku ? { 'data-product-id': String(sku) } : {}),
     'data-product-name': String(product.name || ''),
     'data-product-category': String(product.category || ''),
     'data-product-description': String(product.description || ''),
@@ -47,8 +59,6 @@ export function computeProductCardData(product: ProductRecord, index: number): P
     'data-product-price': String(price),
     'data-product-discount': String(discount),
     'data-product-final-price': String(finalPrice),
-    'data-product-has-discount': hasDiscount ? 'true' : 'false',
-    'data-product-discount-percent': String(discountPercent),
     'data-product-order': String(index),
     'data-product-stock': String(product.stock ?? true),
   };
