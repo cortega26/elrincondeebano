@@ -1,6 +1,6 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-19T23:56:00.000Z",
+  "last_updated": "2026-10-20T00:24:59.462Z",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -2349,8 +2349,8 @@
       "discount": 200,
       "stock": true,
       "category": "Lacteos",
-      "image_path": "",
-      "image_avif_path": "",
+      "image_path": "assets/images/lacteos/loncoleche-crema-sin-lactosa-200ml.webp",
+      "image_avif_path": "assets/images/lacteos/loncoleche-crema-sin-lactosa-200ml.avif",
       "order": 195,
       "is_archived": false
     }
