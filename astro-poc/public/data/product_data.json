@@ -1,6 +1,6 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-18T16:37:25.120Z",
+  "last_updated": "2026-10-19T23:56:00.000Z",
   "products": [
     {
       "name": "Toalla Papel Nova Clásica",
@@ -2340,6 +2340,18 @@
       "image_path": "assets/images/despensa/van-camps-atun-lomitos-agua-142g.webp",
       "image_avif_path": "assets/images/despensa/van-camps-atun-lomitos-agua-142g.avif",
       "order": 194,
+      "is_archived": false
+    },
+    {
+      "name": "Loncoleche • Crema de Leche Tradicional Sin Lactosa 200 ml",
+      "description": "Crema de leche sin lactosa, lista para servir. Envase Tetra Pak de 200 ml, ideal para salsas, postres y preparaciones dulces o saladas.",
+      "price": 2000,
+      "discount": 200,
+      "stock": true,
+      "category": "Lacteos",
+      "image_path": "",
+      "image_avif_path": "",
+      "order": 195,
       "is_archived": false
     }
   ]
