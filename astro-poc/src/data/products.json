@@ -1,7 +1,7 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-20T00:24:59.462Z",
-  "rev": 42,
+  "last_updated": "2026-10-20T04:20:40.312Z",
+  "rev": 43,
   "schema_version": 1,
   "products": [
     {
@@ -6443,7 +6443,7 @@
     },
     {
       "name": "Loncoleche • Crema de Leche Tradicional Sin Lactosa 200 ml",
-      "description": "Crema de leche sin lactosa, lista para servir. Envase Tetra Pak de 200 ml, ideal para salsas, postres y preparaciones dulces o saladas.",
+      "description": "Crema de leche tradicional sin lactosa, lista para servir. Envase de 200 ml.",
       "price": 2000,
       "discount": 200,
       "stock": true,
@@ -6452,7 +6452,7 @@
       "image_avif_path": "assets/images/lacteos/loncoleche-crema-sin-lactosa-200ml.avif",
       "order": 195,
       "is_archived": false,
-      "rev": 3,
+      "rev": 4,
       "field_last_modified": {
         "name": {
           "ts": "2026-10-19T23:56:00.000Z",
@@ -6473,6 +6473,13 @@
           "by": "git",
           "rev": 3,
           "base_rev": 1,
+          "changeset_id": null
+        },
+        "description": {
+          "ts": "2026-10-20T04:20:40.312Z",
+          "by": "git",
+          "rev": 4,
+          "base_rev": 3,
           "changeset_id": null
         }
       },

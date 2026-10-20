@@ -58,6 +58,8 @@ los archivos persisten).
 
 ## Principios
 
+**Descripciones del catálogo:** redactar solo atributos verificables que ayuden al comprador a identificar el producto (tipo, variedad, contenido neto, presentación y características distintivas). Usar frases breves y objetivas; evitar relleno, usos sugeridos, juicios de valor y adjetivos promocionales. Si un dato no consta en la fuente, omitirlo.
+
 - **El repositorio es el sistema de registro.** Lo que no está versionado no existe para el agente.
 - **Este archivo es un índice, no una enciclopedia.** Las instrucciones detalladas viven en `docs/`.
 - **Divulgación progresiva.** Empieza aquí; ve a `docs/` para el detalle.
