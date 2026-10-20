@@ -1,7 +1,7 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-19T23:56:00.000Z",
-  "rev": 41,
+  "last_updated": "2026-10-20T00:24:59.462Z",
+  "rev": 42,
   "schema_version": 1,
   "products": [
     {
@@ -6448,17 +6448,31 @@
       "discount": 200,
       "stock": true,
       "category": "Lacteos",
-      "image_path": "",
-      "image_avif_path": "",
+      "image_path": "assets/images/lacteos/loncoleche-crema-sin-lactosa-200ml.webp",
+      "image_avif_path": "assets/images/lacteos/loncoleche-crema-sin-lactosa-200ml.avif",
       "order": 195,
       "is_archived": false,
-      "rev": 1,
+      "rev": 3,
       "field_last_modified": {
         "name": {
           "ts": "2026-10-19T23:56:00.000Z",
           "by": "git",
           "rev": 1,
           "base_rev": 0,
+          "changeset_id": null
+        },
+        "image_path": {
+          "ts": "2026-10-20T00:24:59.462Z",
+          "by": "git",
+          "rev": 2,
+          "base_rev": 1,
+          "changeset_id": null
+        },
+        "image_avif_path": {
+          "ts": "2026-10-20T00:24:59.462Z",
+          "by": "git",
+          "rev": 3,
+          "base_rev": 1,
           "changeset_id": null
         }
       },
