@@ -98,14 +98,14 @@
   "dependencies": {
     "@popperjs/core": "^2.11.8",
     "bootstrap": "^5.3.3",
-    "zod": "^4.6.5"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.63.0",
     "@stryker-mutator/core": "^10.0.0",
     "@stryker-mutator/vitest-runner": "^10.0.0",
-    "@vitest/coverage-v8": "^5.0.3",
+    "@vitest/coverage-v8": "^5.0.4",
     "chrome-launcher": "^1.2.2",
     "eslint": "^10.12.0",
     "eslint-plugin-astro": "^3.2.1",
@@ -116,11 +116,11 @@
     "lighthouse": "^13.5.0",
     "lint-staged": "^17.6.0",
     "markdownlint-cli2": "^0.23.3",
-    "prettier": "^3.9.9",
+    "prettier": "^3.9.10",
     "sass-embedded": "^1.105.1",
     "sharp": "^0.35.5",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.71.1",
+    "typescript-eslint": "^8.71.2",
     "vitest": "^5.0.1"
   },
   "engines": {
