@@ -1,7 +1,7 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-10-20T04:20:40.312Z",
-  "rev": 43,
+  "last_updated": "2026-11-08T20:41:38.826Z",
+  "rev": 44,
   "schema_version": 1,
   "products": [
     {
@@ -6374,7 +6374,7 @@
     },
     {
       "name": "Kross • Golden Ale, pack de 4 botellas de 330 mL",
-      "description": "Pack de 4 botellas de 330 mL c/u (1,32 L). Cerveza artesanal Golden Ale de 5,3% alcohol.",
+      "description": "Botella de 330cc x 4 unidades",
       "price": 6900,
       "discount": 0,
       "stock": true,
@@ -6383,13 +6383,13 @@
       "image_avif_path": "assets/images/cervezas/kross-golden-ale-pack4-330ml.avif",
       "order": 192,
       "is_archived": false,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "description": {
-          "ts": "2026-10-18T16:37:25.120Z",
+          "ts": "2026-11-08T20:41:38.826Z",
           "by": "git",
-          "rev": 2,
-          "base_rev": 1,
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         }
       },
