@@ -1,7 +1,7 @@
 {
   "version": "20260831-204136",
-  "last_updated": "2026-11-08T20:41:38.826Z",
-  "rev": 44,
+  "last_updated": "2026-11-11T22:38:15.505Z",
+  "rev": 45,
   "schema_version": 1,
   "products": [
     {
@@ -5532,7 +5532,7 @@
     {
       "name": "Miraflores • Aceite de Maravilla",
       "description": "Botella de 900mL",
-      "price": 3400,
+      "price": 3600,
       "discount": 0,
       "stock": true,
       "category": "Despensa",
@@ -5540,7 +5540,7 @@
       "image_avif_path": "assets/images/despensa/Aceite de Maravilla 900mL Miraflores.avif",
       "order": 176,
       "is_archived": false,
-      "rev": 2,
+      "rev": 3,
       "field_last_modified": {
         "name": {
           "ts": "2026-03-30T20:41:18.450360Z",
@@ -5557,10 +5557,10 @@
           "changeset_id": null
         },
         "price": {
-          "ts": "2026-03-30T20:41:18.450360Z",
-          "by": "offline",
-          "rev": 0,
-          "base_rev": 0,
+          "ts": "2026-11-11T22:38:15.505Z",
+          "by": "git",
+          "rev": 3,
+          "base_rev": 2,
           "changeset_id": null
         },
         "discount": {
