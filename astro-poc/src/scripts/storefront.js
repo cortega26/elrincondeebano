@@ -1345,6 +1345,7 @@ function initStorefront() {
     syncCheckoutState,
     loadLastOrder,
     hydrateCartFromOrder,
+    loadCart,
     saveCart,
     showCartSaveError,
     updateBadge,

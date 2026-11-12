@@ -80,6 +80,7 @@ function createHarness({
     syncCheckoutState: vi.fn(),
     loadLastOrder: vi.fn(() => null),
     hydrateCartFromOrder: vi.fn(() => []),
+    loadCart: vi.fn(() => []),
     saveCart: vi.fn(() => true),
     showCartSaveError: vi.fn(),
     updateBadge: vi.fn(),
@@ -253,6 +254,7 @@ describe('storefront DOM handlers — pinned wiring rules (plan 265)', () => {
       const harness = createHarness({
         loadLastOrder: vi.fn(() => REPEAT_ORDER),
         hydrateCartFromOrder: vi.fn(() => nextCart),
+        loadCart: vi.fn(() => nextCart),
         saveCart: vi.fn(() => execute),
         getCartState: vi.fn(() => ({ totalAmount: 2000 })),
       });
@@ -311,6 +313,36 @@ describe('storefront DOM handlers — pinned wiring rules (plan 265)', () => {
 
       expect(deps.syncAllActionAreas).toHaveBeenCalledWith(nextCart);
       expect(deps.syncCheckoutState).toHaveBeenCalledWith(nextCart, 2000);
+    });
+
+    it('repeat renders the live loadCart projection, not the persisted hydration (plan 283)', () => {
+      document.body.innerHTML = `
+        <button data-repeat-last-order>Repetir</button>
+        <select id="substitution-preference">
+          <option value="no-sustituir">No sustituir</option>
+        </select>`;
+      const nextCart = [{ id: 'sku-1', quantity: 2, price: 1000 }];
+      const projected = [{ id: 'sku-1', quantity: 2, price: 800, discount: 100 }];
+      const harness = createHarness({
+        loadLastOrder: vi.fn(() => REPEAT_ORDER),
+        hydrateCartFromOrder: vi.fn(() => nextCart),
+        loadCart: vi.fn(() => projected),
+        saveCart: vi.fn(() => true),
+        getCartState: vi.fn(() => ({ totalAmount: 1400 })),
+      });
+
+      clickHandler(harness.handlers.onDocumentClick, '[data-repeat-last-order]');
+
+      expect(harness.deps.saveCart).toHaveBeenCalledWith(nextCart);
+      expect(harness.deps.cartController.setCart).toHaveBeenCalledWith(projected);
+      expect(harness.deps.updateBadge).toHaveBeenCalledWith(projected, { animate: true });
+      expect(harness.deps.renderCart).toHaveBeenCalledWith(projected, { animateTotal: true });
+      expect(harness.deps.renderCompanionSuggestions).toHaveBeenCalledWith(
+        projected,
+        harness.deps.companionRules
+      );
+      expect(harness.deps.syncAllActionAreas).toHaveBeenCalledWith(projected);
+      expect(harness.deps.syncCheckoutState).toHaveBeenCalledWith(projected, 1400);
     });
 
     it('repeat restores the stored profile, payment and substitution preference', () => {

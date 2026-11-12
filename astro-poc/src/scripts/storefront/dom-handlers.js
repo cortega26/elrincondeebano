@@ -42,6 +42,7 @@ export function createDomHandlers({
   syncCheckoutState,
   loadLastOrder,
   hydrateCartFromOrder,
+  loadCart,
   saveCart,
   showCartSaveError,
   updateBadge,
@@ -93,11 +94,15 @@ export function createDomHandlers({
       return;
     }
 
-    setCart(nextCart);
-    updateBadge(nextCart, { animate: true });
-    renderCart(nextCart, { animateTotal: true });
-    renderCompanionSuggestions(nextCart, companionRules);
-    syncAllActionAreas(nextCart);
+    // Plan 283: persist the hydrated order, but render the read-time projection
+    // (live DOM/index pricing from plans 219/282). Never save the projection:
+    // storage keeps the snapshot written above.
+    const liveCart = loadCart();
+    setCart(liveCart);
+    updateBadge(liveCart, { animate: true });
+    renderCart(liveCart, { animateTotal: true });
+    renderCompanionSuggestions(liveCart, companionRules);
+    syncAllActionAreas(liveCart);
     if (order.profile) {
       populateProfileForm(order.profile);
       saveProfile(readProfileForm());
@@ -113,7 +118,7 @@ export function createDomHandlers({
         substitutionSelect.value = order.substitutionPreference;
       }
     }
-    syncCheckoutState(nextCart, getCartState(nextCart).totalAmount);
+    syncCheckoutState(liveCart, getCartState(liveCart).totalAmount);
     openCartOffcanvas();
   };
 
