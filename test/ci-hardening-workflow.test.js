@@ -57,3 +57,24 @@ test('product-data-guard has no credentialed auto-commit job', () => {
   );
   assert.doesNotMatch(guardWorkflow, /\bgit push\b/, 'the guard must not push from CI');
 });
+
+test('dependabot auto-merge gates on the PR author, not the trigger actor', () => {
+  assert.match(
+    autoMergeWorkflow,
+    /github\.event\.pull_request\.user\.login == 'dependabot\[bot\]'/,
+    'the gate must inspect the PR author'
+  );
+  assert.doesNotMatch(
+    autoMergeWorkflow,
+    /github\.actor ==/,
+    'the trigger actor says who started the run, not who authored the PR'
+  );
+});
+
+test('dependabot auto-merge does not check out repository code', () => {
+  assert.doesNotMatch(
+    autoMergeWorkflow,
+    /actions\/checkout/,
+    'fetch-metadata works over the API; no checkout is needed'
+  );
+});
