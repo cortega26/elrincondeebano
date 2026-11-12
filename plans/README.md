@@ -1,7 +1,7 @@
 # Implementation Plans
 
-Índice de los planes de implementación (001–251). Generados por `/improve deep`
-en doce auditorías (2026-06-14 → 2026-10-18) y ampliados por la directiva de
+Índice de los planes de implementación (001–295). Generados por `/improve deep`
+en trece auditorías (2026-06-14 → 2026-11-12) y ampliados por la directiva de
 migración del 2026-07-15 (plan 055) y el master roadmap del Content Manager
 TS (plan 127). El retiro de Python (plan 069) se ejecutó el 2026-08-11 de
 forma revertible. El histórico completo vive en
@@ -21,6 +21,7 @@ forma revertible. El histórico completo vive en
 | 10        | 2026-08-17 | `ee20b0f6` | 128–169 |
 | 11        | 2026-09-14 | `0847089c` | 170–214 |
 | 12        | 2026-10-18 | `97b21096` | 218–251 |
+| 13        | 2026-11-12 | `6d0a29af` | 280–295 |
 
 **Status values**: `TODO | IN PROGRESS | PARTIAL | DONE | BLOCKED (reason) |
 REJECTED (rationale)`, más `SUPERSEDED`/`ABSORBED` (reemplazados por el plan
@@ -64,6 +65,130 @@ admin/product_manager/`).
   al Content Manager TS).
 - Los planes archivados se conservan como registro en las tablas de este
   README (regla de archivo enforceada por `tools/check-plan-archive.mjs`).
+
+---
+
+## Auditoría 13 — 2026-11-12 (`/improve deep`, commit `6d0a29af`)
+
+Auditoría completa (9 categorías, 9 subagentes paralelos, "very thorough")
+sobre `origin/main` `6d0a29af`. El checkout local estaba en `bd2aae28`, 14
+commits atrás. Esa diferencia no tenía código fuente: solo catálogo,
+manifiestos, lockfile, 2 pins de actions y 2 líneas de AGENTS. Cada hallazgo
+de la tabla lo **vetó el advisor contra la fuente**, en vivo o con la API de
+`gh`. Los duplicados entre subagentes se consolidaron: SEC-01=DX-01,
+TD-01=DIR-01=DX-02=COR-A-01, TEST-03=DIR-03=DOCS-04, TEST-04=TD-08 y
+SEC-06=DEP-01. Todos los comandos de los planes están marcados `declared`,
+salvo las lecturas que el advisor ejecutó. Decisión del dueño (2026-11-12):
+las copias derivadas del catálogo se **generan, no se versionan** (plan 284).
+Alcance pedido: todos los hallazgos con beneficio neto positivo.
+
+**Regla DEFERRALS**: el advisor solo escribe en `plans/`. Por eso cada
+executor registra en [`DEFERRALS`](../docs/operations/DEFERRALS.md) los
+`**Deferred:**` de su plan **en el mismo commit en que lo cierra**.
+
+| Plan                                         | Título                                                                   | Prioridad | Esfuerzo  | Depende de        | Estado |
+| -------------------------------------------- | ------------------------------------------------------------------------ | --------- | --------- | ----------------- | ------ |
+| [280](280-ci-security-hygiene.md)            | Higiene de seguridad de CI (audit semanal, tokens, wrangler, Dependabot) | P1        | M         | —                 | TODO   |
+| [281](281-main-branch-ruleset.md)            | Ruleset de `main` con CI requerido + auto-merge por autor del PR         | P1        | S + dueño | 280               | TODO   |
+| [282](282-cart-price-index.md)               | Índice de precios en cada página: checkout nunca con precios viejos      | P1        | M         | —                 | TODO   |
+| [283](283-repeat-order-discount.md)          | Repetir pedido conserva descuentos; cantidades enteras                   | P1        | S         | 282               | TODO   |
+| [284](284-generated-catalog-copies.md)       | Copias del catálogo generadas, no versionadas (PR de un archivo)         | P1        | M         | 280               | TODO   |
+| [285](285-catalog-tests-rules-not-values.md) | Tests de catálogo por reglas, no valores; regla de descripciones         | P2        | S         | 284               | TODO   |
+| [286](286-build-markup-lcp-jsonld.md)        | Una imagen prioritaria por página + JSON-LD fiel al precio visible       | P2        | S         | —                 | TODO   |
+| [287](287-edge-hsts.md)                      | HSTS en el edge (ADR 0004) validado por el inspector                     | P2        | S         | 280               | TODO   |
+| [288](288-catalog-docs-and-agent-context.md) | Runbook de catálogo, RUNBOOK veraz, CLAUDE.md importa AGENTS.md          | P2        | S         | 281, 284, 285     | TODO   |
+| [289](289-root-coverage-in-ci.md)            | Umbrales de cobertura raíz aplicados en CI                               | P2        | S         | —                 | TODO   |
+| [290](290-admin-integrity-fixes.md)          | Admin: sin fantasmas tras 422, OG de categoría Node, idempotencia        | P3        | S–M       | —                 | TODO   |
+| [291](291-admin-publication-robustness.md)   | Admin: pull/commit-sin-push/timers/cancel honestos + push pendiente      | P3        | M         | 284 (recomendado) | TODO   |
+| [292](292-dead-surface-cleanup.md)           | Retirar tools pre-Astro, flag CFIMG y huérfanos versionados              | P3        | S         | 280, 284          | TODO   |
+| [293](293-test-quality-pass.md)              | Tests que pueden fallar + control positivo de guardrails + golden WA     | P3        | S–M       | 282, 291          | TODO   |
+| [294](294-sw-navigation-cache.md)            | SW: caché HTML por ruta y fallback offline honesto                       | P3        | S         | 282               | TODO   |
+| [295](295-spike-headless-catalog-ops.md)     | Spike: entrada headless de operaciones de catálogo (dirección)           | P3        | M         | 284, 288          | TODO   |
+
+### Orden de ejecución recomendado (Auditoría 13)
+
+280 → 281 (acción del dueño: aplicar el ruleset) → 282 → 283 → 284 → 285 →
+286 → 287 → 288 → 289 → 290 → 291 → 292 → 293 → 294 → 295.
+
+### Dependencias (Auditoría 13)
+
+- **280 antes de 281.** `images.yml` empuja hoy directo a `main` y el
+  ruleset lo bloquearía. El 280 lo pasa a modo PR.
+- **280 antes de 284 y 292.** Los tres tocan `product-data-guard.yml`,
+  `.gitignore` y workflows. El 280 borra el job de auto-commit, que hacía
+  `git add` de las copias.
+- **280 antes de 287.** El deploy del Worker debe usar `wrangler` fijado.
+- **282 → 283 → 294 en serie.** Tocan los mismos archivos del storefront;
+  el fallback del SW alimentaba el repricing del carrito.
+- **284 antes de 285, 288, 291 y 295.** Tras el 284, una PR de catálogo
+  edita un solo archivo y la publicación del admin vuelve a pasar CI.
+- **291 antes de 293.** El 291 reescribe los tests de cancelación que el
+  293 endurece.
+
+### Acciones que solo puede hacer el dueño (Auditoría 13)
+
+- Antes de ejecutar nada: `git pull --ff-only` (el `main` local estaba 14 commits atrás de `6d0a29af`).
+- **281**: aplicar el ruleset (`gh api -X POST repos/cortega26/elrincondeebano/rulesets --input .github/rulesets/main-protection.json`) una vez fusionado el 280.
+- **287**: confirmar o cambiar los valores de HSTS (`max-age=31536000`, sin `includeSubDomains`, sin `preload`) y verificarlo con `curl -sI` tras el deploy del Worker.
+- **280**: abrir el PR de imágenes desde el enlace que deja `images.yml` (el repo no permite que `GITHUB_TOKEN` cree PRs, y así debe seguir).
+- Fusionar la PR #539 de Dependabot (15 minors, CI verde).
+- Investigar en la UI de Dependabot por qué no hay PRs de patch desde el 2026-10-21 (DEP-06).
+- Decidir si la personalización ("Tus frecuentes") y las sugerencias de acompañamiento siguen o se retiran (COR-S-07).
+
+### Reaperturas: cierres anteriores que resultaron falsos (Auditoría 13)
+
+- **Plan 119 (LCP)**: su criterio era `grep -c 'fetchpriority="high"'` sobre
+  HTML minificado en una sola línea, que siempre devuelve 1. La home emite 19.
+  Lo reabre el **286**, cuyo contrato cuenta coincidencias, no líneas.
+- **Plan 219 (precios vivos en checkout)**: la garantía solo cubría productos
+  renderizados como tarjeta en la página actual. Lo reabre el **282**.
+- **Auditoría 12, "correcciones del carrito con tests honestos"**: el test de
+  "repetir pedido conserva descuentos" usaba un pedido construido a mano, con
+  una forma que el escritor real (`recordOrder`) no produce. Lo reabre el
+  **283**, con un test de ida y vuelta real.
+- **Lección para executors**: todo criterio de "done" debe poder fallar.
+  Cuenta coincidencias y no líneas, usa ida y vuelta real en lugar de
+  fixtures a mano, y aplica una sonda negativa a cada guard nuevo.
+
+### Considerados y rechazados / sin plan (Auditoría 13)
+
+- **4 vulnerabilidades de producción en el `npm audit` local**: eran un
+  artefacto del checkout atrasado. En `origin/main` hay 0 (Dependabot ya
+  actualizó zod, fastify, undici y fast-uri).
+- **TS7 en la raíz**: sigue bloqueado; `typescript-eslint` 8.72.2 declara
+  `typescript <6.1.0`.
+- **PERF-03 (workers de Playwright en CI)**: ahorro de ~30 s con riesgo de
+  flake en los specs visuales. Opcional, sin plan.
+- **PERF-04 (caché de `node_modules`)**: el plan 189 ya lo rechazó; la nueva
+  medición (restore de 2 s frente a reify de 37 s) solo justifica investigar.
+- **TD-02 (`product-data-guard` duplica el build de `ci.yml`)**: costo bajo
+  y fuera del camino crítico. Se registra como Deferred del 284.
+- **DX-03 / TEST-02 (`validate` no es superconjunto de CI)**: no hay costo
+  observado, porque el flujo real de catálogo no corre comandos locales.
+  Veredicto: no vale la pena por ahora.
+- **COR-S-07 (personalización y companions casi inertes)**: requiere una
+  decisión del dueño sobre si esas funciones siguen. Sin plan.
+- **TD-05 (retirar `data/categories.json`)** y **TD-09 (`migrate-catalog` en
+  el preflight)**: se registran como Deferred del 292.
+- **TD-10 (`checkJs` en el JS del storefront)**: valor incierto y backlog de
+  errores desconocido. Sin plan.
+- **DEP-06 (sin PRs de patch de Dependabot desde el 21-oct)**: la causa es
+  desconocida. Hay que investigarlo en la UI de Dependabot (requiere al
+  dueño), no en el repo.
+- **Ítems ya cubiertos por la PR #539 de Dependabot** (15 minors, CI verde):
+  astro 7.4, lighthouse 13.6 y markdownlint-cli2 0.24. No se planifican;
+  fusiónala.
+- **Recordatorio**: la fila "Waitlist re-enable" de DEFERRALS vence en
+  2026-12. Todavía no se planifica.
+
+### Alcance no auditado (Auditoría 13)
+
+- Builds, E2E y Lighthouse no se ejecutaron. La auditoría fue de solo
+  lectura, salvo `npm audit`, la API de `gh` y `curl -I` en vivo.
+- Comportamiento en dispositivos reales.
+- Configuración del panel de Cloudflare (WAF, zona y HSTS de zona).
+- Logs internos de los jobs de Dependabot.
+- `_archive/` y `docs/audit/`.
 
 ---
 
