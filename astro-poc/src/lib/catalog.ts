@@ -113,6 +113,7 @@ const storefrontExperience = {
   bundles: rawStorefrontBundles as StorefrontBundleRecord[],
 } as StorefrontExperience;
 let cachedProductsWithSku: ProductWithSku[] | null = null;
+let cachedCartPriceIndex: Record<string, [number, number, 0 | 1]> | null = null;
 let cachedCategoryIndexes: {
   byKey: Map<string, CategoryRecord>;
   bySlug: Map<string, CategoryRecord>;
@@ -373,6 +374,40 @@ export function getProductsWithSku(): ProductWithSku[] {
   cachedProductsByCategory = null;
 
   return cachedProductsWithSku;
+}
+
+/** Plan 282: compact id → [price, discount, inStock(1|0)] for EVERY non-archived
+ *  product (out-of-stock included, so checkout can flag them). Keys match the
+ *  card `data-product-id` (getProductsWithSku) for rendered products. */
+export function getCartPriceIndex(): Record<string, [number, number, 0 | 1]> {
+  if (cachedCartPriceIndex) {
+    return cachedCartPriceIndex;
+  }
+
+  const index: Record<string, [number, number, 0 | 1]> = {};
+  for (const { sku, product } of getProductsWithSku()) {
+    const price = typeof product.price === 'number' ? product.price : 0;
+    const discount = typeof product.discount === 'number' ? product.discount : 0;
+    index[sku] = [price, discount, 1];
+  }
+  // Out-of-stock products are never rendered as cards, so they are absent from
+  // getProductsWithSku(). Add them with flag 0; a shareable key with a live
+  // product wins over the dormant record.
+  for (const product of catalog.products || []) {
+    if (!product || product.is_archived === true || product.stock !== false) {
+      continue;
+    }
+    const sku = getProductSku(product);
+    if (!sku || Object.prototype.hasOwnProperty.call(index, sku)) {
+      continue;
+    }
+    const price = typeof product.price === 'number' ? product.price : 0;
+    const discount = typeof product.discount === 'number' ? product.discount : 0;
+    index[sku] = [price, discount, 0];
+  }
+
+  cachedCartPriceIndex = index;
+  return cachedCartPriceIndex;
 }
 
 const SEARCH_EXCLUDED_NAV_GROUPS = new Set(['alcohol']);
