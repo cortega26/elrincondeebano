@@ -10,6 +10,7 @@ export default defineConfig({
     },
     include: ['test/**/*.{spec,test}.{js,mjs,ts}'],
     exclude: ['test/e2e-astro/**', 'node_modules'],
+    globalSetup: ['./test/setup/catalog-sync.global.mjs'],
     globals: true,
     coverage: {
       provider: 'v8',

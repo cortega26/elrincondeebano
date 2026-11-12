@@ -12,9 +12,9 @@
     "assets:validate": "node scripts/validate-asset-contract.mjs",
     "contract:http": "node scripts/validate-http-contract.mjs",
     "contract:artifacts": "node scripts/validate-artifact-contract.mjs",
-    "dev": "astro dev",
+    "dev": "node scripts/sync-data.mjs && astro dev",
     "lint": "node ../node_modules/eslint/bin/eslint.js .",
-    "typecheck": "astro check",
+    "typecheck": "node scripts/sync-data.mjs --json-only && astro check",
     "build": "npm run clean && npm run data:sync && npm run data:validate && astro build && node scripts/postbuild-legacy-pages.mjs && node scripts/postbuild-sitemap.mjs && node scripts/postbuild-prune-unreferenced-images.mjs && npm run assets:validate && npm run contract:http && npm run contract:artifacts",
     "preview": "astro preview"
   },
