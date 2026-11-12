@@ -9,14 +9,14 @@ import { resolve } from 'node:path';
 // Python parity (category save/delete regenerates the OG image). The intent
 // goes through the SAME durable lifecycle as the manual workbench (create →
 // run → apply) so failures are visible in MediaPage and never block the
-// category operation. The canonical tool (tools/category_og) must be
-// available in the operator environment (python3), matching the workbench.
+// category operation. The canonical tool is tools/generate-category-og.mjs
+// (Node; plan 290), matching the workbench.
 export async function ensureCategoryOgAssets(
   repoRoot: string,
   slug: string,
   operation: 'generate' | 'delete',
   // Plan 106: injectable seam for tests — production callers keep the
-  // default python3-backed runner.
+  // default Node-tool-backed runner.
   runner: typeof runCategoryOgJob = runCategoryOgJob
 ): Promise<{ ok: boolean; error?: string }> {
   try {

@@ -499,7 +499,7 @@ test('category create triggers the OG intent lifecycle without blocking the writ
     const intent = JSON.parse(readFileSync(resolve(intentsDir, files[0]), 'utf8'));
     expect(intent.type).toBe('og');
     expect(intent.category_slug).toBe('og-cat');
-    // In CI/tests the canonical tool (python3 + tools.category_og) may be
+    // In CI/tests the canonical tool (Node + tools/generate-category-og.mjs) may be
     // unavailable — the intent records the failure visibly instead of
     // blocking the category operation.
     expect(['applied', 'failed']).toContain(intent.status);

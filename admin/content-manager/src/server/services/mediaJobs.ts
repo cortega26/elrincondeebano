@@ -98,11 +98,16 @@ function runOgTool(
   operation: 'generate' | 'delete'
 ): Promise<{ code: number; stderr: string }> {
   return new Promise((resolvePromise) => {
-    const args =
-      operation === 'generate'
-        ? ['-m', 'tools.category_og', '--one', slug, '--repo-root', repoRoot]
-        : ['-m', 'tools.category_og', '--delete', slug, '--repo-root', repoRoot];
-    const child = spawn('python3', args, {
+    // Plan 290: the retired Python module is gone; the canonical Node tool
+    // owns generate/delete now.
+    const args = [
+      'tools/generate-category-og.mjs',
+      operation === 'generate' ? '--one' : '--delete',
+      slug,
+      '--repo-root',
+      repoRoot,
+    ];
+    const child = spawn(process.execPath, args, {
       cwd: repoRoot,
       shell: false,
       timeout: 60_000,

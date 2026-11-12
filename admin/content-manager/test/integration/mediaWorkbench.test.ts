@@ -518,7 +518,7 @@ test('og intent apply verifies the canonical image and transitions to applied', 
     });
     const intentId = created.json<{ id: string }>().id;
 
-    // White-box: the real run spawns tools.category_og (python3); the apply
+    // White-box: the real run spawns tools/generate-category-og.mjs (Node); the apply
     // contract is what plan 089 fixes, so set the intent to the post-run
     // state directly.
     writeIntentState(dir, intentId, {
@@ -871,4 +871,24 @@ test('og intents are not affected by raster svg validation (plan 138)', async ()
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
+});
+
+test('category OG jobs invoke the Node tool, not the retired Python module (plan 290)', async () => {
+  const { runCategoryOgJob } = await import('../../src/server/services/mediaJobs.ts');
+  const result = await runCategoryOgJob(
+    {
+      repoRoot: resolve(process.cwd(), '..', '..'),
+      stagingRoot: tmpdir(),
+      sourcePath: '',
+      targetRelativePath: '',
+      categorySlug: 'plan-290-missing',
+      onProgress: () => {},
+      isCancelled: () => false,
+    },
+    'delete'
+  );
+
+  expect(result.ok).toBe(true);
+  expect(result.output_kind).toBe('canonical');
+  expect(result.error ?? '').not.toMatch(/ENOENT|No module named|python3/i);
 });
