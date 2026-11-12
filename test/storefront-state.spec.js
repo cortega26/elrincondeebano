@@ -43,6 +43,13 @@ describe('storefront-state cart primitives', () => {
       expect(clampQty('5')).toBe(5);
       expect(clampQty(MAX_CART_ITEM_QTY + 1)).toBe(MAX_CART_ITEM_QTY);
     });
+
+    it('truncates fractions so the WhatsApp message never shows partial units (plan 283)', () => {
+      expect(clampQty(0.5)).toBe(0);
+      expect(clampQty(1.5)).toBe(1);
+      expect(clampQty(1e-9)).toBe(0);
+      expect(clampQty('2.9')).toBe(2);
+    });
   });
 
   describe('normalizeId', () => {
@@ -388,6 +395,22 @@ describe('storefront-state cart primitives', () => {
       expect(items).toEqual([
         { id: 'p1', quantity: 2 },
         { id: 'p2', quantity: 1 },
+      ]);
+    });
+
+    it('drops fractional quantities and truncates the rest (plan 283)', () => {
+      const items = parseSharedCartPayload({
+        version: SHARED_CART_VERSION,
+        items: [
+          { id: 'p1', quantity: 0.5 },
+          { id: 'p2', quantity: 2.7 },
+          { id: 'p3', quantity: '1.9' },
+        ],
+      });
+
+      expect(items).toEqual([
+        { id: 'p2', quantity: 2 },
+        { id: 'p3', quantity: 1 },
       ]);
     });
 

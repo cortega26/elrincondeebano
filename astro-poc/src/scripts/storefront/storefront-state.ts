@@ -16,7 +16,7 @@ export function parseNumber(value: unknown, fallback = 0): number {
 }
 
 export function clampQty(value: unknown): number {
-  return Math.min(Math.max(parseNumber(value, 0), 0), MAX_CART_ITEM_QTY);
+  return Math.min(Math.max(Math.floor(parseNumber(value, 0)), 0), MAX_CART_ITEM_QTY);
 }
 
 export function normalizeId(value: unknown): string {
