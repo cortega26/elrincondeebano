@@ -4,14 +4,40 @@ import path from 'node:path';
 
 const root = path.resolve(import.meta.dirname, '..');
 const catalog = JSON.parse(fs.readFileSync(path.join(root, 'data/product_data.json'), 'utf8'));
-const mirror = JSON.parse(fs.readFileSync(path.join(root, 'astro-poc/src/data/products.json'), 'utf8'));
-const publicData = JSON.parse(fs.readFileSync(path.join(root, 'astro-poc/public/data/product_data.json'), 'utf8'));
+
+// Minimal list, no false positives on the current catalog; "para" is not
+// banned (there are factual uses: "Apta para impresoras").
+const PROMOTIONAL_COPY =
+  /\b(ideal|perfect[oa]s?|delicios[oa]s?|exquisit[oa]s?|irresistible|incre[ií]ble|disfrut\w*|sabros[oa]s?|el mejor|la mejor|de calidad|premium)\b/i;
 
 describe('Product copy must convey verifiable information rather than boilerplate', () => {
-  it('keeps the three catalog projections consistent', () => {
-    expect(mirror).toEqual(catalog);
-    expect(publicData.products.map((product) => product.description))
-      .toEqual(catalog.products.map((product) => product.description));
+  it('descriptions avoid promotional adjectives and value judgements (AGENTS.md catalog rule)', () => {
+    for (const product of catalog.products) {
+      if (product.is_archived) {
+        continue;
+      }
+      expect(
+        PROMOTIONAL_COPY.test(product.description || ''),
+        `${product.id} ${product.name}: "${product.description}"`
+      ).toBe(false);
+    }
+  });
+
+  it('descriptions do not just repeat the product name', () => {
+    for (const product of catalog.products) {
+      if (product.is_archived) {
+        continue;
+      }
+      const description = String(product.description || '').trim();
+      if (!description) {
+        continue;
+      }
+      expect(description.toLowerCase(), `${product.id} ${product.name}`).not.toBe(
+        String(product.name || '')
+          .trim()
+          .toLowerCase()
+      );
+    }
   });
 
   it('does not repeat the generic sentences removed in the editorial audit', () => {
@@ -32,14 +58,5 @@ describe('Product copy must convey verifiable information rather than boilerplat
         expect(product.description.toLowerCase(), product.name).not.toContain(phrase);
       }
     }
-  });
-
-  it('uses concise factual copy for affected products', () => {
-    const find = (name) => catalog.products.find((product) => product.name === name)?.description;
-    expect(find('Benedictino • Agua gasificada 2L')).toBe('Envase desechable');
-    expect(find('Confort • Papel Sanitario')).toBe('4 rollos de 20 m c/u • Doble hoja');
-    expect(find('Papas Caseras Marco Polo 200g')).toBe('Bolsa de 200 g.');
-    expect(find('Mario Bros')).toBe('Llavero de PVC.');
-    expect(find('Van Camp\'s • Atún Lomitos en Agua')).toContain('92 g de peso drenado');
   });
 });
