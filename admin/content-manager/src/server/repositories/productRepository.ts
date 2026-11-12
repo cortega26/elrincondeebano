@@ -59,10 +59,11 @@ export class ProductRepository {
     this.idempotencyStore = store;
   }
 
-  // Plan 175: read-only idempotency probe so runCatalogCommand can return a
-  // recorded outcome WITHOUT re-running apply (no phantom products). No
-  // reservation primitive needed — the in-flight window is guarded by the
-  // caller's set, and writeCatalog re-checks under the mutation lock.
+  // Plan 175 + 290: read-only idempotency probe so runCatalogCommand can
+  // return a recorded SUCCESS without re-running apply (no phantom products).
+  // Conflict/error outcomes are intentionally not stored, so a failed retry
+  // can run again; writeCatalog still re-checks the revision under the
+  // mutation lock.
   peekCommandResult(commandId: string): CommandResult | undefined {
     return this.idempotencyStore?.get(commandId);
   }
@@ -136,12 +137,12 @@ export class ProductRepository {
     // Plan 092: invalidate before the in-lock revision check so it always
     // sees the on-disk state, never the mutated in-memory catalog.
     this.cache = null;
-    if (this.idempotencyStore?.has(commandId)) {
-      const cached = this.idempotencyStore.get(commandId)!;
-      return {
-        ok: cached.status === 'ok',
-        statusCode: cached.status === 'ok' ? 200 : 409,
-      };
+    // Plan 290: only successful outcomes are replayable. A conflict or a
+    // write error must not poison the command id: the operator retry has to
+    // be able to succeed with the same id.
+    const cached = this.idempotencyStore?.get(commandId);
+    if (cached?.status === 'ok') {
+      return { ok: true, statusCode: 200 };
     }
 
     const release = await this.lock.acquire();
@@ -149,22 +150,15 @@ export class ProductRepository {
       const current = this.loadCatalog();
 
       if (current.rev !== baseRevision) {
-        const result = {
+        return {
           ok: false,
           error: `Stale catalog revision: expected ${baseRevision}, got ${current.rev}`,
           statusCode: 409,
         };
-        this.idempotencyStore?.set(commandId, { command_id: commandId, status: 'conflict' });
-        return result;
       }
 
       const writeResult = this.writer.write(data, commandId);
       if (!writeResult.success) {
-        this.idempotencyStore?.set(commandId, {
-          command_id: commandId,
-          status: 'error',
-          warnings: [writeResult.error ?? 'Write failed'],
-        });
         return { ok: false, error: writeResult.error ?? 'Write failed', statusCode: 500 };
       }
 

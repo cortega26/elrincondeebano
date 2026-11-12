@@ -963,3 +963,58 @@ test('a failed batch never leaves partial upserts in the registry cache (plan 29
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('a failed reassign can be retried with the correct base revision (plan 290)', async () => {
+  const dir = createTempDir();
+  setupData(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const cat2 = await app.inject({
+      method: 'POST',
+      url: '/api/v1/categories',
+      headers: ch,
+      payload: {
+        id: 'cat2',
+        key: 'cat2',
+        slug: 'cat2',
+        display_name: { default: 'Cat 2' },
+        base_revision: 5,
+      },
+    });
+    expect(cat2.statusCode).toBe(201);
+
+    const failed = await app.inject({
+      method: 'DELETE',
+      url: '/api/v1/categories/cat1',
+      headers: ch,
+      payload: { reassign_to: 'cat2', base_revision: 999 },
+    });
+    expect(failed.statusCode).toBe(409);
+
+    // Same operation (same reassign target) must be retryable.
+    const retry = await app.inject({
+      method: 'DELETE',
+      url: '/api/v1/categories/cat1',
+      headers: ch,
+      payload: { reassign_to: 'cat2', base_revision: 6 },
+    });
+    expect(retry.statusCode).toBe(200);
+
+    // The first attempt already moved the product rows before its registry
+    // write conflicted (pre-existing two-phase behavior); the retry completes
+    // the delete and the final state is consistent.
+    const catalog = JSON.parse(readFileSync(resolve(dir, 'data', 'product_data.json'), 'utf8'));
+    for (const p of catalog.products) {
+      expect(p.category).toBe('cat2');
+    }
+    const registry = readRegistry(dir);
+    expect(registry.categories.some((c: { id: string }) => c.id === 'cat1')).toBe(false);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

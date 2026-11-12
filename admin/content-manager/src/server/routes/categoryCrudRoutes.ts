@@ -1,4 +1,5 @@
 import type { CreateCategoryInput } from '../../domain/categories/categoryService.ts';
+import { randomUUID } from 'node:crypto';
 import { categoryRecordSchema } from '../../shared/schemas/category.ts';
 import { requireWriteMode } from './helpers.ts';
 import { runRegistryCommand } from './catalog-command.ts';
@@ -152,7 +153,7 @@ export async function registerCategoryCrudRoutes({
         catalog.last_updated = now;
         const wrote = await repos.products.writeCatalog(
           catalog,
-          `reassign-${id}-${body.reassign_to}`,
+          `reassign-${id}-${body.reassign_to}-${randomUUID()}`,
           baseRev
         );
         if (!wrote.ok) {

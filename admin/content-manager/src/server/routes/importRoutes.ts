@@ -1,4 +1,5 @@
 import type { FastifyInstance } from 'fastify';
+import { randomUUID } from 'node:crypto';
 import type { Repositories } from './helpers.ts';
 import { ChangeSetRepository } from '../repositories/changeSetRepository.ts';
 import { PreviewRepository } from '../repositories/previewRepository.ts';
@@ -343,7 +344,7 @@ export async function importRoutes(
 
       const writeResult = await repos.products.writeCatalog(
         catalog,
-        `import-${preview_id}`,
+        `import-${preview_id}-${randomUUID()}`,
         preview.base_rev
       );
       if (!writeResult.ok) {

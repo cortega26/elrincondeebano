@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, renameSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
+import { randomUUID } from 'node:crypto';
 import type { MediaIntent } from '../../shared/schemas/mediaIntent.ts';
 import { isContainedWithin } from '../../shared/identity.ts';
 import { HttpError } from '../../shared/errors/AppError.ts';
@@ -148,7 +149,7 @@ export async function registerMediaApplyRoutes({
         catalog.last_updated = now;
         const writeResult = await repos.products.writeCatalog(
           catalog,
-          `media-${intent.id}`,
+          `media-${intent.id}-${randomUUID()}`,
           baseRev
         );
         if (!writeResult.ok) {
