@@ -44,21 +44,16 @@ test('dependabot auto-merge pins fetch-metadata to a full commit SHA', () => {
   );
 });
 
-test('product-data-guard gates the auto-commit on the diff provenance, not the trigger actor', () => {
-  assert.ok(
-    guardWorkflow.includes(
-      "(github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]' && startsWith(github.head_ref, 'dependabot/'))"
-    ),
-    'expected the auto-commit gate to require a Dependabot-authored dependency PR branch'
-  );
-  assert.match(
+test('product-data-guard has no credentialed auto-commit job', () => {
+  assert.doesNotMatch(
     guardWorkflow,
-    /provenance of the diff/,
-    'expected a comment explaining the provenance gate'
+    /contents:\s*write/,
+    'the guard must not hold a write token'
   );
   assert.doesNotMatch(
     guardWorkflow,
-    /github\.actor == 'dependabot\[bot\]'/,
-    'the actor-only gate identifies the trigger, not the diff provenance'
+    /x-access-token/,
+    'the guard must not interpolate a token into the git remote'
   );
+  assert.doesNotMatch(guardWorkflow, /\bgit push\b/, 'the guard must not push from CI');
 });
