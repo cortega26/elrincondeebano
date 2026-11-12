@@ -14,6 +14,8 @@ export interface Props {
   gridClassName?: string;
   showProfileStrip?: boolean;
   compactMobile?: boolean;
+  /** Plan 286: only the page's real LCP grid should prioritize its first card. */
+  prioritizeFirst?: boolean;
 }
 
 const {
@@ -27,6 +29,7 @@ const {
   gridClassName = 'home-collection-grid',
   showProfileStrip = false,
   compactMobile = true,
+  prioritizeFirst = true,
 } = Astro.props;
 ---
 
@@ -62,5 +65,6 @@ const {
     id={gridId}
     className={gridClassName}
     compactMobile={compactMobile}
+    prioritizeFirst={prioritizeFirst}
   />
 </section>

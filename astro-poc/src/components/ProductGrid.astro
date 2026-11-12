@@ -8,9 +8,18 @@ export interface Props {
   className?: string;
   announce?: boolean;
   compactMobile?: boolean;
+  /** Plan 286: at most one grid per page may prioritize its first image. */
+  prioritizeFirst?: boolean;
 }
 
-const { items, id, className = '', announce = false, compactMobile = false } = Astro.props;
+const {
+  items,
+  id,
+  className = '',
+  announce = false,
+  compactMobile = false,
+  prioritizeFirst = true,
+} = Astro.props;
 ---
 
 <div
@@ -19,5 +28,5 @@ const { items, id, className = '', announce = false, compactMobile = false } = A
   aria-live={announce ? 'polite' : undefined}
   data-total-products={items.length}
 >
-  {items.map((item, index) => <ProductCard item={item} index={index} compactMobile={compactMobile} />)}
+  {items.map((item, index) => <ProductCard item={item} index={index} compactMobile={compactMobile} priority={prioritizeFirst && index === 0} />)}
 </div>

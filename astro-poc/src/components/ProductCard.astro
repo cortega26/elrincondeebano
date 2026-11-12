@@ -7,13 +7,15 @@ export interface Props {
   item: ProductWithSku;
   index?: number;
   compactMobile?: boolean;
+  /** Plan 286: explicit page-level priority (defaults to the first card). */
+  priority?: boolean;
 }
 
 const { item } = Astro.props;
 const { product, sku } = item;
-const { index = 0 } = Astro.props;
+const { index = 0, priority = index === 0 } = Astro.props;
 const { compactMobile = false } = Astro.props;
-const isLikelyLcp = index === 0;
+const isLikelyLcp = priority === true;
 const card = computeProductCardData(product, index, sku);
 const price = card.price;
 const finalPrice = card.finalPrice;

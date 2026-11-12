@@ -9,11 +9,13 @@ import { computeProductCardData } from '../lib/product-card-helpers';
 export interface Props {
   item: ProductWithSku;
   index?: number;
+  /** Plan 286: only a page-level decision may prioritize this image for LCP. */
+  priority?: boolean;
 }
 
-const { item, index = 0 } = Astro.props;
+const { item, index = 0, priority = false } = Astro.props;
 const { product, sku } = item;
-const isLikelyLcp = index < 3;
+const isLikelyLcp = priority === true;
 const card = computeProductCardData(product, index, sku);
 const price = card.price;
 const finalPrice = card.finalPrice;
