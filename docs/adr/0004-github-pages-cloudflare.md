@@ -34,3 +34,8 @@ GitHub Pages serves the static build but does not support custom response header
 
 `docs/operations/RUNBOOK.md` — "Missing edge security headers" section.
 `docs/operations/EDGE_SECURITY_HEADERS.md` — full header baseline.
+
+## Status note
+
+- 2026-11 (plan 287): the Worker now emits HSTS (`max-age=31536000`, no `includeSubDomains`, no
+  `preload`). Before this date decision 3 promised HSTS but production did not send it.

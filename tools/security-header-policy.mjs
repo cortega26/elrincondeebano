@@ -10,6 +10,9 @@ const CSP_NONE = "'none'";
 const OFFLINE_STYLE_HASH = "'sha256-txruc9PJz00ka/r40Dz/BjbfCBZ9ZbTqVda8f/oiI2k='";
 
 export const SECURITY_HEADER_POLICY = Object.freeze({
+  // Plan 287 / ADR 0004: 1 year, no includeSubDomains, no preload (owner decision 2026-11).
+  // Lowering it later does not un-pin browsers that already saw it — change deliberately.
+  'strict-transport-security': 'max-age=31536000',
   'referrer-policy': 'strict-origin-when-cross-origin',
   'x-content-type-options': 'nosniff',
   'x-frame-options': 'DENY',
@@ -128,6 +131,7 @@ export function inspectSecurityHeaders(headers) {
     'referrer-policy': readHeader(headers, 'referrer-policy'),
     'x-content-type-options': readHeader(headers, 'x-content-type-options'),
     'permissions-policy': readHeader(headers, 'permissions-policy'),
+    'strict-transport-security': readHeader(headers, 'strict-transport-security'),
   };
 
   const missing = [];
@@ -196,6 +200,16 @@ export function inspectSecurityHeaders(headers) {
     SECURITY_HEADER_POLICY['x-frame-options']
   ) {
     invalid.push(`x-frame-options (expected ${SECURITY_HEADER_POLICY['x-frame-options']})`);
+  }
+
+  // Plan 287: optional until the live edge is confirmed; see EDGE_SECURITY_HEADERS.md.
+  // A present but weak value is still rejected.
+  const strictTransportSecurity = observed['strict-transport-security'];
+  if (strictTransportSecurity) {
+    const match = normalizeHeaderValue(strictTransportSecurity).match(/max-age=(\d+)/i);
+    if (!match || Number(match[1]) < 15552000) {
+      invalid.push('strict-transport-security (max-age must be >= 15552000)');
+    }
   }
 
   return {

@@ -13,6 +13,7 @@ test('buildSecurityHeadersPolicy returns the versioned edge baseline', async () 
   assert.equal(policy['referrer-policy'], 'strict-origin-when-cross-origin');
   assert.equal(policy['x-content-type-options'], 'nosniff');
   assert.equal(policy['x-frame-options'], 'DENY');
+  assert.equal(policy['strict-transport-security'], 'max-age=31536000');
   assert.match(policy['content-security-policy'], /script-src 'self' https:\/\/plausible\.io/);
   assert.match(policy['content-security-policy'], /connect-src 'self' https:\/\/plausible\.io/);
   assert.doesNotMatch(policy['content-security-policy'], /cloudflareinsights/);
@@ -29,6 +30,29 @@ test('inspectSecurityHeaders accepts the documented edge baseline', async () => 
   assert.equal(inspection.ok, true);
   assert.deepEqual(inspection.missing, []);
   assert.deepEqual(inspection.invalid, []);
+});
+
+test('HSTS stays optional but a present value must last at least 180 days (plan 287)', async () => {
+  const { buildSecurityHeadersPolicy, inspectSecurityHeaders } = await loadModule();
+
+  const withoutHsts = new Headers(buildSecurityHeadersPolicy());
+  withoutHsts.delete('strict-transport-security');
+  const optional = inspectSecurityHeaders(withoutHsts);
+  assert.equal(optional.ok, true);
+  assert.deepEqual(optional.missing, []);
+
+  const weak = new Headers(buildSecurityHeadersPolicy());
+  weak.set('strict-transport-security', 'max-age=60');
+  const invalid = inspectSecurityHeaders(weak);
+  assert.equal(invalid.ok, false);
+  assert.match(
+    invalid.invalid.join('\n'),
+    /strict-transport-security \(max-age must be >= 15552000\)/
+  );
+
+  const minimum = new Headers(buildSecurityHeadersPolicy());
+  minimum.set('strict-transport-security', 'max-age=15552000');
+  assert.equal(inspectSecurityHeaders(minimum).ok, true);
 });
 
 test('inspectSecurityHeaders rejects drifted CSP and frame policy values', async () => {

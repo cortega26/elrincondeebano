@@ -48,6 +48,7 @@ test('applySecurityHeaders injects the documented edge baseline without dropping
   assert.equal(hardened.headers.get('referrer-policy'), 'strict-origin-when-cross-origin');
   assert.equal(hardened.headers.get('x-content-type-options'), 'nosniff');
   assert.equal(hardened.headers.get('x-frame-options'), 'DENY');
+  assert.equal(hardened.headers.get('strict-transport-security'), 'max-age=31536000');
   assert.match(
     hardened.headers.get('content-security-policy') || '',
     /default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'/
@@ -122,6 +123,7 @@ test('worker fetch handler hardens canonical-host HTML and leaves assets unchang
     );
     const html = await htmlResponse.text();
     assert.equal(htmlResponse.headers.get('x-frame-options'), 'DENY');
+    assert.equal(htmlResponse.headers.get('strict-transport-security'), 'max-age=31536000');
     assert.doesNotMatch(html, /challenge-platform/);
     assert.doesNotMatch(html, /__CF\$cv\$params/);
 
@@ -131,6 +133,7 @@ test('worker fetch handler hardens canonical-host HTML and leaves assets unchang
       {}
     );
     assert.equal(assetResponse.headers.get('x-frame-options'), null);
+    assert.equal(assetResponse.headers.get('strict-transport-security'), null);
   } finally {
     global.fetch = originalFetch;
   }
