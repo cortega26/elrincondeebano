@@ -5,9 +5,14 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const workflowsDir = path.join(__dirname, '..', '.github', 'workflows');
+const repoRoot = path.join(__dirname, '..');
 const autoMergeWorkflow = fs.readFileSync(
   path.join(workflowsDir, 'dependabot-auto-merge.yml'),
   'utf8'
+);
+const ciWorkflow = fs.readFileSync(path.join(workflowsDir, 'ci.yml'), 'utf8');
+const mainRuleset = JSON.parse(
+  fs.readFileSync(path.join(repoRoot, '.github', 'rulesets', 'main-protection.json'), 'utf8')
 );
 const guardWorkflow = fs.readFileSync(path.join(workflowsDir, 'product-data-guard.yml'), 'utf8');
 const securityAuditWorkflow = fs.readFileSync(
@@ -76,5 +81,22 @@ test('dependabot auto-merge does not check out repository code', () => {
     autoMergeWorkflow,
     /actions\/checkout/,
     'fetch-metadata works over the API; no checkout is needed'
+  );
+});
+
+test('main ruleset requires the CI summary check', () => {
+  const rule = (mainRuleset.rules || []).find(
+    (entry) => entry.type === 'required_status_checks'
+  );
+  assert.ok(rule, 'expected the ruleset to require status checks');
+  const contexts = (rule.parameters?.required_status_checks || []).map((check) => check.context);
+  assert.ok(
+    contexts.includes('CI Verification Summary'),
+    `expected "CI Verification Summary" in the required checks, got ${contexts.join(', ') || '(none)'}`
+  );
+  assert.match(
+    ciWorkflow,
+    /^\s*name: CI Verification Summary$/m,
+    'ci.yml must keep a job named "CI Verification Summary"'
   );
 });
