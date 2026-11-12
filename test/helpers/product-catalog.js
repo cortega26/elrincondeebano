@@ -40,8 +40,26 @@ function getSharePreviewSampleProduct() {
   return product;
 }
 
+function getInStockProductsWithDescription(count = 1) {
+  const productCatalog = loadProductCatalog();
+  const products = (productCatalog.products || []).filter(
+    (product) =>
+      product?.stock !== false &&
+      product?.is_archived !== true &&
+      String(product?.description || '').trim() &&
+      product?.image_path
+  );
+  if (products.length < count) {
+    throw new Error(
+      `Expected at least ${count} in-stock products with a description and image_path.`
+    );
+  }
+  return products.slice(0, count);
+}
+
 module.exports = {
   findWebpBackedProduct,
+  getInStockProductsWithDescription,
   getSharePreviewSampleProduct,
   getWebpBackedProduct,
   loadProductCatalog,
