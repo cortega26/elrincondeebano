@@ -22,12 +22,25 @@ export function readFile(filePath) {
   return fs.readFileSync(filePath, 'utf8');
 }
 
+export function chooseBaseRef({ hasOriginMain, headSha, originMainSha }) {
+  if (!hasOriginMain) {
+    return 'HEAD~1';
+  }
+  // Plan 293: on a push to main, origin/main IS HEAD; diffing against it is
+  // empty and the guard silently skips. Compare against the previous commit.
+  if (headSha && originMainSha && headSha === originMainSha) {
+    return 'HEAD~1';
+  }
+  return 'origin/main';
+}
+
 export function getBaseRef() {
   try {
-    sh('git rev-parse --verify origin/main');
-    return 'origin/main';
+    const originMainSha = sh('git rev-parse --verify origin/main');
+    const headSha = sh('git rev-parse HEAD');
+    return chooseBaseRef({ hasOriginMain: true, headSha, originMainSha });
   } catch {
-    return 'HEAD~1';
+    return chooseBaseRef({ hasOriginMain: false });
   }
 }
 

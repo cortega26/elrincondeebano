@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { logger } from '../utils/logger.mjs';
 
@@ -25,7 +26,7 @@ const BINARY_EXTENSIONS = new Set([
   '.pyc',
 ]);
 
-const SECRET_PATTERNS = [
+export const SECRET_PATTERNS = [
   { id: 'private-key', regex: /-----BEGIN [A-Z ]*PRIVATE KEY-----/g },
   { id: 'github-token', regex: /\bgh[pousr]_[A-Za-z0-9]{36,255}\b/g },
   { id: 'npm-token', regex: /\bnpm_[A-Za-z0-9]{36}\b/g },
@@ -76,6 +77,23 @@ function toLineNumber(source, offset) {
   return line;
 }
 
+export function scanContent(content, filePath = '<memory>') {
+  const findings = [];
+  for (const pattern of SECRET_PATTERNS) {
+    pattern.regex.lastIndex = 0;
+    let match = pattern.regex.exec(content);
+    while (match) {
+      findings.push({
+        filePath,
+        line: toLineNumber(content, match.index),
+        pattern: pattern.id,
+      });
+      match = pattern.regex.exec(content);
+    }
+  }
+  return findings;
+}
+
 function scanFile(filePath) {
   if (isBinaryPath(filePath)) {
     return [];
@@ -92,21 +110,7 @@ function scanFile(filePath) {
     return [];
   }
 
-  const content = buffer.toString('utf8');
-  const findings = [];
-  for (const pattern of SECRET_PATTERNS) {
-    pattern.regex.lastIndex = 0;
-    let match = pattern.regex.exec(content);
-    while (match) {
-      findings.push({
-        filePath,
-        line: toLineNumber(content, match.index),
-        pattern: pattern.id,
-      });
-      match = pattern.regex.exec(content);
-    }
-  }
-  return findings;
+  return scanContent(buffer.toString('utf8'), filePath);
 }
 
 function main() {
@@ -128,4 +132,8 @@ function main() {
   process.exitCode = 1;
 }
 
-main();
+const invokedDirectly =
+  process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+if (invokedDirectly) {
+  main();
+}
