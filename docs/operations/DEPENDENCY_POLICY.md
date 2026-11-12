@@ -40,6 +40,22 @@ For workflow changes:
 1. Validate YAML and workflow triggers
 2. Re-run CI-required checks on PR branch
 
+## Protecting `main`
+
+`main` is protected by the `main-protection` ruleset (source of truth:
+`.github/rulesets/main-protection.json`): it blocks deletions and
+non-fast-forward pushes and requires the `CI Verification Summary` check
+before merging. Apply or update it as the repository owner:
+
+```bash
+gh api -X POST repos/cortega26/elrincondeebano/rulesets --input .github/rulesets/main-protection.json
+gh api repos/cortega26/elrincondeebano/rules/branches/main
+```
+
+Dependabot's patch auto-merge relies on this ruleset: `gh pr merge --auto`
+only waits for CI when a required check exists. Repository admins keep an
+explicit `bypass_mode: always` entry for emergencies.
+
 ## Security triage rules
 
 1. Prioritize vulnerabilities in production dependencies (`npm audit --omit=dev`).
