@@ -14,17 +14,20 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
     if: ${{ github.ref_type == 'branch' }}
+    permissions:
+      contents: write
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Prepare branch for image update
         shell: bash
         run: |
@@ -49,6 +52,8 @@ jobs:
       - run: npm run lint:images
       - name: Commit changes
         shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
@@ -65,5 +70,8 @@ jobs:
             exit 1
           fi
           git commit -m 'chore: update optimized images'
-          git pull --rebase origin "${GITHUB_REF_NAME}"
-          git push origin HEAD:"refs/heads/${GITHUB_REF_NAME}"
+          git checkout -b "bot/optimized-images-${GITHUB_RUN_ID}"
+          AUTH=$(printf '%s:%s' 'x-access-token' "$GH_TOKEN" | base64 -w0)
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic ${AUTH}" push origin "HEAD:refs/heads/bot/optimized-images-${GITHUB_RUN_ID}"
+          echo "### Optimized images ready for review" >> "$GITHUB_STEP_SUMMARY"
+          echo "https://github.com/${GITHUB_REPOSITORY}/compare/main...bot/optimized-images-${GITHUB_RUN_ID}?expand=1" >> "$GITHUB_STEP_SUMMARY"
