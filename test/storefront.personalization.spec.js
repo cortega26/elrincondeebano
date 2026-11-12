@@ -1,5 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPersonalizationEngine } from '../astro-poc/src/scripts/storefront/personalization.js';
+import {
+  getCartState,
+  hydrateCartFromOrder,
+} from '../astro-poc/src/scripts/storefront/storefront-state.js';
 
 const NOW = new Date('2026-07-14T10:00:00Z').getTime();
 
@@ -30,7 +34,7 @@ function makeSampleCart(items) {
   });
 }
 
-function createEngine({
+function createEngineHarness({
   visibleIds = ['p1', 'p2', 'p3', 'p4', 'p5'],
   seedLastOrder = null,
   seedRecentOrders = [],
@@ -40,7 +44,7 @@ function createEngine({
   const recentOrdersCell = makeCell(seedRecentOrders);
   const signalsCell = makeCell(seedProductSignals);
 
-  return createPersonalizationEngine({
+  const engine = createPersonalizationEngine({
     loadLastOrder: () => lastOrderCell.get(),
     saveLastOrder: (v) => {
       lastOrderCell.set(v);
@@ -61,6 +65,12 @@ function createEngine({
     resolveProductById: (id) => KNOWN_PRODUCTS[id] || null,
     maxPersonalizedItems: 4,
   });
+
+  return { engine, lastOrderCell, recentOrdersCell, signalsCell };
+}
+
+function createEngine(options = {}) {
+  return createEngineHarness(options).engine;
 }
 
 function setupFakeTimers() {
@@ -115,6 +125,39 @@ describe('personalization engine — recordOrder', () => {
     const ids = engine.getPersonalizedProductIds();
     expect(ids).toContain('p2');
     expect(ids.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('recordOrder → loadLastOrder → hydrateCartFromOrder keeps discounts (plan 283)', () => {
+    const { engine, lastOrderCell } = createEngineHarness();
+    const cart = [
+      {
+        id: 'p1',
+        name: 'Leche',
+        category: 'L',
+        price: 1200,
+        discount: 300,
+        image: '',
+        quantity: 2,
+      },
+      {
+        id: 'p2',
+        name: 'Café',
+        category: 'L',
+        price: 900,
+        discount: 0,
+        image: '',
+        quantity: 1,
+      },
+    ];
+
+    engine.recordOrder(cart, {}, 'Efectivo', 'similar');
+
+    // The real writer's output, not a hand-built order: the reader must see
+    // the same discount the cart had when the order was recorded.
+    const hydrated = hydrateCartFromOrder(lastOrderCell.get());
+    expect(hydrated).toHaveLength(2);
+    expect(hydrated[0].discount).toBe(300);
+    expect(getCartState(hydrated).totalAmount).toBe((1200 - 300) * 2 + 900);
   });
 });
 

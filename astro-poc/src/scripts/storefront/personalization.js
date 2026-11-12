@@ -101,6 +101,7 @@ export function createPersonalizationEngine({
         name: item.name,
         category: item.category,
         price: item.price,
+        discount: item.discount,
         quantity: item.quantity,
         image: item.image,
       })),

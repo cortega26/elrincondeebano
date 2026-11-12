@@ -293,6 +293,8 @@ describe('storefront-state cart primitives', () => {
     });
 
     it('preserves discounts so repeated orders keep their effective total', () => {
+      // Plan 283: the real writer round-trip lives in storefront.personalization.spec.js;
+      // this case pins the reader (hydrateCartFromOrder) with a hand-built order.
       const cart = hydrateCartFromOrder({
         items: [
           { id: 'p1', name: 'Leche', category: 'L', price: 1200, discount: 300, quantity: 2 },
