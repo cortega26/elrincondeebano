@@ -43,8 +43,10 @@ import {
   hydrateCartFromOrder,
   hydrateSharedCart,
   adoptCartSnapshot,
+  applyCartPriceIndex,
   normalizeId,
   parseNumber,
+  parseSharedCartPayload,
   refreshCartItemsFromCatalog,
   sanitizeCart,
   sameCartProduct,
@@ -138,6 +140,30 @@ function readStorefrontExperience() {
   }
 }
 
+// Plan 282: the build embeds the live cart price index in every page. Read it
+// lazily because loadCart can run from loadCartFromUrl before initStorefront.
+let cartPriceIndex = null;
+let cartPriceIndexLoaded = false;
+function readCartPriceIndex() {
+  if (cartPriceIndexLoaded) {
+    return cartPriceIndex;
+  }
+  cartPriceIndexLoaded = true;
+
+  const script = document.getElementById('cart-price-index');
+  if (!(script instanceof HTMLScriptElement)) {
+    return cartPriceIndex;
+  }
+
+  try {
+    const parsed = JSON.parse(script.textContent || 'null');
+    cartPriceIndex = parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : null;
+  } catch {
+    cartPriceIndex = null;
+  }
+  return cartPriceIndex;
+}
+
 function triggerTransientClass(element, className) {
   if (!(element instanceof HTMLElement)) {
     return;
@@ -173,7 +199,14 @@ function loadCart() {
   // duplicate fingerprint (visualCartIdentity) includes price/discount, so a
   // refresh-triggered write could collapse rows on the next sanitize.
   // Persistence stays owned by the mutation flows (setQty, add/remove).
-  return refreshCartItemsFromCatalog(cart, resolveLiveProductForCart).cart;
+  //
+  // Plan 282: the DOM refresh only knows the cards on this page; the embedded
+  // price index covers every product. Sanitizing the projection keeps one cart
+  // truth for render, totals and the WhatsApp message (a reprice can make two
+  // visual duplicates collapse — never persist that here).
+  const refreshed = refreshCartItemsFromCatalog(cart, resolveLiveProductForCart).cart;
+  const priced = applyCartPriceIndex(refreshed, readCartPriceIndex()).cart;
+  return sanitizeCart(priced);
 }
 
 function saveCart(cart) {
@@ -233,6 +266,28 @@ function shareCart(cart) {
   return Promise.resolve(false);
 }
 
+// Plan 282: a shared link can partially hydrate when some products are not on
+// this page (or are out of stock). Never fail silently: the customer needs to
+// know the link did not add everything it promised.
+function showSharedCartPartialNotice(skipped) {
+  if (document.getElementById('shared-cart-partial')) return;
+  var toast = createElement('div', {
+    className: 'alert alert-warning alert-dismissible fade show position-fixed bottom-0 end-0 m-3',
+    attrs: {
+      id: 'shared-cart-partial',
+      role: 'alert',
+      style: 'z-index: 9999; max-width: 400px;',
+    },
+  });
+  toast.textContent = `${skipped} producto(s) del enlace no se pudieron agregar (sin stock o no disponibles en esta página).`;
+  var close = createElement('button', {
+    className: 'btn-close',
+    attrs: { type: 'button', 'data-bs-dismiss': 'alert', 'aria-label': 'Cerrar' },
+  });
+  toast.appendChild(close);
+  document.body.appendChild(toast);
+}
+
 function loadCartFromUrl() {
   var hash = globalThis.location.hash;
   var match = hash.match(/^#?cart=(.+)$/);
@@ -241,7 +296,12 @@ function loadCartFromUrl() {
   try {
     var raw = decodeCart(match[1]);
     if (!raw) return false;
+    var requested = parseSharedCartPayload(raw).length;
     var hydrated = hydrateSharedCart(raw, resolveLiveProductForCart);
+    var skipped = Math.max(requested - hydrated.length, 0);
+    if (skipped > 0) {
+      showSharedCartPartialNotice(skipped);
+    }
     if (hydrated.length === 0) return false;
 
     var currentCart = loadCart();
@@ -1055,7 +1115,8 @@ function buildWhatsAppPreview(
   totalAmount,
   selectedPayment,
   substitutionPreference,
-  deliveryNote
+  deliveryNote,
+  unavailableIds
 ) {
   const preview = document.getElementById('order-confirm-preview');
   if (!preview) {
@@ -1066,7 +1127,8 @@ function buildWhatsAppPreview(
     totalAmount,
     selectedPayment,
     substitutionPreference,
-    deliveryNote
+    deliveryNote,
+    unavailableIds
   );
 }
 
@@ -1217,13 +1279,21 @@ function initStorefront() {
   // storage write happens here either; mutate flows own persistence.
   submitCartOrder = (cartToSubmit) => {
     const refreshed = refreshCartItemsFromCatalog(cartToSubmit, resolveLiveProductForCart);
-    if (refreshed.changed) {
-      const nextCart = refreshed.cart;
-      setCart(nextCart);
-      updateBadge(nextCart);
-      renderCart(nextCart);
+    const priced = applyCartPriceIndex(refreshed.cart, readCartPriceIndex());
+    // One cart truth: the sanitized projection is what gets rendered, totalled
+    // and sent. The embedded index keeps prices live even on pages without
+    // product cards (plan 282).
+    const finalCart = sanitizeCart(priced.cart);
+    const changed =
+      refreshed.changed || priced.changed || finalCart.length !== refreshed.cart.length;
+    if (changed) {
+      setCart(finalCart);
+      updateBadge(finalCart);
+      renderCart(finalCart);
     }
-    orderSubmitController.submitCartOrder(refreshed.cart);
+    orderSubmitController.submitCartOrder(finalCart, {
+      unavailableIds: priced.unavailableIds,
+    });
   };
   buildWhatsAppMessageText = orderSubmitController.buildWhatsAppMessageText;
   const recoveryBannerController = createRecoveryBannerController({

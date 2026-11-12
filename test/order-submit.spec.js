@@ -101,6 +101,32 @@ describe('order-submit buildWhatsAppMessageText', () => {
     const text = controller.buildWhatsAppMessageText(cart, 1000, 'Efectivo', 'similar', undefined);
     expect(text).not.toContain('Nota:');
   });
+
+  it('marks only the lines reported as unavailable', () => {
+    const controller = makeController();
+    const marker = '   ⚠️ Sin stock en el catálogo';
+    const cart = [
+      { id: 'a', name: 'Aceite', price: 1000, quantity: 1 },
+      { id: 'b', name: 'Pan', price: 2000, quantity: 2 },
+    ];
+
+    const plain = controller.buildWhatsAppMessageText(cart, 5000, 'Efectivo', 'similar', '');
+    expect(plain).not.toContain(marker);
+
+    const text = controller.buildWhatsAppMessageText(
+      cart,
+      5000,
+      'Efectivo',
+      'similar',
+      '',
+      new Set(['b'])
+    );
+    expect(text.split(marker)).toHaveLength(2);
+    const aBlock = text.slice(text.indexOf('*Aceite*'), text.indexOf('*Pan*'));
+    const bBlock = text.slice(text.indexOf('*Pan*'));
+    expect(aBlock).not.toContain(marker);
+    expect(bBlock).toContain(marker);
+  });
 });
 
 describe('order-submit submitCartOrder', () => {
@@ -156,15 +182,30 @@ describe('order-submit submitCartOrder', () => {
     // total cannot pass any more).
     expect(buildWhatsAppPreview).toHaveBeenCalledTimes(1);
     const previewArgs = buildWhatsAppPreview.mock.calls[0];
-    expect(previewArgs).toEqual([cart, expectedTotal, 'Transferencia', 'exacto', 'Timbre 2']);
-    const [previewCart, previewTotal, previewPayment, previewSubstitution, previewNote] =
-      previewArgs;
+    // Plan 282 adds the optional unavailable-id Set as the last argument.
+    expect(previewArgs).toEqual([
+      cart,
+      expectedTotal,
+      'Transferencia',
+      'exacto',
+      'Timbre 2',
+      new Set(),
+    ]);
+    const [
+      previewCart,
+      previewTotal,
+      previewPayment,
+      previewSubstitution,
+      previewNote,
+      previewUnavailable,
+    ] = previewArgs;
     const previewMessage = controller.buildWhatsAppMessageText(
       previewCart,
       previewTotal,
       previewPayment,
       previewSubstitution,
-      previewNote
+      previewNote,
+      previewUnavailable
     );
     expect(previewMessage).toContain(`*Total:* $${expectedTotal.toLocaleString('es-CL')}`);
     expect(document.getElementById('order-confirm-summary').textContent).toContain(
@@ -216,5 +257,18 @@ describe('order-submit confirm summary kill-cases (plan 193)', () => {
     errEl.textContent = 'stale error';
     controller.submitCartOrder([{ name: 'Aceite', price: 2000, discount: 0, quantity: 1 }]);
     expect(errEl.textContent).toBe('');
+  });
+
+  it('appends · Sin stock to the reported summary line only', () => {
+    const controller = makeController();
+    const cart = [
+      { id: 'a', name: 'Aceite', price: 1000, quantity: 1 },
+      { id: 'b', name: 'Pan', price: 2000, quantity: 1 },
+    ];
+    controller.buildOrderConfirmSummary(cart, 3000, 'Efectivo', 'similar', '', new Set(['b']));
+    const summary = document.getElementById('order-confirm-summary');
+    expect(summary.textContent.match(/Sin stock/g)).toHaveLength(1);
+    expect(summary.textContent).toContain(`${formatCurrency(2000)} · Sin stock`);
+    expect(summary.textContent).toContain(formatCurrency(1000));
   });
 });

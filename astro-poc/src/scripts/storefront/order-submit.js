@@ -19,13 +19,25 @@ export function createOrderSubmitController({
 } = {}) {
   let pendingOrderData = null;
 
+  // Plan 282: lines whose catalog entry is out of stock (or missing) are
+  // reported by applyCartPriceIndex. Accept a Set or an array; omit the
+  // argument to keep the pre-plan-282 output unchanged.
+  function toUnavailableSet(unavailableIds) {
+    if (unavailableIds instanceof Set) {
+      return unavailableIds;
+    }
+    return new Set(Array.isArray(unavailableIds) ? unavailableIds : []);
+  }
+
   function buildWhatsAppMessageText(
     cart,
     totalAmount,
     selectedPayment,
     substitutionPreference,
-    deliveryNote
+    deliveryNote,
+    unavailableIds
   ) {
+    const unavailable = toUnavailableSet(unavailableIds);
     const lines = [];
     lines.push('🛒 *Nuevo Pedido - El Rincón de Ébano*');
     lines.push('');
@@ -37,6 +49,9 @@ export function createOrderSubmitController({
       lines.push(
         `   ${item.quantity} × $${effectivePrice.toLocaleString('es-CL')} = $${subtotal.toLocaleString('es-CL')}`
       );
+      if (unavailable.has(item.id)) {
+        lines.push('   ⚠️ Sin stock en el catálogo');
+      }
       lines.push('');
     });
 
@@ -57,13 +72,15 @@ export function createOrderSubmitController({
     totalAmount,
     selectedPayment,
     substitutionPreference,
-    deliveryNote
+    deliveryNote,
+    unavailableIds
   ) {
     const container = document.getElementById('order-confirm-summary');
     if (!container) {
       return;
     }
 
+    const unavailable = toUnavailableSet(unavailableIds);
     container.replaceChildren();
 
     cart.forEach((item) => {
@@ -77,7 +94,7 @@ export function createOrderSubmitController({
       info.appendChild(
         createElement('div', {
           className: 'order-confirm__summary-item-meta',
-          text: `${item.quantity} × ${formatCurrency(effectivePrice)}`,
+          text: `${item.quantity} × ${formatCurrency(effectivePrice)}${unavailable.has(item.id) ? ' · Sin stock' : ''}`,
         })
       );
       const total = createElement('span', {
@@ -116,10 +133,11 @@ export function createOrderSubmitController({
     container.appendChild(metaDiv);
   }
 
-  function submitCartOrder(cart) {
+  function submitCartOrder(cart, { unavailableIds = [] } = {}) {
     if (!Array.isArray(cart) || cart.length === 0) {
       return;
     }
+    const unavailable = toUnavailableSet(unavailableIds);
 
     const paymentError = document.getElementById('payment-error');
     if (paymentError) {
@@ -148,7 +166,8 @@ export function createOrderSubmitController({
       totalAmount,
       selectedPayment,
       substitutionPreference,
-      profile.deliveryNote
+      profile.deliveryNote,
+      unavailable
     );
 
     pendingOrderData = {
@@ -165,14 +184,16 @@ export function createOrderSubmitController({
       totalAmount,
       selectedPayment,
       substitutionPreference,
-      profile.deliveryNote
+      profile.deliveryNote,
+      unavailable
     );
     buildWhatsAppPreview(
       cart,
       totalAmount,
       selectedPayment,
       substitutionPreference,
-      profile.deliveryNote
+      profile.deliveryNote,
+      unavailable
     );
     showOrderConfirmationDialog();
   }
