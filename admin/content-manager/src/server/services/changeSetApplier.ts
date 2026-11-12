@@ -81,10 +81,19 @@ export class ChangeSetApplier {
               error: parsed.error.issues.map((i) => i.message).join('; '),
             };
           }
+          const nextId = parsed.data.id ?? generateProductId();
+          if (catalog.products.some((product) => product.id === nextId)) {
+            return {
+              ok: false,
+              statusCode: 409,
+              code: 'DUPLICATE_ID',
+              error: `Product "${nextId}" already exists`,
+            };
+          }
           const productRecord = {
             ...parsed.data,
-            id: parsed.data.id ?? generateProductId(),
-            order: catalog.products.length,
+            id: nextId,
+            order: Math.max(-1, ...catalog.products.map((p) => p.order ?? -1)) + 1,
             rev: 1,
           };
           catalog.products.push(productRecord);

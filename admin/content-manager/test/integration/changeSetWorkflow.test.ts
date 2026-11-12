@@ -76,6 +76,7 @@ function readCatalog(dir: string): {
     id: string;
     name: string;
     price: number;
+    order?: number;
     is_archived: boolean;
     rev: number;
   }>;
@@ -760,6 +761,86 @@ test('POST /history/:id/revert restores before-values with rev guards', async ()
     });
     expect(bad.statusCode).toBe(422);
     expect(bad.json().error.code).toBe('NOT_REVERTIBLE');
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('create rejects a duplicate id and never repeats an order (plan 290)', async () => {
+  const dir = createTempDir();
+  setup(dir);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    // Explicit id that already exists -> 409 DUPLICATE_ID, catalog untouched.
+    const duplicate = await createValidatedCs(app, [
+      {
+        action: 'create',
+        data: { id: 'existing-1', name: 'Duplicado', price: 100, category: 'x', stock: true },
+        idempotency_key: 'dup-create',
+      },
+    ]);
+    const dupRes = await app.inject({
+      method: 'POST',
+      url: `/api/v1/change-sets/${duplicate.id}/apply`,
+      headers: ch,
+    });
+    expect(dupRes.statusCode).toBe(409);
+    expect(dupRes.json<{ error: { code: string } }>().error.code).toBe('DUPLICATE_ID');
+    expect(readCatalog(dir).products.some((p) => p.name === 'Duplicado')).toBe(false);
+
+    // Create one more product (order 1), purge the original (order 0), then
+    // create again: the next order must be 2, not the old products.length (1).
+    const firstCreate = await createValidatedCs(app, [
+      {
+        action: 'create',
+        data: { name: 'Segundo', price: 200, category: 'x', stock: true },
+        idempotency_key: 'create-second',
+      },
+    ]);
+    await app.inject({
+      method: 'POST',
+      url: `/api/v1/change-sets/${firstCreate.id}/apply`,
+      headers: ch,
+    });
+
+    const purge = await createValidatedCs(app, [
+      {
+        action: 'purge',
+        product_id: 'existing-1',
+        data: {},
+        idempotency_key: 'purge-original',
+      },
+    ]);
+    const purgeRes = await app.inject({
+      method: 'POST',
+      url: `/api/v1/change-sets/${purge.id}/apply`,
+      headers: ch,
+    });
+    expect(purgeRes.statusCode).toBe(200);
+
+    const thirdCreate = await createValidatedCs(app, [
+      {
+        action: 'create',
+        data: { name: 'Tercero', price: 300, category: 'x', stock: true },
+        idempotency_key: 'create-third',
+      },
+    ]);
+    const thirdRes = await app.inject({
+      method: 'POST',
+      url: `/api/v1/change-sets/${thirdCreate.id}/apply`,
+      headers: ch,
+    });
+    expect(thirdRes.statusCode).toBe(200);
+
+    const catalog = readCatalog(dir);
+    const orders = catalog.products.map((p) => p.order);
+    expect(new Set(orders).size).toBe(orders.length);
+    expect(catalog.products.find((p) => p.name === 'Tercero')?.order).toBe(2);
 
     await app.close();
   } finally {
