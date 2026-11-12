@@ -58,7 +58,7 @@ jobs:
       - uses: ./.github/actions/setup-node-and-deps
 
       - name: Run root unit and integration tests
-        run: npx vitest run
+        run: npx vitest run --coverage
         env:
           # This job has no build artifacts; the build-contract tests skip
           # explicitly instead of failing (plan 075).

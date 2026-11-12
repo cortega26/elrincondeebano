@@ -67,6 +67,8 @@ Playwright E2E specs (`typecheck:e2e`, plan 258).
   it is still lighter than `validate:release` (which adds `test:e2e` and the live
   `monitor:share-preview` probe). For a fast local loop use
   `npm run lint && npm run typecheck && npm test`.
+- CI enforces the `vitest.config.mts` coverage thresholds in the root
+  unit-tests job (`--coverage`, plan 289); locally: `npm run test:coverage`.
 - The release runner is a superset of the local baseline for the static
   checks: since plan 191 (owner decision D1=ADD) it owns `check:e2e-selectors`
   and `check:plans` instead of leaving them to `npm run validate` alone.

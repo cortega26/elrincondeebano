@@ -50,11 +50,7 @@ test('dependabot auto-merge pins fetch-metadata to a full commit SHA', () => {
 });
 
 test('product-data-guard has no credentialed auto-commit job', () => {
-  assert.doesNotMatch(
-    guardWorkflow,
-    /contents:\s*write/,
-    'the guard must not hold a write token'
-  );
+  assert.doesNotMatch(guardWorkflow, /contents:\s*write/, 'the guard must not hold a write token');
   assert.doesNotMatch(
     guardWorkflow,
     /x-access-token/,
@@ -85,9 +81,7 @@ test('dependabot auto-merge does not check out repository code', () => {
 });
 
 test('main ruleset requires the CI summary check', () => {
-  const rule = (mainRuleset.rules || []).find(
-    (entry) => entry.type === 'required_status_checks'
-  );
+  const rule = (mainRuleset.rules || []).find((entry) => entry.type === 'required_status_checks');
   assert.ok(rule, 'expected the ruleset to require status checks');
   const contexts = (rule.parameters?.required_status_checks || []).map((check) => check.context);
   assert.ok(
@@ -98,5 +92,13 @@ test('main ruleset requires the CI summary check', () => {
     ciWorkflow,
     /^\s*name: CI Verification Summary$/m,
     'ci.yml must keep a job named "CI Verification Summary"'
+  );
+});
+
+test('root unit tests enforce coverage in CI (plan 289)', () => {
+  assert.match(
+    ciWorkflow,
+    /npx vitest run --coverage/,
+    'the root unit-tests job must apply the vitest.config.mts coverage thresholds'
   );
 });
