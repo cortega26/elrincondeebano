@@ -9,7 +9,7 @@ updates:
     open-pull-requests-limit: 6
     labels:
       - 'dependencies'
-      - 'npm'
+      - 'javascript'
     commit-message:
       prefix: 'chore(deps)'
     groups:
@@ -39,40 +39,6 @@ updates:
       - dependency-name: '@types/node'
         update-types:
           - 'version-update:semver-major'
-  - package-ecosystem: 'npm'
-    directory: '/astro-poc'
-    schedule:
-      interval: 'weekly'
-    cooldown:
-      default-days: 7
-    open-pull-requests-limit: 6
-    labels:
-      - 'dependencies'
-      - 'npm'
-      - 'astro-poc'
-    commit-message:
-      prefix: 'chore(astro-deps)'
-    groups:
-      astro-npm-patch:
-        patterns:
-          - '*'
-        update-types:
-          - 'patch'
-      astro-npm-minor:
-        patterns:
-          - '*'
-        update-types:
-          - 'minor'
-      astro-npm-major:
-        patterns:
-          - '*'
-        update-types:
-          - 'major'
-    ignore:
-      # Same rationale as the root npm config: typescript-eslint peers <6.1.0.
-      - dependency-name: 'typescript'
-        update-types:
-          - 'version-update:semver-major'
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
@@ -82,7 +48,7 @@ updates:
     open-pull-requests-limit: 4
     labels:
       - 'dependencies'
-      - 'github-actions'
+      - 'github_actions'
     commit-message:
       prefix: 'chore(ci)'
     groups:
@@ -101,3 +67,18 @@ updates:
           - '*'
         update-types:
           - 'major'
+  - package-ecosystem: 'pip'
+    directory: '/tools'
+    schedule:
+      interval: 'monthly'
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 2
+    labels:
+      - 'dependencies'
+      - 'python'
+    commit-message:
+      prefix: 'chore(ci-deps)'
+    ignore:
+      # Plan 238: lizard pinned deliberately (complexity baseline).
+      - dependency-name: 'lizard'

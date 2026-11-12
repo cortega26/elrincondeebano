@@ -6,6 +6,7 @@ This policy covers:
 
 1. Node.js dependencies (`package.json` and `package-lock.json`)
 2. GitHub Actions dependencies (`.github/workflows/*.yml`)
+3. Python CI tooling pinned in `tools/requirements-*.txt` (monthly Dependabot pip updates; `lizard` stays pinned by hand)
 
 ## Update cadence
 
