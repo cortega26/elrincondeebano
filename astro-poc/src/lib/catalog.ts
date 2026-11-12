@@ -1,6 +1,8 @@
 import { existsSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 
+import { absoluteUrl } from './seo';
+
 import rawProducts from '../data/products.json';
 import rawCategories from '../data/categories.json';
 import rawStorefrontExperience from '../data/storefront-experience.json';
@@ -408,6 +410,22 @@ export function getCartPriceIndex(): Record<string, [number, number, 0 | 1]> {
 
   cachedCartPriceIndex = index;
   return cachedCartPriceIndex;
+}
+
+/** Plan 286: the Product JSON-LD must match what the page shows. */
+export function toStructuredDataProduct({ sku, product }: ProductWithSku) {
+  const price = typeof product.price === 'number' ? product.price : 0;
+  const discount = typeof product.discount === 'number' ? product.discount : 0;
+  return {
+    sku,
+    name: product.name,
+    description: product.description,
+    image: absoluteUrl(resolveImageUrl(product.image_path)),
+    price: Math.max(price - discount, 0),
+    stock: Boolean(product.stock),
+    brand: typeof product.brand === 'string' ? product.brand : undefined,
+    category: product.category,
+  };
 }
 
 const SEARCH_EXCLUDED_NAV_GROUPS = new Set(['alcohol']);

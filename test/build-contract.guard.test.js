@@ -16,6 +16,7 @@ const CONTRACT_FILES = [
   'test/home-og.build-metadata.test.js',
   'test/printing-og.build-metadata.test.js',
   'test/ssr-product-links.build-contract.test.js',
+  'test/product-markup.build-contract.test.js',
 ];
 
 const ROOT = path.resolve(__dirname, '..');

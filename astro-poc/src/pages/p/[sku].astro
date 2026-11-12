@@ -4,9 +4,11 @@ import CategoryStrip from '../../components/CategoryStrip.astro';
 import ProductDetail from '../../components/ProductDetail.astro';
 import {
   getCategoryLabel,
+  getCategorySlug,
   getModernCategoryPath,
   getProductsByCategory,
   getProductsWithSku,
+  toStructuredDataProduct,
   type ProductWithSku,
 } from '../../lib/catalog';
 import { createSharePreviewMetadata, getProductOgImageUrl } from '../../lib/seo';
@@ -32,7 +34,7 @@ const sharePreview = createSharePreviewMetadata({
   title: `${item.product.name} | El Rincón de Ébano`,
   description: productDescription,
   canonicalPath,
-  ogImage: getProductOgImageUrl(item.product.image_path, item.product.category),
+  ogImage: getProductOgImageUrl(item.product.image_path, getCategorySlug(item.product.category)),
   ogImageAlt: item.product.name,
 });
 ---
@@ -43,21 +45,10 @@ const sharePreview = createSharePreviewMetadata({
   canonicalPath={canonicalPath}
   sharePreview={sharePreview}
   pageType="product"
-  structuredProducts={[
-    {
-      sku: item.sku,
-      name: item.product.name,
-      description: item.product.description,
-      image: item.product.image_path,
-      price: item.product.price,
-      stock: Boolean(item.product.stock),
-      brand: typeof item.product.brand === 'string' ? item.product.brand : undefined,
-      category: item.product.category,
-    },
-  ]}
+  structuredProducts={[toStructuredDataProduct(item)]}
   breadcrumbs={[
     { name: 'Inicio', url: '/' },
-    { name: item.product.category, url: getModernCategoryPath(item.product.category) },
+    { name: getCategoryLabel(item.product.category), url: getModernCategoryPath(item.product.category) },
     { name: item.product.name, url: canonicalPath },
   ]}
 >
