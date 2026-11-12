@@ -1,4 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
+import fs from 'node:fs';
+import path from 'node:path';
 
 async function waitForReady(page: Page) {
   await page.waitForFunction(() => window.__APP_READY__ === true);
@@ -317,7 +319,6 @@ test('plan 117: shared-cart link with a non-empty cart shows feedback and keeps 
   await expect(offcanvas.locator('.item-quantity')).toHaveText('1');
 });
 
-
 test('removed products do not return after cross-tab edits, additions and reloads', async ({
   page,
   context,
@@ -328,9 +329,11 @@ test('removed products do not return after cross-tab edits, additions and reload
   await page.reload({ waitUntil: 'networkidle' });
   await waitForReady(page);
 
-  const ids = await page.locator('.category-strip .add-to-cart-btn').evaluateAll((buttons) =>
-    [...new Set(buttons.map((button) => button.getAttribute('data-id')).filter(Boolean))]
-  );
+  const ids = await page
+    .locator('.category-strip .add-to-cart-btn')
+    .evaluateAll((buttons) => [
+      ...new Set(buttons.map((button) => button.getAttribute('data-id')).filter(Boolean)),
+    ]);
   expect(ids.length).toBeGreaterThanOrEqual(2);
   const [removedId, addedId] = ids as string[];
 
@@ -366,9 +369,11 @@ test('an empty canonical cart defeats a stale legacy alias on reload and next ad
   await page.goto('/', { waitUntil: 'networkidle' });
   await waitForReady(page);
   await page.evaluate(() => localStorage.clear());
-  const ids = await page.locator('.category-strip .add-to-cart-btn').evaluateAll((buttons) =>
-    [...new Set(buttons.map((button) => button.getAttribute('data-id')).filter(Boolean))]
-  );
+  const ids = await page
+    .locator('.category-strip .add-to-cart-btn')
+    .evaluateAll((buttons) => [
+      ...new Set(buttons.map((button) => button.getAttribute('data-id')).filter(Boolean)),
+    ]);
   expect(ids.length).toBeGreaterThanOrEqual(2);
   const [ghostId, newId] = ids as string[];
 
@@ -403,9 +408,11 @@ test('an edit rebases a stale in-memory cart instead of bringing back deleted it
   await page.reload({ waitUntil: 'networkidle' });
   await waitForReady(page);
 
-  const ids = await page.locator('.category-strip .add-to-cart-btn').evaluateAll((buttons) =>
-    [...new Set(buttons.map((button) => button.getAttribute('data-id')).filter(Boolean))]
-  );
+  const ids = await page
+    .locator('.category-strip .add-to-cart-btn')
+    .evaluateAll((buttons) => [
+      ...new Set(buttons.map((button) => button.getAttribute('data-id')).filter(Boolean)),
+    ]);
   expect(ids.length).toBeGreaterThanOrEqual(2);
   const [removedId, addedId] = ids as string[];
   await page.locator(`.category-strip .add-to-cart-btn[data-id="${removedId}"]`).first().click();
@@ -448,9 +455,11 @@ test('duplicate persisted SKU rows disappear after a single removal and never re
 }) => {
   await page.goto('/', { waitUntil: 'networkidle' });
   await waitForReady(page);
-  const ids = await page.locator('.category-strip .add-to-cart-btn').evaluateAll((buttons) =>
-    [...new Set(buttons.map((button) => button.getAttribute('data-id')).filter(Boolean))]
-  );
+  const ids = await page
+    .locator('.category-strip .add-to-cart-btn')
+    .evaluateAll((buttons) => [
+      ...new Set(buttons.map((button) => button.getAttribute('data-id')).filter(Boolean)),
+    ]);
   expect(ids.length).toBeGreaterThanOrEqual(2);
   const [removedId, addedId] = ids as string[];
 
@@ -494,37 +503,42 @@ test('duplicate persisted SKU rows disappear after a single removal and never re
   expect(persisted).toEqual([addedId]);
 });
 
-
 test('different IDs for the same physical product cannot recreate a removed cart row', async ({
   page,
 }) => {
   await page.goto('/', { waitUntil: 'networkidle' });
   await waitForReady(page);
 
-  const products = await page.locator('.category-strip .add-to-cart-btn').evaluateAll((buttons) =>
-    [...new Map(
+  const products = await page.locator('.category-strip .add-to-cart-btn').evaluateAll((buttons) => [
+    ...new Map(
       buttons
         .map((button) => button.closest<HTMLElement>('[data-product-id]'))
         .filter((card): card is HTMLElement => Boolean(card?.dataset.productId))
-        .map((card) => [card.dataset.productId, {
-          id: card.dataset.productId,
-          name: card.dataset.productName,
-          category: card.dataset.productCategory,
-          price: Number(card.dataset.productPrice),
-          discount: Number(card.dataset.productDiscount || 0),
-          image: card.querySelector('img')?.getAttribute('src') || '',
-        }])
-    ).values()]
-  );
+        .map((card) => [
+          card.dataset.productId,
+          {
+            id: card.dataset.productId,
+            name: card.dataset.productName,
+            category: card.dataset.productCategory,
+            price: Number(card.dataset.productPrice),
+            discount: Number(card.dataset.productDiscount || 0),
+            image: card.querySelector('img')?.getAttribute('src') || '',
+          },
+        ])
+    ).values(),
+  ]);
   expect(products.length).toBeGreaterThanOrEqual(2);
   const [item, next] = products;
 
   await page.evaluate((product) => {
     const image = product.image.replace(/\.(?:webp|avif)(?=[?#]|$)/i, '.webp');
-    localStorage.setItem('astro-poc-cart', JSON.stringify([
-      { ...product, id: 'obsolete-product-id', image, quantity: 1 },
-      { ...product, quantity: 3 },
-    ]));
+    localStorage.setItem(
+      'astro-poc-cart',
+      JSON.stringify([
+        { ...product, id: 'obsolete-product-id', image, quantity: 1 },
+        { ...product, quantity: 3 },
+      ])
+    );
   }, item);
 
   await page.reload({ waitUntil: 'networkidle' });
@@ -540,12 +554,13 @@ test('different IDs for the same physical product cannot recreate a removed cart
   await page.locator(`.category-strip .add-to-cart-btn[data-id="${next.id}"]`).first().click();
   await page.reload({ waitUntil: 'networkidle' });
   await waitForReady(page);
-  const result = await page.evaluate(() => JSON.parse(localStorage.getItem('astro-poc-cart') || '[]'));
+  const result = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('astro-poc-cart') || '[]')
+  );
   expect(result).toHaveLength(1);
   expect(result[0].id).toBe(next.id);
   await expect(page.locator('#cart-count')).toHaveText('1');
 });
-
 
 test('adding a current SKU upgrades its historical ID without creating another cart line', async ({
   page,
@@ -565,9 +580,10 @@ test('adding a current SKU upgrades its historical ID without creating another c
     };
   });
   await page.evaluate((item) => {
-    localStorage.setItem('astro-poc-cart', JSON.stringify([
-      { ...item, id: 'historical-id-for-same-product', quantity: 3 },
-    ]));
+    localStorage.setItem(
+      'astro-poc-cart',
+      JSON.stringify([{ ...item, id: 'historical-id-for-same-product', quantity: 3 }])
+    );
   }, product);
   await page.reload({ waitUntil: 'networkidle' });
   await waitForReady(page);
@@ -578,7 +594,9 @@ test('adding a current SKU upgrades its historical ID without creating another c
   await page.locator('#cart-icon').click();
   await expect(page.locator('#cart-items .cart-item')).toHaveCount(1);
   await expect(page.locator('#cart-items .cart-item .item-quantity')).toHaveText('4');
-  const afterAdd = await page.evaluate(() => JSON.parse(localStorage.getItem('astro-poc-cart') || '[]'));
+  const afterAdd = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('astro-poc-cart') || '[]')
+  );
   expect(afterAdd).toHaveLength(1);
   expect(afterAdd[0]).toMatchObject({ id: product.id, quantity: 4 });
 
@@ -586,7 +604,9 @@ test('adding a current SKU upgrades its historical ID without creating another c
   await expect(page.locator('#cart-count')).toHaveText('0');
   await page.reload({ waitUntil: 'networkidle' });
   await waitForReady(page);
-  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('astro-poc-cart') || '[]'))).toEqual([]);
+  expect(
+    await page.evaluate(() => JSON.parse(localStorage.getItem('astro-poc-cart') || '[]'))
+  ).toEqual([]);
 });
 
 test('stale persisted prices refresh from the live catalog without rewriting storage', async ({
@@ -652,4 +672,118 @@ test('stale persisted prices refresh from the live catalog without rewriting sto
   );
   expect(stored).toHaveLength(1);
   expect(stored[0]).toMatchObject({ id: product.id, price: stalePrice, quantity: 2 });
+});
+
+test('checkout from a page without product cards prices stale lines from the catalog index', async ({
+  page,
+}) => {
+  // Plan 282: /impresiones/ renders zero product cards, so the DOM refresh
+  // cannot resolve this line. The embedded index must price it live.
+  const catalog = JSON.parse(
+    fs.readFileSync(path.join(process.cwd(), 'data/product_data.json'), 'utf8')
+  );
+  const product = catalog.products.find(
+    (entry: { id?: string; is_archived?: boolean; stock?: boolean }) =>
+      entry && entry.is_archived !== true && entry.stock !== false && entry.id
+  );
+  expect(product).toBeTruthy();
+
+  const stalePrice = product.price + 500;
+  const liveEffective = Math.max(0, product.price - (product.discount || 0));
+  expect(liveEffective).not.toBe(stalePrice);
+
+  await page.goto('/impresiones/', { waitUntil: 'networkidle' });
+  await waitForReady(page);
+  await page.evaluate(
+    ({ item, price }) => {
+      localStorage.setItem(
+        'astro-poc-cart',
+        JSON.stringify([
+          {
+            id: item.id,
+            name: item.name,
+            category: item.category || '',
+            price,
+            discount: item.discount || 0,
+            image: item.image_path || '',
+            quantity: 2,
+          },
+        ])
+      );
+    },
+    { item: product, price: stalePrice }
+  );
+  await page.reload({ waitUntil: 'networkidle' });
+  await waitForReady(page);
+
+  const format = (value: number) =>
+    new Intl.NumberFormat('es-CL', {
+      style: 'currency',
+      currency: 'CLP',
+      minimumFractionDigits: 0,
+    }).format(value);
+
+  await expect(page.locator('#cart-count')).toHaveText('2');
+  await page.locator('#cart-icon').click();
+  const offcanvas = page.locator('#cartOffcanvas');
+  await expect(offcanvas).toBeVisible();
+
+  const line = offcanvas.locator(`#cart-items .cart-item[data-id="${product.id}"]`);
+  await expect(line.locator('.cart-item__price-line')).toHaveText(
+    `Unitario: ${format(liveEffective)}`
+  );
+  await expect(line.locator('.cart-item__subtotal')).toHaveText(
+    `Subtotal: ${format(liveEffective * 2)}`
+  );
+  await expect(page.locator('#cart-total')).toHaveText(`Total: ${format(liveEffective * 2)}`);
+
+  await page.evaluate(() => {
+    (window as any).__openCallCount = 0;
+    (window as any).__lastOpenUrl = '';
+    window.open = ((url: string) => {
+      (window as any).__openCallCount = ((window as any).__openCallCount || 0) + 1;
+      (window as any).__lastOpenUrl = String(url);
+      return null;
+    }) as typeof window.open;
+  });
+
+  await page.locator('#payment-cash').check();
+  await page.locator('#submit-cart').click();
+  await page.locator('#order-confirm-dialog').waitFor({ state: 'visible' });
+  await page.locator('#order-confirm-send').click();
+  await page.locator('#order-confirm-dialog').waitFor({ state: 'hidden', timeout: 10000 });
+
+  const openUrl = await page.evaluate(() => (window as any).__lastOpenUrl as string);
+  expect(openUrl).toContain('https://wa.me/');
+  const whatsappMessage = decodeURIComponent(openUrl.split('?text=')[1] ?? '');
+  expect(whatsappMessage).toContain(`2 × $${liveEffective.toLocaleString('es-CL')}`);
+});
+
+test('shared cart link reports items it could not add', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'networkidle' });
+  await waitForReady(page);
+
+  const liveId = await page
+    .locator('.category-strip .add-to-cart-btn')
+    .first()
+    .getAttribute('data-id');
+  expect(liveId).toBeTruthy();
+
+  const payload = {
+    version: 1,
+    items: [
+      { id: 'missing-product-for-plan-282', quantity: 1 },
+      { id: liveId, quantity: 1 },
+    ],
+  };
+  const encoded = Buffer.from(encodeURIComponent(JSON.stringify(payload)), 'utf8').toString(
+    'base64'
+  );
+
+  await page.goto(`/?shared=282#cart=${encoded}`, { waitUntil: 'networkidle' });
+  await waitForReady(page);
+
+  const notice = page.locator('#shared-cart-partial');
+  await expect(notice).toBeVisible();
+  await expect(notice).toContainText('1 producto(s)');
 });
