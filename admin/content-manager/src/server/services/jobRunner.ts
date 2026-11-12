@@ -66,6 +66,11 @@ export class JobRunner {
     return job;
   }
 
+  // Plan 291: setTimeout silently truncates delays above 2^31-1 ms (~24.8
+  // days) to 1 ms. Re-arm in chunks under the same job id so cancelJob keeps
+  // clearing the live timer.
+  private static readonly MAX_TIMER_MS = 2_147_483_647;
+
   // Plan 248: `id` lets the durable outbox own the job identity — a boot
   // re-arm must keep the same id so claim/complete/cancel stay bound to the
   // persisted entry across restarts. Existing callers keep the generated id.
@@ -89,18 +94,28 @@ export class JobRunner {
       return job;
     }
 
-    const timer = this.clock.schedule(() => {
-      this.timers.delete(job.id);
-      // The operator may have cancelled while waiting.
-      if (job.cancelRequested) {
-        job.status = 'cancelled';
-        job.completed_at = new Date().toISOString();
-        return;
-      }
-      this.queue.push({ job, fn: async () => fn() });
-      void this.processQueue();
-    }, delay);
-    this.timers.set(job.id, timer);
+    const arm = (remaining: number): void => {
+      const chunk = Math.min(remaining, JobRunner.MAX_TIMER_MS);
+      const timer = this.clock.schedule(() => {
+        this.timers.delete(job.id);
+        // The operator may have cancelled while waiting.
+        if (job.cancelRequested) {
+          job.status = 'cancelled';
+          job.completed_at = new Date().toISOString();
+          return;
+        }
+        const left = when.getTime() - this.clock.now();
+        if (left > 0) {
+          arm(left);
+          return;
+        }
+        this.queue.push({ job, fn: async () => fn() });
+        void this.processQueue();
+      }, chunk);
+      this.timers.set(job.id, timer);
+    };
+
+    arm(delay);
     return job;
   }
 

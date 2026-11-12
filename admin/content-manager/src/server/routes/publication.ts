@@ -134,7 +134,6 @@ async function runPublicationJob(
     }
 
     const logResult = await git.log(1);
-    checkCancel();
     const commitSha =
       logResult.success && logResult.output ? logResult.output.split(' ')[0] : 'unknown';
 
@@ -157,7 +156,6 @@ async function runPublicationJob(
 
     if (params.push) {
       const pushResult = await git.push();
-      checkCancel();
       if (!pushResult.success) {
         throw new Error(
           `Push failed (commit: ${commitSha}): ${pushResult.error ?? 'unknown error'}`
@@ -262,6 +260,20 @@ async function resolveCrashedPublication(
     (entry.commit_sha && (await commitExistsInLog(deps.git, entry.commit_sha))) ||
     deps.idempotencyStore.has(entry.job_id);
   if (committed) {
+    if (entry.push) {
+      // Plan 291: a commit without a push is not a completed publication.
+      const ahead = await deps.git
+        .getChanges()
+        .then((changes) => changes.ahead)
+        .catch(() => null);
+      if (ahead !== 0) {
+        deps.scheduledPublications.fail(
+          entry.job_id,
+          `committed_not_pushed: el commit ${entry.commit_sha ?? ''} existe localmente pero no se empujó; usa "Empujar commits pendientes"`
+        );
+        return;
+      }
+    }
     deps.scheduledPublications.complete(entry.job_id, {
       late: classifyOverdue(entry.publish_at, deps.jobRunner.now()).late,
       commit_sha: entry.commit_sha,
@@ -303,12 +315,10 @@ async function recoverScheduledPublications(deps: PublicationDeps): Promise<void
   }
 
   for (const claimed of deps.scheduledPublications.claimDue(new Date(deps.jobRunner.now()))) {
-    try {
-      await fireClaimedPublication(deps, claimed);
-    } catch {
-      // Already recorded in the outbox as failed; a boot fire has no
-      // in-memory job to surface the error to (GET /jobs `missed` shows it).
-    }
+    // Plan 291: never block Fastify plugin registration on a full publication.
+    // The FIFO job runner keeps the same one-at-a-time isolation; failures are
+    // visible through GET /jobs and the outbox.
+    deps.jobRunner.schedule('publication', () => fireClaimedPublication(deps, claimed));
   }
 }
 
@@ -394,12 +404,37 @@ export async function publicationRoutes(
         const recovery = /conflict|CONFLICT/i.test(result.error ?? '')
           ? ' Conflicto durante el rebase: ejecuta `git rebase --abort` para recuperar.'
           : '';
-        return {
-          success: false,
-          error: `${result.error ?? 'Git pull failed'}${recovery}`,
-        };
+        // Plan 291: a failed pull is a failed job, not a completed one.
+        throw new Error(`${result.error ?? 'Git pull failed'}${recovery}`);
       }
     );
+
+    return { job_id: job.id, status: 'scheduled' };
+  });
+
+  // Plan 291: recover a commit that exists locally but was never pushed
+  // (crash between commit and push, or a failed scheduled publication).
+  app.post('/git/push-pending', async (request, reply) => {
+    if (!productService.isEnabled) {
+      return reply.status(403).send({
+        error: { code: 'FORBIDDEN', message: 'Write operations are disabled' },
+      });
+    }
+
+    const changes = await git.getChanges();
+    if (!(changes.ahead > 0)) {
+      return reply.status(409).send({
+        error: { code: 'NOTHING_TO_PUSH', message: 'No hay commits pendientes de push.' },
+      });
+    }
+
+    const job = jobRunner.schedule<{ success: boolean; output?: string }>('git-push', async () => {
+      const result = await git.push();
+      if (!result.success) {
+        throw new Error(`Push failed: ${result.error ?? 'unknown error'}`);
+      }
+      return { success: true, output: result.output };
+    });
 
     return { job_id: job.id, status: 'scheduled' };
   });
@@ -528,9 +563,7 @@ export async function publicationRoutes(
       recovered: entries
         .filter((entry) => entry.status === 'completed' && entry.late)
         .map(recoverySummary),
-      missed: entries
-        .filter((entry) => entry.status === 'failed')
-        .map(recoverySummary),
+      missed: entries.filter((entry) => entry.status === 'failed').map(recoverySummary),
     };
   });
 
@@ -559,6 +592,18 @@ export async function publicationRoutes(
 
   app.post('/jobs/:id/cancel', async (request, reply) => {
     const { id } = request.params as { id: string };
+    const running = jobRunner.getJob(id);
+    if (running && running.type === 'publication' && running.status === 'running') {
+      // Plan 291: once a publication is running, the commit may already exist;
+      // cancelling would report a false outcome and drop its durable evidence.
+      return reply.status(409).send({
+        error: {
+          code: 'PUBLICATION_IN_PROGRESS',
+          message: 'La publicación ya está en curso y no puede cancelarse; espera a que termine.',
+        },
+      });
+    }
+
     const cancelled = jobRunner.cancelJob(id);
 
     if (!cancelled) {

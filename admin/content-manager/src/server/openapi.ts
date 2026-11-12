@@ -502,6 +502,12 @@ export function buildOpenApi() {
   });
   registry.registerPath({
     method: 'post',
+    path: '/api/v1/git/push-pending',
+    summary: 'Push commits that exist locally but were never pushed (plan 291)',
+    responses: jsonResponse(z.object({ job_id: z.string(), status: z.string() })),
+  });
+  registry.registerPath({
+    method: 'post',
     path: '/api/v1/import/preview',
     summary: 'Import preview',
     responses: jsonResponse(z.record(z.string(), z.unknown())),
@@ -759,9 +765,7 @@ export function buildOpenApi() {
         content: {
           'application/json': {
             // Both op arrays are optional in the handler (default []).
-            schema: changeSetSchema
-              .pick({ product_ops: true, category_ops: true })
-              .partial(),
+            schema: changeSetSchema.pick({ product_ops: true, category_ops: true }).partial(),
           },
         },
       },

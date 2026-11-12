@@ -180,29 +180,34 @@ test('E2E: recovery state is cleared after successful publication', async () => 
   }
 });
 
-test('E2E: job cancellation marks job as cancelled', async () => {
+test('E2E: cancelling a pending publication marks the job as cancelled', async () => {
   const dir = setupDir();
   try {
     const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
-    // Schedule with a long delay that we can cancel
+    // Plan 291: schedule in the future so the job is deterministically pending;
+    // a running publication must NOT be cancellable (covered in publication.test).
+    const publishAt = new Date(Date.now() + 60 * 60_000).toISOString();
     const res = await app.inject({
       method: 'POST',
       url: '/api/v1/publications',
       headers: credHeaders(app),
-      payload: { commitMessage: 'cancel-test', push: false },
+      payload: { commitMessage: 'cancel-test', push: false, publishAt },
     });
+    expect(res.statusCode).toBe(200);
+    const { job_id } = res.json<{ job_id: string }>();
 
-    if (res.statusCode === 200) {
-      const { job_id } = res.json<{ job_id: string }>();
-      await app.inject({ method: 'POST', url: `/api/v1/jobs/${job_id}/cancel` });
+    const before = await app.inject({ method: 'GET', url: `/api/v1/jobs/${job_id}` });
+    expect(before.json<{ status: string }>().status).toBe('pending');
 
-      await new Promise((r) => setTimeout(r, 500));
-      const jr = await app.inject({ method: 'GET', url: `/api/v1/jobs/${job_id}` });
-      const job = jr.json<{ status: string }>();
-      expect(['cancelled', 'completed', 'failed']).toContain(job.status);
-    }
+    const cancel = await app.inject({
+      method: 'POST',
+      url: `/api/v1/jobs/${job_id}/cancel`,
+      headers: credHeaders(app),
+    });
+    expect(cancel.statusCode).toBe(200);
+    expect(cancel.json<{ status: string }>().status).toBe('cancelled');
 
     await app.close();
   } finally {

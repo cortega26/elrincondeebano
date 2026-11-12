@@ -30,6 +30,7 @@ export function PublicationPage(): React.ReactElement {
   const missedPublications: MissedPublication[] = jobs.data?.missed ?? [];
   const [loading, setLoading] = useState(false);
   const [pullStatus, setPullStatus] = useState<string | null>(null);
+  const [pushStatus, setPushStatus] = useState<string | null>(null);
   const [previewJob, setPreviewJob] = useState<JobResponse | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const previewPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -245,8 +246,7 @@ export function PublicationPage(): React.ReactElement {
             setPullStatus(output ? `Pull ✓ — ${output}` : 'Pull ✓');
             await refreshGitStatus();
           } else if (jobState.status === 'failed') {
-            const msg =
-              (jobState.result as { error?: string } | undefined)?.error ?? 'Pull fallido';
+            const msg = jobState.error ?? 'Pull fallido';
             setPullStatus(msg);
           } else if (jobState.status === 'cancelled') {
             setPullStatus('Pull cancelado');
@@ -255,6 +255,35 @@ export function PublicationPage(): React.ReactElement {
           }
         } catch {
           setPullStatus('Error consultando el pull');
+        }
+      };
+      void poll();
+    } catch (err) {
+      notify('error', (err as Error).message);
+    }
+  }
+
+  async function handlePushPending(): Promise<void> {
+    clear();
+    setPushStatus(null);
+    try {
+      const result = await client.pushPendingGit();
+      const jobId = result.job_id;
+      const poll = async (): Promise<void> => {
+        try {
+          const jobState = await client.getJob(jobId);
+          if (jobState.status === 'completed') {
+            setPushStatus('Push ✓');
+            await refreshGitStatus();
+          } else if (jobState.status === 'failed') {
+            setPushStatus(jobState.error ?? 'Push fallido');
+          } else if (jobState.status === 'cancelled') {
+            setPushStatus('Push cancelado');
+          } else {
+            window.setTimeout(() => void poll(), 800);
+          }
+        } catch {
+          setPushStatus('Error consultando el push');
         }
       };
       void poll();
@@ -315,6 +344,14 @@ export function PublicationPage(): React.ReactElement {
             <button onClick={() => void handleGitPull()} style={{ padding: '0.25rem 0.75rem' }}>
               Git pull (rebase)
             </button>
+            {gitStatus && gitStatus.ahead > 0 && (
+              <button
+                onClick={() => void handlePushPending()}
+                style={{ padding: '0.25rem 0.75rem' }}
+              >
+                Empujar commits pendientes
+              </button>
+            )}
             <button onClick={() => void refreshGitStatus()} style={{ padding: '0.25rem 0.75rem' }}>
               Refresh
             </button>
@@ -326,6 +363,14 @@ export function PublicationPage(): React.ReactElement {
             style={{ fontSize: '0.9rem', color: pullStatus.includes('✓') ? '#2e7d32' : '#e65100' }}
           >
             {pullStatus}
+          </p>
+        )}
+        {pushStatus && (
+          <p
+            role="status"
+            style={{ fontSize: '0.9rem', color: pushStatus.includes('✓') ? '#2e7d32' : '#e65100' }}
+          >
+            {pushStatus}
           </p>
         )}
         {gitStatus ? (
@@ -357,6 +402,21 @@ export function PublicationPage(): React.ReactElement {
                   }}
                 >
                   Conflicts
+                </span>
+              )}
+              {(gitStatus.ahead > 0 || gitStatus.behind > 0) && (
+                <span
+                  style={{
+                    display: 'inline-block',
+                    padding: '0.1rem 0.5rem',
+                    borderRadius: 'var(--radius)',
+                    fontSize: '0.85rem',
+                    background: '#fff3e0',
+                    color: '#e65100',
+                    marginLeft: '0.5rem',
+                  }}
+                >
+                  ↑{gitStatus.ahead} ↓{gitStatus.behind}
                 </span>
               )}
             </p>

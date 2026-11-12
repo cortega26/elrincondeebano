@@ -1,5 +1,9 @@
 import { test, expect } from 'vitest';
 import { createApp } from '../../src/server/app.ts';
+import { publicationRoutes } from '../../src/server/routes/publication.ts';
+import { JobRunner } from '../../src/server/services/jobRunner.ts';
+import { ScheduledPublications } from '../../src/server/services/scheduledPublications.ts';
+import { PersistentIdempotencyStore } from '../../src/server/services/persistentIdempotencyStore.ts';
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -684,12 +688,12 @@ test('cancelling a scheduled publication before it runs leaves no pending recove
   }
 });
 
-test('cancelling a running publication clears recovery (plan 130)', async () => {
+test('cancel only applies to pending publications; running ones report 409 (plan 291)', async () => {
   const dir = createTempRepo();
   try {
     setupData(dir);
     // Slow the git stage step (the first step after the journal write) so the
-    // cancellation lands mid-run, after recovery.save() has run.
+    // first publication stays running while we queue and cancel a second one.
     for (let i = 0; i < 1500; i++) {
       writeFileSync(resolve(dir, 'assets', 'images', `slow-${i}.bin`), 'x');
     }
@@ -697,38 +701,60 @@ test('cancelling a running publication clears recovery (plan 130)', async () => 
     const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
-    const response = await app.inject({
+    const first = await app.inject({
       method: 'POST',
       url: '/api/v1/publications',
-      payload: { commitMessage: 'cancel mid-run', push: false },
+      payload: { commitMessage: 'running publication', push: false },
       headers: { 'content-type': 'application/json', ...credHeaders(app) },
     });
-    expect(response.statusCode).toBe(200);
-    const { job_id } = response.json<{ job_id: string }>();
+    expect(first.statusCode).toBe(200);
+    const firstId = first.json<{ job_id: string }>().job_id;
 
-    // Wait until the job is running and past the journal write (progress >= 30).
-    let cancelled = false;
+    let isRunning = false;
     for (let i = 0; i < 400; i++) {
-      const jr = await app.inject({ method: 'GET', url: `/api/v1/jobs/${job_id}` });
-      const job = jr.json<{ status: string; progress: number }>();
-      if (job.status === 'completed' || job.status === 'failed' || job.status === 'cancelled')
+      const jr = await app.inject({ method: 'GET', url: `/api/v1/jobs/${firstId}` });
+      const job = jr.json<{ status: string }>();
+      if (job.status === 'running') {
+        isRunning = true;
         break;
-      if (job.progress >= 30) {
-        const cancelRes = await app.inject({
-          method: 'POST',
-          url: `/api/v1/jobs/${job_id}/cancel`,
-          headers: credHeaders(app),
-        });
-        cancelled = cancelRes.statusCode === 200;
+      }
+      if (job.status === 'completed' || job.status === 'failed' || job.status === 'cancelled') {
         break;
       }
       await new Promise((r) => setTimeout(r, 5));
     }
+    expect(isRunning).toBe(true);
 
-    expect(cancelled).toBe(true);
+    // The FIFO runner keeps this one pending until the first finishes.
+    const second = await app.inject({
+      method: 'POST',
+      url: '/api/v1/publications',
+      payload: { commitMessage: 'queued publication', push: false },
+      headers: { 'content-type': 'application/json', ...credHeaders(app) },
+    });
+    expect(second.statusCode).toBe(200);
+    const secondId = second.json<{ job_id: string }>().job_id;
 
-    const job = await pollJob(app, job_id, 200);
-    expect(['cancelled', 'failed']).toContain(job.status);
+    const cancelPending = await app.inject({
+      method: 'POST',
+      url: `/api/v1/jobs/${secondId}/cancel`,
+      headers: credHeaders(app),
+    });
+    expect(cancelPending.statusCode).toBe(200);
+    expect(cancelPending.json<{ status: string }>().status).toBe('cancelled');
+
+    const cancelRunning = await app.inject({
+      method: 'POST',
+      url: `/api/v1/jobs/${firstId}/cancel`,
+      headers: credHeaders(app),
+    });
+    expect(cancelRunning.statusCode).toBe(409);
+    expect(cancelRunning.json<{ error: { code: string } }>().error.code).toBe(
+      'PUBLICATION_IN_PROGRESS'
+    );
+
+    const job = await pollJob(app, firstId, 400);
+    expect(['completed', 'failed']).toContain(job.status);
     expect(await pendingRecovery(app)).toBe(false);
 
     await app.close();
@@ -868,6 +894,127 @@ test('GET /api/v1/jobs does not include completed jobs (minimal surface, plan 16
     const body = list.json<{ jobs: Array<{ id: string }> }>();
     // Completed jobs are filtered out of the pending/running list.
     expect(body.jobs.some((j) => j.id === job_id)).toBe(false);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('a failed git pull becomes a failed job with the rebase hint (plan 291)', async () => {
+  const dir = createTempRepo();
+  try {
+    const { default: Fastify } = await import('fastify');
+    const app = Fastify({ logger: false });
+    const git = {
+      getChanges: async () => ({
+        branch: 'main',
+        dirty: false,
+        staged: [],
+        unstaged: [],
+        untracked: [],
+        ahead: 0,
+        behind: 0,
+        hasConflicts: false,
+      }),
+      pull: async () => ({ success: false, error: 'CONFLICT (content): Merge conflict in x' }),
+    } as unknown as GitAdapter;
+
+    await publicationRoutes(
+      app,
+      {} as never,
+      new JobRunner(),
+      git,
+      { isEnabled: true } as never,
+      dir,
+      {
+        scheduledPublications: new ScheduledPublications(dir),
+        idempotencyStore: new PersistentIdempotencyStore(dir, 200),
+        enableWrites: false,
+      }
+    );
+    await app.ready();
+
+    const res = await app.inject({ method: 'POST', url: '/git/pull' });
+    expect(res.statusCode).toBe(200);
+    const jobId = res.json<{ job_id: string }>().job_id;
+
+    let job: { status: string; error?: string } = { status: 'pending' };
+    for (let i = 0; i < 50; i++) {
+      const jr = await app.inject({ method: 'GET', url: `/jobs/${jobId}` });
+      job = jr.json<{ status: string; error?: string }>();
+      if (job.status === 'completed' || job.status === 'failed' || job.status === 'cancelled')
+        break;
+      await new Promise((r) => setTimeout(r, 20));
+    }
+
+    expect(job.status).toBe('failed');
+    expect(job.error).toContain('git rebase --abort');
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('push-pending pushes only when there are ahead commits (plan 291)', async () => {
+  const dir = createTempRepo();
+  try {
+    const { default: Fastify } = await import('fastify');
+    let ahead = 1;
+    const pushed: string[] = [];
+    const git = {
+      getChanges: async () => ({
+        branch: 'main',
+        dirty: false,
+        staged: [],
+        unstaged: [],
+        untracked: [],
+        ahead,
+        behind: 0,
+        hasConflicts: false,
+      }),
+      push: async () => {
+        pushed.push('push');
+        return { success: true, output: 'ok' };
+      },
+    } as unknown as GitAdapter;
+
+    const app = Fastify({ logger: false });
+    await publicationRoutes(
+      app,
+      {} as never,
+      new JobRunner(),
+      git,
+      { isEnabled: true } as never,
+      dir,
+      {
+        scheduledPublications: new ScheduledPublications(dir),
+        idempotencyStore: new PersistentIdempotencyStore(dir, 200),
+        enableWrites: false,
+      }
+    );
+    await app.ready();
+
+    const res = await app.inject({ method: 'POST', url: '/git/push-pending' });
+    expect(res.statusCode).toBe(200);
+    const jobId = res.json<{ job_id: string }>().job_id;
+
+    let job: { status: string } = { status: 'pending' };
+    for (let i = 0; i < 50; i++) {
+      const jr = await app.inject({ method: 'GET', url: `/jobs/${jobId}` });
+      job = jr.json<{ status: string }>();
+      if (job.status === 'completed' || job.status === 'failed') break;
+      await new Promise((r) => setTimeout(r, 20));
+    }
+    expect(job.status).toBe('completed');
+    expect(pushed).toHaveLength(1);
+
+    ahead = 0;
+    const nothing = await app.inject({ method: 'POST', url: '/git/push-pending' });
+    expect(nothing.statusCode).toBe(409);
+    expect(nothing.json<{ error: { code: string } }>().error.code).toBe('NOTHING_TO_PUSH');
+    expect(pushed).toHaveLength(1);
 
     await app.close();
   } finally {

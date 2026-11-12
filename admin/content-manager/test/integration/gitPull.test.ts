@@ -95,7 +95,7 @@ async function waitForJob(app: FastifyInstance, jobId: string): Promise<Record<s
         throw new Error(`job not finished: ${body.status}`);
       }
     },
-    { timeout: 8000, interval: 20 },
+    { timeout: 8000, interval: 20 }
   );
   return result!;
 }
@@ -213,11 +213,10 @@ test('git pull reports a rebase conflict with recovery guidance', async () => {
     });
     const { job_id } = res.json<{ job_id: string }>();
     const job = await waitForJob(app, job_id);
-    expect(job.status).toBe('completed');
-    const result = job.result as { success: boolean; error?: string };
-    expect(result.success).toBe(false);
-    expect(result.error ?? '').toMatch(/conflict|CONFLICT|rebase/i);
-    expect(result.error).toContain('rebase --abort');
+    expect(job.status).toBe('failed');
+    expect(job.result).toBeUndefined();
+    expect(String(job.error ?? '')).toMatch(/conflict|CONFLICT|rebase/i);
+    expect(String(job.error ?? '')).toContain('rebase --abort');
 
     // Documented recovery path works.
     git(appDir, 'rebase', '--abort');

@@ -25,6 +25,7 @@ const { mockApi } = vi.hoisted(() => {
     reorderProducts: vi.fn(),
     getGitStatus: vi.fn(),
     gitPull: vi.fn(),
+    pushPendingGit: vi.fn(),
     updateBundles: vi.fn(),
     updateFeatured: vi.fn(),
     importPreview: vi.fn(),
@@ -73,6 +74,7 @@ vi.mock('@web/api/client.ts', async (importOriginal) => {
     reorderProducts = mockApi.reorderProducts;
     getGitStatus = mockApi.getGitStatus;
     gitPull = mockApi.gitPull;
+    pushPendingGit = mockApi.pushPendingGit;
     updateBundles = mockApi.updateBundles;
     updateFeatured = mockApi.updateFeatured;
     importPreview = mockApi.importPreview;

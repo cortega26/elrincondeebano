@@ -249,3 +249,59 @@ describe('PublicationPage durable schedule notices (plan 248)', () => {
     expect(screen.queryByText(/no publicadas \(requieren revisión\)/i)).not.toBeInTheDocument();
   });
 });
+
+describe('PublicationPage pull/push honesty (plan 291)', () => {
+  test('a failed pull shows the job error, never Pull ✓', async () => {
+    mockApi.gitPull.mockResolvedValue({
+      job_id: 'pull-fail',
+      status: 'scheduled',
+    } as unknown as Awaited<ReturnType<typeof mockApi.gitPull>>);
+    mockApi.getJob.mockResolvedValue({
+      id: 'pull-fail',
+      type: 'git-pull',
+      status: 'failed',
+      progress: 100,
+      error: 'CONFLICT: ejecuta `git rebase --abort` para recuperar.',
+    } as unknown as Awaited<ReturnType<typeof mockApi.getJob>>);
+
+    const user = userEvent.setup();
+    renderWithRouter(<PublicationPage />);
+    await user.click(screen.getByRole('button', { name: 'Git pull (rebase)' }));
+
+    expect(await screen.findByText(/git rebase --abort/)).toBeInTheDocument();
+    expect(screen.queryByText(/Pull ✓/)).not.toBeInTheDocument();
+  });
+
+  test('shows ahead and a working push-pending action', async () => {
+    mockApi.getGitStatus.mockResolvedValue({
+      branch: 'main',
+      dirty: false,
+      staged: [],
+      unstaged: [],
+      untracked: [],
+      ahead: 2,
+      behind: 0,
+      hasConflicts: false,
+    } as unknown as Awaited<ReturnType<typeof mockApi.getGitStatus>>);
+    mockApi.pushPendingGit.mockResolvedValue({
+      job_id: 'push-1',
+      status: 'scheduled',
+    } as unknown as Awaited<ReturnType<typeof mockApi.pushPendingGit>>);
+    mockApi.getJob.mockResolvedValue({
+      id: 'push-1',
+      type: 'git-push',
+      status: 'completed',
+      progress: 100,
+    } as unknown as Awaited<ReturnType<typeof mockApi.getJob>>);
+
+    const user = userEvent.setup();
+    renderWithRouter(<PublicationPage />);
+
+    await user.click(screen.getByRole('button', { name: 'Refresh' }));
+    expect(await screen.findByText('↑2 ↓0')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Empujar commits pendientes' }));
+    expect(await screen.findByText('Push ✓')).toBeInTheDocument();
+    expect(mockApi.pushPendingGit).toHaveBeenCalledTimes(1);
+  });
+});

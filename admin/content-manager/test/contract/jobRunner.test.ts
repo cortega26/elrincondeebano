@@ -416,3 +416,48 @@ test('scheduleAt without an id keeps generating unique ids', () => {
   expect(first.id).toMatch(/^job-\d+-[0-9a-f]{6}$/);
   expect(second.id).not.toBe(first.id);
 });
+
+test('scheduleAt re-arms timers beyond the 32-bit setTimeout limit (plan 291)', async () => {
+  const { clock, advance } = manualClock();
+  const runner = new JobRunner(clock);
+  let runs = 0;
+  const day = 24 * 60 * 60 * 1000;
+  const job = runner.scheduleAt(
+    'long-timer',
+    async () => {
+      runs += 1;
+      return 'done';
+    },
+    new Date(clock.now() + 30 * day)
+  );
+
+  advance(25 * day);
+  expect(runs).toBe(0);
+
+  advance(5 * day + 1);
+  await vi.waitFor(() => expect(runs).toBe(1), { timeout: 2000, interval: 10 });
+  await vi.waitFor(() => expect(runner.getJob(job.id)?.status).toBe('completed'), {
+    timeout: 2000,
+    interval: 10,
+  });
+});
+
+test('cancelling a long timer before it fires prevents execution (plan 291)', () => {
+  const { clock, advance } = manualClock();
+  const runner = new JobRunner(clock);
+  let ran = false;
+  const day = 24 * 60 * 60 * 1000;
+  const job = runner.scheduleAt(
+    'long-timer-cancel',
+    async () => {
+      ran = true;
+    },
+    new Date(clock.now() + 30 * day)
+  );
+
+  advance(26 * day);
+  expect(runner.cancelJob(job.id)).toBe(true);
+  advance(10 * day);
+  expect(ran).toBe(false);
+  expect(runner.getJob(job.id)?.status).toBe('cancelled');
+});

@@ -103,6 +103,7 @@ export const ROUTE_POLICY: RoutePolicyEntry[] = [
   // publication + jobs
   { method: 'GET', path: '/api/v1/git/status', class: 'read' },
   { method: 'POST', path: '/api/v1/git/pull', class: 'mutation' },
+  { method: 'POST', path: '/api/v1/git/push-pending', class: 'mutation' },
   { method: 'POST', path: '/api/v1/publications/preview', class: 'preview' },
   { method: 'POST', path: '/api/v1/publications', class: 'mutation' },
   { method: 'GET', path: '/api/v1/publications/recovery', class: 'read' },

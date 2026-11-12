@@ -347,6 +347,10 @@ export class ContentManagerClient {
     return publicationsApi.gitPull(this.invoke);
   }
 
+  async pushPendingGit(): Promise<{ job_id: string; status: string }> {
+    return publicationsApi.pushPendingGit(this.invoke);
+  }
+
   // ── Lossless catalog interchange (plan 060) ────────────────────────────────
 
   async importPreview(payload: unknown): Promise<ImportPreviewResponse> {

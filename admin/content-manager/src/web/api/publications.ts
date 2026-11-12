@@ -84,6 +84,12 @@ export async function gitPull(request: ApiRequestFn): Promise<{ job_id: string; 
   return request<{ job_id: string; status: string }>('/git/pull', { method: 'POST' });
 }
 
+export async function pushPendingGit(
+  request: ApiRequestFn
+): Promise<{ job_id: string; status: string }> {
+  return request<{ job_id: string; status: string }>('/git/push-pending', { method: 'POST' });
+}
+
 export async function previewPublication(
   request: ApiRequestFn
 ): Promise<PublicationPreviewResponse> {
