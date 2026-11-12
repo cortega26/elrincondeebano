@@ -175,6 +175,7 @@ test('service worker fetch handles navigation fallback from cache', async () => 
   const caches = createCachesMock();
   const staticCache = await caches.open(CACHE_CONFIG.prefixes.static);
   await staticCache.put('/index.html', new Response('cached-home', { status: 200 }));
+  await staticCache.put('/pages/offline.html', new Response('offline-page', { status: 200 }));
 
   const { events, cleanup } = loadServiceWorkerRuntime({
     fetchImpl: async () => {
@@ -198,7 +199,100 @@ test('service worker fetch handles navigation fallback from cache', async () => 
   });
 
   const response = await responsePromise;
-  assert.strictEqual(await response.text(), 'cached-home');
+  assert.strictEqual(await response.text(), 'offline-page');
+  cleanup();
+});
+
+test('navigation fallback keeps cached-home compatibility when only /index.html exists', async () => {
+  const caches = createCachesMock();
+  const staticCache = await caches.open(CACHE_CONFIG.prefixes.static);
+  await staticCache.put('/index.html', new Response('cached-home', { status: 200 }));
+
+  const { events, cleanup } = loadServiceWorkerRuntime({
+    fetchImpl: async () => {
+      throw new Error('offline');
+    },
+    cachesImpl: caches,
+  });
+
+  const fetchHandler = events.get('fetch');
+  let responsePromise;
+  fetchHandler({
+    request: {
+      url: 'https://example.com/page',
+      method: 'GET',
+      mode: 'navigate',
+      headers: new Headers(),
+    },
+    respondWith: (promise) => {
+      responsePromise = promise;
+    },
+  });
+
+  assert.strictEqual(await (await responsePromise).text(), 'cached-home');
+  cleanup();
+});
+
+test('successful navigations with different query strings share one path-keyed cache entry (plan 294)', async () => {
+  const caches = createCachesMock();
+
+  const { events, cleanup } = loadServiceWorkerRuntime({
+    fetchImpl: async () => new Response('fresh-html', { status: 200 }),
+    cachesImpl: caches,
+  });
+
+  const fetchHandler = events.get('fetch');
+  const navigate = async (url) => {
+    let responsePromise;
+    fetchHandler({
+      request: { url, method: 'GET', mode: 'navigate', headers: new Headers() },
+      respondWith: (promise) => {
+        responsePromise = promise;
+      },
+    });
+    return responsePromise;
+  };
+
+  await navigate('https://example.com/buscar/?q=a');
+  await navigate('https://example.com/buscar/?q=b');
+
+  const htmlCache = caches.stores.get(CACHE_CONFIG.prefixes.html);
+  assert.ok(htmlCache, 'expected the HTML cache to exist');
+  assert.strictEqual(htmlCache.size, 1);
+  assert.deepStrictEqual([...htmlCache.keys()], ['https://example.com/buscar/']);
+  cleanup();
+});
+
+test('offline navigation reuses the path-keyed entry for a new query string (plan 294)', async () => {
+  const caches = createCachesMock();
+  const htmlCache = await caches.open(CACHE_CONFIG.prefixes.html);
+  await htmlCache.put(
+    'https://example.com/buscar/',
+    createTimestampedResponse('cached-search', { type: 'html' })
+  );
+
+  const { events, cleanup } = loadServiceWorkerRuntime({
+    fetchImpl: async () => {
+      throw new Error('offline');
+    },
+    cachesImpl: caches,
+  });
+
+  const fetchHandler = events.get('fetch');
+  let responsePromise;
+  fetchHandler({
+    request: {
+      url: 'https://example.com/buscar/?q=c',
+      method: 'GET',
+      mode: 'navigate',
+      headers: new Headers(),
+    },
+    respondWith: (promise) => {
+      responsePromise = promise;
+    },
+  });
+
+  assert.strictEqual(await (await responsePromise).text(), 'cached-search');
   cleanup();
 });
 

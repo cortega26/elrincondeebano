@@ -3,12 +3,12 @@ const TEST_MODE =
   typeof module !== 'undefined' &&
   !(typeof globalThis !== 'undefined' && globalThis.__SW_RUNTIME_TEST__ === true);
 const CACHE_CONFIG = {
-  version: '2026-10-18-sw-hardening',
+  version: '2026-11-12-sw-nav-key',
   prefixes: {
-    static: 'ebano-static-2026-10-18-sw-hardening',
-    dynamic: 'ebano-dynamic-2026-10-18-sw-hardening',
-    products: 'ebano-products-2026-10-18-sw-hardening',
-    html: 'ebano-html-2026-10-18-sw-hardening',
+    static: 'ebano-static-2026-11-12-sw-nav-key',
+    dynamic: 'ebano-dynamic-2026-11-12-sw-nav-key',
+    products: 'ebano-products-2026-11-12-sw-nav-key',
+    html: 'ebano-html-2026-11-12-sw-nav-key',
   },
   duration: {
     html: 24 * 60 * 60 * 1000, // 1 day for HTML navigations (SSG, changes only on deploy)
@@ -266,13 +266,17 @@ if (!TEST_MODE) {
     if (req.mode === 'navigate') {
       event.respondWith(
         (async () => {
+          const requestUrl = new URL(req.url);
+          // Plan 294: static pages are identical for every query string; key
+          // the HTML fallback by path so ?q= and utm_* do not duplicate copies.
+          const navKey = new Request(requestUrl.origin + requestUrl.pathname);
           const htmlCache = await caches.open(CACHE_CONFIG.prefixes.html);
           try {
             const networkResponse = await fetch(req, { cache: 'no-store' });
             if (networkResponse) {
               if (!skipCache && networkResponse.ok && !isNoStoreResponse(networkResponse)) {
                 const responseToCache = await addTimestamp(networkResponse.clone(), 'html');
-                await htmlCache.put(req, responseToCache);
+                await htmlCache.put(navKey, responseToCache);
               }
               return networkResponse;
             }
@@ -280,15 +284,17 @@ if (!TEST_MODE) {
             console.warn('Navigation fetch failed, attempting cache fallback:', error);
           }
 
-          const cached = await htmlCache.match(req);
+          const cached = await htmlCache.match(navKey);
           const canCheckFreshness =
             cached && cached.type !== 'opaque' && cached.type !== 'opaqueredirect';
           if (cached && canCheckFreshness && isCacheFresh(cached, 'html')) {
             return cached;
           }
 
+          // Plan 294: the offline page is the honest fallback (its embedded
+          // catalog index cannot reprice the cart like a stale home would).
           const fallback =
-            (await caches.match('/index.html')) || (await caches.match('/pages/offline.html'));
+            (await caches.match('/pages/offline.html')) || (await caches.match('/index.html'));
 
           if (fallback) {
             return fallback;
