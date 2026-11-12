@@ -154,3 +154,33 @@ ADR names existing files as authority — it does not move them.
 - Plan 055: Build parallel TypeScript Content Manager
 - `docs/architecture/ENGINEERING_PRIORITIES.md`
 - `docs/adr/0005-shared-data-assets-contract.md`
+
+## Amendment — 2026-11 (plan 284)
+
+Decisions 4 and 6 are replaced. `astro-poc/src/data/products.json`,
+`astro-poc/src/data/categories.json` and `astro-poc/public/data/product_data.json`
+are **generated outputs, not versioned**: they are gitignored and their only
+writer is `astro-poc/scripts/sync-data.mjs` (`data:sync` / `data:sync:json`).
+That sync runs before `build`, `typecheck`, `dev` and the root vitest suite
+(`globalSetup`), so a fresh clone regenerates them on demand instead of
+receiving them from git.
+
+A catalog PR therefore edits only `data/product_data.json` and/or
+`data/category_registry.json`. The historical decisions above are preserved for
+the record; this amendment governs.
+
+Current writers:
+
+| Write target                                    | Writer                                                | Authority?                    |
+| ----------------------------------------------- | ----------------------------------------------------- | ----------------------------- |
+| `data/product_data.json`                        | Content Manager TS; catalog PRs                       | **authoritative**             |
+| `data/category_registry.json`                   | Content Manager TS                                    | **authoritative**             |
+| `data/categories.json`                          | `tools/sync-category-catalog.js` (compatibility form) | **co-written authoritative**  |
+| `astro-poc/src/data/products.json`              | `sync-data.mjs`                                       | **generated (not versioned)** |
+| `astro-poc/src/data/categories.json`            | `sync-data.mjs`                                       | **generated (not versioned)** |
+| `astro-poc/public/data/product_data.json`       | `sync-data.mjs`                                       | **generated (not versioned)** |
+| `astro-poc/src/data/storefront-experience.json` | Content Manager TS                                    | **authoritative**             |
+| `astro-poc/src/data/storefront-bundles.json`    | Content Manager TS                                    | **authoritative**             |
+
+The Python/Tk and Streamlit rows in the original matrix are retired (plans 069
+and 155).
