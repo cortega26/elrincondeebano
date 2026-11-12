@@ -7,6 +7,7 @@
   "scripts": {
     "clean": "node -e \"const fs=require('fs'); ['dist','.astro'].forEach((p)=>fs.rmSync(p,{recursive:true,force:true,maxRetries:10,retryDelay:100}));\"",
     "data:sync": "node scripts/sync-data.mjs",
+    "data:sync:json": "node scripts/sync-data.mjs --json-only",
     "data:validate": "node scripts/validate-data-schemas.mjs",
     "assets:validate": "node scripts/validate-asset-contract.mjs",
     "contract:http": "node scripts/validate-http-contract.mjs",

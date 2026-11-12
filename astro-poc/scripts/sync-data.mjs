@@ -332,6 +332,7 @@ export function validateProductCategoryMapping(productsPayload, categoriesPayloa
 }
 
 export function runSync(options = {}) {
+  const { jsonOnly = false } = options;
   const {
     sourceProductsPath,
     sourceCategoriesPath,
@@ -359,14 +360,25 @@ export function runSync(options = {}) {
   validateProductCategoryMapping(products, categories);
 
   writeJson(targetPublicProductDataPath, createPublicProductsPayload(products));
+
+  const productCount = Array.isArray(products.products) ? products.products.length : 0;
+  const categoryCount = Array.isArray(categories.categories) ? categories.categories.length : 0;
+
+  // Plan 284: every non-build consumer (typecheck, vitest globalSetup) needs
+  // only the three JSON projections; the 116 MB asset mirror stays a build/dev
+  // concern.
+  if (jsonOnly) {
+    console.log(
+      `Synced Astro catalog JSON (json-only): ${productCount} products, ${categoryCount} categories.`
+    );
+    return;
+  }
+
   const assetMirror = syncDirectory(sourceAssetsPath, targetPublicAssetsPath);
   copyFile(sourceRobotsPath, targetRobotsPath);
   copyFile(sourceManifestPath, targetManifestPath);
   copyFile(sourceServiceWorkerPath, targetServiceWorkerPath);
   copyFile(sourceOfflinePath, targetOfflinePath);
-
-  const productCount = Array.isArray(products.products) ? products.products.length : 0;
-  const categoryCount = Array.isArray(categories.categories) ? categories.categories.length : 0;
 
   console.log(
     `Synced Astro storefront assets: ${productCount} products, ${categoryCount} categories, plus legacy public contract files.`
@@ -376,7 +388,11 @@ export function runSync(options = {}) {
   );
 }
 
+export function runJsonSync(options = {}) {
+  return runSync({ ...options, jsonOnly: true });
+}
+
 const isDirectRun = process.argv[1] === fileURLToPath(import.meta.url);
 if (isDirectRun) {
-  runSync();
+  runSync({ jsonOnly: process.argv.includes('--json-only') });
 }

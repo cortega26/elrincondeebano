@@ -259,3 +259,26 @@ test('runSync mirrors public assets incrementally (copy-new, skip-unchanged, rem
     fs.rmSync(tempRoot, { recursive: true, force: true });
   }
 });
+
+test('runJsonSync writes only the three JSON projections (plan 284)', async () => {
+  const { runJsonSync, createSyncPaths } = await loadSyncModule();
+  const { tempRoot, repoRoot, projectRoot } = createSyncFixture();
+  const paths = createSyncPaths({ projectRoot, repoRoot });
+
+  try {
+    const log = captureSyncLog(() => runJsonSync({ projectRoot, repoRoot }));
+
+    assert.match(log, /Synced Astro catalog JSON \(json-only\): 1 products, 1 categories\./);
+    assert.ok(fs.existsSync(paths.targetProductsPath));
+    assert.ok(fs.existsSync(paths.targetCategoriesPath));
+    assert.ok(fs.existsSync(paths.targetPublicProductDataPath));
+    // The asset mirror and the legacy copies stay untouched in json-only mode.
+    assert.equal(fs.existsSync(paths.targetPublicAssetsPath), false);
+    assert.equal(fs.existsSync(paths.targetRobotsPath), false);
+    assert.equal(fs.existsSync(paths.targetManifestPath), false);
+    assert.equal(fs.existsSync(paths.targetServiceWorkerPath), false);
+    assert.equal(fs.existsSync(paths.targetOfflinePath), false);
+  } finally {
+    fs.rmSync(tempRoot, { recursive: true, force: true });
+  }
+});
