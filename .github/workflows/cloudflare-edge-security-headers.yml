@@ -40,14 +40,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Node.js
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: '24.x'
-          cache: 'npm'
-          cache-dependency-path: |
-            package-lock.json
-            astro-poc/package-lock.json
+      - uses: ./.github/actions/setup-node-and-deps
 
       - name: Verify Cloudflare deploy token
         env:
@@ -62,7 +55,7 @@ jobs:
       - name: Deploy edge security headers worker
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: npx wrangler deploy --config infra/cloudflare/edge-security-headers/wrangler.toml
+        run: npm run cloudflare:deploy:edge-security-headers
 
       - name: Write deployment summary
         if: always()
