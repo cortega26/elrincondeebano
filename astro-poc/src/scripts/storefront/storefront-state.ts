@@ -199,6 +199,56 @@ export function refreshCartItemsFromCatalog(
   return { cart: refreshed, changed };
 }
 
+export type CartPriceIndex = Record<string, [number, number, number]>;
+
+export interface CartPriceIndexResult {
+  cart: CartItem[];
+  changed: boolean;
+  unavailableIds: string[];
+}
+
+// Plan 282: project the build-embedded id → [price, discount, inStock(1|0)]
+// index onto a cart. Pure and read-only: never touches storage, never adds,
+// drops or reorders lines and never mutates the input objects. Lines missing
+// from the index (or flagged as out of stock) keep their snapshot — identity
+// stays owned by refreshCartItemsFromCatalog — and are reported in
+// `unavailableIds` so checkout can mark them.
+export function applyCartPriceIndex(
+  cart: CartItem[],
+  index: CartPriceIndex | null
+): CartPriceIndexResult {
+  if (!Array.isArray(cart)) {
+    return { cart: [], changed: false, unavailableIds: [] };
+  }
+  if (!index || typeof index !== 'object' || Array.isArray(index)) {
+    return { cart, changed: false, unavailableIds: [] };
+  }
+
+  let changed = false;
+  const unavailableIds: string[] = [];
+  const nextCart = cart.map((item) => {
+    const entry = index[item.id];
+    if (!Array.isArray(entry)) {
+      unavailableIds.push(item.id);
+      return item;
+    }
+
+    if (entry[2] !== 1) {
+      unavailableIds.push(item.id);
+    }
+    const price = parseNumber(entry[0], item.price);
+    const discount = parseNumber(entry[1], item.discount);
+    if (price === item.price && discount === item.discount) {
+      return item;
+    }
+
+    changed = true;
+    return { ...item, price, discount };
+  });
+
+  return { cart: nextCart, changed, unavailableIds };
+}
+
 export interface OrderData {
   items: CartItem[];
 }

@@ -14,6 +14,7 @@ import {
   normalizeId,
   parseNumber,
   parseSharedCartPayload,
+  applyCartPriceIndex,
   refreshCartItemsFromCatalog,
   sanitizeCart,
   toSharedCartPayload,
@@ -624,5 +625,105 @@ describe('storefront-state cart primitives', () => {
       expect(second.cart).toEqual(first.cart);
       expect(input).toEqual(snapshot);
     });
+  });
+});
+
+describe('applyCartPriceIndex (plan 282)', () => {
+  const item = (overrides = {}) => ({
+    id: 'sku-1',
+    name: 'Leche entera 1 L',
+    category: 'lacteos',
+    price: 100,
+    discount: 0,
+    image: 'leche.webp',
+    quantity: 2,
+    ...overrides,
+  });
+
+  it('updates price and discount from the index without touching identity or quantity', () => {
+    const input = [item()];
+    const snapshot = structuredClone(input);
+    const result = applyCartPriceIndex(input, { 'sku-1': [120, 20, 1] });
+
+    expect(result.changed).toBe(true);
+    expect(result.cart[0]).toEqual({ ...item(), price: 120, discount: 20 });
+    expect(result.unavailableIds).toEqual([]);
+    expect(input).toEqual(snapshot);
+  });
+
+  it('keeps the line, updates its price and reports ids flagged out of stock', () => {
+    const result = applyCartPriceIndex([item({ price: 90 })], { 'sku-1': [120, 0, 0] });
+
+    expect(result.cart[0].price).toBe(120);
+    expect(result.cart[0].quantity).toBe(2);
+    expect(result.unavailableIds).toEqual(['sku-1']);
+  });
+
+  it('leaves ids absent from the index intact and reports them', () => {
+    const stale = item({ id: 'gone', price: 77 });
+    const result = applyCartPriceIndex([stale], { 'sku-1': [120, 0, 1] });
+
+    expect(result.changed).toBe(false);
+    expect(result.cart[0]).toBe(stale);
+    expect(result.unavailableIds).toEqual(['gone']);
+  });
+
+  it('degrades to today when the index is null or not an object', () => {
+    const input = [item()];
+    for (const index of [null, undefined, 'nope', 42, []]) {
+      const result = applyCartPriceIndex(input, index);
+      expect(result.changed).toBe(false);
+      expect(result.cart).toBe(input);
+      expect(result.unavailableIds).toEqual([]);
+    }
+  });
+
+  it('never mutates frozen input objects or the index', () => {
+    const input = Object.freeze([Object.freeze(item())]);
+    const index = Object.freeze({ 'sku-1': Object.freeze([120, 10, 1]) });
+    const result = applyCartPriceIndex(input, index);
+
+    expect(result.changed).toBe(true);
+    expect(input[0].price).toBe(100);
+    expect(index['sku-1']).toEqual([120, 10, 1]);
+  });
+
+  it('never adds, removes or reorders lines', () => {
+    const cart = [
+      item({ id: 'sku-b', price: 10 }),
+      item({ id: 'sku-a', price: 20 }),
+      item({ id: 'sku-c', price: 30 }),
+    ];
+    const result = applyCartPriceIndex(cart, {
+      'sku-a': [200, 0, 1],
+      'sku-b': [100, 0, 1],
+      'sku-c': [300, 0, 1],
+    });
+
+    expect(result.cart).toHaveLength(3);
+    expect(result.cart.map((line) => line.id)).toEqual(['sku-b', 'sku-a', 'sku-c']);
+  });
+
+  it('leaves the raw projection intact and defers visual-duplicate collapse to sanitizeCart', () => {
+    // Plan 282 deviation (advisor-reviewed): sanitizeCart deliberately merges
+    // two distinct ids for the same physical product by visual identity, and
+    // its fingerprint includes price/discount. A reprice can therefore make
+    // two historical rows collapse. The projection must not hide that: it
+    // keeps both lines, and the boundary sanitizes once so render, totals and
+    // the WhatsApp message share the same cart.
+    const first = item({ id: 'sku-a', price: 100, quantity: 2 });
+    const second = item({ id: 'sku-b', price: 150, quantity: 5 });
+    const result = applyCartPriceIndex([first, second], {
+      'sku-a': [500, 0, 1],
+      'sku-b': [500, 0, 1],
+    });
+
+    expect(result.cart.map((line) => line.id)).toEqual(['sku-a', 'sku-b']);
+    expect(result.cart.every((line) => line.price === 500)).toBe(true);
+
+    const sanitized = sanitizeCart(result.cart);
+    expect(sanitized).toHaveLength(1);
+    // Max, not sum: a stale historical row must never inflate the order.
+    expect(sanitized[0].quantity).toBe(5);
   });
 });
