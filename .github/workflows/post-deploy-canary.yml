@@ -296,6 +296,10 @@ jobs:
     if: ${{ always() && github.event_name == 'workflow_dispatch' && inputs.rollback_on_failure == true && needs.live-probe.result == 'failure' && inputs.rollback_ref != '' && inputs.confirm_rollback == 'ROLLBACK' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 25
+    # A rollback must never be cancelled halfway: share the 'pages' group but never cancel.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     permissions:
       contents: read
       pages: write
