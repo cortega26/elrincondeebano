@@ -1,59 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const { rootDir } = require('./output-dir');
-const {
-  CFIMG_THUMB,
-  HERO_BASE_WIDTH,
-  HERO_WIDTHS,
-  PRODUCT_IMAGE_SIZES,
-  PRODUCT_IMAGE_WIDTHS,
-} = require('./constants.js');
 
 const DATA_PATH = path.join(rootDir, 'data', 'product_data.json');
-
-function shouldDisableCfRewrite() {
-  const disableFlag = process.env.CFIMG_DISABLE;
-  if (typeof disableFlag === 'string') {
-    const normalized = disableFlag.toLowerCase();
-    if (['1', 'true', 'yes'].includes(normalized)) {
-      return true;
-    }
-  }
-
-  const enableFlag = process.env.CFIMG_ENABLE;
-  if (typeof enableFlag === 'string') {
-    const normalized = enableFlag.toLowerCase();
-    if (['1', 'true', 'yes'].includes(normalized)) {
-      return false;
-    }
-  }
-
-  // Default to disabling rewrite for static hosting unless explicitly enabled
-  return true;
-}
-
-function cfimg(imgPath, opts = {}) {
-  const normalized = imgPath.startsWith('/') ? imgPath : `/${imgPath}`;
-  if (shouldDisableCfRewrite()) {
-    return normalized;
-  }
-  const encoded = normalized
-    .split('/')
-    .map((segment) => encodeURIComponent(segment))
-    .join('/');
-  const params = Object.entries(opts)
-    .map(([key, value]) => `${key}=${value}`)
-    .join(',');
-  return `/cdn-cgi/image/${params}${encoded}`;
-}
-
-function encodePath(pathValue) {
-  const normalized = pathValue.startsWith('/') ? pathValue : `/${pathValue}`;
-  return normalized
-    .split('/')
-    .map((segment) => encodeURIComponent(segment))
-    .join('/');
-}
 
 function readProductData() {
   const raw = fs.readFileSync(DATA_PATH, 'utf8');
@@ -87,91 +36,9 @@ function computeDiscountMeta(product) {
   };
 }
 
-function buildSrcset(imagePath, widths = HERO_WIDTHS, extraOpts = {}) {
-  const normalized = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
-  return widths
-    .map((width) => `${cfimg(normalized, { ...CFIMG_THUMB, width, ...extraOpts })} ${width}w`)
-    .join(', ');
-}
-
-function buildImageMeta(imagePath, avifPath) {
-  const normalized = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
-  const src = cfimg(normalized, { ...CFIMG_THUMB, width: HERO_BASE_WIDTH });
-  const srcset = buildSrcset(imagePath, PRODUCT_IMAGE_WIDTHS);
-  let avif = null;
-  if (avifPath) {
-    const normalizedAvif = avifPath.startsWith('/') ? avifPath : `/${avifPath}`;
-    const canRewrite = !shouldDisableCfRewrite();
-    if (canRewrite) {
-      avif = {
-        src: cfimg(normalized, { ...CFIMG_THUMB, width: HERO_BASE_WIDTH, format: 'avif' }),
-        srcset: buildSrcset(imagePath, PRODUCT_IMAGE_WIDTHS, { format: 'avif' }),
-      };
-    } else {
-      const encodedAvif = encodePath(normalizedAvif);
-      avif = {
-        src: encodedAvif,
-        srcset: encodedAvif,
-      };
-    }
-  }
-  return { src, srcset, avif, sizes: PRODUCT_IMAGE_SIZES };
-}
-
-function enrichProduct(product, index) {
-  const id = product.id || generateStableId(product);
-  const order = typeof product.order === 'number' ? product.order : index;
-  const image = buildImageMeta(product.image_path || '', product.image_avif_path || '');
-  const discountMeta = computeDiscountMeta(product);
-  return {
-    ...product,
-    id,
-    originalIndex: order,
-    image,
-    ...discountMeta,
-  };
-}
-
-function sortAndEnrichProducts(products = []) {
-  return [...products]
-    .map((product, index) => ({ product, index }))
-    .sort((a, b) => {
-      const orderA = typeof a.product.order === 'number' ? a.product.order : a.index;
-      const orderB = typeof b.product.order === 'number' ? b.product.order : b.index;
-      return orderA - orderB;
-    })
-    .map(({ product }, index) => enrichProduct(product, index));
-}
-
-function mapProductForInline(product) {
-  const { image, discountedPrice, discountPercent, isDiscounted, originalIndex, ...rest } = product;
-  return {
-    ...rest,
-    originalIndex,
-    discounted_price: discountedPrice,
-    discount_percent: discountPercent,
-    is_discounted: isDiscounted,
-    image,
-  };
-}
-
-function safeJsonStringify(payload) {
-  return JSON.stringify(payload)
-    .replace(/</g, '\\u003C')
-    .replace(/>/g, '\\u003E')
-    .replace(/\u2028/g, '\\u2028')
-    .replace(/\u2029/g, '\\u2029');
-}
-
 module.exports = {
   DATA_PATH,
-  CFIMG_THUMB,
   readProductData,
   generateStableId,
   computeDiscountMeta,
-  sortAndEnrichProducts,
-  mapProductForInline,
-  safeJsonStringify,
-  cfimg,
-  shouldDisableCfRewrite,
 };

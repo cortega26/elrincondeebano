@@ -99,6 +99,11 @@ data/scheduled-publications.json
 # Plan 217: comunicaciones privadas (teléfonos de vecinos, plantillas, actividad)
 data/.comms/
 data/sync-config.json
+# Plan 292: Content Manager sync queue + its lock are runtime state, never tracked.
+data/sync-queue.json
+data/.sync-queue.lock
+# Plan 292: Playwright CLI debug snapshots.
+.playwright-cli/
 data/recovery-journal*.json
 data/recovery-journal.ndjson
 .qodo

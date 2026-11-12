@@ -45,8 +45,6 @@ jobs:
         with:
           ref: ${{ github.sha }}
       - uses: ./.github/actions/setup-node-and-deps
-        with:
-          cfimg: 'enable'
       - name: Build storefront (verification only)
         run: npm run build
       - uses: ./.github/actions/setup-playwright
@@ -86,8 +84,6 @@ jobs:
             echo "DEPLOY_REQUESTED_REF=${{ github.sha }}" >> "$GITHUB_ENV"
           fi
       - uses: ./.github/actions/setup-node-and-deps
-        with:
-          cfimg: 'enable'
       - name: Build storefront
         run: npm run build
       - uses: ./.github/actions/setup-playwright

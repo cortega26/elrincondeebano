@@ -60,8 +60,6 @@ jobs:
           echo "ROLLBACK_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
 
       - uses: ./.github/actions/setup-node-and-deps
-        with:
-          cfimg: 'enable'
 
       - name: Build storefront
         run: npm run build

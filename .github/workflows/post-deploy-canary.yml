@@ -317,8 +317,6 @@ jobs:
           persist-credentials: false
 
       - uses: ./.github/actions/setup-node-and-deps
-        with:
-          cfimg: 'enable'
 
       - name: Build storefront for rollback ref
         run: npm run build

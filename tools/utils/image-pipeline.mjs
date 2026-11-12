@@ -21,7 +21,6 @@ export const HOME_OG_QUALITY = constants.HOME_OG_QUALITY;
 export const HOME_OG_SIZE = constants.HOME_OG_SIZE;
 export const SUPPORTED_RASTER_EXTENSIONS = constants.SUPPORTED_RASTER_EXTENSIONS;
 export const CRITICAL_UI_ASSETS = constants.CRITICAL_UI_ASSETS;
-export const CFIMG_THUMB = constants.CFIMG_THUMB;
 
 // ---------------------------------------------------------------------------
 // Repo / path helpers + FS helpers — re-exported from constants.js for CJS compat

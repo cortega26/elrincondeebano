@@ -33,8 +33,6 @@ const CRITICAL_UI_ASSETS = Object.freeze([
   'assets/images/web/404.webp',
 ]);
 
-const CFIMG_THUMB = Object.freeze({ fit: 'cover', quality: 75, format: 'auto', dpr: 1 });
-
 function normalizeAssetPath(assetPath) {
   if (typeof assetPath !== 'string') {
     return '';
@@ -144,7 +142,6 @@ module.exports = {
   HOME_OG_SIZE,
   SUPPORTED_RASTER_EXTENSIONS,
   CRITICAL_UI_ASSETS,
-  CFIMG_THUMB,
   normalizeAssetPath,
   supportsAvifConversion,
   deriveAvifPath,
