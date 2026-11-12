@@ -80,10 +80,6 @@ build` — staleness means the build predates the `data/` change, not a
     `/data/product_data.json` is ever requested directly (no app code path
     does today); after a deploy with data changes, stale SW caches are
     cleared by the version bump + activate cleanup.
-  - If neither cached nor inline data is available, the UI shows the error
-    component: `Error al cargar los productos. Por favor, verifique su
-conexión a internet e inténtelo de nuevo.` plus an **"Intentar
-    nuevamente"** button.
 - **Steps:**
   1. Verify the `data/` inputs (`product_data.json`, categories) contain the
      expected change.
@@ -92,18 +88,10 @@ conexión a internet e inténtelo de nuevo.` plus an **"Intentar
   3. Confirm the service worker cache holds the current
      `ebano-products-*` prefix; if stale, invalidate (see steps below).
   4. Retry after backoff; persistent failures escalate to infrastructure.
-  5. Remember that only the first catalog batch is inlined in `#product-data`; the rest streams
-     from `/data/product_data.json`. Confirm the JSON endpoint is cached by the service worker
-     (`ebano-products-v*`).
 
-**Recovery steps aligned to UX policy**
-
-1. **If users see the error message + retry button:** restore the JSON endpoint, then instruct a
-   hard refresh. The retry action in the UI calls `initApp` to re-fetch the catalog.
-2. **If users see a partial catalog (missing items hidden):** ensure the service worker cache is
-   refreshed (bump `CACHE_CONFIG.prefixes.products` or invalidate `ebano-products-v*` in DevTools).
-3. **If users keep seeing stale data:** bump `ebano-products-v*` in `service-worker.js`, rebuild,
-   and redeploy so the last cached version updates on next load.
+**Recovery**: 1) verificar que el SHA desplegado (`static.yml`) incluye el commit de datos; 2) si no, re-ejecutar `static.yml` (workflow_dispatch) o fusionar el pendiente; 3) solo si el
+HTML servido está cacheado por el service worker, bumpear `CACHE_CONFIG.version` en
+`service-worker.js` (raíz) y redeployar.
 
 ## Data freshness
 
@@ -158,6 +146,7 @@ conexión a internet e inténtelo de nuevo.` plus an **"Intentar
 - **Fuente de verdad:** `data/product_data.json` versionado en Git. No existe API remota por defecto.
 - **Configuración de sync:** se mantiene en `false` por defecto (`sync.enabled`) y `sync.api_base` vacío; el override va en `config.json` del operador, nunca en el repo.
 - **Ejecución:** abre la app → realiza ediciones → guarda. Los cambios quedan en el archivo del repo y se suben vía commit/push.
+- **Cambios vía PR:** para editar el catálogo sin el admin, ver [`CATALOG_CHANGES`](CATALOG_CHANGES.md).
 - **Sincronización remota opcional:** habilítala sólo si hay un backend disponible. Crea un override (`config.json`) con `sync.enabled: true` y `sync.api_base` apuntando al endpoint. Mientras no haya backend, deja esos valores en blanco para evitar colas pendientes.
 - **Campos normalizados obligatorios (size):**
   - Completa siempre `size_value` y `size_unit` en cada producto.

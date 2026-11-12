@@ -2,7 +2,7 @@
 
 **El Rincón de Ébano** — storefront estático Astro + Content Manager local.
 Runtime: Node 24.x únicamente (`engines: >=24 <25`).
-Última actualización: 2026-10-19.
+Última actualización: 2026-11-12.
 
 **Content Manager**: la aplicación canónica es `admin/content-manager/`
 (TypeScript: Fastify + React + Vite + TS7). El manager Python/Tkinter
@@ -40,6 +40,7 @@ los archivos persisten).
 | `npm run validate`         | lint → typecheck → check:e2e-selectors → build → test → check:plans → guardrails:assets.                                                                            |
 | `npm run validate:release` | Gate de release (añade e2e + live share-preview probe; audits run separately in `security-audit.yml`).                                                              |
 | `npm run admin:certify`    | Gate del cutover del Content Manager (certification report).                                                                                                        |
+| `npm run guardrails`       | Suite de guardrails del repo (manifest-compat, secrets, SW, tree, images, huérfanos…; ver `tools/guardrails/run.mjs`).                                              |
 
 ## Gotchas
 
@@ -57,8 +58,6 @@ los archivos persisten).
   `PLAYWRIGHT_SKIP_BUILD`); no hay secretos requeridos en local.
 
 ## Principios
-
-**Descripciones del catálogo:** redactar solo atributos verificables que ayuden al comprador a identificar el producto (tipo, variedad, contenido neto, presentación y características distintivas). Usar frases breves y objetivas; evitar relleno, usos sugeridos, juicios de valor y adjetivos promocionales. Si un dato no consta en la fuente, omitirlo.
 
 - **El repositorio es el sistema de registro.** Lo que no está versionado no existe para el agente.
 - **Este archivo es un índice, no una enciclopedia.** Las instrucciones detalladas viven en `docs/`.
@@ -132,24 +131,25 @@ npm run validate:release
 
 ## Mapa de documentación
 
-| Qué                                              | Dónde                                                                                               |
-| ------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
-| Bootstrap / cold start                           | [`BOOTSTRAP`](docs/onboarding/BOOTSTRAP.md)                                                         |
-| Punto de entrada por tarea                       | [`START_HERE`](docs/START_HERE.md)                                                                  |
-| Matriz de validación                             | [`VALIDATION_MATRIX`](docs/operations/VALIDATION_MATRIX.md)                                         |
-| Guardrails, cobertura, política de cambios y PRs | [`QUALITY_GUARDRAILS`](docs/operations/QUALITY_GUARDRAILS.md)                                       |
-| Performance, escalabilidad y mantenibilidad      | [`ENGINEERING_PRIORITIES`](docs/architecture/ENGINEERING_PRIORITIES.md)                             |
-| Runbook, workflows CI, playbooks, comandos       | [`RUNBOOK`](docs/operations/RUNBOOK.md)                                                             |
-| Planes activos (índice en README.md)             | [`plans/`](plans/)                                                                                  |
-| Auditorías históricas y planes completados       | [`docs/audit/`](docs/audit/)                                                                        |
-| Cutover / certificación Content Manager          | [`CUTOVER`](docs/operations/CUTOVER.md)                                                             |
-| Smoke manual                                     | [`SMOKE_TEST`](docs/operations/SMOKE_TEST.md)                                                       |
-| Share preview                                    | [`SHARE_PREVIEW`](docs/operations/SHARE_PREVIEW.md)                                                 |
-| Comms / mensajes WhatsApp                        | [`COMMS`](docs/operations/COMMS.md)                                                                 |
-| Incidentes y rollback                            | [`INCIDENT_TRIAGE`](docs/operations/INCIDENT_TRIAGE.md) · [`ROLLBACK`](docs/operations/ROLLBACK.md) |
-| Observabilidad                                   | [`OBSERVABILITY`](docs/operations/OBSERVABILITY.md)                                                 |
-| Política de dependencias                         | [`DEPENDENCY_POLICY`](docs/operations/DEPENDENCY_POLICY.md)                                         |
-| Headers de seguridad edge                        | [`EDGE_SECURITY_HEADERS`](docs/operations/EDGE_SECURITY_HEADERS.md)                                 |
-| Scripts y utilidades                             | [`tools/`](tools/)                                                                                  |
-| Suite de pruebas                                 | [`test/`](test/)                                                                                    |
-| Diferidos y condiciones de reapertura            | [`DEFERRALS`](docs/operations/DEFERRALS.md)                                                         |
+| Qué                                                 | Dónde                                                                                               |
+| --------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Bootstrap / cold start                              | [`BOOTSTRAP`](docs/onboarding/BOOTSTRAP.md)                                                         |
+| Punto de entrada por tarea                          | [`START_HERE`](docs/START_HERE.md)                                                                  |
+| Matriz de validación                                | [`VALIDATION_MATRIX`](docs/operations/VALIDATION_MATRIX.md)                                         |
+| Guardrails, cobertura, política de cambios y PRs    | [`QUALITY_GUARDRAILS`](docs/operations/QUALITY_GUARDRAILS.md)                                       |
+| Performance, escalabilidad y mantenibilidad         | [`ENGINEERING_PRIORITIES`](docs/architecture/ENGINEERING_PRIORITIES.md)                             |
+| Runbook, workflows CI, playbooks, comandos          | [`RUNBOOK`](docs/operations/RUNBOOK.md)                                                             |
+| Planes activos (índice en README.md)                | [`plans/`](plans/)                                                                                  |
+| Cambios de catálogo (precios, descripciones, fotos) | [`CATALOG_CHANGES`](docs/operations/CATALOG_CHANGES.md)                                             |
+| Auditorías históricas y planes completados          | [`docs/audit/`](docs/audit/)                                                                        |
+| Cutover / certificación Content Manager             | [`CUTOVER`](docs/operations/CUTOVER.md)                                                             |
+| Smoke manual                                        | [`SMOKE_TEST`](docs/operations/SMOKE_TEST.md)                                                       |
+| Share preview                                       | [`SHARE_PREVIEW`](docs/operations/SHARE_PREVIEW.md)                                                 |
+| Comms / mensajes WhatsApp                           | [`COMMS`](docs/operations/COMMS.md)                                                                 |
+| Incidentes y rollback                               | [`INCIDENT_TRIAGE`](docs/operations/INCIDENT_TRIAGE.md) · [`ROLLBACK`](docs/operations/ROLLBACK.md) |
+| Observabilidad                                      | [`OBSERVABILITY`](docs/operations/OBSERVABILITY.md)                                                 |
+| Política de dependencias                            | [`DEPENDENCY_POLICY`](docs/operations/DEPENDENCY_POLICY.md)                                         |
+| Headers de seguridad edge                           | [`EDGE_SECURITY_HEADERS`](docs/operations/EDGE_SECURITY_HEADERS.md)                                 |
+| Scripts y utilidades                                | [`tools/`](tools/)                                                                                  |
+| Suite de pruebas                                    | [`test/`](test/)                                                                                    |
+| Diferidos y condiciones de reapertura               | [`DEFERRALS`](docs/operations/DEFERRALS.md)                                                         |
