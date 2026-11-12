@@ -7,7 +7,6 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - 'astro-poc/package.json'
-      - 'astro-poc/package-lock.json'
 
 permissions:
   contents: read

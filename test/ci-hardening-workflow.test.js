@@ -10,6 +10,26 @@ const autoMergeWorkflow = fs.readFileSync(
   'utf8'
 );
 const guardWorkflow = fs.readFileSync(path.join(workflowsDir, 'product-data-guard.yml'), 'utf8');
+const securityAuditWorkflow = fs.readFileSync(
+  path.join(workflowsDir, 'security-audit.yml'),
+  'utf8'
+);
+
+test('security-audit only references lockfiles that exist', () => {
+  const values = [
+    ...securityAuditWorkflow.matchAll(/^\s*(?:lockfile|cache-dependency-path):\s*(\S+)\s*$/gm),
+  ]
+    .map((match) => match[1].replace(/^['"]|['"]$/g, ''))
+    .filter((value) => !value.startsWith('${{'));
+
+  assert.ok(values.length > 0, 'expected at least one literal lockfile path');
+  for (const value of values) {
+    assert.ok(
+      fs.existsSync(path.join(__dirname, '..', value)),
+      `security-audit references a lockfile that does not exist: ${value}`
+    );
+  }
+});
 
 test('dependabot auto-merge pins fetch-metadata to a full commit SHA', () => {
   assert.match(
