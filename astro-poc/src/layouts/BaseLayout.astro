@@ -6,7 +6,8 @@ import Navbar from '../components/Navbar.astro';
 
 import StructuredData from '../components/StructuredData.astro';
 import TrustStrip from '../components/TrustStrip.astro';
-import { getNavigationGroups } from '../lib/catalog';
+import { getCartPriceIndex, getNavigationGroups } from '../lib/catalog';
+import { safeScriptJSON } from '../lib/serialization';
 import {
   absoluteUrl,
   createSharePreviewMetadata,
@@ -182,6 +183,8 @@ const resolvedSharePreview =
         <polyline points="18 15 12 9 6 15"/>
       </svg>
     </button>
+
+    <script type="application/json" id="cart-price-index" set:html={safeScriptJSON(getCartPriceIndex())}></script>
 
     <script>
       import '../scripts/storefront.js';
