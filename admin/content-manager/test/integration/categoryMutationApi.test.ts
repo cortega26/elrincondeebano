@@ -871,3 +871,95 @@ test('category mutations report resulting_revision matching rev', async () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('a failed batch never leaves partial upserts in the registry cache (plan 290)', async () => {
+  const dir = createTempDir();
+  try {
+    setupData(dir);
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const revBefore = (await app.inject({ method: 'GET', url: '/api/v1/categories' })).json<{
+      rev: number;
+    }>().rev;
+
+    const failed = await app.inject({
+      method: 'POST',
+      url: '/api/v1/categories/batch-update',
+      headers: ch,
+      payload: {
+        command_id: 'batch-ghost-1',
+        base_revision: revBefore,
+        ops: [
+          {
+            type: 'upsert',
+            category: {
+              id: 'ghost-upsert',
+              key: 'ghostkey',
+              slug: 'ghost-slug',
+              display_name: { default: 'Ghost' },
+              active: true,
+              sort_order: 99,
+            },
+          },
+          {
+            // Valid schema, but reuses an existing key: the second op fails
+            // during apply, after the first upsert already touched the object.
+            type: 'upsert',
+            category: {
+              id: 'conflicting-upsert',
+              key: 'bebidas',
+              slug: 'bebidas-2',
+              display_name: { default: 'Conflicto' },
+              active: true,
+              sort_order: 100,
+            },
+          },
+        ],
+      },
+    });
+    expect(failed.statusCode).toBe(409);
+
+    const afterFailure = (await app.inject({ method: 'GET', url: '/api/v1/categories' })).json<{
+      categories: Array<{ id: string }>;
+      rev: number;
+    }>();
+    expect(afterFailure.categories.some((c) => c.id === 'ghost-upsert')).toBe(false);
+    expect(afterFailure.rev).toBe(revBefore);
+
+    const ok = await app.inject({
+      method: 'POST',
+      url: '/api/v1/categories/batch-update',
+      headers: ch,
+      payload: {
+        command_id: 'batch-ghost-2',
+        base_revision: revBefore,
+        ops: [
+          {
+            type: 'upsert',
+            category: {
+              id: 'real-upsert',
+              key: 'realkey',
+              slug: 'real-slug',
+              display_name: { default: 'Real' },
+              active: true,
+              sort_order: 98,
+            },
+          },
+        ],
+      },
+    });
+    expect(ok.statusCode).toBe(200);
+
+    const afterOk = (await app.inject({ method: 'GET', url: '/api/v1/categories' })).json<{
+      categories: Array<{ id: string }>;
+    }>();
+    expect(afterOk.categories.some((c) => c.id === 'ghost-upsert')).toBe(false);
+    expect(afterOk.categories.some((c) => c.id === 'real-upsert')).toBe(true);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

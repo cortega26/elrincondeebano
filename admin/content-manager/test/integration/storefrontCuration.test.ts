@@ -350,3 +350,74 @@ test('injected second-file failure rolls back BOTH files', async () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('a rejected 422 never leaks into the repository cache (plan 290)', async () => {
+  const dir = createTempDir();
+  setup(dir, [validBundle()]);
+  try {
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+    const ch = credHeaders(app);
+
+    const beforeBundles = (
+      await app.inject({
+        method: 'GET',
+        url: '/api/v1/storefront/bundles',
+        headers: ch,
+      })
+    ).json<{ bundles: unknown[] }>().bundles;
+
+    const rejected = await app.inject({
+      method: 'PUT',
+      url: '/api/v1/storefront/bundles',
+      headers: ch,
+      payload: { bundles: [validBundle({ items: [{ category: 'bebidas', name: 'Ghost' }] })] },
+    });
+    expect(rejected.statusCode).toBe(422);
+
+    const afterBundles = (
+      await app.inject({
+        method: 'GET',
+        url: '/api/v1/storefront/bundles',
+        headers: ch,
+      })
+    ).json<{ bundles: unknown[] }>().bundles;
+    expect(afterBundles).toEqual(beforeBundles);
+
+    // The rejected payload must not poison the next valid write either.
+    const ok = await app.inject({
+      method: 'PUT',
+      url: '/api/v1/storefront/bundles',
+      headers: ch,
+      payload: { bundles: [validBundle({ id: 'b9', title: 'Válido' })] },
+    });
+    expect(ok.statusCode).toBe(200);
+
+    const featuredBefore = (
+      await app.inject({
+        method: 'GET',
+        url: '/api/v1/storefront/featured',
+        headers: ch,
+      })
+    ).json();
+    const badFeatured = await app.inject({
+      method: 'PUT',
+      url: '/api/v1/storefront/featured',
+      headers: ch,
+      payload: { featuredStaples: [{ category: 'bebidas', name: 'Ghost' }] },
+    });
+    expect(badFeatured.statusCode).toBe(422);
+    const featuredAfter = (
+      await app.inject({
+        method: 'GET',
+        url: '/api/v1/storefront/featured',
+        headers: ch,
+      })
+    ).json();
+    expect(featuredAfter).toEqual(featuredBefore);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

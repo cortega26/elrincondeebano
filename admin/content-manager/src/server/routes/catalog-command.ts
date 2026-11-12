@@ -38,7 +38,8 @@ export async function runRegistryCommand<R, T>(opts: {
 }): Promise<unknown> {
   const { reply, load, getBaseRevision, successStatus = 200, apply, write, onSuccess } = opts;
 
-  const registry = load();
+  // Plan 290: never mutate the repository cache before the write succeeds.
+  const registry = structuredClone(load());
   // The base revision comes from the request body (immutable per request),
   // so reading it here is identical to reading it after apply.
   const baseRevision = getBaseRevision();

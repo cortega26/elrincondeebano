@@ -48,7 +48,7 @@ export async function storefrontMutRoutes(
     }
     const body = parsed.data;
 
-    const existing = repos.storefront.load();
+    const existing = structuredClone(repos.storefront.load());
     existing.bundles = body.bundles;
 
     // Plan 066 step 1: strict invariants + product reference checks.
@@ -85,7 +85,7 @@ export async function storefrontMutRoutes(
     }
     const body = parsed.data;
 
-    const existing = repos.storefront.load();
+    const existing = structuredClone(repos.storefront.load());
 
     if (body.featuredStaples) {
       existing.home.featuredStaples = body.featuredStaples;
