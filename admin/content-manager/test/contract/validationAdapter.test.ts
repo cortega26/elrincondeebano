@@ -284,8 +284,8 @@ test('validation results include duration_ms', () => {
     writeValidData(dir);
     const adapter = new ValidationAdapter();
     const result = adapter.validateProducts(dir);
-    expect(result.duration_ms).toBeGreaterThanOrEqual(0);
-    expect(typeof result.duration_ms).toBe('number');
+    expect(Number.isFinite(result.duration_ms)).toBe(true);
+    expect(result.duration_ms).toBeLessThan(60_000);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

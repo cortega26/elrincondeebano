@@ -67,7 +67,8 @@ test('ValidationAdapter products validation runs', () => {
   const result = new ValidationAdapter().validateProducts(process.cwd());
   expect(result.step).toBe('products-schema');
   expect(['pass', 'fail']).toContain(result.status);
-  expect(result.duration_ms).toBeGreaterThanOrEqual(0);
+  expect(Number.isFinite(result.duration_ms)).toBe(true);
+  expect(result.duration_ms).toBeLessThan(60_000);
 });
 
 test('ValidationAdapter categories validation runs', () => {

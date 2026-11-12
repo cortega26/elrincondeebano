@@ -1,4 +1,4 @@
-import { test, expect } from 'vitest';
+import { test, expect, vi } from 'vitest';
 import { JobRunner } from '../../src/server/services/jobRunner.ts';
 
 test('cancel during a running job marks it failed/cancelled', async () => {
@@ -47,13 +47,13 @@ test('shutdown cancels a running job', async () => {
   expect(final!.cancelRequested).toBe(true);
 });
 
-test('schedule rejects second overlapping publication', async () => {
+test('schedule queues a second publication until the first finishes', async () => {
   const runner = new JobRunner();
 
   let running = false;
   let secondStarted = false;
 
-  runner.schedule('publish', () => {
+  const first = runner.schedule('publish', () => {
     return new Promise((resolve) => {
       running = true;
       setTimeout(() => {
@@ -63,9 +63,11 @@ test('schedule rejects second overlapping publication', async () => {
     });
   });
 
-  await new Promise((r) => setTimeout(r, 5));
+  await vi.waitFor(() => expect(runner.getJob(first.id)?.status).toBe('running'), {
+    timeout: 2000,
+    interval: 10,
+  });
 
-  // Second job should queue
   runner.schedule('publish', () => {
     return new Promise((resolve) => {
       secondStarted = true;
@@ -73,10 +75,10 @@ test('schedule rejects second overlapping publication', async () => {
     });
   });
 
-  // First is running, second is queued
   expect(running).toBe(true);
-  expect(runner.getPendingCount()).toBeGreaterThanOrEqual(0); // may already be processed
+  expect(secondStarted).toBe(false);
+  expect(runner.getPendingCount()).toBe(1);
 
-  await new Promise((r) => setTimeout(r, 100));
-  expect(secondStarted).toBe(true);
+  await vi.waitFor(() => expect(secondStarted).toBe(true), { timeout: 2000, interval: 10 });
+  expect(running).toBe(false);
 });

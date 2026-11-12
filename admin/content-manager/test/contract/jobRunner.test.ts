@@ -195,22 +195,19 @@ test('getPendingCount returns number of queued jobs', async () => {
   const gate = new Promise<void>((r) => {
     release = r;
   });
-  runner.schedule('test', async () => {
+  const first = runner.schedule('test', async () => {
     await gate;
   });
 
   runner.schedule('test', async () => 'second');
   runner.schedule('test', async () => 'third');
 
-  // Wait until the queue is observed (runner has started processing)
-  await vi.waitFor(
-    () => {
-      expect(runner.getPendingCount()).toBeGreaterThanOrEqual(0);
-    },
-    { timeout: 2000, interval: 10 }
-  );
+  await vi.waitFor(() => expect(runner.getJob(first.id)?.status).toBe('running'), {
+    timeout: 2000,
+    interval: 10,
+  });
 
-  expect(runner.getPendingCount()).toBeGreaterThanOrEqual(0);
+  expect(runner.getPendingCount()).toBe(2);
   release();
   await vi.waitFor(() => expect(runner.getPendingCount()).toBe(0), { timeout: 2000, interval: 10 });
 });

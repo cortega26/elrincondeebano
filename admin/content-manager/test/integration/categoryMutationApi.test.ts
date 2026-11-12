@@ -1,6 +1,6 @@
-import { test, expect } from 'vitest';
+import { test, expect, vi } from 'vitest';
 import { createApp } from '../../src/server/app.ts';
-import { writeFileSync, mkdirSync, rmSync, readFileSync, readdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync, rmSync, readFileSync, readdirSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import type { FastifyInstance } from 'fastify';
@@ -491,18 +491,22 @@ test('category create triggers the OG intent lifecycle without blocking the writ
     });
     expect(created.statusCode).toBe(201);
 
-    // The OG lifecycle runs fire-and-forget: an intent appears for the slug.
-    await new Promise((r) => setTimeout(r, 1500));
+    // The OG lifecycle runs fire-and-forget: wait for a terminal intent.
     const intentsDir = resolve(dir, 'data', 'media-intents');
-    const files = readdirSync(intentsDir).filter((f) => f.endsWith('.json'));
-    expect(files.length).toBeGreaterThan(0);
-    const intent = JSON.parse(readFileSync(resolve(intentsDir, files[0]), 'utf8'));
+    let intent: { type?: string; category_slug?: string; status?: string } = {};
+    await vi.waitFor(
+      () => {
+        const files = existsSync(intentsDir)
+          ? readdirSync(intentsDir).filter((f) => f.endsWith('.json'))
+          : [];
+        expect(files.length).toBeGreaterThan(0);
+        intent = JSON.parse(readFileSync(resolve(intentsDir, files[0]), 'utf8'));
+        expect(['applied', 'failed']).toContain(intent.status);
+      },
+      { timeout: 10000, interval: 50 }
+    );
     expect(intent.type).toBe('og');
     expect(intent.category_slug).toBe('og-cat');
-    // In CI/tests the canonical tool (Node + tools/generate-category-og.mjs) may be
-    // unavailable — the intent records the failure visibly instead of
-    // blocking the category operation.
-    expect(['applied', 'failed']).toContain(intent.status);
 
     await app.close();
   } finally {

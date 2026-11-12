@@ -27,6 +27,19 @@ function setupDir(): string {
     resolve(dir, 'data', 'category_registry.json'),
     JSON.stringify({ nav_groups: [], categories: [] })
   );
+  // The publication manifest stages these two owned paths; the fixture must
+  // contain them or `git add` fails. (Plan 293: commits must be deterministic.)
+  writeFileSync(
+    resolve(dir, 'data', 'categories.json'),
+    JSON.stringify({ nav_groups: [], categories: [] })
+  );
+  writeFileSync(
+    resolve(dir, 'astro-poc', 'src', 'data', 'storefront-bundles.json'),
+    JSON.stringify([])
+  );
+  // `assets/images/` must contain a tracked file for the publication manifest's
+  // `git add` to find it (empty directories are invisible to git).
+  writeFileSync(resolve(dir, 'assets', 'images', 'placeholder.webp'), '');
   writeFileSync(
     resolve(dir, 'astro-poc', 'src', 'data', 'storefront-experience.json'),
     JSON.stringify({
@@ -106,6 +119,12 @@ test('E2E: publication preview succeeds on clean repo', async () => {
 test('E2E: publication commit-only completes', async () => {
   const dir = setupDir();
   try {
+    // Deterministic subject: a real catalog change must be committable.
+    writeFileSync(
+      resolve(dir, 'data', 'product_data.json'),
+      JSON.stringify({ version: 'e2e-commit', last_updated: '', rev: 1, products: [] })
+    );
+
     const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
@@ -119,20 +138,17 @@ test('E2E: publication commit-only completes', async () => {
     expect(res.statusCode).toBe(200);
     const { job_id } = res.json<{ job_id: string }>();
 
-    let terminal = false;
-    for (let i = 0; i < 30; i++) {
+    let job: { status: string; result?: { commit?: string }; error?: string } = {
+      status: 'pending',
+    };
+    for (let i = 0; i < 50; i++) {
       const jr = await app.inject({ method: 'GET', url: `/api/v1/jobs/${job_id}` });
-      const job = jr.json<{ status: string; result?: { commit: string } }>();
-      if (job.status === 'completed' || job.status === 'failed') {
-        terminal = true;
-        if (job.status === 'completed') {
-          expect(job.result?.commit).toBeDefined();
-        }
-        break;
-      }
+      job = jr.json<{ status: string; result?: { commit?: string }; error?: string }>();
+      if (job.status === 'completed' || job.status === 'failed') break;
       await new Promise((r) => setTimeout(r, 100));
     }
-    expect(terminal).toBe(true);
+    expect(job.status, job.error).toBe('completed');
+    expect(job.result?.commit).toMatch(/^[0-9a-f]{7,40}$/);
 
     await app.close();
   } finally {
@@ -143,6 +159,11 @@ test('E2E: publication commit-only completes', async () => {
 test('E2E: recovery state is cleared after successful publication', async () => {
   const dir = setupDir();
   try {
+    writeFileSync(
+      resolve(dir, 'data', 'product_data.json'),
+      JSON.stringify({ version: 'e2e-recovery', last_updated: '', rev: 1, products: [] })
+    );
+
     const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
     await app.ready();
 
@@ -156,23 +177,22 @@ test('E2E: recovery state is cleared after successful publication', async () => 
     expect(res.statusCode).toBe(200);
     const { job_id } = res.json<{ job_id: string }>();
 
-    // Wait for job to finish
-    for (let i = 0; i < 30; i++) {
+    let status = 'pending';
+    for (let i = 0; i < 50; i++) {
       const jr = await app.inject({ method: 'GET', url: `/api/v1/jobs/${job_id}` });
-      const job = jr.json<{ status: string }>();
-      if (job.status === 'completed' || job.status === 'failed') break;
+      status = jr.json<{ status: string }>().status;
+      if (status === 'completed' || status === 'failed') break;
       await new Promise((r) => setTimeout(r, 100));
     }
+    expect(status).toBe('completed');
 
     const recovRes = await app.inject({ method: 'GET', url: '/api/v1/publications/recovery' });
     const recov = recovRes.json<{
       pending_recovery: boolean;
       state: { current_step?: string } | null;
     }>();
-    expect(typeof recov.pending_recovery).toBe('boolean');
-    // If job completed, recovery should be cleared. If failed, state may persist.
-    // Either way, the endpoint should work and return valid data.
-    expect(recov.state === null || typeof recov.state === 'object').toBe(true);
+    expect(recov.pending_recovery).toBe(false);
+    expect(recov.state).toBeNull();
 
     await app.close();
   } finally {
