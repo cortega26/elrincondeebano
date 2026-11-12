@@ -82,7 +82,8 @@ junto al cambio de catálogo; o la página Medios del Content Manager.
 rama `bot/optimized-images-*` para que una persona abra el PR.
 
 No crees workflows ad hoc con `contents: write` para subir una foto. La entrada
-headless de operaciones de catálogo se diseña en el plan 295.
+headless de operaciones de catálogo se diseña en el plan 295:
+prototipo experimental en [`CATALOG_OPS`](../architecture/CATALOG_OPS.md).
 
 ## 6. Qué valida CI y cómo fusionar
 
