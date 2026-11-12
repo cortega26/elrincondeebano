@@ -184,8 +184,7 @@ describe('personalization engine — trackProductSignal', () => {
     engine.trackProductSignal('p1', '');
 
     const ids = engine.getPersonalizedProductIds();
-    expect(ids.length).toBeGreaterThanOrEqual(0);
-    expect(ids.length).toBeLessThanOrEqual(4);
+    expect(ids).toEqual(['p1', 'p2', 'p3', 'p4']);
   });
 });
 

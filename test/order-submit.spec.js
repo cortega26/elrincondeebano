@@ -272,3 +272,72 @@ describe('order-submit confirm summary kill-cases (plan 193)', () => {
     expect(summary.textContent).toContain(formatCurrency(1000));
   });
 });
+
+describe('order-submit WhatsApp golden message (plan 293)', () => {
+  const cart = [
+    { id: 'aceite', name: 'Aceite Maravilla 900 mL', price: 3600, discount: 0, quantity: 2 },
+    { id: 'leche', name: 'Leche', price: 1200, discount: 300, quantity: 1 },
+  ];
+
+  test('builds the full WhatsApp message with literal strings', () => {
+    const controller = makeController();
+    const text = controller.buildWhatsAppMessageText(
+      cart,
+      8100,
+      'Efectivo',
+      'Sustituir por similar',
+      'Depto 302'
+    );
+
+    expect(text).toBe(
+      [
+        '🛒 *Nuevo Pedido - El Rincón de Ébano*',
+        '',
+        '*Aceite Maravilla 900 mL*',
+        '   2 × $3.600 = $7.200',
+        '',
+        '*Leche*',
+        '   1 × $900 = $900',
+        '',
+        '_ _ _ _ _ _ _ _ _ _ _ _ _ _ _',
+        '',
+        '*Total:* $8.100',
+        '*Pago:* Efectivo',
+        '*Stock:* Sustituir por similar',
+        '📝 *Nota:* Depto 302',
+      ].join('\n')
+    );
+  });
+
+  test('places the unavailable marker on the exact line', () => {
+    const controller = makeController();
+    const text = controller.buildWhatsAppMessageText(
+      cart,
+      8100,
+      'Efectivo',
+      'Sustituir por similar',
+      'Depto 302',
+      new Set(['leche'])
+    );
+
+    expect(text).toBe(
+      [
+        '🛒 *Nuevo Pedido - El Rincón de Ébano*',
+        '',
+        '*Aceite Maravilla 900 mL*',
+        '   2 × $3.600 = $7.200',
+        '',
+        '*Leche*',
+        '   1 × $900 = $900',
+        '   ⚠️ Sin stock en el catálogo',
+        '',
+        '_ _ _ _ _ _ _ _ _ _ _ _ _ _ _',
+        '',
+        '*Total:* $8.100',
+        '*Pago:* Efectivo',
+        '*Stock:* Sustituir por similar',
+        '📝 *Nota:* Depto 302',
+      ].join('\n')
+    );
+  });
+});
