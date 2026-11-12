@@ -32,7 +32,6 @@ The canonical production build is always `npm run build` from the repo root — 
 | `infra/`     | Cloudflare Workers config (`wrangler.toml`) for edge security headers. Not part of the static build.                                                                                   |
 | `admin/`     | TypeScript Content Manager (Fastify + React + Vite): admin canónico; CI vía `admin.yml` (working-dir `admin/content-manager/`). El manager Python/Tkinter fue retirado (plan 069/111). |
 | `reports/`   | Generated evidence; ignored by default, with selected baselines committed explicitly.                                                                                                  |
-| `build/`     | Legacy asset manifest artifact. Not used by the Astro build path.                                                                                                                      |
 | `output/`    | Playwright trace/report output. Not committed.                                                                                                                                         |
 | `coverage/`  | Test coverage output. Not committed.                                                                                                                                                   |
 | `_archive/`  | Dead code preserved for reference only. Never imported or built.                                                                                                                       |

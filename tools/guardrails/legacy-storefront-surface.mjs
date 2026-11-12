@@ -22,6 +22,16 @@ const LEGACY_ROOT_PATHS = [
   'test/buildIndex.lcp.test.js',
   'test/template.seo-accessibility.test.js',
   'test/noFlicker.stylesheetLoading.test.js',
+  'tools/generate-sitemap.js',
+  'tools/inject-resource-hints.js',
+  'tools/inject-structured-data.js',
+  'tools/verify-sw-assets.js',
+  'tools/utils/manifest.js',
+  'tools/convert-avif-fallback.mjs',
+  'tools/clean-redundant-raster.mjs',
+  'tools/category_og/render_jpg.mjs',
+  'tools/category_og/render_raster_jpg.mjs',
+  'tools/__init__.py',
 ];
 
 const DOC_RULES = {

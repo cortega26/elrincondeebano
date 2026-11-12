@@ -367,9 +367,9 @@ export async function renderSvgToJpg({
   height = HEIGHT,
   quality = 88,
 }) {
-  // Mirrors tools/category_og/render_jpg.mjs logic but in-process
+  // Mirrors the retired pre-Astro renderer but in-process
   const svgBuffer = fs.readFileSync(svgPath);
-  // Use density 300 as in original render_jpg.mjs
+  // Use density 300 as the retired renderer did
   const buffer = await sharp(svgBuffer, { density: 300 })
     .resize(width, height, { fit: 'cover' })
     .jpeg({ quality, mozjpeg: true, progressive: false, chromaSubsampling: '4:4:4' })
