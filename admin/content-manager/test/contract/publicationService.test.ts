@@ -1,6 +1,8 @@
 import { test, expect } from 'vitest';
 import {
+  catalogChanges,
   createDefaultManifest,
+  isOwnedPath,
   runPreflight,
 } from '../../src/domain/publication/publicationService.ts';
 import { parsePorcelainStatus } from '../../src/server/adapters/gitAdapter.ts';
@@ -197,6 +199,33 @@ test('runPreflight sees the decoded new path of a hand-written rename entry', ()
 
   const check = result.checks.find((c) => c.name === 'no-unrelated-staged');
   expect(check!.status).toBe('fail');
+});
+
+test('catalogChanges returns only manifest-owned paths from every status bucket', () => {
+  const manifest = createDefaultManifest();
+  const changes = makeGitChanges({
+    staged: ['data/product_data.json', 'docs/readme.md'],
+    unstaged: ['assets/images/a.png'],
+    untracked: [
+      'astro-poc/src/data/storefront-bundles.json',
+      'admin/content-manager/scripts/dev.mjs',
+    ],
+  });
+
+  expect(catalogChanges(manifest, changes)).toEqual([
+    'data/product_data.json',
+    'assets/images/a.png',
+    'astro-poc/src/data/storefront-bundles.json',
+  ]);
+});
+
+test('isOwnedPath keeps the assets/images prefix boundary', () => {
+  const manifest = createDefaultManifest();
+
+  expect(isOwnedPath('assets/images/a.png', manifest.ownedPaths)).toBe(true);
+  expect(isOwnedPath('assets/images/nested/b.png', manifest.ownedPaths)).toBe(true);
+  expect(isOwnedPath('assets/images-evil/x.png', manifest.ownedPaths)).toBe(false);
+  expect(isOwnedPath('data/other.json', manifest.ownedPaths)).toBe(false);
 });
 
 test('createDefaultManifest has expected structure', () => {

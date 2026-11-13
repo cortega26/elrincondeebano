@@ -4,8 +4,10 @@ import { JobRunner, type Job } from '../services/jobRunner.ts';
 import type { Repositories } from './helpers.ts';
 import type { ProductService } from '../../domain/products/productService.ts';
 import {
+  catalogChanges,
   createDefaultManifest,
   runPreflight,
+  type PublicationManifest,
 } from '../../domain/publication/publicationService.ts';
 import { ValidationAdapter } from '../adapters/validationAdapter.ts';
 import { RecoveryJournal } from '../services/publicationRecovery.ts';
@@ -27,6 +29,10 @@ export interface GitStatusResponse {
   ahead: number;
   behind: number;
   hasConflicts: boolean;
+  /** True when at least one manifest-owned path (catalog/storefront/assets) changed. */
+  catalog_dirty: boolean;
+  /** The manifest-owned changed paths — what a publication would commit. */
+  catalog_changes: string[];
 }
 
 export interface PublicationJobResult {
@@ -62,6 +68,19 @@ interface PublicationDeps {
 interface PublicationJobParams {
   commitMessage: string;
   push: boolean;
+}
+
+// A dirty tree is not enough — only manifest-owned paths may be published.
+// Without this guard a tree with unrelated edits reaches
+// `git commit -- <ownedPaths>` with nothing to commit; the pre-commit hook
+// then reports lint-staged noise instead of the real reason.
+async function assertCatalogChanges(git: GitAdapter, manifest: PublicationManifest): Promise<void> {
+  const changes = await git.getChanges();
+  if (catalogChanges(manifest, changes).length === 0) {
+    throw new Error(
+      'No hay cambios de catálogo para publicar (data/, assets/images/ o storefront).'
+    );
+  }
 }
 
 /**
@@ -123,6 +142,11 @@ async function runPublicationJob(
     if (!stageResult.success) {
       throw new Error(`Stage failed: ${stageResult.error ?? 'unknown error'}`);
     }
+
+    // A dirty tree is not enough — only manifest-owned paths may be
+    // published (see assertCatalogChanges).
+    await assertCatalogChanges(git, manifest);
+    checkCancel();
 
     jobRunner.updateProgress(jobId, 50);
     checkCancel();
@@ -353,6 +377,8 @@ export async function publicationRoutes(
 
   app.get('/git/status', async () => {
     const changes = await git.getChanges();
+    const manifest = createDefaultManifest();
+    const pendingCatalogChanges = catalogChanges(manifest, changes);
     return {
       branch: changes.branch,
       dirty: changes.dirty,
@@ -362,6 +388,8 @@ export async function publicationRoutes(
       ahead: changes.ahead,
       behind: changes.behind,
       hasConflicts: changes.hasConflicts,
+      catalog_dirty: pendingCatalogChanges.length > 0,
+      catalog_changes: pendingCatalogChanges,
     };
   });
 

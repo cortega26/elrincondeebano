@@ -13,6 +13,8 @@ function gitStatus(overrides: Record<string, unknown> = {}) {
   return {
     branch: 'main',
     dirty: true,
+    catalog_dirty: true,
+    catalog_changes: ['data/product_data.json'],
     staged: ['data/product_data.json'],
     unstaged: [],
     untracked: [],
@@ -37,7 +39,9 @@ beforeEach(() => {
 
 describe('SyncStoreButton', () => {
   test('shows the dirty count and publishes with push on confirm', async () => {
-    mockApi.getGitStatus.mockResolvedValue(gitStatus({ staged: ['a', 'b'] }));
+    mockApi.getGitStatus.mockResolvedValue(
+      gitStatus({ staged: ['a', 'b'], catalog_changes: ['a', 'b'] })
+    );
     mockApi.publish.mockResolvedValue({ job_id: 'job-1', status: 'scheduled' });
     mockApi.getJob.mockResolvedValue({
       id: 'job-1',
@@ -68,7 +72,9 @@ describe('SyncStoreButton', () => {
   });
 
   test('clean tree reports up-to-date without publishing', async () => {
-    mockApi.getGitStatus.mockResolvedValue(gitStatus({ dirty: false, staged: [] }));
+    mockApi.getGitStatus.mockResolvedValue(
+      gitStatus({ dirty: false, catalog_dirty: false, catalog_changes: [], staged: [] })
+    );
     const user = userEvent.setup();
     const { setFeedback } = renderButton();
 
@@ -82,6 +88,29 @@ describe('SyncStoreButton', () => {
 
     expect(mockApi.publish).not.toHaveBeenCalled();
     expect(setFeedback).toHaveBeenCalledWith(expect.stringMatching(/al d/i));
+  });
+
+  test('unrelated dirty files do not count as pending catalog changes', async () => {
+    mockApi.getGitStatus.mockResolvedValue(
+      gitStatus({
+        catalog_dirty: false,
+        catalog_changes: [],
+        staged: [],
+        unstaged: ['CONTRIBUTING.md', 'docs/operations/RUNBOOK.md'],
+      })
+    );
+    const user = userEvent.setup();
+    const { setFeedback } = renderButton();
+
+    const button = await screen.findByRole('button', {
+      name: 'Sincronizar tienda: validar, commit y push',
+    });
+    expect(button).toHaveTextContent(/tienda al d/i);
+
+    await user.click(button);
+
+    expect(mockApi.publish).not.toHaveBeenCalled();
+    expect(setFeedback).toHaveBeenCalledWith(expect.stringMatching(/catálogo/i));
   });
 
   test('cancelled confirm never publishes', async () => {

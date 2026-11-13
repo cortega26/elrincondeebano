@@ -359,6 +359,49 @@ test('publication fails when an unrelated file is already staged', async () => {
   }
 });
 
+test('publication fails clearly when only unrelated files changed', async () => {
+  const dir = createTempRepo();
+  try {
+    setupData(dir);
+    execFileSync('git', ['add', '-A'], { cwd: dir, encoding: 'utf-8' });
+    execFileSync('git', ['commit', '-m', 'initial'], { cwd: dir, encoding: 'utf-8' });
+    writeFileSync(resolve(dir, 'notes.txt'), 'scratch');
+
+    const app = createApp({ repoRoot: dir, enableWrites: true, logger: false });
+    await app.ready();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/publications',
+      payload: { commitMessage: 'should fail', push: false },
+      headers: { 'content-type': 'application/json', ...credHeaders(app) },
+    });
+    expect(response.statusCode).toBe(200);
+    const { job_id } = response.json<{ job_id: string }>();
+
+    let job;
+    for (let i = 0; i < 50; i++) {
+      const jr = await app.inject({ method: 'GET', url: `/api/v1/jobs/${job_id}` });
+      job = jr.json<{ status: string; error?: string }>();
+      if (job.status === 'completed' || job.status === 'failed') break;
+      await new Promise((r) => setTimeout(r, 100));
+    }
+
+    expect(job!.status).toBe('failed');
+    expect(job!.error).toContain('No hay cambios de catálogo para publicar');
+
+    const commitCount = execFileSync('git', ['rev-list', '--count', 'HEAD'], {
+      cwd: dir,
+      encoding: 'utf-8',
+    }).trim();
+    expect(commitCount).toBe('1');
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test('publication commit contains only owned paths', async () => {
   const dir = createTempRepo();
   try {
