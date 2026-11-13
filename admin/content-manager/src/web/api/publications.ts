@@ -25,6 +25,10 @@ export interface GitStatusResponse {
   ahead: number;
   behind: number;
   hasConflicts: boolean;
+  /** True when at least one manifest-owned path (catalog/storefront/assets) changed. */
+  catalog_dirty: boolean;
+  /** The manifest-owned changed paths — what a publication would commit. */
+  catalog_changes: string[];
 }
 
 export interface PublicationPreviewResponse {

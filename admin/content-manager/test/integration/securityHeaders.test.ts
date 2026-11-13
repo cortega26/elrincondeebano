@@ -226,6 +226,84 @@ test('mutation with a legitimate same-origin Origin (including port) succeeds', 
   }
 });
 
+test('mutation from the configured Vite dev origin succeeds', async () => {
+  // `admin:dev` loads the SPA from Vite (:5173) and proxies /api/v1 with
+  // changeOrigin, so the browser sends the Vite Origin while Host is :3000.
+  const dir = createTempDir();
+  try {
+    setupDir(dir);
+
+    const app = createApp({
+      repoRoot: dir,
+      enableWrites: true,
+      logger: false,
+      devWebOrigin: 'http://127.0.0.1:5173',
+    });
+    await app.ready();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/products',
+      headers: {
+        'content-type': 'application/json',
+        host: '127.0.0.1:3000',
+        origin: 'http://127.0.0.1:5173',
+        'sec-fetch-site': 'same-origin',
+        [CREDENTIAL_HEADER]: getCredential(app),
+      },
+      payload: {
+        command_id: 'vite-dev-origin',
+        payload: { name: 'Vite Dev Origin', price: 500, category: 'x' },
+      },
+    });
+
+    expect(response.statusCode).toBe(201);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('only the configured dev origin is accepted, not any loopback port', async () => {
+  const dir = createTempDir();
+  try {
+    setupDir(dir);
+
+    const app = createApp({
+      repoRoot: dir,
+      enableWrites: true,
+      logger: false,
+      devWebOrigin: 'http://127.0.0.1:5173',
+    });
+    await app.ready();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/products',
+      headers: {
+        'content-type': 'application/json',
+        host: '127.0.0.1:3000',
+        origin: 'http://127.0.0.1:5174',
+        'sec-fetch-site': 'same-origin',
+        [CREDENTIAL_HEADER]: getCredential(app),
+      },
+      payload: {
+        command_id: 'other-loopback-origin',
+        payload: { name: 'Other Loopback', price: 500, category: 'x' },
+      },
+    });
+
+    expect(response.statusCode).toBe(403);
+    const body = response.json<{ error: { message: string } }>();
+    expect(body.error.message).toContain('Invalid origin');
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test('mutation with Origin missing the port is rejected as a mismatch', async () => {
   // Inverse of the regression above: an Origin that omits the port the
   // request actually arrived on must NOT be treated as same-origin, even

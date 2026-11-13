@@ -9,6 +9,7 @@
   },
   "scripts": {
     "admin:dev": "npm -w admin/content-manager run dev",
+    "admin:dev:api": "npm -w admin/content-manager run dev:api",
     "admin:lint": "npm -w admin/content-manager run lint",
     "admin:dev:web": "npm -w admin/content-manager run dev:web",
     "admin:build": "npm -w admin/content-manager run build",
@@ -136,7 +137,7 @@
   },
   "homepage": "https://github.com/cortega26/elrincondeebano#readme",
   "lint-staged": {
-    "astro-poc/**/*.{astro}": [
+    "astro-poc/**/*.astro": [
       "eslint --no-warn-ignored --config astro-poc/eslint.config.mjs"
     ],
     "astro-poc/**/*.{js,mjs,ts,mts}": [

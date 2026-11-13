@@ -98,3 +98,84 @@ test('traversal variants never serve files outside the repo (plan 090)', async (
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('dev launcher redirects to the Vite SPA when dist/web is absent', async () => {
+  const dir = createTempDir();
+  try {
+    const app = createApp({
+      repoRoot: dir,
+      enableWrites: false,
+      logger: false,
+      devWebOrigin: 'http://127.0.0.1:5173',
+    });
+    await app.ready();
+
+    // `admin:dev` opens the browser at :3000; with no built SPA the server
+    // forwards to the Vite origin instead of answering 404. The target is the
+    // validated origin constant (never the request path) to avoid an open
+    // redirect.
+    const root = await app.inject({ method: 'GET', url: '/?http=on' });
+    expect(root.statusCode).toBe(302);
+    expect(root.headers.location).toBe('http://127.0.0.1:5173');
+
+    const deep = await app.inject({ method: 'GET', url: '/products' });
+    expect(deep.statusCode).toBe(302);
+    expect(deep.headers.location).toBe('http://127.0.0.1:5173');
+
+    // API routes keep priority over the dev wildcard.
+    const health = await app.inject({ method: 'GET', url: '/api/v1/health' });
+    expect(health.statusCode).toBe(200);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('repo-root assets are served before a SPA build exists (admin:dev)', async () => {
+  const dir = createTempDir();
+  try {
+    mkdirSync(resolve(dir, 'assets', 'images', 'web'), { recursive: true });
+    writeFileSync(resolve(dir, 'assets', 'images', 'web', 'logo.webp'), 'RIFFWEBP');
+    const app = createApp({
+      repoRoot: dir,
+      enableWrites: false,
+      logger: false,
+      devWebOrigin: 'http://127.0.0.1:5173',
+    });
+    await app.ready();
+
+    // Vite proxies /assets here; images must load even though dist/web has
+    // never been built. Missing files still 404 (never SPA/redirect HTML).
+    const image = await app.inject({ method: 'GET', url: '/assets/images/web/logo.webp' });
+    expect(image.statusCode).toBe(200);
+    expect(image.headers['content-type']).toContain('image/webp');
+    expect(image.body).toBe('RIFFWEBP');
+
+    const missing = await app.inject({ method: 'GET', url: '/assets/images/web/nope.webp' });
+    expect(missing.statusCode).toBe(404);
+
+    await app.close();
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('dev redirect only accepts exact loopback HTTP origins', () => {
+  const dir = createTempDir();
+  try {
+    for (const devWebOrigin of [
+      'not-a-url',
+      'https://127.0.0.1:5173',
+      'http://192.168.1.10:5173',
+      'http://127.0.0.1:5173/app',
+      'http://user:pass@127.0.0.1:5173',
+    ]) {
+      expect(() => createApp({ repoRoot: dir, logger: false, devWebOrigin }), devWebOrigin).toThrow(
+        /ADMIN_DEV_WEB_ORIGIN/
+      );
+    }
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

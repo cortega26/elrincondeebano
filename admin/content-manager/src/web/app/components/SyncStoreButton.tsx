@@ -19,8 +19,10 @@ interface DirtyState {
 async function loadDirtyState(): Promise<DirtyState> {
   const status = await client.getGitStatus();
   return {
-    dirty: status.dirty,
-    changedPaths: status.staged.length + status.unstaged.length + status.untracked.length,
+    // Only manifest-owned changes can be published: unrelated dirty files
+    // must not make the button claim there is something to sync.
+    dirty: status.catalog_dirty,
+    changedPaths: status.catalog_changes.length,
     hasConflicts: status.hasConflicts,
     behind: status.behind,
   };
@@ -165,7 +167,7 @@ function useSyncStore(
       return;
     }
     if (!state.dirty) {
-      setFeedback('Tienda al día ✓ — no hay cambios para sincronizar.');
+      setFeedback('Tienda al día ✓ — no hay cambios de catálogo para sincronizar.');
       return;
     }
     if (!confirmSync(state)) return;

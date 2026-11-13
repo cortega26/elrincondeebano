@@ -43,6 +43,25 @@ export function createDefaultManifest(): PublicationManifest {
   };
 }
 
+// A path belongs to the publication manifest when it matches an owned file
+// exactly or lives under an owned directory (the trailing-slash guard keeps
+// `assets/images-evil` from matching `assets/images/`).
+export function isOwnedPath(filePath: string, ownedPaths: string[]): boolean {
+  return ownedPaths.some((p) => filePath === p || filePath.startsWith(p.replace(/\/?$/, '/')));
+}
+
+// Everything the publication job may commit: staged, unstaged and untracked
+// owned paths. The one-click sync uses this to decide whether there is
+// anything to publish; unrelated dirty files must never trigger a commit.
+export function catalogChanges(
+  manifest: PublicationManifest,
+  gitChanges: GitChangeSummary
+): string[] {
+  return [...gitChanges.staged, ...gitChanges.unstaged, ...gitChanges.untracked].filter((f) =>
+    isOwnedPath(f, manifest.ownedPaths)
+  );
+}
+
 export function runPreflight(
   manifest: PublicationManifest,
   gitChanges: GitChangeSummary
@@ -69,9 +88,7 @@ export function runPreflight(
     checks.push({ name: 'dirty-check', status: 'pass', message: 'Working tree clean' });
   }
 
-  const unrelatedStaged = gitChanges.staged.filter((f) => {
-    return !manifest.ownedPaths.some((p) => f === p || f.startsWith(p.replace(/\/?$/, '/')));
-  });
+  const unrelatedStaged = gitChanges.staged.filter((f) => !isOwnedPath(f, manifest.ownedPaths));
   if (unrelatedStaged.length > 0) {
     errors.push(...unrelatedStaged.map((f) => `Unrelated staged file: ${f}`));
     checks.push({
