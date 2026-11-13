@@ -11,13 +11,20 @@ was retired on 2026-08-11 (plan 069, rollback boundary: tag
 From the repo root:
 
 ```bash
-npm run admin:dev      # API dev server (:3000, tsx --watch — reinicia en cambios de src/server)
-npm run admin:dev:web  # SPA dev server (Vite :5173, HMR — proxy /api a :3000). Plan 124.
+npm run admin:dev      # API (:3000) + SPA (Vite :5173, HMR) — abre http://127.0.0.1:5173
+npm run admin:dev:api  # solo API (:3000, tsx --watch — reinicia en cambios de src/server)
+npm run admin:dev:web  # solo SPA (Vite :5173, HMR — proxy /api a :3000). Plan 124.
 npm run admin:start    # production server (serves dist/web if built)
 npm run admin:validate # typecheck + test + build + parity
 npm run admin:test     # vitest suite (contract + integration)
 npm run admin:typecheck
 ```
+
+`admin:dev` does not need `dist/web`: the SPA is served from source by Vite.
+While `dist/web` is absent, `http://127.0.0.1:3000/` redirects to the Vite
+origin, so either URL opens the app. `dist/web` is only required by
+`admin:start` (and the E2E harnesses that serve the built bundle) — build it
+with `npm run admin:build`.
 
 ## Modes
 
@@ -47,7 +54,6 @@ from Pogo-lab or Fintual Executor.
 Remote deployments must have a dedicated writable GitHub deploy key for the
 `elrincondeebano` repo before the Publish button can push to GitHub. Without
 one, local modifications must not be misrepresented as storefront releases.
-
 
 ## Launch credential
 

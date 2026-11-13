@@ -4,6 +4,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// `admin:dev` passes the API port it actually started; standalone `dev:web`
+// keeps the documented default.
+const apiPort = process.env.ADMIN_API_PORT || '3000';
 
 export default defineConfig({
   plugins: [react()],
@@ -42,13 +45,21 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    strictPort: false,
+    // Deterministic port: the docs, the `admin:dev` banner and the API proxy
+    // all assume 5173. A silent fallback to 5174 would make those wrong.
+    strictPort: true,
     host: '127.0.0.1',
-    // Plan 124: dev loop — `npm run admin:dev` (API :3000, tsx --watch) +
-    // `npm run admin:dev:web` (vite :5173, HMR) proxies API calls.
+    // Plan 124: dev loop — `npm run admin:dev` starts the API (:3000, tsx
+    // --watch) and this Vite server (:5173, HMR), which proxies API calls.
     proxy: {
       '/api/v1': {
-        target: 'http://127.0.0.1:3000',
+        target: `http://127.0.0.1:${apiPort}`,
+        changeOrigin: true,
+      },
+      // Product/media images live in the repo-root assets/ tree, which Vite
+      // does not serve. The API does (with containment checks), so proxy them.
+      '/assets': {
+        target: `http://127.0.0.1:${apiPort}`,
         changeOrigin: true,
       },
     },

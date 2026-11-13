@@ -15,7 +15,8 @@ This guide provides a short, repeatable setup for contributors.
 | Storefront dev (`dev-server.mjs`)                           | 8080         | `PORT=... node scripts/dev-server.mjs` |
 | Storefront E2E (Playwright)                                 | 8081         | `PORT` in `.env`                       |
 | Smoke/preview (`serve`, `SMOKE_BASE_URL`)                   | 4173         | `SMOKE_BASE_URL`                       |
-| Admin Content Manager                                       | 3000         | `PORT` (admin `start.ts`)              |
+| Admin Content Manager API                                   | 3000         | `PORT` (admin `start.ts`)              |
+| Admin Content Manager SPA dev (Vite)                        | 5173         | `server.port` in `vite.config.ts`      |
 | Admin E2E harnesses (import/changes/scope/media/storefront) | 3101–3105    | per-config `PORT=`                     |
 
 The E2E suites share one `PORT` variable — a collision with another project
@@ -62,9 +63,16 @@ The canonical admin application is the TypeScript Content Manager
 (`admin/content-manager/`, Fastify + React). From the repo root:
 
 ```bash
-npm run admin:dev      # dev server (http://127.0.0.1:3000)
+npm run admin:dev      # API :3000 + SPA :5173 (open http://127.0.0.1:5173)
+npm run admin:dev:api  # API only (:3000)
+npm run admin:dev:web  # SPA only (Vite :5173, HMR)
 ADMIN_MODE=operator npm run admin:start   # production start, writes enabled
 ```
+
+`dist/web` is not needed for `admin:dev`: Vite serves the SPA from source, and
+`http://127.0.0.1:3000/` redirects to it while no build exists. `admin:start`
+(and the E2E harnesses that load the built bundle) still require
+`npm run admin:build` first.
 
 In operator mode the launch credential comes from `ADMIN_CREDENTIAL` or, if absent,
 is generated and written to `data/.admin-credential` (0600, gitignored; plan 125/127);

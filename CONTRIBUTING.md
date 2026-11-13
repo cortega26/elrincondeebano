@@ -134,8 +134,9 @@ Product data is managed through the Content Manager (`admin/content-manager/` â€
 Fastify API + React SPA). The Python/Tkinter admin was retired (plan 069).
 
 ```bash
-npm run admin:dev      # API dev server (:3000, tsx --watch)
-npm run admin:dev:web  # SPA dev server (Vite :5173, HMR)
+npm run admin:dev      # API (:3000) + SPA (Vite :5173, HMR) â€” open http://127.0.0.1:5173
+npm run admin:dev:api  # API only (:3000, tsx --watch)
+npm run admin:dev:web  # SPA only (Vite :5173, HMR)
 ```
 
 See [admin/content-manager/README.md](admin/content-manager/README.md) for the
