@@ -78,8 +78,10 @@ const MIME_TYPES: Record<string, string> = {
 const ASSET_NOT_FOUND = { error: { code: 'NOT_FOUND', message: 'Asset not found' } };
 
 // `admin:dev` starts Vite next to the API; when no built SPA exists, `/`
-// redirects there instead of answering 404. Only a loopback HTTP origin is
-// accepted so this can never become an open redirect.
+// redirects there instead of answering 404. Only an exact loopback HTTP
+// origin is accepted so this can never become an open redirect.
+const LOOPBACK_HOSTS = new Set(['127.0.0.1', 'localhost', '[::1]']);
+
 function resolveDevWebOrigin(configured: string | undefined): string | undefined {
   if (!configured) return undefined;
   let url: URL;
@@ -88,17 +90,17 @@ function resolveDevWebOrigin(configured: string | undefined): string | undefined
   } catch {
     throw new Error('ADMIN_DEV_WEB_ORIGIN must be an exact loopback HTTP origin');
   }
-  const loopbackHosts = new Set(['127.0.0.1', 'localhost', '[::1]']);
-  if (
-    url.protocol !== 'http:' ||
-    !loopbackHosts.has(url.hostname) ||
-    url.username ||
-    url.password ||
-    url.pathname !== '/' ||
-    url.search ||
-    url.hash ||
-    configured !== url.origin
-  ) {
+  const validParts = [
+    url.protocol === 'http:',
+    LOOPBACK_HOSTS.has(url.hostname),
+    url.username === '',
+    url.password === '',
+    url.pathname === '/',
+    url.search === '',
+    url.hash === '',
+    configured === url.origin,
+  ];
+  if (validParts.includes(false)) {
     throw new Error('ADMIN_DEV_WEB_ORIGIN must be an exact loopback HTTP origin');
   }
   return url.origin;
@@ -125,6 +127,29 @@ function cacheControlFor(urlPath: string): string {
     : 'public, max-age=600';
 }
 
+// Built bundles win when they exist; repo-root media is the fallback. Decoded
+// paths must stay inside the serving root — containment by segment, not
+// prefix (plan 090).
+function findAssetFile(
+  urlPath: string,
+  repoRoot: string,
+  webDist: string,
+  webDistExists: boolean
+): string | undefined {
+  const candidates = [
+    ...(webDistExists ? [resolve(webDist, `.${urlPath}`)] : []),
+    resolve(repoRoot, `.${urlPath}`),
+  ];
+  return candidates.find(
+    (assetPath) => isContainedWithin(repoRoot, assetPath) && existsSync(assetPath)
+  );
+}
+
+function contentTypeFor(assetPath: string): string {
+  const ext = assetPath.includes('.') ? `.${assetPath.split('.').pop() ?? ''}` : '';
+  return MIME_TYPES[ext] ?? 'application/octet-stream';
+}
+
 // SPA bundles live in dist/web/assets; media images live at the repo root
 // assets/. Serve both even without a build: `admin:dev` serves the SPA from
 // Vite and proxies /assets here, so product images must load before the first
@@ -142,29 +167,21 @@ function registerAssetRoutes(app: FastifyInstance, repoRoot: string, webDist: st
       return reply.status(404).send(ASSET_NOT_FOUND);
     }
 
-    // Built bundles win when they exist; repo-root media is the fallback.
-    const candidates = [
-      ...(webDistExists ? [resolve(webDist, `.${urlPath}`)] : []),
-      resolve(repoRoot, `.${urlPath}`),
-    ];
-    for (const assetPath of candidates) {
-      // Plan 090: decoded paths must stay inside the serving root —
-      // containment by segment, not prefix.
-      if (!isContainedWithin(repoRoot, assetPath)) continue;
-      if (!existsSync(assetPath)) continue;
-      try {
-        const ext = assetPath.includes('.') ? `.${assetPath.split('.').pop() ?? ''}` : '';
-        return reply
-          .header('Content-Type', MIME_TYPES[ext] ?? 'application/octet-stream')
-          .header('Cache-Control', cacheControlFor(urlPath))
-          .send(readFileSync(assetPath));
-      } catch {
-        return reply.status(404).send(ASSET_NOT_FOUND);
-      }
+    const assetPath = findAssetFile(urlPath, repoRoot, webDist, webDistExists);
+    if (!assetPath) {
+      // Never fall back to the SPA for missing assets — a broken image
+      // should 404, not return HTML.
+      return reply.status(404).send(ASSET_NOT_FOUND);
     }
-    // Never fall back to the SPA for missing assets — a broken image
-    // should 404, not return HTML.
-    return reply.status(404).send(ASSET_NOT_FOUND);
+
+    try {
+      return reply
+        .header('Content-Type', contentTypeFor(assetPath))
+        .header('Cache-Control', cacheControlFor(urlPath))
+        .send(readFileSync(assetPath));
+    } catch {
+      return reply.status(404).send(ASSET_NOT_FOUND);
+    }
   });
 }
 
@@ -448,11 +465,12 @@ export function createApp(opts?: AppOptions): FastifyInstance {
     // Fresh clone + `npm run admin:dev`: there is no dist/web yet. Send the
     // browser to the Vite dev server instead of answering the API 404, so both
     // http://127.0.0.1:3000 and the Vite URL open the app. API routes keep
-    // priority over this wildcard.
+    // priority over this wildcard. The target is the startup-validated
+    // devWebOrigin constant — never user-supplied input — so this cannot be
+    // an open redirect.
     app.get('/*', async (request, reply) => {
       if (request.url.startsWith('/api/')) return reply.callNotFound();
-      const path = request.url.startsWith('/') ? request.url : `/${request.url}`;
-      return reply.redirect(`${devWebOrigin}${path}`, 302);
+      return reply.redirect(devWebOrigin, 302);
     });
   }
 

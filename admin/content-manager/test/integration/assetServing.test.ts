@@ -111,14 +111,16 @@ test('dev launcher redirects to the Vite SPA when dist/web is absent', async () 
     await app.ready();
 
     // `admin:dev` opens the browser at :3000; with no built SPA the server
-    // forwards to Vite instead of answering 404. Query strings survive.
+    // forwards to the Vite origin instead of answering 404. The target is the
+    // validated origin constant (never the request path) to avoid an open
+    // redirect.
     const root = await app.inject({ method: 'GET', url: '/?http=on' });
     expect(root.statusCode).toBe(302);
-    expect(root.headers.location).toBe('http://127.0.0.1:5173/?http=on');
+    expect(root.headers.location).toBe('http://127.0.0.1:5173');
 
     const deep = await app.inject({ method: 'GET', url: '/products' });
     expect(deep.statusCode).toBe(302);
-    expect(deep.headers.location).toBe('http://127.0.0.1:5173/products');
+    expect(deep.headers.location).toBe('http://127.0.0.1:5173');
 
     // API routes keep priority over the dev wildcard.
     const health = await app.inject({ method: 'GET', url: '/api/v1/health' });

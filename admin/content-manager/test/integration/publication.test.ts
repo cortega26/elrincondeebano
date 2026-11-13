@@ -387,8 +387,10 @@ test('publication fails clearly when only unrelated files changed', async () => 
       await new Promise((r) => setTimeout(r, 100));
     }
 
-    expect(job!.status).toBe('failed');
-    expect(job!.error).toContain('No hay cambios de catálogo para publicar');
+    expect(job).toBeDefined();
+    if (!job) throw new Error('publication job was not polled');
+    expect(job.status).toBe('failed');
+    expect(job.error).toContain('No hay cambios de catálogo para publicar');
 
     const commitCount = execFileSync('git', ['rev-list', '--count', 'HEAD'], {
       cwd: dir,

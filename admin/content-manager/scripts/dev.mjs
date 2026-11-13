@@ -5,7 +5,6 @@
 // exists after `admin:build`. The SPA dev server (Vite :5173, HMR) proxies
 // `/api/v1` to :3000, so starting both makes `npm run admin:dev` self-sufficient.
 // Plan 124 keeps the individual `dev:api` / `dev:web` scripts for focused work.
-'use strict';
 
 import { spawn } from 'node:child_process';
 

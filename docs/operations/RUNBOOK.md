@@ -142,7 +142,7 @@ HTML servido está cacheado por el service worker, bumpear `CACHE_CONFIG.version
 
 ## Content Manager (modo offline)
 
-- **Canónico (TypeScript):** `admin/content-manager/`. Ejecuta `npm run admin:dev` desde la raíz del repo (API :3000 + SPA Vite :5173; abre http://127.0.0.1:5173) o `npm run admin:start` en producción. Modos: `ADMIN_MODE=operator` (escribe) o `read-only` (por defecto). La credencial de lanzamiento se define con `ADMIN_CREDENTIAL` o, si no existe, se genera y escribe en `data/.admin-credential` (0600, gitignored; plan 125/127); la UI la pide al primer uso. Detalles: `admin/content-manager/README.md` y `.env.example`.
+- **Canónico (TypeScript):** `admin/content-manager/`. Ejecuta `npm run admin:dev` desde la raíz del repo (API :3000 + SPA Vite :5173; abre <http://127.0.0.1:5173>) o `npm run admin:start` en producción. Modos: `ADMIN_MODE=operator` (escribe) o `read-only` (por defecto). La credencial de lanzamiento se define con `ADMIN_CREDENTIAL` o, si no existe, se genera y escribe en `data/.admin-credential` (0600, gitignored; plan 125/127); la UI la pide al primer uso. Detalles: `admin/content-manager/README.md` y `.env.example`.
 - **Fuente de verdad:** `data/product_data.json` versionado en Git. No existe API remota por defecto.
 - **Configuración de sync:** se mantiene en `false` por defecto (`sync.enabled`) y `sync.api_base` vacío; el override va en `config.json` del operador, nunca en el repo.
 - **Ejecución:** abre la app → realiza ediciones → guarda. Los cambios quedan en el archivo del repo y se suben vía commit/push.
