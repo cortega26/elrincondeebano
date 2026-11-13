@@ -1,2 +1,2 @@
-semgrep==1.152.0
+semgrep==1.184.0
 setuptools>=83,<84
